@@ -150,10 +150,10 @@ int main(int argc, const char **argv)
     runner.addTest( CSolversTest::suite() );
     runner.addTest( CSplineTest::suite() );
     runner.addTest( CStatisticalTestsTest::suite() );
+    runner.addTest( CTimeSeriesChangeDetectorTest::suite() );
     runner.addTest( CTimeSeriesDecompositionTest::suite() );
     runner.addTest( CTimeSeriesModelTest::suite() );
     runner.addTest( CToolsTest::suite() );
-    runner.addTest( CTimeSeriesChangeDetectorTest::suite() );
     runner.addTest( CTrendComponentTest::suite() );
     runner.addTest( CTrendTestsTest::suite() );
     runner.addTest( CXMeansTest::suite() );

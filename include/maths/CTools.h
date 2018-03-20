@@ -729,22 +729,17 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
             return 1.0 / (1.0 + 1.0 / p);
         }
 
-        //! A smooth Heaviside function.
+        //! The logistic function.
         //!
-        //! This is a smooth version of the Heaviside function implemented
-        //! as \f$sigmoid\left(\frac{sign (x - 1)}{wb}\right)\f$ normalized
-        //! to the range [0, 1], where \f$b\f$ is \p boundary and \f$w\f$
-        //! is \p width. Note, if \p sign is one this is a step up and if
-        //! it is -1 it is a step down.
+        //! i.e. \f$sigmoid\left(\frac{sign (x - x0)}{width}\right)\f$.
         //!
         //! \param[in] x The argument.
         //! \param[in] width The step width.
         //! \param[in] x0 The centre of the step.
         //! \param[in] sign Determines whether it's a step up or down.
-        static double smoothHeaviside(double x, double width, double x0 = 0.0, double sign = 1.0)
+        static double logisticFunction(double x, double width, double x0 = 0.0, double sign = 1.0)
         {
-            return  sigmoid(std::exp(sign * (x - x0) / width))
-                  / sigmoid(std::exp(1.0 / width));
+            return sigmoid(std::exp(sign / std::fabs(sign) * (x - x0) / width));
         }
 
         //! A custom, numerically robust, implementation of \f$(1 - x) ^ p\f$.

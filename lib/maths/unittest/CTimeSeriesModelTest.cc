@@ -2297,7 +2297,7 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities(void)
         }
         double percentageOutOfBounds{100.0 * outOfBounds / static_cast<double>(forecast.size())};
         LOG_DEBUG("% out-of-bounds = " << percentageOutOfBounds);
-        CPPUNIT_ASSERT(percentageOutOfBounds < 10.0);
+        CPPUNIT_ASSERT(percentageOutOfBounds < 11.0);
     }
 }
 
