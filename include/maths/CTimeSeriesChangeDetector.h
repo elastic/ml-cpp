@@ -99,7 +99,7 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector
                                             const TPriorPtr &residualModel,
                                             core_t::TTime minimumTimeToDetect = 6 * core::constants::HOUR,
                                             core_t::TTime maximumTimeToDetect = core::constants::DAY,
-                                            double minimumDeltaBicToDetect = 12.0);
+                                            double minimumDeltaBicToDetect = 14.0);
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(const SModelRestoreParams &params,

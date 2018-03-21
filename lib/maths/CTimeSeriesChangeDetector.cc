@@ -173,13 +173,24 @@ TOptionalChangeDescription CUnivariateTimeSeriesChangeDetector::change()
         double evidences[]{noChangeBic - candidates[0].first,
                            noChangeBic - candidates[1].first};
         double expectedEvidence{noChangeBic - (*candidates[0].second)->expectedBic()};
-        m_CurrentEvidenceOfChange = evidences[0];
-        if (   evidences[0] > m_MinimumDeltaBicToDetect
-            && evidences[0] > evidences[1] + m_MinimumDeltaBicToDetect / 2.0
-            && evidences[0] > EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER * expectedEvidence)
+
+        double x[]{evidences[0] / m_MinimumDeltaBicToDetect,
+                   2.0 * (evidences[0] - evidences[1]) / m_MinimumDeltaBicToDetect,
+                   evidences[0] / EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER / expectedEvidence,
+                   static_cast<double>(m_TimeRange.range() - m_MinimumTimeToDetect)
+                   / static_cast<double>(m_MaximumTimeToDetect - m_MinimumTimeToDetect)};
+        double p{  CTools::logisticFunction(x[0], 0.05, 1.0)
+                 * CTools::logisticFunction(x[1], 0.1,  1.0)
+                 * (x[2] < 0.0 ? 1.0 : CTools::logisticFunction(x[2], 0.2,  1.0))
+                 * (0.5 + CTools::logisticFunction(x[3], 0.2, 0.5))};
+        LOG_TRACE("p = " << p);
+
+        if (p > 0.0625/*= std::pow(0.5, 4.0)*/)
         {
             return (*candidates[0].second)->change();
         }
+
+        m_CurrentEvidenceOfChange = evidences[0];
     }
     return TOptionalChangeDescription();
 }
