@@ -52,16 +52,13 @@ namespace
 
 typedef std::vector<std::string> TStrVec;
 
-void reportPersistComplete(ml::core_t::TTime /*snapshotTimestamp*/,
-                           const std::string &description,
-                           const std::string &snapshotIdIn,
-                           size_t numDocsIn,
+void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
                            std::string &snapshotIdOut,
                            size_t &numDocsOut)
 {
-    LOG_DEBUG("Persist complete with description: " << description);
-    snapshotIdOut = snapshotIdIn;
-    numDocsOut = numDocsIn;
+    LOG_INFO("Persist complete with description: " << modelSnapshotReport.s_Description);
+    snapshotIdOut = modelSnapshotReport.s_SnapshotId;
+    numDocsOut = modelSnapshotReport.s_NumDocs;
 }
 
 }
@@ -228,9 +225,6 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string &configFil
                                  wrappedOutputStream,
                                  boost::bind(&reportPersistComplete,
                                              _1,
-                                             _2,
-                                             _3,
-                                             _4,
                                              boost::ref(origSnapshotId),
                                              boost::ref(numOrigDocs)),
                                  nullptr,
@@ -301,9 +295,6 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string &configFil
                                      wrappedOutputStream,
                                      boost::bind(&reportPersistComplete,
                                                  _1,
-                                                 _2,
-                                                 _3,
-                                                 _4,
                                                  boost::ref(restoredSnapshotId),
                                                  boost::ref(numRestoredDocs)));
 
