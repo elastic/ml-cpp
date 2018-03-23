@@ -63,22 +63,22 @@ case `uname` in
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
             ldd --version 2>&1 | grep musl > /dev/null
             if [ $? -ne 0 ] ; then
-                APR_LOCATION=/usr/local/gcc62/lib
+                APR_LOCATION=/usr/local/gcc73/lib
                 APR_EXTENSION=1.so.0
-                BOOST_LOCATION=/usr/local/gcc62/lib
+                BOOST_LOCATION=/usr/local/gcc73/lib
                 BOOST_COMPILER=gcc
                 BOOST_EXTENSION=mt-1_65_1.so.1.65.1
                 BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
-                LOG4CXX_LOCATION=/usr/local/gcc62/lib
+                LOG4CXX_LOCATION=/usr/local/gcc73/lib
                 LOG4CXX_EXTENSION=.so.10
-                XML_LOCATION=/usr/local/gcc62/lib
+                XML_LOCATION=/usr/local/gcc73/lib
                 XML_EXTENSION=.so.2
                 # Ship the version of expat that came with the apr-util library
-                EXPAT_LOCATION=/usr/local/gcc62/lib
+                EXPAT_LOCATION=/usr/local/gcc73/lib
                 EXPAT_EXTENSION=.so.0
-                GCC_RT_LOCATION=/usr/local/gcc62/lib64
+                GCC_RT_LOCATION=/usr/local/gcc73/lib64
                 GCC_RT_EXTENSION=.so.1
-                STL_LOCATION=/usr/local/gcc62/lib64
+                STL_LOCATION=/usr/local/gcc73/lib64
                 STL_PREFIX=libstdc++
                 STL_EXTENSION=.so.6
                 ATOMIC_LOCATION=

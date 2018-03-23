@@ -2884,14 +2884,12 @@ void CMultivariateTimeSeriesModel::reinitializeResidualModel(double learnRate,
     }
 }
 
-const CMultivariateTimeSeriesModel::TTimeDouble2VecPrCBuf &
-CMultivariateTimeSeriesModel::slidingWindow(void) const
+const CMultivariateTimeSeriesModel::TTimeDouble2VecPrCBuf &CMultivariateTimeSeriesModel::slidingWindow(void) const
 {
     return m_SlidingWindow;
 }
 
-const CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel::TDecompositionPtr10Vec &
-CMultivariateTimeSeriesModel::trendModel(void) const
+const CMultivariateTimeSeriesModel::TDecompositionPtr10Vec &CMultivariateTimeSeriesModel::trend(void) const
 {
     return m_TrendModel;
 }

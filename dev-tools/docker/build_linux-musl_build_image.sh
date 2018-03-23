@@ -31,7 +31,7 @@ set -e
 
 cd `dirname $0`
 
-docker build -t $ACCOUNT/$REPOSITORY:$VERSION linux-musl_image
+docker build --no-cache -t $ACCOUNT/$REPOSITORY:$VERSION linux-musl_image
 docker login
 docker push $ACCOUNT/$REPOSITORY:$VERSION
 

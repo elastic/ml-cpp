@@ -1,7 +1,7 @@
 /*
  * ELASTICSEARCH CONFIDENTIAL
  *
- * Copyright (c) 2016 Elasticsearch BV. All Rights Reserved.
+ * Copyright (c) 2018 Elasticsearch BV. All Rights Reserved.
  *
  * Notice: this software, and all information contained
  * therein, is the exclusive property of Elasticsearch BV
@@ -12,25 +12,19 @@
  * express written consent of Elasticsearch BV is
  * strictly prohibited.
  */
-#ifndef INCLUDED_CTimeUtilsTest_h
-#define INCLUDED_CTimeUtilsTest_h
+#ifndef INCLUDED_CModelSnapshotJsonWriterTest_h
+#define INCLUDED_CModelSnapshotJsonWriterTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CTimeUtilsTest : public CppUnit::TestFixture
+class CModelSnapshotJsonWriterTest : public CppUnit::TestFixture
 {
     public:
-        void testNow(void);
-        void testToIso8601(void);
-        void testToLocal(void);
-        void testToEpochMs(void);
-        void testStrptime(void);
-        void testTimezone(void);
-        void testDateWords(void);
+        void testWrite(void);
 
         static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CTimeUtilsTest_h
+#endif // INCLUDED_CModelSnapshotJsonWriterTest_h
 

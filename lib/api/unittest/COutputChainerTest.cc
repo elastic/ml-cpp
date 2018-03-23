@@ -92,7 +92,7 @@ void COutputChainerTest::testChaining(void)
     // Check the results by re-reading the output file
     std::ifstream reReadStrm(outputFileName.c_str());
     std::string line;
-    std::string modelSizeString("\"" + ml::api::CJsonOutputWriter::MODEL_BYTES + "\":");
+    std::string modelSizeString("\"model_bytes\":");
 
     std::string expectedLineStart("{\"bucket\":{\"job_id\":\"job\",\"timestamp\":1431853200000,");
 
