@@ -398,8 +398,14 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 //! Create a new calendar component.
                 virtual void handle(const SDetectedCalendar &message);
 
-                //! Apply \p change at \p time.
+                //! Start using the trend for prediction.
+                void useTrendForPrediction(void);
+
+                //! Apply \p shift to the level at \p time and \p value.
                 void shiftLevel(core_t::TTime time, double value, double shift);
+
+                //! Apply a linear scale of \p scale.
+                void linearScale(core_t::TTime time, double scale);
 
                 //! Maybe re-interpolate the components.
                 void interpolate(const SMessage &message);
@@ -558,6 +564,9 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                     //! Shift the components' time origin to \p time.
                     void shiftOrigin(core_t::TTime time);
 
+                    //! Linearly scale the components' by \p scale.
+                    void linearScale(core_t::TTime time, double scale);
+
                     //! Get a checksum for this object.
                     uint64_t checksum(uint64_t seed = 0) const;
 
@@ -616,6 +625,9 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
                     //! Remove low value components.
                     bool prune(core_t::TTime time, core_t::TTime bucketLength);
+
+                    //! Linearly scale the components' by \p scale.
+                    void linearScale(core_t::TTime time, double scale);
 
                     //! Get a checksum for this object.
                     uint64_t checksum(uint64_t seed = 0) const;

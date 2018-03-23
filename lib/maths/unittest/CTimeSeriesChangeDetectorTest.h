@@ -27,6 +27,7 @@ class CTimeSeriesChangeDetectorTest : public CppUnit::TestFixture
     public:
         void testNoChange();
         void testLevelShift();
+        void testLinearScale();
         void testTimeShift();
         void testPersist();
 

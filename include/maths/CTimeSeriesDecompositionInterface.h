@@ -107,7 +107,8 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         //! \param[in] value The value immediately before the change
         //! point.
         //! \param[in] change A description of the change to apply.
-        virtual void applyChange(core_t::TTime time, double value,
+        //! \return True if a new component was detected.
+        virtual bool applyChange(core_t::TTime time, double value,
                                  const SChangeDescription &change) = 0;
 
         //! Propagate the decomposition forwards to \p time.

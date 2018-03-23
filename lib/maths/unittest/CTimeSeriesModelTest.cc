@@ -34,6 +34,9 @@
 #include <maths/CXMeansOnline1d.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/CTimeSeriesTestData.h>
+
+#include "TestUtils.h"
 
 #include <boost/scoped_ptr.hpp>
 
@@ -43,20 +46,14 @@ using namespace ml;
 
 namespace
 {
+using namespace handy_typedefs;
 using TBool2Vec = core::CSmallVector<bool, 2>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
-using TDouble1Vec = core::CSmallVector<double, 1>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
-using TDouble4Vec = core::CSmallVector<double, 4>;
-using TDouble10Vec = core::CSmallVector<double, 10>;
 using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
 using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
-using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
-using TDouble10Vec4Vec = core::CSmallVector<TDouble10Vec, 4>;
 using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
-using TDouble10Vec4Vec1Vec = core::CSmallVector<TDouble10Vec4Vec, 1>;
 using TSize1Vec = core::CSmallVector<std::size_t, 1>;
 using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
 using TTime2Vec1Vec = core::CSmallVector<TTime2Vec, 1>;
@@ -120,7 +117,7 @@ maths::CModelParams modelParams(core_t::TTime bucketLength)
     return maths::CModelParams{bucketLength,
                                learnRates[bucketLength], DECAY_RATE,
                                minimumSeasonalVarianceScale,
-                               6 * core::constants::HOUR, core::constants::DAY};
+                               8 * core::constants::HOUR, core::constants::DAY};
 }
 
 maths::CModelAddSamplesParams addSampleParams(double interval,
@@ -1479,7 +1476,7 @@ void CTimeSeriesModelTest::testWeights(void)
         double lastWeight = 1.0;
         for (std::size_t i = 0u; i < 10; ++i)
         {
-            double weight_{model.winsorisationWeight(1.0, time, prediction)[0]};
+            double weight_{model.winsorisationWeight(0.0, time, prediction)[0]};
             LOG_DEBUG("weight = " << weight_);
             CPPUNIT_ASSERT(weight_ <= lastWeight);
             lastWeight = weight_;
@@ -1542,7 +1539,7 @@ void CTimeSeriesModelTest::testWeights(void)
         double lastWeight = 1.0;
         for (std::size_t i = 0u; i < 10; ++i)
         {
-            double weight_{model.winsorisationWeight(1.0, time, prediction)[0]};
+            double weight_{model.winsorisationWeight(0.0, time, prediction)[0]};
             LOG_DEBUG("weight = " << weight_);
             CPPUNIT_ASSERT(weight_ <= lastWeight);
             lastWeight = weight_;
@@ -2114,8 +2111,8 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities(void)
     LOG_DEBUG("+-------------------------------------------------------+");
 
     // Check detection and modelling of step changes in data with
-    //    1) Piecewise constant
-    //    2) Saw tooth
+    //    1) Piecewise constant,
+    //    2) Saw tooth.
 
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TDouble3VecVec = std::vector<TDouble3Vec>;
@@ -2123,7 +2120,7 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities(void)
     TDouble2Vec4VecVec weight{{{1.0}}};
     auto updateModel = [&](core_t::TTime time, double value, maths::CUnivariateTimeSeriesModel &model)
         {
-            weight[0][0] = model.winsorisationWeight(1.0, time, {value});
+            weight[0][0] = model.winsorisationWeight(0.0, time, {value});
             model.addSamples(addSampleParams(1.0, {maths_t::E_SampleWinsorisationWeight}, weight),
                              {core::make_triple(time, TDouble2Vec{value}, TAG)});
         };
@@ -2131,7 +2128,8 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities(void)
     //std::ostringstream actual, modelBounds;
     //actual << "r = [";
     //modelBounds << "x = [";
-    //auto updateTestDebug = [&](core_t::TTime time, double value, const maths::CUnivariateTimeSeriesModel &model)
+    //auto updateTestDebug = [&](core_t::TTime time, double value,
+    //                           const maths::CUnivariateTimeSeriesModel &model)
     //    {
     //        actual << value << std::endl;
     //        auto x = model.confidenceInterval(time, 90.0, {maths_t::E_SampleCountWeight}, {{1.0}});
@@ -2306,17 +2304,123 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities(void)
         }
         double percentageOutOfBounds{100.0 * outOfBounds / static_cast<double>(forecast.size())};
         LOG_DEBUG("% out-of-bounds = " << percentageOutOfBounds);
-        CPPUNIT_ASSERT(percentageOutOfBounds < 11.0);
+        CPPUNIT_ASSERT(percentageOutOfBounds < 5.0);
     }
 }
 
-void CTimeSeriesModelTest::daylightSaving(void)
+void CTimeSeriesModelTest::testLinearScaling(void)
 {
-    LOG_DEBUG("+----------------------------------------+");
-    LOG_DEBUG("|  CTimeSeriesModelTest::daylightSaving  |");
-    LOG_DEBUG("+----------------------------------------+");
+    LOG_DEBUG("+-------------------------------------------+");
+    LOG_DEBUG("|  CTimeSeriesModelTest::testLinearScaling  |");
+    LOG_DEBUG("+-------------------------------------------+");
 
-    // TODO
+    // We test that the predictions are good and the bounds do not
+    // blow up after we:
+    //   1) linearly scale down a periodic pattern,
+    //   2) linearly scale up the same periodic pattern.
+
+    core_t::TTime startTime{0};
+
+    TDouble2Vec4VecVec weight{{{1.0}}};
+    auto updateModel = [&](core_t::TTime time, double value, maths::CUnivariateTimeSeriesModel &model)
+        {
+            double derate{std::max(1.0 - static_cast<double>(time - startTime)
+                                         / 3.0 / static_cast<double>(core::constants::WEEK), 0.0)};
+            weight[0][0] = model.winsorisationWeight(derate, time, {value});
+            model.addSamples(addSampleParams(1.0, {maths_t::E_SampleWinsorisationWeight}, weight),
+                             {core::make_triple(time, TDouble2Vec{value}, TAG)});
+        };
+
+    //std::ostringstream actual, modelBounds;
+    //actual << "r = [";
+    //modelBounds << "x = [";
+    //auto updateTestDebug = [&](core_t::TTime time, double value,
+    //                           const maths::CUnivariateTimeSeriesModel &model)
+    //    {
+    //        actual << value << std::endl;
+    //        auto x = model.confidenceInterval(time, 90.0, {maths_t::E_SampleCountWeight}, {{1.0}});
+    //        if (x.size() == 3)
+    //        {
+    //            modelBounds << x[0][0] << "," << x[1][0] << "," << x[2][0] << std::endl;
+    //        }
+    //    };
+
+    test::CRandomNumbers rng;
+
+    double noiseVariance{3.0};
+
+    core_t::TTime bucketLength{600};
+    maths::CModelParams params{modelParams(bucketLength)};
+    maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
+    auto controllers = decayRateControllers(1);
+    maths::CUnivariateTimeSeriesModel model{params, 0, trend, univariateNormal(), &controllers};
+
+    core_t::TTime time{0};
+    TDoubleVec samples;
+    rng.generateNormalSamples(0.0, noiseVariance, 1000, samples);
+    for (auto sample : samples)
+    {
+        sample += 12.0 + 10.0 * smoothDaily(time);
+        updateModel(time, sample, model);
+        //updateTestDebug(time, sample, model);
+        time += bucketLength;
+    }
+
+    // Scale by 0.3
+
+    rng.generateNormalSamples(0.0, noiseVariance, 200, samples);
+    for (auto sample : samples)
+    {
+        sample = 0.3 * (12.0 + 10.0 * smoothDaily(time) + sample);
+        updateModel(time, sample, model);
+        //updateTestDebug(time, sample, model);
+        time += bucketLength;
+    }
+    rng.generateNormalSamples(0.0, noiseVariance, 1500, samples);
+    for (auto sample : samples)
+    {
+        sample = 0.3 * (12.0 + 10.0 * smoothDaily(time) + sample);
+        updateModel(time, sample, model);
+        //updateTestDebug(time, sample, model);
+        auto x = model.confidenceInterval(time, 90.0, {maths_t::E_SampleCountWeight}, {{1.0}});
+        CPPUNIT_ASSERT(::fabs(sample - x[1][0])  < 2.0 * std::sqrt(3.0));
+        CPPUNIT_ASSERT(::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(3.0));
+        time += bucketLength;
+    }
+
+    // Scale by 2 / 0.3
+
+    rng.generateNormalSamples(0.0, noiseVariance, 200, samples);
+    for (auto sample : samples)
+    {
+        sample = 2.0 * (12.0 + 10.0 * smoothDaily(time)) + sample;
+        updateModel(time, sample, model);
+        //updateTestDebug(time, sample, model);
+        time += bucketLength;
+    }
+    rng.generateNormalSamples(0.0, noiseVariance, 400, samples);
+    for (auto sample : samples)
+    {
+        sample = 2.0 * (12.0 + 10.0 * smoothDaily(time)) + sample;
+        updateModel(time, sample, model);
+        //updateTestDebug(time, sample, model);
+        auto x = model.confidenceInterval(time, 90.0, {maths_t::E_SampleCountWeight}, {{1.0}});
+        CPPUNIT_ASSERT(::fabs(sample - x[1][0])  < 3.6 * std::sqrt(3.0));
+        CPPUNIT_ASSERT(::fabs(x[2][0] - x[0][0]) < 4.3 * std::sqrt(3.0));
+        time += bucketLength;
+    }
+
+    //std::ofstream file;
+    //file.open("bounds.m");
+    //file << actual.str() << "];";
+    //file << modelBounds.str() << "];";
+}
+
+void CTimeSeriesModelTest::testDaylightSaving(void)
+{
+    LOG_DEBUG("+--------------------------------------------+");
+    LOG_DEBUG("|  CTimeSeriesModelTest::testDaylightSaving  |");
+    LOG_DEBUG("+--------------------------------------------+");
 }
 
 CppUnit::Test *CTimeSeriesModelTest::suite(void)
@@ -2365,6 +2469,12 @@ CppUnit::Test *CTimeSeriesModelTest::suite(void)
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesModelTest>(
                                    "CTimeSeriesModelTest::testStepChangeDiscontinuities",
                                    &CTimeSeriesModelTest::testStepChangeDiscontinuities) );
+    suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesModelTest>(
+                                   "CTimeSeriesModelTest::testLinearScaling",
+                                   &CTimeSeriesModelTest::testLinearScaling) );
+    suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesModelTest>(
+                                   "CTimeSeriesModelTest::testDaylightSaving",
+                                   &CTimeSeriesModelTest::testDaylightSaving) );
 
     return suiteOfTests;
 }

@@ -135,7 +135,7 @@ void CTimeSeriesChangeDetectorTest::testNoChange()
 
         maths::CUnivariateTimeSeriesChangeDetector detector{trendModel, residualModel,
                                                              6 * core::constants::HOUR,
-                                                            24 * core::constants::HOUR, 12.0};
+                                                            24 * core::constants::HOUR, 14.0};
         for (std::size_t i = 950u; i < samples.size(); ++i)
         {
             addSampleToModel(time, samples[i]);
@@ -166,6 +166,22 @@ void CTimeSeriesChangeDetectorTest::testLevelShift()
                      {
                          return trend(time) + 0.5;
                      }, 5.0, 15.0);
+}
+
+void CTimeSeriesChangeDetectorTest::testLinearScale()
+{
+    LOG_DEBUG("+--------------------------------------------------+");
+    LOG_DEBUG("|  CTimeSeriesChangeDetectorTest::testLinearScale  |");
+    LOG_DEBUG("+--------------------------------------------------+");
+
+    TGeneratorVec trends{smoothDaily, spikeyDaily};
+
+    this->testChange(trends,
+                     maths::SChangeDescription::E_LinearScale,
+                     [](TGenerator trend, core_t::TTime time)
+                     {
+                         return 3.0 * trend(time);
+                     }, 3.0, 15.0);
 }
 
 void CTimeSeriesChangeDetectorTest::testTimeShift()
@@ -270,6 +286,9 @@ CppUnit::Test *CTimeSeriesChangeDetectorTest::suite()
                                    "CTimeSeriesChangeDetectorTest::testLevelShift",
                                    &CTimeSeriesChangeDetectorTest::testLevelShift) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
+                                   "CTimeSeriesChangeDetectorTest::testLinearScale",
+                                   &CTimeSeriesChangeDetectorTest::testLinearScale) );
+    suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
                                    "CTimeSeriesChangeDetectorTest::testTimeShift",
                                    &CTimeSeriesChangeDetectorTest::testTimeShift) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
@@ -323,7 +342,7 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec &trends,
 
         maths::CUnivariateTimeSeriesChangeDetector detector{trendModel, residualModel,
                                                              6 * core::constants::HOUR,
-                                                            24 * core::constants::HOUR, 12.0};
+                                                            24 * core::constants::HOUR, 14.0};
 
         TOptionalSize bucketsToDetect;
         for (std::size_t i = 950u; i < samples.size(); ++i)

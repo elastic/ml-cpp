@@ -129,11 +129,12 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         //! \param[in] value The value immediately before the change
         //! point.
         //! \param[in] change A description of the change to apply.
-        virtual void applyChange(core_t::TTime time, double value,
+        //! \return True if a new component was detected.
+        virtual bool applyChange(core_t::TTime time, double value,
                                  const SChangeDescription &change);
 
         //! Propagate the decomposition forwards to \p time.
-        void propagateForwardsTo(core_t::TTime time);
+        virtual void propagateForwardsTo(core_t::TTime time);
 
         //! Get the mean value of the time series in the vicinity of \p time.
         virtual double meanValue(core_t::TTime time) const;

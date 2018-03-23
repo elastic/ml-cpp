@@ -1360,9 +1360,27 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedCalendar
     }
 }
 
+void CTimeSeriesDecompositionDetail::CComponents::useTrendForPrediction(void)
+{
+    m_UsingTrendForPrediction = true;
+}
+
 void CTimeSeriesDecompositionDetail::CComponents::shiftLevel(core_t::TTime time, double value, double shift)
 {
     m_Trend.shiftLevel(time, value, shift);
+}
+
+void CTimeSeriesDecompositionDetail::CComponents::linearScale(core_t::TTime time, double scale)
+{
+    m_Trend.linearScale(scale);
+    if (m_Seasonal)
+    {
+        m_Seasonal->linearScale(time, scale);
+    }
+    if (m_Calendar)
+    {
+        m_Calendar->linearScale(time, scale);
+    }
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::interpolate(const SMessage &message)
@@ -2133,6 +2151,14 @@ void CTimeSeriesDecompositionDetail::CComponents::SSeasonal::shiftOrigin(core_t:
     }
 }
 
+void CTimeSeriesDecompositionDetail::CComponents::SSeasonal::linearScale(core_t::TTime time, double scale)
+{
+    for (auto &component : s_Components)
+    {
+        component.linearScale(time, scale);
+    }
+}
+
 uint64_t CTimeSeriesDecompositionDetail::CComponents::SSeasonal::checksum(uint64_t seed) const
 {
     seed = CChecksum::calculate(seed, s_Components);
@@ -2315,6 +2341,14 @@ bool CTimeSeriesDecompositionDetail::CComponents::SCalendar::prune(core_t::TTime
             remove, s_Components, s_PredictionErrors, [](bool remove_) { return remove_; });
 
     return s_Components.empty();
+}
+
+void CTimeSeriesDecompositionDetail::CComponents::SCalendar::linearScale(core_t::TTime time, double scale)
+{
+    for (auto &component : s_Components)
+    {
+        component.linearScale(time, scale);
+    }
 }
 
 uint64_t CTimeSeriesDecompositionDetail::CComponents::SCalendar::checksum(uint64_t seed) const

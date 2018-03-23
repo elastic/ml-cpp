@@ -57,10 +57,11 @@ bool CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
     return false;
 }
 
-void CTimeSeriesDecompositionStub::applyChange(core_t::TTime /*time*/,
+bool CTimeSeriesDecompositionStub::applyChange(core_t::TTime /*time*/,
                                                double /*value*/,
                                                const SChangeDescription &/*change*/)
 {
+    return false;
 }
 
 void CTimeSeriesDecompositionStub::propagateForwardsTo(core_t::TTime /*time*/)

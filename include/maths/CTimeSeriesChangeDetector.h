@@ -59,6 +59,7 @@ struct MATHS_EXPORT SChangeDescription
     enum EDescription
     {
         E_LevelShift,
+        E_LinearScale,
         E_TimeShift
     };
 
@@ -97,7 +98,7 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector
     public:
         CUnivariateTimeSeriesChangeDetector(const TDecompositionPtr &trendModel,
                                             const TPriorPtr &residualModel,
-                                            core_t::TTime minimumTimeToDetect = 6 * core::constants::HOUR,
+                                            core_t::TTime minimumTimeToDetect = 8 * core::constants::HOUR,
                                             core_t::TTime maximumTimeToDetect = core::constants::DAY,
                                             double minimumDeltaBicToDetect = 14.0);
 
@@ -111,6 +112,13 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector
         //! Check if there has been a change and get a description
         //! if there has been.
         TOptionalChangeDescription change();
+
+        //! The function used to decide whether to accept a change.
+        //! A change is accepted at a value of 1.0 for this function.
+        //!
+        //! \param[out] change Filled in with the index of the change
+        //! the most likely change.
+        double decisionFunction(std::size_t &change) const;
 
         //! Add \p samples to the change detector.
         void addSamples(const TWeightStyleVec &weightStyles,
@@ -132,7 +140,7 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector
     private:
         using TChangeModel = time_series_change_detector_detail::CUnivariateChangeModel;
         using TChangeModelPtr = boost::shared_ptr<TChangeModel>;
-        using TChangeModelPtr4Vec = core::CSmallVector<TChangeModelPtr, 4>;
+        using TChangeModelPtr5Vec = core::CSmallVector<TChangeModelPtr, 5>;
         using TMinMaxAccumulator = CBasicStatistics::CMinMax<core_t::TTime>;
 
     private:
@@ -156,7 +164,7 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector
         double m_CurrentEvidenceOfChange;
 
         //! The change models.
-        TChangeModelPtr4Vec m_ChangeModels;
+        TChangeModelPtr5Vec m_ChangeModels;
 };
 
 namespace time_series_change_detector_detail
@@ -199,9 +207,9 @@ class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
 
         //! Update the change model with \p samples.
         virtual void addSamples(std::size_t count,
-                                const TWeightStyleVec &weightStyles,
+                                TWeightStyleVec weightStyles,
                                 const TTimeDoublePr1Vec &samples,
-                                const TDouble4Vec1Vec &weights) = 0;
+                                TDouble4Vec1Vec weights) = 0;
 
         //! Debug the memory used by this object.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -214,10 +222,6 @@ class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed) const = 0;
-
-    protected:
-        //! The sample count to initialize a change model.
-        static const std::size_t COUNT_TO_INITIALIZE{5u};
 
     protected:
         //! Restore the residual model reading state from \p traverser.
@@ -285,9 +289,9 @@ class MATHS_EXPORT CUnivariateNoChangeModel final : public CUnivariateChangeMode
 
         //! Get the log likelihood of \p samples.
         virtual void addSamples(std::size_t count,
-                                const TWeightStyleVec &weightStyles,
+                                TWeightStyleVec weightStyles,
                                 const TTimeDoublePr1Vec &samples,
-                                const TDouble4Vec1Vec &weights);
+                                TDouble4Vec1Vec weights);
 
         //! Get the static size of this object.
         virtual std::size_t staticSize() const;
@@ -322,9 +326,9 @@ class MATHS_EXPORT CUnivariateLevelShiftModel final : public CUnivariateChangeMo
 
         //! Update with \p samples.
         virtual void addSamples(std::size_t count,
-                                const TWeightStyleVec &weightStyles,
+                                TWeightStyleVec weightStyles,
                                 const TTimeDoublePr1Vec &samples,
-                                const TDouble4Vec1Vec &weights);
+                                TDouble4Vec1Vec weights);
 
         //! Get the static size of this object.
         virtual std::size_t staticSize() const;
@@ -333,12 +337,61 @@ class MATHS_EXPORT CUnivariateLevelShiftModel final : public CUnivariateChangeMo
         virtual uint64_t checksum(uint64_t seed) const;
 
     private:
-        using TDoubleVec = std::vector<double>;
         using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     private:
         //! The optimal shift.
         TMeanAccumulator m_Shift;
+
+        //! The mode of the initial residual distribution model.
+        double m_ResidualModelMode;
+
+        //! The number of samples added so far.
+        double m_SampleCount;
+};
+
+//! \brief Captures the likelihood of the data given an arbitrary
+//! linear scaling.
+class MATHS_EXPORT CUnivariateLinearScaleModel final : public CUnivariateChangeModel
+{
+    public:
+        CUnivariateLinearScaleModel(const TDecompositionPtr &trendModel,
+                                    const TPriorPtr &residualModel);
+
+        //! Initialize by reading state from \p traverser.
+        virtual bool acceptRestoreTraverser(const SModelRestoreParams &params,
+                                            core::CStateRestoreTraverser &traverser);
+
+        //! Persist state by passing information to \p inserter.
+        virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+
+        //! The BIC of applying the level shift.
+        virtual double bic() const;
+
+        //! The expected BIC of applying the change.
+        virtual double expectedBic() const;
+
+        //! Get a description of the level shift.
+        virtual TOptionalChangeDescription change() const;
+
+        //! Update with \p samples.
+        virtual void addSamples(std::size_t count,
+                                TWeightStyleVec weightStyles,
+                                const TTimeDoublePr1Vec &samples,
+                                TDouble4Vec1Vec weights);
+
+        //! Get the static size of this object.
+        virtual std::size_t staticSize() const;
+
+        //! Get a checksum for this object.
+        virtual uint64_t checksum(uint64_t seed) const;
+
+    private:
+        using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    private:
+        //! The optimal shift.
+        TMeanAccumulator m_Scale;
 
         //! The mode of the initial residual distribution model.
         double m_ResidualModelMode;
@@ -374,9 +427,9 @@ class MATHS_EXPORT CUnivariateTimeShiftModel final : public CUnivariateChangeMod
 
         //! Update with \p samples.
         virtual void addSamples(std::size_t count,
-                                const TWeightStyleVec &weightStyles,
+                                TWeightStyleVec weightStyles,
                                 const TTimeDoublePr1Vec &samples,
-                                const TDouble4Vec1Vec &weights);
+                                TDouble4Vec1Vec weights);
 
         //! Get the static size of this object.
         virtual std::size_t staticSize() const;

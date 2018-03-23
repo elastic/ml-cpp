@@ -106,6 +106,9 @@ class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucket
         //! Shift the regressions' gradients by \p shift.
         void shiftSlope(double shift);
 
+        //! Linearly scale the regressions by \p scale.
+        void linearScale(double scale);
+
         //! Add the function value at \p time.
         //!
         //! \param[in] time The time of \p value.

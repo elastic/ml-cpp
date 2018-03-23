@@ -221,6 +221,14 @@ void CSeasonalComponentAdaptiveBucketing::shiftSlope(double shift)
     }
 }
 
+void CSeasonalComponentAdaptiveBucketing::linearScale(double scale)
+{
+    for (auto &bucket : m_Buckets)
+    {
+        bucket.s_Regression.linearScale(scale);
+    }
+}
+
 void CSeasonalComponentAdaptiveBucketing::add(core_t::TTime time,
                                               double value,
                                               double prediction,

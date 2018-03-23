@@ -128,6 +128,12 @@ void CCalendarComponent::clear(void)
     }
 }
 
+void CCalendarComponent::linearScale(core_t::TTime time, double scale)
+{
+    m_Bucketing.linearScale(scale);
+    this->interpolate(time, false);
+}
+
 void CCalendarComponent::add(core_t::TTime time, double value, double weight)
 {
     m_Bucketing.add(time, value, weight);

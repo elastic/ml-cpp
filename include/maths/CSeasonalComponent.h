@@ -113,6 +113,9 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
         //! Shift the component's slope by \p shift.
         void shiftSlope(double shift);
 
+        //! Linearly scale the component's by \p scale.
+        void linearScale(core_t::TTime time, double scale);
+
         //! Adds a value \f$(t, f(t))\f$ to this component.
         //!
         //! \param[in] time The time of the point.
