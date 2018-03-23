@@ -30,6 +30,7 @@
 #include <model/CForecastDataSink.h>
 #include <model/CResourceMonitor.h>
 
+#include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_set.hpp>
 
@@ -82,6 +83,14 @@ class API_EXPORT CForecastRunner final: private core::CNonCopyable
         //! max memory allowed to use for forecast models
         static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520; // 20MB
 
+        //! max memory allowed to use for forecast models persisting to disk
+        static const size_t MAX_FORECAST_MODEL_PERSISTANCE_MEMORY = 524288000; // 500MB
+
+        // Note: This value us lower than on X-pack side to prevent side-effects,
+        // if you change this value also change the limit on X-pack side.
+        //! minimum disk space required for disk persistence
+        static const size_t MIN_FORECAST_AVAILABLE_DISK_SPACE = 4294967296; // 4GB
+
         //! minimum time between stat updates to prevent to many updates in a short time
         static const uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000; // 3s
 
@@ -94,6 +103,8 @@ class API_EXPORT CForecastRunner final: private core::CNonCopyable
         static const std::string ERROR_NO_CREATE_TIME;
         static const std::string ERROR_BAD_MEMORY_STATUS;
         static const std::string ERROR_MEMORY_LIMIT;
+        static const std::string ERROR_MEMORY_LIMIT_DISK;
+        static const std::string ERROR_MEMORY_LIMIT_DISKSPACE;
         static const std::string ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS;
         static const std::string ERROR_NO_SUPPORTED_FUNCTIONS;
         static const std::string WARNING_DURATION_LIMIT;
@@ -112,6 +123,7 @@ class API_EXPORT CForecastRunner final: private core::CNonCopyable
         using TForecastModelWrapper = model::CForecastDataSink::SForecastModelWrapper;
         using TForecastResultSeries = model::CForecastDataSink::SForecastResultSeries;
         using TForecastResultSeriesVec = std::vector<TForecastResultSeries>;
+        using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
 
         using TStrUSet = boost::unordered_set<std::string>;
 
@@ -201,6 +213,9 @@ class API_EXPORT CForecastRunner final: private core::CNonCopyable
 
             //! A collection storing important messages from forecasting
             TStrUSet                    s_Messages;
+
+            //! A directory to persist models on disk
+            std::string                 s_TemporaryFolder;
         };
 
     private:
@@ -212,6 +227,9 @@ class API_EXPORT CForecastRunner final: private core::CNonCopyable
 
         //! Check for new jobs, blocks while waiting
         bool tryGetJob(SForecast &forecastJob);
+
+        //! check for sufficient disk space
+        bool sufficientAvailableDiskSpace(const boost::filesystem::path &path);
 
         //! pushes new jobs into the internal 'queue' (thread boundary)
         bool push(SForecast &forecastJob);

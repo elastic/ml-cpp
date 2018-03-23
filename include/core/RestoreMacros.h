@@ -56,6 +56,20 @@ namespace core
             continue;                                                                 \
         }
 
+#define RESTORE_ENUM(tag, target, enumtype, restoreSuccess)                           \
+        if (name == tag)                                                              \
+        {                                                                             \
+            int value;                                                                \
+            if (core::CStringUtils::stringToType(traverser.value(), value) == false)  \
+            {                                                                         \
+                LOG_ERROR("Failed to restore " #tag ", got " << traverser.value());   \
+                return false;                                                         \
+            }                                                                         \
+            target = enumtype(value);                                                 \
+            restoreSuccess = true;													  \
+            continue;                                                                 \
+        }
+
 #define RESTORE_SETUP_TEARDOWN(tag, setup, restore, teardown)                       \
         if (name == tag)                                                            \
         {                                                                           \
