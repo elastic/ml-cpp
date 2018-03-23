@@ -20,12 +20,14 @@
 #include <core/CTimeUtils.h>
 
 #include <model/CForecastDataSink.h>
+#include <model/CForecastModelPersist.h>
 #include <model/ModelTypes.h>
 
 #include <boost/bind.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include <boost/system/error_code.hpp>
 
+#include <memory>
 #include <sstream>
 
 namespace ml {
@@ -45,7 +47,9 @@ const std::string
     CForecastRunner::ERROR_NO_DATA_PROCESSED("Forecast cannot be executed as job requires data to have been processed and modeled");
 const std::string CForecastRunner::ERROR_NO_CREATE_TIME("Forecast create time must be specified and non zero");
 const std::string CForecastRunner::ERROR_BAD_MEMORY_STATUS("Forecast cannot be executed as model memory status is not OK");
-const std::string CForecastRunner::ERROR_MEMORY_LIMIT("Forecast cannot be executed as forecast memory usage is predicted to exceed 20MB");
+const std::string CForecastRunner::ERROR_MEMORY_LIMIT("Forecast cannot be executed as forecast memory usage is predicted to exceed 20MB while disk space is exceeded");
+const std::string CForecastRunner::ERROR_MEMORY_LIMIT_DISK("Forecast cannot be executed as forecast memory usage is predicted to exceed 500MB");
+const std::string CForecastRunner::ERROR_MEMORY_LIMIT_DISKSPACE("Forecast cannot be executed as models exceed internal memory limit and available disk space is insufficient");
 const std::string CForecastRunner::ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS("Forecast is not supported for population analysis");
 const std::string CForecastRunner::ERROR_NO_SUPPORTED_FUNCTIONS("Forecast is not supported for the used functions");
 const std::string CForecastRunner::WARNING_DURATION_LIMIT("Forecast duration exceeds internal limit, setting to 8 weeks");
@@ -66,7 +70,8 @@ CForecastRunner::SForecast::SForecast()
       s_NumberOfModels(0),
       s_NumberOfForecastableModels(0),
       s_MemoryUsage(0),
-      s_Messages() {
+     s_Messages(),
+     s_TemporaryFolder()
 }
 
 CForecastRunner::SForecast::SForecast(SForecast&& other)
@@ -81,7 +86,8 @@ CForecastRunner::SForecast::SForecast(SForecast&& other)
       s_NumberOfModels(other.s_NumberOfModels),
       s_NumberOfForecastableModels(other.s_NumberOfForecastableModels),
       s_MemoryUsage(other.s_MemoryUsage),
-      s_Messages(other.s_Messages) {
+     s_Messages(other.s_Messages),
+     s_TemporaryFolder(std::move(other.s_TemporaryFolder))
 }
 
 CForecastRunner::SForecast& CForecastRunner::SForecast::operator=(SForecast&& other) {
@@ -97,6 +103,7 @@ CForecastRunner::SForecast& CForecastRunner::SForecast::operator=(SForecast&& ot
     s_NumberOfForecastableModels = other.s_NumberOfForecastableModels;
     s_MemoryUsage = other.s_MemoryUsage;
     s_Messages = other.s_Messages;
+    s_TemporaryFolder = std::move(other.s_TemporaryFolder);
 
     return *this;
 }
@@ -161,6 +168,29 @@ void CForecastRunner::forecastWorker() {
             // while loops allow us to free up memory for every model right after each forecast is done
             while (!forecastJob.s_ForecastSeries.empty()) {
                 TForecastResultSeries& series = forecastJob.s_ForecastSeries.back();
+                std::unique_ptr<model::CForecastModelPersist::CRestore> modelRestore;
+
+                if (!series.s_ToForecastPersisted.empty()) {
+                    modelRestore.reset(new model::CForecastModelPersist::CRestore (series.s_ModelParams,
+                                                                            series.s_MinimumSeasonalVarianceScale,
+                                                                            series.s_ToForecastPersisted));
+                    // if in memory models are empty check if we can load persisted ones
+                    if (series.s_ToForecast.empty() && modelRestore)
+                    {
+                        TMathsModelPtr model;
+                        model_t::EFeature feature;
+                        std::string byFieldValue;
+
+                        if (modelRestore->nextModel(model, feature, byFieldValue))
+                        {
+                            series.s_ToForecast.emplace_back(feature, std::move(model), byFieldValue);
+                        }
+                        else
+                        {
+                            modelRestore.reset();
+                        }
+                    }
+                }
 
                 while (!series.s_ToForecast.empty()) {
                     const TForecastModelWrapper& model = series.s_ToForecast.back();
@@ -201,7 +231,25 @@ void CForecastRunner::forecastWorker() {
                             lastStatsUpdate = elapsedTime;
                         }
                     }
+
+                    // if in memory models are empty check if we can load persisted ones
+                    if (series.s_ToForecast.empty() && modelRestore)
+                    {
+                        TMathsModelPtr model;
+                        model_t::EFeature feature;
+                        std::string byFieldValue;
+
+                        if (modelRestore->nextModel(model, feature, byFieldValue))
+                        {
+                            series.s_ToForecast.emplace_back(feature, std::move(model), byFieldValue);
+                        }
+                        else
+                        {
+                            modelRestore.reset();
+                        }
+                    }
                 }
+                modelRestore.reset();
                 forecastJob.s_ForecastSeries.pop_back();
             }
             // write final message
@@ -213,6 +261,13 @@ void CForecastRunner::forecastWorker() {
 
             // signal that job is done
             m_WorkCompleteCondition.notify_all();
+
+            // cleanup
+            if (!forecastJob.s_TemporaryFolder.empty())
+            {
+                boost::filesystem::path temporaryFolder (forecastJob.s_TemporaryFolder);
+                boost::filesystem::remove_all(temporaryFolder);
+            }
         }
     }
 
@@ -279,14 +334,19 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
         atLeastOneSupportedFunction = atLeastOneSupportedFunction || prerequisites.s_IsSupportedFunction;
         totalMemoryUsage += prerequisites.s_MemoryUsageForDetector;
 
-        if (totalMemoryUsage >= MAX_FORECAST_MODEL_MEMORY) {
+        if (totalMemoryUsage >= MAX_FORECAST_MODEL_MEMORY && forecastJob.s_TemporaryFolder.empty ())
             // note: for now MAX_FORECAST_MODEL_MEMORY is a static limit, a user can not change it
             this->sendErrorMessage(forecastJob, ERROR_MEMORY_LIMIT);
             return false;
         }
     }
 
-    if (atLeastOneNonPopulationModel == false) {
+    if (totalMemoryUsage >= MAX_FORECAST_MODEL_PERSISTANCE_MEMORY)
+    {
+        this->sendErrorMessage(forecastJob, ERROR_MEMORY_LIMIT_DISK);
+        return false;
+    }
+
         this->sendErrorMessage(forecastJob, ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS);
         return false;
     }
@@ -309,7 +369,30 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
     this->sendScheduledMessage(forecastJob);
 
     // 2nd loop over the detectors to clone models for forecasting
-    TForecastResultSeriesVec s;
+    bool persistOnDisk = false;
+    if (totalMemoryUsage >= MAX_FORECAST_MODEL_MEMORY)
+    {
+        boost::filesystem::path temporaryFolder (forecastJob.s_TemporaryFolder);
+
+        if (!sufficientAvailableDiskSpace(temporaryFolder))
+        {
+            this->sendErrorMessage(forecastJob, ERROR_MEMORY_LIMIT_DISKSPACE);
+            return false;
+        }
+
+        LOG_INFO("Forecast of large model requested (requires "
+            << std::to_string(1 + (totalMemoryUsage >> 20))
+            << " MB), using disk.");
+
+
+        boost::filesystem::create_directories(temporaryFolder);
+        LOG_INFO("Persisting to: " << temporaryFolder.string());
+        persistOnDisk = true;
+    }
+    else
+    {
+        forecastJob.s_TemporaryFolder.clear();
+    }
 
     for (const auto& detector : detectors) {
         if (detector.get() == nullptr) {
@@ -317,7 +400,9 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
             continue;
         }
 
-        forecastJob.s_ForecastSeries.emplace_back(detector->getForecastModels());
+        forecastJob.s_ForecastSeries.emplace_back(detector->getForecastModels(
+            persistOnDisk,
+            forecastJob.s_TemporaryFolder));
     }
 
     return this->push(forecastJob);
@@ -360,6 +445,8 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         forecastJob.s_Duration = properties.get<core_t::TTime>("duration", 0);
         forecastJob.s_CreateTime = properties.get<core_t::TTime>("create_time", 0);
 
+        // tmp storage if available
+        forecastJob.s_TemporaryFolder = properties.get<std::string>("tmp_storage", EMPTY_STRING);
         // use -1 as default to allow 0 as 'never expires'
         expiresIn = properties.get<core_t::TTime>("expires_in", -1l);
 
@@ -390,7 +477,6 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
     // to be replaced by https://github.com/elastic/machine-learning-cpp/issues/443
     // TODO this is a temporary fix to prevent the analysis blowing up
     // if you change this value, also change the log string
-    // todo: refactor validation out from here
     core_t::TTime maxDuration = 8 * core::constants::WEEK;
     if (forecastJob.s_Duration > maxDuration) {
         LOG_INFO(WARNING_DURATION_LIMIT);
@@ -417,6 +503,20 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
     forecastJob.s_ExpiryTime = forecastJob.s_CreateTime + expiresIn;
 
     return true;
+}
+
+bool CForecastRunner::sufficientAvailableDiskSpace(const boost::filesystem::path &path)
+{
+    boost::system::error_code errorCode;
+    auto spaceInfo = boost::filesystem::space (path, errorCode);
+
+    if (errorCode)
+    {
+        LOG_ERROR("Failed to retrieve disk information for " << path << " error " << errorCode.value());
+        return false;
+    }
+
+    return spaceInfo.available > MIN_FORECAST_AVAILABLE_DISK_SPACE;
 }
 
 void CForecastRunner::sendScheduledMessage(const SForecast& forecastJob) const {

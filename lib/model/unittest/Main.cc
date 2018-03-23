@@ -25,7 +25,7 @@
 #include "CEventRateAnomalyDetectorTest.h"
 #include "CEventRateDataGathererTest.h"
 #include "CEventRateModelTest.h"
-#include "CEventRatePopulationDataGathererTest.h"
+#include "CForecastModelPersistTest.h"
 #include "CEventRatePopulationModelTest.h"
 #include "CFunctionTypesTest.h"
 #include "CGathererToolsTest.h"
@@ -67,6 +67,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CEventRatePopulationDataGathererTest::suite());
     runner.addTest(CEventRatePopulationModelTest::suite());
     runner.addTest(CFunctionTypesTest::suite());
+    runner.addTest( CForecastModelPersistTest::suite() );
     runner.addTest(CGathererToolsTest::suite());
     runner.addTest(CHierarchicalResultsTest::suite());
     runner.addTest(CHierarchicalResultsLevelSetTest::suite());
