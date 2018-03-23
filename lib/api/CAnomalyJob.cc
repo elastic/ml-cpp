@@ -86,6 +86,10 @@ const std::string HIERARCHICAL_RESULTS_TAG("f");
 const std::string LATEST_RECORD_TIME_TAG("h");
 const std::string MODEL_PLOT_TAG("i");
 const std::string LAST_RESULTS_TIME_TAG("j");
+
+//! The minimum version required to read the state corresponding to a model snapshot.
+//! This should be updated every time there is a breaking change to the model state.
+const std::string MODEL_SNAPSHOT_MIN_VERSION("6.3.0");
 }
 
 // Statics
@@ -392,6 +396,14 @@ bool CAnomalyJob::handleControlMessage(const std::string &controlMessage)
             break;
         case 'p':
             this->doForecast(controlMessage);
+            break;
+        case 'w':
+            {
+                if (m_PeriodicPersister != nullptr)
+                {
+                    m_PeriodicPersister->startBackgroundPersist();
+                }
+            }
             break;
         default:
             LOG_WARN("Ignoring unknown control message of length " <<
@@ -1371,17 +1383,21 @@ bool CAnomalyJob::persistState(const std::string &descriptionPrefix,
 
             if (m_PersistCompleteFunc)
             {
-                m_PersistCompleteFunc(snapshotTimestamp,
-                                      descriptionPrefix + core::CTimeUtils::toIso8601(snapshotTimestamp),
-                                      snapShotId,
-                                      compressor.numCompressedDocs(),
-                                      modelSizeStats,
-                                      normalizerState,
-                                      latestRecordTime,
-                                      // This needs to be the last final result time as it serves
-                                      // as the time after which all results are deleted when a
-                                      // model snapshot is reverted
-                                      lastFinalisedBucketEnd - m_ModelConfig.bucketLength());
+                CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport{
+                        MODEL_SNAPSHOT_MIN_VERSION,
+                        snapshotTimestamp,
+                        descriptionPrefix + core::CTimeUtils::toIso8601(snapshotTimestamp),
+                        snapShotId,
+                        compressor.numCompressedDocs(),
+                        modelSizeStats,
+                        normalizerState,
+                        latestRecordTime,
+                        // This needs to be the last final result time as it serves
+                        // as the time after which all results are deleted when a
+                        // model snapshot is reverted
+                        lastFinalisedBucketEnd - m_ModelConfig.bucketLength()};
+
+                m_PersistCompleteFunc(modelSnapshotReport);
             }
         }
     }

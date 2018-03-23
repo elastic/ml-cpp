@@ -61,6 +61,11 @@ std::string CTimeUtils::toTimeString(core_t::TTime t)
     return result;
 }
 
+int64_t CTimeUtils::toEpochMs(core_t::TTime t)
+{
+    return static_cast<int64_t>(t) * 1000;
+}
+
 bool CTimeUtils::strptime(const std::string &format,
                           const std::string &dateTime,
                           core_t::TTime &preTime)

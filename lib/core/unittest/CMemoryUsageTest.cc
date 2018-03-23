@@ -1137,13 +1137,7 @@ void CMemoryUsageTest::testStringClear(void)
 
     // If the following assertion fails after a standard library upgrade then
     // the logic in include/core/CMemory.h needs changing as well as this test
-#if defined(Linux) && (!defined(_GLIBCXX_USE_CXX11_ABI) || _GLIBCXX_USE_CXX11_ABI == 0)
-    // This seemingly strange result is due to the phenonenon described in
-    // http://info.prelert.com/blog/clearing-strings
-    CPPUNIT_ASSERT(TAllocator::usage() > usage3Copies);
-#else
     CPPUNIT_ASSERT_EQUAL(usage3Copies, TAllocator::usage());
-#endif
 }
 
 void CMemoryUsageTest::testSharedPointer(void)

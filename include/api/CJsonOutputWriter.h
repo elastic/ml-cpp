@@ -16,7 +16,6 @@
 #define INCLUDED_ml_api_CJsonOutputWriter_h
 
 #include <core/CJsonOutputStreamWrapper.h>
-#include <core/CMutex.h>
 #include <core/CoreTypes.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CSmallVector.h>
@@ -36,7 +35,6 @@
 
 #include <iosfwd>
 #include <map>
-#include <queue>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -190,97 +188,9 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
         typedef TTimeBucketDataMap::iterator           TTimeBucketDataMapItr;
         typedef TTimeBucketDataMap::const_iterator     TTimeBucketDataMapCItr;
 
-
-        static const std::string JOB_ID;
-        static const std::string TIMESTAMP;
-        static const std::string BUCKET;
-        static const std::string LOG_TIME;
-        static const std::string DETECTOR_INDEX;
-        static const std::string RECORDS;
-        static const std::string EVENT_COUNT;
-        static const std::string IS_INTERIM;
-        static const std::string PROBABILITY;
-        static const std::string RAW_ANOMALY_SCORE;
-        static const std::string ANOMALY_SCORE;
-        static const std::string RECORD_SCORE;
-        static const std::string INITIAL_RECORD_SCORE;
-        static const std::string INFLUENCER_SCORE;
-        static const std::string INITIAL_INFLUENCER_SCORE;
-        static const std::string FIELD_NAME;
-        static const std::string BY_FIELD_NAME;
-        static const std::string BY_FIELD_VALUE;
-        static const std::string CORRELATED_BY_FIELD_VALUE;
-        static const std::string TYPICAL;
-        static const std::string ACTUAL;
-        static const std::string CAUSES;
-        static const std::string FUNCTION;
-        static const std::string FUNCTION_DESCRIPTION;
-        static const std::string OVER_FIELD_NAME;
-        static const std::string OVER_FIELD_VALUE;
-        static const std::string PARTITION_FIELD_NAME;
-        static const std::string PARTITION_FIELD_VALUE;
-        static const std::string INITIAL_SCORE;
-        static const std::string BUCKET_INFLUENCERS;
-        static const std::string INFLUENCERS;
-        static const std::string INFLUENCER_FIELD_NAME;
-        static const std::string INFLUENCER_FIELD_VALUE;
-        static const std::string INFLUENCER_FIELD_VALUES;
-        static const std::string FLUSH;
-        static const std::string ID;
-        static const std::string LAST_FINALIZED_BUCKET_END;
-        static const std::string QUANTILE_STATE;
-        static const std::string QUANTILES;
-        static const std::string MODEL_SIZE_STATS;
-        static const std::string MODEL_BYTES;
-        static const std::string TOTAL_BY_FIELD_COUNT;
-        static const std::string TOTAL_OVER_FIELD_COUNT;
-        static const std::string TOTAL_PARTITION_FIELD_COUNT;
-        static const std::string BUCKET_ALLOCATION_FAILURES_COUNT;
-        static const std::string MEMORY_STATUS;
-        static const std::string CATEGORY_DEFINITION;
-        static const std::string CATEGORY_ID;
-        static const std::string TERMS;
-        static const std::string REGEX;
-        static const std::string MAX_MATCHING_LENGTH;
-        static const std::string EXAMPLES;
-        static const std::string MODEL_SNAPSHOT;
-        static const std::string SNAPSHOT_ID;
-        static const std::string SNAPSHOT_DOC_COUNT;
-        static const std::string DESCRIPTION;
-        static const std::string LATEST_RECORD_TIME;
-        static const std::string BUCKET_SPAN;
-        static const std::string LATEST_RESULT_TIME;
-        static const std::string PROCESSING_TIME;
-        static const std::string TIME_INFLUENCER;
-        static const std::string PARTITION_SCORES;
-        static const std::string SCHEDULED_EVENTS;
-
     private:
         typedef CCategoryExamplesCollector::TStrSet TStrSet;
         typedef TStrSet::const_iterator TStrSetCItr;
-
-        struct SModelSnapshotReport
-        {
-            SModelSnapshotReport(core_t::TTime snapshotTimestamp,
-                                 const std::string &description,
-                                 const std::string &snapshotId,
-                                 size_t numDocs,
-                                 const model::CResourceMonitor::SResults &modelSizeStats,
-                                 const std::string &normalizerState,
-                                 core_t::TTime latestRecordTime,
-                                 core_t::TTime latestFinalResultTime);
-
-            core_t::TTime                     s_SnapshotTimestamp;
-            std::string                       s_Description;
-            std::string                       s_SnapshotId;
-            size_t                            s_NumDocs;
-            model::CResourceMonitor::SResults s_ModelSizeStats;
-            std::string                       s_NormalizerState;
-            core_t::TTime                     s_LatestRecordTime;
-            core_t::TTime                     s_LatestFinalResultTime;
-        };
-
-        typedef std::queue<SModelSnapshotReport> TModelSnapshotReportQueue;
 
     public:
         //! Constructor that causes output to be written to the specified wrapped stream
@@ -352,19 +262,6 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
         //! from the CResourceMonitor via a callback
         void reportMemoryUsage(const model::CResourceMonitor::SResults &results);
 
-        //! Report information about completion of model persistence.
-        //! This method can be called in a thread other than the one
-        //! receiving the majority of results, so reporting is done
-        //! asynchronously.
-        void reportPersistComplete(core_t::TTime snapshotTimestamp,
-                                   const std::string &description,
-                                   const std::string &snapshotId,
-                                   size_t numDocs,
-                                   const model::CResourceMonitor::SResults &modelSizeStats,
-                                   const std::string &normalizerState,
-                                   core_t::TTime latestRecordTime,
-                                   core_t::TTime latestFinalResultTime);
-
         //! Acknowledge a flush request by echoing back the flush ID
         void acknowledgeFlush(const std::string &flushId, core_t::TTime lastFinalizedBucketEnd);
 
@@ -427,49 +324,33 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
         void addPartitionScores(const CHierarchicalResultsWriter::TResults &results,
                                 TDocumentWeakPtr weakDoc);
 
-        //! Write any model snapshot reports that are queuing up.
-        void writeModelSnapshotReports(void);
-
-        //! Write the JSON object showing current levels of resource usage, as
-        //! given to us from the CResourceMonitor via a callback
-        void writeMemoryUsageObject(const model::CResourceMonitor::SResults &results);
-
-        //! Write the quantile's state
-        void writeQuantileState(const std::string &state, core_t::TTime timestamp);
-
     private:
         //! The job ID
-        std::string                       m_JobId;
+        std::string                          m_JobId;
 
         //! JSON line writer
-        core::CRapidJsonConcurrentLineWriter        m_Writer;
+        core::CRapidJsonConcurrentLineWriter m_Writer;
 
         //! Time of last non-interim bucket written to output
-        core_t::TTime                     m_LastNonInterimBucketTime;
+        core_t::TTime                        m_LastNonInterimBucketTime;
 
         //! Has the output been finalised?
-        bool                              m_Finalised;
+        bool                                 m_Finalised;
 
         //! Max number of records to write for each bucket/detector
-        size_t                            m_RecordOutputLimit;
+        size_t                               m_RecordOutputLimit;
 
         //! Vector for building up documents representing nested sub-results.
         //! The documents in this vector will reference memory owned by
         //! m_JsonPoolAllocator.  (Hence this is declared after the memory pool
         //! so that it's destroyed first when the destructor runs.)
-        TDocumentWeakPtrVec               m_NestedDocs;
+        TDocumentWeakPtrVec                  m_NestedDocs;
 
         //! Bucket data waiting to be written.  The map is keyed on bucket time.
         //! The documents in this map will reference memory owned by
         //! m_JsonPoolAllocator.  (Hence this is declared after the memory pool
         //! so that it's destroyed first when the destructor runs.)
-        TTimeBucketDataMap                m_BucketDataByTime;
-
-        //! Protects the m_ModelSnapshotReports from concurrent access.
-        core::CMutex                      m_ModelSnapshotReportsQueueMutex;
-
-        //! Queue of model snapshot reports waiting to be output.
-        TModelSnapshotReportQueue         m_ModelSnapshotReports;
+        TTimeBucketDataMap                   m_BucketDataByTime;
 };
 
 
