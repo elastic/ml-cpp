@@ -2889,7 +2889,7 @@ const CMultivariateTimeSeriesModel::TTimeDouble2VecPrCBuf &CMultivariateTimeSeri
     return m_SlidingWindow;
 }
 
-const CMultivariateTimeSeriesModel::TDecompositionPtr10Vec &CMultivariateTimeSeriesModel::trend(void) const
+const CMultivariateTimeSeriesModel::TDecompositionPtr10Vec &CMultivariateTimeSeriesModel::trendModel(void) const
 {
     return m_TrendModel;
 }
