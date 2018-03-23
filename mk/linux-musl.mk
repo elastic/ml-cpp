@@ -9,7 +9,7 @@ OS=Linux
 CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/linux-musl-x86_64
 
 CC=gcc
-CXX=g++ -std=gnu++0x
+CXX=g++ -std=gnu++14
 
 ifndef ML_DEBUG
 OPTCFLAGS=-O3 -Wdisabled-optimization

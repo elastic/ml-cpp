@@ -23,6 +23,7 @@
 #include <api/CDataProcessor.h>
 #include <api/CForecastRunner.h>
 #include <api/CJsonOutputWriter.h>
+#include <api/CModelSnapshotJsonWriter.h>
 #include <api/ImportExport.h>
 
 #include <boost/shared_ptr.hpp>
@@ -111,15 +112,7 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
 
 
     public:
-        typedef std::function<void(
-                                 core_t::TTime,
-                                 const std::string &,
-                                 const std::string &,
-                                 size_t,
-                                 const model::CResourceMonitor::SResults &,
-                                 const std::string &,
-                                 core_t::TTime,
-                                 core_t::TTime)> TPersistCompleteFunc;
+        typedef std::function<void(const CModelSnapshotJsonWriter::SModelSnapshotReport &)> TPersistCompleteFunc;
         typedef model::CAnomalyDetector::TAnomalyDetectorPtr TAnomalyDetectorPtr;
         typedef std::vector<TAnomalyDetectorPtr> TAnomalyDetectorPtrVec;
         typedef std::vector<TAnomalyDetectorPtr>::iterator TAnomalyDetectorPtrVecItr;

@@ -91,7 +91,7 @@ bool CBackgroundPersister::addPersistFunc(core::CDataAdder::TPersistFunc persist
 
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy)
+    if (this->isBusy())
     {
         return false;
     }
@@ -113,14 +113,14 @@ bool CBackgroundPersister::addPersistFunc(core::CDataAdder::TPersistFunc persist
 
 bool CBackgroundPersister::startPersist(void)
 {
-    if (m_PersistFuncs.empty())
+    core::CScopedFastLock lock(m_Mutex);
+
+    if (this->isBusy())
     {
         return false;
     }
 
-    core::CScopedFastLock lock(m_Mutex);
-
-    if (m_IsBusy)
+    if (m_PersistFuncs.empty())
     {
         return false;
     }
@@ -145,7 +145,7 @@ bool CBackgroundPersister::clear(void)
 {
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy)
+    if (this->isBusy())
     {
         return false;
     }
@@ -159,7 +159,7 @@ bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcess
 {
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy)
+    if (this->isBusy())
     {
         return false;
     }
@@ -167,6 +167,17 @@ bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcess
     m_FirstProcessorPeriodicPersistFunc = firstProcessorPeriodicPersistFunc;
 
     return true;
+}
+
+bool CBackgroundPersister::startBackgroundPersist(void)
+{
+    if (this->isBusy())
+    {
+        LOG_WARN("Cannot start background persist as a previous "
+            "persist is still in progress");
+        return false;
+    }
+    return this->startBackgroundPersist(core::CTimeUtils::now());
 }
 
 bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void)
@@ -192,6 +203,11 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void)
         return false;
     }
 
+    return this->startBackgroundPersist(now);
+}
+
+bool CBackgroundPersister::startBackgroundPersist(core_t::TTime timeOfPersistence)
+{
     bool backgroundPersistSetupOk = m_FirstProcessorPeriodicPersistFunc(*this);
     if (!backgroundPersistSetupOk)
     {
@@ -202,7 +218,7 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void)
         return false;
     }
 
-    m_LastPeriodicPersistTime = now;
+    m_LastPeriodicPersistTime = timeOfPersistence;
 
     LOG_INFO("Background persist starting background thread");
 
@@ -223,7 +239,8 @@ CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister 
 
 void CBackgroundPersister::CBackgroundThread::run(void)
 {
-
+    // The isBusy check will prevent concurrent access to
+    // m_Owner.m_PersistFuncs here
     while (!m_Owner.m_PersistFuncs.empty())
     {
         if (!m_Owner.m_IsShutdown)
@@ -234,7 +251,6 @@ void CBackgroundPersister::CBackgroundThread::run(void)
     }
 
     core::CScopedFastLock lock(m_Owner.m_Mutex);
-
     m_Owner.m_IsBusy = false;
 }
 
