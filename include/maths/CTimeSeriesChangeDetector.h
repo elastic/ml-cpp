@@ -98,7 +98,7 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector
     public:
         CUnivariateTimeSeriesChangeDetector(const TDecompositionPtr &trendModel,
                                             const TPriorPtr &residualModel,
-                                            core_t::TTime minimumTimeToDetect = 8 * core::constants::HOUR,
+                                            core_t::TTime minimumTimeToDetect = 12 * core::constants::HOUR,
                                             core_t::TTime maximumTimeToDetect = core::constants::DAY,
                                             double minimumDeltaBicToDetect = 14.0);
 

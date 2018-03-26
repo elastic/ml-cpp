@@ -117,7 +117,7 @@ maths::CModelParams modelParams(core_t::TTime bucketLength)
     return maths::CModelParams{bucketLength,
                                learnRates[bucketLength], DECAY_RATE,
                                minimumSeasonalVarianceScale,
-                               8 * core::constants::HOUR, core::constants::DAY};
+                               12 * core::constants::HOUR, core::constants::DAY};
 }
 
 maths::CModelAddSamplesParams addSampleParams(double interval,

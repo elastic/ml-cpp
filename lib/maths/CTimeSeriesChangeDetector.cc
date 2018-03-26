@@ -455,7 +455,7 @@ void CUnivariateNoChangeModel::addSamples(std::size_t count,
             double value{samples_[i].second};
             double seasonalScale{maths_t::seasonalVarianceScale(weightStyles, weights[i])};
             double sample{this->trendModel().detrend(time, value, 0.0)};
-            double weight{tailWinsorisationWeight(residualModel, 0.0, seasonalScale, sample)};
+            double weight{tailWinsorisationWeight(residualModel, 0.2, seasonalScale, sample)};
             samples.push_back(sample);
             maths_t::setWeight(maths_t::E_SampleWinsorisationWeight, weight, weightStyles, weights[i]);
         }
@@ -556,7 +556,7 @@ void CUnivariateLevelShiftModel::addSamples(std::size_t count,
             double value{samples_[i].second};
             double seasonalScale{maths_t::seasonalVarianceScale(weightStyles, weights[i])};
             double sample{trendModel.detrend(time, value, 0.0) - shift};
-            double weight{tailWinsorisationWeight(residualModel, 0.0, seasonalScale, sample)};
+            double weight{tailWinsorisationWeight(residualModel, 0.2, seasonalScale, sample)};
             samples.push_back(sample);
             maths_t::setWeight(maths_t::E_SampleWinsorisationWeight, weight, weightStyles, weights[i]);
             m_SampleCount += maths_t::count(weightStyles, weights[i]);
@@ -684,7 +684,7 @@ void CUnivariateLinearScaleModel::addSamples(std::size_t count,
             double seasonalScale{maths_t::seasonalVarianceScale(weightStyles, weights[i])};
             double prediction{CBasicStatistics::mean(trendModel.value(time, 0.0))};
             double sample{value - scale * prediction};
-            double weight{tailWinsorisationWeight(residualModel, 0.0, seasonalScale, sample)};
+            double weight{tailWinsorisationWeight(residualModel, 0.2, seasonalScale, sample)};
             samples.push_back(sample);
             maths_t::setWeight(maths_t::E_SampleWinsorisationWeight, weight, weightStyles, weights[i]);
             m_SampleCount += maths_t::count(weightStyles, weights[i]);
@@ -781,7 +781,7 @@ void CUnivariateTimeShiftModel::addSamples(std::size_t count,
             double value{samples_[i].second};
             double seasonalScale{maths_t::seasonalVarianceScale(weightStyles, weights[i])};
             double sample{this->trendModel().detrend(time + m_Shift, value, 0.0)};
-            double weight{tailWinsorisationWeight(residualModel, 0.0, seasonalScale, sample)};
+            double weight{tailWinsorisationWeight(residualModel, 0.2, seasonalScale, sample)};
             samples.push_back(sample);
             maths_t::setWeight(maths_t::E_SampleWinsorisationWeight, weight, weightStyles, weights[i]);
         }
