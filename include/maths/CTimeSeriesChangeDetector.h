@@ -99,7 +99,7 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector
                                             const TPriorPtr &residualModel,
                                             core_t::TTime minimumTimeToDetect = 6 * core::constants::HOUR,
                                             core_t::TTime maximumTimeToDetect = core::constants::DAY,
-                                            double minimumDeltaBicToDetect = 12.0);
+                                            double minimumDeltaBicToDetect = 14.0);
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(const SModelRestoreParams &params,
@@ -191,6 +191,9 @@ class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
         //! The BIC of applying the change.
         virtual double bic() const = 0;
 
+        //! The expected BIC of applying the change.
+        virtual double expectedBic() const = 0;
+
         //! Get a description of the change.
         virtual TOptionalChangeDescription change() const = 0;
 
@@ -223,9 +226,13 @@ class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
 
         //! Get the log-likelihood.
         double logLikelihood() const;
-
         //! Update the data log-likelihood with \p logLikelihood.
         void addLogLikelihood(double logLikelihood);
+
+        //! Get the expected log-likelihood.
+        double expectedLogLikelihood() const;
+        //! Update the expected data log-likelihood with \p logLikelihood.
+        void addExpectedLogLikelihood(double logLikelihood);
 
         //! Get the time series trend model.
         const CTimeSeriesDecompositionInterface &trendModel() const;
@@ -242,6 +249,9 @@ class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
     private:
         //! The likelihood of the data under this model.
         double m_LogLikelihood;
+
+        //! The expected log-likelihood of the data under this model.
+        double m_ExpectedLogLikelihood;
 
         //! A model decomposing the time series trend.
         TDecompositionPtr m_TrendModel;
@@ -266,6 +276,9 @@ class MATHS_EXPORT CUnivariateNoChangeModel final : public CUnivariateChangeMode
 
         //! Returns the no change BIC.
         virtual double bic() const;
+
+        //! The expected BIC of applying the change.
+        virtual double expectedBic() const;
 
         //! Returns a null object.
         virtual TOptionalChangeDescription change() const;
@@ -300,6 +313,9 @@ class MATHS_EXPORT CUnivariateLevelShiftModel final : public CUnivariateChangeMo
 
         //! The BIC of applying the level shift.
         virtual double bic() const;
+
+        //! The expected BIC of applying the change.
+        virtual double expectedBic() const;
 
         //! Get a description of the level shift.
         virtual TOptionalChangeDescription change() const;
@@ -349,6 +365,9 @@ class MATHS_EXPORT CUnivariateTimeShiftModel final : public CUnivariateChangeMod
 
         //! The BIC of applying the time shift.
         virtual double bic() const;
+
+        //! The expected BIC of applying the change.
+        virtual double expectedBic() const;
 
         //! Get a description of the time shift.
         virtual TOptionalChangeDescription change() const;
