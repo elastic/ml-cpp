@@ -175,6 +175,7 @@ namespace time_series_change_detector_detail
 class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
 {
     public:
+        using TDouble1Vec = core::CSmallVector<double, 1>;
         using TDouble4Vec = core::CSmallVector<double, 4>;
         using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
         using TTimeDoublePr = std::pair<core_t::TTime, double>;
@@ -230,13 +231,18 @@ class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
 
         //! Get the log-likelihood.
         double logLikelihood() const;
-        //! Update the data log-likelihood with \p logLikelihood.
-        void addLogLikelihood(double logLikelihood);
 
         //! Get the expected log-likelihood.
         double expectedLogLikelihood() const;
-        //! Update the expected data log-likelihood with \p logLikelihood.
-        void addExpectedLogLikelihood(double logLikelihood);
+
+        //! Update the log-likelihood with \p samples.
+        void updateLogLikelihood(const TWeightStyleVec &weightStyles,
+                                 const TDouble1Vec &samples,
+                                 const TDouble4Vec1Vec &weights);
+
+        //! Update the expected log-likelihoods.
+        void updateExpectedLogLikelihood(const TWeightStyleVec &weightStyles,
+                                         const TDouble4Vec1Vec &weights);
 
         //! Get the time series trend model.
         const CTimeSeriesDecompositionInterface &trendModel() const;

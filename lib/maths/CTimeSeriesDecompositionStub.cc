@@ -135,6 +135,11 @@ std::size_t CTimeSeriesDecompositionStub::staticSize(void) const
     return sizeof(*this);
 }
 
+core_t::TTime CTimeSeriesDecompositionStub::timeShift(void) const
+{
+    return 0;
+}
+
 const maths_t::TSeasonalComponentVec &CTimeSeriesDecompositionStub::seasonalComponents(void) const
 {
     return NO_COMPONENTS;

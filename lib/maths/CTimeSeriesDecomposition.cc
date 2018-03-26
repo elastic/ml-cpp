@@ -261,7 +261,7 @@ bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
 {
     CComponents::CScopeNotifyOnStateChange result{m_Components};
 
-    time -= m_TimeShift;
+    time += m_TimeShift;
 
     core_t::TTime lastTime{std::max(m_LastValueTime, m_LastPropagationTime)};
 
@@ -372,7 +372,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
         baseline += vector2x1(this->smooth(
                 boost::bind(&CTimeSeriesDecomposition::value,
                             this, _1, confidence, components & E_Seasonal, false),
-                time, components));
+                time - m_TimeShift, components));
     }
 
     return pair(baseline);
@@ -450,7 +450,6 @@ double CTimeSeriesDecomposition::detrend(core_t::TTime time,
     {
         return value;
     }
-    time += m_TimeShift;
     TDoubleDoublePr interval{this->value(time, confidence, components)};
     return std::min(value - interval.first, 0.0) + std::max(value - interval.second, 0.0);
 }
@@ -559,6 +558,11 @@ std::size_t CTimeSeriesDecomposition::memoryUsage(void) const
 std::size_t CTimeSeriesDecomposition::staticSize(void) const
 {
     return sizeof(*this);
+}
+
+core_t::TTime CTimeSeriesDecomposition::timeShift(void) const
+{
+    return m_TimeShift;
 }
 
 const maths_t::TSeasonalComponentVec &CTimeSeriesDecomposition::seasonalComponents(void) const

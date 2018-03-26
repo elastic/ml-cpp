@@ -181,10 +181,14 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         //! Get the static size of this object.
         virtual std::size_t staticSize(void) const = 0;
 
+        //! Get the time shift which is being applied.
+        virtual core_t::TTime timeShift(void) const = 0;
+
         //! Get the seasonal components.
         virtual const maths_t::TSeasonalComponentVec &seasonalComponents(void) const = 0;
 
-        //! This is the latest time of any point added to this object or the time skipped to.
+        //! This is the latest time of any point added to this object or
+        //! the time skipped to.
         virtual core_t::TTime lastValueTime(void) const = 0;
 };
 

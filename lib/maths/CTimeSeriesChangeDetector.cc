@@ -69,6 +69,8 @@ const std::string RESIDUAL_MODEL_TAG{"n"};
 const std::size_t EXPECTED_LOG_LIKELIHOOD_NUMBER_INTERVALS{4u};
 const double EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER{0.9};
 const std::size_t COUNT_TO_INITIALIZE{5u};
+const double MINIMUM_SCALE{0.1};
+const double MAXIMUM_SCALE{10.0};
 }
 
 SChangeDescription::SChangeDescription(EDescription description,
@@ -341,19 +343,38 @@ double CUnivariateChangeModel::logLikelihood() const
     return m_LogLikelihood;
 }
 
-void CUnivariateChangeModel::addLogLikelihood(double logLikelihood)
-{
-    m_LogLikelihood += logLikelihood;
-}
-
 double CUnivariateChangeModel::expectedLogLikelihood() const
 {
     return m_ExpectedLogLikelihood;
 }
 
-void CUnivariateChangeModel::addExpectedLogLikelihood(double logLikelihood)
+void CUnivariateChangeModel::updateLogLikelihood(const TWeightStyleVec &weightStyles,
+                                                 const TDouble1Vec &samples,
+                                                 const TDouble4Vec1Vec &weights)
 {
-    m_ExpectedLogLikelihood += logLikelihood;
+    double logLikelihood;
+    if (m_ResidualModel->jointLogMarginalLikelihood(weightStyles, samples, weights,
+                                                    logLikelihood) == maths_t::E_FpNoErrors)
+    {
+        m_LogLikelihood += logLikelihood;
+    }
+}
+
+void CUnivariateChangeModel::updateExpectedLogLikelihood(const TWeightStyleVec &weightStyles,
+                                                         const TDouble4Vec1Vec &weights)
+{
+    for (const auto &weight : weights)
+    {
+        double expectedLogLikelihood;
+        TDouble4Vec1Vec weight_{weight};
+        if (m_ResidualModel->expectation(maths::CPrior::CLogMarginalLikelihood{
+                                                 *m_ResidualModel, weightStyles, weight_},
+                                         EXPECTED_LOG_LIKELIHOOD_NUMBER_INTERVALS,
+                                         expectedLogLikelihood, weightStyles, weight))
+        {
+            m_ExpectedLogLikelihood += expectedLogLikelihood;
+        }
+    }
 }
 
 const CTimeSeriesDecompositionInterface &CUnivariateChangeModel::trendModel() const
@@ -443,13 +464,7 @@ void CUnivariateNoChangeModel::addSamples(std::size_t count,
         {
             maths_t::setWeight(maths_t::E_SampleWinsorisationWeight, 1.0, weightStyles, weight);
         }
-
-        double logLikelihood;
-        if (this->residualModel().jointLogMarginalLikelihood(weightStyles, samples, weights,
-                                                             logLikelihood) == maths_t::E_FpNoErrors)
-        {
-            this->addLogLikelihood(logLikelihood);
-        }
+        this->updateLogLikelihood(weightStyles, samples, weights);
     }
 }
 
@@ -554,26 +569,8 @@ void CUnivariateLevelShiftModel::addSamples(std::size_t count,
         {
             maths_t::setWeight(maths_t::E_SampleWinsorisationWeight, 1.0, weightStyles, weight);
         }
-
-        double logLikelihood;
-        if (residualModel.jointLogMarginalLikelihood(weightStyles, samples, weights,
-                                                     logLikelihood) == maths_t::E_FpNoErrors)
-        {
-            this->addLogLikelihood(logLikelihood);
-        }
-
-        for (const auto &weight : weights)
-        {
-            double expectedLogLikelihood;
-            TDouble4Vec1Vec weight_{weight};
-            if (residualModel.expectation(maths::CPrior::CLogMarginalLikelihood{
-                                                  residualModel, weightStyles, weight_},
-                                          EXPECTED_LOG_LIKELIHOOD_NUMBER_INTERVALS,
-                                          expectedLogLikelihood, weightStyles, weight))
-            {
-                this->addExpectedLogLikelihood(expectedLogLikelihood);
-            }
-        }
+        this->updateLogLikelihood(weightStyles, samples, weights);
+        this->updateExpectedLogLikelihood(weightStyles, weights);
     }
 
     for (std::size_t i = 0u; i < samples_.size(); ++i)
@@ -669,7 +666,7 @@ void CUnivariateLinearScaleModel::addSamples(std::size_t count,
         double prediction{CBasicStatistics::mean(trendModel.value(time, 0.0))};
         double scale{std::fabs(value) / std::fabs(prediction)};
         m_Scale.add(value * prediction < 0.0 ?
-                    0.1 : CTools::truncate(scale, 0.1, 10.0),
+                    MINIMUM_SCALE : CTools::truncate(scale, MINIMUM_SCALE, MAXIMUM_SCALE),
                     std::fabs(prediction));
     }
 
@@ -700,26 +697,8 @@ void CUnivariateLinearScaleModel::addSamples(std::size_t count,
         {
             maths_t::setWeight(maths_t::E_SampleWinsorisationWeight, 1.0, weightStyles, weight);
         }
-
-        double logLikelihood;
-        if (residualModel.jointLogMarginalLikelihood(weightStyles, samples, weights,
-                                                     logLikelihood) == maths_t::E_FpNoErrors)
-        {
-            this->addLogLikelihood(logLikelihood);
-        }
-
-        for (const auto &weight : weights)
-        {
-            double expectedLogLikelihood;
-            TDouble4Vec1Vec weight_{weight};
-            if (residualModel.expectation(maths::CPrior::CLogMarginalLikelihood{
-                                                  residualModel, weightStyles, weight_},
-                                          EXPECTED_LOG_LIKELIHOOD_NUMBER_INTERVALS,
-                                          expectedLogLikelihood, weightStyles, weight))
-            {
-                this->addExpectedLogLikelihood(expectedLogLikelihood);
-            }
-        }
+        this->updateLogLikelihood(weightStyles, samples, weights);
+        this->updateExpectedLogLikelihood(weightStyles, weights);
     }
 }
 
@@ -814,23 +793,8 @@ void CUnivariateTimeShiftModel::addSamples(std::size_t count,
         {
             maths_t::setWeight(maths_t::E_SampleWinsorisationWeight, 1.0, weightStyles, weight);
         }
-
-        double logLikelihood;
-        if (residualModel.jointLogMarginalLikelihood(weightStyles, samples, weights,
-                                                     logLikelihood) == maths_t::E_FpNoErrors)
-        {
-            this->addLogLikelihood(logLikelihood);
-        }
-        for (const auto &weight : weights)
-        {
-            double expectedLogLikelihood;
-            TDouble4Vec1Vec weight_{weight};
-            residualModel.expectation(maths::CPrior::CLogMarginalLikelihood{
-                                              residualModel, weightStyles, weight_},
-                                      EXPECTED_LOG_LIKELIHOOD_NUMBER_INTERVALS,
-                                      expectedLogLikelihood, weightStyles, weight);
-            this->addExpectedLogLikelihood(expectedLogLikelihood);
-        }
+        this->updateLogLikelihood(weightStyles, samples, weights);
+        this->updateExpectedLogLikelihood(weightStyles, weights);
     }
 }
 

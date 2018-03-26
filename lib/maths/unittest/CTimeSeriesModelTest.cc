@@ -149,40 +149,40 @@ maths::CModelProbabilityParams computeProbabilityParams(const TDouble2Vec4Vec &w
     return params;
 }
 
-maths::CNormalMeanPrecConjugate univariateNormal(void)
+maths::CNormalMeanPrecConjugate univariateNormal(double decayRate = DECAY_RATE)
 {
-    return maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
+    return maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, decayRate);
 }
 
-maths::CLogNormalMeanPrecConjugate univariateLogNormal(void)
+maths::CLogNormalMeanPrecConjugate univariateLogNormal(double decayRate = DECAY_RATE)
 {
-    return maths::CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.0, DECAY_RATE);
+    return maths::CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.0, decayRate);
 }
 
-maths::CMultimodalPrior univariateMultimodal(void)
+maths::CMultimodalPrior univariateMultimodal(double decayRate = DECAY_RATE)
 {
     maths::CXMeansOnline1d clusterer{maths_t::E_ContinuousData,
                                      maths::CAvailableModeDistributions::ALL,
                                      maths_t::E_ClustersFractionWeight,
-                                     DECAY_RATE};
-    return maths::CMultimodalPrior{maths_t::E_ContinuousData, clusterer, univariateNormal(), DECAY_RATE};
+                                     decayRate};
+    return maths::CMultimodalPrior{maths_t::E_ContinuousData, clusterer, univariateNormal(), decayRate};
 }
 
-maths::CMultivariateNormalConjugate<3> multivariateNormal(void)
+maths::CMultivariateNormalConjugate<3> multivariateNormal(double decayRate = DECAY_RATE)
 {
-    return maths::CMultivariateNormalConjugate<3>::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
+    return maths::CMultivariateNormalConjugate<3>::nonInformativePrior(maths_t::E_ContinuousData, decayRate);
 }
 
-maths::CMultivariateMultimodalPrior<3> multivariateMultimodal(void)
+maths::CMultivariateMultimodalPrior<3> multivariateMultimodal(double decayRate = DECAY_RATE)
 {
     maths::CXMeansOnline<maths::CFloatStorage, 3> clusterer(maths_t::E_ContinuousData,
                                                             maths_t::E_ClustersFractionWeight,
-                                                            DECAY_RATE);
+                                                            decayRate);
     return maths::CMultivariateMultimodalPrior<3>(
                    maths_t::E_ContinuousData,
                    clusterer,
-                   maths::CMultivariateNormalConjugate<3>::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE),
-                   DECAY_RATE);
+                   maths::CMultivariateNormalConjugate<3>::nonInformativePrior(maths_t::E_ContinuousData, decayRate),
+                   decayRate);
 }
 
 maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary decayRateControllers(std::size_t dimension)
@@ -2147,7 +2147,8 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities(void)
         maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
         auto controllers = decayRateControllers(1);
         maths::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 0,
-                                                trend, univariateNormal(), &controllers};
+                                                trend, univariateNormal(DECAY_RATE / 3.0),
+                                                &controllers};
 
         // Add some data to the model.
 
@@ -2319,14 +2320,10 @@ void CTimeSeriesModelTest::testLinearScaling(void)
     //   1) linearly scale down a periodic pattern,
     //   2) linearly scale up the same periodic pattern.
 
-    core_t::TTime startTime{0};
-
     TDouble2Vec4VecVec weight{{{1.0}}};
     auto updateModel = [&](core_t::TTime time, double value, maths::CUnivariateTimeSeriesModel &model)
         {
-            double derate{std::max(1.0 - static_cast<double>(time - startTime)
-                                         / 3.0 / static_cast<double>(core::constants::WEEK), 0.0)};
-            weight[0][0] = model.winsorisationWeight(derate, time, {value});
+            weight[0][0] = model.winsorisationWeight(0.0, time, {value});
             model.addSamples(addSampleParams(1.0, {maths_t::E_SampleWinsorisationWeight}, weight),
                              {core::make_triple(time, TDouble2Vec{value}, TAG)});
         };
@@ -2350,10 +2347,11 @@ void CTimeSeriesModelTest::testLinearScaling(void)
     double noiseVariance{3.0};
 
     core_t::TTime bucketLength{600};
-    maths::CModelParams params{modelParams(bucketLength)};
     maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
     auto controllers = decayRateControllers(1);
-    maths::CUnivariateTimeSeriesModel model{params, 0, trend, univariateNormal(), &controllers};
+    maths::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 0,
+                                            trend, univariateNormal(DECAY_RATE / 3.0),
+                                            &controllers};
 
     core_t::TTime time{0};
     TDoubleVec samples;
@@ -2383,8 +2381,8 @@ void CTimeSeriesModelTest::testLinearScaling(void)
         updateModel(time, sample, model);
         //updateTestDebug(time, sample, model);
         auto x = model.confidenceInterval(time, 90.0, {maths_t::E_SampleCountWeight}, {{1.0}});
-        CPPUNIT_ASSERT(::fabs(sample - x[1][0])  < 2.0 * std::sqrt(3.0));
-        CPPUNIT_ASSERT(::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(3.0));
+        CPPUNIT_ASSERT(::fabs(sample - x[1][0])  < 1.2 * std::sqrt(noiseVariance));
+        CPPUNIT_ASSERT(::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
@@ -2405,8 +2403,8 @@ void CTimeSeriesModelTest::testLinearScaling(void)
         updateModel(time, sample, model);
         //updateTestDebug(time, sample, model);
         auto x = model.confidenceInterval(time, 90.0, {maths_t::E_SampleCountWeight}, {{1.0}});
-        CPPUNIT_ASSERT(::fabs(sample - x[1][0])  < 3.6 * std::sqrt(3.0));
-        CPPUNIT_ASSERT(::fabs(x[2][0] - x[0][0]) < 4.3 * std::sqrt(3.0));
+        CPPUNIT_ASSERT(::fabs(sample - x[1][0])  < 3.1 * std::sqrt(noiseVariance));
+        CPPUNIT_ASSERT(::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
@@ -2421,6 +2419,102 @@ void CTimeSeriesModelTest::testDaylightSaving(void)
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testDaylightSaving  |");
     LOG_DEBUG("+--------------------------------------------+");
+
+    TDouble2Vec4VecVec weight{{{1.0}}};
+    auto updateModel = [&](core_t::TTime time, double value, maths::CUnivariateTimeSeriesModel &model)
+        {
+            weight[0][0] = model.winsorisationWeight(0.0, time, {value});
+            model.addSamples(addSampleParams(1.0, {maths_t::E_SampleWinsorisationWeight}, weight),
+                             {core::make_triple(time, TDouble2Vec{value}, TAG)});
+        };
+
+    //std::ostringstream actual, modelBounds;
+    //actual << "r = [";
+    //modelBounds << "x = [";
+    //auto updateTestDebug = [&](core_t::TTime time, double value,
+    //                           const maths::CUnivariateTimeSeriesModel &model)
+    //    {
+    //        actual << value << std::endl;
+    //        auto x = model.confidenceInterval(time, 90.0, {maths_t::E_SampleCountWeight}, {{1.0}});
+    //        if (x.size() == 3)
+    //        {
+    //            modelBounds << x[0][0] << "," << x[1][0] << "," << x[2][0] << std::endl;
+    //        }
+    //    };
+
+    test::CRandomNumbers rng;
+
+    core_t::TTime hour{core::constants::HOUR};
+    double noiseVariance{0.36};
+
+    core_t::TTime bucketLength{600};
+    maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
+    auto controllers = decayRateControllers(1);
+    maths::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 0,
+                                            trend, univariateNormal(DECAY_RATE / 3.0),
+                                            &controllers};
+
+    core_t::TTime time{0};
+    TDoubleVec samples;
+    rng.generateNormalSamples(0.0, noiseVariance, 1000, samples);
+    for (auto sample : samples)
+    {
+        sample += 12.0 + 10.0 * smoothDaily(time);
+        updateModel(time, sample, model);
+        //updateTestDebug(time, sample, model);
+        time += bucketLength;
+    }
+
+    // Shift by +1 hr.
+
+    rng.generateNormalSamples(0.0, noiseVariance, 200, samples);
+    for (auto sample : samples)
+    {
+        sample += 12.0 + 10.0 * smoothDaily(time + hour);
+        updateModel(time, sample, model);
+        //updateTestDebug(time, sample, model);
+        time += bucketLength;
+    }
+    rng.generateNormalSamples(0.0, noiseVariance, 1500, samples);
+    for (auto sample : samples)
+    {
+        sample += 12.0 + 10.0 * smoothDaily(time + hour);
+        updateModel(time, sample, model);
+        //updateTestDebug(time, sample, model);
+        CPPUNIT_ASSERT_EQUAL(hour, model.trendModel().timeShift());
+        auto x = model.confidenceInterval(time, 90.0, {maths_t::E_SampleCountWeight}, {{1.0}});
+        CPPUNIT_ASSERT(::fabs(sample - x[1][0])  < 3.6 * std::sqrt(noiseVariance));
+        CPPUNIT_ASSERT(::fabs(x[2][0] - x[0][0]) < 3.6 * std::sqrt(noiseVariance));
+        time += bucketLength;
+    }
+
+    // Shift by -1 hr.
+
+    rng.generateNormalSamples(0.0, noiseVariance, 200, samples);
+    for (auto sample : samples)
+    {
+        sample += 12.0 + 10.0 * smoothDaily(time);
+        updateModel(time, sample, model);
+        //updateTestDebug(time, sample, model);
+        time += bucketLength;
+    }
+    rng.generateNormalSamples(0.0, noiseVariance, 400, samples);
+    for (auto sample : samples)
+    {
+        sample += 12.0 + 10.0 * smoothDaily(time);
+        updateModel(time, sample, model);
+        //updateTestDebug(time, sample, model);
+        CPPUNIT_ASSERT_EQUAL(core_t::TTime(0), model.trendModel().timeShift());
+        auto x = model.confidenceInterval(time, 90.0, {maths_t::E_SampleCountWeight}, {{1.0}});
+        CPPUNIT_ASSERT(::fabs(sample - x[1][0])  < 4.1 * std::sqrt(noiseVariance));
+        CPPUNIT_ASSERT(::fabs(x[2][0] - x[0][0]) < 3.8 * std::sqrt(noiseVariance));
+        time += bucketLength;
+    }
+
+    //std::ofstream file;
+    //file.open("bounds.m");
+    //file << actual.str() << "];";
+    //file << modelBounds.str() << "];";
 }
 
 CppUnit::Test *CTimeSeriesModelTest::suite(void)

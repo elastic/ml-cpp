@@ -109,7 +109,10 @@ class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositio
         //! Get the static size of this object.
         virtual std::size_t staticSize(void) const;
 
-        //! Get the seasonal components.
+        //! Returns zero.
+        virtual core_t::TTime timeShift(void) const;
+
+        //! Returns an empty vector.
         virtual const maths_t::TSeasonalComponentVec &seasonalComponents(void) const;
 
         //! Returns 0.
