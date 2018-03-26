@@ -407,7 +407,7 @@ void CUnivariateNoChangeModel::addSamples(std::size_t count,
             samples.push_back(this->trendModel().detrend(sample.first, sample.second, 0.0));
         }
 
-        double logLikelihood;
+        double logLikelihood{0.0};
         if (this->residualModel().jointLogMarginalLikelihood(weightStyles, samples, weights,
                                                              logLikelihood) == maths_t::E_FpNoErrors)
         {
@@ -520,7 +520,7 @@ void CUnivariateLevelShiftModel::addSamples(std::size_t count,
         residualModel.addSamples(weightStyles, samples, weights);
         residualModel.propagateForwardsByTime(1.0);
 
-        double logLikelihood;
+        double logLikelihood{0.0};
         if (residualModel.jointLogMarginalLikelihood(weightStyles, samples, weights,
                                                      logLikelihood) == maths_t::E_FpNoErrors)
         {
@@ -528,7 +528,7 @@ void CUnivariateLevelShiftModel::addSamples(std::size_t count,
         }
         for (const auto &weight : weights)
         {
-            double expectedLogLikelihood;
+            double expectedLogLikelihood{0.0};
             TDouble4Vec1Vec weight_{weight};
             if (residualModel.expectation(maths::CPrior::CLogMarginalLikelihood{
                                                   residualModel, weightStyles, weight_},
@@ -621,7 +621,7 @@ void CUnivariateTimeShiftModel::addSamples(std::size_t count,
         residualModel.addSamples(weightStyles, samples, weights);
         residualModel.propagateForwardsByTime(1.0);
 
-        double logLikelihood;
+        double logLikelihood{0.0};
         if (residualModel.jointLogMarginalLikelihood(weightStyles, samples, weights,
                                                      logLikelihood) == maths_t::E_FpNoErrors)
         {
@@ -629,7 +629,7 @@ void CUnivariateTimeShiftModel::addSamples(std::size_t count,
         }
         for (const auto &weight : weights)
         {
-            double expectedLogLikelihood;
+            double expectedLogLikelihood{0.0};
             TDouble4Vec1Vec weight_{weight};
             residualModel.expectation(maths::CPrior::CLogMarginalLikelihood{
                                               residualModel, weightStyles, weight_},
