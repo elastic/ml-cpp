@@ -167,7 +167,7 @@ TOptionalChangeDescription CUnivariateTimeSeriesChangeDetector::change()
 {
     if (m_TimeRange.range() > m_MinimumTimeToDetect)
     {
-        std::size_t candidate;
+        std::size_t candidate{};
         double p{this->decisionFunction(candidate)};
 
         if (p > 1.0)
@@ -352,7 +352,7 @@ void CUnivariateChangeModel::updateLogLikelihood(const TWeightStyleVec &weightSt
                                                  const TDouble1Vec &samples,
                                                  const TDouble4Vec1Vec &weights)
 {
-    double logLikelihood;
+    double logLikelihood{};
     if (m_ResidualModel->jointLogMarginalLikelihood(weightStyles, samples, weights,
                                                     logLikelihood) == maths_t::E_FpNoErrors)
     {
@@ -365,7 +365,7 @@ void CUnivariateChangeModel::updateExpectedLogLikelihood(const TWeightStyleVec &
 {
     for (const auto &weight : weights)
     {
-        double expectedLogLikelihood;
+        double expectedLogLikelihood{};
         TDouble4Vec1Vec weight_{weight};
         if (m_ResidualModel->expectation(maths::CPrior::CLogMarginalLikelihood{
                                                  *m_ResidualModel, weightStyles, weight_},
