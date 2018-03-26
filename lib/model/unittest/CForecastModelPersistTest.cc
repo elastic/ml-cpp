@@ -37,7 +37,7 @@ void CForecastModelPersistTest::testPersistAndRestore()
     LOG_DEBUG("|  CForecastModelPersistTest::testPersistAndRestore  |");
     LOG_DEBUG("+----------------------------------------------------+");
 
-	core_t::TTime bucketLength{1800};
+    core_t::TTime bucketLength{1800};
     double minimumSeasonalVarianceScale = 0.2;
     SModelParams params{bucketLength};
     params.s_DecayRate = 0.001;
@@ -73,58 +73,60 @@ void CForecastModelPersistTest::testPersistAndRestore()
                        "");
     std::string persistedModels = persister.finalizePersistAndGetFile();
 
-    CForecastModelPersist::CRestore restorer(params, minimumSeasonalVarianceScale, persistedModels);
-    CForecastModelPersist::TMathsModelPtr restoredModel;
-    std::string restoredByFieldValue;
-    model_t::EFeature restoredFeature;
+    {
+        CForecastModelPersist::CRestore restorer(params, minimumSeasonalVarianceScale, persistedModels);
+        CForecastModelPersist::TMathsModelPtr restoredModel;
+        std::string restoredByFieldValue;
+        model_t::EFeature restoredFeature;
 
-    // test timeSeriesModel
-    CPPUNIT_ASSERT(restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
+        // test timeSeriesModel
+        CPPUNIT_ASSERT(restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
 
-    CPPUNIT_ASSERT(restoredModel);
-    CPPUNIT_ASSERT_EQUAL(model_t::EFeature::E_IndividualCountByBucketAndPerson, restoredFeature);
-    CPPUNIT_ASSERT_EQUAL(std::string("some_by_field"), restoredByFieldValue);
-    CPPUNIT_ASSERT_EQUAL(bucketLength, restoredModel->params().bucketLength());
-    CPPUNIT_ASSERT_EQUAL(size_t(1), restoredModel->identifier());
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_ContinuousData, restoredModel->dataType());
+        CPPUNIT_ASSERT(restoredModel);
+        CPPUNIT_ASSERT_EQUAL(model_t::EFeature::E_IndividualCountByBucketAndPerson, restoredFeature);
+        CPPUNIT_ASSERT_EQUAL(std::string("some_by_field"), restoredByFieldValue);
+        CPPUNIT_ASSERT_EQUAL(bucketLength, restoredModel->params().bucketLength());
+        CPPUNIT_ASSERT_EQUAL(size_t(1), restoredModel->identifier());
+        CPPUNIT_ASSERT_EQUAL(maths_t::E_ContinuousData, restoredModel->dataType());
 
-    CForecastModelPersist::TMathsModelPtr timeSeriesModelForForecast {timeSeriesModel.cloneForForecast()};
-    CPPUNIT_ASSERT_EQUAL(timeSeriesModelForForecast->params().learnRate(), restoredModel->params().learnRate());
-    CPPUNIT_ASSERT_EQUAL(params.s_DecayRate, restoredModel->params().decayRate());
-    CPPUNIT_ASSERT_EQUAL(minimumSeasonalVarianceScale, restoredModel->params().minimumSeasonalVarianceScale());
+        CForecastModelPersist::TMathsModelPtr timeSeriesModelForForecast {timeSeriesModel.cloneForForecast()};
+        CPPUNIT_ASSERT_EQUAL(timeSeriesModelForForecast->params().learnRate(), restoredModel->params().learnRate());
+        CPPUNIT_ASSERT_EQUAL(params.s_DecayRate, restoredModel->params().decayRate());
+        CPPUNIT_ASSERT_EQUAL(minimumSeasonalVarianceScale, restoredModel->params().minimumSeasonalVarianceScale());
 
-    CPPUNIT_ASSERT_EQUAL(timeSeriesModelForForecast->checksum(42), restoredModel->checksum(42));
+        CPPUNIT_ASSERT_EQUAL(timeSeriesModelForForecast->checksum(42), restoredModel->checksum(42));
 
-    // test otherTimeSeriesModel
-    restoredModel.reset();
-    CPPUNIT_ASSERT(restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
-    CPPUNIT_ASSERT(restoredModel);
-    CPPUNIT_ASSERT_EQUAL(model_t::EFeature::E_IndividualLowMeanByPerson, restoredFeature);
-    CPPUNIT_ASSERT_EQUAL(std::string("some_other_by_field"), restoredByFieldValue);
-    CPPUNIT_ASSERT_EQUAL(bucketLength, restoredModel->params().bucketLength());
-    CPPUNIT_ASSERT_EQUAL(size_t(2), restoredModel->identifier());
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedData, restoredModel->dataType());
-    CForecastModelPersist::TMathsModelPtr otherTimeSeriesModelForForecast {otherTimeSeriesModel.cloneForForecast()};
-    CPPUNIT_ASSERT_EQUAL(otherTimeSeriesModelForForecast->params().learnRate(), restoredModel->params().learnRate());
-    CPPUNIT_ASSERT_EQUAL(params.s_DecayRate, restoredModel->params().decayRate());
-    CPPUNIT_ASSERT_EQUAL(minimumSeasonalVarianceScale, restoredModel->params().minimumSeasonalVarianceScale());
-    CPPUNIT_ASSERT_EQUAL(otherTimeSeriesModelForForecast->checksum(42), restoredModel->checksum(42));
+        // test otherTimeSeriesModel
+        restoredModel.reset();
+        CPPUNIT_ASSERT(restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
+        CPPUNIT_ASSERT(restoredModel);
+        CPPUNIT_ASSERT_EQUAL(model_t::EFeature::E_IndividualLowMeanByPerson, restoredFeature);
+        CPPUNIT_ASSERT_EQUAL(std::string("some_other_by_field"), restoredByFieldValue);
+        CPPUNIT_ASSERT_EQUAL(bucketLength, restoredModel->params().bucketLength());
+        CPPUNIT_ASSERT_EQUAL(size_t(2), restoredModel->identifier());
+        CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedData, restoredModel->dataType());
+        CForecastModelPersist::TMathsModelPtr otherTimeSeriesModelForForecast {otherTimeSeriesModel.cloneForForecast()};
+        CPPUNIT_ASSERT_EQUAL(otherTimeSeriesModelForForecast->params().learnRate(), restoredModel->params().learnRate());
+        CPPUNIT_ASSERT_EQUAL(params.s_DecayRate, restoredModel->params().decayRate());
+        CPPUNIT_ASSERT_EQUAL(minimumSeasonalVarianceScale, restoredModel->params().minimumSeasonalVarianceScale());
+        CPPUNIT_ASSERT_EQUAL(otherTimeSeriesModelForForecast->checksum(42), restoredModel->checksum(42));
 
-    // test otherTimeSeriesModelEmptyByField
-    restoredModel.reset();
-    CPPUNIT_ASSERT(restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
-    CPPUNIT_ASSERT(restoredModel);
-    CPPUNIT_ASSERT_EQUAL(model_t::EFeature::E_IndividualHighMedianByPerson, restoredFeature);
-    CPPUNIT_ASSERT_EQUAL(std::string(), restoredByFieldValue);
-    CPPUNIT_ASSERT_EQUAL(bucketLength, restoredModel->params().bucketLength());
-    CPPUNIT_ASSERT_EQUAL(size_t(3), restoredModel->identifier());
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_DiscreteData, restoredModel->dataType());
-    CForecastModelPersist::TMathsModelPtr otherTimeSeriesModelEmptyByFieldForForecast
-        {otherTimeSeriesModelEmptyByField.cloneForForecast()};
-    CPPUNIT_ASSERT_EQUAL(otherTimeSeriesModelEmptyByFieldForForecast->checksum(42),
-        restoredModel->checksum(42));
+        // test otherTimeSeriesModelEmptyByField
+        restoredModel.reset();
+        CPPUNIT_ASSERT(restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
+        CPPUNIT_ASSERT(restoredModel);
+        CPPUNIT_ASSERT_EQUAL(model_t::EFeature::E_IndividualHighMedianByPerson, restoredFeature);
+        CPPUNIT_ASSERT_EQUAL(std::string(), restoredByFieldValue);
+        CPPUNIT_ASSERT_EQUAL(bucketLength, restoredModel->params().bucketLength());
+        CPPUNIT_ASSERT_EQUAL(size_t(3), restoredModel->identifier());
+        CPPUNIT_ASSERT_EQUAL(maths_t::E_DiscreteData, restoredModel->dataType());
+        CForecastModelPersist::TMathsModelPtr otherTimeSeriesModelEmptyByFieldForForecast
+            {otherTimeSeriesModelEmptyByField.cloneForForecast()};
+        CPPUNIT_ASSERT_EQUAL(otherTimeSeriesModelEmptyByFieldForForecast->checksum(42),
+            restoredModel->checksum(42));
 
-    CPPUNIT_ASSERT(!restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
+        CPPUNIT_ASSERT(!restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
+    }
     std::remove(persistedModels.c_str());
 }
 
