@@ -74,7 +74,10 @@ CAnomalyDetectorModel *CEventRatePopulationModelFactory::makeModel(const SModelI
 
     return new CEventRatePopulationModel(this->modelParams(),
                                          dataGatherer,
-                                         this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false),
+                                         this->defaultFeatureModels(features,
+                                                                    dataGatherer->bucketLength(),
+                                                                    this->minimumSeasonalVarianceScale(),
+                                                                    false),
                                          this->defaultCorrelatePriors(features),
                                          this->defaultCorrelates(features),
                                          influenceCalculators);
@@ -340,6 +343,11 @@ CEventRatePopulationModelFactory::TStrCRefVec
         result.emplace_back(m_AttributeFieldName);
     }
     return result;
+}
+
+double CEventRatePopulationModelFactory::minimumSeasonalVarianceScale() const
+{
+    return 1.0;
 }
 
 }

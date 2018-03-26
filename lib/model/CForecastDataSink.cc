@@ -80,20 +80,26 @@ CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(SForecastModelWr
 {
 }
 
-CForecastDataSink::SForecastResultSeries::SForecastResultSeries()
-    :s_DetectorIndex(),
+CForecastDataSink::SForecastResultSeries::SForecastResultSeries(const SModelParams &modelParams)
+    :s_ModelParams(modelParams),
+     s_DetectorIndex(),
      s_ToForecast(),
+     s_ToForecastPersisted(),
      s_PartitionFieldValue(),
-     s_ByFieldName()
+     s_ByFieldName(),
+     s_MinimumSeasonalVarianceScale(0.0)
 {
 }
 
 CForecastDataSink::SForecastResultSeries::SForecastResultSeries(SForecastResultSeries &&other)
-    :s_DetectorIndex(other.s_DetectorIndex),
+    :s_ModelParams(std::move(other.s_ModelParams)),
+     s_DetectorIndex(other.s_DetectorIndex),
      s_ToForecast(std::move(other.s_ToForecast)),
+     s_ToForecastPersisted(std::move(other.s_ToForecastPersisted)),
      s_PartitionFieldName(std::move(other.s_PartitionFieldName)),
      s_PartitionFieldValue(std::move(other.s_PartitionFieldValue)),
-     s_ByFieldName(std::move(other.s_ByFieldName))
+     s_ByFieldName(std::move(other.s_ByFieldName)),
+     s_MinimumSeasonalVarianceScale(other.s_MinimumSeasonalVarianceScale)
 {
 }
 
