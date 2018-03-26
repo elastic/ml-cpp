@@ -48,7 +48,7 @@ namespace core {
         continue;                                                                                                                          \
     }
 
-#define RESTORE_ENUM(tag, target, enumtype, restoreSuccess)                           \
+#define RESTORE_ENUM(tag, target, enumtype)                                           \
         if (name == tag)                                                              \
         {                                                                             \
             int value;                                                                \
@@ -58,8 +58,14 @@ namespace core {
                 return false;                                                         \
             }                                                                         \
             target = enumtype(value);                                                 \
-            restoreSuccess = true;													  \
             continue;                                                                 \
+        }
+
+#define RESTORE_ENUM_CHECKED(tag, target, enumtype, restoreSuccess)                   \
+        if (name == tag)                                                              \
+        {                                                                             \
+            restoreSuccess = true;                                                    \
+            RESTORE_ENUM(tag, target, enumtype)                                       \
         }
 
 #define RESTORE_SETUP_TEARDOWN(tag, setup, restore, teardown)                                                                              \
