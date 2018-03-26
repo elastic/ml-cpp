@@ -177,7 +177,7 @@ void CForecastRunner::forecastWorker() {
                                                                             series.s_ToForecastPersisted));
                 }
 
-                while (series.s_ToForecast.empty() == false && modelRestore != nullptr)
+                while (series.s_ToForecast.empty() == false || modelRestore != nullptr)
                 {
                     // check if we should backfill from persistence
                     if (series.s_ToForecast.empty())
