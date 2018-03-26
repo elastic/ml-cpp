@@ -1046,22 +1046,27 @@ CPeriodicityHypothesisTests::best(const TNestedHypothesesVec &hypotheses) const
     TMinAccumulator vCutoff;
     for (const auto &summary : summaries)
     {
-        vCutoff.add(varianceAtPercentile(summary.s_V, summary.s_DF,
-                                         50.0 + CONFIDENCE_INTERVAL / 2.0));
-    }
-    LOG_TRACE("variance cutoff = " << vCutoff[0]);
-
-    TMinAccumulator df;
-    for (const auto &summary : summaries)
-    {
-        double v{varianceAtPercentile(summary.s_V, summary.s_DF,
-                                      50.0 - CONFIDENCE_INTERVAL / 2.0)};
-        if (v <= vCutoff[0] && df.add(-summary.s_DF))
+        if (summary.s_DF > 0.0)
         {
-            result = summary.s_H;
+            vCutoff.add(varianceAtPercentile(summary.s_V, summary.s_DF,
+                                             50.0 + CONFIDENCE_INTERVAL / 2.0));
         }
     }
+    if (vCutoff.count() > 0)
+    {
+        LOG_TRACE("variance cutoff = " << vCutoff[0]);
 
+        TMinAccumulator df;
+        for (const auto &summary : summaries)
+        {
+            double v{varianceAtPercentile(summary.s_V, summary.s_DF,
+                                          50.0 - CONFIDENCE_INTERVAL / 2.0)};
+            if (v <= vCutoff[0] && df.add(-summary.s_DF))
+            {
+                result = summary.s_H;
+            }
+        }
+    }
     return result;
 }
 
@@ -1456,6 +1461,10 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec &windows,
     double B{stats.s_B};
     double scale{1.0 / M};
     double df0{B - stats.s_DF0};
+    if (df0 <= 0.0)
+    {
+        return false;
+    }
     double v0{varianceAtPercentile(stats.s_V0, df0, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
     double vt{stats.s_Vt * v0};
     double at{stats.s_At * std::sqrt(v0 / scale)};
@@ -1574,6 +1583,10 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec &partition
     double B{stats.s_B};
     double scale{1.0 / stats.s_M};
     double df0{B - stats.s_DF0};
+    if (df0 <= 0.0)
+    {
+        return false;
+    }
     double v0{varianceAtPercentile(stats.s_V0, df0, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
     double vt{stats.s_Vt * v0};
     LOG_TRACE("period = " << period);
