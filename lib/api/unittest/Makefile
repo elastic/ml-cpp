@@ -51,7 +51,6 @@ SRCS=\
 	CMockDataProcessor.cc \
 	CMockSearcher.cc \
 	CModelPlotDataJsonWriterTest.cc \
-	CModelSnapshotJsonWriterTest.cc \
 	CMultiFileDataAdderTest.cc \
 	COutputChainerTest.cc \
 	CRestorePreviousStateTest.cc \

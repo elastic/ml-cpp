@@ -33,7 +33,6 @@
 #include "CLineifiedJsonOutputWriterTest.h"
 #include "CLineifiedXmlInputParserTest.h"
 #include "CModelPlotDataJsonWriterTest.h"
-#include "CModelSnapshotJsonWriterTest.h"
 #include "CMultiFileDataAdderTest.h"
 #include "COutputChainerTest.h"
 #include "CRestorePreviousStateTest.h"
@@ -68,7 +67,6 @@ int main(int argc, const char **argv)
     runner.addTest( CLineifiedJsonOutputWriterTest::suite() );
     runner.addTest( CLineifiedXmlInputParserTest::suite() );
     runner.addTest( CModelPlotDataJsonWriterTest::suite() );
-    runner.addTest( CModelSnapshotJsonWriterTest::suite() );
     runner.addTest( CMultiFileDataAdderTest::suite() );
     runner.addTest( COutputChainerTest::suite() );
     runner.addTest( CRestorePreviousStateTest::suite() );
