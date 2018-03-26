@@ -53,13 +53,6 @@ class MODEL_EXPORT CForecastModelPersist final
     public:
         using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
 
-    private:
-        static const std::string FORECAST_MODEL_PERSIST_TAG;
-        static const std::string FEATURE_TAG;
-        static const std::string DATA_TYPE_TAG;
-        static const std::string MODEL_TAG;
-        static const std::string BY_FIELD_VALUE_TAG;
-
     public:
         class CPersist final {
             public:
