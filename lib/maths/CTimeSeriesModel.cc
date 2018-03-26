@@ -819,6 +819,10 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
 
     m_IsNonNegative = params.isNonNegative();
 
+    maths_t::EDataType type{params.type()};
+    m_ResidualModel->dataType(type);
+    m_TrendModel->dataType(type);
+
     result = CModel::combine(result, this->updateTrend(params.weightStyles(),
                                                        samples, params.trendWeights()));
 
@@ -832,9 +836,6 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
                      {
                          return samples[lhs].second < samples[rhs].second;
                      });
-
-    maths_t::EDataType type{params.type()};
-    m_ResidualModel->dataType(type);
 
     TDouble1Vec samples_;
     TDouble4Vec1Vec weights_;
@@ -1530,16 +1531,18 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams &par
 
     if (m_ChangeDetector == nullptr)
     {
+        core_t::TTime minimumTimeToDetect{this->params().minimumTimeToDetectChange()};
+        core_t::TTime maximumTimeToTest{this->params().maximumTimeToTestForChange()};
         double weight{maths_t::winsorisationWeight(params.weightStyles(), {weights})};
-        if (pValueFromTailWinsorisationWeight(weight) <= 1e-5)
+        if (   minimumTimeToDetect < maximumTimeToTest
+            && pValueFromTailWinsorisationWeight(weight) <= 1e-5)
         {
             m_CurrentChangeInterval += this->params().bucketLength();
             if (this->params().testForChange(m_CurrentChangeInterval))
             {
                 m_ChangeDetector = boost::make_shared<CUnivariateTimeSeriesChangeDetector>(
                                        m_TrendModel, m_ResidualModel,
-                                       this->params().minimumTimeToDetectChange(),
-                                       this->params().maximumTimeToTestForChange());
+                                       minimumTimeToDetect, maximumTimeToTest);
                 m_CurrentChangeInterval = 0;
             }
         }
@@ -2324,6 +2327,13 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
 
     m_IsNonNegative = params.isNonNegative();
 
+    maths_t::EDataType type{params.type()};
+    m_ResidualModel->dataType(type);
+    for (auto &trendModel : m_TrendModel)
+    {
+        trendModel->dataType(type);
+    }
+
     std::size_t dimension{this->dimension()};
 
     EUpdateResult result{this->updateTrend(params.weightStyles(), samples, params.trendWeights())};
@@ -2348,9 +2358,6 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
                      {
                          return samples[lhs].second < samples[rhs].second;
                      });
-
-    maths_t::EDataType type{params.type()};
-    m_ResidualModel->dataType(type);
 
     TDouble10Vec1Vec samples_;
     TDouble10Vec4Vec1Vec weights_;

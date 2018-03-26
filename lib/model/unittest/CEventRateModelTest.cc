@@ -594,7 +594,7 @@ void CEventRateModelTest::testOnlineRare(void)
 
     LOG_TRACE("origXml = " << origXml);
     LOG_DEBUG("size = " << origXml.size());
-    CPPUNIT_ASSERT(origXml.size() < 21000);
+    CPPUNIT_ASSERT(origXml.size() < 22000);
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;

@@ -339,11 +339,11 @@ void CMetricModelTest::testSample(void)
                 TTimeDoublePr(66, 1.33),
                 TTimeDoublePr(68, 1.5),
                 TTimeDoublePr(84, 1.58),
-                TTimeDoublePr(87, 1.99),
+                TTimeDoublePr(87, 1.69),
                 TTimeDoublePr(157, 1.6),
                 TTimeDoublePr(164, 1.66),
                 TTimeDoublePr(199, 1.28),
-                TTimeDoublePr(202, 1.0),
+                TTimeDoublePr(202, 1.2),
                 TTimeDoublePr(204, 1.5)
             };
 
@@ -591,11 +591,11 @@ void CMetricModelTest::testMultivariateSample(void)
             { 66,  1.33, 1.6 },
             { 68,  1.5,  1.37},
             { 84,  1.58, 1.42},
-            { 87,  1.99, 2.2 },
+            { 87,  1.6,  1.6 },
             { 157, 1.6,  1.6 },
             { 164, 1.66, 1.55},
             { 199, 1.28, 1.4 },
-            { 202, 1.0,  0.7 },
+            { 202, 1.3,  1.1 },
             { 204, 1.5,  1.8 }
         };
     TTimeDouble2AryPrVec data;

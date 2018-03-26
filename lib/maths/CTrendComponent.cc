@@ -319,6 +319,7 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight)
 void CTrendComponent::dataType(maths_t::EDataType dataType)
 {
     m_ProbabilityOfLevelChangeModel.dataType(dataType);
+    m_MagnitudeOfLevelChangeModel.dataType(dataType);
 }
 
 double CTrendComponent::defaultDecayRate() const
