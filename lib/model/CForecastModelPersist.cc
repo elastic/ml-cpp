@@ -32,11 +32,13 @@ namespace ml
 namespace model
 {
 
-const std::string CForecastModelPersist::FORECAST_MODEL_PERSIST_TAG("forecast_persist");
-const std::string CForecastModelPersist::FEATURE_TAG("feature");
-const std::string CForecastModelPersist::DATA_TYPE_TAG("datatype");
-const std::string CForecastModelPersist::MODEL_TAG("model");
-const std::string CForecastModelPersist::BY_FIELD_VALUE_TAG("by_field_value");
+namespace {
+static const std::string FORECAST_MODEL_PERSIST_TAG("forecast_persist");
+static const std::string FEATURE_TAG("feature");
+static const std::string DATA_TYPE_TAG("datatype");
+static const std::string MODEL_TAG("model");
+static const std::string BY_FIELD_VALUE_TAG("by_field_value");
+}
 
 CForecastModelPersist::CPersist::CPersist(const std::string &temporaryPath):
     m_FileName(temporaryPath),
@@ -148,8 +150,8 @@ bool CForecastModelPersist::CRestore::restoreOneModel(core::CStateRestoreTravers
     do
     {
         const std::string &name = traverser.name();
-        RESTORE_ENUM(FEATURE_TAG, feature, model_t::EFeature, restoredFeature)
-        RESTORE_ENUM(DATA_TYPE_TAG, dataType, maths_t::EDataType, restoredDataType)
+        RESTORE_ENUM_CHECKED(FEATURE_TAG, feature, model_t::EFeature, restoredFeature)
+        RESTORE_ENUM_CHECKED(DATA_TYPE_TAG, dataType, maths_t::EDataType, restoredDataType)
         RESTORE_BUILT_IN(BY_FIELD_VALUE_TAG, byFieldValue)
         if (name == MODEL_TAG)
         {
