@@ -395,6 +395,11 @@ class MATHS_EXPORT CPeriodicityHypothesisTests
                            core_t::TTime period,
                            double correction, STestStats &stats) const;
 
+        //! Get the number of buckets for which there is at least one repeat
+        //! at \p period in \p buckets.
+        double periodicallyRepeatedBuckets(const TFloatMeanAccumulatorCRng &buckets,
+                                           std::size_t period) const;
+
     private:
         //! The minimum proportion of populated buckets for which
         //! the test is accurate.
