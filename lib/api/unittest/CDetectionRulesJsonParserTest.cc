@@ -76,8 +76,11 @@ CppUnit::Test* CDetectionRulesJsonParserTest::suite() {
         new CppUnit::TestCaller<CDetectionRulesJsonParserTest>("CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules",
                                                                &CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDetectionRulesJsonParserTest>("CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalRule",
-                                                               &CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalRule));
+        new CppUnit::TestCaller<CDetectionRulesJsonParserTest>("CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalMatchRule",
+                                                               &CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalMatchRule));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDetectionRulesJsonParserTest>("CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalComplementRule",
+                                                               &CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalComplementRule));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
         "CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule", &CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule));
     suiteOfTests->addTest(
@@ -356,8 +359,8 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules() {
     CPPUNIT_ASSERT_EQUAL(std::string("SKIP_SAMPLING (id:42) IF ACTUAL < 2.000000"), rules[1].print());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalRule() {
-    LOG_DEBUG("*** testParseRulesGivenCategoricalRule ***");
+void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalMatchRule() {
+    LOG_DEBUG("*** testParseRulesGivenCategoricalMatchRule ***");
 
     TStrPatternSetUMap filtersById;
     core::CPatternSet filter;
@@ -371,7 +374,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalRule() {
     rulesJson += "  \"actions\":[\"filter_results\"],";
     rulesJson += "  \"conditions_connective\":\"or\",";
     rulesJson += "  \"conditions\": [";
-    rulesJson += "    {\"type\":\"categorical\", \"field_name\":\"foo\", \"filter_id\":\"filter1\"}";
+    rulesJson += "    {\"type\":\"categorical_match\", \"field_name\":\"foo\", \"filter_id\":\"filter1\"}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -380,6 +383,33 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalRule() {
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
     CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF (foo) IN FILTER"), rules[0].print());
+}
+
+void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalComplementRule() {
+{
+    LOG_DEBUG("*** testParseRulesGivenCategoricalComplementRule ***");
+
+    TStrPatternSetUMap filtersById;
+    core::CPatternSet filter;
+    filter.initFromJson("[\"b\", \"a\"]");
+    filtersById["filter1"] = filter;
+
+    CDetectionRulesJsonParser parser(filtersById);
+    CDetectionRulesJsonParser::TDetectionRuleVec rules;
+    std::string rulesJson = "[";
+    rulesJson += "{";
+    rulesJson += "  \"actions\":[\"filter_results\"],";
+    rulesJson += "  \"conditions_connective\":\"or\",";
+    rulesJson += "  \"conditions\": [";
+    rulesJson += "    {\"type\":\"categorical_complement\", \"field_name\":\"foo\", \"filter_id\":\"filter1\"}";
+    rulesJson += "  ]";
+    rulesJson += "}";
+    rulesJson += "]";
+
+    CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
+    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF (foo) NOT IN FILTER"), rules[0].print());
 }
 
 void CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule() {

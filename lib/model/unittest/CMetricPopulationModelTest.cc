@@ -1346,7 +1346,7 @@ void CMetricPopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
     valueFilter.initFromJson(filterJson);
 
     CRuleCondition condition;
-    condition.type(CRuleCondition::E_Categorical);
+    condition.type(CRuleCondition::E_CategoricalMatch);
     condition.valueFilter(valueFilter);
     CDetectionRule rule;
     rule.action(CDetectionRule::E_SkipSampling);

@@ -34,7 +34,8 @@ public:
     void testParseRulesGivenNumericalActualRuleWithConnectiveOr();
     void testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd();
     void testParseRulesGivenMultipleRules();
-    void testParseRulesGivenCategoricalRule();
+    void testParseRulesGivenCategoricalMatchRule();
+    void testParseRulesGivenCategoricalComplementRule();
     void testParseRulesGivenTimeRule();
     void testParseRulesGivenDifferentActions();
     static CppUnit::Test* suite();
