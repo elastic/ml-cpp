@@ -377,6 +377,16 @@ void CUnivariateChangeModel::updateExpectedLogLikelihood(const TWeightStyleVec &
     }
 }
 
+double CUnivariateChangeModel::expectedLogLikelihood() const
+{
+    return m_ExpectedLogLikelihood;
+}
+
+void CUnivariateChangeModel::addExpectedLogLikelihood(double logLikelihood)
+{
+    m_ExpectedLogLikelihood += logLikelihood;
+}
+
 const CTimeSeriesDecompositionInterface &CUnivariateChangeModel::trendModel() const
 {
     return *m_TrendModel;
@@ -440,8 +450,8 @@ void CUnivariateNoChangeModel::addSamples(std::size_t count,
                                           const TTimeDoublePr1Vec &samples_,
                                           TDouble4Vec1Vec weights)
 {
-    // See CUnivariateTimeSeriesLevelShiftModel for an explanation
-    // of the delay updating the log-likelihood.
+    // See, for example, CUnivariateLevelShiftModel::addSamples
+    // for an explanation of the delay updating the log-likelihood.
 
     if (count >= COUNT_TO_INITIALIZE)
     {
@@ -541,7 +551,7 @@ void CUnivariateLevelShiftModel::addSamples(std::size_t count,
     // level can change giving us a better apparent fit to the
     // data than a fixed step. Five updates was found to be the
     // minimum to get empirically similar sum log-likelihood if
-    // there is no shift in the data.
+    // there is no change in the data.
 
     if (count >= COUNT_TO_INITIALIZE)
     {
@@ -654,10 +664,10 @@ void CUnivariateLinearScaleModel::addSamples(std::size_t count,
     const CTimeSeriesDecompositionInterface &trendModel{this->trendModel()};
 
     // We delay updating the log-likelihood because early on the
-    // level can change giving us a better apparent fit to the
-    // data than a fixed step. Five updates was found to be the
+    // scale can change giving us a better apparent fit to the
+    // data than a fixed scale. Five updates was found to be the
     // minimum to get empirically similar sum log-likelihood if
-    // there is no shift in the data.
+    // there is no change in the data.
 
     for (std::size_t i = 0u; i < samples_.size(); ++i)
     {

@@ -244,6 +244,11 @@ class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
         void updateExpectedLogLikelihood(const TWeightStyleVec &weightStyles,
                                          const TDouble4Vec1Vec &weights);
 
+        //! Get the expected log-likelihood.
+        double expectedLogLikelihood() const;
+        //! Update the expected data log-likelihood with \p logLikelihood.
+        void addExpectedLogLikelihood(double logLikelihood);
+
         //! Get the time series trend model.
         const CTimeSeriesDecompositionInterface &trendModel() const;
         //! Get the time series trend model.
