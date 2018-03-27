@@ -421,8 +421,6 @@ void CRegressionTest::testLinearScale(void)
     {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0 * params1[i], params2[i], 1e-6);
     }
-
-
 }
 
 void CRegressionTest::testAge(void)
