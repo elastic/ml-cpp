@@ -377,22 +377,7 @@ void CUnivariateChangeModel::updateExpectedLogLikelihood(const TWeightStyleVec &
     }
 }
 
-double CUnivariateChangeModel::expectedLogLikelihood() const
-{
-    return m_ExpectedLogLikelihood;
-}
-
-void CUnivariateChangeModel::addExpectedLogLikelihood(double logLikelihood)
-{
-    m_ExpectedLogLikelihood += logLikelihood;
-}
-
 const CTimeSeriesDecompositionInterface &CUnivariateChangeModel::trendModel() const
-{
-    return *m_TrendModel;
-}
-
-CTimeSeriesDecompositionInterface &CUnivariateChangeModel::trendModel()
 {
     return *m_TrendModel;
 }
