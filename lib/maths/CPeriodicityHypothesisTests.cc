@@ -1284,6 +1284,26 @@ bool CPeriodicityHypothesisTests::seenSufficientDataToTest(core_t::TTime period,
                  >= 2.0 * ACCURATE_TEST_POPULATED_FRACTION * static_cast<double>(period);
 }
 
+bool CPeriodicityHypothesisTests::seenSufficientPeriodicallyPopulatedBucketsToTest(const TFloatMeanAccumulatorCRng &buckets,
+                                                                                   std::size_t period) const
+{
+    double repeats{0.0};
+    for (std::size_t i = 0u; i < period; ++i)
+    {
+        for (std::size_t j = i + period; j < buckets.size(); j += period)
+        {
+            if (  CBasicStatistics::count(buckets[j])
+                * CBasicStatistics::count(buckets[j - period]) > 0.0)
+            {
+                repeats += 1.0;
+                break;
+            }
+        }
+    }
+    LOG_TRACE("repeated values = " << repeats);
+    return repeats >= static_cast<double>(period) * ACCURATE_TEST_POPULATED_FRACTION / 3.0;
+}
+
 bool CPeriodicityHypothesisTests::testStatisticsFor(const TFloatMeanAccumulatorCRng &buckets,
                                                     STestStats &stats) const
 {
@@ -1433,8 +1453,7 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec &windows,
 
     // We need to observe a minimum number of repeated values to test with
     // an acceptable false positive rate.
-    if (this->periodicallyRepeatedBuckets(buckets, period)
-            < static_cast<double>(period) * ACCURATE_TEST_POPULATED_FRACTION / 3.0)
+    if (!this->seenSufficientPeriodicallyPopulatedBucketsToTest(buckets, period))
     {
         return false;
     }
@@ -1560,8 +1579,7 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec &partition
 
     // We need to observe a minimum number of repeated values to test with
     // an acceptable false positive rate.
-    if (this->periodicallyRepeatedBuckets(buckets, period)
-            < static_cast<double>(period) * ACCURATE_TEST_POPULATED_FRACTION / 3.0)
+    if (!this->seenSufficientPeriodicallyPopulatedBucketsToTest(buckets, period))
     {
         return false;
     }
@@ -1746,26 +1764,6 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec &partition
         }
     }
     return false;
-}
-
-double CPeriodicityHypothesisTests::periodicallyRepeatedBuckets(const TFloatMeanAccumulatorCRng &buckets,
-                                                                std::size_t period) const
-{
-    double repeats{0.0};
-    for (std::size_t i = 0u; i < period; ++i)
-    {
-        for (std::size_t j = i + period; j < buckets.size(); j += period)
-        {
-            if (  CBasicStatistics::count(buckets[j])
-                * CBasicStatistics::count(buckets[j - period]) > 0.0)
-            {
-                repeats += 1.0;
-                break;
-            }
-        }
-    }
-    LOG_TRACE("repeated values = " << repeats);
-    return repeats;
 }
 
 const double CPeriodicityHypothesisTests::ACCURATE_TEST_POPULATED_FRACTION{0.9};
