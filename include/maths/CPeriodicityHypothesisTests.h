@@ -343,14 +343,15 @@ class MATHS_EXPORT CPeriodicityHypothesisTests
             testForDailyWithWeekend(const TFloatMeanAccumulatorCRng &buckets,
                                     STestStats &stats) const;
 
-        //! Test for a weekday/end partition with weekly .
+        //! Test for a weekly period given we think there is a
+        //! weekday/end partition.
         CPeriodicityHypothesisTestsResult
             testForWeeklyGivenDailyWithWeekend(const TTimeTimePr2Vec &window,
                                                const TFloatMeanAccumulatorCRng &buckets,
                                                STestStats &stats) const;
 
-        //! Test for the specified period given we think there is
-        //! some diurnal periodicity.
+        //! Test for the specified period given we think there is diurnal
+        //! periodicity.
         CPeriodicityHypothesisTestsResult
             testForPeriod(const TTimeTimePr2Vec &window,
                           const TFloatMeanAccumulatorCRng &buckets,
@@ -359,6 +360,11 @@ class MATHS_EXPORT CPeriodicityHypothesisTests
         //! Check we've seen sufficient data to test accurately.
         bool seenSufficientDataToTest(core_t::TTime period,
                                       const TFloatMeanAccumulatorCRng &buckets) const;
+
+        //! Check if there are enough non-empty buckets which are repeated
+        //! at at least one \p period in \p buckets.
+        bool seenSufficientPeriodicallyPopulatedBucketsToTest(const TFloatMeanAccumulatorCRng &buckets,
+                                                              std::size_t period) const;
 
         //! Compute various ancillary statistics for testing.
         bool testStatisticsFor(const TFloatMeanAccumulatorCRng &buckets,
