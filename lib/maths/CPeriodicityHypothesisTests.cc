@@ -1030,18 +1030,18 @@ CPeriodicityHypothesisTests::best(const TNestedHypothesesVec &hypotheses) const
     {
         STestStats stats;
         CPeriodicityHypothesisTestsResult resultForHypothesis{hypothesis.test(stats)};
-        summaries.emplace_back(stats.s_V0, stats.s_B - stats.s_DF0,
-                               std::move(resultForHypothesis));
+        if (stats.s_B > stats.s_DF0)
+        {
+            summaries.emplace_back(stats.s_V0, stats.s_B - stats.s_DF0,
+                                   std::move(resultForHypothesis));
+        }
     }
 
     TMinAccumulator vCutoff;
     for (const auto &summary : summaries)
     {
-        if (summary.s_DF > 0.0)
-        {
-            vCutoff.add(varianceAtPercentile(summary.s_V, summary.s_DF,
-                                             50.0 + CONFIDENCE_INTERVAL / 2.0));
-        }
+        vCutoff.add(varianceAtPercentile(summary.s_V, summary.s_DF,
+                                         50.0 + CONFIDENCE_INTERVAL / 2.0));
     }
     if (vCutoff.count() > 0)
     {
@@ -1275,6 +1275,26 @@ bool CPeriodicityHypothesisTests::seenSufficientDataToTest(core_t::TTime period,
                  >= 2.0 * ACCURATE_TEST_POPULATED_FRACTION * static_cast<double>(period);
 }
 
+bool CPeriodicityHypothesisTests::seenSufficientPeriodicallyPopulatedBucketsToTest(const TFloatMeanAccumulatorCRng &buckets,
+                                                                                   std::size_t period) const
+{
+    double repeats{0.0};
+    for (std::size_t i = 0u; i < period; ++i)
+    {
+        for (std::size_t j = i + period; j < buckets.size(); j += period)
+        {
+            if (  CBasicStatistics::count(buckets[j])
+                * CBasicStatistics::count(buckets[j - period]) > 0.0)
+            {
+                repeats += 1.0;
+                break;
+            }
+        }
+    }
+    LOG_TRACE("repeated values = " << repeats);
+    return repeats >= static_cast<double>(period) * ACCURATE_TEST_POPULATED_FRACTION / 3.0;
+}
+
 bool CPeriodicityHypothesisTests::testStatisticsFor(const TFloatMeanAccumulatorCRng &buckets,
                                                     STestStats &stats) const
 {
@@ -1424,21 +1444,7 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec &windows,
 
     // We need to observe a minimum number of repeated values to test with
     // an acceptable false positive rate.
-    double repeats{0.0};
-    for (std::size_t i = 0u; i < period; ++i)
-    {
-        for (std::size_t j = i + period; j < buckets.size(); j += period)
-        {
-            if (  CBasicStatistics::count(buckets[j])
-                * CBasicStatistics::count(buckets[j - period]) > 0.0)
-            {
-                repeats += 1.0;
-                break;
-            }
-        }
-    }
-    LOG_TRACE("  repeated values = " << repeats);
-    if (repeats < static_cast<double>(period) * ACCURATE_TEST_POPULATED_FRACTION / 3.0)
+    if (!this->seenSufficientPeriodicallyPopulatedBucketsToTest(buckets, period))
     {
         return false;
     }
@@ -1484,7 +1490,8 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec &windows,
         LOG_TRACE("  significance      = " << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
 
         double Rt{stats.s_Rt * CTools::truncate(1.0 - 0.5 * (vt - v1) / vt, 0.9, 1.0)};
-        if (v1 < vt && CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE)
+        if (   v1 < vt && B > 1.0
+            && CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE)
         {
             double R{CSignal::autocorrelation(period, values)};
             R = autocorrelationAtPercentile(R, B, 50.0 - CONFIDENCE_INTERVAL / 2.0);
@@ -1558,6 +1565,15 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec &partition
     {
         return false;
     }
+
+    std::size_t period{static_cast<std::size_t>(period_ / m_BucketLength)};
+
+    // We need to observe a minimum number of repeated values to test with
+    // an acceptable false positive rate.
+    if (!this->seenSufficientPeriodicallyPopulatedBucketsToTest(buckets, period))
+    {
+        return false;
+    }
     if (stats.s_HasPartition)
     {
         return true;
@@ -1568,7 +1584,6 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec &partition
     // evidence that it reduces the residual variance and repeats.
 
     core_t::TTime windowLength{length(buckets, m_BucketLength)};
-    std::size_t period{static_cast<std::size_t>(period_ / m_BucketLength)};
     core_t::TTime repeat{length(partition)};
     core_t::TTime startOfPartition{stats.s_StartOfPartition};
     double B{stats.s_B};
@@ -1723,11 +1738,13 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec &partition
                 double BW{std::accumulate(partitionValues.begin(), partitionValues.end(), 0.0,
                                           [](double n, const TFloatMeanAccumulator &value)
                                           { return n + (CBasicStatistics::count(value) > 0.0 ? 1.0 : 0.0); })};
-                R = std::max(R, autocorrelationAtPercentile(CSignal::autocorrelation(
-                                    windowLength_ + period, partitionValues),
-                                    BW, 50.0 - CONFIDENCE_INTERVAL / 2.0));
-                LOG_TRACE("  autocorrelation          = " << R);
-                LOG_TRACE("  autocorrelationThreshold = " << Rt);
+                if (BW > 1.0)
+                {
+                    double RW{CSignal::autocorrelation(windowLength_ + period, partitionValues)};
+                    R = std::max(R, autocorrelationAtPercentile(RW, BW, 50.0 - CONFIDENCE_INTERVAL / 2.0));
+                    LOG_TRACE("  autocorrelation          = " << R);
+                    LOG_TRACE("  autocorrelationThreshold = " << Rt);
+                }
             }
 
             if (R > Rt)
