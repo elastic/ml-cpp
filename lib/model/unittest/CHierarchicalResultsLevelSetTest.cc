@@ -23,7 +23,7 @@
 #include <model/CStringStore.h>
 
 
-CppUnit::Test *CHierarchicalResultsLevelSetTest::suite(void)
+CppUnit::Test *CHierarchicalResultsLevelSetTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsLevelSetTest");
 
@@ -93,7 +93,7 @@ void print(const TestNode *node)
     std::cout << "'" << node->s_Name << "'" << std::endl;
 }
 
-void CHierarchicalResultsLevelSetTest::testElementsWithPerPartitionNormalisation(void)
+void CHierarchicalResultsLevelSetTest::testElementsWithPerPartitionNormalisation()
 {
     // This is intentionally NOT an empty string from the string store, but
     // instead a completely separate empty string, such that its pointer will be 

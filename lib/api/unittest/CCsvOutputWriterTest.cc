@@ -48,7 +48,7 @@ CppUnit::Test *CCsvOutputWriterTest::suite()
     return suiteOfTests;
 }
 
-void CCsvOutputWriterTest::testAdd(void)
+void CCsvOutputWriterTest::testAdd()
 {
     // In this test, the output is the input plus an extra field - no input
     // fields are changed
@@ -158,7 +158,7 @@ void CCsvOutputWriterTest::testAdd(void)
     }
 }
 
-void CCsvOutputWriterTest::testOverwrite(void)
+void CCsvOutputWriterTest::testOverwrite()
 {
     // In this test, some fields from the input are changed in the output
 
@@ -279,7 +279,7 @@ void CCsvOutputWriterTest::testOverwrite(void)
     }
 }
 
-void CCsvOutputWriterTest::testThroughput(void)
+void CCsvOutputWriterTest::testThroughput()
 {
     // In this test, some fields from the input are changed in the output
 
@@ -376,7 +376,7 @@ void CCsvOutputWriterTest::testThroughput(void)
              " records took " << (end - start) << " seconds");
 }
 
-void CCsvOutputWriterTest::testExcelQuoting(void)
+void CCsvOutputWriterTest::testExcelQuoting()
 {
     ml::api::CCsvOutputWriter writer;
 
@@ -425,7 +425,7 @@ void CCsvOutputWriterTest::testExcelQuoting(void)
                          output);
 }
 
-void CCsvOutputWriterTest::testNonExcelQuoting(void)
+void CCsvOutputWriterTest::testNonExcelQuoting()
 {
     ml::api::CCsvOutputWriter writer(false,
                                           true,

@@ -298,7 +298,7 @@ CAnomalyScore::CNormalizer::CNormalizer(const CAnomalyDetectorModelConfig &confi
 {
 }
 
-bool CAnomalyScore::CNormalizer::canNormalize(void) const
+bool CAnomalyScore::CNormalizer::canNormalize() const
 {
     return m_RawScoreQuantileSummary.n() > 0;
 }
@@ -905,7 +905,7 @@ bool CAnomalyScore::CNormalizer::upgrade(const std::string &loadedVersion,
     return true;
 }
 
-void CAnomalyScore::CNormalizer::clear(void)
+void CAnomalyScore::CNormalizer::clear()
 {
     m_HighPercentileScore = std::numeric_limits<uint32_t>::max();
     m_HighPercentileCount = 0ull;
@@ -992,7 +992,7 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
     return true;
 }
 
-uint64_t CAnomalyScore::CNormalizer::checksum(void) const
+uint64_t CAnomalyScore::CNormalizer::checksum() const
 {
     uint64_t seed = static_cast<uint64_t>(m_NoisePercentile);
     seed = maths::CChecksum::calculate(seed, m_NoiseMultiplier);

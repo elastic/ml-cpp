@@ -78,7 +78,7 @@ class CXMeansForTest : public maths::CXMeans<POINT, COST>
             return this->maths::CXMeans<POINT, COST>::improveStructure(clusterSeeds, kmeansIterations);
         }
 
-        const TUInt64USet &inactive(void) const
+        const TUInt64USet &inactive() const
         {
             return this->maths::CXMeans<POINT, COST>::inactive();
         }
@@ -98,7 +98,7 @@ double logfSphericalGaussian(const POINT &mean,
 class CEmpiricalKullbackLeibler
 {
     public:
-        double value(void) const
+        double value() const
         {
             return   maths::CBasicStatistics::mean(m_Divergence)
                    - std::log(maths::CBasicStatistics::count(m_Divergence));
@@ -150,7 +150,7 @@ void computePurities(const TSizeVecVec &clusters,
 
 }
 
-void CXMeansTest::testCluster(void)
+void CXMeansTest::testCluster()
 {
     LOG_DEBUG("+----------------------------+");
     LOG_DEBUG("|  CXMeansTest::testCluster  |");
@@ -221,7 +221,7 @@ void CXMeansTest::testCluster(void)
     }
 }
 
-void CXMeansTest::testImproveStructure(void)
+void CXMeansTest::testImproveStructure()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CXMeansTest::testImproveStructure  |");
@@ -301,7 +301,7 @@ void CXMeansTest::testImproveStructure(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.25);
 }
 
-void CXMeansTest::testImproveParams(void)
+void CXMeansTest::testImproveParams()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CXMeansTest::testImproveParams  |");
@@ -366,7 +366,7 @@ void CXMeansTest::testImproveParams(void)
     }
 }
 
-void CXMeansTest::testOneCluster(void)
+void CXMeansTest::testOneCluster()
 {
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CXMeansTest::testOneCluster  |");
@@ -427,7 +427,7 @@ void CXMeansTest::testOneCluster(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanNumberClusters) < 1.15);
 }
 
-void CXMeansTest::testFiveClusters(void)
+void CXMeansTest::testFiveClusters()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CXMeansTest::testFiveClusters  |");
@@ -565,7 +565,7 @@ void CXMeansTest::testFiveClusters(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanTotalPurity) > 0.93);
 }
 
-void CXMeansTest::testTwentyClusters(void)
+void CXMeansTest::testTwentyClusters()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CXMeansTest::testTwentyClusters  |");
@@ -685,7 +685,7 @@ void CXMeansTest::testTwentyClusters(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(totalPurity) > 0.8);
 }
 
-void CXMeansTest::testPoorlyConditioned(void)
+void CXMeansTest::testPoorlyConditioned()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CXMeansTest::testPoorlyConditioned  |");
@@ -779,7 +779,7 @@ void CXMeansTest::testPoorlyConditioned(void)
     }
 }
 
-CppUnit::Test *CXMeansTest::suite(void)
+CppUnit::Test *CXMeansTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CXMeansTest");
 

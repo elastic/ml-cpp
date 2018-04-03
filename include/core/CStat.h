@@ -40,22 +40,22 @@ class CORE_EXPORT CStat : private CNonCopyable
 {
     public:
         //! Default constructor
-        CStat(void);
+        CStat();
 
         //! Add the value 1 to this stat
-        void increment(void);
+        void increment();
 
         //! Add some value to this stat
         void increment(uint64_t value);
 
         //! Remove the value 1 from this stat
-        void decrement(void);
+        void decrement();
 
         //! Set the stat to this new value
         void set(uint64_t value);
 
         //! Get the value of this stat
-        uint64_t value(void) const;
+        uint64_t value() const;
 
     private:
         //! The counter value of this stat

@@ -107,7 +107,7 @@ CMultimodalPrior makePrior(double decayRate)
 {
     return makePrior(0, decayRate);
 }
-CMultimodalPrior makePrior(void)
+CMultimodalPrior makePrior()
 {
     return makePrior(0, 0.0);
 }
@@ -178,7 +178,7 @@ void probabilityOfLessLikelySample(const maths::CMixtureDistribution<T> &mixture
 
 }
 
-void CMultimodalPriorTest::testMultipleUpdate(void)
+void CMultimodalPriorTest::testMultipleUpdate()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testMultipleUpdate  |");
@@ -228,7 +228,7 @@ void CMultimodalPriorTest::testMultipleUpdate(void)
     }
 }
 
-void CMultimodalPriorTest::testPropagation(void)
+void CMultimodalPriorTest::testPropagation()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testPropagation  |");
@@ -298,7 +298,7 @@ void CMultimodalPriorTest::testPropagation(void)
     }
 }
 
-void CMultimodalPriorTest::testSingleMode(void)
+void CMultimodalPriorTest::testSingleMode()
 {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testSingleMode  |");
@@ -458,7 +458,7 @@ void CMultimodalPriorTest::testSingleMode(void)
     }
 }
 
-void CMultimodalPriorTest::testMultipleModes(void)
+void CMultimodalPriorTest::testMultipleModes()
 {
     LOG_DEBUG("+-------------------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testMultipleModes  |");
@@ -762,7 +762,7 @@ void CMultimodalPriorTest::testMultipleModes(void)
     }
 }
 
-void CMultimodalPriorTest::testMarginalLikelihood(void)
+void CMultimodalPriorTest::testMarginalLikelihood()
 {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testMarginalLikelihood  |");
@@ -968,7 +968,7 @@ void CMultimodalPriorTest::testMarginalLikelihood(void)
     }
 }
 
-void CMultimodalPriorTest::testMarginalLikelihoodMode(void)
+void CMultimodalPriorTest::testMarginalLikelihoodMode()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testMarginalLikelihoodMode  |");
@@ -1082,7 +1082,7 @@ void CMultimodalPriorTest::testMarginalLikelihoodMode(void)
     CPPUNIT_ASSERT(totalCount < 11);
 }
 
-void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval(void)
+void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval()
 {
     LOG_DEBUG("+------------------------------------------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval  |");
@@ -1211,7 +1211,7 @@ void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval(void)
     }
 }
 
-void CMultimodalPriorTest::testSampleMarginalLikelihood(void)
+void CMultimodalPriorTest::testSampleMarginalLikelihood()
 {
     LOG_DEBUG("+------------------------------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testSampleMarginalLikelihood  |");
@@ -1345,7 +1345,7 @@ void CMultimodalPriorTest::testSampleMarginalLikelihood(void)
                                  0.1 * maths::CBasicStatistics::skewness(sampleMoments));
 }
 
-void CMultimodalPriorTest::testCdf(void)
+void CMultimodalPriorTest::testCdf()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testCdf  |");
@@ -1410,7 +1410,7 @@ void CMultimodalPriorTest::testCdf(void)
     }
 }
 
-void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void)
+void CMultimodalPriorTest::testProbabilityOfLessLikelySamples()
 {
     LOG_DEBUG("+------------------------------------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testProbabilityOfLessLikelySamples  |");
@@ -1638,7 +1638,7 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void)
     }
 }
 
-void CMultimodalPriorTest::testLargeValues(void)
+void CMultimodalPriorTest::testLargeValues()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testLargeValues  |");
@@ -1785,7 +1785,7 @@ void CMultimodalPriorTest::testLargeValues(void)
     }
 }
 
-void CMultimodalPriorTest::testSeasonalVarianceScale(void)
+void CMultimodalPriorTest::testSeasonalVarianceScale()
 {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testSeasonalVarianceScale  |");
@@ -1967,7 +1967,7 @@ void CMultimodalPriorTest::testSeasonalVarianceScale(void)
     }
 }
 
-void CMultimodalPriorTest::testPersist(void)
+void CMultimodalPriorTest::testPersist()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CMultimodalPriorTest::testPersist  |");
@@ -2047,7 +2047,7 @@ void CMultimodalPriorTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CMultimodalPriorTest::suite(void)
+CppUnit::Test *CMultimodalPriorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMultimodalPriorTest");
 

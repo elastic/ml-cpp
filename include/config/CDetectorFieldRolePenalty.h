@@ -39,10 +39,10 @@ class CDetectorFieldRolePenalty : public CPenalty
         CDetectorFieldRolePenalty(const CAutoconfigurerParams &params);
 
         //! Create a copy on the heap.
-        virtual CDetectorFieldRolePenalty *clone(void) const;
+        virtual CDetectorFieldRolePenalty *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
         //! Set the field penalty for the field identified by \p index
         //! which must be one of ARGUMENT_INDEX, BY_INDEX, OVER_INDEX

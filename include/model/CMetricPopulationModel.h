@@ -147,10 +147,10 @@ class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel
         //@}
 
         //! Returns false.
-        virtual bool isEventRate(void) const;
+        virtual bool isEventRate() const;
 
         //! Returns true.
-        virtual bool isMetric(void) const;
+        virtual bool isMetric() const;
 
         //! \name Persistence
         //@{
@@ -165,11 +165,11 @@ class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel
         //! persisted representation, and must not be used for any other
         //! purpose.
         //! \warning The caller owns the object returned.
-        virtual CAnomalyDetectorModel *cloneForPersistence(void) const;
+        virtual CAnomalyDetectorModel *cloneForPersistence() const;
         //@}
 
         //! Get the model category.
-        virtual model_t::EModelType category(void) const;
+        virtual model_t::EModelType category() const;
 
         //! \name Bucket Statistics
         //@{
@@ -277,7 +277,7 @@ class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel
         virtual uint64_t checksum(bool includeCurrentBucketStats = true) const;
 
         //! Get a view of the internals of the model for visualization.
-        virtual CModelDetailsViewPtr details(void) const;
+        virtual CModelDetailsViewPtr details() const;
 
         //! Get the feature data corresponding to \p feature at \p time.
         const TSizeSizePrFeatureDataPrVec &featureData(model_t::EFeature feature,
@@ -287,13 +287,13 @@ class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this model.
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
 
         //! Get the non-estimated memory used by this model.
-        virtual std::size_t computeMemoryUsage(void) const;
+        virtual std::size_t computeMemoryUsage() const;
 
     private:
         //! Initialize the feature models.
@@ -302,29 +302,29 @@ class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel
                         const TFeatureCorrelationsPtrPrVec &featureCorrelatesModels);
 
         //! Get the start time of the current bucket.
-        virtual core_t::TTime currentBucketStartTime(void) const;
+        virtual core_t::TTime currentBucketStartTime() const;
 
         //! Set the start time of the current bucket.
         virtual void currentBucketStartTime(core_t::TTime time);
 
         //! Get the total count of the current bucket.
-        uint64_t currentBucketTotalCount(void) const;
+        uint64_t currentBucketTotalCount() const;
 
         //! Set the current bucket total count.
         virtual void currentBucketTotalCount(uint64_t totalCount);
 
         //! Get the current bucket person counts.
-        virtual const TSizeUInt64PrVec &personCounts(void) const;
+        virtual const TSizeUInt64PrVec &personCounts() const;
 
         //! Get the interim corrections of the current bucket.
-        TCorrectionKeyDouble1VecUMap &currentBucketInterimCorrections(void) const;
+        TCorrectionKeyDouble1VecUMap &currentBucketInterimCorrections() const;
 
         //! Initialize the time series models for "n" newly observed people
         //! and "m" attributes.
         virtual void createNewModels(std::size_t n, std::size_t m);
 
         //! Initialize the time series models for recycled attributes and/or people
-        virtual void updateRecycledModels(void);
+        virtual void updateRecycledModels();
 
         //! Update the correlation models.
         virtual void refreshCorrelationModels(std::size_t resourceLimit,
@@ -362,7 +362,7 @@ class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel
                   CProbabilityAndInfluenceCalculator::SParams &params) const;
 
         //! Get the model memory usage estimator
-        virtual CMemoryUsageEstimator *memoryUsageEstimator(void) const;
+        virtual CMemoryUsageEstimator *memoryUsageEstimator() const;
 
     private:
         //! The statistics we maintain about the bucket.

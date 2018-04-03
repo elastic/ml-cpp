@@ -151,7 +151,7 @@ CIndividualModel::CIndividualModel(bool isForPersistence, const CIndividualModel
     }
 }
 
-bool CIndividualModel::isPopulation(void) const
+bool CIndividualModel::isPopulation() const
 {
     return false;
 }
@@ -363,7 +363,7 @@ void CIndividualModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
     core::CMemoryDebug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
 }
 
-std::size_t CIndividualModel::memoryUsage(void) const
+std::size_t CIndividualModel::memoryUsage() const
 {
     const CDataGatherer &gatherer = this->dataGatherer();
     TOptionalSize estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
@@ -372,7 +372,7 @@ std::size_t CIndividualModel::memoryUsage(void) const
     return estimate ? estimate.get() : this->computeMemoryUsage();
 }
 
-std::size_t CIndividualModel::computeMemoryUsage(void) const
+std::size_t CIndividualModel::computeMemoryUsage() const
 {
     std::size_t mem = this->CAnomalyDetectorModel::memoryUsage();
     mem += core::CMemory::dynamicSize(m_FirstBucketTimes);
@@ -383,12 +383,12 @@ std::size_t CIndividualModel::computeMemoryUsage(void) const
     return mem;
 }
 
-CMemoryUsageEstimator *CIndividualModel::memoryUsageEstimator(void) const
+CMemoryUsageEstimator *CIndividualModel::memoryUsageEstimator() const
 {
     return &m_MemoryEstimator;
 }
 
-std::size_t CIndividualModel::staticSize(void) const
+std::size_t CIndividualModel::staticSize() const
 {
     return sizeof(*this);
 }
@@ -534,7 +534,7 @@ void CIndividualModel::createNewModels(std::size_t n, std::size_t m)
     this->CAnomalyDetectorModel::createNewModels(n, m);
 }
 
-void CIndividualModel::updateRecycledModels(void)
+void CIndividualModel::updateRecycledModels()
 {
     for (auto pid : this->dataGatherer().recycledPersonIds())
     {
@@ -665,12 +665,12 @@ void CIndividualModel::correctBaselineForInterim(model_t::EFeature feature,
     }
 }
 
-const CIndividualModel::TTimeVec &CIndividualModel::firstBucketTimes(void) const
+const CIndividualModel::TTimeVec &CIndividualModel::firstBucketTimes() const
 {
     return m_FirstBucketTimes;
 }
 
-const CIndividualModel::TTimeVec &CIndividualModel::lastBucketTimes(void) const
+const CIndividualModel::TTimeVec &CIndividualModel::lastBucketTimes() const
 {
     return m_LastBucketTimes;
 }
@@ -681,7 +681,7 @@ double CIndividualModel::derate(std::size_t pid, core_t::TTime time) const
                          / static_cast<double>(3 * core::constants::WEEK), 0.0);
 }
 
-std::string CIndividualModel::printCurrentBucket(void) const
+std::string CIndividualModel::printCurrentBucket() const
 {
     std::ostringstream result;
     result << "[" << this->currentBucketStartTime() << ","
@@ -689,7 +689,7 @@ std::string CIndividualModel::printCurrentBucket(void) const
     return result.str();
 }
 
-std::size_t CIndividualModel::numberCorrelations(void) const
+std::size_t CIndividualModel::numberCorrelations() const
 {
     std::size_t result = 0u;
     for (const auto &feature : m_FeatureCorrelatesModels)

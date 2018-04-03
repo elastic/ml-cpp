@@ -106,7 +106,7 @@ bool CNamedPipeFactory::isNamedPipe(const std::string &fileName)
            fileName.compare(0, PIPE_PREFIX.length(), PIPE_PREFIX) == 0;
 }
 
-std::string CNamedPipeFactory::defaultPath(void)
+std::string CNamedPipeFactory::defaultPath()
 {
     return PIPE_PREFIX;
 }

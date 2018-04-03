@@ -22,18 +22,18 @@
 class CAnomalyJobTest : public CppUnit::TestFixture
 {
     public:
-        void testLicense(void);
-        void testBadTimes(void);
-        void testOutOfSequence(void);
-        void testControlMessages(void);
-        void testSkipTimeControlMessage(void);
-        void testOutOfPhase(void);
-        void testBucketSelection(void);
-        void testModelPlot(void);
-        void testInterimResultEdgeCases(void);
-        void testRestoreFailsWithEmptyStream(void);
+        void testLicense();
+        void testBadTimes();
+        void testOutOfSequence();
+        void testControlMessages();
+        void testSkipTimeControlMessage();
+        void testOutOfPhase();
+        void testBucketSelection();
+        void testModelPlot();
+        void testInterimResultEdgeCases();
+        void testRestoreFailsWithEmptyStream();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 
 };
 

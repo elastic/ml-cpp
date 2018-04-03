@@ -70,7 +70,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
                 using result_type = uint64_t;
 
             public:
-                CSplitMix64(void);
+                CSplitMix64();
                 CSplitMix64(uint64_t seed);
 
                 //! Compare for equality.
@@ -78,16 +78,16 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
                 //! Not equal.
                 bool operator!=(CSplitMix64 other) const { return !this->operator==(other); }
 
-                void seed(void);
+                void seed();
                 void seed(uint64_t seed);
 
                 //! The minimum value returnable by operator().
-                static uint64_t min(void);
+                static uint64_t min();
                 //! The maximum value returnable by operator().
-                static uint64_t max(void);
+                static uint64_t max();
 
                 //! Generate the next random number.
-                uint64_t operator()(void);
+                uint64_t operator()();
 
                 //! Fill the sequence [\p begin, \p end) with the next
                 //! \p end - \p begin random numbers.
@@ -101,7 +101,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
                 void discard(uint64_t n);
 
                 //! Persist to a string.
-                std::string toString(void) const;
+                std::string toString() const;
                 //! Restore from a string.
                 bool fromString(const std::string &state);
 
@@ -129,7 +129,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
                 using result_type = uint64_t;
 
             public:
-                CXorOShiro128Plus(void);
+                CXorOShiro128Plus();
                 CXorOShiro128Plus(uint64_t seed);
                 template<typename ITR>
                 CXorOShiro128Plus(ITR begin, ITR end)
@@ -148,7 +148,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
                 //! Set to the default seeded generator.
                 //!
                 //! As per recommendations we use CSplitMix64 for seeding.
-                void seed(void);
+                void seed();
                 //! Set to a seeded generator.
                 //!
                 //! As per recommendations we use CSplitMix64 for seeding.
@@ -171,12 +171,12 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
                 }
 
                 //! The minimum value returnable by operator().
-                static uint64_t min(void);
+                static uint64_t min();
                 //! The maximum value returnable by operator().
-                static uint64_t max(void);
+                static uint64_t max();
 
                 //! Generate the next random number.
-                uint64_t operator()(void);
+                uint64_t operator()();
 
                 //! Fill the sequence [\p begin, \p end) with the next
                 //! \p end - \p begin random numbers.
@@ -193,10 +193,10 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
                 //! it can be used to generate \f$2^{64}\f$ non-overlapping
                 //! subsequences of length \f$2^{64}\f$ for parallel
                 //! computations.
-                void jump(void);
+                void jump();
 
                 //! Persist to a string.
-                std::string toString(void) const;
+                std::string toString() const;
                 //! Restore from a string.
                 bool fromString(const std::string &state);
 
@@ -225,7 +225,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
                 using result_type = uint64_t;
 
             public:
-                CXorShift1024Mult(void);
+                CXorShift1024Mult();
                 CXorShift1024Mult(uint64_t seed);
                 template<typename ITR>
                 CXorShift1024Mult(ITR begin, ITR end) : m_P(0)
@@ -244,7 +244,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
                 //! Set to the default seeded generator.
                 //!
                 //! As per recommendations we use CSplitMix64 for seeding.
-                void seed(void);
+                void seed();
                 //! Set to a seeded generator.
                 //!
                 //! As per recommendations we use CSplitMix64 for seeding.
@@ -267,12 +267,12 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
                 }
 
                 //! The minimum value returnable by operator().
-                static uint64_t min(void);
+                static uint64_t min();
                 //! The maximum value returnable by operator().
-                static uint64_t max(void);
+                static uint64_t max();
 
                 //! Generate the next random number.
-                uint64_t operator()(void);
+                uint64_t operator()();
 
                 //! Fill the sequence [\p begin, \p end) with the next
                 //! \p end - \p begin random numbers.
@@ -289,10 +289,10 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
                 //! it can be used to generate \f$2^{512}\f$ non-overlapping
                 //! subsequences of length \f$2^{512}\f$ for parallel
                 //! computations.
-                void jump(void);
+                void jump();
 
                 //! Persist to a string.
-                std::string toString(void) const;
+                std::string toString() const;
                 //! Restore from a string.
                 bool fromString(std::string state);
 

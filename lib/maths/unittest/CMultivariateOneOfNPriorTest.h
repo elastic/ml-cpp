@@ -21,19 +21,19 @@
 class CMultivariateOneOfNPriorTest : public CppUnit::TestFixture
 {
     public:
-        void testMultipleUpdate(void);
-        void testPropagation(void);
-        void testWeightUpdate(void);
-        void testModelUpdate(void);
-        void testModelSelection(void);
-        void testMarginalLikelihood(void);
-        void testMarginalLikelihoodMean(void);
-        void testMarginalLikelihoodMode(void);
-        void testSampleMarginalLikelihood(void);
-        void testProbabilityOfLessLikelySamples(void);
-        void testPersist(void);
+        void testMultipleUpdate();
+        void testPropagation();
+        void testWeightUpdate();
+        void testModelUpdate();
+        void testModelSelection();
+        void testMarginalLikelihood();
+        void testMarginalLikelihoodMean();
+        void testMarginalLikelihoodMode();
+        void testSampleMarginalLikelihood();
+        void testProbabilityOfLessLikelySamples();
+        void testPersist();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CMultivariateOneOfNPriorTest_h

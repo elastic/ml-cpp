@@ -21,16 +21,16 @@
 class CQuantileSketchTest : public CppUnit::TestFixture
 {
     public:
-        void testAdd(void);
-        void testReduce(void);
-        void testMerge(void);
-        void testMedian(void);
-        void testPropagateForwardByTime(void);
-        void testQuantileAccuracy(void);
-        void testCdf(void);
-        void testPersist(void);
+        void testAdd();
+        void testReduce();
+        void testMerge();
+        void testMedian();
+        void testPropagateForwardByTime();
+        void testQuantileAccuracy();
+        void testCdf();
+        void testPersist();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CQuantileSketchTest_h

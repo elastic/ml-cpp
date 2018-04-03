@@ -63,7 +63,7 @@ namespace
                 }
             }
 
-            size_t size(void) const
+            size_t size() const
             {
                 return m_Strings.size();
             }
@@ -77,7 +77,7 @@ namespace
     };
 }
 
-void CMessageQueueTest::testSendReceive(void)
+void CMessageQueueTest::testSendReceive()
 {
     CReceiver receiver;
 
@@ -101,7 +101,7 @@ void CMessageQueueTest::testSendReceive(void)
     CPPUNIT_ASSERT_EQUAL(TEST_SIZE, receiver.size());
 }
 
-void CMessageQueueTest::testTiming(void)
+void CMessageQueueTest::testTiming()
 {
     // Tell the receiver to delay processing by 29ms for each item (otherwise
     // it will be too fast to time on a modern computer).

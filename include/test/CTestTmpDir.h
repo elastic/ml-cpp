@@ -42,7 +42,7 @@ class TEST_EXPORT CTestTmpDir : private core::CNonInstantiatable
 {
     public:
         //! Returns /tmp on Unix or an expansion of %TEMP% on Windows
-        static std::string tmpDir(void);
+        static std::string tmpDir();
 };
 
 

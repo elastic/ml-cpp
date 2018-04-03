@@ -27,7 +27,7 @@ using namespace ml;
 using namespace core;
 using namespace test;
 
-void CCompressedDictionaryTest::testAll(void)
+void CCompressedDictionaryTest::testAll()
 {
     using TStrVec = std::vector<std::string>;
     using TDictionary = CCompressedDictionary<2>;
@@ -64,7 +64,7 @@ void CCompressedDictionaryTest::testAll(void)
     }
 }
 
-void CCompressedDictionaryTest::testPersist(void)
+void CCompressedDictionaryTest::testPersist()
 {
     using TDictionary1 = CCompressedDictionary<1>;
     using TDictionary2 = CCompressedDictionary<2>;
@@ -109,7 +109,7 @@ void CCompressedDictionaryTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CCompressedDictionaryTest::suite(void)
+CppUnit::Test *CCompressedDictionaryTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCompressedDictionaryTest");
 

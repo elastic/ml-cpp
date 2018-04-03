@@ -21,7 +21,7 @@
 class CFileDeleterTest : public CppUnit::TestFixture
 {
     public:
-        void testDelete(void);
+        void testDelete();
 
         static CppUnit::Test *suite();
 };

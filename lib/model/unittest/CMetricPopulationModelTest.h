@@ -23,19 +23,19 @@
 class CMetricPopulationModelTest : public CppUnit::TestFixture
 {
     public:
-        void testBasicAccessors(void);
-        void testMinMaxAndMean(void);
-        void testVarp(void);
-        void testComputeProbability(void);
-        void testPrune(void);
-        void testKey(void);
-        void testFrequency(void);
-        void testSampleRateWeight(void);
-        void testPeriodicity(void);
-        void testPersistence(void);
-        void testIgnoreSamplingGivenDetectionRules(void);
+        void testBasicAccessors();
+        void testMinMaxAndMean();
+        void testVarp();
+        void testComputeProbability();
+        void testPrune();
+        void testKey();
+        void testFrequency();
+        void testSampleRateWeight();
+        void testPeriodicity();
+        void testPersistence();
+        void testIgnoreSamplingGivenDetectionRules();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
     private:
         ml::model::CResourceMonitor m_ResourceMonitor;
 };

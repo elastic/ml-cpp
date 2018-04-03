@@ -76,7 +76,7 @@ class CXMeans
         class CCluster
         {
             public:
-                CCluster(void) :
+                CCluster() :
                     m_Cost(std::numeric_limits<double>::max()), m_Checksum(0)
                 {}
 
@@ -96,7 +96,7 @@ class CXMeans
                 }
 
                 //! Get the number of points in the cluster.
-                std::size_t size(void) const
+                std::size_t size() const
                 {
                     return m_Points.size();
                 }
@@ -107,7 +107,7 @@ class CXMeans
                     m_Cost = cost;
                 }
                 //! Get the cluster cost.
-                double cost(void) const
+                double cost() const
                 {
                     return m_Cost;
                 }
@@ -118,7 +118,7 @@ class CXMeans
                     m_Centre = centre;
                 }
                 //! Get the cluster centre.
-                const POINT &centre(void) const
+                const POINT &centre() const
                 {
                     return m_Centre;
                 }
@@ -131,13 +131,13 @@ class CXMeans
                     m_Checksum = CChecksum::calculate(0, m_Points);
                 }
                 //! Get the cluster points.
-                const TPointVec &points(void) const
+                const TPointVec &points() const
                 {
                     return m_Points;
                 }
 
                 //! Get the cluster checksum.
-                uint64_t checksum(void) const
+                uint64_t checksum() const
                 {
                     return m_Checksum;
                 }
@@ -183,13 +183,13 @@ class CXMeans
         }
 
         //! Get the best centres found to date.
-        const TPointVec &centres(void) const
+        const TPointVec &centres() const
         {
             return m_BestCentres;
         }
 
         //! Get the best clusters found to date.
-        const TClusterVec &clusters(void) const
+        const TClusterVec &clusters() const
         {
             return m_Clusters;
         }
@@ -421,7 +421,7 @@ class CXMeans
         }
 
         //! Get the checksums of the clusters which are inactive.
-        const TUInt64USet &inactive(void) const
+        const TUInt64USet &inactive() const
         {
             return m_Inactive;
         }

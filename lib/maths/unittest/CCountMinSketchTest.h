@@ -21,11 +21,11 @@
 class CCountMinSketchTest : public CppUnit::TestFixture
 {
     public:
-        void testCounts(void);
-        void testSwap(void);
-        void testPersist(void);
+        void testCounts();
+        void testSwap();
+        void testPersist();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CCountMinSketchTest_h

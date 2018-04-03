@@ -41,7 +41,7 @@ class CORE_EXPORT CScopedFastLock : private CNonCopyable
         CScopedFastLock(CFastMutex &mutex);
 
         //! Unlock specified mutex
-        ~CScopedFastLock(void);
+        ~CScopedFastLock();
 
     private:
         CFastMutex &m_Mutex;

@@ -26,7 +26,7 @@ namespace
 const maths_t::TSeasonalComponentVec NO_COMPONENTS;
 }
 
-CTimeSeriesDecompositionStub *CTimeSeriesDecompositionStub::clone(void) const
+CTimeSeriesDecompositionStub *CTimeSeriesDecompositionStub::clone() const
 {
     return new CTimeSeriesDecompositionStub(*this);
 }
@@ -35,12 +35,12 @@ void CTimeSeriesDecompositionStub::decayRate(double /*decayRate*/)
 {
 }
 
-double CTimeSeriesDecompositionStub::decayRate(void) const
+double CTimeSeriesDecompositionStub::decayRate() const
 {
     return 0.0;
 }
 
-bool CTimeSeriesDecompositionStub::initialized(void) const
+bool CTimeSeriesDecompositionStub::initialized() const
 {
     return false;
 }
@@ -87,7 +87,7 @@ double CTimeSeriesDecompositionStub::detrend(core_t::TTime /*time*/,
     return value;
 }
 
-double CTimeSeriesDecompositionStub::meanVariance(void) const
+double CTimeSeriesDecompositionStub::meanVariance() const
 {
     return 0.0;
 }
@@ -114,22 +114,22 @@ void CTimeSeriesDecompositionStub::debugMemoryUsage(core::CMemoryUsage::TMemoryU
     mem->setName("CTimeSeriesDecompositionStub");
 }
 
-std::size_t CTimeSeriesDecompositionStub::memoryUsage(void) const
+std::size_t CTimeSeriesDecompositionStub::memoryUsage() const
 {
     return 0;
 }
 
-std::size_t CTimeSeriesDecompositionStub::staticSize(void) const
+std::size_t CTimeSeriesDecompositionStub::staticSize() const
 {
     return sizeof(*this);
 }
 
-const maths_t::TSeasonalComponentVec &CTimeSeriesDecompositionStub::seasonalComponents(void) const
+const maths_t::TSeasonalComponentVec &CTimeSeriesDecompositionStub::seasonalComponents() const
 {
     return NO_COMPONENTS;
 }
 
-core_t::TTime CTimeSeriesDecompositionStub::lastValueTime(void) const
+core_t::TTime CTimeSeriesDecompositionStub::lastValueTime() const
 {
     return 0;
 }

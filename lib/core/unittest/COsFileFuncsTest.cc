@@ -40,7 +40,7 @@ CppUnit::Test *COsFileFuncsTest::suite()
     return suiteOfTests;
 }
 
-void COsFileFuncsTest::testInode(void)
+void COsFileFuncsTest::testInode()
 {
     // Windows doesn't have inodes as such, but on NTFS we can simulate a number
     // that fulfils the purpose of determining when a file has been renamed and
@@ -96,7 +96,7 @@ void COsFileFuncsTest::testInode(void)
     CPPUNIT_ASSERT(implDirect != headerDirect);
 }
 
-void COsFileFuncsTest::testLStat(void)
+void COsFileFuncsTest::testLStat()
 {
     std::string file("Main.cc");
     std::string symLink("Main.symlink.cc");

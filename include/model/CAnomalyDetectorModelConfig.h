@@ -282,7 +282,7 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
                                               const std::string &multipleBucketLengths);
 
     public:
-        CAnomalyDetectorModelConfig(void);
+        CAnomalyDetectorModelConfig();
 
         //! Set the data bucketing interval.
         void bucketLength(core_t::TTime length);
@@ -360,29 +360,29 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
         void decayRate(double value);
 
         //! Get the rate at which the models lose information.
-        double decayRate(void) const;
+        double decayRate() const;
 
         //! Get the length of the baseline.
-        core_t::TTime baselineLength(void) const;
+        core_t::TTime baselineLength() const;
 
         //! Get the bucket length.
-        core_t::TTime bucketLength(void) const;
+        core_t::TTime bucketLength() const;
 
         //! Get the maximum latency in the arrival of out of order data.
-        core_t::TTime latency(void) const;
+        core_t::TTime latency() const;
 
         //! Get the maximum latency in the arrival of out of order data in
         //! numbers of buckets.
-        std::size_t latencyBuckets(void) const;
+        std::size_t latencyBuckets() const;
 
         //! Get the bucket result delay window.
-        std::size_t bucketResultsDelay(void) const;
+        std::size_t bucketResultsDelay() const;
 
         //! Get the multiple bucket lengths.
-        const TTimeVec &multipleBucketLengths(void) const;
+        const TTimeVec &multipleBucketLengths() const;
 
         //! Should multivariate analysis of correlated 'by' fields be performed?
-        bool multivariateByFields(void) const;
+        bool multivariateByFields() const;
 
         //! Set the central confidence interval for the model debug plot
         //! to \p percentage.
@@ -393,7 +393,7 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
         void modelPlotBoundsPercentile(double percentile);
 
         //! Get the central confidence interval for the model debug plot.
-        double modelPlotBoundsPercentile(void) const;
+        double modelPlotBoundsPercentile() const;
 
         //! Set terms (by, over, or partition field values) to filter
         //! model debug data. When empty, no filtering is applied.
@@ -401,7 +401,7 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
 
         //! Get the terms (by, over, or partition field values)
         //! used to filter model debug data. Empty when no filtering applies.
-        const TStrSet &modelPlotTerms(void) const;
+        const TStrSet &modelPlotTerms() const;
         //@}
 
         //! \name Anomaly Score Calculation
@@ -412,25 +412,25 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
                                      model_t::EAggregationParam param) const;
 
         //! Get the maximum anomalous probability.
-        double maximumAnomalousProbability(void) const;
+        double maximumAnomalousProbability() const;
         //@}
 
         //! \name Anomaly Score Normalization
         //@{
         //! Get the historic anomaly score percentile for which lower
         //! values are classified as noise.
-        double noisePercentile(void) const;
+        double noisePercentile() const;
 
         //! Get the multiplier applied to the noise level score in order
         //! to be classified as anomalous.
-        double noiseMultiplier(void) const;
+        double noiseMultiplier() const;
 
         //! Get the normalized anomaly score knot points.
-        const TDoubleDoublePrVec &normalizedScoreKnotPoints(void) const;
+        const TDoubleDoublePrVec &normalizedScoreKnotPoints() const;
         //@}
 
         //! Check if we should create one normalizer per partition field value.
-        bool perPartitionNormalization(void) const;
+        bool perPartitionNormalization() const;
 
         //! Set whether we should create one normalizer per partition field value.
         void perPartitionNormalization(bool value);
@@ -449,10 +449,10 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
 
         //! Get the factor to normalize all bucket lengths to the default
         //! bucket length.
-        double bucketNormalizationFactor(void) const;
+        double bucketNormalizationFactor() const;
 
         //! The time window during which samples are accepted.
-        core_t::TTime samplingAgeCutoff(void) const;
+        core_t::TTime samplingAgeCutoff() const;
     private:
         //! Bucket length.
         core_t::TTime m_BucketLength;

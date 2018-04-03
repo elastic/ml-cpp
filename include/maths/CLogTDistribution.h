@@ -52,9 +52,9 @@ class MATHS_EXPORT CLogTDistribution
                           double location,
                           double scale);
 
-        double degreesFreedom(void) const;
-        double location(void) const;
-        double scale(void) const;
+        double degreesFreedom() const;
+        double location() const;
+        double scale() const;
 
     private:
         double m_DegreesFreedom;

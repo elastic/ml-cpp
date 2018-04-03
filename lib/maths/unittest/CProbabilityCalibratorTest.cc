@@ -32,7 +32,7 @@
 
 using namespace ml;
 
-void CProbabilityCalibratorTest::testCalibration(void)
+void CProbabilityCalibratorTest::testCalibration()
 {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CProbabilityCalibratorTest::testCalibration  |");
@@ -205,7 +205,7 @@ void CProbabilityCalibratorTest::testCalibration(void)
     }
 }
 
-CppUnit::Test *CProbabilityCalibratorTest::suite(void)
+CppUnit::Test *CProbabilityCalibratorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProbabilityCalibratorTest");
 

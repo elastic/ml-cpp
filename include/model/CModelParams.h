@@ -65,7 +65,7 @@ struct MODEL_EXPORT SModelParams
     void configureLatency(core_t::TTime latency, core_t::TTime bucketLength);
 
     //! Get the minimum permitted number of points in a sketched point.
-    double minimumCategoryCount(void) const;
+    double minimumCategoryCount() const;
 
     //! Get the parameters supplied when restoring distribution models.
     maths::SDistributionRestoreParams distributionRestoreParams(maths_t::EDataType dataType) const;

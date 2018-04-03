@@ -254,12 +254,12 @@ void penaltyForImpl(const CAutoconfigurerParams &params,
 CLowVariationPenalty::CLowVariationPenalty(const CAutoconfigurerParams &params) : CPenalty(params)
 {}
 
-CLowVariationPenalty *CLowVariationPenalty::clone(void) const
+CLowVariationPenalty *CLowVariationPenalty::clone() const
 {
     return new CLowVariationPenalty(*this);
 }
 
-std::string CLowVariationPenalty::name(void) const
+std::string CLowVariationPenalty::name() const
 {
     return "low variation";
 }

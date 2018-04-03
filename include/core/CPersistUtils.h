@@ -118,7 +118,7 @@ struct persist_selector<T, typename enable_if_is<void (T::*)(CStatePersistInsert
     using value = MemberPersist;
 };
 template<typename T>
-struct persist_selector<T, typename enable_if_is<std::string (T::*)(void) const, &T::toDelimited>::type>
+struct persist_selector<T, typename enable_if_is<std::string (T::*)() const, &T::toDelimited>::type>
 {
     using value = MemberToDelimited;
 };

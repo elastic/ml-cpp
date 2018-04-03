@@ -101,12 +101,12 @@ bool CDynamicStringIdRegistry::anyId(std::size_t &result) const
     return true;
 }
 
-std::size_t CDynamicStringIdRegistry::numberActiveNames(void) const
+std::size_t CDynamicStringIdRegistry::numberActiveNames() const
 {
     return m_Uids.size();
 }
 
-std::size_t CDynamicStringIdRegistry::numberNames(void) const
+std::size_t CDynamicStringIdRegistry::numberNames() const
 {
     return m_Names.size();
 }
@@ -213,12 +213,12 @@ void CDynamicStringIdRegistry::recycleNames(const TSizeVec &namesToRemove,
     m_FreeUids.erase(std::unique(m_FreeUids.begin(), m_FreeUids.end()), m_FreeUids.end());
 }
 
-CDynamicStringIdRegistry::TSizeVec &CDynamicStringIdRegistry::recycledIds(void)
+CDynamicStringIdRegistry::TSizeVec &CDynamicStringIdRegistry::recycledIds()
 {
     return m_RecycledUids;
 }
 
-bool CDynamicStringIdRegistry::checkInvariants(void) const
+bool CDynamicStringIdRegistry::checkInvariants() const
 {
     using TSizeUSet = boost::unordered_set<std::size_t>;
 
@@ -248,7 +248,7 @@ bool CDynamicStringIdRegistry::checkInvariants(void) const
     return result;
 }
 
-void CDynamicStringIdRegistry::clear(void)
+void CDynamicStringIdRegistry::clear()
 {
     m_Uids.clear();
     m_Names.clear();
@@ -256,7 +256,7 @@ void CDynamicStringIdRegistry::clear(void)
     m_RecycledUids.clear();
 }
 
-uint64_t CDynamicStringIdRegistry::checksum(void) const
+uint64_t CDynamicStringIdRegistry::checksum() const
 {
     using TStrCRef = boost::reference_wrapper<const std::string>;
     using TStrCRefVec = std::vector<TStrCRef>;
@@ -284,7 +284,7 @@ void CDynamicStringIdRegistry::debugMemoryUsage(core::CMemoryUsage::TMemoryUsage
     core::CMemoryDebug::dynamicSize("m_RecycledPersonUids", m_RecycledUids, mem);
 }
 
-std::size_t CDynamicStringIdRegistry::memoryUsage(void) const
+std::size_t CDynamicStringIdRegistry::memoryUsage() const
 {
     std::size_t mem =  core::CMemory::dynamicSize(m_Uids);
     mem += core::CMemory::dynamicSize(m_NameType);

@@ -44,10 +44,10 @@ class CONFIG_EXPORT CPolledDataPenalty : public CPenalty
         CPolledDataPenalty(const CAutoconfigurerParams &params);
 
         //! Create a copy on the heap.
-        virtual CPolledDataPenalty *clone(void) const;
+        virtual CPolledDataPenalty *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
     private:
         using TOptionalTime = boost::optional<core_t::TTime>;

@@ -167,7 +167,7 @@ class MODEL_EXPORT CModelTools
                 CProbabilityAggregator(EStyle style);
 
                 //! Check if any probabilities have been added.
-                bool empty(void) const;
+                bool empty() const;
 
                 //! Add an aggregation style \p aggregator with weight \p weight.
                 void add(const TAggregator &aggregator, double weight = 1.0);
@@ -205,7 +205,7 @@ class MODEL_EXPORT CModelTools
         class MODEL_EXPORT CCategoryProbabilityCache
         {
             public:
-                CCategoryProbabilityCache(void);
+                CCategoryProbabilityCache();
                 CCategoryProbabilityCache(const maths::CMultinomialConjugate &prior);
 
                 //! Calculate the probability of less likely categories than
@@ -216,7 +216,7 @@ class MODEL_EXPORT CModelTools
                 void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
                 //! Get the memory usage of the component
-                std::size_t memoryUsage(void) const;
+                std::size_t memoryUsage() const;
 
             private:
                 //! The prior.
@@ -248,7 +248,7 @@ class MODEL_EXPORT CModelTools
                 explicit CProbabilityCache(double maximumError);
 
                 //! Clear the cache.
-                void clear(void);
+                void clear();
 
                 //! Maybe add the modes of \p model.
                 void addModes(model_t::EFeature feature, std::size_t id,

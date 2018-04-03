@@ -30,7 +30,7 @@
 
 using namespace ml;
 
-void CEntropySketchTest::testAll(void)
+void CEntropySketchTest::testAll()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testPersist  |");
@@ -120,7 +120,7 @@ void CEntropySketchTest::testAll(void)
     }
 }
 
-CppUnit::Test *CEntropySketchTest::suite(void)
+CppUnit::Test *CEntropySketchTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEntropySketchTest");
 

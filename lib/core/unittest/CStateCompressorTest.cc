@@ -98,12 +98,12 @@ class CMockDataAdder : public ml::core::CDataAdder
             return true;
         }
 
-        virtual std::size_t maxDocumentSize(void) const
+        virtual std::size_t maxDocumentSize() const
         {
             return m_MaxDocumentSize;
         }
 
-        const TSizeStrMap &data(void) const
+        const TSizeStrMap &data() const
         {
             return m_Data;
         }
@@ -142,12 +142,12 @@ class CMockDataSearcher : public ml::core::CDataSearcher
             return stream;
         }
 
-        std::size_t totalDocs(void) const
+        std::size_t totalDocs() const
         {
             return m_Adder.data().size();
         }
 
-        std::size_t askedFor(void) const
+        std::size_t askedFor() const
         {
             return m_AskedFor;
         }
@@ -161,7 +161,7 @@ class CMockDataSearcher : public ml::core::CDataSearcher
 }
 
 
-void CStateCompressorTest::testForApiNoKey(void)
+void CStateCompressorTest::testForApiNoKey()
 {
     // This test verifies the basic operation of compressing and decompressing
     // some JSON data, using two simultaneous streams: one regular stringstream,
@@ -202,7 +202,7 @@ void CStateCompressorTest::testForApiNoKey(void)
     CPPUNIT_ASSERT_EQUAL(ref.size(), restored.size());
 }
 
-void CStateCompressorTest::testStreaming(void)
+void CStateCompressorTest::testStreaming()
 {
     // The purpose of this test is to add a reasonable block of data to the
     // compressed store, then read it back out and show that the data is
@@ -275,7 +275,7 @@ void CStateCompressorTest::testStreaming(void)
 }
 
 
-void CStateCompressorTest::testChunking(void)
+void CStateCompressorTest::testChunking()
 {
     // Put arbitrary string data into the stream, and stress different sizes
     // check CMockDataAdder with max doc sizes from 500 to 500000

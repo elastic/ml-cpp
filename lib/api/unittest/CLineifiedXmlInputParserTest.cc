@@ -55,7 +55,7 @@ namespace
 class CSetupVisitor
 {
     public:
-        CSetupVisitor(void)
+        CSetupVisitor()
             : m_RecordsPerBlock(0),
               m_OutputWriter("root")
         {
@@ -88,7 +88,7 @@ class CSetupVisitor
             return str;
         }
 
-        size_t recordsPerBlock(void) const
+        size_t recordsPerBlock() const
         {
             return m_RecordsPerBlock;
         }
@@ -101,7 +101,7 @@ class CSetupVisitor
 class CVisitor
 {
     public:
-        CVisitor(void)
+        CVisitor()
             : m_RecordCount(0)
         {
         }
@@ -113,7 +113,7 @@ class CVisitor
             return true;
         }
 
-        size_t recordCount(void) const
+        size_t recordCount() const
         {
             return m_RecordCount;
         }
@@ -125,25 +125,25 @@ class CVisitor
 
 }
 
-void CLineifiedXmlInputParserTest::testThroughputArbitraryConformant(void)
+void CLineifiedXmlInputParserTest::testThroughputArbitraryConformant()
 {
     LOG_INFO("Testing using a standards-conformant XML parser assuming arbitrary fields in XML documents");
     this->runTest<ml::core::CXmlParser>(false);
 }
 
-void CLineifiedXmlInputParserTest::testThroughputCommonConformant(void)
+void CLineifiedXmlInputParserTest::testThroughputCommonConformant()
 {
     LOG_INFO("Testing using a standards-conformant XML parser assuming all XML documents have the same fields");
     this->runTest<ml::core::CXmlParser>(true);
 }
 
-void CLineifiedXmlInputParserTest::testThroughputArbitraryRapid(void)
+void CLineifiedXmlInputParserTest::testThroughputArbitraryRapid()
 {
     LOG_INFO("Testing using a rapid XML parser assuming arbitrary fields in XML documents");
     this->runTest<ml::core::CRapidXmlParser>(false);
 }
 
-void CLineifiedXmlInputParserTest::testThroughputCommonRapid(void)
+void CLineifiedXmlInputParserTest::testThroughputCommonRapid()
 {
     LOG_INFO("Testing using a rapid XML parser assuming all XML documents have the same fields");
     this->runTest<ml::core::CRapidXmlParser>(true);

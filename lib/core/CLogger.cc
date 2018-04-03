@@ -64,7 +64,7 @@ namespace core
 {
 
 
-CLogger::CLogger(void)
+CLogger::CLogger()
     : m_Logger(0),
       m_Reconfigured(false),
       m_ProgramName(CProgName::progName()),
@@ -74,7 +74,7 @@ CLogger::CLogger(void)
     this->reset();
 }
 
-CLogger::~CLogger(void)
+CLogger::~CLogger()
 {
     log4cxx::LogManager::shutdown();
     m_Logger = 0;
@@ -172,18 +172,18 @@ void CLogger::reset()
     }
 }
 
-CLogger &CLogger::instance(void)
+CLogger &CLogger::instance()
 {
     static CLogger instance;
     return instance;
 }
 
-bool CLogger::hasBeenReconfigured(void) const
+bool CLogger::hasBeenReconfigured() const
 {
     return m_Reconfigured;
 }
 
-void CLogger::logEnvironment(void) const
+void CLogger::logEnvironment() const
 {
     std::string env("Environment variables:");
     // environ is a global variable from the C runtime library
@@ -202,12 +202,12 @@ void CLogger::logEnvironment(void) const
     LOG_INFO(env);
 }
 
-log4cxx::LoggerPtr CLogger::logger(void)
+log4cxx::LoggerPtr CLogger::logger()
 {
     return m_Logger;
 }
 
-void CLogger::fatal(void)
+void CLogger::fatal()
 {
     throw std::runtime_error("Ml Fatal Exception");
 }
@@ -324,7 +324,7 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string &pipeName)
     return true;
 }
 
-bool CLogger::reconfigureLogJson(void)
+bool CLogger::reconfigureLogJson()
 {
     log4cxx::helpers::Properties props;
     log4cxx::LogString logStr;

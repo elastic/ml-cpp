@@ -24,7 +24,7 @@ namespace
 const std::string INDEX_TAG("a");
 }
 
-CClustererTypes::CIndexGenerator::CIndexGenerator(void) :
+CClustererTypes::CIndexGenerator::CIndexGenerator() :
         m_IndexHeap(new TSizeVec(1u, 0u))
 {
 }
@@ -51,14 +51,14 @@ void CClustererTypes::CIndexGenerator::acceptPersistInserter(core::CStatePersist
     core::CPersistUtils::persist(INDEX_TAG, *m_IndexHeap, inserter);
 }
 
-CClustererTypes::CIndexGenerator CClustererTypes::CIndexGenerator::deepCopy(void) const
+CClustererTypes::CIndexGenerator CClustererTypes::CIndexGenerator::deepCopy() const
 {
     CIndexGenerator result;
     result.m_IndexHeap.reset(new TSizeVec(*m_IndexHeap));
     return result;
 }
 
-std::size_t CClustererTypes::CIndexGenerator::next(void) const
+std::size_t CClustererTypes::CIndexGenerator::next() const
 {
     std::size_t result = m_IndexHeap->front();
     std::pop_heap(m_IndexHeap->begin(), m_IndexHeap->end(), std::greater<std::size_t>());
@@ -82,13 +82,13 @@ void CClustererTypes::CIndexGenerator::debugMemoryUsage(core::CMemoryUsage::TMem
     core::CMemoryDebug::dynamicSize("m_IndexHeap", m_IndexHeap, mem);
 }
 
-std::size_t CClustererTypes::CIndexGenerator::memoryUsage(void) const
+std::size_t CClustererTypes::CIndexGenerator::memoryUsage() const
 {
     std::size_t mem = core::CMemory::dynamicSize(m_IndexHeap);
     return mem;
 }
 
-std::string CClustererTypes::CIndexGenerator::print(void) const
+std::string CClustererTypes::CIndexGenerator::print() const
 {
     return core::CContainerPrinter::print(*m_IndexHeap);
 }

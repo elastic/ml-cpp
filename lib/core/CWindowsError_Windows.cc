@@ -31,7 +31,7 @@ namespace core
 {
 
 
-CWindowsError::CWindowsError(void)
+CWindowsError::CWindowsError()
     : m_ErrorCode(GetLastError())
 {
 }
@@ -41,12 +41,12 @@ CWindowsError::CWindowsError(uint32_t errorCode)
 {
 }
 
-uint32_t CWindowsError::errorCode(void) const
+uint32_t CWindowsError::errorCode() const
 {
     return m_ErrorCode;
 }
 
-std::string CWindowsError::errorString(void) const
+std::string CWindowsError::errorString() const
 {
     char message[BUFFER_SIZE] = { '\0' };
 

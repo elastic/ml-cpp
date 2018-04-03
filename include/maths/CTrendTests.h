@@ -77,7 +77,7 @@ class MATHS_EXPORT CRandomizedPeriodicityTest
         static const std::size_t N = 5;
 
     public:
-        CRandomizedPeriodicityTest(void);
+        CRandomizedPeriodicityTest();
 
         //! \name Persistence
         //@{
@@ -98,12 +98,12 @@ class MATHS_EXPORT CRandomizedPeriodicityTest
         void add(core_t::TTime time, double value);
 
         //! Test whether there is a periodic trend.
-        bool test(void) const;
+        bool test() const;
 
         //! Reset the test static random vectors.
         //!
         //! \note For unit testing only.
-        static void reset(void);
+        static void reset();
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -205,7 +205,7 @@ class MATHS_EXPORT CCalendarCyclicTest
         void add(core_t::TTime time, double error, double weight = 1.0);
 
         //! Check if there are calendar components.
-        TOptionalFeature test(void) const;
+        TOptionalFeature test() const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -214,7 +214,7 @@ class MATHS_EXPORT CCalendarCyclicTest
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         using TTimeVec = std::vector<core_t::TTime>;

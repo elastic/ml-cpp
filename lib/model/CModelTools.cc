@@ -218,7 +218,7 @@ CModelTools::CProbabilityAggregator::CProbabilityAggregator(EStyle style) :
         m_Style(style), m_TotalWeight(0.0)
 {}
 
-bool CModelTools::CProbabilityAggregator::empty(void) const
+bool CModelTools::CProbabilityAggregator::empty() const
 {
     return m_TotalWeight == 0.0;
 }
@@ -317,7 +317,7 @@ bool CModelTools::CProbabilityAggregator::calculate(double &result) const
 }
 
 
-CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(void) :
+CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache() :
         m_Prior(0), m_SmallestProbability(1.0)
 {}
 
@@ -366,7 +366,7 @@ void CModelTools::CCategoryProbabilityCache::debugMemoryUsage(core::CMemoryUsage
     }
 }
 
-std::size_t CModelTools::CCategoryProbabilityCache::memoryUsage(void) const
+std::size_t CModelTools::CCategoryProbabilityCache::memoryUsage() const
 {
     std::size_t mem{core::CMemory::dynamicSize(m_Cache)};
     if (m_Prior)
@@ -381,7 +381,7 @@ CModelTools::CProbabilityCache::CProbabilityCache(double maximumError) :
         m_MaximumError(maximumError)
 {}
 
-void CModelTools::CProbabilityCache::clear(void)
+void CModelTools::CProbabilityCache::clear()
 {
     m_Caches.clear();
 }

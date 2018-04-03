@@ -66,7 +66,7 @@ void debug(const TClusterVec &clusters)
 
 }
 
-void CXMeansOnline1dTest::testCluster(void)
+void CXMeansOnline1dTest::testCluster()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CXMeansOnline1dTest::testCluster  |");
@@ -201,7 +201,7 @@ void CXMeansOnline1dTest::testCluster(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6,  split->second.spread(), 0.1);
 }
 
-void CXMeansOnline1dTest::testMixtureOfGaussians(void)
+void CXMeansOnline1dTest::testMixtureOfGaussians()
 {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CXMeansOnline1dTest::testMixtureOfGaussians  |");
@@ -446,7 +446,7 @@ void CXMeansOnline1dTest::testMixtureOfGaussians(void)
     }
 }
 
-void CXMeansOnline1dTest::testMixtureOfUniforms(void)
+void CXMeansOnline1dTest::testMixtureOfUniforms()
 {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CXMeansOnline1dTest::testMixtureOfUniforms  |");
@@ -530,7 +530,7 @@ void CXMeansOnline1dTest::testMixtureOfUniforms(void)
     CPPUNIT_ASSERT(spreadError < 0.01);
 }
 
-void CXMeansOnline1dTest::testMixtureOfLogNormals(void)
+void CXMeansOnline1dTest::testMixtureOfLogNormals()
 {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  CXMeansOnline1dTest::testMixtureOfLogNormals  |");
@@ -634,7 +634,7 @@ void CXMeansOnline1dTest::testMixtureOfLogNormals(void)
     CPPUNIT_ASSERT(spreadError < 0.14);
 }
 
-void CXMeansOnline1dTest::testOutliers(void)
+void CXMeansOnline1dTest::testOutliers()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CXMeansOnline1dTest::testOutliers  |");
@@ -729,7 +729,7 @@ void CXMeansOnline1dTest::testOutliers(void)
     CPPUNIT_ASSERT(spreadError < 1.0);
 }
 
-void CXMeansOnline1dTest::testManyClusters(void)
+void CXMeansOnline1dTest::testManyClusters()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CXMeansOnline1dTest::testManyClusters  |");
@@ -773,7 +773,7 @@ void CXMeansOnline1dTest::testManyClusters(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(10), clusters.size());
 }
 
-void CXMeansOnline1dTest::testLowVariation(void)
+void CXMeansOnline1dTest::testLowVariation()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CXMeansOnline1dTest::testLowVariation  |");
@@ -794,7 +794,7 @@ void CXMeansOnline1dTest::testLowVariation(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), clusters.size());
 }
 
-void CXMeansOnline1dTest::testAdaption(void)
+void CXMeansOnline1dTest::testAdaption()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CXMeansOnline1dTest::testAdaption  |");
@@ -807,7 +807,7 @@ void CXMeansOnline1dTest::testAdaption(void)
     // TODO
 }
 
-void CXMeansOnline1dTest::testLargeHistory(void)
+void CXMeansOnline1dTest::testLargeHistory()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CXMeansOnline1dTest::testLargeHistory  |");
@@ -853,7 +853,7 @@ void CXMeansOnline1dTest::testLargeHistory(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), clusterer.clusters().size());
 }
 
-void CXMeansOnline1dTest::testPersist(void)
+void CXMeansOnline1dTest::testPersist()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CXMeansOnline1dTest::testPersist  |");
@@ -918,7 +918,7 @@ void CXMeansOnline1dTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CXMeansOnline1dTest::testPruneEmptyCluster(void)
+void CXMeansOnline1dTest::testPruneEmptyCluster()
 {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CXMeansOnline1dTest::testPruneEmptyCluster  |");
@@ -958,7 +958,7 @@ void CXMeansOnline1dTest::testPruneEmptyCluster(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), clusterer.clusters().size());
 }
 
-CppUnit::Test *CXMeansOnline1dTest::suite(void)
+CppUnit::Test *CXMeansOnline1dTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CXMeansOnline1dTest");
 

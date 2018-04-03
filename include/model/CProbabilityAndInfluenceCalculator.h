@@ -94,7 +94,7 @@ class MODEL_EXPORT CProbabilityAndInfluenceCalculator
             SParams(const CPartitioningFields &partitioningFields);
 
             //! Helper to print a description of the parameters.
-            std::string describe(void) const;
+            std::string describe() const;
 
             //! The feature of s_Value.
             model_t::EFeature s_Feature;
@@ -137,7 +137,7 @@ class MODEL_EXPORT CProbabilityAndInfluenceCalculator
             SCorrelateParams(const CPartitioningFields &partitioningFields);
 
             //! Helper to print a description of the parameters.
-            std::string describe(void) const;
+            std::string describe() const;
 
             //! The feature of s_Values.
             model_t::EFeature s_Feature;
@@ -186,11 +186,11 @@ class MODEL_EXPORT CProbabilityAndInfluenceCalculator
         explicit CProbabilityAndInfluenceCalculator(double cutoff);
 
         //! Check if any probabilities have been added to the calculator.
-        bool empty(void) const;
+        bool empty() const;
 
         //! Get the minimum value for the influence for which an influencing
         //! field value is judged to have any influence on a feature value.
-        double cutoff(void) const;
+        double cutoff() const;
 
         //! Plug-in the influence calculation to use.
         void plugin(const CInfluenceCalculator &influence);
@@ -373,7 +373,7 @@ class MODEL_EXPORT CInfluenceCalculator : private core::CNonCopyable
 {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void)
+        static bool dynamicSizeAlwaysZero()
         {
             return true;
         }
@@ -381,7 +381,7 @@ class MODEL_EXPORT CInfluenceCalculator : private core::CNonCopyable
         using TCorrelateParams = CProbabilityAndInfluenceCalculator::SCorrelateParams;
 
     public:
-        virtual ~CInfluenceCalculator(void);
+        virtual ~CInfluenceCalculator();
 
         //! Compute the influence from the probability of set difference
         //! statistics.

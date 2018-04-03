@@ -128,7 +128,7 @@ class CSphericalGaussianInfoCriterion
         using TMeanVarAccumulator = typename CBasicStatistics::SSampleMeanVar<TBarePointPrecise>::TAccumulator;
 
     public:
-        CSphericalGaussianInfoCriterion(void) :
+        CSphericalGaussianInfoCriterion() :
             m_D(0.0),
             m_K(0.0),
             m_N(0.0),
@@ -209,7 +209,7 @@ class CSphericalGaussianInfoCriterion
         }
 
         //! Calculate the information content of the clusters added so far.
-        double calculate(void) const
+        double calculate() const
         {
             if (m_N == 0.0)
             {
@@ -261,7 +261,7 @@ class CGaussianInfoCriterion
         using TMatrix = typename SConformableMatrix<TBarePointPrecise>::Type;
 
     public:
-        CGaussianInfoCriterion(void) :
+        CGaussianInfoCriterion() :
             m_D(0.0),
             m_K(0.0),
             m_N(0.0),
@@ -321,7 +321,7 @@ class CGaussianInfoCriterion
         }
 
         //! Calculate the information content of the clusters added so far.
-        double calculate(void) const
+        double calculate() const
         {
             if (m_N == 0.0)
             {

@@ -21,7 +21,7 @@
 class CModelSnapshotJsonWriterTest : public CppUnit::TestFixture
 {
     public:
-        void testWrite(void);
+        void testWrite();
 
         static CppUnit::Test *suite();
 };

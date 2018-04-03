@@ -247,7 +247,7 @@ void CStatisticalTests::CCramerVonMises::addF(double f)
     }
 }
 
-double CStatisticalTests::CCramerVonMises::pValue(void) const
+double CStatisticalTests::CCramerVonMises::pValue() const
 {
     if (CBasicStatistics::count(m_T) == 0.0)
     {

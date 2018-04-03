@@ -21,9 +21,9 @@
 class CSmallVectorTest : public CppUnit::TestFixture
 {
     public:
-        void testNonStandard(void);
+        void testNonStandard();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CSmallVectorTest_h

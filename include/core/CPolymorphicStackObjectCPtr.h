@@ -47,7 +47,7 @@ class CPolymorphicStackObjectCPtr
         using TConstD4 = const typename boost::remove_const<D4>::type;
 
     public:
-        CPolymorphicStackObjectCPtr(void) : m_Storage(CNullPolymorphicStackObjectCPtr()) {}
+        CPolymorphicStackObjectCPtr() : m_Storage(CNullPolymorphicStackObjectCPtr()) {}
 
         template<typename T>
         explicit CPolymorphicStackObjectCPtr(const T &d) : m_Storage(d) {}
@@ -84,7 +84,7 @@ class CPolymorphicStackObjectCPtr
             return boost::relaxed_get<CNullPolymorphicStackObjectCPtr>(&m_Storage) == 0;
         }
 
-        TConstBase *operator->(void) const
+        TConstBase *operator->() const
         {
 #define MAYBE_RETURN(TYPE) {                                                        \
                                TYPE *result = boost::relaxed_get<TYPE>(&m_Storage); \
@@ -101,12 +101,12 @@ class CPolymorphicStackObjectCPtr
             return 0;
         }
 
-        TConstBase &operator*(void) const
+        TConstBase &operator*() const
         {
             return *(this->operator->());
         }
 
-        template<typename T> const T *get(void) const
+        template<typename T> const T *get() const
         {
             return boost::relaxed_get<T>(&m_Storage);
         }

@@ -93,12 +93,12 @@ bool CConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
     return true;
 }
 
-CConstantPrior::EPrior CConstantPrior::type(void) const
+CConstantPrior::EPrior CConstantPrior::type() const
 {
     return E_Constant;
 }
 
-CConstantPrior *CConstantPrior::clone(void) const
+CConstantPrior *CConstantPrior::clone() const
 {
     return new CConstantPrior(*this);
 }
@@ -109,7 +109,7 @@ void CConstantPrior::setToNonInformative(double /*offset*/,
     m_Constant.reset();
 }
 
-bool CConstantPrior::needsOffset(void) const
+bool CConstantPrior::needsOffset() const
 {
     return false;
 }
@@ -121,7 +121,7 @@ double CConstantPrior::adjustOffset(const TWeightStyleVec &/*weightStyle*/,
     return 0.0;
 }
 
-double CConstantPrior::offset(void) const
+double CConstantPrior::offset() const
 {
     return 0.0;
 }
@@ -142,13 +142,13 @@ void CConstantPrior::propagateForwardsByTime(double /*time*/)
 }
 
 CConstantPrior::TDoubleDoublePr
-CConstantPrior::marginalLikelihoodSupport(void) const
+CConstantPrior::marginalLikelihoodSupport() const
 {
     return std::make_pair(boost::numeric::bounds<double>::lowest(),
                           boost::numeric::bounds<double>::highest());
 }
 
-double CConstantPrior::marginalLikelihoodMean(void) const
+double CConstantPrior::marginalLikelihoodMean() const
 {
     if (this->isNonInformative())
     {
@@ -402,7 +402,7 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
     return true;
 }
 
-bool CConstantPrior::isNonInformative(void) const
+bool CConstantPrior::isNonInformative() const
 {
     return !m_Constant;
 }
@@ -424,7 +424,7 @@ std::string CConstantPrior::printMarginalLikelihoodFunction(double /*weight*/) c
     return EMPTY_STRING;
 }
 
-std::string CConstantPrior::printJointDensityFunction(void) const
+std::string CConstantPrior::printJointDensityFunction() const
 {
     // The prior is (arguably) Dirichlet with infinite concentration
     // at the constant so not particularly interesting and we don't
@@ -443,12 +443,12 @@ void CConstantPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) c
     mem->setName("CConstantPrior");
 }
 
-std::size_t CConstantPrior::memoryUsage(void) const
+std::size_t CConstantPrior::memoryUsage() const
 {
     return 0;
 }
 
-std::size_t CConstantPrior::staticSize(void) const
+std::size_t CConstantPrior::staticSize() const
 {
     return sizeof(*this);
 }
@@ -463,7 +463,7 @@ void CConstantPrior::acceptPersistInserter(core::CStatePersistInserter &inserter
     }
 }
 
-CConstantPrior::TOptionalDouble CConstantPrior::constant(void) const
+CConstantPrior::TOptionalDouble CConstantPrior::constant() const
 {
     return m_Constant;
 }

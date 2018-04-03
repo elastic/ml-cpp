@@ -68,16 +68,16 @@ class MATHS_EXPORT CAgglomerativeClusterer
                 bool addChild(CNode &child);
 
                 //! Get the unique index of this node.
-                std::size_t index(void) const;
+                std::size_t index() const;
 
                 //! Get the height of this node.
-                double height(void) const;
+                double height() const;
 
                 //! Get the root of the branch containing this node.
                 //!
                 //! \note This is the root of the tree unless it is
                 //! under construction.
-                CNode &root(void);
+                CNode &root();
 
                 //! Get the points in this node's cluster.
                 void points(TSizeVec &result) const;

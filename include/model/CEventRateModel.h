@@ -151,17 +151,17 @@ class MODEL_EXPORT CEventRateModel : public CIndividualModel
         //! persisted representation, and must not be used for any other
         //! purpose.
         //! \warning The caller owns the object returned.
-        virtual CAnomalyDetectorModel *cloneForPersistence(void) const;
+        virtual CAnomalyDetectorModel *cloneForPersistence() const;
         //@}
 
         //! Get the model category.
-        virtual model_t::EModelType category(void) const;
+        virtual model_t::EModelType category() const;
 
         //! Returns true.
-        virtual bool isEventRate(void) const;
+        virtual bool isEventRate() const;
 
         //! Returns false.
-        virtual bool isMetric(void) const;
+        virtual bool isMetric() const;
 
         //! \name Bucket Statistics
         //@{
@@ -266,16 +266,16 @@ class MODEL_EXPORT CEventRateModel : public CIndividualModel
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this model.
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
         //! Get the static size of this object - used for virtual hierarchies.
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
 
         //! Get the non-estimated value of the the memory used by this model.
-        virtual std::size_t computeMemoryUsage(void) const;
+        virtual std::size_t computeMemoryUsage() const;
 
         //! Get a view of the internals of the model for visualization.
-        virtual CModelDetailsViewPtr details(void) const;
+        virtual CModelDetailsViewPtr details() const;
 
         //! Get the value of the \p feature of the person identified
         //! by \p pid for the bucketing interval containing \p time.
@@ -285,31 +285,31 @@ class MODEL_EXPORT CEventRateModel : public CIndividualModel
 
     private:
         //! Get the start time of the current bucket.
-        virtual core_t::TTime currentBucketStartTime(void) const;
+        virtual core_t::TTime currentBucketStartTime() const;
 
         //! Set the start time of the current bucket.
         virtual void currentBucketStartTime(core_t::TTime time);
 
         //! Get the person counts in the current bucket.
-        virtual const TSizeUInt64PrVec &currentBucketPersonCounts(void) const;
+        virtual const TSizeUInt64PrVec &currentBucketPersonCounts() const;
 
         //! Get writable person counts in the current bucket.
-        virtual TSizeUInt64PrVec &currentBucketPersonCounts(void);
+        virtual TSizeUInt64PrVec &currentBucketPersonCounts();
 
         //! Set the current bucket total count.
         virtual void currentBucketTotalCount(uint64_t totalCount);
 
         //! Get the total count of the current bucket.
-        uint64_t currentBucketTotalCount(void) const;
+        uint64_t currentBucketTotalCount() const;
 
         //! Get the interim corrections of the current bucket.
-        TFeatureSizeSizeTripleDouble1VecUMap &currentBucketInterimCorrections(void) const;
+        TFeatureSizeSizeTripleDouble1VecUMap &currentBucketInterimCorrections() const;
 
         //! Create the time series models for "n" newly observed people.
         virtual void createNewModels(std::size_t n, std::size_t m);
 
         //! Reinitialize the time series models for recycled people.
-        virtual void updateRecycledModels(void);
+        virtual void updateRecycledModels();
 
         //! Clear out large state objects for people that are pruned.
         virtual void clearPrunedResources(const TSizeVec &people,

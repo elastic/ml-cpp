@@ -21,7 +21,7 @@
 class CSleepTest : public CppUnit::TestFixture
 {
     public:
-        void testSleep(void);
+        void testSleep();
 
         static CppUnit::Test *suite();
 };

@@ -63,7 +63,7 @@ namespace
 class CVisitor
 {
     public:
-        CVisitor(void)
+        CVisitor()
             : m_Fast(true),
               m_RecordCount(0)
         {
@@ -113,7 +113,7 @@ class CVisitor
             return true;
         }
 
-        size_t recordCount(void) const
+        size_t recordCount() const
         {
             return m_RecordCount;
         }
@@ -174,7 +174,7 @@ class CTimeCheckingVisitor
             return true;
         }
 
-        size_t recordCount(void) const
+        size_t recordCount() const
         {
             return m_RecordCount;
         }
@@ -189,7 +189,7 @@ class CTimeCheckingVisitor
 class CQuoteCheckingVisitor
 {
     public:
-        CQuoteCheckingVisitor(void)
+        CQuoteCheckingVisitor()
             : m_RecordCount(0)
         {
         }
@@ -219,7 +219,7 @@ class CQuoteCheckingVisitor
             return true;
         }
 
-        size_t recordCount(void) const
+        size_t recordCount() const
         {
             return m_RecordCount;
         }
@@ -231,7 +231,7 @@ class CQuoteCheckingVisitor
 
 }
 
-void CCsvInputParserTest::testSimpleDelims(void)
+void CCsvInputParserTest::testSimpleDelims()
 {
     std::ifstream simpleStrm("testfiles/simple.txt");
     CPPUNIT_ASSERT(simpleStrm.is_open());
@@ -273,7 +273,7 @@ void CCsvInputParserTest::testSimpleDelims(void)
     CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
 }
 
-void CCsvInputParserTest::testComplexDelims(void)
+void CCsvInputParserTest::testComplexDelims()
 {
     std::ifstream complexStrm("testfiles/complex.txt");
     CPPUNIT_ASSERT(complexStrm.is_open());
@@ -313,7 +313,7 @@ void CCsvInputParserTest::testComplexDelims(void)
     CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
 }
 
-void CCsvInputParserTest::testThroughput(void)
+void CCsvInputParserTest::testThroughput()
 {
     std::ifstream ifs("testfiles/simple.txt");
     CPPUNIT_ASSERT(ifs.is_open());
@@ -373,7 +373,7 @@ void CCsvInputParserTest::testThroughput(void)
              " records took " << (end - start) << " seconds");
 }
 
-void CCsvInputParserTest::testDateParse(void)
+void CCsvInputParserTest::testDateParse()
 {
     static const ml::core_t::TTime EXPECTED_TIMES[] = {
         1359331200,
@@ -484,7 +484,7 @@ void CCsvInputParserTest::testDateParse(void)
     CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone(""));
 }
 
-void CCsvInputParserTest::testQuoteParsing(void)
+void CCsvInputParserTest::testQuoteParsing()
 {
     // Expect:
     // q1 =
@@ -505,7 +505,7 @@ void CCsvInputParserTest::testQuoteParsing(void)
     CPPUNIT_ASSERT_EQUAL(size_t(1), visitor.recordCount());
 }
 
-void CCsvInputParserTest::testLineParser(void)
+void CCsvInputParserTest::testLineParser()
 {
     ml::api::CCsvInputParser::CCsvLineParser lineParser;
     std::string token;

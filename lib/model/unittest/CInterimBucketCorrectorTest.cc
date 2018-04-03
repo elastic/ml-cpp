@@ -56,7 +56,7 @@ CppUnit::Test *CInterimBucketCorrectorTest::suite()
     return suiteOfTests;
 }
 
-void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue(void)
+void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue()
 {
     core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);
@@ -127,7 +127,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue(void)
     }
 }
 
-void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline(void)
+void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline()
 {
     core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);
@@ -138,7 +138,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline(v
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, correction, EPSILON);
 }
 
-void CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode(void)
+void CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode()
 {
     core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);
@@ -189,7 +189,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode(voi
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, correction[9], EPSILON);
 }
 
-void CInterimBucketCorrectorTest::testPersist(void)
+void CInterimBucketCorrectorTest::testPersist()
 {
     core_t::TTime bucketLength(300);
     CInterimBucketCorrector corrector(bucketLength);

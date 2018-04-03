@@ -147,22 +147,22 @@ bool CMetricModel::acceptRestoreTraverser(core::CStateRestoreTraverser &traverse
     return true;
 }
 
-CAnomalyDetectorModel *CMetricModel::cloneForPersistence(void) const
+CAnomalyDetectorModel *CMetricModel::cloneForPersistence() const
 {
     return new CMetricModel(true, *this);
 }
 
-model_t::EModelType CMetricModel::category(void) const
+model_t::EModelType CMetricModel::category() const
 {
     return model_t::E_MetricOnline;
 }
 
-bool CMetricModel::isEventRate(void) const
+bool CMetricModel::isEventRate() const
 {
     return false;
 }
 
-bool CMetricModel::isMetric(void) const
+bool CMetricModel::isMetric() const
 {
     return true;
 }
@@ -493,12 +493,12 @@ void CMetricModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) con
                                         m_CurrentBucketStats.s_InterimCorrections, mem);
 }
 
-std::size_t CMetricModel::memoryUsage(void) const
+std::size_t CMetricModel::memoryUsage() const
 {
     return this->CIndividualModel::memoryUsage();
 }
 
-std::size_t CMetricModel::computeMemoryUsage(void) const
+std::size_t CMetricModel::computeMemoryUsage() const
 {
     std::size_t mem = this->CIndividualModel::computeMemoryUsage();
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
@@ -507,12 +507,12 @@ std::size_t CMetricModel::computeMemoryUsage(void) const
     return mem;
 }
 
-std::size_t CMetricModel::staticSize(void) const
+std::size_t CMetricModel::staticSize() const
 {
     return sizeof(*this);
 }
 
-CMetricModel::CModelDetailsViewPtr CMetricModel::details(void) const
+CMetricModel::CModelDetailsViewPtr CMetricModel::details() const
 {
     return CModelDetailsViewPtr(new CMetricModelDetailsView(*this));
 }
@@ -529,7 +529,7 @@ void CMetricModel::createNewModels(std::size_t n, std::size_t m)
     this->CIndividualModel::createNewModels(n, m);
 }
 
-void CMetricModel::updateRecycledModels(void)
+void CMetricModel::updateRecycledModels()
 {
     this->CIndividualModel::updateRecycledModels();
 }
@@ -551,7 +551,7 @@ void CMetricModel::clearPrunedResources(const TSizeVec &people,
     this->CIndividualModel::clearPrunedResources(people, attributes);
 }
 
-core_t::TTime CMetricModel::currentBucketStartTime(void) const
+core_t::TTime CMetricModel::currentBucketStartTime() const
 {
     return m_CurrentBucketStats.s_StartTime;
 }
@@ -561,22 +561,22 @@ void CMetricModel::currentBucketStartTime(core_t::TTime time)
     m_CurrentBucketStats.s_StartTime = time;
 }
 
-uint64_t CMetricModel::currentBucketTotalCount(void) const
+uint64_t CMetricModel::currentBucketTotalCount() const
 {
     return m_CurrentBucketStats.s_TotalCount;
 }
 
-CIndividualModel::TFeatureSizeSizeTripleDouble1VecUMap &CMetricModel::currentBucketInterimCorrections(void) const
+CIndividualModel::TFeatureSizeSizeTripleDouble1VecUMap &CMetricModel::currentBucketInterimCorrections() const
 {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
 
-const CMetricModel::TSizeUInt64PrVec &CMetricModel::currentBucketPersonCounts(void) const
+const CMetricModel::TSizeUInt64PrVec &CMetricModel::currentBucketPersonCounts() const
 {
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
-CMetricModel::TSizeUInt64PrVec &CMetricModel::currentBucketPersonCounts(void)
+CMetricModel::TSizeUInt64PrVec &CMetricModel::currentBucketPersonCounts()
 {
     return m_CurrentBucketStats.s_PersonCounts;
 }

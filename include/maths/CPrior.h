@@ -85,7 +85,7 @@ class MATHS_EXPORT CPrior
         class MATHS_EXPORT CModelFilter
         {
             public:
-                CModelFilter(void);
+                CModelFilter();
 
                 //! Mark a model to be removed.
                 CModelFilter &remove(EPrior model);
@@ -135,7 +135,7 @@ class MATHS_EXPORT CPrior
         //@{
         //! Construct an arbitrarily initialised object, suitable only for
         //! assigning to or swapping with a valid one.
-        CPrior(void);
+        CPrior();
 
         //! \param[in] dataType The type of data being modeled.
         //! \param[in] decayRate The rate at which the prior returns to non-informative.
@@ -144,33 +144,33 @@ class MATHS_EXPORT CPrior
         // Default copy constructor and assignment operator work.
 
         //! Virtual destructor for deletion by base pointer.
-        virtual ~CPrior(void) = default;
+        virtual ~CPrior() = default;
 
         //! Swap the contents of this prior and \p other.
         void swap(CPrior &other);
         //@}
 
         //! Check if the prior is being used to model discrete data.
-        bool isDiscrete(void) const;
+        bool isDiscrete() const;
 
         //! Check if the prior is being used to model integer data.
-        bool isInteger(void) const;
+        bool isInteger() const;
 
         //! Get the data type.
-        maths_t::EDataType dataType(void) const;
+        maths_t::EDataType dataType() const;
 
         //! Get the rate at which the prior returns to non-informative.
-        double decayRate(void) const;
+        double decayRate() const;
 
         //! \name Prior Contract
         //@{
         //! Get the type of this prior.
-        virtual EPrior type(void) const = 0;
+        virtual EPrior type() const = 0;
 
         //! Create a copy of the prior.
         //!
         //! \warning Caller owns returned object.
-        virtual CPrior *clone(void) const = 0;
+        virtual CPrior *clone() const = 0;
 
         //! Set the data type.
         virtual void dataType(maths_t::EDataType value);
@@ -188,10 +188,10 @@ class MATHS_EXPORT CPrior
         //! Get the margin between the smallest value and the support left
         //! end. Priors with non-negative support, automatically adjust the
         //! offset if a value is seen which is smaller than offset + margin.
-        virtual double offsetMargin(void) const;
+        virtual double offsetMargin() const;
 
         //! Check if the prior needs an offset to be applied.
-        virtual bool needsOffset(void) const = 0;
+        virtual bool needsOffset() const = 0;
 
         //! For priors with non-negative support this adjusts the offset used
         //! to extend the support to handle negative samples.
@@ -207,7 +207,7 @@ class MATHS_EXPORT CPrior
                                     const TDouble4Vec1Vec &weights) = 0;
 
         //! Get the current sample offset.
-        virtual double offset(void) const = 0;
+        virtual double offset() const = 0;
 
         //! Update the prior with a collection of independent samples from the
         //! variable.
@@ -225,10 +225,10 @@ class MATHS_EXPORT CPrior
         virtual void propagateForwardsByTime(double time) = 0;
 
         //! Get the support for the marginal likelihood function.
-        virtual TDoubleDoublePr marginalLikelihoodSupport(void) const = 0;
+        virtual TDoubleDoublePr marginalLikelihoodSupport() const = 0;
 
         //! Get the mean of the marginal likelihood function.
-        virtual double marginalLikelihoodMean(void) const = 0;
+        virtual double marginalLikelihoodMean() const = 0;
 
         //! Get the nearest mean of the multimodal prior marginal likelihood,
         //! otherwise the marginal likelihood mean.
@@ -373,10 +373,10 @@ class MATHS_EXPORT CPrior
                                                     maths_t::ETail &tail) const = 0;
 
         //! Check if this is a non-informative prior.
-        virtual bool isNonInformative(void) const = 0;
+        virtual bool isNonInformative() const = 0;
 
         //! Get a human readable description of the prior.
-        std::string print(void) const;
+        std::string print() const;
 
         //! Get a human readable description of the prior.
         //!
@@ -418,7 +418,7 @@ class MATHS_EXPORT CPrior
         //! i.e. domain values are space separated on the first and subsequent line(s)
         //! as appropriate and the density function evaluated at those values are space
         //! separated on the next line and subsequent lines as appropriate.
-        virtual std::string printJointDensityFunction(void) const = 0;
+        virtual std::string printJointDensityFunction() const = 0;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed = 0) const = 0;
@@ -427,10 +427,10 @@ class MATHS_EXPORT CPrior
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
 
         //! Get the memory used by this component
-        virtual std::size_t memoryUsage(void) const = 0;
+        virtual std::size_t memoryUsage() const = 0;
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const = 0;
+        virtual std::size_t staticSize() const = 0;
 
         //! Persist state by passing information to the supplied inserter
         virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const = 0;
@@ -459,7 +459,7 @@ class MATHS_EXPORT CPrior
                          const TDouble4Vec &weights = TWeights::UNIT) const;
 
         //! Get the number of samples received to date.
-        double numberSamples(void) const;
+        double numberSamples() const;
 
         //! Set the number of samples received to \p numberSamples.
         //!
@@ -467,7 +467,7 @@ class MATHS_EXPORT CPrior
         void numberSamples(double numberSamples);
 
         //! Check if we should use this prior at present.
-        virtual bool participatesInModelSelection(void) const;
+        virtual bool participatesInModelSelection() const;
 
         //! Get the number of unmarginalized parameters in the marginal likelihood.
         //!
@@ -475,7 +475,7 @@ class MATHS_EXPORT CPrior
         //! compute a marginal likelihood don't need to be counted since we
         //! are interested in the estimating the usual BIC approximation for
         //! \f$int_{\theta}f(x|\theta, M)f(\theta|M)\d\theta\f$
-        virtual double unmarginalizedParameters(void) const;
+        virtual double unmarginalizedParameters() const;
 
         //! Get a set of sample for the prior to use in adjust offset.
         void adjustOffsetResamples(double minimumSample,
@@ -489,7 +489,7 @@ class MATHS_EXPORT CPrior
         {
             public:
                 COffsetParameters(CPrior &prior);
-                virtual ~COffsetParameters(void) = default;
+                virtual ~COffsetParameters() = default;
 
                 //! Add a collection of samples.
                 void samples(const maths_t::TWeightStyleVec &weightStyles,
@@ -500,12 +500,12 @@ class MATHS_EXPORT CPrior
                 virtual void resample(double minimumSample);
 
             protected:
-                CPrior &prior(void) const;
-                const maths_t::TWeightStyleVec &weightStyles(void) const;
-                const TDouble1Vec &samples(void) const;
-                const TDouble4Vec1Vec &weights(void) const;
-                const TDouble1Vec &resamples(void) const;
-                const TDouble4Vec1Vec &resamplesWeights(void) const;
+                CPrior &prior() const;
+                const maths_t::TWeightStyleVec &weightStyles() const;
+                const TDouble1Vec &samples() const;
+                const TDouble4Vec1Vec &weights() const;
+                const TDouble1Vec &resamples() const;
+                const TDouble4Vec1Vec &resamplesWeights() const;
 
             private:
                 CPrior *m_Prior;
@@ -567,7 +567,7 @@ class MATHS_EXPORT CPrior
         void addSamples(double n);
 
         //! Get a debug description of the prior parameters.
-        virtual std::string debug(void) const;
+        virtual std::string debug() const;
 
     private:
         //! If this is true then the prior is being used to model discrete

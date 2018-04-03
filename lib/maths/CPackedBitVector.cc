@@ -27,7 +27,7 @@ namespace ml
 namespace maths
 {
 
-CPackedBitVector::CPackedBitVector(void) :
+CPackedBitVector::CPackedBitVector() :
         m_Dimension(0), m_First(false), m_Parity(true)
 {}
 
@@ -78,7 +78,7 @@ CPackedBitVector::CPackedBitVector(const TBoolVec &bits) :
     m_RunLengths.push_back(static_cast<uint8_t>(length));
 }
 
-void CPackedBitVector::contract(void)
+void CPackedBitVector::contract()
 {
     if (m_Dimension == 0)
     {
@@ -189,7 +189,7 @@ bool CPackedBitVector::fromDelimited(const std::string &str)
     return true;
 }
 
-std::string CPackedBitVector::toDelimited(void) const
+std::string CPackedBitVector::toDelimited() const
 {
     std::string result;
     result +=  core::CStringUtils::typeToString(m_Dimension)
@@ -202,7 +202,7 @@ std::string CPackedBitVector::toDelimited(void) const
     return result;
 }
 
-std::size_t CPackedBitVector::dimension(void) const
+std::size_t CPackedBitVector::dimension() const
 {
     return m_Dimension;
 }
@@ -242,7 +242,7 @@ bool CPackedBitVector::operator<(const CPackedBitVector &rhs) const
                                                rhs.m_RunLengths);
 }
 
-CPackedBitVector CPackedBitVector::complement(void) const
+CPackedBitVector CPackedBitVector::complement() const
 {
     CPackedBitVector result(*this);
     result.m_First = !result.m_First;
@@ -326,7 +326,7 @@ double CPackedBitVector::inner(const CPackedBitVector &covector, EOperation op) 
     return result;
 }
 
-CPackedBitVector::TBoolVec CPackedBitVector::toBitVector(void) const
+CPackedBitVector::TBoolVec CPackedBitVector::toBitVector() const
 {
     if (m_Dimension == 0)
     {
@@ -351,7 +351,7 @@ CPackedBitVector::TBoolVec CPackedBitVector::toBitVector(void) const
     return result;
 }
 
-uint64_t CPackedBitVector::checksum(void) const
+uint64_t CPackedBitVector::checksum() const
 {
     uint64_t seed = m_Dimension;
     seed = CChecksum::calculate(seed, m_First);
@@ -365,7 +365,7 @@ void CPackedBitVector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
     core::CMemoryDebug::dynamicSize("m_RunLengths", m_RunLengths, mem);
 }
 
-std::size_t CPackedBitVector::memoryUsage(void) const
+std::size_t CPackedBitVector::memoryUsage() const
 {
     return core::CMemory::dynamicSize(m_RunLengths);
 }

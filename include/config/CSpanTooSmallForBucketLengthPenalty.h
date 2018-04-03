@@ -37,10 +37,10 @@ class CONFIG_EXPORT CSpanTooSmallForBucketLengthPenalty : public CPenalty
         CSpanTooSmallForBucketLengthPenalty(const CAutoconfigurerParams &params);
 
         //! Create a copy on the heap.
-        virtual CSpanTooSmallForBucketLengthPenalty *clone(void) const;
+        virtual CSpanTooSmallForBucketLengthPenalty *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
     private:
         //! Compute a penalty for rare detectors.

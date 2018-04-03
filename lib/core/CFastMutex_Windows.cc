@@ -21,22 +21,22 @@ namespace core
 {
 
 
-CFastMutex::CFastMutex(void)
+CFastMutex::CFastMutex()
 {
     InitializeSRWLock(&m_Mutex);
 }
 
-CFastMutex::~CFastMutex(void)
+CFastMutex::~CFastMutex()
 {
     // There is no function to destroy the read/write lock on Windows
 }
 
-void CFastMutex::lock(void)
+void CFastMutex::lock()
 {
     AcquireSRWLockExclusive(&m_Mutex);
 }
 
-void CFastMutex::unlock(void)
+void CFastMutex::unlock()
 {
     ReleaseSRWLockExclusive(&m_Mutex);
 }

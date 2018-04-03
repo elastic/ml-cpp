@@ -63,7 +63,7 @@ class CORE_EXPORT CSleep : private CNonInstantiatable
 
         //! Delay processing for a period of time that has been observed to not
         //! cause problems like database disconnections, socket overflows, etc.
-        static void delayProcessing(void);
+        static void delayProcessing();
 };
 
 

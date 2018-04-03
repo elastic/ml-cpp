@@ -54,11 +54,11 @@ class API_EXPORT CCmdSkeleton : private core::CNonCopyable
                      CDataProcessor &processor);
 
         //! Pass input to the processor until it's consumed as much as it can.
-        bool ioLoop(void);
+        bool ioLoop();
 
     private:
         //! Persists the state of the models
-        bool persistState(void);
+        bool persistState();
 
     private:
         //! NULL if state restoration is not required.

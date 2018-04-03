@@ -21,10 +21,10 @@
 class CFunctionalTest : public CppUnit::TestFixture
 {
     public:
-        void testIsNull(void);
-        void testDereference(void);
+        void testIsNull();
+        void testDereference();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CFunctionalTest_h

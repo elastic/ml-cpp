@@ -75,7 +75,7 @@ CppUnit::Test *CDetachedProcessSpawnerTest::suite()
     return suiteOfTests;
 }
 
-void CDetachedProcessSpawnerTest::testSpawn(void)
+void CDetachedProcessSpawnerTest::testSpawn()
 {
     // The intention of this test is to copy a file by spawning an external
     // program and then make sure the file has been copied
@@ -102,7 +102,7 @@ void CDetachedProcessSpawnerTest::testSpawn(void)
     CPPUNIT_ASSERT_EQUAL(0, ::remove(OUTPUT_FILE.c_str()));
 }
 
-void CDetachedProcessSpawnerTest::testKill(void)
+void CDetachedProcessSpawnerTest::testKill()
 {
     // The intention of this test is to spawn a process that sleeps for 10
     // seconds, but kill it before it exits by itself and prove that its death
@@ -134,7 +134,7 @@ void CDetachedProcessSpawnerTest::testKill(void)
     CPPUNIT_ASSERT(!spawner.terminateChild(static_cast<ml::core::CProcess::TPid>(-1)));
 }
 
-void CDetachedProcessSpawnerTest::testPermitted(void)
+void CDetachedProcessSpawnerTest::testPermitted()
 {
     ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, PROCESS_PATH1);
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
@@ -143,7 +143,7 @@ void CDetachedProcessSpawnerTest::testPermitted(void)
     CPPUNIT_ASSERT(!spawner.spawn("./ml_test", ml::core::CDetachedProcessSpawner::TStrVec()));
 }
 
-void CDetachedProcessSpawnerTest::testNonExistent(void)
+void CDetachedProcessSpawnerTest::testNonExistent()
 {
     ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, "./does_not_exist");
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);

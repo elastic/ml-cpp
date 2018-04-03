@@ -66,22 +66,22 @@ class CKMostCorrelatedForTest : public maths::CKMostCorrelated
             this->maths::CKMostCorrelated::mostCorrelated(result);
         }
 
-        const TVectorVec &projections(void) const
+        const TVectorVec &projections() const
         {
             return this->maths::CKMostCorrelated::projections();
         }
 
-        const TSizeVectorPackedBitVectorPrUMap &projected(void) const
+        const TSizeVectorPackedBitVectorPrUMap &projected() const
         {
             return this->maths::CKMostCorrelated::projected();
         }
 
-        const TCorrelationVec &correlations(void) const
+        const TCorrelationVec &correlations() const
         {
             return this->maths::CKMostCorrelated::correlations();
         }
 
-        const TMeanVarAccumulatorVec &moments(void) const
+        const TMeanVarAccumulatorVec &moments() const
         {
             return this->maths::CKMostCorrelated::moments();
         }
@@ -196,7 +196,7 @@ void estimateCorrelation(const std::size_t trials,
 
 }
 
-void CKMostCorrelatedTest::testCorrelation(void)
+void CKMostCorrelatedTest::testCorrelation()
 {
     LOG_DEBUG("+-----------------------------------------+")
     LOG_DEBUG("|  CKMostCorrelatedTest::testCorrelation  |")
@@ -256,7 +256,7 @@ void CKMostCorrelatedTest::testCorrelation(void)
     }
 }
 
-void CKMostCorrelatedTest::testNextProjection(void)
+void CKMostCorrelatedTest::testNextProjection()
 {
     LOG_DEBUG("+--------------------------------------------+")
     LOG_DEBUG("|  CKMostCorrelatedTest::testNextProjection  |")
@@ -399,7 +399,7 @@ void CKMostCorrelatedTest::testNextProjection(void)
     }
 }
 
-void CKMostCorrelatedTest::testMostCorrelated(void)
+void CKMostCorrelatedTest::testMostCorrelated()
 {
     LOG_DEBUG("+--------------------------------------------+")
     LOG_DEBUG("|  CKMostCorrelatedTest::testMostCorrelated  |")
@@ -469,7 +469,7 @@ void CKMostCorrelatedTest::testMostCorrelated(void)
                          core::CContainerPrinter::print(actual));
 }
 
-void CKMostCorrelatedTest::testRemoveVariables(void)
+void CKMostCorrelatedTest::testRemoveVariables()
 {
     LOG_DEBUG("+---------------------------------------------+")
     LOG_DEBUG("|  CKMostCorrelatedTest::testRemoveVariables  |")
@@ -531,7 +531,7 @@ void CKMostCorrelatedTest::testRemoveVariables(void)
     }
 }
 
-void CKMostCorrelatedTest::testAccuracy(void)
+void CKMostCorrelatedTest::testAccuracy()
 {
     LOG_DEBUG("+--------------------------------------+")
     LOG_DEBUG("|  CKMostCorrelatedTest::testAccuracy  |")
@@ -598,7 +598,7 @@ void CKMostCorrelatedTest::testAccuracy(void)
     }
 }
 
-void CKMostCorrelatedTest::testStability(void)
+void CKMostCorrelatedTest::testStability()
 {
     LOG_DEBUG("+---------------------------------------+")
     LOG_DEBUG("|  CKMostCorrelatedTest::testStability  |")
@@ -666,7 +666,7 @@ void CKMostCorrelatedTest::testStability(void)
     }
 }
 
-void CKMostCorrelatedTest::testChangingCorrelation(void)
+void CKMostCorrelatedTest::testChangingCorrelation()
 {
     LOG_DEBUG("+-------------------------------------------------+")
     LOG_DEBUG("|  CKMostCorrelatedTest::testChangingCorrelation  |")
@@ -730,7 +730,7 @@ void CKMostCorrelatedTest::testChangingCorrelation(void)
     CPPUNIT_ASSERT(present);
 }
 
-void CKMostCorrelatedTest::testMissingData(void)
+void CKMostCorrelatedTest::testMissingData()
 {
     LOG_DEBUG("+-----------------------------------------+")
     LOG_DEBUG("|  CKMostCorrelatedTest::testMissingData  |")
@@ -802,7 +802,7 @@ void CKMostCorrelatedTest::testMissingData(void)
     }
 }
 
-void CKMostCorrelatedTest::testScale(void)
+void CKMostCorrelatedTest::testScale()
 {
     LOG_DEBUG("+-----------------------------------+")
     LOG_DEBUG("|  CKMostCorrelatedTest::testScale  |")
@@ -924,7 +924,7 @@ void CKMostCorrelatedTest::testScale(void)
     }
 }
 
-void CKMostCorrelatedTest::testPersistence(void)
+void CKMostCorrelatedTest::testPersistence()
 {
     LOG_DEBUG("+-----------------------------------------+")
     LOG_DEBUG("|  CKMostCorrelatedTest::testPersistence  |")
@@ -996,7 +996,7 @@ void CKMostCorrelatedTest::testPersistence(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CKMostCorrelatedTest::suite(void)
+CppUnit::Test *CKMostCorrelatedTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CKMostCorrelatedTest");
 

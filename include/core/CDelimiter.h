@@ -50,7 +50,7 @@ class CORE_EXPORT CDelimiter
 
     public:
         //! Constructors.
-        CDelimiter(void);
+        CDelimiter();
         CDelimiter(const std::string &delimiter);
         CDelimiter(const std::string &delimiter,
                    const std::string &followingRegex,
@@ -67,10 +67,10 @@ class CORE_EXPORT CDelimiter
                                        bool timePassed) const;
 
         //! Is the delimiter valid?
-        bool valid(void) const;
+        bool valid() const;
 
         //! Accessor for primary delimiter
-        std::string delimiter(void) const;
+        std::string delimiter() const;
 
         //! Tokenise a string
         void tokenise(const std::string &str,
@@ -104,7 +104,7 @@ class CORE_EXPORT CDelimiter
         void quote(char quote, char escape = '\\');
 
         //! Get the quote character
-        char quote(void) const;
+        char quote() const;
 
     private:
         //! Get the position of the next unescaped quote within a string

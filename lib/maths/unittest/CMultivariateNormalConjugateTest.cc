@@ -97,7 +97,7 @@ void gaussianSamples(test::CRandomNumbers &rng,
 
 }
 
-void CMultivariateNormalConjugateTest::testMultipleUpdate(void)
+void CMultivariateNormalConjugateTest::testMultipleUpdate()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::testMultipleUpdate  |");
@@ -190,7 +190,7 @@ void CMultivariateNormalConjugateTest::testMultipleUpdate(void)
     }
 }
 
-void CMultivariateNormalConjugateTest::testPropagation(void)
+void CMultivariateNormalConjugateTest::testPropagation()
 {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::testPropagation  |");
@@ -245,7 +245,7 @@ void CMultivariateNormalConjugateTest::testPropagation(void)
     }
 }
 
-void CMultivariateNormalConjugateTest::testMeanVectorEstimation(void)
+void CMultivariateNormalConjugateTest::testMeanVectorEstimation()
 {
     LOG_DEBUG("+--------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::testMeanVectorEstimation  |");
@@ -356,7 +356,7 @@ void CMultivariateNormalConjugateTest::testMeanVectorEstimation(void)
     }
 }
 
-void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation(void)
+void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation()
 {
     LOG_DEBUG("+-------------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation  |");
@@ -485,7 +485,7 @@ void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation(void)
     }
 }
 
-void CMultivariateNormalConjugateTest::testMarginalLikelihood(void)
+void CMultivariateNormalConjugateTest::testMarginalLikelihood()
 {
     LOG_DEBUG("+------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::testMarginalLikelihood  |");
@@ -617,7 +617,7 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihood(void)
     }
 }
 
-void CMultivariateNormalConjugateTest::testMarginalLikelihoodMode(void)
+void CMultivariateNormalConjugateTest::testMarginalLikelihoodMode()
 {
     LOG_DEBUG("+----------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::testMarginalLikelihoodMode  |");
@@ -673,7 +673,7 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihoodMode(void)
     }
 }
 
-void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood(void)
+void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood()
 {
     LOG_DEBUG("+------------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::testSampleMarginalLikelihood  |");
@@ -789,7 +789,7 @@ void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(pRelError) < 0.3);
 }
 
-void CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples(void)
+void CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples()
 {
     LOG_DEBUG("+------------------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples  |");
@@ -889,7 +889,7 @@ void CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples(void)
     }
 }
 
-void CMultivariateNormalConjugateTest::testIntegerData(void)
+void CMultivariateNormalConjugateTest::testIntegerData()
 {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::testIntegerData  |");
@@ -982,7 +982,7 @@ void CMultivariateNormalConjugateTest::testIntegerData(void)
     }
 }
 
-void CMultivariateNormalConjugateTest::testLowVariationData(void)
+void CMultivariateNormalConjugateTest::testLowVariationData()
 {
     LOG_DEBUG("+----------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::testLowVariationData  |");
@@ -1022,7 +1022,7 @@ void CMultivariateNormalConjugateTest::testLowVariationData(void)
     }
 }
 
-void CMultivariateNormalConjugateTest::testPersist(void)
+void CMultivariateNormalConjugateTest::testPersist()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::testPersist  |");
@@ -1083,7 +1083,7 @@ void CMultivariateNormalConjugateTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CMultivariateNormalConjugateTest::calibrationExperiment(void)
+void CMultivariateNormalConjugateTest::calibrationExperiment()
 {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::calibrationExperiment  |");
@@ -1210,7 +1210,7 @@ void CMultivariateNormalConjugateTest::calibrationExperiment(void)
     }
 }
 
-void CMultivariateNormalConjugateTest::dataGenerator(void)
+void CMultivariateNormalConjugateTest::dataGenerator()
 {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::dataGenerator  |");
@@ -1274,7 +1274,7 @@ void CMultivariateNormalConjugateTest::dataGenerator(void)
     f.close();
 }
 
-CppUnit::Test *CMultivariateNormalConjugateTest::suite(void)
+CppUnit::Test *CMultivariateNormalConjugateTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMultivariateNormalConjugateTest");
 

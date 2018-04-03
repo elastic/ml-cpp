@@ -21,7 +21,7 @@
 class CUnameTest : public CppUnit::TestFixture
 {
     public:
-        void testUname(void);
+        void testUname();
 
         static CppUnit::Test *suite();
 };

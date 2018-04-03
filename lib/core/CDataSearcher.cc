@@ -23,12 +23,12 @@ namespace core
 const std::string CDataSearcher::EMPTY_STRING;
 
 
-CDataSearcher::CDataSearcher(void)
+CDataSearcher::CDataSearcher()
     : m_SearchTerms(2)
 {
 }
 
-CDataSearcher::~CDataSearcher(void)
+CDataSearcher::~CDataSearcher()
 {
 }
 

@@ -268,12 +268,12 @@ CPoissonMeanConjugate CPoissonMeanConjugate::nonInformativePrior(double offset, 
     return CPoissonMeanConjugate(offset, NON_INFORMATIVE_SHAPE, NON_INFORMATIVE_RATE, decayRate);
 }
 
-CPoissonMeanConjugate::EPrior CPoissonMeanConjugate::type(void) const
+CPoissonMeanConjugate::EPrior CPoissonMeanConjugate::type() const
 {
     return E_Poisson;
 }
 
-CPoissonMeanConjugate *CPoissonMeanConjugate::clone(void) const
+CPoissonMeanConjugate *CPoissonMeanConjugate::clone() const
 {
     return new CPoissonMeanConjugate(*this);
 }
@@ -284,7 +284,7 @@ void CPoissonMeanConjugate::setToNonInformative(double offset,
     *this = nonInformativePrior(offset, decayRate);
 }
 
-bool CPoissonMeanConjugate::needsOffset(void) const
+bool CPoissonMeanConjugate::needsOffset() const
 {
     return true;
 }
@@ -359,7 +359,7 @@ double CPoissonMeanConjugate::adjustOffset(const TWeightStyleVec &/*weightStyles
     return std::min(after - before, 0.0);
 }
 
-double CPoissonMeanConjugate::offset(void) const
+double CPoissonMeanConjugate::offset() const
 {
     return m_Offset;
 }
@@ -479,12 +479,12 @@ void CPoissonMeanConjugate::propagateForwardsByTime(double time)
 }
 
 CPoissonMeanConjugate::TDoubleDoublePr
-CPoissonMeanConjugate::marginalLikelihoodSupport(void) const
+CPoissonMeanConjugate::marginalLikelihoodSupport() const
 {
     return std::make_pair(-m_Offset, boost::numeric::bounds<double>::highest());
 }
 
-double CPoissonMeanConjugate::marginalLikelihoodMean(void) const
+double CPoissonMeanConjugate::marginalLikelihoodMean() const
 {
     if (this->isNonInformative())
     {
@@ -986,7 +986,7 @@ bool CPoissonMeanConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
     return true;
 }
 
-bool CPoissonMeanConjugate::isNonInformative(void) const
+bool CPoissonMeanConjugate::isNonInformative() const
 {
     return m_Rate == NON_INFORMATIVE_RATE;
 }
@@ -1004,7 +1004,7 @@ void CPoissonMeanConjugate::print(const std::string &indent,
              + " sd = " + core::CStringUtils::typeToStringPretty(std::sqrt(this->marginalLikelihoodVariance()));
 }
 
-std::string CPoissonMeanConjugate::printJointDensityFunction(void) const
+std::string CPoissonMeanConjugate::printJointDensityFunction() const
 {
     if (this->isNonInformative())
     {
@@ -1059,12 +1059,12 @@ void CPoissonMeanConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr
     mem->setName("CPoissonMeanConjugate");
 }
 
-std::size_t CPoissonMeanConjugate::memoryUsage(void) const
+std::size_t CPoissonMeanConjugate::memoryUsage() const
 {
     return 0;
 }
 
-std::size_t CPoissonMeanConjugate::staticSize(void) const
+std::size_t CPoissonMeanConjugate::staticSize() const
 {
     return sizeof(*this);
 }
@@ -1078,7 +1078,7 @@ void CPoissonMeanConjugate::acceptPersistInserter(core::CStatePersistInserter &i
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
 }
 
-double CPoissonMeanConjugate::priorMean(void) const
+double CPoissonMeanConjugate::priorMean() const
 {
     if (this->isNonInformative())
     {
@@ -1100,7 +1100,7 @@ double CPoissonMeanConjugate::priorMean(void) const
     return 0.0;
 }
 
-double CPoissonMeanConjugate::priorVariance(void) const
+double CPoissonMeanConjugate::priorVariance() const
 {
     if (this->isNonInformative())
     {

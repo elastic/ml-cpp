@@ -33,7 +33,7 @@ CBlockingCallCancellerThread::CBlockingCallCancellerThread(core::CThread::TThrea
 {
 }
 
-void CBlockingCallCancellerThread::run(void)
+void CBlockingCallCancellerThread::run()
 {
     char c;
     while (m_MonitorStream >> c)
@@ -51,7 +51,7 @@ void CBlockingCallCancellerThread::run(void)
     }
 }
 
-void CBlockingCallCancellerThread::shutdown(void)
+void CBlockingCallCancellerThread::shutdown()
 {
     m_Shutdown = true;
 

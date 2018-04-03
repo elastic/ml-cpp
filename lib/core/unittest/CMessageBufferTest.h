@@ -20,7 +20,7 @@
 class CMessageBufferTest : public CppUnit::TestFixture
 {
     public:
-        void    testAll(void);
+        void    testAll();
 
         static CppUnit::Test *suite();
 };

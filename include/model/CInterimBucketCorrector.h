@@ -95,7 +95,7 @@ class MODEL_EXPORT CInterimBucketCorrector
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by the corrector
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);

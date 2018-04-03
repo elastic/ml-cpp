@@ -21,17 +21,17 @@
 class CKMeansOnlineTest : public CppUnit::TestFixture
 {
     public:
-        void testVariance(void);
-        void testAdd(void);
-        void testReduce(void);
-        void testClustering(void);
-        void testSplit(void);
-        void testMerge(void);
-        void testPropagateForwardsByTime(void);
-        void testSample(void);
-        void testPersist(void);
+        void testVariance();
+        void testAdd();
+        void testReduce();
+        void testClustering();
+        void testSplit();
+        void testMerge();
+        void testPropagateForwardsByTime();
+        void testSample();
+        void testPersist();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CKMeansOnlineTest_h

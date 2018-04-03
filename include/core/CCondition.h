@@ -47,13 +47,13 @@ class CORE_EXPORT CCondition : private CNonCopyable
 {
     public:
         CCondition(CMutex &);
-        ~CCondition(void);
+        ~CCondition();
 
         //! Wait in current thread for signal - blocks.  The wait may be
         //! spuriously interrupted by a signal, so the caller must check a
         //! condition that will detect spurious wakeups, and wait again if
         //! necessary.
-        bool wait(void);
+        bool wait();
 
         //! Timed wait in current thread for millisecs - blocks.  The wait may
         //! be spuriously interrupted by a signal, so the caller must check a
@@ -62,10 +62,10 @@ class CORE_EXPORT CCondition : private CNonCopyable
         bool wait(uint32_t t);
 
         //! Wake up a single thread that is blocked in wait
-        void signal(void);
+        void signal();
 
         //! Wake up all threads that are blocked in wait
-        void broadcast(void);
+        void broadcast();
 
     private:
 #ifndef Windows

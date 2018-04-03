@@ -151,7 +151,7 @@ class CExpectedLogProbabilityOfMFromNExtremeSamples
             ++m_N;
         }
 
-        double calculate(void)
+        double calculate()
         {
             double result;
             m_P.sort();
@@ -170,7 +170,7 @@ class CExpectedLogProbabilityOfMFromNExtremeSamples
 
 }
 
-void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples(void)
+void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples()
 {
     LOG_DEBUG("+------------------------------------------------------------------------+");
     LOG_DEBUG("|  CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples  |");
@@ -311,7 +311,7 @@ void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples(void)
     }
 }
 
-void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples(void)
+void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples()
 {
     LOG_DEBUG("+---------------------------------------------------------------------------+");
     LOG_DEBUG("|  CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples  |");
@@ -429,7 +429,7 @@ void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples(voi
     }
 }
 
-void CProbabilityAggregatorsTest::testProbabilityOfExtremeSample(void)
+void CProbabilityAggregatorsTest::testProbabilityOfExtremeSample()
 {
     LOG_DEBUG("+-------------------------------------------------------------+");
     LOG_DEBUG("|  CProbabilityAggregatorsTest::testProbabilityExtremeSample  |");
@@ -521,7 +521,7 @@ void CProbabilityAggregatorsTest::testProbabilityOfExtremeSample(void)
     CPPUNIT_ASSERT(totalError / totalProbability < 0.01);
 }
 
-void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples(void)
+void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples()
 {
     LOG_DEBUG("+----------------------------------------------------------------------+");
     LOG_DEBUG("|  CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples  |");
@@ -917,7 +917,7 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples(void)
     }
 }
 
-CppUnit::Test *CProbabilityAggregatorsTest::suite(void)
+CppUnit::Test *CProbabilityAggregatorsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProbabilityAggregatorsTest");
 

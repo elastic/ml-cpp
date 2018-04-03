@@ -99,7 +99,7 @@ class CMinusLogLikelihood
 
 }
 
-void CPriorTest::testExpectation(void)
+void CPriorTest::testExpectation()
 {
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CPriorTest::testExpectation  |");
@@ -166,7 +166,7 @@ void CPriorTest::testExpectation(void)
     }
 }
 
-CppUnit::Test* CPriorTest::suite(void)
+CppUnit::Test* CPriorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPriorTest");
 

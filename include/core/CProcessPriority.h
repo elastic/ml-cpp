@@ -52,7 +52,7 @@ class CORE_EXPORT CProcessPriority : private CNonInstantiatable
     public:
         //! Reduce whatever priority measures are deemed appropriate for the
         //! current OS.
-        static void reducePriority(void);
+        static void reducePriority();
 };
 
 

@@ -185,7 +185,7 @@ class CPriorTestInterfaceMixin : public PRIOR, public CPriorTestInterface
             CPriorTestInterface(static_cast<maths::CPrior&>(*this))
         {}
 
-        virtual ~CPriorTestInterfaceMixin(void) {}
+        virtual ~CPriorTestInterfaceMixin() {}
 
         //! Swap the contents efficiently.
         void swap(CPriorTestInterfaceMixin &other)
@@ -194,7 +194,7 @@ class CPriorTestInterfaceMixin : public PRIOR, public CPriorTestInterface
         }
 
         //! Clone the object.
-        virtual CPriorTestInterfaceMixin *clone(void) const
+        virtual CPriorTestInterfaceMixin *clone() const
         {
             return new CPriorTestInterfaceMixin(*this);
         }

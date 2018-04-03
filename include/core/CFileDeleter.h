@@ -51,7 +51,7 @@ class CORE_EXPORT CFileDeleter : private CNonCopyable
         CFileDeleter(const std::string &fileName);
 
         //! Attempt to remove the specified file
-        ~CFileDeleter(void);
+        ~CFileDeleter();
 
     private:
         std::string m_FileName;

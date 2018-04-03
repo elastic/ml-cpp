@@ -47,7 +47,7 @@ namespace
 class CSetupVisitor
 {
     public:
-        CSetupVisitor(void)
+        CSetupVisitor()
             : m_RecordsPerBlock(0)
         {
         }
@@ -80,7 +80,7 @@ class CSetupVisitor
             return str;
         }
 
-        size_t recordsPerBlock(void) const
+        size_t recordsPerBlock() const
         {
             return m_RecordsPerBlock;
         }
@@ -93,7 +93,7 @@ class CSetupVisitor
 class CVisitor
 {
     public:
-        CVisitor(void)
+        CVisitor()
             : m_RecordCount(0)
         {
         }
@@ -105,7 +105,7 @@ class CVisitor
             return true;
         }
 
-        size_t recordCount(void) const
+        size_t recordCount() const
         {
             return m_RecordCount;
         }
@@ -117,13 +117,13 @@ class CVisitor
 
 }
 
-void CLineifiedJsonInputParserTest::testThroughputArbitrary(void)
+void CLineifiedJsonInputParserTest::testThroughputArbitrary()
 {
     LOG_INFO("Testing assuming arbitrary fields in JSON documents");
     this->runTest(false);
 }
 
-void CLineifiedJsonInputParserTest::testThroughputCommon(void)
+void CLineifiedJsonInputParserTest::testThroughputCommon()
 {
     LOG_INFO("Testing assuming all JSON documents have the same fields");
     this->runTest(true);

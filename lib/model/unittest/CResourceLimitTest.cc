@@ -123,7 +123,7 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor
             return true;
         }
 
-        const TResultsVec &results(void) const
+        const TResultsVec &results() const
         {
             return m_Results;
         }
@@ -134,7 +134,7 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor
         TResultsVec m_Results;
 };
 
-CppUnit::Test* CResourceLimitTest::suite(void)
+CppUnit::Test* CResourceLimitTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CResourceLimitTest");
 
@@ -150,7 +150,7 @@ CppUnit::Test* CResourceLimitTest::suite(void)
     return suiteOfTests;
 }
 
-void CResourceLimitTest::testLimitBy(void)
+void CResourceLimitTest::testLimitBy()
 {
     // Check that we can get some results from a test data set, then
     // turn on resource limiting and still get the same results
@@ -224,7 +224,7 @@ void CResourceLimitTest::testLimitBy(void)
     }
 }
 
-void CResourceLimitTest::testLimitByOver(void)
+void CResourceLimitTest::testLimitByOver()
 {
     // Check that we can get some results from a test data set, then
     // turn on resource limiting and still get the results from
@@ -323,7 +323,7 @@ class CMockEventRateModel : public ml::model::CEventRateModel
             m_NewAttributes(0)
         {}
 
-        virtual void updateRecycledModels(void)
+        virtual void updateRecycledModels()
         {
             // Do nothing
         }
@@ -340,12 +340,12 @@ class CMockEventRateModel : public ml::model::CEventRateModel
             this->createUpdateNewModels(time, m_ResourceMonitor);
         }
 
-        std::size_t getNewPeople(void) const
+        std::size_t getNewPeople() const
         {
             return m_NewPeople;
         }
 
-        std::size_t getNewAttributes(void) const
+        std::size_t getNewAttributes() const
         {
             return m_NewAttributes;
         }
@@ -377,7 +377,7 @@ class CMockMetricModel : public ml::model::CMetricModel
             m_NewAttributes(0)
         {}
 
-        virtual void updateRecycledModels(void)
+        virtual void updateRecycledModels()
         {
             // Do nothing
         }
@@ -394,12 +394,12 @@ class CMockMetricModel : public ml::model::CMetricModel
             this->createUpdateNewModels(time, m_ResourceMonitor);
         }
 
-        std::size_t getNewPeople(void) const
+        std::size_t getNewPeople() const
         {
             return m_NewPeople;
         }
 
-        std::size_t getNewAttributes(void) const
+        std::size_t getNewAttributes() const
         {
             return m_NewAttributes;
         }
@@ -467,7 +467,7 @@ void addPersonMetricData(std::size_t start,
 
 }
 
-void CResourceLimitTest::testLargeAllocations(void)
+void CResourceLimitTest::testLargeAllocations()
 {
     {
         // Test CEventRateModel::createUpdateNewModels()

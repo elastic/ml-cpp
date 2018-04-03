@@ -146,13 +146,13 @@ class CBucketQueue
         }
 
         //! Returns the size of the queue.
-        std::size_t size(void) const
+        std::size_t size() const
         {
             return m_Queue.size();
         }
 
         //! Is the queue empty?
-        bool empty(void) const
+        bool empty() const
         {
             return m_Queue.empty();
         }
@@ -175,57 +175,57 @@ class CBucketQueue
 
         //! Returns an iterator pointing to the latest bucket and directed
         //! towards the earlier buckets.
-        iterator begin(void)
+        iterator begin()
         {
             return m_Queue.begin();
         }
 
         //! Returns an iterator pointing to the end of the queue.
-        iterator end(void)
+        iterator end()
         {
             return m_Queue.end();
         }
 
         //! Returns an iterator pointing to the latest bucket and directed
         //! towards the earlier buckets.
-        const_iterator begin(void) const
+        const_iterator begin() const
         {
             return m_Queue.begin();
         }
 
         //! Returns an iterator pointing to the end of the queue.
-        const_iterator end(void) const
+        const_iterator end() const
         {
             return m_Queue.end();
         }
 
         //! Returns a reverse_iterator pointing to the earliest bucket and directed
         //! towards the later buckets.
-        const_reverse_iterator rbegin(void) const
+        const_reverse_iterator rbegin() const
         {
             return m_Queue.rbegin();
         }
 
         //! Returns an iterator pointing to the end of the "reversed" queue.
-        const_reverse_iterator rend(void) const
+        const_reverse_iterator rend() const
         {
             return m_Queue.rend();
         }
 
         //! Returns the item in the queue corresponding to the earliest bucket.
-        T &earliest(void)
+        T &earliest()
         {
             return m_Queue.back();
         }
 
         //! Returns the item corresponding to the latest bucket.
-        T &latest(void)
+        T &latest()
         {
             return m_Queue.front();
         }
 
         //! Returns the latest bucket end time, as tracked by the queue.
-        core_t::TTime latestBucketEnd(void) const
+        core_t::TTime latestBucketEnd() const
         {
             return m_LatestBucketEnd;
         }
@@ -238,19 +238,19 @@ class CBucketQueue
         }
 
         //! Get the memory used by this component.
-        std::size_t memoryUsage(void) const
+        std::size_t memoryUsage() const
         {
             return core::CMemory::dynamicSize(m_Queue);
         }
 
         //! Prints the contents of the queue.
-        std::string print(void) const
+        std::string print() const
         {
             return core::CContainerPrinter::print(m_Queue);
         }
 
         //! Return the configured bucketlength of this queue
-        core_t::TTime bucketLength(void) const
+        core_t::TTime bucketLength() const
         {
             return m_BucketLength;
         }

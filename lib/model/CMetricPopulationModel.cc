@@ -71,7 +71,7 @@ using TSizeFuzzyDeduplicateUMap = boost::unordered_map<std::size_t, CModelTools:
 //! \brief The values and weights for an attribute.
 struct SValuesAndWeights
 {
-    SValuesAndWeights(void) : s_IsInteger(false), s_IsNonNegative(false) {}
+    SValuesAndWeights() : s_IsInteger(false), s_IsNonNegative(false) {}
     bool s_IsInteger, s_IsNonNegative;
     maths::CModel::TTimeDouble2VecSizeTrVec s_BucketValues;
     maths::CModel::TTimeDouble2VecSizeTrVec s_Values;
@@ -242,22 +242,22 @@ bool CMetricPopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser
     return true;
 }
 
-CAnomalyDetectorModel *CMetricPopulationModel::cloneForPersistence(void) const
+CAnomalyDetectorModel *CMetricPopulationModel::cloneForPersistence() const
 {
     return new CMetricPopulationModel(true, *this);
 }
 
-model_t::EModelType CMetricPopulationModel::category(void) const
+model_t::EModelType CMetricPopulationModel::category() const
 {
     return model_t::E_MetricOnline;
 }
 
-bool CMetricPopulationModel::isEventRate(void) const
+bool CMetricPopulationModel::isEventRate() const
 {
     return false;
 }
 
-bool CMetricPopulationModel::isMetric(void) const
+bool CMetricPopulationModel::isMetric() const
 {
     return true;
 }
@@ -816,7 +816,7 @@ void CMetricPopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePt
     core::CMemoryDebug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
 }
 
-std::size_t CMetricPopulationModel::memoryUsage(void) const
+std::size_t CMetricPopulationModel::memoryUsage() const
 {
     const CDataGatherer &gatherer = this->dataGatherer();
     TOptionalSize estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
@@ -825,7 +825,7 @@ std::size_t CMetricPopulationModel::memoryUsage(void) const
     return estimate ? estimate.get() : this->computeMemoryUsage();
 }
 
-std::size_t CMetricPopulationModel::computeMemoryUsage(void) const
+std::size_t CMetricPopulationModel::computeMemoryUsage() const
 {
     std::size_t mem = this->CPopulationModel::memoryUsage();
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
@@ -837,17 +837,17 @@ std::size_t CMetricPopulationModel::computeMemoryUsage(void) const
     return mem;
 }
 
-CMemoryUsageEstimator *CMetricPopulationModel::memoryUsageEstimator(void) const
+CMemoryUsageEstimator *CMetricPopulationModel::memoryUsageEstimator() const
 {
     return &m_MemoryEstimator;
 }
 
-std::size_t CMetricPopulationModel::staticSize(void) const
+std::size_t CMetricPopulationModel::staticSize() const
 {
     return sizeof(*this);
 }
 
-CMetricPopulationModel::CModelDetailsViewPtr CMetricPopulationModel::details(void) const
+CMetricPopulationModel::CModelDetailsViewPtr CMetricPopulationModel::details() const
 {
     return CModelDetailsViewPtr(new CMetricPopulationModelDetailsView(*this));
 }
@@ -867,7 +867,7 @@ const TSizeSizePrFeatureDataPrVec &
     return result == m_CurrentBucketStats.s_FeatureData.end() ? EMPTY : result->second;
 }
 
-core_t::TTime CMetricPopulationModel::currentBucketStartTime(void) const
+core_t::TTime CMetricPopulationModel::currentBucketStartTime() const
 {
     return m_CurrentBucketStats.s_StartTime;
 }
@@ -877,7 +877,7 @@ void CMetricPopulationModel::currentBucketStartTime(core_t::TTime startTime)
     m_CurrentBucketStats.s_StartTime = startTime;
 }
 
-uint64_t CMetricPopulationModel::currentBucketTotalCount(void) const
+uint64_t CMetricPopulationModel::currentBucketTotalCount() const
 {
     return m_CurrentBucketStats.s_TotalCount;
 }
@@ -887,13 +887,13 @@ void CMetricPopulationModel::currentBucketTotalCount(uint64_t totalCount)
     m_CurrentBucketStats.s_TotalCount = totalCount;
 }
 
-const CMetricPopulationModel::TSizeUInt64PrVec &CMetricPopulationModel::personCounts(void) const
+const CMetricPopulationModel::TSizeUInt64PrVec &CMetricPopulationModel::personCounts() const
 {
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
 CPopulationModel::TCorrectionKeyDouble1VecUMap &
-    CMetricPopulationModel::currentBucketInterimCorrections(void) const
+    CMetricPopulationModel::currentBucketInterimCorrections() const
 {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
@@ -922,7 +922,7 @@ void CMetricPopulationModel::createNewModels(std::size_t n, std::size_t m)
     this->CPopulationModel::createNewModels(n, m);
 }
 
-void CMetricPopulationModel::updateRecycledModels(void)
+void CMetricPopulationModel::updateRecycledModels()
 {
     CDataGatherer &gatherer = this->dataGatherer();
     for (auto cid : gatherer.recycledAttributeIds())

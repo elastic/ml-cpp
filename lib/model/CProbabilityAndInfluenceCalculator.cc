@@ -576,12 +576,12 @@ CProbabilityAndInfluenceCalculator::CProbabilityAndInfluenceCalculator(double cu
         m_ProbabilityCache(0)
 {}
 
-bool CProbabilityAndInfluenceCalculator::empty(void) const
+bool CProbabilityAndInfluenceCalculator::empty() const
 {
     return m_Probability.empty();
 }
 
-double CProbabilityAndInfluenceCalculator::cutoff(void) const
+double CProbabilityAndInfluenceCalculator::cutoff() const
 {
     return m_Cutoff;
 }
@@ -929,7 +929,7 @@ CProbabilityAndInfluenceCalculator::SParams::SParams(const CPartitioningFields &
         s_IncludeCutoff(false)
 {}
 
-std::string CProbabilityAndInfluenceCalculator::SParams::describe(void) const
+std::string CProbabilityAndInfluenceCalculator::SParams::describe() const
 {
     return core::CContainerPrinter::print(s_Value)
            + " | feature = " + model_t::print(s_Feature)
@@ -947,7 +947,7 @@ CProbabilityAndInfluenceCalculator::SCorrelateParams::SCorrelateParams(const CPa
         s_IncludeCutoff(false)
 {}
 
-std::string CProbabilityAndInfluenceCalculator::SCorrelateParams::describe(void) const
+std::string CProbabilityAndInfluenceCalculator::SCorrelateParams::describe() const
 {
     return core::CContainerPrinter::print(s_Values)
            + " | feature = " + model_t::print(s_Feature)
@@ -958,7 +958,7 @@ std::string CProbabilityAndInfluenceCalculator::SCorrelateParams::describe(void)
 
 ////// CInfluenceCalculator //////
 
-CInfluenceCalculator::~CInfluenceCalculator(void) {}
+CInfluenceCalculator::~CInfluenceCalculator() {}
 
 double CInfluenceCalculator::intersectionInfluence(double logp, double logpi)
 {

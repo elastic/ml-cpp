@@ -32,7 +32,7 @@ namespace config
 namespace
 {
 
-using TField = const CDetectorSpecification::TOptionalStr &(CDetectorSpecification::*)(void) const;
+using TField = const CDetectorSpecification::TOptionalStr &(CDetectorSpecification::*)() const;
 const TField FIELDS[] =
     {
         &CDetectorSpecification::argumentField,
@@ -66,77 +66,77 @@ CDetectorRecord::CDetectorRecord(core_t::TTime time,
         m_HashedFieldValues(hashedFieldValues)
 {}
 
-core_t::TTime CDetectorRecord::time(void) const
+core_t::TTime CDetectorRecord::time() const
 {
     return m_Time;
 }
 
-config_t::EFunctionCategory CDetectorRecord::function(void) const
+config_t::EFunctionCategory CDetectorRecord::function() const
 {
     return m_Function;
 }
 
-const std::string *CDetectorRecord::argumentFieldName(void) const
+const std::string *CDetectorRecord::argumentFieldName() const
 {
     return m_FieldNames[constants::ARGUMENT_INDEX];
 }
 
-const std::string *CDetectorRecord::byFieldName(void) const
+const std::string *CDetectorRecord::byFieldName() const
 {
     return m_FieldNames[constants::BY_INDEX];
 }
 
-const std::string *CDetectorRecord::overFieldName(void) const
+const std::string *CDetectorRecord::overFieldName() const
 {
     return m_FieldNames[constants::OVER_INDEX];
 }
 
-const std::string *CDetectorRecord::partitionFieldName(void) const
+const std::string *CDetectorRecord::partitionFieldName() const
 {
     return m_FieldNames[constants::PARTITION_INDEX];
 }
 
-const std::string *CDetectorRecord::argumentFieldValue(void) const
+const std::string *CDetectorRecord::argumentFieldValue() const
 {
     return m_FieldValues[constants::ARGUMENT_INDEX];
 }
 
-const std::string *CDetectorRecord::byFieldValue(void) const
+const std::string *CDetectorRecord::byFieldValue() const
 {
     return m_FieldValues[constants::BY_INDEX];
 }
 
-const std::string *CDetectorRecord::overFieldValue(void) const
+const std::string *CDetectorRecord::overFieldValue() const
 {
     return m_FieldValues[constants::OVER_INDEX];
 }
 
-const std::string *CDetectorRecord::partitionFieldValue(void) const
+const std::string *CDetectorRecord::partitionFieldValue() const
 {
     return m_FieldValues[constants::PARTITION_INDEX];
 }
 
-std::size_t CDetectorRecord::argumentFieldValueHash(void) const
+std::size_t CDetectorRecord::argumentFieldValueHash() const
 {
     return m_HashedFieldValues[constants::ARGUMENT_INDEX];
 }
 
-std::size_t CDetectorRecord::byFieldValueHash(void) const
+std::size_t CDetectorRecord::byFieldValueHash() const
 {
     return m_HashedFieldValues[constants::BY_INDEX];
 }
 
-std::size_t CDetectorRecord::overFieldValueHash(void) const
+std::size_t CDetectorRecord::overFieldValueHash() const
 {
     return m_HashedFieldValues[constants::OVER_INDEX];
 }
 
-std::size_t CDetectorRecord::partitionFieldValueHash(void) const
+std::size_t CDetectorRecord::partitionFieldValueHash() const
 {
     return m_HashedFieldValues[constants::PARTITION_INDEX];
 }
 
-std::string CDetectorRecord::print(void) const
+std::string CDetectorRecord::print() const
 {
     return  core::CStringUtils::typeToString(m_Time)
           + ' ' + extract(this->argumentFieldValue())
@@ -236,7 +236,7 @@ void CDetectorRecordDirectAddressTable::detectorRecords(core_t::TTime time,
     }
 }
 
-void CDetectorRecordDirectAddressTable::clear(void)
+void CDetectorRecordDirectAddressTable::clear()
 {
     m_FieldSchema.clear();
     m_DetectorFieldSchema.clear();

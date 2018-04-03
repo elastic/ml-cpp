@@ -21,14 +21,14 @@
 class CVectorRangeTest : public CppUnit::TestFixture
 {
     public:
-        void testCreation(void);
-        void testAccessors(void);
-        void testIterators(void);
-        void testSizing(void);
-        void testModifiers(void);
-        void testComparisons(void);
+        void testCreation();
+        void testAccessors();
+        void testIterators();
+        void testSizing();
+        void testModifiers();
+        void testComparisons();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CTrendTestsTest_h

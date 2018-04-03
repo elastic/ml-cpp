@@ -44,12 +44,12 @@ CModelWeight::CModelWeight(double weight) :
     m_LongTermLogWeight(m_LogWeight)
 {}
 
-CModelWeight::operator double(void) const
+CModelWeight::operator double() const
 {
     return m_LogWeight < LOG_SMALLEST_WEIGHT ? 0.0 : std::exp(m_LogWeight);
 }
 
-double CModelWeight::logWeight(void) const
+double CModelWeight::logWeight() const
 {
     return m_LogWeight;
 }

@@ -91,11 +91,11 @@ class CMaskIterator : private boost::incrementable< CMaskIterator<ITR>,
             return this->baseEqual(rhs) && m_Index <= rhs.m_Index;
         }
 
-        reference operator*(void) const
+        reference operator*() const
         {
             return *(m_Begin + (*m_Mask)[m_Index]);
         }
-        pointer operator->(void) const
+        pointer operator->() const
         {
             return &(*(m_Begin + (*m_Mask)[m_Index]));
         }
@@ -104,8 +104,8 @@ class CMaskIterator : private boost::incrementable< CMaskIterator<ITR>,
             return *(m_Begin + (*m_Mask)[m_Index + n]);
         }
 
-        const CMaskIterator &operator++(void) { ++m_Index; return *this; }
-        const CMaskIterator &operator--(void) { --m_Index; return *this; }
+        const CMaskIterator &operator++() { ++m_Index; return *this; }
+        const CMaskIterator &operator--() { --m_Index; return *this; }
         template<typename OTHER_ITR>
         difference_type operator-(const CMaskIterator<OTHER_ITR> &rhs) const
         {

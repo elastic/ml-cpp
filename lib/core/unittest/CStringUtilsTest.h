@@ -21,27 +21,27 @@
 class CStringUtilsTest : public CppUnit::TestFixture
 {
     public:
-        void testNumMatches(void);
-        void testReplace(void);
-        void testReplaceFirst(void);
-        void testTypeToString(void);
-        void testTypeToStringPrecise(void);
-        void testTypeToStringPretty(void);
-        void testStringToType(void);
-        void testTokeniser(void);
-        void testTrim(void);
-        void testJoin(void);
-        void testLower(void);
-        void testUpper(void);
-        void testNarrowWiden(void);
-        void testEscape(void);
-        void testUnEscape(void);
-        void testLongestSubstr(void);
-        void testLongestSubseq(void);
-        void testNormaliseWhitespace(void);
-        void testPerformance(void);
-        void testUtf8ByteType(void);
-        void testRoundtripMaxDouble(void);
+        void testNumMatches();
+        void testReplace();
+        void testReplaceFirst();
+        void testTypeToString();
+        void testTypeToStringPrecise();
+        void testTypeToStringPretty();
+        void testStringToType();
+        void testTokeniser();
+        void testTrim();
+        void testJoin();
+        void testLower();
+        void testUpper();
+        void testNarrowWiden();
+        void testEscape();
+        void testUnEscape();
+        void testLongestSubstr();
+        void testLongestSubseq();
+        void testNormaliseWhitespace();
+        void testPerformance();
+        void testUtf8ByteType();
+        void testRoundtripMaxDouble();
 
         static CppUnit::Test *suite();
 

@@ -41,7 +41,7 @@ class CORE_EXPORT CScopedLock : private CNonCopyable
         CScopedLock(CMutex &mutex);
 
         //! Unlock specified mutex
-        ~CScopedLock(void);
+        ~CScopedLock();
 
     private:
         CMutex &m_Mutex;
