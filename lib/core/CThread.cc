@@ -31,7 +31,8 @@ namespace {
 //! return a failure code and set errno to EINTR.  This gives the code
 //! surrounding the blocking call a chance to not call it again but instead
 //! do something different.
-void noOpHandler(int /*sig*/) {}
+void noOpHandler(int /*sig*/)
+{}
 
 //! Use SIGIO for waking up blocking calls.  The same handler will be used in
 //! all threads, so there's an assumption here that having some other sort of
@@ -57,7 +58,8 @@ namespace core {
 
 
 CThread::CThread(void)
-    : m_ThreadId(0) {}
+    : m_ThreadId(0)
+{}
 
 CThread::~CThread(void) {
     CScopedLock lock(m_IdMutex);

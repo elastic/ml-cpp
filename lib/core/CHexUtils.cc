@@ -35,7 +35,8 @@ CHexUtils::CHexUtils(const uint8_t *pkt,
     : m_Pkt(pkt),
       m_PktLen(pktLen),
       m_PrintHeader(printHeader),
-      m_PrintAscii(printAscii) {}
+      m_PrintAscii(printAscii)
+{}
 
 CHexUtils::CHexUtils(const TDataVec &data,
                      bool printHeader,
@@ -43,7 +44,8 @@ CHexUtils::CHexUtils(const TDataVec &data,
     : m_Pkt((data.size() > 0) ? &data[0] : 0),
       m_PktLen(data.size()),
       m_PrintHeader(printHeader),
-      m_PrintAscii(printAscii) {}
+      m_PrintAscii(printAscii)
+{}
 
 void CHexUtils::dump(const uint8_t *pkt, size_t pktLen) {
     CHexUtils hex(pkt, pktLen);
@@ -63,11 +65,11 @@ std::ostream &operator<<(std::ostream &strm, const CHexUtils &hex) {
 
         for (size_t i = 0; i < hex.m_PktLen; ++i) {
             strm << std::setfill('0') << std::setw(2)
-                 << static_cast<uint32_t>(hex.m_Pkt[i]) << ' ';
+            << static_cast<uint32_t>(hex.m_Pkt[i]) << ' ';
 
             if (::isprint(hex.m_Pkt[i])) {
                 text += static_cast<char>(hex.m_Pkt[i]);
-            } else {
+            } else   {
                 text += '.';
             }
 

@@ -126,7 +126,7 @@ void CModelTools::CFuzzyDeduplicate::add(TDouble2Vec value) {
     ++m_Count;
     if (m_RandomSample.size() < 100) {
         m_RandomSample.push_back(std::move(value));
-    } else if (maths::CSampling::uniformSample(m_Rng, 0.0, 1.0) < 100.0 / static_cast<double>(m_Count)) {
+    } else if (maths::CSampling::uniformSample(m_Rng, 0.0, 1.0) < 100.0 / static_cast<double>(m_Count))   {
         std::size_t evict{maths::CSampling::uniformSample(m_Rng, 0, m_RandomSample.size())};
         m_RandomSample[evict].swap(value);
     }
@@ -191,7 +191,8 @@ std::size_t CModelTools::CFuzzyDeduplicate::SDuplicateValueHash::operator()(cons
 
 
 CModelTools::CProbabilityAggregator::CProbabilityAggregator(EStyle style) :
-    m_Style(style), m_TotalWeight(0.0) {}
+    m_Style(style), m_TotalWeight(0.0)
+{}
 
 bool CModelTools::CProbabilityAggregator::empty(void) const
 {
@@ -276,10 +277,12 @@ bool CModelTools::CProbabilityAggregator::calculate(double &result) const
 
 
 CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(void) :
-    m_Prior(0), m_SmallestProbability(1.0) {}
+    m_Prior(0), m_SmallestProbability(1.0)
+{}
 
 CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(const maths::CMultinomialConjugate &prior) :
-    m_Prior(&prior), m_SmallestProbability(1.0) {}
+    m_Prior(&prior), m_SmallestProbability(1.0)
+{}
 
 bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, double &result) const
 {
@@ -329,7 +332,8 @@ std::size_t CModelTools::CCategoryProbabilityCache::memoryUsage(void) const
 
 
 CModelTools::CProbabilityCache::CProbabilityCache(double maximumError) :
-    m_MaximumError(maximumError) {}
+    m_MaximumError(maximumError)
+{}
 
 void CModelTools::CProbabilityCache::clear(void) {
     m_Caches.clear();
@@ -363,8 +367,8 @@ void CModelTools::CProbabilityCache::addProbability(model_t::EFeature feature, s
 
 bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature, std::size_t id,
                                             const TDouble2Vec1Vec &value,
-                                            double &probability, TTail2Vec &tail,
-                                            bool &conditional, TSize1Vec &mostAnomalousCorrelate) const
+                                            double &probability, TTail2Vec & tail,
+                                            bool &conditional, TSize1Vec & mostAnomalousCorrelate) const
 {
     // The idea of this cache is to:
     //   1. Check that the requested value x is in a region where the
@@ -381,10 +385,10 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature, std::size
     if (m_MaximumError > 0.0 && value.size() == 1 && value[0].size() == 1) {
         auto pos = m_Caches.find({feature, id});
         if (pos != m_Caches.end()) {
-            double                       x{value[0][0]};
-            const TDouble1Vec            &           modes{pos->second.s_Modes};
+            double x{value[0][0]};
+            const TDouble1Vec &modes{pos->second.s_Modes};
             const TDoubleProbabilityFMap &probabilities{pos->second.s_Probabilities};
-            auto                         right = probabilities.lower_bound(x);
+            auto right = probabilities.lower_bound(x);
 
             if (right != probabilities.end() && right->first == x) {
                 probability = right->second.s_Probability;
@@ -392,15 +396,15 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature, std::size
                 conditional = right->second.s_Conditional;
                 mostAnomalousCorrelate = right->second.s_MostAnomalousCorrelate;
                 return true;
-            } else if (   right     != probabilities.end() &&
+            } else if (   right     != probabilities.end()   &&
                           right + 1 != probabilities.end() &&
                           right     != probabilities.begin() &&
                           right - 1 != probabilities.begin() &&
                           right - 2 != probabilities.begin()) {
-                auto   left = right - 1;
+                auto left = right - 1;
                 double v[]{(left - 1)->first, left->first, right->first, (right + 1)->first};
-                auto   beginModes = std::lower_bound(modes.begin(), modes.end(), v[0]);
-                auto   endModes   = std::lower_bound(modes.begin(), modes.end(), v[3]);
+                auto beginModes = std::lower_bound(modes.begin(), modes.end(), v[0]);
+                auto endModes   = std::lower_bound(modes.begin(), modes.end(), v[3]);
                 LOG_TRACE("v = " << core::CContainerPrinter::print(v));
 
                 if (beginModes == endModes && left->second.s_Tail == right->second.s_Tail) {

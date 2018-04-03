@@ -72,7 +72,7 @@ bool CCmdLineParser::parse(int argc,
         // Raise error
         std::cerr << "Error: Invalid command line options" << std::endl;
         std::cerr << desc << std::endl;
-    } catch (std::exception &e) {
+    } catch (std::exception &e)   {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
     }
 

@@ -655,7 +655,7 @@ void CFieldConfigTest::testFieldOptions(void) {
     }
     {
         ml::model::function_t::EFunction function;
-        std::string                      fieldName;
+        std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
                                                                true,
                                                                true,
@@ -687,7 +687,7 @@ void CFieldConfigTest::testFieldOptions(void) {
     }
     {
         ml::model::function_t::EFunction function;
-        std::string                      fieldName;
+        std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
                                                                false,
                                                                false,
@@ -724,7 +724,7 @@ void CFieldConfigTest::testFieldOptions(void) {
     }
     {
         ml::model::function_t::EFunction function;
-        std::string                      fieldName;
+        std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
                                                                true,
                                                                false,
@@ -756,7 +756,7 @@ void CFieldConfigTest::testFieldOptions(void) {
     }
     {
         ml::model::function_t::EFunction function;
-        std::string                      fieldName;
+        std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
                                                                true,
                                                                false,
@@ -788,7 +788,7 @@ void CFieldConfigTest::testFieldOptions(void) {
     }
     {
         ml::model::function_t::EFunction function;
-        std::string                      fieldName;
+        std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
                                                                true,
                                                                false,
@@ -820,7 +820,7 @@ void CFieldConfigTest::testFieldOptions(void) {
     }
     {
         ml::model::function_t::EFunction function;
-        std::string                      fieldName;
+        std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
                                                                true,
                                                                true,
@@ -852,7 +852,7 @@ void CFieldConfigTest::testFieldOptions(void) {
     }
     {
         ml::model::function_t::EFunction function;
-        std::string                      fieldName;
+        std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
                                                                true,
                                                                true,
@@ -1191,7 +1191,7 @@ void CFieldConfigTest::testCategorizationFieldWithFilters(void) {
 void CFieldConfigTest::testExcludeFrequentClauses(void) {
     {
         // Basic case with no excludefrequent
-        ml::api::CFieldConfig          config;
+        ml::api::CFieldConfig config;
         ml::api::CFieldConfig::TStrVec clause;
         clause.push_back("partitionfield=host");
         clause.push_back("max(bytes)");
@@ -1223,7 +1223,7 @@ void CFieldConfigTest::testExcludeFrequentClauses(void) {
     }
     {
         // "by" excludefrequent
-        ml::api::CFieldConfig          config;
+        ml::api::CFieldConfig config;
         ml::api::CFieldConfig::TStrVec clause;
         clause.push_back("PartitionField=host");
         clause.push_back("excludeFrequent=by");
@@ -1256,7 +1256,7 @@ void CFieldConfigTest::testExcludeFrequentClauses(void) {
     }
     {
         // "over" excludefrequent
-        ml::api::CFieldConfig          config;
+        ml::api::CFieldConfig config;
         ml::api::CFieldConfig::TStrVec clause;
         clause.push_back("partitionfield=host");
         clause.push_back("excludefrequent=OVER");
@@ -1289,7 +1289,7 @@ void CFieldConfigTest::testExcludeFrequentClauses(void) {
     }
     {
         // "by" and "over" excludefrequent
-        ml::api::CFieldConfig          config;
+        ml::api::CFieldConfig config;
         ml::api::CFieldConfig::TStrVec clause;
         clause.push_back("partitionfield=host");
         clause.push_back("excludefrequent=All");
@@ -1322,7 +1322,7 @@ void CFieldConfigTest::testExcludeFrequentClauses(void) {
     }
     {
         // Invalid partition excludefrequent
-        ml::api::CFieldConfig          config;
+        ml::api::CFieldConfig config;
         ml::api::CFieldConfig::TStrVec clause;
         clause.push_back("partitionfield=host");
         clause.push_back("excludefrequent=partition");
@@ -1337,7 +1337,7 @@ void CFieldConfigTest::testExcludeFrequentClauses(void) {
     }
     {
         // "by" excludefrequent with no "by" field
-        ml::api::CFieldConfig          config;
+        ml::api::CFieldConfig config;
         ml::api::CFieldConfig::TStrVec clause;
         clause.push_back("partitionfield=host");
         clause.push_back("excludefrequent=By");
@@ -1367,7 +1367,7 @@ void CFieldConfigTest::testExcludeFrequentClauses(void) {
     }
     {
         // "over" excludefrequent with no "over" field
-        ml::api::CFieldConfig          config;
+        ml::api::CFieldConfig config;
         ml::api::CFieldConfig::TStrVec clause;
         clause.push_back("partitionfield=host");
         clause.push_back("excludefrequent=over");
@@ -1416,7 +1416,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
     ml::api::CFieldConfig config;
 
     {
-        std::string                    clause;
+        std::string clause;
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));
@@ -1424,7 +1424,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
         CPPUNIT_ASSERT(tokens.empty());
     }
     {
-        std::string                    clause("responsetime by airline");
+        std::string clause("responsetime by airline");
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));
@@ -1435,7 +1435,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("airline"), tokens[2]);
     }
     {
-        std::string                    clause("\"responsetime\" by \"airline\"");
+        std::string clause("\"responsetime\" by \"airline\"");
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));
@@ -1446,7 +1446,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("airline"), tokens[2]);
     }
     {
-        std::string                    clause("\"funny field\" by \"airline\"");
+        std::string clause("\"funny field\" by \"airline\"");
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));
@@ -1457,7 +1457,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("airline"), tokens[2]);
     }
     {
-        std::string                    clause("\"field with escaped \\\" quotes\" by \"airline\"");
+        std::string clause("\"field with escaped \\\" quotes\" by \"airline\"");
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));
@@ -1468,7 +1468,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("airline"), tokens[2]);
     }
     {
-        std::string                    clause("\"field with nested , comma\" by \"airline\"");
+        std::string clause("\"field with nested , comma\" by \"airline\"");
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));
@@ -1479,7 +1479,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("airline"), tokens[2]);
     }
     {
-        std::string                    clause("\"field with escaped escape\\\\\" by \"airline\"");
+        std::string clause("\"field with escaped escape\\\\\" by \"airline\"");
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));
@@ -1490,7 +1490,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("airline"), tokens[2]);
     }
     {
-        std::string                    clause("one,two,three  by  airline");
+        std::string clause("one,two,three  by  airline");
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));
@@ -1503,7 +1503,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("airline"), tokens[4]);
     }
     {
-        std::string                    clause("one, two ,three by airline");
+        std::string clause("one, two ,three by airline");
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));
@@ -1516,7 +1516,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("airline"), tokens[4]);
     }
     {
-        std::string                    clause("one\t two ,\tthree by airline");
+        std::string clause("one\t two ,\tthree by airline");
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));
@@ -1529,7 +1529,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("airline"), tokens[4]);
     }
     {
-        std::string                    clause("\"one,\",\",two \"\t\" three,\" by airline");
+        std::string clause("\"one,\",\",two \"\t\" three,\" by airline");
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));
@@ -1542,7 +1542,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("airline"), tokens[4]);
     }
     {
-        std::string                    clause("responsetime by airline partitionfield=host");
+        std::string clause("responsetime by airline partitionfield=host");
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));
@@ -1554,7 +1554,7 @@ void CFieldConfigTest::testClauseTokenise(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("partitionfield=host"), tokens[3]);
     }
     {
-        std::string                    clause("responsetime by airline partitionfield=\"funny field\"");
+        std::string clause("responsetime by airline partitionfield=\"funny field\"");
         ml::api::CFieldConfig::TStrVec tokens;
 
         CPPUNIT_ASSERT(config.tokenise(clause, tokens));

@@ -97,7 +97,7 @@ void CCalendarFeatureTest::testComparison(void) {
     TCalendarFeatureVec features;
 
     for (std::size_t i = 0u; i < times.size(); ++i) {
-        core_t::TTime                                 time{static_cast<core_t::TTime>(times[i])};
+        core_t::TTime time{static_cast<core_t::TTime>(times[i])};
         maths::CCalendarFeature::TCalendarFeature4Ary fi = maths::CCalendarFeature::features(time);
         features.insert(features.end(), fi.begin(), fi.end());
     }
@@ -108,7 +108,7 @@ void CCalendarFeatureTest::testComparison(void) {
     for (std::size_t i = 0u; i < features.size(); ++i) {
         CPPUNIT_ASSERT(features[i] == features[i]);
         CPPUNIT_ASSERT(!(features[i] < features[i] || features[i] > features[i]));
-        for (std::size_t j = i+1; j < features.size(); ++j) {
+        for (std::size_t j = i + 1; j < features.size(); ++j) {
             CPPUNIT_ASSERT(features[i] != features[j]);
             CPPUNIT_ASSERT(features[i] < features[j] || features[i] > features[j]);
         }
@@ -137,7 +137,7 @@ void CCalendarFeatureTest::testOffset(void) {
     std::size_t tests = 0u;
 
     for (const auto &time_ : times) {
-        core_t::TTime                                 time{start + static_cast<core_t::TTime>(time_)};
+        core_t::TTime time{start + static_cast<core_t::TTime>(time_)};
         maths::CCalendarFeature::TCalendarFeature4Ary features = maths::CCalendarFeature::features(time);
 
         int dummy;
@@ -148,7 +148,7 @@ void CCalendarFeatureTest::testOffset(void) {
 
         for (const auto &offset : offsets) {
             core_t::TTime offsetTime = time + offset;
-            int           offsetMonth;
+            int offsetMonth;
             core::CTimezone::instance().dateFields(offsetTime, dummy, dummy, dummy, offsetMonth, dummy, dummy);
 
             if (month == offsetMonth) {

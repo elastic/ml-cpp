@@ -101,7 +101,7 @@ bool CCondition::convert(uint32_t t, timespec &tm) {
     uint32_t remainder(static_cast<uint32_t>(t % 1000));
     if (remainder == 0) {
         tm.tv_nsec = now.tv_usec * 1000;
-    } else {
+    } else   {
         // s is in microseconds
         uint32_t s((remainder * 1000U) + static_cast<uint32_t>(now.tv_usec));
 

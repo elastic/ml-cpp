@@ -59,7 +59,8 @@ CDetectorRecord::CDetectorRecord(core_t::TTime time,
     m_Function(function),
     m_FieldNames(fieldNames),
     m_FieldValues(fieldValues),
-    m_HashedFieldValues(hashedFieldValues) {}
+    m_HashedFieldValues(hashedFieldValues)
+{}
 
 core_t::TTime CDetectorRecord::time(void) const {
     return m_Time;
@@ -133,7 +134,7 @@ void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec &s
     this->clear();
 
     TStrSizeUMap uniques;
-    size_t       size = 0u;
+    size_t size = 0u;
     for (std::size_t i = 0u; i < specs.size(); ++i) {
         for (std::size_t j = 0u; j < boost::size(FIELDS); ++j) {
             if (const CDetectorSpecification::TOptionalStr &field = ((specs[i]).*FIELDS[j])()) {
@@ -188,11 +189,11 @@ void CDetectorRecordDirectAddressTable::detectorRecords(core_t::TTime time,
 
     CDetectorRecord::TStrCPtrAry ni;
     CDetectorRecord::TStrCPtrAry vi;
-    CDetectorRecord::TSizeAry    hi;
+    CDetectorRecord::TSizeAry hi;
     result.resize(size + 1, CDetectorRecord(time, config_t::E_Count, ni, vi, hi));
     for (std::size_t i = 0u; i < specs.size(); ++i) {
-        std::size_t                 id = specs[i].id();
-        const TSizeAry              &            schema = m_DetectorFieldSchema[id];
+        std::size_t id = specs[i].id();
+        const TSizeAry &schema = m_DetectorFieldSchema[id];
         config_t::EFunctionCategory function = specs[i].function();
         for (std::size_t j = 0u; j < TSizeAry::size(); ++j) {
             ni[j] = (specs[i].*FIELDS[j])().get_ptr();

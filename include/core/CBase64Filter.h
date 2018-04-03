@@ -197,7 +197,7 @@ class CORE_EXPORT CBase64Decoder {
         std::streamsize read(SOURCE &src, char_type *s, std::streamsize n) {
             // copy into the buffer while there is data to read and space in the buffer
             std::streamsize done = 0;
-            char            buf[4096];
+            char buf[4096];
             while (done < n) {
                 std::streamsize toCopy = std::min(std::streamsize(m_BufferOut.size()), std::streamsize(n - done));
                 LOG_TRACE("Trying to copy " << toCopy << " bytes into stream, max " << n << ", available " << m_BufferOut.size());
@@ -221,7 +221,7 @@ class CORE_EXPORT CBase64Decoder {
                     if (readBytes == -1) {
                         LOG_TRACE("Got EOS from underlying store");
                         m_Eos = true;
-                    } else {
+                    } else   {
                         for (std::streamsize i = 0; i < readBytes; i++) {
                             // Only copy Base64 characters - JSON punctuation is ignored
                             // The dechunker parses JSON and should give us only base64 strings,
@@ -258,7 +258,8 @@ class CORE_EXPORT CBase64Decoder {
 
         //! Interface method - unused
         template<typename SOURCE>
-        void close(SOURCE & /*src*/) {}
+        void close(SOURCE & /*src*/)
+        {}
 
     private:
 
@@ -274,7 +275,7 @@ class CORE_EXPORT CBase64Decoder {
             }
 
             TUInt8BufItr endItr = m_BufferIn.end();
-            std::size_t  paddingBytes = 0;
+            std::size_t paddingBytes = 0;
             // Only try and decode multiples of 4 characters, unless this is the last
             // data in the stream
             if (isFinal == false) {
@@ -286,7 +287,7 @@ class CORE_EXPORT CBase64Decoder {
                     LOG_TRACE("Ignoring end bytes of " << inBytes);
                     --endItr;
                 }
-            } else {
+            } else   {
                 // We can only work with 4 or more bytes, so with fewer there is something
                 // wrong, and there can't be a sensible outcome
                 if (inBytes < 4) {
@@ -323,7 +324,7 @@ class CORE_EXPORT CBase64Decoder {
         TUInt8Buf m_BufferOut;
 
         //! Have we read all the available data from the downstream stream
-        bool      m_Eos;
+        bool m_Eos;
 };
 
 } // core

@@ -47,7 +47,7 @@ void CMemoryUsageJsonWriterTest::test(void) {
     }
     {
         // Check one object
-        std::ostringstream           ss;
+        std::ostringstream ss;
         core::CMemoryUsageJsonWriter writer(ss);
         writer.startObject();
         core::CMemoryUsage::SMemoryUsage description("Hello", 223);
@@ -58,7 +58,7 @@ void CMemoryUsageJsonWriterTest::test(void) {
     }
     {
         // Check one object with unused space
-        std::ostringstream           ss;
+        std::ostringstream ss;
         core::CMemoryUsageJsonWriter writer(ss);
         writer.startObject();
         core::CMemoryUsage::SMemoryUsage description("Hello", 223, 45678);
@@ -69,7 +69,7 @@ void CMemoryUsageJsonWriterTest::test(void) {
     }
     {
         // Check one empty array
-        std::ostringstream           ss;
+        std::ostringstream ss;
         core::CMemoryUsageJsonWriter writer(ss);
         writer.startObject();
         core::CMemoryUsage::SMemoryUsage description("Hello", 223);
@@ -82,7 +82,7 @@ void CMemoryUsageJsonWriterTest::test(void) {
     }
     {
         // Check one full array
-        std::ostringstream           ss;
+        std::ostringstream ss;
         core::CMemoryUsageJsonWriter writer(ss);
         writer.startObject();
         core::CMemoryUsage::SMemoryUsage description("Hello", 223);
@@ -105,7 +105,7 @@ void CMemoryUsageJsonWriterTest::test(void) {
     }
     {
         // Check sub-object
-        std::ostringstream           ss;
+        std::ostringstream ss;
         core::CMemoryUsageJsonWriter writer(ss);
         writer.startObject();
         core::CMemoryUsage::SMemoryUsage description("Hello", 223);

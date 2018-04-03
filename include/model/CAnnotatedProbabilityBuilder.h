@@ -82,17 +82,17 @@ class MODEL_EXPORT CAnnotatedProbabilityBuilder : private core::CNonCopyable {
 
     private:
         SAnnotatedProbability              &m_Result;
-        std::size_t                        m_NumberAttributeProbabilities;
-        std::size_t                        m_NumberOfPeople;
+        std::size_t m_NumberAttributeProbabilities;
+        std::size_t m_NumberOfPeople;
         const maths::CMultinomialConjugate *m_AttributeProbabilityPrior;
         const maths::CMultinomialConjugate *m_PersonAttributeProbabilityPrior;
-        TMinAccumulator                    m_MinAttributeProbabilities;
-        std::size_t                        m_DistinctTotalAttributes;
-        std::size_t                        m_DistinctRareAttributes;
-        double                             m_RareAttributes;
-        bool                               m_IsPopulation;
-        bool                               m_IsRare;
-        bool                               m_IsFreqRare;
+        TMinAccumulator m_MinAttributeProbabilities;
+        std::size_t m_DistinctTotalAttributes;
+        std::size_t m_DistinctRareAttributes;
+        double m_RareAttributes;
+        bool m_IsPopulation;
+        bool m_IsRare;
+        bool m_IsFreqRare;
 };
 
 }

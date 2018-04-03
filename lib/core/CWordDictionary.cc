@@ -83,7 +83,7 @@ CWordDictionary::EPartOfSpeech partOfSpeechFromCode(char partOfSpeechCode) {
 
 const char *CWordDictionary::DICTIONARY_FILE("ml-en.dict");
 
-CFastMutex               CWordDictionary::ms_LoadMutex;
+CFastMutex CWordDictionary::ms_LoadMutex;
 volatile CWordDictionary *CWordDictionary::ms_Instance(0);
 
 
@@ -148,7 +148,7 @@ CWordDictionary::CWordDictionary(void) {
                           word);
                 continue;
             }
-            char          partOfSpeechCode(word[sepPos + 1]);
+            char partOfSpeechCode(word[sepPos + 1]);
             EPartOfSpeech partOfSpeech(partOfSpeechFromCode(partOfSpeechCode));
             if (partOfSpeech == E_NotInDictionary) {
                 LOG_ERROR("Unknown part-of-speech code (" << partOfSpeechCode <<
@@ -161,7 +161,7 @@ CWordDictionary::CWordDictionary(void) {
 
         LOG_DEBUG("Populated word dictionary with " <<
                   m_DictionaryWords.size() << " words");
-    } else {
+    } else   {
         LOG_ERROR("Failed to open dictionary file " << fileToLoad);
     }
 }

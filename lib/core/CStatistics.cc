@@ -63,7 +63,8 @@ void addStringInt(TGenericLineWriter &writer,
 
 }
 
-CStatistics::CStatistics(void) {}
+CStatistics::CStatistics(void)
+{}
 
 CStatistics &CStatistics::instance(void) {
     return ms_Instance;
@@ -98,7 +99,7 @@ void CStatistics::staticsAcceptPersistInserter(CStatePersistInserter &inserter) 
 
 bool CStatistics::staticsAcceptRestoreTraverser(CStateRestoreTraverser &traverser) {
     uint64_t value = 0;
-    int      key = 0;
+    int key = 0;
     do {
         const std::string &name = traverser.name();
         if (name == KEY_TAG) {
@@ -108,7 +109,7 @@ bool CStatistics::staticsAcceptRestoreTraverser(CStateRestoreTraverser &traverse
                 LOG_ERROR("Invalid key value in " << traverser.value());
                 return false;
             }
-        } else if (name == VALUE_TAG) {
+        } else if (name == VALUE_TAG)   {
             if (CStringUtils::stringToType(traverser.value(),
                                            value) == false) {
                 LOG_ERROR("Invalid stat value in " << traverser.value());
@@ -128,7 +129,7 @@ CStatistics CStatistics::ms_Instance;
 
 std::ostream &operator<<(std::ostream &o, const CStatistics & /*stats*/) {
     rapidjson::OStreamWrapper writeStream(o);
-    TGenericLineWriter        writer(writeStream);
+    TGenericLineWriter writer(writeStream);
 
     writer.StartArray();
 

@@ -57,17 +57,11 @@ struct SPod {
 };
 
 struct SFoo {
-    static bool dynamicSizeAlwaysZero(void) {
-        return true;
-    }
+    static bool dynamicSizeAlwaysZero(void) { return true; }
 
     explicit SFoo(std::size_t key = 0) : s_Key(key) {}
-    bool operator<(const SFoo &rhs) const {
-        return s_Key < rhs.s_Key;
-    }
-    bool operator==(const SFoo &rhs) const {
-        return s_Key == rhs.s_Key;
-    }
+    bool operator<(const SFoo &rhs) const { return s_Key < rhs.s_Key; }
+    bool operator==(const SFoo &rhs) const { return s_Key == rhs.s_Key; }
 
     std::size_t s_Key;
     double s_State[100];
@@ -75,12 +69,8 @@ struct SFoo {
 
 struct SFooWithMemoryUsage {
     explicit SFooWithMemoryUsage(std::size_t key = 0) : s_Key(key) {}
-    bool operator<(const SFooWithMemoryUsage &rhs) const {
-        return s_Key < rhs.s_Key;
-    }
-    bool operator==(const SFooWithMemoryUsage &rhs) const {
-        return s_Key == rhs.s_Key;
-    }
+    bool operator<(const SFooWithMemoryUsage &rhs) const { return s_Key < rhs.s_Key; }
+    bool operator==(const SFooWithMemoryUsage &rhs) const { return s_Key == rhs.s_Key; }
     std::size_t memoryUsage(void) const {
         return 0;
     }
@@ -105,12 +95,8 @@ struct SBar {
     typedef std::vector<SFoo> TFooVec;
 
     explicit SBar(std::size_t key = 0) : s_Key(key), s_State() {}
-    bool operator<(const SBar &rhs) const {
-        return s_Key < rhs.s_Key;
-    }
-    bool operator==(const SBar &rhs) const {
-        return s_Key == rhs.s_Key;
-    }
+    bool operator<(const SBar &rhs) const { return s_Key < rhs.s_Key; }
+    bool operator==(const SBar &rhs) const { return s_Key == rhs.s_Key; }
     std::size_t memoryUsage(void) const {
         return sizeof(SFoo) * s_State.capacity();
     }
@@ -123,12 +109,8 @@ struct SBarDebug {
     typedef std::vector<SFoo> TFooVec;
 
     explicit SBarDebug(std::size_t key = 0) : s_Key(key), s_State() {}
-    bool operator<(const SBarDebug &rhs) const {
-        return s_Key < rhs.s_Key;
-    }
-    bool operator==(const SBarDebug &rhs) const {
-        return s_Key == rhs.s_Key;
-    }
+    bool operator<(const SBarDebug &rhs) const { return s_Key < rhs.s_Key; }
+    bool operator==(const SBarDebug &rhs) const { return s_Key == rhs.s_Key; }
     std::size_t memoryUsage(void) const {
         return sizeof(SFoo) * s_State.capacity();
     }
@@ -146,12 +128,8 @@ struct SBarVectorDebug {
     typedef std::vector<SFooWithMemoryUsage> TFooVec;
 
     explicit SBarVectorDebug(std::size_t key = 0) : s_Key(key), s_State() {}
-    bool operator<(const SBarVectorDebug &rhs) const {
-        return s_Key < rhs.s_Key;
-    }
-    bool operator==(const SBarVectorDebug &rhs) const {
-        return s_Key == rhs.s_Key;
-    }
+    bool operator<(const SBarVectorDebug &rhs) const { return s_Key < rhs.s_Key; }
+    bool operator==(const SBarVectorDebug &rhs) const { return s_Key == rhs.s_Key; }
     std::size_t memoryUsage(void) const {
         return core::CMemory::dynamicSize(s_State);
     }
@@ -166,15 +144,9 @@ struct SBarVectorDebug {
 };
 
 struct SHash {
-    std::size_t operator()(const SFoo &foo) const {
-        return foo.s_Key;
-    }
-    std::size_t operator()(const SFooWithMemoryUsage &foo) const {
-        return foo.s_Key;
-    }
-    std::size_t operator()(const SBar &bar) const {
-        return bar.s_Key;
-    }
+    std::size_t operator()(const SFoo &foo) const { return foo.s_Key; }
+    std::size_t operator()(const SFooWithMemoryUsage &foo) const { return foo.s_Key; }
+    std::size_t operator()(const SBar &bar) const { return bar.s_Key; }
 };
 
 class CBase {
@@ -198,7 +170,7 @@ class CBase {
 
     private:
         uint64_t m_Fixed[5];
-        TIntVec  m_Vec;
+        TIntVec m_Vec;
 };
 
 class CDerived : public CBase {
@@ -225,7 +197,7 @@ class CDerived : public CBase {
 
     private:
         uint64_t m_Fixed[50];
-        TStrVec  m_Strings;
+        TStrVec m_Strings;
 };
 
 //! A basic allocator that tracks memory usage
@@ -252,7 +224,8 @@ class CTrackingAllocator {
         CTrackingAllocator(const CTrackingAllocator &) = default;
 
         template<typename U>
-        inline CTrackingAllocator(const CTrackingAllocator<U> &) {}
+        inline CTrackingAllocator(const CTrackingAllocator<U> &)
+        {}
 
         // address
         inline pointer address(reference r) {
@@ -341,7 +314,7 @@ void CMemoryUsageTest::testUsage(void) {
     //      it is stored in a container or not.
 
     {
-        TFooVec           foos(10);
+        TFooVec foos(10);
         TFooWithMemoryVec foosWithMemory(10);
 
         LOG_DEBUG("*** TFooVec ***");
@@ -351,7 +324,7 @@ void CMemoryUsageTest::testUsage(void) {
                              core::CMemory::dynamicSize(foosWithMemory));
     }
     {
-        TFooList           foos(10);
+        TFooList foos(10);
         TFooWithMemoryList foosWithMemory(10);
 
         LOG_DEBUG("*** TFooList ***");
@@ -361,7 +334,7 @@ void CMemoryUsageTest::testUsage(void) {
                              core::CMemory::dynamicSize(foosWithMemory));
     }
     {
-        TFooDeque           foos(10);
+        TFooDeque foos(10);
         TFooWithMemoryDeque foosWithMemory(10);
 
         LOG_DEBUG("*** TFooDeque ***");
@@ -383,7 +356,7 @@ void CMemoryUsageTest::testUsage(void) {
                              core::CMemory::dynamicSize(foosWithMemory));
     }
     {
-        TFooFooMap                     foos;
+        TFooFooMap foos;
         TFooWithMemoryFooWithMemoryMap foosWithMemory;
 
         std::size_t keys[] = { 0, 1, 2, 3, 4, 5 };
@@ -399,7 +372,7 @@ void CMemoryUsageTest::testUsage(void) {
                              core::CMemory::dynamicSize(foosWithMemory));
     }
     {
-        TFooFooUMap                     foos;
+        TFooFooUMap foos;
         TFooWithMemoryFooWithMemoryUMap foosWithMemory;
 
         std::size_t keys[] = { 0, 1, 2, 3, 4, 5 };
@@ -431,7 +404,7 @@ void CMemoryUsageTest::testUsage(void) {
     {
         LOG_DEBUG("*** SFooWrapper ***");
         SFooWithMemoryUsage foo;
-        SFooWrapper         wrapper;
+        SFooWrapper wrapper;
         LOG_DEBUG("memoryUsage foo     = " << foo.memoryUsage());
         LOG_DEBUG("memoryUsage wrapper = " << wrapper.memoryUsage());
         CPPUNIT_ASSERT_EQUAL(foo.memoryUsage(), wrapper.memoryUsage());
@@ -556,7 +529,7 @@ void CMemoryUsageTest::testUsage(void) {
         typedef std::vector<boost::any> TAnyVec;
 
         TDoubleVec a(10);
-        TFooVec    b(20);
+        TFooVec b(20);
 
         TAnyVec variables(1); // Empty any at index 0
         variables.push_back(a);
@@ -712,8 +685,8 @@ void CMemoryUsageTest::testDebug(void) {
 
     // Check that we can get debug info out of classes with vectors of varying size
     {
-        SBar            sbar;
-        SBarDebug       sbarDebug;
+        SBar sbar;
+        SBarDebug sbarDebug;
         SBarVectorDebug sbarVectorDebug;
         for (unsigned i = 0; i < 9; ++i) {
             sbar.s_State.push_back(SFoo(i));
@@ -1039,7 +1012,7 @@ void CMemoryUsageTest::testStringBehaviour(void) {
 
     typedef std::vector<size_t> TSizeVec;
     std::string grower;
-    TSizeVec    capacities(1, grower.capacity());
+    TSizeVec capacities(1, grower.capacity());
     for (size_t count = 0; count < 50000; ++count) {
         grower += 'x';
         if (grower.capacity() != capacities.back()) {
@@ -1073,7 +1046,7 @@ void CMemoryUsageTest::testStringMemory(void) {
 
     for (std::size_t i = 0; i < 1500; ++i) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), TAllocator::usage());
-        TString     trackingString;
+        TString trackingString;
         std::string normalString;
         for (std::size_t j = 0; j < i; ++j) {
             trackingString.push_back(static_cast<char>('a' + j));
@@ -1206,16 +1179,16 @@ void CMemoryUsageTest::testSmallVector(void) {
     using TDouble9Vec = core::CSmallVector<double, 8>;
 
     test::CRandomNumbers test;
-    TSizeVec             sizes;
+    TSizeVec sizes;
     test.generateUniformSamples(0, 12, 100, sizes);
 
     for (auto size : sizes) {
         TDouble1Vec vec1(size);
         TDouble6Vec vec2(size);
         TDouble9Vec vec3(size);
-        TSizeVec    memory{core::CMemory::dynamicSize(vec1),
-                           core::CMemory::dynamicSize(vec2),
-                           core::CMemory::dynamicSize(vec3)};
+        TSizeVec memory{core::CMemory::dynamicSize(vec1),
+                        core::CMemory::dynamicSize(vec2),
+                        core::CMemory::dynamicSize(vec3)};
         // These assertions hold because the vectors never shrink
         CPPUNIT_ASSERT(size > 2 || memory[0] == 0);
         CPPUNIT_ASSERT(memory[0] == 0 || memory[0] == vec1.capacity() * sizeof(double));

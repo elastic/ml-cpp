@@ -377,8 +377,8 @@ class MODEL_EXPORT CDataGatherer {
                 // don't use throw to handle failure, which is slow.
                 if (feature.second.type() != typeid(T)) {
                     LOG_ERROR("Bad type for feature = " << model_t::print(feature.first)
-                                                        << ", expected " << typeid(T).name()
-                                                        << " got " << feature.second.type().name());
+                              << ", expected " << typeid(T).name()
+                              << " got " << feature.second.type().name());
                     succeeded = false;
                     continue;
                 }
@@ -597,7 +597,7 @@ class MODEL_EXPORT CDataGatherer {
         //@{
         //! Get the non-zero (person, attribute) pair counts in the
         //! bucketing interval corresponding to the given time.
-        const TSizeSizePrUInt64UMap                     &bucketCounts(core_t::TTime time) const;
+        const TSizeSizePrUInt64UMap &bucketCounts(core_t::TTime time) const;
 
         //! Get the non-zero (person, attribute) pair counts for each
         //! value of influencing field.
@@ -725,7 +725,7 @@ class MODEL_EXPORT CDataGatherer {
 
         //! Select the correct bucket gatherer based on the time: if we have
         //! out-of-phase buckets, select either in-phase or out-of-phase.
-        CBucketGatherer       &chooseBucketGatherer(core_t::TTime time);
+        CBucketGatherer &chooseBucketGatherer(core_t::TTime time);
 
         //! Restore state from supplied traverser.
         bool acceptRestoreTraverser(const std::string &summaryCountFieldName,
@@ -762,42 +762,42 @@ class MODEL_EXPORT CDataGatherer {
         model_t::EAnalysisCategory m_GathererType;
 
         //! The collection of features on which to gather data.
-        TFeatureVec                m_Features;
+        TFeatureVec m_Features;
 
         //! The collection of bucket gatherers which contain the bucket-specific
         //! metrics and counts.
-        TBucketGathererPVec        m_Gatherers;
+        TBucketGathererPVec m_Gatherers;
 
         //! Indicates whether the data being gathered are already summarized
         //! by an external aggregation process.
-        model_t::ESummaryMode      m_SummaryMode;
+        model_t::ESummaryMode m_SummaryMode;
 
         //! The global configuration parameters.
-        TModelParamsCRef           m_Params;
+        TModelParamsCRef m_Params;
 
         //! The partition field name or an empty string if there isn't one.
-        std::string                m_PartitionFieldName;
+        std::string m_PartitionFieldName;
 
         //! The value of the partition field for this detector.
-        core::CStoredStringPtr     m_PartitionFieldValue;
+        core::CStoredStringPtr m_PartitionFieldValue;
 
         //! The key of the search for which data is being gathered.
-        TSearchKeyCRef             m_SearchKey;
+        TSearchKeyCRef m_SearchKey;
 
         //! A registry where person names are mapped to unique IDs.
-        CDynamicStringIdRegistry   m_PeopleRegistry;
+        CDynamicStringIdRegistry m_PeopleRegistry;
 
         //! A registry where attribute names are mapped to unique IDs.
-        CDynamicStringIdRegistry   m_AttributesRegistry;
+        CDynamicStringIdRegistry m_AttributesRegistry;
 
         //! True if this is a population data gatherer and false otherwise.
-        bool                       m_Population;
+        bool m_Population;
 
         //! If true the gatherer will process missing person field values.
-        bool                       m_UseNull;
+        bool m_UseNull;
 
         //! The object responsible for managing sample counts.
-        TSampleCountsPtr           m_SampleCounts;
+        TSampleCountsPtr m_SampleCounts;
 };
 
 }

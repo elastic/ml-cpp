@@ -55,7 +55,7 @@ CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream &strmIn)
         if (result == -1) {
             LOG_WARN("Cannot set the stdin to binary mode");
         }
-    } else {
+    } else   {
         LOG_DEBUG("Length encoded input parser input is not connected to stdin");
     }
 }
@@ -160,7 +160,7 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC &results) {
             std::string temp;
             results.resize(numFields,
                            typename STR_VEC::value_type(temp));
-        } else {
+        } else   {
             LOG_ERROR("Incorrect number of fields in input stream record: expected "
                       << results.size() << " but got " << numFields);
             return false;
@@ -184,7 +184,7 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC &results) {
         static const uint32_t HIGH_BYTE_MASK(0xFF000000);
         if ((length & HIGH_BYTE_MASK) != 0u) {
             LOG_ERROR("Parsed field length " << length
-                                             << " is suspiciously large - assuming corrupt input stream");
+                      << " is suspiciously large - assuming corrupt input stream");
             return false;
         }
 
@@ -224,7 +224,7 @@ bool CLengthEncodedInputParser::parseStringFromStream(size_t length,
         return true;
     }
 
-    bool   append(false);
+    bool append(false);
     size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
     do {
         if (avail == 0) {
@@ -237,7 +237,7 @@ bool CLengthEncodedInputParser::parseStringFromStream(size_t length,
         size_t copyLen(std::min(length, avail));
         if (append) {
             str.append(m_WorkBufferPtr, copyLen);
-        } else {
+        } else   {
             str.assign(m_WorkBufferPtr, copyLen);
             append = true;
         }
@@ -269,7 +269,7 @@ size_t CLengthEncodedInputParser::refillBuffer(void) {
                   static_cast<std::streamsize>(WORK_BUFFER_SIZE - avail));
     if (m_StrmIn.bad()) {
         LOG_ERROR("Input stream is bad");
-    } else {
+    } else   {
         avail += static_cast<size_t>(m_StrmIn.gcount());
     }
     m_WorkBufferEnd = m_WorkBufferPtr + avail;

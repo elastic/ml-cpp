@@ -316,7 +316,7 @@ class CORE_EXPORT CContainerPrinter : private CNonInstantiatable {
         static std::string printElement(const std::pair<U, V> &value) {
             std::ostringstream result;
             result << "(" << printElement(boost::unwrap_ref(value.first))
-                   << ", " << printElement(boost::unwrap_ref(value.second)) << ")";
+            << ", " << printElement(boost::unwrap_ref(value.second)) << ")";
             return result.str();
         }
 

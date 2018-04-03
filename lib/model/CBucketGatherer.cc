@@ -109,7 +109,7 @@ bool restoreInfluencerPersonAttributeCounts(core::CStateRestoreTraverser &traver
     std::size_t person = 0;
     std::size_t attribute = 0;
     std::string influence = "";
-    uint64_t    count = 0;
+    uint64_t count = 0;
     do {
         const std::string name = traverser.name();
         RESTORE_BUILT_IN(PERSON_UID_TAG, person)
@@ -145,7 +145,7 @@ struct SBucketCountsPersister {
     bool operator()(TSizeSizePrUInt64UMap &bucketCounts, core::CStateRestoreTraverser &traverser) {
         do {
             TSizeSizePr key;
-            uint64_t    count;
+            uint64_t count;
             if (!traverser.hasSubLevel()) {
                 continue;
             }
@@ -208,7 +208,8 @@ CBucketGatherer::CBucketGatherer(CDataGatherer &dataGatherer,
                                    TSizeSizePrUSet(1)),
     m_InfluencerCounts(dataGatherer.params().s_LatencyBuckets + 3,
                        dataGatherer.params().s_BucketLength,
-                       startTime) {}
+                       startTime)
+{}
 
 CBucketGatherer::CBucketGatherer(bool isForPersistence,
                                  const CBucketGatherer &other) :
@@ -273,7 +274,7 @@ bool CBucketGatherer::addEventData(CEventData &data) {
             bucketCounts[pidCid] += count;
         }
 
-        const CEventData::TOptionalStrVec         influences = data.influences();
+        const CEventData::TOptionalStrVec influences = data.influences();
         TSizeSizePrStoredStringPtrPrUInt64UMapVec &influencerCounts = m_InfluencerCounts.get(time);
         influencerCounts.resize(influences.size());
         TStoredStringPtrVec canonicalInfluences(influences.size());
@@ -357,7 +358,7 @@ void CBucketGatherer::sample(core_t::TTime time) {
         }
 
         const TSizeSizePrStoredStringPtrPrUInt64UMapVec &influencerCounts = m_InfluencerCounts.get(time);
-        auto                                            &                                           multiBucketInfluencerCounts = m_MultiBucketInfluencerCounts[bucketLength];
+        auto &multiBucketInfluencerCounts = m_MultiBucketInfluencerCounts[bucketLength];
         multiBucketInfluencerCounts.resize(influencerCounts.size());
         for (std::size_t i = 0u; i < influencerCounts.size(); ++i) {
             for (const auto &count : influencerCounts[i]) {
@@ -374,7 +375,7 @@ void CBucketGatherer::personNonZeroCounts(core_t::TTime time, TSizeUInt64PrVec &
 
     if (!this->dataAvailable(time)) {
         LOG_ERROR("No statistics at " << time
-                                      << ", current bucket = " << this->printCurrentBucket());
+                  << ", current bucket = " << this->printCurrentBucket());
         return;
     }
 
@@ -396,7 +397,7 @@ void CBucketGatherer::recyclePeople(const TSizeVec &peopleToRemove) {
 
 void CBucketGatherer::removePeople(std::size_t lowestPersonToRemove) {
     if (lowestPersonToRemove < m_DataGatherer.numberPeople()) {
-        TSizeVec    peopleToRemove;
+        TSizeVec peopleToRemove;
         std::size_t maxPersonId = m_DataGatherer.numberPeople();
         peopleToRemove.reserve(maxPersonId - lowestPersonToRemove);
         for (std::size_t pid = lowestPersonToRemove; pid < maxPersonId; ++pid) {
@@ -418,7 +419,7 @@ void CBucketGatherer::recycleAttributes(const TSizeVec &attributesToRemove) {
 
 void CBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove) {
     if (lowestAttributeToRemove < m_DataGatherer.numberAttributes()) {
-        TSizeVec          attributesToRemove;
+        TSizeVec attributesToRemove;
         const std::size_t numAttributes = m_DataGatherer.numberAttributes();
         attributesToRemove.reserve(numAttributes - lowestAttributeToRemove);
         for (std::size_t cid = lowestAttributeToRemove; cid < numAttributes; ++cid) {
@@ -477,7 +478,7 @@ bool CBucketGatherer::validateSampleTimes(core_t::TTime &startTime,
     for (/**/; startTime < endTime; startTime += this->bucketLength()) {
         if (!this->dataAvailable(startTime)) {
             LOG_ERROR("No counts available at " << startTime
-                                                << ", current bucket = " << this->printCurrentBucket());
+                      << ", current bucket = " << this->printCurrentBucket());
             continue;
         }
         return true;
@@ -511,7 +512,7 @@ bool CBucketGatherer::hasExplicitNullsOnly(core_t::TTime time, std::size_t pid, 
         return false;
     }
     const TSizeSizePrUInt64UMap &bucketCounts = m_PersonAttributeCounts.get(time);
-    TSizeSizePr                 pidCid = std::make_pair(pid, cid);
+    TSizeSizePr pidCid = std::make_pair(pid, cid);
     return bucketExplicitNulls.find(pidCid) != bucketExplicitNulls.end() &&
            bucketCounts.find(pidCid) == bucketCounts.end();
 }
@@ -530,8 +531,8 @@ uint64_t CBucketGatherer::checksum(void) const {
         TStrCRefStrCRefPrUInt64PrVec personAttributeCounts;
         personAttributeCounts.reserve(bucketCounts.size());
         for (const auto &count : bucketCounts) {
-            std::size_t       pid = CDataGatherer::extractPersonId(count);
-            std::size_t       cid = CDataGatherer::extractAttributeId(count);
+            std::size_t pid = CDataGatherer::extractPersonId(count);
+            std::size_t cid = CDataGatherer::extractAttributeId(count);
             TStrCRefStrCRefPr key(TStrCRef(m_DataGatherer.personName(pid)),
                                   TStrCRef(m_DataGatherer.attributeName(cid)));
             personAttributeCounts.emplace_back(key, CDataGatherer::extractData(count));
@@ -547,8 +548,8 @@ uint64_t CBucketGatherer::checksum(void) const {
         TStrCRefStrCRefPrVec personAttributeExplicitNulls;
         personAttributeExplicitNulls.reserve(bucketExplicitNulls.size());
         for (const auto &nulls : bucketExplicitNulls) {
-            std::size_t       pid = CDataGatherer::extractPersonId(nulls);
-            std::size_t       cid = CDataGatherer::extractAttributeId(nulls);
+            std::size_t pid = CDataGatherer::extractPersonId(nulls);
+            std::size_t cid = CDataGatherer::extractAttributeId(nulls);
             TStrCRefStrCRefPr key(TStrCRef(m_DataGatherer.personName(pid)),
                                   TStrCRef(m_DataGatherer.attributeName(cid)));
             personAttributeExplicitNulls.push_back(key);
@@ -593,7 +594,7 @@ bool CBucketGatherer::resetBucket(core_t::TTime bucketStart) {
     if (  !this->dataAvailable(bucketStart) ||
           bucketStart >= this->currentBucketStartTime() + this->bucketLength()) {
         LOG_WARN("No data available at " << bucketStart
-                                         << ", current bucket = " << this->printCurrentBucket());
+                 << ", current bucket = " << this->printCurrentBucket());
         return false;
     }
 

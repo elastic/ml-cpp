@@ -133,8 +133,8 @@ void CSignalTest::testFFTVersusOctave(void) {
 
             double error = 0.0;
             for (std::size_t j = 0u; j < l; ++j) {
-                error += std::abs(actual[j] - maths::CSignal::TComplex(expected[i+j][0],
-                                                                       expected[i+j][1]));
+                error += std::abs(actual[j] - maths::CSignal::TComplex(expected[i + j][0],
+                                                                       expected[i + j][1]));
             }
             error /= static_cast<double>(l);
             LOG_DEBUG("error = " << error);
@@ -258,8 +258,8 @@ void CSignalTest::testIFFTVersusOctave(void) {
 
             double error = 0.0;
             for (std::size_t j = 0u; j < l; ++j) {
-                error += std::abs(actual[j] - maths::CSignal::TComplex(expected[i+j][0],
-                                                                       expected[i+j][1]));
+                error += std::abs(actual[j] - maths::CSignal::TComplex(expected[i + j][0],
+                                                                       expected[i + j][1]));
             }
             error /= static_cast<double>(l);
             LOG_DEBUG("error = " << error);
@@ -285,11 +285,11 @@ void CSignalTest::testFFTRandomized(void) {
 
     for (std::size_t i = 0u, j = 0u;
          i < lengths.size() && j + 2 * lengths[i] < components.size();
-         ++i, j += 2*lengths[i]) {
+         ++i, j += 2 * lengths[i]) {
         maths::CSignal::TComplexVec expected;
         for (std::size_t k = 0u; k < lengths[i]; ++k) {
-            expected.push_back(maths::CSignal::TComplex(components[j + 2*k],
-                                                        components[j + 2*k + 1]));
+            expected.push_back(maths::CSignal::TComplex(components[j + 2 * k],
+                                                        components[j + 2 * k + 1]));
         }
         maths::CSignal::TComplexVec actual(expected);
 
@@ -325,11 +325,11 @@ void CSignalTest::testIFFTRandomized(void) {
 
     for (std::size_t i = 0u, j = 0u;
          i < lengths.size() && j + 2 * lengths[i] < components.size();
-         ++i, j += 2*lengths[i]) {
+         ++i, j += 2 * lengths[i]) {
         maths::CSignal::TComplexVec expected;
         for (std::size_t k = 0u; k < lengths[i]; ++k) {
-            expected.push_back(maths::CSignal::TComplex(components[j + 2*k],
-                                                        components[j + 2*k + 1]));
+            expected.push_back(maths::CSignal::TComplex(components[j + 2 * k],
+                                                        components[j + 2 * k + 1]));
         }
         maths::CSignal::TComplexVec actual(expected);
 
@@ -365,11 +365,11 @@ void CSignalTest::testFFTIFFTIdempotency(void) {
 
     for (std::size_t i = 0u, j = 0u;
          i < lengths.size() && j + 2 * lengths[i] < components.size();
-         ++i, j += 2*lengths[i]) {
+         ++i, j += 2 * lengths[i]) {
         maths::CSignal::TComplexVec expected;
         for (std::size_t k = 0u; k < lengths[i]; ++k) {
-            expected.push_back(maths::CSignal::TComplex(components[j + 2*k],
-                                                        components[j + 2*k + 1]));
+            expected.push_back(maths::CSignal::TComplex(components[j + 2 * k],
+                                                        components[j + 2 * k + 1]));
         }
 
         maths::CSignal::TComplexVec actual(expected);

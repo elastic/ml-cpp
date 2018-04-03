@@ -90,18 +90,18 @@ CppUnit::Test *CDetectionRuleTest::suite() {
 void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
     LOG_DEBUG("*** testApplyGivenCategoricalCondition ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_PopulationMeanByPersonAndAttribute);
-    std::string                             partitionFieldName("partition");
-    std::string                             partitionFieldValue("par_1");
-    std::string                             personFieldName("over");
-    std::string                             attributeFieldName("by");
+    std::string partitionFieldName("partition");
+    std::string partitionFieldValue("par_1");
+    std::string personFieldName("over");
+    std::string attributeFieldName("by");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
         new CDataGatherer(model_t::E_PopulationMetric, model_t::E_None, params,
                           EMPTY_STRING, partitionFieldName, partitionFieldValue,
@@ -109,7 +109,7 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
                           TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
-    bool        added = false;
+    bool added = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, added);
     std::string person2("p2");
     gathererPtr->addPerson(person2, m_ResourceMonitor, added);
@@ -131,7 +131,7 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
     model.mockAddBucketValue(model_t::E_PopulationMeanByPersonAndAttribute, 1, 3, 100, actual);
 
     {
-        std::string       filterJson("[\"a1_1\",\"a2_2\"]");
+        std::string filterJson("[\"a1_1\",\"a2_2\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -154,7 +154,7 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
                                   model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
     }
     {
-        std::string       filterJson("[\"a1*\"]");
+        std::string filterJson("[\"a1*\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -177,7 +177,7 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
                                   model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) == false);
     }
     {
-        std::string       filterJson("[\"*2\"]");
+        std::string filterJson("[\"*2\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -200,7 +200,7 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
                                   model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
     }
     {
-        std::string       filterJson("[\"*1*\"]");
+        std::string filterJson("[\"*1*\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -223,7 +223,7 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
                                   model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) == false);
     }
     {
-        std::string       filterJson("[\"p2\"]");
+        std::string filterJson("[\"p2\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -246,7 +246,7 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
                                   model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
     }
     {
-        std::string       filterJson("[\"par_1\"]");
+        std::string filterJson("[\"par_1\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -269,7 +269,7 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
                                   model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
     }
     {
-        std::string       filterJson("[\"par_2\"]");
+        std::string filterJson("[\"par_2\"]");
         core::CPatternSet valueFilter;
         valueFilter.initFromJson(filterJson);
 
@@ -296,10 +296,10 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
 void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void) {
     LOG_DEBUG("*** testApplyGivenNumericalActionCondition ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
@@ -310,10 +310,10 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void) {
                           TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
-    bool        addedPerson = false;
+    bool addedPerson = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
 
-    CMockModel                         model(params, gathererPtr, influenceCalculators);
+    CMockModel model(params, gathererPtr, influenceCalculators);
     CAnomalyDetectorModel::TDouble1Vec actual100(1, 4.99);
     CAnomalyDetectorModel::TDouble1Vec actual200(1, 5.00);
     CAnomalyDetectorModel::TDouble1Vec actual300(1, 5.01);
@@ -403,10 +403,10 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void) {
 void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition(void) {
     LOG_DEBUG("*** testApplyGivenNumericalTypicalCondition ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
@@ -417,10 +417,10 @@ void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition(void) {
                           TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
-    bool        addedPerson = false;
+    bool addedPerson = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
 
-    CMockModel                         model(params, gathererPtr, influenceCalculators);
+    CMockModel model(params, gathererPtr, influenceCalculators);
     CAnomalyDetectorModel::TDouble1Vec actual100(1, 4.99);
     CAnomalyDetectorModel::TDouble1Vec actual200(1, 5.00);
     CAnomalyDetectorModel::TDouble1Vec actual300(1, 5.01);
@@ -478,10 +478,10 @@ void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition(void) {
 void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition(void) {
     LOG_DEBUG("*** testApplyGivenNumericalDiffAbsCondition ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
@@ -492,10 +492,10 @@ void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition(void) {
                           TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
-    bool        addedPerson = false;
+    bool addedPerson = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
 
-    CMockModel                         model(params, gathererPtr, influenceCalculators);
+    CMockModel model(params, gathererPtr, influenceCalculators);
     CAnomalyDetectorModel::TDouble1Vec actual100(1, 8.9);
     CAnomalyDetectorModel::TDouble1Vec actual200(1, 9.0);
     CAnomalyDetectorModel::TDouble1Vec actual300(1, 9.1);
@@ -577,10 +577,10 @@ void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition(void) {
 void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField(void) {
     LOG_DEBUG("*** testApplyGivenSingleSeriesModelAndConditionWithField ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
@@ -591,10 +591,10 @@ void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField(vo
                           TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
-    bool        addedPerson = false;
+    bool addedPerson = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
 
-    CMockModel                         model(params, gathererPtr, influenceCalculators);
+    CMockModel model(params, gathererPtr, influenceCalculators);
     CAnomalyDetectorModel::TDouble1Vec actual100(1, 4.99);
     CAnomalyDetectorModel::TDouble1Vec actual200(1, 5.00);
     CAnomalyDetectorModel::TDouble1Vec actual300(1, 5.01);
@@ -626,10 +626,10 @@ void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField(vo
 void CDetectionRuleTest::testApplyGivenNoActualValueAvailable(void) {
     LOG_DEBUG("*** testApplyGivenNoActualValueAvailable ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
@@ -640,10 +640,10 @@ void CDetectionRuleTest::testApplyGivenNoActualValueAvailable(void) {
                           TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
-    bool        addedPerson = false;
+    bool addedPerson = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
 
-    CMockModel                         model(params, gathererPtr, influenceCalculators);
+    CMockModel model(params, gathererPtr, influenceCalculators);
     CAnomalyDetectorModel::TDouble1Vec actual100(1, 4.99);
     CAnomalyDetectorModel::TDouble1Vec actual200(1, 5.00);
     CAnomalyDetectorModel::TDouble1Vec actual300(1, 5.01);
@@ -667,27 +667,27 @@ void CDetectionRuleTest::testApplyGivenNoActualValueAvailable(void) {
 void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel(void) {
     LOG_DEBUG("*** testApplyGivenDifferentSeriesAndIndividualModel ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
-    std::string                             personFieldName("series");
+    std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
         new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
                           TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
-    bool        addedPerson = false;
+    bool addedPerson = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
     std::string person2("p2");
     gathererPtr->addPerson(person2, m_ResourceMonitor, addedPerson);
 
-    CMockModel                         model(params, gathererPtr, influenceCalculators);
+    CMockModel model(params, gathererPtr, influenceCalculators);
     CAnomalyDetectorModel::TDouble1Vec p1Actual(1, 4.99);
     CAnomalyDetectorModel::TDouble1Vec p2Actual(1, 4.99);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 100, p1Actual);
@@ -713,23 +713,23 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel(void) {
 void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel(void) {
     LOG_DEBUG("*** testApplyGivenDifferentSeriesAndPopulationModel ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_PopulationMeanByPersonAndAttribute);
-    std::string                             personFieldName("over");
-    std::string                             attributeFieldName("by");
+    std::string personFieldName("over");
+    std::string attributeFieldName("by");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
         new CDataGatherer(model_t::E_PopulationMetric, model_t::E_None, params,
                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, personFieldName, attributeFieldName, EMPTY_STRING,
                           TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
-    bool        added = false;
+    bool added = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, added);
     std::string person2("p2");
     gathererPtr->addPerson(person2, m_ResourceMonitor, added);
@@ -774,25 +774,25 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel(void) {
 void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void) {
     LOG_DEBUG("*** testApplyGivenMultipleConditionsWithOr ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
-    std::string                             personFieldName("series");
+    std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
         new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
                           TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
-    bool        addedPerson = false;
+    bool addedPerson = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
 
-    CMockModel                         model(params, gathererPtr, influenceCalculators);
+    CMockModel model(params, gathererPtr, influenceCalculators);
     CAnomalyDetectorModel::TDouble1Vec p1Actual(1, 10.0);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 100, p1Actual);
 
@@ -893,25 +893,25 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void) {
 void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void) {
     LOG_DEBUG("*** testApplyGivenMultipleConditionsWithAnd ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
-    std::string                             personFieldName("series");
+    std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
         new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
                           EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
                           TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
-    bool        addedPerson = false;
+    bool addedPerson = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
 
-    CMockModel                         model(params, gathererPtr, influenceCalculators);
+    CMockModel model(params, gathererPtr, influenceCalculators);
     CAnomalyDetectorModel::TDouble1Vec p1Actual(1, 10.0);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 100, p1Actual);
 
@@ -1016,29 +1016,29 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void) {
 void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(void) {
     LOG_DEBUG("*** testApplyGivenTargetFieldIsPartitionAndIndividualModel ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
-    std::string                             partitionFieldName("partition");
-    std::string                             partitionFieldValue("partition_1");
-    std::string                             personFieldName("series");
+    std::string partitionFieldName("partition");
+    std::string partitionFieldValue("partition_1");
+    std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
         new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
                           EMPTY_STRING, partitionFieldName, partitionFieldValue, personFieldName, EMPTY_STRING, EMPTY_STRING,
                           TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
-    bool        addedPerson = false;
+    bool addedPerson = false;
     gathererPtr->addPerson(person1, m_ResourceMonitor, addedPerson);
     std::string person2("p2");
     gathererPtr->addPerson(person2, m_ResourceMonitor, addedPerson);
 
-    CMockModel                         model(params, gathererPtr, influenceCalculators);
+    CMockModel model(params, gathererPtr, influenceCalculators);
     CAnomalyDetectorModel::TDouble1Vec p1Actual(1, 10.0);
     CAnomalyDetectorModel::TDouble1Vec p2Actual(1, 20.0);
     model.mockAddBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, 100, p1Actual);
@@ -1085,7 +1085,7 @@ void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(
     }
     {
         // Non-matching targetFieldValue
-        std::string    partitionValue2("partition_2");
+        std::string partitionValue2("partition_2");
         CRuleCondition condition;
         condition.type(CRuleCondition::E_NumericalActual);
         condition.fieldName(personFieldName);
@@ -1109,23 +1109,23 @@ void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(
 void CDetectionRuleTest::testApplyGivenTimeCondition(void) {
     LOG_DEBUG("*** testApplyGivenTimeCondition ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
-    std::string                             partitionFieldName("partition");
-    std::string                             personFieldName("series");
+    std::string partitionFieldName("partition");
+    std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
         new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
                           EMPTY_STRING, partitionFieldName, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
                           TStrVec(), false, key, features,
                           startTime, 0));
 
-    CMockModel     model(params, gathererPtr, influenceCalculators);
+    CMockModel model(params, gathererPtr, influenceCalculators);
     CRuleCondition conditionGte;
     conditionGte.type(CRuleCondition::E_Time);
     conditionGte.condition().s_Op = CRuleCondition::E_GTE;
@@ -1155,22 +1155,22 @@ void CDetectionRuleTest::testApplyGivenTimeCondition(void) {
 void CDetectionRuleTest::testRuleActions(void) {
     LOG_DEBUG("*** testRuleActions ***");
 
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
-    std::string                             partitionFieldName("partition");
-    std::string                             personFieldName("series");
+    std::string partitionFieldName("partition");
+    std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
         new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
                           EMPTY_STRING, partitionFieldName, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
                           TStrVec(), false, key, features, startTime, 0));
 
-    CMockModel     model(params, gathererPtr, influenceCalculators);
+    CMockModel model(params, gathererPtr, influenceCalculators);
     CRuleCondition conditionGte;
     conditionGte.type(CRuleCondition::E_Time);
     conditionGte.condition().s_Op = CRuleCondition::E_GTE;

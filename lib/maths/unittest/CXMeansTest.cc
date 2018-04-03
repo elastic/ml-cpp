@@ -62,7 +62,8 @@ class CXMeansForTest : public maths::CXMeans<POINT, COST> {
 
     public:
         CXMeansForTest(std::size_t kmax) :
-            maths::CXMeans<POINT, COST>(kmax) {}
+            maths::CXMeans<POINT, COST>(kmax)
+        {}
 
         void improveParams(std::size_t kmeansIterations) {
             this->maths::CXMeans<POINT, COST>::improveParams(kmeansIterations);
@@ -85,7 +86,7 @@ double logfSphericalGaussian(const POINT &mean,
     double d = static_cast<double>(x.dimension());
     double r = (x - mean).euclidean();
     return -0.5 * d * ::log(boost::math::double_constants::two_pi * variance)
-           -0.5 * r * r / variance;
+           - 0.5 * r * r / variance;
 }
 
 class CEmpiricalKullbackLeibler {
@@ -223,8 +224,8 @@ void CXMeansTest::testImproveStructure(void) {
 
         TVector2Vec points;
         for (std::size_t i = 0u; i < 2; ++i) {
-            TVector2    mean(&means[i][0], &means[i][2]);
-            TMatrix2    covariance(&covariances[i][0], &covariances[i][3]);
+            TVector2 mean(&means[i][0], &means[i][2]);
+            TMatrix2 covariance(&covariances[i][0], &covariances[i][3]);
             TVector2Vec cluster;
             maths::CSampling::multivariateNormalSample(mean, covariance, 500, cluster);
             points.insert(points.end(), cluster.begin(), cluster.end());
@@ -235,7 +236,7 @@ void CXMeansTest::testImproveStructure(void) {
         xmeans.improveStructure(2, 5);
 
         TVector2Vec clusters;
-        TUInt64Vec  oldChecksums;
+        TUInt64Vec oldChecksums;
         for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
             clusters.push_back(xmeans.clusters()[i].centre());
             oldChecksums.push_back(xmeans.clusters()[i].checksum());
@@ -246,7 +247,7 @@ void CXMeansTest::testImproveStructure(void) {
 
         for (std::size_t i = 0u; i < clusters.size(); ++i) {
             TVector2 mean(&means[i][0], &means[i][2]);
-            double   error = (clusters[i] - mean).euclidean();
+            double error = (clusters[i] - mean).euclidean();
             CPPUNIT_ASSERT(error < 0.75);
             meanError.add(error);
         }
@@ -293,8 +294,8 @@ void CXMeansTest::testImproveParams(void) {
 
         TVector2Vec points;
         for (std::size_t i = 0u; i < 2; ++i) {
-            TVector2    mean(&means[i][0], &means[i][2]);
-            TMatrix2    covariance(&covariances[i][0], &covariances[i][3]);
+            TVector2 mean(&means[i][0], &means[i][2]);
+            TMatrix2 covariance(&covariances[i][0], &covariances[i][3]);
             TVector2Vec cluster;
             maths::CSampling::multivariateNormalSample(mean, covariance, 500, cluster);
             points.insert(points.end(), cluster.begin(), cluster.end());
@@ -353,8 +354,8 @@ void CXMeansTest::testOneCluster(void) {
     TMeanAccumulator meanNumberClusters;
 
 
-    TVector2Vec    means;
-    TMatrix2Vec    covariances;
+    TVector2Vec means;
+    TMatrix2Vec covariances;
     TVector2VecVec points;
 
     for (std::size_t t = 0; t < 50; ++t) {
@@ -402,24 +403,24 @@ void CXMeansTest::testFiveClusters(void) {
     maths::CSampling::seed();
 
     const std::size_t sizes_[] = { 500, 800, 100, 400, 600 };
-    TSizeVec          sizes(boost::begin(sizes_), boost::end(sizes_));
+    TSizeVec sizes(boost::begin(sizes_), boost::end(sizes_));
 
     test::CRandomNumbers rng;
 
     TMeanVarAccumulator meanNumberClusters;
-    TMeanAccumulator    klgain;
-    TMeanAccumulator    meanTotalPurity;
+    TMeanAccumulator klgain;
+    TMeanAccumulator meanTotalPurity;
 
-    TVector2Vec    means;
-    TMatrix2Vec    covariances;
+    TVector2Vec means;
+    TMatrix2Vec covariances;
     TVector2VecVec points;
-    TVector2Vec    flatPoints;
+    TVector2Vec flatPoints;
 
     //std::ofstream file;
     //file.open("results.m");
 
     for (std::size_t t = 0; t < 50; ++t) {
-        LOG_DEBUG("*** test = " << t+1 << " ***");
+        LOG_DEBUG("*** test = " << t + 1 << " ***");
 
         rng.generateRandomMultivariateNormals(sizes, means, covariances, points);
 
@@ -443,7 +444,7 @@ void CXMeansTest::testFiveClusters(void) {
         xmeans.run(3, 3, 5);
 
         CEmpiricalKullbackLeibler klc;
-        TSizeVecVec               trueClusters(xmeans.clusters().size());
+        TSizeVecVec trueClusters(xmeans.clusters().size());
 
         std::size_t n = 0u;
         for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
@@ -486,7 +487,7 @@ FoundPoint:
         TDoubleVec purities;
         computePurities(trueClusters, purities);
 
-        double           minPurity = 1.0;
+        double minPurity = 1.0;
         TMeanAccumulator totalPurity;
         for (std::size_t i = 0u; i < purities.size(); ++i) {
             minPurity = std::min(minPurity, purities[i]);
@@ -541,14 +542,14 @@ void CXMeansTest::testTwentyClusters(void) {
 
     test::CRandomNumbers rng;
 
-    TVector2Vec    means;
-    TMatrix2Vec    covariances;
+    TVector2Vec means;
+    TMatrix2Vec covariances;
     TVector2VecVec points;
 
     rng.generateRandomMultivariateNormals(sizes, means, covariances, points);
 
     CEmpiricalKullbackLeibler kl;
-    TVector2Vec               flatPoints;
+    TVector2Vec flatPoints;
 
     for (std::size_t i = 0u; i < points.size(); ++i) {
         kl.add(points[i]);
@@ -570,7 +571,7 @@ void CXMeansTest::testTwentyClusters(void) {
     //file.open("results.m");
 
     CEmpiricalKullbackLeibler klc;
-    TSizeVecVec               trueClusters(xmeans.clusters().size());
+    TSizeVecVec trueClusters(xmeans.clusters().size());
 
     std::size_t n = 0u;
     for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
@@ -613,7 +614,7 @@ FoundPoint:
     TDoubleVec purities;
     computePurities(trueClusters, purities);
 
-    double           minPurity = 1.0;
+    double minPurity = 1.0;
     TMeanAccumulator totalPurity;
     for (std::size_t i = 0u; i < purities.size(); ++i) {
         minPurity = std::min(minPurity, purities[i]);

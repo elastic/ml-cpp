@@ -103,7 +103,7 @@ const std::string MULTIVARIATE_MAX_TAG("k");
 const std::string MEDIAN_TAG("l");
 const std::string VARIANCE_TAG("m");
 const std::string EMPTY_STRING;
-const TDoubleVec  EMPTY_DOUBLE_VEC;
+const TDoubleVec EMPTY_DOUBLE_VEC;
 
 // Nested tags.
 const std::string ATTRIBUTE_TAG("a");
@@ -184,7 +184,7 @@ bool apply(ITR begin, ITR end, const F &f) {
                 case model_t::E_MultivariateMin:  apply<model_t::E_MultivariateMin>(i, f);  break;
                 case model_t::E_MultivariateMax:  apply<model_t::E_MultivariateMax>(i, f);  break;
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ERROR("Apply failed for " << category << ": " << e.what());
             return false;
         }
@@ -252,9 +252,7 @@ class CPersistFeatureData {
                     dataItrs.push_back(i);
                 }
                 std::sort(dataItrs.begin(), dataItrs.end(),
-                          [] (TSizeSizeTUMapUMapCItr lhs, TSizeSizeTUMapUMapCItr rhs) {
-                            return lhs->first < rhs->first;
-                        });
+                          [] (TSizeSizeTUMapUMapCItr lhs, TSizeSizeTUMapUMapCItr rhs) { return lhs->first < rhs->first; });
 
                 for (auto itr : dataItrs) {
                     inserter.insertLevel(ATTRIBUTE_TAG, boost::bind<void>(SDoPersist(), itr->first, boost::cref(itr->second), _1));
@@ -274,9 +272,7 @@ class CPersistFeatureData {
                     pidItrs.push_back(i);
                 }
                 std::sort(pidItrs.begin(), pidItrs.end(),
-                          [] (TSizeTUMapCItr lhs, TSizeTUMapCItr rhs) {
-                            return lhs->first < rhs->first;
-                        });
+                          [] (TSizeTUMapCItr lhs, TSizeTUMapCItr rhs) { return lhs->first < rhs->first; });
 
                 for (auto itr : pidItrs) {
                     inserter.insertLevel(PERSON_TAG, boost::bind<void>(SDoPersist(), itr->first, boost::cref(itr->second), _1));
@@ -327,7 +323,7 @@ class CRestoreFeatureData {
             if (isNewVersion) {
                 return traverser.traverseSubLevel(boost::bind<bool>(
                                                       CDoNewRestore(dimension), _1, boost::cref(gatherer), boost::ref(data)));
-            } else {
+            } else   {
                 return traverser.traverseSubLevel(boost::bind<bool>(
                                                       CDoOldRestore(dimension), _1, boost::cref(gatherer), boost::ref(data)));
             }
@@ -361,7 +357,7 @@ class CRestoreFeatureData {
                                        const CMetricBucketGatherer &gatherer,
                                        TSizeSizeTUMapUMap<T> &result) const {
                     std::size_t lastCid(0);
-                    bool        seenCid(false);
+                    bool seenCid(false);
 
                     do {
                         const std::string &name = traverser.name();
@@ -372,7 +368,7 @@ class CRestoreFeatureData {
                             }
                             seenCid = true;
                             result[lastCid] = TSizeTUMap<T>(1);
-                        } else if (name == PERSON_TAG) {
+                        } else if (name == PERSON_TAG)   {
                             if (!seenCid) {
                                 LOG_ERROR("Incorrect format - person before attribute ID in " <<
                                           traverser.value());
@@ -394,7 +390,7 @@ class CRestoreFeatureData {
                                    const CMetricBucketGatherer &gatherer,
                                    TSizeTUMap<T> &result) const {
                     std::size_t lastPid(0);
-                    bool        seenPid(false);
+                    bool seenPid(false);
 
                     do {
                         const std::string &name = traverser.name();
@@ -404,7 +400,7 @@ class CRestoreFeatureData {
                                 return false;
                             }
                             seenPid = true;
-                        } else if (name == DATA_TAG) {
+                        } else if (name == DATA_TAG)   {
                             if (!seenPid) {
                                 LOG_ERROR("Incorrect format - data before person ID in " << traverser.value());
                                 return false;
@@ -444,7 +440,7 @@ class CRestoreFeatureData {
                     bool isPopulation = gatherer.dataGatherer().isPopulation();
                     if (isPopulation) {
                         this->restorePopulation(traverser, gatherer, result);
-                    } else {
+                    } else   {
                         this->restoreIndividual(traverser, gatherer, result);
                     }
                     return true;
@@ -484,7 +480,7 @@ class CRestoreFeatureData {
                     std::size_t pid;
 
                     std::size_t lastCid(0);
-                    bool        seenCid(false);
+                    bool seenCid(false);
 
                     do {
                         const std::string &name = traverser.name();
@@ -494,7 +490,7 @@ class CRestoreFeatureData {
                                 return false;
                             }
                             seenCid = true;
-                        } else if (name == DATA_TAG) {
+                        } else if (name == DATA_TAG)   {
                             if (!seenCid) {
                                 LOG_ERROR("Incorrect format - data before attribute ID in " <<
                                           traverser.value());
@@ -590,16 +586,16 @@ struct SDoSample {
                 std::size_t pid = CDataGatherer::extractPersonId(count);
                 std::size_t cid = CDataGatherer::extractAttributeId(count);
                 std::size_t activeId = gatherer.dataGatherer().isPopulation() ? cid : pid;
-                auto        cidEntry = data.find(cid);
+                auto cidEntry = data.find(cid);
                 if (cidEntry == data.end()) {
                     LOG_ERROR("No gatherer for attribute " << gatherer.dataGatherer().attributeName(cid)
-                                                           << " of person " << gatherer.dataGatherer().personName(pid));
-                } else {
+                              << " of person " << gatherer.dataGatherer().personName(pid));
+                } else   {
                     auto pidEntry = cidEntry->second.find(pid);
                     if (pidEntry == cidEntry->second.end()) {
                         LOG_ERROR("No gatherer for attribute " << gatherer.dataGatherer().attributeName(cid)
-                                                               << " of person " << gatherer.dataGatherer().personName(pid));
-                    } else if (pidEntry->second.sample(time, sampleCounts->count(activeId))) {
+                                  << " of person " << gatherer.dataGatherer().personName(pid));
+                    } else if (pidEntry->second.sample(time, sampleCounts->count(activeId)))   {
                         sampleCounts->updateSampleVariance(activeId);
                     }
                 }
@@ -652,7 +648,7 @@ struct SExtractFeatureData {
                 result.emplace_back(feature, TSizeSizePrFeatureDataPrVec());
                 this->featureData(data, gatherer, time, bucketLength, this->isSum(feature),
                                   *boost::unsafe_any_cast<TSizeSizePrFeatureDataPrVec>(&result.back().second));
-            } else {
+            } else   {
                 result.emplace_back(feature, TSizeFeatureDataPrVec());
                 this->featureData(data, gatherer, time, bucketLength, this->isSum(feature),
                                   *boost::unsafe_any_cast<TSizeFeatureDataPrVec>(&result.back().second));
@@ -694,18 +690,18 @@ struct SExtractFeatureData {
                         }
                     }
                 }
-            } else {
+            } else   {
                 const TSizeSizePrUInt64UMap &counts = gatherer.bucketCounts(time);
                 result.reserve(counts.size());
                 for (const auto &count : counts) {
                     std::size_t cid = CDataGatherer::extractAttributeId(count);
-                    auto        cidEntry = data.find(cid);
+                    auto cidEntry = data.find(cid);
                     if (cidEntry == data.end()) {
                         LOG_ERROR("No gatherers for attribute " << gatherer.dataGatherer().attributeName(cid));
                         continue;
                     }
                     std::size_t pid = CDataGatherer::extractPersonId(count);
-                    auto        pidEntry = cidEntry->second.find(pid);
+                    auto pidEntry = cidEntry->second.find(pid);
                     if (pidEntry == cidEntry->second.end()) {
                         LOG_ERROR("No gatherers for person " << gatherer.dataGatherer().personName(pid));
                         continue;
@@ -837,7 +833,7 @@ struct SReleaseMemory {
                 for (auto i = pidMap.begin(); i != pidMap.end(); /**/) {
                     if (i->second.isRedundant(samplingCutoffTime)) {
                         i = pidMap.erase(i);
-                    } else {
+                    } else   {
                         ++i;
                     }
                 }
@@ -900,7 +896,7 @@ void CMetricBucketGatherer::acceptPersistInserter(core::CStatePersistInserter &i
 
 bool CMetricBucketGatherer::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
     std::string version;
-    bool        isCurrentVersion(false);
+    bool isCurrentVersion(false);
 
     do {
         const std::string &name = traverser.name();
@@ -910,13 +906,13 @@ bool CMetricBucketGatherer::acceptRestoreTraverser(core::CStateRestoreTraverser 
                 LOG_ERROR("Invalid data gatherer in " << traverser.value());
                 return false;
             }
-        } else if (name == VERSION_TAG) {
+        } else if (name == VERSION_TAG)   {
             if (core::CStringUtils::stringToType(traverser.value(), version) == false) {
                 LOG_ERROR("Invalid version in " << traverser.value());
                 return false;
             }
             isCurrentVersion = (version == CURRENT_VERSION);
-        } else if (this->acceptRestoreTraverserInternal(traverser, isCurrentVersion) == false) {
+        } else if (this->acceptRestoreTraverserInternal(traverser, isCurrentVersion) == false)   {
             // Soldier on or we'll get a core dump later.
         }
     } while (traverser.next());
@@ -933,37 +929,37 @@ bool CMetricBucketGatherer::acceptRestoreTraverserInternal(core::CStateRestoreTr
             LOG_ERROR("Invalid mean data in " << traverser.value());
             return false;
         }
-    } else if (name == MIN_TAG) {
+    } else if (name == MIN_TAG)   {
         CRestoreFeatureData<model_t::E_Min> restore;
         if (restore(traverser, 1, isCurrentVersion, *this, m_FeatureData) == false) {
             LOG_ERROR("Invalid min data in " << traverser.value());
             return false;
         }
-    } else if (name == MAX_TAG) {
+    } else if (name == MAX_TAG)   {
         CRestoreFeatureData<model_t::E_Max> restore;
         if (restore(traverser, 1, isCurrentVersion, *this, m_FeatureData) == false) {
             LOG_ERROR("Invalid max data in " << traverser.value());
             return false;
         }
-    } else if (name == SUM_TAG) {
+    } else if (name == SUM_TAG)   {
         CRestoreFeatureData<model_t::E_Sum> restore;
         if (restore(traverser, 1, isCurrentVersion, *this, m_FeatureData) == false) {
             LOG_ERROR("Invalid sum data in " << traverser.value());
             return false;
         }
-    } else if (name == MEDIAN_TAG) {
+    } else if (name == MEDIAN_TAG)   {
         CRestoreFeatureData<model_t::E_Median> restore;
         if (restore(traverser, 1, isCurrentVersion, *this, m_FeatureData) == false) {
             LOG_ERROR("Invalid median data in " << traverser.value());
             return false;
         }
-    } else if (name == VARIANCE_TAG) {
+    } else if (name == VARIANCE_TAG)   {
         CRestoreFeatureData<model_t::E_Variance> restore;
         if (restore(traverser, 1, isCurrentVersion, *this, m_FeatureData) == false) {
             LOG_ERROR("Invalid variance data in " << traverser.value());
             return false;
         }
-    } else if (name.find(MULTIVARIATE_MEAN_TAG) != std::string::npos) {
+    } else if (name.find(MULTIVARIATE_MEAN_TAG) != std::string::npos)   {
         std::size_t dimension;
         if (core::CStringUtils::stringToType(name.substr(MULTIVARIATE_MEAN_TAG.length()),
                                              dimension) == false) {
@@ -975,7 +971,7 @@ bool CMetricBucketGatherer::acceptRestoreTraverserInternal(core::CStateRestoreTr
             LOG_ERROR("Invalid multivariate mean data in " << traverser.value());
             return false;
         }
-    } else if (name.find(MULTIVARIATE_MIN_TAG) != std::string::npos) {
+    } else if (name.find(MULTIVARIATE_MIN_TAG) != std::string::npos)   {
         std::size_t dimension;
         if (core::CStringUtils::stringToType(name.substr(MULTIVARIATE_MIN_TAG.length()),
                                              dimension) == false) {
@@ -987,7 +983,7 @@ bool CMetricBucketGatherer::acceptRestoreTraverserInternal(core::CStateRestoreTr
             LOG_ERROR("Invalid multivariate min data in " << traverser.value());
             return false;
         }
-    } else if (name.find(MULTIVARIATE_MAX_TAG) != std::string::npos) {
+    } else if (name.find(MULTIVARIATE_MAX_TAG) != std::string::npos)   {
         std::size_t dimension;
         if (core::CStringUtils::stringToType(name.substr(MULTIVARIATE_MAX_TAG.length()),
                                              dimension) == false) {
@@ -1039,7 +1035,7 @@ const TStrVec &CMetricBucketGatherer::fieldsOfInterest(void) const {
 std::string CMetricBucketGatherer::description(void) const {
     return function_t::name(function_t::function(m_DataGatherer.features()))
            + (m_ValueFieldName.empty() ? "" : " ") + m_ValueFieldName +
-           +(byField(m_DataGatherer.isPopulation(), m_FieldNames).empty() ? "" : " by ")
+           + (byField(m_DataGatherer.isPopulation(), m_FieldNames).empty() ? "" : " by ")
            + byField(m_DataGatherer.isPopulation(), m_FieldNames)
            + (overField(m_DataGatherer.isPopulation(), m_FieldNames).empty() ? "" : " over ")
            + overField(m_DataGatherer.isPopulation(), m_FieldNames)
@@ -1114,27 +1110,27 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec &fieldValues,
         if (allOk) {
             if (statistics.second == CDataGatherer::EXPLICIT_NULL_SUMMARY_COUNT) {
                 result.setExplicitNull();
-            } else {
+            } else   {
                 result.addStatistics(statistics);
             }
-        } else {
+        } else   {
             result.addValue();
         }
-    } else {
+    } else   {
         TDouble1Vec value;
         if (   fieldValues[i] != 0 &&
                m_DataGatherer.extractMetricFromField(m_FieldNames[i], *fieldValues[i], value) == true) {
             result.addValue(value);
-        } else {
+        } else   {
             result.addValue();
         }
     }
 
-    bool        addedPerson = false;
+    bool addedPerson = false;
     std::size_t pid = CDynamicStringIdRegistry::INVALID_ID;
     if (result.isExplicitNull()) {
         m_DataGatherer.personId(*person, pid);
-    } else {
+    } else   {
         pid = m_DataGatherer.addPerson(*person, resourceMonitor, addedPerson);
     }
 
@@ -1173,11 +1169,11 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec &fieldValues,
             return true;
         }
 
-        bool        addedAttribute = false;
+        bool addedAttribute = false;
         std::size_t cid = CDynamicStringIdRegistry::INVALID_ID;
         if (result.isExplicitNull()) {
             m_DataGatherer.attributeId(*attribute, cid);
-        } else {
+        } else   {
             cid = m_DataGatherer.addAttribute(*attribute, resourceMonitor, addedAttribute);
         }
         result.addAttribute(cid);
@@ -1186,7 +1182,7 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec &fieldValues,
             resourceMonitor.addExtraMemory(CDataGatherer::ESTIMATED_MEM_USAGE_PER_BY_FIELD);
             core::CStatistics::stat(stat_t::E_NumberByFields).increment();
         }
-    } else {
+    } else   {
         // Add the unique attribute.
         result.addAttribute(std::size_t(0));
     }
@@ -1311,11 +1307,11 @@ void CMetricBucketGatherer::featureData(core_t::TTime time, core_t::TTime bucket
     }
 
     for (std::size_t i = 0u, n = m_DataGatherer.numberFeatures(); i < n; ++i) {
-        model_t::EFeature        feature = m_DataGatherer.feature(i);
+        model_t::EFeature feature = m_DataGatherer.feature(i);
         model_t::EMetricCategory category;
         if (model_t::metricCategory(feature, category)) {
             std::size_t dimension = model_t::dimension(feature);
-            auto        begin = m_FeatureData.find({category, dimension});
+            auto begin = m_FeatureData.find({category, dimension});
             if (begin != m_FeatureData.end()) {
                 auto end = begin;
                 ++end;
@@ -1323,10 +1319,10 @@ void CMetricBucketGatherer::featureData(core_t::TTime time, core_t::TTime bucket
                                                     boost::cref(*this),
                                                     feature, time, bucketLength,
                                                     boost::ref(result)));
-            } else {
+            } else   {
                 LOG_ERROR("No data for category " << model_t::print(category));
             }
-        } else {
+        } else   {
             LOG_ERROR("Unexpected feature " << model_t::print(feature));
         }
     }
@@ -1335,7 +1331,7 @@ void CMetricBucketGatherer::featureData(core_t::TTime time, core_t::TTime bucket
 void CMetricBucketGatherer::resize(std::size_t pid, std::size_t cid) {
     if (m_DataGatherer.sampleCounts()) {
         m_DataGatherer.sampleCounts()->resize(m_DataGatherer.isPopulation() ? cid : pid);
-    } else {
+    } else   {
         LOG_ERROR("Invalid sample counts for gatherer");
     }
 }
@@ -1357,7 +1353,7 @@ void CMetricBucketGatherer::addValue(std::size_t pid,
     if (m_DataGatherer.sampleCounts()) {
         stat.s_SampleCount = m_DataGatherer.sampleCounts()->count(
             m_DataGatherer.isPopulation() ? cid : pid);
-    } else {
+    } else   {
         LOG_ERROR("Invalid sample counts for gatherer");
         stat.s_SampleCount = 0.0;
     }
@@ -1378,12 +1374,12 @@ void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates)
     if (!skipUpdates && time % this->bucketLength() == 0) {
         core_t::TTime earliestAvailableBucketStartTime = this->earliestBucketStartTime();
         if (this->dataAvailable(earliestAvailableBucketStartTime)) {
-            TSizeUInt64VecUMap          counts;
+            TSizeUInt64VecUMap counts;
             const TSizeSizePrUInt64UMap &counts_ = this->bucketCounts(earliestAvailableBucketStartTime);
             for (const auto &count : counts_) {
                 if (m_DataGatherer.isPopulation()) {
                     counts[CDataGatherer::extractAttributeId(count)].push_back(CDataGatherer::extractData(count));
-                } else {
+                } else   {
                     counts.emplace(CDataGatherer::extractPersonId(count),
                                    TUInt64Vec{0}).first->second[0] += CDataGatherer::extractData(count);
                 }
@@ -1393,9 +1389,9 @@ void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates)
             for (auto &&count : counts) {
                 std::sort(count.second.begin(), count.second.end());
                 std::size_t n = count.second.size() / 2;
-                double      median = count.second.size() % 2 == 0 ?
-                                     static_cast<double>(count.second[n - 1] + count.second[n]) / 2.0 :
-                                     static_cast<double>(count.second[n]);
+                double median = count.second.size() % 2 == 0 ?
+                                static_cast<double>(count.second[n - 1] + count.second[n]) / 2.0 :
+                                static_cast<double>(count.second[n]);
                 m_DataGatherer.sampleCounts()->updateMeanNonZeroBucketCount(count.first, median, alpha);
             }
             m_DataGatherer.sampleCounts()->refresh(m_DataGatherer);
@@ -1453,7 +1449,7 @@ void CMetricBucketGatherer::initializeFieldNamesPart2(const std::string &valueFi
 
 void CMetricBucketGatherer::initializeFeatureData(void) {
     for (std::size_t i = 0u, n = m_DataGatherer.numberFeatures(); i < n; ++i) {
-        const model_t::EFeature  feature = m_DataGatherer.feature(i);
+        const model_t::EFeature feature = m_DataGatherer.feature(i);
         model_t::EMetricCategory category;
         if (model_t::metricCategory(feature, category)) {
             std::size_t dimension = model_t::dimension(feature);
@@ -1468,7 +1464,7 @@ void CMetricBucketGatherer::initializeFeatureData(void) {
                 case model_t::E_MultivariateMin:  initializeFeatureDataInstance<model_t::E_MultivariateMin>(dimension, m_FeatureData);  break;
                 case model_t::E_MultivariateMax:  initializeFeatureDataInstance<model_t::E_MultivariateMax>(dimension, m_FeatureData);  break;
             }
-        } else {
+        } else   {
             LOG_ERROR("Unexpected feature = " << model_t::print(m_DataGatherer.feature(i)));
         }
     }

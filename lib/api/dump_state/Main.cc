@@ -56,7 +56,7 @@
 #include <vector>
 
 
-static std::string              persistedNormalizerState;
+static std::string persistedNormalizerState;
 static std::vector<std::string> persistedStateFiles;
 
 std::string versionNumber() {
@@ -96,12 +96,12 @@ bool writeNormalizerState(const std::string &outputFileName) {
 }
 
 bool persistCategorizerStateToFile(const std::string &outputFileName) {
-    ml::model::CLimits    limits;
+    ml::model::CLimits limits;
     ml::api::CFieldConfig config("count", "mlcategory");
 
-    std::ofstream                      outStream(ml::core::COsFileFuncs::NULL_FILENAME);
+    std::ofstream outStream(ml::core::COsFileFuncs::NULL_FILENAME);
     ml::core::CJsonOutputStreamWrapper wrappendOutStream(outStream);
-    ml::api::CJsonOutputWriter         writer("job", wrappendOutStream);
+    ml::api::CJsonOutputWriter writer("job", wrappendOutStream);
 
     ml::api::CFieldDataTyper typer("job", config, limits, writer, writer);
 
@@ -113,7 +113,7 @@ bool persistCategorizerStateToFile(const std::string &outputFileName) {
 
     // Persist the categorizer state to file
     {
-        std::ofstream                              *                            out = nullptr;
+        std::ofstream *out = nullptr;
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(out = new std::ofstream(outputFileName));
         if (!out->is_open()) {
             LOG_ERROR("Failed to open categorizer state output file " << outputFileName);
@@ -146,15 +146,15 @@ bool persistAnomalyDetectorStateToFile(const std::string &configFileName,
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-    ml::model::CLimits    limits;
+    ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
     if (!fieldConfig.initFromFile(configFileName)) {
         LOG_ERROR("Failed to init field config from " << configFileName);
         return false;
     }
 
-    ml::core_t::TTime                      bucketSize(3600);
-    std::string                            jobId("foo");
+    ml::core_t::TTime bucketSize(3600);
+    std::string jobId("foo");
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSize,
                                                               ml::model_t::E_None,
@@ -185,7 +185,7 @@ bool persistAnomalyDetectorStateToFile(const std::string &configFileName,
     TScopedInputParserP parser;
     if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
         parser.reset(new ml::api::CCsvInputParser(inputStrm));
-    } else {
+    } else   {
         parser.reset(new ml::api::CLineifiedJsonInputParser(inputStrm));
     }
 
@@ -198,7 +198,7 @@ bool persistAnomalyDetectorStateToFile(const std::string &configFileName,
 
     // Persist the job state to file
     {
-        std::ofstream                              *                            out = nullptr;
+        std::ofstream *out = nullptr;
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(out = new std::ofstream(outputFileName));
         if (!out->is_open()) {
             LOG_ERROR("Failed to open state output file " << outputFileName);

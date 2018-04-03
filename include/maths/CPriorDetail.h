@@ -48,7 +48,7 @@ bool CPrior::expectation(const F &f,
 
     result = T();
 
-    double          n = static_cast<double>(numberIntervals);
+    double n = static_cast<double>(numberIntervals);
     TDoubleDoublePr interval =
         this->marginalLikelihoodConfidenceInterval(100.0 - 1.0 / (100.0 * n),
                                                    weightStyles,
@@ -56,13 +56,13 @@ bool CPrior::expectation(const F &f,
     double x = interval.first;
     double dx = (interval.second - interval.first) / n;
 
-    double                                                           normalizationFactor = 0.0;
-    TDouble4Vec1Vec                                                  weights(1, weight);
-    CPrior::CLogMarginalLikelihood                                   logLikelihood(*this, weightStyles, weights);
+    double normalizationFactor = 0.0;
+    TDouble4Vec1Vec weights(1, weight);
+    CPrior::CLogMarginalLikelihood logLikelihood(*this, weightStyles, weights);
     CCompositeFunctions::CExp<const CPrior::CLogMarginalLikelihood&> likelihood(logLikelihood);
     for (std::size_t i = 0u; i < numberIntervals; ++i, x += dx) {
-        T      productIntegral;
-        T      fIntegral;
+        T productIntegral;
+        T fIntegral;
         double likelihoodIntegral;
         if (!CIntegration::productGaussLegendre<CIntegration::OrderThree>(f, likelihood,
                                                                           x, x + dx,

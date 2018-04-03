@@ -140,15 +140,15 @@ class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable< CPacke
         // three variables will be packed into the 64 bits.
 
         //! The dimension of the vector.
-        uint32_t  m_Dimension;
+        uint32_t m_Dimension;
 
         //! The value of the first component in the vector.
-        bool      m_First;
+        bool m_First;
 
         //! The parity of the vector: true indicates that there are an
         //! even number runs and false that there are an odd. Together
         //! with m_First this determines the value of the last component.
-        bool      m_Parity;
+        bool m_Parity;
 
         //! The length of each run. Note that if the length of a run
         //! exceeds 255 then this is encoded in multiple run lengths.

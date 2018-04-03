@@ -37,13 +37,13 @@ bool CModelStateSerialiser::operator()(const SModelRestoreParams &params,
         if (name == UNIVARIATE_TIME_SERIES_TAG) {
             result.reset(new CUnivariateTimeSeriesModel(params, traverser));
             ++numResults;
-        } else if (name == MULTIVARIATE_TIME_SERIES_TAG) {
+        } else if (name == MULTIVARIATE_TIME_SERIES_TAG)   {
             result.reset(new CMultivariateTimeSeriesModel(params, traverser));
             ++numResults;
-        } else if (name == MODEL_STUB_TAG) {
+        } else if (name == MODEL_STUB_TAG)   {
             result.reset(new CModelStub());
             ++numResults;
-        } else {
+        } else   {
             LOG_ERROR("No model corresponds to name " << traverser.name());
             return false;
         }
@@ -64,12 +64,12 @@ void CModelStateSerialiser::operator()(const CModel &model,
     if (dynamic_cast<const CUnivariateTimeSeriesModel*>(&model) != 0) {
         inserter.insertLevel(UNIVARIATE_TIME_SERIES_TAG,
                              boost::bind(&CModel::acceptPersistInserter, &model, _1));
-    } else if (dynamic_cast<const CMultivariateTimeSeriesModel*>(&model) != 0) {
+    } else if (dynamic_cast<const CMultivariateTimeSeriesModel*>(&model) != 0)   {
         inserter.insertLevel(MULTIVARIATE_TIME_SERIES_TAG,
                              boost::bind(&CModel::acceptPersistInserter, &model, _1));
-    } else if (dynamic_cast<const CModelStub*>(&model) != 0) {
+    } else if (dynamic_cast<const CModelStub*>(&model) != 0)   {
         inserter.insertValue(MODEL_STUB_TAG, "");
-    } else {
+    } else   {
         LOG_ERROR("Model with type '" << typeid(model).name() << "' has no defined name");
     }
 }

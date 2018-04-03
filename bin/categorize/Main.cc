@@ -60,22 +60,22 @@
 
 int main(int argc, char **argv) {
     // Read command line options
-    std::string       limitConfigFile;
-    std::string       jobId;
-    std::string       logProperties;
-    std::string       logPipe;
-    char              delimiter('\t');
-    bool              lengthEncodedInput(false);
+    std::string limitConfigFile;
+    std::string jobId;
+    std::string logProperties;
+    std::string logPipe;
+    char delimiter('\t');
+    bool lengthEncodedInput(false);
     ml::core_t::TTime persistInterval(-1);
-    std::string       inputFileName;
-    bool              isInputFileNamedPipe(false);
-    std::string       outputFileName;
-    bool              isOutputFileNamedPipe(false);
-    std::string       restoreFileName;
-    bool              isRestoreFileNamedPipe(false);
-    std::string       persistFileName;
-    bool              isPersistFileNamedPipe(false);
-    std::string       categorizationFieldName;
+    std::string inputFileName;
+    bool isInputFileNamedPipe(false);
+    std::string outputFileName;
+    bool isOutputFileNamedPipe(false);
+    std::string restoreFileName;
+    bool isRestoreFileNamedPipe(false);
+    std::string persistFileName;
+    bool isPersistFileNamedPipe(false);
+    std::string categorizationFieldName;
     if (ml::categorize::CCmdLineParser::parse(argc,
                                               argv,
                                               limitConfigFile,
@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
             strm->push(ml::api::CStateRestoreStreamFilter());
             strm->push(*ioMgr.restoreStream());
             restoreSearcher.reset(new ml::api::CSingleStreamSearcher(strm));
-        } else {
+        } else   {
             restoreSearcher.reset(new ml::api::CSingleStreamSearcher(ioMgr.restoreStream()));
         }
     }
@@ -182,7 +182,7 @@ int main(int argc, char **argv) {
     TScopedInputParserP inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    } else {
+    } else   {
         inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(),
                                                        delimiter));
     }

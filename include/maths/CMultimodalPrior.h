@@ -382,10 +382,10 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior {
         TClustererPtr m_Clusterer;
 
         //! The object used to initialize new cluster priors.
-        TPriorPtr     m_SeedPrior;
+        TPriorPtr m_SeedPrior;
 
         //! The modes of the distribution.
-        TModeVec      m_Modes;
+        TModeVec m_Modes;
 };
 
 }

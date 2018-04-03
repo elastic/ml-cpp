@@ -41,7 +41,7 @@ void CMixtureDistributionTest::testSupport(void) {
     {
         boost::math::normal_distribution<> n1(0.0, 1.0);
         boost::math::normal_distribution<> n2(5.0, 1.0);
-        TDoubleVec                         weights;
+        TDoubleVec weights;
         weights.push_back(0.5);
         weights.push_back(0.5);
         TNormalVec modes;
@@ -54,7 +54,7 @@ void CMixtureDistributionTest::testSupport(void) {
     {
         boost::math::lognormal_distribution<> l1(1.0, 0.5);
         boost::math::lognormal_distribution<> l2(2.0, 0.02);
-        TDoubleVec                            weights;
+        TDoubleVec weights;
         weights.push_back(0.6);
         weights.push_back(0.4);
         TLogNormalVec modes;
@@ -101,7 +101,7 @@ void CMixtureDistributionTest::testMode(void) {
             weights.push_back(0.4);
             boost::math::normal_distribution<> n1(means[i][0], 1.0);
             boost::math::normal_distribution<> n2(means[i][1], 1.0);
-            TNormalVec                         modes;
+            TNormalVec modes;
             modes.push_back(n1);
             modes.push_back(n2);
             CMixtureDistribution<boost::math::normal_distribution<> > mixture(weights, modes);
@@ -116,8 +116,8 @@ void CMixtureDistributionTest::testMode(void) {
             double curvature = (pPlusEps - 2.0 * p + pMinusEps) / eps / eps;
 
             LOG_DEBUG("x = " << x
-                             << ", df/dx = " << derivative
-                             << ", d^2f/dx^2 = " << curvature);
+                      << ", df/dx = " << derivative
+                      << ", d^2f/dx^2 = " << curvature);
 
             // Gradient zero + curvature negative => maximum.
             CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, derivative, 1e-6);
@@ -134,7 +134,7 @@ void CMixtureDistributionTest::testMode(void) {
         boost::math::normal_distribution<> n1(1.5, 1.0);
         boost::math::normal_distribution<> n2(5.0, 3.0);
         boost::math::normal_distribution<> n3(6.0, 2.0);
-        TNormalVec                         modes;
+        TNormalVec modes;
         modes.push_back(n1);
         modes.push_back(n2);
         modes.push_back(n3);
@@ -150,8 +150,8 @@ void CMixtureDistributionTest::testMode(void) {
         double curvature = (pPlusEps - 2.0 * p + pMinusEps) / eps / eps;
 
         LOG_DEBUG("x = " << x
-                         << ", df/dx = " << derivative
-                         << ", d^2f/dx^2 = " << curvature);
+                  << ", df/dx = " << derivative
+                  << ", d^2f/dx^2 = " << curvature);
 
         // Gradient zero + curvature negative => maximum.
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, derivative, 1e-6);
@@ -164,7 +164,7 @@ void CMixtureDistributionTest::testMode(void) {
         weights.push_back(0.4);
         boost::math::lognormal_distribution<> l1(1.0, 0.5);
         boost::math::lognormal_distribution<> l2(2.0, 0.1);
-        TLogNormalVec                         modes;
+        TLogNormalVec modes;
         modes.push_back(l1);
         modes.push_back(l2);
         CMixtureDistribution<boost::math::lognormal_distribution<> > mixture(weights, modes);
@@ -179,8 +179,8 @@ void CMixtureDistributionTest::testMode(void) {
         double curvature = (pPlusEps - 2.0 * p + pMinusEps) / eps / eps;
 
         LOG_DEBUG("x = " << x
-                         << ", df/dx = " << derivative
-                         << ", d^2f/dx^2 = " << curvature);
+                  << ", df/dx = " << derivative
+                  << ", d^2f/dx^2 = " << curvature);
 
         // Gradient zero + curvature negative => maximum.
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, derivative, 1e-6);
@@ -250,7 +250,7 @@ void CMixtureDistributionTest::testPdf(void) {
             w.push_back(weights[i][1]);
             boost::math::normal_distribution<> n1(means[i][0], variances[i][0]);
             boost::math::normal_distribution<> n2(means[i][1], variances[i][1]);
-            TNormalVec                         modes;
+            TNormalVec modes;
             modes.push_back(n1);
             modes.push_back(n2);
             CMixtureDistribution<boost::math::normal_distribution<> > mixture(w, modes);
@@ -264,8 +264,8 @@ void CMixtureDistributionTest::testPdf(void) {
                                  - cdf(mixture, x - eps) ) / 2.0 / eps;
 
                 LOG_DEBUG("percentile = " << p << "%"
-                                          << ", f = " << f
-                                          << ", dF/dx = " << dFdx);
+                          << ", f = " << f
+                          << ", dF/dx = " << dFdx);
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(f, dFdx, tolerance);
             }
@@ -337,7 +337,7 @@ void CMixtureDistributionTest::testCdf(void) {
         w.push_back(weights[i][1]);
         boost::math::gamma_distribution<> g1(shapes[i][0], scales[i][0]);
         boost::math::gamma_distribution<> g2(shapes[i][1], scales[i][1]);
-        TGammaVec                         modes;
+        TGammaVec modes;
         modes.push_back(g1);
         modes.push_back(g2);
         CMixtureDistribution<boost::math::gamma_distribution<> > mixture(w, modes);
@@ -349,8 +349,8 @@ void CMixtureDistributionTest::testCdf(void) {
             double expectedCdf = static_cast<double>(p) / 100;
 
             LOG_DEBUG("percentile = " << p << "%"
-                                      << ", actual cdf = " << actualCdf
-                                      << ", expected cdf = " << expectedCdf);
+                      << ", actual cdf = " << actualCdf
+                      << ", expected cdf = " << expectedCdf);
 
             // No more than a 10% error in the sample percentile.
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCdf, actualCdf, 0.1 * expectedCdf);
@@ -403,7 +403,7 @@ void CMixtureDistributionTest::testQuantile(void) {
         boost::math::lognormal_distribution<> l1(locations[i][0], scales[i][0]);
         boost::math::lognormal_distribution<> l2(locations[i][1], scales[i][1]);
         boost::math::lognormal_distribution<> l3(locations[i][2], scales[i][2]);
-        TLogNormalVec                         modes;
+        TLogNormalVec modes;
         modes.push_back(l1);
         modes.push_back(l2);
         modes.push_back(l3);

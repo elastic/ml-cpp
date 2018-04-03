@@ -106,7 +106,7 @@ std::string CStringUtils::toUpper(std::string str) {
 
 size_t CStringUtils::numMatches(const std::string &str,
                                 const std::string &word) {
-    size_t                 count(0);
+    size_t count(0);
     std::string::size_type pos(0);
 
     while (pos != std::string::npos) {
@@ -161,7 +161,7 @@ std::string CStringUtils::normaliseWhitespace(const std::string &str) {
                 outputSpace = false;
                 result += ' ';
             }
-        } else {
+        } else   {
             outputSpace = true;
             result += current;
         }
@@ -177,7 +177,7 @@ size_t CStringUtils::replace(const std::string &from,
         return 0;
     }
 
-    size_t                 count(0);
+    size_t count(0);
     std::string::size_type pos(0);
     while (pos != std::string::npos) {
         pos = str.find(from, pos);
@@ -244,7 +244,7 @@ void CStringUtils::unEscape(char escape, std::string &str) {
         pos = str.find(escape, pos);
         if (pos == std::string::npos) {
             break;
-        } else if (pos + 1 == str.length()) {
+        } else if (pos + 1 == str.length())   {
             LOG_WARN("String to be unescaped ends with escape character: " <<
                      str);
         }
@@ -426,7 +426,7 @@ std::string CStringUtils::typeToStringPrecise(double d,
                 --bwd;
                 if (*bwd == '0' || *bwd == '.') {
                     edit = true;
-                } else {
+                } else   {
                     break;
                 }
             }
@@ -437,9 +437,9 @@ std::string CStringUtils::typeToStringPrecise(double d,
                 ++fwd;
                 if (*fwd == '-') {
                     minus = true;
-                } else if (*fwd == '+' || *fwd == '0') {
+                } else if (*fwd == '+' || *fwd == '0')   {
                     edit = true;
-                } else {
+                } else   {
                     break;
                 }
             }
@@ -881,7 +881,7 @@ void CStringUtils::tokenise(const std::string &delim,
         if (pos2 == std::string::npos) {
             remainder.assign(str, pos, str.size() - pos);
             break;
-        } else {
+        } else   {
             tokens.push_back(str.substr(pos, pos2 - pos));
             pos = pos2 + delim.size();
         }
@@ -909,10 +909,10 @@ std::string CStringUtils::longestCommonSubstr(const std::string &str1,
         for (size_t j = 0; j < secondLen; ++j) {
             if (str1[i] != str2[j]) {
                 matrix[i][j] = 0;
-            } else {
+            } else   {
                 if (i == 0 || j == 0) {
                     matrix[i][j] = 1;
-                } else {
+                } else   {
                     matrix[i][j] = 1 + matrix[i - 1][j - 1];
                 }
 
@@ -923,7 +923,7 @@ std::string CStringUtils::longestCommonSubstr(const std::string &str1,
                     if (lastSubstrBegin == thisSubstrBegin) {
                         // We're continuing the current longest common substring
                         common += str1[i];
-                    } else {
+                    } else   {
                         // We're starting a new longest common substring
                         common.assign(str1, thisSubstrBegin, maxLen);
                         lastSubstrBegin = thisSubstrBegin;
@@ -964,7 +964,7 @@ std::string CStringUtils::longestCommonSubsequence(const std::string &str1,
         for (size_t j = 1; j <= secondLen; ++j) {
             if (str1[i - 1] == str2[j - 1]) {
                 matrix[i][j] = matrix[i - 1][j - 1] + 1;
-            } else {
+            } else   {
                 matrix[i][j] = std::max(matrix[i][j - 1], matrix[i - 1][j]);
             }
         }
@@ -995,10 +995,10 @@ std::string CStringUtils::longestCommonSubsequence(const std::string &str1,
                 --i;
                 --j;
                 --resPos;
-            } else {
+            } else   {
                 if (matrix[i][j - 1] >= matrix[i - 1][j]) {
                     --j;
-                } else {
+                } else   {
                     --i;
                 }
             }

@@ -51,9 +51,9 @@ class CORE_EXPORT CJsonOutputStreamWrapper final : CNonCopyable {
         //! back to BUFFER_START_SIZE after last usage
         static const size_t BUFFER_REALLOC_TRIGGER_SIZE = 4096;
 
-        static const char   JSON_ARRAY_START;
-        static const char   JSON_ARRAY_END;
-        static const char   JSON_ARRAY_DELIMITER;
+        static const char JSON_ARRAY_START;
+        static const char JSON_ARRAY_END;
+        static const char JSON_ARRAY_DELIMITER;
 
     public:
         using TOStreamConcurrentWrapper = core::CConcurrentWrapper<std::ostream>;
@@ -98,16 +98,16 @@ class CORE_EXPORT CJsonOutputStreamWrapper final : CNonCopyable {
 
     private:
         //! the pool of buffers
-        rapidjson::StringBuffer                                         m_StringBuffers[BUFFER_POOL_SIZE];
+        rapidjson::StringBuffer m_StringBuffers[BUFFER_POOL_SIZE];
 
         //! the pool of available buffers
         CConcurrentQueue<rapidjson::StringBuffer*, BUFFER_POOL_SIZE>    m_StringBufferQueue;
 
         //! the stream object wrapped by CConcurrentWrapper
-        TOStreamConcurrentWrapper                                       m_ConcurrentOutputStream;
+        TOStreamConcurrentWrapper m_ConcurrentOutputStream;
 
         //! whether we wrote the first element
-        bool                                                            m_FirstObject;
+        bool m_FirstObject;
 };
 
 }

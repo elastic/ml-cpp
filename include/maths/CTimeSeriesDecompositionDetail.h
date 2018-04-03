@@ -259,13 +259,13 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail {
 
             private:
                 //! The state machine.
-                core::CStateMachine    m_Machine;
+                core::CStateMachine m_Machine;
 
                 //! Controls the rate at which information is lost.
-                double                 m_DecayRate;
+                double m_DecayRate;
 
                 //! The raw data bucketing interval.
-                core_t::TTime          m_BucketLength;
+                core_t::TTime m_BucketLength;
 
                 //! Expanding windows on the "recent" time series values.
                 TExpandingWindowPtrAry m_Windows;
@@ -327,13 +327,13 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail {
                 std::size_t extraMemoryOnInitialization(void) const;
             private:
                 //! The state machine.
-                core::CStateMachine    m_Machine;
+                core::CStateMachine m_Machine;
 
                 //! Controls the rate at which information is lost.
-                double                 m_DecayRate;
+                double m_DecayRate;
 
                 //! The last month for which the test was run.
-                int                    m_LastMonth;
+                int m_LastMonth;
 
                 //! The test for arbitrary periodic components.
                 TCalendarCyclicTestPtr m_Test;
@@ -361,7 +361,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail {
                         CComponents &m_Components;
 
                         //! The flag used to watch for changes.
-                        bool        m_Watcher;
+                        bool m_Watcher;
                 };
 
                 //! Initialize by reading state from \p traverser.
@@ -653,43 +653,43 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail {
 
             private:
                 //! The state machine.
-                core::CStateMachine   m_Machine;
+                core::CStateMachine m_Machine;
 
                 //! Controls the rate at which information is lost.
-                double                m_DecayRate;
+                double m_DecayRate;
 
                 //! The raw data bucketing interval.
-                core_t::TTime         m_BucketLength;
+                core_t::TTime m_BucketLength;
 
                 //! The number of buckets to use to estimate a periodic component.
-                std::size_t           m_SeasonalComponentSize;
+                std::size_t m_SeasonalComponentSize;
 
                 //! The number of buckets to use to estimate a periodic component.
-                std::size_t           m_CalendarComponentSize;
+                std::size_t m_CalendarComponentSize;
 
                 //! The long term trend.
-                CTrendComponent       m_Trend;
+                CTrendComponent m_Trend;
 
                 //! The seasonal components.
-                TSeasonalPtr          m_Seasonal;
+                TSeasonalPtr m_Seasonal;
 
                 //! The calendar components.
-                TCalendarPtr          m_Calendar;
+                TCalendarPtr m_Calendar;
 
                 //! The mean error variance scale for the components.
                 TFloatMeanAccumulator m_MeanVarianceScale;
 
                 //! The moments of the values added.
-                TMeanVarAccumulator   m_Moments;
+                TMeanVarAccumulator m_Moments;
 
                 //! The moments of the values added after subtracting a trend.
-                TMeanVarAccumulator   m_MomentsMinusTrend;
+                TMeanVarAccumulator m_MomentsMinusTrend;
 
                 //! Set to true if the trend model should be used for prediction.
-                bool                  m_UsingTrendForPrediction;
+                bool m_UsingTrendForPrediction;
 
                 //! Set to true if non-null when the seasonal components change.
-                bool                  *m_Watcher;
+                bool *m_Watcher;
         };
 };
 

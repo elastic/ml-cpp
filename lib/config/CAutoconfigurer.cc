@@ -49,12 +49,12 @@ namespace {
 //! Check if we should report progress.
 bool reportProgress(uint64_t records) {
     static const double LOG_10 = maths::CTools::fastLog(10.0);
-    double              log10 = maths::CTools::fastLog(static_cast<double>(records) / 100.0) / LOG_10;
-    uint64_t            nextPow10 = static_cast<uint64_t>(::pow(10, ::ceil(log10)));
+    double log10 = maths::CTools::fastLog(static_cast<double>(records) / 100.0) / LOG_10;
+    uint64_t nextPow10 = static_cast<uint64_t>(::pow(10, ::ceil(log10)));
     return records % std::max(nextPow10, uint64_t(100)) == 0;
 }
 
-const std::size_t   UPDATE_SCORE_RECORD_COUNT_INTERVAL = 50000;
+const std::size_t UPDATE_SCORE_RECORD_COUNT_INTERVAL = 50000;
 const core_t::TTime UPDATE_SCORE_TIME_INTERVAL       = 172800;
 
 }
@@ -115,46 +115,46 @@ class CONFIG_EXPORT CAutoconfigurerImpl : public core::CNonCopyable {
 
     private:
         //! The parameters.
-        CAutoconfigurerParams                  m_Params;
+        CAutoconfigurerParams m_Params;
 
         //! Set to true the first time initializeOnce is called.
-        bool                                   m_Initialized;
+        bool m_Initialized;
 
         //! The number of records supplied to handleRecord.
-        uint64_t                               m_NumberRecords;
+        uint64_t m_NumberRecords;
 
         //! The number of records with no time field.
-        uint64_t                               m_NumberRecordsWithNoOrInvalidTime;
+        uint64_t m_NumberRecordsWithNoOrInvalidTime;
 
         //! The last time the detector scores were refreshed.
-        core_t::TTime                          m_LastTimeScoresWereRefreshed;
+        core_t::TTime m_LastTimeScoresWereRefreshed;
 
         //! A buffer of the records before the configuration has begun.
-        TTimeStrStrUMapPrVec                   m_Buffer;
+        TTimeStrStrUMapPrVec m_Buffer;
 
         //! The field semantics and summary statistics.
-        TFieldStatisticsVec                    m_FieldStatistics;
+        TFieldStatisticsVec m_FieldStatistics;
 
         //! The detector count data statistics.
         CDataCountStatisticsDirectAddressTable m_DetectorCountStatistics;
 
         //! The field role penalties.
-        CAutoconfigurerFieldRolePenalties      m_FieldRolePenalties;
+        CAutoconfigurerFieldRolePenalties m_FieldRolePenalties;
 
         //! The detector penalties.
-        CAutoconfigurerDetectorPenalties       m_DetectorPenalties;
+        CAutoconfigurerDetectorPenalties m_DetectorPenalties;
 
         //! Set to true the first time generateCandidateDetectorsOnce is called.
-        bool                                   m_GeneratedCandidateFieldNames;
+        bool m_GeneratedCandidateFieldNames;
 
         //! The candidate detectors.
-        TDetectorSpecificationVec              m_CandidateDetectors;
+        TDetectorSpecificationVec m_CandidateDetectors;
 
         //! Efficiently extracts the detector's records.
-        CDetectorRecordDirectAddressTable      m_DetectorRecordFactory;
+        CDetectorRecordDirectAddressTable m_DetectorRecordFactory;
 
         //! Writes out a report on the data and recommended configurations.
-        CReportWriter                          &m_ReportWriter;
+        CReportWriter &m_ReportWriter;
 };
 
 
@@ -162,7 +162,8 @@ class CONFIG_EXPORT CAutoconfigurerImpl : public core::CNonCopyable {
 
 CAutoconfigurer::CAutoconfigurer(const CAutoconfigurerParams &params,
                                  CReportWriter &reportWriter) :
-    m_Impl(new CAutoconfigurerImpl(params, reportWriter)) {}
+    m_Impl(new CAutoconfigurerImpl(params, reportWriter))
+{}
 
 void CAutoconfigurer::newOutputStream(void) {
     m_Impl->reportWriter().newOutputStream();
@@ -207,7 +208,8 @@ CAutoconfigurerImpl::CAutoconfigurerImpl(const CAutoconfigurerParams &params,
     m_FieldRolePenalties(m_Params),
     m_DetectorPenalties(m_Params, m_FieldRolePenalties),
     m_GeneratedCandidateFieldNames(false),
-    m_ReportWriter(reportWriter) {}
+    m_ReportWriter(reportWriter)
+{}
 
 bool CAutoconfigurerImpl::handleRecord(const TStrStrUMap &fieldValues) {
     ++m_NumberRecords;
@@ -236,7 +238,7 @@ void CAutoconfigurerImpl::finalise(void) {
     m_ReportWriter.addInvalidRecords(m_NumberRecordsWithNoOrInvalidTime);
 
     for (std::size_t i = 0u; i < m_FieldStatistics.size(); ++i) {
-        const std::string   & name  = m_FieldStatistics[i].name();
+        const std::string &name  = m_FieldStatistics[i].name();
         config_t::EDataType type = m_FieldStatistics[i].type();
         if (const CDataSummaryStatistics *summary = m_FieldStatistics[i].summary()) {
             m_ReportWriter.addFieldStatistics(name, type, *summary);
@@ -272,23 +274,23 @@ bool CAutoconfigurerImpl::extractTime(const TStrStrUMap &fieldValues,
 
     if (i == fieldValues.end()) {
         LOG_ERROR("No time field '" << m_Params.timeFieldName()
-                                    << "' in record:" << core_t::LINE_ENDING
-                                    << CAutoconfigurer::debugPrintRecord(fieldValues));
+                  << "' in record:" << core_t::LINE_ENDING
+                  << CAutoconfigurer::debugPrintRecord(fieldValues));
         return false;
     }
 
     if (m_Params.timeFieldFormat().empty()) {
         if (!core::CStringUtils::stringToType(i->second, time)) {
             LOG_ERROR("Cannot interpret time field '" << m_Params.timeFieldName()
-                                                      << "' in record:" << core_t::LINE_ENDING
-                                                      << CAutoconfigurer::debugPrintRecord(fieldValues));
+                      << "' in record:" << core_t::LINE_ENDING
+                      << CAutoconfigurer::debugPrintRecord(fieldValues));
             return false;
         }
-    } else if (!core::CTimeUtils::strptime(m_Params.timeFieldFormat(), i->second, time)) {
+    } else if (!core::CTimeUtils::strptime(m_Params.timeFieldFormat(), i->second, time))   {
         LOG_ERROR("Cannot interpret time field '" << m_Params.timeFieldName()
-                                                  << "' using format '" << m_Params.timeFieldFormat()
-                                                  << "' in record:" << core_t::LINE_ENDING
-                                                  << CAutoconfigurer::debugPrintRecord(fieldValues));
+                  << "' using format '" << m_Params.timeFieldFormat()
+                  << "' in record:" << core_t::LINE_ENDING
+                  << CAutoconfigurer::debugPrintRecord(fieldValues));
         return false;
     }
 
@@ -322,7 +324,7 @@ void CAutoconfigurerImpl::processRecord(core_t::TTime time, const TStrStrUMap &f
 
     if (m_NumberRecords < m_Params.minimumRecordsToAttemptConfig()) {
         m_Buffer.push_back(std::make_pair(time, fieldValues));
-    } else {
+    } else   {
         this->generateCandidateDetectorsOnce();
         this->replayBuffer();
         this->updateStatisticsAndMaybeComputeScores(time, fieldValues);

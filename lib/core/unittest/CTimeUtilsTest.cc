@@ -63,7 +63,7 @@ void CTimeUtilsTest::testToIso8601(void) {
 
     {
         ml::core_t::TTime t(1227710437);
-        std::string       expected("2008-11-26T14:40:37+0000");
+        std::string expected("2008-11-26T14:40:37+0000");
 
         const std::string strRep = ml::core::CTimeUtils::toIso8601(t);
 
@@ -71,7 +71,7 @@ void CTimeUtilsTest::testToIso8601(void) {
     }
     {
         ml::core_t::TTime t(1207925624);
-        std::string       expected("2008-04-11T15:53:44+0100");
+        std::string expected("2008-04-11T15:53:44+0100");
 
         const std::string strRep = ml::core::CTimeUtils::toIso8601(t);
 
@@ -86,7 +86,7 @@ void CTimeUtilsTest::testToLocal(void) {
 
     {
         ml::core_t::TTime t(1227710437);
-        std::string       expected("Wed Nov 26 14:40:37 2008");
+        std::string expected("Wed Nov 26 14:40:37 2008");
 
         const std::string strRep = ml::core::CTimeUtils::toLocalString(t);
 
@@ -94,7 +94,7 @@ void CTimeUtilsTest::testToLocal(void) {
     }
     {
         ml::core_t::TTime t(1207925624);
-        std::string       expected("Fri Apr 11 15:53:44 2008");
+        std::string expected("Fri Apr 11 15:53:44 2008");
 
         const std::string strRep = ml::core::CTimeUtils::toLocalString(t);
 
@@ -102,7 +102,7 @@ void CTimeUtilsTest::testToLocal(void) {
     }
     {
         ml::core_t::TTime t(1207925624);
-        std::string       expected("15:53:44");
+        std::string expected("15:53:44");
 
         const std::string strRep = ml::core::CTimeUtils::toTimeString(t);
 
@@ -294,10 +294,10 @@ void CTimeUtilsTest::testTimezone(void) {
 
     std::string formatExplicit("%Y-%m-%d %H:%M:%S %z");
 
-    std::string       dateTimeUtc("2008-11-26 14:40:37 +0000");
+    std::string dateTimeUtc("2008-11-26 14:40:37 +0000");
     ml::core_t::TTime utcExpected(1227710437);
 
-    std::string       dateTimeTwoHoursBehindUtc("2008-11-26 14:40:37 -0200");
+    std::string dateTimeTwoHoursBehindUtc("2008-11-26 14:40:37 -0200");
     ml::core_t::TTime twoHoursBehindUtc(utcExpected + 2 * SECONDS_PER_HOUR);
 
     // UK first

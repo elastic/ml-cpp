@@ -587,7 +587,7 @@ std::size_t CDataGatherer::addAttribute(const std::string &attribute,
 double CDataGatherer::sampleCount(std::size_t id) const {
     if (m_SampleCounts) {
         return static_cast<double>(m_SampleCounts->count(id));
-    } else {
+    } else   {
         LOG_ERROR("Sample count for non-metric gatherer");
         return 0.0;
     }
@@ -596,7 +596,7 @@ double CDataGatherer::sampleCount(std::size_t id) const {
 double CDataGatherer::effectiveSampleCount(std::size_t id) const {
     if (m_SampleCounts) {
         return m_SampleCounts->effectiveSampleCount(id);
-    } else {
+    } else   {
         LOG_ERROR("Effective sample count for non-metric gatherer");
         return 0.0;
     }
@@ -826,7 +826,7 @@ bool CDataGatherer::extractMetricFromField(const std::string &fieldName,
     std::size_t first = 0u;
     do {
         std::size_t last = fieldValue.find(delimiter, first);
-        double      value;
+        double value;
         // Avoid a string duplication in the (common) case of only one value
         bool convertedOk = (first == 0 && last == std::string::npos) ?
                            core::CStringUtils::stringToType(fieldValue,
@@ -870,7 +870,7 @@ CBucketGatherer &CDataGatherer::chooseBucketGatherer(core_t::TTime time) {
     core_t::TTime bucketLength = m_Gatherers.front()->bucketLength();
     if ((m_Gatherers.size() > 1) && (time % bucketLength != 0)) {
         return *m_Gatherers[1];
-    } else {
+    } else   {
         return *m_Gatherers[0];
     }
 }
@@ -943,7 +943,7 @@ bool CDataGatherer::restoreBucketGatherer(const std::string &summaryCountFieldNa
                 return false;
             }
             m_Gatherers.push_back(gatherer);
-        } else if (name == CBucketGatherer::METRIC_BUCKET_GATHERER_TAG) {
+        } else if (name == CBucketGatherer::METRIC_BUCKET_GATHERER_TAG)   {
             CMetricBucketGatherer *gatherer = new CMetricBucketGatherer(*this,
                                                                         summaryCountFieldName,
                                                                         personFieldName,
@@ -970,7 +970,7 @@ void CDataGatherer::persistBucketGatherers(core::CStatePersistInserter &inserter
             CEventRateBucketGatherer *const gatherer = dynamic_cast<CEventRateBucketGatherer *const>(*i);
             inserter.insertLevel(tag, boost::bind(&CEventRateBucketGatherer::acceptPersistInserter,
                                                   boost::cref(gatherer), _1));
-        } else if (tag == CBucketGatherer::METRIC_BUCKET_GATHERER_TAG) {
+        } else if (tag == CBucketGatherer::METRIC_BUCKET_GATHERER_TAG)   {
             CMetricBucketGatherer *const gatherer = dynamic_cast<CMetricBucketGatherer *const>(*i);
             inserter.insertLevel(tag, boost::bind(&CMetricBucketGatherer::acceptPersistInserter,
                                                   boost::cref(gatherer), _1));

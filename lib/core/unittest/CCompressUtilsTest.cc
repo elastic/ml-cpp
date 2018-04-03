@@ -46,7 +46,7 @@ void CCompressUtilsTest::testEmptyAdd(void) {
     CPPUNIT_ASSERT(compressor.addString(str));
 
     ml::core::CCompressUtils::TByteVec output;
-    size_t                             length(0);
+    size_t length(0);
 
     CPPUNIT_ASSERT(compressor.compressedData(true, output));
     CPPUNIT_ASSERT(compressor.compressedLength(true, length));
@@ -65,7 +65,7 @@ void CCompressUtilsTest::testOneAdd(void) {
     CPPUNIT_ASSERT(compressor.addString(str));
 
     ml::core::CCompressUtils::TByteVec output;
-    size_t                             length(0);
+    size_t length(0);
 
     CPPUNIT_ASSERT(compressor.compressedData(true, output));
     CPPUNIT_ASSERT(compressor.compressedLength(true, length));
@@ -88,7 +88,7 @@ void CCompressUtilsTest::testManyAdds(void) {
     CPPUNIT_ASSERT(compressorMulti.addString(str3));
 
     ml::core::CCompressUtils::TByteVec outputMulti;
-    size_t                             lengthMulti(0);
+    size_t lengthMulti(0);
 
     CPPUNIT_ASSERT(compressorMulti.compressedData(true, outputMulti));
     CPPUNIT_ASSERT(compressorMulti.compressedLength(true, lengthMulti));
@@ -104,7 +104,7 @@ void CCompressUtilsTest::testManyAdds(void) {
     CPPUNIT_ASSERT(compressorSingle.addString(str1 + str2 + str3));
 
     ml::core::CCompressUtils::TByteVec outputSingle;
-    size_t                             lengthSingle(0);
+    size_t lengthSingle(0);
 
     CPPUNIT_ASSERT(compressorSingle.compressedData(true, outputSingle));
     CPPUNIT_ASSERT(compressorSingle.compressedLength(true, lengthSingle));
@@ -124,7 +124,7 @@ void CCompressUtilsTest::testLengthOnly(void) {
     CPPUNIT_ASSERT(compressorFull.addString(str));
 
     ml::core::CCompressUtils::TByteVec outputFull;
-    size_t                             lengthFull(0);
+    size_t lengthFull(0);
 
     CPPUNIT_ASSERT(compressorFull.compressedData(true, outputFull));
     CPPUNIT_ASSERT(compressorFull.compressedLength(true, lengthFull));
@@ -142,7 +142,7 @@ void CCompressUtilsTest::testLengthOnly(void) {
     CPPUNIT_ASSERT(compressorLengthOnly.addString(str));
 
     ml::core::CCompressUtils::TByteVec outputLengthOnly;
-    size_t                             lengthLengthOnly(0);
+    size_t lengthLengthOnly(0);
 
     // Should NOT be possible to get the full compressed data in this case
     CPPUNIT_ASSERT(!compressorLengthOnly.compressedData(true, outputLengthOnly));

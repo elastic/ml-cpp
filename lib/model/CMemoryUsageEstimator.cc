@@ -39,7 +39,8 @@ const std::string VALUES_TAG("a");
 CMemoryUsageEstimator::CMemoryUsageEstimator(void)
     : m_Values(2 * E_NumberPredictors),
       // Initialise this so that the first estimate triggers a calculation
-      m_NumEstimatesSinceValue(MAXIMUM_ESTIMATES_BEFORE_NEW_VALUE - 1) {}
+      m_NumEstimatesSinceValue(MAXIMUM_ESTIMATES_BEFORE_NEW_VALUE - 1)
+{}
 
 CMemoryUsageEstimator::TOptionalSize
 CMemoryUsageEstimator::estimate(const TSizeArray &predictors) {
@@ -53,7 +54,7 @@ CMemoryUsageEstimator::estimate(const TSizeArray &predictors) {
         return TOptionalSize();
     }
 
-    std::size_t  last = m_Values.size() - 1;
+    std::size_t last = m_Values.size() - 1;
     TDoubleArray x0;
     for (std::size_t i = 0u; i < m_Values[last].first.size(); ++i) {
         x0[i] = static_cast<double>(m_Values[last].first[i]);
@@ -65,7 +66,7 @@ CMemoryUsageEstimator::estimate(const TSizeArray &predictors) {
         origin &= (predictors[i] == 0);
         if (predictors[i] - static_cast<size_t>(x0[i]) > this->maximumExtrapolation(static_cast<EComponent>(i))) {
             LOG_TRACE("Sample too big for variance of predictor(" << i << "): "
-                                                                  << predictors[i] << " > " << this->maximumExtrapolation(static_cast<EComponent>(i)));
+                      << predictors[i] << " > " << this->maximumExtrapolation(static_cast<EComponent>(i)));
             return TOptionalSize();
         }
     }

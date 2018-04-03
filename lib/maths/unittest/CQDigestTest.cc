@@ -126,10 +126,10 @@ void CQDigestTest::testAdd(void) {
 
                     if ((i + 1) % 1000 == 0) {
                         LOG_DEBUG("q = " << q
-                                         << ", quantile = " << quantile
-                                         << ", rank = " << rank
-                                         << ", n = " << n
-                                         << ", error " << error);
+                                  << ", quantile = " << quantile
+                                  << ", rank = " << rank
+                                  << ", n = " << n
+                                  << ", error " << error);
                     }
 
                     CPPUNIT_ASSERT(::fabs(error) < 0.06);
@@ -165,11 +165,11 @@ void CQDigestTest::testCdf(void) {
     // the true c.d.f. of the data.
 
     const std::size_t k = 100u;
-    CQDigest          qDigest(k + 1);
+    CQDigest qDigest(k + 1);
 
     const std::size_t nSamples = 5000u;
-    TDoubleVec        samples;
-    CRandomNumbers    generator;
+    TDoubleVec samples;
+    CRandomNumbers generator;
     generator.generateUniformSamples(0.0, 500.0, nSamples, samples);
 
     std::size_t s = 0u;
@@ -188,8 +188,8 @@ void CQDigestTest::testCdf(void) {
         qDigest.cdf(summary[i].first, 0.0, lowerBound, upperBound);
 
         LOG_DEBUG("x = " << summary[i].first
-                         << ", F(x) >= " << lowerBound
-                         << ", F(x) <= " << upperBound);
+                  << ", F(x) >= " << lowerBound
+                  << ", F(x) <= " << upperBound);
 
         double fx = static_cast<double>(summary[i].second) / 100.0;
 
@@ -217,9 +217,9 @@ void CQDigestTest::testCdf(void) {
         double ft = std::min(static_cast<double>(summary[i].first) / 500.0, 1.0);
 
         LOG_DEBUG("x = " << summary[i].first
-                         << ", F(x) = " << ft
-                         << ", F(x) >= " << lowerBound
-                         << ", F(x) <= " << upperBound);
+                  << ", F(x) = " << ft
+                  << ", F(x) >= " << lowerBound
+                  << ", F(x) <= " << upperBound);
 
         CPPUNIT_ASSERT(fx >= lowerBound && fx <= upperBound);
         CPPUNIT_ASSERT(ft >= lowerBound - 0.01 && ft <= upperBound + 0.01);
@@ -235,7 +235,7 @@ void CQDigestTest::testSummary(void) {
     {
         CQDigest qDigest(20u);
 
-        TDoubleVec     samples;
+        TDoubleVec samples;
         CRandomNumbers generator;
         generator.generateUniformSamples(0.0, 500.0, 100u, samples);
 
@@ -257,8 +257,8 @@ void CQDigestTest::testSummary(void) {
             qDigest.quantile(q, xq);
 
             LOG_DEBUG("q = " << q
-                             << ", x(q) = " << summary[i].first
-                             << ", expected x(q) = " << xq);
+                      << ", x(q) = " << summary[i].first
+                      << ", expected x(q) = " << xq);
 
             CPPUNIT_ASSERT_EQUAL(xq, summary[i].first);
         }
@@ -354,7 +354,7 @@ void CQDigestTest::testPropagateForwardByTime(void) {
         TDoubleVec cdfLower;
         TDoubleVec cdfUpper;
 
-        TMeanAccumlator                    error;
+        TMeanAccumlator error;
         boost::math::normal_distribution<> normal(mean, std);
         for (double x = mean - 5.0 * std; x <= mean + 5 * std; x += 5.0) {
             double lb, ub;
@@ -373,7 +373,7 @@ void CQDigestTest::testPropagateForwardByTime(void) {
         uint64_t nAged = qDigest.n();
         LOG_DEBUG("nAged = " << nAged);
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.001, double(n - nAged)/double(n), 5e-4);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.001, double(n - nAged) / double(n), 5e-4);
 
         TDoubleVec cdfLowerAged;
         TDoubleVec cdfUpperAged;
@@ -423,7 +423,7 @@ void CQDigestTest::testPropagateForwardByTime(void) {
         }
         LOG_DEBUG("n = " << qDigest.n());
 
-        TMeanAccumlator                    error;
+        TMeanAccumlator error;
         boost::math::normal_distribution<> normal(mean, std);
         for (double x = mean - 5.0 * std; x <= mean + 5 * std; x += 5.0) {
             double lb, ub;
@@ -502,7 +502,7 @@ void CQDigestTest::testScale(void) {
         const double maxMaxType2[] = { 0.11, 0.1, 0.15, 0.18, 0.19, 0.22 };
         const double maxTotalType2[] = { 1.9, 1.1, 1.1, 3.3, 2.9, 10.1 };
 
-        TDoubleVec     samples;
+        TDoubleVec samples;
         CRandomNumbers generator;
         generator.generateNormalSamples(50.0, 5.0, 500u, samples);
 

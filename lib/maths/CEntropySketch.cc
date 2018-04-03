@@ -26,7 +26,8 @@
 namespace ml {
 namespace maths {
 
-CEntropySketch::CEntropySketch(std::size_t k) : m_Y(0), m_Yi(k, 0.0) {}
+CEntropySketch::CEntropySketch(std::size_t k) : m_Y(0), m_Yi(k, 0.0)
+{}
 
 void CEntropySketch::add(std::size_t category, uint64_t count) {
     m_Y += count;
@@ -50,7 +51,7 @@ void CEntropySketch::generateProjection(std::size_t category, TDoubleVec &projec
     CSampling::uniformSample(rng, 0.0, 1.0, 2 * m_Yi.size(), projection);
     for (std::size_t i = 0u; i < projection.size(); i += 2) {
         double w1 = boost::math::double_constants::pi * (projection[i] - 0.5);
-        double w2 = -::log(projection[i+1]);
+        double w2 = -::log(projection[i + 1]);
         projection[i / 2] =  ::tan(w1) * (boost::math::double_constants::half_pi - w1)
                             + ::log(w2 * ::cos(w1) / (boost::math::double_constants::half_pi - w1));
     }

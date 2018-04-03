@@ -125,39 +125,39 @@ class CORE_EXPORT CStateDecompressor : public CDataSearcher {
 
 
                 //! Has a valid document been seen?
-                bool                                         m_Initialised;
+                bool m_Initialised;
 
                 //! Has any data been written downstream?
-                bool                                         m_SentData;
+                bool m_SentData;
 
                 //! The downstream data store to read from
-                CDataSearcher                                &m_Searcher;
+                CDataSearcher &m_Searcher;
 
                 //! The stream given to clients to read from
-                CDataSearcher::TIStreamP                     m_IStream;
+                CDataSearcher::TIStreamP m_IStream;
 
                 //! The sequential document number currently being written to
-                std::size_t                                  m_CurrentDocNum;
+                std::size_t m_CurrentDocNum;
 
                 //! Have we read all the data possible from downstream?
-                bool                                         m_EndOfStream;
+                bool m_EndOfStream;
 
                 //! The search configuration parameter set by the upstream caller
-                std::string                                  m_SearchString;
+                std::string m_SearchString;
 
                 //! Wrapper around the downstream reader
                 boost::shared_ptr<rapidjson::IStreamWrapper> m_InputStreamWrapper;
 
                 //! JSON reader for the downstream stream
-                boost::shared_ptr<rapidjson::Reader>         m_Reader;
+                boost::shared_ptr<rapidjson::Reader> m_Reader;
 
-                SRapidJsonHandler                            m_Handler;
+                SRapidJsonHandler m_Handler;
 
                 //! The offset into the current token that has been read
-                std::streamsize                              m_BufferOffset;
+                std::streamsize m_BufferOffset;
 
                 //! Level of nested objects, used to unwind later on.
-                size_t                                       m_NestedLevel;
+                size_t m_NestedLevel;
         };
 
     public:
@@ -176,10 +176,10 @@ class CORE_EXPORT CStateDecompressor : public CDataSearcher {
 
     private:
         //! Reference to the downstream data store
-        CDataSearcher   &m_Searcher;
+        CDataSearcher &m_Searcher;
 
         //! The dechunker object
-        CDechunkFilter  m_FilterSource;
+        CDechunkFilter m_FilterSource;
 
         //! The boost filtering_stream object that handles decompression
         TFilteredInputP m_InFilter;

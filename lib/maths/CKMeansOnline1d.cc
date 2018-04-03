@@ -66,7 +66,7 @@ struct SNormalMeanLess {
 //! Get the log of the likelihood that \p point is from \p normal.
 double logLikelihoodFromCluster(const TDouble1Vec &sample,
                                 const CNormalMeanPrecConjugate &normal) {
-    double                             likelihood;
+    double likelihood;
     maths_t::EFloatingPointErrorStatus status =
         normal.jointLogMarginalLikelihood(CConstantWeights::COUNT,
                                           sample,
@@ -188,15 +188,15 @@ void CKMeansOnline1d::cluster(const double &point,
     if (rightCluster == m_Clusters.end()) {
         --rightCluster;
         result.emplace_back(rightCluster - m_Clusters.begin(), count);
-    } else if (rightCluster == m_Clusters.begin()) {
+    } else if (rightCluster == m_Clusters.begin())   {
         result.emplace_back(size_t(0), count);
-    } else {
+    } else   {
         auto leftCluster = rightCluster;
         --leftCluster;
 
         TDouble1Vec sample(1, point);
-        double      likelihoodLeft  = detail::logLikelihoodFromCluster(sample, *leftCluster);
-        double      likelihoodRight = detail::logLikelihoodFromCluster(sample, *rightCluster);
+        double likelihoodLeft  = detail::logLikelihoodFromCluster(sample, *leftCluster);
+        double likelihoodRight = detail::logLikelihoodFromCluster(sample, *rightCluster);
 
         double renormalizer = std::max(likelihoodLeft, likelihoodRight);
         double pLeft  = ::exp(likelihoodLeft - renormalizer);
@@ -207,9 +207,9 @@ void CKMeansOnline1d::cluster(const double &point,
 
         if (pLeft < HARD_ASSIGNMENT_THRESHOLD * pRight) {
             result.emplace_back(rightCluster - m_Clusters.begin(), count);
-        } else if (pRight < HARD_ASSIGNMENT_THRESHOLD * pLeft) {
+        } else if (pRight < HARD_ASSIGNMENT_THRESHOLD * pLeft)   {
             result.emplace_back(leftCluster - m_Clusters.begin(), count);
-        } else {
+        } else   {
             result.emplace_back(leftCluster - m_Clusters.begin(), count * pLeft);
             result.emplace_back(rightCluster - m_Clusters.begin(), count * pRight);
         }
@@ -227,7 +227,7 @@ void CKMeansOnline1d::add(const double &point,
 
     this->cluster(point, clusters, count);
 
-    TDouble1Vec     sample{point};
+    TDouble1Vec sample{point};
     TDouble4Vec1Vec weight{TDouble4Vec(1)};
 
     for (std::size_t i = 0u; i < clusters.size(); ++i) {

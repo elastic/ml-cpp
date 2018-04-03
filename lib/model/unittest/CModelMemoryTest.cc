@@ -43,7 +43,7 @@ std::size_t addPerson(const std::string &p,
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
     person.resize(gatherer->fieldsOfInterest().size(), 0);
-    CEventData       result;
+    CEventData result;
     CResourceMonitor resourceMonitor;
     gatherer->processFields(person, result, resourceMonitor);
     return *result.personId();
@@ -83,9 +83,9 @@ void CModelMemoryTest::testOnlineEventRateModel(void) {
     // as data is fed in and that memoryUsage and debugMemory are
     // consistent.
 
-    core_t::TTime          startTime(0);
-    core_t::TTime          bucketLength(10);
-    SModelParams           params(bucketLength);
+    core_t::TTime startTime(0);
+    core_t::TTime bucketLength(10);
+    SModelParams params(bucketLength);
     CEventRateModelFactory factory(params);
 
     std::size_t bucketCounts[] = { 5, 6, 3, 5, 0, 7, 8, 5, 4, 3, 5, 5, 6 };
@@ -95,14 +95,14 @@ void CModelMemoryTest::testOnlineEventRateModel(void) {
     features.push_back(model_t::E_IndividualTotalBucketCountByPerson);
     factory.features(features);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
+    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer));
     CModelFactory::SModelInitializationData initData(gatherer);
-    CAnomalyDetectorModel::TModelPtr        modelPtr(factory.makeModel(initData));
+    CAnomalyDetectorModel::TModelPtr modelPtr(factory.makeModel(initData));
     CPPUNIT_ASSERT(modelPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, modelPtr->category());
-    CEventRateModel  &model = static_cast<CEventRateModel&>(*modelPtr.get());
-    std::size_t      startMemoryUsage = model.memoryUsage();
+    CEventRateModel &model = static_cast<CEventRateModel&>(*modelPtr.get());
+    std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
 
     LOG_DEBUG("Memory used by model: " << model.memoryUsage());
@@ -130,17 +130,17 @@ void CModelMemoryTest::testOnlineMetricModel(void) {
     // as data is fed in and that memoryUsage and debugMemory are
     // consistent.
 
-    core_t::TTime       startTime(0);
-    core_t::TTime       bucketLength(10);
-    SModelParams        params(bucketLength);
+    core_t::TTime startTime(0);
+    core_t::TTime bucketLength(10);
+    SModelParams params(bucketLength);
     CMetricModelFactory factory(params);
 
     std::size_t bucketCounts[] = { 5, 6, 3, 5, 0, 7, 8, 5, 4, 3, 5, 5, 6 };
 
-    double      mean = 5.0;
-    double      variance = 2.0;
+    double mean = 5.0;
+    double variance = 2.0;
     std::size_t anomalousBucket = 12u;
-    double      anomaly = 5 * ::sqrt(variance);
+    double anomaly = 5 * ::sqrt(variance);
 
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
@@ -148,18 +148,18 @@ void CModelMemoryTest::testOnlineMetricModel(void) {
     features.push_back(model_t::E_IndividualMaxByPerson);
     factory.features(features);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
+    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer));
     CModelFactory::SModelInitializationData initData(gatherer);
-    CAnomalyDetectorModel::TModelPtr        modelPtr(factory.makeModel(initData));
+    CAnomalyDetectorModel::TModelPtr modelPtr(factory.makeModel(initData));
     CPPUNIT_ASSERT(modelPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelPtr->category());
-    CMetricModel     &   model = static_cast<CMetricModel&>(*modelPtr.get());
-    std::size_t      startMemoryUsage = model.memoryUsage();
+    CMetricModel &model = static_cast<CMetricModel&>(*modelPtr.get());
+    std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
 
     LOG_DEBUG("Memory used by model: " << model.memoryUsage()
-                                       << " / " << core::CMemory::dynamicSize(model));
+              << " / " << core::CMemory::dynamicSize(model));
 
     test::CRandomNumbers rng;
 

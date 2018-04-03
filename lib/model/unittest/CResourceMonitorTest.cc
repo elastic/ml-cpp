@@ -52,12 +52,12 @@ void CResourceMonitorTest::setUp(void) {
 }
 
 void CResourceMonitorTest::testMonitor(void) {
-    const std::string   EMPTY_STRING;
+    const std::string EMPTY_STRING;
     const core_t::TTime FIRST_TIME(358556400);
     const core_t::TTime BUCKET_LENGTH(3600);
 
     CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-    CLimits                     limits;
+    CLimits limits;
 
     CSearchKey key(1, // identifier
                    function_t::E_IndividualMetric,
@@ -93,10 +93,10 @@ void CResourceMonitorTest::testMonitor(void) {
         if (sizeof(std::size_t) == 4) {
             // 32-bit platform
             CPPUNIT_ASSERT_EQUAL(std::size_t(1024ull * 1024 * 1024 / 2), mon.m_ByteLimitHigh);
-        } else if (sizeof(std::size_t) == 8) {
+        } else if (sizeof(std::size_t) == 8)   {
             // 64-bit platform
             CPPUNIT_ASSERT_EQUAL(std::size_t(4096ull * 1024 * 1024 / 2), mon.m_ByteLimitHigh);
-        } else {
+        } else   {
             // Unexpected platform
             CPPUNIT_ASSERT(false);
         }
@@ -319,7 +319,7 @@ void CResourceMonitorTest::testMonitor(void) {
 }
 
 void CResourceMonitorTest::testPruning(void) {
-    const std::string   EMPTY_STRING;
+    const std::string EMPTY_STRING;
     const core_t::TTime FIRST_TIME(358556400);
     const core_t::TTime BUCKET_LENGTH(3600);
 
@@ -344,7 +344,7 @@ void CResourceMonitorTest::testPruning(void) {
                               modelConfig.factory(key));
 
     core_t::TTime bucket = FIRST_TIME;
-    std::size_t   startOffset = 10;
+    std::size_t startOffset = 10;
 
     // Add a couple of buckets of data
     this->addTestData(bucket, BUCKET_LENGTH, 2, 5, startOffset, detector, monitor);
@@ -391,7 +391,7 @@ void CResourceMonitorTest::testPruning(void) {
 }
 
 void CResourceMonitorTest::testExtraMemory(void) {
-    const std::string   EMPTY_STRING;
+    const std::string EMPTY_STRING;
     const core_t::TTime FIRST_TIME(358556400);
     const core_t::TTime BUCKET_LENGTH(3600);
 
@@ -446,10 +446,10 @@ void CResourceMonitorTest::addTestData(core_t::TTime &firstTime,
                                        std::size_t &startOffset,
                                        CAnomalyDetector &detector,
                                        CResourceMonitor &monitor) {
-    std::string          numberValue("100");
-    core_t::TTime        bucketStart = firstTime;
+    std::string numberValue("100");
+    core_t::TTime bucketStart = firstTime;
     CHierarchicalResults results;
-    std::string          pervasive("IShouldNotBeRemoved");
+    std::string pervasive("IShouldNotBeRemoved");
 
     std::size_t numBuckets = 0;
 
@@ -473,7 +473,7 @@ void CResourceMonitorTest::addTestData(core_t::TTime &firstTime,
 
         if (newPeoplePerBucket > 0) {
             CAnomalyDetector::TStrCPtrVec fieldValues;
-            std::ostringstream            ss1;
+            std::ostringstream ss1;
             ss1 << "person" << startOffset++;
             std::string value(ss1.str());
 

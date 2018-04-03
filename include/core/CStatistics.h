@@ -146,7 +146,7 @@ class CORE_EXPORT CStatistics : private CNonCopyable {
         static CStatistics ms_Instance;
 
         //! Collection of statistics
-        TStatArray         m_Stats;
+        TStatArray m_Stats;
 
         //! Enabling printing out the current statistics.
         friend CORE_EXPORT std::ostream &operator<<(std::ostream &o, const CStatistics &stats);

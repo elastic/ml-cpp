@@ -54,9 +54,11 @@ class CEmptySearcher : public ml::core::CDataSearcher {
 class CTestOutputHandler : public COutputHandler {
     public:
         CTestOutputHandler(void) : COutputHandler(), m_NewStream(false),
-                                   m_Finalised(false), m_Records(0) {}
+                                   m_Finalised(false), m_Records(0)
+        {}
 
-        virtual ~CTestOutputHandler(void) {}
+        virtual ~CTestOutputHandler(void)
+        {}
 
         virtual void finalise(void) {
             m_Finalised = true;
@@ -94,11 +96,11 @@ class CTestOutputHandler : public COutputHandler {
         }
 
     private:
-        TStrVec  m_FieldNames;
+        TStrVec m_FieldNames;
 
-        bool     m_NewStream;
+        bool m_NewStream;
 
-        bool     m_Finalised;
+        bool m_Finalised;
 
         uint64_t m_Records;
 };
@@ -106,7 +108,8 @@ class CTestOutputHandler : public COutputHandler {
 class CTestDataSearcher : public core::CDataSearcher {
     public:
         CTestDataSearcher(const std::string &data)
-            : m_Stream(new std::istringstream(data)) {}
+            : m_Stream(new std::istringstream(data))
+        {}
 
         virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
             return m_Stream;
@@ -119,7 +122,8 @@ class CTestDataSearcher : public core::CDataSearcher {
 class CTestDataAdder : public core::CDataAdder {
     public:
         CTestDataAdder(void)
-            : m_Stream(new std::ostringstream) {}
+            : m_Stream(new std::ostringstream)
+        {}
 
         virtual TOStreamP addStreamed(const std::string & /*index*/,
                                       const std::string & /*id*/) {
@@ -142,13 +146,13 @@ class CTestDataAdder : public core::CDataAdder {
 
 void CFieldDataTyperTest::testAll(void) {
     model::CLimits limits;
-    CFieldConfig   config;
+    CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
     CTestOutputHandler handler;
 
-    std::ostringstream             outputStrm;
+    std::ostringstream outputStrm;
     core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-    CJsonOutputWriter              writer("job", wrappedOutputStream);
+    CJsonOutputWriter writer("job", wrappedOutputStream);
 
     CFieldDataTyper typer("job", config, limits, handler, writer);
     CPPUNIT_ASSERT_EQUAL(false, handler.isNewStream());
@@ -197,16 +201,16 @@ void CFieldDataTyperTest::testAll(void) {
     std::string newJson;
     LOG_DEBUG("origJson = " << origJson);
     {
-        model::CLimits                 limits2;
-        CFieldConfig                   config2("x", "y");
-        CTestOutputHandler             handler2;
-        std::ostringstream             outputStrm2;
+        model::CLimits limits2;
+        CFieldConfig config2("x", "y");
+        CTestOutputHandler handler2;
+        std::ostringstream outputStrm2;
         core::CJsonOutputStreamWrapper wrappedOutputStream2 (outputStrm2);
-        CJsonOutputWriter              writer2("job", wrappedOutputStream2);
+        CJsonOutputWriter writer2("job", wrappedOutputStream2);
 
-        CFieldDataTyper   newTyper("job", config2, limits2, handler2, writer2);
+        CFieldDataTyper newTyper("job", config2, limits2, handler2, writer2);
         CTestDataSearcher restorer(origJson);
-        core_t::TTime     time = 0;
+        core_t::TTime time = 0;
         newTyper.restoreState(restorer, time);
 
         CTestDataAdder adder;
@@ -219,14 +223,14 @@ void CFieldDataTyperTest::testAll(void) {
 
 void CFieldDataTyperTest::testNodeReverseSearch(void) {
     model::CLimits limits;
-    CFieldConfig   config;
+    CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     {
-        CNullOutput                    nullOutput;
+        CNullOutput nullOutput;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        CJsonOutputWriter              writer("job", wrappedOutputStream);
+        CJsonOutputWriter writer("job", wrappedOutputStream);
 
         CFieldDataTyper typer("job", config, limits, nullOutput, writer);
 
@@ -258,18 +262,18 @@ void CFieldDataTyperTest::testNodeReverseSearch(void) {
 
 void CFieldDataTyperTest::testPassOnControlMessages(void) {
     model::CLimits limits;
-    CFieldConfig   config;
+    CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     {
-        CNullOutput                    nullOutput;
+        CNullOutput nullOutput;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        CJsonOutputWriter              writer("job", wrappedOutputStream);
+        CJsonOutputWriter writer("job", wrappedOutputStream);
 
         CMockDataProcessor mockProcessor(nullOutput);
-        COutputChainer     outputChainer(mockProcessor);
-        CFieldDataTyper    typer("job", config, limits, outputChainer, writer);
+        COutputChainer outputChainer(mockProcessor);
+        CFieldDataTyper typer("job", config, limits, outputChainer, writer);
 
         CFieldDataTyper::TStrStrUMap dataRowFields;
         dataRowFields["."] = "f7";
@@ -286,14 +290,14 @@ void CFieldDataTyperTest::testPassOnControlMessages(void) {
 
 void CFieldDataTyperTest::testHandleControlMessages(void) {
     model::CLimits limits;
-    CFieldConfig   config;
+    CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     {
-        CNullOutput                    nullOutput;
+        CNullOutput nullOutput;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        CJsonOutputWriter              writer("job", wrappedOutputStream);
+        CJsonOutputWriter writer("job", wrappedOutputStream);
 
         CFieldDataTyper typer("job", config, limits, nullOutput, writer, nullptr);
 
@@ -313,16 +317,16 @@ void CFieldDataTyperTest::testHandleControlMessages(void) {
 
 void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState(void) {
     model::CLimits limits;
-    CFieldConfig   config;
+    CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
-    std::ostringstream             outputStrm;
-    CNullOutput                    nullOutput;
+    std::ostringstream outputStrm;
+    CNullOutput nullOutput;
     core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-    CJsonOutputWriter              writer("job", wrappedOutputStream);
-    CFieldDataTyper                typer("job", config, limits, nullOutput, writer, nullptr);
+    CJsonOutputWriter writer("job", wrappedOutputStream);
+    CFieldDataTyper typer("job", config, limits, nullOutput, writer, nullptr);
 
-    core_t::TTime  completeToTime(0);
+    core_t::TTime completeToTime(0);
     CEmptySearcher restoreSearcher;
     CPPUNIT_ASSERT(typer.restoreState(restoreSearcher, completeToTime) == false);
 }

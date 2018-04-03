@@ -107,9 +107,9 @@ class MATHS_EXPORT CRegression {
         template<std::size_t N_, typename T = CFloatStorage>
         class CLeastSquaresOnline : boost::addable< CLeastSquaresOnline<N_, T> > {
             public:
-                static const std::size_t N = N_+1;
+                static const std::size_t N = N_ + 1;
                 using TArray = boost::array<double, N>;
-                using TVector = CVectorNx1<T, 3*N-1>;
+                using TVector = CVectorNx1<T, 3 * N - 1>;
                 using TMatrix = CSymmetricMatrixNxN<double, N>;
                 using TVectorMeanAccumulator = typename CBasicStatistics::SSampleMean<TVector>::TAccumulator;
 
@@ -120,7 +120,8 @@ class MATHS_EXPORT CRegression {
                 CLeastSquaresOnline() : m_S() {}
                 template<typename U>
                 CLeastSquaresOnline(const CLeastSquaresOnline<N_, U> &other) :
-                    m_S(other.statistic()) {}
+                    m_S(other.statistic())
+                {}
 
                 //! Restore by traversing a state document.
                 bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
@@ -135,12 +136,12 @@ class MATHS_EXPORT CRegression {
                 //! \param[in] weight The residual weight at the point.
                 void add(double x, double y, double weight = 1.0) {
                     TVector d;
-                    double  xi = 1.0;
+                    double xi = 1.0;
                     for (std::size_t i = 0u; i < N; ++i, xi *= x) {
                         d(i)       = xi;
-                        d(i+2*N-1) = xi * y;
+                        d(i + 2 * N - 1) = xi * y;
                     }
-                    for (std::size_t i = N; i < 2*N-1; ++i, xi *= x) {
+                    for (std::size_t i = N; i < 2 * N - 1; ++i, xi *= x) {
                         d(i)       = xi;
                     }
                     m_S.add(d, weight);
@@ -205,7 +206,7 @@ class MATHS_EXPORT CRegression {
                     if (CBasicStatistics::count(m_S) > 0.0) {
                         const TVector &s = CBasicStatistics::mean(m_S);
                         for (std::size_t i = 0u; i < N; ++i) {
-                            CBasicStatistics::moment<0>(m_S)(i+2*N-1) += s(i) * dy;
+                            CBasicStatistics::moment<0>(m_S)(i + 2 * N - 1) += s(i) * dy;
                         }
                     }
                 }
@@ -218,7 +219,7 @@ class MATHS_EXPORT CRegression {
                     if (CBasicStatistics::count(m_S) > 0.0) {
                         const TVector &s = CBasicStatistics::mean(m_S);
                         for (std::size_t i = 0u; i < N; ++i) {
-                            CBasicStatistics::moment<0>(m_S)(i+2*N-1) += s(i+1) * dydx;
+                            CBasicStatistics::moment<0>(m_S)(i + 2 * N - 1) += s(i + 1) * dydx;
                         }
                     }
                 }
@@ -256,7 +257,7 @@ class MATHS_EXPORT CRegression {
                     TArray params;
                     if (this->parameters(params, maxCondition)) {
                         std::ptrdiff_t n = static_cast<std::ptrdiff_t>(params.size());
-                        double         xi = x;
+                        double xi = x;
                         for (std::ptrdiff_t i = n - 1; i >= 0; --i) {
                             result[i] = params[i];
                             for (std::ptrdiff_t j = i + 1; j < n; ++j) {
@@ -311,8 +312,8 @@ class MATHS_EXPORT CRegression {
                     if (meanRevert) {
                         TVector &s = CBasicStatistics::moment<0>(m_S);
                         for (std::size_t i = 1u; i < N; ++i) {
-                            s(i+2*N-1) =         factor  * s(i+2*N-1)
-                                         + (1.0 - factor) * s(i) * s(2*N-1);
+                            s(i + 2 * N - 1) =         factor  * s(i + 2 * N - 1)
+                                               + (1.0 - factor) * s(i) * s(2 * N - 1);
                         }
                     }
                     m_S.age(factor);
@@ -325,7 +326,7 @@ class MATHS_EXPORT CRegression {
 
                 //! Get the mean value of the ordinates.
                 double mean() const {
-                    return CBasicStatistics::mean(m_S)(2*N-1);
+                    return CBasicStatistics::mean(m_S)(2 * N - 1);
                 }
 
                 //! Get the mean in the interval [\p a, \p b].
@@ -348,10 +349,10 @@ class MATHS_EXPORT CRegression {
 
                     for (std::size_t i = 0u; i < N; ++i) {
                         for (std::size_t j = 0u; j <= i; ++j) {
-                            result +=  CCategoricalTools::binomialCoefficient(i+1, j+1)
-                                      * params[i] / static_cast<double>(i+1)
-                                      * std::pow(a, static_cast<double>(i-j))
-                                      * std::pow(interval, static_cast<double>(j+1));
+                            result +=  CCategoricalTools::binomialCoefficient(i + 1, j + 1)
+                                      * params[i] / static_cast<double>(i + 1)
+                                      * std::pow(a, static_cast<double>(i - j))
+                                      * std::pow(interval, static_cast<double>(j + 1));
                         }
                     }
 
@@ -392,9 +393,9 @@ class MATHS_EXPORT CRegression {
                 template<typename MATRIX>
                 void gramian(std::size_t n, MATRIX &x) const {
                     for (std::size_t i = 0u; i < n; ++i) {
-                        x(i,i) = CBasicStatistics::mean(m_S)(i+i);
-                        for (std::size_t j = i+1; j < n; ++j) {
-                            x(i,j) = CBasicStatistics::mean(m_S)(i+j);
+                        x(i,i) = CBasicStatistics::mean(m_S)(i + i);
+                        for (std::size_t j = i + 1; j < n; ++j) {
+                            x(i,j) = CBasicStatistics::mean(m_S)(i + j);
                         }
                     }
                 }
@@ -474,8 +475,8 @@ class MATHS_EXPORT CRegression {
                     }
 
                     TVector dT;
-                    T       dt = static_cast<T>(std::sqrt(time));
-                    T       dTi = dt;
+                    T dt = static_cast<T>(std::sqrt(time));
+                    T dTi = dt;
                     for (std::size_t i = 0u; i < N; ++i, dTi *= dt) {
                         dT(i) = dTi;
                     }

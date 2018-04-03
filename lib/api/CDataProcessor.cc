@@ -22,7 +22,8 @@ namespace api {
 // statics
 const std::string CDataProcessor::CONTROL_FIELD_NAME(1, CONTROL_FIELD_NAME_CHAR);
 
-CDataProcessor::CDataProcessor(void) {}
+CDataProcessor::CDataProcessor(void)
+{}
 
 CDataProcessor::~CDataProcessor(void) {
     // Most compilers put the vtable in the object file containing the
@@ -35,8 +36,8 @@ std::string CDataProcessor::debugPrintRecord(const TStrStrUMap &dataRowFields) {
         return "<EMPTY RECORD>";
     }
 
-    std::string        fieldNames;
-    std::string        fieldValues;
+    std::string fieldNames;
+    std::string fieldValues;
     std::ostringstream result;
 
     // We want to print the field names on one line, followed by the field

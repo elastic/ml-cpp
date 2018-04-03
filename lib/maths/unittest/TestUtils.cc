@@ -47,7 +47,8 @@ class CCdf : public std::unary_function<double, double> {
             m_Style(style),
             m_Prior(&prior),
             m_Target(target),
-            m_X(1u) {}
+            m_X(1u)
+        {}
 
         double operator()(double x) const {
             double lowerBound, upperBound;
@@ -73,9 +74,9 @@ class CCdf : public std::unary_function<double, double> {
         }
 
     private:
-        EStyle              m_Style;
-        const CPrior        *m_Prior;
-        double              m_Target;
+        EStyle m_Style;
+        const CPrior *m_Prior;
+        double m_Target;
         mutable TDouble1Vec m_X;
 };
 
@@ -104,7 +105,8 @@ class CResidual {
 }
 
 CPriorTestInterface::CPriorTestInterface(CPrior &prior) :
-    m_Prior(&prior) {}
+    m_Prior(&prior)
+{}
 
 void CPriorTestInterface::addSamples(const TDouble1Vec &samples) {
     TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
@@ -143,7 +145,7 @@ bool CPriorTestInterface::probabilityOfLessLikelySamples(maths_t::EProbabilityCa
                                                          double &lowerBound,
                                                          double &upperBound) const {
     TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
-    maths_t::ETail  tail;
+    maths_t::ETail tail;
     return m_Prior->probabilityOfLessLikelySamples(calculation,
                                                    TWeights::COUNT,
                                                    samples,
@@ -169,14 +171,14 @@ bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculat
     result = 0.0;
 
     TWeightStyleVec weightStyles(1, weightStyle);
-    TDouble1Vec     samples_(samples.size());
+    TDouble1Vec samples_(samples.size());
     TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         samples_[i] = samples[i].first;
         weights[i][0] = samples[i].second;
     }
 
-    double         lowerBound, upperBound;
+    double lowerBound, upperBound;
     maths_t::ETail tail;
     if (!m_Prior->probabilityOfLessLikelySamples(calculation,
                                                  weightStyles,
@@ -200,11 +202,11 @@ bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage,
     result = 0.0;
 
     percentage /= 100.0;
-    double          step = 1.0;
+    double step = 1.0;
     TDoubleDoublePr bracket(0.0, step);
 
     try {
-        CCdf            cdf(percentage < 0.5 ? CCdf::E_Lower : CCdf::E_Upper, *m_Prior, percentage);
+        CCdf cdf(percentage < 0.5 ? CCdf::E_Lower : CCdf::E_Upper, *m_Prior, percentage);
         TDoubleDoublePr fBracket(cdf(bracket.first), cdf(bracket.second));
 
         std::size_t maxIterations = 100u;
@@ -215,7 +217,7 @@ bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage,
             if (fBracket.first > 0.0) {
                 bracket.first -= step;
                 fBracket.first = cdf(bracket.first);
-            } else if (fBracket.second < 0.0) {
+            } else if (fBracket.second < 0.0)   {
                 bracket.second += step;
                 fBracket.second = cdf(bracket.second);
             }
@@ -226,9 +228,9 @@ bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage,
         CSolvers::solve(bracket.first, bracket.second,
                         fBracket.first, fBracket.second,
                         cdf, maxIterations, equal, result);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to compute quantile: " << e.what()
-                                                 << ", quantile = " << percentage);
+                  << ", quantile = " << percentage);
         return false;
     }
 
@@ -258,7 +260,7 @@ bool CPriorTestInterface::marginalLikelihoodMeanForTest(double &result) const {
         steps = static_cast<unsigned int>(b - a) + 1;
     }
 
-    CPrior::CLogMarginalLikelihood   logLikelihood(*m_Prior);
+    CPrior::CLogMarginalLikelihood logLikelihood(*m_Prior);
     TFunctionTimesMarginalLikelihood xTimesLikelihood(identity, TMarginalLikelihood(logLikelihood));
 
     double x = a;
@@ -297,7 +299,7 @@ bool CPriorTestInterface::marginalLikelihoodVarianceForTest(double &result) cons
         steps = static_cast<unsigned int>(b - a) + 1;
     }
 
-    CPrior::CLogMarginalLikelihood   logLikelihood(*m_Prior);
+    CPrior::CLogMarginalLikelihood logLikelihood(*m_Prior);
     TResidualTimesMarginalLikelihood residualTimesLikelihood(CResidual(m_Prior->marginalLikelihoodMean()),
                                                              TMarginalLikelihood(logLikelihood));
 

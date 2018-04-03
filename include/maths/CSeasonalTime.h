@@ -153,7 +153,7 @@ class MATHS_EXPORT CSeasonalTime {
         core_t::TTime m_RegressionOrigin;
         //! The precedence of the corresponding component when
         //! deciding which to keep amongst alternatives.
-        double        m_Precedence;
+        double m_Precedence;
 };
 
 //! \brief Provides times for daily and weekly period seasonal

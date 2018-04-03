@@ -336,16 +336,16 @@ class MATHS_EXPORT CNaturalBreaksClassifier {
 
     private:
         //! The maximum space in doubles.
-        std::size_t        m_Space;
+        std::size_t m_Space;
 
         //! The rate at which the categories lose information.
-        double             m_DecayRate;
+        double m_DecayRate;
 
         //! The minimum permitted count for a category.
-        double             m_MinimumCategoryCount;
+        double m_MinimumCategoryCount;
 
         //! The categories we are maintaining.
-        TTupleVec          m_Categories;
+        TTupleVec m_Categories;
 
         //! A buffer of the points added while the space constraint is satisfied.
         TDoubleDoublePrVec m_PointsBuffer;

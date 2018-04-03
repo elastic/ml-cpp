@@ -76,14 +76,14 @@ void CTrendTestsTest::testRandomizedPeriodicity(void) {
         maths::CRandomizedPeriodicityTest::reset();
 
         maths::CRandomizedPeriodicityTest rtests[8];
-        double                            falsePositives[3] = { 0.0, 0.0, 0.0 };
-        double                            trueNegatives[3]  = { 0.0, 0.0, 0.0 };
-        double                            truePositives[5]  = { 0.0, 0.0, 0.0, 0.0, 0.0 };
-        double                            falseNegatives[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
-        TMeanVarAccumulator               timeToDetectionMoments[5];
-        TMaxAccumulator                   timeToDetectionMax[5];
-        core_t::TTime                     lastTruePositive[5] = { time, time, time, time, time };
-        TFunction                         functions[] =
+        double falsePositives[3] = { 0.0, 0.0, 0.0 };
+        double trueNegatives[3]  = { 0.0, 0.0, 0.0 };
+        double truePositives[5]  = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+        double falseNegatives[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+        TMeanVarAccumulator timeToDetectionMoments[5];
+        TMaxAccumulator timeToDetectionMax[5];
+        core_t::TTime lastTruePositive[5] = { time, time, time, time, time };
+        TFunction functions[] =
         {
             &constant,
             &ramp,
@@ -103,7 +103,7 @@ void CTrendTestsTest::testRandomizedPeriodicity(void) {
                 for (std::size_t j = 0u; j < boost::size(rtests); ++j) {
                     if (j < 3) {
                         (rtests[j].test() ? falsePositives[j] : trueNegatives[j]) += 1.0;
-                    } else {
+                    } else   {
                         (rtests[j].test() ? truePositives[j - 3] : falseNegatives[j - 3]) += 1.0;
                         if (rtests[j].test()) {
                             timeToDetectionMoments[j - 3].add(time - lastTruePositive[j - 3]);

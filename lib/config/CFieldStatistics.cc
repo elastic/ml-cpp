@@ -28,7 +28,8 @@ namespace {
 class CAddToStatistics : public boost::static_visitor<void> {
     public:
         CAddToStatistics(core_t::TTime time, const std::string &example) :
-            m_Time(time), m_Example(&example) {}
+            m_Time(time), m_Example(&example)
+        {}
 
         void operator()(CDataSummaryStatistics &summary) const {
             summary.add(m_Time);
@@ -43,7 +44,7 @@ class CAddToStatistics : public boost::static_visitor<void> {
         }
 
     private:
-        core_t::TTime     m_Time;
+        core_t::TTime m_Time;
         const std::string *m_Example;
 };
 
@@ -54,7 +55,8 @@ CFieldStatistics::CFieldStatistics(const std::string &fieldName, const CAutoconf
     m_FieldName(fieldName),
     m_NumberExamples(0),
     m_Semantics(params.dataType(fieldName)),
-    m_SummaryStatistics(CDataSummaryStatistics()) {}
+    m_SummaryStatistics(CDataSummaryStatistics())
+{}
 
 const std::string &CFieldStatistics::name(void) const {
     return m_FieldName;
@@ -72,7 +74,7 @@ void CFieldStatistics::maybeStartCapturingTypeStatistics(void) {
                 m_SummaryStatistics = CCategoricalDataSummaryStatistics(
                     *summary, this->params().numberOfMostFrequentFieldsCounts());
                 this->replayBuffer();
-            } else if (config_t::isNumeric(type)) {
+            } else if (config_t::isNumeric(type))   {
                 m_SummaryStatistics = CNumericDataSummaryStatistics(*summary, config_t::isInteger(type));
                 this->replayBuffer();
             }

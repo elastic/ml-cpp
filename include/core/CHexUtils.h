@@ -63,13 +63,13 @@ class CORE_EXPORT CHexUtils {
         const uint8_t *m_Pkt;
 
         //! Packet length
-        size_t        m_PktLen;
+        size_t m_PktLen;
 
         //! Should we print a header?
-        bool          m_PrintHeader;
+        bool m_PrintHeader;
 
         //! Should we the raw ASCII (where possible) next to the hex?
-        bool          m_PrintAscii;
+        bool m_PrintAscii;
 
         friend CORE_EXPORT std::ostream &operator<<(std::ostream &, const CHexUtils &);
 };

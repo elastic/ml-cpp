@@ -112,7 +112,8 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                     m_Index(clusterer.m_ClusterIndexGenerator.next()),
                     m_DataType(clusterer.m_DataType),
                     m_DecayRate(clusterer.m_DecayRate),
-                    m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate) {}
+                    m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate)
+                {}
 
                 //! Initialize by traversing a state document.
                 bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
@@ -222,15 +223,15 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                 //! Get the likelihood that \p x is from this cluster.
                 double logLikelihoodFromCluster(maths_t::EClusterWeightCalc calc,
                                                 const TPointPrecise &x) const {
-                    double               likelihood;
-                    const TPointPrecise  & mean = CBasicStatistics::mean(m_Covariances);
+                    double likelihood;
+                    const TPointPrecise &mean = CBasicStatistics::mean(m_Covariances);
                     const TMatrixPrecise &covariances =
                         CBasicStatistics::maximumLikelihoodCovariances(m_Covariances);
                     maths_t::EFloatingPointErrorStatus status =
                         gaussianLogLikelihood(covariances, x - mean, likelihood, false);
                     if (status & maths_t::E_FpFailed) {
                         LOG_ERROR("Unable to compute likelihood for " << x
-                                                                      << " and cluster " << m_Index);
+                                  << " and cluster " << m_Index);
                         return core::constants::LOG_MIN_DOUBLE - 1.0;
                     }
                     if (status & maths_t::E_FpOverflowed) {
@@ -285,7 +286,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                     }
                     LOG_TRACE("split = " << core::CContainerPrinter::print(split));
 
-                    TCovariances         covariances[2];
+                    TCovariances covariances[2];
                     TSphericalClusterVec clusters;
                     this->sphericalClusters(clusters);
                     for (std::size_t i = 0u; i < 2; ++i) {
@@ -296,9 +297,9 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                     TKMeansOnlineVec structure;
                     m_Structure.split(split, structure);
                     LOG_TRACE("Splitting cluster " << this->index()
-                                                   << " at " << this->centre()
-                                                   << " left = " << structure[0].print()
-                                                   << ", right = " << structure[1].print());
+                              << " at " << this->centre()
+                              << " left = " << structure[0].print()
+                              << ", right = " << structure[1].print());
 
                     std::size_t index[] = { indexGenerator.next(), indexGenerator.next() };
                     indexGenerator.recycle(m_Index);
@@ -363,7 +364,8 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                     m_DataType(dataType),
                     m_DecayRate(decayRate),
                     m_Covariances(covariances),
-                    m_Structure(structure) {}
+                    m_Structure(structure)
+                {}
 
                 //! Search for a split of the data that satisfies the constraints
                 //! on both the BIC divergence and minimum count.
@@ -437,9 +439,9 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
 
                         // Check the distance constraint.
                         double distance = BICGain(covariances[0], covariances[1]);
-                        bool   satisfiesDistance = (distance > MINIMUM_SPLIT_DISTANCE);
+                        bool satisfiesDistance = (distance > MINIMUM_SPLIT_DISTANCE);
                         LOG_TRACE("BIC(1) - BIC(2) = " << distance
-                                                       << " (to split " << MINIMUM_SPLIT_DISTANCE << ")");
+                                  << " (to split " << MINIMUM_SPLIT_DISTANCE << ")");
 
                         if (!satisfiesCount) {
                             // Recurse to the (one) node with sufficient count.
@@ -453,7 +455,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                                 remainder.insert(remainder.end(), candidate[0].begin(), candidate[0].end());
                                 continue;
                             }
-                        } else if (satisfiesDistance) {
+                        } else if (satisfiesDistance)   {
                             LOG_TRACE("Checking full split");
 
                             TSizeVec assignment(remainder.size());
@@ -461,7 +463,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                                 assignment[i] = nearest(remainder[i], covariances);
                             }
                             for (std::size_t i = 0u; i < assignment.size(); ++i) {
-                                std::size_t  j = assignment[i];
+                                std::size_t j = assignment[i];
                                 TCovariances ci;
                                 ci.add(remainder[i]);
                                 candidate[j].push_back(remainder[i]);
@@ -471,7 +473,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
 
                             distance = BICGain(covariances[0], covariances[1]);
                             LOG_TRACE("BIC(1) - BIC(2) = " << distance
-                                                           << " (to split " << MINIMUM_SPLIT_DISTANCE << ")");
+                                      << " (to split " << MINIMUM_SPLIT_DISTANCE << ")");
 
                             if (distance > MINIMUM_SPLIT_DISTANCE) {
                                 LOG_TRACE("splitting");
@@ -493,7 +495,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                                                         - clusters.begin();
                                         if (k >= clusters.size()) {
                                             LOG_ERROR("Missing " << candidate[i][j]
-                                                                 << ", clusters = " << core::CContainerPrinter::print(clusters));
+                                                      << ", clusters = " << core::CContainerPrinter::print(clusters));
                                             return false;
                                         }
                                         result[i].push_back(indexes[k]);
@@ -527,7 +529,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
 
                 //! Get the closest (in Mahalanobis distance) cluster to \p x.
                 static std::size_t nearest(const TSphericalCluster &x, const TCovariances (&c)[2]) {
-                    TPrecise      d[] = { 0, 0 };
+                    TPrecise d[] = { 0, 0 };
                     TPointPrecise x_(x);
                     inverseQuadraticForm(CBasicStatistics::maximumLikelihoodCovariances(c[0]),
                                          x_ - CBasicStatistics::mean(c[0]),
@@ -558,19 +560,19 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
 
             private:
                 //! A unique identifier for this cluster.
-                std::size_t        m_Index;
+                std::size_t m_Index;
 
                 //! The type of data which will be clustered.
                 maths_t::EDataType m_DataType;
 
                 //! Controls the rate at which information is lost.
-                double             m_DecayRate;
+                double m_DecayRate;
 
                 //! The mean, covariances of the data in this cluster.
-                TCovariances       m_Covariances;
+                TCovariances m_Covariances;
 
                 //! The data representing the internal structure of this cluster.
-                TKMeansOnline      m_Structure;
+                TKMeansOnline m_Structure;
         };
 
         typedef std::vector<CCluster>                TClusterVec;
@@ -612,7 +614,8 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
             m_MinimumClusterFraction(minimumClusterFraction),
             m_MinimumClusterCount(minimumClusterCount),
             m_MinimumCategoryCount(minimumCategoryCount),
-            m_Clusters(1, CCluster(*this)) {}
+            m_Clusters(1, CCluster(*this))
+        {}
 
         //! Construct by traversing a state document.
         CXMeansOnline(const SDistributionRestoreParams &params,
@@ -661,7 +664,8 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
             m_MinimumClusterCount(other.m_MinimumClusterCount),
             m_MinimumCategoryCount(other.m_MinimumCategoryCount),
             m_ClusterIndexGenerator(other.m_ClusterIndexGenerator.deepCopy()),
-            m_Clusters(other.m_Clusters) {}
+            m_Clusters(other.m_Clusters)
+        {}
 
         //! The x-means clusterer has value semantics.
         CXMeansOnline &operator=(const CXMeansOnline &other) {
@@ -848,7 +852,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                 if (this->maybeSplit(m_Clusters.begin())) {
                     this->cluster(x, clusters, count);
                 }
-            } else {
+            } else   {
                 typedef std::pair<double, std::size_t>                                                          TSizeDoublePr;
                 typedef CBasicStatistics::COrderStatisticsStack<TSizeDoublePr, 2, std::greater<TSizeDoublePr> > TMaxAccumulator;
 
@@ -880,13 +884,13 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                     if (this->maybeSplit(cluster0) || this->maybeMerge(cluster0)) {
                         this->cluster(x, clusters, count);
                     }
-                } else {
+                } else   {
                     // Get the weighted counts.
                     double count0 = count * p0;
                     double count1 = count * p1;
                     LOG_TRACE("Soft adding " << x
-                                             << " " << count0 << " to " << cluster0->centre()
-                                             << " and " << count1 << " to " << cluster1->centre());
+                              << " " << count0 << " to " << cluster0->centre()
+                              << " and " << count1 << " to " << cluster1->centre());
 
                     cluster0->add(x, count0);
                     cluster1->add(x, count1);
@@ -1093,7 +1097,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
             if (TOptionalClusterClusterPr split =
                     cluster->split(m_Rng, this->minimumSplitCount(), m_ClusterIndexGenerator)) {
                 LOG_TRACE("Splitting cluster " << cluster->index()
-                                               << " at " << cluster->centre());
+                          << " at " << cluster->centre());
                 std::size_t index = cluster->index();
                 *cluster = split->first;
                 m_Clusters.push_back(split->second);
@@ -1114,12 +1118,12 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
 
             if (nearest && nearest->shouldMerge(*cluster)) {
                 LOG_TRACE("Merging cluster " << nearest->index()
-                                             << " at " << nearest->centre()
-                                             << " and cluster " << cluster->index()
-                                             << " at " << cluster->centre());
+                          << " at " << nearest->centre()
+                          << " and cluster " << cluster->index()
+                          << " at " << cluster->centre());
                 std::size_t index1 = nearest->index();
                 std::size_t index2 = cluster->index();
-                CCluster    merged = nearest->merge(*cluster, m_ClusterIndexGenerator);
+                CCluster merged = nearest->merge(*cluster, m_ClusterIndexGenerator);
                 *nearest = merged;
                 m_Clusters.erase(cluster);
                 (this->mergeFunc())(index1, index2, merged.index());
@@ -1162,9 +1166,9 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                 CCluster *nearest = this->nearest(cluster);
                 if (nearest) {
                     LOG_TRACE("Merging cluster " << cluster.index()
-                                                 << " at " << cluster.centre()
-                                                 << " and cluster " << nearest->index()
-                                                 << " at " << nearest->centre());
+                              << " at " << cluster.centre()
+                              << " and cluster " << nearest->index()
+                              << " at " << nearest->centre());
                     CCluster merge = nearest->merge(cluster, m_ClusterIndexGenerator);
                     (this->mergeFunc())(cluster.index(), nearest->index(), merge.index());
                     nearest->swap(merge);
@@ -1185,7 +1189,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
 
             typedef CBasicStatistics::COrderStatisticsStack<double, 1> TMinAccumulator;
 
-            CCluster        *      result = 0;
+            CCluster *result = 0;
             TMinAccumulator min;
             for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
                 if (cluster.index() == m_Clusters[i].index()) {
@@ -1224,79 +1228,79 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
     private:
         //! \name Tags for Persisting CXMeansOnline
         //@{
-        static const std::string         WEIGHT_CALC_TAG;
-        static const std::string         MINIMUM_CLUSTER_FRACTION_TAG;
-        static const std::string         MINIMUM_CLUSTER_COUNT_TAG;
-        static const std::string         WINSORISATION_CONFIDENCE_INTERVAL_TAG;
-        static const std::string         CLUSTER_INDEX_GENERATOR_TAG;
-        static const std::string         CLUSTER_TAG;
-        static const std::string         RNG_TAG;
-        static const std::string         DECAY_RATE_TAG;
-        static const std::string         HISTORY_LENGTH_TAG;
+        static const std::string WEIGHT_CALC_TAG;
+        static const std::string MINIMUM_CLUSTER_FRACTION_TAG;
+        static const std::string MINIMUM_CLUSTER_COUNT_TAG;
+        static const std::string WINSORISATION_CONFIDENCE_INTERVAL_TAG;
+        static const std::string CLUSTER_INDEX_GENERATOR_TAG;
+        static const std::string CLUSTER_TAG;
+        static const std::string RNG_TAG;
+        static const std::string DECAY_RATE_TAG;
+        static const std::string HISTORY_LENGTH_TAG;
         //@}
 
         //! \name Tags for Persisting CXMeansOnline::CCluster
         //@{
-        static const std::string         INDEX_TAG;
-        static const std::string         COVARIANCES_TAG;
-        static const std::string         STRUCTURE_TAG;
+        static const std::string INDEX_TAG;
+        static const std::string COVARIANCES_TAG;
+        static const std::string STRUCTURE_TAG;
         //@}
 
         //! The minimum Kullback-Leibler divergence at which we'll
         //! split a cluster.
-        static const double              MINIMUM_SPLIT_DISTANCE;
+        static const double MINIMUM_SPLIT_DISTANCE;
 
         //! The maximum Kullback-Leibler divergence for which we'll
         //! merge two cluster. This is intended to introduce hysteresis
         //! in the cluster creation and deletion process and so should
         //! be less than the minimum split distance.
-        static const double              MAXIMUM_MERGE_DISTANCE;
+        static const double MAXIMUM_MERGE_DISTANCE;
 
         //! The default fraction of the minimum cluster split count
         //! for which we'll delete a cluster. This is intended to
         //! introduce hysteresis in the cluster creation and deletion
         //! process and so should be in the range (0, 1).
-        static const double              CLUSTER_DELETE_FRACTION;
+        static const double CLUSTER_DELETE_FRACTION;
 
         //! The size of the data we use to maintain cluster detail.
-        static const std::size_t         STRUCTURE_SIZE;
+        static const std::size_t STRUCTURE_SIZE;
 
         //! 1 - "smallest hard assignment weight".
-        static const double              HARD_ASSIGNMENT_THRESHOLD;
+        static const double HARD_ASSIGNMENT_THRESHOLD;
 
     private:
         //! The random number generator.
-        CPRNG::CXorOShiro128Plus         m_Rng;
+        CPRNG::CXorOShiro128Plus m_Rng;
 
         //! The type of data being clustered.
-        maths_t::EDataType               m_DataType;
+        maths_t::EDataType m_DataType;
 
         //! The initial rate at which information is lost.
-        double                           m_InitialDecayRate;
+        double m_InitialDecayRate;
 
         //! The rate at which information is lost.
-        double                           m_DecayRate;
+        double m_DecayRate;
 
         //! A measure of the length of history of the data clustered.
-        double                           m_HistoryLength;
+        double m_HistoryLength;
 
         //! The style of the cluster weight calculation (see maths_t::EClusterWeightCalc).
-        maths_t::EClusterWeightCalc      m_WeightCalc;
+        maths_t::EClusterWeightCalc m_WeightCalc;
 
         //! The minimum cluster fractional count.
-        double                           m_MinimumClusterFraction;
+        double m_MinimumClusterFraction;
 
         //! The minimum cluster count.
-        double                           m_MinimumClusterCount;
+        double m_MinimumClusterCount;
 
         //! The minimum count for a category in the sketch to cluster.
-        double                           m_MinimumCategoryCount;
+        double m_MinimumCategoryCount;
 
         //! A generator of unique cluster indices.
         CClustererTypes::CIndexGenerator m_ClusterIndexGenerator;
 
         //! The clusters.
-        TClusterVec                      m_Clusters;
+        TClusterVec m_Clusters;
 };
 
 template<typename T, std::size_t N>

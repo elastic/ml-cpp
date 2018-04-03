@@ -32,9 +32,9 @@ namespace {
 
 const uint32_t SLEEP_TIME_MS = 100;
 const uint32_t PAUSE_TIME_MS = 10;
-const size_t   MAX_ATTEMPTS = 100;
-const size_t   TEST_SIZE = 10000;
-const char     TEST_CHAR = 'a';
+const size_t MAX_ATTEMPTS = 100;
+const size_t TEST_SIZE = 10000;
+const char TEST_CHAR = 'a';
 #ifdef Windows
 const char     *TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
 #else
@@ -45,7 +45,8 @@ class CThreadDataWriter : public ml::core::CThread {
     public:
         CThreadDataWriter(const std::string &fileName, size_t size)
             : m_FileName(fileName),
-              m_Size(size) {}
+              m_Size(size)
+        {}
 
     protected:
         virtual void run(void) {
@@ -58,17 +59,19 @@ class CThreadDataWriter : public ml::core::CThread {
             }
         }
 
-        virtual void shutdown(void) {}
+        virtual void shutdown(void)
+        {}
 
     private:
         std::string m_FileName;
-        size_t      m_Size;
+        size_t m_Size;
 };
 
 class CThreadDataReader : public ml::core::CThread {
     public:
         CThreadDataReader(const std::string &fileName)
-            : m_FileName(fileName) {}
+            : m_FileName(fileName)
+        {}
 
         const std::string &data(void) const {
             return m_Data;
@@ -90,7 +93,7 @@ class CThreadDataReader : public ml::core::CThread {
             } while (!strm.is_open());
 
             static const std::streamsize BUF_SIZE = 512;
-            char                         buffer[BUF_SIZE];
+            char buffer[BUF_SIZE];
             while (strm.good()) {
                 strm.read(buffer, BUF_SIZE);
                 CPPUNIT_ASSERT(!strm.bad());
@@ -98,7 +101,7 @@ class CThreadDataReader : public ml::core::CThread {
                     // This code deals with the test character we write to
                     // detect the short-lived connection problem on Windows
                     const char *copyFrom = buffer;
-                    size_t     copyLen = static_cast<size_t>(strm.gcount());
+                    size_t copyLen = static_cast<size_t>(strm.gcount());
                     if (m_Data.empty() &&
                         *buffer == ml::core::CNamedPipeFactory::TEST_CHAR) {
                         ++copyFrom;
@@ -111,7 +114,8 @@ class CThreadDataReader : public ml::core::CThread {
             }
         }
 
-        virtual void shutdown(void) {}
+        virtual void shutdown(void)
+        {}
 
     private:
         std::string m_FileName;
@@ -121,7 +125,8 @@ class CThreadDataReader : public ml::core::CThread {
 class CThreadBlockCanceller : public ml::core::CThread {
     public:
         CThreadBlockCanceller(ml::core::CThread::TThreadId threadId)
-            : m_ThreadId(threadId) {}
+            : m_ThreadId(threadId)
+        {}
 
     protected:
         virtual void run(void) {
@@ -132,7 +137,8 @@ class CThreadBlockCanceller : public ml::core::CThread {
             CPPUNIT_ASSERT(ml::core::CThread::cancelBlockedIo(m_ThreadId));
         }
 
-        virtual void shutdown(void) {}
+        virtual void shutdown(void)
+        {}
 
     private:
         ml::core::CThread::TThreadId m_ThreadId;
@@ -176,8 +182,8 @@ void CNamedPipeFactoryTest::testServerIsCppReader(void) {
     CPPUNIT_ASSERT(strm);
 
     static const std::streamsize BUF_SIZE = 512;
-    std::string                  readData;
-    char                         buffer[BUF_SIZE];
+    std::string readData;
+    char buffer[BUF_SIZE];
     do {
         strm->read(buffer, BUF_SIZE);
         CPPUNIT_ASSERT(!strm->bad());
@@ -202,8 +208,8 @@ void CNamedPipeFactoryTest::testServerIsCReader(void) {
     CPPUNIT_ASSERT(file);
 
     static const size_t BUF_SIZE = 512;
-    std::string         readData;
-    char                buffer[BUF_SIZE];
+    std::string readData;
+    char buffer[BUF_SIZE];
     do {
         size_t charsRead = ::fread(buffer, sizeof(char), BUF_SIZE, file.get());
         CPPUNIT_ASSERT(!::ferror(file.get()));

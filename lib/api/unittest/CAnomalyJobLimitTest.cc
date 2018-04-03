@@ -41,7 +41,7 @@ using namespace ml;
 
 std::set<std::string> getUniqueValues(const std::string &key, const std::string &output) {
     std::set<std::string> values;
-    rapidjson::Document   doc;
+    rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(output);
     CPPUNIT_ASSERT(!doc.HasParseError());
     CPPUNIT_ASSERT(doc.IsArray());
@@ -65,17 +65,17 @@ std::set<std::string> getUniqueValues(const std::string &key, const std::string 
 
                         if (p3 != nullptr) {
                             values.insert(p3->GetString());
-                        } else {
+                        } else   {
                             break;
                         }
                         ++k;
                     }
-                } else {
+                } else   {
                     break;
                 }
                 ++j;
             }
-        } else {
+        } else   {
             break;
         }
         ++i;
@@ -106,7 +106,7 @@ void CAnomalyJobLimitTest::testAccuracy(void) {
         // Without limits, this data set should make the models around
         // 1230000 bytes
         // Run the data once to find out what the current platform uses
-        api::CFieldConfig          fieldConfig;
+        api::CFieldConfig fieldConfig;
         api::CFieldConfig::TStrVec clause;
         clause.push_back("value");
         clause.push_back("by");
@@ -119,7 +119,7 @@ void CAnomalyJobLimitTest::testAccuracy(void) {
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
-        std::stringstream              outputStrm;
+        std::stringstream outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         model::CLimits limits;
@@ -152,7 +152,7 @@ void CAnomalyJobLimitTest::testAccuracy(void) {
     }
     {
         // Now run the data with limiting
-        api::CFieldConfig          fieldConfig;
+        api::CFieldConfig fieldConfig;
         api::CFieldConfig::TStrVec clause;
         clause.push_back("value");
         clause.push_back("by");
@@ -213,8 +213,8 @@ void CAnomalyJobLimitTest::testLimit(void) {
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
         // Run the data without any resource limits and check that
         // all the expected fields are in the results set
-        model::CLimits             limits;
-        api::CFieldConfig          fieldConfig;
+        model::CLimits limits;
+        api::CFieldConfig fieldConfig;
         api::CFieldConfig::TStrVec clause;
         clause.push_back("value");
         clause.push_back("by");
@@ -261,8 +261,8 @@ void CAnomalyJobLimitTest::testLimit(void) {
     {
         // Run the data with some resource limits after the first 4 records and
         // check that we get only anomalies from the first 2 partitions
-        model::CLimits             limits;
-        api::CFieldConfig          fieldConfig;
+        model::CLimits limits;
+        api::CFieldConfig fieldConfig;
         api::CFieldConfig::TStrVec clause;
         clause.push_back("value");
         clause.push_back("by");

@@ -31,7 +31,8 @@ const std::string CConfigUpdater::SCHEDULED_EVENTS("scheduledEvents");
 
 CConfigUpdater::CConfigUpdater(CFieldConfig &fieldConfig, model::CAnomalyDetectorModelConfig &modelConfig)
     : m_FieldConfig(fieldConfig),
-      m_ModelConfig(modelConfig) {}
+      m_ModelConfig(modelConfig)
+{}
 
 bool CConfigUpdater::update(const std::string &config) {
     boost::property_tree::ptree propTree;
@@ -39,7 +40,7 @@ bool CConfigUpdater::update(const std::string &config) {
     try {
         std::istringstream strm(config);
         boost::property_tree::ini_parser::read_ini(strm, propTree);
-    } catch (boost::property_tree::ptree_error &e) {
+    } catch (boost::property_tree::ptree_error &e)   {
         LOG_ERROR("Error parsing config from '" << config << "' : " << e.what());
         return false;
     }
@@ -47,7 +48,7 @@ bool CConfigUpdater::update(const std::string &config) {
     for (boost::property_tree::ptree::const_iterator stanzaItr = propTree.begin();
          stanzaItr != propTree.end();
          ++stanzaItr) {
-        const std::string                 &                stanzaName = stanzaItr->first;
+        const std::string &stanzaName = stanzaItr->first;
         const boost::property_tree::ptree &subTree = stanzaItr->second;
 
         if (stanzaName == MODEL_DEBUG_CONFIG) {
@@ -55,9 +56,9 @@ bool CConfigUpdater::update(const std::string &config) {
                 LOG_ERROR("Could not parse modelPlotConfig");
                 return false;
             }
-        } else if (stanzaName == DETECTOR_RULES) {
+        } else if (stanzaName == DETECTOR_RULES)   {
             std::string detectorIndexString = subTree.get(DETECTOR_INDEX, std::string());
-            int         detectorIndex;
+            int detectorIndex;
             if (core::CStringUtils::stringToType(detectorIndexString, detectorIndex) == false) {
                 LOG_ERROR("Invalid detector index: " << detectorIndexString);
                 return false;
@@ -67,17 +68,17 @@ bool CConfigUpdater::update(const std::string &config) {
                 LOG_ERROR("Failed to update detector rules for detector: " << detectorIndex);
                 return false;
             }
-        } else if (stanzaName == FILTERS) {
+        } else if (stanzaName == FILTERS)   {
             if (m_FieldConfig.updateFilters(subTree) == false) {
                 LOG_ERROR("Failed to update filters");
                 return false;
             }
-        } else if (stanzaName == SCHEDULED_EVENTS) {
+        } else if (stanzaName == SCHEDULED_EVENTS)   {
             if (m_FieldConfig.updateScheduledEvents(subTree) == false) {
                 LOG_ERROR("Failed to update scheduled events");
                 return false;
             }
-        } else {
+        } else   {
             LOG_WARN("Ignoring unknown update config stanza: " << stanzaName);
             return false;
         }

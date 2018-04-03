@@ -34,17 +34,17 @@ std::string s0;
 std::string s1;
 std::string s2;
 std::string s3;
-size_t      totalLength = 0;
+size_t totalLength = 0;
 
 template <char OP>
 void transfer(std::string &&from, std::string &to) {
     if (OP == 'm') {
         to = std::move(from);
-    } else if (OP == 'c') {
+    } else if (OP == 'c')   {
         to = from;
-    } else if (OP == 'd') {
+    } else if (OP == 'd')   {
         to.assign(from, 0, from.length());
-    } else {
+    } else   {
         from.swap(to);
     }
 }
@@ -84,11 +84,11 @@ void generate(size_t minSize, size_t iterations) {
 int main(int argc, char **argv) {
     if (argc != 4) {
         std::cerr << "Usage: " << argv[0]
-                  << " <m|c|d|s> <min size> <iterations>" << std::endl
-                  << "Where: m = move" << std::endl
-                  << "       c = copy" << std::endl
-                  << "       d = copy defeating copy-on-write" << std::endl
-                  << "       s = swap" << std::endl;
+        << " <m|c|d|s> <min size> <iterations>" << std::endl
+        << "Where: m = move" << std::endl
+        << "       c = copy" << std::endl
+        << "       d = copy defeating copy-on-write" << std::endl
+        << "       s = swap" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -97,18 +97,18 @@ int main(int argc, char **argv) {
 
 #ifdef NO_STD_CHRONO
     ml::core::CMonotonicTime clock;
-    uint64_t                 startTimeNs = clock.nanoseconds();
+    uint64_t startTimeNs = clock.nanoseconds();
 #else
     std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 #endif
 
     if (argv[1][0] == 'm') {
         generate<'m'>(minSize, iterations);
-    } else if (argv[1][0] == 'c') {
+    } else if (argv[1][0] == 'c')   {
         generate<'c'>(minSize, iterations);
-    } else if (argv[1][0] == 'd') {
+    } else if (argv[1][0] == 'd')   {
         generate<'d'>(minSize, iterations);
-    } else {
+    } else   {
         generate<'s'>(minSize, iterations);
     }
 
@@ -119,11 +119,11 @@ int main(int argc, char **argv) {
                           ((durationTenthMs % 10 >= 5) ? 1 : 0);
 #else
     std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
-    size_t                                durationMs = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+    size_t durationMs = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 #endif
 
     std::cout << "Time " << durationMs << "ms, "
-        "Total length: " << totalLength << std::endl;
+    "Total length: " << totalLength << std::endl;
 
     return EXIT_SUCCESS;
 }

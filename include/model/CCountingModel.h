@@ -292,16 +292,16 @@ class MODEL_EXPORT CCountingModel : public CAnomalyDetectorModel {
 
     private:
         //! The start time of the last sampled bucket.
-        core_t::TTime       m_StartTime;
+        core_t::TTime m_StartTime;
 
         //! The current bucket counts.
-        TSizeUInt64PrVec    m_Counts;
+        TSizeUInt64PrVec m_Counts;
 
         //! The baseline bucket counts.
         TMeanAccumulatorVec m_MeanCounts;
 
         //! Map of matched scheduled event descriptions by bucket time
-        TTimeStr1VecUMap    m_ScheduledEventDescriptions;
+        TTimeStr1VecUMap m_ScheduledEventDescriptions;
 
         friend class ::CCountingModelTest;
 };

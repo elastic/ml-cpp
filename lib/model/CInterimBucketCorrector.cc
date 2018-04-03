@@ -42,12 +42,14 @@ double trendDecayRate(core_t::TTime bucketLength) {
 
 CInterimBucketCorrector::CInterimBucketCorrector(core_t::TTime bucketLength)
     : m_BucketLength(bucketLength),
-      m_CountTrend(trendDecayRate(bucketLength), bucketLength, COMPONENT_SIZE) {}
+      m_CountTrend(trendDecayRate(bucketLength), bucketLength, COMPONENT_SIZE)
+{}
 
 CInterimBucketCorrector::CInterimBucketCorrector(const CInterimBucketCorrector &other)
     : m_BucketLength(other.m_BucketLength),
       m_CountTrend(other.m_CountTrend),
-      m_CountMean(other.m_CountMean) {}
+      m_CountMean(other.m_CountMean)
+{}
 
 core_t::TTime CInterimBucketCorrector::calcBucketMidPoint(core_t::TTime time) const {
     return maths::CIntegerTools::floor(time, m_BucketLength) + m_BucketLength / 2;
@@ -65,11 +67,11 @@ void CInterimBucketCorrector::update(core_t::TTime time, std::size_t bucketCount
 
 double CInterimBucketCorrector::estimateBucketCompleteness(core_t::TTime time,
                                                            std::size_t currentCount) const {
-    double        baselineCount = 0.0;
+    double baselineCount = 0.0;
     core_t::TTime bucketMidPoint = this->calcBucketMidPoint(time);
     if (m_CountTrend.initialized()) {
         baselineCount = maths::CBasicStatistics::mean(m_CountTrend.baseline(bucketMidPoint));
-    } else {
+    } else   {
         baselineCount = maths::CBasicStatistics::mean(m_CountMean);
     }
 
@@ -95,8 +97,8 @@ CInterimBucketCorrector::corrections(core_t::TTime time,
                                      const TDouble10Vec &modes,
                                      const TDouble10Vec &values) const {
     TDouble10Vec corrections(values.size(), 0.0);
-    double       incompleteBucketFraction = 1.0 - this->estimateBucketCompleteness(time, currentCount);
-    double       correction = 0.0;
+    double incompleteBucketFraction = 1.0 - this->estimateBucketCompleteness(time, currentCount);
+    double correction = 0.0;
     for (std::size_t i = 0; i < corrections.size(); ++i) {
         correction = incompleteBucketFraction * modes[i];
         corrections[i] = maths::CTools::truncate(modes[i] - values[i],
@@ -128,7 +130,7 @@ bool CInterimBucketCorrector::acceptRestoreTraverser(core::CStateRestoreTraverse
                                                      m_BucketLength, COMPONENT_SIZE,
                                                      traverser);
             m_CountTrend.swap(restored);
-        } else if (name == COUNT_MEAN_TAG) {
+        } else if (name == COUNT_MEAN_TAG)   {
             if (m_CountMean.fromDelimited(traverser.value()) == false) {
                 LOG_ERROR("Invalid count mean in " << traverser.value());
                 return false;

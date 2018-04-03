@@ -103,11 +103,11 @@ class API_EXPORT CCsvInputParser : public CInputParser {
             private:
                 //! Input field separator by default this is ',' but can be
                 //! overridden in the constructor.
-                const char        m_Separator;
+                const char m_Separator;
 
                 //! Did the separator character appear after the last CSV field
                 //! we parsed?
-                bool              m_SeparatorAfterLastField;
+                bool m_SeparatorAfterLastField;
 
                 //! The line to be parsed.  Held as a pointer that must outlive
                 //! use of this class to avoid copying.
@@ -130,9 +130,9 @@ class API_EXPORT CCsvInputParser : public CInputParser {
                 //! individual fields doesn't need to check the capacity - even
                 //! if the current row has just one field, the working field
                 //! array will be big enough to hold it.
-                TScopedCharArray  m_WorkField;
+                TScopedCharArray m_WorkField;
                 char              *m_WorkFieldEnd;
-                size_t            m_WorkFieldCapacity;
+                size_t m_WorkFieldCapacity;
         };
 
     public:
@@ -181,7 +181,7 @@ class API_EXPORT CCsvInputParser : public CInputParser {
 
         //! If we've been initialised with a string, this object is used to read
         //! the string
-        std::istringstream  m_StringInputBuf;
+        std::istringstream m_StringInputBuf;
 
         //! Reference to the stream we're going to read from
         std::istream        &m_StrmIn;
@@ -189,7 +189,7 @@ class API_EXPORT CCsvInputParser : public CInputParser {
         //! Hold this as a member, so that its capacity adjusts to a reasonable
         //! size for the input rather than repeatedly having to allocate new
         //! string buffers.
-        std::string         m_CurrentRowStr;
+        std::string m_CurrentRowStr;
 
         //! Similar to the current row string, the working buffer is also held
         //! as a member to avoid constantly reallocating it.  However, the
@@ -204,16 +204,16 @@ class API_EXPORT CCsvInputParser : public CInputParser {
         //! clarity yields a large performance benefit.)  The array of
         //! characters is NOT zero terminated, which is something to be aware of
         //! when accessing it.
-        TScopedCharArray    m_WorkBuffer;
+        TScopedCharArray m_WorkBuffer;
         const char          *m_WorkBufferPtr;
         const char          *m_WorkBufferEnd;
-        bool                m_NoMoreRecords;
+        bool m_NoMoreRecords;
 
         //! Field name row exactly as it appears in the input
-        std::string         m_FieldNameStr;
+        std::string m_FieldNameStr;
 
         //! Parser used to parse the individual lines
-        CCsvLineParser      m_LineParser;
+        CCsvLineParser m_LineParser;
 };
 
 }

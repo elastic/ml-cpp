@@ -103,7 +103,7 @@ template <typename INCREMENTER>
 TSizeUInt64Pr benchmark(char testId,
                         INCREMENTER &incrementer) {
     ml::core::CMonotonicTime clock;
-    TSizeUInt64Pr            result;
+    TSizeUInt64Pr result;
 
     // Do a few calls without measurement to warm up the CPU cache
     benchmark(testId, incrementer, WARMUP_COUNT);

@@ -64,9 +64,9 @@ const std::string WEIGHT_TAG{"a"};
 const std::string REGRESSION_TAG{"b"};
 const std::string RESIDUAL_MOMENTS_TAG{"c"};
 
-const double        TIME_SCALES[]{144.0, 72.0, 36.0, 12.0, 4.0, 1.0, 0.25, 0.05};
-const std::size_t   NUMBER_MODELS{boost::size(TIME_SCALES)};
-const double        MAX_CONDITION{1e12};
+const double TIME_SCALES[]{144.0, 72.0, 36.0, 12.0, 4.0, 1.0, 0.25, 0.05};
+const std::size_t NUMBER_MODELS{boost::size(TIME_SCALES)};
+const double MAX_CONDITION{1e12};
 const core_t::TTime UNSET_TIME{0};
 
 }
@@ -204,7 +204,7 @@ void CTrendComponent::decayRate(double decayRate) {
 
 void CTrendComponent::propagateForwardsByTime(core_t::TTime interval) {
     TDoubleVec factors(this->factors(interval));
-    double     median{CBasicStatistics::median(factors)};
+    double median{CBasicStatistics::median(factors)};
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
         m_Models[i].s_Weight.age(median);
         m_Models[i].s_Regression.age(factors[i]);
@@ -240,14 +240,14 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time, doub
                           / std::max(CBasicStatistics::count(m_ValueMoments), 1.0)};
         try {
             boost::math::normal normal{prediction, std::sqrt(variance)};
-            double              ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
-            double              qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
+            double ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
+            double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
             return {ql, qu};
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ERROR("Failed calculating confidence interval: " << e.what()
-                                                                 << ", prediction = " << prediction
-                                                                 << ", variance = " << variance
-                                                                 << ", confidence = " << confidence);
+                      << ", prediction = " << prediction
+                      << ", variance = " << variance
+                      << ", confidence = " << confidence);
         }
     }
 
@@ -265,13 +265,13 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::variance(double confidence) co
         double df{std::max(this->count(), 2.0) - 1.0};
         try {
             boost::math::chi_squared chi{df};
-            double                   ql{boost::math::quantile(chi, (100.0 - confidence) / 200.0)};
-            double                   qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
+            double ql{boost::math::quantile(chi, (100.0 - confidence) / 200.0)};
+            double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
             return {ql * variance / df, qu * variance / df};
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ERROR("Failed calculating confidence interval: " << e.what()
-                                                                 << ", df = " << df
-                                                                 << ", confidence = " << confidence);
+                      << ", df = " << df
+                      << ", confidence = " << confidence);
         }
     }
 
@@ -304,11 +304,11 @@ void CTrendComponent::forecast(core_t::TTime startTime,
 
     TDoubleVec factors(this->factors(step));
 
-    TDoubleVec          modelWeights(this->initialForecastModelWeights());
-    TDoubleVec          errorWeights(this->initialForecastErrorWeights());
+    TDoubleVec modelWeights(this->initialForecastModelWeights());
+    TDoubleVec errorWeights(this->initialForecastErrorWeights());
     TRegressionArrayVec models(NUMBER_MODELS);
-    TMatrixVec          modelCovariances(NUMBER_MODELS);
-    TDoubleVec          residualVariances(NUMBER_MODELS);
+    TMatrixVec modelCovariances(NUMBER_MODELS);
+    TDoubleVec residualVariances(NUMBER_MODELS);
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
         m_Models[i].s_Regression.parameters(models[i], MAX_CONDITION);
         m_Models[i].s_Regression.covariances(m_PredictionErrorVariance, modelCovariances[i], MAX_CONDITION);
@@ -323,8 +323,8 @@ void CTrendComponent::forecast(core_t::TTime startTime,
     TDoubleVec variances(NUMBER_MODELS + 1);
     for (core_t::TTime time = startTime; time < endTime; time += step) {
         core_t::TTime pillar{(time - startTime) / step};
-        double        scaledDt{scaleTime(time, startTime)};
-        TVector       times({0.0, scaledDt, scaledDt * scaledDt});
+        double scaledDt{scaleTime(time, startTime)};
+        TVector times({0.0, scaledDt, scaledDt * scaledDt});
 
         double a{this->weightOfPrediction(time)};
         double b{1.0 - a};
@@ -339,7 +339,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         }
         variances[NUMBER_MODELS] = CBasicStatistics::variance(m_ValueMoments);
         for (auto v = variances.rbegin(); v != variances.rend(); ++v) {
-            *v = *std::min_element(variances.rbegin(), v+1);
+            *v = *std::min_element(variances.rbegin(), v + 1);
         }
         TMeanAccumulator variance_;
         for (std::size_t j = 0u; j < NUMBER_MODELS; ++j) {
@@ -355,10 +355,10 @@ void CTrendComponent::forecast(core_t::TTime startTime,
             boost::math::normal normal{0.0, std::sqrt(variance)};
             ql = boost::math::quantile(normal, (100.0 - confidence) / 200.0);
             qu = boost::math::quantile(normal, (100.0 + confidence) / 200.0);
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ERROR("Failed calculating confidence interval: " << e.what()
-                                                                 << ", variance = " << variance
-                                                                 << ", confidence = " << confidence);
+                      << ", variance = " << variance
+                      << ", confidence = " << confidence);
         }
 
         result[pillar][0] = prediction + ql;
@@ -394,9 +394,9 @@ std::string CTrendComponent::print() const {
 
 CTrendComponent::TDoubleVec CTrendComponent::factors(core_t::TTime interval) const {
     TDoubleVec result(NUMBER_MODELS);
-    double     factor{  m_DefaultDecayRate
-                        * static_cast<double>(interval)
-                        / static_cast<double>(core::constants::DAY)};
+    double factor{  m_DefaultDecayRate
+                    * static_cast<double>(interval)
+                    / static_cast<double>(core::constants::DAY)};
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
         result[i] = std::exp(-TIME_SCALES[i] * factor);
     }

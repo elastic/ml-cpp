@@ -140,7 +140,8 @@ template<typename SCALAR, int FLAGS = Eigen::RowMajorBit>
 class CSparseVectorIndexIterator : public std::iterator<std::input_iterator_tag, std::ptrdiff_t> {
     CSparseVectorIndexIterator(const CSparseVector<SCALAR, FLAGS> &vector,
                                std::size_t index) :
-        m_Vector(&vector), m_Base(vector, index) {}
+        m_Vector(&vector), m_Base(vector, index)
+    {}
 
     bool operator==(const CSparseVectorIndexIterator &rhs) const {
         return m_Vector == rhs.m_Vector &&
@@ -170,7 +171,7 @@ class CSparseVectorIndexIterator : public std::iterator<std::input_iterator_tag,
 
     private:
         CSparseVector<SCALAR, FLAGS> *m_Vector;
-        TIterator                    m_Base;
+        TIterator m_Base;
 };
 
 //! Get an iterator over the indices of \p vector.

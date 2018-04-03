@@ -133,7 +133,7 @@ void addArrival(CDataGatherer &gatherer,
 
 double doubleToStringToDouble(double value) {
     std::string valueAsString(core::CStringUtils::typeToStringPrecise(value, core::CIEEE754::E_DoublePrecision));
-    double      result(0.0);
+    double result(0.0);
     core::CStringUtils::stringToType(valueAsString, result);
     return result;
 }
@@ -165,7 +165,7 @@ double variance(const TDoubleVec &values, double &mean) {
     return total / static_cast<double>(values.size());
 }
 
-const CSearchKey  KEY;
+const CSearchKey KEY;
 const std::string EMPTY_STRING;
 
 }
@@ -215,7 +215,7 @@ void CMetricDataGathererTest::singleSeriesTests(void) {
         features.push_back(model_t::E_IndividualMaxByPerson);
         features.push_back(model_t::E_IndividualSumByBucketAndPerson);
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
-        SModelParams  params(bucketLength);
+        SModelParams params(bucketLength);
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                TStrVec(), false, KEY, features, startTime, 2u);
@@ -368,7 +368,7 @@ void CMetricDataGathererTest::singleSeriesTests(void) {
         features.push_back(model_t::E_IndividualMinByPerson);
         features.push_back(model_t::E_IndividualMaxByPerson);
         features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-        SModelParams  params(bucketLength);
+        SModelParams params(bucketLength);
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                TStrVec(), false, KEY, features, startTime, 0);
@@ -392,7 +392,7 @@ void CMetricDataGathererTest::singleSeriesTests(void) {
 
         CPPUNIT_ASSERT_EQUAL(4.0, gatherer.effectiveSampleCount(0));
         TFeatureSizeFeatureDataPrVecPrVec featureData;
-        core_t::TTime                     featureBucketStart = core_t::TTime(startTime + 4 * bucketLength);
+        core_t::TTime featureBucketStart = core_t::TTime(startTime + 4 * bucketLength);
         gatherer.sampleNow(featureBucketStart);
         gatherer.featureData(featureBucketStart, bucketLength, featureData);
         CPPUNIT_ASSERT(!featureData.empty());
@@ -430,7 +430,7 @@ void CMetricDataGathererTest::multipleSeriesTests(void) {
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-    SModelParams  params(bucketLength);
+    SModelParams params(bucketLength);
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            TStrVec(), false, KEY, features, startTime, 0);
@@ -533,7 +533,7 @@ void CMetricDataGathererTest::multipleSeriesTests(void) {
         }
 
         const TTimeDoublePrVec &bucket2 = buckets2[i];
-        TMeanAccumulator       a;
+        TMeanAccumulator a;
         for (std::size_t j = 0u; j < bucket2.size(); ++j) {
             addArrival(gatherer, m_ResourceMonitor, bucket2[j].first, "p2", bucket2[j].second);
             a.add(bucket2[j].second);
@@ -549,7 +549,7 @@ void CMetricDataGathererTest::multipleSeriesTests(void) {
                          core::CContainerPrinter::print(nonZeroCounts));
 
     TFeatureSizeFeatureDataPrVecPrVec featureData;
-    core_t::TTime                     featureBucketStart = core_t::TTime(startTime + 4 * bucketLength);
+    core_t::TTime featureBucketStart = core_t::TTime(startTime + 4 * bucketLength);
     gatherer.sampleNow(featureBucketStart);
     gatherer.featureData(featureBucketStart, bucketLength, featureData);
 
@@ -683,13 +683,13 @@ void CMetricDataGathererTest::testSampleCount(void) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    const std::size_t   numberBuckets = 3u;
+    const std::size_t numberBuckets = 3u;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
-    SModelParams  params(bucketLength);
+    SModelParams params(bucketLength);
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            TStrVec(), false, KEY, features, startTime, 0);
@@ -750,7 +750,7 @@ void CMetricDataGathererTest::testRemovePeople(void) {
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
-    SModelParams  params(bucketLength);
+    SModelParams params(bucketLength);
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            TStrVec(), false, KEY, features, startTime, 0);
@@ -889,7 +889,7 @@ void CMetricDataGathererTest::testSum(void) {
     // Test sum and non-zero sum work as expected.
 
     const core_t::TTime bucketLength = 600;
-    const std::size_t   bucketCounts[] =
+    const std::size_t bucketCounts[] =
     {
         2, 5, 2, 1, 0, 0, 4, 8, 0, 1
     };
@@ -899,7 +899,7 @@ void CMetricDataGathererTest::testSum(void) {
 
     TFeatureVec sumFeatures;
     sumFeatures.push_back(model_t::E_IndividualSumByBucketAndPerson);
-    SModelParams  params(bucketLength);
+    SModelParams params(bucketLength);
     CDataGatherer sum(model_t::E_Metric, model_t::E_None, params,
                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                       TStrVec(), false, KEY, sumFeatures, startTime, 0);
@@ -952,7 +952,7 @@ void CMetricDataGathererTest::testSum(void) {
                 const TSizeFeatureDataPrVec &featureData = data[j].second;
                 if (count == 0) {
                     CPPUNIT_ASSERT_EQUAL(std::size_t(0), featureData.size());
-                } else {
+                } else   {
                     CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
                     CPPUNIT_ASSERT_EQUAL(expected, featureData[j].second.s_BucketValue->value()[0]);
                     CPPUNIT_ASSERT_EQUAL(std::size_t(1), boost::unwrap_ref(featureData[j].second.s_Samples).size());
@@ -974,7 +974,7 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests(void) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    SModelParams        params(bucketLength);
+    SModelParams params(bucketLength);
     params.s_LatencyBuckets = 1;
     params.s_SampleCountFactor = 1;
     params.s_SampleQueueGrowthFactor = 0.1;
@@ -1151,7 +1151,7 @@ void CMetricDataGathererTest::testResetBucketGivenSingleSeries(void) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    SModelParams        params(bucketLength);
+    SModelParams params(bucketLength);
     params.s_LatencyBuckets = 2;
     params.s_SampleCountFactor = 1;
     params.s_SampleQueueGrowthFactor = 0.1;
@@ -1182,7 +1182,7 @@ void CMetricDataGathererTest::testResetBucketGivenSingleSeries(void) {
 
 
     TFeatureSizeFeatureDataPrVecPrVec featureData;
-    TSizeSizePr                       pidCidPr(0, 0);
+    TSizeSizePr pidCidPr(0, 0);
 
     gatherer.featureData(0, bucketLength, featureData);
     CPPUNIT_ASSERT_EQUAL(1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
@@ -1260,7 +1260,7 @@ void CMetricDataGathererTest::testResetBucketGivenMultipleSeries(void) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    SModelParams        params(bucketLength);
+    SModelParams params(bucketLength);
     params.s_LatencyBuckets = 2;
     params.s_SampleCountFactor = 1;
     params.s_SampleQueueGrowthFactor = 0.1;
@@ -1294,9 +1294,9 @@ void CMetricDataGathererTest::testResetBucketGivenMultipleSeries(void) {
     }
 
     TFeatureSizeFeatureDataPrVecPrVec featureData;
-    TSizeSizePr                       pidCidPr0(0, 0);
-    TSizeSizePr                       pidCidPr1(1, 0);
-    TSizeSizePr                       pidCidPr2(2, 0);
+    TSizeSizePr pidCidPr0(0, 0);
+    TSizeSizePr pidCidPr1(1, 0);
+    TSizeSizePr pidCidPr2(2, 0);
 
     gatherer.featureData(0, bucketLength, featureData);
     CPPUNIT_ASSERT_EQUAL(1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
@@ -1473,7 +1473,7 @@ void CMetricDataGathererTest::testInfluenceStatistics(void) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    SModelParams        params(bucketLength);
+    SModelParams params(bucketLength);
     params.s_LatencyBuckets = 2;
     params.s_SampleCountFactor = 1;
     params.s_SampleQueueGrowthFactor = 0.1;
@@ -1649,7 +1649,7 @@ void CMetricDataGathererTest::testMultivariate(void) {
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualMeanLatLongByPerson);
-        TStrVec       influencerNames;
+        TStrVec influencerNames;
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                influencerNames, false, KEY, features, startTime, 2u);
@@ -1812,7 +1812,7 @@ void CMetricDataGathererTest::testMultivariate(void) {
 
         CPPUNIT_ASSERT_EQUAL(4.0, gatherer.effectiveSampleCount(0));
         TFeatureSizeFeatureDataPrVecPrVec featureData;
-        core_t::TTime                     featureBucketStart = core_t::TTime(startTime + 4 * bucketLength);
+        core_t::TTime featureBucketStart = core_t::TTime(startTime + 4 * bucketLength);
         gatherer.sampleNow(featureBucketStart);
         gatherer.featureData(featureBucketStart, bucketLength, featureData);
         CPPUNIT_ASSERT(!featureData.empty());
@@ -1838,13 +1838,13 @@ void CMetricDataGathererTest::testStatisticsPersist(void) {
     }
 
     core_t::TTime origTime = stat.time();
-    std::string   restoredXml;
-    std::string   restoredPrint;
+    std::string restoredXml;
+    std::string restoredPrint;
     core_t::TTime restoredTime;
     {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
-        core::CRapidXmlStateRestoreTraverser                   traverser(parser);
+        core::CRapidXmlStateRestoreTraverser traverser(parser);
         CGathererTools::TMeanGatherer::TMetricPartialStatistic restored(1);
         traverser.traverseSubLevel(boost::bind(&CGathererTools::TMeanGatherer::TMetricPartialStatistic::restore,
                                                boost::ref(restored), _1));
@@ -1861,16 +1861,16 @@ void CMetricDataGathererTest::testStatisticsPersist(void) {
 }
 
 void CMetricDataGathererTest::testVarp(void) {
-    core_t::TTime       startTime = 100000;
+    core_t::TTime startTime = 100000;
     const core_t::TTime bucketLength = 1000;
-    const std::string   person("p");
-    const std::string   person2("q");
-    const std::string   person3("r");
-    const std::string   inf1("i1");
-    const std::string   inf2("i2");
-    const std::string   inf3("i3");
-    TDoubleVec          values;
-    SModelParams        params(bucketLength);
+    const std::string person("p");
+    const std::string person2("q");
+    const std::string person3("r");
+    const std::string inf1("i1");
+    const std::string inf2("i2");
+    const std::string inf3("i3");
+    TDoubleVec values;
+    SModelParams params(bucketLength);
 
     {
         TFeatureVec features;
@@ -1899,8 +1899,8 @@ void CMetricDataGathererTest::testVarp(void) {
             CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualVarianceByPerson,
                                  fsfd.first);
             CSample::TDouble1Vec v = featureData[0].second[0].second.s_BucketValue->value();
-            double               expectedMean = 0;
-            double               expectedVariance = ::variance(values, expectedMean);
+            double expectedMean = 0;
+            double expectedVariance = ::variance(values, expectedMean);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(v[0], expectedVariance, 0.0001);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(v[1], expectedMean, 0.0001);
         }
@@ -1921,8 +1921,8 @@ void CMetricDataGathererTest::testVarp(void) {
             gatherer.featureData(startTime, bucketLength, featureData);
             LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
             CSample::TDouble1Vec v = featureData[0].second[0].second.s_BucketValue->value();
-            double               expectedMean = 0;
-            double               expectedVariance = ::variance(values, expectedMean);
+            double expectedMean = 0;
+            double expectedVariance = ::variance(values, expectedMean);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(v[0], expectedVariance, 0.0001);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(v[1], expectedMean, 0.0001);
         }
@@ -2019,7 +2019,7 @@ void CMetricDataGathererTest::testVarp(void) {
             double i3ExpectedMean = 0;
             double i3ExpectedVariance = ::variance(values, i3ExpectedMean);
 
-            SMetricFeatureData                                     mfd = fsfd.second[0].second;
+            SMetricFeatureData mfd = fsfd.second[0].second;
             SMetricFeatureData::TStrCRefDouble1VecDoublePrPrVecVec ivs = mfd.s_InfluenceValues;
             LOG_DEBUG("IVs: " << core::CContainerPrinter::print(ivs));
             CPPUNIT_ASSERT_EQUAL(std::size_t(2), ivs.size());

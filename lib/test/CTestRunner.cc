@@ -70,7 +70,8 @@ CTestRunner::CTestRunner(int argc, const char **argv) {
     this->processCmdLine(argc, argv);
 }
 
-CTestRunner::~CTestRunner(void) {}
+CTestRunner::~CTestRunner(void)
+{}
 
 void CTestRunner::processCmdLine(int argc, const char **argv) {
     std::string exeName(argv[0]);
@@ -78,7 +79,7 @@ void CTestRunner::processCmdLine(int argc, const char **argv) {
     size_t pos(exeName.rfind('/'));
     if (pos != std::string::npos) {
         m_ExeName.assign(exeName, pos + 1, exeName.length() - pos - 1);
-    } else {
+    } else   {
         m_ExeName = exeName;
     }
 
@@ -88,8 +89,8 @@ void CTestRunner::processCmdLine(int argc, const char **argv) {
         m_TestCases.reserve(argc - 1);
         size_t numSrcStrips(0);
         size_t numHdrStrips(0);
-        int    lastSrcIndex(0);
-        int    lastHdrIndex(0);
+        int lastSrcIndex(0);
+        int lastHdrIndex(0);
         for (int i = 1; i < argc; ++i) {
             m_TestCases.push_back(argv[i]);
             std::string &testName = m_TestCases.back();
@@ -109,7 +110,7 @@ void CTestRunner::processCmdLine(int argc, const char **argv) {
             LOG_INFO("Source file extension " << SRC_EXT <<
                      " stripped from supplied test name " <<
                      argv[lastSrcIndex]);
-        } else if (numSrcStrips > 0) {
+        } else if (numSrcStrips > 0)   {
             LOG_INFO("Source file extension " << SRC_EXT << " stripped from " <<
                      numSrcStrips << " supplied test names");
         }
@@ -117,7 +118,7 @@ void CTestRunner::processCmdLine(int argc, const char **argv) {
             LOG_INFO("Header file extension " << HDR_EXT <<
                      " stripped from supplied test name " <<
                      argv[lastHdrIndex]);
-        } else if (numHdrStrips > 0) {
+        } else if (numHdrStrips > 0)   {
             LOG_INFO("Header file extension " << HDR_EXT << " stripped from " <<
                      numHdrStrips << " supplied test names");
         }
@@ -137,7 +138,7 @@ bool CTestRunner::runTests(void) {
     boost::filesystem::path cwd;
     try {
         cwd = boost::filesystem::current_path();
-    } catch (std::exception &e) {
+    } catch (std::exception &e)   {
         LOG_ERROR("Unable to determine current directory: " << e.what());
         return false;
     }
@@ -154,8 +155,8 @@ bool CTestRunner::runTests(void) {
     // as this should make clear to the human reader which library/program is
     // being tested.  The "top path" is either "bin" or "lib", whichever is
     // found first when continuing to search backwards through the path.
-    std::string                       topPath(UNKNOWN_DIR);
-    std::string                       testPath(UNKNOWN_DIR);
+    std::string topPath(UNKNOWN_DIR);
+    std::string testPath(UNKNOWN_DIR);
     boost::filesystem::path::iterator iter = cwd.end();
     if (--iter != cwd.begin() &&
         --iter != cwd.begin()) {
@@ -187,26 +188,26 @@ bool CTestRunner::timeTests(const std::string &topPath,
                             const std::string &testPath) {
     bool allPassed(true);
 
-    CTestTimer                   testTimer;
+    CTestTimer testTimer;
     CppUnit::TestResultCollector resultCollector;
 
     // m_eventManager is a protected member in the base class
     if (m_eventManager != 0) {
         m_eventManager->addListener(&testTimer);
         m_eventManager->addListener(&resultCollector);
-    } else {
+    } else   {
         LOG_ERROR("Unexpected NULL pointer");
     }
 
     if (m_TestCases.empty()) {
         allPassed = this->run();
-    } else {
+    } else   {
         for (TStrVecItr itr = m_TestCases.begin();
              itr != m_TestCases.end() && allPassed;
              ++itr) {
             try {
                 allPassed = this->run(*itr);
-            } catch (std::invalid_argument &) {
+            } catch (std::invalid_argument &)   {
                 LOG_ERROR("No Test called " << *itr << " in testsuite");
             }
         }
@@ -215,7 +216,7 @@ bool CTestRunner::timeTests(const std::string &topPath,
     if (m_eventManager != 0) {
         std::ofstream xmlResultFile(XML_RESULT_FILE_NAME.c_str());
         if (xmlResultFile.is_open()) {
-            CppUnit::XmlOutputter   xmlOutputter(&resultCollector, xmlResultFile);
+            CppUnit::XmlOutputter xmlOutputter(&resultCollector, xmlResultFile);
             CTimingXmlOutputterHook hook(testTimer, topPath, testPath);
             xmlOutputter.addHook(&hook);
             xmlOutputter.write();
@@ -231,7 +232,7 @@ bool CTestRunner::timeTests(const std::string &topPath,
 
 bool CTestRunner::checkSkipFile(const std::string &cwd,
                                 bool &passed) const {
-    std::string   fullPath(core::CResourceLocator::cppRootDir() + '/' + SKIP_FILE_NAME);
+    std::string fullPath(core::CResourceLocator::cppRootDir() + '/' + SKIP_FILE_NAME);
     std::ifstream strm(fullPath.c_str());
 
     std::string line;

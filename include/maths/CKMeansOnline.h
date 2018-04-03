@@ -75,7 +75,8 @@ class CKMeansOnline {
         class CShouldDelete {
             public:
                 CShouldDelete(double minimumCategoryCount) :
-                    m_MinimumCategoryCount(minimumCategoryCount) {}
+                    m_MinimumCategoryCount(minimumCategoryCount)
+                {}
 
                 template<typename CLUSTER>
                 bool operator()(const CLUSTER &cluster) const {
@@ -180,8 +181,8 @@ class CKMeansOnline {
             result.reserve(m_Clusters.size());
             for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
                 const TFloatPoint &m = CBasicStatistics::mean(m_Clusters[i].first);
-                double            n = CBasicStatistics::count(m_Clusters[i].first);
-                double            v = m_Clusters[i].second;
+                double n = CBasicStatistics::count(m_Clusters[i].first);
+                double v = m_Clusters[i].second;
                 result.push_back(TSphericalCluster(m, SCountAndVariance(n, v)));
             }
         }
@@ -242,7 +243,7 @@ class CKMeansOnline {
                     result.push_back(cluster);
                 }
                 return true;
-            } else if (k == 1) {
+            } else if (k == 1)   {
                 result.push_back(clusters);
                 return true;
             }
@@ -250,8 +251,8 @@ class CKMeansOnline {
             CKMeansFast<TSphericalCluster> kmeans;
             kmeans.setPoints(clusters);
             CBasicStatistics::COrderStatisticsStack<double, 1> minCost;
-            TSphericalClusterVec                               centres;
-            TSphericalClusterVecVec                            candidates;
+            TSphericalClusterVec centres;
+            TSphericalClusterVecVec candidates;
             for (std::size_t i = 0u; i < NUMBER_SEEDS; ++i) {
                 CKMeansPlusPlusInitialization<TSphericalCluster, RNG> seedCentres(rng);
                 seedCentres.run(clusters, k, centres);
@@ -305,7 +306,7 @@ class CKMeansOnline {
         void add(const TDoublePoint &x, double count = 1.0) {
             if (m_PointsBuffer.size() < MAXIMUM_BUFFER_SIZE) {
                 m_PointsBuffer.push_back(std::make_pair(x, count));
-            } else {
+            } else   {
                 m_Clusters.push_back(TFloatMeanAccumulatorDoublePr());
                 CKMeansOnline::add(x, count, m_Clusters.back());
                 this->reduce();
@@ -406,12 +407,12 @@ class CKMeansOnline {
                 counts[i] /= Z;
             }
             LOG_TRACE("weights = " << core::CContainerPrinter::print(counts)
-                                   << ", Z = " << Z
-                                   << ", n = " << numberSamples);
+                      << ", Z = " << Z
+                      << ", n = " << numberSamples);
 
             result.reserve(2 * numberSamples);
 
-            TDoubleVec      weights;
+            TDoubleVec weights;
             TDoublePointVec categorySamples;
             for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
                 double ni = counts[i];
@@ -420,8 +421,8 @@ class CKMeansOnline {
                 TDoublePoint m = CBasicStatistics::mean(m_Clusters[i].first);
                 if (m_Clusters[i].second == 0.0) {
                     categorySamples.push_back(m);
-                } else {
-                    std::size_t  ni_ = static_cast<std::size_t>(::ceil(ni));
+                } else   {
+                    std::size_t ni_ = static_cast<std::size_t>(::ceil(ni));
                     TDoublePoint v(m_Clusters[i].second);
                     sampleGaussian(ni_, m, v.diagonal(), categorySamples);
                 }
@@ -439,7 +440,7 @@ class CKMeansOnline {
             TDoubleMeanAccumulator sample;
             for (;;) {
                 CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1> nearest;
-                const TDoublePoint                                        &                                      sample_ = CBasicStatistics::mean(sample);
+                const TDoublePoint &sample_ = CBasicStatistics::mean(sample);
                 for (std::size_t j = 0u; j < result.size(); ++j) {
                     if (weights[j] > 0.0) {
                         nearest.add(std::make_pair((result[j] - sample_).euclidean(), j));
@@ -449,7 +450,7 @@ class CKMeansOnline {
                     break;
                 }
 
-                std::size_t        j = nearest[0].second;
+                std::size_t j = nearest[0].second;
                 const TDoublePoint &xj = result[j];
                 do {
                     double nj = std::min(1.0 - CBasicStatistics::count(sample), weights[j]);
@@ -561,7 +562,7 @@ class CKMeansOnline {
                 for (std::size_t j = 0u; j < kclusters[i].size(); ++j) {
                     cluster.add(kclusters[i][j]);
                 }
-                double             n = CBasicStatistics::count(cluster);
+                double n = CBasicStatistics::count(cluster);
                 const TDoublePoint &m = CBasicStatistics::mean(cluster);
                 m_Clusters[i].first  = CBasicStatistics::accumulator(TFloatCoordinate(n), TFloatPoint(m));
                 m_Clusters[i].second = variance(cluster);
@@ -575,15 +576,15 @@ class CKMeansOnline {
         static void add(const TDoublePoint &mx,
                         double count,
                         TFloatMeanAccumulatorDoublePr &cluster) {
-            double                    nx = count;
-            TDoublePoint              vx(0.0);
-            double                    nc = CBasicStatistics::count(cluster.first);
-            TDoublePoint              mc = CBasicStatistics::mean(cluster.first);
-            TDoublePoint              vc(cluster.second);
+            double nx = count;
+            TDoublePoint vx(0.0);
+            double nc = CBasicStatistics::count(cluster.first);
+            TDoublePoint mc = CBasicStatistics::mean(cluster.first);
+            TDoublePoint vc(cluster.second);
             TDoubleMeanVarAccumulator moments =  CBasicStatistics::accumulator(nc, mc, vc)
                                                 + CBasicStatistics::accumulator(nx, mx, vx);
             TFloatCoordinate ncx = CBasicStatistics::count(moments);
-            TFloatPoint      mcx = CBasicStatistics::mean(moments);
+            TFloatPoint mcx = CBasicStatistics::mean(moments);
             cluster.first  = CBasicStatistics::accumulator(ncx, mcx);
             cluster.second = variance(moments);
         }
@@ -596,23 +597,23 @@ class CKMeansOnline {
 
     private:
         //! The random number generator.
-        CPRNG::CXorOShiro128Plus         m_Rng;
+        CPRNG::CXorOShiro128Plus m_Rng;
 
         //! The number of clusters to maintain.
-        std::size_t                      m_K;
+        std::size_t m_K;
 
         //! The rate at which the categories lose information.
-        double                           m_DecayRate;
+        double m_DecayRate;
 
         //! The minimum permitted count for a cluster.
-        double                           m_MinimumCategoryCount;
+        double m_MinimumCategoryCount;
 
         //! The clusters we are maintaining.
         TFloatMeanAccumulatorDoublePrVec m_Clusters;
 
         //! A buffer of the points added while the space constraint
         //! is satisfied.
-        TFloatPointDoublePrVec           m_PointsBuffer;
+        TFloatPointDoublePrVec m_PointsBuffer;
 };
 
 template<typename POINT>

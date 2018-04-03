@@ -52,10 +52,10 @@ namespace {
 double significance(double lambda) {
     static const double EPS1 = 0.001;
     static const double EPS2 = 1e-8;
-    double              sum = 0.0;
-    double              fac = 2.0;
-    double              t2 = -2.0 * lambda * lambda;
-    double              termbf = 0.0;
+    double sum = 0.0;
+    double fac = 2.0;
+    double t2 = -2.0 * lambda * lambda;
+    double termbf = 0.0;
     for (std::size_t j = 1; j <= 100; ++j) {
         double term = fac * ::exp(t2 * static_cast<double>(j * j));
         sum += term;
@@ -86,9 +86,9 @@ double CStatisticalTests::leftTailFTest(double x, double d1, double d2) {
     try {
         boost::math::fisher_f_distribution<> F(d1, d2);
         return boost::math::cdf(F, x);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to compute significance " << e.what()
-                                                    << " d1 = " << d1 << ", d2 = " << d2 << ", x = " << x);
+                  << " d1 = " << d1 << ", d2 = " << d2 << ", x = " << x);
     }
     return 1.0;
 }
@@ -103,9 +103,9 @@ double CStatisticalTests::rightTailFTest(double x, double d1, double d2) {
     try {
         boost::math::fisher_f_distribution<> F(d1, d2);
         return boost::math::cdf(boost::math::complement(F, x));
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to compute significance " << e.what()
-                                                    << " d1 = " << d1 << ", d2 = " << d2 << ", x = " << x);
+                  << " d1 = " << d1 << ", d2 = " << d2 << ", x = " << x);
     }
     return 1.0;
 }
@@ -142,11 +142,11 @@ double CStatisticalTests::twoSampleKS(TDoubleVec x, TDoubleVec y) {
     double neff = ::sqrt(  static_cast<double>(nx)
                            * static_cast<double>(ny)
                            / static_cast<double>(nx + ny));
-    double result = significance((neff + 0.12 + 0.11/neff) * D);
+    double result = significance((neff + 0.12 + 0.11 / neff) * D);
     LOG_TRACE("nx = " << nx
-                      << ", ny = " << ny
-                      << ", D = " << D
-                      << ", significance = " << result);
+              << ", ny = " << ny
+              << ", D = " << D
+              << ", significance = " << result);
     return result;
 }
 
@@ -207,7 +207,7 @@ void CStatisticalTests::CCramerVonMises::addF(double f) {
             t += r * r;
         }
         m_T.add(t);
-    } else {
+    } else   {
         m_F.push_back(static_cast<uint16_t>(SCALE * f));
     }
 }
@@ -220,20 +220,20 @@ double CStatisticalTests::CCramerVonMises::pValue(void) const
 
     // Linearly interpolate between the rows of the T statistic
     // values.
-    double    tt[16];
+    double tt[16];
     ptrdiff_t row = CTools::truncate(std::lower_bound(boost::begin(N),
                                                       boost::end(N),
                                                       m_Size + 1) - N,
                                      ptrdiff_t(1),
                                      ptrdiff_t(12));
-    double alpha =   static_cast<double>(m_Size + 1 - N[row-1])
-                   / static_cast<double>(N[row] - N[row-1]);
+    double alpha =   static_cast<double>(m_Size + 1 - N[row - 1])
+                   / static_cast<double>(N[row] - N[row - 1]);
     double beta = 1.0 - alpha;
     for (std::size_t i = 0u; i < 16; ++i) {
-        tt[i] = alpha * T_VALUES[row][i] + beta * T_VALUES[row-1][i];
+        tt[i] = alpha * T_VALUES[row][i] + beta * T_VALUES[row - 1][i];
     }
     LOG_TRACE("n = " << m_Size + 1
-                     << ", tt = " << core::CContainerPrinter::print(tt));
+              << ", tt = " << core::CContainerPrinter::print(tt));
 
     double t = CBasicStatistics::mean(m_T);
     LOG_TRACE("t = " << t);
@@ -246,9 +246,9 @@ double CStatisticalTests::CCramerVonMises::pValue(void) const
                                                       boost::end(tt), t) - tt,
                                      ptrdiff_t(1),
                                      ptrdiff_t(15));
-    double a = tt[col-1];
+    double a = tt[col - 1];
     double b = tt[col];
-    double fa = P_VALUES[col-1];
+    double fa = P_VALUES[col - 1];
     double fb = P_VALUES[col];
 
     if (fb <= 0.5) {
@@ -259,7 +259,7 @@ double CStatisticalTests::CCramerVonMises::pValue(void) const
         //   m = ab/(b-a) * log(f(b)/f(a))
         //   c = b/(b-a) * log(f(b)/f(a)) + log(f(a))
 
-        double m = a*b / (b - a) * ::log((fb) / (fa));
+        double m = a * b / (b - a) * ::log((fb) / (fa));
         double c = b / (b - a) * ::log((fb) / (fa)) + ::log(fa);
 
         double p = 1.0 - ::exp(-m / t + c);

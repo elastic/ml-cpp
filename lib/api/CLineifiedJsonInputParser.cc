@@ -27,10 +27,11 @@ namespace api {
 CLineifiedJsonInputParser::CLineifiedJsonInputParser(std::istream &strmIn,
                                                      bool allDocsSameStructure)
     : CLineifiedInputParser(strmIn),
-      m_AllDocsSameStructure(allDocsSameStructure) {}
+      m_AllDocsSameStructure(allDocsSameStructure)
+{}
 
 bool CLineifiedJsonInputParser::readStream(const TReaderFunc &readerFunc) {
-    TStrVec    &  fieldNames = this->fieldNames();
+    TStrVec &fieldNames = this->fieldNames();
     TStrRefVec fieldValRefs;
 
     // Reset the record buffer pointers in case we're reading a new stream
@@ -55,7 +56,7 @@ bool CLineifiedJsonInputParser::readStream(const TReaderFunc &readerFunc) {
                 LOG_ERROR("Failed to decode JSON document");
                 return false;
             }
-        } else {
+        } else   {
             if (this->decodeDocumentWithArbitraryFields(document,
                                                         fieldNames,
                                                         recordFields) == false) {

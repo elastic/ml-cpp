@@ -66,9 +66,9 @@ bool setupFileActions(posix_spawn_file_actions_t *fileActions) {
     for (int fd = 0; fd <= maxFd; ++fd) {
         if (fd == STDIN_FILENO) {
             ::posix_spawn_file_actions_addopen(fileActions, fd, "/dev/null", O_RDONLY, S_IRUSR);
-        } else if (fd == STDOUT_FILENO || fd == STDERR_FILENO) {
+        } else if (fd == STDOUT_FILENO || fd == STDERR_FILENO)   {
             ::posix_spawn_file_actions_addopen(fileActions, fd, "/dev/null", O_WRONLY, S_IWUSR);
-        } else {
+        } else   {
             // Close other files that are open.  There is a race condition here,
             // in that files could be opened or closed between this code running
             // and the posix_spawn() function being called.  However, this would
@@ -96,7 +96,8 @@ class CTrackerThread : public CThread {
     public:
         CTrackerThread(void)
             : m_Shutdown(false),
-              m_Condition(m_Mutex) {}
+              m_Condition(m_Mutex)
+        {}
 
         //! Mutex is accessible so the code outside the class can avoid race
         //! conditions.
@@ -122,7 +123,7 @@ class CTrackerThread : public CThread {
                 // checking whether it was our child process and killing it
                 if (errno != ESRCH) {
                     LOG_ERROR("Failed to kill process " << pid << ": " << ::strerror(errno));
-                } else {
+                } else   {
                     // But log at debug in case there's a bug in this area
                     LOG_DEBUG("No such process while trying to kill PID " << pid);
                 }
@@ -153,7 +154,7 @@ class CTrackerThread : public CThread {
                 // otherwise wait for a child process to start.
                 if (m_Pids.empty()) {
                     m_Condition.wait();
-                } else {
+                } else   {
                     m_Condition.wait(50);
                 }
 
@@ -184,7 +185,7 @@ class CTrackerThread : public CThread {
                     if (errno != EINTR) {
                         break;
                     }
-                } else {
+                } else   {
                     if (WIFSIGNALED(status)) {
                         int signal = WTERMSIG(status);
                         if (signal == SIGTERM) {
@@ -192,7 +193,7 @@ class CTrackerThread : public CThread {
                             // at a lower level
                             LOG_INFO("Child process with PID " << pid <<
                                      " was terminated by signal " << signal);
-                        } else {
+                        } else   {
                             // This should never happen if the system is working
                             // normally - possible reasons are the Linux OOM
                             // killer, manual intervention and bugs that cause
@@ -200,12 +201,12 @@ class CTrackerThread : public CThread {
                             LOG_ERROR("Child process with PID " << pid <<
                                       " was terminated by signal " << signal);
                         }
-                    } else {
+                    } else   {
                         int exitCode = WEXITSTATUS(status);
                         if (exitCode == 0) {
                             // This is the happy case
                             LOG_DEBUG("Child process with PID " << pid << " has exited");
-                        } else {
+                        } else   {
                             LOG_WARN("Child process with PID " << pid <<
                                      " has exited with exit code " << exitCode);
                         }
@@ -216,10 +217,10 @@ class CTrackerThread : public CThread {
         }
 
     private:
-        bool           m_Shutdown;
-        TPidSet        m_Pids;
+        bool m_Shutdown;
+        TPidSet m_Pids;
         mutable CMutex m_Mutex;
-        CCondition     m_Condition;
+        CCondition m_Condition;
 };
 
 }

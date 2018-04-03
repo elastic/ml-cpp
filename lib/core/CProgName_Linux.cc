@@ -34,8 +34,8 @@ std::string CProgName::progName(void) {
 
 std::string CProgName::progDir(void) {
     static const size_t BUFFER_SIZE(2048);
-    std::string         path(BUFFER_SIZE, '\0');
-    ssize_t             len(::readlink("/proc/self/exe", &path[0], BUFFER_SIZE));
+    std::string path(BUFFER_SIZE, '\0');
+    ssize_t len(::readlink("/proc/self/exe", &path[0], BUFFER_SIZE));
     if (len == -1) {
         return std::string();
     }

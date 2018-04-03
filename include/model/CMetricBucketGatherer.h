@@ -311,18 +311,18 @@ class MODEL_EXPORT CMetricBucketGatherer : public CBucketGatherer {
         //!      of the field which holds the count then the name of the field
         //!      which holds the statistic value,
         //!   -# Otherwise the name of the field which holds the metric value.
-        TStrVec               m_FieldNames;
+        TStrVec m_FieldNames;
 
         //! The position of the first influencing field.
-        std::size_t           m_BeginInfluencingFields;
+        std::size_t m_BeginInfluencingFields;
 
         //! The position of the first count/value field.
-        std::size_t           m_BeginValueFields;
+        std::size_t m_BeginValueFields;
 
         //! For summarized values, this stores the metric categories
         //! corresponding to the summarized field names in m_FieldNames;
         //! for non-summarized input this will be empty
-        TMetricCategoryVec    m_FieldMetricCategories;
+        TMetricCategoryVec m_FieldMetricCategories;
 
         //! The data features we are gathering.
         TCategorySizePrAnyMap m_FeatureData;

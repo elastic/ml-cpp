@@ -160,11 +160,11 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
     typedef std::equal_to<std::string> TStrEqualTo;
     TStrEqualTo pred;
 
-    TStrVecCItr             fieldNameIter = m_FieldNames.begin();
+    TStrVecCItr fieldNameIter = m_FieldNames.begin();
     TPreComputedHashVecCItr preComputedHashIter = m_Hashes.begin();
-    TStrStrUMapCItr         fieldValueIter = overrideDataRowFields.find(*fieldNameIter,
-                                                                        *preComputedHashIter,
-                                                                        pred);
+    TStrStrUMapCItr fieldValueIter = overrideDataRowFields.find(*fieldNameIter,
+                                                                *preComputedHashIter,
+                                                                pred);
     if (fieldValueIter == overrideDataRowFields.end()) {
         fieldValueIter = dataRowFields.find(*fieldNameIter,
                                             *preComputedHashIter,
@@ -249,7 +249,7 @@ void CCsvOutputWriter::appendField(const std::string &field) {
         }
 
         m_WorkRecord += QUOTE;
-    } else {
+    } else   {
         m_WorkRecord += field;
     }
 }

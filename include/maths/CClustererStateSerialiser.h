@@ -109,7 +109,7 @@ class MATHS_EXPORT CClustererStateSerialiser {
                     ptr.reset(CXMeansOnlineFactory::restore<T, N>(
                                   params, splitFunc, mergeFunc, traverser));
                     ++numResults;
-                } else {
+                } else   {
                     LOG_ERROR("No clusterer corresponds to node name " << traverser.name());
                 }
             } while (traverser.next());

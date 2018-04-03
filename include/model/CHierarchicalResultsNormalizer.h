@@ -209,13 +209,13 @@ class MODEL_EXPORT CHierarchicalResultsNormalizer :
     private:
         //! The jobs that the normalizer will perform when invoked
         //! can be: update, normalize or update + normalize.
-        EJob                              m_Job;
+        EJob m_Job;
 
         //! The model configuration file.
         const CAnomalyDetectorModelConfig &m_ModelConfig;
 
         //! Whether the last update of the quantiles has caused a big change.
-        bool                              m_HasLastUpdateCausedBigChange;
+        bool m_HasLastUpdateCausedBigChange;
 
 };
 

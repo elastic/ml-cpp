@@ -44,7 +44,8 @@ CExpandingWindow::CExpandingWindow(core_t::TTime bucketLength,
     m_BucketLengths(bucketLengths),
     m_BucketLengthIndex(0),
     m_StartTime(boost::numeric::bounds<core_t::TTime>::lowest()),
-    m_BucketValues(size % 2 == 0 ? size : size + 1) {}
+    m_BucketValues(size % 2 == 0 ? size : size + 1)
+{}
 
 bool CExpandingWindow::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
     m_BucketValues.clear();
@@ -126,7 +127,7 @@ void CExpandingWindow::add(core_t::TTime time, double value, double weight) {
 
             if (m_BucketLengthIndex == 0) {
                 m_StartTime = CIntegerTools::floor(time, m_BucketLengths[0]);
-            } else {
+            } else   {
                 std::size_t compression =  m_BucketLengths[m_BucketLengthIndex]
                                           / m_BucketLengths[m_BucketLengthIndex - 1];
                 for (std::size_t i = 0u; i < m_BucketValues.size(); i += compression, ++end) {

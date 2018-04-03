@@ -28,10 +28,10 @@
 namespace ml {
 namespace model {
 namespace {
-const double      EPS{10.0 * std::numeric_limits<double>::epsilon()};
+const double EPS{10.0 * std::numeric_limits<double>::epsilon()};
 const std::string IS_INTEGER_TAG{"a"};
 const std::string IS_NON_NEGATIVE_TAG{"b"};
-std::string       EMPTY_STRING;
+std::string EMPTY_STRING;
 }
 
 void CDataClassifier::add(model_t::EFeature feature,

@@ -109,7 +109,8 @@ class CSampleGatherer {
                                     TStoredStringPtrStatUMapBucketQueue(params.s_LatencyBuckets + 3,
                                                                         bucketLength,
                                                                         startTime,
-                                                                        TStoredStringPtrStatUMap(1))) {}
+                                                                        TStoredStringPtrStatUMap(1)))
+        {}
 
         //! \name Persistence
         //@{
@@ -147,7 +148,7 @@ class CSampleGatherer {
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
             std::size_t i = 0u;
             do {
-                const std::string       &     name = traverser.name();
+                const std::string &name = traverser.name();
                 TMetricPartialStatistic stat(m_Dimension);
                 RESTORE_BUILT_IN(DIMENSION_TAG, m_Dimension)
                 RESTORE(CLASSIFIER_TAG, traverser.traverseSubLevel(
@@ -186,10 +187,10 @@ class CSampleGatherer {
                                        core_t::TTime /*bucketLength*/,
                                        double effectiveSampleCount) const {
             const TMetricPartialStatistic &bucketPartial = m_BucketStats.get(time);
-            double                        count = bucketPartial.count();
+            double count = bucketPartial.count();
             if (count > 0.0) {
                 core_t::TTime bucketTime = bucketPartial.time();
-                TDouble1Vec   bucketValue  = bucketPartial.value();
+                TDouble1Vec bucketValue  = bucketPartial.value();
                 if (bucketValue.size() > 0) {
                     TStrCRefDouble1VecDoublePrPrVecVec influenceValues(m_InfluencerBucketStats.size());
                     for (std::size_t i = 0u; i < m_InfluencerBucketStats.size(); ++i) {
@@ -264,8 +265,8 @@ class CSampleGatherer {
                     continue;
                 }
                 TStoredStringPtrStatUMap &stats = m_InfluencerBucketStats[i].get(time);
-                auto                     j = stats.emplace(influences[i],
-                                                           CMetricStatisticWrappers::template make<STATISTIC>(m_Dimension)).first;
+                auto j = stats.emplace(influences[i],
+                                       CMetricStatisticWrappers::template make<STATISTIC>(m_Dimension)).first;
                 CMetricStatisticWrappers::add(statistic, count, j->second);
             }
         }
@@ -333,11 +334,11 @@ class CSampleGatherer {
         std::string print(void) const {
             std::ostringstream result;
             result << m_Classifier.isInteger()
-                   << ' ' << m_Classifier.isNonNegative()
-                   << ' ' << m_BucketStats.print()
-                   << ' ' << m_SampleStats.print()
-                   << ' ' << core::CContainerPrinter::print(m_Samples)
-                   << ' ' << core::CContainerPrinter::print(m_InfluencerBucketStats);
+            << ' ' << m_Classifier.isNonNegative()
+            << ' ' << m_BucketStats.print()
+            << ' ' << m_SampleStats.print()
+            << ' ' << core::CContainerPrinter::print(m_Samples)
+            << ' ' << core::CContainerPrinter::print(m_InfluencerBucketStats);
             return result.str();
         }
 
@@ -364,7 +365,8 @@ class CSampleGatherer {
         class CStoredStringPtrStatUMapSerializer {
             public:
                 CStoredStringPtrStatUMapSerializer(std::size_t dimension) :
-                    m_Initial(CMetricStatisticWrappers::template make<STATISTIC>(dimension)) {}
+                    m_Initial(CMetricStatisticWrappers::template make<STATISTIC>(dimension))
+                {}
 
                 void operator()(const TStoredStringPtrStatUMap &map, core::CStatePersistInserter &inserter) const {
                     using TStatCRef = boost::reference_wrapper<const STATISTIC>;
@@ -403,18 +405,18 @@ class CSampleGatherer {
 
     private:
         //! The dimension of the statistic being gathered.
-        std::size_t                            m_Dimension;
+        std::size_t m_Dimension;
 
         //! Classifies the sampled statistics.
-        CDataClassifier                        m_Classifier;
+        CDataClassifier m_Classifier;
 
         //! The queue holding the partial aggregate statistics within
         //! latency window used for building samples.
-        TSampleQueue                           m_SampleStats;
+        TSampleQueue m_SampleStats;
 
         //! The aggregation of the measurements received for each
         //! bucket within latency window.
-        TStatBucketQueue                       m_BucketStats;
+        TStatBucketQueue m_BucketStats;
 
         //! The aggregation of the measurements received for each
         //! bucket and influencing field within latency window.
@@ -422,7 +424,7 @@ class CSampleGatherer {
 
         //! The samples of the aggregate statistic in the current
         //! bucketing interval.
-        TSampleVec                             m_Samples;
+        TSampleVec m_Samples;
 };
 
 template<typename STATISTIC, model_t::EFeature FEATURE>

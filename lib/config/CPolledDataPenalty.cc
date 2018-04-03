@@ -37,7 +37,8 @@ const double LOG_TENTH_NUMBER_POLLING_INTERVALS = 10.0;
 }
 
 CPolledDataPenalty::CPolledDataPenalty(const CAutoconfigurerParams &params) :
-    CPenalty(params) {}
+    CPenalty(params)
+{}
 
 CPolledDataPenalty *CPolledDataPenalty::clone(void) const {
     return new CPolledDataPenalty(*this);
@@ -52,9 +53,9 @@ void CPolledDataPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
         if (TOptionalTime interval = this->pollingInterval(*stats)) {
             const TTimeVec &candidates = this->params().candidateBucketLengths();
 
-            TSizeVec   indices;
+            TSizeVec indices;
             TDoubleVec penalties;
-            TStrVec    descriptions;
+            TStrVec descriptions;
             indices.reserve(2 * candidates.size());
             penalties.reserve(2 * candidates.size());
             descriptions.reserve(2 * candidates.size());
@@ -86,7 +87,7 @@ CPolledDataPenalty::pollingInterval(const CDataCountStatistics &stats) const {
     typedef maths::CBasicStatistics::COrderStatisticsStack<maths::CQuantileSketch::TFloatFloatPr,
                                                            2, maths::COrderings::SSecondGreater> TMaxAccumulator;
 
-    const maths::CQuantileSketch                   &                  F = stats.arrivalTimeDistribution();
+    const maths::CQuantileSketch &F = stats.arrivalTimeDistribution();
     const maths::CQuantileSketch::TFloatFloatPrVec &knots = F.knots();
     if (knots.size() == 1) {
         return static_cast<core_t::TTime>(knots[0].first);
@@ -119,7 +120,7 @@ CPolledDataPenalty::pollingInterval(const CDataCountStatistics &stats) const {
     if (    mass > this->params().polledDataMinimumMassAtInterval() &&
             lower < this->params().polledDataJitter() * upper) {
         return static_cast<core_t::TTime>(upper);
-    } else {}
+    } else   {}
 
     return TOptionalTime();
 }

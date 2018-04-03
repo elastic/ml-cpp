@@ -147,9 +147,9 @@ void CIntegerToolsTest::testGcd(void) {
             big2 *= primes[indices[j]];
         }
         LOG_DEBUG("big1 = " << big1
-                            << ", big2 = " << big2
-                            << " - expected gcd = " << bigGcd
-                            << ", gcd = " << maths::CIntegerTools::gcd(big1, big2));
+                  << ", big2 = " << big2
+                  << " - expected gcd = " << bigGcd
+                  << ", gcd = " << maths::CIntegerTools::gcd(big1, big2));
         CPPUNIT_ASSERT_EQUAL(bigGcd, maths::CIntegerTools::gcd(big1, big2));
     }
 
@@ -186,8 +186,8 @@ void CIntegerToolsTest::testGcd(void) {
             n[2] *= primes[indices[j]];
         }
         LOG_DEBUG("n = " << core::CContainerPrinter::print(n)
-                         << " - expected gcd = " << gcd
-                         << ", gcd = " << maths::CIntegerTools::gcd(n));
+                  << " - expected gcd = " << gcd
+                  << ", gcd = " << maths::CIntegerTools::gcd(n));
 
     }
 
@@ -198,8 +198,8 @@ void CIntegerToolsTest::testGcd(void) {
     n[2] = 17 * 19 * 83;
     n[3] = 17 * 19 * 29 * 83;
     LOG_DEBUG("n = " << core::CContainerPrinter::print(n)
-                     << " - expected gcd = 19"
-                     << ", gcd = " << maths::CIntegerTools::gcd(n));
+              << " - expected gcd = 19"
+              << ", gcd = " << maths::CIntegerTools::gcd(n));
     CPPUNIT_ASSERT_EQUAL(std::size_t(19), maths::CIntegerTools::gcd(n));
 }
 
@@ -213,11 +213,11 @@ void CIntegerToolsTest::testBinomial(void) {
     for (std::size_t i = 0u; i < boost::size(n); ++i) {
         for (unsigned int j = 0u; j <= n[i]; ++j) {
             LOG_DEBUG("j = " << j << ", n = " << n[i]
-                             << ", (n j) = " << maths::CIntegerTools::binomial(n[i], j));
+                      << ", (n j) = " << maths::CIntegerTools::binomial(n[i], j));
 
-            double expected = ::exp(  boost::math::lgamma(static_cast<double>(n[i]+1))
-                                      - boost::math::lgamma(static_cast<double>(n[i]-j+1))
-                                      - boost::math::lgamma(static_cast<double>(j+1)));
+            double expected = ::exp(  boost::math::lgamma(static_cast<double>(n[i] + 1))
+                                      - boost::math::lgamma(static_cast<double>(n[i] - j + 1))
+                                      - boost::math::lgamma(static_cast<double>(j + 1)));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, maths::CIntegerTools::binomial(n[i], j), 1e-10);
         }
     }

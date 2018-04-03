@@ -31,7 +31,8 @@ const std::string INITIALISATION_TIME_TAG("c");
 CResultsQueue::CResultsQueue(std::size_t delayBuckets,
                              core_t::TTime bucketLength) :
     m_Results(delayBuckets, bucketLength, 0),
-    m_LastResultsIndex(2) {}
+    m_LastResultsIndex(2)
+{}
 
 void CResultsQueue::push(const CHierarchicalResults &result, core_t::TTime time) {
     if (m_Results.latestBucketEnd() + 1 - m_Results.bucketLength() == 0) {
@@ -86,9 +87,9 @@ core_t::TTime CResultsQueue::chooseResultTime(core_t::TTime bucketStartTime,
     LOG_TRACE("Asking for queue items at " << (bucketStartTime - bucketLength) << " and " <<
               (bucketStartTime - (bucketLength / 2)));
 
-    core_t::TTime                            resultsTime = 0;
+    core_t::TTime resultsTime = 0;
     const model::CHierarchicalResults::TNode *node = m_Results.get(bucketStartTime - bucketLength).root();
-    double                                   r1 = 0.0;
+    double r1 = 0.0;
     if (node) {
         r1 = node->s_NormalizedAnomalyScore;
     }
@@ -110,12 +111,12 @@ core_t::TTime CResultsQueue::chooseResultTime(core_t::TTime bucketStartTime,
             // We want this guy, so choose r1 so that he can be selected next time
             resultsTime = bucketStartTime - bucketLength;
             m_LastResultsIndex = 2;
-        } else {
+        } else   {
             // Pick the bigger of 1 / 2
             if (r2 > r1) {
                 resultsTime = bucketStartTime - (bucketLength / 2);
                 m_LastResultsIndex = 3;
-            } else {
+            } else   {
                 resultsTime = bucketStartTime - bucketLength;
                 m_LastResultsIndex = 2;
             }
@@ -139,13 +140,13 @@ bool CResultsQueue::acceptRestoreTraverser(core::CStateRestoreTraverser &travers
             if (!core::CPersistUtils::restore(RESULTS_TAG, m_Results, traverser)) {
                 return false;
             }
-        } else if (name == LAST_RESULTS_INDEX_TAG) {
+        } else if (name == LAST_RESULTS_INDEX_TAG)   {
             if (!core::CPersistUtils::restore(LAST_RESULTS_INDEX_TAG,
                                               m_LastResultsIndex,
                                               traverser)) {
                 return false;
             }
-        } else if (name == INITIALISATION_TIME_TAG) {
+        } else if (name == INITIALISATION_TIME_TAG)   {
             core_t::TTime initialisationTime = 0;
             if (!core::CPersistUtils::restore(INITIALISATION_TIME_TAG,
                                               initialisationTime,

@@ -45,7 +45,7 @@ void CEntropySketchTest::testAll(void) {
     rng.generateUniformSamples(500, 1001, 1000, numberCategories);
 
     maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> > maxError[3];
-    maths::CBasicStatistics::SSampleMean<double>::TAccumulator                       meanError[3];
+    maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanError[3];
 
     double K[] = { 20.0, 40.0, 60.0 };
     double eps[] = { 0.2, 0.4, 0.6 };
@@ -105,7 +105,7 @@ void CEntropySketchTest::testAll(void) {
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError[i]) < maxMeanErrors[i]);
         // Test additive approximation bounds.
         for (std::size_t j = 0u; j < 3; ++j) {
-            CPPUNIT_ASSERT(epsDeviations[i][j] / 1000.0 < 2.0 * ::exp(-K[i]*eps[j]*eps[j] / 6.0));
+            CPPUNIT_ASSERT(epsDeviations[i][j] / 1000.0 < 2.0 * ::exp(-K[i] * eps[j] * eps[j] / 6.0));
         }
     }
 }

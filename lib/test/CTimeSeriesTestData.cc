@@ -79,17 +79,17 @@ bool CTimeSeriesTestData::parseCounter(const std::string &fileName, TTimeDoubleP
     }
 
     double last(0);
-    bool   started(false);
+    bool started(false);
     for (auto &&result : results) {
         double value = result.second;
         if (started == false) {
             result.second = 0;
             started = true;
-        } else {
+        } else   {
             result.second = value - last;
             if (result.second < 0) {
                 LOG_WARN("Negative value " << value << "<" << last
-                                           << "@" << result.first << " setting counter to 0 ");
+                         << "@" << result.first << " setting counter to 0 ");
                 result.second = 0;
             }
         }
@@ -114,7 +114,7 @@ void CTimeSeriesTestData::derive(const TTimeDoublePrVec &data, TTimeDoublePrVec 
     }
     results.reserve(data.size() - 1);
 
-    bool   hasStarted(false);
+    bool hasStarted(false);
     double lastValue(0.0);
 
     for (const auto &datum : data) {
@@ -122,7 +122,7 @@ void CTimeSeriesTestData::derive(const TTimeDoublePrVec &data, TTimeDoublePrVec 
             double v = datum.second - lastValue;
 
             results.emplace_back(datum.first, v);
-        } else {
+        } else   {
             hasStarted = true;
         }
 
@@ -159,7 +159,7 @@ bool CTimeSeriesTestData::pad(const TTimeDoublePrVec &data,
         auto itr = dataMap.find(t);
         if (itr == dataMap.end()) {
             results.emplace_back(t, 0);
-        } else {
+        } else   {
             results.emplace_back(t, itr->second);
         }
     }
@@ -189,7 +189,7 @@ bool CTimeSeriesTestData::parse(const std::string &fileName,
     // reset data
     results.clear();
 
-    std::string  tokenRegexString(regex);
+    std::string tokenRegexString(regex);
     core::CRegex tokenRegex;
     if (tokenRegex.init(tokenRegexString) == false) {
         LOG_ERROR("Regex error");
@@ -245,7 +245,7 @@ bool CTimeSeriesTestData::parseLine(const core::CRegex &tokenRegex,
             LOG_ERROR("Invalid test data '" << line << "'");
             return false;
         }
-    } else if (core::CTimeUtils::strptime(dateFormat, tokens[0], time) == false) {
+    } else if (core::CTimeUtils::strptime(dateFormat, tokens[0], time) == false)   {
         LOG_ERROR("Invalid test data '" << line << "'");
         return false;
     }

@@ -39,7 +39,7 @@ template<typename TREND, typename VECTOR>
 boost::optional<VECTOR> CModel::predictionError(const TREND &trend,
                                                 const VECTOR &sample) {
     boost::optional<VECTOR> result;
-    std::size_t             dimension = sample.size();
+    std::size_t dimension = sample.size();
     for (std::size_t i = 0u; i < dimension; ++i) {
         if (trend[i]->initialized()) {
             result.reset(VECTOR(dimension, 0.0));

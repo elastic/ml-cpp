@@ -320,27 +320,27 @@ class MODEL_EXPORT CProbabilityAndInfluenceCalculator {
     private:
         //! The minimum value for the influence for which an influencing
         //! field value is judged to have any influence on a feature value.
-        double                                                                  m_Cutoff;
+        double m_Cutoff;
 
         //! The plug-in used to adapt the influence calculation for
         //! different features.
-        const CInfluenceCalculator                                              *m_InfluenceCalculator;
+        const CInfluenceCalculator *m_InfluenceCalculator;
 
         //! The template probability calculator.
-        CModelTools::CProbabilityAggregator                                     m_ProbabilityTemplate;
+        CModelTools::CProbabilityAggregator m_ProbabilityTemplate;
 
         //! The probability calculator.
-        CModelTools::CProbabilityAggregator                                     m_Probability;
+        CModelTools::CProbabilityAggregator m_Probability;
 
         //! The probability calculation cache if there is one.
-        CModelTools::CProbabilityCache                                          *m_ProbabilityCache;
+        CModelTools::CProbabilityCache *m_ProbabilityCache;
 
         //! The influence probability calculator.
         CModelTools::TStoredStringPtrStoredStringPtrPrProbabilityAggregatorUMap m_InfluencerProbabilities;
 
         //! Placeholder for the influence weights so that it isn't
         //! allocated in a loop.
-        TStoredStringPtrStoredStringPtrPrDoublePrVec                            m_Influences;
+        TStoredStringPtrStoredStringPtrPrDoublePrVec m_Influences;
 };
 
 //! \brief Interface for influence calculations.

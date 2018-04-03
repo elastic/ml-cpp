@@ -25,7 +25,8 @@ STimeSeriesDecompositionRestoreParams::STimeSeriesDecompositionRestoreParams(dou
                                                                              std::size_t componentSize) :
     s_DecayRate{decayRate},
     s_MinimumBucketLength{minimumBucketLength},
-    s_ComponentSize{componentSize} {}
+    s_ComponentSize{componentSize}
+{}
 
 SDistributionRestoreParams::SDistributionRestoreParams(maths_t::EDataType dataType,
                                                        double decayRate,
@@ -36,14 +37,16 @@ SDistributionRestoreParams::SDistributionRestoreParams(maths_t::EDataType dataTy
     s_DecayRate{decayRate},
     s_MinimumClusterFraction{minimumClusterFraction},
     s_MinimumClusterCount{minimumClusterCount},
-    s_MinimumCategoryCount{minimumCategoryCount} {}
+    s_MinimumCategoryCount{minimumCategoryCount}
+{}
 
 SModelRestoreParams::SModelRestoreParams(const CModelParams &params,
                                          const STimeSeriesDecompositionRestoreParams &decompositionParams,
                                          const SDistributionRestoreParams &distributionParams) :
     s_Params{params},
     s_DecompositionParams{decompositionParams},
-    s_DistributionParams{distributionParams} {}
+    s_DistributionParams{distributionParams}
+{}
 
 }
 }

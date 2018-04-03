@@ -82,13 +82,13 @@ class MATHS_EXPORT CModelParams {
         //! The data bucketing length.
         core_t::TTime m_BucketLength;
         //! The model learn rate.
-        double        m_LearnRate;
+        double m_LearnRate;
         //! The model decay rate.
-        double        m_DecayRate;
+        double m_DecayRate;
         //! The minimum seasonal variance scale.
-        double        m_MinimumSeasonalVarianceScale;
+        double m_MinimumSeasonalVarianceScale;
         //! The probability that a bucket will be empty for the model.
-        double        m_ProbabilityBucketEmpty;
+        double m_ProbabilityBucketEmpty;
 };
 
 //! \brief The extra parameters needed by CModel::addSamples.
@@ -126,26 +126,26 @@ class MATHS_EXPORT CModelAddSamplesParams {
         //! Set the trend samples weights.
         CModelAddSamplesParams &trendWeights(const TDouble2Vec4VecVec &weights);
         //! Get the trend sample weights.
-        const TDouble2Vec4VecVec       &trendWeights(void) const;
+        const TDouble2Vec4VecVec &trendWeights(void) const;
 
         //! Set the prior samples weights.
         CModelAddSamplesParams &priorWeights(const TDouble2Vec4VecVec &weights);
         //! Get the prior sample weights.
-        const TDouble2Vec4VecVec       &priorWeights(void) const;
+        const TDouble2Vec4VecVec &priorWeights(void) const;
 
     private:
         //! The data type.
-        maths_t::EDataType             m_Type;
+        maths_t::EDataType m_Type;
         //! True if the data are non-negative false otherwise.
-        bool                           m_IsNonNegative;
+        bool m_IsNonNegative;
         //! The propagation interval.
-        double                         m_PropagationInterval;
+        double m_PropagationInterval;
         //! Controls the interpretation of the weights.
         const maths_t::TWeightStyleVec *m_WeightStyles;
         //! The trend sample weights.
-        const TDouble2Vec4VecVec       *m_TrendWeights;
+        const TDouble2Vec4VecVec *m_TrendWeights;
         //! The prior sample weights.
-        const TDouble2Vec4VecVec       *m_PriorWeights;
+        const TDouble2Vec4VecVec *m_PriorWeights;
 };
 
 //! \brief The extra parameters needed by CModel::probability.
@@ -199,12 +199,12 @@ class MATHS_EXPORT CModelProbabilityParams {
         //! Get the values' weights.
         const TDouble2Vec4Vec1Vec &weights(void) const;
         //! Get writable values' weights.
-        TDouble2Vec4Vec1Vec       &weights(void);
+        TDouble2Vec4Vec1Vec &weights(void);
 
         //! Add a coordinate for which to compute probability.
         CModelProbabilityParams &addCoordinate(std::size_t coordinate);
         //! Get the coordinates for which to compute probability.
-        const TSize2Vec           &coordinates(void) const;
+        const TSize2Vec &coordinates(void) const;
 
         //! Set the most anomalous correlate.
         CModelProbabilityParams &mostAnomalousCorrelate(std::size_t correlate);
@@ -218,23 +218,23 @@ class MATHS_EXPORT CModelProbabilityParams {
 
     private:
         //! The entity tag (if relevant otherwise 0).
-        std::size_t                    m_Tag;
+        std::size_t m_Tag;
         //! The coordinates' probability calculations.
-        TProbabilityCalculation2Vec    m_Calculations;
+        TProbabilityCalculation2Vec m_Calculations;
         //! The confidence interval to use when detrending.
-        double                         m_SeasonalConfidenceInterval;
+        double m_SeasonalConfidenceInterval;
         //! True if the bucket is empty and false otherwise.
-        TBool2Vec1Vec                  m_BucketEmpty;
+        TBool2Vec1Vec m_BucketEmpty;
         //! Controls the interpretation of the weights.
         const maths_t::TWeightStyleVec *m_WeightStyles;
         //! The sample weights.
-        TDouble2Vec4Vec1Vec            m_Weights;
+        TDouble2Vec4Vec1Vec m_Weights;
         //! The coordinates for which to compute the probability.
-        TSize2Vec                      m_Coordinates;
+        TSize2Vec m_Coordinates;
         //! The most anomalous coordinate (if there is one).
-        TOptionalSize                  m_MostAnomalousCorrelate;
+        TOptionalSize m_MostAnomalousCorrelate;
         //! Whether or not to update the anomaly model.
-        bool                           m_UpdateAnomalyModel;
+        bool m_UpdateAnomalyModel;
 };
 
 //! \brief The model interface.
@@ -402,7 +402,7 @@ class MATHS_EXPORT CModel {
         const CModelParams &params(void) const;
 
         //! Get writable model parameters.
-        CModelParams       &params(void);
+        CModelParams &params(void);
 
     protected:
         CModel(const CModel &) = default;

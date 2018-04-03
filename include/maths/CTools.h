@@ -181,7 +181,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable {
                         bool operator()(double x, double &result) const;
 
                     private:
-                        LOGF   m_LogF;
+                        LOGF m_LogF;
                         double m_LogF0;
                         double m_K;
                         double m_Scale;
@@ -285,15 +285,15 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable {
 
             private:
                 //! The sample.
-                double          m_X;
+                double m_X;
                 //! The log p.d.f. of the sample for which to compute the
                 //! probability.
-                double          m_LogFx;
+                double m_LogFx;
                 //! The integration interval [a, b].
-                double          m_A, m_B;
+                double m_A, m_B;
                 //! Filled in with the end points of the seed intervals for
                 //! adaptive quadrature.
-                TDoubleVec      m_Endpoints;
+                TDoubleVec m_Endpoints;
                 //! The maximum deviation of the sample from any mode.
                 TMaxAccumulator m_MaxDeviation;
         };
@@ -406,10 +406,11 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable {
         class CDifferentialEntropyKernel {
             public:
                 CDifferentialEntropyKernel(const CMixtureDistribution<T> &mixture) :
-                    m_Mixture(&mixture) {}
+                    m_Mixture(&mixture)
+                {}
 
                 inline bool operator()(double x, double &result) const {
-                    double                         fx = pdf(*m_Mixture, x);
+                    double fx = pdf(*m_Mixture, x);
                     result = fx == 0.0 ? 0.0 : -fx * std::log(fx);
                     return true;
                 }
@@ -434,7 +435,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable {
     private:
         //! The precision to use for fastLog, which gives good runtime
         //! accuracy tradeoff.
-        static const int         FAST_LOG_PRECISION = 14;
+        static const int FAST_LOG_PRECISION = 14;
 
         //! Shift used to index the lookup table in fastLog.
         static const std::size_t FAST_LOG_SHIFT = 52 - FAST_LOG_PRECISION;
@@ -473,7 +474,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable {
                     //      (interpreted as an integer) to the corresponding
                     //      double value and fastLog uses the same approach
                     //      to extract the mantissa.
-                    uint64_t                   dx = 0x10000000000000ull / BINS;
+                    uint64_t dx = 0x10000000000000ull / BINS;
                     core::CIEEE754::SDoubleRep x;
                     x.s_Sign = 0;
                     x.s_Mantissa = (dx / 2) & core::CIEEE754::IEEE754_MANTISSA_MASK;
@@ -512,7 +513,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable {
         //! http://www.icsi.berkeley.edu/pubs/techreports/TR-07-002.pdf
         static double fastLog(double x) {
             uint64_t mantissa;
-            int      log2;
+            int log2;
             core::CIEEE754::decompose(x, mantissa, log2);
             return 0.693147180559945 * (FAST_LOG_TABLE[mantissa] + log2);
         }
@@ -573,7 +574,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable {
                     if (m_A == m_B) {
                         return false;
                     }
-                    bool   result = false;
+                    bool result = false;
                     double x = this->leftEndpoint(separation);
                     for (std::size_t i = m_A; i <= m_B; ++i, x += separation) {
                         if (location(points[i]) != x) {
@@ -591,8 +592,8 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable {
                 //! Get the position of the right end point of this group.
                 double rightEndpoint(double separation) const;
 
-                std::size_t      m_A;
-                std::size_t      m_B;
+                std::size_t m_A;
+                std::size_t m_B;
                 TMeanAccumulator m_Centre;
         };
 

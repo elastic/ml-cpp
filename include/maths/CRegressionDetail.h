@@ -63,24 +63,24 @@ void CRegression::CLeastSquaresOnline<N, T>::shiftAbscissa(double dx) {
     //   -> 1/n * (  sum_i{ t(i)^i * y(i) }
     //             + sum_j{ (i j) * dx^(i - j) * sum_i{ t(i)^j y(i) } } )
 
-    double d[2*N-2] = { dx };
-    for (std::size_t i = 1u; i < 2*N-2; ++i) {
-        d[i] = d[i-1] * dx;
+    double d[2 * N - 2] = { dx };
+    for (std::size_t i = 1u; i < 2 * N - 2; ++i) {
+        d[i] = d[i - 1] * dx;
     }
     LOG_TRACE("d = " << core::CContainerPrinter::print(d));
 
     LOG_TRACE("S(before) " << CBasicStatistics::mean(m_S));
-    for (std::size_t i = 2*N-2; i > 0; --i) {
+    for (std::size_t i = 2 * N - 2; i > 0; --i) {
         LOG_TRACE("i = " << i);
         for (std::size_t j = 0u; j < i; ++j) {
-            double bij = CCategoricalTools::binomialCoefficient(i, j) * d[i-j-1];
+            double bij = CCategoricalTools::binomialCoefficient(i, j) * d[i - j - 1];
             LOG_TRACE("bij = " << bij);
             CBasicStatistics::moment<0>(m_S)(i) += bij * CBasicStatistics::mean(m_S)(j);
             if (i >= N) {
                 continue;
             }
-            std::size_t yi = i + 2*N-1;
-            std::size_t yj = j + 2*N-1;
+            std::size_t yi = i + 2 * N - 1;
+            std::size_t yj = j + 2 * N - 1;
             LOG_TRACE("yi = " << yi << ", yj = " << yj);
             CBasicStatistics::moment<0>(m_S)(yi) += bij * CBasicStatistics::mean(m_S)(yj);
         }
@@ -89,16 +89,16 @@ void CRegression::CLeastSquaresOnline<N, T>::shiftAbscissa(double dx) {
 }
 
 template<std::size_t N, typename T>
-bool CRegression::CLeastSquaresOnline<N, T>::parameters(TArray &result, double maxCondition) const
+bool CRegression::CLeastSquaresOnline<N, T>::parameters(TArray & result, double maxCondition) const
 {
     result.fill(0.0);
 
     // Search for non-singular solution.
-    std::size_t n = N+1;
+    std::size_t n = N + 1;
     while (--n > 0) {
         switch (n) {
             case 1: {
-                result[0] = CBasicStatistics::mean(m_S)(2*N-1);
+                result[0] = CBasicStatistics::mean(m_S)(2 * N - 1);
                 return true;
             }
             case N: {
@@ -124,13 +124,13 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(TArray &result, double m
 
 template<std::size_t N, typename T>
 bool CRegression::CLeastSquaresOnline<N, T>::covariances(double variance,
-                                                         TMatrix &result,
+                                                         TMatrix & result,
                                                          double maxCondition) const
 {
     result = TMatrix(0.0);
 
     // Search for the covariance matrix of a non-singular subproblem.
-    std::size_t n = N+1;
+    std::size_t n = N + 1;
     while (--n > 0) {
         switch (n) {
             case 1: {
@@ -163,7 +163,7 @@ std::string CRegression::CLeastSquaresOnline<N, T>::print(void) const
     TArray params;
     if (this->parameters(params)) {
         std::string result;
-        for (std::size_t i = params.size()-1; i > 0; --i) {
+        for (std::size_t i = params.size() - 1; i > 0; --i) {
             result += core::CStringUtils::typeToStringPretty(params[i])
                       + " x^"
                       + core::CStringUtils::typeToStringPretty(i)
@@ -178,19 +178,19 @@ std::string CRegression::CLeastSquaresOnline<N, T>::print(void) const
 template<std::size_t N, typename T>
 template<typename MATRIX, typename VECTOR>
 bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n,
-                                                        MATRIX &x,
-                                                        VECTOR &y,
+                                                        MATRIX & x,
+                                                        VECTOR & y,
                                                         double maxCondition,
-                                                        TArray &result) const
+                                                        TArray & result) const
 {
     if (n == 1) {
-        result[0] = CBasicStatistics::mean(m_S)(2*N-1);
+        result[0] = CBasicStatistics::mean(m_S)(2 * N - 1);
         return true;
     }
 
     this->gramian(n, x);
     for (std::size_t i = 0u; i < n; ++i) {
-        y(i) = CBasicStatistics::mean(m_S)(i+2*N-1);
+        y(i) = CBasicStatistics::mean(m_S)(i + 2 * N - 1);
     }
     LOG_TRACE("S = " << CBasicStatistics::mean(m_S));
     LOG_TRACE("x =\n" << x);
@@ -198,7 +198,7 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n,
 
     Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(),
                                 Eigen::ComputeFullU | Eigen::ComputeFullV);
-    if (x_.singularValues()(0) > maxCondition * x_.singularValues()(n-1)) {
+    if (x_.singularValues()(0) > maxCondition * x_.singularValues()(n - 1)) {
         LOG_TRACE("singular values = " << x_.singularValues());
         return false;
     }
@@ -216,10 +216,10 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n,
 template<std::size_t N, typename T>
 template<typename MATRIX>
 bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n,
-                                                         MATRIX &x,
+                                                         MATRIX & x,
                                                          double variance,
                                                          double maxCondition,
-                                                         TMatrix &result) const
+                                                         TMatrix & result) const
 {
     if (n == 1) {
         x(0) = variance / CBasicStatistics::count(m_S);
@@ -229,7 +229,7 @@ bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n,
     this->gramian(n, x);
     Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(),
                                 Eigen::ComputeFullU | Eigen::ComputeFullV);
-    if (x_.singularValues()(0) > maxCondition * x_.singularValues()(n-1)) {
+    if (x_.singularValues()(0) > maxCondition * x_.singularValues()(n - 1)) {
         LOG_TRACE("singular values = " << x_.singularValues());
         return false;
     }

@@ -84,7 +84,7 @@ class API_EXPORT CCategoryExamplesCollector {
 
     private:
         //! The max number of examples that will be collected per category
-        std::size_t     m_MaxExamples;
+        std::size_t m_MaxExamples;
 
         //! A map from categories to the set that contains the examples
         TSizeStrSetUMap m_ExamplesByCategory;

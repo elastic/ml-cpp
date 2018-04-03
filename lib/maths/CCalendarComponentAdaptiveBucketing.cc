@@ -55,13 +55,15 @@ const std::string EMPTY_STRING;
 }
 
 CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(void) :
-    CAdaptiveBucketing{0.0, 0.0} {}
+    CAdaptiveBucketing{0.0, 0.0}
+{}
 
 CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(CCalendarFeature feature,
                                                                          double decayRate,
                                                                          double minimumBucketLength) :
     CAdaptiveBucketing{decayRate, minimumBucketLength},
-    m_Feature{feature} {}
+    m_Feature{feature}
+{}
 
 CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(double decayRate,
                                                                          double minimumBucketLength,
@@ -136,7 +138,7 @@ double CCalendarComponentAdaptiveBucketing::decayRate(void) const {
 void CCalendarComponentAdaptiveBucketing::propagateForwardsByTime(double time) {
     if (time < 0.0) {
         LOG_ERROR("Can't propagate bucketing backwards in time");
-    } else if (this->initialized()) {
+    } else if (this->initialized())   {
         double factor{::exp(-this->CAdaptiveBucketing::decayRate() * time)};
         this->CAdaptiveBucketing::age(factor);
         for (auto &&value : m_Values) {
@@ -252,7 +254,7 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec &endpoints) {
 
     std::size_t m{m_Values.size()};
     std::size_t n{endpoints.size()};
-    if (m+1 != n) {
+    if (m + 1 != n) {
         LOG_ERROR("Inconsistent end points and regressions");
         return;
     }
@@ -261,13 +263,13 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec &endpoints) {
     TFloatVec &m_Centres{this->CAdaptiveBucketing::centres()};
 
     TFloatMeanVarVec values;
-    TFloatVec        centres;
+    TFloatVec centres;
     values.reserve(m);
     centres.reserve(m);
 
     for (std::size_t i = 1u; i < n; ++i) {
-        double      yl{m_Endpoints[i-1]};
-        double      yr{m_Endpoints[i]};
+        double yl{m_Endpoints[i - 1]};
+        double yr{m_Endpoints[i]};
         std::size_t r = std::lower_bound(endpoints.begin(),
                                          endpoints.end(), yr) - endpoints.begin();
         r = CTools::truncate(r, std::size_t(1), n - 1);
@@ -278,37 +280,37 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec &endpoints) {
 
         LOG_TRACE("interval = [" << yl << "," << yr << "]");
         LOG_TRACE("l = " << l << ", r = " << r);
-        LOG_TRACE("[x(l), x(r)] = [" << endpoints[l-1] << "," << endpoints[r] << "]");
+        LOG_TRACE("[x(l), x(r)] = [" << endpoints[l - 1] << "," << endpoints[r] << "]");
 
-        double xl{endpoints[l-1]};
+        double xl{endpoints[l - 1]};
         double xr{endpoints[l]};
         if (l == r) {
-            double interval{m_Endpoints[i] - m_Endpoints[i-1]};
+            double interval{m_Endpoints[i] - m_Endpoints[i - 1]};
             double w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
-            values.push_back(CBasicStatistics::scaled(m_Values[l-1], w * w));
-            centres.push_back(CTools::truncate(static_cast<double>(m_Centres[l-1]), yl, yr));
-        } else {
-            double                    interval{xr - m_Endpoints[i-1]};
-            double                    w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
-            TDoubleMeanVarAccumulator value{CBasicStatistics::scaled(m_Values[l-1], w)};
-            TDoubleMeanAccumulator    centre{
-                CBasicStatistics::accumulator(w * CBasicStatistics::count(m_Values[l-1]),
-                                              static_cast<double>(m_Centres[l-1]))};
-            double count{w * w * CBasicStatistics::count(m_Values[l-1])};
+            values.push_back(CBasicStatistics::scaled(m_Values[l - 1], w * w));
+            centres.push_back(CTools::truncate(static_cast<double>(m_Centres[l - 1]), yl, yr));
+        } else   {
+            double interval{xr - m_Endpoints[i - 1]};
+            double w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
+            TDoubleMeanVarAccumulator value{CBasicStatistics::scaled(m_Values[l - 1], w)};
+            TDoubleMeanAccumulator centre{
+                CBasicStatistics::accumulator(w * CBasicStatistics::count(m_Values[l - 1]),
+                                              static_cast<double>(m_Centres[l - 1]))};
+            double count{w * w * CBasicStatistics::count(m_Values[l - 1])};
             while (++l < r) {
-                value  += m_Values[l-1];
-                centre += CBasicStatistics::accumulator(CBasicStatistics::count(m_Values[l-1]),
-                                                        static_cast<double>(m_Centres[l-1]));
-                count  += CBasicStatistics::count(m_Values[l-1]);
+                value  += m_Values[l - 1];
+                centre += CBasicStatistics::accumulator(CBasicStatistics::count(m_Values[l - 1]),
+                                                        static_cast<double>(m_Centres[l - 1]));
+                count  += CBasicStatistics::count(m_Values[l - 1]);
             }
-            xl = endpoints[l-1];
+            xl = endpoints[l - 1];
             xr = endpoints[l];
             interval = m_Endpoints[i] - xl;
             w = CTools::truncate(interval / (xr - xl), 0.0, 1.0);
-            value  += CBasicStatistics::scaled(m_Values[l-1], w);
-            centre += CBasicStatistics::accumulator(w * CBasicStatistics::count(m_Values[l-1]),
-                                                    static_cast<double>(m_Centres[l-1]));
-            count  += w * w * CBasicStatistics::count(m_Values[l-1]);
+            value  += CBasicStatistics::scaled(m_Values[l - 1], w);
+            centre += CBasicStatistics::accumulator(w * CBasicStatistics::count(m_Values[l - 1]),
+                                                    static_cast<double>(m_Centres[l - 1]));
+            count  += w * w * CBasicStatistics::count(m_Values[l - 1]);
             double scale{count / CBasicStatistics::count(value)};
             values.push_back(CBasicStatistics::scaled(value, scale));
             centres.push_back(CTools::truncate(CBasicStatistics::mean(centre), yl, yr));
@@ -327,7 +329,7 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec &endpoints) {
     for (std::size_t i = 0u; i < m; ++i) {
         double ci{CBasicStatistics::count(values[i])};
         if (ci > 0.0) {
-            CBasicStatistics::scale(count * (endpoints[i+1] - endpoints[i]) / ci, values[i]);
+            CBasicStatistics::scale(count * (endpoints[i + 1] - endpoints[i]) / ci, values[i]);
         }
     }
 

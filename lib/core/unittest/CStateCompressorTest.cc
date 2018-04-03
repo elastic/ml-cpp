@@ -67,7 +67,8 @@ class CMockDataAdder : public ml::core::CDataAdder {
     public:
         CMockDataAdder(std::size_t maxDocSize)
             : m_CurrentDocNum(0),
-              m_MaxDocumentSize(maxDocSize) {}
+              m_MaxDocumentSize(maxDocSize)
+        {}
 
         virtual TOStreamP addStreamed(const std::string & /*index*/,
                                       const std::string & /*id*/) {
@@ -96,18 +97,19 @@ class CMockDataAdder : public ml::core::CDataAdder {
         }
 
     private:
-        TSizeStrMap       m_Data;
-        std::size_t       m_CurrentDocNum;
-        TOStreamP         m_CurrentStream;
-        std::size_t       m_MaxDocumentSize;
+        TSizeStrMap m_Data;
+        std::size_t m_CurrentDocNum;
+        TOStreamP m_CurrentStream;
+        std::size_t m_MaxDocumentSize;
 };
 
 class CMockDataSearcher : public ml::core::CDataSearcher {
     public:
-        CMockDataSearcher(CMockDataAdder &adder) : m_Adder(adder), m_AskedFor(0) {}
+        CMockDataSearcher(CMockDataAdder &adder) : m_Adder(adder), m_AskedFor(0)
+        {}
 
         virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
-            TIStreamP         stream;
+            TIStreamP stream;
             const TSizeStrMap &events = m_Adder.data();
 
             TSizeStrMapCItr iter = events.find(m_AskedFor + 1);
@@ -115,7 +117,7 @@ class CMockDataSearcher : public ml::core::CDataSearcher {
                 // return a stream here that is in the fail state
                 stream.reset(new std::stringstream);
                 stream->setstate(std::ios_base::failbit);
-            } else {
+            } else   {
                 stream.reset(new std::stringstream(iter->second));
                 ++m_AskedFor;
             }
@@ -133,7 +135,7 @@ class CMockDataSearcher : public ml::core::CDataSearcher {
     private:
 
         CMockDataAdder &m_Adder;
-        std::size_t    m_AskedFor;
+        std::size_t m_AskedFor;
 };
 
 }
@@ -145,7 +147,7 @@ void CStateCompressorTest::testForApiNoKey(void) {
     // and one compress/decompress stream
 
     std::ostringstream referenceStream;
-    ::CMockDataAdder   mockKvAdder(3000);
+    ::CMockDataAdder mockKvAdder(3000);
     {
         ml::core::CStateCompressor compressor(mockKvAdder);
 
@@ -164,7 +166,7 @@ void CStateCompressorTest::testForApiNoKey(void) {
     std::string restored;
     {
         LOG_DEBUG("Restoring data");
-        CMockDataSearcher            mockKvSearcher(mockKvAdder);
+        CMockDataSearcher mockKvSearcher(mockKvAdder);
         ml::core::CStateDecompressor decompressor(mockKvSearcher);
         decompressor.setStateRestoreSearch("1", "");
         TIStreamP istrm = decompressor.search(1, 1);
@@ -202,7 +204,7 @@ void CStateCompressorTest::testStreaming(void) {
     {
         // Read the datastore via a JSON traverser, and show that the
         // data is streamed, not read all at once
-        std::size_t         lastAskedFor = 0;
+        std::size_t lastAskedFor = 0;
         ::CMockDataSearcher mockKvSearcher(mockKvAdder);
         LOG_TRACE("After compression, there are " << mockKvSearcher.totalDocs() << " docs, asked for " << mockKvSearcher.askedFor());
         ml::core::CStateDecompressor decompressor(mockKvSearcher);
@@ -239,8 +241,8 @@ void CStateCompressorTest::testStreaming(void) {
         }
         CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
-        while (traverser.next()) {}
-        ;
+        while (traverser.next())
+        {};
         LOG_TRACE("Asked for: " << mockKvSearcher.askedFor());
         CPPUNIT_ASSERT_EQUAL(mockKvSearcher.askedFor(), mockKvAdder.data().size());
     }
@@ -251,19 +253,19 @@ void CStateCompressorTest::testChunking(void) {
     // Put arbitrary string data into the stream, and stress different sizes
     // check CMockDataAdder with max doc sizes from 500 to 500000
 
-    TRandom       rng(1849434026ul);
-    TGenerator    generator(rng, TDistribution(0, 254));
+    TRandom rng(1849434026ul);
+    TGenerator generator(rng, TDistribution(0, 254));
     TGeneratorItr randItr(&generator);
 
     for (std::size_t i = 500; i < 5000001; i *= 10) {
         // check string data from sizes 1 to 200000
         for (std::size_t j = 1; j < 2570000; j *= 4) {
-            CMockDataAdder     adder(i);
+            CMockDataAdder adder(i);
             std::ostringstream ss;
-            std::string        decompressed;
+            std::string decompressed;
             try {
                 {
-                    ml::core::CStateCompressor      compressor(adder);
+                    ml::core::CStateCompressor compressor(adder);
                     ml::core::CDataAdder::TOStreamP strm = compressor.addStreamed("1", "");
                     for (std::size_t k = 0; k < j; k++) {
                         char c = char(*randItr++);
@@ -272,14 +274,14 @@ void CStateCompressorTest::testChunking(void) {
                     }
                 }
                 {
-                    CMockDataSearcher            searcher(adder);
+                    CMockDataSearcher searcher(adder);
                     ml::core::CStateDecompressor decompressor(searcher);
                     decompressor.setStateRestoreSearch("1", "");
                     ml::core::CDataSearcher::TIStreamP strm = decompressor.search(1, 1);
-                    std::istreambuf_iterator<char>     eos;
+                    std::istreambuf_iterator<char> eos;
                     decompressed.assign(std::istreambuf_iterator<char>(*strm), eos);
                 }
-            } catch (std::exception &e) {
+            } catch (std::exception &e)   {
                 LOG_DEBUG("Error in test case " << i << " / " << j << ": " << e.what());
                 LOG_DEBUG("String is: " << ss.str());
                 CPPUNIT_ASSERT(false);
@@ -291,12 +293,12 @@ void CStateCompressorTest::testChunking(void) {
 
     // Do a really big string test
     {
-        CMockDataAdder     adder(0xffffffff);
+        CMockDataAdder adder(0xffffffff);
         std::ostringstream ss;
-        std::string        decompressed;
+        std::string decompressed;
         try {
             {
-                ml::core::CStateCompressor      compressor(adder);
+                ml::core::CStateCompressor compressor(adder);
                 ml::core::CDataAdder::TOStreamP strm = compressor.addStreamed("1", "");
                 for (std::size_t k = 0; k < 100000000; k++) {
                     char c = char(*randItr++);
@@ -305,14 +307,14 @@ void CStateCompressorTest::testChunking(void) {
                 }
             }
             {
-                CMockDataSearcher            searcher(adder);
+                CMockDataSearcher searcher(adder);
                 ml::core::CStateDecompressor decompressor(searcher);
                 decompressor.setStateRestoreSearch("1", "");
                 ml::core::CDataSearcher::TIStreamP strm = decompressor.search(1, 1);
-                std::istreambuf_iterator<char>     eos;
+                std::istreambuf_iterator<char> eos;
                 decompressed.assign(std::istreambuf_iterator<char>(*strm), eos);
             }
-        } catch (std::exception &e) {
+        } catch (std::exception &e)   {
             LOG_DEBUG("Error in test case " << e.what());
             LOG_DEBUG("String is: " << ss.str());
             CPPUNIT_ASSERT(false);

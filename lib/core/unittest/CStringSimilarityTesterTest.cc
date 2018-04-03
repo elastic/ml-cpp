@@ -268,7 +268,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent(void
     typedef std::vector<std::string> TStrVec;
 
     static const size_t TEST_SIZE(700);
-    static const int    MAX_LEN(40);
+    static const int MAX_LEN(40);
 
     TStrVec input(TEST_SIZE);
 
@@ -308,7 +308,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar(void) 
     typedef std::vector<std::string> TStrVec;
 
     static const size_t TEST_SIZE(700);
-    static const int    EXTRA_CHARS(4);
+    static const int EXTRA_CHARS(4);
 
     TStrVec input(TEST_SIZE);
 

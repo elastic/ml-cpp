@@ -128,7 +128,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string &config
                                                        const std::string &timeFormat) {
     // Start by creating a detector with non-trivial state
     static const ml::core_t::TTime BUCKET_SIZE(3600);
-    static const std::string       JOB_ID("job");
+    static const std::string JOB_ID("job");
 
     // Open the input and output files
     std::ifstream inputStrm(inputFilename.c_str());
@@ -137,7 +137,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string &config
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
     CPPUNIT_ASSERT(outputStrm.is_open());
 
-    ml::model::CLimits    limits;
+    ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
     CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
 
@@ -151,10 +151,10 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string &config
                                                               "");
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
-    ml::api::CJsonOutputWriter         outputWriter(JOB_ID, wrappedOutputStream);
+    ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
 
-    std::string          origSnapshotId;
-    std::size_t          numOrigDocs(0);
+    std::string origSnapshotId;
+    std::size_t numOrigDocs(0);
     ml::api::CAnomalyJob origJob(JOB_ID,
                                  limits,
                                  fieldConfig,
@@ -190,7 +190,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string &config
     TScopedInputParserP parser;
     if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
         parser.reset(new ml::api::CCsvInputParser(inputStrm));
-    } else {
+    } else   {
         parser.reset(new ml::api::CLineifiedJsonInputParser(inputStrm));
     }
 
@@ -202,17 +202,17 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string &config
 
     std::string origPersistedState;
     {
-        std::ostringstream                         *                       strm(0);
+        std::ostringstream *strm(0);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
-        ml::api::CSingleStreamDataAdder            persister(ptr);
+        ml::api::CSingleStreamDataAdder persister(ptr);
         CPPUNIT_ASSERT(firstProcessor->persistState(persister));
         origPersistedState = strm->str();
     }
 
     // Now restore the state into a different detector
 
-    std::string          restoredSnapshotId;
-    std::size_t          numRestoredDocs(0);
+    std::string restoredSnapshotId;
+    std::size_t numRestoredDocs(0);
     ml::api::CAnomalyJob restoredJob(JOB_ID,
                                      limits,
                                      fieldConfig,
@@ -263,9 +263,9 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string &config
     // Finally, persist the new detector state and compare the result
     std::string newPersistedState;
     {
-        std::ostringstream                         *                       strm(0);
+        std::ostringstream *strm(0);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
-        ml::api::CSingleStreamDataAdder            persister(ptr);
+        ml::api::CSingleStreamDataAdder persister(ptr);
         CPPUNIT_ASSERT(restoredFirstProcessor->persistState(persister));
         newPersistedState = strm->str();
     }

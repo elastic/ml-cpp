@@ -52,10 +52,10 @@ CppUnit::Test *CRuleConditionTest::suite() {
 }
 
 void CRuleConditionTest::testTimeContition(void) {
-    core_t::TTime                                                  bucketLength = 100;
-    core_t::TTime                                                  startTime = 100;
-    CSearchKey                                                     key;
-    SModelParams                                                   params(bucketLength);
+    core_t::TTime bucketLength = 100;
+    core_t::TTime startTime = 100;
+    CSearchKey key;
+    SModelParams params(bucketLength);
     CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
 
     model_t::TFeatureVec features;

@@ -32,8 +32,8 @@ const std::string OUTPUT_FILE("withNs.xml");
 // forward slash path separators
 const std::string INPUT_FILE("testfiles\\withNs.xml");
 // File size is different on Windows due to CRLF line endings
-const size_t      EXPECTED_FILE_SIZE(585);
-const char        *winDir(::getenv("windir"));
+const size_t EXPECTED_FILE_SIZE(585);
+const char *winDir(::getenv("windir"));
 const std::string PROCESS_PATH1(winDir != 0 ? std::string(winDir) + "\\System32\\cmd"
                                             : std::string("C:\\Windows\\System32\\cmd"));
 const std::string PROCESS_ARGS1[] = { "/C",
@@ -43,7 +43,7 @@ const std::string PROCESS_ARGS2[] = { "/C",
                                       "ping 127.0.0.1 -n 11" };
 #else
 const std::string INPUT_FILE("testfiles/withNs.xml");
-const size_t      EXPECTED_FILE_SIZE(563);
+const size_t EXPECTED_FILE_SIZE(563);
 const std::string PROCESS_PATH1("/bin/dd");
 const std::string PROCESS_ARGS1[] = { "if=" + INPUT_FILE,
                                       "of=" + OUTPUT_FILE,
@@ -82,7 +82,7 @@ void CDetachedProcessSpawnerTest::testSpawn(void) {
     ::remove(OUTPUT_FILE.c_str());
 
     ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, PROCESS_PATH1);
-    ml::core::CDetachedProcessSpawner          spawner(permittedPaths);
+    ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
     ml::core::CDetachedProcessSpawner::TStrVec args(PROCESS_ARGS1,
                                                     PROCESS_ARGS1 + boost::size(PROCESS_ARGS1));
@@ -105,7 +105,7 @@ void CDetachedProcessSpawnerTest::testKill(void) {
     // has been detected
 
     ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, PROCESS_PATH2);
-    ml::core::CDetachedProcessSpawner          spawner(permittedPaths);
+    ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
     ml::core::CDetachedProcessSpawner::TStrVec args(PROCESS_ARGS2,
                                                     PROCESS_ARGS2 + boost::size(PROCESS_ARGS2));
@@ -132,7 +132,7 @@ void CDetachedProcessSpawnerTest::testKill(void) {
 
 void CDetachedProcessSpawnerTest::testPermitted(void) {
     ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, PROCESS_PATH1);
-    ml::core::CDetachedProcessSpawner          spawner(permittedPaths);
+    ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
     // Should fail as ml_test is not on the permitted processes list
     CPPUNIT_ASSERT(!spawner.spawn("./ml_test", ml::core::CDetachedProcessSpawner::TStrVec()));
@@ -140,7 +140,7 @@ void CDetachedProcessSpawnerTest::testPermitted(void) {
 
 void CDetachedProcessSpawnerTest::testNonExistent(void) {
     ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, "./does_not_exist");
-    ml::core::CDetachedProcessSpawner          spawner(permittedPaths);
+    ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
     // Should fail as even though it's a permitted process as the file doesn't exist
     CPPUNIT_ASSERT(!spawner.spawn("./does_not_exist", ml::core::CDetachedProcessSpawner::TStrVec()));

@@ -99,19 +99,19 @@ class CONFIG_EXPORT CDetectorRecord {
 
     private:
         //! The record time.
-        core_t::TTime               m_Time;
+        core_t::TTime m_Time;
 
         //! The function of the record's detector.
         config_t::EFunctionCategory m_Function;
 
         //! The relevant field names.
-        TStrCPtrAry                 m_FieldNames;
+        TStrCPtrAry m_FieldNames;
 
         //! The relevant field values.
-        TStrCPtrAry                 m_FieldValues;
+        TStrCPtrAry m_FieldValues;
 
         //! Hashes of the field values.
-        TSizeAry                    m_HashedFieldValues;
+        TSizeAry m_HashedFieldValues;
 };
 
 //! \brief Defines a fast scheme, which minimizes lookups in the field values
@@ -157,13 +157,13 @@ class CONFIG_EXPORT CDetectorRecordDirectAddressTable {
 
         //! A map from detectors to their field value entries in the field
         //! value table.
-        TSizeAryVec   m_DetectorFieldSchema;
+        TSizeAryVec m_DetectorFieldSchema;
 
         //! The table of field values populated once per record.
-        TStrCPtrVec   m_FieldValueTable;
+        TStrCPtrVec m_FieldValueTable;
 
         //! The table of field value hashes populated once per record.
-        TSizeVec      m_HashedFieldValueTable;
+        TSizeVec m_HashedFieldValueTable;
 };
 
 }

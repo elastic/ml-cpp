@@ -122,7 +122,7 @@ class CMultivariatePolynomialFunction {
             result = 0.0;
             for (std::size_t i = 0u; i < m_Terms.size(); ++i) {
                 const SMonomial &monomial = m_Terms[i];
-                double          term = monomial.s_Coefficient;
+                double term = monomial.s_Coefficient;
                 for (unsigned int j = 0u; j < DIMENSION; ++j) {
                     if (monomial.s_Powers[j] > 0.0) {
                         term *= ::pow(x(j), monomial.s_Powers[j]);
@@ -133,12 +133,10 @@ class CMultivariatePolynomialFunction {
             return true;
         }
 
-        const TMonomialVec &terms(void) const {
-            return m_Terms;
-        }
+        const TMonomialVec &terms(void) const { return m_Terms; }
 
     private:
-        TMonomialVec       m_Terms;
+        TMonomialVec m_Terms;
 };
 
 template<unsigned int DIMENSION>
@@ -196,7 +194,7 @@ bool readGrid(const std::string &file,
 
     std::string line;
     while (std::getline(d2_l1, line)) {
-        TStrVec     point;
+        TStrVec point;
         std::string weight;
         core::CStringUtils::tokenise(", ", line, point, weight);
         core::CStringUtils::trimWhitespace(weight);
@@ -230,7 +228,8 @@ class CSmoothHeavySide {
     public:
         CSmoothHeavySide(double slope, double offset) :
             m_Slope(slope),
-            m_Offset(offset) {}
+            m_Offset(offset)
+        {}
 
         bool operator()(double x, double &result) const {
             result =    ::exp(m_Slope * (x - m_Offset))
@@ -250,7 +249,8 @@ class CNormal {
     public:
         CNormal(double mean, double std) :
             m_Mean(mean),
-            m_Std(std) {}
+            m_Std(std)
+        {}
 
         bool operator()(double x, double &result) const {
             if (m_Std <= 0.0) {
@@ -307,11 +307,11 @@ void CIntegrationTest::testAllSingleVariate(void) {
             { 12.1 }
         };
 
-        for (unsigned int i = 0; i < sizeof(ranges)/sizeof(ranges[0]); ++i) {
-            for (unsigned int j = 0; j < sizeof(coeffs)/sizeof(coeffs[0]); ++j) {
+        for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
+            for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
                 TConstant f(coeffs[j]);
                 LOG_DEBUG("range = [" << ranges[i][0] << "," << ranges[i][1] << "]"
-                                      << ", f(x) = " << f);
+                          << ", f(x) = " << f);
 
                 double expected = integrate(f, ranges[i][0], ranges[i][1]);
 
@@ -370,11 +370,11 @@ void CIntegrationTest::testAllSingleVariate(void) {
             { 12.1, -8.3 }
         };
 
-        for (unsigned int i = 0; i < sizeof(ranges)/sizeof(ranges[0]); ++i) {
-            for (unsigned int j = 0; j < sizeof(coeffs)/sizeof(coeffs[0]); ++j) {
+        for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
+            for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
                 TLinear f(coeffs[j]);
                 LOG_DEBUG("range = [" << ranges[i][0] << "," << ranges[i][1] << "]"
-                                      << ", f(x) = " << f);
+                          << ", f(x) = " << f);
 
                 double expected = integrate(f, ranges[i][0], ranges[i][1]);
 
@@ -433,11 +433,11 @@ void CIntegrationTest::testAllSingleVariate(void) {
             { 12.1, -8.3,  10.1 }
         };
 
-        for (unsigned int i = 0; i < sizeof(ranges)/sizeof(ranges[0]); ++i) {
-            for (unsigned int j = 0; j < sizeof(coeffs)/sizeof(coeffs[0]); ++j) {
+        for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
+            for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
                 TQuadratic f(coeffs[j]);
                 LOG_DEBUG("range = [" << ranges[i][0] << "," << ranges[i][1] << "]"
-                                      << ", f(x) = " << f);
+                          << ", f(x) = " << f);
 
                 double expected = integrate(f, ranges[i][0], ranges[i][1]);
 
@@ -492,11 +492,11 @@ void CIntegrationTest::testAllSingleVariate(void) {
             { 10.1, -6.3,  1.1,  8.3 }
         };
 
-        for (unsigned int i = 0; i < sizeof(ranges)/sizeof(ranges[0]); ++i) {
-            for (unsigned int j = 0; j < sizeof(coeffs)/sizeof(coeffs[0]); ++j) {
+        for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
+            for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
                 TCubic f(coeffs[j]);
                 LOG_DEBUG("range = [" << ranges[i][0] << "," << ranges[i][1] << "]"
-                                      << ", f(x) = " << f);
+                          << ", f(x) = " << f);
 
                 double expected = integrate(f, ranges[i][0], ranges[i][1]);
 
@@ -547,11 +547,11 @@ void CIntegrationTest::testAllSingleVariate(void) {
             { 10.1, -6.3,  1.1,  8.3, -5.1 }
         };
 
-        for (unsigned int i = 0; i < sizeof(ranges)/sizeof(ranges[0]); ++i) {
-            for (unsigned int j = 0; j < sizeof(coeffs)/sizeof(coeffs[0]); ++j) {
+        for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
+            for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
                 TQuartic f(coeffs[j]);
                 LOG_DEBUG("range = [" << ranges[i][0] << "," << ranges[i][1] << "]"
-                                      << ", f(x) = " << f);
+                          << ", f(x) = " << f);
 
                 double expected = integrate(f, ranges[i][0], ranges[i][1]);
 
@@ -598,11 +598,11 @@ void CIntegrationTest::testAllSingleVariate(void) {
             { 10.1, -5.3,  2.1,  4.3, -7.1,  0.4 }
         };
 
-        for (unsigned int i = 0; i < sizeof(ranges)/sizeof(ranges[0]); ++i) {
-            for (unsigned int j = 0; j < sizeof(coeffs)/sizeof(coeffs[0]); ++j) {
+        for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
+            for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
                 TQuintic f(coeffs[j]);
                 LOG_DEBUG("range = [" << ranges[i][0] << "," << ranges[i][1] << "]"
-                                      << ", f(x) = " << f);
+                          << ", f(x) = " << f);
 
                 double expected = integrate(f, ranges[i][0], ranges[i][1]);
 
@@ -645,11 +645,11 @@ void CIntegrationTest::testAllSingleVariate(void) {
             { 10.1, -5.3,  2.1,  4.3, -7.1,  0.4, -0.5 }
         };
 
-        for (unsigned int i = 0; i < sizeof(ranges)/sizeof(ranges[0]); ++i) {
-            for (unsigned int j = 0; j < sizeof(coeffs)/sizeof(coeffs[0]); ++j) {
+        for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
+            for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
                 THexic f(coeffs[j]);
                 LOG_DEBUG("range = [" << ranges[i][0] << "," << ranges[i][1] << "]"
-                                      << ", f(x) = " << f);
+                          << ", f(x) = " << f);
 
                 double expected = integrate(f, ranges[i][0], ranges[i][1]);
 
@@ -688,11 +688,11 @@ void CIntegrationTest::testAllSingleVariate(void) {
             { 10.1, -5.3,  2.1,  4.3, -7.1,  0.4, -0.5,  0.3 }
         };
 
-        for (unsigned int i = 0; i < sizeof(ranges)/sizeof(ranges[0]); ++i) {
-            for (unsigned int j = 0; j < sizeof(coeffs)/sizeof(coeffs[0]); ++j) {
+        for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
+            for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
                 THeptic f(coeffs[j]);
                 LOG_DEBUG("range = [" << ranges[i][0] << "," << ranges[i][1] << "]"
-                                      << ", f(x) = " << f);
+                          << ", f(x) = " << f);
 
                 double expected = integrate(f, ranges[i][0], ranges[i][1]);
 
@@ -727,11 +727,11 @@ void CIntegrationTest::testAllSingleVariate(void) {
             { 10.1, -5.3,  2.1,  4.3, -7.1,  0.4, -0.5,  0.3,  0.3 }
         };
 
-        for (unsigned int i = 0; i < sizeof(ranges)/sizeof(ranges[0]); ++i) {
-            for (unsigned int j = 0; j < sizeof(coeffs)/sizeof(coeffs[0]); ++j) {
+        for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
+            for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
                 TOctic f(coeffs[j]);
                 LOG_DEBUG("range = [" << ranges[i][0] << "," << ranges[i][1] << "]"
-                                      << ", f(x) = " << f);
+                          << ", f(x) = " << f);
 
                 double expected = integrate(f, ranges[i][0], ranges[i][1]);
 
@@ -762,11 +762,11 @@ void CIntegrationTest::testAllSingleVariate(void) {
             { 10.1, -5.3,  2.1,  4.3, -7.1,  0.4, -0.5,  0.3,  0.3, -5.0 }
         };
 
-        for (unsigned int i = 0; i < sizeof(ranges)/sizeof(ranges[0]); ++i) {
-            for (unsigned int j = 0; j < sizeof(coeffs)/sizeof(coeffs[0]); ++j) {
+        for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
+            for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
                 TNonic f(coeffs[j]);
                 LOG_DEBUG("range = [" << ranges[i][0] << "," << ranges[i][1] << "]"
-                                      << ", f(x) = " << f);
+                          << ", f(x) = " << f);
 
                 double expected = integrate(f, ranges[i][0], ranges[i][1]);
 
@@ -793,11 +793,11 @@ void CIntegrationTest::testAllSingleVariate(void) {
             { 10.1, -5.3,  2.1,  4.3, -7.1,  0.4, -0.5,  0.3,  0.3, -5.0, -0.1 }
         };
 
-        for (unsigned int i = 0; i < sizeof(ranges)/sizeof(ranges[0]); ++i) {
-            for (unsigned int j = 0; j < sizeof(coeffs)/sizeof(coeffs[0]); ++j) {
+        for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
+            for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
                 TDecic f(coeffs[j]);
                 LOG_DEBUG("range = [" << ranges[i][0] << "," << ranges[i][1] << "]"
-                                      << ", f(x) = " << f);
+                          << ", f(x) = " << f);
 
                 double expected = integrate(f, ranges[i][0], ranges[i][1]);
 
@@ -863,7 +863,7 @@ void CIntegrationTest::testAdaptive(void) {
             double fi;
             CIntegration::gaussLegendre<CIntegration::OrderThree>(normal,
                                                                   0.1 * static_cast<double>(i),
-                                                                  0.1 * static_cast<double>(i+1),
+                                                                  0.1 * static_cast<double>(i + 1),
                                                                   fi);
             expectedResult += fi;
         }
@@ -899,8 +899,8 @@ void CIntegrationTest::testAdaptive(void) {
     {
         LOG_DEBUG("*** \"Smooth unit step at 20\" x N(21, 3) ***");
 
-        CSmoothHeavySide                                         heavySide(4.0, 20.0);
-        CNormal                                                  normal(21.0, 4.0);
+        CSmoothHeavySide heavySide(4.0, 20.0);
+        CNormal normal(21.0, 4.0);
         CCompositeFunctions::CProduct<CSmoothHeavySide, CNormal> f(heavySide, normal);
 
         double expectedResult = 0.0;
@@ -908,7 +908,7 @@ void CIntegrationTest::testAdaptive(void) {
             double fi;
             CIntegration::gaussLegendre<CIntegration::OrderThree>(f,
                                                                   0.1 * static_cast<double>(i),
-                                                                  0.1 * static_cast<double>(i+1),
+                                                                  0.1 * static_cast<double>(i + 1),
                                                                   fi);
             expectedResult += fi;
         }
@@ -951,7 +951,7 @@ void CIntegrationTest::testSparseGrid(void) {
     {
         LOG_DEBUG("*** 2D, order 1 ***");
 
-        TDoubleVec    expectedWeights;
+        TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
         CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d2_l1",
                                 expectedWeights,
@@ -982,7 +982,7 @@ void CIntegrationTest::testSparseGrid(void) {
     {
         LOG_DEBUG("*** 2D, order 2 ***");
 
-        TDoubleVec    expectedWeights;
+        TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
         CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d2_l2",
                                 expectedWeights,
@@ -1013,7 +1013,7 @@ void CIntegrationTest::testSparseGrid(void) {
     {
         LOG_DEBUG("*** 2D, order 4 ***");
 
-        TDoubleVec    expectedWeights;
+        TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
         CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d2_l4",
                                 expectedWeights,
@@ -1044,7 +1044,7 @@ void CIntegrationTest::testSparseGrid(void) {
     {
         LOG_DEBUG("*** 7D, order 3 ***");
 
-        TDoubleVec    expectedWeights;
+        TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
         CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d7_l3",
                                 expectedWeights,
@@ -1075,7 +1075,7 @@ void CIntegrationTest::testSparseGrid(void) {
     {
         LOG_DEBUG("*** 7D, order 5 ***");
 
-        TDoubleVec    expectedWeights;
+        TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
         CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d7_l5",
                                 expectedWeights,
@@ -1168,7 +1168,7 @@ void CIntegrationTest::testSparseGrid(void) {
 #undef NUMBER_POINTS
 
             LOG_DEBUG("number points: actual = " << numberPoints
-                                                 << ", expected = " << expectedNumberPoints[i][j]);
+                      << ", expected = " << expectedNumberPoints[i][j]);
             CPPUNIT_ASSERT_EQUAL(expectedNumberPoints[i][j], numberPoints);
         }
     }
@@ -1210,8 +1210,8 @@ void CIntegrationTest::testMultivariateSmooth(void) {
                     double c = static_cast<double>(coefficients[i]);
                     double p[] =
                     {
-                        static_cast<double>(powers[DIMENSION*i + 0]),
-                        static_cast<double>(powers[DIMENSION*i + 1])
+                        static_cast<double>(powers[DIMENSION * i + 0]),
+                        static_cast<double>(powers[DIMENSION * i + 1])
                     };
                     if (std::accumulate(p, p + DIMENSION, 0.0) > (2.0 * static_cast<double>(l) - 1.0)) {
                         continue;
@@ -1233,7 +1233,7 @@ void CIntegrationTest::testMultivariateSmooth(void) {
                 double expected = integrate(polynomial, a, b);
 
                 double actual = 0.0;
-                bool   successful = false;
+                bool successful = false;
                 switch (l) {
                     case 2:
                         successful = CIntegration::sparseGaussLegendre<CIntegration::OrderTwo,
@@ -1285,11 +1285,11 @@ void CIntegrationTest::testMultivariateSmooth(void) {
                     double c = static_cast<double>(coefficients[i]);
                     double p[] =
                     {
-                        static_cast<double>(powers[5*i + 0]),
-                        static_cast<double>(powers[5*i + 1]),
-                        static_cast<double>(powers[5*i + 2]),
-                        static_cast<double>(powers[5*i + 3]),
-                        static_cast<double>(powers[5*i + 4])
+                        static_cast<double>(powers[5 * i + 0]),
+                        static_cast<double>(powers[5 * i + 1]),
+                        static_cast<double>(powers[5 * i + 2]),
+                        static_cast<double>(powers[5 * i + 3]),
+                        static_cast<double>(powers[5 * i + 4])
                     };
                     if (std::accumulate(p, p + DIMENSION, 0.0) > (2.0 * static_cast<double>(l) - 1.0)) {
                         continue;
@@ -1311,7 +1311,7 @@ void CIntegrationTest::testMultivariateSmooth(void) {
                 double expected = integrate(polynomial, a, b);
 
                 double actual = 0.0;
-                bool   successful = false;
+                bool successful = false;
                 switch (l) {
                     case 2:
                         successful = CIntegration::sparseGaussLegendre<CIntegration::OrderTwo,

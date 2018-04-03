@@ -67,13 +67,13 @@ TDoubleDoublePr confidenceInterval(double confidence, double variance) {
     if (variance > 0.0) {
         try {
             boost::math::normal normal(0.0, std::sqrt(variance));
-            double              ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
-            double              qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
+            double ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
+            double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
             return {ql, qu};
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ERROR("Failed calculating confidence interval: " << e.what()
-                                                                 << ", variance = " << variance
-                                                                 << ", confidence = " << confidence);
+                      << ", variance = " << variance
+                      << ", confidence = " << confidence);
         }
     }
     return {0.0, 0.0};
@@ -146,7 +146,7 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(core::CStateRestoreTravers
                         boost::bind(&CComponents::acceptRestoreTraverser,
                                     &m_Components, _1)))
         }
-    } else {
+    } else   {
         // There is no version string this is historic state.
         double decayRate{0.012};
         do {
@@ -260,7 +260,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::baseline(core_t::TTime time,
 
     if (components & E_TrendForced) {
         baseline += vector2x1(m_Components.trend().value(time, confidence));
-    } else if (components & E_Trend) {
+    } else if (components & E_Trend)   {
         if (m_Components.usingTrendForPrediction()) {
             baseline += vector2x1(m_Components.trend().value(time, confidence));
         }
@@ -373,7 +373,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::scale(core_t::TTime time,
         return {1.0, 1.0};
     }
 
-    double     components{0.0};
+    double components{0.0};
     TVector2x1 scale(0.0);
     if (m_Components.usingTrendForPrediction()) {
         scale += vector2x1(m_Components.trend().variance(confidence));
@@ -396,12 +396,12 @@ TDoubleDoublePr CTimeSeriesDecomposition::scale(core_t::TTime time,
         bias *= (components + 1.0) / std::max(components, 1.0);
     }
     LOG_TRACE("mean = " << mean
-                        << " variance = " << variance
-                        << " bias = " << bias
-                        << " scale = " << core::CContainerPrinter::print(scale));
+              << " variance = " << variance
+              << " bias = " << bias
+              << " scale = " << core::CContainerPrinter::print(scale));
 
     scale *= m_Components.meanVarianceScale() / mean;
-    scale  = TVector2x1{1.0} +bias * (scale - TVector2x1{1.0});
+    scale  = TVector2x1{1.0} + bias * (scale - TVector2x1{1.0});
 
     if (smooth) {
         scale += vector2x1(this->smooth(
@@ -512,7 +512,7 @@ bool CTimeSeriesDecomposition::matches(int components,
         return true;
     }
     core_t::TTime period{component.time().period()};
-    bool          diurnal{(period % core::constants::DAY == 0) || (period % core::constants::WEEK == 0)};
+    bool diurnal{(period % core::constants::DAY == 0) || (period % core::constants::WEEK == 0)};
     return (seasonal == E_Diurnal && diurnal) || (seasonal == E_NonDiurnal && !diurnal);
 }
 
@@ -521,7 +521,7 @@ core_t::TTime CTimeSeriesDecomposition::lastValueTime(void) const {
 }
 
 const core_t::TTime CTimeSeriesDecomposition::SMOOTHING_INTERVAL{7200};
-const std::size_t   CTimeSeriesDecomposition::DEFAULT_COMPONENT_SIZE{36u};
+const std::size_t CTimeSeriesDecomposition::DEFAULT_COMPONENT_SIZE{36u};
 
 }
 }

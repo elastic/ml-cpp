@@ -209,8 +209,7 @@ class COrderings : private core::CNonInstantiatable {
                                             const T1 &r1) {
             return lexicographical_compare(l1, r1, SReferenceLess());
         }
-#define COMPARE(l, r) if (comp(l, r)) { return true; \
-} else if (comp(r, l)) { return false; }
+#define COMPARE(l, r) if (comp(l, r)) { return true; } else if (comp(r, l)) { return false; }
         //! Lexicographical comparison of (\p l1, \p l2) and (\p r1, \p r2).
         template<typename T1, typename T2, typename COMP>
         static bool lexicographical_compare(const T1 &l1, const T2 &l2,
@@ -615,7 +614,8 @@ class COrderings : private core::CNonInstantiatable {
             public:
                 CIndexLess(const KEY_VECTOR &keys, const COMP &comp = COMP()) :
                     m_Keys(&keys),
-                    m_Comp(comp) {}
+                    m_Comp(comp)
+                {}
 
                 bool operator()(std::size_t lhs, std::size_t rhs) {
                     return m_Comp((*m_Keys)[lhs], (*m_Keys)[rhs]);
@@ -623,7 +623,7 @@ class COrderings : private core::CNonInstantiatable {
 
             private:
                 const KEY_VECTOR *m_Keys;
-                COMP             m_Comp;
+                COMP m_Comp;
         };
 
     public:

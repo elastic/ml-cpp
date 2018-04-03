@@ -32,7 +32,7 @@ CMonotonicTime::CMonotonicTime(void)
         // Assume numerator and denominator for nanoseconds are both 1 (which is
         // true on a 2010 MacBook Pro)
         LOG_ERROR("Failed to get time base info");
-    } else {
+    } else   {
         m_ScalingFactor1 = info.numer;
         m_ScalingFactor2 *= info.denom;
         m_ScalingFactor3 *= info.denom;

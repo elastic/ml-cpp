@@ -34,7 +34,8 @@ struct MATHS_EXPORT SCountAndVariance {
     SCountAndVariance(double count = 0.0,
                       double variance = 0.0) :
         s_Count(count),
-        s_Variance(variance) {}
+        s_Variance(variance)
+    {}
 
     //! The count of point in the cluster.
     double s_Count;
@@ -143,8 +144,8 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarian
                          CBasicStatistics::SSampleCovariances<U, N> &covariances) {
         U d = static_cast<U>(N);
 
-        U                               n = CBasicStatistics::count(covariances);
-        const CVectorNx1<U, N>          &         m = CBasicStatistics::mean(covariances);
+        U n = CBasicStatistics::count(covariances);
+        const CVectorNx1<U, N> &m = CBasicStatistics::mean(covariances);
         const CSymmetricMatrixNxN<U, N> &s = CBasicStatistics::maximumLikelihoodCovariances(covariances);
 
         double mn = s.trace() / d;
@@ -153,8 +154,8 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarian
         double z = n * n;
         for (std::size_t i = 0u; i < points.size(); ++i) {
             CVectorNx1<U, N> ci(points[i]);
-            U                ni = static_cast<U>(points[i].annotation().s_Count);
-            U                vi = static_cast<U>(points[i].annotation().s_Variance);
+            U ni = static_cast<U>(points[i].annotation().s_Count);
+            U vi = static_cast<U>(points[i].annotation().s_Variance);
             bn += ni * pow2(((ci - m).outer() + CVectorNx1<U, N>(vi).diagonal() - s).frobenius()) / d / z;
         }
         bn = std::min(bn, dn);
@@ -164,9 +165,7 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarian
                                     + (U(1) - bn / dn) * covariances.s_Covariances;
     }
 
-    template<typename U> static U pow2(U x) {
-        return x * x;
-    }
+    template<typename U> static U pow2(U x) { return x * x; }
 };
 
 }
@@ -176,8 +175,8 @@ template<typename POINT>
 std::ostream &operator<<(std::ostream &o,
                          const CAnnotatedVector<POINT, SCountAndVariance> &cluster) {
     return o << static_cast<const POINT&>(cluster)
-             << " (" << cluster.annotation().s_Count
-             << "," << ::sqrt(cluster.annotation().s_Variance) << ")";
+           << " (" << cluster.annotation().s_Count
+           << "," << ::sqrt(cluster.annotation().s_Variance) << ")";
 }
 
 }

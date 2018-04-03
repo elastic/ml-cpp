@@ -65,7 +65,7 @@ class MATHS_EXPORT CBasicStatistics {
         template<typename VECTOR>
         static VECTOR mean(const std::pair<VECTOR, VECTOR> &samples) {
             std::size_t n = std::min(samples.first.size(), samples.second.size());
-            VECTOR      result;
+            VECTOR result;
             result.reserve(n);
             for (std::size_t i = 0u; i < n; ++i) {
                 result.push_back(0.5 * (samples.first[i] + samples.second[i]));
@@ -238,7 +238,7 @@ class MATHS_EXPORT CBasicStatistics {
                 // because then we'd have to compute epsilon and it is very
                 // unlikely the count will get big enough.
                 TCoordinate alpha{n / s_Count};
-                TCoordinate beta{TCoordinate{1} -alpha};
+                TCoordinate beta{TCoordinate{1} - alpha};
 
                 T mean{s_Moments[0]};
                 s_Moments[0] = beta * mean + alpha * x;
@@ -275,7 +275,7 @@ class MATHS_EXPORT CBasicStatistics {
                 // because then we'd have to compute epsilon and it is very
                 // unlikely the count will get big enough.
                 TCoordinate alpha{rhs.s_Count / s_Count};
-                TCoordinate beta{TCoordinate{1} -alpha};
+                TCoordinate beta{TCoordinate{1} - alpha};
 
                 T meanLhs{s_Moments[0]};
                 T meanRhs{rhs.s_Moments[0]};
@@ -341,7 +341,7 @@ class MATHS_EXPORT CBasicStatistics {
                 // because then we'd have to compute epsilon and it is very
                 // unlikely the count will get big enough.
                 TCoordinate alpha{rhs.s_Count / s_Count};
-                TCoordinate beta{TCoordinate{1} +alpha};
+                TCoordinate beta{TCoordinate{1} + alpha};
 
                 T meanLhs{s_Moments[0]};
                 T meanRhs{rhs.s_Moments[0]};
@@ -663,7 +663,7 @@ class MATHS_EXPORT CBasicStatistics {
         static inline std::string print(const SSampleCentralMoments<T, 1u> &accumulator) {
             std::ostringstream result;
             result << '(' << count(accumulator)
-                   << ", " << mean(accumulator) << ')';
+            << ", " << mean(accumulator) << ')';
             return result.str();
         }
         //! Print a mean and variance accumulator.
@@ -671,8 +671,8 @@ class MATHS_EXPORT CBasicStatistics {
         static inline std::string print(const SSampleCentralMoments<T, 2u> &accumulator) {
             std::ostringstream result;
             result << '(' << count(accumulator)
-                   << ", " << mean(accumulator)
-                   << ", " << variance(accumulator) << ')';
+            << ", " << mean(accumulator)
+            << ", " << variance(accumulator) << ')';
             return result.str();
         }
         //! Print a mean, variance and skew accumulator.
@@ -680,9 +680,9 @@ class MATHS_EXPORT CBasicStatistics {
         static inline std::string print(const SSampleCentralMoments<T, 3u> &accumulator) {
             std::ostringstream result;
             result << '(' << count(accumulator)
-                   << ", " << mean(accumulator)
-                   << ", " << variance(accumulator)
-                   << ", " << skewness(accumulator) << ')';
+            << ", " << mean(accumulator)
+            << ", " << variance(accumulator)
+            << ", " << skewness(accumulator) << ')';
             return result.str();
         }
         //@}
@@ -733,24 +733,28 @@ class MATHS_EXPORT CBasicStatistics {
             using TVector = CVectorNx1<T, N>;
             using TMatrix = CSymmetricMatrixNxN<T, N>;
 
-            SSampleCovariances(void) : s_Count{0}, s_Mean{0}, s_Covariances{0} {}
+            SSampleCovariances(void) : s_Count{0}, s_Mean{0}, s_Covariances{0}
+            {}
 
             SSampleCovariances(T count,
                                const TVector &mean,
                                const TMatrix &covariances) :
-                s_Count{count}, s_Mean{mean}, s_Covariances{covariances} {}
+                s_Count{count}, s_Mean{mean}, s_Covariances{covariances}
+            {}
 
             SSampleCovariances(const TVector &count,
                                const TVector &mean,
                                const TMatrix &covariances) :
-                s_Count{count}, s_Mean{mean}, s_Covariances{covariances} {}
+                s_Count{count}, s_Mean{mean}, s_Covariances{covariances}
+            {}
 
             //! Copy construction from implicitly convertible type.
             template<typename U>
             SSampleCovariances(const SSampleCovariances<U, N> &other) :
                 s_Count{other.s_Count},
                 s_Mean{other.s_Mean},
-                s_Covariances{other.s_Covariances} {}
+                s_Covariances{other.s_Covariances}
+            {}
 
             //! Assignment from implicitly convertible type.
             template<typename U>
@@ -803,7 +807,7 @@ class MATHS_EXPORT CBasicStatistics {
                 // because then we'd have to compute epsilon and it is very
                 // unlikely the count will get big enough.
                 TVector alpha{n / s_Count};
-                TVector beta{TVector{1} -alpha};
+                TVector beta{TVector{1} - alpha};
 
                 TVector mean{s_Mean};
                 s_Mean = beta * mean + alpha * x;
@@ -881,7 +885,7 @@ class MATHS_EXPORT CBasicStatistics {
                 // because then we'd have to compute epsilon and it is very
                 // unlikely the count will get big enough.
                 TVector alpha{rhs.s_Count / s_Count};
-                TVector beta{TVector{1} +alpha};
+                TVector beta{TVector{1} + alpha};
 
                 TVector meanLhs(s_Mean);
 
@@ -999,10 +1003,10 @@ class MATHS_EXPORT CBasicStatistics {
         static inline std::string print(const SSampleCovariances<T, N> &accumulator) {
             std::ostringstream result;
             result << "\n{\n"
-                   << count(accumulator) << ",\n"
-                   << mean(accumulator) << ",\n"
-                   << covariances(accumulator) << "\n"
-                   << "}";
+            << count(accumulator) << ",\n"
+            << mean(accumulator) << ",\n"
+            << covariances(accumulator) << "\n"
+            << "}";
             return result.str();
         }
 
@@ -1051,7 +1055,8 @@ class MATHS_EXPORT CBasicStatistics {
                 COrderStatisticsImpl(const CONTAINER &statistics, const LESS &less) :
                     m_Less(less),
                     m_Statistics(statistics),
-                    m_UnusedCount(statistics.size()) {}
+                    m_UnusedCount(statistics.size())
+                {}
 
                 //! \name Persistence
                 //@{
@@ -1105,7 +1110,7 @@ class MATHS_EXPORT CBasicStatistics {
                             std::make_heap(this->begin(), this->end(), m_Less);
                         }
                         return true;
-                    } else if (m_Less(x, *this->begin())) {
+                    } else if (m_Less(x, *this->begin()))   {
                         // We need to drop the largest value and update the heap.
                         std::pop_heap(this->begin(), this->end(), m_Less);
                         m_Statistics.back() = x;
@@ -1120,7 +1125,7 @@ class MATHS_EXPORT CBasicStatistics {
                 void sort(void) {
                     if (m_UnusedCount > 0) {
                         std::sort(this->begin(), this->end(), m_Less);
-                    } else {
+                    } else   {
                         std::sort_heap(this->begin(), this->end(), m_Less);
                     }
                 }
@@ -1224,13 +1229,11 @@ class MATHS_EXPORT CBasicStatistics {
 
             protected:
                 //! Get the statistics.
-                CONTAINER &statistics(void) {
-                    return m_Statistics;
-                }
+                CONTAINER &statistics(void) { return m_Statistics; }
 
             private:
-                LESS        m_Less;
-                CONTAINER   m_Statistics;
+                LESS m_Less;
+                CONTAINER m_Statistics;
                 //! How many elements of the container are unused?
                 std::size_t m_UnusedCount;
         };
@@ -1358,7 +1361,8 @@ class MATHS_EXPORT CBasicStatistics {
 
             public:
                 explicit COrderStatisticsHeap(std::size_t n, const LESS &less = LESS{}) :
-                    TImpl{std::vector<T>(n, T{}), less} {}
+                    TImpl{std::vector<T>(n, T{}), less}
+                {}
 
                 //! Reset the number of statistics to gather to \p n.
                 void resize(std::size_t n) {
@@ -1413,7 +1417,8 @@ class MATHS_EXPORT CBasicStatistics {
 
             public:
                 explicit CMinMax(const LESS &less = LESS{}, const GREATER &greater = GREATER{}) :
-                    m_Min{less}, m_Max{greater} {}
+                    m_Min{less}, m_Max{greater}
+                {}
 
                 //! Define a function operator for use with std:: algorithms.
                 inline bool operator()(const T &x) {
@@ -1489,7 +1494,7 @@ class MATHS_EXPORT CBasicStatistics {
 
             private:
                 //! The set minimum.
-                COrderStatisticsStack<T, 1, LESS>    m_Min;
+                COrderStatisticsStack<T, 1, LESS> m_Min;
                 //! The set maximum.
                 COrderStatisticsStack<T, 1, GREATER> m_Max;
         };
@@ -1577,8 +1582,8 @@ struct SCovariancesLedoitWolf<CVectorNx1<T, N> > {
                          CBasicStatistics::SSampleCovariances<U, N> &covariances) {
         U d{static_cast<U>(N)};
 
-        U                               n{CBasicStatistics::count(covariances)};
-        const CVectorNx1<U, N>          &         m{CBasicStatistics::mean(covariances)};
+        U n{CBasicStatistics::count(covariances)};
+        const CVectorNx1<U, N> &m{CBasicStatistics::mean(covariances)};
         const CSymmetricMatrixNxN<U, N> &s{CBasicStatistics::maximumLikelihoodCovariances(covariances)};
 
         U mn{s.trace() / d};
@@ -1593,12 +1598,10 @@ struct SCovariancesLedoitWolf<CVectorNx1<T, N> > {
         LOG_TRACE("m = " << mn << ", d = " << dn << ", b = " << bn);
 
         covariances.s_Covariances =  CVectorNx1<U, N>{bn / dn * mn}.diagonal()
-        + (U{1} -bn / dn) * covariances.s_Covariances;
+        + (U{1} - bn / dn) * covariances.s_Covariances;
     }
 
-    template<typename U> static U pow2(U x) {
-        return x * x;
-    }
+    template<typename U> static U pow2(U x) { return x * x; }
 };
 
 }

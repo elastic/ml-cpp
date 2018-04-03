@@ -79,7 +79,7 @@ inline std::string print(const std::vector<std::pair<U, V> > &v, std::size_t pad
 
 //!
 TStrVec splitMultifields(const std::string &field) {
-    TStrVec     fields;
+    TStrVec fields;
     std::string remainder;
     core::CStringUtils::tokenise("\n", field, fields, remainder);
     fields.push_back(remainder);
@@ -127,7 +127,7 @@ void writeTable(std::ostream &o,
                 const std::size_t (&stats)[N],
                 const TStrVecVec &values) {
     // Compute the table pads.
-    TSizeVec    padTo(N, 0);
+    TSizeVec padTo(N, 0);
     std::size_t tableWidth = 0;
     for (std::size_t i = 0u; i < N; ++i) {
         const std::string &label = labels[stats[i]];
@@ -147,7 +147,8 @@ const TStrVec NO_STRINGS;
 
 }
 
-CReportWriter::CReportWriter(std::ostream &writeStream) : m_WriteStream(writeStream) {}
+CReportWriter::CReportWriter(std::ostream &writeStream) : m_WriteStream(writeStream)
+{}
 
 bool CReportWriter::fieldNames(const TStrVec & /*fieldNames*/,
                                const TStrVec & /*extraFieldNames*/) {

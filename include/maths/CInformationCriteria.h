@@ -123,7 +123,8 @@ class CSphericalGaussianInfoCriterion {
             m_D(0.0),
             m_K(0.0),
             m_N(0.0),
-            m_Likelihood(0.0) {}
+            m_Likelihood(0.0)
+        {}
         explicit CSphericalGaussianInfoCriterion(const TPointVecVec &x) :
             m_D(0.0),
             m_K(0.0),
@@ -159,11 +160,11 @@ class CSphericalGaussianInfoCriterion {
 
         //! Update the sufficient statistics for computing info content.
         void add(const TMeanVarAccumulator &moments) {
-            double                  ni = CBasicStatistics::count(moments);
+            double ni = CBasicStatistics::count(moments);
             const TBarePointPrecise &m = CBasicStatistics::mean(moments);
             const TBarePointPrecise &c = CBasicStatistics::maximumLikelihoodVariance(moments);
-            std::size_t             d = c.dimension();
-            double                  vi = 0.0;
+            std::size_t d = c.dimension();
+            double vi = 0.0;
             for (std::size_t i = 0u; i < d; ++i) {
                 vi += c(i);
             }
@@ -179,7 +180,7 @@ class CSphericalGaussianInfoCriterion {
                                 - 0.5 * m_D * ni * (  1.0
                                                       + core::constants::LOG_TWO_PI
                                                       + ::log(upper * vi / m_D));
-            } else {
+            } else   {
                 m_Likelihood +=   ni * log(ni)
                                 - 0.5 * m_D * ni * (  1.0
                                                       + core::constants::LOG_TWO_PI
@@ -240,7 +241,8 @@ class CGaussianInfoCriterion {
             m_D(0.0),
             m_K(0.0),
             m_N(0.0),
-            m_Likelihood(0.0) {}
+            m_Likelihood(0.0)
+        {}
         explicit CGaussianInfoCriterion(const TPointVecVec &x) :
             m_D(0.0),
             m_K(0.0),
@@ -308,9 +310,9 @@ class CGaussianInfoCriterion {
     private:
         //! Compute the log of the determinant of \p covariance.
         double logDeterminant(const TCovariances &covariance) const {
-            double        n = CBasicStatistics::count(covariance);
+            double n = CBasicStatistics::count(covariance);
             const TMatrix &c = CBasicStatistics::maximumLikelihoodCovariances(covariance);
-            double        upper = information_criteria_detail::confidence(n - m_D - 1.0);
+            double upper = information_criteria_detail::confidence(n - m_D - 1.0);
             return information_criteria_detail::logDeterminant(c, upper);
         }
 

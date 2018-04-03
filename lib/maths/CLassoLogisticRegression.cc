@@ -64,7 +64,7 @@ double lassoStep(double beta, double lambda, double n, double d) {
                 return 0.0;
             }
         }
-    } else {
+    } else   {
         double sign = CTools::sign(beta);
         dv = (n - sign * lambda) / d;
         if (sign * (beta + dv) < 0.0) {
@@ -93,12 +93,12 @@ double logLikelihood(const MATRIX &x,
                      const TDoubleVec &beta) {
     typedef typename MATRIX::iterator iterator;
 
-    double     result = 0.0;
+    double result = 0.0;
     TDoubleVec f(y.size(), 0.0);
     for (std::size_t j = 0u; j < beta.size(); ++j) {
         for (iterator itr = x.beginRows(j); itr != x.endRows(j); ++itr) {
             std::size_t i = x.row(itr, j);
-            double      xij = x.element(itr);
+            double xij = x.element(itr);
             f[i] += beta[j] * xij;
         }
     }
@@ -145,10 +145,10 @@ void CLG(std::size_t maxIterations,
         double Dj = delta[j];
         for (iterator itr = x.beginRows(j); itr != x.endRows(j); ++itr) {
             std::size_t i = x.row(itr, j);
-            double      xij = x.element(itr);
-            double      xy  = xij * y[i];
-            double      xx  = xij * xij;
-            double      ri  = r[i];
+            double xij = x.element(itr);
+            double xy  = xij * y[i];
+            double xx  = xij * xij;
+            double ri  = r[i];
             num[j] += xy / (1.0 + ::exp(ri));
             den[j] += xx * F(ri, Dj * ::fabs(xij));
         }
@@ -167,23 +167,23 @@ void CLG(std::size_t maxIterations,
 
             beta[j] += dbj;
             delta[j] = std::max(2.0 * ::fabs(dbj), Dj / 2.0);
-            if (dbj != 0.0 || j+1 == d) {
+            if (dbj != 0.0 || j + 1 == d) {
                 for (iterator itr = x.beginRows(j); itr != x.endRows(j); ++itr) {
                     std::size_t i = x.row(itr, j);
                     r[i] += dbj * x.element(itr) * y[i];
                 }
 
                 std::size_t jPlus1 = (j + 1) % d;
-                double      &    numjPlus1 = num[jPlus1];
-                double      &    denjPlus1 = den[jPlus1];
-                double      DjPlus1    = delta[jPlus1];
+                double &numjPlus1 = num[jPlus1];
+                double &denjPlus1 = den[jPlus1];
+                double DjPlus1    = delta[jPlus1];
                 numjPlus1 = denjPlus1 = 0.0;
                 for (iterator itr = x.beginRows(jPlus1); itr != x.endRows(jPlus1); ++itr) {
                     std::size_t i = x.row(itr, jPlus1);
-                    double      xij = x.element(itr);
-                    double      xy  = xij * y[i];
-                    double      xx  = xij * xij;
-                    double      ri  = r[i];
+                    double xij = x.element(itr);
+                    double xy  = xij * y[i];
+                    double xx  = xij * xij;
+                    double ri  = r[i];
                     numjPlus1 += xy / (1.0 + ::exp(ri));
                     denjPlus1 += xx * F(ri, DjPlus1 * ::fabs(xij));
                 }
@@ -216,7 +216,8 @@ namespace lasso_logistic_regression_detail {
 
 ////// CDenseMatrix //////
 
-CDenseMatrix::CDenseMatrix(void) {}
+CDenseMatrix::CDenseMatrix(void)
+{}
 
 CDenseMatrix::CDenseMatrix(TDoubleVecVec &elements) {
     m_Elements.swap(elements);
@@ -231,7 +232,8 @@ void CDenseMatrix::swap(CDenseMatrix &other) {
 
 CSparseMatrix::CSparseMatrix(void) :
     m_Rows(0),
-    m_Columns(0) {}
+    m_Columns(0)
+{}
 
 CSparseMatrix::CSparseMatrix(std::size_t rows,
                              std::size_t columns,
@@ -254,7 +256,8 @@ void CSparseMatrix::swap(CSparseMatrix &other) {
 CCyclicCoordinateDescent::CCyclicCoordinateDescent(std::size_t maxIterations,
                                                    double eps) :
     m_MaxIterations(maxIterations),
-    m_Eps(eps) {}
+    m_Eps(eps)
+{}
 
 template<typename MATRIX>
 bool CCyclicCoordinateDescent::checkInputs(const MATRIX &x,
@@ -371,7 +374,8 @@ bool CCyclicCoordinateDescent::runIncremental(const CSparseMatrix &x,
 
 CLogisticRegressionModel::CLogisticRegressionModel(void) :
     m_Beta0(0.0),
-    m_Beta() {}
+    m_Beta()
+{}
 
 CLogisticRegressionModel::CLogisticRegressionModel(double beta0,
                                                    TSizeDoublePrVec &beta) :
@@ -395,7 +399,7 @@ bool CLogisticRegressionModel::operator()(const TDoubleVec &x,
     std::size_t n = m_Beta.size();
     if (x.size() <= m_Beta[n - 1].first) {
         LOG_ERROR("Invalid feature vector |x| = " << x.size()
-                                                  << ", D = " << m_Beta[n - 1].first + 1)
+                  << ", D = " << m_Beta[n - 1].first + 1)
     }
     double r = -m_Beta0;
     for (std::size_t i = 0u; i < m_Beta.size(); ++i) {
@@ -414,9 +418,9 @@ double CLogisticRegressionModel::operator()(const TSizeDoublePrVec &x) const {
     for (std::size_t i = 0u, j = 0u; i < m_Beta.size() && j < x.size(); /**/) {
         if (m_Beta[i].first < x[j].first) {
             ++i;
-        } else if (x[j].first < m_Beta[i].first) {
+        } else if (x[j].first < m_Beta[i].first)   {
             ++j;
-        } else {
+        } else   {
             r -= m_Beta[i].second * x[j].second;
             ++i;
             ++j;
@@ -539,7 +543,7 @@ bool learn(const MATRIX &x,
             LOG_ERROR("Failed to solve for parameters");
             return false;
         }
-    } else {
+    } else   {
         if (!clg.runIncremental(x, y, lambda, beta, numberIterations)) {
             LOG_ERROR("Failed to solve for parameters");
             return false;
@@ -606,7 +610,8 @@ class C2FoldCrossValidatedLogLikelihood {
     public:
         C2FoldCrossValidatedLogLikelihood(std::size_t d) :
             m_D(d + 1),
-            m_Splits(0) {}
+            m_Splits(0)
+        {}
 
         //! Add a 2-split of the training data.
         void addSplit(MATRIX &xTrain,
@@ -615,8 +620,8 @@ class C2FoldCrossValidatedLogLikelihood {
                       TDoubleVec &yTest) {
             if (xTrain.rows() != m_D || xTest.rows() != m_D) {
                 LOG_ERROR("Bad training data: |train| = " << xTrain.rows()
-                                                          << ", |test| = " << xTest.rows()
-                                                          << ", D = " << m_D);
+                          << ", |test| = " << xTest.rows()
+                          << ", D = " << m_D);
                 return;
             }
             ++m_Splits;
@@ -639,8 +644,8 @@ class C2FoldCrossValidatedLogLikelihood {
             for (std::size_t j = 0u; j < m_Splits; ++j) {
                 for (std::size_t i = 0u; i < 2; ++i) {
                     learn(m_X[i][j], m_Y[i][j], m_Lambda, m_Beta);
-                    result += logLikelihood(m_X[(i+1) % 2][j],
-                                            m_Y[(i+1) % 2][j],
+                    result += logLikelihood(m_X[(i + 1) % 2][j],
+                                            m_Y[(i + 1) % 2][j],
                                             m_Lambda,
                                             m_Beta);
                 }
@@ -653,13 +658,13 @@ class C2FoldCrossValidatedLogLikelihood {
 
     private:
         //! The feature vector dimension.
-        std::size_t        m_D;
+        std::size_t m_D;
         //! The number of 2-splits.
-        std::size_t        m_Splits;
+        std::size_t m_Splits;
         //! The feature vectors of the 2-splits.
-        TMatrixVec         m_X[2];
+        TMatrixVec m_X[2];
         //! The feature vector labels of the 2-splits.
-        TDoubleVecVec      m_Y[2];
+        TDoubleVecVec m_Y[2];
         //! A placeholder for lambda so that it doesn't need to be
         //! re-initialized on each call to operator().
         mutable TDoubleVec m_Lambda;
@@ -678,7 +683,8 @@ CLassoLogisticRegression<STORAGE>::CLassoLogisticRegression(void) :
     m_D(0),
     m_Y(),
     m_Lambda(1.0),
-    m_Beta() {}
+    m_Beta()
+{}
 
 template<typename STORAGE>
 template<typename MATRIX>
@@ -707,8 +713,8 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
     // examples in both train and test sets so we treat these
     // indices separately.)
     C2FoldCrossValidatedLogLikelihood<MATRIX> objective(m_D);
-    TSizeVec                                  positive;
-    TSizeVec                                  negative;
+    TSizeVec positive;
+    TSizeVec negative;
     positive.reserve(n);
     negative.reserve(n);
     for (std::size_t i = 0u; i < n; ++i) {
@@ -727,14 +733,14 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
         TSizeUSet maskTrain;
         maskTrain.insert(positive.begin(), positive.begin() + np / 2);
         maskTrain.insert(negative.begin(), negative.begin() + nn / 2);
-        MATRIX     xTrain;
+        MATRIX xTrain;
         TDoubleVec yTrain;
         setupTrainingData(m_X, m_Y, maskTrain, xTrain, yTrain);
 
         TSizeUSet maskTest;
         maskTest.insert(positive.begin() + np / 2, positive.end());
         maskTest.insert(negative.begin() + nn / 2, negative.end());
-        MATRIX     xTest;
+        MATRIX xTest;
         TDoubleVec yTest;
         setupTrainingData(m_X, m_Y, maskTest, xTest, yTest);
 
@@ -757,7 +763,7 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
     LOG_TRACE("a = " << a << ", b = " << b);
 
     std::size_t maxIterations = boost::size(scales) / 2;
-    double      logLikelihood;
+    double logLikelihood;
     CSolvers::maximize(scales[a] * lambda, scales[b] * lambda,
                        logLikelihoods[a], logLikelihoods[b],
                        objective, 0.0, maxIterations,
@@ -777,9 +783,9 @@ bool CLassoLogisticRegression<STORAGE>::doLearn(CLogisticRegressionModel &result
         return false;
     }
 
-    MATRIX     x;
+    MATRIX x;
     TDoubleVec y;
-    TSizeUSet  excludeNone;
+    TSizeUSet excludeNone;
     setupTrainingData(m_X, m_Y, excludeNone, x, y);
     TDoubleVec lambda(m_D, m_Lambda);
     TDoubleVec beta(m_Beta);
@@ -819,7 +825,7 @@ bool CLassoLogisticRegression<STORAGE>::sanityChecks(void) const {
     }
     if (!negative || !positive) {
         LOG_WARN("Only " << (negative ? "un" : "")
-                         << "interesting examples provided: problem is ill posed");
+                 << "interesting examples provided: problem is ill posed");
         return false;
     }
     return true;

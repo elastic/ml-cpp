@@ -92,7 +92,7 @@ void CMultiFileDataAdderTest::testSimpleWrite(void) {
     static const std::string SUMMARY_EVENT("Hello Summary Event");
 
     static const std::string EXTENSION(".txt");
-    std::string              baseOutputFilename(ml::test::CTestTmpDir::tmpDir() + "/filepersister");
+    std::string baseOutputFilename(ml::test::CTestTmpDir::tmpDir() + "/filepersister");
 
     std::string expectedFilename(baseOutputFilename);
     expectedFilename += "/_hello/1";
@@ -103,7 +103,7 @@ void CMultiFileDataAdderTest::testSimpleWrite(void) {
         boost::filesystem::path workDir(baseOutputFilename);
         CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(workDir));
 
-        ml::test::CMultiFileDataAdder   persister(baseOutputFilename, EXTENSION);
+        ml::test::CMultiFileDataAdder persister(baseOutputFilename, EXTENSION);
         ml::core::CDataAdder::TOStreamP strm = persister.addStreamed("hello", "1");
         CPPUNIT_ASSERT(strm);
         (*strm) << EVENT;
@@ -126,7 +126,7 @@ void CMultiFileDataAdderTest::testSimpleWrite(void) {
     expectedFilename += EXTENSION;
 
     {
-        ml::test::CMultiFileDataAdder   persister(baseOutputFilename, EXTENSION);
+        ml::test::CMultiFileDataAdder persister(baseOutputFilename, EXTENSION);
         ml::core::CDataAdder::TOStreamP strm = persister.addStreamed("stash", "1");
         CPPUNIT_ASSERT(strm);
         (*strm) << SUMMARY_EVENT;
@@ -186,7 +186,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string &configFil
                                                     const std::string &timeFormat) {
     // Start by creating a detector with non-trivial state
     static const ml::core_t::TTime BUCKET_SIZE(3600);
-    static const std::string       JOB_ID("job");
+    static const std::string JOB_ID("job");
 
     // Open the input and output files
     std::ifstream inputStrm(inputFilename.c_str());
@@ -196,7 +196,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string &configFil
     CPPUNIT_ASSERT(outputStrm.is_open());
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
-    ml::model::CLimits    limits;
+    ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
     CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
 
@@ -209,8 +209,8 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string &configFil
                                                               false,
                                                               "");
 
-    std::string          origSnapshotId;
-    std::size_t          numOrigDocs(0);
+    std::string origSnapshotId;
+    std::size_t numOrigDocs(0);
     ml::api::CAnomalyJob origJob(JOB_ID,
                                  limits,
                                  fieldConfig,
@@ -232,7 +232,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string &configFil
     TScopedInputParserP parser;
     if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
         parser.reset(new ml::api::CCsvInputParser(inputStrm));
-    } else {
+    } else   {
         parser.reset(new ml::api::CLineifiedJsonInputParser(inputStrm));
     }
 
@@ -255,7 +255,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string &configFil
     std::string origBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE + '_' + origSnapshotId);
 
     std::string temp;
-    TStrVec     origFileContents(numOrigDocs);
+    TStrVec origFileContents(numOrigDocs);
     for (size_t index = 0; index < numOrigDocs; ++index) {
         std::string expectedOrigFilename(baseOrigOutputFilename);
         expectedOrigFilename += "/_";
@@ -278,8 +278,8 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string &configFil
 
     // Now restore the state into a different detector
 
-    std::string          restoredSnapshotId;
-    std::size_t          numRestoredDocs(0);
+    std::string restoredSnapshotId;
+    std::size_t numRestoredDocs(0);
     ml::api::CAnomalyJob restoredJob(JOB_ID,
                                      limits,
                                      fieldConfig,

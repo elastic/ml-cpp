@@ -87,7 +87,7 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
 
     std::size_t dimension{model_t::dimension(feature)};
 
-    bool                     controlDecayRate{m_ModelParams.s_ControlDecayRate && !model_t::isConstant(feature)};
+    bool controlDecayRate{m_ModelParams.s_ControlDecayRate && !model_t::isConstant(feature)};
     TDecayRateController2Ary controllers{{maths::CDecayRateController{  maths::CDecayRateController::E_PredictionBias
                                                                         | maths::CDecayRateController::E_PredictionErrorIncrease,
                                                                         dimension},
@@ -171,7 +171,7 @@ CModelFactory::defaultDecomposition(model_t::EFeature feature,
                                     core_t::TTime bucketLength) const {
     if (model_t::isCategorical(feature)) {
         return TDecompositionCPtr();
-    } else if (model_t::isDiurnal(feature) || model_t::isConstant(feature)) {
+    } else if (model_t::isDiurnal(feature) || model_t::isConstant(feature))   {
         return boost::make_shared<maths::CTimeSeriesDecompositionStub>();
     }
     double decayRate = CAnomalyDetectorModelConfig::trendDecayRate(m_ModelParams.s_DecayRate, bucketLength);
@@ -202,7 +202,7 @@ CModelFactory::defaultInfluenceCalculators(const std::string &influencerName,
                                    influencerName,
                                    maths::COrderings::SReferenceLess())) {
                 result.emplace_back(feature, boost::make_shared<CIndicatorInfluenceCalculator>());
-            } else {
+            } else   {
                 result.emplace_back(feature, model_t::influenceCalculator(feature));
             }
         }
@@ -325,7 +325,7 @@ CModelFactory::multivariateOneOfNPrior(std::size_t dimension,
 CModelFactory::TPriorPtr CModelFactory::timeOfDayPrior(const SModelParams &params) const {
     using TPriorPtrVec = std::vector<TPriorPtr>;
 
-    maths_t::EDataType              dataType = this->dataType();
+    maths_t::EDataType dataType = this->dataType();
     maths::CNormalMeanPrecConjugate normalPrior =
         maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
 
@@ -335,7 +335,7 @@ CModelFactory::TPriorPtr CModelFactory::timeOfDayPrior(const SModelParams &param
     TPriorPtrVec modePriors;
     modePriors.reserve(1u);
     modePriors.emplace_back(normalPrior.clone());
-    maths::COneOfNPrior    modePrior(modePriors, dataType, params.s_DecayRate);
+    maths::COneOfNPrior modePrior(modePriors, dataType, params.s_DecayRate);
     maths::CXMeansOnline1d clusterer(dataType,
                                      maths::CAvailableModeDistributions::NORMAL,
                                      maths_t::E_ClustersFractionWeight,
@@ -348,7 +348,7 @@ CModelFactory::TPriorPtr CModelFactory::timeOfDayPrior(const SModelParams &param
 }
 
 CModelFactory::TMultivariatePriorPtr CModelFactory::latLongPrior(const SModelParams &params) const {
-    maths_t::EDataType    dataType = this->dataType();
+    maths_t::EDataType dataType = this->dataType();
     TMultivariatePriorPtr modePrior =
         maths::CMultivariateNormalConjugateFactory::nonInformative(2, dataType, params.s_DecayRate);
     return maths::CMultivariateMultimodalPriorFactory::nonInformative(
@@ -366,19 +366,22 @@ const SModelParams &CModelFactory::modelParams(void) const {
 }
 
 CModelFactory::SModelInitializationData::SModelInitializationData(const TDataGathererPtr &dataGatherer) :
-    s_DataGatherer(dataGatherer) {}
+    s_DataGatherer(dataGatherer)
+{}
 
 CModelFactory::SGathererInitializationData::SGathererInitializationData(core_t::TTime startTime,
                                                                         const std::string &partitionFieldValue,
                                                                         unsigned int sampleOverrideCount) :
     s_StartTime(startTime),
     s_PartitionFieldValue(partitionFieldValue),
-    s_SampleOverrideCount(sampleOverrideCount) {}
+    s_SampleOverrideCount(sampleOverrideCount)
+{}
 
 CModelFactory::SGathererInitializationData::SGathererInitializationData(core_t::TTime startTime) :
     s_StartTime(startTime),
     s_PartitionFieldValue(EMPTY_STRING),
-    s_SampleOverrideCount(0u) {}
+    s_SampleOverrideCount(0u)
+{}
 
 }
 }

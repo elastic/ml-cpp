@@ -59,8 +59,8 @@ void COsFileFuncsTest::testInode(void) {
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno headerOpen(0);
-    int                          headerFd(ml::core::COsFileFuncs::open(headerFile.c_str(),
-                                                                       ml::core::COsFileFuncs::RDONLY));
+    int headerFd(ml::core::COsFileFuncs::open(headerFile.c_str(),
+                                              ml::core::COsFileFuncs::RDONLY));
     CPPUNIT_ASSERT(headerFd != -1);
     CPPUNIT_ASSERT_EQUAL(0, ml::core::COsFileFuncs::fstat(headerFd,
                                                           &statBuf));
@@ -79,8 +79,8 @@ void COsFileFuncsTest::testInode(void) {
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno implOpen(0);
-    int                          implFd(ml::core::COsFileFuncs::open(implFile.c_str(),
-                                                                     ml::core::COsFileFuncs::RDONLY));
+    int implFd(ml::core::COsFileFuncs::open(implFile.c_str(),
+                                            ml::core::COsFileFuncs::RDONLY));
     CPPUNIT_ASSERT(implFd != -1);
     CPPUNIT_ASSERT_EQUAL(0, ml::core::COsFileFuncs::fstat(implFd,
                                                           &statBuf));

@@ -25,7 +25,8 @@ const int CStringSimilarityTester::MINUS_INFINITE_INT(std::numeric_limits<int>::
 
 
 CStringSimilarityTester::CStringSimilarityTester(void)
-    : m_Compressor(true) {}
+    : m_Compressor(true)
+{}
 
 bool CStringSimilarityTester::similarity(const std::string &first,
                                          const std::string &second,
@@ -101,7 +102,7 @@ int **CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
     if (maxDist <= 0) {
         LOG_ERROR("Programmatic error - maxDist too small " << maxDist);
         return 0;
-    } else if (maxDist >= std::numeric_limits<int>::max() / 2) {
+    } else if (maxDist >= std::numeric_limits<int>::max() / 2)   {
         LOG_ERROR("Programmatic error - maxDist too big " << maxDist);
         return 0;
     }

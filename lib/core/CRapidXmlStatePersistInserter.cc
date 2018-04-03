@@ -84,7 +84,7 @@ void CRapidXmlStatePersistInserter::toXml(bool indent, std::string &xml) const {
     if (indent) {
         rapidxml::print(std::back_inserter(xml),
                         m_Doc);
-    } else {
+    } else   {
         rapidxml::print(std::back_inserter(xml),
                         m_Doc,
                         rapidxml::print_no_indenting);

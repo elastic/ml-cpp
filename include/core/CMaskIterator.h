@@ -54,7 +54,8 @@ class CMaskIterator : private boost::incrementable< CMaskIterator<ITR>,
 
     public:
         CMaskIterator(ITR begin, const TDifferenceVec &mask, difference_type index) :
-            m_Begin(begin), m_Mask(&mask), m_Index(index) {}
+            m_Begin(begin), m_Mask(&mask), m_Index(index)
+        {}
 
         template<typename OTHER_ITR>
         bool operator==(const CMaskIterator<OTHER_ITR> &rhs) const {
@@ -91,12 +92,8 @@ class CMaskIterator : private boost::incrementable< CMaskIterator<ITR>,
             return *(m_Begin + (*m_Mask)[m_Index + n]);
         }
 
-        const CMaskIterator &operator++(void) {
-            ++m_Index; return *this;
-        }
-        const CMaskIterator &operator--(void) {
-            --m_Index; return *this;
-        }
+        const CMaskIterator &operator++(void) { ++m_Index; return *this; }
+        const CMaskIterator &operator--(void) { --m_Index; return *this; }
         template<typename OTHER_ITR>
         difference_type operator-(const CMaskIterator<OTHER_ITR> &rhs) const {
             return static_cast<difference_type>(m_Index)
@@ -119,11 +116,11 @@ class CMaskIterator : private boost::incrementable< CMaskIterator<ITR>,
 
     private:
         //! The start of the container.
-        ITR                  m_Begin;
+        ITR m_Begin;
         //! The mask.
         const TDifferenceVec *m_Mask;
         //! The current element (in the mask).
-        difference_type      m_Index;
+        difference_type m_Index;
 };
 
 //! Get a non-constant mask iterator over a subset of the elements of a vector.

@@ -78,7 +78,7 @@ void CLoggerTest::testLogging(void) {
         LOG_ABORT("Throwing exception " << 1221U << ' ' << 0.23124);
 
         CPPUNIT_ASSERT(false);
-    } catch (std::runtime_error &) {
+    } catch (std::runtime_error &)   {
         CPPUNIT_ASSERT(true);
     }
 }
@@ -163,13 +163,13 @@ void CLoggerTest::testNonAsciiJsonLogging(void) {
     std::vector<std::string> messages {"Non-iso8859-15: 编码", "Non-ascii: üaöä", "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
 
     std::ostringstream loggedData;
-    std::thread        reader([&loggedData] {
-                              // wait a bit so that pipe has been created
-                              ml::core::CSleep::sleep(200);
-                              std::ifstream strm(TEST_PIPE_NAME);
-                              std::copy(std::istreambuf_iterator<char>(strm),
-                                        std::istreambuf_iterator<char>(),
-                                        std::ostreambuf_iterator<char>(loggedData));
+    std::thread reader([&loggedData] {
+                       // wait a bit so that pipe has been created
+                       ml::core::CSleep::sleep(200);
+                       std::ifstream strm(TEST_PIPE_NAME);
+                       std::copy(std::istreambuf_iterator<char>(strm),
+                                 std::istreambuf_iterator<char>(),
+                                 std::ostreambuf_iterator<char>(loggedData));
         });
 
     ml::core::CLogger &logger = ml::core::CLogger::instance();
@@ -186,8 +186,8 @@ void CLoggerTest::testNonAsciiJsonLogging(void) {
 
     reader.join();
     std::istringstream inputStream (loggedData.str());
-    std::string        line;
-    size_t             foundMessages = 0;
+    std::string line;
+    size_t foundMessages = 0;
 
     // test that we found the messages we put in,
     while (std::getline(inputStream, line)) {
@@ -199,12 +199,12 @@ void CLoggerTest::testNonAsciiJsonLogging(void) {
         CPPUNIT_ASSERT(!doc.HasParseError());
         CPPUNIT_ASSERT(doc.HasMember("message"));
         const rapidjson::Value &messageValue = doc["message"];
-        std::string            messageString(messageValue.GetString(), messageValue.GetStringLength());
+        std::string messageString(messageValue.GetString(), messageValue.GetStringLength());
 
         // we expect messages to be in order, so we only need to test the current one
         if (messageString.find(messages[foundMessages]) != std::string::npos) {
             ++foundMessages;
-        } else if (foundMessages > 0) {
+        } else if (foundMessages > 0)   {
             CPPUNIT_FAIL(messageString + " did not contain " + messages[foundMessages]);
         }
     }

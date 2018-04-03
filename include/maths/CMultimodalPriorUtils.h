@@ -97,7 +97,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
             TMeanAccumulator result;
             for (std::size_t i = 0u; i < modes.size(); ++i) {
                 const SMultimodalPriorMode<T> &mode = modes[i];
-                double                        w = mode.weight();
+                double w = mode.weight();
                 result.add(mode.s_Prior->marginalLikelihoodMean(), w);
             }
             return CBasicStatistics::mean(result);
@@ -125,18 +125,18 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
             try {
                 seasonalScale = ::sqrt(maths_t::seasonalVarianceScale(weightStyles, weights));
                 countVarianceScale = maths_t::countVarianceScale(weightStyles, weights);
-            } catch (const std::exception &e) {
+            } catch (const std::exception &e)   {
                 LOG_ERROR("Failed to get variance scale " << e.what());
             }
 
             // Declared outside the loop to minimize number of times they
             // are created.
-            TDouble1Vec     mode(1);
+            TDouble1Vec mode(1);
             TDouble4Vec1Vec weight(1, TDouble4Vec(1, countVarianceScale));
 
             TMaxAccumulator maxLikelihood;
             for (std::size_t i = 0u; i < modes.size(); ++i) {
-                double  w = modes[i].weight();
+                double w = modes[i].weight();
                 const T &prior = modes[i].s_Prior;
                 mode[0] = prior->marginalLikelihoodMode(TWeights::COUNT_VARIANCE, weight[0]);
                 double likelihood;
@@ -178,7 +178,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
             try {
                 varianceScale =  maths_t::seasonalVarianceScale(weightStyles, weights)
                                 * maths_t::countVarianceScale(weightStyles, weights);
-            } catch (const std::exception &e) {
+            } catch (const std::exception &e)   {
                 LOG_ERROR("Failed to get variance scale " << e.what());
             }
 
@@ -187,9 +187,9 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
             TMeanAccumulator result;
             for (std::size_t i = 0u; i < modes.size(); ++i) {
                 const SMultimodalPriorMode<T> &mode = modes[i];
-                double                        w = mode.weight();
-                double                        mm = mode.s_Prior->marginalLikelihoodMean();
-                double                        mv = mode.s_Prior->marginalLikelihoodVariance();
+                double w = mode.weight();
+                double mm = mode.s_Prior->marginalLikelihoodMean();
+                double mv = mode.s_Prior->marginalLikelihoodVariance();
                 result.add((mm - mean) * (mm + mean) + mv, w);
             }
 
@@ -236,7 +236,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
             CCompositeFunctions::CMinusConstant<const CLogCdf<PRIOR>&> f2(fu, p2);
 
             static const std::size_t MAX_ITERATIONS = 30u;
-            static const double      EPS = 1e-3;
+            static const double EPS = 1e-3;
 
             TDoubleDoublePr result;
 
@@ -246,26 +246,26 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                 double f10 = f1(x0);
                 double a = x0, b = x0, fa = f10, fb = f10;
                 LOG_TRACE("(a,b) = (" << a << "," << b << ")"
-                                      << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
+                          << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
 
                 std::size_t maxIterations = MAX_ITERATIONS;
                 if (   (f10 < 0  && !CSolvers::rightBracket(a, b, fa, fb, f1, maxIterations)) ||
                        (f10 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, f1, maxIterations))) {
                     LOG_ERROR("Unable to bracket left percentile = " << p1
-                                                                     << ", (a,b) = (" << a << "," << b << ")"
-                                                                     << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
+                              << ", (a,b) = (" << a << "," << b << ")"
+                              << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
                     result.first = support.first;
-                } else {
+                } else   {
                     LOG_TRACE("(a,b) = (" << a << "," << b << ")"
-                                          << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
+                              << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
                     maxIterations = MAX_ITERATIONS - maxIterations;
                     CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance,
                                                       std::min(std::numeric_limits<double>::epsilon() * b,
                                                                EPS * p1 / std::max(fa, fb)));
                     CSolvers::solve(a, b, fa, fb, f1, maxIterations, equal, result.first);
                     LOG_TRACE("p1 = " << p1
-                                      << ", x = " << result.first
-                                      << ", f(x) = " << fl(result.first));
+                              << ", x = " << result.first
+                              << ", f(x) = " << fl(result.first));
                 }
 
                 result.second = result.first;
@@ -274,15 +274,15 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                 maxIterations = MAX_ITERATIONS;
                 if (percentage == 0.0) {
                     // Fall: nothing to do.
-                } else if (   (f20 < 0  && !CSolvers::rightBracket(a, b, fa, fb, f2, maxIterations)) ||
+                } else if (   (f20 < 0  && !CSolvers::rightBracket(a, b, fa, fb, f2, maxIterations))   ||
                               (f20 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, f2, maxIterations))) {
                     LOG_ERROR("Unable to bracket right percentile = " << p2
-                                                                      << ", (a,b) = (" << a << "," << b << ")"
-                                                                      << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
+                              << ", (a,b) = (" << a << "," << b << ")"
+                              << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
                     result.second = support.second;
-                } else {
+                } else   {
                     LOG_TRACE("(a,b) = [" << a << "," << b << "], "
-                                          << ", (f(a),f(b)) = [" << fa << "," << fb << "]");
+                              << ", (f(a),f(b)) = [" << fa << "," << fb << "]");
 
                     maxIterations = MAX_ITERATIONS - maxIterations;
                     CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance,
@@ -290,13 +290,13 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                                                                EPS * p2 / std::max(fa, fb)));
                     CSolvers::solve(a, b, fa, fb, f2, maxIterations, equal, result.second);
                     LOG_TRACE("p2 = " << p2
-                                      << ", x = " << result.second
-                                      << ", f(x) = " << fu(result.second));
+                              << ", x = " << result.second
+                              << ", f(x) = " << fu(result.second));
                 }
-            } catch (const std::exception &e) {
+            } catch (const std::exception &e)   {
                 LOG_ERROR("Unable to find left percentile: " << e.what()
-                                                             << ", percentiles = [" << p1 << "," << p2 << "]"
-                                                             << ", x0 = " << x0);
+                          << ", percentiles = [" << p1 << "," << p2 << "]"
+                          << ", x0 = " << x0);
                 return support;
             }
 
@@ -345,7 +345,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
             result = 0.0;
 
             // Declared outside the loop to minimize number of times it is created.
-            TDouble1Vec       sample(1);
+            TDouble1Vec sample(1);
             TSizeDoublePr5Vec modeLogLikelihoods;
             modeLogLikelihoods.reserve(modes.size());
 
@@ -367,7 +367,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                     double maxLogLikelihood = boost::numeric::bounds<double>::lowest();
 
                     for (std::size_t j = 0u; j < modes.size(); ++j) {
-                        double                             modeLogLikelihood;
+                        double modeLogLikelihood;
                         maths_t::EFloatingPointErrorStatus status =
                             modes[j].s_Prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE,
                                                                          sample,
@@ -414,12 +414,12 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                     double sampleLogLikelihood = n * (::log(sampleLikelihood) + maxLogLikelihood);
 
                     LOG_TRACE("sample = " << core::CContainerPrinter::print(sample)
-                                          << ", maxLogLikelihood = " << maxLogLikelihood
-                                          << ", sampleLogLikelihood = " << sampleLogLikelihood);
+                              << ", maxLogLikelihood = " << maxLogLikelihood
+                              << ", sampleLogLikelihood = " << sampleLogLikelihood);
 
                     result += sampleLogLikelihood - n * logSeasonalScale;
                 }
-            } catch (const std::exception &e) {
+            } catch (const std::exception &e)   {
                 LOG_ERROR("Failed to compute likelihood: " << e.what());
                 return maths_t::E_FpFailed;
             }
@@ -464,7 +464,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
             CSampling::TSizeVec sampling;
             CSampling::weightedSample(numberSamples, normalizedWeights, sampling);
             LOG_TRACE("normalizedWeights = " << core::CContainerPrinter::print(normalizedWeights)
-                                             << ", sampling = " << core::CContainerPrinter::print(sampling));
+                      << ", sampling = " << core::CContainerPrinter::print(sampling));
 
             if (sampling.size() != modes.size()) {
                 LOG_ERROR("Failed to sample marginal likelihood");
@@ -596,7 +596,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                     break;
 
                 case maths_t::E_TwoSided: {
-                    static const double      EPS = 1000.0 * std::numeric_limits<double>::epsilon();
+                    static const double EPS = 1000.0 * std::numeric_limits<double>::epsilon();
                     static const std::size_t MAX_ITERATIONS = 20u;
 
                     CJointProbabilityOfLessLikelySamples lowerBoundCalculator;
@@ -629,7 +629,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                     // Declared outside the loop to minimize the number of times
                     // they are created.
                     TDouble4Vec1Vec weight(1);
-                    TDouble1Vec     wt(1);
+                    TDouble1Vec wt(1);
 
                     int tail_ = 0;
                     for (std::size_t i = 0u; i < samples.size(); ++i) {
@@ -641,7 +641,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                             weight[0][svi] = 1.0;
                         }
 
-                        double                             fx;
+                        double fx;
                         maths_t::EFloatingPointErrorStatus status =
                             jointLogMarginalLikelihood(modes, weightStyles, {x}, weight, fx);
                         if (status & maths_t::E_FpFailed) {
@@ -670,27 +670,27 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
 
                         double lb, ub;
 
-                        double                      l;
+                        double l;
                         CEqualWithTolerance<double> lequal(CToleranceTypes::E_AbsoluteTolerance, EPS * a);
                         if (calculator.leftTail(logLikelihood, MAX_ITERATIONS, lequal, l)) {
                             wt[0] = l;
                             minusLogJointCdf(modes, weightStyles, wt, weight, lb, ub);
                             sampleLowerBound += ::exp(std::min(-lb, -ub));
                             sampleUpperBound += ::exp(std::max(-lb, -ub));
-                        } else {
+                        } else   {
                             wt[0] = l;
                             minusLogJointCdf(modes, weightStyles, wt, weight, lb, ub);
                             sampleUpperBound += ::exp(std::max(-lb, -ub));
                         }
 
-                        double                      r;
+                        double r;
                         CEqualWithTolerance<double> requal(CToleranceTypes::E_AbsoluteTolerance, EPS * b);
                         if (calculator.rightTail(logLikelihood, MAX_ITERATIONS, requal, r)) {
                             wt[0] = r;
                             minusLogJointCdfComplement(modes, weightStyles, wt, weight, lb, ub);
                             sampleLowerBound += ::exp(std::min(-lb, -ub));
                             sampleUpperBound += ::exp(std::max(-lb, -ub));
-                        } else {
+                        } else   {
                             wt[0] = r;
                             minusLogJointCdfComplement(modes, weightStyles, wt, weight, lb, ub);
                             sampleUpperBound += ::exp(std::max(-lb, -ub));
@@ -702,8 +702,8 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                         }
 
                         LOG_TRACE("sampleLowerBound = " << sampleLowerBound
-                                                        << ", sampleUpperBound = " << sampleUpperBound
-                                                        << " p = " << p);
+                                  << ", sampleUpperBound = " << sampleUpperBound
+                                  << " p = " << p);
 
                         lowerBoundCalculator.add(CTools::truncate(sampleLowerBound + p, 0.0, 1.0));
                         upperBoundCalculator.add(CTools::truncate(sampleUpperBound + p, 0.0, 1.0));
@@ -758,7 +758,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
             }
             result += ":";
             for (std::size_t i = 0u; i < modes.size(); ++i) {
-                double      weight = modes[i].weight() / Z;
+                double weight = modes[i].weight() / Z;
                 std::string indent_ = indent + " weight "
                                       + core::CStringUtils::typeToStringPretty(weight) + "  ";
                 modes[i].s_Prior->print(indent_, result);
@@ -816,7 +816,8 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                     m_Prior(&prior),
                     m_WeightStyles(&weightStyles),
                     m_Weights(1, weights),
-                    m_X(1u, 0.0) {}
+                    m_X(1u, 0.0)
+                {}
 
                 double operator()(double x) const {
                     m_X[0] = x;
@@ -834,13 +835,13 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                 }
 
             private:
-                EStyle                         m_Style;
-                const PRIOR                    *m_Prior;
+                EStyle m_Style;
+                const PRIOR *m_Prior;
                 const maths_t::TWeightStyleVec *m_WeightStyles;
-                TDouble4Vec1Vec                m_Weights;
+                TDouble4Vec1Vec m_Weights;
                 //! Avoids creating the vector argument to minusLogJointCdf
                 //! more than once.
-                mutable TDouble1Vec            m_X;
+                mutable TDouble1Vec m_X;
         };
 
     private:
@@ -875,10 +876,10 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
 
             // Declared outside the loop to minimize the number of times
             // they are created.
-            TDouble1Vec     sample(1);
+            TDouble1Vec sample(1);
             TDouble4Vec1Vec weight(1, TDouble4Vec(1, 1.0));
-            TDouble4Vec     modeLowerBounds;
-            TDouble4Vec     modeUpperBounds;
+            TDouble4Vec modeLowerBounds;
+            TDouble4Vec modeUpperBounds;
             modeLowerBounds.reserve(modes.size());
             modeUpperBounds.reserve(modes.size());
 
@@ -929,7 +930,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
 
                     for (std::size_t j = 0u; j < modes.size(); ++j) {
                         LOG_TRACE("Mode -log(c.d.f.) = [" << modeLowerBounds[j]
-                                                          << "," << modeUpperBounds[j] << "]");
+                                  << "," << modeUpperBounds[j] << "]");
                         double w = modes[j].weight();
                         // Divide through by the largest value to avoid underflow.
                         // Remember we are working with minus logs so the largest
@@ -942,10 +943,10 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                     upperBound += n * std::max(minUpperBound[0] - ::log(CBasicStatistics::mean(sampleUpperBound)), 0.0);
 
                     LOG_TRACE("sample = " << core::CContainerPrinter::print(sample)
-                                          << ", sample -log(c.d.f.) = ["
-                                          << sampleLowerBound << "," << sampleUpperBound << "]");
+                              << ", sample -log(c.d.f.) = ["
+                              << sampleLowerBound << "," << sampleUpperBound << "]");
                 }
-            } catch (const std::exception &e) {
+            } catch (const std::exception &e)   {
                 LOG_ERROR("Failed to calculate c.d.f.: " << e.what());
                 return false;
             }

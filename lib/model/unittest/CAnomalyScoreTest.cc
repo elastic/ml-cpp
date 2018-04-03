@@ -53,13 +53,13 @@ void CAnomalyScoreTest::testComputeScores(void) {
     typedef maths::CJointProbabilityOfLessLikelySamples  TJointProbabilityCalculator;
     typedef maths::CLogProbabilityOfMFromNExtremeSamples TLogExtremeProbabilityCalculator;
 
-    const double      jointProbabilityWeight = 0.5;
-    const double      extremeProbabilityWeight = 0.5;
+    const double jointProbabilityWeight = 0.5;
+    const double extremeProbabilityWeight = 0.5;
     const std::size_t minExtremeSamples = 1u;
     const std::size_t maxExtremeSamples = 5u;
-    const double      maximumAnomalousProbability = 0.05;
-    double            overallScore = 0.0;
-    double            overallProbability = 1.0;
+    const double maximumAnomalousProbability = 0.05;
+    double overallScore = 0.0;
+    double overallProbability = 1.0;
 
     // Test 1: single value.
     // Expect deviation of the probability.
@@ -140,7 +140,7 @@ void CAnomalyScoreTest::testComputeScores(void) {
                          overallScore,
                          overallProbability);
 
-        TJointProbabilityCalculator      jointProbabilityCalculator;
+        TJointProbabilityCalculator jointProbabilityCalculator;
         TLogExtremeProbabilityCalculator extremeProbabilityCalculator(2);
         for (size_t i = 0; i < boost::size(p); ++i) {
             jointProbabilityCalculator.add(p[i]);
@@ -155,8 +155,8 @@ void CAnomalyScoreTest::testComputeScores(void) {
 
         LOG_DEBUG("3) probabilities = " << core::CContainerPrinter::print(p));
         LOG_DEBUG("   joint probability = " << jointProbability
-                                            << ", extreme probability = " << extremeProbability
-                                            << ", overallScore = " << overallScore);
+                  << ", extreme probability = " << extremeProbability
+                  << ", overallScore = " << overallScore);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.318231, overallScore, 5e-7);
     }
@@ -180,7 +180,7 @@ void CAnomalyScoreTest::testComputeScores(void) {
                          overallScore,
                          overallProbability);
 
-        TJointProbabilityCalculator      jointProbabilityCalculator;
+        TJointProbabilityCalculator jointProbabilityCalculator;
         TLogExtremeProbabilityCalculator extremeProbabilityCalculator(1);
         for (size_t i = 0; i < boost::size(p); ++i) {
             jointProbabilityCalculator.add(p[i]);
@@ -196,8 +196,8 @@ void CAnomalyScoreTest::testComputeScores(void) {
 
         LOG_DEBUG("4) probabilities = " << core::CContainerPrinter::print(probabilities));
         LOG_DEBUG("   joint probability = " << jointProbability
-                                            << ", extreme probability = " << extremeProbability
-                                            << ", overallScore = " << overallScore);
+                  << ", extreme probability = " << extremeProbability
+                  << ", overallScore = " << overallScore);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.137591, overallScore, 5e-7);
     }
@@ -221,7 +221,7 @@ void CAnomalyScoreTest::testComputeScores(void) {
                          overallScore,
                          overallProbability);
 
-        TJointProbabilityCalculator      jointProbabilityCalculator;
+        TJointProbabilityCalculator jointProbabilityCalculator;
         TLogExtremeProbabilityCalculator extremeProbabilityCalculator(4);
         for (size_t i = 0; i < boost::size(probabilities); ++i) {
             jointProbabilityCalculator.add(p[i]);
@@ -237,8 +237,8 @@ void CAnomalyScoreTest::testComputeScores(void) {
 
         LOG_DEBUG("5) probabilities = " << core::CContainerPrinter::print(probabilities));
         LOG_DEBUG("   joint probability = " << jointProbability
-                                            << ", extreme probability = " << extremeProbability
-                                            << ", overallScore = " << overallScore);
+                  << ", extreme probability = " << extremeProbability
+                  << ", overallScore = " << overallScore);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.029413, overallScore, 5e-7);
     }
@@ -282,7 +282,7 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles(void) {
     }
 
     model::CAnomalyDetectorModelConfig config = model::CAnomalyDetectorModelConfig::defaultConfig(1800);
-    model::CAnomalyScore::CNormalizer  normalizer(config);
+    model::CAnomalyScore::CNormalizer normalizer(config);
 
     double totalError = 0.0;
     double numberSamples = 0.0;
@@ -294,8 +294,8 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles(void) {
         normalizer.updateQuantiles(sample);
 
         TDoubleMSetItr itr = scores.upper_bound(samples[i]);
-        double         trueQuantile = static_cast<double>(std::distance(scores.begin(), itr))
-                                      / static_cast<double>(scores.size());
+        double trueQuantile = static_cast<double>(std::distance(scores.begin(), itr))
+                              / static_cast<double>(scores.size());
 
         if (trueQuantile > 0.9) {
             double lowerBound;
@@ -309,8 +309,8 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles(void) {
             numberSamples += 1.0;
 
             LOG_DEBUG("trueQuantile = " << trueQuantile
-                                        << ", lowerBound = " << lowerBound
-                                        << ", upperBound = " << upperBound);
+                      << ", lowerBound = " << lowerBound
+                      << ", upperBound = " << upperBound);
             CPPUNIT_ASSERT(error < 0.02);
         }
     }
@@ -351,7 +351,7 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy(void) {
     }
 
     model::CAnomalyDetectorModelConfig config = model::CAnomalyDetectorModelConfig::defaultConfig(1800);
-    model::CAnomalyScore::CNormalizer  normalizer(config);
+    model::CAnomalyScore::CNormalizer normalizer(config);
 
     //std::ostringstream raw;
     //std::ostringstream normalized;
@@ -373,7 +373,7 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy(void) {
 
         if (maxScores.size() < boost::size(largeAnomalyTimes)) {
             maxScores.insert(TDoubleSizeMap::value_type(sample, i));
-        } else if (sample > maxScores.begin()->first) {
+        } else if (sample > maxScores.begin()->first)   {
             LOG_DEBUG("normalized = " << sample << " removing " << maxScores.begin()->first);
             maxScores.erase(maxScores.begin());
             maxScores.insert(TDoubleSizeMap::value_type(sample, i));
@@ -412,7 +412,7 @@ void CAnomalyScoreTest::testNormalizeScoresLargeScore(void) {
     rng.generateUniformSamples(0.0, 0.1, 500, samples);
 
     std::size_t anomalyTimes[] = { 50, 110, 190, 220, 290 };
-    double      anomalies[] = { 2.0, 4.0, 4.0, 5.0, 20.0 };
+    double anomalies[] = { 2.0, 4.0, 4.0, 5.0, 20.0 };
 
     // Add in the anomalies.
     for (size_t i = 0; i < boost::size(anomalyTimes); ++i) {
@@ -420,7 +420,7 @@ void CAnomalyScoreTest::testNormalizeScoresLargeScore(void) {
     }
 
     model::CAnomalyDetectorModelConfig config = model::CAnomalyDetectorModelConfig::defaultConfig(1800);
-    model::CAnomalyScore::CNormalizer  normalizer(config);
+    model::CAnomalyScore::CNormalizer normalizer(config);
 
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         normalizer.updateQuantiles(samples[i]);
@@ -435,8 +435,8 @@ void CAnomalyScoreTest::testNormalizeScoresLargeScore(void) {
     std::sort(scores.begin(), scores.end());
     LOG_DEBUG("scores = " << core::CContainerPrinter::print(scores));
 
-    for (std::size_t i = 0u; i+1 < boost::size(anomalies); ++i) {
-        double uplift = scores[i] - 100.0 * anomalies[i]/anomalies[boost::size(anomalies) - 1];
+    for (std::size_t i = 0u; i + 1 < boost::size(anomalies); ++i) {
+        double uplift = scores[i] - 100.0 * anomalies[i] / anomalies[boost::size(anomalies) - 1];
         LOG_DEBUG("uplift = " << uplift);
         CPPUNIT_ASSERT(uplift > 5.0);
         CPPUNIT_ASSERT(uplift < 13.0);
@@ -447,7 +447,7 @@ void CAnomalyScoreTest::testNormalizeScoresNearZero(void) {
     // Test the behaviour for scores near zero.
 
     std::size_t anomalyTimes[] = { 50, 110, 190, 220, 290 };
-    double      anomalies[] = { 0.02, 0.01, 0.006, 0.01, 0.015 };
+    double anomalies[] = { 0.02, 0.01, 0.006, 0.01, 0.015 };
 
     std::size_t nonZeroCounts[] = { 0, 100, 200, 249, 251, 300, 400, 450 };
 
@@ -478,7 +478,7 @@ void CAnomalyScoreTest::testNormalizeScoresNearZero(void) {
         }
 
         model::CAnomalyDetectorModelConfig config = model::CAnomalyDetectorModelConfig::defaultConfig(1800);
-        model::CAnomalyScore::CNormalizer  normalizer(config);
+        model::CAnomalyScore::CNormalizer normalizer(config);
 
         for (std::size_t j = 0u; j < samples.size(); ++j) {
             normalizer.updateQuantiles(samples[j]);
@@ -513,7 +513,7 @@ void CAnomalyScoreTest::testNormalizeScoresOrdering(void) {
         TDoubleVec scores(&allScores[0], &allScores[i]);
 
         model::CAnomalyDetectorModelConfig config = model::CAnomalyDetectorModelConfig::defaultConfig(300);
-        model::CAnomalyScore::CNormalizer  normalizer(config);
+        model::CAnomalyScore::CNormalizer normalizer(config);
         for (std::size_t j = 0u; j < i; ++j) {
             normalizer.updateQuantiles(scores[j]);
         }
@@ -560,7 +560,7 @@ void CAnomalyScoreTest::testJsonConversion(void) {
     std::string wrappedJson = "{\"topLevel\" : " + origJson + "}";
 
     // Restore the JSON into a new filter
-    std::istringstream                iss(wrappedJson);
+    std::istringstream iss(wrappedJson);
     model::CAnomalyScore::CNormalizer restoredNormalizer(config);
     {
         core::CJsonStateRestoreTraverser traverser(iss);
@@ -602,7 +602,7 @@ void CAnomalyScoreTest::testJsonConversion(void) {
 
     rapidjson::Value &stateDoc = doc["a"];
 
-    rapidjson::StringBuffer                    buffer;
+    rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     stateDoc.Accept(writer);
 

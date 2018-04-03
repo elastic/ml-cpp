@@ -29,7 +29,8 @@ const std::string CTopLevelDomainDb::PERIOD = ".";
 
 
 CTopLevelDomainDb::CTopLevelDomainDb(const std::string &effectiveTldNamesFileName) :
-    m_EffectiveTldNamesFileName(effectiveTldNamesFileName) {}
+    m_EffectiveTldNamesFileName(effectiveTldNamesFileName)
+{}
 
 bool CTopLevelDomainDb::init(void) {
     core::CTextFileWatcher watcher;
@@ -246,7 +247,7 @@ std::string::size_type _last(const TSizeTypeVec &v) {
         return 0;
     }
 
-    return v[v.size()-1];
+    return v[v.size() - 1];
 }
 
 std::string::size_type _penultimate(const TSizeTypeVec &v) {
@@ -254,7 +255,7 @@ std::string::size_type _penultimate(const TSizeTypeVec &v) {
         return 0;
     }
 
-    return v[v.size()-2];
+    return v[v.size() - 2];
 }
 
 std::string::size_type _antepenultimate(const TSizeTypeVec &v) {
@@ -262,7 +263,7 @@ std::string::size_type _antepenultimate(const TSizeTypeVec &v) {
         return 0;
     }
 
-    return v[v.size()-3];
+    return v[v.size() - 3];
 }
 
 }

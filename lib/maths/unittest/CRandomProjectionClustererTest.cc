@@ -51,7 +51,8 @@ class CRandomProjectionClustererForTest : public maths::CRandomProjectionCluster
 
     public:
         CRandomProjectionClustererForTest(double compression = 1.0) :
-                              maths::CRandomProjectionClustererBatch<N>(compression) {}
+            maths::CRandomProjectionClustererBatch<N>(compression)
+        {}
 
         const TVectorArrayVec &projections(void) const {
             return this->maths::CRandomProjectionClustererBatch<N>::projections();
@@ -134,7 +135,7 @@ void CRandomProjectionClustererTest::testGenerateProjections(void) {
             for (std::size_t j = 0u; j < 5; ++j) {
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, projections[i][j].inner(projections[i][j]), 1e-10);
 
-                for (std::size_t k = j+1; k < 5; ++k) {
+                for (std::size_t k = j + 1; k < 5; ++k) {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, projections[i][j].inner(projections[i][k]), 1e-10);
                 }
             }
@@ -143,7 +144,7 @@ void CRandomProjectionClustererTest::testGenerateProjections(void) {
         TMeanVarAccumulator moments;
 
         for (std::size_t i = 0u; i < projections.size(); ++i) {
-            for (std::size_t j = i+1; j < projections.size(); ++j) {
+            for (std::size_t j = i + 1; j < projections.size(); ++j) {
                 for (std::size_t k = 0u; k < 5; ++k) {
                     for (std::size_t l = 0u; l < 5; ++l) {
                         moments.add(projections[i][k].inner(projections[j][l]));
@@ -179,10 +180,10 @@ void CRandomProjectionClustererTest::testClusterProjections(void) {
     // to test clustering quality in this test.
 
     test::CRandomNumbers rng;
-    std::size_t          dimension = 30u;
+    std::size_t dimension = 30u;
 
-    TDoubleVec    mean1(dimension, 0.0);
-    TDoubleVec    mean2(dimension, 10.0);
+    TDoubleVec mean1(dimension, 0.0);
+    TDoubleVec mean2(dimension, 10.0);
     TDoubleVecVec covariance(dimension, TDoubleVec(dimension, 0.0));
     for (std::size_t i = 0u; i < 30; ++i) {
         covariance[i][i] = 1.0;
@@ -202,7 +203,7 @@ void CRandomProjectionClustererTest::testClusterProjections(void) {
         clusterer.add(TVector(samples2[i].begin(), samples2[i].end()));
     }
 
-    TDoubleVec                                             expectedWeights;
+    TDoubleVec expectedWeights;
     CRandomProjectionClustererForTest<5>::TVectorNx1VecVec expectedMeans;
     expectedWeights.push_back(  static_cast<double>(samples1.size())
                                 / static_cast<double>(samples1.size() + samples2.size()));
@@ -214,7 +215,7 @@ void CRandomProjectionClustererTest::testClusterProjections(void) {
         {
             TCovariances covariances;
             for (std::size_t j = 0u; j < samples1.size(); ++j) {
-                TVector  x(samples1[j].begin(), samples1[j].end());
+                TVector x(samples1[j].begin(), samples1[j].end());
                 TVector5 projection;
                 for (std::size_t k = 0u; k < 5; ++k) {
                     projection(k) = clusterer.projections()[i][k].inner(x);
@@ -226,7 +227,7 @@ void CRandomProjectionClustererTest::testClusterProjections(void) {
         {
             TCovariances covariances;
             for (std::size_t j = 0u; j < samples2.size(); ++j) {
-                TVector  x(samples2[j].begin(), samples2[j].end());
+                TVector x(samples2[j].begin(), samples2[j].end());
                 TVector5 projection;
                 for (std::size_t k = 0u; k < 5; ++k) {
                     projection(k) = clusterer.projections()[i][k].inner(x);
@@ -241,10 +242,10 @@ void CRandomProjectionClustererTest::testClusterProjections(void) {
     LOG_DEBUG("expected weights = " << core::CContainerPrinter::print(expectedWeights));
     LOG_DEBUG("expected means   = " << core::CContainerPrinter::print(expectedMeans));
 
-    TDoubleVecVec                                          weights_;
+    TDoubleVecVec weights_;
     CRandomProjectionClustererForTest<5>::TVectorNx1VecVec means;
-    CRandomProjectionClustererForTest<5>::TSvdNxNVecVec    covariances;
-    CRandomProjectionClustererForTest<5>::TSizeUSet        samples;
+    CRandomProjectionClustererForTest<5>::TSvdNxNVecVec covariances;
+    CRandomProjectionClustererForTest<5>::TSizeUSet samples;
     clusterer.clusterProjections(maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 2, 5),
                                  weights_, means, covariances, samples);
 
@@ -286,7 +287,7 @@ void CRandomProjectionClustererTest::testNeighbourhoods(void) {
 
     std::size_t dimension = 30u;
     std::size_t n[] = { 30, 50, 40 };
-    TDoubleVec  means[3] = {};
+    TDoubleVec means[3] = {};
     for (std::size_t i = 0u; i < boost::size(means); ++i) {
         rng.generateUniformSamples(0.0, 10.0, dimension, means[i]);
         LOG_DEBUG("mean = " << core::CContainerPrinter::print(means[i]));
@@ -316,10 +317,10 @@ void CRandomProjectionClustererTest::testNeighbourhoods(void) {
         }
     }
 
-    TDoubleVecVec                                          weights;
+    TDoubleVecVec weights;
     CRandomProjectionClustererForTest<5>::TVectorNx1VecVec clusterMeans;
-    CRandomProjectionClustererForTest<5>::TSvdNxNVecVec    clusterCovariances;
-    CRandomProjectionClustererForTest<5>::TSizeUSet        examples;
+    CRandomProjectionClustererForTest<5>::TSvdNxNVecVec clusterCovariances;
+    CRandomProjectionClustererForTest<5>::TSizeUSet examples;
     clusterer.clusterProjections(maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 3, 5),
                                  weights, clusterMeans, clusterCovariances, examples);
     LOG_DEBUG("examples = " << core::CContainerPrinter::print(examples));
@@ -336,7 +337,7 @@ void CRandomProjectionClustererTest::testNeighbourhoods(void) {
     }
     for (std::size_t i = 0u; i < sampleVectors.size(); ++i) {
         std::size_t closest = 0u;
-        double      distance = (sampleVectors[i] - exampleVectors[0]).euclidean();
+        double distance = (sampleVectors[i] - exampleVectors[0]).euclidean();
         for (std::size_t j = 1u; j < exampleVectors.size(); ++j) {
             double dj = (sampleVectors[i] - exampleVectors[j]).euclidean();
             if (dj < distance) {
@@ -374,7 +375,7 @@ void CRandomProjectionClustererTest::testSimilarities(void) {
 
     std::size_t dimension = 30u;
     std::size_t n[] = { 30, 50, 40 };
-    TDoubleVec  means[3] = {};
+    TDoubleVec means[3] = {};
     for (std::size_t i = 0u; i < boost::size(means); ++i) {
         rng.generateUniformSamples(0.0, 10.0, dimension, means[i]);
         LOG_DEBUG("mean = " << core::CContainerPrinter::print(means[i]));
@@ -404,16 +405,16 @@ void CRandomProjectionClustererTest::testSimilarities(void) {
         }
     }
 
-    TDoubleVecVec                                          weights;
+    TDoubleVecVec weights;
     CRandomProjectionClustererForTest<5>::TVectorNx1VecVec clusterMeans;
-    CRandomProjectionClustererForTest<5>::TSvdNxNVecVec    clusterCovariances;
-    CRandomProjectionClustererForTest<5>::TSizeUSet        examples;
+    CRandomProjectionClustererForTest<5>::TSvdNxNVecVec clusterCovariances;
+    CRandomProjectionClustererForTest<5>::TSizeUSet examples;
     clusterer.clusterProjections(maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 3, 5),
                                  weights, clusterMeans, clusterCovariances, examples);
     LOG_DEBUG("examples = " << core::CContainerPrinter::print(examples));
 
     TSizeVecVec expectedConnectivity(examples.size(), TSizeVec(examples.size()));
-    TSizeVec    examples_(examples.begin(), examples.end());
+    TSizeVec examples_(examples.begin(), examples.end());
     for (std::size_t i = 0u; i < examples_.size(); ++i) {
         for (std::size_t j = 0u; j <= i; ++j) {
             expectedConnectivity[i][j] = expectedConnectivity[j][i] =
@@ -463,7 +464,7 @@ void CRandomProjectionClustererTest::testClusterNeighbourhoods(void) {
 
     std::size_t dimension = 30u;
     std::size_t n[] = { 30, 50, 40 };
-    TDoubleVec  means[3] = {};
+    TDoubleVec means[3] = {};
     for (std::size_t i = 0u; i < boost::size(means); ++i) {
         rng.generateUniformSamples(0.0, 10.0, dimension, means[i]);
         LOG_DEBUG("mean = " << core::CContainerPrinter::print(means[i]));
@@ -493,10 +494,10 @@ void CRandomProjectionClustererTest::testClusterNeighbourhoods(void) {
         }
     }
 
-    TDoubleVecVec                                          weights;
+    TDoubleVecVec weights;
     CRandomProjectionClustererForTest<5>::TVectorNx1VecVec clusterMeans;
-    CRandomProjectionClustererForTest<5>::TSvdNxNVecVec    clusterCovariances;
-    CRandomProjectionClustererForTest<5>::TSizeUSet        examples;
+    CRandomProjectionClustererForTest<5>::TSvdNxNVecVec clusterCovariances;
+    CRandomProjectionClustererForTest<5>::TSizeUSet examples;
     clusterer.clusterProjections(maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 3, 5),
                                  weights, clusterMeans, clusterCovariances, examples);
     LOG_DEBUG("examples = " << core::CContainerPrinter::print(examples));

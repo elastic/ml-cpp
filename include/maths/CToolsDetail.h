@@ -39,7 +39,8 @@ CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::CSmoothedK
     m_LogF(logf),
     m_LogF0(logF0),
     m_K(k),
-    m_Scale(::exp(m_LogF0) * (1.0 + ::exp(-k))) {}
+    m_Scale(::exp(m_LogF0) * (1.0 + ::exp(-k)))
+{}
 
 template<typename LOGF>
 void CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::k(double k) {
@@ -116,12 +117,12 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::leftTail(const LOGF &logf,
         }
         n = iterations - n;
         CSolvers::solve(xl, xr, fl, fr, f, n, equal, result);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to find left root: " << e.what()
-                                               << ", a = " << m_A
-                                               << ", logf(x) = " << m_LogFx
-                                               << ", logf(a) = " << logf(m_A)
-                                               << ", max deviation = " << (m_MaxDeviation.count() > 0 ? m_MaxDeviation[0] : 0.0));
+                  << ", a = " << m_A
+                  << ", logf(x) = " << m_LogFx
+                  << ", logf(a) = " << logf(m_A)
+                  << ", max deviation = " << (m_MaxDeviation.count() > 0 ? m_MaxDeviation[0] : 0.0));
         return false;
     }
     return true;
@@ -162,11 +163,11 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::rightTail(const LOGF &logf,
         }
         n = iterations - n;
         CSolvers::solve(xl, xr, fl, fr, f, n, equal, result);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to find right root: " << e.what()
-                                                << ",b = " << m_B
-                                                << ", logf(x) = " << m_LogFx
-                                                << ", logf(b) = " << logf(m_B));
+                  << ",b = " << m_B
+                  << ", logf(x) = " << m_LogFx
+                  << ", logf(b) = " << logf(m_B));
         return false;
     }
     return true;
@@ -177,8 +178,8 @@ double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF &logf
     TDoubleDoublePrVec intervals;
     this->intervals(intervals);
 
-    double                       p = 0.0;
-    TDoubleVec                   pIntervals(intervals.size(), 0.0);
+    double p = 0.0;
+    TDoubleVec pIntervals(intervals.size(), 0.0);
     CSmoothedKernel<const LOGF&> kernel(logf, m_LogFx, 3.0);
     for (std::size_t i = 0u; i < intervals.size(); ++i) {
         if (!CIntegration::gaussLegendre<CIntegration::OrderFour>(kernel,
@@ -206,11 +207,11 @@ template<typename T>
 double CTools::differentialEntropy(const CMixtureDistribution<T> &mixture) {
     using TModeVec = typename CMixtureDistribution<T>::TModeVec;
 
-    static const double      EPS = 1e-5;
+    static const double EPS = 1e-5;
     static const std::size_t INTERVALS = 8u;
 
     const TDoubleVec &weights = mixture.weights();
-    const TModeVec   &  modes = mixture.modes();
+    const TModeVec &modes = mixture.modes();
 
     if (weights.empty()) {
         return 0.0;
@@ -228,7 +229,7 @@ double CTools::differentialEntropy(const CMixtureDistribution<T> &mixture) {
         if (range[left].second < range[i].first) {
             ++left;
             std::swap(range[left], range[i]);
-        } else {
+        } else   {
             range[left].second = std::max(range[left].second, range[i].second);
         }
     }
@@ -246,7 +247,7 @@ double CTools::differentialEntropy(const CMixtureDistribution<T> &mixture) {
         for (std::size_t j = 0u; j < INTERVALS; ++j, a += d) {
             double integral;
             if (CIntegration::gaussLegendre<CIntegration::OrderFive>(kernel,
-                                                                     a, a+d,
+                                                                     a, a + d,
                                                                      integral)) {
                 result += integral;
             }
@@ -295,7 +296,7 @@ void CTools::spread(double a, double b, double separation, T &points) {
     }
     std::sort(points.begin(), points.end(), CPointLess());
 
-    bool        moved = false;
+    bool moved = false;
     std::size_t iteration = 0u;
     do {
         moved = false;
@@ -305,8 +306,8 @@ void CTools::spread(double a, double b, double separation, T &points) {
         for (std::size_t i = 1u; i <= n; ++i) {
             CGroup test(forward ? i : n - i, points);
             if (last.overlap(test, separation)) {
-                last.merge(test, separation, 0.0, b-a);
-            } else {
+                last.merge(test, separation, 0.0, b - a);
+            } else   {
                 moved |= last.spread(separation, points);
                 last = test;
             }
@@ -319,7 +320,7 @@ void CTools::spread(double a, double b, double separation, T &points) {
     }
 
     LOG_TRACE("# iterations = " << iteration
-                                << " # points = " << n + 1);
+              << " # points = " << n + 1);
 }
 
 }

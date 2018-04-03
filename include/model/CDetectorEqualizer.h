@@ -80,14 +80,14 @@ class MODEL_EXPORT CDetectorEqualizer {
         //! The style of interpolation to use for the sketch.
         static const maths::CQuantileSketch::EInterpolation SKETCH_INTERPOLATION;
         //! The maximum size of the quantile sketch.
-        static const std::size_t                            SKETCH_SIZE;
+        static const std::size_t SKETCH_SIZE;
         //! The minimum count in a detector's sketch for which we'll
         //! apply a correction to the probability.
-        static const double                                 MINIMUM_COUNT_FOR_CORRECTION;
+        static const double MINIMUM_COUNT_FOR_CORRECTION;
 
     private:
         //! The sketches (one for each detector).
-        TIntQuantileSketchPrVec                             m_Sketches;
+        TIntQuantileSketchPrVec m_Sketches;
 };
 
 }

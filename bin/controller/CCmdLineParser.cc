@@ -66,7 +66,7 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("commandPipe") > 0) {
             commandPipe = vm["commandPipe"].as<std::string>();
         }
-    } catch (std::exception &e) {
+    } catch (std::exception &e)   {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
     }

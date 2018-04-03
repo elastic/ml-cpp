@@ -44,7 +44,8 @@ CMetricModelFactory::CMetricModelFactory(const SModelParams &params,
     m_SummaryCountFieldName(summaryCountFieldName),
     m_UseNull(false),
     m_BucketLength(CAnomalyDetectorModelConfig::DEFAULT_BUCKET_LENGTH),
-    m_BucketResultsDelay(0) {}
+    m_BucketResultsDelay(0)
+{}
 
 CMetricModelFactory *CMetricModelFactory::clone(void) const {
     return new CMetricModelFactory(*this);
@@ -181,7 +182,7 @@ CMetricModelFactory::defaultPrior(model_t::EFeature feature,
         modePriors.emplace_back(gammaPrior.clone());
         modePriors.emplace_back(logNormalPrior.clone());
         modePriors.emplace_back(normalPrior.clone());
-        maths::COneOfNPrior    modePrior(modePriors, dataType, params.s_DecayRate);
+        maths::COneOfNPrior modePrior(modePriors, dataType, params.s_DecayRate);
         maths::CXMeansOnline1d clusterer(dataType,
                                          maths::CAvailableModeDistributions::ALL,
                                          maths_t::E_ClustersFractionWeight,

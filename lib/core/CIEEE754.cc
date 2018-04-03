@@ -25,7 +25,7 @@ double CIEEE754::round(double value, EPrecision precision) {
     // and exponent to avoid the problem with overflow if
     // the values are close to max double.
 
-    int    exponent;
+    int exponent;
     double mantissa = ::frexp(value, &exponent);
 
     switch (precision) {

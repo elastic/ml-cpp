@@ -56,7 +56,7 @@ const std::string TTIME_ARRAY_NAME("TTime[]");
 }
 
 void CRapidJsonWriterBaseTest::testAddFields(void) {
-    std::ostringstream        strm;
+    std::ostringstream strm;
     rapidjson::OStreamWrapper writeStream(strm);
     typedef ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,
                                            rapidjson::CrtAllocator> TGenericLineWriter;
@@ -106,7 +106,7 @@ void CRapidJsonWriterBaseTest::testAddFields(void) {
 
 
 void CRapidJsonWriterBaseTest::testRemoveMemberIfPresent(void) {
-    std::ostringstream        strm;
+    std::ostringstream strm;
     rapidjson::OStreamWrapper writeStream(strm);
     typedef ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,
                                            rapidjson::CrtAllocator> TGenericLineWriter;

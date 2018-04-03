@@ -75,7 +75,7 @@ class API_EXPORT CSingleStreamDataAdder : public core::CDataAdder {
 
     private:
         //! The stream we're writing to.
-        TOStreamP           m_Stream;
+        TOStreamP m_Stream;
 };
 
 

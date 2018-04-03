@@ -44,10 +44,10 @@ bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams &par
         if (name == CClustererTypes::X_MEANS_ONLINE_1D_TAG) {
             ptr.reset(new CXMeansOnline1d(params, splitFunc, mergeFunc, traverser));
             ++numResults;
-        } else if (name == CClustererTypes::K_MEANS_ONLINE_1D_TAG) {
+        } else if (name == CClustererTypes::K_MEANS_ONLINE_1D_TAG)   {
             ptr.reset(new CKMeansOnline1d(params, traverser));
             ++numResults;
-        } else {
+        } else   {
             LOG_ERROR("No clusterer corresponds to node name " << traverser.name());
         }
     } while (traverser.next());

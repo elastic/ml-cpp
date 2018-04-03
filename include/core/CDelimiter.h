@@ -110,22 +110,22 @@ class CORE_EXPORT CDelimiter {
     private:
         //! The primary delimiter
         CRegex m_Delimiter;
-        bool   m_Valid;
+        bool m_Valid;
 
         //! Only treat the primary delimiter as a delimiter if it's followed by
         //! this regular expression.
         CRegex m_FollowingRegex;
-        bool   m_HaveFollowingRegex;
+        bool m_HaveFollowingRegex;
 
         //! After some time has passed, should we waive the following regex?
-        bool   m_WaiveFollowingRegexAfterTime;
+        bool m_WaiveFollowingRegexAfterTime;
 
         //! The quote character (or '\0' if there isn't one).
         //! The main delimiter will be ignored if it's inside quotes.
-        char   m_Quote;
+        char m_Quote;
 
         //! The character used to escape the quote character ('\0' if none).
-        char   m_Escape;
+        char m_Escape;
 
         friend CORE_EXPORT std::ostream &operator<<(std::ostream &strm,
                                                     const CDelimiter &delimiter);

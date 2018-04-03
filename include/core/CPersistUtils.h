@@ -187,7 +187,8 @@ struct reserve_selector<T, typename enable_if_is<void (T::*)(std::size_t), &T::r
 template<typename SELECTOR> class CReserveImpl {
     public:
         template<typename T>
-        static void dispatch(const T &, std::size_t) {}
+        static void dispatch(const T &, std::size_t)
+        {}
 };
 
 //! \brief Implementation of the pre-allocation class for objects
@@ -231,7 +232,8 @@ class CORE_EXPORT CPersistUtils {
         class CORE_EXPORT CBuiltinToString {
             public:
                 CBuiltinToString(const char pairDelimiter) :
-                    m_PairDelimiter(pairDelimiter) {}
+                    m_PairDelimiter(pairDelimiter)
+                {}
 
                 std::string operator()(double value) const {
                     return CStringUtils::typeToStringPrecise(value, CIEEE754::E_SinglePrecision);
@@ -342,7 +344,7 @@ class CORE_EXPORT CPersistUtils {
                 }
 
             private:
-                char                m_PairDelimiter;
+                char m_PairDelimiter;
                 mutable std::string m_Token;
         };
 
@@ -532,7 +534,7 @@ class CORE_EXPORT CPersistUtils {
             std::size_t n = std::count(state.begin(), state.end(), delimiter) + 1;
             if (n != N) {
                 LOG_ERROR("Unexpected number of elements " << n
-                                                           << ", expected " << N);
+                          << ", expected " << N);
                 return false;
             }
 
@@ -621,7 +623,7 @@ class CORE_EXPORT CPersistUtils {
             std::size_t N = std::distance(begin, end);
             if (n != N) {
                 LOG_ERROR("Unexpected number of elements " << n
-                                                           << ", expected " << N);
+                          << ", expected " << N);
                 return false;
             }
 
@@ -661,7 +663,7 @@ class CORE_EXPORT CPersistUtils {
                 T element;
                 if (stringFunc(token, element) == false) {
                     LOG_ERROR("Invalid element 0 : element " << token
-                                                             << " in " << state);
+                              << " in " << state);
                     return false;
                 }
                 *inserter = element;
@@ -674,15 +676,15 @@ class CORE_EXPORT CPersistUtils {
                 delimPos = state.find(delimiter, lastDelimPos + 1);
                 if (delimPos == std::string::npos) {
                     token.assign(state, lastDelimPos + 1, state.length() - lastDelimPos);
-                } else {
+                } else   {
                     token.assign(state, lastDelimPos + 1, delimPos - lastDelimPos - 1);
                 }
 
                 T element;
                 if (stringFunc(token, element) == false) {
                     LOG_ERROR("Invalid element " << i
-                                                 << " : element " << token
-                                                 << " in " << state);
+                              << " : element " << token
+                              << " in " << state);
                     return false;
                 }
                 *inserter = element;
@@ -757,7 +759,7 @@ class CPersisterImpl<ContainerPersist> {
                 TVec values(container.begin(), container.end());
                 std::sort(values.begin(), values.end());
                 doInsert(tag, values, inserter, boost::true_type(), boost::false_type());
-            } else {
+            } else   {
                 TCItrVec iterators;
                 iterators.reserve(container.size());
                 for (TCItr i = container.begin(); i != container.end(); ++i) {
@@ -766,9 +768,7 @@ class CPersisterImpl<ContainerPersist> {
 
                 // Sort the values to ensure consistent persist state.
                 std::sort(iterators.begin(), iterators.end(),
-                          [] (TCItr lhs, TCItr rhs) {
-                            return *lhs < *rhs;
-                        });
+                          [] (TCItr lhs, TCItr rhs) { return *lhs < *rhs; });
                 doInsert(tag, iterators, inserter, boost::false_type(), boost::true_type());
             }
         }
@@ -789,9 +789,7 @@ class CPersisterImpl<ContainerPersist> {
 
             // Sort the keys to ensure consistent persist state.
             std::sort(iterators.begin(), iterators.end(),
-                      [] (TCItr lhs, TCItr rhs) {
-                        return lhs->first < rhs->first;
-                    });
+                      [] (TCItr lhs, TCItr rhs) { return lhs->first < rhs->first; });
             doInsert(tag, iterators, inserter, boost::false_type(), boost::true_type());
         }
 
@@ -987,10 +985,10 @@ class CRestorerImpl<ContainerRestore> {
                         std::size_t size = 0;
                         if (!core::CStringUtils::stringToType(traverser.value(), size)) {
                             LOG_WARN("Failed to determine size: " << traverser.value());
-                        } else {
+                        } else   {
                             reserve(container, size);
                         }
-                    } else {
+                    } else   {
                         TValueType value;
                         if (!restore(FIRST_TAG, value, traverser)) {
                             LOG_ERROR("Restoration error at " << traverser.name());

@@ -53,7 +53,7 @@ double CBasicStatistics::median(const TDoubleVec &dataIn) {
     // For an odd number of elements, this will get the median element into
     // place.  For an even number of elements, it will get the second element
     // of the middle pair into place.
-    bool   useMean{size % 2 == 0};
+    bool useMean{size % 2 == 0};
     size_t index{size / 2};
     std::nth_element(data.begin(), data.begin() + index, data.end());
 
@@ -64,7 +64,7 @@ double CBasicStatistics::median(const TDoubleVec &dataIn) {
         auto left = std::max_element(data.begin(), data.begin() + index);
 
         median = (*left + data[index]) / 2.0;
-    } else {
+    } else   {
         median = data[index];
     }
 

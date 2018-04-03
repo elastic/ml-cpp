@@ -159,7 +159,7 @@ class MATHS_EXPORT CMultivariateConstantPrior : public CMultivariatePrior {
 
     private:
         //! The data dimension.
-        std::size_t          m_Dimension;
+        std::size_t m_Dimension;
 
         //! The constant value.
         TOptionalDouble10Vec m_Constant;

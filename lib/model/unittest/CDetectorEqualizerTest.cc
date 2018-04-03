@@ -120,7 +120,7 @@ void CDetectorEqualizerTest::testAge(void) {
     for (int i = 0; i < 3; ++i) {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
-        double           logp = THRESHOLD;
+        double logp = THRESHOLD;
         for (std::size_t j = 0u; j < 150; ++j, logp += ::log(0.9)) {
             double p = ::exp(logp);
             double pc  = equalizer.correct(i, p);

@@ -39,8 +39,8 @@ namespace {
 using TDoubleVec = std::vector<double>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
 
-const double      MINIMUM_SEASONAL_SCALE{0.25};
-const double      DECAY_RATE{0.0005};
+const double MINIMUM_SEASONAL_SCALE{0.25};
+const double DECAY_RATE{0.0005};
 const std::size_t TAG{0u};
 
 maths::CModelParams params(core_t::TTime bucketLength) {
@@ -86,8 +86,8 @@ void CModelToolsTest::testFuzzyDeduplicate(void) {
         fuzzy.computeEpsilons(600, 10000);
 
         boost::math::normal normal{variance, std::sqrt(variance)};
-        double              eps{(  boost::math::quantile(normal, 0.9)
-                                   - boost::math::quantile(normal, 0.1)) / 10000.0};
+        double eps{(  boost::math::quantile(normal, 0.9)
+                      - boost::math::quantile(normal, 0.1)) / 10000.0};
         LOG_DEBUG("eps = " << eps);
 
         uniques.clear();
@@ -95,7 +95,7 @@ void CModelToolsTest::testFuzzyDeduplicate(void) {
             std::size_t duplicate{fuzzy.duplicate(300, TDouble2Vec{value})};
             if (duplicate < uniques.size()) {
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(uniques[duplicate], value, 1.5 * eps);
-            } else {
+            } else   {
                 uniques.push_back(value);
             }
         }
@@ -122,7 +122,7 @@ void CModelToolsTest::testFuzzyDeduplicate(void) {
             std::size_t duplicate{fuzzy.duplicate(300, TDouble2Vec{value})};
             if (duplicate < uniques.size()) {
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(uniques[duplicate], value, 1.5 * eps);
-            } else {
+            } else   {
                 uniques.push_back(value);
             }
         }
@@ -150,7 +150,7 @@ void CModelToolsTest::testFuzzyDeduplicate(void) {
             std::size_t duplicate{fuzzy.duplicate(300, TDouble2Vec{value})};
             if (duplicate < uniques.size()) {
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(uniques[duplicate], value, 1.5 * eps);
-            } else {
+            } else   {
                 uniques.push_back(value);
             }
         }
@@ -170,8 +170,8 @@ void CModelToolsTest::testFuzzyDeduplicate(void) {
         fuzzy.computeEpsilons(600, 10000);
 
         boost::math::lognormal lognormal{variance, std::sqrt(variance)};
-        double                 eps{(  boost::math::quantile(lognormal, 0.9)
-                                      - boost::math::quantile(lognormal, 0.1)) / 10000.0};
+        double eps{(  boost::math::quantile(lognormal, 0.9)
+                      - boost::math::quantile(lognormal, 0.1)) / 10000.0};
         LOG_DEBUG("eps = " << eps);
 
         uniques.clear();
@@ -179,7 +179,7 @@ void CModelToolsTest::testFuzzyDeduplicate(void) {
             std::size_t duplicate{fuzzy.duplicate(300, TDouble2Vec{value})};
             if (duplicate < uniques.size()) {
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(uniques[duplicate], value, 1.5 * eps);
-            } else {
+            } else   {
                 uniques.push_back(value);
             }
         }
@@ -204,12 +204,12 @@ void CModelToolsTest::testProbabilityCache(void) {
 
     core_t::TTime bucketLength{1800};
 
-    maths::CTimeSeriesDecomposition   trend{DECAY_RATE, bucketLength};
+    maths::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
     maths::CUnivariateTimeSeriesModel model{params(bucketLength), 0, trend, multimodal(), 0, false};
-    test::CRandomNumbers              rng;
+    test::CRandomNumbers rng;
 
-    core_t::TTime      time_{0};
-    TDouble2Vec4Vec    weight{TDouble2Vec{1.0}};
+    core_t::TTime time_{0};
+    TDouble2Vec4Vec weight{TDouble2Vec{1.0}};
     TDouble2Vec4VecVec weights{weight};
 
     {
@@ -234,9 +234,9 @@ void CModelToolsTest::testProbabilityCache(void) {
     }
 
     model_t::EFeature feature{model_t::E_IndividualMeanByPerson};
-    std::size_t       id{0u};
-    TTime2Vec1Vec     time{TTime2Vec{time_}};
-    TDouble2Vec1Vec   sample{TDouble2Vec{0.0}};
+    std::size_t id{0u};
+    TTime2Vec1Vec time{TTime2Vec{time_}};
+    TDouble2Vec1Vec sample{TDouble2Vec{0.0}};
 
     LOG_DEBUG("Test Random");
 
@@ -253,8 +253,8 @@ void CModelToolsTest::testProbabilityCache(void) {
         LOG_DEBUG("# samples = " << samples.size());
 
         model::CModelTools::CProbabilityCache cache(0.05);
-        TMeanAccumulator                      error;
-        std::size_t                           hits{0u};
+        TMeanAccumulator error;
+        std::size_t hits{0u};
 
         for (auto sample_ : samples) {
             sample[0][0] = sample_;
@@ -265,15 +265,15 @@ void CModelToolsTest::testProbabilityCache(void) {
             .addBucketEmpty(TBool2Vec{false})
             .weightStyles(maths::CConstantWeights::COUNT)
             .addWeights(weight);
-            double    expectedProbability;
+            double expectedProbability;
             TTail2Vec expectedTail;
-            bool      conditional;
+            bool conditional;
             TSize1Vec mostAnomalousCorrelate;
             model.probability(params, time, sample,
                               expectedProbability, expectedTail,
                               conditional, mostAnomalousCorrelate);
 
-            double    probability;
+            double probability;
             TTail2Vec tail;
             if (cache.lookup(feature, id, sample,
                              probability, tail,
@@ -286,7 +286,7 @@ void CModelToolsTest::testProbabilityCache(void) {
                 CPPUNIT_ASSERT_EQUAL(expectedTail[0], tail[0]);
                 CPPUNIT_ASSERT_EQUAL(false, conditional);
                 CPPUNIT_ASSERT(mostAnomalousCorrelate.empty());
-            } else {
+            } else   {
                 cache.addModes(feature, id, model);
                 cache.addProbability(feature, id, sample,
                                      expectedProbability, expectedTail,
@@ -313,24 +313,24 @@ void CModelToolsTest::testProbabilityCache(void) {
             .addBucketEmpty(TBool2Vec{false})
             .weightStyles(maths::CConstantWeights::COUNT)
             .addWeights(weight);
-            double    expectedProbability;
+            double expectedProbability;
             TTail2Vec expectedTail;
-            bool      conditional;
+            bool conditional;
             TSize1Vec mostAnomalousCorrelate;
             model.probability(params, time, sample,
                               expectedProbability, expectedTail,
                               conditional, mostAnomalousCorrelate);
             LOG_DEBUG("probability = " << expectedProbability
-                                       << ", tail = " << expectedTail);
+                      << ", tail = " << expectedTail);
 
-            double    probability;
+            double probability;
             TTail2Vec tail;
             if (cache.lookup(feature, id, sample,
                              probability, tail,
                              conditional, mostAnomalousCorrelate)) {
                 // Shouldn't have any cache hits.
                 CPPUNIT_ASSERT(false);
-            } else {
+            } else   {
                 cache.addModes(feature, id, model);
                 cache.addProbability(feature, id, sample,
                                      expectedProbability, expectedTail,

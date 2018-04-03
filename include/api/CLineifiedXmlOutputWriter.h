@@ -78,11 +78,11 @@ class API_EXPORT CLineifiedXmlOutputWriter : public COutputHandler {
     private:
         //! Name of the root element in which the fields to be output will be
         //! nested
-        std::string                    m_RootName;
+        std::string m_RootName;
 
         //! If we've been initialised without a specific stream, output is
         //! written to this string stream
-        std::ostringstream             m_StringOutputBuf;
+        std::ostringstream m_StringOutputBuf;
 
         //! Reference to the stream we're going to write to
         std::ostream                   &m_OutStream;

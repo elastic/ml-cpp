@@ -75,11 +75,11 @@ class API_EXPORT CBenchMarker {
 
     private:
         //! Number of messages passed to the benchmarker
-        size_t                     m_TotalMessages;
+        size_t m_TotalMessages;
 
         //! Number of messages that matched one of the regexes, and hence
         //! contribute to the scoring
-        size_t                     m_ScoredMessages;
+        size_t m_ScoredMessages;
 
         //! The string and tokens we base this type on
         TRegexIntSizeStrPrMapPrVec m_Measures;

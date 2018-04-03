@@ -62,16 +62,13 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
 
     protected:
         explicit CHierarchicalResultsLevelSet(const T &bucketElement) :
-            m_BucketElement(bucketElement) {}
+            m_BucketElement(bucketElement)
+        {}
 
         //! Get the root unique element.
-        const T &bucketElement(void) const {
-            return m_BucketElement;
-        }
+        const T &bucketElement(void) const { return m_BucketElement; }
         //! Get a writable root unique element.
-        T &bucketElement(void) {
-            return m_BucketElement;
-        }
+        T &bucketElement(void) { return m_BucketElement; }
 
         //! Get an influencer bucket element for \p influencerFieldName.
         //!
@@ -99,7 +96,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
         //! \note Returns NULL if there isn't a matching one.
         const T *personElement(const std::string &partitionFieldName,
                                const std::string &personFieldName) const {
-            TWord              word = ms_Dictionary.word(partitionFieldName, personFieldName);
+            TWord word = ms_Dictionary.word(partitionFieldName, personFieldName);
             TWordTypePrVecCItr i = element(m_PersonSet, word);
             return (i != m_PersonSet.end() && i->first == word) ? &i->second : 0;
         }
@@ -120,49 +117,29 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
         }
 
         //! Get the influencer bucket set.
-        const TWordTypePrVec &influencerBucketSet(void) const {
-            return m_InfluencerBucketSet;
-        }
+        const TWordTypePrVec &influencerBucketSet(void) const { return m_InfluencerBucketSet; }
         //! Get a writable influencer bucket set.
-        TWordTypePrVec &influencerBucketSet(void) {
-            return m_InfluencerBucketSet;
-        }
+        TWordTypePrVec &influencerBucketSet(void) { return m_InfluencerBucketSet; }
 
         //! Get the influencer set.
-        const TWordTypePrVec &influencerSet(void) const {
-            return m_InfluencerSet;
-        }
+        const TWordTypePrVec &influencerSet(void) const { return m_InfluencerSet; }
         //! Get a writable influencer set.
-        TWordTypePrVec &influencerSet(void) {
-            return m_InfluencerSet;
-        }
+        TWordTypePrVec &influencerSet(void) { return m_InfluencerSet; }
 
         //! Get the partition set.
-        const TWordTypePrVec &partitionSet(void) const {
-            return m_PartitionSet;
-        }
+        const TWordTypePrVec &partitionSet(void) const { return m_PartitionSet; }
         //! Get a writable partition set.
-        TWordTypePrVec &partitionSet(void) {
-            return m_PartitionSet;
-        }
+        TWordTypePrVec &partitionSet(void) { return m_PartitionSet; }
 
         //! Get the person set.
-        const TWordTypePrVec &personSet(void) const {
-            return m_PersonSet;
-        }
+        const TWordTypePrVec &personSet(void) const { return m_PersonSet; }
         //! Get a writable person set.
-        TWordTypePrVec &personSet(void) {
-            return m_PersonSet;
-        }
+        TWordTypePrVec &personSet(void) { return m_PersonSet; }
 
         //! Get the leaf set.
-        const TWordTypePrVec &leafSet(void) const {
-            return m_LeafSet;
-        }
+        const TWordTypePrVec &leafSet(void) const { return m_LeafSet; }
         //! Get a writable leaf set.
-        TWordTypePrVec &leafSet(void) {
-            return m_LeafSet;
-        }
+        TWordTypePrVec &leafSet(void) { return m_LeafSet; }
 
         //! Clear all the sets.
         void clear(void) {
@@ -205,7 +182,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
             }
 
             if (pivot && this->isRoot(node)) {
-                TWord             word = ms_Dictionary.word(*node.s_Spec.s_PersonFieldName);
+                TWord word = ms_Dictionary.word(*node.s_Spec.s_PersonFieldName);
                 TWordTypePrVecItr i = element(m_InfluencerBucketSet, word);
                 if (i == m_InfluencerBucketSet.end() || i->first != word) {
                     i = m_InfluencerBucketSet.insert(
@@ -215,7 +192,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
                 return;
             }
             if (pivot && !this->isRoot(node)) {
-                TWord             word = ms_Dictionary.word(*node.s_Spec.s_PersonFieldName);
+                TWord word = ms_Dictionary.word(*node.s_Spec.s_PersonFieldName);
                 TWordTypePrVecItr i = element(m_InfluencerSet, word);
                 if (i == m_InfluencerSet.end() || i->first != word) {
                     i = m_InfluencerSet.insert(
@@ -282,7 +259,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
     private:
         //! Get an element of \p set by name.
         static const T *element(const TWordTypePrVec &set, const std::string &name) {
-            TWord              word = ms_Dictionary.word(name);
+            TWord word = ms_Dictionary.word(name);
             TWordTypePrVecCItr i = element(set, word);
             return (i != set.end() && i->first == word) ? &i->second : 0;
         }
@@ -321,23 +298,23 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
 
     private:
         //! The value for the bucket.
-        T                  m_BucketElement;
+        T m_BucketElement;
 
         //! The container for named influencer buckets.
-        TWordTypePrVec     m_InfluencerBucketSet;
+        TWordTypePrVec m_InfluencerBucketSet;
 
         //! The container for named influencers.
-        TWordTypePrVec     m_InfluencerSet;
+        TWordTypePrVec m_InfluencerSet;
 
         //! The container for named partitions.
-        TWordTypePrVec     m_PartitionSet;
+        TWordTypePrVec m_PartitionSet;
 
         //! The container for named people.
-        TWordTypePrVec     m_PersonSet;
+        TWordTypePrVec m_PersonSet;
 
         //! The container for leaves comprising distinct named
         //! (partition, person) field name pairs.
-        TWordTypePrVec     m_LeafSet;
+        TWordTypePrVec m_LeafSet;
 };
 
 template<typename T>

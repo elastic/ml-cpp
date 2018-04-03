@@ -120,24 +120,24 @@ class MODEL_EXPORT CStringStore : private core::CNonCopyable {
     private:
         //! Fence for reading operations (in which case we "leak" a string
         //! if we try to write at the same time). See get for details.
-        std::atomic_int          m_Reading;
+        std::atomic_int m_Reading;
 
         //! Fence for writing operations (in which case we "leak" a string
         //! if we try to read at the same time). See get for details.
-        std::atomic_int          m_Writing;
+        std::atomic_int m_Writing;
 
         //! The empty string is often used so we store it outside the set.
-        core::CStoredStringPtr   m_EmptyString;
+        core::CStoredStringPtr m_EmptyString;
 
         //! Set to keep the person/attribute string pointers
-        TStoredStringPtrUSet     m_Strings;
+        TStoredStringPtrUSet m_Strings;
 
         //! A list of the strings to remove.
-        TStrVec                  m_Removed;
+        TStrVec m_Removed;
 
         //! Running count of memory usage by stored strings.  Avoids the need to
         //! recalculate repeatedly.
-        std::size_t              m_StoredStringsMemUse;
+        std::size_t m_StoredStringsMemUse;
 
         //! Locking primitive
         mutable core::CFastMutex m_Mutex;

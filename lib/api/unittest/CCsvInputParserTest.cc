@@ -62,12 +62,14 @@ class CVisitor {
     public:
         CVisitor(void)
             : m_Fast(true),
-              m_RecordCount(0) {}
+              m_RecordCount(0)
+        {}
 
         CVisitor(const ml::api::CCsvInputParser::TStrVec &expectedFieldNames)
             : m_Fast(false),
               m_RecordCount(0),
-              m_ExpectedFieldNames(expectedFieldNames) {}
+              m_ExpectedFieldNames(expectedFieldNames)
+        {}
 
         //! Handle a record
         bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
@@ -108,8 +110,8 @@ class CVisitor {
         }
 
     private:
-        bool                              m_Fast;
-        size_t                            m_RecordCount;
+        bool m_Fast;
+        size_t m_RecordCount;
         ml::api::CCsvInputParser::TStrVec m_ExpectedFieldNames;
 };
 
@@ -124,7 +126,8 @@ class CTimeCheckingVisitor {
             : m_RecordCount(0),
               m_TimeField(timeField),
               m_TimeFormat(timeFormat),
-              m_ExpectedTimes(expectedTimes) {}
+              m_ExpectedTimes(expectedTimes)
+        {}
 
         //! Handle a record
         bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
@@ -141,7 +144,7 @@ class CTimeCheckingVisitor {
             if (m_TimeFormat.empty()) {
                 CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(fieldIter->second,
                                                                     timeVal));
-            } else {
+            } else   {
                 CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(m_TimeFormat,
                                                               fieldIter->second,
                                                               timeVal));
@@ -161,16 +164,17 @@ class CTimeCheckingVisitor {
         }
 
     private:
-        size_t      m_RecordCount;
+        size_t m_RecordCount;
         std::string m_TimeField;
         std::string m_TimeFormat;
-        TTimeVec    m_ExpectedTimes;
+        TTimeVec m_ExpectedTimes;
 };
 
 class CQuoteCheckingVisitor {
     public:
         CQuoteCheckingVisitor(void)
-            : m_RecordCount(0) {}
+            : m_RecordCount(0)
+        {}
 
         //! Handle a record
         bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
@@ -300,7 +304,7 @@ void CCsvInputParserTest::testThroughput(void) {
     }
 
     std::string restOfFile;
-    size_t      nonHeaderLines(0);
+    size_t nonHeaderLines(0);
     while (std::getline(ifs, line).good()) {
         if (line.empty()) {
             break;
@@ -316,7 +320,7 @@ void CCsvInputParserTest::testThroughput(void) {
 
     // Construct a large test input
     static const size_t TEST_SIZE(10000);
-    std::string         input(header);
+    std::string input(header);
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         input += restOfFile;
     }
@@ -474,7 +478,7 @@ void CCsvInputParserTest::testQuoteParsing(void) {
 
 void CCsvInputParserTest::testLineParser(void) {
     ml::api::CCsvInputParser::CCsvLineParser lineParser;
-    std::string                              token;
+    std::string token;
 
     {
         std::string simple{"a,b,c"};

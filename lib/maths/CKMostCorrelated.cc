@@ -74,7 +74,8 @@ class CPairNotIn : public std::unary_function<TPointSizePr, bool> {
     public:
         CPairNotIn(const TSizeSizePrUSet &lookup, std::size_t X) :
             m_Lookup(&lookup),
-            m_X(X) {}
+            m_X(X)
+        {}
 
         bool operator()(const TPointSizePr &y) const {
             std::size_t Y = y.second;
@@ -83,7 +84,7 @@ class CPairNotIn : public std::unary_function<TPointSizePr, bool> {
 
     private:
         const TSizeSizePrUSet *m_Lookup;
-        std::size_t           m_X;
+        std::size_t m_X;
 };
 
 //! \brief Unary predicate to check if a point is closer,
@@ -93,7 +94,8 @@ class CCloserThan : public std::unary_function<TPointSizePr, bool> {
     public:
         CCloserThan(double threshold, const TPoint &x) :
             m_Threshold(threshold),
-            m_X(x) {}
+            m_X(x)
+        {}
 
         bool operator()(const TPointSizePr &y) const {
             return pow2(bg::distance(m_X, y.first)) < m_Threshold;
@@ -266,10 +268,10 @@ void CKMostCorrelated::capture(void) {
     for (TSizeVectorUMapCItr i = m_CurrentProjected.begin();
          i != m_CurrentProjected.end();
          ++i) {
-        std::size_t                         X = i->first;
+        std::size_t X = i->first;
         TSizeVectorPackedBitVectorPrUMapItr j = m_Projected.find(X);
         if (j == m_Projected.end()) {
-            TVector          zero(0.0);
+            TVector zero(0.0);
             CPackedBitVector indicator(PROJECTION_DIMENSION - m_Projections.size(), false);
             j = m_Projected.emplace(boost::unordered::piecewise_construct,
                                     boost::make_tuple(X),
@@ -303,7 +305,7 @@ void CKMostCorrelated::capture(void) {
             const CPackedBitVector &indicator = i->second.second;
             if (indicator.manhattan() <= MINIMUM_FREQUENCY * static_cast<double>(indicator.dimension())) {
                 i = m_Projected.erase(i);
-            } else {
+            } else   {
                 ++i;
             }
         }
@@ -423,7 +425,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
         for (TSizeVectorPackedBitVectorPrUMapCItr x = m_Projected.begin();
              x != m_Projected.end();
              ++x) {
-            std::size_t                          X = x->first;
+            std::size_t X = x->first;
             TSizeVectorPackedBitVectorPrUMapCItr y = x;
             while (++y != m_Projected.end()) {
                 std::size_t Y = y->first;
@@ -434,7 +436,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
                 }
             }
         }
-    } else {
+    } else   {
         LOG_TRACE("Nearest neighbour search");
 
         // 1) Build an r-tree,
@@ -448,7 +450,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
 
         // Bound the correlation based on the sparsity of the metric.
         TMaxDoubleAccumulator fmax;
-        double                dimension = 0.0;
+        double dimension = 0.0;
         for (TSizeVectorPackedBitVectorPrUMapCItr i = m_Projected.begin();
              i != m_Projected.end();
              ++i) {
@@ -483,17 +485,17 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
             CSampling::uniformSample(m_Rng, 0, V, 2 * replace, seeds);
             std::sort(seeds.begin(), seeds.end());
             seeds.erase(std::unique(seeds.begin(), seeds.end()), seeds.end());
-        } else {
+        } else   {
             seeds.reserve(V);
             seeds.assign(boost::counting_iterator<std::size_t>(0),
                          boost::counting_iterator<std::size_t>(V));
         }
 
         try {
-            TPointRTree     rtree(points);
+            TPointRTree rtree(points);
             TPointSizePrVec nearest;
             for (std::size_t i = 0u; i < seeds.size(); ++i) {
-                std::size_t                    X = points[seeds[i]].second;
+                std::size_t X = points[seeds[i]].second;
                 const TVectorPackedBitVectorPr &px = m_Projected.at(X);
 
                 nearest.clear();
@@ -509,12 +511,12 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
                            std::back_inserter(nearest));
 
                 for (std::size_t j = 0u; j < nearest.size(); ++j) {
-                    std::size_t                    n = mostCorrelated.count();
-                    std::size_t                    S = n == desired ? mostCorrelated.biggest().s_X : 0;
-                    std::size_t                    T = n == desired ? mostCorrelated.biggest().s_Y : 0;
-                    std::size_t                    Y = nearest[j].second;
+                    std::size_t n = mostCorrelated.count();
+                    std::size_t S = n == desired ? mostCorrelated.biggest().s_X : 0;
+                    std::size_t T = n == desired ? mostCorrelated.biggest().s_Y : 0;
+                    std::size_t Y = nearest[j].second;
                     const TVectorPackedBitVectorPr &py = m_Projected.at(Y);
-                    SCorrelation                   cxy(X, px.first, px.second, Y, py.first, py.second);
+                    SCorrelation cxy(X, px.first, px.second, Y, py.first, py.second);
                     if (lookup.count(std::make_pair(cxy.s_X, cxy.s_Y)) > 0) {
                         continue;
                     }
@@ -531,10 +533,10 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
 
             for (std::size_t i = 0u; i < points.size(); ++i) {
                 const SCorrelation &biggest = mostCorrelated.biggest();
-                double             threshold = biggest.distance(amax);
+                double threshold = biggest.distance(amax);
                 LOG_TRACE("threshold = " << threshold);
 
-                std::size_t                    X = points[i].second;
+                std::size_t X = points[i].second;
                 const TVectorPackedBitVectorPr &px = m_Projected.at(X);
 
                 TVector width(::sqrt(threshold));
@@ -564,12 +566,12 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
                 LOG_TRACE("# candidates = " << nearest.size());
 
                 for (std::size_t j = 0u; j < nearest.size(); ++j) {
-                    std::size_t                    n = mostCorrelated.count();
-                    std::size_t                    S = n == desired ? mostCorrelated.biggest().s_X : 0;
-                    std::size_t                    T = n == desired ? mostCorrelated.biggest().s_Y : 0;
-                    std::size_t                    Y = nearest[j].second;
+                    std::size_t n = mostCorrelated.count();
+                    std::size_t S = n == desired ? mostCorrelated.biggest().s_X : 0;
+                    std::size_t T = n == desired ? mostCorrelated.biggest().s_Y : 0;
+                    std::size_t Y = nearest[j].second;
                     const TVectorPackedBitVectorPr &py = m_Projected.at(Y);
-                    SCorrelation                   cxy(X, px.first, px.second, Y, py.first, py.second);
+                    SCorrelation cxy(X, px.first, px.second, Y, py.first, py.second);
                     if (lookup.count(std::make_pair(cxy.s_X, cxy.s_Y)) > 0) {
                         continue;
                     }
@@ -581,7 +583,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
                     }
                 }
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ERROR("Failed to compute most correlated " << e.what());
             return;
         }
@@ -632,12 +634,13 @@ const CKMostCorrelated::TMeanVarAccumulatorVec &CKMostCorrelated::moments(void) 
 }
 
 const std::size_t CKMostCorrelated::PROJECTION_DIMENSION = 20u;
-const double      CKMostCorrelated::MINIMUM_SPARSENESS = 0.5;
-const double      CKMostCorrelated::REPLACE_FRACTION = 0.1;
+const double CKMostCorrelated::MINIMUM_SPARSENESS = 0.5;
+const double CKMostCorrelated::REPLACE_FRACTION = 0.1;
 
 CKMostCorrelated::SCorrelation::SCorrelation(void) :
     s_X(std::numeric_limits<std::size_t>::max()),
-    s_Y(std::numeric_limits<std::size_t>::max()) {}
+    s_Y(std::numeric_limits<std::size_t>::max())
+{}
 
 CKMostCorrelated::SCorrelation::SCorrelation(std::size_t X,
                                              const TVector &px,
@@ -658,12 +661,12 @@ bool CKMostCorrelated::SCorrelation::acceptRestoreTraverser(core::CStateRestoreT
                 LOG_ERROR("Invalid correlation in " << traverser.value());
                 return false;
             }
-        } else if (name == X_TAG) {
+        } else if (name == X_TAG)   {
             if (core::CStringUtils::stringToType(traverser.value(), s_X) == false) {
                 LOG_ERROR("Invalid variable in " << traverser.value());
                 return false;
             }
-        } else if (name == Y_TAG) {
+        } else if (name == Y_TAG)   {
             if (core::CStringUtils::stringToType(traverser.value(), s_Y) == false) {
                 LOG_ERROR("Invalid variable in " << traverser.value());
                 return false;
@@ -689,8 +692,8 @@ void CKMostCorrelated::SCorrelation::update(const TSizeVectorPackedBitVectorPrUM
     TSizeVectorPackedBitVectorPrUMapCItr x = projected.find(s_X);
     TSizeVectorPackedBitVectorPrUMapCItr y = projected.find(s_Y);
     if (x != projected.end() && y != projected.end()) {
-        const TVector          &         px = x->second.first;
-        const TVector          &         py = y->second.first;
+        const TVector &px = x->second.first;
+        const TVector &py = y->second.first;
         const CPackedBitVector &ix = x->second.second;
         const CPackedBitVector &iy = y->second.second;
         s_Correlation.add(correlation(px, ix, py, iy));
@@ -758,9 +761,9 @@ double CKMostCorrelated::SCorrelation::correlation(const TVector &px,
 
         if (3.0 * dv < sv) {
             result *= std::max(cdm, 0.0);
-        } else if (3.0 * sv < dv) {
+        } else if (3.0 * sv < dv)   {
             result *= std::min(csm,  0.0);
-        } else {
+        } else   {
             double lambda = dv == 0 ? 1.0 : sv / dv;
             double a = (2.0 + lambda - 1.0) / 4.0;
             double b = (2.0 + 1.0 - lambda) / 4.0;

@@ -105,8 +105,8 @@ class MATHS_EXPORT CJointProbabilityOfLessLikelySamples : private boost::addable
 
     private:
         TOptionalDouble m_OnlyProbability;
-        double          m_Distance;
-        double          m_NumberSamples;
+        double m_Distance;
+        double m_NumberSamples;
 };
 
 MATHS_EXPORT
@@ -229,7 +229,7 @@ class MATHS_EXPORT CProbabilityOfExtremeSample : private boost::addable<CProbabi
 
     private:
         TMinValueAccumulator m_MinValue;
-        double               m_NumberSamples;
+        double m_NumberSamples;
 };
 
 MATHS_EXPORT
@@ -316,7 +316,7 @@ class MATHS_EXPORT CLogProbabilityOfMFromNExtremeSamples : private boost::addabl
 
     private:
         TMinValueAccumulator m_MinValues;
-        std::size_t          m_NumberSamples;
+        std::size_t m_NumberSamples;
 };
 
 }

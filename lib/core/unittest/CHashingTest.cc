@@ -46,7 +46,7 @@ void CHashingTest::testUniversalHash(void) {
     //
     // must hold for a randomly selected member of the family.
 
-    double   tolerances[] = { 1.0, 1.6 };
+    double tolerances[] = { 1.0, 1.6 };
     uint32_t m[] = { 30, 300 };
     uint32_t u[] = { 1000, 10000 };
 
@@ -86,8 +86,8 @@ void CHashingTest::testUniversalHash(void) {
                             / static_cast<double>(n * (n - 1));
 
                 LOG_DEBUG("collisions = " << collisions
-                                          << ", P(collision) = " << pc
-                                          << ", 1/m = " << (1.0 / static_cast<double>(m[i])));
+                          << ", P(collision) = " << pc
+                          << ", 1/m = " << (1.0 / static_cast<double>(m[i])));
 
                 // Note that the definition of universality doesn't require
                 // the P(collision) <= 1/m for every hash function.
@@ -112,7 +112,7 @@ void CHashingTest::testUniversalHash(void) {
     {
         LOG_DEBUG("**** m = " << 10000 << ", U = [" << 10000000 << "] ****");
 
-        boost::random::mt11213b                           generator;
+        boost::random::mt11213b generator;
         boost::random::uniform_int_distribution<uint32_t> uniform(0u, 10000000u);
 
         TUInt32Vec samples;
@@ -130,7 +130,7 @@ void CHashingTest::testUniversalHash(void) {
 
             CHashing::CUniversalHash::CUInt32Hash hash = hashes[h];
 
-            uint32_t     collisions = 0u;
+            uint32_t collisions = 0u;
             TUInt32PrSet uniquePairs;
 
             for (std::size_t i = 0u; i < samples.size(); ++i) {
@@ -153,8 +153,8 @@ void CHashingTest::testUniversalHash(void) {
                         / static_cast<double>(uniquePairs.size());
 
             LOG_DEBUG("collisions = " << collisions
-                                      << ", P(collision) = " << pc
-                                      << ", 1/m = " << (1.0 / 10000.0));
+                      << ", P(collision) = " << pc
+                      << ", 1/m = " << (1.0 / 10000.0));
 
             // Note that the definition of universality doesn't require
             // the P(collision) <= 1/m for every hash function.
@@ -218,26 +218,26 @@ void CHashingTest::testUniversalHash(void) {
 void CHashingTest::testMurmurHash(void) {
     {
         std::string key("This is the voice of the Mysterons!");
-        uint32_t    seed = 0xdead4321;
-        uint32_t    result = CHashing::murmurHash32(key.c_str(), static_cast<int>(key.size()), seed);
+        uint32_t seed = 0xdead4321;
+        uint32_t result = CHashing::murmurHash32(key.c_str(), static_cast<int>(key.size()), seed);
         CPPUNIT_ASSERT_EQUAL(uint32_t(0xEE593473), result);
     }
     {
         std::string key("We know that you can hear us, Earthmen!");
-        uint32_t    seed = 0xffeeeeff;
-        uint32_t    result = CHashing::safeMurmurHash32(key.c_str(), static_cast<int>(key.size()), seed);
+        uint32_t seed = 0xffeeeeff;
+        uint32_t result = CHashing::safeMurmurHash32(key.c_str(), static_cast<int>(key.size()), seed);
         CPPUNIT_ASSERT_EQUAL(uint32_t(0x54837c96), result);
     }
     {
         std::string key("Your message has been analysed and it has been decided to allow one member of Spectrum to meet our representative.");
-        uint64_t    seed = 0xaabbccddffeeeeffULL;
-        uint64_t    result = CHashing::murmurHash64(key.c_str(), static_cast<int>(key.size()), seed);
+        uint64_t seed = 0xaabbccddffeeeeffULL;
+        uint64_t result = CHashing::murmurHash64(key.c_str(), static_cast<int>(key.size()), seed);
         CPPUNIT_ASSERT_EQUAL(uint64_t(14826751455157300659ull), result);
     }
     {
         std::string key("Earthmen, we are peaceful beings and you have tried to destroy us, but you cannot succeed. You and your people will pay for this act of aggression.");
-        uint64_t    seed = 0x1324fedc9876abdeULL;
-        uint64_t    result = CHashing::safeMurmurHash64(key.c_str(), static_cast<int>(key.size()), seed);
+        uint64_t seed = 0x1324fedc9876abdeULL;
+        uint64_t result = CHashing::safeMurmurHash64(key.c_str(), static_cast<int>(key.size()), seed);
         CPPUNIT_ASSERT_EQUAL(uint64_t(7291323361835448266ull), result);
     }
 
@@ -249,14 +249,14 @@ void CHashingTest::testMurmurHash(void) {
     const std::size_t numberStrings = 500000u;
 
     test::CRandomNumbers rng;
-    TStrVec              testStrings;
+    TStrVec testStrings;
     rng.generateWords(stringSize, numberStrings, testStrings);
 
     core::CStopWatch stopWatch;
-    uint64_t         defaultInsertTime = 0;
-    uint64_t         defaultLookupTime = 0;
-    uint64_t         murmurInsertTime = 0;
-    uint64_t         murmurLookupTime = 0;
+    uint64_t defaultInsertTime = 0;
+    uint64_t defaultLookupTime = 0;
+    uint64_t murmurInsertTime = 0;
+    uint64_t murmurLookupTime = 0;
     for (int run = 0; run < 6; ++run) {
         LOG_DEBUG("run = " << run);
 
@@ -302,9 +302,9 @@ void CHashingTest::testMurmurHash(void) {
     }
 
     LOG_DEBUG("default insert runtime = " << defaultInsertTime
-                                          << "ms, murmur insert runtime = " << murmurInsertTime << "ms");
+              << "ms, murmur insert runtime = " << murmurInsertTime << "ms");
     LOG_DEBUG("default lookup runtime = " << defaultLookupTime
-                                          << "ms, murmur lookup runtime = " << murmurLookupTime << "ms");
+              << "ms, murmur lookup runtime = " << murmurLookupTime << "ms");
 
     // The benefits of the murmur hash are mainly at lookup time, so just assert
     // on that, but still log a warning for slower insert time
@@ -320,7 +320,7 @@ void CHashingTest::testMurmurHash(void) {
     CPPUNIT_ASSERT(murmurLookupTime < (defaultLookupTime * 103) / 100);
 
     // Check the number of collisions.
-    TSizeSizeMap                 uniqueHashes;
+    TSizeSizeMap uniqueHashes;
     CHashing::CMurmurHash2String h;
     for (std::size_t i = 0u; i < testStrings.size(); ++i) {
         ++uniqueHashes[h(testStrings[i]) % 3000017];
@@ -354,7 +354,7 @@ void CHashingTest::testHashCombine(void) {
 
     test::CRandomNumbers rng;
 
-    TStrVec  testStrings;
+    TStrVec testStrings;
     TSizeSet uniqueHashes;
     TSizeSet uniqueHashCombines;
     for (std::size_t i = 0u; i < 5u; ++i) {

@@ -92,7 +92,7 @@ void CRegressionTest::testInvariants(void) {
 
         TDoubleVec xs;
         TDoubleVec ys;
-        double     x = 0.0;
+        double x = 0.0;
         for (std::size_t i = 0u; i < n; ++i) {
             x += increments[i];
             double y = curvature * x * x + slope * x + intercept + errors[i];
@@ -116,8 +116,8 @@ void CRegressionTest::testInvariants(void) {
         for (std::size_t j = 0u; j < delta.size(); j += 3) {
             TDoubleArray3 deltaj;
             deltaj[0] = delta[j];
-            deltaj[1] = delta[j+1];
-            deltaj[2] = delta[j+2];
+            deltaj[1] = delta[j + 1];
+            deltaj[2] = delta[j + 2];
 
             double residualj = squareResidual(sum(params, deltaj), xs, ys);
 
@@ -486,7 +486,7 @@ void CRegressionTest::testPrediction(void) {
 
     double pi = 3.14159265358979;
 
-    TMeanAccumulator                           m;
+    TMeanAccumulator m;
     maths::CRegression::CLeastSquaresOnline<1> ls1;
     maths::CRegression::CLeastSquaresOnline<2> ls2;
     maths::CRegression::CLeastSquaresOnline<3> ls3;
@@ -539,10 +539,10 @@ void CRegressionTest::testPrediction(void) {
 
         if (i % 10 == 0) {
             LOG_DEBUG("y = " << y
-                             << ", m = " << maths::CBasicStatistics::mean(m)
-                             << ", y2 = " << y2
-                             << ", y3 = " << y3
-                             << ", y4 = " << y4);
+                      << ", m = " << maths::CBasicStatistics::mean(m)
+                      << ", y2 = " << y2
+                      << ", y3 = " << y3
+                      << ", y4 = " << y4);
         }
 
         em.add((y - maths::CBasicStatistics::mean(m)) * (y - maths::CBasicStatistics::mean(m)));
@@ -552,9 +552,9 @@ void CRegressionTest::testPrediction(void) {
     }
 
     LOG_DEBUG("em = " << maths::CBasicStatistics::mean(em)
-                      << ", e2 = " << maths::CBasicStatistics::mean(e2)
-                      << ", e3 = " << maths::CBasicStatistics::mean(e3)
-                      << ", e4 = " << maths::CBasicStatistics::mean(e4));
+              << ", e2 = " << maths::CBasicStatistics::mean(e2)
+              << ", e3 = " << maths::CBasicStatistics::mean(e3)
+              << ", e4 = " << maths::CBasicStatistics::mean(e4));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e2) < 0.27 * maths::CBasicStatistics::mean(em));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e3) < 0.08 * maths::CBasicStatistics::mean(em));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e4) < 0.025 * maths::CBasicStatistics::mean(em));
@@ -608,10 +608,10 @@ void CRegressionTest::testCombination(void) {
     TDoubleArray3 paramsAPlusB;
     lsAPlusB.parameters(paramsAPlusB);
 
-    LOG_DEBUG("params A     = " <<core::CContainerPrinter::print(paramsA));
-    LOG_DEBUG("params B     = " <<core::CContainerPrinter::print(paramsB));
-    LOG_DEBUG("params       = " <<core::CContainerPrinter::print(params));
-    LOG_DEBUG("params A + B = " <<core::CContainerPrinter::print(paramsAPlusB));
+    LOG_DEBUG("params A     = " << core::CContainerPrinter::print(paramsA));
+    LOG_DEBUG("params B     = " << core::CContainerPrinter::print(paramsB));
+    LOG_DEBUG("params       = " << core::CContainerPrinter::print(params));
+    LOG_DEBUG("params A + B = " << core::CContainerPrinter::print(paramsAPlusB));
 
     for (std::size_t i = 0u; i < params.size(); ++i) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[i], paramsAPlusB[i], 5e-3 * ::fabs(params[i]));
@@ -783,7 +783,8 @@ class CRegressionPrediction {
 
     public:
         CRegressionPrediction(const maths::CRegression::CLeastSquaresOnline<N, double> &regression) :
-            m_Regression(regression) {}
+            m_Regression(regression)
+        {}
 
         bool operator()(double x, double &result) const {
             result = m_Regression.predict(x);
@@ -1030,7 +1031,7 @@ void CRegressionTest::testParameterProcess(void) {
         TMeanAccumulator estimate;
 
         for (std::size_t run = 0u; run < 25; ++run) {
-            maths::CRegression::CLeastSquaresOnline<3, double>                 regression;
+            maths::CRegression::CLeastSquaresOnline<3, double> regression;
             maths::CRegression::CLeastSquaresOnlineParameterProcess<4, double> parameterProcess;
 
             double t = 0.0;
@@ -1038,7 +1039,7 @@ void CRegressionTest::testParameterProcess(void) {
             double v = 5.0;
             double a = 1.0;
             for (std::size_t i = 0u; i < boost::size(intervals); t += intervals[i], ++i) {
-                double     dt = intervals[i];
+                double dt = intervals[i];
                 TDoubleVec da;
                 rng.generateNormalSamples(0.0, variances[test],
                                           static_cast<std::size_t>(dt / 0.05), da);
@@ -1048,7 +1049,7 @@ void CRegressionTest::testParameterProcess(void) {
                     a += da_;
                 }
 
-                bool    sufficientHistoryBeforeUpdate = regression.range() >= 1.0;
+                bool sufficientHistoryBeforeUpdate = regression.range() >= 1.0;
                 TVector paramsDrift(regression.parameters(t + dt));
                 regression.add(t + dt, x);
                 paramsDrift -= TVector(regression.parameters(t + dt));
@@ -1064,7 +1065,7 @@ void CRegressionTest::testParameterProcess(void) {
                 double vt = 0.0;
                 double at = 0.0;
                 for (std::size_t i = 0u; i < 5; ++i) {
-                    double     dt = intervals[i];
+                    double dt = intervals[i];
                     TDoubleVec da;
                     rng.generateNormalSamples(0.0, variances[test],
                                               static_cast<std::size_t>(dt / 0.05), da);
@@ -1080,7 +1081,7 @@ void CRegressionTest::testParameterProcess(void) {
             double interval = std::accumulate(intervals, intervals + 5, 0.0);
             if (run % 5 == 0) {
                 LOG_DEBUG("  " << maths::CBasicStatistics::variance(moments)
-                               << " vs " << parameterProcess.predictionVariance(interval));
+                          << " vs " << parameterProcess.predictionVariance(interval));
             }
             actual.add(maths::CBasicStatistics::variance(moments));
             estimate.add(parameterProcess.predictionVariance(interval));

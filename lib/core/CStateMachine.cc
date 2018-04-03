@@ -43,7 +43,7 @@ const std::string STATES_TAG("b");
 const std::string TRANSITION_FUNCTION_TAG("c");
 
 std::size_t BAD_MACHINE = boost::numeric::bounds<std::size_t>::highest();
-CFastMutex  mutex;
+CFastMutex mutex;
 
 }
 
@@ -83,8 +83,8 @@ CStateMachine CStateMachine::create(const TStrVec &alphabet,
     // doesn't invalidate access to any other existing machine.
 
     SLookupMachine machine(alphabet, states, transitionFunction);
-    std::size_t    size = ms_Machines.size();
-    std::size_t    m    = find(0, size, machine);
+    std::size_t size = ms_Machines.size();
+    std::size_t m    = find(0, size, machine);
     if (m == size || machine != ms_Machines[m]) {
         CScopedFastLock lock(mutex);
         m = find(0, ms_Machines.size(), machine);
@@ -178,26 +178,30 @@ std::size_t CStateMachine::find(std::size_t begin,
 
 CStateMachine::CStateMachine(void) :
     m_Machine(BAD_MACHINE),
-    m_State(0) {}
+    m_State(0)
+{}
 
 CStateMachine::SMachine::SMachine(const TStrVec &alphabet,
                                   const TStrVec &states,
                                   const TSizeVecVec &transitionFunction) :
     s_Alphabet(alphabet),
     s_States(states),
-    s_TransitionFunction(transitionFunction) {}
+    s_TransitionFunction(transitionFunction)
+{}
 
 CStateMachine::SMachine::SMachine(const SMachine &other) :
     s_Alphabet(other.s_Alphabet),
     s_States(other.s_States),
-    s_TransitionFunction(other.s_TransitionFunction) {}
+    s_TransitionFunction(other.s_TransitionFunction)
+{}
 
 CStateMachine::SLookupMachine::SLookupMachine(const TStrVec &alphabet,
                                               const TStrVec &states,
                                               const TSizeVecVec &transitionFunction) :
     s_Alphabet(alphabet),
     s_States(states),
-    s_TransitionFunction(transitionFunction) {}
+    s_TransitionFunction(transitionFunction)
+{}
 
 bool CStateMachine::SLookupMachine::operator==(const SMachine &rhs) const {
     return boost::unwrap_ref(s_TransitionFunction) == rhs.s_TransitionFunction &&

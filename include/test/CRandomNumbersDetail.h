@@ -50,7 +50,7 @@ void CRandomNumbers::generateSamples(RNG &randomNumberGenerator,
 template<typename ITR>
 void CRandomNumbers::random_shuffle(ITR first, ITR last) {
     CUniform0nGenerator rand(m_Generator);
-    auto                d = last - first;
+    auto d = last - first;
     if (d > 1) {
         for (--last; first < last; ++first, --d) {
             auto i = rand(d);
@@ -100,14 +100,14 @@ void CRandomNumbers::generateRandomMultivariateNormals(const TSizeVec &sizes,
 
         Eigen::Matrix<T, N, N> rotation = Eigen::Matrix<T, N, N>::Identity();
         for (std::size_t j = 1u; j < coordinates.size(); j += 2) {
-            double ct = ::cos(thetas[j/2]);
-            double st = ::sin(thetas[j/2]);
+            double ct = ::cos(thetas[j / 2]);
+            double st = ::sin(thetas[j / 2]);
 
             Eigen::Matrix<T, N, N> r = Eigen::Matrix<T, N, N>::Identity();
-            r(coordinates[j/2],   coordinates[j/2])   =  ct;
-            r(coordinates[j/2],   coordinates[j/2+1]) = -st;
-            r(coordinates[j/2+1], coordinates[j/2])   =  st;
-            r(coordinates[j/2+1], coordinates[j/2+1]) =  ct;
+            r(coordinates[j / 2],   coordinates[j / 2])   =  ct;
+            r(coordinates[j / 2],   coordinates[j / 2 + 1]) = -st;
+            r(coordinates[j / 2 + 1], coordinates[j / 2])   =  st;
+            r(coordinates[j / 2 + 1], coordinates[j / 2 + 1]) =  ct;
             rotation *= r;
         }
         covariance = rotation.transpose() * covariance * rotation;

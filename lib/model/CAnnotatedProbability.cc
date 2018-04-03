@@ -45,7 +45,8 @@ SAttributeProbability::SAttributeProbability(void) :
     s_Cid(0),
     s_Probability(1.0),
     s_Type(model_t::CResultType::E_Unconditional),
-    s_Feature(model_t::E_IndividualCountByBucketAndPerson) {}
+    s_Feature(model_t::E_IndividualCountByBucketAndPerson)
+{}
 
 SAttributeProbability::SAttributeProbability(std::size_t cid,
                                              const core::CStoredStringPtr &attribute,
@@ -60,7 +61,8 @@ SAttributeProbability::SAttributeProbability(std::size_t cid,
     s_Type(type),
     s_Feature(feature),
     s_CorrelatedAttributes(correlatedAttributes),
-    s_Correlated(correlated) {}
+    s_Correlated(correlated)
+{}
 
 bool SAttributeProbability::operator<(const SAttributeProbability &other) const {
     return maths::COrderings::lexicographical_compare(s_Probability,
@@ -95,28 +97,28 @@ bool SAttributeProbability::acceptRestoreTraverser(core::CStateRestoreTraverser 
         const std::string &name = traverser.name();
         if (name == ATTRIBUTE_TAG) {
             s_Attribute = CStringStore::names().get(traverser.value());
-        } else if (name == ANOMALY_TYPE_TAG) {
+        } else if (name == ANOMALY_TYPE_TAG)   {
             unsigned int type;
             if (!core::CStringUtils::stringToType(traverser.value(), type)) {
                 LOG_ERROR("Failed to restore " << traverser.name() << " / " << traverser.value());
                 return false;
             }
             s_Type = model_t::CResultType(type);
-        } else if (name == CORRELATED_ATTRIBUTE_TAG) {
+        } else if (name == CORRELATED_ATTRIBUTE_TAG)   {
             s_CorrelatedAttributes.push_back(CStringStore::names().get(traverser.value()));
-        } else if (name == PROBABILITY_TAG) {
+        } else if (name == PROBABILITY_TAG)   {
             if (!core::CPersistUtils::restore(PROBABILITY_TAG, s_Probability, traverser)) {
                 LOG_ERROR("Failed to restore " << traverser.name() << " / " << traverser.value());
                 return false;
             }
-        } else if (name == FEATURE_TAG) {
+        } else if (name == FEATURE_TAG)   {
             std::size_t feature;
             if (!core::CPersistUtils::restore(FEATURE_TAG, feature, traverser)) {
                 LOG_ERROR("Failed to restore " << traverser.name() << " / " << traverser.value());
                 return false;
             }
             s_Feature =  model_t::EFeature(feature);
-        } else if (name == DESCRIPTIVE_DATA_TAG) {
+        } else if (name == DESCRIPTIVE_DATA_TAG)   {
             using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
             TSizeDoublePrVec data;
             if (!core::CPersistUtils::restore(DESCRIPTIVE_DATA_TAG, data, traverser)) {
@@ -127,12 +129,12 @@ bool SAttributeProbability::acceptRestoreTraverser(core::CStateRestoreTraverser 
             for (const auto &data_ : data) {
                 s_DescriptiveData.emplace_back(annotated_probability::EDescriptiveData(data_.first), data_.second);
             }
-        } else if (name == CURRENT_BUCKET_VALUE_TAG) {
+        } else if (name == CURRENT_BUCKET_VALUE_TAG)   {
             if (!core::CPersistUtils::restore(CURRENT_BUCKET_VALUE_TAG, s_CurrentBucketValue, traverser)) {
                 LOG_ERROR("Failed to restore " << traverser.name() << " / " << traverser.value());
                 return false;
             }
-        } else if (name == BASELINE_BUCKET_MEAN_TAG) {
+        } else if (name == BASELINE_BUCKET_MEAN_TAG)   {
             if (!core::CPersistUtils::restore(BASELINE_BUCKET_MEAN_TAG, s_BaselineBucketMean, traverser)) {
                 LOG_ERROR("Failed to restore " << traverser.name() << " / " << traverser.value());
                 return false;
@@ -148,11 +150,13 @@ void SAttributeProbability::addDescriptiveData(annotated_probability::EDescripti
 
 SAnnotatedProbability::SAnnotatedProbability(void) :
     s_Probability(1.0),
-    s_ResultType(model_t::CResultType::E_Final) {}
+    s_ResultType(model_t::CResultType::E_Final)
+{}
 
 SAnnotatedProbability::SAnnotatedProbability(double p) :
     s_Probability(p),
-    s_ResultType(model_t::CResultType::E_Final) {}
+    s_ResultType(model_t::CResultType::E_Final)
+{}
 
 void SAnnotatedProbability::addDescriptiveData(annotated_probability::EDescriptiveData key, double value) {
     s_DescriptiveData.emplace_back(key, value);
@@ -192,41 +196,41 @@ bool SAnnotatedProbability::isInterim(void) const {
 
 bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
     do {
-        const std::string      &    name = traverser.name();
+        const std::string &name = traverser.name();
         core::CStoredStringPtr influencerName;
         core::CStoredStringPtr influencerValue;
-        double                 d;
+        double d;
 
         if (name == PROBABILITY_TAG) {
             if (!core::CPersistUtils::restore(PROBABILITY_TAG, s_Probability, traverser)) {
                 LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
                 return false;
             }
-        } else if (name == ATTRIBUTE_PROBABILITIES_TAG) {
+        } else if (name == ATTRIBUTE_PROBABILITIES_TAG)   {
             if (!core::CPersistUtils::restore(ATTRIBUTE_PROBABILITIES_TAG,
                                               s_AttributeProbabilities,
                                               traverser)) {
                 LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
                 return false;
             }
-        } else if (name == INFLUENCE_NAME_TAG) {
+        } else if (name == INFLUENCE_NAME_TAG)   {
             influencerName = CStringStore::influencers().get(traverser.value());
-        } else if (name == INFLUENCE_VALUE_TAG) {
+        } else if (name == INFLUENCE_VALUE_TAG)   {
             influencerValue = CStringStore::influencers().get(traverser.value());
-        } else if (name == INFLUENCE_TAG) {
+        } else if (name == INFLUENCE_TAG)   {
             if (!core::CStringUtils::stringToType(traverser.value(), d)) {
                 LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
                 return false;
             }
             s_Influences.emplace_back(TStoredStringPtrStoredStringPtrPr(influencerName, influencerValue), d);
-        } else if (name == CURRENT_BUCKET_COUNT_TAG) {
+        } else if (name == CURRENT_BUCKET_COUNT_TAG)   {
             uint64_t i;
             if (!core::CPersistUtils::restore(CURRENT_BUCKET_COUNT_TAG, i, traverser)) {
                 LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
                 return false;
             }
             s_CurrentBucketCount.reset(i);
-        } else if (name == BASELINE_BUCKET_COUNT_TAG) {
+        } else if (name == BASELINE_BUCKET_COUNT_TAG)   {
             if (!core::CPersistUtils::restore(BASELINE_BUCKET_COUNT_TAG, d, traverser)) {
                 LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
                 return false;

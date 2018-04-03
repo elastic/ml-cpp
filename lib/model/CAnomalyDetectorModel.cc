@@ -197,9 +197,9 @@ void CAnomalyDetectorModel::sampleBucketStatistics(core_t::TTime startTime,
                                                    core_t::TTime endTime,
                                                    CResourceMonitor & /*resourceMonitor*/) {
     const CDataGatherer &gatherer{this->dataGatherer()};
-    core_t::TTime       bucketLength{this->bucketLength()};
+    core_t::TTime bucketLength{this->bucketLength()};
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
-        const auto  &counts = gatherer.bucketCounts(time);
+        const auto &counts = gatherer.bucketCounts(time);
         std::size_t totalBucketCount{0u};
         for (const auto &count : counts) {
             totalBucketCount += CDataGatherer::extractData(count);
@@ -217,7 +217,7 @@ void CAnomalyDetectorModel::sample(core_t::TTime startTime,
 
     core_t::TTime bucketLength{this->bucketLength()};
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
-        const auto  &counts = gatherer.bucketCounts(time);
+        const auto &counts = gatherer.bucketCounts(time);
         std::size_t totalBucketCount{0u};
 
         TSizeUSet uniquePeople;
@@ -276,14 +276,13 @@ bool CAnomalyDetectorModel::addResults(int detector,
             this->computeProbability(pid, startTime, endTime, partitioningFields,
                                      numberAttributeProbabilities, annotatedProbability);
             results.addSimpleCountResult(annotatedProbability, this, startTime);
-        } else {
+        } else   {
             LOG_TRACE("AddResult, for time [" << startTime << "," << endTime << ")");
             partitioningFields.back().second = boost::cref(this->personName(pid));
             std::for_each(m_DataGatherer->beginInfluencers(),
                           m_DataGatherer->endInfluencers(),
-                          [&results] (const std::string &influencer) {
-                        results.addInfluencer(influencer);
-                    });
+                          [&results] (const std::string &influencer)
+                          { results.addInfluencer(influencer); });
             SAnnotatedProbability annotatedProbability;
             annotatedProbability.s_ResultType = results.resultType();
             if (this->computeProbability(pid, startTime, endTime, partitioningFields,
@@ -384,7 +383,7 @@ std::size_t CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate(std::si
         return estimate.get();
     }
 
-    std::size_t                       computed{this->computeMemoryUsage()};
+    std::size_t computed{this->computeMemoryUsage()};
     CMemoryUsageEstimator::TSizeArray predictors;
     predictors[CMemoryUsageEstimator::E_People]       = numberPeople;
     predictors[CMemoryUsageEstimator::E_Attributes]   = numberAttributes;
@@ -436,10 +435,10 @@ const CInfluenceCalculator *CAnomalyDetectorModel::influenceCalculator(model_t::
         return 0;
     }
     const TFeatureInfluenceCalculatorCPtrPrVec &calculators{m_InfluenceCalculators[iid]};
-    auto                                       result = std::lower_bound(calculators.begin(),
-                                                                         calculators.end(),
-                                                                         feature,
-                                                                         maths::COrderings::SFirstLess());
+    auto result = std::lower_bound(calculators.begin(),
+                                   calculators.end(),
+                                   feature,
+                                   maths::COrderings::SFirstLess());
     return result != calculators.end() && result->first == feature ? result->second.get() : 0;
 }
 
@@ -527,17 +526,18 @@ maths::CModel *CAnomalyDetectorModel::tinyModel(void) {
     return new maths::CModelStub;
 }
 
-const std::size_t   CAnomalyDetectorModel::MAXIMUM_PERMITTED_AGE(1000000);
+const std::size_t CAnomalyDetectorModel::MAXIMUM_PERMITTED_AGE(1000000);
 const core_t::TTime CAnomalyDetectorModel::TIME_UNSET(-1);
-const std::string   CAnomalyDetectorModel::EMPTY_STRING;
+const std::string CAnomalyDetectorModel::EMPTY_STRING;
 
 
 CAnomalyDetectorModel::SFeatureModels::SFeatureModels(model_t::EFeature feature, TMathsModelPtr newModel) :
-    s_Feature(feature), s_NewModel(newModel) {}
+    s_Feature(feature), s_NewModel(newModel)
+{}
 
 bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelParams &params_,
                                                                    core::CStateRestoreTraverser &traverser) {
-    maths_t::EDataType         dataType{s_NewModel->dataType()};
+    maths_t::EDataType dataType{s_NewModel->dataType()};
     maths::SModelRestoreParams params{s_NewModel->params(),
                                       maths::STimeSeriesDecompositionRestoreParams{
                                           CAnomalyDetectorModelConfig::trendDecayRate(params_.s_DecayRate,
@@ -584,13 +584,14 @@ CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(model_t:
                                                                         TCorrelationsPtr model) :
     s_Feature(feature),
     s_ModelPrior(modelPrior),
-    s_Models(model->clone()) {}
+    s_Models(model->clone())
+{}
 
 bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(const SModelParams &params_,
                                                                             core::CStateRestoreTraverser &traverser) {
-    maths_t::EDataType                dataType{s_ModelPrior->dataType()};
+    maths_t::EDataType dataType{s_ModelPrior->dataType()};
     maths::SDistributionRestoreParams params{params_.distributionRestoreParams(dataType)};
-    std::size_t                       count{0u};
+    std::size_t count{0u};
     do {
         if (traverser.name() == MODEL_TAG) {
             if (  !traverser.traverseSubLevel(boost::bind(&maths::CTimeSeriesCorrelations::acceptRestoreTraverser,
@@ -630,7 +631,8 @@ CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::CTimeSeriesCorrelateM
     m_ResourceMonitor(&resourceMonitor),
     m_MemoryUsage(memoryUsage),
     m_ResourceLimit(resourceLimit),
-    m_MaxNumberCorrelations(maxNumberCorrelations) {}
+    m_MaxNumberCorrelations(maxNumberCorrelations)
+{}
 
 bool CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::areAllocationsAllowed(void) const
 {

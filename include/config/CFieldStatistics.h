@@ -91,19 +91,19 @@ class CONFIG_EXPORT CFieldStatistics {
         TAutoconfigurerParamsCRef m_Params;
 
         //! The field name.
-        std::string               m_FieldName;
+        std::string m_FieldName;
 
         //! The number of examples added.
-        uint64_t                  m_NumberExamples;
+        uint64_t m_NumberExamples;
 
         //! A buffer of the records before the field has been classified.
-        TTimeStrPrVec             m_Buffer;
+        TTimeStrPrVec m_Buffer;
 
         //! Deduces the data semantics.
-        CDataSemantics            m_Semantics;
+        CDataSemantics m_Semantics;
 
         //! Computes the summary statistics.
-        TDataSummaryStatistics    m_SummaryStatistics;
+        TDataSummaryStatistics m_SummaryStatistics;
 };
 
 }

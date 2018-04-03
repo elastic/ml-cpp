@@ -135,7 +135,7 @@ bool CCmdLineParser::parse(int argc,
             "Optional flag to enable per partition normalization")
         ;
 
-        boost::program_options::variables_map  vm;
+        boost::program_options::variables_map vm;
         boost::program_options::parsed_options parsed =
             boost::program_options::command_line_parser(argc, argv).options(desc).allow_unregistered().run();
         boost::program_options::store(parsed, vm);
@@ -146,8 +146,8 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("version") > 0) {
             std::cerr << "Model State Version " << model::CAnomalyDetector::STATE_VERSION << std::endl
-                      << "Quantile State Version " << model::CAnomalyScore::CURRENT_FORMAT_VERSION << std::endl
-                      << ver::CBuildInfo::fullInfo() << std::endl;
+            << "Quantile State Version " << model::CAnomalyScore::CURRENT_FORMAT_VERSION << std::endl
+            << ver::CBuildInfo::fullInfo() << std::endl;
             return false;
         }
         if (vm.count("limitconfig") > 0) {
@@ -249,7 +249,7 @@ bool CCmdLineParser::parse(int argc,
 
         boost::program_options::collect_unrecognized(parsed.options,
                                                      boost::program_options::include_positional).swap(clauseTokens);
-    } catch (std::exception &e) {
+    } catch (std::exception &e)   {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
     }

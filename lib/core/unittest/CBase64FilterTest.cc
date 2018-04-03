@@ -45,7 +45,8 @@ class CMockSource {
         {};
 
     public:
-        CMockSource(const std::string &s) : m_Data(s), m_Read(0) {}
+        CMockSource(const std::string &s) : m_Data(s), m_Read(0)
+        { }
 
         std::streamsize read(char* s, std::streamsize n) {
             if (m_Read >= std::streamsize(m_Data.size())) {
@@ -58,10 +59,11 @@ class CMockSource {
             return toCopy;
         }
 
-        void close(void) {}
+        void close(void)
+        {}
 
     private:
-        std::string     m_Data;
+        std::string m_Data;
         std::streamsize m_Read;
 };
 
@@ -77,14 +79,16 @@ class CMockSink {
         {};
 
     public:
-        CMockSink() {}
+        CMockSink()
+        {}
 
         std::streamsize write(const char* s, std::streamsize n) {
             m_Data.append(s, n);
             return n;
         }
 
-        void close(void) {}
+        void close(void)
+        {}
 
         const std::string getData(void) const {
             return m_Data;
@@ -112,7 +116,7 @@ void testEncodeDecode(const std::string &input) {
         filter.push(boost::ref(source));
 
         std::istreambuf_iterator<char> eos;
-        std::string                    s(std::istreambuf_iterator<char>(filter), eos);
+        std::string s(std::istreambuf_iterator<char>(filter), eos);
         CPPUNIT_ASSERT_EQUAL(input, s);
     }
 }
@@ -174,24 +178,24 @@ void CBase64FilterTest::testDecode(void) {
                                "other animals, which is a lust of the mind, that by a perseverance of delight "
                                "in the continued and indefatigable generation of knowledge, exceeds the short "
                                "vehemence of any carnal pleasure.";
-        CMockSource    source(encoded);
+        CMockSource source(encoded);
         TFilteredInput filter;
         filter.push(CBase64Decoder());
         filter.push(boost::ref(source));
         std::istreambuf_iterator<char> eos;
-        std::string                    s(std::istreambuf_iterator<char>(filter), eos);
+        std::string s(std::istreambuf_iterator<char>(filter), eos);
         CPPUNIT_ASSERT_EQUAL(expected, s);
     }
     {
         // Test decoding
-        std::string    encoded = "0";
-        std::string    expected = "";
-        CMockSource    source(encoded);
+        std::string encoded = "0";
+        std::string expected = "";
+        CMockSource source(encoded);
         TFilteredInput filter;
         filter.push(CBase64Decoder());
         filter.push(boost::ref(source));
         std::istreambuf_iterator<char> eos;
-        std::string                    s(std::istreambuf_iterator<char>(filter), eos);
+        std::string s(std::istreambuf_iterator<char>(filter), eos);
         CPPUNIT_ASSERT_EQUAL(expected, s);
     }
 }
@@ -210,8 +214,8 @@ void CBase64FilterTest::testBoth(void) {
         ::testEncodeDecode("OneTwoThreeFourFiveSixSevenEightNineTen");
     }
     {
-        TRandom       rng(3632638936UL);
-        TGenerator    generator(rng, TDistribution(0, 255));
+        TRandom rng(3632638936UL);
+        TGenerator generator(rng, TDistribution(0, 255));
         TGeneratorItr randItr(&generator);
 
         std::ostringstream ss;

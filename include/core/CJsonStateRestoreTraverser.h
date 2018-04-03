@@ -168,19 +168,19 @@ class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser {
         rapidjson::IStreamWrapper m_ReadStream;
 
         //! JSON reader
-        rapidjson::Reader         m_Reader;
+        rapidjson::Reader m_Reader;
 
-        SRapidJsonHandler         m_Handler;
+        SRapidJsonHandler m_Handler;
 
         //! Flag to indicate whether we've started parsing
-        bool                      m_Started;
+        bool m_Started;
 
         //! Which level within the JSON structure do we want to be getting
         //! values from?
-        size_t                    m_DesiredLevel;
+        size_t m_DesiredLevel;
 
         //! If the first token is an '[' then we are parsing an array of objects
-        bool                      m_IsArrayOfObjects;
+        bool m_IsArrayOfObjects;
 };
 
 

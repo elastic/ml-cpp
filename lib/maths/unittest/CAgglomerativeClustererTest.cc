@@ -44,7 +44,8 @@ class CCluster {
     public:
         explicit CCluster(std::size_t p) :
             m_Height(0.0),
-            m_Points(1, p) {}
+            m_Points(1, p)
+        {}
 
         void swap(CCluster &other) {
             m_Points.swap(other.m_Points);
@@ -78,7 +79,7 @@ class CCluster {
         explicit CCluster(void) : m_Height(0.0) {}
 
     private:
-        double   m_Height;
+        double m_Height;
         TSizeVec m_Points;
 };
 
@@ -87,10 +88,11 @@ typedef std::vector<CCluster> TClusterVec;
 class CSlinkObjective {
     public:
         CSlinkObjective(const TDoubleVecVec &distanceMatrix) :
-            m_DistanceMatrix(&distanceMatrix) {}
+            m_DistanceMatrix(&distanceMatrix)
+        {}
 
         double operator()(const CCluster &lhs, const CCluster &rhs) {
-            double         result = std::numeric_limits<double>::max();
+            double result = std::numeric_limits<double>::max();
             const TSizeVec &lp = lhs.points();
             const TSizeVec &rp = rhs.points();
             for (std::size_t i = 0u; i < lp.size(); ++i) {
@@ -113,10 +115,11 @@ class CSlinkObjective {
 class CClinkObjective {
     public:
         CClinkObjective(const TDoubleVecVec &distanceMatrix) :
-            m_DistanceMatrix(&distanceMatrix) {}
+            m_DistanceMatrix(&distanceMatrix)
+        {}
 
         double operator()(const CCluster &lhs, const CCluster &rhs) {
-            double         result = -std::numeric_limits<double>::max();
+            double result = -std::numeric_limits<double>::max();
             const TSizeVec &lp = lhs.points();
             const TSizeVec &rp = rhs.points();
             for (std::size_t i = 0u; i < lp.size(); ++i) {
@@ -152,12 +155,12 @@ TClusterVec agglomerativeCluster(const TDoubleVecVec &distanceMatrix) {
     tree.reserve(n);
 
     while (clusters.size() > 1) {
-        double      fmin = std::numeric_limits<double>::max();
+        double fmin = std::numeric_limits<double>::max();
         std::size_t mi = 0;
         std::size_t mj = 0;
 
         for (std::size_t i = 0u; i < clusters.size(); ++i) {
-            for (std::size_t j = i+1; j < clusters.size(); ++j) {
+            for (std::size_t j = i + 1; j < clusters.size(); ++j) {
                 double fij = f(clusters[i], clusters[j]);
                 if (fij < fmin) {
                     fmin = fij;
@@ -276,7 +279,7 @@ void CAgglomerativeClustererTest::testNode(void) {
         root.clusteringAt(heights[h], clusters);
         std::sort(clusters.begin(), clusters.end());
         LOG_DEBUG("Clusters at " << heights[h]
-                                 << " are " << core::CContainerPrinter::print(clusters));
+                  << " are " << core::CContainerPrinter::print(clusters));
         CPPUNIT_ASSERT_EQUAL(expected[h - 5], core::CContainerPrinter::print(clusters));
     }
 }
@@ -286,7 +289,7 @@ void CAgglomerativeClustererTest::testSimplePermutations(void) {
     LOG_DEBUG("|  CAgglomerativeClustererTest::testSimplePermutations  |");
     LOG_DEBUG("+-------------------------------------------------------+");
 
-    double      x[]    = { 1.0, 3.2, 4.5, 7.8 };
+    double x[]    = { 1.0, 3.2, 4.5, 7.8 };
     std::size_t n = boost::size(x);
 
     maths::CAgglomerativeClusterer::EObjective objectives[] =
@@ -347,7 +350,7 @@ void CAgglomerativeClustererTest::testDegenerate(void) {
     LOG_DEBUG("|  CAgglomerativeClustererTest::testDegenerate  |");
     LOG_DEBUG("+-----------------------------------------------+");
 
-    double      x[]      = { 1.0, 3.2, 3.2, 3.2, 4.5, 7.8 };
+    double x[]      = { 1.0, 3.2, 3.2, 3.2, 4.5, 7.8 };
     std::size_t n   = boost::size(x);
 
     maths::CAgglomerativeClusterer::EObjective objectives[] =

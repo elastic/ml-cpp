@@ -51,17 +51,17 @@ int main(int argc, char **argv) {
     // Read command line options
     std::string logProperties;
     std::string logPipe;
-    char        delimiter(',');
-    bool        lengthEncodedInput(false);
+    char delimiter(',');
+    bool lengthEncodedInput(false);
     std::string timeField("time");
     std::string timeFormat;
     std::string configFile;
     std::string inputFileName;
-    bool        isInputFileNamedPipe(false);
+    bool isInputFileNamedPipe(false);
     std::string outputFileName;
-    bool        isOutputFileNamedPipe(false);
-    bool        verbose(false);
-    bool        writeDetectorConfigs(false);
+    bool isOutputFileNamedPipe(false);
+    bool verbose(false);
+    bool writeDetectorConfigs(false);
     if (ml::autoconfig::CCmdLineParser::parse(argc,
                                               argv,
                                               logProperties,
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
     TScopedInputParserP inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    } else {
+    } else   {
         inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(), delimiter));
     }
 

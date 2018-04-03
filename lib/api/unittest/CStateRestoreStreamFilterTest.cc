@@ -63,7 +63,7 @@ void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte(void) {
     input << "{\"index\":{\"_id\":\"some_id\"}}\n";
     input << "{\"compressed\" : [ \"a\",\"b\"]}\n";
     input << '\0';
-    input <<"{\"index\":{\"_id\":\"some_other_id\"}}\n";
+    input << "{\"index\":{\"_id\":\"some_other_id\"}}\n";
     input << "{\"compressed\" : [ \"c\",\"d\"]}\n";
 
     boost::iostreams::filtering_istream in;

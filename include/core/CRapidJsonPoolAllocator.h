@@ -47,7 +47,8 @@ class CRapidJsonPoolAllocator {
         using TDocumentPtrVec  = std::vector<TDocumentPtr>;
     public:
         CRapidJsonPoolAllocator()
-            : m_JsonPoolAllocator(m_FixedBuffer, FIXED_BUFFER_SIZE) {}
+            : m_JsonPoolAllocator(m_FixedBuffer, FIXED_BUFFER_SIZE)
+        {}
 
         ~CRapidJsonPoolAllocator() {
             this->clear();
@@ -79,17 +80,17 @@ class CRapidJsonPoolAllocator {
 
     private:
         //! Size of the fixed buffer to allocate
-        static const size_t               FIXED_BUFFER_SIZE = 4096;
+        static const size_t FIXED_BUFFER_SIZE = 4096;
 
     private:
         //! fixed size memory buffer used to optimize allocator performance
-        char                              m_FixedBuffer[FIXED_BUFFER_SIZE];
+        char m_FixedBuffer[FIXED_BUFFER_SIZE];
 
         //! memory pool to use for allocating rapidjson objects
         rapidjson::MemoryPoolAllocator<>  m_JsonPoolAllocator;
 
         //! Container used to persist rapidjson documents
-        TDocumentPtrVec                   m_JsonDocumentStore;
+        TDocumentPtrVec m_JsonDocumentStore;
 };
 
 }

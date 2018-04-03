@@ -75,9 +75,11 @@ class CBlockingMessageQueue {
               m_ConsumerCondition(m_Mutex),
               m_Receiver(receiver),
               m_Queue(QUEUE_CAPACITY),
-              m_ShutdownFunc(shutdownFunc) {}
+              m_ShutdownFunc(shutdownFunc)
+        {}
 
-        virtual ~CBlockingMessageQueue(void) {}
+        virtual ~CBlockingMessageQueue(void)
+        {}
 
         //! Initialise - create the receiving thread
         bool start(void) {
@@ -151,7 +153,8 @@ class CBlockingMessageQueue {
 
     private:
         //! No-op shutdown function if no other is provided
-        static void defaultShutdownFunc(void) {}
+        static void defaultShutdownFunc(void)
+        {}
 
     private:
         class CMessageQueueThread : public CThread {
@@ -161,7 +164,8 @@ class CBlockingMessageQueue {
                                                           QUEUE_CAPACITY> &messageQueue)
                     : m_MessageQueue(messageQueue),
                       m_ShuttingDown(false),
-                      m_IsRunning(false) {}
+                      m_IsRunning(false)
+                {}
 
                 //! The queue must have the mutex for this to be called
                 bool isRunning(void) const {
@@ -247,14 +251,14 @@ class CBlockingMessageQueue {
                 CBlockingMessageQueue<MESSAGE,
                                       RECEIVER,
                                       QUEUE_CAPACITY> &m_MessageQueue;
-                bool                                  m_ShuttingDown;
-                bool                                  m_IsRunning;
+                bool m_ShuttingDown;
+                bool m_IsRunning;
         };
 
         CMessageQueueThread m_Thread;
-        mutable CMutex      m_Mutex;
-        CCondition          m_ProducerCondition;
-        CCondition          m_ConsumerCondition;
+        mutable CMutex m_Mutex;
+        CCondition m_ProducerCondition;
+        CCondition m_ConsumerCondition;
         RECEIVER            &m_Receiver;
 
         //! Using a circular buffer for the queue means that it will not do any
@@ -265,7 +269,7 @@ class CBlockingMessageQueue {
         TMessageCircBuf m_Queue;
 
         //! Function to be called on queue shutdown
-        TShutdownFunc   m_ShutdownFunc;
+        TShutdownFunc m_ShutdownFunc;
 
         friend class CMessageQueueThread;
 };

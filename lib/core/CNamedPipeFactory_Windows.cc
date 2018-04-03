@@ -140,7 +140,7 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
     // tolerate a test character appearing at the beginning of the data it
     // receives.  We use a newline character, as the named pipes carry lineified
     // JSON and it's easy to make them tolerate blank lines.
-    bool  sufferedShortLivedConnection(false);
+    bool sufferedShortLivedConnection(false);
     DWORD attempt(0);
     do {
         ++attempt;
@@ -174,7 +174,7 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
                       0) == FALSE || bytesWritten == 0) {
             DisconnectNamedPipe(handle);
             sufferedShortLivedConnection = true;
-        } else {
+        } else   {
             sufferedShortLivedConnection = false;
         }
     } while (sufferedShortLivedConnection);

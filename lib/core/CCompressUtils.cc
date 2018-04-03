@@ -120,7 +120,7 @@ bool CCompressUtils::doCompress(bool finish, const std::string &str) {
     m_ZlibStrm.avail_in = static_cast<uInt>(str.size());
 
     static const size_t CHUNK_SIZE = 4096;
-    Bytef               out[CHUNK_SIZE];
+    Bytef out[CHUNK_SIZE];
 
     int flush(finish ? Z_FINISH : Z_NO_FLUSH);
     do {

@@ -57,9 +57,9 @@ TDoubleVec multiscaleRandomWalk(test::CRandomNumbers &rng,
     rng.generateNormalSamples(0.0, 1.0, buckets, noise[2]);
     rng.generateNormalSamples(0.0, 5.0, buckets, noise[3]);
     for (core_t::TTime i = 1; i < buckets; ++i) {
-        noise[0][i] = 0.998 * noise[0][i-1] + 0.002 * noise[0][i];
-        noise[1][i] = 0.99  * noise[1][i-1] + 0.01  * noise[1][i];
-        noise[2][i] = 0.9   * noise[2][i-1] + 0.1   * noise[2][i];
+        noise[0][i] = 0.998 * noise[0][i - 1] + 0.002 * noise[0][i];
+        noise[1][i] = 0.99  * noise[1][i - 1] + 0.01  * noise[1][i];
+        noise[2][i] = 0.9   * noise[2][i - 1] + 0.1   * noise[2][i];
     }
 
     TDoubleVec result;
@@ -192,7 +192,7 @@ void CTrendComponentTest::testValueAndVariance() {
 
     TDoubleVec values(multiscaleRandomWalk(rng, bucketLength, start, end));
 
-    maths::CTrendComponent      component{0.012};
+    maths::CTrendComponent component{0.012};
     maths::CDecayRateController controller(  maths::CDecayRateController::E_PredictionBias
                                              | maths::CDecayRateController::E_PredictionErrorIncrease, 1);
 
@@ -240,8 +240,8 @@ void CTrendComponentTest::testDecayRate() {
 
     TDoubleVec values(multiscaleRandomWalk(rng, bucketLength, start, end));
 
-    maths::CTrendComponent      component{0.012};
-    TRegression                 regression;
+    maths::CTrendComponent component{0.012};
+    TRegression regression;
     maths::CDecayRateController controller(  maths::CDecayRateController::E_PredictionBias
                                              | maths::CDecayRateController::E_PredictionErrorIncrease, 1);
 

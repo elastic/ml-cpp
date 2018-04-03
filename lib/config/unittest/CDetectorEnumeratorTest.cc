@@ -42,9 +42,9 @@ void CDetectorEnumeratorTest::testAll(void) {
     LOG_DEBUG("|  CDetectorEnumeratorTest::testAll  |");
     LOG_DEBUG("+------------------------------------+");
 
-    std::string                   empty;
+    std::string empty;
     config::CAutoconfigurerParams params(empty, empty, false, false);
-    config::CDetectorEnumerator   enumerator(params);
+    config::CDetectorEnumerator enumerator(params);
 
     enumerator.addFunction(config_t::E_Count);
     enumerator.addFunction(config_t::E_DistinctCount);

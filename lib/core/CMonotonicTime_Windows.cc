@@ -30,7 +30,7 @@ CMonotonicTime::CMonotonicTime(void)
     LARGE_INTEGER largeInt;
     if (QueryPerformanceFrequency(&largeInt) == FALSE) {
         LOG_WARN("High frequency performance counters not available");
-    } else {
+    } else   {
         // The high frequency counter ticks this many times per second
         m_ScalingFactor1 = static_cast<uint64_t>(largeInt.QuadPart);
     }

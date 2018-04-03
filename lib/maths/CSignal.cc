@@ -97,7 +97,7 @@ void CSignal::fft(TComplexVec &f) {
 
     if ((m >> 1) == n) {
         radix2fft(f);
-    } else {
+    } else   {
         // We use Bluestein's trick to reformulate as a convolution
         // which can be computed by padding to a power of 2.
 
@@ -160,8 +160,8 @@ double CSignal::autocorrelation(std::size_t offset, TFloatMeanAccumulatorCRng va
     TMeanAccumulator autocorrelation;
     for (std::size_t i = 0u; i < values.size(); ++i) {
         std::size_t j = (i + offset) % n;
-        double      ni = CBasicStatistics::count(values[i]);
-        double      nj = CBasicStatistics::count(values[j]);
+        double ni = CBasicStatistics::count(values[i]);
+        double nj = CBasicStatistics::count(values[j]);
         if (ni > 0.0 && nj > 0.0) {
             autocorrelation.add(  (CBasicStatistics::mean(values[i]) - mean)
                                   * (CBasicStatistics::mean(values[j]) - mean));
@@ -200,13 +200,13 @@ void CSignal::autocorrelations(const TFloatMeanAccumulatorVec &values, TDoubleVe
             if (j == n) {
                 f.resize(n, TComplex(0.0, 0.0));
                 break;
-            } else if (i == 0) {
+            } else if (i == 0)   {
                 f.resize(j - 1, TComplex(0.0, 0.0));
-            } else {
+            } else   {
                 for (std::size_t k = i; k < j; ++k) {
                     double alpha = static_cast<double>(k - i + 1) / static_cast<double>(j - i + 1);
                     double real  = CBasicStatistics::mean(values[j]) - mean;
-                    f.push_back((1.0 - alpha) * f[i-1] + alpha * TComplex(real, 0.0));
+                    f.push_back((1.0 - alpha) * f[i - 1] + alpha * TComplex(real, 0.0));
                 }
             }
             i = j;

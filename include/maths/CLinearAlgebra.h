@@ -52,14 +52,10 @@ struct SSymmetricMatrix {
     using Type = typename STORAGE::value_type;
 
     //! Get read only reference.
-    inline const SSymmetricMatrix &base(void) const {
-        return *this;
-    }
+    inline const SSymmetricMatrix &base(void) const { return *this; }
 
     //! Get writable reference.
-    inline SSymmetricMatrix &base(void) {
-        return *this;
-    }
+    inline SSymmetricMatrix &base(void) { return *this; }
 
     //! Set this vector equal to \p other.
     template<typename OTHER_STORAGE>
@@ -146,9 +142,7 @@ struct SSymmetricMatrix {
     //! Check if this is zero.
     bool isZero(void) const {
         return std::find_if(m_LowerTriangle.begin(), m_LowerTriangle.end(),
-                            [] (double ei) {
-                        return ei != 0.0;
-                    }) == m_LowerTriangle.end();
+                            [] (double ei) { return ei != 0.0; }) == m_LowerTriangle.end();
     }
 
     //! Get the matrix diagonal.
@@ -348,14 +342,10 @@ class CSymmetricMatrixNxN : private boost::equality_comparable< CSymmetricMatrix
         //@}
 
         //! Get the number of rows.
-        std::size_t rows(void) const {
-            return N;
-        }
+        std::size_t rows(void) const { return N; }
 
         //! Get the number of columns.
-        std::size_t columns(void) const {
-            return N;
-        }
+        std::size_t columns(void) const { return N; }
 
         //! Get the i,j 'th component (no bounds checking).
         inline T operator()(std::size_t i, std::size_t j) const {
@@ -368,14 +358,10 @@ class CSymmetricMatrixNxN : private boost::equality_comparable< CSymmetricMatrix
         }
 
         //! Get an iterator over the elements.
-        TConstIterator begin(void) const {
-            return TBase::m_LowerTriangle.begin();
-        }
+        TConstIterator begin(void) const { return TBase::m_LowerTriangle.begin(); }
 
         //! Get an iterator to the end of the elements.
-        TConstIterator end(void) const {
-            return TBase::m_LowerTriangle.end();
-        }
+        TConstIterator end(void) const { return TBase::m_LowerTriangle.end(); }
 
         //! Component-wise negation.
         CSymmetricMatrixNxN operator-(void) const {
@@ -632,14 +618,10 @@ class CSymmetricMatrix : private boost::equality_comparable< CSymmetricMatrix<T>
         //@}
 
         //! Get the number of rows.
-        std::size_t rows(void) const {
-            return m_D;
-        }
+        std::size_t rows(void) const { return m_D; }
 
         //! Get the number of columns.
-        std::size_t columns(void) const {
-            return m_D;
-        }
+        std::size_t columns(void) const { return m_D; }
 
         //! Get the i,j 'th component (no bounds checking).
         inline T operator()(std::size_t i, std::size_t j) const {
@@ -652,14 +634,10 @@ class CSymmetricMatrix : private boost::equality_comparable< CSymmetricMatrix<T>
         }
 
         //! Get an iterator over the elements.
-        TConstIterator begin(void) const {
-            return TBase::m_X.begin();
-        }
+        TConstIterator begin(void) const { return TBase::m_X.begin(); }
 
         //! Get an iterator to the end of the elements.
-        TConstIterator end(void) const {
-            return TBase::m_X.end();
-        }
+        TConstIterator end(void) const { return TBase::m_X.end(); }
 
         //! Component-wise negation.
         CSymmetricMatrix operator-(void) const {
@@ -798,14 +776,10 @@ struct SVector {
     using Type = typename STORAGE::value_type;
 
     //! Get read only reference.
-    inline const SVector &base(void) const {
-        return *this;
-    }
+    inline const SVector &base(void) const { return *this; }
 
     //! Get writable reference.
-    inline SVector &base(void) {
-        return *this;
-    }
+    inline SVector &base(void) { return *this; }
 
     //! Set this vector equal to \p other.
     template<typename OTHER_STORAGE>
@@ -869,21 +843,15 @@ struct SVector {
     }
 
     //! Compare this and \p other for equality.
-    bool equal(const SVector &other) const {
-        return m_X == other.m_X;
-    }
+    bool equal(const SVector &other) const { return m_X == other.m_X; }
 
     //! Lexicographical total ordering.
-    bool less(const SVector &rhs) const {
-        return m_X < rhs.m_X;
-    }
+    bool less(const SVector &rhs) const { return m_X < rhs.m_X; }
 
     //! Check if this is zero.
     bool isZero(void) const {
         return std::find_if(m_X.begin(), m_X.end(),
-                            [] (double xi) {
-                        return xi != 0.0;
-                    }) == m_X.end();
+                            [] (double xi) { return xi != 0.0; }) == m_X.end();
     }
 
     //! Inner product.
@@ -1071,9 +1039,7 @@ class CVectorNx1 : private boost::equality_comparable< CVectorNx1<T, N>,
         //@}
 
         //! Get the dimension.
-        std::size_t dimension(void) const {
-            return N;
-        }
+        std::size_t dimension(void) const { return N; }
 
         //! Get the i'th component (no bounds checking).
         inline T operator()(std::size_t i) const {
@@ -1086,14 +1052,10 @@ class CVectorNx1 : private boost::equality_comparable< CVectorNx1<T, N>,
         }
 
         //! Get an iterator over the elements.
-        TConstIterator begin(void) const {
-            return TBase::m_X.begin();
-        }
+        TConstIterator begin(void) const { return TBase::m_X.begin(); }
 
         //! Get an iterator to the end of the elements.
-        TConstIterator end(void) const {
-            return TBase::m_X.end();
-        }
+        TConstIterator end(void) const { return TBase::m_X.end(); }
 
         //! Component-wise negation.
         CVectorNx1 operator-(void) const {
@@ -1396,9 +1358,7 @@ class CVector : private boost::equality_comparable< CVector<T>,
         //@}
 
         //! Get the dimension.
-        std::size_t dimension(void) const {
-            return TBase::m_X.size();
-        }
+        std::size_t dimension(void) const { return TBase::m_X.size(); }
 
         //! Get the i'th component (no bounds checking).
         inline T operator()(std::size_t i) const {
@@ -1411,14 +1371,10 @@ class CVector : private boost::equality_comparable< CVector<T>,
         }
 
         //! Get an iterator over the elements.
-        TConstIterator begin(void) const {
-            return TBase::m_X.begin();
-        }
+        TConstIterator begin(void) const { return TBase::m_X.begin(); }
 
         //! Get an iterator to the end of the elements.
-        TConstIterator end(void) const {
-            return TBase::m_X.end();
-        }
+        TConstIterator end(void) const { return TBase::m_X.end(); }
 
         //! Component-wise negation.
         CVector operator-(void) const {

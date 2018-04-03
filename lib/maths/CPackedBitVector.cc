@@ -26,10 +26,12 @@ namespace ml {
 namespace maths {
 
 CPackedBitVector::CPackedBitVector(void) :
-    m_Dimension(0), m_First(false), m_Parity(true) {}
+    m_Dimension(0), m_First(false), m_Parity(true)
+{}
 
 CPackedBitVector::CPackedBitVector(bool bit) :
-    m_Dimension(1), m_First(bit), m_Parity(true), m_RunLengths(1, 1) {}
+    m_Dimension(1), m_First(bit), m_Parity(true), m_RunLengths(1, 1)
+{}
 
 CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit) :
     m_Dimension(static_cast<uint32_t>(dimension)),
@@ -51,12 +53,12 @@ CPackedBitVector::CPackedBitVector(const TBoolVec &bits) :
     m_First(bits.empty() ? false : bits[0]), m_Parity(true) {
     std::size_t length = 1u;
     for (std::size_t i = 1u; i < bits.size(); ++i) {
-        if (bits[i] == bits[i-1]) {
+        if (bits[i] == bits[i - 1]) {
             if (++length == static_cast<std::size_t>(MAX_RUN_LENGTH)) {
                 m_RunLengths.push_back(MAX_RUN_LENGTH);
                 length -= static_cast<std::size_t>(MAX_RUN_LENGTH);
             }
-        } else {
+        } else   {
             m_Parity = !m_Parity;
             m_RunLengths.push_back(static_cast<uint8_t>(length));
             length = 1;
@@ -85,10 +87,10 @@ void CPackedBitVector::contract(void) {
         if (m_RunLengths[i] == 0) {
             m_RunLengths.erase(m_RunLengths.begin() + i);
             --m_RunLengths[i - 1];
-        } else {
+        } else   {
             --m_RunLengths[i];
         }
-    } else if (--m_RunLengths.front() == 0) {
+    } else if (--m_RunLengths.front() == 0)   {
         m_First = !m_First;
         m_Parity = !m_Parity;
         m_RunLengths.erase(m_RunLengths.begin());
@@ -102,13 +104,13 @@ void CPackedBitVector::extend(bool bit) {
         m_First = bit;
         m_Parity = true;
         m_RunLengths.push_back(1);
-    } else if (m_Parity ? (bit != m_First) : (bit == m_First)) {
+    } else if (m_Parity ? (bit != m_First) : (bit == m_First))   {
         m_Parity = !m_Parity;
         m_RunLengths.push_back(1);
-    } else if (m_RunLengths.back() + 1 == MAX_RUN_LENGTH) {
+    } else if (m_RunLengths.back() + 1 == MAX_RUN_LENGTH)   {
         ++m_RunLengths.back();
         m_RunLengths.push_back(0);
-    } else {
+    } else   {
         ++m_RunLengths.back();
     }
 }
@@ -216,12 +218,12 @@ double CPackedBitVector::inner(const CPackedBitVector &covector, EOperation op) 
 
     if (m_Dimension != covector.dimension()) {
         LOG_ERROR("Dimension mismatch " << m_Dimension
-                                        << " vs " << covector.dimension());
+                  << " vs " << covector.dimension());
         return result;
     }
 
-    int         value   = static_cast<int>(m_First);
-    int         covalue = static_cast<int>(covector.m_First);
+    int value   = static_cast<int>(m_First);
+    int covalue = static_cast<int>(covector.m_First);
     std::size_t length   = static_cast<std::size_t>(m_RunLengths[0]);
     std::size_t colength = static_cast<std::size_t>(covector.m_RunLengths[0]);
     std::size_t pos   = length;
@@ -244,13 +246,13 @@ double CPackedBitVector::inner(const CPackedBitVector &covector, EOperation op) 
             }
             length = static_cast<std::size_t>(m_RunLengths[++i]);
             pos   += length;
-        } else if (copos < pos) {
+        } else if (copos < pos)   {
             if (colength != MAX_RUN_LENGTH) {
                 covalue = 1 - covalue;
             }
             colength = static_cast<std::size_t>(covector.m_RunLengths[++j]);
             copos   += colength;
-        } else {
+        } else   {
             if (length != MAX_RUN_LENGTH) {
                 value   = 1 - value;
                 covalue = 1 - covalue;

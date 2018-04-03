@@ -38,7 +38,7 @@ void crashHandler(int sig, siginfo_t *info, void *context) {
     // note: Not using backtrace(...) as it does only contain information for the main thread,
     // but the segfault could have happened on a different thread.
     ucontext_t *uContext = static_cast<ucontext_t*>(context);
-    void       *      errorAddress = 0;
+    void *errorAddress = 0;
 
 // various platform specifics, although we do not need all of them
 #ifdef REG_RIP // x86_64

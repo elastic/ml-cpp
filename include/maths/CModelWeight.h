@@ -44,9 +44,7 @@ namespace maths {
 class MATHS_EXPORT CModelWeight {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) {
-            return true;
-        }
+        static bool dynamicSizeAlwaysZero(void) { return true; }
 
     public:
         explicit CModelWeight(double weight);

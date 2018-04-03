@@ -136,7 +136,7 @@ void CBucketQueueTest::testReverseIterators(void) {
 void CBucketQueueTest::testBucketQueueUMap(void) {
     // Tests the memory usage of an unordered_map in a bucket queue
     // before and after persistence
-    std::size_t       usageBefore = 0;
+    std::size_t usageBefore = 0;
     const std::string queueTag("b");
     std::stringstream ss;
     {
@@ -173,7 +173,7 @@ void CBucketQueueTest::testBucketQueueUMap(void) {
         core::CPersistUtils::persist(queueTag, queue, inserter);
     }
     {
-        TSizeSizePrUInt64UMapQueue       queue(4, 1000, 5000);
+        TSizeSizePrUInt64UMapQueue queue(4, 1000, 5000);
         core::CJsonStateRestoreTraverser traverser(ss);
         core::CPersistUtils::restore(queueTag, queue, traverser);
         std::size_t usageAfter = core::CMemory::dynamicSize(queue);

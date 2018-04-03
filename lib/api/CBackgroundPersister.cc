@@ -196,7 +196,8 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void) {
 }
 
 CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister &owner)
-    : m_Owner(owner) {}
+    : m_Owner(owner)
+{}
 
 void CBackgroundPersister::CBackgroundThread::run(void) {
 

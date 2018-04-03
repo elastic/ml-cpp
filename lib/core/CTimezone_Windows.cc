@@ -61,13 +61,14 @@ CTimezone::CTimezone(void) {
     path += "/date_time_zonespec.csv";
     try {
         m_TimezoneDb.load_from_file(path);
-    } catch (std::exception &ex) {
+    } catch (std::exception &ex)   {
         LOG_ERROR("Failed to load Boost timezone database from " << path <<
                   " : " << ex.what());
     }
 }
 
-CTimezone::~CTimezone(void) {}
+CTimezone::~CTimezone(void)
+{}
 
 CTimezone &CTimezone::instance(void) {
     static CTimezone instance;
@@ -143,7 +144,7 @@ core_t::TTime CTimezone::localToUtc(struct tm &localTime) const {
                                                                        1,
                                                                        1));
 
-    boost::gregorian::date           dateIn(boost::gregorian::date_from_tm(localTime));
+    boost::gregorian::date dateIn(boost::gregorian::date_from_tm(localTime));
     boost::posix_time::time_duration timeIn(static_cast<boost::posix_time::time_duration::hour_type>(localTime.tm_hour),
                                             static_cast<boost::posix_time::time_duration::min_type>(localTime.tm_min),
                                             static_cast<boost::posix_time::time_duration::sec_type>(localTime.tm_sec));
@@ -156,7 +157,7 @@ core_t::TTime CTimezone::localToUtc(struct tm &localTime) const {
                                                       boost::local_time::local_date_time::EXCEPTION_ON_ERROR);
         diff = boostLocal.utc_time() - EPOCH;
         localTime.tm_isdst = (boostLocal.is_dst() ? 1 : 0);
-    } catch (boost::local_time::ambiguous_result &) {
+    } catch (boost::local_time::ambiguous_result &)   {
         // If we get an ambiguous time, assume it's standard, not daylight
         // savings
         boost::local_time::local_date_time boostLocal(dateIn,
@@ -165,7 +166,7 @@ core_t::TTime CTimezone::localToUtc(struct tm &localTime) const {
                                                       false);
         diff = boostLocal.utc_time() - EPOCH;
         localTime.tm_isdst = 0;
-    } catch (std::exception &ex) {
+    } catch (std::exception &ex)   {
         // Any other exception represents an error in the input
         LOG_ERROR("Error converting local time to UTC : " << ex.what());
         errno = EINVAL;
@@ -189,7 +190,7 @@ bool CTimezone::utcToLocal(core_t::TTime utcTime, struct tm &localTime) const {
     // The timezone for this program has been explicitly set, and might not
     // be the same as the operating system timezone, so use Boost
 
-    boost::posix_time::ptime           boostUtc(boost::posix_time::from_time_t(utcTime));
+    boost::posix_time::ptime boostUtc(boost::posix_time::from_time_t(utcTime));
     boost::local_time::local_date_time boostLocal(boostUtc, m_Timezone);
     localTime = boost::local_time::to_tm(boostLocal);
     return true;

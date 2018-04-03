@@ -141,13 +141,13 @@ class MATHS_EXPORT CPeriodicityHypothesisTestsConfig {
 
     private:
         //! True if we should test for diurnal periodicity.
-        bool          m_TestForDiurnal;
+        bool m_TestForDiurnal;
         //! True if we know there is a daily component.
-        bool          m_HasDaily;
+        bool m_HasDaily;
         //! True if we know there is a weekend.
-        bool          m_HasWeekend;
+        bool m_HasWeekend;
         //! True if we know there is a weekly component.
-        bool          m_HasWeekly;
+        bool m_HasWeekly;
         //! The start of the week.
         core_t::TTime m_StartOfWeek;
 };
@@ -279,9 +279,9 @@ class MATHS_EXPORT CPeriodicityHypothesisTests {
 
             private:
                 //! The test.
-                TTestFunc      m_Test;
+                TTestFunc m_Test;
                 //! If true always test the nested hypotheses.
-                bool           m_AlwaysTestNested;
+                bool m_AlwaysTestNested;
                 //! The nested hypotheses to test.
                 THypothesisVec m_Nested;
         };
@@ -389,29 +389,29 @@ class MATHS_EXPORT CPeriodicityHypothesisTests {
     private:
         //! The minimum proportion of populated buckets for which
         //! the test is accurate.
-        static const double               ACCURATE_TEST_POPULATED_FRACTION;
+        static const double ACCURATE_TEST_POPULATED_FRACTION;
 
         //! The minimum coefficient of variation to bother to test.
-        static const double               MINIMUM_COEFFICIENT_OF_VARIATION;
+        static const double MINIMUM_COEFFICIENT_OF_VARIATION;
 
     private:
         //! Configures the tests to run.
         CPeriodicityHypothesisTestsConfig m_Config;
 
         //! The bucketing interval.
-        core_t::TTime                     m_BucketLength;
+        core_t::TTime m_BucketLength;
 
         //! The window length for which to maintain bucket values.
-        core_t::TTime                     m_WindowLength;
+        core_t::TTime m_WindowLength;
 
         //! The specified period to test.
-        core_t::TTime                     m_Period;
+        core_t::TTime m_Period;
 
         //! The time range of values added to the test.
-        TMinMaxAccumulator                m_TimeRange;
+        TMinMaxAccumulator m_TimeRange;
 
         //! The mean bucket values.
-        TFloatMeanAccumulatorVec          m_BucketValues;
+        TFloatMeanAccumulatorVec m_BucketValues;
 };
 
 using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;

@@ -840,10 +840,10 @@ double emptyBucketCountWeight(EFeature feature, double frequency, double cutoff)
         static const double M = 1.001;
         static const double C = 0.025;
         static const double K = ::log((M + 1.0) / (M - 1.0)) / C;
-        double              df = frequency - std::min(cutoff + C, 1.0);
+        double df = frequency - std::min(cutoff + C, 1.0);
         if (df < -C) {
             return 0.0;
-        } else if (df < C) {
+        } else if (df < C)   {
             double fa = ::exp(K * df);
             return 0.5 * (1.0 + M * (fa - 1.0) / (fa + 1.0));
         }

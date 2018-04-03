@@ -70,9 +70,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable {
                 //! Compare for equality.
                 bool operator==(CSplitMix64 other) const;
                 //! Not equal.
-                bool operator!=(CSplitMix64 other) const {
-                    return !this->operator==(other);
-                }
+                bool operator!=(CSplitMix64 other) const { return !this->operator==(other); }
 
                 void seed(void);
                 void seed(uint64_t seed);
@@ -107,7 +105,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable {
 
             private:
                 //! The state.
-                uint64_t              m_X;
+                uint64_t m_X;
         };
 
         //! \brief The xoroshiro128+ pseudo-random number generator.
@@ -193,7 +191,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable {
 
             private:
                 //! The state.
-                uint64_t              m_X[2];
+                uint64_t m_X[2];
         };
 
         //! \brief The xorshift1024* pseudo-random number generator.
@@ -283,9 +281,9 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable {
 
             private:
                 //! The state.
-                uint64_t              m_X[16];
+                uint64_t m_X[16];
                 //! The current pair.
-                int                   m_P;
+                int m_P;
         };
 };
 

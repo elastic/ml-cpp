@@ -33,7 +33,8 @@ CJsonStateRestoreTraverser::CJsonStateRestoreTraverser(std::istream &inputStream
       m_Handler(),
       m_Started(false),
       m_DesiredLevel(0),
-      m_IsArrayOfObjects(false) {}
+      m_IsArrayOfObjects(false)
+{}
 
 bool CJsonStateRestoreTraverser::isEof(void) const {
     // Rapid JSON istreamwrapper returns \0 when it reaches EOF
@@ -290,7 +291,7 @@ bool CJsonStateRestoreTraverser::advance() {
         if (m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayStart) {
             LOG_ERROR("JSON state should not contain arrays");
             this->skipArray();
-        } else if (m_Handler.s_Type != SRapidJsonHandler::E_TokenKey) {
+        } else if (m_Handler.s_Type != SRapidJsonHandler::E_TokenKey)   {
             keepGoing = false;
         }
     }

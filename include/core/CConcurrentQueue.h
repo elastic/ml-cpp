@@ -56,7 +56,7 @@ class CConcurrentQueue final : private CNonCopyable {
                 m_ConsumerCondition.wait(lock);
             }
             size_t oldSize = m_Queue.size();
-            auto   val = m_Queue.front();
+            auto val = m_Queue.front();
             m_Queue.pop_front();
 
             // notification in case buffer was full
@@ -89,7 +89,7 @@ class CConcurrentQueue final : private CNonCopyable {
         //! which means it can deadlock if no one consumes items (implementor's responsibility)
         void push(const T &item) {
             std::unique_lock<std::mutex> lock(m_Mutex);
-            size_t                       pending = m_Queue.size();
+            size_t pending = m_Queue.size();
             // block if buffer is full, this can deadlock if no one consumes items,
             // implementor has to take care
             while (pending >= QUEUE_CAPACITY) {
@@ -126,13 +126,13 @@ class CConcurrentQueue final : private CNonCopyable {
         boost::circular_buffer<T>                       m_Queue;
 
         //! Mutex
-        std::mutex                                      m_Mutex;
+        std::mutex m_Mutex;
 
         //! Condition variable for consumer
-        std::condition_variable                         m_ConsumerCondition;
+        std::condition_variable m_ConsumerCondition;
 
         //! Condition variable for producers
-        std::condition_variable                         m_ProducerCondition;
+        std::condition_variable m_ProducerCondition;
 };
 
 }

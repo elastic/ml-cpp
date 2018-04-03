@@ -64,7 +64,7 @@ void CDelimiterTest::testSimpleTokenise(void) {
     ml::core::CDelimiter delimiter("\n", "\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+", true);
 
     ml::core::CStringUtils::TStrVec delimited;
-    std::string                     remainder;
+    std::string remainder;
 
     delimiter.tokenise(testData, false, delimited, remainder);
 
@@ -110,7 +110,7 @@ void CDelimiterTest::testRegexTokenise(void) {
     ml::core::CDelimiter delimiter("\r?\n", "\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+", true);
 
     ml::core::CStringUtils::TStrVec delimited;
-    std::string                     remainder;
+    std::string remainder;
 
     delimiter.tokenise(testData, false, delimited, remainder);
 
@@ -147,7 +147,7 @@ void CDelimiterTest::testQuotedTokenise(void) {
     delimiter.quote('"');
 
     ml::core::CStringUtils::TStrVec delimited;
-    std::string                     remainder;
+    std::string remainder;
 
     delimiter.tokenise(testData, false, delimited, remainder);
 
@@ -174,7 +174,7 @@ void CDelimiterTest::testQuotedEscapedTokenise(void) {
     delimiter.quote('"');
 
     ml::core::CStringUtils::TStrVec delimited;
-    std::string                     remainder;
+    std::string remainder;
 
     delimiter.tokenise(testData, false, delimited, remainder);
 
@@ -201,7 +201,7 @@ void CDelimiterTest::testInvalidQuotedTokenise(void) {
     delimiter.quote('"');
 
     ml::core::CStringUtils::TStrVec delimited;
-    std::string                     remainder;
+    std::string remainder;
 
     delimiter.tokenise(testData, false, delimited, remainder);
 
@@ -223,7 +223,7 @@ void CDelimiterTest::testQuoteEqualsEscapeTokenise(void) {
     delimiter.quote('"', '"');
 
     ml::core::CStringUtils::TStrVec delimited;
-    std::string                     remainder;
+    std::string remainder;
 
     delimiter.tokenise(testData, false, delimited, remainder);
 

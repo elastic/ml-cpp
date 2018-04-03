@@ -164,9 +164,9 @@ void CFlatPrefixTreeTest::testMatchesFullyGivenStringThatIsSubstringOfPrefix(voi
 }
 
 void CFlatPrefixTreeTest::testRandom(void) {
-    test::CRandomNumbers                      rng;
+    test::CRandomNumbers rng;
     test::CRandomNumbers::CUniform0nGenerator uniformGen = rng.uniformGenerator();
-    CFlatPrefixTree::TStrVec                  grams;
+    CFlatPrefixTree::TStrVec grams;
     rng.generateWords(3, 200, grams);
     CFlatPrefixTree::TStrVec prefixes;
     for (std::size_t i = 0; i < grams.size(); ++i) {

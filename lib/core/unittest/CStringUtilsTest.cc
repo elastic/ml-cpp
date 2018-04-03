@@ -110,7 +110,7 @@ void CStringUtilsTest::testNumMatches(void) {
 
 void CStringUtilsTest::testReplace(void) {
     {
-        std::string       in("%d%M%Y%f%D%t");
+        std::string in("%d%M%Y%f%D%t");
         const std::string out(" %d %M %Y %f %D %t");
 
         CPPUNIT_ASSERT_EQUAL(size_t(6), ml::core::CStringUtils::replace("%", " %", in));
@@ -118,7 +118,7 @@ void CStringUtilsTest::testReplace(void) {
         CPPUNIT_ASSERT_EQUAL(out, in);
     }
     {
-        std::string       in("%d%M%Y%f%D%t");
+        std::string in("%d%M%Y%f%D%t");
         const std::string out("%d%M%Y%f%D%t");
 
         CPPUNIT_ASSERT_EQUAL(size_t(0), ml::core::CStringUtils::replace("X", "Y", in));
@@ -129,7 +129,7 @@ void CStringUtilsTest::testReplace(void) {
 
 void CStringUtilsTest::testReplaceFirst(void) {
     {
-        std::string       in("%d%M%Y%f%D%t");
+        std::string in("%d%M%Y%f%D%t");
         const std::string out(" %d%M%Y%f%D%t");
 
         CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst("%", " %", in));
@@ -137,7 +137,7 @@ void CStringUtilsTest::testReplaceFirst(void) {
         CPPUNIT_ASSERT_EQUAL(out, in);
     }
     {
-        std::string       in("%d%M%Y%f%D%t");
+        std::string in("%d%M%Y%f%D%t");
         const std::string out("%d%M%Y%f%D%t");
 
         CPPUNIT_ASSERT_EQUAL(size_t(0), ml::core::CStringUtils::replaceFirst("X", "Y", in));
@@ -148,7 +148,7 @@ void CStringUtilsTest::testReplaceFirst(void) {
 
 void CStringUtilsTest::testTypeToString(void) {
     {
-        uint64_t    i(18446744073709551615ULL);
+        uint64_t i(18446744073709551615ULL);
         std::string expected("18446744073709551615");
 
         std::string actual = ml::core::CStringUtils::typeToString(i);
@@ -159,7 +159,7 @@ void CStringUtilsTest::testTypeToString(void) {
         CPPUNIT_ASSERT_EQUAL(i, j);
     }
     {
-        uint32_t    i(123456U);
+        uint32_t i(123456U);
         std::string expected("123456");
 
         std::string actual = ml::core::CStringUtils::typeToString(i);
@@ -170,7 +170,7 @@ void CStringUtilsTest::testTypeToString(void) {
         CPPUNIT_ASSERT_EQUAL(i, j);
     }
     {
-        uint16_t    i(12345U);
+        uint16_t i(12345U);
         std::string expected("12345");
 
         std::string actual = ml::core::CStringUtils::typeToString(i);
@@ -181,7 +181,7 @@ void CStringUtilsTest::testTypeToString(void) {
         CPPUNIT_ASSERT_EQUAL(i, j);
     }
     {
-        int32_t     i(123456);
+        int32_t i(123456);
         std::string expected("123456");
 
         std::string actual = ml::core::CStringUtils::typeToString(i);
@@ -192,14 +192,14 @@ void CStringUtilsTest::testTypeToString(void) {
         CPPUNIT_ASSERT_EQUAL(i, j);
     }
     {
-        double      i(0.123456);
+        double i(0.123456);
         std::string expected("0.123456");
 
         std::string actual = ml::core::CStringUtils::typeToString(i);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(0.123456e10);
+        double i(0.123456e10);
         std::string expected("1234560000.000000");
 
         std::string actual = ml::core::CStringUtils::typeToString(i);
@@ -209,98 +209,98 @@ void CStringUtilsTest::testTypeToString(void) {
 
 void CStringUtilsTest::testTypeToStringPrecise(void) {
     {
-        double      i(1.0);
+        double i(1.0);
         std::string expected("1");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(1.0);
+        double i(1.0);
         std::string expected("1");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(0.123456);
+        double i(0.123456);
         std::string expected("1.23456e-1");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(0.123456);
+        double i(0.123456);
         std::string expected("1.23456e-1");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(0.123456e10);
+        double i(0.123456e10);
         std::string expected("1.23456e9");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(0.123456e10);
+        double i(0.123456e10);
         std::string expected("1234560000");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(0.123456e-10);
+        double i(0.123456e-10);
         std::string expected("1.23456e-11");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(0.123456e-10);
+        double i(0.123456e-10);
         std::string expected("1.23456e-11");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(0.123456787654321e-10);
+        double i(0.123456787654321e-10);
         std::string expected("1.234568e-11");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(0.123456787654321e-10);
+        double i(0.123456787654321e-10);
         std::string expected("1.23456787654321e-11");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(0.00000000012345678765432123456);
+        double i(0.00000000012345678765432123456);
         std::string expected("1.234568e-10");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(0.00000000012345678765432123456);
+        double i(0.00000000012345678765432123456);
         std::string expected("1.23456787654321e-10");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(123456787654321.23456);
+        double i(123456787654321.23456);
         std::string expected("1.234568e14");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
-        double      i(123456787654321.23456);
+        double i(123456787654321.23456);
         std::string expected("123456787654321");
 
         std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
@@ -501,7 +501,7 @@ void CStringUtilsTest::testTokeniser(void) {
 void CStringUtilsTest::testTokeniser(const std::string &delim, const std::string &str) {
     // Tokenise using ml
     ml::core::CStringUtils::TStrVec tokens;
-    std::string                     remainder;
+    std::string remainder;
 
     ml::core::CStringUtils::tokenise(delim, str, tokens, remainder);
 
@@ -536,7 +536,7 @@ void CStringUtilsTest::testTokeniser(const std::string &delim, const std::string
 
     std::string::size_type pos = str.rfind(delim);
     if (pos != std::string::npos) {
-        std::string remainderExpected = str.substr(pos+delim.size());
+        std::string remainderExpected = str.substr(pos + delim.size());
 
         CPPUNIT_ASSERT_EQUAL(remainderExpected, remainder);
     }
@@ -642,7 +642,7 @@ void CStringUtilsTest::testUpper(void) {
 }
 
 void CStringUtilsTest::testNarrowWiden(void) {
-    std::string  hello1("Hello");
+    std::string hello1("Hello");
     std::wstring hello2(L"Hello");
 
     CPPUNIT_ASSERT_EQUAL(hello1.length(), ml::core::CStringUtils::narrowToWide(hello1).length());
@@ -656,26 +656,26 @@ void CStringUtilsTest::testEscape(void) {
     const std::string toEscape("\"'\\");
 
     const std::string escaped1("\\\"quoted\\\"");
-    std::string       unEscaped1("\"quoted\"");
+    std::string unEscaped1("\"quoted\"");
 
     ml::core::CStringUtils::escape('\\', toEscape, unEscaped1);
     CPPUNIT_ASSERT_EQUAL(escaped1, unEscaped1);
 
     const std::string escaped2("\\\\\\\"with escaped quotes\\\\\\\"");
-    std::string       unEscaped2("\\\"with escaped quotes\\\"");
+    std::string unEscaped2("\\\"with escaped quotes\\\"");
 
     ml::core::CStringUtils::escape('\\', toEscape, unEscaped2);
     CPPUNIT_ASSERT_EQUAL(escaped2, unEscaped2);
 }
 
 void CStringUtilsTest::testUnEscape(void) {
-    std::string       escaped1("\\\"quoted\\\"");
+    std::string escaped1("\\\"quoted\\\"");
     const std::string unEscaped1("\"quoted\"");
 
     ml::core::CStringUtils::unEscape('\\', escaped1);
     CPPUNIT_ASSERT_EQUAL(unEscaped1, escaped1);
 
-    std::string       escaped2("\\\\\\\"with escaped quotes\\\\\\\"");
+    std::string escaped2("\\\\\\\"with escaped quotes\\\\\\\"");
     const std::string unEscaped2("\\\"with escaped quotes\\\"");
 
     ml::core::CStringUtils::unEscape('\\', escaped2);
@@ -970,16 +970,16 @@ void CStringUtilsTest::testRoundtripMaxDouble(void) {
     };
     double tolerances[] = { 5e-7, 5e-15 };
     for (std::size_t i = 0u; i < boost::size(precisions); ++i) {
-        double      max = std::numeric_limits<double>::max();
+        double max = std::numeric_limits<double>::max();
         std::string str = ml::core::CStringUtils::typeToStringPrecise(max, precisions[i]);
-        double      d = 0.0;
+        double d = 0.0;
         CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(str, d));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(max, d, tolerances[i] * max);
     }
     for (std::size_t i = 0u; i < boost::size(precisions); ++i) {
-        double      min = -std::numeric_limits<double>::max();
+        double min = -std::numeric_limits<double>::max();
         std::string str = ml::core::CStringUtils::typeToStringPrecise(min, precisions[i]);
-        double      d = 0.0;
+        double d = 0.0;
         CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(str, d));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(min, d, -tolerances[i] * min);
     }

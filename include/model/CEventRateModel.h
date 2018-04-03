@@ -288,7 +288,7 @@ class MODEL_EXPORT CEventRateModel : public CIndividualModel {
         virtual const TSizeUInt64PrVec &currentBucketPersonCounts(void) const;
 
         //! Get writable person counts in the current bucket.
-        virtual TSizeUInt64PrVec       &currentBucketPersonCounts(void);
+        virtual TSizeUInt64PrVec &currentBucketPersonCounts(void);
 
         //! Set the current bucket total count.
         virtual void currentBucketTotalCount(uint64_t totalCount);
@@ -332,7 +332,7 @@ class MODEL_EXPORT CEventRateModel : public CIndividualModel {
 
     private:
         //! The statistics we maintain about the bucket.
-        SBucketStats                 m_CurrentBucketStats;
+        SBucketStats m_CurrentBucketStats;
 
         //! The prior for the joint probabilities of seeing the people
         //! we are modeling (this captures information about the person
@@ -341,7 +341,7 @@ class MODEL_EXPORT CEventRateModel : public CIndividualModel {
 
         //! A cache of the person probabilities as of the start of the
         //! for the bucketing interval.
-        TCategoryProbabilityCache    m_Probabilities;
+        TCategoryProbabilityCache m_Probabilities;
 
         friend class CEventRateModelDetailsView;
         friend class ::CMockEventRateModel;

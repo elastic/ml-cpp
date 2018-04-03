@@ -25,9 +25,7 @@
 using namespace ml;
 
 namespace {
-double zero(void) {
-    return 0.0;
-}
+double zero(void) { return 0.0; }
 }
 
 void CMathsFuncsTest::testIsNan(void) {

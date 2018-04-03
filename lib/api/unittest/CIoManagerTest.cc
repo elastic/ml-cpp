@@ -32,9 +32,9 @@ namespace {
 
 const uint32_t SLEEP_TIME_MS = 100;
 const uint32_t PAUSE_TIME_MS = 10;
-const size_t   MAX_ATTEMPTS = 100;
-const size_t   TEST_SIZE = 10000;
-const char     TEST_CHAR = 'a';
+const size_t MAX_ATTEMPTS = 100;
+const size_t TEST_SIZE = 10000;
+const char TEST_CHAR = 'a';
 const char     *GOOD_INPUT_FILE_NAME = "testfiles/good_input_file";
 const char     *GOOD_OUTPUT_FILE_NAME = "testfiles/good_output_file";
 #ifdef Windows
@@ -53,7 +53,8 @@ class CThreadDataWriter : public ml::core::CThread {
     public:
         CThreadDataWriter(const std::string &fileName, size_t size)
             : m_FileName(fileName),
-              m_Size(size) {}
+              m_Size(size)
+        {}
 
     protected:
         virtual void run(void) {
@@ -66,18 +67,20 @@ class CThreadDataWriter : public ml::core::CThread {
             }
         }
 
-        virtual void shutdown(void) {}
+        virtual void shutdown(void)
+        {}
 
     private:
         std::string m_FileName;
-        size_t      m_Size;
+        size_t m_Size;
 };
 
 class CThreadDataReader : public ml::core::CThread {
     public:
         CThreadDataReader(const std::string &fileName)
             : m_FileName(fileName),
-              m_Shutdown(false) {}
+              m_Shutdown(false)
+        {}
 
         const std::string &data(void) const {
             // The memory barriers associated with the mutex lock should ensure
@@ -106,7 +109,7 @@ class CThreadDataReader : public ml::core::CThread {
             } while (!strm.is_open());
 
             static const std::streamsize BUF_SIZE = 512;
-            char                         buffer[BUF_SIZE];
+            char buffer[BUF_SIZE];
             while (strm.good()) {
                 if (m_Shutdown) {
                     return;
@@ -118,7 +121,7 @@ class CThreadDataReader : public ml::core::CThread {
                     // This code deals with the test character we write to
                     // detect the short-lived connection problem on Windows
                     const char *copyFrom = buffer;
-                    size_t     copyLen = static_cast<size_t>(strm.gcount());
+                    size_t copyLen = static_cast<size_t>(strm.gcount());
                     if (m_Data.empty() &&
                         *buffer == ml::core::CNamedPipeFactory::TEST_CHAR) {
                         ++copyFrom;
@@ -137,9 +140,9 @@ class CThreadDataReader : public ml::core::CThread {
 
     private:
         mutable ml::core::CMutex m_Mutex;
-        std::string              m_FileName;
-        std::string              m_Data;
-        volatile bool            m_Shutdown;
+        std::string m_FileName;
+        std::string m_Data;
+        volatile bool m_Shutdown;
 };
 
 }
@@ -251,7 +254,7 @@ void CIoManagerTest::testCommon(const std::string &inputFileName,
         CPPUNIT_ASSERT_EQUAL(isGood, ioMgr.initIo());
         if (isGood) {
             static const std::streamsize BUF_SIZE = 512;
-            char                         buffer[BUF_SIZE];
+            char buffer[BUF_SIZE];
             do {
                 ioMgr.inputStream().read(buffer, BUF_SIZE);
                 CPPUNIT_ASSERT(!ioMgr.inputStream().bad());
@@ -271,7 +274,7 @@ void CIoManagerTest::testCommon(const std::string &inputFileName,
         CPPUNIT_ASSERT_EQUAL(std::string(TEST_SIZE, TEST_CHAR), processedData);
         CPPUNIT_ASSERT_EQUAL(processedData.length(), threadReader.data().length());
         CPPUNIT_ASSERT_EQUAL(processedData, threadReader.data());
-    } else {
+    } else   {
         CPPUNIT_ASSERT(threadReader.stop());
         CPPUNIT_ASSERT(processedData.empty());
     }

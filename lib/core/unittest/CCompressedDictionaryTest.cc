@@ -40,7 +40,7 @@ void CCompressedDictionaryTest::testAll(void) {
     const std::size_t numberWords = 500000u;
 
     CRandomNumbers rng;
-    TStrVec        words;
+    TStrVec words;
 
     std::string word2("word2");
     std::string word3("word3");
@@ -68,36 +68,36 @@ void CCompressedDictionaryTest::testPersist(void) {
     typedef CCompressedDictionary<4> TDictionary4;
 
     {
-        TDictionary1        dictionary;
+        TDictionary1 dictionary;
         TDictionary1::CWord word = dictionary.word("hello");
-        const std::string   representation = word.toDelimited();
+        const std::string representation = word.toDelimited();
         word = dictionary.word("blank");
         CPPUNIT_ASSERT(dictionary.word("special") != word);
         CPPUNIT_ASSERT(word.fromDelimited(representation));
         CPPUNIT_ASSERT(dictionary.word("hello") == word);
     }
     {
-        TDictionary2        dictionary;
+        TDictionary2 dictionary;
         TDictionary2::CWord word = dictionary.word("world");
-        const std::string   representation = word.toDelimited();
+        const std::string representation = word.toDelimited();
         word = dictionary.word("blank");
         CPPUNIT_ASSERT(dictionary.word("special") != word);
         CPPUNIT_ASSERT(word.fromDelimited(representation));
         CPPUNIT_ASSERT(dictionary.word("world") == word);
     }
     {
-        TDictionary3        dictionary;
+        TDictionary3 dictionary;
         TDictionary3::CWord word = dictionary.word("special");
-        const std::string   representation = word.toDelimited();
+        const std::string representation = word.toDelimited();
         word = dictionary.word("blank");
         CPPUNIT_ASSERT(dictionary.word("special") != word);
         CPPUNIT_ASSERT(word.fromDelimited(representation));
         CPPUNIT_ASSERT(dictionary.word("special") == word);
     }
     {
-        TDictionary4        dictionary;
+        TDictionary4 dictionary;
         TDictionary4::CWord word = dictionary.word("TEST");
-        const std::string   representation = word.toDelimited();
+        const std::string representation = word.toDelimited();
         word = dictionary.word("blank");
         CPPUNIT_ASSERT(dictionary.word("special") != word);
         CPPUNIT_ASSERT(word.fromDelimited(representation));

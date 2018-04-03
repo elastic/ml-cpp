@@ -80,7 +80,8 @@ namespace hierarchical_results_normalizer_detail {
 
 SNormalizer::SNormalizer(const std::string &description, const TNormalizerPtr &normalizer) :
     s_Description(description),
-    s_Normalizer(normalizer) {}
+    s_Normalizer(normalizer)
+{}
 
 void SNormalizer::clear(void) {
     s_Normalizer->clear();
@@ -101,7 +102,8 @@ CHierarchicalResultsNormalizer::CHierarchicalResultsNormalizer(const CAnomalyDet
     TBase(TNormalizer(std::string(), boost::make_shared<CAnomalyScore::CNormalizer>(modelConfig))),
     m_Job(E_NoOp),
     m_ModelConfig(modelConfig),
-    m_HasLastUpdateCausedBigChange(false) {}
+    m_HasLastUpdateCausedBigChange(false)
+{}
 
 void CHierarchicalResultsNormalizer::setJob(EJob job) {
     m_Job = job;
@@ -120,7 +122,7 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults & /*result
                                            const TNode &node,
                                            bool pivot) {
     CNormalizerFactory factory(m_ModelConfig);
-    TNormalizerPtrVec  normalizers;
+    TNormalizerPtrVec normalizers;
     this->elements(node, pivot, factory, normalizers, m_ModelConfig.perPartitionNormalization());
 
     if (normalizers.empty()) {
@@ -178,7 +180,7 @@ void CHierarchicalResultsNormalizer::toJson(core_t::TTime time,
     std::size_t index = 0;
 
     for (std::size_t i = 0; i < this->leafSet().size(); ++i) {
-        const TWord       &      word = this->leafSet()[i].first;
+        const TWord &word = this->leafSet()[i].first;
         const TNormalizer &normalizer = this->leafSet()[i].second;
         CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer,
                                         key,
@@ -189,7 +191,7 @@ void CHierarchicalResultsNormalizer::toJson(core_t::TTime time,
     }
 
     for (std::size_t i = 0; i < this->personSet().size(); ++i) {
-        const TWord       &      word = this->personSet()[i].first;
+        const TWord &word = this->personSet()[i].first;
         const TNormalizer &normalizer = this->personSet()[i].second;
         CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer,
                                         key,
@@ -200,7 +202,7 @@ void CHierarchicalResultsNormalizer::toJson(core_t::TTime time,
     }
 
     for (std::size_t i = 0; i < this->partitionSet().size(); ++i) {
-        const TWord       &      word = this->partitionSet()[i].first;
+        const TWord &word = this->partitionSet()[i].first;
         const TNormalizer &normalizer = this->partitionSet()[i].second;
         CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer,
                                         key,
@@ -211,7 +213,7 @@ void CHierarchicalResultsNormalizer::toJson(core_t::TTime time,
     }
 
     for (std::size_t i = 0; i < this->influencerSet().size(); ++i) {
-        const TWord       &      word = this->influencerSet()[i].first;
+        const TWord &word = this->influencerSet()[i].first;
         const TNormalizer &normalizer = this->influencerSet()[i].second;
         CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer,
                                         key,
@@ -222,7 +224,7 @@ void CHierarchicalResultsNormalizer::toJson(core_t::TTime time,
     }
 
     for (std::size_t i = 0; i < this->influencerBucketSet().size(); ++i) {
-        const TWord       &      word = this->influencerBucketSet()[i].first;
+        const TWord &word = this->influencerBucketSet()[i].first;
         const TNormalizer &normalizer = this->influencerBucketSet()[i].second;
         CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer,
                                         key,
@@ -289,8 +291,8 @@ CHierarchicalResultsNormalizer::fromJsonStream(std::istream &inputStream) {
             }
 
             isBucketNormalizerRestored = true;
-        } else {
-            TWordNormalizerPrVec      *    normalizerVec = 0;
+        } else   {
+            TWordNormalizerPrVec *normalizerVec = 0;
             TDictionary::TUInt64Array hashArray;
             if (!this->parseCue(cue, normalizerVec, hashArray)) {
                 return E_Corrupt;
@@ -390,19 +392,19 @@ bool CHierarchicalResultsNormalizer::parseCue(const std::string &cue,
     if (cue.compare(0, INFLUENCER_BUCKET_CUE_PREFIX.length(), INFLUENCER_BUCKET_CUE_PREFIX) == 0) {
         normalizers = &this->influencerBucketSet();
         hashStartPos = INFLUENCER_BUCKET_CUE_PREFIX.length();
-    } else if (cue.compare(0, INFLUENCER_CUE_PREFIX.length(), INFLUENCER_CUE_PREFIX) == 0) {
+    } else if (cue.compare(0, INFLUENCER_CUE_PREFIX.length(), INFLUENCER_CUE_PREFIX) == 0)   {
         normalizers = &this->influencerSet();
         hashStartPos = INFLUENCER_CUE_PREFIX.length();
-    } else if (cue.compare(0, PARTITION_CUE_PREFIX.length(), PARTITION_CUE_PREFIX) == 0) {
+    } else if (cue.compare(0, PARTITION_CUE_PREFIX.length(), PARTITION_CUE_PREFIX) == 0)   {
         normalizers = &this->partitionSet();
         hashStartPos = PARTITION_CUE_PREFIX.length();
-    } else if (cue.compare(0, PERSON_CUE_PREFIX.length(), PERSON_CUE_PREFIX) == 0) {
+    } else if (cue.compare(0, PERSON_CUE_PREFIX.length(), PERSON_CUE_PREFIX) == 0)   {
         normalizers = &this->personSet();
         hashStartPos = PERSON_CUE_PREFIX.length();
-    } else if (cue.compare(0, LEAF_CUE_PREFIX.length(), LEAF_CUE_PREFIX) == 0) {
+    } else if (cue.compare(0, LEAF_CUE_PREFIX.length(), LEAF_CUE_PREFIX) == 0)   {
         normalizers = &this->leafSet();
         hashStartPos = LEAF_CUE_PREFIX.length();
-    } else {
+    } else   {
         LOG_WARN("Did not understand normalizer cue " << cue);
         return true;
     }
@@ -411,7 +413,7 @@ bool CHierarchicalResultsNormalizer::parseCue(const std::string &cue,
 
     if (core::CStringUtils::stringToType(cue.substr(hashStartPos), hashArray[0]) == false) {
         LOG_ERROR("Unable to parse normalizer hash from cue " << cue
-                                                              << " starting at position " << hashStartPos);
+                  << " starting at position " << hashStartPos);
         return false;
     }
 

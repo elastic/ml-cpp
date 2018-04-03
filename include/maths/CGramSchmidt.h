@@ -107,9 +107,9 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable {
 
                 double n = norm(x[current]);
                 LOG_TRACE("i = " << i
-                                 << ", current = " << current
-                                 << ", x = " << print(x[current])
-                                 << ", norm = " << n);
+                          << ", current = " << current
+                          << ", x = " << print(x[current])
+                          << ", norm = " << n);
 
                 if (n != 0.0) {
                     divide(x[current], n);
@@ -135,10 +135,10 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable {
 
                     double n = norm(x[current]);
                     LOG_TRACE("i = " << i
-                                     << ", current = " << current
-                                     << ", x = " << print(x[current])
-                                     << ", norm = " << n
-                                     << ", eps = " << eps);
+                              << ", current = " << current
+                              << ", x = " << print(x[current])
+                              << ", norm = " << n
+                              << ", eps = " << eps);
 
                     if (::fabs(n) > eps) {
                         divide(x[current], n);
@@ -149,7 +149,7 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable {
                 if (current != x.size()) {
                     erase(x, x.begin() + current, x.end());
                 }
-            } catch (const std::runtime_error &e) {
+            } catch (const std::runtime_error &e)   {
                 LOG_ERROR("Failed to construct basis: " << e.what());
                 return false;
             }
@@ -173,8 +173,8 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable {
                                                  const TDoubleVec &e);
 
         //! Subtract the projection of \p x onto \p e from \p x.
-        static const TVector    &minusProjection(TVector &x,
-                                                 const TVector &e);
+        static const TVector &minusProjection(TVector &x,
+                                              const TVector &e);
 
         //! Subtract the projection of \p x onto \p e from \p x.
         template<std::size_t N>
@@ -188,7 +188,7 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable {
         static const TDoubleVec &divide(TDoubleVec &x, double s);
 
         //! Divide the vector \p x by the scalar \p s.
-        static const TVector    &divide(TVector &x, double s);
+        static const TVector &divide(TVector &x, double s);
 
         //! Divide the vector \p x by the scalar \p s.
         template<std::size_t N>

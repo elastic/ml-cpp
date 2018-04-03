@@ -128,17 +128,17 @@ class API_EXPORT CResultNormalizer {
         COutputHandler                                      &m_OutputHandler;
 
         //! Do we need to tell the output handler what our fieldnames are?
-        bool                                                m_WriteFieldNames;
+        bool m_WriteFieldNames;
 
         //! Map holding fields to write to the output
-        TStrStrUMap                                         m_OutputFields;
+        TStrStrUMap m_OutputFields;
 
         //! References to specific entries in the map to save repeatedly
         //! searching for them
         std::string                                         &m_OutputFieldNormalizedScore;
 
         //! The hierarchical results normalizer
-        model::CHierarchicalResultsNormalizer               m_Normalizer;
+        model::CHierarchicalResultsNormalizer m_Normalizer;
 };
 
 

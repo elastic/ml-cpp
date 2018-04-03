@@ -63,7 +63,8 @@ class CThreadFarm : private CNonCopyable {
               m_LastPrint(0),
               m_MessagesAdded(0),
               m_Started(false),
-              m_Name(name) {}
+              m_Name(name)
+        {}
 
         virtual ~CThreadFarm(void) {
             // Shared_ptr cleans up
@@ -232,28 +233,28 @@ class CThreadFarm : private CNonCopyable {
         typedef std::vector<TMessageQueueP>                                  TMessageQueuePVec;
         typedef typename TMessageQueuePVec::iterator                         TMessageQueuePVecItr;
 
-        TReceiverPVec     m_Receivers;
+        TReceiverPVec m_Receivers;
 
         //! We want the message queues destroyed before the receivers
         TMessageQueuePVec m_MessageQueues;
 
         //! How many results are pending?
-        size_t            m_Pending;
+        size_t m_Pending;
 
         //! What was the pending value when we last printed it?
-        uint64_t          m_LastPrint;
+        uint64_t m_LastPrint;
 
         //! How many messages have been added to the farm?
-        uint64_t          m_MessagesAdded;
+        uint64_t m_MessagesAdded;
 
         //! Is the farm started?
-        bool              m_Started;
+        bool m_Started;
 
         //! Protect members from multi-threaded access
-        CMutex            m_Mutex;
+        CMutex m_Mutex;
 
         //! Purely for better logging messages
-        std::string       m_Name;
+        std::string m_Name;
 
         friend class CThreadFarmReceiver<TThreadFarm, PROCESSOR, MESSAGE, RESULT>;
 };

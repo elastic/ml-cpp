@@ -170,7 +170,7 @@ void testPersistRestore(const T &collection, const T &initial = T()) {
     }
     LOG_TRACE("String data is: " << origSs.str());
     LOG_TRACE(" - doing restore " << typeid(T).name());
-    T                 restored = initial;
+    T restored = initial;
     std::stringstream restoredSs;
     {
         core::CJsonStateRestoreTraverser traverser(origSs);
@@ -178,7 +178,7 @@ void testPersistRestore(const T &collection, const T &initial = T()) {
     }
     LOG_TRACE(" - doing persist again " << typeid(T).name());
     {
-        const T                         &                       restoredRef = restored;
+        const T &restoredRef = restored;
         core::CJsonStatePersistInserter inserter(restoredSs);
         core::CPersistUtils::persist(tag, restoredRef, inserter);
     }
@@ -420,7 +420,7 @@ void CPersistUtilsTest::testPersistContainers(void) {
     LOG_DEBUG("*** errors ***");
     {
         std::string bad("dejk");
-        TDoubleVec  collection;
+        TDoubleVec collection;
         CPPUNIT_ASSERT(!core::CPersistUtils::fromString(bad, collection));
         CPPUNIT_ASSERT(collection.empty());
 
@@ -555,7 +555,7 @@ void CPersistUtilsTest::testAppend(void) {
         LOG_DEBUG("*** map append ***");
 
         TSizeDoubleMap collection;
-        std::string    state = core::CPersistUtils::toString(collection);
+        std::string state = core::CPersistUtils::toString(collection);
         LOG_DEBUG("state = " << state);
 
         TSizeDoubleMap restored;

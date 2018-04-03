@@ -21,7 +21,7 @@ using namespace ml;
 using namespace model;
 
 namespace {
-const CGathererTools::CSumGatherer::TStrVec             EMPTY_STR_VEC;
+const CGathererTools::CSumGatherer::TStrVec EMPTY_STR_VEC;
 const CGathererTools::CSumGatherer::TStoredStringPtrVec EMPTY_STR_PTR_VEC;
 }
 
@@ -39,7 +39,7 @@ void CGathererToolsTest::testSumGathererIsRedundant(void) {
     using TDouble1Vec = CGathererTools::CSumGatherer::TDouble1Vec;
 
     core_t::TTime bucketLength(100);
-    SModelParams  modelParams(bucketLength);
+    SModelParams modelParams(bucketLength);
     modelParams.s_LatencyBuckets = 3;
     CGathererTools::CSumGatherer sumGatherer(modelParams, 0, 100, bucketLength, EMPTY_STR_VEC.begin(), EMPTY_STR_VEC.end());
 

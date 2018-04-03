@@ -56,7 +56,7 @@ std::size_t addProbabilities(const TDoubleVec &probabilities,
         double p = probabilities[i];
         if (!(p >= 0.0 && p <= 1.0)) {
             LOG_ERROR("Invalid probability " << p);
-        } else {
+        } else   {
             ++n;
             aggregator.add(p);
         }
@@ -123,7 +123,7 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
     }
 
     maths::CLogJointProbabilityOfLessLikelySamples logPJointCalculator;
-    std::size_t                                    n = std::min(addProbabilities(probabilities, logPJointCalculator), maxExtremeSamples);
+    std::size_t n = std::min(addProbabilities(probabilities, logPJointCalculator), maxExtremeSamples);
 
     // Note the upper bound is significantly tighter, so we just
     // use that in the following calculation.
@@ -137,7 +137,7 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
     // Sanity check the probability not greater than 1.0.
     if (logPJoint > 0.0) {
         LOG_ERROR("Invalid log joint probability " << logPJoint
-                                                   << ", probabilities = " << core::CContainerPrinter::print(probabilities));
+                  << ", probabilities = " << core::CContainerPrinter::print(probabilities));
         return false;
     }
 
@@ -159,7 +159,7 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
     // Sanity check the probability in the range [0, 1].
     if (logPExtreme > 0.0) {
         LOG_ERROR("Invalid log extreme probability " << logPExtreme
-                                                     << ", probabilities = " << core::CContainerPrinter::print(probabilities));
+                  << ", probabilities = " << core::CContainerPrinter::print(probabilities));
         return false;
     }
 
@@ -188,7 +188,7 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
                                    + (1.0 - NORMAL_RANGE_SCORE_FRACTION) * interpolate)
                               * jointProbabilityWeight
                               * SMALLEST_PROBABILITY_DEVIATION;
-    } else {
+    } else   {
         overallAnomalyScore =   NORMAL_RANGE_SCORE_FRACTION
                               * jointProbabilityWeight
                               * probabilityToScore(::exp(logPJoint));
@@ -202,7 +202,7 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
                                           + (1.0 - NORMAL_RANGE_SCORE_FRACTION) * interpolate)
                                * extremeProbabilityWeight
                                * SMALLEST_PROBABILITY_DEVIATION;
-    } else {
+    } else   {
         overallAnomalyScore +=   NORMAL_RANGE_SCORE_FRACTION
                                * extremeProbabilityWeight
                                * probabilityToScore(::exp(logPExtreme));
@@ -218,13 +218,13 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
                          * ::exp(extremeProbabilityWeight * logPExtreme);
 
     LOG_TRACE("logJointProbability = " << logPJoint
-                                       << ", jointProbabilityWeight = " << jointProbabilityWeight
-                                       << ", logExtremeProbability = " << logPExtreme
-                                       << ", extremeProbabilityWeight = " << extremeProbabilityWeight
-                                       << ", overallProbability = " << overallProbability
-                                       << ", overallAnomalyScore = " << overallAnomalyScore
-                                       << ", # probabilities = " << probabilities.size()
-                                       << ", probabilities = " << core::CContainerPrinter::print(probabilities));
+              << ", jointProbabilityWeight = " << jointProbabilityWeight
+              << ", logExtremeProbability = " << logPExtreme
+              << ", extremeProbabilityWeight = " << extremeProbabilityWeight
+              << ", overallProbability = " << overallProbability
+              << ", overallAnomalyScore = " << overallAnomalyScore
+              << ", # probabilities = " << probabilities.size()
+              << ", probabilities = " << core::CContainerPrinter::print(probabilities));
 
     return true;
 }
@@ -238,7 +238,8 @@ CAnomalyScore::CComputer::CComputer(double jointProbabilityWeight,
     m_ExtremeProbabilityWeight(extremeProbabilityWeight),
     m_MinExtremeSamples(std::min(minExtremeSamples, maxExtremeSamples)),
     m_MaxExtremeSamples(maxExtremeSamples),
-    m_MaximumAnomalousProbability(maximumAnomalousProbability) {}
+    m_MaximumAnomalousProbability(maximumAnomalousProbability)
+{}
 
 bool CAnomalyScore::CComputer::operator()(const TDoubleVec &probabilities,
                                           double &overallAnomalyScore,
@@ -267,14 +268,15 @@ CAnomalyScore::CNormalizer::CNormalizer(const CAnomalyDetectorModelConfig &confi
     m_DecayRate(config.decayRate()
                 * std::max(  static_cast<double>(config.bucketLength())
                              / static_cast<double>(CAnomalyDetectorModelConfig::STANDARD_BUCKET_LENGTH), 1.0)),
-    m_TimeToQuantileDecay(QUANTILE_DECAY_TIME) {}
+    m_TimeToQuantileDecay(QUANTILE_DECAY_TIME)
+{}
 
 bool CAnomalyScore::CNormalizer::canNormalize(void) const
 {
     return m_RawScoreQuantileSummary.n() > 0;
 }
 
-bool CAnomalyScore::CNormalizer::normalize(TDoubleVec &scores) const
+bool CAnomalyScore::CNormalizer::normalize(TDoubleVec & scores) const
 {
     double origScore(std::accumulate(scores.begin(), scores.end(), 0.0));
     double normalizedScore(origScore);
@@ -379,12 +381,12 @@ bool CAnomalyScore::CNormalizer::normalize(double &score) const
                           * std::max(2.0 * std::min(50.0 * (l0 + u0)
                                                     / m_NoisePercentile, 1.0) - 1.0, 0.0);
     LOG_TRACE("normalizedScores[0] = " << normalizedScores[0]
-                                       << ", knotPoint = " << knotPoint->second
-                                       << ", discreteScore = " << discreteScore
-                                       << ", noiseScore = " << noiseScore
-                                       << ", l(0) = " << l0
-                                       << ", u(0) = " << u0
-                                       << ", signalStrength = " << signalStrength);
+              << ", knotPoint = " << knotPoint->second
+              << ", discreteScore = " << discreteScore
+              << ", noiseScore = " << noiseScore
+              << ", l(0) = " << l0
+              << ", u(0) = " << u0
+              << ", signalStrength = " << signalStrength);
 
     // Compute the raw normalized score. Note we compute the probability
     // of seeing a lower score on the normal bucket length and convert
@@ -422,7 +424,7 @@ bool CAnomalyScore::CNormalizer::normalize(double &score) const
                               +   (right.second - left.second)
                               * (lowerPercentile - left.first)
                               / (right.first - left.first);
-    } else {
+    } else   {
         normalizedScores[1] = m_MaximumNormalizedScore;
     }
     if (upperKnotPoint < m_NormalizedScoreKnotPoints.size()) {
@@ -434,14 +436,14 @@ bool CAnomalyScore::CNormalizer::normalize(double &score) const
                                  +   (right.second - left.second)
                                  * (upperPercentile - left.first)
                                  / (right.first - left.first)) / 2.0;
-    } else {
+    } else   {
         normalizedScores[1] = (normalizedScores[1] + m_MaximumNormalizedScore ) / 2.0;
     }
     LOG_TRACE("normalizedScores[1] = " << normalizedScores[1]
-                                       << ", lowerBound = " << lowerBound
-                                       << ", upperBound = " << upperBound
-                                       << ", lowerPercentile = " << lowerPercentile
-                                       << ", upperPercentile = " << upperPercentile);
+              << ", lowerBound = " << lowerBound
+              << ", upperBound = " << upperBound
+              << ", lowerPercentile = " << lowerPercentile
+              << ", upperPercentile = " << upperPercentile);
 
     // Compute the maximum score ceiling.
     double ratio = score / m_MaxScore[0];
@@ -452,8 +454,8 @@ bool CAnomalyScore::CNormalizer::normalize(double &score) const
     };
     normalizedScores[2] = m_MaximumNormalizedScore * (*std::min_element(curves, curves + 2));
     LOG_TRACE("normalizedScores[2] = " << normalizedScores[2]
-                                       << ", score = " << score
-                                       << ", maxScore = " << m_MaxScore[0]);
+              << ", score = " << score
+              << ", maxScore = " << m_MaxScore[0]);
 
     // Logarithmically interpolate the maximum score between the
     // largest significant and small probability.
@@ -465,8 +467,8 @@ bool CAnomalyScore::CNormalizer::normalize(double &score) const
     normalizedScores[3] =  m_MaximumNormalizedScore
                           * (0.95 * M * (::log(scoreToProbability(score)) - C) + 0.05);
     LOG_TRACE("normalizedScores[3] = " << normalizedScores[3]
-                                       << ", score = " << score
-                                       << ", probability = " << scoreToProbability(score));
+              << ", score = " << score
+              << ", probability = " << scoreToProbability(score));
 
     score = std::min(*std::min_element(boost::begin(normalizedScores),
                                        boost::end(normalizedScores)),
@@ -482,9 +484,9 @@ void CAnomalyScore::CNormalizer::quantile(double score,
                                           double &upperBound) const
 {
     uint32_t discreteScore = this->discreteScore(score);
-    double   n = static_cast<double>(m_RawScoreQuantileSummary.n());
-    double   lowerQuantile = (100.0 - confidence) / 200.0;
-    double   upperQuantile = (100.0 + confidence) / 200.0;
+    double n = static_cast<double>(m_RawScoreQuantileSummary.n());
+    double lowerQuantile = (100.0 - confidence) / 200.0;
+    double upperQuantile = (100.0 + confidence) / 200.0;
 
     double h = static_cast<double>(m_HighPercentileCount);
     double f = h / n;
@@ -505,15 +507,15 @@ void CAnomalyScore::CNormalizer::quantile(double score,
         if (   !(lowerBound >= 0.0 && lowerBound <= 1.0) ||
                !(upperBound >= 0.0 && upperBound <= 1.0)) {
             LOG_ERROR("score = " << score
-                                 << ", cdf = [" << lowerBound << "," << upperBound << "]"
-                                 << ", pdf = [" << pdfLowerBound << "," << pdfUpperBound << "]");
+                      << ", cdf = [" << lowerBound << "," << upperBound << "]"
+                      << ", pdf = [" << pdfLowerBound << "," << pdfUpperBound << "]");
         }
         lowerBound = maths::CQDigest::cdfQuantile(n, lowerBound, lowerQuantile);
         upperBound = maths::CQDigest::cdfQuantile(n, upperBound, upperQuantile);
 
         LOG_TRACE("score = " << score
-                             << ", cdf = [" << lowerBound << "," << upperBound << "]"
-                             << ", pdf = [" << pdfLowerBound << "," << pdfUpperBound << "]");
+                  << ", cdf = [" << lowerBound << "," << upperBound << "]"
+                  << ", pdf = [" << pdfLowerBound << "," << pdfUpperBound << "]");
 
         return;
     }
@@ -549,19 +551,19 @@ void CAnomalyScore::CNormalizer::quantile(double score,
     if (   !(lowerBound >= 0.0 && lowerBound <= 1.0) ||
            !(upperBound >= 0.0 && upperBound <= 1.0)) {
         LOG_ERROR("score = " << score
-                             << ", cdf = [" << lowerBound << "," << upperBound << "]"
-                             << ", cutoff = [" << cutoffCdfLowerBound << "," << cutoffCdfUpperBound << "]"
-                             << ", pdf = [" << pdfLowerBound << "," << pdfUpperBound << "]"
-                             << ", f = " << f);
+                  << ", cdf = [" << lowerBound << "," << upperBound << "]"
+                  << ", cutoff = [" << cutoffCdfLowerBound << "," << cutoffCdfUpperBound << "]"
+                  << ", pdf = [" << pdfLowerBound << "," << pdfUpperBound << "]"
+                  << ", f = " << f);
     }
     lowerBound = maths::CQDigest::cdfQuantile(n, lowerBound, lowerQuantile);
     upperBound = maths::CQDigest::cdfQuantile(n, upperBound, upperQuantile);
 
     LOG_TRACE("score = " << score
-                         << ", cdf = [" << lowerBound << "," << upperBound << "]"
-                         << ", cutoff = [" << cutoffCdfLowerBound << "," << cutoffCdfUpperBound << "]"
-                         << ", pdf = [" << pdfLowerBound << "," << pdfUpperBound << "]"
-                         << ", f = " << f);
+              << ", cdf = [" << lowerBound << "," << upperBound << "]"
+              << ", cutoff = [" << cutoffCdfLowerBound << "," << cutoffCdfUpperBound << "]"
+              << ", pdf = [" << pdfLowerBound << "," << pdfUpperBound << "]"
+              << ", f = " << f);
 }
 
 bool CAnomalyScore::CNormalizer::updateQuantiles(const TDoubleVec &scores) {
@@ -572,7 +574,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
     typedef std::pair<uint32_t, uint64_t> TUInt32UInt64Pr;
     typedef std::vector<TUInt32UInt64Pr>  TUInt32UInt64PrVec;
 
-    bool   bigChange(false);
+    bool bigChange(false);
     double oldMaxScore(m_MaxScore.count() == 0 ? 0.0 : m_MaxScore[0]);
     m_MaxScore.add(score);
     if (m_MaxScore[0] > BIG_CHANGE_FACTOR * oldMaxScore) {
@@ -582,8 +584,8 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
     }
     uint32_t discreteScore = this->discreteScore(score);
     LOG_TRACE("score = " << score
-                         << ", discreteScore = " << discreteScore
-                         << ", maxScore = " << m_MaxScore[0]);
+              << ", discreteScore = " << discreteScore
+              << ", maxScore = " << m_MaxScore[0]);
 
     uint64_t n = m_RawScoreQuantileSummary.n();
     uint64_t k = m_RawScoreQuantileSummary.k();
@@ -601,7 +603,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
         if (L.empty()) {
             LOG_ERROR("High quantile summary is empty: "
                       << m_RawScoreQuantileSummary.print());
-        } else {
+        } else   {
             uint64_t highPercentileCount =
                 static_cast<uint64_t>((HIGH_PERCENTILE / 100.0)
                                       * static_cast<double>(n) + 0.5);
@@ -624,10 +626,10 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
                 m_HighPercentileCount = n;
             }
             LOG_TRACE("s(H) = " << m_HighPercentileScore
-                                << ", c(H) = " << m_HighPercentileCount
-                                << ", percentile = " << 100.0 * static_cast<double>(m_HighPercentileCount)
+                      << ", c(H) = " << m_HighPercentileCount
+                      << ", percentile = " << 100.0 * static_cast<double>(m_HighPercentileCount)
                       / static_cast<double>(n) << "%"
-                                << ", desired c(H) = " << highPercentileCount);
+                      << ", desired c(H) = " << highPercentileCount);
 
             // Populate the high quantile summary.
             for (/**/; i < L.size(); ++i) {
@@ -644,7 +646,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
 
     if (discreteScore <= m_HighPercentileScore) {
         ++m_HighPercentileCount;
-    } else {
+    } else   {
         m_RawScoreHighQuantileSummary.add(discreteScore);
     }
     LOG_TRACE("percentile = " << static_cast<double>(m_HighPercentileCount)
@@ -659,8 +661,8 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
                                   * static_cast<double>(n + 1) + 0.5);
 
         LOG_TRACE("s(H) = " << m_HighPercentileScore
-                            << ", c(H) = " << m_HighPercentileCount
-                            << ", desired c(H) = " << highPercentileCount);
+                  << ", c(H) = " << m_HighPercentileCount
+                  << ", desired c(H) = " << highPercentileCount);
 
         if (m_HighPercentileCount > highPercentileCount) {
             TUInt32UInt64PrVec L;
@@ -681,7 +683,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
 
             uint64_t r = L[i0].second;
             for (std::size_t i = i0 + 1;
-                 i < L.size() && L[i0].second + m_RawScoreHighQuantileSummary.n() < n+1;
+                 i < L.size() && L[i0].second + m_RawScoreHighQuantileSummary.n() < n + 1;
                  ++i) {
                 for (/**/; j < H.size() && H[j].first <= L[i].first; ++j) {
                     r += (H[j].second - (j == 0 ?
@@ -700,7 +702,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
 
             m_HighPercentileScore = L[i0].first;
             m_HighPercentileCount = L[i0].second;
-            if (m_HighPercentileCount > n+1) {
+            if (m_HighPercentileCount > n + 1) {
                 LOG_ERROR("Invalid c(H) " << m_HighPercentileCount);
                 LOG_ERROR("target " << highPercentileCount);
                 LOG_ERROR("L " << core::CContainerPrinter::print(L));
@@ -708,10 +710,10 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
             }
 
             LOG_TRACE("s(H) = " << m_HighPercentileScore
-                                << ", c(H) = " << m_HighPercentileCount
-                                << ", percentile = " << 100.0 * static_cast<double>(m_HighPercentileCount)
+                      << ", c(H) = " << m_HighPercentileCount
+                      << ", percentile = " << 100.0 * static_cast<double>(m_HighPercentileCount)
                       / static_cast<double>(n + 1) << "%");
-        } else {
+        } else   {
             m_RawScoreQuantileSummary.quantile(HIGH_PERCENTILE / 100.0,
                                                m_HighPercentileScore);
             double lowerBound, upperBound;
@@ -723,8 +725,8 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
                                                           * lowerBound + 0.5);
 
             LOG_TRACE("s(H) = " << m_HighPercentileScore
-                                << ", c(H) = " << m_HighPercentileCount
-                                << ", percentile = " << 100.0 * lowerBound << "%");
+                      << ", c(H) = " << m_HighPercentileCount
+                      << ", percentile = " << 100.0 * lowerBound << "%");
         }
     }
 
@@ -796,16 +798,16 @@ bool CAnomalyScore::CNormalizer::upgrade(const std::string &loadedVersion,
     std::size_t i, j;
     if (   !core::CStringUtils::stringToType(loadedVersion, i) ||
            !core::CStringUtils::stringToType(currentVersion, j) ||
-           i-1 >= boost::size(HIGH_SCORE_UPGRADE_FACTOR) ||
-           j-1 >= boost::size(HIGH_SCORE_UPGRADE_FACTOR[0])) {
+           i - 1 >= boost::size(HIGH_SCORE_UPGRADE_FACTOR) ||
+           j - 1 >= boost::size(HIGH_SCORE_UPGRADE_FACTOR[0])) {
         LOG_ERROR("Don't know how to upgrade quantiles from version " <<
                   loadedVersion << " to version " << currentVersion);
         return false;
     }
 
 
-    double highScoreUpgradeFactor = HIGH_SCORE_UPGRADE_FACTOR[i-1][j-1];
-    double qDigestUpgradeFactor   = Q_DIGEST_UPGRADE_FACTOR[i-1][j-1];
+    double highScoreUpgradeFactor = HIGH_SCORE_UPGRADE_FACTOR[i - 1][j - 1];
+    double qDigestUpgradeFactor   = Q_DIGEST_UPGRADE_FACTOR[i - 1][j - 1];
 
     LOG_INFO("Upgrading quantiles from version " << loadedVersion <<
              " to version " << currentVersion <<
@@ -866,25 +868,25 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
             }
             m_HighPercentileScore = static_cast<uint32_t>(std::min(highPercentileScore64,
                                                                    static_cast<uint64_t>(std::numeric_limits<uint32_t>::max())));
-        } else if (name == HIGH_PERCENTILE_COUNT_TAG) {
+        } else if (name == HIGH_PERCENTILE_COUNT_TAG)   {
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  m_HighPercentileCount) == false) {
                 LOG_ERROR("Invalid high percentile count in " << traverser.value());
                 return false;
             }
-        } else if (name == MAX_SCORE_TAG) {
+        } else if (name == MAX_SCORE_TAG)   {
             if (m_MaxScore.fromDelimited(traverser.value()) == false) {
                 LOG_ERROR("Invalid max score in " << traverser.value());
                 return false;
             }
-        } else if (name == RAW_SCORE_QUANTILE_SUMMARY) {
+        } else if (name == RAW_SCORE_QUANTILE_SUMMARY)   {
             if (traverser.traverseSubLevel(boost::bind(&maths::CQDigest::acceptRestoreTraverser,
                                                        &m_RawScoreQuantileSummary, _1)) == false) {
                 LOG_ERROR("Invalid raw score quantile summary in " <<
                           traverser.value());
                 return false;
             }
-        } else if (name == RAW_SCORE_HIGH_QUANTILE_SUMMARY) {
+        } else if (name == RAW_SCORE_HIGH_QUANTILE_SUMMARY)   {
             if (traverser.traverseSubLevel(boost::bind(&maths::CQDigest::acceptRestoreTraverser,
                                                        &m_RawScoreHighQuantileSummary, _1)) == false) {
                 LOG_ERROR("Invalid raw score high quantile summary in " <<
@@ -951,7 +953,7 @@ const std::string &CAnomalyScore::normalizedScoreToSeverity(double normalizedSco
 
 bool CAnomalyScore::normalizerFromJson(const std::string &json,
                                        CNormalizer &normalizer) {
-    std::istringstream               iss(json);
+    std::istringstream iss(json);
     core::CJsonStateRestoreTraverser traverser(iss);
 
     return normalizerFromJson(traverser, normalizer);
@@ -959,7 +961,7 @@ bool CAnomalyScore::normalizerFromJson(const std::string &json,
 
 bool CAnomalyScore::normalizerFromJson(core::CStateRestoreTraverser &traverser,
                                        CNormalizer &normalizer) {
-    bool        restoredNormalizer(false);
+    bool restoredNormalizer(false);
     std::string restoredVersion(MISSING_VERSION_FORMAT_VERSION);
 
     while (traverser.next()) {
@@ -972,7 +974,7 @@ bool CAnomalyScore::normalizerFromJson(core::CStateRestoreTraverser &traverser,
                     LOG_DEBUG("Restored quantiles JSON version is " << restoredVersion <<
                               "; current JSON version is " << CURRENT_FORMAT_VERSION <<
                               " - will upgrade quantiles");
-                } else {
+                } else   {
                     // If the version has changed and the format is too different to
                     // even upgrade then start again from scratch - this counts as a
                     // successful load
@@ -982,7 +984,7 @@ bool CAnomalyScore::normalizerFromJson(core::CStateRestoreTraverser &traverser,
                     return true;
                 }
             }
-        } else if (name == NORMALIZER_TAG) {
+        } else if (name == NORMALIZER_TAG)   {
             restoredNormalizer = traverser.traverseSubLevel(boost::bind(
                                                                 &CAnomalyScore::CNormalizer::acceptRestoreTraverser,
                                                                 &normalizer,

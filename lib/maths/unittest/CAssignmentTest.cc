@@ -72,7 +72,7 @@ double cost(const TDoubleVecVec &costs,
 double match(const TDoubleVecVec &costs,
              TSizeSizePrVec &matching) {
     std::size_t n = costs.size();
-    TSizeVec    permutation;
+    TSizeVec permutation;
     for (std::size_t i = 0u; i < n; ++i) {
         permutation.push_back(i);
     }
@@ -185,7 +185,7 @@ void CAssignmentTest::testKuhnMunkres(void) {
             LOG_DEBUG("***" << i << "x" << i);
             for (std::size_t test = 0u; test < 100; ++test) {
                 TDoubleVec samples;
-                rng.generateUniformSamples(0.1, 1000.0, i*i, samples);
+                rng.generateUniformSamples(0.1, 1000.0, i * i, samples);
 
                 TDoubleVecVec costs;
                 fill(samples, costs);
@@ -195,7 +195,7 @@ void CAssignmentTest::testKuhnMunkres(void) {
                 }
 
                 TSizeSizePrVec expectedMatching;
-                double         expectedCost = match(costs, expectedMatching);
+                double expectedCost = match(costs, expectedMatching);
                 if (test % 10 == 0) {
                     LOG_DEBUG("expectedCost = " << expectedCost);
                 }
@@ -220,7 +220,7 @@ void CAssignmentTest::testKuhnMunkres(void) {
         // cost assignment.
 
         TDoubleVecVec costs;
-        TDoubleVec    samples;
+        TDoubleVec samples;
         rng.generateUniformSamples(0.1, 2.0, 10000u, samples);
         fill(samples, costs);
 
@@ -248,7 +248,7 @@ void CAssignmentTest::testKuhnMunkres(void) {
         }
 
         LOG_DEBUG("optimal cost = " << optimalCost
-                                    << ", lowest random cost = " << lowestRandomCost);
+                  << ", lowest random cost = " << lowestRandomCost);
         CPPUNIT_ASSERT(lowestRandomCost >= optimalCost);
 
         // Check adding higher cost row has no effect.

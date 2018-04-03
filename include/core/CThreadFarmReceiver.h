@@ -38,9 +38,11 @@ class CThreadFarmReceiver {
         CThreadFarmReceiver(PROCESSOR &processor,
                             THREADFARM &threadFarm)
             : m_Processor(processor),
-              m_ThreadFarm(threadFarm) {}
+              m_ThreadFarm(threadFarm)
+        {}
 
-        virtual ~CThreadFarmReceiver(void) {}
+        virtual ~CThreadFarmReceiver(void)
+        {}
 
         void processMsg(const MESSAGE &msg, size_t /* backlog */) {
             RESULT result;

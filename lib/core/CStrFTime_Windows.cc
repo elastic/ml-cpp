@@ -52,8 +52,8 @@ size_t CStrFTime::strFTime(char *buf,
 
         std::ostringstream strm;
         strm << ((diffSeconds < 0) ? '-' : '+')
-             << std::setfill('0') << std::setw(2) << ::_abs64(diffHours)
-             << std::setfill('0') << std::setw(2) << (::_abs64(diffMinutes) % 60);
+        << std::setfill('0') << std::setw(2) << ::_abs64(diffHours)
+        << std::setfill('0') << std::setw(2) << (::_abs64(diffMinutes) % 60);
 
         adjFormat.replace(zPos, 2, strm.str());
     }
@@ -65,7 +65,7 @@ size_t CStrFTime::strFTime(char *buf,
         // +ve means in DST; -ve means unknown
         if (tm->tm_isdst > 0) {
             adjFormat.replace(zPos, 2, tz.dstAbbrev());
-        } else {
+        } else   {
             adjFormat.replace(zPos, 2, tz.stdAbbrev());
         }
     }

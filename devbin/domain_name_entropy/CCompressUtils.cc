@@ -23,7 +23,8 @@ namespace ml {
 namespace domain_name_entropy {
 
 
-CCompressUtils::CCompressUtils(void) : m_State(E_Uninitialized) {}
+CCompressUtils::CCompressUtils(void) : m_State(E_Uninitialized)
+{}
 
 CCompressUtils::~CCompressUtils(void) {
     ::deflateEnd(&m_ZlibStrm);
@@ -67,7 +68,7 @@ bool CCompressUtils::compressString(bool finish, const std::string &str) {
     m_ZlibStrm.avail_in = static_cast<uInt>(str.size());
 
     static const size_t CHUNK = 16384;
-    unsigned char       out[CHUNK];
+    unsigned char out[CHUNK];
 
 
     int flush = Z_NO_FLUSH;
@@ -100,7 +101,7 @@ bool CCompressUtils::compressString(bool finish, const std::string &str) {
 bool CCompressUtils::compressedString(bool finish, std::string &buffer) {
     if (
         (finish == true && m_State == E_IsFinished) ||
-        (finish == false && m_State == E_Compressing)) {
+        (finish == false && m_State == E_Compressing))                                               {
         buffer.insert(0, reinterpret_cast<const char *>(&m_Buffer[0]), m_Buffer.size());
         return true;
     }
@@ -116,7 +117,7 @@ bool CCompressUtils::compressedString(bool finish, std::string &buffer) {
 bool CCompressUtils::compressedStringLength(bool finish, size_t &length) {
     if (
         (finish == true && m_State == E_IsFinished) ||
-        (finish == false && m_State == E_Compressing)) {
+        (finish == false && m_State == E_Compressing))                                               {
         length = m_Buffer.size();
         return true;
     }

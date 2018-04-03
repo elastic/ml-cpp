@@ -203,9 +203,9 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel {
 
             private:
                 model_t::EFeature m_Feature;
-                std::size_t       m_Pid;
-                std::size_t       m_Cid;
-                std::size_t       m_Correlate;
+                std::size_t m_Pid;
+                std::size_t m_Cid;
+                std::size_t m_Correlate;
         };
 
         //! \brief A hasher for the partial bucket corrections map key.
@@ -291,26 +291,26 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel {
 
     private:
         //! The last time each person was seen.
-        TTimeVec                  m_PersonLastBucketTimes;
+        TTimeVec m_PersonLastBucketTimes;
 
         //! The first time each attribute was seen.
-        TTimeVec                  m_AttributeFirstBucketTimes;
+        TTimeVec m_AttributeFirstBucketTimes;
 
         //! The last time each attribute was seen.
-        TTimeVec                  m_AttributeLastBucketTimes;
+        TTimeVec m_AttributeLastBucketTimes;
 
         //! The initial sketch to use for estimating the number of distinct people.
         maths::CBjkstUniqueValues m_NewDistinctPersonCounts;
 
         //! The number of distinct people generating each attribute.
-        TBjkstUniqueValuesVec     m_DistinctPersonCounts;
+        TBjkstUniqueValuesVec m_DistinctPersonCounts;
 
         //! The initial sketch to use for estimating person bucket counts.
-        TOptionalCountMinSketch   m_NewPersonBucketCounts;
+        TOptionalCountMinSketch m_NewPersonBucketCounts;
 
         //! The bucket count of each (person, attribute) pair in the exponentially
         //! decaying window with decay rate equal to CAnomalyDetectorModel::m_DecayRate.
-        TCountMinSketchVec        m_PersonAttributeBucketCounts;
+        TCountMinSketchVec m_PersonAttributeBucketCounts;
 };
 
 }

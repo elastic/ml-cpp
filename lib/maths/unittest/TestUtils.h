@@ -173,11 +173,13 @@ class CPriorTestInterfaceMixin : public PRIOR, public CPriorTestInterface {
     public:
         CPriorTestInterfaceMixin(const PRIOR &prior) :
             PRIOR(prior),
-            CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {}
+            CPriorTestInterface(static_cast<maths::CPrior&>(*this))
+        {}
 
         CPriorTestInterfaceMixin(const CPriorTestInterfaceMixin &other) :
             PRIOR(static_cast<const PRIOR&>(other)),
-            CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {}
+            CPriorTestInterface(static_cast<maths::CPrior&>(*this))
+        {}
 
         virtual ~CPriorTestInterfaceMixin(void) {}
 
@@ -222,7 +224,8 @@ class CUnitKernel {
     public:
         CUnitKernel(const maths::CMultivariatePrior &prior) :
             m_Prior(&prior),
-            m_X(1) {}
+            m_X(1)
+        {}
 
         bool operator()(const maths::CVectorNx1<double, N> &x, double &result) const {
             m_X[0].assign(x.begin(), x.end());
@@ -235,8 +238,8 @@ class CUnitKernel {
         static handy_typedefs::TDouble10Vec4Vec1Vec SINGLE_UNIT;
 
     private:
-        const maths::CMultivariatePrior             *m_Prior;
-        mutable handy_typedefs::TDouble10Vec1Vec    m_X;
+        const maths::CMultivariatePrior *m_Prior;
+        mutable handy_typedefs::TDouble10Vec1Vec m_X;
 };
 
 template<std::size_t N>
@@ -248,7 +251,8 @@ class CMeanKernel {
     public:
         CMeanKernel(const maths::CMultivariatePrior &prior) :
             m_Prior(&prior),
-            m_X(1) {}
+            m_X(1)
+        {}
 
         bool operator()(const maths::CVectorNx1<double, N> &x,
                         maths::CVectorNx1<double, N> &result) const {
@@ -264,8 +268,8 @@ class CMeanKernel {
         static handy_typedefs::TDouble10Vec4Vec1Vec SINGLE_UNIT;
 
     private:
-        const maths::CMultivariatePrior             *m_Prior;
-        mutable handy_typedefs::TDouble10Vec1Vec    m_X;
+        const maths::CMultivariatePrior *m_Prior;
+        mutable handy_typedefs::TDouble10Vec1Vec m_X;
 };
 
 template<std::size_t N>
@@ -279,7 +283,8 @@ class CCovarianceKernel {
                           const maths::CVectorNx1<double, N> &mean) :
             m_Prior(&prior),
             m_Mean(mean),
-            m_X(1) {}
+            m_X(1)
+        {}
 
         bool operator()(const maths::CVectorNx1<double, N> &x,
                         maths::CSymmetricMatrixNxN<double, N> &result) const {
@@ -295,9 +300,9 @@ class CCovarianceKernel {
         static handy_typedefs::TDouble10Vec4Vec1Vec SINGLE_UNIT;
 
     private:
-        const maths::CMultivariatePrior             *m_Prior;
-        maths::CVectorNx1<double, N>                m_Mean;
-        mutable handy_typedefs::TDouble10Vec1Vec    m_X;
+        const maths::CMultivariatePrior *m_Prior;
+        maths::CVectorNx1<double, N> m_Mean;
+        mutable handy_typedefs::TDouble10Vec1Vec m_X;
 };
 
 template<std::size_t N>

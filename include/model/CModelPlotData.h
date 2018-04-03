@@ -88,13 +88,13 @@ class MODEL_EXPORT CModelPlotData {
 
     private:
         TFeatureStrByFieldDataUMapUMap m_DataPerFeature;
-        core_t::TTime                  m_Time;
-        std::string                    m_PartitionFieldName;
-        std::string                    m_PartitionFieldValue;
-        std::string                    m_OverFieldName;
-        std::string                    m_ByFieldName;
-        core_t::TTime                  m_BucketSpan;
-        int                            m_DetectorIndex;
+        core_t::TTime m_Time;
+        std::string m_PartitionFieldName;
+        std::string m_PartitionFieldValue;
+        std::string m_OverFieldName;
+        std::string m_ByFieldName;
+        core_t::TTime m_BucketSpan;
+        int m_DetectorIndex;
 };
 
 

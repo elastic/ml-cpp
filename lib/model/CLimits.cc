@@ -38,9 +38,11 @@ CLimits::CLimits() : m_AutoConfigEvents(DEFAULT_AUTOCONFIG_EVENTS),
                      m_MaxExamples(DEFAULT_RESULTS_MAX_EXAMPLES),
                      m_UnusualProbabilityThreshold(DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD),
                      m_MemoryLimitMB(CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB),
-                     m_ResourceMonitor() {}
+                     m_ResourceMonitor()
+{}
 
-CLimits::~CLimits() {}
+CLimits::~CLimits()
+{}
 
 bool CLimits::init(const std::string &configFile) {
     boost::property_tree::ptree propTree;
@@ -53,7 +55,7 @@ bool CLimits::init(const std::string &configFile) {
         this->skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
-    } catch (boost::property_tree::ptree_error &e) {
+    } catch (boost::property_tree::ptree_error &e)   {
         LOG_ERROR("Error reading config file " << configFile <<
                   " : " << e.what());
         return false;

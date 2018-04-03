@@ -43,7 +43,8 @@ CMetricPopulationModelFactory::CMetricPopulationModelFactory(const SModelParams 
     m_SummaryMode(summaryMode),
     m_SummaryCountFieldName(summaryCountFieldName),
     m_UseNull(false),
-    m_BucketResultsDelay(0) {}
+    m_BucketResultsDelay(0)
+{}
 
 CMetricPopulationModelFactory *CMetricPopulationModelFactory::clone(void) const {
     return new CMetricPopulationModelFactory(*this);
@@ -180,7 +181,7 @@ CMetricPopulationModelFactory::defaultPrior(model_t::EFeature feature,
         modePriors.emplace_back(gammaPrior.clone());
         modePriors.emplace_back(logNormalPrior.clone());
         modePriors.emplace_back(normalPrior.clone());
-        maths::COneOfNPrior    modePrior(modePriors, dataType, params.s_DecayRate);
+        maths::COneOfNPrior modePrior(modePriors, dataType, params.s_DecayRate);
         maths::CXMeansOnline1d clusterer(dataType,
                                          maths::CAvailableModeDistributions::ALL,
                                          maths_t::E_ClustersFractionWeight,

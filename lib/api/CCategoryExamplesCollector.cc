@@ -45,7 +45,8 @@ const size_t CCategoryExamplesCollector::MAX_EXAMPLE_LENGTH(1000);
 
 
 CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples)
-    : m_MaxExamples(maxExamples) {}
+    : m_MaxExamples(maxExamples)
+{}
 
 CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples, core::CStateRestoreTraverser &traverser)
     : m_MaxExamples(maxExamples) {
@@ -132,7 +133,7 @@ bool CCategoryExamplesCollector::acceptRestoreTraverser(core::CStateRestoreTrave
 
 bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser &traverser) {
     std::size_t category = 0;
-    TStrSet     examples;
+    TStrSet examples;
     do {
         const std::string &name = traverser.name();
         if (name == CATEGORY_TAG) {
@@ -140,7 +141,7 @@ bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser &t
                 LOG_ERROR("Error restoring category: " << traverser.value());
                 return false;
             }
-        } else if (name == EXAMPLE_TAG) {
+        } else if (name == EXAMPLE_TAG)   {
             examples.insert(traverser.value());
         }
     } while (traverser.next());

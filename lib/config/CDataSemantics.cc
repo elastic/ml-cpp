@@ -117,10 +117,10 @@ class CMixtureData {
         }
 
     private:
-        double                                     m_Count;
-        maths::CNaturalBreaksClassifier            m_Classifier;
+        double m_Count;
+        maths::CNaturalBreaksClassifier m_Classifier;
         maths::CNaturalBreaksClassifier::TTupleVec m_Categories;
-        TGMM                                       m_Gmm;
+        TGMM m_Gmm;
 };
 
 }
@@ -131,7 +131,8 @@ CDataSemantics::CDataSemantics(TOptionalUserDataType override) :
     m_Count(0.0),
     m_NumericProportion(0.0),
     m_IntegerProportion(0.0),
-    m_EmpiricalDistributionOverflowed(false) {}
+    m_EmpiricalDistributionOverflowed(false)
+{}
 
 void CDataSemantics::add(const std::string &example) {
     m_Count += 1.0;
@@ -140,21 +141,21 @@ void CDataSemantics::add(const std::string &example) {
 
     std::string trimmed = example;
     core::CStringUtils::trimWhitespace(trimmed);
-    int64_t  asInt64;
+    int64_t asInt64;
     uint64_t asUInt64;
-    double   asDouble;
+    double asDouble;
     if (core::CStringUtils::stringToTypeSilent(trimmed, asInt64)) {
         value = this->addInteger(asInt64);
-    } else if (core::CStringUtils::stringToTypeSilent(trimmed, asUInt64)) {
+    } else if (core::CStringUtils::stringToTypeSilent(trimmed, asUInt64))   {
         value = this->addPositiveInteger(asUInt64);
-    } else if (core::CStringUtils::stringToTypeSilent(trimmed, asDouble)) {
+    } else if (core::CStringUtils::stringToTypeSilent(trimmed, asDouble))   {
         value = this->addReal(asDouble);
     }
 
     if (!value.isNan()) {
         m_Smallest.add(value);
         m_Largest.add(value);
-    } else if ( m_NonNumericValues.size() < 2 &&
+    } else if ( m_NonNumericValues.size() < 2   &&
                 std::find(m_NonNumericValues.begin(),
                           m_NonNumericValues.end(), trimmed) == m_NonNumericValues.end()) {
         m_NonNumericValues.push_back(trimmed);
@@ -311,7 +312,7 @@ bool CDataSemantics::GMMGoodFit(void) const {
             if (std::min(lightGmmBIC, heavyGmmBIC) < categoricalBIC) {
                 return true;
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ERROR("Failed to compute BIC for " << m << " modes: " << e.what());
         }
     }
@@ -340,9 +341,9 @@ maths::COrdinal CDataSemantics::addReal(REAL value) {
 }
 
 const std::size_t CDataSemantics::MAXIMUM_EMPIRICAL_DISTRIBUTION_SIZE(10000);
-const double      CDataSemantics::NUMERIC_PROPORTION_FOR_METRIC_STRICT(0.99);
-const double      CDataSemantics::NUMERIC_PROPORTION_FOR_METRIC_WITH_SUSPECTED_MISSING_VALUES(0.5);
-const double      CDataSemantics::INTEGER_PRORORTION_FOR_INTEGER(0.999);
+const double CDataSemantics::NUMERIC_PROPORTION_FOR_METRIC_STRICT(0.99);
+const double CDataSemantics::NUMERIC_PROPORTION_FOR_METRIC_WITH_SUSPECTED_MISSING_VALUES(0.5);
+const double CDataSemantics::INTEGER_PRORORTION_FOR_INTEGER(0.999);
 
 }
 }

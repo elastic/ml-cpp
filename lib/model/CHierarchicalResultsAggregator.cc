@@ -101,12 +101,12 @@ bool influenceProbability(const TStoredStringPtrStoredStringPtrPrDoublePrVec &in
 }
 
 const core::CHashing::CMurmurHash2String HASHER;
-const std::string                        BUCKET_TAG("a");
-const std::string                        INFLUENCER_BUCKET_TAG("b");
-const std::string                        INFLUENCER_TAG("c");
-const std::string                        PARTITION_TAG("d");
-const std::string                        PERSON_TAG("e");
-const std::string                        LEAF_TAG("f");
+const std::string BUCKET_TAG("a");
+const std::string INFLUENCER_BUCKET_TAG("b");
+const std::string INFLUENCER_TAG("c");
+const std::string PARTITION_TAG("d");
+const std::string PERSON_TAG("e");
+const std::string LEAF_TAG("f");
 
 } // unnamed::
 
@@ -140,7 +140,7 @@ void CHierarchicalResultsAggregator::clear(void) {
 void CHierarchicalResultsAggregator::visit(const CHierarchicalResults & /*results*/, const TNode &node, bool pivot) {
     if (isLeaf(node)) {
         this->aggregateLeaf(node);
-    } else {
+    } else   {
         this->aggregateNode(node, pivot);
     }
 }
@@ -192,7 +192,7 @@ void CHierarchicalResultsAggregator::aggregateLeaf(const TNode &node) {
         return;
     }
 
-    int    detector{node.s_Detector};
+    int detector{node.s_Detector};
     double probability{node.probability()};
     if (!maths::CMathsFuncs::isFinite(probability)) {
         probability = 1.0;
@@ -212,21 +212,21 @@ void CHierarchicalResultsAggregator::aggregateLeaf(const TNode &node) {
 void CHierarchicalResultsAggregator::aggregateNode(const TNode &node, bool pivot) {
     LOG_TRACE("node = " << node.print() << ", pivot = " << pivot);
 
-    std::size_t              numberDetectors;
+    std::size_t numberDetectors;
     TIntSizePrDouble1VecUMap partition[N];
     if (!this->partitionChildProbabilities(node, pivot, numberDetectors, partition)) {
         return;
     }
     LOG_TRACE("partition = " << core::CContainerPrinter::print(partition));
 
-    int         detector;
-    int         aggregation;
+    int detector;
+    int aggregation;
     TDouble1Vec detectorProbabilities;
     this->detectorProbabilities(node, pivot, numberDetectors, partition,
                                 detector, aggregation, detectorProbabilities);
     LOG_TRACE("detector = " << detector
-                            << ", aggregation = " << aggregation
-                            << ", detector probabilities = " << detectorProbabilities);
+              << ", aggregation = " << aggregation
+              << ", detector probabilities = " << detectorProbabilities);
 
     const double *params{m_Parameters[model_t::E_AggregateDetectors]};
     CAnomalyScore::compute(params[model_t::E_JointProbabilityWeight],
@@ -251,8 +251,8 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(const TNode &no
         partition[i].reserve(node.s_Children.size());
     }
 
-    bool            haveResult{false};
-    TSizeFSet       detectors;
+    bool haveResult{false};
+    TSizeFSet detectors;
     TMinAccumulator pMinChild;
     TMinAccumulator pMinDescendent;
 
@@ -261,7 +261,7 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(const TNode &no
             continue;
         }
 
-        double      probability{child->probability()};
+        double probability{child->probability()};
         std::size_t key{0};
         if (   pivot &&
                !isRoot(node) &&
@@ -271,7 +271,7 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(const TNode &no
                                      probability, probability)) {
             LOG_ERROR("Couldn't find influence for " << child->print());
             continue;
-        } else {
+        } else   {
             key = this->hash(*child);
         }
 
@@ -327,11 +327,11 @@ void CHierarchicalResultsAggregator::detectorProbabilities(const TNode &node, bo
     for (int i = 0u; i < static_cast<int>(N); ++i) {
         const double *params{m_Parameters[i]};
         for (const auto &subset : partition[i]) {
-            int    detector_{subset.first.first};
+            int detector_{subset.first.first};
             double probability;
             if (subset.second.size() == 1) {
                 probability = subset.second[0];
-            } else {
+            } else   {
                 double rawAnomalyScore;
                 CAnomalyScore::compute(params[model_t::E_JointProbabilityWeight],
                                        params[model_t::E_ExtremeProbabilityWeight],
@@ -363,7 +363,7 @@ void CHierarchicalResultsAggregator::detectorProbabilities(const TNode &node, bo
         double probability{dp.second[0]};
         if (dp.second.size() > 1) {
             const double *params{m_Parameters[model_t::E_AggregatePeople]};
-            double       rawAnomalyScore;
+            double rawAnomalyScore;
             CAnomalyScore::compute(params[model_t::E_JointProbabilityWeight],
                                    params[model_t::E_ExtremeProbabilityWeight],
                                    static_cast<std::size_t>(params[model_t::E_MinExtremeSamples]),
@@ -390,7 +390,7 @@ double CHierarchicalResultsAggregator::correctProbability(const TNode &node, boo
 
     if (probability < CDetectorEqualizer::largestProbabilityToCorrect()) {
         CDetectorEqualizerFactory factory;
-        TDetectorEqualizerPtrVec  equalizers;
+        TDetectorEqualizerPtrVec equalizers;
         this->elements(node, pivot, factory, equalizers);
         TMaxAccumulator corrected;
         for (auto &&equalizer : equalizers) {

@@ -64,9 +64,9 @@ void CStatisticalTestsTest::testCramerVonMises(void) {
             boost::math::normal_distribution<> normal(5.0, ::sqrt(2.0));
 
             TDoubleVec p;
-            for (std::size_t j = 0u; j < samples.size()/n[i]; ++j) {
-                maths::CStatisticalTests::CCramerVonMises cvm(n[i]-1);
-                for (std::size_t k = n[i]*j; k < n[i]*(j+1); ++k) {
+            for (std::size_t j = 0u; j < samples.size() / n[i]; ++j) {
+                maths::CStatisticalTests::CCramerVonMises cvm(n[i] - 1);
+                for (std::size_t k = n[i] * j; k < n[i] * (j + 1); ++k) {
                     cvm.addF(boost::math::cdf(normal, samples[k]));
                 }
                 p.push_back(cvm.pValue());
@@ -82,8 +82,8 @@ void CStatisticalTestsTest::testCramerVonMises(void) {
                                                 - p.begin())
                             / static_cast<double>(p.size());
                 LOG_DEBUG("percentile = " << percentile
-                                          << ", p value percentile = " << pp
-                                          << ", error = " << ::fabs(pp - percentile));
+                          << ", p value percentile = " << pp
+                          << ", error = " << ::fabs(pp - percentile));
                 meanError += ::fabs(pp - percentile);
                 CPPUNIT_ASSERT(::fabs(pp - percentile) < 0.055);
             }
@@ -99,9 +99,9 @@ void CStatisticalTestsTest::testCramerVonMises(void) {
             boost::math::lognormal_distribution<> lognormal(2.0, 1.0);
 
             TDoubleVec p;
-            for (std::size_t j = 0u; j < samples.size()/n[i]; ++j) {
-                maths::CStatisticalTests::CCramerVonMises cvm(n[i]-1);
-                for (std::size_t k = n[i]*j; k < n[i]*(j+1); ++k) {
+            for (std::size_t j = 0u; j < samples.size() / n[i]; ++j) {
+                maths::CStatisticalTests::CCramerVonMises cvm(n[i] - 1);
+                for (std::size_t k = n[i] * j; k < n[i] * (j + 1); ++k) {
                     cvm.addF(boost::math::cdf(lognormal, samples[k]));
                 }
                 p.push_back(cvm.pValue());
@@ -117,8 +117,8 @@ void CStatisticalTestsTest::testCramerVonMises(void) {
                                                 - p.begin())
                             / static_cast<double>(p.size());
                 LOG_DEBUG("percentile = " << percentile
-                                          << ", p value percentile = " << pp
-                                          << ", error = " << ::fabs(pp - percentile));
+                          << ", p value percentile = " << pp
+                          << ", error = " << ::fabs(pp - percentile));
                 meanError += ::fabs(pp - percentile);
                 CPPUNIT_ASSERT(::fabs(pp - percentile) < 0.055);
             }
@@ -149,7 +149,7 @@ void CStatisticalTestsTest::testPersist(void) {
         boost::math::normal_distribution<> normal(5.0, ::sqrt(2.0));
 
         maths::CStatisticalTests::CCramerVonMises origCvm(9);
-        TDoubleVec                                p;
+        TDoubleVec p;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             origCvm.addF(boost::math::cdf(normal, samples[i]));
         }

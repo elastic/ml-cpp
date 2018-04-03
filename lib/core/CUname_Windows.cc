@@ -54,7 +54,7 @@ bool queryKernelVersion(uint16_t &major, uint16_t &minor, uint16_t &build) {
         return false;
     }
 
-    UINT             len(0);
+    UINT len(0);
     VS_FIXEDFILEINFO *fixedFileInfo(0);
     if (VerQueryValue(buffer.get(),
                       "\\",
@@ -90,7 +90,7 @@ std::string CUname::sysName(void) {
 std::string CUname::nodeName(void) {
     // First ask with a size of zero to find the required size
     DWORD size(0);
-    BOOL  res(GetComputerNameEx(ComputerNameDnsHostname, 0, &size));
+    BOOL res(GetComputerNameEx(ComputerNameDnsHostname, 0, &size));
     if (res != FALSE || GetLastError() != ERROR_MORE_DATA) {
         LOG_ERROR("Error getting computer name length - error code : " <<
                   CWindowsError());
@@ -152,7 +152,7 @@ std::string CUname::version(void) {
                                               VER_PRODUCT_TYPE,
                                               VER_EQUAL)) != FALSE) {
         strm << " (Domain Controller)";
-    } else {
+    } else   {
         conditionMask = 0;
         versionInfoEx.wProductType = VER_NT_SERVER;
         if (VerifyVersionInfo(&versionInfoEx,
@@ -161,7 +161,7 @@ std::string CUname::version(void) {
                                                   VER_PRODUCT_TYPE,
                                                   VER_EQUAL)) != FALSE) {
             strm << " (Server)";
-        } else {
+        } else   {
             conditionMask = 0;
             versionInfoEx.wProductType = VER_NT_WORKSTATION;
             if (VerifyVersionInfo(&versionInfoEx,

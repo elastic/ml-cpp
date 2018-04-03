@@ -483,7 +483,7 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable {
         //! Get the time series data gatherer.
         const CDataGatherer &dataGatherer(void) const;
         //! Get the time series data gatherer.
-        CDataGatherer       &dataGatherer(void);
+        CDataGatherer &dataGatherer(void);
 
         //! Get the length of the time interval used to aggregate data.
         core_t::TTime bucketLength(void) const;
@@ -589,13 +589,13 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable {
 
             private:
                 //! The global resource monitor.
-                CResourceMonitor      *m_ResourceMonitor;
+                CResourceMonitor *m_ResourceMonitor;
                 //! Computes the current memory usage.
-                TMemoryUsage          m_MemoryUsage;
+                TMemoryUsage m_MemoryUsage;
                 //! The number of correlations which can still be modeled.
-                std::size_t           m_ResourceLimit;
+                std::size_t m_ResourceLimit;
                 //! The maximum permitted number of correlations which can be modeled.
-                std::size_t           m_MaxNumberCorrelations;
+                std::size_t m_MaxNumberCorrelations;
                 //! The prototype correlate prior.
                 TMultivariatePriorPtr m_PrototypePrior;
         };
@@ -651,7 +651,7 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable {
         //! Get the person bucket counts.
         const TDoubleVec &personBucketCounts(void) const;
         //! Writable access to the person bucket counts.
-        TDoubleVec       &personBucketCounts(void);
+        TDoubleVec &personBucketCounts(void);
         //! Set the total count of buckets in the window.
         void windowBucketCount(double windowBucketCount);
         //! Get the total count of buckets in the window.
@@ -715,25 +715,25 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable {
 
     private:
         //! The global configuration parameters.
-        TModelParamsCRef                        m_Params;
+        TModelParamsCRef m_Params;
 
         //! The data gatherer. (This is not persisted by the model hierarchy.)
-        TDataGathererPtr                        m_DataGatherer;
+        TDataGathererPtr m_DataGatherer;
 
         //! The bucket count of each person in the exponentially decaying
         //! window with decay rate equal to m_DecayRate.
-        TDoubleVec                              m_PersonBucketCounts;
+        TDoubleVec m_PersonBucketCounts;
 
         //! The total number of buckets in the exponentially decaying window
         //! with decay rate equal to m_DecayRate.
-        double                                  m_BucketCount;
+        double m_BucketCount;
 
         //! The influence calculators to use for each feature which is being
         //! modeled.
         TFeatureInfluenceCalculatorCPtrPrVecVec m_InfluenceCalculators;
 
         //! A corrector that calculates adjustments for values of interim buckets.
-        TInterimBucketCorrectorPtr              m_InterimBucketCorrector;
+        TInterimBucketCorrectorPtr m_InterimBucketCorrector;
 };
 
 }

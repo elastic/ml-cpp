@@ -90,7 +90,7 @@ void CProcessPriorityTest::testReducePriority(void) {
             // what an oom_score_adj of 667 maps to - the range seems to be 8-11
             CPPUNIT_ASSERT(oomAdj >= 8);
             CPPUNIT_ASSERT(oomAdj <= 11);
-        } else {
+        } else   {
             CPPUNIT_ASSERT_EQUAL(std::string("10"), content);
         }
         readFromOneOrOther = true;

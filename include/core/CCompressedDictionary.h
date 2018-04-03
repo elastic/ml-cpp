@@ -85,9 +85,7 @@ class CCompressedDictionary {
                                                           boost::less_than_comparable<CWord> > {
             public:
                 //! See CMemory.
-                static bool dynamicSizeAlwaysZero(void) {
-                    return true;
-                }
+                static bool dynamicSizeAlwaysZero(void) { return true; }
 
                 //! Used for converting to and from a delimited string.
                 static const char DELIMITER;

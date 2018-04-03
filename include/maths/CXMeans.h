@@ -73,7 +73,8 @@ class CXMeans {
         class CCluster {
             public:
                 CCluster(void) :
-                    m_Cost(std::numeric_limits<double>::max()), m_Checksum(0) {}
+                    m_Cost(std::numeric_limits<double>::max()), m_Checksum(0)
+                {}
 
                 //! Check for equality using checksum and then points if the
                 //! checksum is ambiguous.
@@ -129,13 +130,13 @@ class CXMeans {
 
             private:
                 //! The information criterion cost of this cluster.
-                double    m_Cost;
+                double m_Cost;
                 //! The centroid of the points in this cluster.
-                POINT     m_Centre;
+                POINT m_Centre;
                 //! The points in the cluster.
                 TPointVec m_Points;
                 //! A checksum for the points in the cluster.
-                uint64_t  m_Checksum;
+                uint64_t m_Checksum;
         };
 
         typedef std::vector<CCluster> TClusterVec;
@@ -166,7 +167,7 @@ class CXMeans {
         }
 
         //! Get the best centres found to date.
-        const TPointVec   &centres(void) const {
+        const TPointVec &centres(void) const {
             return m_BestCentres;
         }
 
@@ -230,7 +231,7 @@ class CXMeans {
             // k-means to improve parameters.
             m_Kmeans.run(kmeansIterations);
             const TPointVec &newCentres = m_Kmeans.centres();
-            TPointVecVec    newClusterPoints;
+            TPointVecVec newClusterPoints;
             m_Kmeans.clusters(newClusterPoints);
 
             // Note that oldClusters holds pointers to the current
@@ -240,7 +241,7 @@ class CXMeans {
             TClusterVec newClusters;
             newClusters.reserve(newCentres.size());
             TUInt64USet preserved;
-            COST        cost_;
+            COST cost_;
 
             for (std::size_t i = 0u; i < n; ++i) {
                 newClusters.push_back(CCluster());
@@ -253,7 +254,7 @@ class CXMeans {
                 if (j != oldClusters.end() && **j == cluster) {
                     cluster.cost((*j)->cost());
                     preserved.insert(cluster.checksum());
-                } else {
+                } else   {
                     cluster.cost(COST(cluster.points()).calculate());
                 }
                 cost_.add(cluster.points());
@@ -264,7 +265,7 @@ class CXMeans {
             for (TUInt64USetItr i = m_Inactive.begin(); i != m_Inactive.end(); /**/) {
                 if (preserved.count(*i) > 0) {
                     ++i;
-                } else {
+                } else   {
                     i = m_Inactive.erase(i);
                 }
             }
@@ -295,11 +296,11 @@ class CXMeans {
 
             // Declared outside the loop to minimize allocations.
             CKMeansFast<POINT> kmeans;
-            TPointVec          points;
-            TPointVecVec       clusterPoints;
-            TPointVec          bestClusterCentres;
-            TPointVecVec       bestClusterPoints;
-            TPointVec          seedClusterCentres;
+            TPointVec points;
+            TPointVecVec clusterPoints;
+            TPointVec bestClusterCentres;
+            TPointVecVec bestClusterPoints;
+            TPointVec seedClusterCentres;
 
             std::size_t largest = 0;
             for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
@@ -367,7 +368,7 @@ class CXMeans {
                         m_Clusters.back().points(bestClusterPoints[j]);
                     }
                     split = true;
-                } else {
+                } else   {
                     LOG_TRACE("Setting inactive = " << m_Clusters[i].checksum());
                     m_Inactive.insert(m_Clusters[i].checksum());
                 }
@@ -422,23 +423,23 @@ class CXMeans {
         mutable CPRNG::CXorShift1024Mult m_Rng;
 
         //! The maximum number of clusters.
-        std::size_t                      m_Kmax;
+        std::size_t m_Kmax;
 
         //! The current clusters.
-        TClusterVec                      m_Clusters;
+        TClusterVec m_Clusters;
 
         //! Checksums of clusters which weren't modified in the last
         //! iteration.
-        TUInt64USet                      m_Inactive;
+        TUInt64USet m_Inactive;
 
         //! The fast k-means state for the full set of points.
-        CKMeansFast<POINT>               m_Kmeans;
+        CKMeansFast<POINT> m_Kmeans;
 
         //! The minimum cost clustering found to date.
-        double                           m_MinCost;
+        double m_MinCost;
 
         //! The cluster centres corresponding to the maximum score.
-        TPointVec                        m_BestCentres;
+        TPointVec m_BestCentres;
 };
 
 }

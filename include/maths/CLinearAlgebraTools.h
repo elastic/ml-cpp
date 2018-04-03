@@ -371,10 +371,10 @@ std::ostream &operator<<(std::ostream &o, const CSymmetricMatrixNxN<T, N> &m) {
 template<typename T, std::size_t N>
 std::ostream &operator<<(std::ostream &o, const CVectorNx1<T, N> &v) {
     o << "[";
-    for (std::size_t i = 0u; i+1 < N; ++i) {
+    for (std::size_t i = 0u; i + 1 < N; ++i) {
         o << core::CStringUtils::typeToStringPretty(v(i)) << ' ';
     }
-    o << core::CStringUtils::typeToStringPretty(v(N-1)) << ']';
+    o << core::CStringUtils::typeToStringPretty(v(N - 1)) << ']';
     return o;
 }
 
@@ -385,10 +385,10 @@ std::ostream &operator<<(std::ostream &o, const CVector<T> &v) {
         return o << "[]";
     }
     o << "[";
-    for (std::size_t i = 0u; i+1 < v.dimension(); ++i) {
+    for (std::size_t i = 0u; i + 1 < v.dimension(); ++i) {
         o << core::CStringUtils::typeToStringPretty(v(i)) << ' ';
     }
-    o << core::CStringUtils::typeToStringPretty(v(v.dimension()-1)) << ']';
+    o << core::CStringUtils::typeToStringPretty(v(v.dimension() - 1)) << ']';
     return o;
 }
 
@@ -811,7 +811,7 @@ maths_t::EFloatingPointErrorStatus logDeterminant(const CSymmetricMatrix<T> &mat
 template<typename MATRIX>
 inline Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
 projectedMatrix(const std::vector<std::size_t> &subspace, const MATRIX &matrix) {
-    std::size_t                                           d = subspace.size();
+    std::size_t d = subspace.size();
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> result(d, d);
     for (std::size_t i = 0u; i < d; ++i) {
         for (std::size_t j = 0u; j < d; ++j) {
@@ -825,7 +825,7 @@ projectedMatrix(const std::vector<std::size_t> &subspace, const MATRIX &matrix) 
 template<typename VECTOR>
 inline Eigen::Matrix<double, Eigen::Dynamic, 1>
 projectedVector(const std::vector<std::size_t> &subspace, const VECTOR &vector) {
-    std::size_t                              d = subspace.size();
+    std::size_t d = subspace.size();
     Eigen::Matrix<double, Eigen::Dynamic, 1> result(d);
     for (std::size_t i = 0u; i < d; ++i) {
         result(i) = vector(subspace[i]);

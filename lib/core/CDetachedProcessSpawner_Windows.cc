@@ -39,7 +39,8 @@ class CTrackerThread : public CThread {
     public:
         CTrackerThread(void)
             : m_Shutdown(false),
-              m_Condition(m_Mutex) {}
+              m_Condition(m_Mutex)
+        {}
 
         virtual ~CTrackerThread(void) {
             // Close the handles to any child processes that outlived us
@@ -104,7 +105,7 @@ class CTrackerThread : public CThread {
                 // otherwise wait for a child process to start.
                 if (m_Pids.empty()) {
                     m_Condition.wait();
-                } else {
+                } else   {
                     m_Condition.wait(50);
                 }
 
@@ -136,17 +137,17 @@ class CTrackerThread : public CThread {
                 if (WaitForSingleObject(processHandle, 0) == WAIT_OBJECT_0) {
                     CloseHandle(processHandle);
                     iter = m_Pids.erase(iter);
-                } else {
+                } else   {
                     ++iter;
                 }
             }
         }
 
     private:
-        bool           m_Shutdown;
-        TPidHandleMap  m_Pids;
+        bool m_Shutdown;
+        TPidHandleMap m_Pids;
         mutable CMutex m_Mutex;
-        CCondition     m_Condition;
+        CCondition m_Condition;
 };
 
 }

@@ -33,7 +33,7 @@ namespace maths {
 namespace {
 
 const uint64_t QUANTILE_SIZE = 200u;
-const double   DISCRETIZATION_FACTOR = 100.0;
+const double DISCRETIZATION_FACTOR = 100.0;
 
 //! Convert a probability to a positive integer.
 uint32_t discreteProbability(const double probability) {
@@ -85,13 +85,13 @@ bool CProbabilityCalibrator::acceptRestoreTraverser(core::CStateRestoreTraverser
                 return false;
             }
             m_Style = static_cast<EStyle>(style);
-        } else if (name == CUTOFF_PROBABILITY_TAG) {
+        } else if (name == CUTOFF_PROBABILITY_TAG)   {
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  m_CutoffProbability) == false) {
                 LOG_ERROR("Invalid cutoff in " << traverser.value());
                 return false;
             }
-        } else if (name == DISCRETE_PROBABILITY_QUANTILE_TAG) {
+        } else if (name == DISCRETE_PROBABILITY_QUANTILE_TAG)   {
             if (traverser.traverseSubLevel(boost::bind(&CQDigest::acceptRestoreTraverser,
                                                        m_DiscreteProbabilityQuantiles.get(),
                                                        _1)) == false) {
@@ -135,9 +135,9 @@ double CProbabilityCalibrator::calibrate(double probability) const {
     // bound for the probability.
 
     Fu = CTools::truncate(Fu, 0.0, 1.0);
-    double                           n = static_cast<double>(m_DiscreteProbabilityQuantiles->n());
-    double                           a = n * Fu + 1.0;
-    double                           b = n * (1.0 - Fu) + 1.0;
+    double n = static_cast<double>(m_DiscreteProbabilityQuantiles->n());
+    double a = n * Fu + 1.0;
+    double b = n * (1.0 - Fu) + 1.0;
     boost::math::beta_distribution<> beta(a, b);
     Fu = boost::math::quantile(beta, 0.75);
     LOG_TRACE("(1 - F)(25) = " << 1.0 - Fu);
@@ -175,8 +175,8 @@ double CProbabilityCalibrator::calibrate(double probability) const {
                 Fu = boost::math::quantile(beta, 0.75);
                 double scale = std::max((1.0 - Fu) / rawProbability(pThreshold), 1.0);
                 LOG_TRACE("scale = " << scale
-                                     << ", 1 - F = " << 1.0 - Fu
-                                     << ", p = " << rawProbability(pThreshold));
+                          << ", 1 - F = " << 1.0 - Fu
+                          << ", p = " << rawProbability(pThreshold));
                 return probability * scale;
             }
             return std::max(probability, 1.0 - Fu);

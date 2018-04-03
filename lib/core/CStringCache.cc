@@ -58,7 +58,7 @@ const std::string &CStringCache::stringFor(const char *str, size_t length) {
         return EMPTY_STRING;
     }
 
-    CCharPHash     hash(str, str + length);
+    CCharPHash hash(str, str + length);
     CCharPStrEqual equal(length);
 
     TStrUSetCItr iter = m_Cache.find(str, hash, equal);
@@ -106,7 +106,8 @@ size_t CStringCache::CCharPHash::operator()(const char *) const {
 
 inline
 CStringCache::CCharPStrEqual::CCharPStrEqual(size_t length)
-    : m_Length(length) {}
+    : m_Length(length)
+{}
 
 // Caller is responsible for ensuring that lhs is not NULL
 inline

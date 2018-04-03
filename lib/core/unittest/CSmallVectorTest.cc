@@ -28,7 +28,7 @@ void CSmallVectorTest::testNonStandard(void) {
 
     // Test construction and conversion to a std::vector.
     {
-        TDoubleVec  vec{0.1, 1.4, 7.4};
+        TDoubleVec vec{0.1, 1.4, 7.4};
         TDouble5Vec svec(vec);
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(vec),
                              core::CContainerPrinter::print(svec));

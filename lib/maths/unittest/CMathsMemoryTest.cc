@@ -49,12 +49,12 @@ void CMathsMemoryTest::testTimeSeriesDecompositions(void) {
 
 void CMathsMemoryTest::testPriors(void) {
     CConstantPrior::TOptionalDouble d;
-    CConstantPrior                  constantPrior(d);
+    CConstantPrior constantPrior(d);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), constantPrior.memoryUsage());
 
     CGammaRateConjugate::TWeightStyleVec weightStyles;
-    CGammaRateConjugate::TDoubleVec      samples;
-    CGammaRateConjugate::TDoubleVecVec   weights;
+    CGammaRateConjugate::TDoubleVec samples;
+    CGammaRateConjugate::TDoubleVecVec weights;
 
     weightStyles.push_back(maths_t::E_SampleCountWeight);
     samples.push_back(0.996);
@@ -136,7 +136,7 @@ void CMathsMemoryTest::testBjkstVec(void) {
     typedef std::vector<maths::CBjkstUniqueValues> TBjkstValuesVec;
     {
         // Test empty
-        TBjkstValuesVec    values;
+        TBjkstValuesVec values;
         core::CMemoryUsage mem;
         mem.setName("root", 0);
         core::CMemoryDebug::dynamicSize("values", values, &mem);
@@ -144,7 +144,7 @@ void CMathsMemoryTest::testBjkstVec(void) {
     }
     {
         // Test adding values to the vector part
-        TBjkstValuesVec           values;
+        TBjkstValuesVec values;
         maths::CBjkstUniqueValues seed(3, 100);
         values.resize(5, seed);
         for (std::size_t i = 0; i < 5; i++) {
@@ -159,7 +159,7 @@ void CMathsMemoryTest::testBjkstVec(void) {
     }
     {
         // Test adding values to the sketch part
-        TBjkstValuesVec           values;
+        TBjkstValuesVec values;
         maths::CBjkstUniqueValues seed(3, 100);
         values.resize(5, seed);
         for (std::size_t i = 0; i < 5; i++) {

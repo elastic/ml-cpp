@@ -77,7 +77,7 @@ class MODEL_EXPORT CAnomalyScore {
 
     public:
         //! \brief Wrapper around CAnomalyScore::compute.
-        class MODEL_EXPORT       CComputer {
+        class MODEL_EXPORT CComputer {
             public:
                 CComputer(double jointProbabilityWeight,
                           double extremeProbabilityWeight,
@@ -92,9 +92,9 @@ class MODEL_EXPORT CAnomalyScore {
 
             private:
                 //! The weight to assign the joint probability.
-                double      m_JointProbabilityWeight;
+                double m_JointProbabilityWeight;
                 //! The weight to assign the extreme probability.
-                double      m_ExtremeProbabilityWeight;
+                double m_ExtremeProbabilityWeight;
                 //! The minimum number of samples to include in the extreme
                 //! probability calculation.
                 std::size_t m_MinExtremeSamples;
@@ -102,7 +102,7 @@ class MODEL_EXPORT CAnomalyScore {
                 //! probability calculation.
                 std::size_t m_MaxExtremeSamples;
                 //! The maximum probability which is deemed to be anomalous.
-                double      m_MaximumAnomalousProbability;
+                double m_MaximumAnomalousProbability;
         };
 
         //! \brief Manages the normalization of aggregate anomaly scores
@@ -215,19 +215,19 @@ class MODEL_EXPORT CAnomalyScore {
 
             private:
                 //! The percentile defining the largest noise score.
-                double               m_NoisePercentile;
+                double m_NoisePercentile;
                 //! The multiplier used to estimate the anomaly threshold.
-                double               m_NoiseMultiplier;
+                double m_NoiseMultiplier;
                 //! The normalized anomaly score knot points.
-                TDoubleDoublePrVec   m_NormalizedScoreKnotPoints;
+                TDoubleDoublePrVec m_NormalizedScoreKnotPoints;
                 //! The maximum possible normalized score.
-                double               m_MaximumNormalizedScore;
+                double m_MaximumNormalizedScore;
 
                 //! The approximate HIGH_PERCENTILE percentile raw score.
-                uint32_t             m_HighPercentileScore;
+                uint32_t m_HighPercentileScore;
                 //! The number of scores less than the approximate
                 //! HIGH_PERCENTILE percentile raw score.
-                uint64_t             m_HighPercentileCount;
+                uint64_t m_HighPercentileCount;
 
                 //! The maximum score ever received.
                 TMaxValueAccumulator m_MaxScore;
@@ -237,7 +237,7 @@ class MODEL_EXPORT CAnomalyScore {
                 //! scale all values to an effective bucket length 30 mins.
                 //! So, a percentile of 99% would correspond to a 1 in 50
                 //! hours event.
-                double          m_BucketNormalizationFactor;
+                double m_BucketNormalizationFactor;
 
                 //! A quantile summary of the raw scores.
                 maths::CQDigest m_RawScoreQuantileSummary;
@@ -246,9 +246,9 @@ class MODEL_EXPORT CAnomalyScore {
                 maths::CQDigest m_RawScoreHighQuantileSummary;
 
                 //! The rate at which information is lost.
-                double          m_DecayRate;
+                double m_DecayRate;
                 //! The time to when we next age the quantiles.
-                double          m_TimeToQuantileDecay;
+                double m_TimeToQuantileDecay;
         };
 
         typedef boost::shared_ptr<CNormalizer> TNormalizerP;

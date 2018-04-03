@@ -135,9 +135,7 @@ class MODEL_EXPORT CResultType {
         }
 
         //! Get as an unsigned integer.
-        unsigned int asUint(void) const {
-            return m_Type;
-        }
+        unsigned int asUint(void) const { return m_Type; }
 
     private:
         //! Encodes the result type.

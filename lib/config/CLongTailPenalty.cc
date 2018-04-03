@@ -45,7 +45,8 @@ uint64_t count(const maths::CBjkstUniqueValues &distinct) {
 }
 
 CLongTailPenalty::CLongTailPenalty(const CAutoconfigurerParams &params) :
-    CPenalty(params) {}
+    CPenalty(params)
+{}
 
 CLongTailPenalty *CLongTailPenalty::clone(void) const {
     return new CLongTailPenalty(*this);
@@ -71,9 +72,9 @@ void CLongTailPenalty::penaltyFor(const CByAndPartitionDataCountStatistics &stat
                                   CDetectorSpecification &spec) const {
     std::size_t n = stats.bucketStatistics().size();
 
-    TSizeVec   indices;
+    TSizeVec indices;
     TDoubleVec penalties;
-    TStrVec    descriptions;
+    TStrVec descriptions;
     indices.reserve(2 * n);
     penalties.reserve(2 * n);
     descriptions.reserve(2 * n);
@@ -87,7 +88,7 @@ void CLongTailPenalty::penaltyFor(const CByAndPartitionDataCountStatistics &stat
             stats.bucketStatistics()[bid].countMomentsPerPartition(), totals, tail);
         const TSizeVec &indices_ = this->params().penaltyIndicesFor(bid);
         indices.insert(indices.end(), indices_.begin(), indices_.end());
-        double      penalty = this->penaltyFor(tail, totals);
+        double penalty = this->penaltyFor(tail, totals);
         std::string description =  penalty < 1.0 ?
                                   std::string("A significant proportion of categories have similar frequency at '")
                                   + CTools::prettyPrint(this->params().candidateBucketLengths()[bid])
@@ -122,15 +123,15 @@ void CLongTailPenalty::extractTailCounts(const MAP &counts,
     TSizeMinAccumulatorUMap mins;
 
     for (TItr i = counts.begin(); i != counts.end(); ++i) {
-        uint64_t    n = count(i->second);
+        uint64_t n = count(i->second);
         std::size_t partition = STATS::partition(*i);
         mins[partition].add(n);
         totals[partition] += n;
     }
 
     for (TItr i = counts.begin(); i != counts.end(); ++i) {
-        uint64_t              n = count(i->second);
-        std::size_t           partition = STATS::partition(*i);
+        uint64_t n = count(i->second);
+        std::size_t partition = STATS::partition(*i);
         const TMinAccumulator &min = mins[partition];
         if (   n <= static_cast<uint64_t>(  this->params().highCardinalityInTailFactor()
                                             * static_cast<double>(min[0]) + 0.5) ||

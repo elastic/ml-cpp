@@ -68,7 +68,8 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper {
             : CBaseTokenListDataTyper(reverseSearchCreator,
                                       threshold,
                                       fieldName),
-              m_Dict(core::CWordDictionary::instance()) {}
+              m_Dict(core::CWordDictionary::instance())
+        {}
 
     protected:
         //! Split the string into a list of tokens.  The result of the
@@ -99,7 +100,7 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper {
                          (ALLOW_DOT && curChar == '.') ||
                          (ALLOW_DASH && curChar == '-')
                      )
-                    )) {
+                    ))      {
                     temp += curChar;
                     if (IGNORE_HEX) {
                         // Count dots and dashes as numeric
@@ -107,7 +108,7 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper {
                             nonHexPos = temp.length() - 1;
                         }
                     }
-                } else {
+                } else   {
                     if (!temp.empty()) {
                         this->considerToken(fields,
                                             nonHexPos,
@@ -197,7 +198,7 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper {
                 for (size_t index = minSize; index < maxSize; ++index) {
                     diff += right[index].second;
                 }
-            } else if (left.size() > right.size()) {
+            } else if (left.size() > right.size())   {
                 for (size_t index = minSize; index < maxSize; ++index) {
                     diff += left[index].second;
                 }
@@ -266,7 +267,7 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper {
         core::CStringSimilarityTester m_SimilarityTester;
 
         //! Function used to increase weighting for dictionary words
-        DICTIONARY_WEIGHT_FUNC        m_DictionaryWeightFunc;
+        DICTIONARY_WEIGHT_FUNC m_DictionaryWeightFunc;
 };
 
 

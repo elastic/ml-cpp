@@ -65,7 +65,7 @@ class MATHS_EXPORT CMultivariatePrior {
     public:
         //! The value of the decay rate to fall back to using if the input
         //! value is inappropriate.
-        static const double      FALLBACK_DECAY_RATE;
+        static const double FALLBACK_DECAY_RATE;
 
         //! \name Persistence Tags
         //!
@@ -421,7 +421,7 @@ class MATHS_EXPORT CMultivariatePrior {
         //! Set to true if this model is being used for forecasting. Note
         //! we don't have any need to persist forecast models so this is
         //! is not persisted.
-        bool               m_Forecasting;
+        bool m_Forecasting;
 
         //! If this is true then the prior is being used to model discrete
         //! data. Note that this is not persisted and deduced from context.
@@ -429,10 +429,10 @@ class MATHS_EXPORT CMultivariatePrior {
 
         //! The rate at which the prior returns to non-informative. Note that
         //! this is not persisted.
-        double             m_DecayRate;
+        double m_DecayRate;
 
         //! The number of samples with which the prior has been updated.
-        double             m_NumberSamples;
+        double m_NumberSamples;
 };
 
 }

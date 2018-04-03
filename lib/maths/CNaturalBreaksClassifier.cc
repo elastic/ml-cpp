@@ -126,20 +126,20 @@ double CNaturalBreaksClassifier::percentile(double p) const {
             }
 
             boost::math::normal_distribution<> normal(mean, deviation);
-            double                             q = (count - percentileCount) / count;
-            double                             x = q > 0.0 && q < 1.0 ?
-                                                   boost::math::quantile(normal, q) :
-                                                   (2.0 * q - 1.0) * boost::numeric::bounds<double>::highest();
+            double q = (count - percentileCount) / count;
+            double x = q > 0.0 && q < 1.0 ?
+                       boost::math::quantile(normal, q) :
+                       (2.0 * q - 1.0) * boost::numeric::bounds<double>::highest();
             LOG_TRACE("N(" << mean << "," << deviation << ")"
-                           << ", q = " << q << ", x = " << x)
+                      << ", q = " << q << ", x = " << x)
 
             if (i > 0) {
                 // Left truncate by the assignment boundary between
                 // this and the left category. See deviation for
                 // details.
-                double n1 = ::sqrt(CBasicStatistics::count(m_Categories[i-1]));
-                double m1 = CBasicStatistics::mean(m_Categories[i-1]);
-                double d1 = ::sqrt(CBasicStatistics::maximumLikelihoodVariance(m_Categories[i-1]));
+                double n1 = ::sqrt(CBasicStatistics::count(m_Categories[i - 1]));
+                double m1 = CBasicStatistics::mean(m_Categories[i - 1]);
+                double d1 = ::sqrt(CBasicStatistics::maximumLikelihoodVariance(m_Categories[i - 1]));
                 double n2 = count;
                 double m2 = mean;
                 double d2 = deviation;
@@ -149,16 +149,16 @@ double CNaturalBreaksClassifier::percentile(double p) const {
                 LOG_TRACE("Left truncate to " << xl);
                 x = std::max(x, xl);
             }
-            if (i+1 < m_Categories.size()) {
+            if (i + 1 < m_Categories.size()) {
                 // Right truncate by the assignment boundary between
                 // this and the right category. See deviation for
                 // details.
                 double n1 = count;
                 double m1 = mean;
                 double d1 = deviation;
-                double n2 = ::sqrt(CBasicStatistics::count(m_Categories[i+1]));
-                double m2 = CBasicStatistics::mean(m_Categories[i+1]);
-                double d2 = ::sqrt(CBasicStatistics::maximumLikelihoodVariance(m_Categories[i+1]));
+                double n2 = ::sqrt(CBasicStatistics::count(m_Categories[i + 1]));
+                double m2 = CBasicStatistics::mean(m_Categories[i + 1]);
+                double d2 = ::sqrt(CBasicStatistics::maximumLikelihoodVariance(m_Categories[i + 1]));
                 double w1 = ::sqrt(n2 * d2);
                 double w2 = ::sqrt(n1 * d1);
                 double xr = (w1 * m1 + w2 * m2) / (w1 + w2);
@@ -209,7 +209,7 @@ bool CNaturalBreaksClassifier::split(std::size_t n,
                                                       category));
         }
         return true;
-    } else if (n == 1) {
+    } else if (n == 1)   {
         double p_ = static_cast<double>(p);
         double count = 0.0;
         for (std::size_t i = 0u; p_ > 0.0 && i < m_Categories.size(); ++i) {
@@ -303,11 +303,11 @@ bool CNaturalBreaksClassifier::categories(std::size_t n,
         }
         if (!append) {
             result = m_Categories;
-        } else {
+        } else   {
             result.insert(result.end(), m_Categories.begin(), m_Categories.end());
         }
         return true;
-    } else if (n == 1) {
+    } else if (n == 1)   {
         double p_ = static_cast<double>(p);
         TTuple category = std::accumulate(m_Categories.begin(), m_Categories.end(), TTuple());
         if (CBasicStatistics::count(category) < p_) {
@@ -362,7 +362,7 @@ void CNaturalBreaksClassifier::add(double x, double count) {
 
     if (m_PointsBuffer.size() < MAXIMUM_BUFFER_SIZE) {
         m_PointsBuffer.emplace_back(x, count);
-    } else {
+    } else   {
         m_Categories.push_back(TTuple());
         m_Categories.back().add(x, count);
         this->reduce();
@@ -452,15 +452,15 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
 
     numberSamples = std::min(numberSamples, static_cast<std::size_t>(weightSum));
     LOG_TRACE("weights = " << core::CContainerPrinter::print(weights)
-                           << ", weightSum = " << weightSum
-                           << ", n = " << numberSamples);
+              << ", weightSum = " << weightSum
+              << ", n = " << numberSamples);
 
     result.reserve(numberSamples);
 
     TMeanAccumulator sample;
-    TDoubleVec       categorySamples;
+    TDoubleVec categorySamples;
     for (std::size_t i = 0u; i < m_Categories.size(); ++i) {
-        double      ni = static_cast<double>(numberSamples) * weights[i];
+        double ni = static_cast<double>(numberSamples) * weights[i];
         std::size_t ni_ = static_cast<std::size_t>(::ceil(ni));
 
         double m = CBasicStatistics::mean(m_Categories[i]);
@@ -471,7 +471,7 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
             if (categorySamples[j] < smallest) {
                 if (v == 0.0) {
                     categorySamples.assign(ni_, smallest);
-                } else {
+                } else   {
                     m -= std::min(smallest, 0.0);
                     double shape = m * m / v;
                     double rate  = m / v;
@@ -565,7 +565,7 @@ bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE> &categ
         }
         result.push_back(categories.size());
         return true;
-    } else if (n == 1) {
+    } else if (n == 1)   {
         result.push_back(categories.size());
         return true;
     }
@@ -599,7 +599,7 @@ bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE> &categ
 
     std::size_t N = categories.size();
 
-    TSizeVecVec   B(N, TSizeVec(n, 0));
+    TSizeVecVec B(N, TSizeVec(n, 0));
     TDoubleVecVec D(N, TDoubleVec(n, 0.0));
     {
         TTuple t;
@@ -616,7 +616,7 @@ bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE> &categ
     for (std::size_t i = 1u; i < N; ++i) {
         for (std::size_t m = 1u; m <= std::min(i, n - 1); ++m) {
             std::size_t b = m + 1;
-            double      d = INF;
+            double d = INF;
 
             TTuple t;
             for (std::size_t j = i; j >= m; --j) {
@@ -715,8 +715,8 @@ CNaturalBreaksClassifier::closestPair(void) const {
                             - deviation(m_Categories[i - 1]);
 
         LOG_TRACE("mean[" << i - 1 << "] = " << CBasicStatistics::mean(m_Categories[i - 1])
-                          << ", mean[" << i << "] = " << CBasicStatistics::mean(m_Categories[i])
-                          << ", dDeviation = " << dDeviation);
+                  << ", mean[" << i << "] = " << CBasicStatistics::mean(m_Categories[i])
+                  << ", dDeviation = " << dDeviation);
 
         if (dDeviation < dDeviationMin) {
             result = TSizeSizePr(i - 1, i);

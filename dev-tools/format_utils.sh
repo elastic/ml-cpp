@@ -34,7 +34,7 @@ function format()
     uncrustify -c $CPP_SRC_HOME/.uncrustifyrc -q -f ${1}
 }
 
-function format_in_place() 
+function format_in_place()
 {
     uncrustify -c $CPP_SRC_HOME/.uncrustifyrc --no-backup -q ${1}
 }

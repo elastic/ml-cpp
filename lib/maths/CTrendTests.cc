@@ -259,8 +259,8 @@ void CRandomizedPeriodicityTest::add(core_t::TTime time, double value) {
         m_WeekRefreshedProjections = CIntegerTools::floor(time, WEEK_RESAMPLE_INTERVAL);
     }
 
-    TVector2N   daySample;
-    TVector2N   weekSample;
+    TVector2N daySample;
+    TVector2N weekSample;
     std::size_t td = static_cast<std::size_t>( (time % DAY_RESAMPLE_INTERVAL)
                                                / SAMPLE_INTERVAL);
     std::size_t d  = static_cast<std::size_t>( (time % DAY)
@@ -271,10 +271,10 @@ void CRandomizedPeriodicityTest::add(core_t::TTime time, double value) {
                                                / SAMPLE_INTERVAL);
 
     for (std::size_t i = 0u; i < N; ++i) {
-        daySample(2*i+0)  = ms_DayRandomProjections[i][td] * value;
-        daySample(2*i+1)  = ms_DayPeriodicProjections[i][d] * value;
-        weekSample(2*i+0) = ms_WeekRandomProjections[i][tw] * value;
-        weekSample(2*i+1) = ms_WeekPeriodicProjections[i][w] * value;
+        daySample(2 * i + 0)  = ms_DayRandomProjections[i][td] * value;
+        daySample(2 * i + 1)  = ms_DayPeriodicProjections[i][d] * value;
+        weekSample(2 * i + 0) = ms_WeekRandomProjections[i][tw] * value;
+        weekSample(2 * i + 1) = ms_WeekPeriodicProjections[i][w] * value;
     }
 
     m_DayProjections.add(daySample);
@@ -312,7 +312,7 @@ bool CRandomizedPeriodicityTest::test(void) const {
                 return true;
             }
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to test for periodicity: " << e.what());
     }
 
@@ -356,8 +356,8 @@ void CRandomizedPeriodicityTest::updateStatistics(TVector2NMeanAccumulator &proj
         TVector2MeanAccumulator statistic;
         for (std::size_t i = 0u; i < N; ++i) {
             TVector2 s;
-            s(0) = mean(2*i+0) * mean(2*i+0);
-            s(1) = mean(2*i+1) * mean(2*i+1);
+            s(0) = mean(2 * i + 0) * mean(2 * i + 0);
+            s(1) = mean(2 * i + 1) * mean(2 * i + 1);
             statistic.add(s);
         }
         statistics += statistic;
@@ -416,22 +416,22 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime period,
                       randomProjections[i].begin() + j * n);
             CSampling::random_shuffle(ms_Rng,
                                       randomProjections[i].begin() + j * n,
-                                      randomProjections[i].begin() + (j+1) * n);
+                                      randomProjections[i].begin() + (j + 1) * n);
         }
     }
 }
 
-const core_t::TTime        CRandomizedPeriodicityTest::SAMPLE_INTERVAL(3600);
-const core_t::TTime        CRandomizedPeriodicityTest::DAY_RESAMPLE_INTERVAL(1209600);
-const core_t::TTime        CRandomizedPeriodicityTest::WEEK_RESAMPLE_INTERVAL(2419200);
-boost::random::mt19937_64  CRandomizedPeriodicityTest::ms_Rng = boost::random::mt19937_64();
-TDoubleVec                 CRandomizedPeriodicityTest::ms_DayRandomProjections[N] = {};
-TDoubleVec                 CRandomizedPeriodicityTest::ms_DayPeriodicProjections[N] = {};
+const core_t::TTime CRandomizedPeriodicityTest::SAMPLE_INTERVAL(3600);
+const core_t::TTime CRandomizedPeriodicityTest::DAY_RESAMPLE_INTERVAL(1209600);
+const core_t::TTime CRandomizedPeriodicityTest::WEEK_RESAMPLE_INTERVAL(2419200);
+boost::random::mt19937_64 CRandomizedPeriodicityTest::ms_Rng = boost::random::mt19937_64();
+TDoubleVec CRandomizedPeriodicityTest::ms_DayRandomProjections[N] = {};
+TDoubleVec CRandomizedPeriodicityTest::ms_DayPeriodicProjections[N] = {};
 std::atomic<core_t::TTime> CRandomizedPeriodicityTest::ms_DayResampled(-DAY_RESAMPLE_INTERVAL);
-TDoubleVec                 CRandomizedPeriodicityTest::ms_WeekRandomProjections[N] = {};
-TDoubleVec                 CRandomizedPeriodicityTest::ms_WeekPeriodicProjections[N] = {};
+TDoubleVec CRandomizedPeriodicityTest::ms_WeekRandomProjections[N] = {};
+TDoubleVec CRandomizedPeriodicityTest::ms_WeekPeriodicProjections[N] = {};
 std::atomic<core_t::TTime> CRandomizedPeriodicityTest::ms_WeekResampled(-WEEK_RESAMPLE_INTERVAL);
-core::CMutex               CRandomizedPeriodicityTest::ms_Lock;
+core::CMutex CRandomizedPeriodicityTest::ms_Lock;
 
 //////// CCalendarCyclicTest ////////
 
@@ -481,7 +481,7 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
         core_t::TTime bucket = CIntegerTools::floor(time, BUCKET);
         if (m_ErrorCounts.empty()) {
             m_ErrorCounts.push_back(0);
-        } else {
+        } else   {
             for (core_t::TTime i = m_Bucket; i < bucket; i += BUCKET) {
                 m_ErrorCounts.push_back(0);
             }
@@ -495,9 +495,8 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
 
         m_ErrorSums.erase(m_ErrorSums.begin(),
                           std::find_if(m_ErrorSums.begin(), m_ErrorSums.end(),
-                                       [bucket] (const TTimeFloatPr &error_) {
-                    return error_.first + WINDOW > bucket;
-                }));
+                                       [bucket] (const TTimeFloatPr &error_)
+                                       { return error_.first + WINDOW > bucket; }));
         if (error >= high) {
             count += (count < 0x100000000 - COUNT_BITS) ? COUNT_BITS : 0;
             m_ErrorSums[bucket] += this->winsorise(error);
@@ -512,7 +511,8 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test(void) const {
     // features.
     struct SStats {
         SStats(void) :
-            s_Offset(0), s_Repeats(0), s_Sum(0.0), s_Count(0.0), s_Significance(0.0) {}
+            s_Offset(0), s_Repeats(0), s_Sum(0.0), s_Count(0.0), s_Significance(0.0)
+        {}
         core_t::TTime s_Offset;
         unsigned int s_Repeats;
         double s_Sum;
@@ -558,10 +558,10 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test(void) const {
 
     for (const auto &stat : stats) {
         CCalendarFeature feature = stat.first;
-        double           r = static_cast<double>(stat.second.s_Repeats);
-        double           x = stat.second.s_Count;
-        double           e = stat.second.s_Sum;
-        double           s = stat.second.s_Significance;
+        double r = static_cast<double>(stat.second.s_Repeats);
+        double x = stat.second.s_Count;
+        double e = stat.second.s_Sum;
+        double s = stat.second.s_Significance;
         if (   stat.second.s_Repeats >= MINIMUM_REPEATS &&
                e > errorThreshold * x &&
                ::pow(s, r) < MAXIMUM_SIGNIFICANCE) {
@@ -601,18 +601,18 @@ double CCalendarCyclicTest::significance(double n, double x) const {
     try {
         boost::math::binomial binom(n, 1.0 - LARGE_ERROR_PERCENTILE / 100.0);
         return std::min(2.0 * CTools::safeCdfComplement(binom, x - 1.0), 1.0);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to calculate significance: " << e.what()
-                                                       << " n = " << n << " x = " << x);
+                  << " n = " << n << " x = " << x);
     }
     return 1.0;
 }
 
 const core_t::TTime CCalendarCyclicTest::BUCKET{core::constants::DAY};
 const core_t::TTime CCalendarCyclicTest::WINDOW{124 * BUCKET};
-const double        CCalendarCyclicTest::LARGE_ERROR_PERCENTILE(99.0);
-const unsigned int  CCalendarCyclicTest::MINIMUM_REPEATS{4};
-const uint32_t      CCalendarCyclicTest::COUNT_BITS{0x100000};
+const double CCalendarCyclicTest::LARGE_ERROR_PERCENTILE(99.0);
+const unsigned int CCalendarCyclicTest::MINIMUM_REPEATS{4};
+const uint32_t CCalendarCyclicTest::COUNT_BITS{0x100000};
 // TODO support offsets are +/- 12hrs for time zones.
 const TTimeVec CCalendarCyclicTest::TIMEZONE_OFFSETS{0};
 

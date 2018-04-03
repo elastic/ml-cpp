@@ -43,7 +43,7 @@ typedef boost::optional<double> TOptionalDouble;
 void setConstant(double value, TOptionalDouble &result) {
     if (CMathsFuncs::isNan(value)) {
         LOG_ERROR("NaN constant");
-    } else {
+    } else   {
         result.reset(value);
     }
 }
@@ -117,7 +117,8 @@ void CConstantPrior::addSamples(const TWeightStyleVec & /*weightStyle*/,
     setConstant(samples[0], m_Constant);
 }
 
-void CConstantPrior::propagateForwardsByTime(double /*time*/) {}
+void CConstantPrior::propagateForwardsByTime(double /*time*/)
+{}
 
 CConstantPrior::TDoubleDoublePr
 CConstantPrior::marginalLikelihoodSupport(void) const {
@@ -231,7 +232,7 @@ bool CConstantPrior::minusLogJointCdf(const TWeightStyleVec &weightStyles,
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             numberSamples += maths_t::count(weightStyles, weights[i]);
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to compute c.d.f. " << e.what());
         return false;
     }
@@ -272,7 +273,7 @@ bool CConstantPrior::minusLogJointCdfComplement(const TWeightStyleVec &weightSty
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             numberSamples += maths_t::count(weightStyles, weights[i]);
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to compute c.d.f. " << e.what());
         return false;
     }
@@ -324,16 +325,16 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
         }
         if (samples[i] < *m_Constant) {
             tail_ = tail_ | maths_t::E_LeftTail;
-        } else if (samples[i] > *m_Constant) {
+        } else if (samples[i] > *m_Constant)   {
             tail_ = tail_ | maths_t::E_RightTail;
         }
     }
 
     LOG_TRACE("samples = " << core::CContainerPrinter::print(samples)
-                           << ", constant = " << *m_Constant
-                           << ", lowerBound = " << lowerBound
-                           << ", upperBound = " << upperBound
-                           << ", tail = " << tail);
+              << ", constant = " << *m_Constant
+              << ", lowerBound = " << lowerBound
+              << ", upperBound = " << upperBound
+              << ", tail = " << tail);
 
     tail = static_cast<maths_t::ETail>(tail_);
     return true;

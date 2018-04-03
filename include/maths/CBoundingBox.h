@@ -57,7 +57,7 @@ class CBoundingBox {
         void add(const POINT &p) {
             if (m_Empty) {
                 m_A = m_B = p;
-            } else {
+            } else   {
                 m_A = min(m_A, p);
                 m_B = max(m_B, p);
             }
@@ -69,7 +69,7 @@ class CBoundingBox {
         void add(const CBoundingBox &other) {
             if (m_Empty) {
                 *this = other;
-            } else if (!other.m_Empty) {
+            } else if (!other.m_Empty)   {
                 m_A = min(m_A, other.m_A);
                 m_B = max(m_B, other.m_B);
                 m_Empty = false;
@@ -77,14 +77,10 @@ class CBoundingBox {
         }
 
         //! Get the bottom left corner.
-        const POINT &blc(void) const {
-            return m_A;
-        }
+        const POINT &blc(void) const { return m_A; }
 
         //! Get the top right corner.
-        const POINT &trc(void) const {
-            return m_B;
-        }
+        const POINT &trc(void) const { return m_B; }
 
         //! Get the centre of the bounding box.
         POINT centre(void) const {
@@ -119,7 +115,7 @@ class CBoundingBox {
 
     private:
         //! True if this is empty and false otherwise.
-        bool  m_Empty;
+        bool m_Empty;
 
         //! The bottom left and top right corner of the bounding box.
         POINT m_A, m_B;

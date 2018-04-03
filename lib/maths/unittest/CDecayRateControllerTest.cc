@@ -71,7 +71,7 @@ void CDecayRateControllerTest::testOrderedErrors() {
 
     maths::CDecayRateController controller(maths::CDecayRateController::E_PredictionBias, 1);
 
-    double         decayRate{0.0005};
+    double decayRate{0.0005};
     TDouble1VecVec predictionErrors;
     for (std::size_t i = 0u; i < 500; ++i) {
         for (int j = 0; j < 100; ++j) {
@@ -119,13 +119,13 @@ void CDecayRateControllerTest::testPersist() {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        maths::CDecayRateController          restoredController;
+        maths::CDecayRateController restoredController;
         CPPUNIT_ASSERT_EQUAL(true, traverser.traverseSubLevel(
                                  boost::bind(&maths::CDecayRateController::acceptRestoreTraverser,
                                              &restoredController, _1)));
 
         LOG_DEBUG("orig checksum = " << origController.checksum()
-                                     << ", new checksum = " << restoredController.checksum());
+                  << ", new checksum = " << restoredController.checksum());
         CPPUNIT_ASSERT_EQUAL(origController.checksum(),
                              restoredController.checksum());
     }

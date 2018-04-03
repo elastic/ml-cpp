@@ -329,14 +329,14 @@ class MATHS_EXPORT CPoissonMeanConjugate : public CPrior {
         //! We assume that the data are described by \f$X = Y - u\f$, where
         //! \f$u\f$ is a constant and \f$Y\f$ is Poisson distributed. This
         //! allows us to model data with negative values greater than \f$-u\f$.
-        double              m_Offset;
+        double m_Offset;
 
         //! The shape parameter for the gamma distribution.
-        double              m_Shape;
+        double m_Shape;
 
         //! The rate parameter for the gamma distribution. We work with the inverse
         //! scale parameter because it makes defining the non-informative prior easy.
-        double              m_Rate;
+        double m_Rate;
 };
 
 }

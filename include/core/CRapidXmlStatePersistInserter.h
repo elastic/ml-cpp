@@ -80,7 +80,7 @@ class CORE_EXPORT CRapidXmlStatePersistInserter : public CStatePersistInserter {
     private:
         //! XML documents are likely to contain the same node names many times,
         //! so just store each unique name once for efficiency
-        CStringCache          m_NameCache;
+        CStringCache m_NameCache;
 
         typedef rapidxml::xml_document<char>  TCharRapidXmlDocument;
         typedef rapidxml::xml_node<char>      TCharRapidXmlNode;
@@ -93,7 +93,7 @@ class CORE_EXPORT CRapidXmlStatePersistInserter : public CStatePersistInserter {
 
         //! Approximate size of final string - used to reserve memory to
         //! minimise reallocations during conversion to string representation
-        size_t                m_ApproxLen;
+        size_t m_ApproxLen;
 };
 
 

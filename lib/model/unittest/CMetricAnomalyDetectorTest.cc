@@ -64,7 +64,8 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
                       core_t::TTime bucketLength) :
             m_ModelConfig(modelConfig),
             m_Limits(limits),
-            m_BucketLength(bucketLength) {}
+            m_BucketLength(bucketLength)
+        {}
 
         void operator()(ml::model::CAnomalyDetector &detector,
                         ml::core_t::TTime start,
@@ -101,11 +102,11 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
             }
 
             core_t::TTime bucketTime = node.s_BucketStartTime;
-            double        anomalyFactor = node.s_RawAnomalyScore;
+            double anomalyFactor = node.s_RawAnomalyScore;
             if (anomalyFactor > HIGH_ANOMALY_SCORE) {
                 m_HighAnomalyTimes.push_back(TTimeTimePr(bucketTime, bucketTime + m_BucketLength));
                 m_HighAnomalyFactors.push_back(anomalyFactor);
-            } else if (anomalyFactor > 0.0) {
+            } else if (anomalyFactor > 0.0)   {
                 m_AnomalyFactors.push_back(anomalyFactor);
                 uint64_t currentRate(0);
                 if (node.s_AnnotatedProbability.s_CurrentBucketCount) {
@@ -125,30 +126,30 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
             return true;
         }
 
-        const TTimeTimePrVec                     &highAnomalyTimes(void) const {
+        const TTimeTimePrVec &highAnomalyTimes(void) const {
             return m_HighAnomalyTimes;
         }
 
-        const TDoubleVec                         &highAnomalyFactors(void) const {
+        const TDoubleVec &highAnomalyFactors(void) const {
             return m_HighAnomalyFactors;
         }
 
-        const TDoubleVec                         &anomalyFactors(void) const {
+        const TDoubleVec &anomalyFactors(void) const {
             return m_AnomalyFactors;
         }
 
-        const TDoubleVec                         &anomalyRates(void) const {
+        const TDoubleVec &anomalyRates(void) const {
             return m_AnomalyRates;
         }
 
     private:
         const model::CAnomalyDetectorModelConfig &m_ModelConfig;
-        const model::CLimits                     &m_Limits;
-        core_t::TTime                            m_BucketLength;
-        TTimeTimePrVec                           m_HighAnomalyTimes;
-        TDoubleVec                               m_HighAnomalyFactors;
-        TDoubleVec                               m_AnomalyFactors;
-        TDoubleVec                               m_AnomalyRates;
+        const model::CLimits &m_Limits;
+        core_t::TTime m_BucketLength;
+        TTimeTimePrVec m_HighAnomalyTimes;
+        TDoubleVec m_HighAnomalyFactors;
+        TDoubleVec m_AnomalyFactors;
+        TDoubleVec m_AnomalyRates;
 };
 
 const double CResultWriter::HIGH_ANOMALY_SCORE(0.35);
@@ -297,7 +298,7 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
     for (size_t i = 0; i < boost::size(BUCKET_LENGTHS); ++i) {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTHS[i]);
-        model::CLimits    limits;
+        model::CLimits limits;
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric,
                               false,
@@ -318,9 +319,9 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
                    detector);
 
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
-        TDoubleVec     highAnomalyFactors(writer.highAnomalyFactors());
-        TDoubleVec     anomalyFactors(writer.anomalyFactors());
-        TDoubleVec     anomalyRates(writer.anomalyRates());
+        TDoubleVec highAnomalyFactors(writer.highAnomalyFactors());
+        TDoubleVec anomalyFactors(writer.anomalyFactors());
+        TDoubleVec anomalyRates(writer.anomalyRates());
 
         LOG_DEBUG("bucket length = " << BUCKET_LENGTHS[i]);
         LOG_DEBUG("high anomalies in = " << core::CContainerPrinter::print(highAnomalyTimes));
@@ -330,7 +331,7 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
 
         for (std::size_t j = 0u; j < highAnomalyTimes.size(); ++j) {
             LOG_DEBUG("Testing " << core::CContainerPrinter::print(highAnomalyTimes[j])
-                                 << ' ' << highAnomalyFactors[j]);
+                      << ' ' << highAnomalyFactors[j]);
             CPPUNIT_ASSERT(   doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0]) ||
                               doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1]));
         }
@@ -368,7 +369,7 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
     }
 
     LOG_DEBUG("high rate noise = " << highRateNoise
-                                   << ", low rate noise = " << lowRateNoise);
+              << ", low rate noise = " << lowRateNoise);
 
     // We don't have significantly more noise in the low rate channel.
     CPPUNIT_ASSERT(::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.2);
@@ -381,7 +382,7 @@ void CMetricAnomalyDetectorTest::testPersist(void) {
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-    model::CLimits    limits;
+    model::CLimits limits;
     model::CSearchKey key(1, // identifier
                           model::function_t::E_IndividualMetric,
                           false,
@@ -444,7 +445,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
     {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-        model::CLimits    limits;
+        model::CLimits limits;
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric,
                               false,
@@ -465,7 +466,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
                       detector);
 
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
-        TDoubleVec     highAnomalyFactors(writer.highAnomalyFactors());
+        TDoubleVec highAnomalyFactors(writer.highAnomalyFactors());
 
         LOG_DEBUG("high anomalies in = " << core::CContainerPrinter::print(highAnomalyTimes));
         LOG_DEBUG("high anomaly factors = " << core::CContainerPrinter::print(highAnomalyFactors));
@@ -477,7 +478,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
     {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-        model::CLimits    limits;
+        model::CLimits limits;
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric,
                               false,
@@ -498,7 +499,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
                       detector);
 
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
-        TDoubleVec     highAnomalyFactors(writer.highAnomalyFactors());
+        TDoubleVec highAnomalyFactors(writer.highAnomalyFactors());
 
         LOG_DEBUG("high anomalies in = " << core::CContainerPrinter::print(highAnomalyTimes));
         LOG_DEBUG("high anomaly factors = " << core::CContainerPrinter::print(highAnomalyFactors));

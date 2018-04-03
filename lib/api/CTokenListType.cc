@@ -103,7 +103,7 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
         const std::string &name = traverser.name();
         if (name == BASE_STRING) {
             m_BaseString = traverser.value();
-        } else if (name == BASE_TOKEN_ID) {
+        } else if (name == BASE_TOKEN_ID)   {
             TSizeSizePr tokenAndWeight(0, 0);
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  tokenAndWeight.first) == false) {
@@ -112,7 +112,7 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
             }
 
             m_BaseTokenIds.push_back(tokenAndWeight);
-        } else if (name == BASE_TOKEN_WEIGHT) {
+        } else if (name == BASE_TOKEN_WEIGHT)   {
             if (m_BaseTokenIds.empty()) {
                 LOG_ERROR("Base token weight precedes base token ID in " <<
                           traverser.value());
@@ -127,19 +127,19 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
             }
 
             m_BaseWeight += tokenAndWeight.second;
-        } else if (name == MAX_STRING_LEN) {
+        } else if (name == MAX_STRING_LEN)   {
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  m_MaxStringLen) == false) {
                 LOG_ERROR("Invalid maximum string length in " << traverser.value());
                 return false;
             }
-        } else if (name == OUT_OF_ORDER_COMMON_TOKEN_INDEX) {
+        } else if (name == OUT_OF_ORDER_COMMON_TOKEN_INDEX)   {
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  m_OutOfOrderCommonTokenIndex) == false) {
                 LOG_ERROR("Invalid maximum string length in " << traverser.value());
                 return false;
             }
-        } else if (name == COMMON_UNIQUE_TOKEN_ID) {
+        } else if (name == COMMON_UNIQUE_TOKEN_ID)   {
             TSizeSizePr tokenAndWeight(0, 0);
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  tokenAndWeight.first) == false) {
@@ -149,7 +149,7 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
 
             m_CommonUniqueTokenIds.push_back(tokenAndWeight);
             expectWeight = true;
-        } else if (name == COMMON_UNIQUE_TOKEN_WEIGHT) {
+        } else if (name == COMMON_UNIQUE_TOKEN_WEIGHT)   {
             if (!expectWeight) {
                 LOG_ERROR("Common unique token weight precedes common unique token ID in " <<
                           traverser.value());
@@ -165,13 +165,13 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
             expectWeight = false;
 
             m_CommonUniqueTokenWeight += tokenAndWeight.second;
-        } else if (name == ORIG_UNIQUE_TOKEN_WEIGHT) {
+        } else if (name == ORIG_UNIQUE_TOKEN_WEIGHT)   {
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  m_OrigUniqueTokenWeight) == false) {
                 LOG_ERROR("Invalid maximum string length in " << traverser.value());
                 return false;
             }
-        } else if (name == NUM_MATCHES) {
+        } else if (name == NUM_MATCHES)   {
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  m_NumMatches) == false) {
                 LOG_ERROR("Invalid maximum string length in " << traverser.value());
@@ -195,18 +195,18 @@ bool CTokenListType::addString(bool isDryRun,
     // with the same weight in the new string, and adjust the common weight
     // accordingly
     TSizeSizePrVecItr commonIter = m_CommonUniqueTokenIds.begin();
-    TSizeSizeMapCItr  newIter = uniqueTokenIds.begin();
+    TSizeSizeMapCItr newIter = uniqueTokenIds.begin();
     while (commonIter != m_CommonUniqueTokenIds.end()) {
         if (newIter == uniqueTokenIds.end() ||
             commonIter->first < newIter->first) {
             m_CommonUniqueTokenWeight -= commonIter->second;
             commonIter = m_CommonUniqueTokenIds.erase(commonIter);
             changed = true;
-        } else {
+        } else   {
             if (commonIter->first == newIter->first) {
                 if (commonIter->second == newIter->second) {
                     ++commonIter;
-                } else {
+                } else   {
                     m_CommonUniqueTokenWeight -= commonIter->second;
                     commonIter = m_CommonUniqueTokenIds.erase(commonIter);
                     changed = true;
@@ -304,7 +304,7 @@ size_t CTokenListType::missingCommonTokenWeight(const TSizeSizeMap &uniqueTokenI
     size_t presentWeight(0);
 
     TSizeSizePrVecCItr commonIter = m_CommonUniqueTokenIds.begin();
-    TSizeSizeMapCItr   testIter = uniqueTokenIds.begin();
+    TSizeSizeMapCItr testIter = uniqueTokenIds.begin();
     while (commonIter != m_CommonUniqueTokenIds.end() &&
            testIter != uniqueTokenIds.end()) {
         if (commonIter->first == testIter->first) {
@@ -315,9 +315,9 @@ size_t CTokenListType::missingCommonTokenWeight(const TSizeSizeMap &uniqueTokenI
             }
             ++commonIter;
             ++testIter;
-        } else if (commonIter->first < testIter->first) {
+        } else if (commonIter->first < testIter->first)   {
             ++commonIter;
-        } else {   // if (commonIter->first > testIter->first)
+        } else   { // if (commonIter->first > testIter->first)
             ++testIter;
         }
     }
@@ -335,7 +335,7 @@ bool CTokenListType::isMissingCommonTokenWeightZero(const TSizeSizeMap &uniqueTo
     // However, it's much faster to return false as soon as a mismatch occurs
 
     TSizeSizePrVecCItr commonIter = m_CommonUniqueTokenIds.begin();
-    TSizeSizeMapCItr   testIter = uniqueTokenIds.begin();
+    TSizeSizeMapCItr testIter = uniqueTokenIds.begin();
     while (commonIter != m_CommonUniqueTokenIds.end() &&
            testIter != uniqueTokenIds.end()) {
         if (commonIter->first < testIter->first) {

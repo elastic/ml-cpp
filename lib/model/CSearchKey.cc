@@ -61,7 +61,7 @@ const std::string EMPTY_STRING;
 
 // Initialise statics
 const std::string CSearchKey::COUNT_NAME("count");
-const char        CSearchKey::CUE_DELIMITER('/');
+const char CSearchKey::CUE_DELIMITER('/');
 const std::string CSearchKey::EMPTY_STRING;
 
 CSearchKey::CSearchKey(int identifier,
@@ -108,7 +108,7 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
                 LOG_ERROR("Invalid identifier in " << traverser.value());
                 return false;
             }
-        } else if (name == FUNCTION_NAME_TAG) {
+        } else if (name == FUNCTION_NAME_TAG)   {
             int function(-1);
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  function) == false ||
@@ -117,7 +117,7 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
                 return false;
             }
             m_Function = static_cast<function_t::EFunction>(function);
-        } else if (name == USE_NULL_TAG) {
+        } else if (name == USE_NULL_TAG)   {
             int useNull(-1);
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  useNull) == false) {
@@ -125,7 +125,7 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
                 return false;
             }
             m_UseNull = (useNull != 0);
-        } else if (name == EXCLUDE_FREQUENT_TAG) {
+        } else if (name == EXCLUDE_FREQUENT_TAG)   {
             int excludeFrequent(-1);
             if ((core::CStringUtils::stringToType(traverser.value(),
                                                   excludeFrequent) == false) ||
@@ -134,15 +134,15 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
                 return false;
             }
             m_ExcludeFrequent = static_cast<model_t::EExcludeFrequent>(excludeFrequent);
-        } else if (name == FIELD_NAME_TAG) {
+        } else if (name == FIELD_NAME_TAG)   {
             m_FieldName = CStringStore::names().get(traverser.value());
-        } else if (name == BY_FIELD_NAME_TAG) {
+        } else if (name == BY_FIELD_NAME_TAG)   {
             m_ByFieldName = CStringStore::names().get(traverser.value());
-        } else if (name == OVER_FIELD_NAME_TAG) {
+        } else if (name == OVER_FIELD_NAME_TAG)   {
             m_OverFieldName = CStringStore::names().get(traverser.value());
-        } else if (name == PARTITION_FIELD_NAME_TAG) {
+        } else if (name == PARTITION_FIELD_NAME_TAG)   {
             m_PartitionFieldName = CStringStore::names().get(traverser.value());
-        } else if (name == INFLUENCE_FIELD_NAME_TAG) {
+        } else if (name == INFLUENCE_FIELD_NAME_TAG)   {
             m_InfluenceFieldNames.push_back(CStringStore::influencers().get(traverser.value()));
         }
     } while (traverser.next());
@@ -386,21 +386,21 @@ std::ostream &operator<<(std::ostream &strm, const CSearchKey &key) {
     // time of writing.  However, do NOT combine the code because the intention
     // is to simplify toCue() in the future.
     strm << key.m_Identifier
-         << "=="
-         << function_t::print(key.m_Function)
-         << '/'
-         << (key.m_UseNull ? '1' : '0')
-         << '/'
-         << static_cast<int>(key.m_ExcludeFrequent)
-         << '/'
-         << *key.m_FieldName
-         << '/'
-         << *key.m_ByFieldName
-         << '/'
-         << *key.m_OverFieldName
-         << '/'
-         << *key.m_PartitionFieldName
-         << '/';
+    << "=="
+    << function_t::print(key.m_Function)
+    << '/'
+    << (key.m_UseNull ? '1' : '0')
+    << '/'
+    << static_cast<int>(key.m_ExcludeFrequent)
+    << '/'
+    << *key.m_FieldName
+    << '/'
+    << *key.m_ByFieldName
+    << '/'
+    << *key.m_OverFieldName
+    << '/'
+    << *key.m_PartitionFieldName
+    << '/';
 
     for (size_t i = 0; i < key.m_InfluenceFieldNames.size(); ++i) {
         if (i > 0) {

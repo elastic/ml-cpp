@@ -35,7 +35,7 @@ std::string CProgName::progName(void) {
 }
 
 std::string CProgName::progDir(void) {
-    uint32_t    bufferSize(2048);
+    uint32_t bufferSize(2048);
     std::string path(bufferSize, '\0');
     if (_NSGetExecutablePath(&path[0], &bufferSize) != 0) {
         return std::string();

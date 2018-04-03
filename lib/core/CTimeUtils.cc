@@ -134,7 +134,7 @@ void CTimeUtils::toStringCommon(core_t::TTime t,
     }
 
     static const size_t SIZE(256);
-    char                buf[SIZE] = { '\0' };
+    char buf[SIZE] = { '\0' };
 
     size_t ret(CStrFTime::strFTime(buf, SIZE, format.c_str(), &out));
     if (ret == 0) {
@@ -152,7 +152,7 @@ bool CTimeUtils::isDateWord(const std::string &word) {
 
 
 // Initialise statics for the inner class CDateWordCache
-CFastMutex                          CTimeUtils::CDateWordCache::ms_InitMutex;
+CFastMutex CTimeUtils::CDateWordCache::ms_InitMutex;
 volatile CTimeUtils::CDateWordCache *CTimeUtils::CDateWordCache::ms_Instance(0);
 
 const CTimeUtils::CDateWordCache &CTimeUtils::CDateWordCache::instance(void) {
@@ -179,7 +179,7 @@ bool CTimeUtils::CDateWordCache::isDateWord(const std::string &word) const
 
 CTimeUtils::CDateWordCache::CDateWordCache(void) {
     static const size_t SIZE(256);
-    char                buf[SIZE] = { '\0' };
+    char buf[SIZE] = { '\0' };
 
     struct tm workTime;
     ::memset(&workTime, 0, sizeof(struct tm));
@@ -242,7 +242,7 @@ CTimeUtils::CDateWordCache::CDateWordCache(void) {
     m_DateWords.insert("UTC");
 
     // Finally, add the current timezone (if available)
-    CTimezone         &        tz = CTimezone::instance();
+    CTimezone &tz = CTimezone::instance();
     const std::string &stdAbbrev = tz.stdAbbrev();
     if (!stdAbbrev.empty()) {
         m_DateWords.insert(stdAbbrev);

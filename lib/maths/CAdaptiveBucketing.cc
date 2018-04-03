@@ -56,12 +56,12 @@ const std::string LP_FORCE_TAG{"d"};
 const std::string FORCE_TAG{"e"};
 const std::string EMPTY_STRING;
 
-const double      SMOOTHING_FUNCTION[]{0.25, 0.5, 0.25};
+const double SMOOTHING_FUNCTION[]{0.25, 0.5, 0.25};
 const std::size_t WIDTH{boost::size(SMOOTHING_FUNCTION) / 2};
-const double      ALPHA{0.25};
-const double      EPS{std::numeric_limits<double>::epsilon()};
-const double      WEIGHTS[]{1.0, 1.0, 1.0, 0.75, 0.5};
-const double      MINIMUM_DECAY_RATE{0.001};
+const double ALPHA{0.25};
+const double EPS{std::numeric_limits<double>::epsilon()};
+const double WEIGHTS[]{1.0, 1.0, 1.0, 0.75, 0.5};
+const double MINIMUM_DECAY_RATE{0.001};
 
 }
 
@@ -87,7 +87,8 @@ void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter &inse
 
 CAdaptiveBucketing::CAdaptiveBucketing(double decayRate, double minimumBucketLength) :
     m_DecayRate{std::max(decayRate, MINIMUM_DECAY_RATE)},
-    m_MinimumBucketLength{minimumBucketLength} {}
+    m_MinimumBucketLength{minimumBucketLength}
+{}
 
 CAdaptiveBucketing::CAdaptiveBucketing(double decayRate,
                                        double minimumBucketLength,
@@ -124,9 +125,9 @@ bool CAdaptiveBucketing::initialize(double a, double b, std::size_t n) {
     }
 
     m_Endpoints.clear();
-    m_Endpoints.reserve(n+1);
+    m_Endpoints.reserve(n + 1);
     double width{(b - a) / static_cast<double>(n)};
-    for (std::size_t i = 0u; i < n+1; ++i) {
+    for (std::size_t i = 0u; i < n + 1; ++i) {
         m_Endpoints.push_back(a + static_cast<double>(i) * width);
     }
     m_Centres.clear();
@@ -149,11 +150,11 @@ void CAdaptiveBucketing::initialValues(core_t::TTime start,
 
     double scale{std::pow(static_cast<double>(dt) / static_cast<double>(dT), 2.0)};
 
-    for (core_t::TTime time = start + dt/2; time < end; time += dt) {
+    for (core_t::TTime time = start + dt / 2; time < end; time += dt) {
         if (this->inWindow(time)) {
             core_t::TTime i{(time - start) / dT};
-            double        value{CBasicStatistics::mean(values[i])};
-            double        weight{scale * CBasicStatistics::count(values[i])};
+            double value{CBasicStatistics::mean(values[i])};
+            double weight{scale * CBasicStatistics::count(values[i])};
             if (weight > 0.0) {
                 std::size_t bucket;
                 if (this->bucket(time, bucket)) {
@@ -239,7 +240,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
 
         TMinAccumulator min;
         TMaxAccumulator max;
-        for (std::size_t j = 0u; j < sizeof(v)/sizeof(v[0]); ++j) {
+        for (std::size_t j = 0u; j < sizeof(v) / sizeof(v[0]); ++j) {
             if (v[j].first > 0.0) {
                 min.add({v[j].second, j});
                 max.add({v[j].second, j});
@@ -251,7 +252,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
                                        max[0].second - min[0].second :
                                        min[0].second - max[0].second]
                                * std::pow(max[0].first - min[0].first, 0.75));
-        } else {
+        } else   {
             ranges.push_back(0.0);
         }
     }
@@ -260,12 +261,12 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     // We do this in the "time" domain because the smoothing
     // function is narrow. Estimate the averaging error in each
     // bucket by multiplying the smoothed range by the bucket width.
-    double     totalAveragingError{0.0};
+    double totalAveragingError{0.0};
     TDoubleVec averagingErrors;
     averagingErrors.reserve(n);
     for (std::size_t i = 0u; i < n; ++i) {
         double ai{m_Endpoints[i]};
-        double bi{m_Endpoints[i+1]};
+        double bi{m_Endpoints[i + 1]};
 
         double error{0.0};
         for (std::size_t j = 0u; j < boost::size(SMOOTHING_FUNCTION); ++j) {
@@ -281,8 +282,8 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     LOG_TRACE("averagingErrors = " << core::CContainerPrinter::print(averagingErrors));
     LOG_TRACE("totalAveragingError = " << totalAveragingError);
 
-    double    n_{static_cast<double>(n)};
-    double    step{(1 - n_ * EPS) * totalAveragingError / n_};
+    double n_{static_cast<double>(n)};
+    double step{(1 - n_ * EPS) * totalAveragingError / n_};
     TFloatVec endpoints{m_Endpoints};
     LOG_TRACE("step = " << step);
 
@@ -294,7 +295,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
             m_Endpoints[i] = (b - a) * static_cast<double>(i) / n_;
         }
         m_Endpoints[n] = b;
-    } else {
+    } else   {
         // Noise in the bucket mean values creates a "high"
         // frequency mean zero driving force on the buckets'
         // end points desired positions. Once they have stabilized
@@ -318,9 +319,9 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         // dynamics and damps any oscillatory behavior which
         // might otherwise occur.
         double error{0.0};
-        for (std::size_t i = 0u, j = 1u; i < n && j < n+1; ++i) {
+        for (std::size_t i = 0u, j = 1u; i < n && j < n + 1; ++i) {
             double ai{endpoints[i]};
-            double bi{endpoints[i+1]};
+            double bi{endpoints[i + 1]};
             double h{bi - ai};
             double e{averagingErrors[i]};
             error += e;
@@ -331,10 +332,10 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
                 m_Endpoints[j] = endpoints[j] + alpha * (ai + x - endpoints[j]);
                 force += (ai + x) - endpoints[j];
                 LOG_TRACE("interval averaging error = " << e
-                                                        << ", a(i) = " << ai
-                                                        << ", x = " << x
-                                                        << ", endpoint " << endpoints[j]
-                                                        << " -> " << ai + x);
+                          << ", a(i) = " << ai
+                          << ", x = " << x
+                          << ", endpoint " << endpoints[j]
+                          << " -> " << ai + x);
                 ++j;
             }
         }
@@ -370,8 +371,8 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
         if (this->count(i) > 0.0) {
             double wide{3.0 * (m_Endpoints[n] - m_Endpoints[0]) / static_cast<double>(n)};
             LOG_TRACE("period " << m_Endpoints[n] - m_Endpoints[0]
-                                << ", # buckets = " << n
-                                << ", wide = " << wide);
+                      << ", # buckets = " << n
+                      << ", wide = " << wide);
 
             // We get two points for each wide bucket but at most
             // one third of the buckets can be wide. In this case
@@ -381,7 +382,7 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
             variances.reserve(4 * n / 3);
 
             double a{m_Endpoints[i]};
-            double b{m_Endpoints[i+1]};
+            double b{m_Endpoints[i + 1]};
             double c{m_Centres[i]};
             knots.push_back(m_Endpoints[0]);
             values.push_back(this->predict(i, time, c));
@@ -389,7 +390,7 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
             for (/**/; i < n; ++i) {
                 if (this->count(i) > 0.0) {
                     a = m_Endpoints[i];
-                    b = m_Endpoints[i+1];
+                    b = m_Endpoints[i + 1];
                     c = m_Centres[i];
                     double m{this->predict(i, time, c)};
                     double v{this->variance(i)};
@@ -400,7 +401,7 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
                         knots.push_back(std::min(c + (b - a) / 4.0, b));
                         values.push_back(m);
                         variances.push_back(v);
-                    } else {
+                    } else   {
                         knots.push_back(c);
                         values.push_back(m);
                         variances.push_back(v);
@@ -480,8 +481,8 @@ bool CAdaptiveBucketing::bucket(core_t::TTime time, std::size_t &result) const {
     std::size_t n{m_Endpoints.size()};
     if (t < m_Endpoints[0] || i == n) {
         LOG_ERROR("t = " << t
-                         << " out of range [" << m_Endpoints[0]
-                         << "," << m_Endpoints[n-1] << ")");
+                  << " out of range [" << m_Endpoints[0]
+                  << "," << m_Endpoints[n - 1] << ")");
         return false;
     }
 

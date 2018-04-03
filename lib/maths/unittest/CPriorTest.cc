@@ -69,7 +69,8 @@ class CMinusLogLikelihood {
             m_Prior(&prior),
             m_WeightStyle(1, maths_t::E_SampleCountWeight),
             m_X(1, 0.0),
-            m_Weight(1, TDoubleVec(1, 1.0)) {}
+            m_Weight(1, TDoubleVec(1, 1.0))
+        {}
 
         bool operator()(const double &x, double &result) const {
             m_X[0] = x;
@@ -83,10 +84,10 @@ class CMinusLogLikelihood {
         }
 
     private:
-        const maths::CPrior      *m_Prior;
+        const maths::CPrior *m_Prior;
         maths_t::TWeightStyleVec m_WeightStyle;
-        mutable TDoubleVec       m_X;
-        TDoubleVecVec            m_Weight;
+        mutable TDoubleVec m_X;
+        TDoubleVecVec m_Weight;
 };
 
 }
@@ -117,8 +118,8 @@ void CPriorTest::testExpectation(void) {
         double mean;
         CPPUNIT_ASSERT(prior.expectation(CX(), n, mean));
         LOG_DEBUG("n = " << n
-                         << ", mean = " << mean
-                         << ", error = " << ::fabs(mean - trueMean));
+                  << ", mean = " << mean
+                  << ", error = " << ::fabs(mean - trueMean));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(trueMean, mean, 1e-10);
     }
 
@@ -132,8 +133,8 @@ void CPriorTest::testExpectation(void) {
         double variance;
         CPPUNIT_ASSERT(prior.expectation(CVariance(prior.mean()), n, variance));
         LOG_DEBUG("n = " << n
-                         << ", variance = " << variance
-                         << ", error = " << ::fabs(variance - trueVariance));
+                  << ", variance = " << variance
+                  << ", error = " << ::fabs(variance - trueVariance));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(trueVariance, variance, varianceErrors[n - 1]);
     }
 
@@ -142,14 +143,14 @@ void CPriorTest::testExpectation(void) {
         0.5, 0.05, 0.01, 0.005, 0.001, 0.0003, 0.0003, 0.0002, 0.0002
     };
     boost::math::normal_distribution<> normal(trueMean, ::sqrt(trueVariance));
-    double                             trueEntropy = maths::CTools::differentialEntropy(normal);
+    double trueEntropy = maths::CTools::differentialEntropy(normal);
     LOG_DEBUG("true differential entropy = " << trueEntropy);
     for (std::size_t n = 1; n < 10; ++n) {
         double entropy;
         CPPUNIT_ASSERT(prior.expectation(CMinusLogLikelihood(prior), n, entropy));
         LOG_DEBUG("n = " << n
-                         << ", differential entropy = " << entropy
-                         << ", error = " << ::fabs(entropy - trueEntropy));
+                  << ", differential entropy = " << entropy
+                  << ", error = " << ::fabs(entropy - trueEntropy));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(trueEntropy, entropy, entropyErrors[n - 1]);
     }
 }

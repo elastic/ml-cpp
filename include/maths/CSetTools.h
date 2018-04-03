@@ -74,9 +74,9 @@ class MATHS_EXPORT CSetTools {
                         std::iter_swap(last, i);
                     }
                     ++i; ++last;
-                } else if (*j < *i) {
+                } else if (*j < *i)   {
                     ++j;
-                } else {
+                } else   {
                     ++i; ++j;
                 }
             }
@@ -162,9 +162,9 @@ class MATHS_EXPORT CSetTools {
             while (beginLhs != endLhs && beginRhs != endRhs) {
                 if (*beginLhs < *beginRhs) {
                     ++beginLhs;
-                } else if (*beginRhs < *beginLhs) {
+                } else if (*beginRhs < *beginLhs)   {
                     ++beginRhs;
-                } else {
+                } else   {
                     ++beginLhs; ++beginRhs; ++result;
                 }
             }
@@ -179,9 +179,9 @@ class MATHS_EXPORT CSetTools {
             while (beginLhs != endLhs && beginRhs != endRhs) {
                 if (*beginLhs < *beginRhs) {
                     ++beginLhs;
-                } else if (*beginRhs < *beginLhs) {
+                } else if (*beginRhs < *beginLhs)   {
                     ++beginRhs;
-                } else {
+                } else   {
                     ++beginLhs; ++beginRhs;
                 }
                 ++result;
@@ -200,9 +200,9 @@ class MATHS_EXPORT CSetTools {
             while (beginLhs != endLhs && beginRhs != endRhs) {
                 if (*beginLhs < *beginRhs) {
                     ++beginLhs;
-                } else if (*beginRhs < *beginLhs) {
+                } else if (*beginRhs < *beginLhs)   {
                     ++beginRhs;
-                } else {
+                } else   {
                     ++beginLhs; ++beginRhs; ++numer;
                 }
                 ++denom;
@@ -224,9 +224,9 @@ class MATHS_EXPORT CSetTools {
             while (beginLhs != endLhs && beginRhs != endRhs) {
                 if (*beginLhs < *beginRhs) {
                     ++beginLhs; ++nl;
-                } else if (*beginRhs < *beginLhs) {
+                } else if (*beginRhs < *beginLhs)   {
                     ++beginRhs; ++nr;
-                } else {
+                } else   {
                     ++beginLhs; ++beginRhs; ++numer; ++nl; ++nr;
                 }
             }

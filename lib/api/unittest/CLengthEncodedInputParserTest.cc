@@ -55,7 +55,8 @@ namespace {
 class CSetupVisitor {
     public:
         CSetupVisitor(void)
-            : m_RecordsPerBlock(0) {}
+            : m_RecordsPerBlock(0)
+        {}
 
         //! Handle a record
         bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
@@ -112,7 +113,7 @@ class CSetupVisitor {
 
     private:
         std::string m_EncodedFieldNames;
-        size_t      m_RecordsPerBlock;
+        size_t m_RecordsPerBlock;
         std::string m_EncodedDataBlock;
 };
 
@@ -120,12 +121,14 @@ class CVisitor {
     public:
         CVisitor(void)
             : m_Fast(true),
-              m_RecordCount(0) {}
+              m_RecordCount(0)
+        {}
 
         CVisitor(const ml::api::CCsvInputParser::TStrVec &expectedFieldNames)
             : m_Fast(false),
               m_RecordCount(0),
-              m_ExpectedFieldNames(expectedFieldNames) {}
+              m_ExpectedFieldNames(expectedFieldNames)
+        {}
 
         //! Handle a record
         bool operator()(const ml::api::CLengthEncodedInputParser::TStrStrUMap &dataRowFields) {
@@ -168,8 +171,8 @@ class CVisitor {
         }
 
     private:
-        bool                              m_Fast;
-        size_t                            m_RecordCount;
+        bool m_Fast;
+        size_t m_RecordCount;
         ml::api::CCsvInputParser::TStrVec m_ExpectedFieldNames;
 
 };
@@ -270,8 +273,8 @@ void CLengthEncodedInputParserTest::testThroughput(void) {
 }
 
 void CLengthEncodedInputParserTest::testCorruptStreamDetection(void) {
-    uint32_t    numFields(1);
-    uint32_t    numFieldsNet(htonl(numFields));
+    uint32_t numFields(1);
+    uint32_t numFieldsNet(htonl(numFields));
     std::string dodgyInput(reinterpret_cast<char *>(&numFieldsNet), sizeof(uint32_t));
     // This is going to create a length field consisting of four 'a' characters
     // interpreted as a uint32_t

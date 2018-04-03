@@ -29,11 +29,11 @@ int main(int, char **) {
 
     std::time_t endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
     std::cout << "startTime = " << startTime
-              << ", endTime = " << endTime
-              << ", # events = " << eventTimes.size() << std::endl;
+    << ", endTime = " << endTime
+    << ", # events = " << eventTimes.size() << std::endl;
 
     {
-        std::time_t   offset = endTime - startTime;
+        std::time_t offset = endTime - startTime;
         unsigned long i = 0;
         for (std::time_t bucketStartTime = startTime;
              bucketStartTime < endTime;

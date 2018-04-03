@@ -401,7 +401,7 @@ void CCategoricalToolsTest::testLogBinomialProbability(void) {
             LOG_DEBUG("n = " << n[i] << ", p = " << p[j]);
 
             boost::math::binomial_distribution<> binomial(n[i], p[j]);
-            double                               median = boost::math::median(binomial);
+            double median = boost::math::median(binomial);
             for (std::size_t f = 1u; f < 10; ++f) {
                 double f_ = static_cast<double>(f) / 10.0;
                 double m = ::floor(f_ * median);
@@ -413,7 +413,7 @@ void CCategoricalToolsTest::testLogBinomialProbability(void) {
                                                                                       static_cast<std::size_t>(m),
                                                                                       logpdf));
                 LOG_DEBUG("f(" << m << "), expected = " << pdf
-                               << ", actual = " << ::exp(logpdf));
+                          << ", actual = " << ::exp(logpdf));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, ::exp(logpdf), 1e-6 * pdf);
             }
             for (std::size_t f = 1u; f < 10; ++f) {
@@ -427,7 +427,7 @@ void CCategoricalToolsTest::testLogBinomialProbability(void) {
                                                                                       static_cast<std::size_t>(m),
                                                                                       logpdf));
                 LOG_DEBUG("f(" << m << "), expected = " << pdf
-                               << ", actual = " << ::exp(logpdf));
+                          << ", actual = " << ::exp(logpdf));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, ::exp(logpdf), 1e-6 * pdf);
             }
         }
@@ -454,12 +454,12 @@ void CCategoricalToolsTest::testLogMultinomialProbability(void) {
                 LOG_DEBUG("n = " << n[i] << ", p = " << p[j]);
 
                 boost::math::binomial_distribution<> binomial(n[i], p[j]);
-                double                               median = boost::math::median(binomial);
+                double median = boost::math::median(binomial);
                 for (std::size_t f = 1u; f < 10; ++f) {
-                    double     f_ = static_cast<double>(f) / 10.0;
-                    double     m = ::floor(f_ * median);
-                    double     pdf = boost::math::pdf(binomial, m);
-                    double     logpdf;
+                    double f_ = static_cast<double>(f) / 10.0;
+                    double m = ::floor(f_ * median);
+                    double pdf = boost::math::pdf(binomial, m);
+                    double logpdf;
                     TDoubleVec pi;
                     pi.push_back(p[j]);
                     pi.push_back(1.0 - p[j]);
@@ -469,14 +469,14 @@ void CCategoricalToolsTest::testLogMultinomialProbability(void) {
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                          maths::CCategoricalTools::logMultinomialProbability(pi, ni, logpdf));
                     LOG_DEBUG("f(" << m << "), expected = " << pdf
-                                   << ", actual = " << ::exp(logpdf));
+                              << ", actual = " << ::exp(logpdf));
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, ::exp(logpdf), 1e-6 * pdf);
                 }
                 for (std::size_t f = 1u; f < 10; ++f) {
-                    double     f_ = static_cast<double>(f) / 10.0;
-                    double     m = median + ::floor(f_ * (n[i] - median));
-                    double     pdf = boost::math::pdf(binomial, m);
-                    double     logpdf;
+                    double f_ = static_cast<double>(f) / 10.0;
+                    double m = median + ::floor(f_ * (n[i] - median));
+                    double pdf = boost::math::pdf(binomial, m);
+                    double logpdf;
                     TDoubleVec pi;
                     pi.push_back(p[j]);
                     pi.push_back(1.0 - p[j]);
@@ -486,7 +486,7 @@ void CCategoricalToolsTest::testLogMultinomialProbability(void) {
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                          maths::CCategoricalTools::logMultinomialProbability(pi, ni, logpdf));
                     LOG_DEBUG("f(" << m << "), expected = " << pdf
-                                   << ", actual = " << ::exp(logpdf));
+                              << ", actual = " << ::exp(logpdf));
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, ::exp(logpdf), 1e-6 * pdf);
                 }
             }
@@ -505,7 +505,7 @@ void CCategoricalToolsTest::testLogMultinomialProbability(void) {
         for (std::size_t m = 0u; m <= n; ++m) {
             double marginal = 0.0;
             for (std::size_t i = 0u; i <= n - m; ++i) {
-                double   logpdf;
+                double logpdf;
                 TSizeVec ni;
                 ni.push_back(m);
                 ni.push_back(i);
@@ -516,7 +516,7 @@ void CCategoricalToolsTest::testLogMultinomialProbability(void) {
             }
 
             boost::math::binomial_distribution<> binomial(static_cast<double>(n), pi[0]);
-            double                               pdf = boost::math::pdf(binomial, static_cast<double>(m));
+            double pdf = boost::math::pdf(binomial, static_cast<double>(m));
             LOG_DEBUG("f = " << pdf << ", marginal = " << marginal);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, marginal, 1e-6 * pdf);
         }

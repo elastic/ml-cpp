@@ -54,7 +54,8 @@ class CSetupVisitor {
     public:
         CSetupVisitor(void)
             : m_RecordsPerBlock(0),
-              m_OutputWriter("root") {}
+              m_OutputWriter("root")
+        {}
 
         //! Handle a record
         bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
@@ -85,14 +86,15 @@ class CSetupVisitor {
         }
 
     private:
-        size_t                             m_RecordsPerBlock;
+        size_t m_RecordsPerBlock;
         ml::api::CLineifiedXmlOutputWriter m_OutputWriter;
 };
 
 class CVisitor {
     public:
         CVisitor(void)
-            : m_RecordCount(0) {}
+            : m_RecordCount(0)
+        {}
 
         //! Handle a record
         bool operator()(const ml::api::CLineifiedXmlInputParser::TStrStrUMap & /*dataRowFields*/) {
@@ -149,9 +151,9 @@ void CLineifiedXmlInputParserTest::runTest(bool allDocsSameStructure) {
 
     // Construct a large test input
     static const size_t TEST_SIZE(5000);
-    std::istringstream  input(setupVisitor.input(TEST_SIZE));
+    std::istringstream input(setupVisitor.input(TEST_SIZE));
 
-    PARSER                            underlyingParser;
+    PARSER underlyingParser;
     ml::api::CLineifiedXmlInputParser parser(underlyingParser,
                                              input,
                                              allDocsSameStructure);

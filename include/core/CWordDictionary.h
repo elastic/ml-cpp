@@ -172,7 +172,7 @@ class CORE_EXPORT CWordDictionary : private CNonCopyable {
         //! The constructor loads a file, and hence may take a while.  This
         //! mutex prevents the singleton object being constructed simultaneously
         //! in different threads.
-        static CFastMutex               ms_LoadMutex;
+        static CFastMutex ms_LoadMutex;
 
         //! This pointer is set after the singleton object has been constructed,
         //! and avoids the need to lock the mutex on subsequent calls of the

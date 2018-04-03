@@ -100,104 +100,104 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig {
     public:
         //! The default value used to separate components of a multivariate feature
         //! in its string value.
-        static const std::string   DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER;
+        static const std::string DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER;
 
         //! Bucket length if none is specified on the command line.
         static const core_t::TTime DEFAULT_BUCKET_LENGTH;
 
         //! Default maximum number of buckets for receiving out of order records.
-        static const std::size_t   DEFAULT_LATENCY_BUCKETS;
+        static const std::size_t DEFAULT_LATENCY_BUCKETS;
 
         //! Default amount by which metric sample count is reduced for fine-grained
         //! sampling when there is no latency.
-        static const std::size_t   DEFAULT_SAMPLE_COUNT_FACTOR_NO_LATENCY;
+        static const std::size_t DEFAULT_SAMPLE_COUNT_FACTOR_NO_LATENCY;
 
         //! Default amount by which metric sample count is reduced for fine-grained
         //! sampling when there is latency.
-        static const std::size_t   DEFAULT_SAMPLE_COUNT_FACTOR_WITH_LATENCY;
+        static const std::size_t DEFAULT_SAMPLE_COUNT_FACTOR_WITH_LATENCY;
 
         //! Default amount by which the metric sample queue expands when it is full.
-        static const double        DEFAULT_SAMPLE_QUEUE_GROWTH_FACTOR;
+        static const double DEFAULT_SAMPLE_QUEUE_GROWTH_FACTOR;
 
         //! Bucket length corresponding to the default decay and learn rates.
         static const core_t::TTime STANDARD_BUCKET_LENGTH;
 
         //! The default rate at which the model priors decay to non-informative
         //! per standard bucket length.
-        static const double        DEFAULT_DECAY_RATE;
+        static const double DEFAULT_DECAY_RATE;
 
         //! The initial rate, as a multiple of the default decay rate, at which
         //! the model priors decay to non-informative per standard bucket length.
-        static const double        DEFAULT_INITIAL_DECAY_RATE_MULTIPLIER;
+        static const double DEFAULT_INITIAL_DECAY_RATE_MULTIPLIER;
 
         //! The rate at which information accrues in the model per standard
         //! bucket length elapsed.
-        static const double        DEFAULT_LEARN_RATE;
+        static const double DEFAULT_LEARN_RATE;
 
         //! The default minimum permitted fraction of points in a distribution
         //! mode for individual modeling.
-        static const double        DEFAULT_INDIVIDUAL_MINIMUM_MODE_FRACTION;
+        static const double DEFAULT_INDIVIDUAL_MINIMUM_MODE_FRACTION;
 
         //! The default minimum permitted fraction of points in a distribution
         //! mode for population modeling.
-        static const double        DEFAULT_POPULATION_MINIMUM_MODE_FRACTION;
+        static const double DEFAULT_POPULATION_MINIMUM_MODE_FRACTION;
 
         //! The default minimum count in a cluster we'll permit in a cluster.
-        static const double        DEFAULT_MINIMUM_CLUSTER_SPLIT_COUNT;
+        static const double DEFAULT_MINIMUM_CLUSTER_SPLIT_COUNT;
 
         //! The default minimum frequency of non-empty buckets at which we model
         //! all buckets.
-        static const double        DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS;
+        static const double DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS;
 
         //! The default proportion of initial count at which we'll delete a
         //! category from the sketch to cluster.
-        static const double        DEFAULT_CATEGORY_DELETE_FRACTION;
+        static const double DEFAULT_CATEGORY_DELETE_FRACTION;
 
         //! The default size of the seasonal components we will model.
-        static const std::size_t   DEFAULT_COMPONENT_SIZE;
+        static const std::size_t DEFAULT_COMPONENT_SIZE;
 
         //! The default number of times to sample a person model when computing
         //! total probabilities for population models.
-        static const std::size_t   DEFAULT_TOTAL_PROBABILITY_CALC_SAMPLING_SIZE;
+        static const std::size_t DEFAULT_TOTAL_PROBABILITY_CALC_SAMPLING_SIZE;
 
         //! The maximum number of times we'll update a model in a bucketing
         //! interval. This only applies to our metric statistics, which are
         //! computed on a fixed number of measurements rather than a fixed
         //! time interval. A value of zero implies no constraint.
-        static const double        DEFAULT_MAXIMUM_UPDATES_PER_BUCKET;
+        static const double DEFAULT_MAXIMUM_UPDATES_PER_BUCKET;
 
         //! The default minimum value for the influence for which an influencing
         //! field value is judged to have any influence on a feature value.
-        static const double        DEFAULT_INFLUENCE_CUTOFF;
+        static const double DEFAULT_INFLUENCE_CUTOFF;
 
         //! The default scale factor of the decayRate that determines the minimum
         //! size of the sliding prune window for purging older entries from the
         //! model.
-        static const double        DEFAULT_PRUNE_WINDOW_SCALE_MINIMUM;
+        static const double DEFAULT_PRUNE_WINDOW_SCALE_MINIMUM;
 
         //! The default scale factor of the decayRate that determines the maximum
         //! size of the sliding prune window for purging older entries from the
         //! model.
-        static const double        DEFAULT_PRUNE_WINDOW_SCALE_MAXIMUM;
+        static const double DEFAULT_PRUNE_WINDOW_SCALE_MAXIMUM;
 
         //! The default factor increase in priors used to model correlations.
-        static const double        DEFAULT_CORRELATION_MODELS_OVERHEAD;
+        static const double DEFAULT_CORRELATION_MODELS_OVERHEAD;
 
         //! The default threshold for the Pearson correlation coefficient at
         //! which a correlate will be modeled.
-        static const double        DEFAULT_MINIMUM_SIGNIFICANT_CORRELATION;
+        static const double DEFAULT_MINIMUM_SIGNIFICANT_CORRELATION;
 
         //! The default number of half buckets to store before choosing which
         //! overlapping bucket has the biggest anomaly
-        static const std::size_t   DEFAULT_BUCKET_RESULTS_DELAY;
+        static const std::size_t DEFAULT_BUCKET_RESULTS_DELAY;
 
         //! \name Anomaly Score Calculation
         //@{
         //! The default values for the aggregation styles' parameters.
-        static const double        DEFAULT_AGGREGATION_STYLE_PARAMS[model_t::NUMBER_AGGREGATION_STYLES][model_t::NUMBER_AGGREGATION_PARAMS];
+        static const double DEFAULT_AGGREGATION_STYLE_PARAMS[model_t::NUMBER_AGGREGATION_STYLES][model_t::NUMBER_AGGREGATION_PARAMS];
 
         //! The default maximum probability which is deemed to be anomalous.
-        static const double        DEFAULT_MAXIMUM_ANOMALOUS_PROBABILITY;
+        static const double DEFAULT_MAXIMUM_ANOMALOUS_PROBABILITY;
         //@}
 
         //! \name Anomaly Score Normalization
@@ -224,7 +224,7 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig {
         //@}
 
         //! The maximum number of samples we use when re-sampling a prior.
-        static const std::size_t     DEFAULT_RESAMPLING_MAX_SAMPLES;
+        static const std::size_t DEFAULT_RESAMPLING_MAX_SAMPLES;
 
     public:
         //! Create the default configuration.
@@ -450,55 +450,55 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig {
         core_t::TTime samplingAgeCutoff(void) const;
     private:
         //! Bucket length.
-        core_t::TTime                    m_BucketLength;
+        core_t::TTime m_BucketLength;
 
         //! Get the bucket result delay window: The numer of half buckets to
         //! store before choosing which overlapping bucket has the biggest anomaly
-        std::size_t                      m_BucketResultsDelay;
+        std::size_t m_BucketResultsDelay;
 
         //! Should multivariate analysis of correlated 'by' fields be performed?
-        bool                             m_MultivariateByFields;
+        bool m_MultivariateByFields;
 
         //! The new model factories for each data type.
-        TFactoryTypeFactoryPtrMap        m_Factories;
+        TFactoryTypeFactoryPtrMap m_Factories;
 
         //! A cache of customized factories requested from this config.
         mutable TSearchKeyFactoryCPtrMap m_FactoryCache;
 
         //! The central confidence interval for the model debug plot.
-        double                           m_ModelPlotBoundsPercentile;
+        double m_ModelPlotBoundsPercentile;
 
         //! Terms (by, over, or partition field values) used to filter model
         //! debug data. Empty when no filtering applies.
-        TStrSet                          m_ModelPlotTerms;
+        TStrSet m_ModelPlotTerms;
         //@}
 
         //! \name Anomaly Score Calculation
         //@{
         //! The values for the aggregation styles' parameters.
-        double                           m_AggregationStyleParams[model_t::NUMBER_AGGREGATION_STYLES][model_t::NUMBER_AGGREGATION_PARAMS];
+        double m_AggregationStyleParams[model_t::NUMBER_AGGREGATION_STYLES][model_t::NUMBER_AGGREGATION_PARAMS];
 
         //! The maximum probability which is deemed to be anomalous.
-        double                           m_MaximumAnomalousProbability;
+        double m_MaximumAnomalousProbability;
         //@}
 
         //! \name Anomaly Score Normalization
         //@{
         //! The historic anomaly score percentile for which lower values
         //! are classified as noise.
-        double                       m_NoisePercentile;
+        double m_NoisePercentile;
 
         //! The multiplier applied to the noise level score in order to
         //! be classified as anomalous.
-        double                       m_NoiseMultiplier;
+        double m_NoiseMultiplier;
 
         //! We use a piecewise linear mapping between the raw anomaly score
         //! and the normalized anomaly score with these knot points.
         //! \see DEFAULT_NORMALIZED_SCORE_KNOT_POINTS for details.
-        TDoubleDoublePrVec           m_NormalizedScoreKnotPoints;
+        TDoubleDoublePrVec m_NormalizedScoreKnotPoints;
 
         //! If true then create one normalizer per partition field value.
-        bool                         m_PerPartitionNormalisation;
+        bool m_PerPartitionNormalisation;
         //@}
 
         //! A reference to the map containing detection rules per
@@ -507,7 +507,7 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig {
 
         //! A reference to the vector of scheduled events.
         //! The owner of the vector is CFieldConfig
-        TStrDetectionRulePrVecCRef   m_ScheduledEvents;
+        TStrDetectionRulePrVecCRef m_ScheduledEvents;
 };
 
 }

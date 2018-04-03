@@ -136,7 +136,7 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec &weightStyles,
                 double n = maths_t::count(weightStyles, weights[i]);
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
             }
-        } else {
+        } else   {
             // The marginal likelihood for a single sample is the negative
             // binomial distribution:
             //   f(x | p, r) = Gamma(r + x) * p^r * (1 - p)^x / x! / Gamma(r)
@@ -156,18 +156,18 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec &weightStyles,
 
                 double mean = shape / rate;
                 if (mean > MINIMUM_GAUSSIAN_MEAN) {
-                    double                             deviation = ::sqrt((rate + 1.0) / rate * mean);
+                    double deviation = ::sqrt((rate + 1.0) / rate * mean);
                     boost::math::normal_distribution<> normal(mean, deviation);
                     result = aggregate(result, func(normal, x), n);
-                } else {
-                    double                                        r = shape;
-                    double                                        p = rate / (rate + 1.0);
+                } else   {
+                    double r = shape;
+                    double p = rate / (rate + 1.0);
                     boost::math::negative_binomial_distribution<> negativeBinomial(r, p);
                     result = aggregate(result, func(negativeBinomial, x), n);
                 }
             }
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Error calculating joint c.d.f."
                   << " offset = " << offset
                   << ", shape = " << shape
@@ -202,7 +202,8 @@ CPoissonMeanConjugate::CPoissonMeanConjugate(double offset,
     CPrior(maths_t::E_IntegerData, decayRate),
     m_Offset(offset),
     m_Shape(shape),
-    m_Rate(rate) {}
+    m_Rate(rate)
+{}
 
 CPoissonMeanConjugate::CPoissonMeanConjugate(const SDistributionRestoreParams &params,
                                              core::CStateRestoreTraverser &traverser) :
@@ -286,10 +287,10 @@ double CPoissonMeanConjugate::adjustOffset(const TWeightStyleVec & /*weightStyle
     }
 
     TWeightStyleVec weightStyle(1, maths_t::E_SampleCountWeight);
-    double          offset = OFFSET_MARGIN - minimumSample;
-    TDouble1Vec     resamples;
+    double offset = OFFSET_MARGIN - minimumSample;
+    TDouble1Vec resamples;
     this->sampleMarginalLikelihood(ADJUST_OFFSET_SAMPLE_SIZE, resamples);
-    double          weight = this->numberSamples() / static_cast<double>(resamples.size());
+    double weight = this->numberSamples() / static_cast<double>(resamples.size());
     TDouble4Vec1Vec weights(resamples.size(), TDouble4Vec(1, weight));
 
     double before = 0.0;
@@ -312,8 +313,8 @@ double CPoissonMeanConjugate::adjustOffset(const TWeightStyleVec & /*weightStyle
     }
 
     LOG_TRACE("resamples = " << core::CContainerPrinter::print(resamples)
-                             << ", weight = " << weight
-                             << ", offset = " << m_Offset);
+              << ", weight = " << weight
+              << ", offset = " << m_Offset);
 
     this->addSamples(weightStyle, resamples, weights);
 
@@ -376,7 +377,7 @@ void CPoissonMeanConjugate::addSamples(const TWeightStyleVec &weightStyles,
             numberSamples += n;
             sampleSum += n * x;
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to update likelihood: " << e.what());
         return;
     }
@@ -385,10 +386,10 @@ void CPoissonMeanConjugate::addSamples(const TWeightStyleVec &weightStyles,
     m_Rate += numberSamples;
 
     LOG_TRACE("# samples = " << numberSamples
-                             << ", sampleSum = " << sampleSum
-                             << ", m_Shape = " << m_Shape
-                             << ", m_Rate = " << m_Rate
-                             << ", m_Offset = " << m_Offset);
+              << ", sampleSum = " << sampleSum
+              << ", m_Shape = " << m_Shape
+              << ", m_Rate = " << m_Rate
+              << ", m_Offset = " << m_Offset);
 }
 
 void CPoissonMeanConjugate::propagateForwardsByTime(double time) {
@@ -424,10 +425,10 @@ void CPoissonMeanConjugate::propagateForwardsByTime(double time) {
     this->numberSamples(this->numberSamples() * alpha);
 
     LOG_TRACE("time = " << time
-                        << ", alpha = " << alpha
-                        << ", m_Shape = " << m_Shape
-                        << ", m_Rate = " << m_Rate
-                        << ", numberSamples = " << this->numberSamples());
+              << ", alpha = " << alpha
+              << ", m_Shape = " << m_Shape
+              << ", m_Rate = " << m_Rate
+              << ", numberSamples = " << this->numberSamples());
 }
 
 CPoissonMeanConjugate::TDoubleDoublePr
@@ -464,14 +465,14 @@ double CPoissonMeanConjugate::marginalLikelihoodMode(const TWeightStyleVec & /*w
     // binomial.
 
     try {
-        double                                        r = m_Shape;
-        double                                        p = m_Rate / (m_Rate + 1.0);
+        double r = m_Shape;
+        double p = m_Rate / (m_Rate + 1.0);
         boost::math::negative_binomial_distribution<> negativeBinomial(r, p);
         return boost::math::mode(negativeBinomial) - m_Offset;
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to compute marginal likelihood mode: " << e.what()
-                                                                 << ", prior shape = " << m_Shape
-                                                                 << ", prior rate = " << m_Rate);
+                  << ", prior shape = " << m_Shape
+                  << ", prior rate = " << m_Rate);
     }
 
     return -m_Offset;
@@ -491,7 +492,7 @@ double CPoissonMeanConjugate::marginalLikelihoodVariance(const TWeightStyleVec &
     try {
         varianceScale =  maths_t::seasonalVarianceScale(weightStyles, weights)
                         * maths_t::countVarianceScale(weightStyles, weights);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to get variance scale: " << e.what());
     }
     return varianceScale * (this->priorMean() + this->priorVariance());
@@ -512,14 +513,14 @@ CPoissonMeanConjugate::marginalLikelihoodConfidenceInterval(double percentage,
     // negative binomial.
 
     try {
-        double                                        r = m_Shape;
-        double                                        p = m_Rate / (m_Rate + 1.0);
+        double r = m_Shape;
+        double p = m_Rate / (m_Rate + 1.0);
         boost::math::negative_binomial_distribution<> negativeBinomial(r, p);
-        double                                        x1 = boost::math::quantile(negativeBinomial, (1.0 - percentage) / 2.0) - m_Offset;
-        double                                        x2 = percentage > 0.0 ? boost::math::quantile(negativeBinomial,
-                                                                                                    (1.0 + percentage) / 2.0) - m_Offset : x1;
+        double x1 = boost::math::quantile(negativeBinomial, (1.0 - percentage) / 2.0) - m_Offset;
+        double x2 = percentage > 0.0 ? boost::math::quantile(negativeBinomial,
+                                                             (1.0 + percentage) / 2.0) - m_Offset : x1;
         return std::make_pair(x1, x2);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to compute confidence interval: " << e.what());
     }
 
@@ -614,7 +615,7 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TWeightStyleVec &weightS
                  - impliedShape * ::log(impliedRate)
                  - sampleLogFactorialSum
                  - boost::math::lgamma(m_Shape);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Error calculating marginal likelihood: " << e.what());
         return maths_t::E_FpFailed;
     }
@@ -680,8 +681,8 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
     TDoubleDoublePr support = this->marginalLikelihoodSupport();
 
     boost::math::gamma_distribution<> gamma(m_Shape, 1.0 / m_Rate);
-    double                            mean = boost::math::mean(gamma);
-    double                            lastPartialExpectation = 0.0;
+    double mean = boost::math::mean(gamma);
+    double lastPartialExpectation = 0.0;
 
     if (mean > MINIMUM_GAUSSIAN_MEAN) {
         double variance = mean + this->priorVariance();
@@ -706,22 +707,22 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
                 // Sanity check the sample: should be in the distribution support.
                 if (sample >= support.first && sample <= support.second) {
                     samples.push_back(sample);
-                } else {
+                } else   {
                     LOG_ERROR("Sample out of bounds: sample = " << sample
-                                                                << ", support = [" << support.first << "," << support.second << "]"
-                                                                << ", mean = " << mean
-                                                                << ", variance = " << variance
-                                                                << ", q = " << q
-                                                                << ", x(q) = " << xq);
+                              << ", support = [" << support.first << "," << support.second << "]"
+                              << ", mean = " << mean
+                              << ", variance = " << variance
+                              << ", q = " << q
+                              << ", x(q) = " << xq);
                 }
                 lastPartialExpectation = partialExpectation;
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ERROR("Failed to sample: " << e.what()
-                                           << ", mean = " << mean
-                                           << ", variance = " << variance);
+                      << ", mean = " << mean
+                      << ", variance = " << variance);
         }
-    } else {
+    } else   {
         double r = m_Shape;
         double p = m_Rate / (m_Rate + 1.0);
 
@@ -756,22 +757,22 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
                 // Sanity check the sample: should be in the distribution support.
                 if (sample >= support.first && sample <= support.second) {
                     samples.push_back(sample);
-                } else {
+                } else   {
                     LOG_ERROR("Sample out of bounds: sample = " << sample
-                                                                << ", support = [" << support.first << "," << support.second << "]"
-                                                                << ", mean = " << mean
-                                                                << ", r = " << r
-                                                                << ", p = " << p
-                                                                << ", q = " << q
-                                                                << ", x(q) = " << xq);
+                              << ", support = [" << support.first << "," << support.second << "]"
+                              << ", mean = " << mean
+                              << ", r = " << r
+                              << ", p = " << p
+                              << ", q = " << q
+                              << ", x(q) = " << xq);
                 }
                 lastPartialExpectation = partialExpectation;
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ERROR("Failed to sample: " << e.what()
-                                           << ", mean = " << mean
-                                           << ", r = " << r
-                                           << ", p = " << p);
+                      << ", mean = " << mean
+                      << ", r = " << r
+                      << ", p = " << p);
         }
     }
 
@@ -784,9 +785,9 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
     // Sanity check the sample: should be in the distribution support.
     if (sample >= support.first && sample <= support.second) {
         samples.push_back(sample);
-    } else {
+    } else   {
         LOG_ERROR("Sample out of bounds: sample = " << sample
-                                                    << ", mean = " << mean);
+                  << ", mean = " << mean);
     }
 }
 
@@ -854,7 +855,7 @@ bool CPoissonMeanConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
     lowerBound = upperBound = 0.0;
     tail = maths_t::E_UndeterminedTail;
 
-    double         value = 0.0;
+    double value = 0.0;
     maths_t::ETail tail_ = maths_t::E_UndeterminedTail;
 
     CJointProbabilityOfLessLikelySamples probability;
@@ -909,7 +910,7 @@ std::string CPoissonMeanConjugate::printJointDensityFunction(void) const {
     //   a/b is the mean of the prior distribution.
     //   a^(1/2) / b is the standard deviation of the prior distribution.
 
-    static const double       RANGE = 6.0;
+    static const double RANGE = 6.0;
     static const unsigned int POINTS = 51;
 
     // Construct our gamma distribution.
@@ -970,10 +971,10 @@ double CPoissonMeanConjugate::priorMean(void) const {
     try {
         boost::math::gamma_distribution<> gamma(m_Shape, 1.0 / m_Rate);
         return boost::math::mean(gamma);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to calculate mean: " << e.what()
-                                               << ", prior shape = " << m_Shape
-                                               << ", prior rate = " << m_Rate);
+                  << ", prior shape = " << m_Shape
+                  << ", prior rate = " << m_Rate);
     }
 
     return 0.0;
@@ -987,10 +988,10 @@ double CPoissonMeanConjugate::priorVariance(void) const {
     try {
         boost::math::gamma_distribution<> gamma(m_Shape, 1.0 / m_Rate);
         return boost::math::variance(gamma);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to calculate variance: " << e.what()
-                                                   << ", prior shape = " << m_Shape
-                                                   << ", prior rate = " << m_Rate);
+                  << ", prior shape = " << m_Shape
+                  << ", prior rate = " << m_Rate);
     }
 
     return boost::numeric::bounds<double>::highest();
@@ -1016,10 +1017,10 @@ CPoissonMeanConjugate::meanConfidenceInterval(double percentage) const {
         boost::math::gamma_distribution<> gamma(m_Shape, 1.0 / m_Rate);
         return std::make_pair(boost::math::quantile(gamma, lowerPercentile) - m_Offset,
                               boost::math::quantile(gamma, upperPercentile) - m_Offset);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to compute mean confidence interval: " << e.what()
-                                                                 << ", prior shape = " << m_Shape
-                                                                 << ", prior rate = " << m_Rate);
+                  << ", prior shape = " << m_Shape
+                  << ", prior rate = " << m_Rate);
     }
 
     return this->marginalLikelihoodSupport();
@@ -1028,7 +1029,7 @@ CPoissonMeanConjugate::meanConfidenceInterval(double percentage) const {
 bool CPoissonMeanConjugate::equalTolerance(const CPoissonMeanConjugate &rhs,
                                            const TEqualWithTolerance &equal) const {
     LOG_DEBUG(m_Shape << " " << rhs.m_Shape << ", "
-                      << m_Rate << " " << rhs.m_Rate);
+              << m_Rate << " " << rhs.m_Rate);
     return equal(m_Shape, rhs.m_Shape) && equal(m_Rate, rhs.m_Rate);
 }
 

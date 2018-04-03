@@ -65,7 +65,8 @@ class CMetricPartialStatistic {
 
     public:
         CMetricPartialStatistic(std::size_t dimension) :
-            m_Value(CMetricStatisticWrappers::template make<STATISTIC>(dimension)) {}
+            m_Value(CMetricStatisticWrappers::template make<STATISTIC>(dimension))
+        {}
 
         //! Persist to a state document.
         void persist(core::CStatePersistInserter &inserter) const {
@@ -82,7 +83,7 @@ class CMetricPartialStatistic {
                         LOG_ERROR("Invalid statistic in " << traverser.value());
                         return false;
                     }
-                } else if (name == TIME_TAG) {
+                } else if (name == TIME_TAG)   {
                     if (m_Time.fromDelimited(traverser.value()) == false) {
                         LOG_ERROR("Invalid time in " << traverser.value());
                         return false;
@@ -155,7 +156,7 @@ class CMetricPartialStatistic {
         }
 
     private:
-        STATISTIC        m_Value;
+        STATISTIC m_Value;
         TMeanAccumulator m_Time;
 };
 

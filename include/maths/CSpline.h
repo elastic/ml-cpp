@@ -160,7 +160,8 @@ class CSpline : public CSplineTypes {
             m_Type(type),
             m_Knots(knots),
             m_Values(values),
-            m_Curvatures(curvatures) {}
+            m_Curvatures(curvatures)
+        {}
 
         //! Efficiently swap the contents of two spline objects.
         void swap(CSpline &other) {
@@ -209,20 +210,20 @@ class CSpline : public CSplineTypes {
 
             switch (m_Type) {
                 case E_Linear: {
-                    double h = this->knots()[k] - this->knots()[k-1];
-                    double c = (this->values()[k] - this->values()[k-1]) / h;
-                    double d = this->values()[k-1];
-                    double r = x - this->knots()[k-1];
+                    double h = this->knots()[k] - this->knots()[k - 1];
+                    double c = (this->values()[k] - this->values()[k - 1]) / h;
+                    double d = this->values()[k - 1];
+                    double r = x - this->knots()[k - 1];
                     return c * r + d;
                 }
                 case E_Cubic: {
-                    double h = this->knots()[k] - this->knots()[k-1];
-                    double a = (this->curvatures()[k] - this->curvatures()[k-1]) / 6.0 / h;
-                    double b = this->curvatures()[k-1] / 2.0;
-                    double c = (this->values()[k] - this->values()[k-1]) / h
-                               - (this->curvatures()[k] / 6.0 + this->curvatures()[k-1] / 3.0) * h;
-                    double d = this->values()[k-1];
-                    double r = x - this->knots()[k-1];
+                    double h = this->knots()[k] - this->knots()[k - 1];
+                    double a = (this->curvatures()[k] - this->curvatures()[k - 1]) / 6.0 / h;
+                    double b = this->curvatures()[k - 1] / 2.0;
+                    double c = (this->values()[k] - this->values()[k - 1]) / h
+                               - (this->curvatures()[k] / 6.0 + this->curvatures()[k - 1] / 3.0) * h;
+                    double d = this->values()[k - 1];
+                    double r = x - this->knots()[k - 1];
                     return ((a * r + b) * r + c) * r + d;
                 }
             }
@@ -237,27 +238,27 @@ class CSpline : public CSplineTypes {
             }
 
             std::size_t n = this->knots().size();
-            double      interval = (this->knots()[n-1] - this->knots()[0]);
+            double interval = (this->knots()[n - 1] - this->knots()[0]);
 
             TMeanAccumulator result;
             switch (m_Type) {
                 case E_Linear:
                     for (std::size_t i = 1u; i < this->knots().size(); ++i) {
-                        double h = this->knots()[i] - this->knots()[i-1];
-                        double c = (this->values()[i] - this->values()[i-1]) / h;
-                        double d = this->values()[i-1];
+                        double h = this->knots()[i] - this->knots()[i - 1];
+                        double c = (this->values()[i] - this->values()[i - 1]) / h;
+                        double d = this->values()[i - 1];
                         result.add(c / 2.0 * h + d,  h / interval);
                     }
                     break;
 
                 case E_Cubic:
                     for (std::size_t i = 1u; i < this->knots().size(); ++i) {
-                        double h = this->knots()[i] - this->knots()[i-1];
-                        double a = (this->curvatures()[i] - this->curvatures()[i-1]) / 6.0 / h;
-                        double b = this->curvatures()[i-1] / 2.0;
-                        double c = (this->values()[i] - this->values()[i-1]) / h
-                                   - (this->curvatures()[i] / 6.0 + this->curvatures()[i-1] / 3.0) * h;
-                        double d = this->values()[i-1];
+                        double h = this->knots()[i] - this->knots()[i - 1];
+                        double a = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
+                        double b = this->curvatures()[i - 1] / 2.0;
+                        double c = (this->values()[i] - this->values()[i - 1]) / h
+                                   - (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
+                        double d = this->values()[i - 1];
                         result.add(((a * h / 4.0 + b / 3.0) * h + c / 2.0) * h + d, h / interval);
                     }
                     break;
@@ -284,16 +285,16 @@ class CSpline : public CSplineTypes {
 
             switch (m_Type) {
                 case E_Linear: {
-                    double h = this->knots()[k] - this->knots()[k-1];
-                    return (this->values()[k] - this->values()[k-1]) / h;
+                    double h = this->knots()[k] - this->knots()[k - 1];
+                    return (this->values()[k] - this->values()[k - 1]) / h;
                 }
                 case E_Cubic: {
-                    double h = this->knots()[k] - this->knots()[k-1];
-                    double a = (this->curvatures()[k] - this->curvatures()[k-1]) / 6.0 / h;
-                    double b = this->curvatures()[k-1] / 2.0;
-                    double c = (this->values()[k] - this->values()[k-1]) / h
-                               - (this->curvatures()[k] / 6.0 + this->curvatures()[k-1] / 3.0) * h;
-                    double r = x - this->knots()[k-1];
+                    double h = this->knots()[k] - this->knots()[k - 1];
+                    double a = (this->curvatures()[k] - this->curvatures()[k - 1]) / 6.0 / h;
+                    double b = this->curvatures()[k - 1] / 2.0;
+                    double c = (this->values()[k] - this->values()[k - 1]) / h
+                               - (this->curvatures()[k] / 6.0 + this->curvatures()[k - 1] / 3.0) * h;
+                    double r = x - this->knots()[k - 1];
                     return ((3.0 * a * r + 2.0 * b) * r + c);
                 }
             }
@@ -315,19 +316,19 @@ class CSpline : public CSplineTypes {
             switch (m_Type) {
                 case E_Linear:
                     for (std::size_t i = 1u; i < n; ++i) {
-                        result += ::fabs((this->values()[i] - this->values()[i-1]));
+                        result += ::fabs((this->values()[i] - this->values()[i - 1]));
                     }
                     break;
 
                 case E_Cubic:
                     for (std::size_t i = 1u; i < n; ++i) {
-                        double a = this->knots()[i-1];
+                        double a = this->knots()[i - 1];
                         double b = this->knots()[i];
                         double h = b - a;
-                        double ai = (this->curvatures()[i] - this->curvatures()[i-1]) / 6.0 / h;
-                        double bi = this->curvatures()[i-1] / 2.0;
-                        double ci = (this->values()[i] - this->values()[i-1]) / h
-                                    - (this->curvatures()[i] / 6.0 + this->curvatures()[i-1] / 3.0) * h;
+                        double ai = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
+                        double bi = this->curvatures()[i - 1] / 2.0;
+                        double ci = (this->values()[i] - this->values()[i - 1]) / h
+                                    - (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
 
                         double descriminant = bi * bi - 3.0 * ai * ci;
                         if (descriminant < 0.0) {
@@ -346,7 +347,7 @@ class CSpline : public CSplineTypes {
                     break;
             }
 
-            return result / (this->knots()[n-1] - this->knots()[0]);
+            return result / (this->knots()[n - 1] - this->knots()[0]);
         }
 
         //! Get the specified curvatures.
@@ -368,22 +369,22 @@ class CSpline : public CSplineTypes {
             switch (m_Type) {
                 case E_Linear:
                     for (std::size_t i = 1u; i < this->knots().size(); ++i) {
-                        double h = this->knots()[i] - this->knots()[i-1];
+                        double h = this->knots()[i] - this->knots()[i - 1];
                         if (a) a->push_back(0.0);
                         if (b) b->push_back(0.0);
-                        if (c) c->push_back((this->values()[i] - this->values()[i-1]) / h);
-                        if (d) d->push_back(this->values()[i-1]);
+                        if (c) c->push_back((this->values()[i] - this->values()[i - 1]) / h);
+                        if (d) d->push_back(this->values()[i - 1]);
                     }
                     break;
 
                 case E_Cubic:
                     for (std::size_t i = 1u; i < this->knots().size(); ++i) {
-                        double h = this->knots()[i] - this->knots()[i-1];
-                        if (a) a->push_back((this->curvatures()[i] - this->curvatures()[i-1]) / 6.0 / h);
-                        if (b) b->push_back(this->curvatures()[i-1] / 2.0);
-                        if (c) c->push_back(  (this->values()[i] - this->values()[i-1]) / h
-                                              - (this->curvatures()[i] / 6.0 + this->curvatures()[i-1] / 3.0) * h);
-                        if (d) d->push_back(this->values()[i-1]);
+                        double h = this->knots()[i] - this->knots()[i - 1];
+                        if (a) a->push_back((this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h);
+                        if (b) b->push_back(this->curvatures()[i - 1] / 2.0);
+                        if (c) c->push_back(  (this->values()[i] - this->values()[i - 1]) / h
+                                              - (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h);
+                        if (d) d->push_back(this->values()[i - 1]);
                     }
                     break;
             }
@@ -419,7 +420,7 @@ class CSpline : public CSplineTypes {
                 return false;
             }
 
-            TNonConstKnots  oldKnots;
+            TNonConstKnots oldKnots;
             TNonConstValues oldValues;
             oldKnots.swap(this->knotsRef());
             oldValues.swap(this->valuesRef());
@@ -434,8 +435,8 @@ class CSpline : public CSplineTypes {
             std::size_t last = std::numeric_limits<std::size_t>::max();
             std::size_t n = this->knots().size();
             for (std::size_t i = 1u; i <= n; ++i) {
-                std::size_t i_ = i-1;
-                double      knot = this->knots()[i_];
+                std::size_t i_ = i - 1;
+                double knot = this->knots()[i_];
                 for (/**/; i < n && this->knots()[i] == knot; ++i) {}
                 if (i - i_ > 1) {
                     TMeanAccumulator value;
@@ -482,7 +483,7 @@ class CSpline : public CSplineTypes {
                     c.reserve(n - 1);
 
                     double h = this->knots()[1] - this->knots()[0];
-                    double h_ = this->knots()[n-1] - this->knots()[n-2];
+                    double h_ = this->knots()[n - 1] - this->knots()[n - 2];
 
                     switch (boundary) {
                         case E_Natural:
@@ -501,18 +502,18 @@ class CSpline : public CSplineTypes {
                             b.push_back(2.0 * (h + h_));
                             c.push_back(h - 1.0);
                             this->curvaturesRef().push_back(6.0 * (  (this->values()[1] - this->values()[0]) / h
-                                                                     - (this->values()[0] - this->values()[n-2]) / h_));
+                                                                     - (this->values()[0] - this->values()[n - 2]) / h_));
                             break;
                     }
 
                     for (std::size_t i = 1u; i + 1 < n; ++i) {
                         h_ = h;
-                        h = this->knots()[i+1] - this->knots()[i];
+                        h = this->knots()[i + 1] - this->knots()[i];
                         a.push_back(h_);
                         b.push_back(2.0 * (h + h_));
                         c.push_back(h);
-                        this->curvaturesRef().push_back(6.0 * (  (this->values()[i+1] - this->values()[i]) / h
-                                                                 - (this->values()[i] - this->values()[i-1]) / h_));
+                        this->curvaturesRef().push_back(6.0 * (  (this->values()[i + 1] - this->values()[i]) / h
+                                                                 - (this->values()[i] - this->values()[i - 1]) / h_));
                     }
 
                     h_ = h;
@@ -544,12 +545,12 @@ class CSpline : public CSplineTypes {
                             b.push_back(2.0 * (h + h_));
                             TDoubleVec u(n, 0.0);
                             u[0] = 1.0;
-                            u[n-1] = h;
+                            u[n - 1] = h;
                             TDoubleVec v(n, 0.0);
                             v[1] = 1.0;
-                            v[n-2] = h_;
-                            this->curvaturesRef().push_back(6.0 * (  (this->values()[1] - this->values()[n-1]) / h
-                                                                     - (this->values()[n-1] - this->values()[n-2]) / h_));
+                            v[n - 2] = h_;
+                            this->curvaturesRef().push_back(6.0 * (  (this->values()[1] - this->values()[n - 1]) / h
+                                                                     - (this->values()[n - 1] - this->values()[n - 2]) / h_));
                             if (!spline_detail::solvePeturbedTridiagonal(a, b, c, u, v, this->curvaturesRef())) {
                                 LOG_ERROR("Failed to calculate curvatures");
                                 return false;
@@ -579,10 +580,10 @@ class CSpline : public CSplineTypes {
             switch (m_Type) {
                 case E_Linear:
                     for (std::size_t i = 1u; i < this->knots().size(); ++i) {
-                        double      h = this->knots()[i] - this->knots()[i-1];
-                        double      c =  (this->values()[i] - this->values()[i-1]) / h;
-                        double      d = this->values()[i-1];
-                        std::string kl = core::CStringUtils::typeToStringPretty(this->knots()[i-1]);
+                        double h = this->knots()[i] - this->knots()[i - 1];
+                        double c =  (this->values()[i] - this->values()[i - 1]) / h;
+                        double d = this->values()[i - 1];
+                        std::string kl = core::CStringUtils::typeToStringPretty(this->knots()[i - 1]);
                         result += "\n" + indent + core::CStringUtils::typeToStringPretty(c) + " (x - " + kl + ") + "
                                   + core::CStringUtils::typeToStringPretty(d)
                                   + "   x in [" + kl + "," + core::CStringUtils::typeToStringPretty(this->knots()[i]) + ")";
@@ -591,13 +592,13 @@ class CSpline : public CSplineTypes {
 
                 case E_Cubic:
                     for (std::size_t i = 1u; i < this->knots().size(); ++i) {
-                        double h = this->knots()[i] - this->knots()[i-1];
-                        double a = (this->curvatures()[i] - this->curvatures()[i-1]) / 6.0 / h;
-                        double b = this->curvatures()[i-1] / 2.0;
-                        double c = (this->values()[i] - this->values()[i-1]) / h
-                                   - (this->curvatures()[i] / 6.0 + this->curvatures()[i-1] / 3.0) * h;
-                        double      d = this->values()[i-1];
-                        std::string kl = core::CStringUtils::typeToStringPretty(this->knots()[i-1]);
+                        double h = this->knots()[i] - this->knots()[i - 1];
+                        double a = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
+                        double b = this->curvatures()[i - 1] / 2.0;
+                        double c = (this->values()[i] - this->values()[i - 1]) / h
+                                   - (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
+                        double d = this->values()[i - 1];
+                        std::string kl = core::CStringUtils::typeToStringPretty(this->knots()[i - 1]);
                         result += "\n" + indent + core::CStringUtils::typeToStringPretty(a) + " (x - " + kl + ")^3 + "
                                   + core::CStringUtils::typeToStringPretty(b) + " (x - " + kl + ")^2 + "
                                   + core::CStringUtils::typeToStringPretty(c) + " (x - " + kl + ") + "
@@ -633,12 +634,12 @@ class CSpline : public CSplineTypes {
         }
 
         //! Get the knot points of the spline.
-        inline const TNonConstKnots      &knots(void) const {
+        inline const TNonConstKnots &knots(void) const {
             return boost::unwrap_ref(m_Knots);
         }
 
         //! Get the values at the knot points of the spline.
-        inline const TNonConstValues     &values(void) const {
+        inline const TNonConstValues &values(void) const {
             return boost::unwrap_ref(m_Values);
         }
 
@@ -649,29 +650,29 @@ class CSpline : public CSplineTypes {
 
     private:
         //! Get the knot points of the spline.
-        inline TKnots                    &knotsRef(void) {
+        inline TKnots &knotsRef(void) {
             return boost::unwrap_ref(m_Knots);
         }
 
         //! Get the values at the knot points of the spline.
-        inline TNonConstValues           &valuesRef(void) {
+        inline TNonConstValues &valuesRef(void) {
             return boost::unwrap_ref(m_Values);
         }
 
         //! Get the curvatures at the knot points of the spline.
-        inline TCurvatures               &curvaturesRef(void) {
+        inline TCurvatures &curvaturesRef(void) {
             return boost::unwrap_ref(m_Curvatures);
         }
 
     private:
         //! The type of spline.
-        EType                            m_Type;
+        EType m_Type;
         //! The spline knot points.
-        KNOTS                            m_Knots;
+        KNOTS m_Knots;
         //! The spline values at the knot points.
-        VALUES                           m_Values;
+        VALUES m_Values;
         //! The spline curvatures at the knot points.
-        CURVATURES                       m_Curvatures;
+        CURVATURES m_Curvatures;
 };
 
 }

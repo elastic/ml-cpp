@@ -56,7 +56,7 @@ void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter &writer, rapidjs
         m_ConcurrentOutputStream([this, buffer] (std::ostream &o) {
                     if (m_FirstObject) {
                         m_FirstObject = false;
-                    } else {
+                    } else   {
                         o.put(JSON_ARRAY_DELIMITER);
                     }
 
@@ -64,7 +64,7 @@ void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter &writer, rapidjs
                     o.flush();
                     this->returnAndCheckBuffer(buffer);
                 } );
-    } else {
+    } else   {
         m_StringBufferQueue.push(buffer);
     }
 }
@@ -76,7 +76,7 @@ void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter &writer,
     m_ConcurrentOutputStream([this, buffer] (std::ostream &o) {
                 if (m_FirstObject) {
                     m_FirstObject = false;
-                } else {
+                } else   {
                     o.put(JSON_ARRAY_DELIMITER);
                 }
                 o.write(buffer->GetString(), buffer->GetLength());
@@ -105,8 +105,8 @@ void CJsonOutputStreamWrapper::flush() {
 }
 
 void CJsonOutputStreamWrapper::syncFlush() {
-    std::mutex                   m;
-    std::condition_variable      c;
+    std::mutex m;
+    std::condition_variable c;
     std::unique_lock<std::mutex> lock(m);
 
     m_ConcurrentOutputStream([&m, &c] (std::ostream &o) {

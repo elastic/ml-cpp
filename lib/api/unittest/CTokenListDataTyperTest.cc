@@ -254,7 +254,7 @@ void CTokenListDataTyperTest::testPersist(void) {
 
 void CTokenListDataTyperTest::testLongReverseSearch(void) {
     TTokenListDataTyperKeepsFields::TTokenListReverseSearchCreatorIntfCPtr
-                                   reverseSearchCreator(new ml::api::CTokenListReverseSearchCreator("_raw"));
+        reverseSearchCreator(new ml::api::CTokenListReverseSearchCreator("_raw"));
     TTokenListDataTyperKeepsFields typer(reverseSearchCreator, 0.7, "_raw");
 
     // Create a long message with lots of junk that will create a ridiculous
@@ -274,8 +274,8 @@ void CTokenListDataTyperTest::testLongReverseSearch(void) {
 
     std::string terms;
     std::string regex;
-    size_t      maxMatchingLength(0);
-    bool        wasCached(false);
+    size_t maxMatchingLength(0);
+    bool wasCached(false);
 
     // Only 1 message so the reverse search COULD include all the tokens, but
     // shouldn't because such a reverse search would be ridiculously long
@@ -337,7 +337,7 @@ void CTokenListDataTyperTest::testPreTokenised(void) {
 }
 
 void CTokenListDataTyperTest::testPreTokenisedPerformance(void) {
-    static const size_t  TEST_SIZE(100000);
+    static const size_t TEST_SIZE(100000);
     ml::core::CStopWatch stopWatch;
 
     uint64_t inlineTokenisationTime(0);

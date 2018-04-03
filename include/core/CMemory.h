@@ -82,17 +82,13 @@ struct enable_if_function {
 //! \brief Default template declaration for CMemoryDynamicSize::dispatch.
 template<typename T, typename ENABLE = void>
 struct SMemoryDynamicSize {
-    static std::size_t dispatch(const T &) {
-        return 0;
-    }
+    static std::size_t dispatch(const T &) { return 0; }
 };
 
 //! \brief Template specialisation where T has member function "memoryUsage(void)"
 template<typename T>
 struct SMemoryDynamicSize<T, typename enable_if_member_function<T, &T::memoryUsage>::type> {
-    static std::size_t dispatch(const T &t) {
-        return t.memoryUsage();
-    }
+    static std::size_t dispatch(const T &t) { return t.memoryUsage(); }
 };
 
 //! \brief Default template for classes that don't sport a staticSize member.
@@ -131,33 +127,25 @@ struct SDynamicSizeAlwaysZero<std::pair<U, V> > {
 //! \brief Specialisation for std::less always true.
 template<typename T>
 struct SDynamicSizeAlwaysZero<std::less<T> > {
-    static inline bool value(void) {
-        return true;
-    }
+    static inline bool value(void) { return true; }
 };
 
 //! \brief Specialisation for std::greater always true.
 template<typename T>
 struct SDynamicSizeAlwaysZero<std::greater<T> > {
-    static inline bool value(void) {
-        return true;
-    }
+    static inline bool value(void) { return true; }
 };
 
 //! \brief Checks type in optional.
 template<typename T>
 struct SDynamicSizeAlwaysZero<boost::optional<T> > {
-    static inline bool value(void) {
-        return SDynamicSizeAlwaysZero<T>::value();
-    }
+    static inline bool value(void) { return SDynamicSizeAlwaysZero<T>::value(); }
 };
 
 //! \brief Check for member dynamicSizeAlwaysZero function.
 template<typename T>
 struct SDynamicSizeAlwaysZero<T, typename enable_if_function<&T::dynamicSizeAlwaysZero>::type> {
-    static inline bool value(void) {
-        return T::dynamicSizeAlwaysZero();
-    }
+    static inline bool value(void) { return T::dynamicSizeAlwaysZero(); }
 };
 
 //! \brief Total ordering of type_info objects.
@@ -261,7 +249,7 @@ class CORE_EXPORT CMemory : private CNonInstantiatable {
                         m_Callbacks.emplace_back(boost::cref(typeid(T)),
                                                  &CAnyVisitor::dynamicSizeCallback<T>);
                         return true;
-                    } else if (i->first.get() != typeid(T)) {
+                    } else if (i->first.get() != typeid(T))   {
                         m_Callbacks.insert(i, {boost::cref(typeid(T)),
                                                &CAnyVisitor::dynamicSizeCallback<T>});
                         return true;
@@ -291,7 +279,7 @@ class CORE_EXPORT CMemory : private CNonInstantiatable {
                 static std::size_t dynamicSizeCallback(const boost::any &any) {
                     try {
                         return sizeof(T) + CMemory::dynamicSize(boost::any_cast<const T &>(any));
-                    } catch (const std::exception &e) {
+                    } catch (const std::exception &e)   {
                         LOG_ERROR("Failed to calculate size " << e.what());
                     }
                     return 0;
@@ -654,7 +642,7 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
                         m_Callbacks.emplace_back(boost::cref(typeid(T)),
                                                  &CAnyVisitor::dynamicSizeCallback<T>);
                         return true;
-                    } else if (i->first.get() != typeid(T)) {
+                    } else if (i->first.get() != typeid(T))   {
                         m_Callbacks.insert(i, {boost::cref(typeid(T)),
                                                &CAnyVisitor::dynamicSizeCallback<T>});
                         return true;
@@ -689,7 +677,7 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
                     try {
                         mem->addItem(name, sizeof(T));
                         CMemoryDebug::dynamicSize(name, boost::any_cast<const T &>(any), mem);
-                    } catch (const std::exception &e) {
+                    } catch (const std::exception &e)   {
                         LOG_ERROR("Failed to calculate size " << e.what());
                     }
                 }
@@ -732,7 +720,7 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
                 if (uc == 1) {
                     mem->addItem("shared_ptr", CMemory::staticSize(*t));
                     dynamicSize(name, *t, mem);
-                } else {
+                } else   {
                     std::ostringstream ss;
                     ss << "shared_ptr (x" << uc << ')';
                     // Round up
@@ -764,8 +752,8 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
                                 CMemoryUsage::TMemoryUsagePtr mem) {
             std::string componentName(name);
 
-            std::size_t                items = t.size();
-            std::size_t                capacity = t.capacity();
+            std::size_t items = t.size();
+            std::size_t capacity = t.capacity();
             CMemoryUsage::SMemoryUsage usage(componentName + "::" + typeid(T).name(),
                                              capacity * sizeof(T),
                                              (capacity - items) * sizeof(T));
@@ -785,8 +773,8 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
                                 CMemoryUsage::TMemoryUsagePtr mem) {
             std::string componentName(name);
 
-            std::size_t                items = memory_detail::inplace(t) ? 0 : t.size();
-            std::size_t                capacity = memory_detail::inplace(t) ? 0 : t.capacity();
+            std::size_t items = memory_detail::inplace(t) ? 0 : t.size();
+            std::size_t capacity = memory_detail::inplace(t) ? 0 : t.capacity();
             CMemoryUsage::SMemoryUsage usage(componentName + "::" + typeid(T).name(),
                                              capacity * sizeof(T),
                                              (capacity - items) * sizeof(T));
@@ -813,7 +801,7 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
             if (capacity > 22) {
                 unused = capacity - length;
                 ++capacity;
-            } else {
+            } else   {
                 capacity = 0;
             }
 
@@ -822,11 +810,11 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
             if (capacity > 15) {
                 unused = capacity - length;
                 ++capacity;
-            } else {
+            } else   {
                 capacity = 0;
             }
 #endif
-            CMemoryUsage::SMemoryUsage    usage(componentName, capacity, unused);
+            CMemoryUsage::SMemoryUsage usage(componentName, capacity, unused);
             CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
             ptr->setName(usage);
         }
@@ -842,7 +830,7 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
             std::size_t mapSize = (t.bucket_count() * sizeof(std::size_t) * 2)
                                   + (t.size() * (sizeof(K) + sizeof(V) + 2 * sizeof(std::size_t)));
 
-            CMemoryUsage::SMemoryUsage    usage(componentName, mapSize);
+            CMemoryUsage::SMemoryUsage usage(componentName, mapSize);
             CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
             ptr->setName(usage);
 
@@ -865,7 +853,7 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
             std::size_t mapSize = (memory_detail::EXTRA_NODES + t.size())
                                   * (sizeof(K) + sizeof(V) + 4 * sizeof(std::size_t));
 
-            CMemoryUsage::SMemoryUsage    usage(componentName, mapSize);
+            CMemoryUsage::SMemoryUsage usage(componentName, mapSize);
             CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
             ptr->setName(usage);
 
@@ -909,7 +897,7 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
             std::size_t setSize =  (t.bucket_count() * sizeof(std::size_t) * 2)
                                   + (t.size() * (sizeof(T) + 2 * sizeof(std::size_t)));
 
-            CMemoryUsage::SMemoryUsage    usage(componentName, setSize);
+            CMemoryUsage::SMemoryUsage usage(componentName, setSize);
             CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
             ptr->setName(usage);
 
@@ -931,7 +919,7 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
             std::size_t setSize = (memory_detail::EXTRA_NODES + t.size())
                                   * (sizeof(T) + 4 * sizeof(std::size_t));
 
-            CMemoryUsage::SMemoryUsage    usage(componentName, setSize);
+            CMemoryUsage::SMemoryUsage usage(componentName, setSize);
             CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
             ptr->setName(usage);
 
@@ -975,7 +963,7 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
             std::size_t listSize = (memory_detail::EXTRA_NODES + t.size())
                                    * (sizeof(T) + 4 * sizeof(std::size_t));
 
-            CMemoryUsage::SMemoryUsage    usage(componentName, listSize);
+            CMemoryUsage::SMemoryUsage usage(componentName, listSize);
             CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();
             ptr->setName(usage);
 
@@ -1023,8 +1011,8 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable {
                                 CMemoryUsage::TMemoryUsagePtr mem) {
             std::string componentName(name);
 
-            std::size_t                items = t.size();
-            std::size_t                capacity = t.capacity();
+            std::size_t items = t.size();
+            std::size_t capacity = t.capacity();
             CMemoryUsage::SMemoryUsage usage(componentName + "::" + typeid(T).name(),
                                              capacity * sizeof(T),
                                              (capacity - items) * sizeof(T));

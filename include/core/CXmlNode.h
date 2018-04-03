@@ -57,7 +57,8 @@ class CORE_EXPORT CXmlNode {
         class CFirstElementEquals {
             public:
                 CFirstElementEquals(const std::string &str)
-                    : m_Str(str) {}
+                    : m_Str(str)
+                {}
 
                 template <typename PAIR>
                 bool operator()(const PAIR &pr) {
@@ -143,8 +144,8 @@ class CORE_EXPORT CXmlNode {
         }
 
     private:
-        std::string  m_Name;
-        std::string  m_Value;
+        std::string m_Name;
+        std::string m_Value;
         TStrStrPrVec m_Attributes;
 
         friend class CRapidXmlParser;

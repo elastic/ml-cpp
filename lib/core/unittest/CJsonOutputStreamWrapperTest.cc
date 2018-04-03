@@ -88,12 +88,12 @@ void CJsonOutputStreamWrapperTest::testConcurrentWrites(void) {
 }
 
 void CJsonOutputStreamWrapperTest::testShrink(void) {
-    std::ostringstream                 stringStream;
+    std::ostringstream stringStream;
     ml::core::CJsonOutputStreamWrapper wrapper(stringStream);
 
-    size_t                                                 memoryUsageBase = wrapper.memoryUsage();
+    size_t memoryUsageBase = wrapper.memoryUsage();
     ml::core::CJsonOutputStreamWrapper::TGenericLineWriter writer;
-    rapidjson::StringBuffer                                *                              stringBuffer;
+    rapidjson::StringBuffer *stringBuffer;
 
     wrapper.acquireBuffer(writer, stringBuffer);
 

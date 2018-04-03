@@ -48,7 +48,7 @@ const std::string EXAMPLES_COLLECTOR_TAG("c");
 // Initialise statics
 const std::string CFieldDataTyper::ML_STATE_INDEX(".ml-state");
 const std::string CFieldDataTyper::MLCATEGORY_NAME("mlcategory");
-const double      CFieldDataTyper::SIMILARITY_THRESHOLD(0.7);
+const double CFieldDataTyper::SIMILARITY_THRESHOLD(0.7);
 const std::string CFieldDataTyper::STATE_TYPE("categorizer_state");
 const std::string CFieldDataTyper::STATE_VERSION("1");
 
@@ -146,7 +146,7 @@ COutputHandler &CFieldDataTyper::outputHandler(void) {
 
 int CFieldDataTyper::computeType(const TStrStrUMap &dataRowFields) {
     const std::string &categorizationFieldName = m_DataTyper->fieldName();
-    TStrStrUMapCItr   fieldIter = dataRowFields.find(categorizationFieldName);
+    TStrStrUMapCItr fieldIter = dataRowFields.find(categorizationFieldName);
     if (fieldIter == dataRowFields.end()) {
         LOG_WARN("Assigning type -1 to record with no " <<
                  categorizationFieldName << " field:" << core_t::LINE_ENDING <<
@@ -165,7 +165,7 @@ int CFieldDataTyper::computeType(const TStrStrUMap &dataRowFields) {
     int type = -1;
     if (m_CategorizationFilter.empty()) {
         type = m_DataTyper->computeType(false, dataRowFields, fieldValue, fieldValue.length());
-    } else {
+    } else   {
         std::string filtered = m_CategorizationFilter.apply(fieldValue);
         type = m_DataTyper->computeType(false, dataRowFields, filtered, fieldValue.length());
     }
@@ -256,7 +256,7 @@ bool CFieldDataTyper::restoreState(core::CDataSearcher &restoreSearcher,
             LOG_ERROR("JSON restore failed");
             return false;
         }
-    } catch (std::exception &e) {
+    } catch (std::exception &e)   {
         LOG_ERROR("Failed to restore state! " << e.what());
         // This is fatal in terms of the categorizer we attempted to restore,
         // but returning false here can throw the system into a repeated cycle
@@ -286,10 +286,10 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser &trave
             LOG_DEBUG("Categorizer has not been restored as the version has changed");
             return true;
         }
-    } else {
+    } else   {
         LOG_ERROR("Cannot restore categorizer - " << VERSION_TAG
-                                                  << " element expected but found "
-                                                  << traverser.name() << '=' << traverser.value());
+                  << " element expected but found "
+                  << traverser.name() << '=' << traverser.value());
         return false;
     }
 
@@ -305,10 +305,10 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser &trave
             LOG_ERROR("Cannot restore categorizer, unexpected element: " << traverser.value());
             return false;
         }
-    } else {
+    } else   {
         LOG_ERROR("Cannot restore categorizer - " << TYPER_TAG
-                                                  << " element expected but found "
-                                                  << traverser.name() << '=' << traverser.value());
+                  << " element expected but found "
+                  << traverser.name() << '=' << traverser.value());
         return false;
     }
 
@@ -326,10 +326,10 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser &trave
             LOG_ERROR("Cannot restore categorizer, unexpected element: " << traverser.value());
             return false;
         }
-    } else {
+    } else   {
         LOG_ERROR("Cannot restore categorizer - " << EXAMPLES_COLLECTOR_TAG
-                                                  << " element expected but found "
-                                                  << traverser.name() << '=' << traverser.value());
+                  << " element expected but found "
+                  << traverser.name() << '=' << traverser.value());
         return false;
     }
 
@@ -395,7 +395,7 @@ bool CFieldDataTyper::doPersistState(const CDataTyper::TPersistFunc &dataTyperPe
             LOG_ERROR("Failed to complete last persistence stream");
             return false;
         }
-    } catch (std::exception &e) {
+    } catch (std::exception &e)   {
         LOG_ERROR("Failed to persist state! " << e.what());
         return false;
     }
@@ -482,7 +482,7 @@ bool CFieldDataTyper::handleControlMessage(const std::string &controlMessage) {
 void CFieldDataTyper::acknowledgeFlush(const std::string &flushId) {
     if (flushId.empty()) {
         LOG_ERROR("Received flush control message with no ID");
-    } else {
+    } else   {
         LOG_TRACE("Received flush control message with ID " << flushId);
     }
     m_JsonOutputWriter.acknowledgeFlush(flushId, 0);

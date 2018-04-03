@@ -66,7 +66,7 @@ void generatePopulationRecord(ml::core_t::TTime time,
 void populateJob(TGenerateRecord generateRecord,
                  ml::api::CAnomalyJob &job,
                  std::size_t buckets = 1000) {
-    ml::core_t::TTime                 time = START_TIME;
+    ml::core_t::TTime time = START_TIME;
     ml::api::CAnomalyJob::TStrStrUMap dataRows;
     for (std::size_t bucket = 0u;
          bucket < 2 * buckets;
@@ -86,9 +86,9 @@ void CForecastRunnerTest::testSummaryCount() {
     std::stringstream outputStrm;
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
-        ml::model::CLimits                 limits;
-        ml::api::CFieldConfig              fieldConfig;
-        ml::api::CFieldConfig::TStrVec     clauses;
+        ml::model::CLimits limits;
+        ml::api::CFieldConfig fieldConfig;
+        ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
         clauses.push_back("summarycountfield=count");
         fieldConfig.initFromClause(clauses);
@@ -152,9 +152,9 @@ void CForecastRunnerTest::testPopulation() {
     std::stringstream outputStrm;
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
-        ml::model::CLimits                 limits;
-        ml::api::CFieldConfig              fieldConfig;
-        ml::api::CFieldConfig::TStrVec     clauses;
+        ml::model::CLimits limits;
+        ml::api::CFieldConfig fieldConfig;
+        ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
         clauses.push_back("over");
         clauses.push_back("person");
@@ -194,9 +194,9 @@ void CForecastRunnerTest::testRare() {
     std::stringstream outputStrm;
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
-        ml::model::CLimits                 limits;
-        ml::api::CFieldConfig              fieldConfig;
-        ml::api::CFieldConfig::TStrVec     clauses;
+        ml::model::CLimits limits;
+        ml::api::CFieldConfig fieldConfig;
+        ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("rare");
         clauses.push_back("by");
         clauses.push_back("status");
@@ -237,9 +237,9 @@ void CForecastRunnerTest::testInsufficientData() {
     std::stringstream outputStrm;
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
-        ml::model::CLimits                 limits;
-        ml::api::CFieldConfig              fieldConfig;
-        ml::api::CFieldConfig::TStrVec     clauses;
+        ml::model::CLimits limits;
+        ml::api::CFieldConfig fieldConfig;
+        ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
         fieldConfig.initFromClause(clauses);
         ml::model::CAnomalyDetectorModelConfig modelConfig =
@@ -322,7 +322,7 @@ void CForecastRunnerTest::testValidateInvalidExpiry() {
 
     std::string message ("p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) +
                          ",\"forecast_id\": \"42\"" +
-                         ",\"create_time\": \"1511370819\""+
+                         ",\"create_time\": \"1511370819\"" +
                          ",\"expires_in\": -244 }");
 
     CPPUNIT_ASSERT(ml::api::CForecastRunner::parseAndValidateForecastRequest(message, forecastJob, 1400000000));

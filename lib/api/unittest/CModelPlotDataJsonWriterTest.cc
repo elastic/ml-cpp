@@ -39,7 +39,7 @@ void CModelPlotDataJsonWriterTest::testWriteFlat(void) {
 
     {
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CModelPlotDataJsonWriter  writer(outputStream);
+        ml::api::CModelPlotDataJsonWriter writer(outputStream);
 
         ml::model::CModelPlotData plotData(1, "pName", "pValue", "", "bName", 300, 1);
         plotData.get(ml::model_t::E_IndividualCountByBucketAndPerson, "bName") = ml::model::CModelPlotData::SByFieldData(1.0,  2.0, 3.0);

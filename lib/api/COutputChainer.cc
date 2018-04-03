@@ -24,7 +24,8 @@ namespace api {
 
 
 COutputChainer::COutputChainer(CDataProcessor &dataProcessor)
-    : m_DataProcessor(dataProcessor) {}
+    : m_DataProcessor(dataProcessor)
+{}
 
 void COutputChainer::newOutputStream(void) {
     m_DataProcessor.newOutputStream();
@@ -85,7 +86,7 @@ bool COutputChainer::writeRow(const TStrStrUMap &dataRowFields,
     TStrEqualTo pred;
 
     TPreComputedHashVecCItr preComputedHashIter = m_Hashes.begin();
-    TStrRefVecCItr          fieldRefIter = m_WorkRecordFieldRefs.begin();
+    TStrRefVecCItr fieldRefIter = m_WorkRecordFieldRefs.begin();
     for (TStrVecCItr fieldNameIter = m_FieldNames.begin();
          fieldNameIter != m_FieldNames.end() &&
          preComputedHashIter != m_Hashes.end() &&

@@ -27,10 +27,12 @@ namespace core {
 
 
 CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(void)
-    : m_MaxRecycled(m_Recycled.max_size()) {}
+    : m_MaxRecycled(m_Recycled.max_size())
+{}
 
 CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(size_t maxRecycled)
-    : m_MaxRecycled(std::min(maxRecycled, m_Recycled.max_size())) {}
+    : m_MaxRecycled(std::min(maxRecycled, m_Recycled.max_size()))
+{}
 
 CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(void) {
     if (m_Recycled.empty()) {

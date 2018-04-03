@@ -29,9 +29,9 @@ namespace ml {
 namespace model {
 
 namespace {
-const SModelParams::TDetectionRuleVec      EMPTY_RULES;
+const SModelParams::TDetectionRuleVec EMPTY_RULES;
 const SModelParams::TStrDetectionRulePrVec EMPTY_SCHEDULED_EVENTS;
-const core_t::TTime                        SAMPLING_AGE_CUTOFF_DEFAULT(2 * core::constants::DAY);
+const core_t::TTime SAMPLING_AGE_CUTOFF_DEFAULT(2 * core::constants::DAY);
 }
 
 SModelParams::SModelParams(core_t::TTime bucketLength) :
@@ -64,7 +64,8 @@ SModelParams::SModelParams(core_t::TTime bucketLength) :
     s_BucketResultsDelay(0),
     s_MinimumToDeduplicate(10000),
     s_CacheProbabilities(true),
-    s_SamplingAgeCutoff(SAMPLING_AGE_CUTOFF_DEFAULT) {}
+    s_SamplingAgeCutoff(SAMPLING_AGE_CUTOFF_DEFAULT)
+{}
 
 void SModelParams::configureLatency(core_t::TTime latency, core_t::TTime bucketLength) {
     s_LatencyBuckets = (latency + bucketLength - 1) / bucketLength;

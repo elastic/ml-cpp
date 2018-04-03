@@ -64,7 +64,8 @@ CDecompositionComponent::CDecompositionComponent(std::size_t maxSize,
     m_BoundaryCondition{boundaryCondition},
     m_Splines{valueInterpolationType, varianceInterpolationType},
     m_MeanValue{0.0},
-    m_MeanVariance{0.0} {}
+    m_MeanVariance{0.0}
+{}
 
 bool CDecompositionComponent::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
     do {
@@ -147,15 +148,15 @@ TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double c
 
         try {
             boost::math::normal_distribution<> normal{m, sd};
-            double                             ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
-            double                             qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
+            double ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
+            double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
             return {ql, qu};
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ERROR("Failed calculating confidence interval: " << e.what()
-                                                                 << ", n = " << n
-                                                                 << ", m = " << m
-                                                                 << ", sd = " << sd
-                                                                 << ", confidence = " << confidence);
+                      << ", n = " << n
+                      << ", m = " << m
+                      << ", sd = " << sd
+                      << ", confidence = " << confidence);
         }
         return {m, m};
     }
@@ -182,13 +183,13 @@ TDoubleDoublePr CDecompositionComponent::variance(double offset, double n, doubl
         }
         try {
             boost::math::chi_squared_distribution<> chi{n - 1.0};
-            double                                  ql{boost::math::quantile(chi, (100.0 - confidence) / 200.0)};
-            double                                  qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
+            double ql{boost::math::quantile(chi, (100.0 - confidence) / 200.0)};
+            double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
             return std::make_pair(ql * v / (n - 1.0), qu * v / (n - 1.0));
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ERROR("Failed calculating confidence interval: " << e.what()
-                                                                 << ", n = " << n
-                                                                 << ", confidence = " << confidence);
+                      << ", n = " << n
+                      << ", confidence = " << confidence);
         }
         return {v, v};
     }
@@ -256,7 +257,7 @@ CDecompositionComponent::CPackedSplines::CPackedSplines(CSplineTypes::EType valu
 
 bool CDecompositionComponent::CPackedSplines::acceptRestoreTraverser(CSplineTypes::EBoundaryCondition boundary,
                                                                      core::CStateRestoreTraverser &traverser) {
-    int        estimated{0};
+    int estimated{0};
     TDoubleVec knots;
     TDoubleVec values;
     TDoubleVec variances;
@@ -286,7 +287,7 @@ void CDecompositionComponent::CPackedSplines::acceptPersistInserter(core::CState
     }
 }
 
-void CDecompositionComponent::CPackedSplines::swap(CPackedSplines &other) {
+void CDecompositionComponent::CPackedSplines::swap(CPackedSplines & other) {
     std::swap(m_Types, other.m_Types);
     m_Knots.swap(other.m_Knots);
     m_Values[0].swap(other.m_Values[0]);
@@ -340,7 +341,7 @@ void CDecompositionComponent::CPackedSplines::interpolate(const TDoubleVec &knot
     TSplineRef varianceSpline{this->spline(E_Variance)};
     if (!valueSpline.interpolate(knots, values, boundary)) {
         this->swap(oldSpline);
-    } else if (!varianceSpline.interpolate(knots, variances, boundary)) {
+    } else if (!varianceSpline.interpolate(knots, variances, boundary))   {
         this->swap(oldSpline);
     }
     LOG_TRACE("types = " << core::CContainerPrinter::print(m_Types));

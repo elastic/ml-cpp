@@ -35,12 +35,13 @@ CCmdSkeleton::CCmdSkeleton(core::CDataSearcher *restoreSearcher,
     : m_RestoreSearcher(restoreSearcher),
       m_Persister(persister),
       m_InputParser(inputParser),
-      m_Processor(processor) {}
+      m_Processor(processor)
+{}
 
 bool CCmdSkeleton::ioLoop(void) {
     if (m_RestoreSearcher == 0) {
         LOG_DEBUG("No restoration source specified - will not attempt to restore state");
-    } else {
+    } else   {
         core_t::TTime completeToTime(0);
         if (m_Processor.restoreState(*m_RestoreSearcher,
                                      completeToTime) == false) {

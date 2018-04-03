@@ -130,9 +130,9 @@ void CKdTreeTest::testNearestNeighbour(void) {
             CPPUNIT_ASSERT(nearest);
             if (i % 10 == 0) {
                 LOG_DEBUG("Expected nearest = " << expectedNearest[0].second
-                                                << ", expected distance = " << expectedNearest[0].first);
+                          << ", expected distance = " << expectedNearest[0].first);
                 LOG_DEBUG("Nearest          = " << *nearest
-                                                << ", actual distance   = " << (tests[j] - *nearest).euclidean());
+                          << ", actual distance   = " << (tests[j] - *nearest).euclidean());
             }
             CPPUNIT_ASSERT_EQUAL(print(expectedNearest[0].second),
                                  print(*nearest));

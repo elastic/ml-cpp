@@ -60,7 +60,8 @@ class CUnprotectedAdder : public ml::core::CThread {
             : m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Increment(increment),
-              m_Variable(variable) {}
+              m_Variable(variable)
+        {}
 
     protected:
         void run(void) {
@@ -75,9 +76,9 @@ class CUnprotectedAdder : public ml::core::CThread {
         }
 
     private:
-        uint32_t          m_SleepTime;
-        uint32_t          m_Iterations;
-        uint32_t          m_Increment;
+        uint32_t m_SleepTime;
+        uint32_t m_Iterations;
+        uint32_t m_Increment;
         volatile uint32_t &m_Variable;
 };
 
@@ -90,7 +91,8 @@ class CAtomicAdder : public ml::core::CThread {
             : m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Increment(increment),
-              m_Variable(variable) {}
+              m_Variable(variable)
+        {}
 
     protected:
         void run(void) {
@@ -105,9 +107,9 @@ class CAtomicAdder : public ml::core::CThread {
         }
 
     private:
-        uint32_t                  m_SleepTime;
-        uint32_t                  m_Iterations;
-        uint32_t                  m_Increment;
+        uint32_t m_SleepTime;
+        uint32_t m_Iterations;
+        uint32_t m_Increment;
         std::atomic_uint_fast32_t &m_Variable;
 };
 
@@ -122,7 +124,8 @@ class CFastMutexProtectedAdder : public ml::core::CThread {
               m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Increment(increment),
-              m_Variable(variable) {}
+              m_Variable(variable)
+        {}
 
     protected:
         void run(void) {
@@ -139,10 +142,10 @@ class CFastMutexProtectedAdder : public ml::core::CThread {
         }
 
     private:
-        ml::core::CFastMutex      &m_Mutex;
-        uint32_t                  m_SleepTime;
-        uint32_t                  m_Iterations;
-        uint32_t                  m_Increment;
+        ml::core::CFastMutex &m_Mutex;
+        uint32_t m_SleepTime;
+        uint32_t m_Iterations;
+        uint32_t m_Increment;
         volatile uint32_t         &m_Variable;
 };
 
@@ -157,7 +160,8 @@ class CMutexProtectedAdder : public ml::core::CThread {
               m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Increment(increment),
-              m_Variable(variable) {}
+              m_Variable(variable)
+        {}
 
     protected:
         void run(void) {
@@ -174,10 +178,10 @@ class CMutexProtectedAdder : public ml::core::CThread {
         }
 
     private:
-        ml::core::CMutex      &m_Mutex;
-        uint32_t              m_SleepTime;
-        uint32_t              m_Iterations;
-        uint32_t              m_Increment;
+        ml::core::CMutex &m_Mutex;
+        uint32_t m_SleepTime;
+        uint32_t m_Iterations;
+        uint32_t m_Increment;
         volatile uint32_t     &m_Variable;
 };
 
@@ -192,7 +196,8 @@ class CWriteLockProtectedAdder : public ml::core::CThread {
               m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Increment(increment),
-              m_Variable(variable) {}
+              m_Variable(variable)
+        {}
 
     protected:
         void run(void) {
@@ -209,10 +214,10 @@ class CWriteLockProtectedAdder : public ml::core::CThread {
         }
 
     private:
-        ml::core::CReadWriteLock      &m_ReadWriteLock;
-        uint32_t                      m_SleepTime;
-        uint32_t                      m_Iterations;
-        uint32_t                      m_Increment;
+        ml::core::CReadWriteLock &m_ReadWriteLock;
+        uint32_t m_SleepTime;
+        uint32_t m_Iterations;
+        uint32_t m_Increment;
         volatile uint32_t             &m_Variable;
 };
 
@@ -226,7 +231,8 @@ class CReadLockProtectedReader : public ml::core::CThread {
               m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Variable(variable),
-              m_LastRead(variable) {}
+              m_LastRead(variable)
+        {}
 
         uint32_t lastRead(void) const {
             return m_LastRead;
@@ -247,11 +253,11 @@ class CReadLockProtectedReader : public ml::core::CThread {
         }
 
     private:
-        ml::core::CReadWriteLock      &m_ReadWriteLock;
-        uint32_t                      m_SleepTime;
-        uint32_t                      m_Iterations;
+        ml::core::CReadWriteLock &m_ReadWriteLock;
+        uint32_t m_SleepTime;
+        uint32_t m_Iterations;
         volatile uint32_t             &m_Variable;
-        uint32_t                      m_LastRead;
+        uint32_t m_LastRead;
 };
 
 
@@ -259,7 +265,7 @@ class CReadLockProtectedReader : public ml::core::CThread {
 
 
 void CReadWriteLockTest::testReadLock(void) {
-    uint32_t                 testVariable(0);
+    uint32_t testVariable(0);
     ml::core::CReadWriteLock readWriteLock;
 
     // Each reader will do 1 second of "work" inside a read lock.  If they all
@@ -300,7 +306,7 @@ void CReadWriteLockTest::testReadLock(void) {
 void CReadWriteLockTest::testWriteLock(void) {
     static const uint32_t TEST_SIZE(50000);
 
-    uint32_t                 testVariable(0);
+    uint32_t testVariable(0);
     ml::core::CReadWriteLock readWriteLock;
 
     CWriteLockProtectedAdder writer1(readWriteLock, 0, TEST_SIZE, 1, testVariable);
@@ -390,7 +396,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex(void) {
         CPPUNIT_ASSERT_EQUAL(uint_fast32_t(TEST_SIZE * (1 + 5 + 9)), testVariable.load());
     }
     {
-        uint32_t             testVariable(0);
+        uint32_t testVariable(0);
         ml::core::CFastMutex mutex;
 
         ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -422,7 +428,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex(void) {
         CPPUNIT_ASSERT_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
     }
     {
-        uint32_t         testVariable(0);
+        uint32_t testVariable(0);
         ml::core::CMutex mutex;
 
         ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -454,7 +460,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex(void) {
         CPPUNIT_ASSERT_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
     }
     {
-        uint32_t                 testVariable(0);
+        uint32_t testVariable(0);
         ml::core::CReadWriteLock readWriteLock;
 
         ml::core_t::TTime start(ml::core::CTimeUtils::now());

@@ -177,22 +177,22 @@ class MATHS_EXPORT CTrendComponent {
 
     private:
         //! The default rate at which information is aged out of the trend models.
-        double              m_DefaultDecayRate;
+        double m_DefaultDecayRate;
 
         //! The target rate at which information is aged out of the ensemble.
-        double              m_TargetDecayRate;
+        double m_TargetDecayRate;
 
         //! The time the model was first updated.
-        core_t::TTime       m_FirstUpdate;
+        core_t::TTime m_FirstUpdate;
         //! The time the model was last updated.
-        core_t::TTime       m_LastUpdate;
+        core_t::TTime m_LastUpdate;
 
         //! The start time of the regression models.
-        core_t::TTime       m_RegressionOrigin;
+        core_t::TTime m_RegressionOrigin;
         //! The regression models (we have them for multiple time scales).
-        TModelVec           m_Models;
+        TModelVec m_Models;
         //! The variance of the prediction errors.
-        double              m_PredictionErrorVariance;
+        double m_PredictionErrorVariance;
         //! The mean and variance of the values added to the trend component.
         TMeanVarAccumulator m_ValueMoments;
 };

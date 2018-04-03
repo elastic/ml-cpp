@@ -77,7 +77,8 @@ class CSampleQueue {
             SSubSample(std::size_t dimension, core_t::TTime time) :
                 s_Statistic(dimension),
                 s_Start(time),
-                s_End(time) {}
+                s_End(time)
+            {}
 
             void add(const TDouble1Vec &measurement,
                      core_t::TTime time,
@@ -142,12 +143,12 @@ class CSampleQueue {
                             LOG_ERROR("Invalid sample value");
                             return false;
                         }
-                    } else if (name == SAMPLE_START_TAG) {
+                    } else if (name == SAMPLE_START_TAG)   {
                         if (core::CStringUtils::stringToType(traverser.value(), s_Start) == false) {
                             LOG_ERROR("Invalid attribute identifier in " << traverser.value());
                             return false;
                         }
-                    } else if (name == SAMPLE_END_TAG) {
+                    } else if (name == SAMPLE_END_TAG)   {
                         if (core::CStringUtils::stringToType(traverser.value(), s_End) == false) {
                             LOG_ERROR("Invalid attribute identifier in " << traverser.value());
                             return false;
@@ -218,7 +219,8 @@ class CSampleQueue {
             m_SampleCountFactor(sampleCountFactor),
             m_GrowthFactor(growthFactor),
             m_BucketLength(bucketLength),
-            m_Latency(static_cast<core_t::TTime>(latencyBuckets) * bucketLength) {}
+            m_Latency(static_cast<core_t::TTime>(latencyBuckets) * bucketLength)
+        {}
 
         //! Adds a measurement to the queue.
         //!
@@ -232,9 +234,9 @@ class CSampleQueue {
                  unsigned int sampleCount) {
             if (m_Queue.empty()) {
                 this->pushFrontNewSubSample(measurement, time, count);
-            } else if (time >= m_Queue[0].s_Start) {
+            } else if (time >= m_Queue[0].s_Start)   {
                 this->addAfterLatestStartTime(measurement, time, count, sampleCount);
-            } else {
+            } else   {
                 this->addHistorical(measurement, time, count, sampleCount);
             }
         }
@@ -255,13 +257,13 @@ class CSampleQueue {
                     unsigned int sampleCount,
                     model_t::EFeature feature,
                     TSampleVec &samples) {
-            core_t::TTime      latencyCutoff = bucketStart + m_BucketLength - 1;
+            core_t::TTime latencyCutoff = bucketStart + m_BucketLength - 1;
             TOptionalSubSample combinedSubSample;
 
             while (m_Queue.empty() == false && m_Queue.back().s_End <= latencyCutoff) {
                 if (combinedSubSample) {
                     *combinedSubSample += m_Queue.back();
-                } else {
+                } else   {
                     combinedSubSample = TOptionalSubSample(m_Queue.back());
                 }
 
@@ -275,9 +277,9 @@ class CSampleQueue {
 
                 if (countIncludingNext >= sampleCount &&
                     (std::abs(1.0 - countRatio) <= std::abs(1.0 - countRatioIncludingNext))) {
-                    TDouble1Vec   sample = combinedSubSample->s_Statistic.value();
+                    TDouble1Vec sample = combinedSubSample->s_Statistic.value();
                     core_t::TTime sampleTime = combinedSubSample->s_Statistic.time();
-                    double        vs = model_t::varianceScale(feature, sampleCount, count);
+                    double vs = model_t::varianceScale(feature, sampleCount, count);
                     samples.push_back(CSample(sampleTime, sample, vs, count));
                     combinedSubSample = TOptionalSubSample();
                 }
@@ -429,7 +431,7 @@ class CSampleQueue {
             if (time >= m_Queue[0].s_End &&
                 this->shouldCreateNewSubSampleAfterLatest(time, sampleCount)) {
                 this->pushFrontNewSubSample(measurement, time, count);
-            } else {
+            } else   {
                 m_Queue[0].add(measurement, time, count);
             }
         }
@@ -477,7 +479,7 @@ class CSampleQueue {
                     !upperBound->isClose(time, targetSubSampleSpan) ||
                     !(*upperBound).isInSameBucket(time, m_BucketLength)) {
                     this->pushBackNewSubSample(measurement, time, count);
-                } else {
+                } else   {
                     upperBound->add(measurement, time, count);
                 }
                 return;
@@ -489,14 +491,14 @@ class CSampleQueue {
                 left.add(measurement, time, count);
                 return;
             }
-            bool          sameBucketWithLeft = left.isInSameBucket(time, m_BucketLength);
-            bool          sameBucketWithRight = right.isInSameBucket(time, m_BucketLength);
-            std::size_t   spaceLimit = this->targetSubSampleCount(sampleCount);
-            bool          leftHasSpace = static_cast<std::size_t>(left.s_Statistic.count()) < spaceLimit;
-            bool          rightHasSpace = static_cast<std::size_t>(right.s_Statistic.count()) < spaceLimit;
+            bool sameBucketWithLeft = left.isInSameBucket(time, m_BucketLength);
+            bool sameBucketWithRight = right.isInSameBucket(time, m_BucketLength);
+            std::size_t spaceLimit = this->targetSubSampleCount(sampleCount);
+            bool leftHasSpace = static_cast<std::size_t>(left.s_Statistic.count()) < spaceLimit;
+            bool rightHasSpace = static_cast<std::size_t>(right.s_Statistic.count()) < spaceLimit;
             core_t::TTime leftDistance = time - left.s_End;
             core_t::TTime rightDistance = right.s_Start - time;
-            SSubSample    &  candidate = maths::COrderings::lexicographical_compare(
+            SSubSample &candidate = maths::COrderings::lexicographical_compare(
                 -static_cast<int>(sameBucketWithLeft),
                 -static_cast<int>(leftHasSpace),
                 leftDistance,
@@ -524,10 +526,10 @@ class CSampleQueue {
         }
 
     private:
-        std::size_t   m_Dimension;
-        TQueue        m_Queue;
-        std::size_t   m_SampleCountFactor;
-        double        m_GrowthFactor;
+        std::size_t m_Dimension;
+        TQueue m_Queue;
+        std::size_t m_SampleCountFactor;
+        double m_GrowthFactor;
         core_t::TTime m_BucketLength;
         core_t::TTime m_Latency;
 };

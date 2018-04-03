@@ -85,26 +85,26 @@ bool solveTridiagonal(const TDoubleVec &a,
     c[0] = c[0] / b[0];
     x[0] = x[0] / b[0];
     for (std::size_t i = 1; i + 1 < n; ++i) {
-        double m = (b[i] - a[i-1] * c[i-1]);
+        double m = (b[i] - a[i - 1] * c[i - 1]);
         if (m == 0.0) {
             LOG_ERROR("Badly conditioned: "
                       << core::CContainerPrinter::print(b));
             return false;
         }
         c[i] = c[i] / m;
-        x[i] = (x[i] - a[i-1] * x[i-1]) / m;
+        x[i] = (x[i] - a[i - 1] * x[i - 1]) / m;
     }
-    double m = (b[n-1] - a[n-2] * c[n-2]);
+    double m = (b[n - 1] - a[n - 2] * c[n - 2]);
     if (m == 0.0) {
         LOG_ERROR("Badly conditioned: "
                   << core::CContainerPrinter::print(b));
         return false;
     }
-    x[n-1] = (x[n-1] - a[n-2] * x[n-2]) / m;
+    x[n - 1] = (x[n - 1] - a[n - 2] * x[n - 2]) / m;
 
     // Back substitution.
     for (std::size_t i = n - 1; i-- > 0; /**/) {
-        x[i] -= c[i] * x[i+1];
+        x[i] -= c[i] * x[i + 1];
     }
 
     LOG_TRACE("x = " << core::CContainerPrinter::print(x));
@@ -158,29 +158,29 @@ bool solvePeturbedTridiagonal(const TDoubleVec &a,
     x[0] = x[0] / b[0];
     u[0] = u[0] / b[0];
     for (std::size_t i = 1; i + 1 < n; ++i) {
-        double m = (b[i] - a[i-1] * c[i-1]);
+        double m = (b[i] - a[i - 1] * c[i - 1]);
         if (m == 0.0) {
             LOG_ERROR("Badly conditioned: "
                       << core::CContainerPrinter::print(b));
             return false;
         }
         c[i] = c[i] / m;
-        x[i] = (x[i] - a[i-1] * x[i-1]) / m;
-        u[i] = (u[i] - a[i-1] * u[i-1]) / m;
+        x[i] = (x[i] - a[i - 1] * x[i - 1]) / m;
+        u[i] = (u[i] - a[i - 1] * u[i - 1]) / m;
     }
-    double m = (b[n-1] - a[n-2] * c[n-2]);
+    double m = (b[n - 1] - a[n - 2] * c[n - 2]);
     if (m == 0.0) {
         LOG_ERROR("Badly conditioned: "
                   << core::CContainerPrinter::print(b));
         return false;
     }
-    x[n-1] = (x[n-1] - a[n-2] * x[n-2]) / m;
-    u[n-1] = (u[n-1] - a[n-2] * u[n-2]) / m;
+    x[n - 1] = (x[n - 1] - a[n - 2] * x[n - 2]) / m;
+    u[n - 1] = (u[n - 1] - a[n - 2] * u[n - 2]) / m;
 
     // Back substitution.
     for (std::size_t i = n - 1; i-- > 0; /**/) {
-        x[i] = x[i] - c[i] * x[i+1];
-        u[i] = u[i] - c[i] * u[i+1];
+        x[i] = x[i] - c[i] * x[i + 1];
+        u[i] = u[i] - c[i] * u[i + 1];
     }
 
     // Apply the correction.

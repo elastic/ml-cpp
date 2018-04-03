@@ -30,16 +30,17 @@ namespace ml {
 namespace core {
 
 namespace {
-const uint32_t    NO_CHILD = std::numeric_limits<uint32_t>::max();
-const char        PADDING_NODE = '$';
-const char        LEAF_NODE = 'l';
-const char        BRANCH_NODE = 'b';
-const char        LEAF_AND_BRANCH_NODE = '*';
+const uint32_t NO_CHILD = std::numeric_limits<uint32_t>::max();
+const char PADDING_NODE = '$';
+const char LEAF_NODE = 'l';
+const char BRANCH_NODE = 'b';
+const char LEAF_AND_BRANCH_NODE = '*';
 const std::string EMPTY_STRING = "";
 
 struct SCharNotEqualTo {
     SCharNotEqualTo(char c, std::size_t pos)
-        : s_Char(c), s_Pos(pos) {}
+        : s_Char(c), s_Pos(pos)
+    {}
 
     bool operator() (const std::string &str) {
         return str[s_Pos] != s_Char;
@@ -51,7 +52,8 @@ struct SCharNotEqualTo {
 }
 
 CFlatPrefixTree::SNode::SNode(char c, char type, uint32_t next)
-    : s_Char(c), s_Type(type), s_Next(next) {}
+    : s_Char(c), s_Type(type), s_Next(next)
+{}
 
 bool CFlatPrefixTree::SNode::operator<(char rhs) const {
     return s_Char < rhs;
@@ -61,10 +63,12 @@ CFlatPrefixTree::SDistinctChar::SDistinctChar(char c,
                                               char type,
                                               std::size_t start,
                                               std::size_t end)
-    : s_Char(c), s_Type(type), s_Start(start), s_End(end) {}
+    : s_Char(c), s_Type(type), s_Start(start), s_End(end)
+{}
 
 CFlatPrefixTree::CFlatPrefixTree(void)
-    : m_FlatTree() {}
+    : m_FlatTree()
+{}
 
 bool CFlatPrefixTree::build(const TStrVec &prefixes) {
     m_FlatTree.clear();
@@ -91,7 +95,7 @@ bool CFlatPrefixTree::build(const TStrVec &prefixes) {
 
     if (m_FlatTree.size() >= NO_CHILD) {
         LOG_ERROR("Failed to build the tree: " << m_FlatTree.size()
-                                               << " nodes were required; no more than " << NO_CHILD << " are supported.");
+                  << " nodes were required; no more than " << NO_CHILD << " are supported.");
         m_FlatTree.clear();
         return false;
     }
@@ -138,11 +142,11 @@ void CFlatPrefixTree::extractDistinctCharacters(const TStrVec &prefixes,
     TStrVecCItr pos = prefixes.begin() + prefixesStart;
     TStrVecCItr end = prefixes.begin() + prefixesEnd;
     while (pos != end) {
-        char        leadingChar = (*pos)[charPos];
+        char leadingChar = (*pos)[charPos];
         TStrVecCItr next = std::find_if(pos, end, SCharNotEqualTo(leadingChar, charPos));
         std::size_t startIndex = pos - prefixes.begin();
         std::size_t endIndex = next - prefixes.begin();
-        char        type = charPos + 1 == prefixes[startIndex].length() ? LEAF_NODE : BRANCH_NODE;
+        char type = charPos + 1 == prefixes[startIndex].length() ? LEAF_NODE : BRANCH_NODE;
         if (type == LEAF_NODE && endIndex - startIndex > 1) {
             type = LEAF_AND_BRANCH_NODE;
             ++startIndex;
@@ -183,12 +187,12 @@ bool CFlatPrefixTree::matches(ITR start, ITR end, bool requireFullMatch) const {
         return false;
     }
 
-    ITR          currentStringPos = start;
-    std::size_t  currentTreeIndex = 0;
+    ITR currentStringPos = start;
+    std::size_t currentTreeIndex = 0;
     TNodeVecCItr levelStart;
     TNodeVecCItr levelEnd;
-    char         currentChar;
-    char         lastMatchedType = BRANCH_NODE;
+    char currentChar;
+    char lastMatchedType = BRANCH_NODE;
     while (currentStringPos < end && currentTreeIndex != NO_CHILD) {
         levelStart = m_FlatTree.begin() + currentTreeIndex + 1;
         levelEnd = levelStart + m_FlatTree[currentTreeIndex].s_Next;

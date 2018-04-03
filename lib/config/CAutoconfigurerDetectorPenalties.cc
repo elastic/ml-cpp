@@ -49,7 +49,8 @@ std::size_t fieldRolePenaltyIndex(const CDetectorSpecification &spec) {
 CAutoconfigurerDetectorPenalties::CAutoconfigurerDetectorPenalties(const CAutoconfigurerParams &params,
                                                                    const CAutoconfigurerFieldRolePenalties &fieldRolePenalties) :
     m_Params(params),
-    m_FieldRolePenalties(fieldRolePenalties) {}
+    m_FieldRolePenalties(fieldRolePenalties)
+{}
 
 CAutoconfigurerDetectorPenalties::TPenaltyPtr
 CAutoconfigurerDetectorPenalties::penaltyFor(const CDetectorSpecification &spec) {
@@ -68,7 +69,7 @@ const CPenalty &CAutoconfigurerDetectorPenalties::fieldRolePenalty(const CDetect
     m_DetectorFieldRolePenalties.resize(36);
     TPenaltyPtr &result = m_DetectorFieldRolePenalties[fieldRolePenaltyIndex(spec)];
     if (!result) {
-        CDetectorFieldRolePenalty               penalty(m_Params);
+        CDetectorFieldRolePenalty penalty(m_Params);
         const CAutoconfigurerFieldRolePenalties &penalties = m_FieldRolePenalties;
         if (spec.argumentField()) {
             penalty.addPenalty(constants::ARGUMENT_INDEX,

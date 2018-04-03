@@ -71,7 +71,7 @@ class CCompressUtils : private core::CNonCopyable {
             E_IsFinished
         };
 
-        EState   m_State;
+        EState m_State;
 
         typedef std::vector<Bytef> TByteVec;
 

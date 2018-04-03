@@ -32,7 +32,8 @@ CDelimiter::CDelimiter(void)
       m_HaveFollowingRegex(false),
       m_WaiveFollowingRegexAfterTime(false),
       m_Quote('\0'),
-      m_Escape('\0') {}
+      m_Escape('\0')
+{}
 
 CDelimiter::CDelimiter(const std::string &delimiter)
     : m_Valid(m_Delimiter.init(delimiter)),
@@ -100,16 +101,16 @@ bool CDelimiter::isFollowingTextAcceptable(size_t searchPos,
             timePassed &&
             searchPos == str.length()) {
             answer = true;
-        } else {
+        } else   {
             size_t foundPos(0);
-            bool   found = m_FollowingRegex.search(searchPos,
-                                                   str,
-                                                   foundPos);
+            bool found = m_FollowingRegex.search(searchPos,
+                                                 str,
+                                                 foundPos);
             if (found && foundPos == searchPos) {
                 answer = true;
             }
         }
-    } else {
+    } else   {
         answer = true;
     }
 
@@ -199,7 +200,7 @@ void CDelimiter::tokenise(const std::string &str,
                 // another token
                 remainder.assign(str, tokenStartPos, quotePos - tokenStartPos);
                 CStringUtils::unEscape(m_Escape, remainder);
-            } else {
+            } else   {
                 // If we're not expecting a quote, don't unescape the result,
                 // as this might be from a partial read that needs to be
                 // prepended to the next read
@@ -242,18 +243,18 @@ void CDelimiter::tokenise(const std::string &str,
                 // expect a quote next
                 ++searchPos;
                 expectingQuote = true;
-            } else {
+            } else   {
                 expectingQuote = false;
             }
 
             tokenStartPos = searchPos;
-        } else {
+        } else   {
             if (this->getNextQuote(str, searchPos) == searchPos) {
                 // Quote comes immediately after delimiter, so skip and
                 // expect a quote next
                 ++searchPos;
                 expectingQuote = true;
-            } else {
+            } else   {
                 expectingQuote = false;
             }
         }
@@ -292,7 +293,7 @@ size_t CDelimiter::getNextQuote(const std::string &str, size_t startPos) const {
 
                 // Continue searching beyond the escaped quote
                 startPos = quotePos + 2;
-            } else {
+            } else   {
                 if (quotePos == startPos || str[quotePos - 1] != m_Escape) {
                     result = quotePos;
                     break;
@@ -328,7 +329,7 @@ std::ostream &operator<<(std::ostream &strm, const CDelimiter &delimiter) {
         if (delimiter.m_WaiveFollowingRegexAfterTime) {
             strm << ", Following Regex Waived After Time";
         }
-    } else {
+    } else   {
         strm << "Invalid!";
     }
 

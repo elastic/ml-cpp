@@ -29,7 +29,8 @@ namespace memory_detail {
 //! their description
 class CMemoryUsageComparison : public std::unary_function<std::string, bool> {
     public:
-        explicit CMemoryUsageComparison(const std::string &baseline) : m_Baseline(baseline) {}
+        explicit CMemoryUsageComparison(const std::string &baseline) : m_Baseline(baseline)
+        { }
 
         bool operator() (const CMemoryUsage *rhs) {
             return m_Baseline == rhs->m_Description.s_Name;
@@ -47,20 +48,22 @@ class CMemoryUsageComparisonTwo : public std::binary_function<std::string,
     public:
         explicit CMemoryUsageComparisonTwo(const std::string &baseline,
                                            const CMemoryUsage * firstItem) : m_Baseline(baseline),
-                                                                             m_FirstItem(firstItem) {}
+                                                                             m_FirstItem(firstItem)
+        { }
 
         bool operator() (const CMemoryUsage *rhs) {
             return (rhs != m_FirstItem) && (m_Baseline == rhs->m_Description.s_Name);
         }
 
     private:
-        std::string        m_Baseline;
+        std::string m_Baseline;
         const CMemoryUsage * m_FirstItem;
 };
 
 }
 
-CMemoryUsage::CMemoryUsage() : m_Description("", 0ull) {}
+CMemoryUsage::CMemoryUsage() : m_Description("", 0ull)
+{}
 
 CMemoryUsage::~CMemoryUsage() {
     for (TMemoryUsagePtrListItr i = m_Children.begin(); i != m_Children.end(); ++i) {
@@ -172,7 +175,7 @@ void CMemoryUsage::compress(void) {
             // For commonly-occuring children, add up their usage
             // then delete them
             if (i->second > 1) {
-                std::size_t                           counter = 0;
+                std::size_t counter = 0;
                 memory_detail::CMemoryUsageComparison compareName(i->first);
 
                 TMemoryUsagePtrListItr firstChild = std::find_if(m_Children.begin(),

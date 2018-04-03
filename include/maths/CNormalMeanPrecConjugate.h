@@ -56,9 +56,7 @@ struct SDistributionRestoreParams;
 class MATHS_EXPORT CNormalMeanPrecConjugate : public CPrior {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) {
-            return true;
-        }
+        static bool dynamicSizeAlwaysZero(void) { return true; }
 
         typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
         typedef CEqualWithTolerance<double>                            TEqualWithTolerance;
@@ -370,19 +368,19 @@ class MATHS_EXPORT CNormalMeanPrecConjugate : public CPrior {
     private:
         //! The mean of the prior conditional distribution for the mean of the
         //! normal variable (conditioned on its precision).
-        double              m_GaussianMean;
+        double m_GaussianMean;
 
         //! The precision of the prior conditional distribution for the mean
         //! of the normal variable (conditioned on its precision).
-        double              m_GaussianPrecision;
+        double m_GaussianPrecision;
 
         //! The shape of the marginal gamma distribution for the precision of the
         //! normal variable.
-        double              m_GammaShape;
+        double m_GammaShape;
 
         //! The rate of the marginal gamma distribution for the precision of the
         //! normal variable.
-        double              m_GammaRate;
+        double m_GammaRate;
 };
 
 }

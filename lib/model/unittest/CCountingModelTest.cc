@@ -85,22 +85,22 @@ void CCountingModelTest::testSkipSampling(void) {
 
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);
-    std::size_t   maxAgeBuckets(1);
+    std::size_t maxAgeBuckets(1);
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
     CCountingModelFactory factory(params);
-    model_t::TFeatureVec  features(1u, model_t::E_IndividualCountByBucketAndPerson);
+    model_t::TFeatureVec features(1u, model_t::E_IndividualCountByBucketAndPerson);
     factory.features(features);
 
     // Model where gap is not skipped
     {
         CModelFactory::SGathererInitializationData gathererNoGapInitData(startTime);
-        CModelFactory::TDataGathererPtr            gathererNoGap(factory.makeDataGatherer(gathererNoGapInitData));
+        CModelFactory::TDataGathererPtr gathererNoGap(factory.makeDataGatherer(gathererNoGapInitData));
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gathererNoGap, m_ResourceMonitor));
         CModelFactory::SModelInitializationData modelNoGapInitData(gathererNoGap);
-        CAnomalyDetectorModel::TModelPtr        modelHolderNoGap(factory.makeModel(modelNoGapInitData));
-        CCountingModel                          *                        modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
+        CAnomalyDetectorModel::TModelPtr modelHolderNoGap(factory.makeModel(modelNoGapInitData));
+        CCountingModel *modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
 
         // |2|2|0|0|1| -> 1.0 mean count
         addArrival(*gathererNoGap, m_ResourceMonitor, 100, "p");
@@ -118,11 +118,11 @@ void CCountingModelTest::testSkipSampling(void) {
     // Model where gap is skipped
     {
         CModelFactory::SGathererInitializationData gathererWithGapInitData(startTime);
-        CModelFactory::TDataGathererPtr            gathererWithGap(factory.makeDataGatherer(gathererWithGapInitData));
+        CModelFactory::TDataGathererPtr gathererWithGap(factory.makeDataGatherer(gathererWithGapInitData));
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gathererWithGap, m_ResourceMonitor));
         CModelFactory::SModelInitializationData modelWithGapInitData(gathererWithGap);
-        CAnomalyDetectorModel::TModelPtr        modelHolderWithGap(factory.makeModel(modelWithGapInitData));
-        CCountingModel                          *                        modelWithGap = dynamic_cast<CCountingModel*>(modelHolderWithGap.get());
+        CAnomalyDetectorModel::TModelPtr modelHolderWithGap(factory.makeModel(modelWithGapInitData));
+        CCountingModel *modelWithGap = dynamic_cast<CCountingModel*>(modelHolderWithGap.get());
 
         // |2|2|0|0|1|
         // |2|X|X|X|1| -> 1.5 mean count where X means skipped bucket
@@ -157,17 +157,17 @@ void CCountingModelTest::testCheckScheduledEvents(void) {
     params.s_ScheduledEvents = boost::cref(events);
 
     CCountingModelFactory factory(params);
-    model_t::TFeatureVec  features(1u, model_t::E_IndividualCountByBucketAndPerson);
+    model_t::TFeatureVec features(1u, model_t::E_IndividualCountByBucketAndPerson);
     factory.features(features);
 
     {
         CModelFactory::SGathererInitializationData gathererNoGapInitData(startTime);
-        CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererNoGapInitData));
-        CModelFactory::SModelInitializationData    modelNoGapInitData(gatherer);
+        CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererNoGapInitData));
+        CModelFactory::SModelInitializationData modelNoGapInitData(gatherer);
         addArrival(*gatherer, m_ResourceMonitor, 200, "p");
 
         CAnomalyDetectorModel::TModelPtr modelHolderNoGap(factory.makeModel(modelNoGapInitData));
-        CCountingModel                   *                 modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
+        CCountingModel *modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
 
         SModelParams::TStrDetectionRulePrVec matchedEvents = modelNoGap->checkScheduledEvents(50);
         CPPUNIT_ASSERT_EQUAL(std::size_t{0}, matchedEvents.size());
@@ -208,12 +208,12 @@ void CCountingModelTest::testCheckScheduledEvents(void) {
     // Test sampleBucketStatistics
     {
         CModelFactory::SGathererInitializationData gathererNoGapInitData(startTime);
-        CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererNoGapInitData));
-        CModelFactory::SModelInitializationData    modelNoGapInitData(gatherer);
+        CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererNoGapInitData));
+        CModelFactory::SModelInitializationData modelNoGapInitData(gatherer);
         addArrival(*gatherer, m_ResourceMonitor, 100, "p");
 
         CAnomalyDetectorModel::TModelPtr modelHolderNoGap(factory.makeModel(modelNoGapInitData));
-        CCountingModel                   *                 modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
+        CCountingModel *modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
 
         // There are no events at this time
         modelNoGap->sampleBucketStatistics(0, 100, m_ResourceMonitor);

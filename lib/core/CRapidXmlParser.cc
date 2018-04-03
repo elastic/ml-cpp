@@ -32,9 +32,11 @@ namespace core {
 
 CRapidXmlParser::CRapidXmlParser(void)
     : m_XmlBufSize(0),
-      m_NavigatedNode(0) {}
+      m_NavigatedNode(0)
+{}
 
-CRapidXmlParser::~CRapidXmlParser(void) {}
+CRapidXmlParser::~CRapidXmlParser(void)
+{}
 
 bool CRapidXmlParser::parseString(const std::string &xml) {
     return this->parseBufferNonDestructive<rapidxml::parse_no_string_terminators>(xml.c_str(),
@@ -174,7 +176,7 @@ bool CRapidXmlParser::toNodeHierarchy(const TCharRapidXmlNode &parentNode,
         // few distinct names repeated many times
         nodePtr->m_Name = cache->stringFor(parentNode.name(),
                                            parentNode.name_size());
-    } else {
+    } else   {
         nodePtr->m_Name.assign(parentNode.name(), parentNode.name_size());
     }
 
@@ -186,7 +188,7 @@ bool CRapidXmlParser::toNodeHierarchy(const TCharRapidXmlNode &parentNode,
     // parser class instead.
     nodePtr->m_Value.assign(parentNode.value(), parentNode.value_size());
 
-    size_t                       numAttributes(0);
+    size_t numAttributes(0);
     const TCharRapidXmlAttribute *attr(parentNode.first_attribute());
     while (attr != 0) {
         ++numAttributes;
@@ -211,7 +213,7 @@ bool CRapidXmlParser::toNodeHierarchy(const TCharRapidXmlNode &parentNode,
                                            attr->name_size());
             iter->second = cache->stringFor(attr->value(),
                                             attr->value_size());
-        } else {
+        } else   {
             iter->first.assign(attr->name(), attr->name_size());
             iter->second.assign(attr->value(), attr->value_size());
         }
@@ -230,7 +232,7 @@ bool CRapidXmlParser::toNodeHierarchy(const TCharRapidXmlNode &parentNode,
             }
 
             nodePtr->addChildP(childPtr);
-        } else if (childNode->type() == rapidxml::node_cdata) {
+        } else if (childNode->type() == rapidxml::node_cdata)   {
             // Append CDATA text to the value - see comment above regarding
             // garbling in complex documents
             nodePtr->m_Value.append(childNode->value(),
@@ -388,7 +390,7 @@ void CRapidXmlParser::convert(bool indent,
     if (indent) {
         rapidxml::print(std::back_inserter(result),
                         doc);
-    } else {
+    } else   {
         rapidxml::print(std::back_inserter(result),
                         doc,
                         rapidxml::print_no_indenting);
@@ -474,7 +476,7 @@ bool CRapidXmlParser::parseBufferDestructive(char *begin, size_t length) {
     m_NavigatedNode = 0;
     try {
         m_Doc.parse<FLAGS>(begin);
-    } catch (rapidxml::parse_error &e) {
+    } catch (rapidxml::parse_error &e)   {
         LOG_ERROR("Unable to parse XML of length " << length << ": " <<
                   e.what());
         return false;

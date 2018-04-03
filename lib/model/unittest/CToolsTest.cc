@@ -103,7 +103,7 @@ void CToolsTest::testProbabilityAggregator(void) {
         CPPUNIT_ASSERT_EQUAL(1.0, p0);
 
         maths::CJointProbabilityOfLessLikelySamples joint;
-        maths::CProbabilityOfExtremeSample          extreme;
+        maths::CProbabilityOfExtremeSample extreme;
 
         double p[] = { 0.01, 0.2, 0.001, 0.3, 0.456, 0.1 };
 
@@ -135,7 +135,7 @@ void CToolsTest::testProbabilityAggregator(void) {
         CPPUNIT_ASSERT_EQUAL(1.0, p0);
 
         maths::CJointProbabilityOfLessLikelySamples joint;
-        maths::CProbabilityOfExtremeSample          extreme;
+        maths::CProbabilityOfExtremeSample extreme;
 
         double p[] = { 0.01, 0.2, 0.001, 0.3, 0.456, 0.1 };
 

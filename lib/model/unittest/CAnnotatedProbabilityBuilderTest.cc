@@ -36,23 +36,24 @@ typedef std::pair<std::size_t, double>                TSizeDoublePr;
 typedef core::CSmallVector<TSizeDoublePr, 1>          TSizeDoublePr1Vec;
 typedef core::CSmallVector<core::CStoredStringPtr, 1> TStoredStringPtr1Vec;
 
-const std::string            EMPTY_STRING;
+const std::string EMPTY_STRING;
 const core::CStoredStringPtr EMPTY_STRING_PTR(CStringStore::names().getEmpty());
-const std::string            C1("c1");
+const std::string C1("c1");
 const core::CStoredStringPtr C1_PTR(CStringStore::names().get(C1));
-const std::string            C2("c2");
+const std::string C2("c2");
 const core::CStoredStringPtr C2_PTR(CStringStore::names().get(C2));
-const std::string            C3("c3");
+const std::string C3("c3");
 const core::CStoredStringPtr C3_PTR(CStringStore::names().get(C3));
-const std::string            C4("c4");
+const std::string C4("c4");
 const core::CStoredStringPtr C4_PTR(CStringStore::names().get(C4));
-const TStoredStringPtr1Vec   NO_CORRELATED_ATTRIBUTES;
-const TSizeDoublePr1Vec      NO_CORRELATES;
+const TStoredStringPtr1Vec NO_CORRELATED_ATTRIBUTES;
+const TSizeDoublePr1Vec NO_CORRELATES;
 
 class CAnnotatedProbabilityBuilderForTest : public CAnnotatedProbabilityBuilder {
     public:
         CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability &annotatedProbability) :
-            CAnnotatedProbabilityBuilder(annotatedProbability) {}
+            CAnnotatedProbabilityBuilder(annotatedProbability)
+        {}
 
         CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability &annotatedProbability,
                                             std::size_t numberAttributeProbabilities,
@@ -61,7 +62,8 @@ class CAnnotatedProbabilityBuilderForTest : public CAnnotatedProbabilityBuilder 
             CAnnotatedProbabilityBuilder(annotatedProbability,
                                          numberAttributeProbabilities,
                                          function,
-                                         numberOfPeople) {}
+                                         numberOfPeople)
+        {}
 
 
 };
@@ -69,7 +71,7 @@ class CAnnotatedProbabilityBuilderForTest : public CAnnotatedProbabilityBuilder 
 }
 
 void CAnnotatedProbabilityBuilderTest::testProbability(void) {
-    SAnnotatedProbability               result;
+    SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result);
 
     builder.probability(0.42);
@@ -80,7 +82,7 @@ void CAnnotatedProbabilityBuilderTest::testProbability(void) {
 }
 
 void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenIndividualCount(void) {
-    SAnnotatedProbability               result;
+    SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 1, function_t::E_IndividualCount, 42);
 
     builder.addAttributeProbability(0,
@@ -100,7 +102,7 @@ void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenIndividua
 }
 
 void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulationCount(void) {
-    SAnnotatedProbability               result;
+    SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 3, function_t::E_PopulationCount, 42);
 
     builder.addAttributeProbability(0,
@@ -147,7 +149,7 @@ void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulatio
 }
 
 void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenIndividualRare(void) {
-    SAnnotatedProbability               result;
+    SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 1, function_t::E_IndividualRare, 42);
 
     builder.addAttributeProbability(0,
@@ -166,19 +168,19 @@ void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenIndividua
 void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulationRare(void) {
     maths::CMultinomialConjugate attributePrior(maths::CMultinomialConjugate::nonInformativePrior(4u));
     for (std::size_t i = 1u; i <= 4u; ++i) {
-        TDouble1Vec     samples(i, static_cast<double>(i));
+        TDouble1Vec samples(i, static_cast<double>(i));
         TDouble4Vec1Vec weights(i, maths::CConstantWeights::UNIT);
         attributePrior.addSamples(maths::CConstantWeights::COUNT, samples, weights);
     }
 
     maths::CMultinomialConjugate personAttributePrior(maths::CMultinomialConjugate::nonInformativePrior(4u));
     for (std::size_t i = 1u; i <= 4u; ++i) {
-        TDouble1Vec     samples(2 * i, static_cast<double>(i));
+        TDouble1Vec samples(2 * i, static_cast<double>(i));
         TDouble4Vec1Vec weights(2 * i, maths::CConstantWeights::UNIT);
         personAttributePrior.addSamples(maths::CConstantWeights::COUNT, samples, weights);
     }
 
-    SAnnotatedProbability               result;
+    SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 2, function_t::E_PopulationRare, 42);
     builder.attributeProbabilityPrior(&attributePrior);
     builder.personAttributeProbabilityPrior(&personAttributePrior);
@@ -245,19 +247,19 @@ void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulatio
 void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulationFreqRare(void) {
     maths::CMultinomialConjugate attributePrior(maths::CMultinomialConjugate::nonInformativePrior(4u));
     for (std::size_t i = 1u; i <= 4u; ++i) {
-        TDouble1Vec     samples(i, static_cast<double>(i));
+        TDouble1Vec samples(i, static_cast<double>(i));
         TDouble4Vec1Vec weights(i, maths::CConstantWeights::UNIT);
         attributePrior.addSamples(maths::CConstantWeights::COUNT, samples, weights);
     }
 
     maths::CMultinomialConjugate personAttributePrior(maths::CMultinomialConjugate::nonInformativePrior(4u));
     for (std::size_t i = 1u; i <= 4u; ++i) {
-        TDouble1Vec     samples(2 * i, static_cast<double>(i));
+        TDouble1Vec samples(2 * i, static_cast<double>(i));
         TDouble4Vec1Vec weights(2 * i, maths::CConstantWeights::UNIT);
         personAttributePrior.addSamples(maths::CConstantWeights::COUNT, samples, weights);
     }
 
-    SAnnotatedProbability               result;
+    SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 2, function_t::E_PopulationFreqRare, 70);
     builder.attributeProbabilityPrior(&attributePrior);
     builder.personAttributeProbabilityPrior(&personAttributePrior);
@@ -322,7 +324,7 @@ void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulatio
 }
 
 void CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenIndividualCount(void) {
-    SAnnotatedProbability               result;
+    SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 1, function_t::E_IndividualCount, 42);
 
     builder.personFrequency(0.3, false);
@@ -332,7 +334,7 @@ void CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenIndividualCount(v
 
 void CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenIndividualRare(void) {
     {
-        SAnnotatedProbability               result;
+        SAnnotatedProbability result;
         CAnnotatedProbabilityBuilderForTest builder(result, 1, function_t::E_IndividualRare, 42);
 
         builder.personFrequency(0.3, false);
@@ -342,7 +344,7 @@ void CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenIndividualRare(vo
         CPPUNIT_ASSERT_EQUAL(1.0, result.s_DescriptiveData[0].second);
     }
     {
-        SAnnotatedProbability               result;
+        SAnnotatedProbability result;
         CAnnotatedProbabilityBuilderForTest builder(result, 1, function_t::E_IndividualRare, 42);
 
         builder.personFrequency(0.2, true);
@@ -354,7 +356,7 @@ void CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenIndividualRare(vo
 }
 
 void CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenPopulationRare(void) {
-    SAnnotatedProbability               result;
+    SAnnotatedProbability result;
     CAnnotatedProbabilityBuilderForTest builder(result, 3, function_t::E_PopulationRare, 42);
 
     builder.personFrequency(0.3, false);

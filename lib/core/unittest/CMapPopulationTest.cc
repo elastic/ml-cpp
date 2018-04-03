@@ -32,7 +32,8 @@ const size_t CMapPopulationTest::TEST_SIZE(200000);
 
 
 CMapPopulationTest::CMapPopulationTest(void)
-    : m_TestData(0) {}
+    : m_TestData(0)
+{}
 
 CppUnit::Test *CMapPopulationTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMapPopulationTest");
@@ -106,7 +107,7 @@ void CMapPopulationTest::testMapInsertSpeed(void) {
     // Schedule all the other tests to be run in a thread pool - the number of
     // threads is chosen to be less than the number of cores so that the results
     // aren't skewed too much if other processes are running on the machine
-    unsigned int            numCpus(boost::thread::hardware_concurrency());
+    unsigned int numCpus(boost::thread::hardware_concurrency());
     boost::threadpool::pool tp(numCpus / 3 + 1);
 
     // Add tasks for all the tests to the pool

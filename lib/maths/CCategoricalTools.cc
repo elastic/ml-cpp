@@ -84,7 +84,7 @@ logBinomialProbabilityFastLowerBound(std::size_t n,
     static const double CONSTANT = std::log(boost::math::double_constants::root_two_pi) - 2.0;
 
     double p_ = m_ / n_;
-    result = -0.5 * std::log(n_ * (1.0 - p_) * p_)
+    result = - 0.5 * std::log(n_ * (1.0 - p_) * p_)
              + m_ * std::log(p / p_)
              + (n_ - m_) * std::log((1.0 - p) / (1.0 - p_))
              + CONSTANT;
@@ -145,10 +145,10 @@ maths_t::EFloatingPointErrorStatus logRightTailProbabilityUpperBound(std::size_t
                                   + (1.0 - q) * std::log((1.0 - p) / (1.0 - q)));
         result = std::min(chernoff + LOG_TWO, 0.0);
         return maths_t::E_FpNoErrors;
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to calculate c.d.f. complement: " << e.what()
-                                                            << ", n = " << n
-                                                            << ", p = " << p);
+                  << ", n = " << n
+                  << ", p = " << p);
     }
 
     return maths_t::E_FpOverflowed;
@@ -231,7 +231,7 @@ maths_t::EFloatingPointErrorStatus logRightTailProbabilityLowerBound(std::size_t
             return maths_t::E_FpNoErrors;
         }
 
-        double                             logf;
+        double logf;
         maths_t::EFloatingPointErrorStatus status =
             logBinomialProbabilityFastLowerBound(n, p, m, logf);
         if (status & maths_t::E_FpAllErrors) {
@@ -242,10 +242,10 @@ maths_t::EFloatingPointErrorStatus logRightTailProbabilityLowerBound(std::size_t
                                        * (std::exp(p / (1.0 - p) * (n_ - m_) / n_) - 1.0));
         result = std::min(bound + LOG_TWO, 0.0);
         return maths_t::E_FpNoErrors;
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to calculate c.d.f. complement: " << e.what()
-                                                            << ", n = " << n
-                                                            << ", p = " << p);
+                  << ", n = " << n
+                  << ", p = " << p);
     }
 
     return maths_t::E_FpFailed;
@@ -297,7 +297,7 @@ maths_t::EFloatingPointErrorStatus logRightTailProbability(std::size_t n,
         // Note that the lower bound is much sharper than the
         // upper bound.
 
-        double                             lb, ub;
+        double lb, ub;
         maths_t::EFloatingPointErrorStatus status =
             logRightTailProbabilityLowerBound(n, p, m, lb);
         if (status & maths_t::E_FpAllErrors) {
@@ -333,10 +333,10 @@ maths_t::EFloatingPointErrorStatus logRightTailProbability(std::size_t n,
         double f = status == maths_t::E_FpOverflowed ? 0.0 : std::exp(logf);
         result = std::min(std::log(oneMinusF + f) + LOG_TWO, 0.0);
         return maths_t::E_FpNoErrors;
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to calculate c.d.f. complement: " << e.what()
-                                                            << ", n = " << n
-                                                            << ", p = " << p);
+                  << ", n = " << n
+                  << ", p = " << p);
     }
 
     return maths_t::E_FpFailed;
@@ -417,7 +417,7 @@ bool CCategoricalTools::expectedDistinctCategories(const TDoubleVec &probabiliti
         if (probabilities[i] > 0.0 && probabilities[i] < 1.0) {
             boost::math::binomial_distribution<> binomial(n, probabilities[i]);
             result += boost::math::cdf(boost::math::complement(binomial, 0.0));
-        } else if (probabilities[i] == 1.0) {
+        } else if (probabilities[i] == 1.0)   {
             result += 1.0;
         }
     }
@@ -515,7 +515,7 @@ bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec &probabi
             double pj = probabilities[j];
             if (sample[j] > static_cast<std::size_t>((n_ + 1.0) * pj)) {
                 std::size_t nj = sample[j];
-                double      lowerBound;
+                double lowerBound;
                 if (logRightTailProbabilityLowerBound(n, pj, nj, lowerBound) & maths_t::E_FpAllErrors) {
                     continue;
                 }

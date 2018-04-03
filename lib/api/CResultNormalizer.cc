@@ -48,10 +48,11 @@ CResultNormalizer::CResultNormalizer(const model::CAnomalyDetectorModelConfig &m
       m_OutputHandler(outputHandler),
       m_WriteFieldNames(true),
       m_OutputFieldNormalizedScore(m_OutputFields[NORMALIZED_SCORE_NAME]),
-      m_Normalizer(m_ModelConfig) {}
+      m_Normalizer(m_ModelConfig)
+{}
 
 bool CResultNormalizer::initNormalizer(const std::string &stateFileName) {
-    std::ifstream                                          inputStream(stateFileName.c_str());
+    std::ifstream inputStream(stateFileName.c_str());
     model::CHierarchicalResultsNormalizer::ERestoreOutcome outcome(
         m_Normalizer.fromJsonStream(inputStream));
     if (outcome != model::CHierarchicalResultsNormalizer::E_Ok) {
@@ -85,13 +86,13 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap &dataRowFields) {
     std::string person;
     std::string function;
     std::string valueFieldName;
-    double      probability(0.0);
+    double probability(0.0);
 
     bool isValidRecord(false);
     if (m_ModelConfig.perPartitionNormalization()) {
         isValidRecord = parseDataFields(dataRowFields, level, partition, partitionValue,
                                         person, function, valueFieldName, probability);
-    } else {
+    } else   {
         isValidRecord = parseDataFields(dataRowFields, level, partition, person,
                                         function, valueFieldName, probability);
     }
@@ -101,19 +102,19 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap &dataRowFields) {
 
     if (isValidRecord) {
         const model::CAnomalyScore::CNormalizer *levelNormalizer = 0;
-        double                                  score = probability > m_ModelConfig.maximumAnomalousProbability() ?
-                                                        0.0 : maths::CTools::deviation(probability);
+        double score = probability > m_ModelConfig.maximumAnomalousProbability() ?
+                       0.0 : maths::CTools::deviation(probability);
         if (level == ROOT_LEVEL) {
             levelNormalizer = &m_Normalizer.bucketNormalizer();
-        } else if (level == LEAF_LEVEL) {
+        } else if (level == LEAF_LEVEL)   {
             levelNormalizer = m_Normalizer.leafNormalizer(partitionKey, person, function, valueFieldName);
-        } else if (level == PARTITION_LEVEL) {
+        } else if (level == PARTITION_LEVEL)   {
             levelNormalizer = m_Normalizer.partitionNormalizer(partitionKey);
-        } else if (level == BUCKET_INFLUENCER_LEVEL) {
+        } else if (level == BUCKET_INFLUENCER_LEVEL)   {
             levelNormalizer = m_Normalizer.influencerBucketNormalizer(person);
-        } else if (level == INFLUENCER_LEVEL) {
+        } else if (level == INFLUENCER_LEVEL)   {
             levelNormalizer = m_Normalizer.influencerNormalizer(person);
-        } else {
+        } else   {
             LOG_ERROR("Unexpected   : " << level);
         }
         if (levelNormalizer != 0) {
@@ -124,7 +125,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap &dataRowFields) {
                           " with partition field name " << partition <<
                           " and person field name " << person);
             }
-        } else {
+        } else   {
             LOG_ERROR("No normalizer available"
                       " at level '" << level <<
                       "' with partition field name '" << partition <<
@@ -134,7 +135,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap &dataRowFields) {
         m_OutputFieldNormalizedScore =
             (score > 0.0) ?
             core::CStringUtils::typeToStringPretty(score) : ZERO;
-    } else {
+    } else   {
         m_OutputFieldNormalizedScore.clear();
     }
 

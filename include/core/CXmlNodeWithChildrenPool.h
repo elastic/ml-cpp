@@ -90,7 +90,7 @@ class CORE_EXPORT CXmlNodeWithChildrenPool {
         CXmlNodeWithChildren::TChildNodePVec m_Recycled;
 
         //! The maximum number of nodes that will ever be cached by this pool
-        size_t                               m_MaxRecycled;
+        size_t m_MaxRecycled;
 };
 
 

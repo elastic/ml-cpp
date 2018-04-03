@@ -56,8 +56,8 @@ void CContainerPrinterTest::testAll(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("[\"null\", 3, 1.1]"),
                          CContainerPrinter::print(plist));
 
-    double                    three = 3.0;
-    double                    fivePointOne = 5.1;
+    double three = 3.0;
+    double fivePointOne = 5.1;
     std::map<double, double*> map;
     map.insert(std::make_pair(1.1, &three));
     map.insert(std::make_pair(3.3, &fivePointOne));

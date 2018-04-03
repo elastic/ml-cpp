@@ -46,14 +46,14 @@ void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
 
     messageWords.clear();
 
-    size_t                messageLen(message.length());
-    size_t                consecutive(0);
-    size_t                wordStartPos(0);
-    size_t                rollbackPos(0);
-    size_t                spaceCount(0);
-    size_t                punctCount(0);
-    bool                  inWord(false);
-    std::string           curWord;
+    size_t messageLen(message.length());
+    size_t consecutive(0);
+    size_t wordStartPos(0);
+    size_t rollbackPos(0);
+    size_t spaceCount(0);
+    size_t punctCount(0);
+    bool inWord(false);
+    std::string curWord;
     const CWordDictionary &dict = CWordDictionary::instance();
     for (size_t messagePos = 0; messagePos < messageLen; ++messagePos) {
         char thisChar(message[messagePos]);
@@ -71,7 +71,7 @@ void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
                     if (consecutive >= minConsecutive) {
                         rollbackPos = messageWords.length();
                     }
-                } else {
+                } else   {
                     rollback = true;
                 }
             }
@@ -87,30 +87,30 @@ void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
             if (punctCount > 1) {
                 rollback = true;
             }
-        } else if (::isalpha(static_cast<unsigned char>(thisChar))) {
+        } else if (::isalpha(static_cast<unsigned char>(thisChar)))   {
             if (punctCount == 0) {
                 if (inWord) {
                     if (::isupper(static_cast<unsigned char>(thisChar))) {
                         inWord = false;
                         rollback = true;
-                    } else {
+                    } else   {
                         curWord += thisChar;
                     }
-                } else {
+                } else   {
                     if (spaceCount > 0) {
                         inWord = true;
                         wordStartPos = messagePos;
                         curWord = thisChar;
                     }
                 }
-            } else {
+            } else   {
                 inWord = false;
                 rollback = true;
             }
 
             spaceCount = 0;
             punctCount = 0;
-        } else {
+        } else   {
             spaceCount = 0;
             punctCount = 0;
             inWord = false;
@@ -137,7 +137,7 @@ void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
 
     if (rollbackPos == 0) {
         messageWords.clear();
-    } else {
+    } else   {
         // Subtract 1 to strip the last space (since the above code always
         // appends a trailing space after each word)
         messageWords.erase(rollbackPos - 1);

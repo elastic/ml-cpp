@@ -63,9 +63,9 @@ CCompressOStream::CCompressThread::CCompressThread(CCompressOStream &stream,
 void CCompressOStream::CCompressThread::run(void) {
     LOG_TRACE("CompressThread run");
 
-    char        buf[4096];
+    char buf[4096];
     std::size_t bytesDone = 0;
-    bool        closeMe = false;
+    bool closeMe = false;
     while (closeMe == false) {
         std::streamsize n = m_StreamBuf.sgetn(buf, 4096);
         LOG_TRACE("Read from in stream: " << n);

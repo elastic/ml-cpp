@@ -56,23 +56,15 @@ using TSizeVec = std::vector<std::size_t>;
 template<typename INTEGER>
 struct SRng {
     using Type = boost::random::uniform_int_distribution<INTEGER>;
-    static INTEGER min(INTEGER a) {
-        return a;
-    }
-    static INTEGER max(INTEGER b) {
-        return b - 1;
-    }
+    static INTEGER min(INTEGER a) { return a; }
+    static INTEGER max(INTEGER b) { return b - 1; }
 };
 //! Specialization for a real uniform random number generator.
 template<>
 struct SRng<double> {
     using Type = boost::random::uniform_real_distribution<double>;
-    static double min(double a) {
-        return a;
-    }
-    static double max(double b) {
-        return b;
-    }
+    static double min(double a) { return a; }
+    static double max(double b) { return b; }
 };
 
 //! Implementation of uniform sampling.
@@ -111,7 +103,7 @@ void doNormalSample(RNG &rng, double mean, double variance, std::size_t n, TDoub
     if (variance < 0.0) {
         LOG_ERROR("Invalid variance " << variance);
         return;
-    } else if (variance == 0.0) {
+    } else if (variance == 0.0)   {
         result.resize(n, mean);
     }
 
@@ -149,7 +141,7 @@ std::size_t doCategoricalSample(RNG &rng, TDoubleVec &probabilities) {
     double uniform0X;
     if (probabilities[p - 1] == 0.0) {
         return doUniformSample(rng, std::size_t(0), p);
-    } else {
+    } else   {
         boost::random::uniform_real_distribution<> uniform(0.0, probabilities[p - 1]);
         uniform0X = uniform(rng);
     }
@@ -184,7 +176,7 @@ void doCategoricalSampleWithReplacement(RNG &rng,
 
     if (probabilities[p - 1] == 0.0) {
         doUniformSample(rng, std::size_t(0), p, n, result);
-    } else {
+    } else   {
         result.reserve(n);
         boost::random::uniform_real_distribution<> uniform(0.0, probabilities[p - 1]);
         for (std::size_t i = 0u; i < n; ++i) {
@@ -233,9 +225,9 @@ void doCategoricalSampleWithoutReplacement(RNG &rng,
         if (probabilities[p - 1] <= 0.0) {
             doUniformSample(rng, std::size_t(0), indices.size(), 1, s);
             result.push_back(indices[s[0]]);
-        } else {
+        } else   {
             boost::random::uniform_real_distribution<> uniform(0.0, probabilities[p - 1]);
-            double                                     uniform0X = uniform(rng);
+            double uniform0X = uniform(rng);
             s[0] = std::min(static_cast<std::size_t>(
                                 std::lower_bound(probabilities.begin(),
                                                  probabilities.end(),
@@ -317,7 +309,7 @@ bool doMultivariateNormalSample(RNG &rng,
     // to sample.
     const CDenseVector<double> &S = svd.singularValues();
     const CDenseMatrix<double> &U = svd.matrixU();
-    TDoubleVec                 stddevs;
+    TDoubleVec stddevs;
     stddevs.reserve(d);
     for (std::size_t i = 0u; i < d; ++i) {
         stddevs.push_back(::sqrt(std::max(S(i), 0.0)));
@@ -334,7 +326,7 @@ bool doMultivariateNormalSample(RNG &rng,
             for (std::size_t j = 0u; j < d; ++j) {
                 if (stddevs[j] == 0.0) {
                     sample(j) = 0.0;
-                } else {
+                } else   {
                     boost::random::normal_distribution<> normal(0.0, stddevs[j]);
                     sample(j) = normal(rng);
                 }
@@ -373,7 +365,7 @@ void doMultivariateNormalSample(RNG &rng,
     // to sample.
     const TDenseVector &S = svd.singularValues();
     const TDenseMatrix &U = svd.matrixU();
-    T                  stddevs[N] = {};
+    T stddevs[N] = {};
     for (std::size_t i = 0u; i < N; ++i) {
         stddevs[i] = ::sqrt(std::max(S(i), 0.0));
     }
@@ -385,7 +377,7 @@ void doMultivariateNormalSample(RNG &rng,
             for (std::size_t j = 0u; j < N; ++j) {
                 if (stddevs[j] == 0.0) {
                     sample(j) = 0.0;
-                } else {
+                } else   {
                     boost::random::normal_distribution<> normal(0.0, stddevs[j]);
                     sample(j) = normal(rng);
                 }
@@ -400,7 +392,7 @@ void doMultivariateNormalSample(RNG &rng,
 template<typename DISTRIBUTION>
 void sampleQuantiles(const DISTRIBUTION &distribution, std::size_t n, TDoubleVec &result) {
     CTools::SIntervalExpectation expectation;
-    double                       dq = 1.0 / static_cast<double>(n);
+    double dq = 1.0 / static_cast<double>(n);
 
     double a = boost::numeric::bounds<double>::lowest();
     for (std::size_t i = 1u; i < n; ++i) {
@@ -427,7 +419,7 @@ bool CSampling::staticsAcceptRestoreTraverser(core::CStateRestoreTraverser &trav
             std::string value(traverser.value());
             // See acceptPersistInserter
             std::replace(value.begin(), value.end(), '_', ' ');
-            std::istringstream    ss(value);
+            std::istringstream ss(value);
             core::CScopedFastLock scopedLock(ms_Lock);
             ss >> ms_Rng;
         }
@@ -697,9 +689,9 @@ void CSampling::multinomialSampleFast(TDoubleVec &probabilities,
     }
 
     {
-        std::size_t           r = n;
-        double                p = 1.0;
-        std::size_t           m = probabilities.size() - 1;
+        std::size_t r = n;
+        double p = 1.0;
+        std::size_t m = probabilities.size() - 1;
         core::CScopedFastLock scopedLock(ms_Lock);
         for (std::size_t i = 0u; r > 0 && i < m; ++i) {
             boost::random::binomial_distribution<> binomial(static_cast<int>(r),
@@ -735,7 +727,7 @@ void CSampling::multinomialSampleStable(TDoubleVec probabilities,
         if (i != j) {
             std::swap(sample[i], sample[j]);
             std::swap(indices[i], indices[j]);
-        } else {
+        } else   {
             ++i;
         }
     }
@@ -782,7 +774,7 @@ void CSampling::weightedSample(std::size_t n,
 
     LOG_TRACE("totalWeight = " << totalWeight << ", n = " << n);
 
-    TUIntVec   choices;
+    TUIntVec choices;
     TDoubleVec remainders[] = { TDoubleVec(), TDoubleVec() };
 
     choices.reserve(weights.size());
@@ -820,7 +812,7 @@ void CSampling::weightedSample(std::size_t n,
         for (std::size_t i = 0u;
              i < candidates.size() && ::fabs(totalRemainder) > 0.5;
              ++i) {
-            std::size_t  j = candidates[i].second;
+            std::size_t j = candidates[i].second;
             unsigned int choice = choices[j];
             choices[j] = (choice + 1u) % 2u;
             totalRemainder += remainders[choices[j]][j] - remainders[choice][j];
@@ -855,10 +847,10 @@ void CSampling::normalSampleQuantiles(double mean,
     try {
         boost::math::normal_distribution<> normal(mean, ::sqrt(variance));
         sampleQuantiles(normal, n, result);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to sample normal quantiles: " << e.what()
-                                                        << ", mean = " << mean
-                                                        << ", variance = " << variance);
+                  << ", mean = " << mean
+                  << ", variance = " << variance);
         result.clear();
     }
 }
@@ -875,15 +867,15 @@ void CSampling::gammaSampleQuantiles(double shape,
     try {
         boost::math::gamma_distribution<> gamma(shape, 1.0 / rate);
         sampleQuantiles(gamma, n, result);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to sample normal quantiles: " << e.what()
-                                                        << ", shape = " << shape
-                                                        << ", rate = " << rate);
+                  << ", shape = " << shape
+                  << ", rate = " << rate);
         result.clear();
     }
 }
 
-core::CFastMutex                  CSampling::ms_Lock;
+core::CFastMutex CSampling::ms_Lock;
 CSampling::CRandomNumberGenerator CSampling::ms_Rng;
 
 

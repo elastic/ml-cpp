@@ -45,7 +45,8 @@ using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SRefer
 }
 
 CSampleCounts::CSampleCounts(unsigned int sampleCountOverride) :
-    m_SampleCountOverride(sampleCountOverride) {}
+    m_SampleCountOverride(sampleCountOverride)
+{}
 
 CSampleCounts::CSampleCounts(bool isForPersistence,
                              const CSampleCounts &other) :
@@ -79,12 +80,12 @@ bool CSampleCounts::acceptRestoreTraverser(core::CStateRestoreTraverser &travers
                 LOG_ERROR("Invalid sample counts");
                 return false;
             }
-        } else if (name == MEAN_NON_ZERO_BUCKET_COUNT_TAG) {
+        } else if (name == MEAN_NON_ZERO_BUCKET_COUNT_TAG)   {
             if (core::CPersistUtils::restore(name, m_MeanNonZeroBucketCounts, traverser) == false) {
                 LOG_ERROR("Invalid non-zero bucket count means");
                 return false;
             }
-        } else if (name == EFFECTIVE_SAMPLE_VARIANCE_TAG) {
+        } else if (name == EFFECTIVE_SAMPLE_VARIANCE_TAG)   {
             if (core::CPersistUtils::restore(name, m_EffectiveSampleVariances, traverser) == false) {
                 LOG_ERROR("Invalid effective sample variances");
                 return false;
@@ -124,7 +125,7 @@ void CSampleCounts::resetSampleCount(const CDataGatherer &gatherer,
     const TMeanAccumulator &count_ = m_MeanNonZeroBucketCounts[id];
     if (maths::CBasicStatistics::count(count_)
         >= NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT) {
-        unsigned                         sampleCountThreshold = 0;
+        unsigned sampleCountThreshold = 0;
         const CDataGatherer::TFeatureVec &features = gatherer.features();
         for (CDataGatherer::TFeatureVecCItr i = features.begin(); i != features.end(); ++i) {
             sampleCountThreshold = std::max(sampleCountThreshold,
@@ -134,7 +135,7 @@ void CSampleCounts::resetSampleCount(const CDataGatherer &gatherer,
         m_SampleCounts[id] = std::max(sampleCountThreshold,
                                       static_cast<unsigned int>(count + 0.5));
         LOG_DEBUG("Setting sample count to " << m_SampleCounts[id]
-                                             << " for " << this->name(gatherer, id));
+                  << " for " << this->name(gatherer, id));
     }
 }
 
@@ -143,7 +144,7 @@ void CSampleCounts::refresh(const CDataGatherer &gatherer) {
         return;
     }
 
-    unsigned                         sampleCountThreshold = 0;
+    unsigned sampleCountThreshold = 0;
     const CDataGatherer::TFeatureVec &features = gatherer.features();
     for (CDataGatherer::TFeatureVecCItr i = features.begin(); i != features.end(); ++i) {
         sampleCountThreshold = std::max(sampleCountThreshold,
@@ -163,11 +164,11 @@ void CSampleCounts::refresh(const CDataGatherer &gatherer) {
                     unsigned int newCount = std::max(sampleCountThreshold,
                                                      static_cast<unsigned int>(count + 0.5));
                     LOG_TRACE("Sample count " << oldCount
-                                              << " is too far from the bucket mean " << count
-                                              << " count, resetting to " << newCount
-                                              << ". This may cause temporary instability"
-                                              << " for " << this->name(gatherer, id) << " (" << id
-                                              << "). (Mean count " << count_ << ")");
+                              << " is too far from the bucket mean " << count
+                              << " count, resetting to " << newCount
+                              << ". This may cause temporary instability"
+                              << " for " << this->name(gatherer, id) << " (" << id
+                              << "). (Mean count " << count_ << ")");
                     m_SampleCounts[id] = newCount;
                     // Avoid compiler warning in the case of LOG_TRACE being compiled out
                     static_cast<void>(oldCount);
@@ -179,8 +180,8 @@ void CSampleCounts::refresh(const CDataGatherer &gatherer) {
             m_SampleCounts[id] = std::max(sampleCountThreshold,
                                           static_cast<unsigned int>(count + 0.5));
             LOG_TRACE("Setting sample count to " << m_SampleCounts[id]
-                                                 << " for " << this->name(gatherer, id) << " (" << id
-                                                 << "). (Mean count " << count_ << ")");
+                      << " for " << this->name(gatherer, id) << " (" << id
+                      << "). (Mean count " << count_ << ")");
         }
     }
 }

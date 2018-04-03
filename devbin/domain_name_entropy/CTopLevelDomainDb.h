@@ -150,13 +150,13 @@ class CTopLevelDomainDb : private core::CNonCopyable {
         static const std::string PUNY_CODE;
 
     private:
-        const std::string        m_EffectiveTldNamesFileName;
+        const std::string m_EffectiveTldNamesFileName;
 
         typedef std::set<std::string> TStrSet;
 
-        TStrSet                  m_EffectiveTldNames;
-        TStrSet                  m_EffectiveTldNamesExceptions;
-        TStrSet                  m_EffectiveTldNamesWildcards;
+        TStrSet m_EffectiveTldNames;
+        TStrSet m_EffectiveTldNamesExceptions;
+        TStrSet m_EffectiveTldNamesWildcards;
 };
 
 }

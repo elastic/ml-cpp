@@ -57,15 +57,15 @@ void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
 
     // Test a variety of synthetic non-periodic signals.
 
-    TTimeVec      windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
-    TTimeVec      bucketLengths{TEN_MINS, HALF_HOUR};
+    TTimeVec windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
+    TTimeVec bucketLengths{TEN_MINS, HALF_HOUR};
     TGeneratorVec generators{constant, ramp, markov};
 
     test::CRandomNumbers rng;
 
     TDoubleVec noise;
-    TSizeVec   index;
-    TSizeVec   repeats;
+    TSizeVec index;
+    TSizeVec repeats;
 
     double FP{0.0};
     double TN{0.0};
@@ -117,11 +117,11 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
 
     LOG_DEBUG("Random diurnal");
     {
-        TTimeVec      windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
-        TTimeVec      bucketLengths{TEN_MINS, HALF_HOUR};
-        TSizeVec      permittedGenerators{2, 4, 4, 5};
+        TTimeVec windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
+        TTimeVec bucketLengths{TEN_MINS, HALF_HOUR};
+        TSizeVec permittedGenerators{2, 4, 4, 5};
         TGeneratorVec generators{smoothDaily, spikeyDaily, smoothWeekly, weekends, spikeyWeekly};
-        TStrVec       expected
+        TStrVec expected
         {
             "{ 'daily' }",
             "{ 'daily' }",
@@ -133,8 +133,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         test::CRandomNumbers rng;
 
         TDoubleVec noise;
-        TSizeVec   index;
-        TSizeVec   repeats;
+        TSizeVec index;
+        TSizeVec repeats;
 
         double TP{0.0};
         double FN{0.0};
@@ -167,7 +167,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
                     maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                     if (result.print() != expected[index[0]]) {
                         LOG_DEBUG("result = " << result.print()
-                                              << " expected " << expected[index[0]]);
+                                  << " expected " << expected[index[0]]);
                     }
                     TP += result.print() == expected[index[0]] ? 1.0 : 0.0;
                     FN += result.print() == expected[index[0]] ? 0.0 : 1.0;
@@ -183,8 +183,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
     LOG_DEBUG("*** Spikey: daily ***");
     {
         TTimeDoublePrVec timeseries;
-        core_t::TTime    startTime;
-        core_t::TTime    endTime;
+        core_t::TTime startTime;
+        core_t::TTime endTime;
         CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/spikey_data.csv",
                                                         timeseries,
                                                         startTime,
@@ -194,7 +194,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
 
         LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(),
                                                                     timeseries.begin() + 10)
-                                  << " ...");
+                  << " ...");
 
         TTimeVec lastTests{timeseries[0].first, timeseries[0].first};
         TTimeVec windows{4 * DAY, 14 * DAY};
@@ -222,8 +222,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
     LOG_DEBUG("*** Diurnal: daily and weekends ***");
     {
         TTimeDoublePrVec timeseries;
-        core_t::TTime    startTime;
-        core_t::TTime    endTime;
+        core_t::TTime startTime;
+        core_t::TTime endTime;
         CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/diurnal.csv",
                                                         timeseries,
                                                         startTime,
@@ -233,7 +233,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
 
         LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(),
                                                                     timeseries.begin() + 10)
-                                  << " ...");
+                  << " ...");
 
         core_t::TTime lastTest{timeseries[0].first};
         core_t::TTime window{14 * DAY};
@@ -258,8 +258,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
     LOG_DEBUG("*** Switching: no periods ***");
     {
         TTimeDoublePrVec timeseries;
-        core_t::TTime    startTime;
-        core_t::TTime    endTime;
+        core_t::TTime startTime;
+        core_t::TTime endTime;
         CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/no_periods.csv",
                                                         timeseries,
                                                         startTime,
@@ -270,7 +270,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
 
         LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(),
                                                                     timeseries.begin() + 10)
-                                  << " ...");
+                  << " ...");
 
         core_t::TTime lastTest{timeseries[0].first};
         core_t::TTime window{14 * DAY};
@@ -295,8 +295,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
     LOG_DEBUG("*** Diurnal: daily, weekly and weekends ***");
     {
         TTimeDoublePrVec timeseries;
-        core_t::TTime    startTime;
-        core_t::TTime    endTime;
+        core_t::TTime startTime;
+        core_t::TTime endTime;
         CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/thirty_minute_samples.csv",
                                                         timeseries,
                                                         startTime,
@@ -307,7 +307,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
 
         LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(),
                                                                     timeseries.begin() + 10)
-                                  << " ...");
+                  << " ...");
 
         core_t::TTime lastTest{timeseries[0].first};
         core_t::TTime window{14 * DAY};
@@ -337,16 +337,16 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
 
     // Test the recall for periods in the range [DAY / 5, 5 * DAY].
 
-    TTimeVec      windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
-    TTimeVec      bucketLengths{TEN_MINS, HALF_HOUR};
+    TTimeVec windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
+    TTimeVec bucketLengths{TEN_MINS, HALF_HOUR};
     TGeneratorVec generators{smoothDaily, spikeyDaily};
-    TSizeVec      permittedGenerators{2, 1};
+    TSizeVec permittedGenerators{2, 1};
 
     test::CRandomNumbers rng;
 
     TDoubleVec noise;
-    TSizeVec   index;
-    TSizeVec   repeats;
+    TSizeVec index;
+    TSizeVec repeats;
 
     double TP{0.0};
     double FN{0.0};
@@ -394,7 +394,7 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                 if (result.print() != expected.print()) {
                     LOG_DEBUG("result = " << result.print()
-                                          << " expected " << expected.print());
+                              << " expected " << expected.print());
                 }
                 TP += result.print() == expected.print() ? 1.0 : 0.0;
                 FN += result.print() == expected.print() ? 0.0 : 1.0;
@@ -537,17 +537,17 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
     // Test the ability to correctly find and test for periodic
     // signals without being told the periods to test a-priori.
 
-    TTimeVec      windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
-    TTimeVec      bucketLengths{TEN_MINS, HALF_HOUR};
+    TTimeVec windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
+    TTimeVec bucketLengths{TEN_MINS, HALF_HOUR};
     TGeneratorVec generators{smoothDaily, spikeyDaily};
-    TSizeVec      permittedGenerators{2, 1};
+    TSizeVec permittedGenerators{2, 1};
     core_t::TTime startTime{10000};
 
     test::CRandomNumbers rng;
 
     TDoubleVec noise;
-    TSizeVec   index;
-    TSizeVec   repeats;
+    TSizeVec index;
+    TSizeVec repeats;
 
     TDoubleVec TP{0.0, 0.0, 0.0};
     TDoubleVec FN{0.0, 0.0, 0.0};
@@ -590,7 +590,7 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
                 maths::TFloatMeanAccumulatorVec values(window / bucketLength);
                 for (core_t::TTime time = startTime; time < startTime + window; time += bucketLength) {
                     std::size_t bucket((time - startTime) / bucketLength);
-                    double      value{20.0 * scale(scaling, time, generators[index[0]]) + noise[bucket]};
+                    double value{20.0 * scale(scaling, time, generators[index[0]]) + noise[bucket]};
                     values[bucket].add(value);
                 }
 
@@ -599,20 +599,20 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
                     maths::testForPeriods(config, startTime, bucketLength, values)};
                 if (result.print() != expected.print()) {
                     LOG_DEBUG("result = " << result.print()
-                                          << " expected " << expected.print());
+                              << " expected " << expected.print());
                 }
 
                 TP[0] += result.print() == expected.print() ? 1.0 : 0.0;
                 FN[0] += result.print() == expected.print() ? 0.0 : 1.0;
                 if (result.components().size() == 1) {
                     core_t::TTime modp{result.components()[0].s_Period % period};
-                    double        error{  static_cast<double>(std::min(modp, std::abs(period - modp)))
-                                          / static_cast<double>(period)};
+                    double error{  static_cast<double>(std::min(modp, std::abs(period - modp)))
+                                   / static_cast<double>(period)};
                     TP[1] += error < 0.01 ? 1.0 : 0.0;
                     FN[1] += error < 0.01 ? 0.0 : 1.0;
                     TP[2] += error < 0.05 ? 1.0 : 0.0;
                     FN[2] += error < 0.05 ? 0.0 : 1.0;
-                } else {
+                } else   {
                     FN[0] += 1.0;
                     FN[1] += 1.0;
                     FN[2] += 1.0;

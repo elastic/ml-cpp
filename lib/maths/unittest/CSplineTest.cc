@@ -36,7 +36,8 @@ typedef std::vector<std::size_t> TSizeVec;
 class CSplineFunctor {
     public:
         CSplineFunctor(const maths::CSpline<> &spline) :
-            m_Spline(&spline) {}
+            m_Spline(&spline)
+        {}
 
         bool operator()(double x, double &fx) const {
             fx = m_Spline->value(x);
@@ -91,15 +92,15 @@ void CSplineTest::testNatural(void) {
         }
 
         const TDoubleVec &curvatures = spline.curvatures();
-        std::size_t      n = curvatures.size();
+        std::size_t n = curvatures.size();
         LOG_DEBUG("curvatures[0] = " << curvatures[0]
-                                     << ", curvatures[n] = " << curvatures[n-1]);
+                  << ", curvatures[n] = " << curvatures[n - 1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[0], 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[n-1], 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[n - 1], 1e-10);
     }
 
     {
-        double     x_[] = { 0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0 };
+        double x_[] = { 0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0 };
         TDoubleVec x(boost::begin(x_), boost::end(x_));
 
         TDoubleVec y;
@@ -117,16 +118,16 @@ void CSplineTest::testNatural(void) {
                         * static_cast<double>(i) / 20.0;
             double yy = spline.value(xx);
             LOG_DEBUG("spline(" << xx << ") = " << yy
-                                << ", f(" << xx << ") = " << ::sin(xx));
+                      << ", f(" << xx << ") = " << ::sin(xx));
             CPPUNIT_ASSERT(::fabs(::sin(xx) - yy) < 0.02);
         }
 
         const TDoubleVec &curvatures = spline.curvatures();
-        std::size_t      n = curvatures.size();
+        std::size_t n = curvatures.size();
         LOG_DEBUG("curvatures[0] = " << curvatures[0]
-                                     << ", curvatures[n] = " << curvatures[n-1]);
+                  << ", curvatures[n] = " << curvatures[n - 1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[0], 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[n-1], 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[n - 1], 1e-10);
     }
 }
 
@@ -160,19 +161,19 @@ void CSplineTest::testParabolicRunout(void) {
         }
 
         const TDoubleVec &curvatures = spline.curvatures();
-        std::size_t      n = curvatures.size();
+        std::size_t n = curvatures.size();
         LOG_DEBUG("curvatures[0] = " << curvatures[0]
-                                     << ", curvatures[1] = " << curvatures[1]);
+                  << ", curvatures[1] = " << curvatures[1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[0],
                                      curvatures[1], 1e-10);
-        LOG_DEBUG("curvatures[n-1] = " << curvatures[n-2]
-                                       << ", curvatures[n] = " << curvatures[n-1]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[n-2],
-                                     curvatures[n-1], 1e-10);
+        LOG_DEBUG("curvatures[n-1] = " << curvatures[n - 2]
+                  << ", curvatures[n] = " << curvatures[n - 1]);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[n - 2],
+                                     curvatures[n - 1], 1e-10);
     }
 
     {
-        double     x_[] = { 0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0 };
+        double x_[] = { 0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0 };
         TDoubleVec x(boost::begin(x_), boost::end(x_));
 
         TDoubleVec y;
@@ -191,20 +192,20 @@ void CSplineTest::testParabolicRunout(void) {
                         * static_cast<double>(i) / 20.0;
             double yy = spline.value(xx);
             LOG_DEBUG("spline(" << xx << ") = " << yy
-                                << ", f(" << xx << ") = " << ::sin(xx));
+                      << ", f(" << xx << ") = " << ::sin(xx));
             CPPUNIT_ASSERT(::fabs(::sin(xx) - yy) < 0.04);
         }
 
         const TDoubleVec &curvatures = spline.curvatures();
-        std::size_t      n = curvatures.size();
+        std::size_t n = curvatures.size();
         LOG_DEBUG("curvatures[0] = " << curvatures[0]
-                                     << ", curvatures[1] = " << curvatures[1]);
+                  << ", curvatures[1] = " << curvatures[1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[0],
                                      curvatures[1], 1e-10);
-        LOG_DEBUG("curvatures[n-1] = " << curvatures[n-2]
-                                       << ", curvatures[n] = " << curvatures[n-1]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[n-2],
-                                     curvatures[n-1], 1e-10);
+        LOG_DEBUG("curvatures[n-1] = " << curvatures[n - 2]
+                  << ", curvatures[n] = " << curvatures[n - 1]);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[n - 2],
+                                     curvatures[n - 1], 1e-10);
     }
 }
 
@@ -214,7 +215,7 @@ void CSplineTest::testPeriodic(void) {
     LOG_DEBUG("+-----------------------------+");
 
     {
-        double     x_[] = { 0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0 };
+        double x_[] = { 0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0 };
         TDoubleVec x(boost::begin(x_), boost::end(x_));
 
         TDoubleVec y;
@@ -232,7 +233,7 @@ void CSplineTest::testPeriodic(void) {
                         * static_cast<double>(i) / 20.0;
             double yy = spline.value(xx);
             LOG_DEBUG("spline(" << xx << ") = " << yy
-                                << ", f(" << xx << ") = " << ::cos(xx));
+                      << ", f(" << xx << ") = " << ::cos(xx));
             CPPUNIT_ASSERT(::fabs(::cos(xx) - yy) < 0.02);
         }
     }
@@ -285,11 +286,11 @@ void CSplineTest::testMean(void) {
     };
 
     {
-        double      x_[] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0 };
-        TDoubleVec  x(boost::begin(x_), boost::end(x_));
+        double x_[] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0 };
+        TDoubleVec x(boost::begin(x_), boost::end(x_));
         std::size_t n = x.size() - 1;
-        double      y_[] = { 0.0, 3.0, 4.0, 1.0, 6.0, 6.0, 5.0, 2.0, 2.5, 3.0, 5.0 };
-        TDoubleVec  y(boost::begin(y_), boost::end(y_));
+        double y_[] = { 0.0, 3.0, 4.0, 1.0, 6.0, 6.0, 5.0, 2.0, 2.5, 3.0, 5.0 };
+        TDoubleVec y(boost::begin(y_), boost::end(y_));
 
         for (std::size_t t = 0u; t < boost::size(types); ++t) {
             LOG_DEBUG("*** Interpolation '" << print(types[t]) << "' ***");
@@ -297,10 +298,10 @@ void CSplineTest::testMean(void) {
             maths::CSpline<> spline(types[t]);
             spline.interpolate(x, y, maths::CSplineTypes::E_Natural);
 
-            double         expectedMean = 0.0;
+            double expectedMean = 0.0;
             CSplineFunctor f(spline);
             for (std::size_t i = 1; i < x.size(); ++i) {
-                double a = x[i-1];
+                double a = x[i - 1];
                 double b = x[i];
                 double integral;
                 maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(f, a, b, integral);
@@ -309,7 +310,7 @@ void CSplineTest::testMean(void) {
             expectedMean /= (x[n] - x[0]);
 
             LOG_DEBUG("expectedMean = " << expectedMean
-                                        << ", mean = " << spline.mean());
+                      << ", mean = " << spline.mean());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean,
                                          spline.mean(),
                                          std::numeric_limits<double>::epsilon() * expectedMean);
@@ -336,10 +337,10 @@ void CSplineTest::testMean(void) {
                 maths::CSpline<> spline(types[t]);
                 spline.interpolate(x, y, maths::CSplineTypes::E_Natural);
 
-                double         expectedMean = 0.0;
+                double expectedMean = 0.0;
                 CSplineFunctor f(spline);
                 for (std::size_t j = 1; j < x.size(); ++j) {
-                    double a = x[j-1];
+                    double a = x[j - 1];
                     double b = x[j];
                     double integral;
                     maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(f, a, b, integral);
@@ -348,7 +349,7 @@ void CSplineTest::testMean(void) {
                 expectedMean /= (x[n[0] - 1] - x[0]);
 
                 LOG_DEBUG("expectedMean = " << expectedMean
-                                            << ", mean = " << spline.mean());
+                          << ", mean = " << spline.mean());
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean, spline.mean(), 1e-4);
             }
@@ -383,9 +384,9 @@ void CSplineTest::testIllposed(void) {
 
     // Test a case where some of the knot points are colocated.
 
-    double     x_[] = { 0.0, 0.0, 10.0, 10.0, 15.0, 15.5, 20.0, 20.0, 20.0, 28.0, 30.0, 30.0 };
+    double x_[] = { 0.0, 0.0, 10.0, 10.0, 15.0, 15.5, 20.0, 20.0, 20.0, 28.0, 30.0, 30.0 };
     TDoubleVec x(boost::begin(x_), boost::end(x_));
-    double     y_[] = { 0.0, 0.0, 1.9, 2.1, 3.0, 3.1, 4.0, 4.0, 4.0, 5.6, 5.9, 6.1 };
+    double y_[] = { 0.0, 0.0, 1.9, 2.1, 3.0, 3.1, 4.0, 4.0, 4.0, 5.6, 5.9, 6.1 };
     TDoubleVec y(boost::begin(y_), boost::end(y_));
 
     maths::CSplineTypes::EType types[] =
@@ -412,7 +413,7 @@ void CSplineTest::testIllposed(void) {
 
         for (std::size_t i = 0u; i <= 30; ++i) {
             LOG_DEBUG("expected = " << 0.2 * static_cast<double>(i)
-                                    << ", actual = " << spline.value(static_cast<double>(i)));
+                      << ", actual = " << spline.value(static_cast<double>(i)));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(0.2 * static_cast<double>(i),
                                          spline.value(static_cast<double>(i)),
                                          5e-7);
@@ -436,12 +437,12 @@ void CSplineTest::testSlope(void) {
     double eps = 1e-4;
 
     {
-        double      x_[] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0 };
-        TDoubleVec  x(boost::begin(x_), boost::end(x_));
+        double x_[] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0 };
+        TDoubleVec x(boost::begin(x_), boost::end(x_));
         std::size_t n = x.size() - 1;
-        double      y_[] = { 0.0, 3.0, 4.0, 1.0, 6.0, 6.0, 5.0, 2.0, 2.5, 3.0, 5.0 };
-        TDoubleVec  y(boost::begin(y_), boost::end(y_));
-        double      range = x[n] - x[0];
+        double y_[] = { 0.0, 3.0, 4.0, 1.0, 6.0, 6.0, 5.0, 2.0, 2.5, 3.0, 5.0 };
+        TDoubleVec y(boost::begin(y_), boost::end(y_));
+        double range = x[n] - x[0];
 
         for (std::size_t t = 0u; t < boost::size(types); ++t) {
             LOG_DEBUG("*** Interpolation '" << print(types[t]) << "' ***");
@@ -458,8 +459,8 @@ void CSplineTest::testSlope(void) {
                 double numericalSlope = (  spline.value(xiPlusEps)
                                            - spline.value(xiMinusEps) ) / (2 * eps);
                 LOG_DEBUG("x = " << xi
-                                 << ", slope = " << slope
-                                 << ", numerical slope = " << numericalSlope);
+                          << ", slope = " << slope
+                          << ", numerical slope = " << numericalSlope);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(numericalSlope, slope, 6.0 * eps * eps);
             }
         }
@@ -489,7 +490,7 @@ void CSplineTest::testSlope(void) {
 
                 CSplineFunctor f(spline);
                 for (std::size_t j = 1; j < n[0]; ++j) {
-                    double xj = (x[j] + x[j-1]) / 2.0;
+                    double xj = (x[j] + x[j - 1]) / 2.0;
                     double xiPlusEps  = xj + eps;
                     double xiMinusEps = xj - eps;
                     double slope = spline.slope(xj);
@@ -497,8 +498,8 @@ void CSplineTest::testSlope(void) {
                                                - spline.value(xiMinusEps) ) / (2 * eps);
                     if (i % 10 == 0) {
                         LOG_DEBUG("x = " << xj
-                                         << ", slope = " << slope
-                                         << ", numerical slope = " << numericalSlope);
+                                  << ", slope = " << slope
+                                  << ", numerical slope = " << numericalSlope);
                     }
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(numericalSlope,
                                                  slope,
@@ -516,7 +517,7 @@ void CSplineTest::testSlope(void) {
             y.push_back(::cos(boost::math::double_constants::two_pi
                               * static_cast<double>(i) / 10.0));
         }
-        double range = x[x.size()-1] - x[0];
+        double range = x[x.size() - 1] - x[0];
 
         for (std::size_t t = 0u; t < boost::size(types); ++t) {
             LOG_DEBUG("*** Interpolation '" << print(types[t]) << "' ***");
@@ -532,8 +533,8 @@ void CSplineTest::testSlope(void) {
                 double numericalSlope = (  spline.value(xiPlusEps)
                                            - spline.value(xiMinusEps) ) / (2 * eps);
                 LOG_DEBUG("x = " << xi
-                                 << ", slope = " << slope
-                                 << ", numerical slope = " << numericalSlope);
+                          << ", slope = " << slope
+                          << ", numerical slope = " << numericalSlope);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(numericalSlope, slope, eps * eps);
             }
         }
@@ -550,7 +551,7 @@ void CSplineTest::testSplineReference(void) {
     typedef boost::reference_wrapper<TDoubleVec>                      TDoubleVecRef;
     typedef maths::CSpline<TFloatVecRef, TFloatVecRef, TDoubleVecRef> TSplineRef;
 
-    double     x_[] = { 0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0 };
+    double x_[] = { 0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0 };
     TDoubleVec x(boost::begin(x_), boost::end(x_));
 
     TDoubleVec y;
@@ -563,8 +564,8 @@ void CSplineTest::testSplineReference(void) {
     maths::CSpline<> spline(maths::CSplineTypes::E_Cubic);
     spline.interpolate(x, y, maths::CSplineTypes::E_Natural);
 
-    TFloatVec  knotsStorage;
-    TFloatVec  valuesStorage;
+    TFloatVec knotsStorage;
+    TFloatVec valuesStorage;
     TDoubleVec curvaturesStorage;
     TSplineRef splineRef(maths::CSplineTypes::E_Cubic,
                          boost::ref(knotsStorage),
@@ -584,20 +585,20 @@ void CSplineTest::testSplineReference(void) {
                     * static_cast<double>(i) / 20.0;
 
         LOG_DEBUG("spline.value(" << xx << ") = " << spline.value(xx)
-                                  << ", splineRef.value(" << xx << ") = " << splineRef.value(xx));
+                  << ", splineRef.value(" << xx << ") = " << splineRef.value(xx));
         CPPUNIT_ASSERT_EQUAL(spline.value(xx), splineRef.value(xx));
 
         LOG_DEBUG("spline.slope(" << xx << ") = " << spline.slope(xx)
-                                  << ", splineRef.slope(" << xx << ") = " << splineRef.slope(xx));
+                  << ", splineRef.slope(" << xx << ") = " << splineRef.slope(xx));
         CPPUNIT_ASSERT_EQUAL(spline.slope(xx), splineRef.slope(xx));
     }
 
     LOG_DEBUG("spline.mean() = " << spline.mean()
-                                 << ", splineRef.mean() = " << splineRef.mean());
+              << ", splineRef.mean() = " << splineRef.mean());
     CPPUNIT_ASSERT_EQUAL(spline.mean(), splineRef.mean());
 
     LOG_DEBUG("spline.absSlope() = " << spline.absSlope()
-                                     << ", splineRef.absSlope() = " << splineRef.absSlope());
+              << ", splineRef.absSlope() = " << splineRef.absSlope());
     CPPUNIT_ASSERT_EQUAL(spline.absSlope(), splineRef.absSlope());
 
     LOG_DEBUG("splineRef.memoryUsage = " << splineRef.memoryUsage());

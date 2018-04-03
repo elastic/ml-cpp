@@ -58,7 +58,7 @@ void COutputChainerTest::testChaining(void) {
         // Set up the processing chain as:
         // big.txt -> typer -> chainer -> detector -> chainerOutput.txt
 
-        ml::model::CLimits    limits;
+        ml::model::CLimits limits;
         ml::api::CFieldConfig fieldConfig;
         CPPUNIT_ASSERT(fieldConfig.initFromFile("testfiles/new_mlfields.conf"));
 
@@ -89,8 +89,8 @@ void COutputChainerTest::testChaining(void) {
 
     // Check the results by re-reading the output file
     std::ifstream reReadStrm(outputFileName.c_str());
-    std::string   line;
-    std::string   modelSizeString("\"" + ml::api::CJsonOutputWriter::MODEL_BYTES + "\":");
+    std::string line;
+    std::string modelSizeString("\"" + ml::api::CJsonOutputWriter::MODEL_BYTES + "\":");
 
     std::string expectedLineStart("{\"bucket\":{\"job_id\":\"job\",\"timestamp\":1431853200000,");
 

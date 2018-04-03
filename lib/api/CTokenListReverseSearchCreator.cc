@@ -21,7 +21,8 @@ namespace ml {
 namespace api {
 
 CTokenListReverseSearchCreator::CTokenListReverseSearchCreator(const std::string &fieldName)
-    : CTokenListReverseSearchCreatorIntf(fieldName) {}
+    : CTokenListReverseSearchCreatorIntf(fieldName)
+{}
 
 size_t CTokenListReverseSearchCreator::availableCost(void) const {
     // This is pretty arbitrary, but MUST be less than the maximum length of a
@@ -67,7 +68,8 @@ void CTokenListReverseSearchCreator::initStandardSearch(int /*type*/,
 
 void CTokenListReverseSearchCreator::addCommonUniqueToken(const std::string & /*token*/,
                                                           std::string & /*part1*/,
-                                                          std::string & /*part2*/) const {}
+                                                          std::string & /*part2*/) const
+{}
 
 void CTokenListReverseSearchCreator::addInOrderCommonToken(const std::string &token,
                                                            bool first,
@@ -75,7 +77,7 @@ void CTokenListReverseSearchCreator::addInOrderCommonToken(const std::string &to
                                                            std::string &part2) const {
     if (first) {
         part2 += ".*?";
-    } else {
+    } else   {
         part1 += ' ';
         part2 += ".+?";
     }

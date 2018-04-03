@@ -130,7 +130,7 @@ class MODEL_EXPORT CHierarchicalResultsAggregator : public CHierarchicalResultsL
     private:
         //! The jobs that the aggregator will perform when invoked can be:
         //! update or update + correct.
-        EJob   m_Job;
+        EJob m_Job;
 
         //! The rate information is lost from the quantile sketches.
         double m_DecayRate;

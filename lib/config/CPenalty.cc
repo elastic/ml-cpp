@@ -28,7 +28,8 @@ namespace {
 const std::string PENALTY_NAME("CPenalty");
 }
 
-CPenalty::CPenalty(const CAutoconfigurerParams &params) : m_Params(params) {}
+CPenalty::CPenalty(const CAutoconfigurerParams &params) : m_Params(params)
+{}
 
 CPenalty::CPenalty(const CPenalty &other) :
     m_Params(other.m_Params) {
@@ -111,9 +112,11 @@ const CAutoconfigurerParams &CPenalty::params(void) const {
 
 void CPenalty::penaltyFromMe(const CFieldStatistics & /*stats*/,
                              double & /*penalty*/,
-                             std::string & /*description*/) const {}
+                             std::string & /*description*/) const
+{}
 
-void CPenalty::penaltyFromMe(CDetectorSpecification & /*spec*/) const {}
+void CPenalty::penaltyFromMe(CDetectorSpecification & /*spec*/) const
+{}
 
 CPenalty::CClosure::CClosure(const CPenalty &penalty) {
     this->add(penalty);

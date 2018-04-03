@@ -77,9 +77,7 @@ const int MAX_PRECISE_INTEGER_FLOAT(
 class CORE_EXPORT CFloatStorage {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) {
-            return true;
-        }
+        static bool dynamicSizeAlwaysZero(void) { return true; }
 
     public:
         //! Default construction of the floating point value.
@@ -165,7 +163,7 @@ class CORE_EXPORT CFloatStorage {
             if (    value < std::numeric_limits<float>::min() &&
                     -value < std::numeric_limits<float>::min()) {
                 LOG_WARN("Value underflows float " << value);
-            } else if (    value < 100 * std::numeric_limits<float>::min() &&
+            } else if (    value < 100 * std::numeric_limits<float>::min()   &&
                            -value < 100 * std::numeric_limits<float>::min()) {
                 LOG_WARN("Less than 3 s.f. precision retained for " << value);
             }

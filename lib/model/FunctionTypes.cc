@@ -950,7 +950,7 @@ const std::string UNEXPECTED_FUNCTION("-");
 }
 
 #define BEGIN(x) x
-#define END(x) x + sizeof(x)/sizeof(x[0])
+#define END(x) x + sizeof(x) / sizeof(x[0])
 
 //! The features for the count by function.
 const TFeatureVec INDIVIDUAL_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_COUNT_FEATURES),
@@ -1597,7 +1597,7 @@ EFunction mostSpecific(const TFunctionVec &functions) {
         LOG_ABORT("No functions specified");
     }
 
-    EFunction   result = functions[0];
+    EFunction result = functions[0];
     std::size_t numberFeatures = features(functions[0]).size();
     for (std::size_t i = 1u; i < functions.size(); ++i) {
         std::size_t n = features(functions[i]).size();
@@ -1798,7 +1798,7 @@ EFunction function(const TFeatureVec &features) {
     }
 
     TFunctionVec candidates;
-    std::size_t  i = 0u;
+    std::size_t i = 0u;
 
     for (/**/; candidates.empty() && i < features.size(); ++i) {
         TFeatureFunctionVecMapCItr functionsItr = FUNCTIONS_BY_FEATURE.find(features[i]);
@@ -1832,7 +1832,7 @@ EFunction function(const TFeatureVec &features) {
     if (candidates.empty()) {
         EFunction result = mostSpecific(fallback);
         LOG_ERROR("Inconsistent features " << core::CContainerPrinter::print(features)
-                                           << " defaulting to '" << print(result) << "'");
+                  << " defaulting to '" << print(result) << "'");
         return result;
     }
 

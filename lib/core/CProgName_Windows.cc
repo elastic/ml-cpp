@@ -27,7 +27,7 @@ namespace core {
 
 std::string CProgName::progName(void) {
     static const size_t BUFFER_SIZE(2048);
-    char                buffer[BUFFER_SIZE] = { '\0' };
+    char buffer[BUFFER_SIZE] = { '\0' };
     if (GetModuleFileName(0, buffer, BUFFER_SIZE - 1) == FALSE) {
         return std::string();
     }
@@ -59,7 +59,7 @@ std::string CProgName::progName(void) {
 
 std::string CProgName::progDir(void) {
     static const size_t BUFFER_SIZE(2048);
-    std::string         path(BUFFER_SIZE, '\0');
+    std::string path(BUFFER_SIZE, '\0');
     if (GetModuleFileName(0, &path[0], BUFFER_SIZE) == FALSE) {
         return std::string();
     }

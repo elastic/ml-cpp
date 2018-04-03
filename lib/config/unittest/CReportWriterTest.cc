@@ -100,7 +100,7 @@ void CReportWriterTest::testPretty(void) {
         1000000.0, 5334.0, 70.0,   180.0,  100.3
     };
 
-    config::CDataSummaryStatistics            stats1;
+    config::CDataSummaryStatistics stats1;
     config::CCategoricalDataSummaryStatistics stats2[] =
     {
         config::CCategoricalDataSummaryStatistics(10),
@@ -111,10 +111,10 @@ void CReportWriterTest::testPretty(void) {
 
     uint64_t n = 0;
 
-    double     lastProgress = 0.0;
+    double lastProgress = 0.0;
     TDoubleVec dt;
     TDoubleVec weight;
-    TSizeVec   index;
+    TSizeVec index;
     for (core_t::TTime time = startTime; time < endTime; time += static_cast<double>(dt[0])) {
         double progress =  static_cast<double>(time - startTime)
                           / static_cast<double>((endTime - startTime));
@@ -130,7 +130,7 @@ void CReportWriterTest::testPretty(void) {
         const std::string &phylum = categories1[index[0]];
         stats2[0].add(time, phylum);
 
-        rng.generateUniformSamples(breaks[index[0]], breaks[index[0]+1], 1, index);
+        rng.generateUniformSamples(breaks[index[0]], breaks[index[0] + 1], 1, index);
         const std::string &species = categories2[index[0]];
         stats2[1].add(time, species);
 

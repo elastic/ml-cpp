@@ -101,7 +101,7 @@ class MODEL_EXPORT CMemoryUsageEstimator {
 
         //! The number of times estimate has been called since the last
         //! real value was added
-        std::size_t         m_NumEstimatesSinceValue;
+        std::size_t m_NumEstimatesSinceValue;
 };
 
 } // model

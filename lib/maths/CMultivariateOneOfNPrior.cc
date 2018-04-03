@@ -122,8 +122,8 @@ bool modelAcceptRestoreTraverser(const SDistributionRestoreParams &params,
                                  TWeightPriorPtrPrVec &models,
                                  core::CStateRestoreTraverser &traverser) {
     CModelWeight weight(1.0);
-    bool         gotWeight = false;
-    TPriorPtr    model;
+    bool gotWeight = false;
+    TPriorPtr model;
 
     do {
         const std::string &name = traverser.name();
@@ -335,26 +335,26 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec &weightStyles,
     // Compute the unnormalized posterior weights and update the component
     // priors. These weights are computed on the side since they are only
     // updated if all marginal likelihoods can be computed.
-    TDouble3Vec     logLikelihoods;
+    TDouble3Vec logLikelihoods;
     TMaxAccumulator maxLogLikelihood;
-    TBool3Vec       used, uses;
+    TBool3Vec used, uses;
     for (auto &&model : m_Models) {
         bool use = model.second->participatesInModelSelection();
 
         // Update the weights with the marginal likelihoods.
-        double                             logLikelihood = 0.0;
+        double logLikelihood = 0.0;
         maths_t::EFloatingPointErrorStatus status = use ?
                                                     model.second->jointLogMarginalLikelihood(weightStyles, samples, weights, logLikelihood) :
                                                     maths_t::E_FpOverflowed;
         if (status & maths_t::E_FpFailed) {
             LOG_ERROR("Failed to compute log-likelihood");
             LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
-        } else {
+        } else   {
             if (!(status & maths_t::E_FpOverflowed)) {
                 logLikelihood += model.second->unmarginalizedParameters() * penalty;
                 logLikelihoods.push_back(logLikelihood);
                 maxLogLikelihood.add(logLikelihood);
-            } else {
+            } else   {
                 logLikelihoods.push_back(MINUS_INF);
             }
 
@@ -371,7 +371,7 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec &weightStyles,
         for (const auto &weight : weights) {
             add(maths_t::count(m_Dimension, weightStyles, weight), n);
         }
-    } catch (std::exception &e) {
+    } catch (std::exception &e)   {
         LOG_ERROR("Failed to add samples: " << e.what());
         return;
     }
@@ -391,7 +391,7 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec &weightStyles,
             CModelWeight &weight = m_Models[i].first;
             if (!uses[i]) {
                 weight.logWeight(MINUS_INF);
-            } else if (used[i]) {
+            } else if (used[i])   {
                 weight.addLogFactor(std::max(logLikelihoods[i], minLogLikelihood));
                 maxLogWeight.add(weight.logWeight());
             }
@@ -437,9 +437,9 @@ CMultivariateOneOfNPrior::TUnivariatePriorPtrDoublePr
 CMultivariateOneOfNPrior::univariate(const TSize10Vec &marginalize,
                                      const TSizeDoublePr10Vec &condition) const {
     COneOfNPrior::TDoublePriorPtrPrVec models;
-    TDouble3Vec                        weights;
-    TMaxAccumulator                    maxWeight;
-    double                             Z = 0.0;
+    TDouble3Vec weights;
+    TMaxAccumulator maxWeight;
+    double Z = 0.0;
 
     for (const auto &model : m_Models) {
         if (model.second->participatesInModelSelection()) {
@@ -470,9 +470,9 @@ CMultivariateOneOfNPrior::bivariate(const TSize10Vec &marginalize,
     }
 
     TDoublePriorPtrPrVec models;
-    TDouble3Vec          weights;
-    TMaxAccumulator      maxWeight;
-    double               Z = 0.0;
+    TDouble3Vec weights;
+    TMaxAccumulator maxWeight;
+    double Z = 0.0;
 
     for (const auto &model : m_Models) {
         if (model.second->participatesInModelSelection()) {
@@ -522,7 +522,7 @@ TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodMean(void) const {
     // the model if there is strong evidence against it.
 
     TDouble10Vec result(m_Dimension, 0.0);
-    double       w = 0.0;
+    double w = 0.0;
     for (const auto &model : m_Models) {
         double wi = model.first;
         if (wi > MINIMUM_SIGNIFICANT_WEIGHT) {
@@ -536,7 +536,7 @@ TDouble10Vec CMultivariateOneOfNPrior::nearestMarginalLikelihoodMean(const TDoub
     // See marginalLikelihoodMean for discussion.
 
     TDouble10Vec result(m_Dimension, 0.0);
-    double       w = 0.0;
+    double w = 0.0;
     for (const auto &model : m_Models) {
         double wi = model.first;
         if (wi > MINIMUM_SIGNIFICANT_WEIGHT) {
@@ -577,7 +577,7 @@ TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodVariances(void) const {
     }
 
     TDouble10Vec result(m_Dimension, 0.0);
-    double       w = 0.0;
+    double w = 0.0;
     for (const auto &model : m_Models) {
         double wi = model.first;
         if (wi > MINIMUM_SIGNIFICANT_WEIGHT) {
@@ -594,11 +594,11 @@ TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodMode(const TWeightStyle
 
     // Declared outside the loop to minimize the number of times
     // it is created.
-    TDouble10Vec1Vec     sample(1);
+    TDouble10Vec1Vec sample(1);
     TDouble10Vec4Vec1Vec sampleWeights(1, weights);
 
     TDouble10Vec result(m_Dimension, 0.0);
-    double       w = 0.0;
+    double w = 0.0;
     for (const auto &model : m_Models) {
         if (model.second->participatesInModelSelection()) {
             sample[0] = model.second->marginalLikelihoodMode(weightStyles, weights);
@@ -631,13 +631,13 @@ CMultivariateOneOfNPrior::jointLogMarginalLikelihood(const TWeightStyleVec &weig
 
     // We re-normalize the data so that the maximum likelihood is one
     // to avoid underflow.
-    TDouble3Vec     logLikelihoods;
+    TDouble3Vec logLikelihoods;
     TMaxAccumulator maxLogLikelihood;
-    double          Z = 0.0;
+    double Z = 0.0;
 
     for (const auto &model : m_Models) {
         if (model.second->participatesInModelSelection()) {
-            double                             logLikelihood;
+            double logLikelihood;
             maths_t::EFloatingPointErrorStatus status =
                 model.second->jointLogMarginalLikelihood(weightStyles, samples, weights, logLikelihood);
             if (status & maths_t::E_FpFailed) {
@@ -670,7 +670,7 @@ CMultivariateOneOfNPrior::jointLogMarginalLikelihood(const TWeightStyleVec &weig
         LOG_ERROR("weights = " << core::CContainerPrinter::print(weights));
         LOG_ERROR("logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
         LOG_ERROR("maxLogLikelihood = " << maxLogLikelihood[0]);
-    } else if (status & maths_t::E_FpOverflowed) {
+    } else if (status & maths_t::E_FpOverflowed)   {
         LOG_ERROR("Log likelihood overflowed for (" << this->debugWeights() << ")");
         LOG_TRACE("likelihoods = " << core::CContainerPrinter::print(logLikelihoods));
         LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
@@ -688,7 +688,7 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
     }
 
     TDouble3Vec weights;
-    double      Z = 0.0;
+    double Z = 0.0;
     for (const auto &model : m_Models) {
         weights.push_back(model.first);
         Z += model.first;
@@ -700,7 +700,7 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
     CSampling::TSizeVec sampling;
     CSampling::weightedSample(numberSamples, weights, sampling);
     LOG_TRACE("weights = " << core::CContainerPrinter::print(weights)
-                           << ", sampling = " << core::CContainerPrinter::print(sampling));
+              << ", sampling = " << core::CContainerPrinter::print(sampling));
 
     if (sampling.size() != m_Models.size()) {
         LOG_ERROR("Failed to sample marginal likelihood");
@@ -722,7 +722,7 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
             samples.push_back(CTools::truncate(sample, support.first, support.second));
         }
     }
-    LOG_TRACE("samples = "<< core::CContainerPrinter::print(samples));
+    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
 }
 
 bool CMultivariateOneOfNPrior::isNonInformative(void) const {

@@ -73,7 +73,8 @@ class CTestThread : public core::CThread {
     public:
         CTestThread(const TMachineVec &machines) :
             m_Machines(machines),
-            m_Failures(0) {}
+            m_Failures(0)
+        {}
 
         std::size_t failures(void) const {
             return m_Failures;
@@ -105,9 +106,9 @@ class CTestThread : public core::CThread {
 
     private:
         test::CRandomNumbers m_Rng;
-        TMachineVec          m_Machines;
-        std::size_t          m_Failures;
-        TSizeVec             m_States;
+        TMachineVec m_Machines;
+        std::size_t m_Failures;
+        TSizeVec m_States;
 };
 
 void randomMachines(std::size_t n, TMachineVec &result) {
@@ -246,7 +247,7 @@ void CStateMachineTest::testMultithreaded(void) {
     }
     for (std::size_t i = 1u; i < threads.size(); ++i) {
         // No wrong reads.
-        CPPUNIT_ASSERT(threads[i]->states() == threads[i-1]->states());
+        CPPUNIT_ASSERT(threads[i]->states() == threads[i - 1]->states());
     }
     // No duplicates.
     CPPUNIT_ASSERT_EQUAL(machines.size(), core::CStateMachine::numberMachines());

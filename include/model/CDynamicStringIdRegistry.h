@@ -151,34 +151,34 @@ class MODEL_EXPORT CDynamicStringIdRegistry {
 
     private:
         //! The type of the names expected to be registered.
-        std::string         m_NameType;
+        std::string m_NameType;
 
         //! The statistic to be increased when a new name is registered.
-        stat_t::EStatTypes  m_AddedStat;
+        stat_t::EStatTypes m_AddedStat;
 
         //! The statistic to be increased when a new name failed
         //! to register because no more additions are allowed.
-        stat_t::EStatTypes  m_AddNotAllowedStat;
+        stat_t::EStatTypes m_AddNotAllowedStat;
 
         //! The statistic to be increased when an ID is recycled.
-        stat_t::EStatTypes  m_RecycledStat;
+        stat_t::EStatTypes m_RecycledStat;
 
         //! A compressed dictionary.
-        TDictionary         m_Dictionary;
+        TDictionary m_Dictionary;
 
         //! Holds a unique identifier for each registered name which means
         //! we can use direct address tables and fast hash maps and
         //! sets keyed by names.
-        TWordSizeUMap       m_Uids;
+        TWordSizeUMap m_Uids;
 
         //! Holds the name of each unique identifier.
         TStoredStringPtrVec m_Names;
 
         //! A list of unique identifiers which are free to reuse.
-        TSizeVec            m_FreeUids;
+        TSizeVec m_FreeUids;
 
         //! A list of recycled unique identifiers.
-        TSizeVec            m_RecycledUids;
+        TSizeVec m_RecycledUids;
 };
 
 }

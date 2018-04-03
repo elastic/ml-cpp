@@ -41,14 +41,14 @@ namespace {
 
 const maths_t::TWeightStyleVec COUNT_WEIGHT(1, maths_t::E_SampleCountWeight);
 const maths_t::TWeightStyleVec VARIANCE_WEIGHT(1, maths_t::E_SampleCountVarianceScaleWeight);
-const TDouble10Vec4Vec         UNIT_WEIGHT_2(1, TDouble10Vec(2, 1.0));
-const TDouble10Vec4Vec1Vec     SINGLE_UNIT_WEIGHT_2(1, TDouble10Vec4Vec(1, TDouble10Vec(2, 1.0)));
+const TDouble10Vec4Vec UNIT_WEIGHT_2(1, TDouble10Vec(2, 1.0));
+const TDouble10Vec4Vec1Vec SINGLE_UNIT_WEIGHT_2(1, TDouble10Vec4Vec(1, TDouble10Vec(2, 1.0)));
 
 void empiricalProbabilityOfLessLikelySamples(const TDoubleVec &mean,
                                              const TDoubleVecVec &covariance,
                                              TDoubleVec &result) {
     test::CRandomNumbers rng;
-    TDoubleVecVec        samples;
+    TDoubleVecVec samples;
     rng.generateMultivariateNormalSamples(mean, covariance, 1000, samples);
     result.resize(samples.size());
     for (std::size_t i = 0u; i < samples.size(); ++i) {
@@ -74,8 +74,8 @@ void gaussianSamples(test::CRandomNumbers &rng,
                      const double (&means)[2],
                      const double (&covariances)[3],
                      TDouble10Vec1Vec &samples) {
-    TVector2      mean(means, means + 2);
-    TMatrix2      covariance(covariances, covariances + 3);
+    TVector2 mean(means, means + 2);
+    TMatrix2 covariance(covariances, covariances + 3);
     TDoubleVecVec samples_;
     rng.generateMultivariateNormalSamples(mean.toVector<TDoubleVec>(),
                                           covariance.toVectors<TDoubleVecVec>(),
@@ -144,7 +144,7 @@ void CMultivariateNormalConjugateTest::testMultipleUpdate(void) {
         weights.resize(samples.size(), TDouble10Vec4Vec(1, TDouble10Vec(2, 2.0)));
 
         for (std::size_t j = 0u; j < samples.size(); ++j) {
-            TDouble10Vec1Vec     sample(1, samples[j]);
+            TDouble10Vec1Vec sample(1, samples[j]);
             TDouble10Vec4Vec1Vec weight(1, weights[j]);
             filter1.addSamples(VARIANCE_WEIGHT, sample, weight);
         }
@@ -163,12 +163,12 @@ void CMultivariateNormalConjugateTest::testMultipleUpdate(void) {
             maths::CMultivariateNormalConjugate<2>::nonInformativePrior(dataTypes[i]));
         maths::CMultivariateNormalConjugate<2> filter2(filter1);
 
-        double      x = 3.0;
+        double x = 3.0;
         std::size_t count = 10;
         for (std::size_t j = 0u; j < count; ++j) {
             filter1.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, TDouble10Vec(2, x)), SINGLE_UNIT_WEIGHT_2);
         }
-        TDouble10Vec1Vec     sample(1, TDouble10Vec(2, x));
+        TDouble10Vec1Vec sample(1, TDouble10Vec(2, x));
         TDouble10Vec4Vec1Vec weight(1, TDouble10Vec4Vec(1, TDouble10Vec(2, static_cast<double>(count))));
         filter2.addSamples(COUNT_WEIGHT, sample, weight);
 
@@ -244,7 +244,7 @@ void CMultivariateNormalConjugateTest::testMeanVectorEstimation(void) {
     const double decayRates[] = { 0.0, 0.001, 0.01 };
 
     const unsigned int nt = 500u;
-    const double       testIntervals[] = { 50.0, 60.0, 70.0, 80.0, 85.0, 90.0, 95.0, 99.0 };
+    const double testIntervals[] = { 50.0, 60.0, 70.0, 80.0, 85.0, 90.0, 95.0, 99.0 };
 
     test::CRandomNumbers rng;
 
@@ -263,9 +263,9 @@ void CMultivariateNormalConjugateTest::testMeanVectorEstimation(void) {
             }
 
             // Generate the samples.
-            double        mean_[] = { 0.5 * (t + 1.0), t + 1.0 };
-            double        covariances_[] = { 40.0, 12.0, 20.0 };
-            TDoubleVec    mean(mean_, mean_ + 2);
+            double mean_[] = { 0.5 * (t + 1.0), t + 1.0 };
+            double covariances_[] = { 40.0, 12.0, 20.0 };
+            TDoubleVec mean(mean_, mean_ + 2);
             TDoubleVecVec covariances;
             covariances.push_back(TDoubleVec(covariances_,     covariances_ + 2));
             covariances.push_back(TDoubleVec(covariances_ + 1, covariances_ + 3));
@@ -312,13 +312,13 @@ void CMultivariateNormalConjugateTest::testMeanVectorEstimation(void) {
                 double interval = 100.0 * errors[k][j] / static_cast<double>(nt);
 
                 LOG_DEBUG("interval = " << interval
-                                        << ", expectedInterval = " << (100.0 - testIntervals[j]));
+                          << ", expectedInterval = " << (100.0 - testIntervals[j]));
 
                 // If the decay rate is zero the intervals should be accurate.
                 // Otherwise, they should be an upper bound.
                 if (decayRates[i] == 0.0) {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(interval, (100.0 - testIntervals[j]), 5.0);
-                } else {
+                } else   {
                     CPPUNIT_ASSERT(interval <= (100.0 - testIntervals[j]) + 4.0);
                 }
             }
@@ -341,7 +341,7 @@ void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation(void) {
     const double decayRates[] = { 0.0, 0.004, 0.04 };
 
     const unsigned int nt = 500u;
-    const double       testIntervals[] = { 50.0, 60.0, 70.0, 80.0, 85.0, 90.0, 95.0, 99.0 };
+    const double testIntervals[] = { 50.0, 60.0, 70.0, 80.0, 85.0, 90.0, 95.0, 99.0 };
 
     test::CRandomNumbers rng;
 
@@ -374,7 +374,7 @@ void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation(void) {
                 covariancesij[t],
                 covariancesii[2 * t + 1]
             };
-            TDoubleVec    mean(mean_, mean_ + 2);
+            TDoubleVec mean(mean_, mean_ + 2);
             TDoubleVecVec covariances;
             covariances.push_back(TDoubleVec(covariances_,     covariances_ + 2));
             covariances.push_back(TDoubleVec(covariances_ + 1, covariances_ + 3));
@@ -427,13 +427,13 @@ void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation(void) {
                 double interval = 100.0 * errors[k][j] / static_cast<double>(nt);
 
                 LOG_DEBUG("interval = " << interval
-                                        << ", expectedInterval = " << (100.0 - testIntervals[j]));
+                          << ", expectedInterval = " << (100.0 - testIntervals[j]));
 
                 // If the decay rate is zero the intervals should be accurate.
                 // Otherwise, they should be an upper bound.
                 if (decayRates[i] == 0.0) {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(interval, (100.0 - testIntervals[j]), 4.0);
-                } else {
+                } else   {
                     CPPUNIT_ASSERT(interval <= (100.0 - testIntervals[j]));
                 }
             }
@@ -466,7 +466,7 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihood(void) {
     rng.generateUniformSamples(-10.0,  10.0, 1 * nt, covariancesij);
 
     for (std::size_t t = 0u; t < nt; ++t) {
-        LOG_DEBUG("*** Test " << t+1 << " ***");
+        LOG_DEBUG("*** Test " << t + 1 << " ***");
 
         // Generate the samples.
         double mean_[] = { meani[2 * t], meani[2 * t + 1] };
@@ -476,7 +476,7 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihood(void) {
             covariancesij[t],
             covariancesii[2 * t + 1]
         };
-        TDoubleVec    mean(mean_, mean_ + 2);
+        TDoubleVec mean(mean_, mean_ + 2);
         TDoubleVecVec covariances;
         covariances.push_back(TDoubleVec(covariances_,     covariances_ + 2));
         covariances.push_back(TDoubleVec(covariances_ + 1, covariances_ + 3));
@@ -493,7 +493,7 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihood(void) {
             filter.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, samples[i]), SINGLE_UNIT_WEIGHT_2);
 
             if (!filter.isNonInformative()) {
-                TDouble10Vec      m = filter.marginalLikelihoodMean();
+                TDouble10Vec m = filter.marginalLikelihoodMean();
                 TDouble10Vec10Vec v = filter.marginalLikelihoodCovariance();
                 LOG_DEBUG("m = " << core::CContainerPrinter::print(m));
                 LOG_DEBUG("v = " << core::CContainerPrinter::print(v));
@@ -515,14 +515,14 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihood(void) {
                 };
 
                 TVector2 expectedMean(m.begin(), m.end());
-                double   elements[] = { v[0][0], v[0][1], v[1][1] };
+                double elements[] = { v[0][0], v[0][1], v[1][1] };
                 TMatrix2 expectedCovariance(elements, elements + 3);
 
-                CUnitKernel<2>       likelihoodKernel(filter);
-                CMeanKernel<2>       meanKernel(filter);
+                CUnitKernel<2> likelihoodKernel(filter);
+                CMeanKernel<2> meanKernel(filter);
                 CCovarianceKernel<2> covarianceKernel(filter, expectedMean);
 
-                double   z = 0.0;
+                double z = 0.0;
                 TVector2 actualMean(0.0);
                 TMatrix2 actualCovariance(0.0);
                 for (std::size_t j = 0u; j < boost::size(intervals); ++j) {
@@ -597,7 +597,7 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihoodMode(void) {
     for (std::size_t i = 0u; i < epsilons.size(); i += 2) {
         TDouble10Vec1Vec modeMinusEps(1, TDouble10Vec(2));
         TDouble10Vec1Vec modePlusEps(1, TDouble10Vec(2));
-        double           norm = 0.0;
+        double norm = 0.0;
         for (std::size_t j = 0u; j < 2; ++j) {
             double eps = epsilons[i + j];
             modeMinusEps[0][j] = mode[j] - eps;
@@ -654,7 +654,7 @@ void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood(void) {
         filter.sampleMarginalLikelihood(40, resamples);
         if (filter.numberSamples() == 0) {
             CPPUNIT_ASSERT(resamples.empty());
-        } else {
+        } else   {
             CPPUNIT_ASSERT(resamples.size() == 1);
             CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
                                  core::CContainerPrinter::print(resamples[0]));
@@ -794,7 +794,7 @@ void CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples(void) 
                             / static_cast<double>(p.size());
 
 
-                double                                lb, ub;
+                double lb, ub;
                 maths::CMultivariatePrior::TTail10Vec tail;
                 filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                                       COUNT_WEIGHT,
@@ -856,7 +856,7 @@ void CMultivariateNormalConjugateTest::testIntegerData(void) {
                                                   samples);
 
             TDoubleVecVec uniform;
-            TDoubleVec    uniform_;
+            TDoubleVec uniform_;
             rng.generateUniformSamples(0.0, 1.0, 2 * n, uniform_);
             for (std::size_t k = 0u; k < uniform_.size(); k += 2) {
                 uniform.push_back(TDoubleVec(&uniform_[k], &uniform_[k] + 2));
@@ -868,7 +868,7 @@ void CMultivariateNormalConjugateTest::testIntegerData(void) {
                 maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData));
 
             for (std::size_t k = 0u; k < n; ++k) {
-                TVector2         x(samples[k]);
+                TVector2 x(samples[k]);
                 TDouble10Vec1Vec sample(1, x.toVector<TDouble10Vec>());
                 filter1.addSamples(COUNT_WEIGHT, sample, SINGLE_UNIT_WEIGHT_2);
                 sample[0] = (x + TVector2(uniform[k])).toVector<TDouble10Vec>();
@@ -886,7 +886,7 @@ void CMultivariateNormalConjugateTest::testIntegerData(void) {
                 TVector2 x(samples[k]);
 
                 TDouble10Vec1Vec sample(1, x.toVector<TDouble10Vec>());
-                double           ll1;
+                double ll1;
                 filter1.jointLogMarginalLikelihood(COUNT_WEIGHT, sample, SINGLE_UNIT_WEIGHT_2, ll1);
                 meanLogLikelihood1.add(-ll1);
 
@@ -897,7 +897,7 @@ void CMultivariateNormalConjugateTest::testIntegerData(void) {
             }
 
             LOG_DEBUG("meanLogLikelihood1 = " << maths::CBasicStatistics::mean(meanLogLikelihood1)
-                                              << ", meanLogLikelihood2 = " << maths::CBasicStatistics::mean(meanLogLikelihood2));
+                      << ", meanLogLikelihood2 = " << maths::CBasicStatistics::mean(meanLogLikelihood2));
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(meanLogLikelihood1),
                                          maths::CBasicStatistics::mean(meanLogLikelihood2),
@@ -965,7 +965,7 @@ void CMultivariateNormalConjugateTest::testPersist(void) {
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         origFilter.addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, samples[i]), SINGLE_UNIT_WEIGHT_2);
     }
-    double   decayRate = origFilter.decayRate();
+    double decayRate = origFilter.decayRate();
     uint64_t checksum = origFilter.checksum();
 
     std::string origXml;
@@ -989,7 +989,7 @@ void CMultivariateNormalConjugateTest::testPersist(void) {
     maths::CMultivariateNormalConjugate<2> restoredFilter(params, traverser);
 
     LOG_DEBUG("orig checksum = " << checksum
-                                 << " restored checksum = " << restoredFilter.checksum());
+              << " restored checksum = " << restoredFilter.checksum());
     CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
 
     // The XML representation of the new filter should be the same as the original
@@ -1010,22 +1010,22 @@ void CMultivariateNormalConjugateTest::calibrationExperiment(void) {
     typedef maths::CVectorNx1<double, 10>          TVector10;
     typedef maths::CSymmetricMatrixNxN<double, 10> TMatrix10;
 
-    double    means[] = { 10.0, 10.0, 20.0, 20.0, 30.0, 20.0, 10.0, 40.0, 30.0, 20.0 };
-    double    covariances[] = { 10.0,
-                                9.0, 10.0,
-                                -5.0,  1.0, 6.0,
-                                -8.0,  9.0, 4.0, 20.0,
-                                8.0,  3.0, 1.0, 12.0, 12.0,
-                                -4.0,  2.0, 1.0,  1.0,  4.0, 4.0,
-                                5.0,  1.0, 3.0,  8.0, 10.0, 3.0, 10.0,
-                                9.0,  9.0, 5.0, 19.0, 11.0, 3.0,  9.0, 25.0,
-                                5.0,  0.0, 0.0,  0.0,  0.0, 0.0,  0.0,  0.0, 20.0,
-                                1.0,  1.0, 1.0,  1.0,  1.0, 1.0,  1.0,  1.0,  1.0, 1.0 };
+    double means[] = { 10.0, 10.0, 20.0, 20.0, 30.0, 20.0, 10.0, 40.0, 30.0, 20.0 };
+    double covariances[] = { 10.0,
+                             9.0, 10.0,
+                             -5.0,  1.0, 6.0,
+                             -8.0,  9.0, 4.0, 20.0,
+                             8.0,  3.0, 1.0, 12.0, 12.0,
+                             -4.0,  2.0, 1.0,  1.0,  4.0, 4.0,
+                             5.0,  1.0, 3.0,  8.0, 10.0, 3.0, 10.0,
+                             9.0,  9.0, 5.0, 19.0, 11.0, 3.0,  9.0, 25.0,
+                             5.0,  0.0, 0.0,  0.0,  0.0, 0.0,  0.0,  0.0, 20.0,
+                             1.0,  1.0, 1.0,  1.0,  1.0, 1.0,  1.0,  1.0,  1.0, 1.0 };
     TVector10 mean(means, means + boost::size(means));
     TMatrix10 covariance(covariances, covariances + boost::size(covariances));
 
     test::CRandomNumbers rng;
-    TDoubleVecVec        samples_;
+    TDoubleVecVec samples_;
     rng.generateMultivariateNormalSamples(mean.toVector<TDoubleVec>(),
                                           covariance.toVectors<TDoubleVecVec>(),
                                           2000,
@@ -1072,16 +1072,16 @@ void CMultivariateNormalConjugateTest::calibrationExperiment(void) {
     }
 
     TDoubleVecVec p(boost::size(filters));
-    TDoubleVec    mp;
-    TDoubleVec    ep;
+    TDoubleVec mp;
+    TDoubleVec ep;
     for (std::size_t i = 200u; i < 2000; ++i) {
-        double                             mpi = 1.0;
+        double mpi = 1.0;
         maths::CProbabilityOfExtremeSample epi;
         for (std::size_t j = 0u; j < boost::size(filters); ++j) {
             TDouble10Vec1Vec sample(1, TDouble10Vec(2));
             sample[0][0] = samples[i][indices[j][0]];
             sample[0][1] = samples[i][indices[j][1]];
-            double                                lb, ub;
+            double lb, ub;
             maths::CMultivariatePrior::TTail10Vec tail;
             filters[j].probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                                       COUNT_WEIGHT,
@@ -1108,14 +1108,14 @@ void CMultivariateNormalConjugateTest::calibrationExperiment(void) {
     for (std::size_t i = 0u; i < boost::size(test); ++i) {
         for (std::size_t j = 0u; j < p.size(); ++j) {
             LOG_DEBUG(j << ") " << test[i] << " "
-                        <<  static_cast<double>(std::lower_bound(p[j].begin(), p[j].end(), test[i]) - p[j].begin())
+                      <<  static_cast<double>(std::lower_bound(p[j].begin(), p[j].end(), test[i]) - p[j].begin())
                       / static_cast<double>(p[j].size()));
         }
         LOG_DEBUG("min " << test[i] << " "
-                         <<  static_cast<double>(std::lower_bound(mp.begin(), mp.end(), test[i]) - mp.begin())
+                  <<  static_cast<double>(std::lower_bound(mp.begin(), mp.end(), test[i]) - mp.begin())
                   / static_cast<double>(mp.size()));
         LOG_DEBUG("corrected min " << test[i] << " "
-                                   <<  static_cast<double>(std::lower_bound(ep.begin(), ep.end(), test[i]) - ep.begin())
+                  <<  static_cast<double>(std::lower_bound(ep.begin(), ep.end(), test[i]) - ep.begin())
                   / static_cast<double>(ep.size()));
     }
 }
@@ -1172,8 +1172,8 @@ void CMultivariateNormalConjugateTest::dataGenerator(void) {
     core_t::TTime time = 1451606400;
     for (std::size_t i = 0u; i < 10000; ++i, time += 30) {
         for (std::size_t j = 0u; j < boost::size(samples); ++j) {
-            f << time << ",x" << 2*j   << "," << samples[j][i][0] << "\n";
-            f << time << ",x" << 2*j+1 << "," << samples[j][i][1] << "\n";
+            f << time << ",x" << 2 * j   << "," << samples[j][i][0] << "\n";
+            f << time << ",x" << 2 * j + 1 << "," << samples[j][i][1] << "\n";
         }
     }
     f.close();

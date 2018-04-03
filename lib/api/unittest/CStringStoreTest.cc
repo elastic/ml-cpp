@@ -36,7 +36,7 @@ using namespace ml;
 
 namespace {
 size_t countBuckets(const std::string &key, const std::string &output) {
-    size_t              count = 0;
+    size_t count = 0;
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(output);
     CPPUNIT_ASSERT(!doc.HasParseError());
@@ -69,7 +69,7 @@ core_t::TTime playData(core_t::TTime start, core_t::TTime span, int numBuckets,
     std::stringstream ss;
     ss << "time,notes,composer,instrument\n";
     core_t::TTime t;
-    int           bucketNum = 0;
+    int bucketNum = 0;
     for (t = start; t < start + span * numBuckets; t += span, bucketNum++) {
         for (int i = 0; i < numPeople; i++) {
             for (int j = 0; j < numPartitions; j++) {
@@ -125,7 +125,7 @@ void CStringStoreTest::testPersonStringPruning(void) {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
 
-    api::CFieldConfig          fieldConfig;
+    api::CFieldConfig fieldConfig;
     api::CFieldConfig::TStrVec clause;
     clause.push_back("max(notes)");
     clause.push_back("by");
@@ -142,7 +142,7 @@ void CStringStoreTest::testPersonStringPruning(void) {
     model::CLimits limits;
 
     CMockDataAdder adder;
-    CMockSearcher  searcher(adder);
+    CMockSearcher searcher(adder);
 
     LOG_DEBUG("Setting up job");
     // Test that the stringstore entries are pruned correctly on persist/restore
@@ -155,7 +155,7 @@ void CStringStoreTest::testPersonStringPruning(void) {
 
         LOG_TRACE("Setting up job");
 
-        std::ostringstream                 outputStrm;
+        std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job",
@@ -204,14 +204,14 @@ void CStringStoreTest::testPersonStringPruning(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
-        std::ostringstream                 outputStrm;
+        std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
-        api::CAnomalyJob                   job("job",
-                                               limits,
-                                               fieldConfig,
-                                               modelConfig,
-                                               wrappedOutputStream,
-                                               api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job",
+                             limits,
+                             fieldConfig,
+                             modelConfig,
+                             wrappedOutputStream,
+                             api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -247,14 +247,14 @@ void CStringStoreTest::testPersonStringPruning(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
-        std::ostringstream                 outputStrm;
+        std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
-        api::CAnomalyJob                   job("job",
-                                               limits,
-                                               fieldConfig,
-                                               modelConfig,
-                                               wrappedOutputStream,
-                                               api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job",
+                             limits,
+                             fieldConfig,
+                             modelConfig,
+                             wrappedOutputStream,
+                             api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -291,14 +291,14 @@ void CStringStoreTest::testPersonStringPruning(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
-        std::ostringstream                 outputStrm;
+        std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
-        api::CAnomalyJob                   job("job",
-                                               limits,
-                                               fieldConfig,
-                                               modelConfig,
-                                               wrappedOutputStream,
-                                               api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job",
+                             limits,
+                             fieldConfig,
+                             modelConfig,
+                             wrappedOutputStream,
+                             api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -326,7 +326,7 @@ void CStringStoreTest::testAttributeStringPruning(void) {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
 
-    api::CFieldConfig          fieldConfig;
+    api::CFieldConfig fieldConfig;
     api::CFieldConfig::TStrVec clause;
     clause.push_back("dc(notes)");
     clause.push_back("over");
@@ -343,7 +343,7 @@ void CStringStoreTest::testAttributeStringPruning(void) {
     model::CLimits limits;
 
     CMockDataAdder adder;
-    CMockSearcher  searcher(adder);
+    CMockSearcher searcher(adder);
 
     LOG_DEBUG("Setting up job");
     // Test that the stringstore entries are pruned correctly on persist/restore
@@ -355,7 +355,7 @@ void CStringStoreTest::testAttributeStringPruning(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
         LOG_TRACE("Setting up job");
-        std::ostringstream                 outputStrm;
+        std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job",
@@ -403,7 +403,7 @@ void CStringStoreTest::testAttributeStringPruning(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
-        std::ostringstream                 outputStrm;
+        std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job",
@@ -447,7 +447,7 @@ void CStringStoreTest::testAttributeStringPruning(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
-        std::ostringstream                 outputStrm;
+        std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job",
@@ -492,7 +492,7 @@ void CStringStoreTest::testAttributeStringPruning(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
-        std::ostringstream                 outputStrm;
+        std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job",
@@ -529,7 +529,7 @@ void CStringStoreTest::testInfluencerStringPruning(void) {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
 
-    api::CFieldConfig          fieldConfig;
+    api::CFieldConfig fieldConfig;
     api::CFieldConfig::TStrVec clause;
     clause.push_back("max(notes)");
     clause.push_back("influencerfield=instrument");
@@ -544,7 +544,7 @@ void CStringStoreTest::testInfluencerStringPruning(void) {
     model::CLimits limits;
 
     CMockDataAdder adder;
-    CMockSearcher  searcher(adder);
+    CMockSearcher searcher(adder);
 
     LOG_DEBUG("Setting up job");
     // Test that the stringstore entries are pruned correctly on persist/restore
@@ -556,7 +556,7 @@ void CStringStoreTest::testInfluencerStringPruning(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
         LOG_TRACE("Setting up job");
-        std::ostringstream                 outputStrm;
+        std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job",

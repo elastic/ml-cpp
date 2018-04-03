@@ -17,7 +17,8 @@
 namespace ml {
 namespace core {
 
-CStat::CStat(void) : m_Value(uint64_t(0)) {}
+CStat::CStat(void) : m_Value(uint64_t(0))
+{}
 
 void CStat::increment(void) {
     m_Value.fetch_add(1);

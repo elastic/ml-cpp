@@ -98,7 +98,7 @@ struct SInfluencerSumSerializer {
             const std::string &name = traverser.name();
             if (name == SUM_MAP_KEY_TAG) {
                 key = traverser.value();
-            } else if (name == SUM_MAP_VALUE_TAG) {
+            } else if (name == SUM_MAP_VALUE_TAG)   {
                 if (core::CStringUtils::stringToType(traverser.value(),
                                                      map[CStringStore::influencers().get(key)]) == false) {
                     LOG_ERROR("Invalid sum in " << traverser.value());
@@ -112,7 +112,8 @@ struct SInfluencerSumSerializer {
 
 } // unnamed::
 
-CGathererTools::CArrivalTimeGatherer::CArrivalTimeGatherer(void) : m_LastTime(FIRST_TIME) {}
+CGathererTools::CArrivalTimeGatherer::CArrivalTimeGatherer(void) : m_LastTime(FIRST_TIME)
+{}
 
 CGathererTools::TOptionalDouble CGathererTools::CArrivalTimeGatherer::featureData(void) const
 {
@@ -156,7 +157,7 @@ std::string CGathererTools::CArrivalTimeGatherer::print(void) const
     std::ostringstream o;
     if (maths::CBasicStatistics::count(m_Value) > 0.0) {
         o << maths::CBasicStatistics::mean(m_Value);
-    } else {
+    } else   {
         o << "-";
     }
     o << " (" << m_LastTime << ")";
@@ -177,7 +178,8 @@ CGathererTools::CSumGatherer::CSumGatherer(const SModelParams &params,
                            TStoredStringPtrDoubleUMapQueue(params.s_LatencyBuckets + 3,
                                                            bucketLength,
                                                            startTime,
-                                                           TStoredStringPtrDoubleUMap(1))) {}
+                                                           TStoredStringPtrDoubleUMap(1)))
+{}
 
 std::size_t CGathererTools::CSumGatherer::dimension(void) const
 {
@@ -274,7 +276,7 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
                 LOG_ERROR("Invalid classifier in " << traverser.value());
                 continue;
             }
-        } else if (name == BUCKET_SUM_QUEUE_TAG) {
+        } else if (name == BUCKET_SUM_QUEUE_TAG)   {
             if (traverser.traverseSubLevel(
                     boost::bind<bool>(TSampleVecQueue::CSerializer<SSumSerializer>(),
                                       boost::ref(m_BucketSums),
@@ -282,7 +284,7 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
                 LOG_ERROR("Invalid bucket queue in " << traverser.value());
                 return false;
             }
-        } else if (name == INFLUENCER_BUCKET_SUM_QUEUE_TAG) {
+        } else if (name == INFLUENCER_BUCKET_SUM_QUEUE_TAG)   {
             if (   i < m_InfluencerBucketSums.size() &&
                    traverser.traverseSubLevel(
                        boost::bind<bool>(TStoredStringPtrDoubleUMapQueue::CSerializer<SInfluencerSumSerializer>(TStoredStringPtrDoubleUMap(1)),
@@ -322,8 +324,8 @@ std::string CGathererTools::CSumGatherer::print(void) const
 {
     std::ostringstream result;
     result << m_Classifier.isInteger()
-           << ' ' << m_BucketSums.print()
-           << ' ' << core::CContainerPrinter::print(m_InfluencerBucketSums);
+    << ' ' << m_BucketSums.print()
+    << ' ' << core::CContainerPrinter::print(m_InfluencerBucketSums);
     return result.str();
 }
 

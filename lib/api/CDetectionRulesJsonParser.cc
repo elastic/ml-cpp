@@ -49,7 +49,8 @@ const std::string FILTER_ID("filter_id");
 }
 
 CDetectionRulesJsonParser::CDetectionRulesJsonParser(TStrPatternSetUMap &filtersByIdMap)
-    : m_FiltersByIdMap(filtersByIdMap) {}
+    : m_FiltersByIdMap(filtersByIdMap)
+{}
 
 bool CDetectionRulesJsonParser::parseRules(const std::string &json, TDetectionRuleVec &rules) {
     LOG_DEBUG("Parsing detection rules");
@@ -138,12 +139,12 @@ bool CDetectionRulesJsonParser::parseRuleActions(const rapidjson::Value &ruleObj
     int action = 0;
     for (unsigned int i = 0; i < array.Size(); ++i) {
         model::CRuleCondition ruleCondition;
-        const std::string     &   parsedAction = array[i].GetString();
+        const std::string &parsedAction = array[i].GetString();
         if (parsedAction == FILTER_RESULTS) {
             action |= model::CDetectionRule::E_FilterResults;
-        } else if (parsedAction == SKIP_SAMPLING) {
+        } else if (parsedAction == SKIP_SAMPLING)   {
             action |= model::CDetectionRule::E_SkipSampling;
-        } else {
+        } else   {
             LOG_ERROR("Invalid rule action: " << parsedAction);
             return false;
         }
@@ -163,9 +164,9 @@ bool CDetectionRulesJsonParser::parseConditionsConnective(const rapidjson::Value
     const std::string &connective = ruleObject[CONDITIONS_CONNECTIVE.c_str()].GetString();
     if (connective == OR) {
         rule.conditionsConnective(model::CDetectionRule::E_Or);
-    } else if (connective == AND) {
+    } else if (connective == AND)   {
         rule.conditionsConnective(model::CDetectionRule::E_And);
-    } else {
+    } else   {
         LOG_ERROR("Invalid conditionsConnective: " << connective);
         return false;
     }
@@ -186,7 +187,7 @@ bool CDetectionRulesJsonParser::parseRuleConditions(const rapidjson::Value &rule
     }
 
     for (unsigned int i = 0; i < array.Size(); ++i) {
-        model::CRuleCondition  condition;
+        model::CRuleCondition condition;
         const rapidjson::Value &conditionObject = array[i];
 
         if (!conditionObject.IsObject()) {
@@ -200,7 +201,7 @@ bool CDetectionRulesJsonParser::parseRuleConditions(const rapidjson::Value &rule
         isValid &= parseRuleConditionType(conditionObject, condition);
         if (condition.isNumerical()) {
             isValid &= parseCondition(conditionObject, condition);
-        } else if (condition.isCategorical()) {
+        } else if (condition.isCategorical())   {
             isValid &= this->parseFilterId(conditionObject, condition);
         }
 
@@ -228,7 +229,7 @@ bool CDetectionRulesJsonParser::parseFilterId(const rapidjson::Value &conditionO
         return false;
     }
     const std::string &filterId = conditionObject[FILTER_ID.c_str()].GetString();
-    auto              filterEntry = m_FiltersByIdMap.find(filterId);
+    auto filterEntry = m_FiltersByIdMap.find(filterId);
     if (filterEntry == m_FiltersByIdMap.end()) {
         LOG_ERROR("Filter with id [" << filterId << "] could not be found");
         return false;
@@ -247,15 +248,15 @@ bool CDetectionRulesJsonParser::parseRuleConditionType(const rapidjson::Value &r
     const std::string &type = ruleConditionObject[TYPE.c_str()].GetString();
     if (type == CATEGORICAL) {
         ruleCondition.type(model::CRuleCondition::E_Categorical);
-    } else if (type == NUMERICAL_ACTUAL) {
+    } else if (type == NUMERICAL_ACTUAL)   {
         ruleCondition.type(model::CRuleCondition::E_NumericalActual);
-    } else if (type == NUMERICAL_TYPICAL) {
+    } else if (type == NUMERICAL_TYPICAL)   {
         ruleCondition.type(model::CRuleCondition::E_NumericalTypical);
-    } else if (type == NUMERICAL_DIFF_ABS) {
+    } else if (type == NUMERICAL_DIFF_ABS)   {
         ruleCondition.type(model::CRuleCondition::E_NumericalDiffAbs);
-    } else if (type == TIME) {
+    } else if (type == TIME)   {
         ruleCondition.type(model::CRuleCondition::E_Time);
-    } else {
+    } else   {
         LOG_ERROR("Invalid conditionType: " << type);
         return false;
     }
@@ -288,13 +289,13 @@ bool CDetectionRulesJsonParser::parseConditionOperator(const rapidjson::Value &c
     const std::string &operatorString = conditionObject[OPERATOR.c_str()].GetString();
     if (operatorString == LT) {
         ruleCondition.condition().s_Op = model::CRuleCondition::E_LT;
-    } else if (operatorString == LTE) {
+    } else if (operatorString == LTE)   {
         ruleCondition.condition().s_Op = model::CRuleCondition::E_LTE;
-    } else if (operatorString == GT) {
+    } else if (operatorString == GT)   {
         ruleCondition.condition().s_Op = model::CRuleCondition::E_GT;
-    } else if (operatorString == GTE) {
+    } else if (operatorString == GTE)   {
         ruleCondition.condition().s_Op = model::CRuleCondition::E_GTE;
-    } else {
+    } else   {
         LOG_ERROR("Invalid operator value: " << operatorString);
         return false;
     }

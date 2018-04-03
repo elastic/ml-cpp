@@ -320,7 +320,7 @@ class MATHS_EXPORT CIntegration {
                  !intervals.empty() && i < refinements;
                  ++i) {
                 std::size_t n = intervals.size();
-                double      cutoff = tolerance * ::fabs(result) / static_cast<double>(n);
+                double cutoff = tolerance * ::fabs(result) / static_cast<double>(n);
 
                 std::size_t end = 0u;
                 for (std::size_t j = 0u; j < corrections.size(); ++j) {
@@ -364,12 +364,12 @@ class MATHS_EXPORT CIntegration {
                                 if (k == 0) {
                                     intervals[j]  = TDoubleDoublePr(aj, aj + dj);
                                     fIntervals[j] = df;
-                                } else {
+                                } else   {
                                     intervals.push_back(TDoubleDoublePr(aj, aj + dj));
                                     fIntervals.push_back(df);
                                 }
                             }
-                        } else {
+                        } else   {
                             LOG_ERROR("Couldn't integrate f over ["
                                       << aj << "," << aj + dj << "]");
                             return false;
@@ -459,12 +459,12 @@ class MATHS_EXPORT CIntegration {
                     for (;;) {
                         ++indices[d];
                         if (indices[d] > stop[d]) {
-                            if (d == DIMENSION-1) {
+                            if (d == DIMENSION - 1) {
                                 break;
                             }
                             indices[d] = 1;
                             ++d;
-                        } else {
+                        } else   {
                             for (std::size_t j = 0; j < d; ++j) {
                                 stop[j] = stop[d] - indices[d] + 1;
                             }
@@ -492,7 +492,7 @@ class MATHS_EXPORT CIntegration {
                     for (unsigned int l = ORDER > DIMENSION ? ORDER - DIMENSION : 0; l < ORDER; ++l) {
                         LOG_TRACE("order = " << l);
                         std::size_t d = 0u;
-                        TUIntVec    indices(DIMENSION, 1);
+                        TUIntVec indices(DIMENSION, 1);
                         indices[0] = l + 1;
                         TUIntVec stop(DIMENSION, l + 1);
 
@@ -516,10 +516,10 @@ class MATHS_EXPORT CIntegration {
                                 for (unsigned int i_ = i, j = 0u;
                                      j < indices.size();
                                      i_ /= indices[j], ++j) {
-                                    EOrder       order = static_cast<EOrder>(indices[j]);
+                                    EOrder order = static_cast<EOrder>(indices[j]);
                                     const double *w = CGaussLegendreQuadrature::weights(order);
                                     const double *a = CGaussLegendreQuadrature::abscissas(order);
-                                    std::size_t  k = i_ % indices[j];
+                                    std::size_t k = i_ % indices[j];
                                     weights[i]  *= w[k];
                                     points[i](j) = a[k];
                                 }
@@ -542,8 +542,8 @@ class MATHS_EXPORT CIntegration {
 
                 static std::atomic<const CSparseGaussLegendreQuadrature *> ms_Instance;
 
-                TDoubleVec                                                 m_Weights;
-                TVectorVec                                                 m_Points;
+                TDoubleVec m_Weights;
+                TVectorVec m_Points;
         };
 
         //! Sparse grid Gauss-Legendre quadrature.

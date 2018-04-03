@@ -47,7 +47,7 @@ std::string CSample::SToString::operator()(const CSample &sample) const {
 
 bool CSample::SFromString::operator()(const std::string &token, CSample &value) const {
     core::CStringUtils::TStrVec tokens;
-    std::string                 remainder;
+    std::string remainder;
     core::CStringUtils::tokenise(std::string(1, core::CPersistUtils::PAIR_DELIMITER),
                                  token,
                                  tokens,
@@ -77,7 +77,8 @@ CSample::CSample(void) :
     m_Time(0),
     m_Value(),
     m_VarianceScale(0.0),
-    m_Count(0) {}
+    m_Count(0)
+{}
 
 CSample::CSample(core_t::TTime time,
                  const TDouble1Vec &value,
@@ -86,12 +87,13 @@ CSample::CSample(core_t::TTime time,
     m_Time(time),
     m_Value(value),
     m_VarianceScale(varianceScale),
-    m_Count(count) {}
+    m_Count(count)
+{}
 
 CSample::TDouble1Vec CSample::value(std::size_t dimension) const {
     typedef std::vector<std::size_t> TSizeVec;
 
-    TDouble1Vec    result;
+    TDouble1Vec result;
     const TSizeVec &indices = CFeatureDataIndexing::valueIndices(dimension);
     result.reserve(indices.size());
     for (std::size_t i = 0u; i < indices.size(); ++i) {
@@ -110,9 +112,9 @@ uint64_t CSample::checksum(void) const {
 std::string CSample::print(void) const {
     std::ostringstream result;
     result << '(' << m_Time
-           << ' ' << core::CContainerPrinter::print(m_Value)
-           << ' ' << m_VarianceScale
-           << ' ' << m_Count << ')';
+    << ' ' << core::CContainerPrinter::print(m_Value)
+    << ' ' << m_VarianceScale
+    << ' ' << m_Count << ')';
     return result.str();
 }
 

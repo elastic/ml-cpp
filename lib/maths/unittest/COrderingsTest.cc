@@ -115,10 +115,10 @@ void COrderingsTest::testPtrOrdering(void) {
     LOG_DEBUG("+-----------------------------------+");
 
     const double *null = 0;
-    double       one_(1.0);
-    double       two_(2.0);
-    double       hundred_(100.0);
-    double       big_(std::numeric_limits<double>::max());
+    double one_(1.0);
+    double two_(2.0);
+    double hundred_(100.0);
+    double big_(std::numeric_limits<double>::max());
     const double *one(&one_);
     const double *two(&two_);
     const double *hundred(&hundred_);
@@ -172,10 +172,10 @@ void COrderingsTest::testLess(void) {
     }
     {
         const double *null = 0;
-        double       one_(1.0);
-        double       two_(2.0);
-        double       hundred_(100.0);
-        double       big_(std::numeric_limits<double>::max());
+        double one_(1.0);
+        double two_(2.0);
+        double hundred_(100.0);
+        double big_(std::numeric_limits<double>::max());
         const double *one(&one_);
         const double *two(&two_);
         const double *hundred(&hundred_);
@@ -387,8 +387,8 @@ void COrderingsTest::testDereference(void) {
     using TDoubleVecCItr = std::vector<double>::const_iterator;
     using TDoubleVecCItrVec = std::vector<TDoubleVecCItr>;
 
-    double            values_[] = { 10.0, 1.0, 5.0, 3.0, 1.0 };
-    TDoubleVec        values(boost::begin(values_), boost::end(values_));
+    double values_[] = { 10.0, 1.0, 5.0, 3.0, 1.0 };
+    TDoubleVec values(boost::begin(values_), boost::end(values_));
     TDoubleVecCItrVec iterators;
     for (TDoubleVecCItr i = values.begin(); i != values.end(); ++i) {
         iterators.push_back(i);
@@ -423,8 +423,8 @@ void COrderingsTest::testLexicographicalCompare(void) {
     TDoubleDoublePr p2(1.2, 1.5);
 
     TDoubleVec v1, v2;
-    double     a1[] = { 1.2, 1.3, 2.1 };
-    double     a2[] = { 1.2, 2.2, 2.0 };
+    double a1[] = { 1.2, 1.3, 2.1 };
+    double a2[] = { 1.2, 2.2, 2.0 };
     v1.assign(boost::begin(a1), boost::end(a1));
     v2.assign(boost::begin(a2), boost::end(a2));
 
@@ -530,12 +530,12 @@ void COrderingsTest::testSimultaneousSort(void) {
 
     {
         TDoubleVec keys{ 0.0, 1.0, 0.2, 1.1, 0.7, 5.0 };
-        TStrVec    values{std::string(1, 'c'),
-                          std::string(1, 'q'),
-                          std::string(1, '!'),
-                          std::string(1, 'a'),
-                          std::string(1, 'z'),
-                          std::string(1, 'p')};
+        TStrVec values{std::string(1, 'c'),
+                       std::string(1, 'q'),
+                       std::string(1, '!'),
+                       std::string(1, 'a'),
+                       std::string(1, 'z'),
+                       std::string(1, 'p')};
 
         std::string expectedKeys("[0, 0.2, 0.7, 1, 1.1, 5]");
         std::string expectedValues("[c, !, z, q, a, p]");
@@ -552,12 +552,12 @@ void COrderingsTest::testSimultaneousSort(void) {
     }
     {
         TDouble1Vec keys{ 7.0, 1.0, 0.2, 1.1, 0.7, 5.0 };
-        TStrVec     values1{std::string(1, 'w'),
-                            std::string(1, 'q'),
-                            std::string(1, '~'),
-                            std::string(1, 'e'),
-                            std::string(1, ';'),
-                            std::string(1, 'y')};
+        TStrVec values1{std::string(1, 'w'),
+                        std::string(1, 'q'),
+                        std::string(1, '~'),
+                        std::string(1, 'e'),
+                        std::string(1, ';'),
+                        std::string(1, 'y')};
         TDoubleDoublePrVec values2{{2.0, 1.0},
                                    {2.1, 1.1},
                                    {1.3, 1.9},
@@ -580,14 +580,14 @@ void COrderingsTest::testSimultaneousSort(void) {
     test::CRandomNumbers rng;
     {
         TDoubleVec keys{ 7.1, 0.1, 0.9, 1.4, 0.7, 5.1, 80.0, 4.0 };
-        TStrVec    values1{std::string("a1"),
-                           std::string("23"),
-                           std::string("~1"),
-                           std::string("b4"),
-                           std::string(";;"),
-                           std::string("zz"),
-                           std::string("sss"),
-                           std::string("pq")};
+        TStrVec values1{std::string("a1"),
+                        std::string("23"),
+                        std::string("~1"),
+                        std::string("b4"),
+                        std::string(";;"),
+                        std::string("zz"),
+                        std::string("sss"),
+                        std::string("pq")};
         TDoubleDoublePrVec values2{{1.0, 1.0},
                                    {4.1, 1.1},
                                    {5.3, 3.9},
@@ -633,10 +633,10 @@ void COrderingsTest::testSimultaneousSort(void) {
         }
     }
     {
-        TDoubleVec      values1{ 5.0, 4.0, 3.0, 2.0, 1.0 };
-        TDoubleVec      values2{ 1.0, 3.0, 2.0, 5.0, 4.0 };
-        TDoubleVec      values3{ 4.0, 2.0, 3.0, 3.0, 5.0 };
-        TDoubleVec      values4{ 2.0, 1.0, 5.0, 4.0, 1.0 };
+        TDoubleVec values1{ 5.0, 4.0, 3.0, 2.0, 1.0 };
+        TDoubleVec values2{ 1.0, 3.0, 2.0, 5.0, 4.0 };
+        TDoubleVec values3{ 4.0, 2.0, 3.0, 3.0, 5.0 };
+        TDoubleVec values4{ 2.0, 1.0, 5.0, 4.0, 1.0 };
         TDoubleRangeVec range1{values1, 1, 4};
         TDoubleRangeVec range2{values2, 1, 4};
         TDoubleRangeVec range3{values3, 1, 4};

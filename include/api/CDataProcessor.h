@@ -50,7 +50,7 @@ class COutputHandler;
 //!
 class API_EXPORT CDataProcessor : private core::CNonCopyable {
     public:
-        static const char        CONTROL_FIELD_NAME_CHAR = '.';
+        static const char CONTROL_FIELD_NAME_CHAR = '.';
         static const std::string CONTROL_FIELD_NAME;
 
     public:

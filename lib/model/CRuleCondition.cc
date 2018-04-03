@@ -27,14 +27,15 @@ namespace model {
 
 namespace {
 const CAnomalyDetectorModel::TSizeDoublePr1Vec EMPTY_CORRELATED;
-const core::CPatternSet                        EMPTY_FILTER;
+const core::CPatternSet EMPTY_FILTER;
 }
 
 using TDouble1Vec = CAnomalyDetectorModel::TDouble1Vec;
 
 CRuleCondition::SCondition::SCondition(EConditionOperator op, double threshold)
     : s_Op(op),
-      s_Threshold(threshold) {}
+      s_Threshold(threshold)
+{}
 
 bool CRuleCondition::SCondition::test(double value) const
 {
@@ -56,7 +57,8 @@ CRuleCondition::CRuleCondition(void)
       m_Condition(E_LT, 0.0),
       m_FieldName(),
       m_FieldValue(),
-      m_ValueFilter(EMPTY_FILTER) {}
+      m_ValueFilter(EMPTY_FILTER)
+{}
 
 void CRuleCondition::type(ERuleConditionType ruleType) {
     m_Type = ruleType;
@@ -98,15 +100,15 @@ bool CRuleCondition::test(const CAnomalyDetectorModel &model,
     if (this->isCategorical()) {
         if (m_FieldName == gatherer.partitionFieldName()) {
             return m_ValueFilter.get().contains(gatherer.partitionFieldValue());
-        } else if (m_FieldName == gatherer.personFieldName()) {
+        } else if (m_FieldName == gatherer.personFieldName())   {
             return m_ValueFilter.get().contains(gatherer.personName(pid));
-        } else if (m_FieldName == gatherer.attributeFieldName()) {
+        } else if (m_FieldName == gatherer.attributeFieldName())   {
             return m_ValueFilter.get().contains(gatherer.attributeName(cid));
-        } else {
+        } else   {
             LOG_ERROR("Unexpected fieldName = " << m_FieldName);
             return false;
         }
-    } else {
+    } else   {
         if (m_FieldValue.empty() == false) {
             if (isScoped) {
                 // When scoped we are checking if the rule condition applies to the entity
@@ -119,7 +121,7 @@ bool CRuleCondition::test(const CAnomalyDetectorModel &model,
                 if (successfullyResolvedId == false) {
                     return false;
                 }
-            } else {
+            } else   {
                 // For numerical rules the field name may be:
                 //   - empty
                 //   - the person field name if the detector has only an over field or only a by field
@@ -206,7 +208,7 @@ std::string CRuleCondition::print(void) const {
     result += " ";
     if (this->isCategorical()) {
         result += "IN FILTER";
-    } else {
+    } else   {
         result += this->print(m_Condition.s_Op) + " "
                   + core::CStringUtils::typeToString(m_Condition.s_Threshold);
     }

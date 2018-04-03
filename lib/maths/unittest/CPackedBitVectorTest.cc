@@ -98,7 +98,7 @@ void CPackedBitVectorTest::testCreation(void) {
         true,
         true
     };
-    TBoolVec                bits1(boost::begin(bits1_), boost::end(bits1_));
+    TBoolVec bits1(boost::begin(bits1_), boost::end(bits1_));
     maths::CPackedBitVector test7(bits1);
     LOG_DEBUG("test7 = " << test7);
     CPPUNIT_ASSERT_EQUAL(bits1.size(), test7.dimension());
@@ -109,7 +109,7 @@ void CPackedBitVectorTest::testCreation(void) {
     {
         true, false, false, true, true, false, false, false, false, true, true, true, true, false
     };
-    TBoolVec                bits2(boost::begin(bits2_), boost::end(bits2_));
+    TBoolVec bits2(boost::begin(bits2_), boost::end(bits2_));
     maths::CPackedBitVector test8(bits2);
     LOG_DEBUG("test8 = " << test8);
     CPPUNIT_ASSERT_EQUAL(bits2.size(), test8.dimension());
@@ -121,7 +121,7 @@ void CPackedBitVectorTest::testCreation(void) {
     TSizeVec components;
     for (std::size_t t = 0u; t < 100; ++t) {
         rng.generateUniformSamples(0, 2, 30, components);
-        TBoolVec                bits3(components.begin(), components.end());
+        TBoolVec bits3(components.begin(), components.end());
         maths::CPackedBitVector test9(bits3);
         if ((t + 1) % 10 == 0) {
             LOG_DEBUG("test9 = " << test9);
@@ -189,7 +189,7 @@ void CPackedBitVectorTest::testExtend(void) {
     TSizeVec components;
     rng.generateUniformSamples(0, 2, 1012, components);
 
-    TBoolVec                bits2;
+    TBoolVec bits2;
     maths::CPackedBitVector test4;
 
     for (std::size_t i = 0u; i < components.size(); ++i) {
@@ -282,7 +282,7 @@ void CPackedBitVectorTest::testInner(void) {
 
     maths::CPackedBitVector test1(10, true);
     maths::CPackedBitVector test2(10, false);
-    bool                    bits1[] =
+    bool bits1[] =
     {
         true, true, false, false, true, false, false, false, true, true
     };
@@ -325,7 +325,7 @@ void CPackedBitVectorTest::testInner(void) {
     test::CRandomNumbers rng;
 
     TPackedBitVectorVec test7;
-    TVectorVec          comparison;
+    TVectorVec comparison;
 
     TSizeVec components;
     for (std::size_t t = 0u; t < 50; ++t) {
@@ -354,7 +354,7 @@ void CPackedBitVectorTest::testBitwiseOr(void) {
     test::CRandomNumbers rng;
 
     TPackedBitVectorVec test;
-    TBitSetVec          comparison;
+    TBitSetVec comparison;
 
     TSizeVec components;
     for (std::size_t t = 0u; t < 50; ++t) {
@@ -368,7 +368,7 @@ void CPackedBitVectorTest::testBitwiseOr(void) {
         LOG_DEBUG("Testing " << test[i]);
         for (std::size_t j = 0u; j < test.size(); ++j) {
             {
-                double          expected = 0.0;
+                double expected = 0.0;
                 std::bitset<50> bitwiseOr = comparison[i] | comparison[j];
                 for (std::size_t k = 0u; k < bitwiseOr.size(); ++k) {
                     expected += bitwiseOr[k] ? 1.0 : 0.0;
@@ -380,7 +380,7 @@ void CPackedBitVectorTest::testBitwiseOr(void) {
                                                              maths::CPackedBitVector::E_OR));
             }
             {
-                double          expected = 0.0;
+                double expected = 0.0;
                 std::bitset<50> bitwiseXor = comparison[i] ^ comparison[j];
                 for (std::size_t k = 0u; k < bitwiseXor.size(); ++k) {
                     expected += bitwiseXor[k] ? 1.0 : 0.0;

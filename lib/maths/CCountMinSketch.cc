@@ -49,7 +49,8 @@ CCountMinSketch::CCountMinSketch(std::size_t rows,
     m_Rows(rows),
     m_Columns(columns),
     m_TotalCount(0.0),
-    m_Sketch(TUInt32FloatPrVec()) {}
+    m_Sketch(TUInt32FloatPrVec())
+{}
 
 CCountMinSketch::CCountMinSketch(core::CStateRestoreTraverser &traverser) :
     m_Rows(0),
@@ -74,8 +75,8 @@ void CCountMinSketch::swap(CCountMinSketch &other) {
             TUInt32FloatPrVec *otherCounts = boost::get<TUInt32FloatPrVec>(&other.m_Sketch);
             if (otherCounts) {
                 counts->swap(*otherCounts);
-            } else {
-                SSketch           &         otherSketch = boost::get<SSketch>(other.m_Sketch);
+            } else   {
+                SSketch &otherSketch = boost::get<SSketch>(other.m_Sketch);
                 TUInt32FloatPrVec tmp;
                 tmp.swap(*counts);
                 m_Sketch = SSketch();
@@ -84,13 +85,13 @@ void CCountMinSketch::swap(CCountMinSketch &other) {
                 other.m_Sketch = TUInt32FloatPrVec();
                 boost::get<TUInt32FloatPrVec>(other.m_Sketch).swap(tmp);
             }
-        } else {
+        } else   {
             SSketch &sketch = boost::get<SSketch>(m_Sketch);
             SSketch *otherSketch = boost::get<SSketch>(&other.m_Sketch);
             if (otherSketch) {
                 sketch.s_Hashes.swap(otherSketch->s_Hashes);
                 sketch.s_Counts.swap(otherSketch->s_Counts);
-            } else {
+            } else   {
                 TUInt32FloatPrVec &otherCounts = boost::get<TUInt32FloatPrVec>(other.m_Sketch);
                 TUInt32FloatPrVec tmp;
                 tmp.swap(otherCounts);
@@ -101,7 +102,7 @@ void CCountMinSketch::swap(CCountMinSketch &other) {
                 boost::get<TUInt32FloatPrVec>(m_Sketch).swap(tmp);
             }
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ABORT("Unexpected exception " << e.what());
     }
 }
@@ -115,18 +116,18 @@ bool CCountMinSketch::acceptRestoreTraverser(core::CStateRestoreTraverser &trave
                 LOG_ERROR("Invalid number rows in " << traverser.value());
                 return false;
             }
-        } else if (name == COLUMNS_TAG) {
+        } else if (name == COLUMNS_TAG)   {
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  m_Columns) == false) {
                 LOG_ERROR("Invalid number columns in " << traverser.value());
                 return false;
             }
-        } else if (name == TOTAL_COUNT_TAG) {
+        } else if (name == TOTAL_COUNT_TAG)   {
             if (m_TotalCount.fromString(traverser.value()) == false) {
                 LOG_ERROR("Invalid total count in " << traverser.value());
                 return false;
             }
-        } else if (name == CATEGORY_COUNTS_TAG) {
+        } else if (name == CATEGORY_COUNTS_TAG)   {
             m_Sketch = TUInt32FloatPrVec();
             TUInt32FloatPrVec &counts = boost::get<TUInt32FloatPrVec>(m_Sketch);
             if (core::CPersistUtils::fromString(traverser.value(),
@@ -134,7 +135,7 @@ bool CCountMinSketch::acceptRestoreTraverser(core::CStateRestoreTraverser &trave
                 LOG_ERROR("Invalid category counts in " << traverser.value());
                 return false;
             }
-        } else if (name == SKETCH_TAG) {
+        } else if (name == SKETCH_TAG)   {
             m_Sketch = SSketch();
             SSketch &sketch = boost::get<SSketch>(m_Sketch);
             sketch.s_Hashes.reserve(m_Rows);
@@ -156,12 +157,12 @@ void CCountMinSketch::acceptPersistInserter(core::CStatePersistInserter &inserte
     if (counts) {
         inserter.insertValue(CATEGORY_COUNTS_TAG,
                              core::CPersistUtils::toString(*counts, DELIMITER, PAIR_DELIMITER));
-    } else {
+    } else   {
         try {
             const SSketch &sketch = boost::get<SSketch>(m_Sketch);
             inserter.insertLevel(SKETCH_TAG,
                                  boost::bind(&SSketch::acceptPersistInserter, &sketch, _1));
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ABORT("Unexpected exception " << e.what());
         }
     }
@@ -212,20 +213,20 @@ void CCountMinSketch::add(uint32_t category, double count) {
 
         if (itr->second <= 0.0) {
             counts->erase(itr);
-        } else {
+        } else   {
             this->sketch();
         }
-    } else {
+    } else   {
         try {
             SSketch &sketch = boost::get<SSketch>(m_Sketch);
             for (std::size_t i = 0u; i < sketch.s_Hashes.size(); ++i) {
-                uint32_t    hash = (sketch.s_Hashes[i])(category);
+                uint32_t hash = (sketch.s_Hashes[i])(category);
                 std::size_t j = static_cast<std::size_t>(hash) % m_Columns;
                 sketch.s_Counts[i][j] += count;
                 LOG_TRACE("count (i,j) = (" << i << "," << j << ")"
-                                            << " -> " << sketch.s_Counts[i][j]);
+                          << " -> " << sketch.s_Counts[i][j]);
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ABORT("Unexpected exception " << e.what());
         }
     }
@@ -249,7 +250,7 @@ void CCountMinSketch::age(double alpha) {
         for (std::size_t i = 0u; i < counts->size(); ++i) {
             (*counts)[i].second *= alpha;
         }
-    } else {
+    } else   {
         try {
             SSketch &sketch = boost::get<SSketch>(m_Sketch);
             for (std::size_t i = 0u; i < sketch.s_Counts.size(); ++i) {
@@ -257,7 +258,7 @@ void CCountMinSketch::age(double alpha) {
                     sketch.s_Counts[i][j] *= alpha;
                 }
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ABORT("Unexpected exception " << e.what());
         }
     }
@@ -285,13 +286,13 @@ double CCountMinSketch::count(uint32_t category) const {
     try {
         const SSketch &sketch = boost::get<SSketch>(m_Sketch);
         for (std::size_t i = 0u; i < sketch.s_Hashes.size(); ++i) {
-            uint32_t    hash = (sketch.s_Hashes[i])(category);
+            uint32_t hash = (sketch.s_Hashes[i])(category);
             std::size_t j = static_cast<std::size_t>(hash) % m_Columns;
             LOG_TRACE("count (i,j) = (" << i << "," << j << ")"
-                                        << " <- " << sketch.s_Counts[i][j]);
+                      << " <- " << sketch.s_Counts[i][j]);
             result.add(sketch.s_Counts[i][j]);
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ABORT("Unexpected exception " << e.what());
     }
     return result.count() > 0 ? result[0] : 0.0;
@@ -316,7 +317,7 @@ uint64_t CCountMinSketch::checksum(uint64_t seed) const {
             const SSketch &sketch = boost::get<SSketch>(m_Sketch);
             seed = CChecksum::calculate(seed, sketch.s_Hashes);
             return CChecksum::calculate(seed, sketch.s_Counts);
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ABORT("Unexpected exception " << e.what());
         }
     }
@@ -328,31 +329,31 @@ void CCountMinSketch::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
     const TUInt32FloatPrVec *counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
         core::CMemoryDebug::dynamicSize("m_Counts", *counts, mem);
-    } else {
+    } else   {
         try {
             const SSketch &sketch = boost::get<SSketch>(m_Sketch);
             mem->addItem("SSketch", sizeof(SSketch));
             core::CMemoryDebug::dynamicSize("sketch", sketch, mem);
             core::CMemoryDebug::dynamicSize("s_Hashes", sketch.s_Hashes, mem);
             core::CMemoryDebug::dynamicSize("s_Counts", sketch.s_Counts, mem);
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ABORT("Unexpected exception " << e.what());
         }
     }
 }
 
 std::size_t CCountMinSketch::memoryUsage(void) const {
-    std::size_t             mem = 0;
+    std::size_t mem = 0;
     const TUInt32FloatPrVec *counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
         mem += core::CMemory::dynamicSize(*counts);
-    } else {
+    } else   {
         try {
             const SSketch &sketch = boost::get<SSketch>(m_Sketch);
             mem += sizeof(SSketch);
             mem += core::CMemory::dynamicSize(sketch.s_Hashes);
             mem += core::CMemory::dynamicSize(sketch.s_Counts);
-        } catch (const std::exception &e) {
+        } catch (const std::exception &e)   {
             LOG_ABORT("Unexpected exception " << e.what());
         }
     }
@@ -415,7 +416,7 @@ bool CCountMinSketch::SSketch::acceptRestoreTraverser(core::CStateRestoreTravers
                 LOG_ERROR("Invalid hashes in " << traverser.value());
                 return false;
             }
-        } else if (name == COUNTS_TAG) {
+        } else if (name == COUNTS_TAG)   {
             s_Counts.push_back(TFloatVec());
             if (   core::CPersistUtils::fromString(traverser.value(),
                                                    s_Counts.back(),
@@ -429,7 +430,7 @@ bool CCountMinSketch::SSketch::acceptRestoreTraverser(core::CStateRestoreTravers
 
     if (s_Counts.size() != rows) {
         LOG_ERROR("Unexpected number of counts " << s_Counts.size()
-                                                 << ", number of rows " << rows);
+                  << ", number of rows " << rows);
         return false;
     }
     return true;

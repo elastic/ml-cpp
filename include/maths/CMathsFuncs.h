@@ -99,9 +99,7 @@ class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable {
 
         //! Unary function object to check if a value is finite.
         struct SIsFinite : std::unary_function<double, bool> {
-            bool operator()(double val) const {
-                return isFinite(val);
-            }
+            bool operator()(double val) const { return isFinite(val); }
         };
 
         //! \brief Wrapper around an iterator over a collection of doubles,
@@ -127,22 +125,14 @@ class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable {
                 }
 
                 //! Equal.
-                bool operator==(const CFiniteIterator &rhs) const {
-                    return m_Base == rhs.m_Base;
-                }
+                bool operator==(const CFiniteIterator &rhs) const { return m_Base == rhs.m_Base; }
                 //! Different.
-                bool operator!=(const CFiniteIterator &rhs) const {
-                    return m_Base != rhs.m_Base;
-                }
+                bool operator!=(const CFiniteIterator &rhs) const { return m_Base != rhs.m_Base; }
 
                 //! Dereference.
-                reference operator*(void) const {
-                    return *m_Base;
-                }
+                reference operator*(void) const { return *m_Base; }
                 //! Pointer.
-                pointer operator->(void) const {
-                    return m_Base.operator->();
-                }
+                pointer operator->(void) const { return m_Base.operator->(); }
 
                 //! Prefix increment.
                 const CFiniteIterator &operator++(void) {

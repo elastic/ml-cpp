@@ -36,7 +36,7 @@ namespace {
 void setDecayRate(double value, double fallback, double &result) {
     if (CMathsFuncs::isFinite(value)) {
         result = value;
-    } else {
+    } else   {
         LOG_ERROR("Invalid decay rate " << value);
         result = fallback;
     }
@@ -48,7 +48,8 @@ CMultivariatePrior::CMultivariatePrior(void) :
     m_Forecasting(false),
     m_DataType(maths_t::E_DiscreteData),
     m_DecayRate(0.0),
-    m_NumberSamples(0) {}
+    m_NumberSamples(0)
+{}
 
 CMultivariatePrior::CMultivariatePrior(maths_t::EDataType dataType,
                                        double decayRate) :
@@ -101,7 +102,7 @@ void CMultivariatePrior::decayRate(double value) {
 void CMultivariatePrior::addSamples(const TWeightStyleVec &weightStyles,
                                     const TDouble10Vec1Vec & /*samples*/,
                                     const TDouble10Vec4Vec1Vec &weights) {
-    std::size_t  d = this->dimension();
+    std::size_t d = this->dimension();
     TDouble10Vec n(d, 0.0);
     try {
         for (std::size_t i = 0u; i < weights.size(); ++i) {
@@ -110,7 +111,7 @@ void CMultivariatePrior::addSamples(const TWeightStyleVec &weightStyles,
                 n[j] += wi[j];
             }
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to extract sample counts: " << e.what());
     }
     this->addSamples(smallest(n));
@@ -159,7 +160,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
     using TJointProbabilityOfLessLikelySamplesVec = core::CSmallVector<CJointProbabilityOfLessLikelySamples, 10>;
 
-    static const TSize10Vec         NO_MARGINS;
+    static const TSize10Vec NO_MARGINS;
     static const TSizeDoublePr10Vec NO_CONDITIONS;
 
     TJointProbabilityOfLessLikelySamplesVec lowerBounds_[2] =
@@ -173,11 +174,11 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
         TJointProbabilityOfLessLikelySamplesVec(coordinates.size())
     };
 
-    std::size_t        d = this->dimension();
-    TSize10Vec         marginalize(d - 1);
+    std::size_t d = this->dimension();
+    TSize10Vec marginalize(d - 1);
     TSizeDoublePr10Vec condition(d - 1);
-    TDouble1Vec        sc(1);
-    TDouble4Vec1Vec    wc{TDouble4Vec(weightStyles.size())};
+    TDouble1Vec sc(1);
+    TDouble4Vec1Vec wc{TDouble4Vec(weightStyles.size())};
 
     for (std::size_t i = 0; i < coordinates.size(); ++i) {
         std::size_t coordinate = coordinates[i];
@@ -185,9 +186,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
         std::copy_if(boost::make_counting_iterator(std::size_t(0)),
                      boost::make_counting_iterator(d),
                      marginalize.begin(),
-                     [coordinate] (std::size_t j) {
-                    return j != coordinate;
-                });
+                     [coordinate] (std::size_t j) { return j != coordinate; });
         TUnivariatePriorPtr margin(this->univariate(marginalize, NO_CONDITIONS).first);
         if (!margin) {
             return false;
@@ -205,7 +204,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
                 wc[0][k] = weights[j][k][coordinate];
             }
 
-            double         lb[2], ub[2];
+            double lb[2], ub[2];
             maths_t::ETail tc[2];
 
             if (!margin->probabilityOfLessLikelySamples(calculation,
@@ -266,10 +265,10 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     TSize10Vec coordinates(this->dimension());
     std::iota(coordinates.begin(), coordinates.end(), 0);
 
-    TDouble10Vec1Vec     sample(1);
+    TDouble10Vec1Vec sample(1);
     TDouble10Vec4Vec1Vec weight(1);
-    TDouble10Vec2Vec     lbs;
-    TDouble10Vec2Vec     ubs;
+    TDouble10Vec2Vec lbs;
+    TDouble10Vec2Vec ubs;
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         sample[0] = samples[i];
         weight[0] = weights[i];
@@ -295,7 +294,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
         return false;
     }
     LOG_TRACE("lb = " << core::CContainerPrinter::print(lb)
-                      << ", ub = " << core::CContainerPrinter::print(ub));
+              << ", ub = " << core::CContainerPrinter::print(ub));
 
     lowerBound = ::sqrt(lb[0] * lb[1]);
     upperBound = ::sqrt(ub[0] * ub[1]);
@@ -308,7 +307,7 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x, s
 
     using TDoubleDoublePr = std::pair<double, double>;
 
-    static const double       RANGE = 99.0;
+    static const double RANGE = 99.0;
     static const unsigned int POINTS = 51;
 
     std::size_t d = this->dimension();
@@ -324,9 +323,9 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x, s
             xm.push_back(i);
             ym.push_back(i);
             xym.push_back(i);
-        } else if (i != x) {
+        } else if (i != x)   {
             xm.push_back(i);
-        } else if (i != y) {
+        } else if (i != y)   {
             ym.push_back(i);
         }
     }
@@ -337,7 +336,7 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x, s
         return xMargin != 0 ? xMargin->printMarginalLikelihoodFunction() : std::string();
     }
 
-    boost::shared_ptr<CPrior>             yMargin(this->univariate(ym, TSizeDoublePr10Vec()).first);
+    boost::shared_ptr<CPrior> yMargin(this->univariate(ym, TSizeDoublePr10Vec()).first);
     boost::shared_ptr<CMultivariatePrior> xyMargin(this->bivariate(xym, TSizeDoublePr10Vec()).first);
 
     TDoubleDoublePr xRange = xMargin->marginalLikelihoodConfidenceInterval(RANGE);
@@ -362,7 +361,7 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x, s
     yabscissa << "];" << core_t::LINE_ENDING;
 
     likelihood << "likelihood = [";
-    TDouble10Vec1Vec     sample(1, TDouble10Vec(2));
+    TDouble10Vec1Vec sample(1, TDouble10Vec(2));
     TDouble10Vec4Vec1Vec weight(1, TDouble10Vec4Vec(1, TDouble10Vec(2, 1.0)));
     x_ = xRange.first;
     for (std::size_t i = 0u; i < POINTS; ++i, x_ += dx) {
@@ -427,7 +426,7 @@ bool CMultivariatePrior::check(const TDouble10Vec1Vec &samples,
                                const TDouble10Vec4Vec1Vec &weights) const {
     if (samples.size() != weights.size()) {
         LOG_ERROR("Mismatch in samples '" << samples
-                                          << "' and weights '" << weights << "'");
+                  << "' and weights '" << weights << "'");
         return false;
     }
     for (std::size_t i = 0u; i < samples.size(); ++i) {
@@ -447,9 +446,7 @@ bool CMultivariatePrior::check(const TDouble10Vec1Vec &samples,
 
 bool CMultivariatePrior::check(const TSize10Vec &marginalize,
                                const TSizeDoublePr10Vec &condition) const {
-    static const auto FIRST = [] (const TSizeDoublePr &pair) {
-                                  return pair.first;
-                              };
+    static const auto FIRST = [] (const TSizeDoublePr &pair) { return pair.first; };
     std::size_t d = this->dimension();
     if (   (marginalize.size() > 0 && marginalize.back()     >= d) ||
            (condition.size()   > 0 && condition.back().first >= d) ||
@@ -486,7 +483,7 @@ double CMultivariatePrior::smallest(const TDouble10Vec &x) const {
     return *std::min_element(x.begin(), x.end());
 }
 
-const double      CMultivariatePrior::FALLBACK_DECAY_RATE = 0.001;
+const double CMultivariatePrior::FALLBACK_DECAY_RATE = 0.001;
 const std::string CMultivariatePrior::MULTIMODAL_TAG("a");
 const std::string CMultivariatePrior::NORMAL_TAG("b");
 const std::string CMultivariatePrior::ONE_OF_N_TAG("c");

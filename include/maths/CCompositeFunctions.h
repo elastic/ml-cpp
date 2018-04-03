@@ -132,7 +132,8 @@ class MATHS_EXPORT CCompositeFunctions {
             public:
                 CMinusConstant(const F &f, double offset) :
                     m_F(f),
-                    m_Offset(offset) {}
+                    m_Offset(offset)
+                {}
 
                 //! For function returning value.
                 inline T operator()(double x) const {
@@ -149,7 +150,7 @@ class MATHS_EXPORT CCompositeFunctions {
                 }
 
             private:
-                F_     m_F;
+                F_ m_F;
                 double m_Offset;
         };
 
@@ -230,7 +231,8 @@ class MATHS_EXPORT CCompositeFunctions {
             public:
                 explicit CProduct(const F &f = F(),
                                   const G &g = G()) :
-                    m_F(f), m_G(g) {}
+                    m_F(f), m_G(g)
+                {}
 
                 //! For function returning value.
                 inline U operator()(double x) const {
@@ -249,18 +251,14 @@ class MATHS_EXPORT CCompositeFunctions {
                 }
 
                 //! Retrieve the component function f.
-                const F &f(void) const {
-                    return m_F;
-                }
+                const F &f(void) const { return m_F; }
 
                 //! Retrieve the component function g.
-                const G &g(void) const {
-                    return m_G;
-                }
+                const G &g(void) const { return m_G; }
 
             private:
-                F_      m_F;
-                G_      m_G;
+                F_ m_F;
+                G_ m_G;
         };
 };
 

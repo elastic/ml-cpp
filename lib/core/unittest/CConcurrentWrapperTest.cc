@@ -43,12 +43,8 @@ void CConcurrentWrapperTest::testBasic(void) {
     {
         TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
 
-        wrappedStringStream( [] (std::ostream& o) {
-            o << "Hello 1"; o << " world 1\n";
-        } );
-        wrappedStringStream( [] (std::ostream& o) {
-            o << "Hello 2"; o << " world 2\n";
-        } );
+        wrappedStringStream( [] (std::ostream& o) { o << "Hello 1"; o << " world 1\n"; } );
+        wrappedStringStream( [] (std::ostream& o) { o << "Hello 2"; o << " world 2\n"; } );
     }
     CPPUNIT_ASSERT_EQUAL(std::string("Hello 1 world 1\nHello 2 world 2\n"), stringStream.str());
 }
@@ -81,7 +77,7 @@ void taskLowCapacityQueue(TOStringStreamLowCapacityConcurrentWrapper &sink, int 
 }
 
 void CConcurrentWrapperTest::testThreads(void) {
-    std::ostringstream  stringStream;
+    std::ostringstream stringStream;
     static const size_t MESSAGES(1500);
     {
         TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
@@ -95,7 +91,7 @@ void CConcurrentWrapperTest::testThreads(void) {
     }
 
     std::string output = stringStream.str();
-    size_t      numberOfLines = std::count(output.begin(), output.end(), '\n');
+    size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
 
     CPPUNIT_ASSERT_EQUAL(MESSAGES, numberOfLines);
     CPPUNIT_ASSERT_EQUAL(11 * MESSAGES, output.size());
@@ -106,7 +102,7 @@ void CConcurrentWrapperTest::testThreads(void) {
 }
 
 void CConcurrentWrapperTest::testThreadsSlow(void) {
-    std::ostringstream  stringStream;
+    std::ostringstream stringStream;
     static const size_t MESSAGES(50);
 
     {
@@ -121,7 +117,7 @@ void CConcurrentWrapperTest::testThreadsSlow(void) {
     }
 
     std::string output = stringStream.str();
-    size_t      numberOfLines = std::count(output.begin(), output.end(), '\n');
+    size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
 
     CPPUNIT_ASSERT_EQUAL(MESSAGES, numberOfLines);
     CPPUNIT_ASSERT_EQUAL(11 * MESSAGES, output.size());
@@ -132,7 +128,7 @@ void CConcurrentWrapperTest::testThreadsSlow(void) {
 }
 
 void CConcurrentWrapperTest::testThreadsSlowLowCapacity(void) {
-    std::ostringstream  stringStream;
+    std::ostringstream stringStream;
     static const size_t MESSAGES(50);
 
     {
@@ -149,7 +145,7 @@ void CConcurrentWrapperTest::testThreadsSlowLowCapacity(void) {
     }
 
     std::string output = stringStream.str();
-    size_t      numberOfLines = std::count(output.begin(), output.end(), '\n');
+    size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
 
     CPPUNIT_ASSERT_EQUAL(MESSAGES, numberOfLines);
     CPPUNIT_ASSERT_EQUAL(11 * MESSAGES, output.size());
@@ -160,7 +156,7 @@ void CConcurrentWrapperTest::testThreadsSlowLowCapacity(void) {
 }
 
 void CConcurrentWrapperTest::testThreadsLowCapacity(void) {
-    std::ostringstream  stringStream;
+    std::ostringstream stringStream;
     static const size_t MESSAGES(2500);
 
     {
@@ -177,7 +173,7 @@ void CConcurrentWrapperTest::testThreadsLowCapacity(void) {
     }
 
     std::string output = stringStream.str();
-    size_t      numberOfLines = std::count(output.begin(), output.end(), '\n');
+    size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
 
     CPPUNIT_ASSERT_EQUAL(MESSAGES, numberOfLines);
     CPPUNIT_ASSERT_EQUAL(11 * MESSAGES, output.size());
@@ -190,7 +186,7 @@ void CConcurrentWrapperTest::testThreadsLowCapacity(void) {
 void CConcurrentWrapperTest::testMemoryDebug(void) {
     CMemoryUsage mem;
 
-    std::ostringstream              stringStream;
+    std::ostringstream stringStream;
     TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
 
     wrappedStringStream.debugMemoryUsage(mem.addChild());

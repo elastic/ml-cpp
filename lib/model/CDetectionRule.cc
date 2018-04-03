@@ -101,11 +101,11 @@ bool CDetectionRule::isInScope(const CAnomalyDetectorModel &model,
     const CDataGatherer &gatherer = model.dataGatherer();
     if (m_TargetFieldName == gatherer.partitionFieldName()) {
         return m_TargetFieldValue == gatherer.partitionFieldValue();
-    } else if (m_TargetFieldName == gatherer.personFieldName()) {
+    } else if (m_TargetFieldName == gatherer.personFieldName())   {
         return m_TargetFieldValue == gatherer.personName(pid);
-    } else if (m_TargetFieldName == gatherer.attributeFieldName()) {
+    } else if (m_TargetFieldName == gatherer.attributeFieldName())   {
         return m_TargetFieldValue == gatherer.attributeName(cid);
-    } else {
+    } else   {
         LOG_ERROR("Unexpected targetFieldName = " << m_TargetFieldName);
     }
     return false;

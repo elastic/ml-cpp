@@ -96,7 +96,8 @@ class CKdTree {
                 s_Parent(parent),
                 s_LeftChild(0),
                 s_RightChild(0),
-                s_Point(point) {}
+                s_Point(point)
+            {}
 
             //! Check node invariants.
             bool checkInvariants(std::size_t dimension) const {
@@ -108,18 +109,18 @@ class CKdTree {
                     }
                 }
 
-                std::size_t     coordinate = this->depth() % dimension;
+                std::size_t coordinate = this->depth() % dimension;
                 CCoordinateLess less(coordinate);
                 if (s_LeftChild && less(s_Point, s_LeftChild->s_Point)) {
                     LOG_ERROR("parent = " << s_Point
-                                          << ", left child = " << s_LeftChild->s_Point
-                                          << ", coordinate = " << coordinate);
+                              << ", left child = " << s_LeftChild->s_Point
+                              << ", coordinate = " << coordinate);
                     return false;
                 }
                 if (s_RightChild && less(s_RightChild->s_Point, s_Point)) {
                     LOG_ERROR("parent = " << s_Point
-                                          << ", right child = " << s_RightChild->s_Point
-                                          << ", coordinate = " << coordinate);
+                              << ", right child = " << s_RightChild->s_Point
+                              << ", coordinate = " << coordinate);
                     return false;
                 }
                 return true;
@@ -257,7 +258,7 @@ class CKdTree {
                                 std::size_t coordinate,
                                 TPointVecItr begin,
                                 TPointVecItr end) {
-            std::size_t  n = static_cast<std::size_t>(end - begin) / 2;
+            std::size_t n = static_cast<std::size_t>(end - begin) / 2;
             TPointVecItr median = begin + n;
             std::nth_element(begin, median, end, CCoordinateLess(coordinate));
             m_Nodes.push_back(SNode(parent, *median));
@@ -376,7 +377,7 @@ class CKdTree {
         //! The point dimension.
         std::size_t m_Dimension;
         //! The representation of the points.
-        TNodeVec    m_Nodes;
+        TNodeVec m_Nodes;
 };
 
 }

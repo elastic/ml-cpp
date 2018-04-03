@@ -100,21 +100,21 @@ void CBackgroundPersisterTest::testCategorizationOnlyPersist(void) {
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
     CPPUNIT_ASSERT(outputStrm.is_open());
 
-    ml::model::CLimits    limits;
+    ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig("agent");
 
-    std::ostringstream                         *                       backgroundStream(nullptr);
+    std::ostringstream *backgroundStream(nullptr);
     ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(backgroundStream = new std::ostringstream());
-    ml::api::CSingleStreamDataAdder            backgroundDataAdder(backgroundStreamPtr);
+    ml::api::CSingleStreamDataAdder backgroundDataAdder(backgroundStreamPtr);
     // The 300 second persist interval is irrelevant here - we bypass the timer
     // in this test and kick off the background persistence chain explicitly
     ml::api::CBackgroundPersister backgroundPersister(300, backgroundDataAdder);
 
-    std::ostringstream                         *                       foregroundStream(nullptr);
+    std::ostringstream *foregroundStream(nullptr);
     ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(foregroundStream = new std::ostringstream());
     {
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
-        ml::api::CJsonOutputWriter         outputWriter(JOB_ID, wrappedOutputStream);
+        ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
 
         // All output we're interested in goes via the JSON output writer, so
         // output of the categorised input data can be dropped
@@ -162,7 +162,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
     // Start by creating processors with non-trivial state
 
     static const ml::core_t::TTime BUCKET_SIZE(3600);
-    static const std::string       JOB_ID("job");
+    static const std::string JOB_ID("job");
 
     std::string inputFilename("testfiles/big_ascending.txt");
 
@@ -173,16 +173,16 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
     CPPUNIT_ASSERT(outputStrm.is_open());
 
-    ml::model::CLimits    limits;
+    ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
     CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
-    std::ostringstream                         *                       backgroundStream(0);
+    std::ostringstream *backgroundStream(0);
     ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(backgroundStream = new std::ostringstream());
-    ml::api::CSingleStreamDataAdder            backgroundDataAdder(backgroundStreamPtr);
+    ml::api::CSingleStreamDataAdder backgroundDataAdder(backgroundStreamPtr);
     // The 300 second persist interval is irrelevant here - we bypass the timer
     // in this test and kick off the background persistence chain explicitly
     ml::api::CBackgroundPersister backgroundPersister(300, backgroundDataAdder);
@@ -193,11 +193,11 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
     std::string backgroundSnapshotId;
     std::string foregroundSnapshotId;
 
-    std::ostringstream                         *                       foregroundStream(0);
+    std::ostringstream *foregroundStream(0);
     ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(foregroundStream = new std::ostringstream());
     {
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
-        ml::api::CJsonOutputWriter         outputWriter(JOB_ID, wrappedOutputStream);
+        ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
 
         ml::api::CAnomalyJob job(JOB_ID,
                                  limits,

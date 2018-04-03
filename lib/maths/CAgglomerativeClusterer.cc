@@ -173,7 +173,7 @@ void mstCluster(const TDoubleVecVec &distanceMatrix,
         S.erase(std::find(S.begin(), S.end(), c));
 
         std::size_t n = 0;
-        double      d = INF;
+        double d = INF;
 
         for (std::size_t i = 0u; i < S.size(); ++i) {
             std::size_t x = S[i];
@@ -237,7 +237,7 @@ void nnCluster(TDoubleVecVec &distanceMatrix,
     TSizeVec chain;
     chain.reserve(N);
     TDoubleVec size(N, 1.0);
-    TSizeVec   rightmost;
+    TSizeVec rightmost;
     rightmost.reserve(2 * N - 1);
     for (std::size_t i = 0u; i < N; ++i) {
         rightmost.push_back(i);
@@ -255,7 +255,7 @@ void nnCluster(TDoubleVecVec &distanceMatrix,
             chain.clear();
             chain.push_back(a);
             m = 1;
-        } else {
+        } else   {
             a = chain[m - 4];
             b = chain[m - 3];
             // Cut the tail.
@@ -295,13 +295,13 @@ void nnCluster(TDoubleVecVec &distanceMatrix,
         std::size_t ra = rightmost[a];
         std::size_t rb = rightmost[b];
 
-        LOG_TRACE("chain = " <<core::CContainerPrinter::print(chain));
+        LOG_TRACE("chain = " << core::CContainerPrinter::print(chain));
         LOG_TRACE("d = " << d
-                         << ", a = " << a
-                         << ", b = " << b
-                         << ", rightmost a = " << ra
-                         << ", rightmost b " << rb
-                         << ", m = " << m);
+                  << ", a = " << a
+                  << ", b = " << b
+                  << ", rightmost a = " << ra
+                  << ", rightmost b " << rb
+                  << ", m = " << m);
 
         // a and b are reciprocal nearest neighbors.
         L.emplace_back(d, std::make_pair(ra, rb));
@@ -356,7 +356,7 @@ void buildTree(TDoubleSizeSizePrPrVec &heights, TNodeVec &tree) {
     LOG_TRACE("heights = " << core::CContainerPrinter::print(heights));
 
     for (std::size_t i = 0u; i < n; ++i) {
-        double      h = heights[i].first;
+        double h = heights[i].first;
         std::size_t j = heights[i].second.first;
         std::size_t k = heights[i].second.second;
         LOG_TRACE("Joining " << j << " and " << k << " at height " << h);
@@ -418,9 +418,10 @@ CAgglomerativeClusterer::CNode::CNode(std::size_t index,
     m_LeftChild(0),
     m_RightChild(0),
     m_Index(index),
-    m_Height(height) {}
+    m_Height(height)
+{}
 
-bool CAgglomerativeClusterer::CNode::addChild(CNode &child) {
+bool CAgglomerativeClusterer::CNode::addChild(CNode & child) {
     if (!m_LeftChild) {
         m_LeftChild = &child;
         child.m_Parent = this;
@@ -455,7 +456,7 @@ TNode &CAgglomerativeClusterer::CNode::root(void) {
     return *result;
 }
 
-void CAgglomerativeClusterer::CNode::points(TSizeVec &result) const
+void CAgglomerativeClusterer::CNode::points(TSizeVec & result) const
 {
     if (!m_LeftChild && !m_RightChild) {
         result.push_back(m_Index);
@@ -468,7 +469,7 @@ void CAgglomerativeClusterer::CNode::points(TSizeVec &result) const
     }
 }
 
-void CAgglomerativeClusterer::CNode::clusters(TDoubleSizeVecPrVec &result) const
+void CAgglomerativeClusterer::CNode::clusters(TDoubleSizeVecPrVec & result) const
 {
     if (m_LeftChild && m_RightChild) {
         TSizeVec points;
@@ -484,21 +485,21 @@ void CAgglomerativeClusterer::CNode::clusters(TDoubleSizeVecPrVec &result) const
 }
 
 void CAgglomerativeClusterer::CNode::clusteringAt(double height,
-                                                  TSizeVecVec &result) const
+                                                  TSizeVecVec & result) const
 {
     if (height >= m_Height) {
         result.push_back(TSizeVec());
         this->points(result.back());
-    } else {
+    } else   {
         if (m_LeftChild && height < m_LeftChild->height()) {
             m_LeftChild->clusteringAt(height, result);
-        } else if (m_LeftChild) {
+        } else if (m_LeftChild)   {
             result.push_back(TSizeVec());
             m_LeftChild->points(result.back());
         }
         if (m_RightChild && height < m_RightChild->height()) {
             m_RightChild->clusteringAt(height, result);
-        } else if (m_RightChild) {
+        } else if (m_RightChild)   {
             result.push_back(TSizeVec());
             m_RightChild->points(result.back());
         }

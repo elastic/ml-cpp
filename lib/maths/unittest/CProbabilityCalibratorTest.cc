@@ -111,9 +111,9 @@ void CProbabilityCalibratorTest::testCalibration(void) {
             }
 
             LOG_DEBUG("totalRawError =        " << rawError
-                                                << ", maxRawError =        " << maxRawError);
+                      << ", maxRawError =        " << maxRawError);
             LOG_DEBUG("totalCalibratedError = " << calibratedError
-                                                << ", maxCalibratedError = " << maxCalibratedError);
+                      << ", maxCalibratedError = " << maxCalibratedError);
             CPPUNIT_ASSERT((rawError - calibratedError) / rawError > improvements[i]);
             CPPUNIT_ASSERT((maxRawError - maxCalibratedError) / maxRawError > maxImprovements[i]);
         }
@@ -187,9 +187,9 @@ void CProbabilityCalibratorTest::testCalibration(void) {
             }
 
             LOG_DEBUG("totalRawError =        " << rawError
-                                                << ", maxRawError =        " << maxRawError);
+                      << ", maxRawError =        " << maxRawError);
             LOG_DEBUG("totalCalibratedError = " << calibratedError
-                                                << ", maxCalibratedError = " << maxCalibratedError);
+                      << ", maxCalibratedError = " << maxCalibratedError);
             CPPUNIT_ASSERT((rawError - calibratedError) / rawError >= improvements[i]);
             CPPUNIT_ASSERT((maxRawError - maxCalibratedError) / maxRawError >= maxImprovements[i]);
         }

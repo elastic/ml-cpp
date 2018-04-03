@@ -193,7 +193,7 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance(void) {
         for (std::size_t j = 0; j < i; ++j) {
             CPPUNIT_ASSERT_EQUAL(0.0, covariance[i][j]);
         }
-        for (std::size_t j = i+1; j < 4; ++j) {
+        for (std::size_t j = i + 1; j < 4; ++j) {
             CPPUNIT_ASSERT_EQUAL(0.0, covariance[i][j]);
         }
     }
@@ -263,7 +263,7 @@ void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples(void) {
         TDouble10Vec1Vec(1, TDouble10Vec(boost::begin(samples_[2]), boost::end(samples_[2])))
     };
     for (std::size_t i = 0u; i < boost::size(samples); ++i) {
-        double                                        lb, ub;
+        double lb, ub;
         maths::CMultivariateConstantPrior::TTail10Vec tail;
         filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                               COUNT_WEIGHT,
@@ -286,7 +286,7 @@ void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples(void) {
         "[1, 2]"
     };
     for (std::size_t i = 0u; i < boost::size(samples); ++i) {
-        double                                        lb, ub;
+        double lb, ub;
         maths::CMultivariateConstantPrior::TTail10Vec tail;
         filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                               COUNT_WEIGHT,
@@ -310,7 +310,7 @@ void CMultivariateConstantPriorTest::testPersist(void) {
     LOG_DEBUG("*** Non-informative ***");
     {
         maths::CMultivariateConstantPrior origFilter(3);
-        uint64_t                          checksum = origFilter.checksum();
+        uint64_t checksum = origFilter.checksum();
 
         std::string origXml;
         {
@@ -329,7 +329,7 @@ void CMultivariateConstantPriorTest::testPersist(void) {
         maths::CMultivariateConstantPrior restoredFilter(3, traverser);
 
         LOG_DEBUG("orig checksum = " << checksum
-                                     << " restored checksum = " << restoredFilter.checksum());
+                  << " restored checksum = " << restoredFilter.checksum());
         CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
 
         // The XML representation of the new filter should be the same as the original
@@ -347,7 +347,7 @@ void CMultivariateConstantPriorTest::testPersist(void) {
         double constant[] = { 1.2, 4.1, 1.0 / 3.0 };
 
         maths::CMultivariateConstantPrior origFilter(3, TDouble10Vec(boost::begin(constant), boost::end(constant)));
-        uint64_t                          checksum = origFilter.checksum();
+        uint64_t checksum = origFilter.checksum();
 
         std::string origXml;
         {
@@ -366,7 +366,7 @@ void CMultivariateConstantPriorTest::testPersist(void) {
         maths::CMultivariateConstantPrior restoredFilter(3, traverser);
 
         LOG_DEBUG("orig checksum = " << checksum
-                                     << " restored checksum = " << restoredFilter.checksum());
+                  << " restored checksum = " << restoredFilter.checksum());
         CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
 
         // The XML representation of the new filter should be the same as the original

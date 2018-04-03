@@ -65,7 +65,8 @@ void add(std::size_t p,
 }
 
 CDetectorEnumerator::CDetectorEnumerator(const CAutoconfigurerParams &params) :
-    m_Params(params) {}
+    m_Params(params)
+{}
 
 void CDetectorEnumerator::addFunction(config_t::EFunctionCategory category) {
     m_Functions.push_back(category);
@@ -128,10 +129,10 @@ void CDetectorEnumerator::generateNoPartitioning(TDetectorSpecificationVec &resu
                 for (std::size_t j = 0u; j < arguments.size(); ++j) {
                     result.push_back(CDetectorSpecification(m_Params, function, arguments[j], id));
                 }
-            } else {
+            } else   {
                 result.push_back(CDetectorSpecification(m_Params, function, id));
             }
-        } catch (std::exception &e) {
+        } catch (std::exception &e)   {
             LOG_ERROR("Bad detector: " << e.what());
         }
     }
@@ -157,7 +158,7 @@ void CDetectorEnumerator::addOnePartitioning(std::size_t a, std::size_t b,
                     result.push_back(CDetectorSpecification(m_Params, function, id));
                     result.back().addPartitioning(constants::BY_INDEX, m_CandidateRareByFields[j]);
                 }
-            } catch (std::exception &e) {
+            } catch (std::exception &e)   {
                 LOG_ERROR("Bad detector: " << e.what());
             }
         }
@@ -182,7 +183,7 @@ void CDetectorEnumerator::addTwoPartitioning(std::size_t a, std::size_t b,
 void CDetectorEnumerator::addThreePartitioning(std::size_t a, std::size_t b,
                                                TDetectorSpecificationVec &result) const {
     static std::size_t PARTITION[] = { constants::PARTITION_INDEX };
-    TStrVecCRef        candidates[] = { boost::cref(m_CandidatePartitionFields) };
+    TStrVecCRef candidates[] = { boost::cref(m_CandidatePartitionFields) };
     add(boost::size(PARTITION), PARTITION, candidates, a, b, result);
 }
 

@@ -90,16 +90,16 @@ class MATHS_EXPORT CAgglomerativeClusterer {
 
             private:
                 //! The parent cluster.
-                CNode       *m_Parent;
+                CNode *m_Parent;
                 //! The left child cluster.
-                CNode       *m_LeftChild;
+                CNode *m_LeftChild;
                 //! The right child cluster.
-                CNode       *m_RightChild;
+                CNode *m_RightChild;
                 //! The unique index of this cluster.
                 std::size_t m_Index;
                 //! The height of this cluster, i.e. the value of the
                 //! objective function at which the cluster forms.
-                double      m_Height;
+                double m_Height;
         };
 
         typedef std::vector<CNode> TNodeVec;
@@ -128,13 +128,13 @@ class MATHS_EXPORT CAgglomerativeClusterer {
         TDoubleVecVec m_DistanceMatrix;
         //! Filled in with the last object in each cluster to which
         //! i'th point connects.
-        TSizeVec      m_Pi;
+        TSizeVec m_Pi;
         //! Filled in with the lowest level at which the i'th point
         //! is no longer the last object in its cluster.
-        TDoubleVec    m_Lambda;
+        TDoubleVec m_Lambda;
         //! Holds a copy of a column of the distance matrix during
         //! update point representation.
-        TDoubleVec    m_M;
+        TDoubleVec m_M;
 };
 
 }

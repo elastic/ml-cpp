@@ -26,7 +26,7 @@ namespace api {
 
 
 // Initialise statics
-const char   CLineifiedInputParser::LINE_END('\n');
+const char CLineifiedInputParser::LINE_END('\n');
 const size_t CLineifiedInputParser::WORK_BUFFER_SIZE(131072); // 128kB
 
 
@@ -36,7 +36,8 @@ CLineifiedInputParser::CLineifiedInputParser(std::istream &strmIn)
       m_WorkBuffer(0),
       m_WorkBufferCapacity(0),
       m_WorkBufferPtr(0),
-      m_WorkBufferEnd(0) {}
+      m_WorkBufferEnd(0)
+{}
 
 CLineifiedInputParser::TCharPSizePr
 CLineifiedInputParser::parseLine(void) {
@@ -71,7 +72,7 @@ CLineifiedInputParser::parseLine(void) {
                 // We didn't find a line ending, but we started part way through the
                 // the buffer, so shuffle it up and refill it
                 ::memmove(m_WorkBuffer.get(), m_WorkBufferPtr, avail);
-            } else {
+            } else   {
                 // We didn't find a line ending and started at the beginning of a
                 // full buffer so expand it
                 m_WorkBufferCapacity += WORK_BUFFER_SIZE;

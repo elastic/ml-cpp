@@ -29,10 +29,11 @@ CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf &parser,
                                                    bool allDocsSameStructure)
     : CLineifiedInputParser(strmIn),
       m_Parser(parser),
-      m_AllDocsSameStructure(allDocsSameStructure) {}
+      m_AllDocsSameStructure(allDocsSameStructure)
+{}
 
 bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc) {
-    TStrVec    &  fieldNames = this->fieldNames();
+    TStrVec &fieldNames = this->fieldNames();
     TStrRefVec fieldValRefs;
 
     // Reset the record buffer pointers in case we're reading a new stream
@@ -62,7 +63,7 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc) {
                 LOG_ERROR("Failed to decode XML document");
                 return false;
             }
-        } else {
+        } else   {
             this->decodeDocumentWithArbitraryFields(fieldNames, recordFields);
         }
 
@@ -97,7 +98,7 @@ bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec &fieldName
     }
 
     size_t i(0);
-    bool   more(true);
+    bool more(true);
     do {
         m_Parser.currentNodeValue(fieldValRefs[i]);
         ++i;

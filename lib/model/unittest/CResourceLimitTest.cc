@@ -57,7 +57,8 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
         CResultWriter(const CAnomalyDetectorModelConfig &modelConfig,
                       const CLimits &limits) :
             m_ModelConfig(modelConfig),
-            m_Limits(limits) {}
+            m_Limits(limits)
+        {}
 
         void operator()(CAnomalyDetector &detector,
                         core_t::TTime start,
@@ -91,7 +92,7 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
             }
 
             LOG_DEBUG("Got anomaly @ " << node.s_BucketStartTime
-                                       << ": " << node.probability());
+                      << ": " << node.probability());
 
             ml::model::SAnnotatedProbability::TAttributeProbability1Vec &attributes =
                 node.s_AnnotatedProbability.s_AttributeProbabilities;
@@ -113,14 +114,14 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
             return true;
         }
 
-        const TResultsVec                 &results(void) const {
+        const TResultsVec &results(void) const {
             return m_Results;
         }
 
     private:
         const CAnomalyDetectorModelConfig &m_ModelConfig;
-        const CLimits                     &m_Limits;
-        TResultsVec                       m_Results;
+        const CLimits &m_Limits;
+        TResultsVec m_Results;
 };
 
 CppUnit::Test* CResourceLimitTest::suite(void) {
@@ -149,12 +150,12 @@ void CResourceLimitTest::testLimitBy(void) {
 
     {
         CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-        CLimits                     limits;
-        CSearchKey                  key(1, // identifier
-                                        function_t::E_IndividualMetric,
-                                        false,
-                                        model_t::E_XF_None,
-                                        "value", "colour");
+        CLimits limits;
+        CSearchKey key(1, // identifier
+                       function_t::E_IndividualMetric,
+                       false,
+                       model_t::E_XF_None,
+                       "value", "colour");
         CAnomalyDetector detector(1, // identifier
                                   limits,
                                   modelConfig,
@@ -183,12 +184,12 @@ void CResourceLimitTest::testLimitBy(void) {
         // This time, repeat the test but set a resource limit to prevent
         // any models from being created.
         CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-        CLimits                     limits;
-        CSearchKey                  key(1, // identifier
-                                        function_t::E_IndividualMetric,
-                                        false,
-                                        model_t::E_XF_None,
-                                        "value", "colour");
+        CLimits limits;
+        CSearchKey key(1, // identifier
+                       function_t::E_IndividualMetric,
+                       false,
+                       model_t::E_XF_None,
+                       "value", "colour");
         CAnomalyDetector detector(1, // identifier
                                   limits,
                                   modelConfig,
@@ -223,12 +224,12 @@ void CResourceLimitTest::testLimitByOver(void) {
 
     {
         CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-        CLimits                     limits;
-        CSearchKey                  key(1, // identifier
-                                        function_t::E_PopulationMetric,
-                                        false,
-                                        model_t::E_XF_None,
-                                        "value", "colour", "species");
+        CLimits limits;
+        CSearchKey key(1, // identifier
+                       function_t::E_PopulationMetric,
+                       false,
+                       model_t::E_XF_None,
+                       "value", "colour", "species");
         CAnomalyDetector detector(1, // identifier
                                   limits,
                                   modelConfig,
@@ -255,12 +256,12 @@ void CResourceLimitTest::testLimitByOver(void) {
 
     // Now limit after 1 sample, so only expect no results
     CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-    CLimits                     limits;
-    CSearchKey                  key(1, // identifier
-                                    function_t::E_PopulationMetric,
-                                    false,
-                                    model_t::E_XF_None,
-                                    "value", "colour", "species");
+    CLimits limits;
+    CSearchKey key(1, // identifier
+                   function_t::E_PopulationMetric,
+                   false,
+                   model_t::E_XF_None,
+                   "value", "colour", "species");
     CAnomalyDetector detector(1, // identifier
                               limits,
                               modelConfig,
@@ -304,7 +305,8 @@ class CMockEventRateModel : public ml::model::CEventRateModel {
                             influenceCalculators),
             m_ResourceMonitor(resourceMonitor),
             m_NewPeople(0),
-            m_NewAttributes(0) {}
+            m_NewAttributes(0)
+        {}
 
         virtual void updateRecycledModels(void) {
             // Do nothing
@@ -330,8 +332,8 @@ class CMockEventRateModel : public ml::model::CEventRateModel {
 
     private:
         CResourceMonitor &m_ResourceMonitor;
-        std::size_t      m_NewPeople;
-        std::size_t      m_NewAttributes;
+        std::size_t m_NewPeople;
+        std::size_t m_NewAttributes;
 };
 
 //! A test wrapper around a real model that tracks calls to createNewModels
@@ -351,7 +353,8 @@ class CMockMetricModel : public ml::model::CMetricModel {
                          influenceCalculators),
             m_ResourceMonitor(resourceMonitor),
             m_NewPeople(0),
-            m_NewAttributes(0) {}
+            m_NewAttributes(0)
+        {}
 
         virtual void updateRecycledModels(void) {
             // Do nothing
@@ -377,8 +380,8 @@ class CMockMetricModel : public ml::model::CMetricModel {
 
     private:
         CResourceMonitor &m_ResourceMonitor;
-        std::size_t      m_NewPeople;
-        std::size_t      m_NewAttributes;
+        std::size_t m_NewPeople;
+        std::size_t m_NewAttributes;
 };
 
 void addArrival(core_t::TTime time,
@@ -435,7 +438,7 @@ void addPersonMetricData(std::size_t start,
 void CResourceLimitTest::testLargeAllocations(void) {
     {
         // Test CEventRateModel::createUpdateNewModels()
-        const std::string   EMPTY_STRING("");
+        const std::string EMPTY_STRING("");
         const core_t::TTime FIRST_TIME(358556400);
         const core_t::TTime BUCKET_LENGTH(3600);
 
@@ -455,12 +458,12 @@ void CResourceLimitTest::testLargeAllocations(void) {
         CResourceMonitor resourceMonitor;
         resourceMonitor.memoryLimit(std::size_t(70));
         const maths::CMultinomialConjugate conjugate;
-        ::CMockEventRateModel              model(factory.modelParams(),
-                                                 gatherer,
-                                                 factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true),
-                                                 conjugate,
-                                                 CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
-                                                 resourceMonitor);
+        ::CMockEventRateModel model(factory.modelParams(),
+                                    gatherer,
+                                    factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true),
+                                    conjugate,
+                                    CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
+                                    resourceMonitor);
 
         CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, model.category());
         CPPUNIT_ASSERT(model.isPopulation() == false);
@@ -507,7 +510,7 @@ void CResourceLimitTest::testLargeAllocations(void) {
     }
     {
         // Test CMetricModel::createUpdateNewModels()
-        const std::string   EMPTY_STRING("");
+        const std::string EMPTY_STRING("");
         const core_t::TTime FIRST_TIME(358556400);
         const core_t::TTime BUCKET_LENGTH(3600);
 

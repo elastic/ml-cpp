@@ -66,9 +66,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
                 class CORE_EXPORT CUInt32Hash {
                     public:
                         //! See CMemory.
-                        static bool dynamicSizeAlwaysZero(void) {
-                            return true;
-                        }
+                        static bool dynamicSizeAlwaysZero(void) { return true; }
 
                     public:
                         CUInt32Hash(void);
@@ -110,9 +108,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
                 class CORE_EXPORT CUInt32UnrestrictedHash {
                     public:
                         //! See CMemory.
-                        static bool dynamicSizeAlwaysZero(void) {
-                            return true;
-                        }
+                        static bool dynamicSizeAlwaysZero(void) { return true; }
 
                     public:
                         CUInt32UnrestrictedHash(void);
@@ -208,9 +204,9 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
                         std::string print(void) const;
 
                     private:
-                        uint32_t   m_M;
+                        uint32_t m_M;
                         TUInt32Vec m_A;
-                        uint32_t   m_B;
+                        uint32_t m_B;
                 };
 
                 typedef std::vector<CUInt32VecHash> TUInt32VecHashVec;
@@ -237,7 +233,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
                         bool operator()(const std::string &token, CUInt32Hash &hash) const;
 
                     private:
-                        char                m_Delimiter;
+                        char m_Delimiter;
                         mutable std::string m_Token;
                 };
 
@@ -313,7 +309,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
 
                 //! Used by generateHashes to protect non thread safe calls
                 //! to the random number generator.
-                static CFastMutex              ms_Mutex;
+                static CFastMutex ms_Mutex;
         };
 
         //! MurmurHash2: fast 32-bit hash.
@@ -396,13 +392,12 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
         class CMurmurHash2BT : public std::unary_function<T, std::size_t> {
             public:
                 //! See CMemory.
-                static bool dynamicSizeAlwaysZero(void) {
-                    return true;
-                }
+                static bool dynamicSizeAlwaysZero(void) { return true; }
 
             public:
                 CMurmurHash2BT(std::size_t seed = 0x5bd1e995) :
-                    m_Seed(seed) {}
+                    m_Seed(seed)
+                {}
 
                 std::size_t operator()(const T &key) const;
 
@@ -417,9 +412,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
         class CORE_EXPORT CMurmurHash2String : public std::unary_function<std::string, std::size_t> {
             public:
                 //! See CMemory.
-                static bool dynamicSizeAlwaysZero(void) {
-                    return true;
-                }
+                static bool dynamicSizeAlwaysZero(void) { return true; }
                 typedef boost::reference_wrapper<const std::string> TStrCRef;
 
             public:
@@ -448,9 +441,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
         class CORE_EXPORT CSafeMurmurHash2String64 : public std::unary_function<std::string, uint64_t> {
             public:
                 //! See CMemory.
-                static bool dynamicSizeAlwaysZero(void) {
-                    return true;
-                }
+                static bool dynamicSizeAlwaysZero(void) { return true; }
                 typedef boost::reference_wrapper<const std::string> TStrCRef;
 
             public:

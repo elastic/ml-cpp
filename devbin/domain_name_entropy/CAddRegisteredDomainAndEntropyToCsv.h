@@ -56,15 +56,15 @@ class CAddRegisteredDomainAndEntropyToCsv : private core::CNonCopyable {
 
     private:
         const CTopLevelDomainDb &m_TopLevelDomainDb;
-        const std::string       m_CsvFileName;
-        const std::string       m_DomainNameFieldName;
-        const std::string       m_TimeFieldName;
-        const std::string       m_EntropyFieldName;
+        const std::string m_CsvFileName;
+        const std::string m_DomainNameFieldName;
+        const std::string m_TimeFieldName;
+        const std::string m_EntropyFieldName;
 
         typedef std::vector<std::string> TStrVec;
 
-        TStrVec::size_type      m_DomainNameFieldIndex;
-        TStrVec::size_type      m_TimeFieldIndex;
+        TStrVec::size_type m_DomainNameFieldIndex;
+        TStrVec::size_type m_TimeFieldIndex;
 
         typedef boost::shared_ptr<CCompressUtils>      TCompressUtilsP;
         typedef std::map<std::string, TCompressUtilsP> TStrCompressUtilsPMap;

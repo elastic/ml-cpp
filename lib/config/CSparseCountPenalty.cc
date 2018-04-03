@@ -69,7 +69,7 @@ double correctForEmptyBuckets(bool ignoreEmpty,
 }
 
 const uint64_t MINIMUM_BUCKETS_TO_TEST = 20;
-const bool     IGNORE_EMPTY[] = { false, true };
+const bool IGNORE_EMPTY[] = { false, true };
 
 }
 
@@ -115,22 +115,22 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
 
         if (quantiles.size() > 3) {
             for (std::size_t iid = 0u; iid < boost::size(IGNORE_EMPTY); ++iid) {
-                std::size_t            nb = quantiles.size();
-                std::size_t            nq = 19;
-                TDoubleVecVec          xq(nb, TDoubleVec(nq));
-                TDoubleVec             means(nb);
-                TDoubleVec             counts(nb);
-                TDoubleVec             significances(nb - 1);
-                TMeanAccumulatorVec    penalties_(nb - 1);
+                std::size_t nb = quantiles.size();
+                std::size_t nq = 19;
+                TDoubleVecVec xq(nb, TDoubleVec(nq));
+                TDoubleVec means(nb);
+                TDoubleVec counts(nb);
+                TDoubleVec significances(nb - 1);
+                TMeanAccumulatorVec penalties_(nb - 1);
                 maths::CQuantileSketch placeholder(maths::CQuantileSketch::E_Linear, 1);
 
                 for (TSizeSizePrQuantileUMapCItr q0 = quantiles[0]->begin(); q0 != quantiles[0]->end(); ++q0) {
                     const CBucketCountStatistics::TSizeSizePr &partition = q0->first;
 
-                    uint64_t                               bc = stats->bucketCounts()[0];
-                    const maths::CQuantileSketch           &          qe0 = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, placeholder, q0->second);
+                    uint64_t bc = stats->bucketCounts()[0];
+                    const maths::CQuantileSketch &qe0 = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, placeholder, q0->second);
                     const CBucketCountStatistics::TMoments &m0 = moments[0]->find(partition)->second;
-                    double                                 me0 = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, m0);
+                    double me0 = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, m0);
                     extract(qe0, nq, xq[0]);
                     means[0] = me0;
                     counts[0] = maths::CBasicStatistics::count(m0);
@@ -144,9 +144,9 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
                         }
 
                         bc = stats->bucketCounts()[bid];
-                        const maths::CQuantileSketch           &          qei = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, placeholder, qi->second);
+                        const maths::CQuantileSketch &qei = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, placeholder, qi->second);
                         const CBucketCountStatistics::TMoments &mi = moments[bid]->find(partition)->second;
-                        double                                 mei = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, mi);
+                        double mei = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, mi);
                         extract(qei, nq, xq[bid]);
                         means[bid] = mei;
                         counts[bid] = maths::CBasicStatistics::count(mi);
@@ -187,9 +187,9 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
                     }
                 }
 
-                TSizeVec   indices;
+                TSizeVec indices;
                 TDoubleVec penalties;
-                TStrVec    descriptions;
+                TStrVec descriptions;
                 indices.reserve(2 * (nb - 1));
                 penalties.reserve(2 * (nb - 1));
                 descriptions.reserve(2 * (nb - 1));
@@ -197,7 +197,7 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
                 for (std::size_t bid = 0u; bid < penalties_.size(); ++bid) {
                     std::size_t index = this->params().penaltyIndexFor(bid, IGNORE_EMPTY[iid]);
                     indices.push_back(index);
-                    double      penalty = ::exp(maths::CBasicStatistics::mean(penalties_[bid]));
+                    double penalty = ::exp(maths::CBasicStatistics::mean(penalties_[bid]));
                     std::string description;
                     if (penalty < 1.0) {
                         description = "The bucket length does not properly capture the variation in event rate";

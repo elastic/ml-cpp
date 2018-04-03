@@ -56,13 +56,14 @@ class CKMostCorrelatedForTest : public maths::CKMostCorrelated {
 
     public:
         CKMostCorrelatedForTest(std::size_t size, double decayRate) :
-                                               maths::CKMostCorrelated(size, decayRate) {}
+            maths::CKMostCorrelated(size, decayRate)
+        {}
 
         void mostCorrelated(TCorrelationVec &result) const {
             this->maths::CKMostCorrelated::mostCorrelated(result);
         }
 
-        const TVectorVec                       &projections(void) const {
+        const TVectorVec &projections(void) const {
             return this->maths::CKMostCorrelated::projections();
         }
 
@@ -70,11 +71,11 @@ class CKMostCorrelatedForTest : public maths::CKMostCorrelated {
             return this->maths::CKMostCorrelated::projected();
         }
 
-        const TCorrelationVec                  &correlations(void) const {
+        const TCorrelationVec &correlations(void) const {
             return this->maths::CKMostCorrelated::correlations();
         }
 
-        const TMeanVarAccumulatorVec           &moments(void) const {
+        const TMeanVarAccumulatorVec &moments(void) const {
             return this->maths::CKMostCorrelated::moments();
         }
 };
@@ -131,21 +132,21 @@ void estimateCorrelation(const std::size_t trials,
         maths::CSampling::multivariateNormalSample(mean, covariance, 50, samples);
 
         TVector10Vec projections;
-        TDoubleVec   uniform01;
+        TDoubleVec uniform01;
         rng.generateUniformSamples(0.0, 1.0, 500, uniform01);
         for (std::size_t i = 0u; i < uniform01.size(); i += 10) {
             double v[] =
             {
-                uniform01[i+0] < 0.5 ? -1.0 : 1.0,
-                uniform01[i+1] < 0.5 ? -1.0 : 1.0,
-                uniform01[i+2] < 0.5 ? -1.0 : 1.0,
-                uniform01[i+3] < 0.5 ? -1.0 : 1.0,
-                uniform01[i+4] < 0.5 ? -1.0 : 1.0,
-                uniform01[i+5] < 0.5 ? -1.0 : 1.0,
-                uniform01[i+6] < 0.5 ? -1.0 : 1.0,
-                uniform01[i+7] < 0.5 ? -1.0 : 1.0,
-                uniform01[i+8] < 0.5 ? -1.0 : 1.0,
-                uniform01[i+9] < 0.5 ? -1.0 : 1.0
+                uniform01[i + 0] < 0.5 ? -1.0 : 1.0,
+                uniform01[i + 1] < 0.5 ? -1.0 : 1.0,
+                uniform01[i + 2] < 0.5 ? -1.0 : 1.0,
+                uniform01[i + 3] < 0.5 ? -1.0 : 1.0,
+                uniform01[i + 4] < 0.5 ? -1.0 : 1.0,
+                uniform01[i + 5] < 0.5 ? -1.0 : 1.0,
+                uniform01[i + 6] < 0.5 ? -1.0 : 1.0,
+                uniform01[i + 7] < 0.5 ? -1.0 : 1.0,
+                uniform01[i + 8] < 0.5 ? -1.0 : 1.0,
+                uniform01[i + 9] < 0.5 ? -1.0 : 1.0
 
             };
             projections.push_back(TVector10(boost::begin(v), boost::end(v)));
@@ -164,7 +165,7 @@ void estimateCorrelation(const std::size_t trials,
         }
         maths::CPackedBitVector ix(50, true);
         maths::CPackedBitVector iy(50, true);
-        double                  correlation = CKMostCorrelatedForTest::TCorrelation::correlation(px, ix, py, iy);
+        double correlation = CKMostCorrelatedForTest::TCorrelation::correlation(px, ix, py, iy);
         if (t % 10 == 0) {
             LOG_DEBUG("correlation = " << correlation);
         }
@@ -187,8 +188,8 @@ void CKMostCorrelatedTest::testCorrelation(void) {
     {
         LOG_DEBUG("*** Weak Correlation ***");
 
-        double   m[] = { 10.0, 15.0 };
-        double   c[] = { 10.0, 2.0, 10.0 };
+        double m[] = { 10.0, 15.0 };
+        double c[] = { 10.0, 2.0, 10.0 };
         TVector2 mean(boost::begin(m), boost::end(m));
         TMatrix2 covariance(boost::begin(c), boost::end(c));
 
@@ -203,8 +204,8 @@ void CKMostCorrelatedTest::testCorrelation(void) {
     {
         LOG_DEBUG("*** Medium Correlation ***");
 
-        double   m[] = { 10.0, 15.0 };
-        double   c[] = { 10.0, 5.0, 10.0 };
+        double m[] = { 10.0, 15.0 };
+        double c[] = { 10.0, 5.0, 10.0 };
         TVector2 mean(boost::begin(m), boost::end(m));
         TMatrix2 covariance(boost::begin(c), boost::end(c));
 
@@ -219,8 +220,8 @@ void CKMostCorrelatedTest::testCorrelation(void) {
     {
         LOG_DEBUG("*** Strong Correlation ***");
 
-        double   m[] = { 10.0, 15.0 };
-        double   c[] = { 10.0, 9.0, 10.0 };
+        double m[] = { 10.0, 15.0 };
+        double c[] = { 10.0, 9.0, 10.0 };
         TVector2 mean(boost::begin(m), boost::end(m));
         TMatrix2 covariance(boost::begin(c), boost::end(c));
 
@@ -308,12 +309,12 @@ void CKMostCorrelatedTest::testNextProjection(void) {
         }
     }
 
-    CKMostCorrelatedForTest::TCorrelationVec        correlations1 = mostCorrelated.correlations();
+    CKMostCorrelatedForTest::TCorrelationVec correlations1 = mostCorrelated.correlations();
     CKMostCorrelatedForTest::TMeanVarAccumulatorVec moments1 = mostCorrelated.moments();
 
     mostCorrelated.capture();
 
-    CKMostCorrelatedForTest::TCorrelationVec        correlations2 = mostCorrelated.correlations();
+    CKMostCorrelatedForTest::TCorrelationVec correlations2 = mostCorrelated.correlations();
     CKMostCorrelatedForTest::TMeanVarAccumulatorVec moments2 = mostCorrelated.moments();
 
     CKMostCorrelatedForTest::TVectorVec p2 = mostCorrelated.projections();
@@ -402,10 +403,10 @@ void CKMostCorrelatedTest::testMostCorrelated(void) {
     for (CKMostCorrelatedForTest::TSizeVectorPackedBitVectorPrUMapCItr x = mostCorrelated.projected().begin();
          x != mostCorrelated.projected().end();
          ++x) {
-        std::size_t                                                   X = x->first;
+        std::size_t X = x->first;
         CKMostCorrelatedForTest::TSizeVectorPackedBitVectorPrUMapCItr y = x;
         while (++y != mostCorrelated.projected().end()) {
-            std::size_t                           Y = y->first;
+            std::size_t Y = y->first;
             CKMostCorrelatedForTest::TCorrelation cxy(X, x->second.first, x->second.second,
                                                       Y, y->second.first, y->second.second);
             expected.add(cxy);
@@ -465,7 +466,7 @@ void CKMostCorrelatedTest::testRemoveVariables(void) {
     mostCorrelated.mostCorrelated(correlatedPairs);
     LOG_DEBUG("correlatedPairs = " << core::CContainerPrinter::print(correlatedPairs));
 
-    std::size_t                       remove_[] = { 2, 5 };
+    std::size_t remove_[] = { 2, 5 };
     CKMostCorrelatedForTest::TSizeVec remove(boost::begin(remove_), boost::end(remove_));
     mostCorrelated.removeVariables(remove);
     mostCorrelated.mostCorrelated(correlatedPairs);
@@ -497,7 +498,7 @@ void CKMostCorrelatedTest::testAccuracy(void) {
     test::CRandomNumbers rng;
 
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("*** test = " << t+1 << " ***");
+        LOG_DEBUG("*** test = " << t + 1 << " ***");
 
         TDoubleVec samples;
         rng.generateUniformSamples(0.0, 10.0, 2000, samples);
@@ -734,10 +735,10 @@ void CKMostCorrelatedTest::testScale(void) {
     test::CRandomNumbers rng;
 
     std::size_t n[] = { 200, 400, 800, 1600, 3200 };
-    uint64_t    elapsed[5];
+    uint64_t elapsed[5];
 
     for (std::size_t s = 0u; s < boost::size(n); ++s) {
-        double      proportions[] = { 0.2, 0.3, 0.5 };
+        double proportions[] = { 0.2, 0.3, 0.5 };
         std::size_t b = 200;
         std::size_t ns[] =
         {
@@ -761,7 +762,7 @@ void CKMostCorrelatedTest::testScale(void) {
         TDoubleVec normal;
         rng.generateNormalSamples(50.0, 20.0, ns[2], normal);
 
-        TDoubleVecVec    samples(b, TDoubleVec(n[s]));
+        TDoubleVecVec samples(b, TDoubleVec(n[s]));
         const TDoubleVec *samples_[] = { &uniform, &gamma, &normal };
         for (std::size_t i = 0u; i < b; ++i) {
             for (std::size_t j = 0u, l = 0u; j < 3; ++j) {
@@ -786,10 +787,10 @@ void CKMostCorrelatedTest::testScale(void) {
         watch.start();
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             for (std::size_t j = 0u; j < samples[i].size(); j += 2) {
-                double x = weights[0][0] * samples[i][j] + weights[0][1] * samples[i][j+1];
-                double y = weights[1][0] * samples[i][j] + weights[1][1] * samples[i][j+1];
+                double x = weights[0][0] * samples[i][j] + weights[0][1] * samples[i][j + 1];
+                double y = weights[1][0] * samples[i][j] + weights[1][1] * samples[i][j + 1];
                 mostCorrelated.add(j,   x);
-                mostCorrelated.add(j+1, y);
+                mostCorrelated.add(j + 1, y);
             }
             mostCorrelated.capture();
         }
@@ -810,7 +811,7 @@ void CKMostCorrelatedTest::testScale(void) {
     // Test that the slope is subquadratic
     TMeanVarAccumulator slope;
     for (std::size_t i = 1u; i < boost::size(elapsed); ++i) {
-        slope.add(static_cast<double>(elapsed[i]) / static_cast<double>(elapsed[i-1]));
+        slope.add(static_cast<double>(elapsed[i]) / static_cast<double>(elapsed[i - 1]));
     }
     double exponent = ::log(maths::CBasicStatistics::mean(slope)) / ::log(2.0);
     LOG_DEBUG("exponent = " << exponent);
@@ -822,7 +823,7 @@ void CKMostCorrelatedTest::testScale(void) {
         // VM stalling
         CPPUNIT_ASSERT(exponent < 2.0);
         CPPUNIT_ASSERT(sdRatio < 0.75);
-    } else {
+    } else   {
         CPPUNIT_ASSERT(exponent < 1.75);
         CPPUNIT_ASSERT(sdRatio < 0.5);
     }
@@ -876,18 +877,18 @@ void CKMostCorrelatedTest::testPersistence(void) {
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
-    maths::CKMostCorrelated              restoredMostCorrelated(10, 0.001);
+    maths::CKMostCorrelated restoredMostCorrelated(10, 0.001);
     CPPUNIT_ASSERT(traverser.traverseSubLevel(
                        boost::bind(&maths::CKMostCorrelated::acceptRestoreTraverser,
                                    &restoredMostCorrelated,
                                    _1)));
 
     LOG_DEBUG("orig checksum = " << origMostCorrelated.checksum()
-                                 << ", new checksum = " << restoredMostCorrelated.checksum());
+              << ", new checksum = " << restoredMostCorrelated.checksum());
     CPPUNIT_ASSERT_EQUAL(origMostCorrelated.checksum(),
                          restoredMostCorrelated.checksum());
 
-    std::string                         newXml;
+    std::string newXml;
     core::CRapidXmlStatePersistInserter inserter("root");
     restoredMostCorrelated.acceptPersistInserter(inserter);
     inserter.toXml(newXml);

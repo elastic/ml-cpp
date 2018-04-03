@@ -52,7 +52,7 @@ struct SDoAssign {
                                                 const CVectorRange<VECTOR> &rhs) {
         if (rhs.base() != lhs.base()) {
             lhs.assign(rhs.begin(), rhs.end());
-        } else {
+        } else   {
             VECTOR tmp{rhs.begin(), rhs.end()};
             lhs.assign(tmp.begin(), tmp.end());
         }
@@ -87,7 +87,8 @@ class CVectorRange {
 
     public:
         CVectorRange(VECTOR &vector, size_type a, size_type b) :
-            m_Vector(&vector), m_A(a), m_B(b) {}
+            m_Vector(&vector), m_A(a), m_B(b)
+        {}
 
         //! Copy assignment.
         const CVectorRange &operator=(const CVectorRange &other) {
@@ -100,7 +101,7 @@ class CVectorRange {
             std::fill_n(this->begin(), std::min(this->size(), n), value);
             if (n > this->size()) {
                 m_Vector->insert(this->end(), n - this->size(), value);
-            } else if (n < this->size()) {
+            } else if (n < this->size())   {
                 m_Vector->erase(this->begin() + n, this->end());
             }
             m_B = m_A + n;
@@ -112,7 +113,7 @@ class CVectorRange {
             std::copy(begin, begin + std::min(this->size(), size), this->begin());
             if (size > this->size()) {
                 m_Vector->insert(this->end(), begin + this->size(), end);
-            } else if (size < this->size()) {
+            } else if (size < this->size())   {
                 m_Vector->erase(this->begin() + size, this->end());
             }
             m_B = m_A + size;
@@ -144,61 +145,35 @@ class CVectorRange {
         }
 
         //! Get writable first element.
-        reference front(void) {
-            return this->operator[](0);
-        }
+        reference front(void) { return this->operator[](0); }
         //! Get read-only first element.
-        const_reference front(void) const {
-            return this->operator[](0);
-        }
+        const_reference front(void) const { return this->operator[](0); }
 
         //! Get writable last element.
-        reference back(void) {
-            return this->operator[](m_B - m_A - 1);
-        }
+        reference back(void) { return this->operator[](m_B - m_A - 1); }
         //! Get read-only last element.
-        const_reference back(void) const {
-            return this->operator[](m_B - m_A - 1);
-        }
+        const_reference back(void) const { return this->operator[](m_B - m_A - 1); }
 
         //! Input iterator to start of range.
-        iterator begin(void) {
-            return m_Vector->begin() + m_A;
-        }
+        iterator begin(void) { return m_Vector->begin() + m_A; }
         //! Output iterator to start of range.
-        const_iterator begin(void) const {
-            return m_Vector->begin() + m_A;
-        }
+        const_iterator begin(void) const { return m_Vector->begin() + m_A; }
         //! Output iterator to start of range.
-        const_iterator cbegin(void) const {
-            return m_Vector->begin() + m_A;
-        }
+        const_iterator cbegin(void) const { return m_Vector->begin() + m_A; }
 
         //! Input iterator to end of range.
-        iterator end(void) {
-            return m_Vector->begin() + m_B;
-        }
+        iterator end(void) { return m_Vector->begin() + m_B; }
         //! Output iterator to end of range.
-        const_iterator end(void) const {
-            return m_Vector->begin() + m_B;
-        }
+        const_iterator end(void) const { return m_Vector->begin() + m_B; }
         //! Output iterator to end of range.
-        const_iterator cend(void) const {
-            return m_Vector->begin() + m_B;
-        }
+        const_iterator cend(void) const { return m_Vector->begin() + m_B; }
 
         //! Check if the range is empty.
-        bool empty(void) const {
-            return m_B == m_A;
-        }
+        bool empty(void) const { return m_B == m_A; }
         //! Size of range.
-        size_type size(void) const {
-            return m_B - m_A;
-        }
+        size_type size(void) const { return m_B - m_A; }
         //! Get the maximum permitted size.
-        size_type max_size(void) const {
-            return m_Vector->max_size();
-        }
+        size_type max_size(void) const { return m_Vector->max_size(); }
         //! Reserve space for \p size elements.
         void reserve(size_type size) {
             m_Vector->reserve((size + m_Vector->size()) - this->size());
@@ -266,7 +241,7 @@ class CVectorRange {
         void resize(size_type n, const T &value) {
             if (n > this->size()) {
                 this->insert(this->end(), n - this->size(), value);
-            } else if (n < this->size()) {
+            } else if (n < this->size())   {
                 this->erase(this->begin() + n, this->end());
             }
         }
@@ -278,19 +253,13 @@ class CVectorRange {
         }
 
         //! Get the base vector.
-        VECTOR *base(void) const {
-            return m_Vector;
-        }
+        VECTOR *base(void) const { return m_Vector; }
 
         //! Get the start of the range.
-        size_type a(void) const {
-            return m_A;
-        }
+        size_type a(void) const { return m_A; }
 
         //! Get the end of the range.
-        size_type b(void) const {
-            return m_B;
-        }
+        size_type b(void) const { return m_B; }
 
     private:
         //! Check if \p pos is in range.
@@ -304,7 +273,7 @@ class CVectorRange {
 
     private:
         //! The underlying vector.
-        VECTOR    *m_Vector;
+        VECTOR *m_Vector;
         //! The range [m_A, m_B).
         size_type m_A, m_B;
 };

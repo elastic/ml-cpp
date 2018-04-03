@@ -113,8 +113,8 @@ double CDetectorEqualizer::correct(int detector, double probability) {
         LOG_TRACE("quantiles = " << core::CContainerPrinter::print(logps));
 
         std::size_t n = logps.size();
-        double      logpc = n % 2 == 0 ? (logps[n/2-1] + logps[n/2]) / 2.0 : logps[n/2];
-        double      alpha = maths::CTools::truncate((logp - A) / (B - A), 0.0, 1.0);
+        double logpc = n % 2 == 0 ? (logps[n / 2 - 1] + logps[n / 2]) / 2.0 : logps[n / 2];
+        double alpha = maths::CTools::truncate((logp - A) / (B - A), 0.0, 1.0);
         LOG_TRACE("Corrected log(p) = " << -alpha * logpc - (1.0 - alpha) * logp);
 
         return ::exp(-alpha * logpc - (1.0 - alpha) * logp);
@@ -151,9 +151,9 @@ maths::CQuantileSketch &CDetectorEqualizer::sketch(int detector) {
 }
 
 const maths::CQuantileSketch::EInterpolation
-                  CDetectorEqualizer::SKETCH_INTERPOLATION(maths::CQuantileSketch::E_Linear);
+CDetectorEqualizer::SKETCH_INTERPOLATION(maths::CQuantileSketch::E_Linear);
 const std::size_t CDetectorEqualizer::SKETCH_SIZE(100);
-const double      CDetectorEqualizer::MINIMUM_COUNT_FOR_CORRECTION(1.5);
+const double CDetectorEqualizer::MINIMUM_COUNT_FOR_CORRECTION(1.5);
 
 }
 }

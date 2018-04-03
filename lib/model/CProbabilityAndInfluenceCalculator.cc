@@ -86,7 +86,8 @@ class CDecreasingMeanInfluence {
     public:
         CDecreasingMeanInfluence(maths_t::ETail tail, const TDouble2Vec &value, double count) :
             m_Tail(tail),
-            m_Mean(maths::CBasicStatistics::accumulator(count, value[0])) {}
+            m_Mean(maths::CBasicStatistics::accumulator(count, value[0]))
+        {}
 
         bool operator()(const TStrCRefDouble1VecDoublePrPr &lhs,
                         const TStrCRefDouble1VecDoublePrPr &rhs) const {
@@ -104,7 +105,7 @@ class CDecreasingMeanInfluence {
         }
 
     private:
-        maths_t::ETail   m_Tail;
+        maths_t::ETail m_Tail;
         TMeanAccumulator m_Mean;
 };
 
@@ -116,7 +117,8 @@ class CDecreasingVarianceInfluence {
     public:
         CDecreasingVarianceInfluence(maths_t::ETail tail, const TDouble2Vec &value, double count) :
             m_Tail(tail),
-            m_Variance(maths::CBasicStatistics::accumulator(count, value[1], value[0])) {}
+            m_Variance(maths::CBasicStatistics::accumulator(count, value[1], value[0]))
+        {}
 
         bool operator()(const TStrCRefDouble1VecDoublePrPr &lhs,
                         const TStrCRefDouble1VecDoublePrPr &rhs) const {
@@ -136,7 +138,7 @@ class CDecreasingVarianceInfluence {
         }
 
     private:
-        maths_t::ETail      m_Tail;
+        maths_t::ETail m_Tail;
         TMeanVarAccumulator m_Variance;
 };
 
@@ -368,10 +370,10 @@ void doComputeInfluences(model_t::EFeature feature,
 
     // Declared outside the loop to minimize the number of times they are created.
     TDouble2Vec1Vec influencedValue{TDouble2Vec(dimension)};
-    TTail2Vec       tail;
-    TSize1Vec       mostAnomalousCorrelate;
+    TTail2Vec tail;
+    TSize1Vec mostAnomalousCorrelate;
 
-    double              logp = maths::CTools::fastLog(probability);
+    double logp = maths::CTools::fastLog(probability);
     TDouble2Vec4Vec1Vec weights(params.weights());
     for (auto i = influencerValues.begin(); i != influencerValues.end(); ++i) {
         params.weights(weights)
@@ -383,11 +385,11 @@ void doComputeInfluences(model_t::EFeature feature,
                                params, influencedValue[0]);
 
         double pi;
-        bool   conditional;
+        bool conditional;
         if (!model.probability(params, time, influencedValue,
                                pi, tail, conditional, mostAnomalousCorrelate)) {
             LOG_ERROR("Failed to compute P(" << influencedValue[0]
-                                             << " | influencer = " << core::CContainerPrinter::print(*i) << ")");
+                      << " | influencer = " << core::CContainerPrinter::print(*i) << ")");
             continue;
         }
         pi = maths::CTools::truncate(pi, maths::CTools::smallestProbability(), 1.0);
@@ -396,17 +398,17 @@ void doComputeInfluences(model_t::EFeature feature,
         double influence = computeInfluence(logp, maths::CTools::fastLog(pi));
 
         LOG_TRACE("log(p) = " << logp
-                              << ", tail = " << core::CContainerPrinter::print(tail)
-                              << ", v(i) = " << core::CContainerPrinter::print(influencedValue)
-                              << ", log(p(i)) = " << ::log(pi)
-                              << ", weight = " << core::CContainerPrinter::print(params.weights())
-                              << ", influence = " << influence
-                              << ", influencer field value = " << i->first.get());
+                  << ", tail = " << core::CContainerPrinter::print(tail)
+                  << ", v(i) = " << core::CContainerPrinter::print(influencedValue)
+                  << ", log(p(i)) = " << ::log(pi)
+                  << ", weight = " << core::CContainerPrinter::print(params.weights())
+                  << ", influence = " << influence
+                  << ", influencer field value = " << i->first.get());
 
         if (dimension == 1 && influence >= cutoff) {
             result.emplace_back(TStoredStringPtrStoredStringPtrPr(influencerName, canonical(i->first)),
                                 influence);
-        } else if (dimension == 1) {
+        } else if (dimension == 1)   {
             if (includeCutoff) {
                 result.emplace_back(TStoredStringPtrStoredStringPtrPr(influencerName, canonical(i->first)),
                                     influence);
@@ -416,10 +418,10 @@ void doComputeInfluences(model_t::EFeature feature,
                 }
             }
             break;
-        } else if (influence >= cutoff) {
+        } else if (influence >= cutoff)   {
             result.emplace_back(TStoredStringPtrStoredStringPtrPr(influencerName, canonical(i->first)),
                                 influence);
-        } else if (includeCutoff) {
+        } else if (includeCutoff)   {
             result.emplace_back(TStoredStringPtrStoredStringPtrPr(influencerName, canonical(i->first)),
                                 0.5 * influence);
         }
@@ -460,10 +462,10 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
 
     // Declared outside the loop to minimize the number of times they are created.
     TDouble2Vec1Vec influencedValue{TDouble2Vec(2)};
-    TTail2Vec       tail;
-    TSize1Vec       mostAnomalousCorrelate;
+    TTail2Vec tail;
+    TSize1Vec mostAnomalousCorrelate;
 
-    double              logp = ::log(probability);
+    double logp = ::log(probability);
     TDouble2Vec4Vec1Vec weights(params.weights());
     for (const auto &influence_ : influencerValues) {
         params.weights(weights)
@@ -475,11 +477,11 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
                                params, influencedValue[0]);
 
         double pi;
-        bool   conditional;
+        bool conditional;
         if (!model.probability(params, TTime2Vec1Vec{time}, influencedValue,
                                pi, tail, conditional, mostAnomalousCorrelate)) {
             LOG_ERROR("Failed to compute P(" << core::CContainerPrinter::print(influencedValue)
-                                             << " | influencer = " << core::CContainerPrinter::print(influence_) << ")");
+                      << " | influencer = " << core::CContainerPrinter::print(influence_) << ")");
             continue;
         }
         pi = maths::CTools::truncate(pi, maths::CTools::smallestProbability(), 1.0);
@@ -488,11 +490,11 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
         double influence = computeInfluence(logp, ::log(pi));
 
         LOG_TRACE("log(p) = " << logp
-                              << ", v(i) = " << core::CContainerPrinter::print(influencedValue)
-                              << ", log(p(i)) = " << ::log(pi)
-                              << ", weight(i) = " << core::CContainerPrinter::print(params.weights())
-                              << ", influence = " << influence
-                              << ", influencer field value = " << influence_.first.get());
+                  << ", v(i) = " << core::CContainerPrinter::print(influencedValue)
+                  << ", log(p(i)) = " << ::log(pi)
+                  << ", weight(i) = " << core::CContainerPrinter::print(params.weights())
+                  << ", influence = " << influence
+                  << ", influencer field value = " << influence_.first.get());
 
         if (includeCutoff || influence >= cutoff) {
             result.emplace_back(TStoredStringPtrStoredStringPtrPr(influencerName,
@@ -508,7 +510,8 @@ CProbabilityAndInfluenceCalculator::CProbabilityAndInfluenceCalculator(double cu
     m_InfluenceCalculator(0),
     m_ProbabilityTemplate(CModelTools::CProbabilityAggregator::E_Min),
     m_Probability(CModelTools::CProbabilityAggregator::E_Min),
-    m_ProbabilityCache(0) {}
+    m_ProbabilityCache(0)
+{}
 
 bool CProbabilityAndInfluenceCalculator::empty(void) const {
     return m_Probability.empty();
@@ -562,7 +565,7 @@ bool CProbabilityAndInfluenceCalculator::addAttributeProbability(const core::CSt
                                                                  CAnnotatedProbabilityBuilder &builder,
                                                                  double weight) {
     model_t::CResultType type;
-    TSize1Vec            mostAnomalousCorrelate;
+    TSize1Vec mostAnomalousCorrelate;
     if (this->addProbability(params.s_Feature, cid, *params.s_Model,
                              params.s_ElapsedTime,
                              params.s_ComputeProbabilityParams,
@@ -570,7 +573,7 @@ bool CProbabilityAndInfluenceCalculator::addAttributeProbability(const core::CSt
                              params.s_Probability, params.s_Tail,
                              type, mostAnomalousCorrelate, weight)) {
         static const TStoredStringPtr1Vec NO_CORRELATED_ATTRIBUTES;
-        static const TSizeDoublePr1Vec    NO_CORRELATES;
+        static const TSizeDoublePr1Vec NO_CORRELATES;
         builder.addAttributeProbability(cid, attribute,
                                         pAttribute, params.s_Probability,
                                         model_t::CResultType::E_Unconditional,
@@ -596,7 +599,7 @@ bool CProbabilityAndInfluenceCalculator::addAttributeProbability(const core::CSt
                              params.s_Probability, params.s_Tail,
                              type, params.s_MostAnomalousCorrelate, weight)) {
         TStoredStringPtr1Vec correlatedLabels_;
-        TSizeDoublePr1Vec    correlated_;
+        TSizeDoublePr1Vec correlated_;
         if (!params.s_MostAnomalousCorrelate.empty()) {
             std::size_t i = params.s_MostAnomalousCorrelate[0];
             correlatedLabels_.push_back(params.s_CorrelatedLabels[i]);
@@ -645,7 +648,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature featur
     // The accuracy from the cache isn't good enough so fall back
     // to calculating.
     TDouble2Vec1Vec values(model_t::stripExtraStatistics(feature, values_));
-    bool            conditional;
+    bool conditional;
     if (model.probability(params, time, values,
                           probability, tail,
                           conditional, mostAnomalousCorrelate)) {
@@ -659,7 +662,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature featur
                 m_ProbabilityCache->addProbability(feature, id, values, probability, tail,
                                                    conditional, mostAnomalousCorrelate);
             }
-        } else {
+        } else   {
             type.set(model_t::CResultType::E_Unconditional);
             mostAnomalousCorrelate.clear();
         }
@@ -809,7 +812,8 @@ CProbabilityAndInfluenceCalculator::SParams::SParams(const CPartitioningFields &
     s_Probability(1.0),
     s_PartitioningFields(partitioningFields),
     s_Cutoff(1.0),
-    s_IncludeCutoff(false) {}
+    s_IncludeCutoff(false)
+{}
 
 std::string CProbabilityAndInfluenceCalculator::SParams::describe(void) const
 {
@@ -826,7 +830,8 @@ CProbabilityAndInfluenceCalculator::SCorrelateParams::SCorrelateParams(const CPa
     s_Probability(1.0),
     s_PartitioningFields(partitioningFields),
     s_Cutoff(1.0),
-    s_IncludeCutoff(false) {}
+    s_IncludeCutoff(false)
+{}
 
 std::string CProbabilityAndInfluenceCalculator::SCorrelateParams::describe(void) const
 {
@@ -912,7 +917,7 @@ void CLogProbabilityComplementInfluenceCalculator::computeInfluences(TCorrelateP
     params.s_Influences.clear();
 
     if (params.s_Tail[0] == maths_t::E_RightTail) {
-        std::size_t                    correlate = params.s_MostAnomalousCorrelate[0];
+        std::size_t correlate = params.s_MostAnomalousCorrelate[0];
         maths::CModelProbabilityParams params_;
         params_.addCalculation(maths_t::E_OneSidedAbove)
         .seasonalConfidenceInterval(params.s_ComputeProbabilityParams.seasonalConfidenceInterval())

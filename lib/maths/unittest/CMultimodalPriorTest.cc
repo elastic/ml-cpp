@@ -144,9 +144,9 @@ void probabilityOfLessLikelySample(const maths::CMixtureDistribution<T> &mixture
 
     probability = 0.0;
 
-    double           fx = pdf(mixture, x);
+    double fx = pdf(mixture, x);
     const TDoubleVec &weights = mixture.weights();
-    const TModeVec   &  modes = mixture.modes();
+    const TModeVec &modes = mixture.modes();
     for (std::size_t i = 0u; i < modes.size(); ++i) {
         TDoubleVec samples;
         sample(modes[i], static_cast<std::size_t>(NUMBER_SAMPLES * weights[i]), samples);
@@ -236,7 +236,7 @@ void CMultimodalPriorTest::testPropagation(void) {
 
     rng.random_shuffle(samples.begin(), samples.end());
 
-    const double     decayRate = 0.1;
+    const double decayRate = 0.1;
     CMultimodalPrior filter(makePrior(decayRate));
 
     for (std::size_t i = 0u; i < samples.size(); ++i) {
@@ -244,7 +244,7 @@ void CMultimodalPriorTest::testPropagation(void) {
         CPPUNIT_ASSERT(filter.checkInvariants());
     }
 
-    double          mean = filter.marginalLikelihoodMean();
+    double mean = filter.marginalLikelihoodMean();
     TDoubleDoublePr percentiles[] =
     {
         filter.marginalLikelihoodConfidenceInterval(60.0),
@@ -256,7 +256,7 @@ void CMultimodalPriorTest::testPropagation(void) {
     filter.propagateForwardsByTime(40.0);
     CPPUNIT_ASSERT(filter.checkInvariants());
 
-    double          propagatedMean = filter.marginalLikelihoodMean();
+    double propagatedMean = filter.marginalLikelihoodMean();
     TDoubleDoublePr propagatedPercentiles[] =
     {
         filter.marginalLikelihoodConfidenceInterval(60.0),
@@ -294,9 +294,9 @@ void CMultimodalPriorTest::testSingleMode(void) {
 
     LOG_DEBUG("Gaussian");
     {
-        COneOfNPrior     modePrior(makeModePrior());
+        COneOfNPrior modePrior(makeModePrior());
         CMultimodalPrior filter1(makePrior(&modePrior));
-        COneOfNPrior     filter2 = modePrior;
+        COneOfNPrior filter2 = modePrior;
 
         const double mean = 10.0;
         const double variance = 2.0;
@@ -317,9 +317,9 @@ void CMultimodalPriorTest::testSingleMode(void) {
 
         boost::math::normal_distribution<> f(mean, ::sqrt(variance));
         for (std::size_t i = 0u; i < samples.size(); ++i) {
-            double      fx = boost::math::pdf(f, samples[i]);
+            double fx = boost::math::pdf(f, samples[i]);
             TDouble1Vec sample(1, samples[i]);
-            double      l1;
+            double l1;
             CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                  filter1.jointLogMarginalLikelihood(sample, l1));
             L1G.add(::log(fx) - l1);
@@ -331,17 +331,17 @@ void CMultimodalPriorTest::testSingleMode(void) {
         }
 
         LOG_DEBUG("L1G = " << maths::CBasicStatistics::mean(L1G)
-                           << ", L12 = " << maths::CBasicStatistics::mean(L12)
-                           << ", differential entropy " << differentialEntropy);
+                  << ", L12 = " << maths::CBasicStatistics::mean(L12)
+                  << ", differential entropy " << differentialEntropy);
 
         CPPUNIT_ASSERT(  maths::CBasicStatistics::mean(L1G)
                          / maths::CBasicStatistics::mean(differentialEntropy) < 0.0);
     }
     LOG_DEBUG("Log-Normal");
     {
-        COneOfNPrior     modePrior(makeModePrior());
+        COneOfNPrior modePrior(makeModePrior());
         CMultimodalPrior filter1(makePrior(&modePrior));
-        COneOfNPrior     filter2 = modePrior;
+        COneOfNPrior filter2 = modePrior;
 
         const double location = 1.5;
         const double squareScale = 0.9;
@@ -363,9 +363,9 @@ void CMultimodalPriorTest::testSingleMode(void) {
         boost::math::lognormal_distribution<> f(location, ::sqrt(squareScale));
 
         for (std::size_t i = 0u; i < samples.size(); ++i) {
-            double      fx = boost::math::pdf(f, samples[i]);
+            double fx = boost::math::pdf(f, samples[i]);
             TDouble1Vec sample(1, samples[i]);
-            double      l1;
+            double l1;
             CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                  filter1.jointLogMarginalLikelihood(sample, l1));
             L1G.add(::log(fx) - l1);
@@ -377,17 +377,17 @@ void CMultimodalPriorTest::testSingleMode(void) {
         }
 
         LOG_DEBUG("L1G = " << maths::CBasicStatistics::mean(L1G)
-                           << ", L12 = " << maths::CBasicStatistics::mean(L12)
-                           << ", differential entropy " << differentialEntropy);
+                  << ", L12 = " << maths::CBasicStatistics::mean(L12)
+                  << ", differential entropy " << differentialEntropy);
 
         CPPUNIT_ASSERT(  maths::CBasicStatistics::mean(L1G)
                          / maths::CBasicStatistics::mean(differentialEntropy) < 0.0);
     }
     LOG_DEBUG("Gamma");
     {
-        COneOfNPrior     modePrior(makeModePrior());
+        COneOfNPrior modePrior(makeModePrior());
         CMultimodalPrior filter1(makePrior(&modePrior));
-        COneOfNPrior     filter2 = modePrior;
+        COneOfNPrior filter2 = modePrior;
 
         const double shape = 1.0;
         const double scale = 0.5;
@@ -409,9 +409,9 @@ void CMultimodalPriorTest::testSingleMode(void) {
         boost::math::gamma_distribution<> f(shape, scale);
 
         for (std::size_t i = 0u; i < samples.size(); ++i) {
-            double      fx = boost::math::pdf(f, samples[i]);
+            double fx = boost::math::pdf(f, samples[i]);
             TDouble1Vec sample(1, samples[i]);
-            double      l1;
+            double l1;
             CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                  filter1.jointLogMarginalLikelihood(sample, l1));
             L1G.add(::log(fx) - l1);
@@ -423,8 +423,8 @@ void CMultimodalPriorTest::testSingleMode(void) {
         }
 
         LOG_DEBUG("L1G = " << maths::CBasicStatistics::mean(L1G)
-                           << ", L12 = " << maths::CBasicStatistics::mean(L12)
-                           << ", differential entropy " << differentialEntropy);
+                  << ", L12 = " << maths::CBasicStatistics::mean(L12)
+                  << ", differential entropy " << differentialEntropy);
 
         CPPUNIT_ASSERT(  maths::CBasicStatistics::mean(L1G)
                          / maths::CBasicStatistics::mean(differentialEntropy) < 0.1);
@@ -453,12 +453,12 @@ void CMultimodalPriorTest::testMultipleModes(void) {
         LOG_DEBUG("Mixture Normals");
 
         const std::size_t n1 = 400u;
-        const double      mean1 = 10.0;
-        const double      variance1 = 2.0;
+        const double mean1 = 10.0;
+        const double variance1 = 2.0;
 
         const std::size_t n2 = 600u;
-        const double      mean2 = 20.0;
-        const double      variance2 = 5.0;
+        const double mean2 = 20.0;
+        const double variance2 = 5.0;
 
         TDoubleVec samples1;
         rng.generateNormalSamples(mean1, variance1, n1, samples1);
@@ -471,12 +471,12 @@ void CMultimodalPriorTest::testMultipleModes(void) {
 
         LOG_DEBUG("# samples = " << samples.size());
 
-        double                             w1 = n1 / static_cast<double>(n1 + n2);
-        double                             w2 = n2 / static_cast<double>(n1 + n2);
+        double w1 = n1 / static_cast<double>(n1 + n2);
+        double w2 = n2 / static_cast<double>(n1 + n2);
         boost::math::normal_distribution<> mode1Distribution(mean1, ::sqrt(variance1));
         boost::math::normal_distribution<> mode2Distribution(mean2, ::sqrt(variance2));
 
-        double           loss = 0.0;
+        double loss = 0.0;
         TMeanAccumulator differentialEntropy_;
         for (std::size_t j = 0u; j < samples.size(); ++j) {
             double fx =  w1 * boost::math::pdf(mode1Distribution, samples[j])
@@ -488,9 +488,9 @@ void CMultimodalPriorTest::testMultipleModes(void) {
         for (std::size_t i = 0; i < 10; ++i) {
             rng.random_shuffle(samples.begin(), samples.end());
 
-            COneOfNPrior     modePrior(makeModePrior());
+            COneOfNPrior modePrior(makeModePrior());
             CMultimodalPrior filter1(makePrior(&modePrior));
-            COneOfNPrior     filter2 = modePrior;
+            COneOfNPrior filter2 = modePrior;
 
             for (std::size_t j = 0u; j < samples.size(); ++j) {
                 TDouble1Vec sample(1, samples[j]);
@@ -508,7 +508,7 @@ void CMultimodalPriorTest::testMultipleModes(void) {
                 double fx =  w1 * boost::math::pdf(mode1Distribution, samples[j])
                             + w2 * boost::math::pdf(mode2Distribution, samples[j]);
                 TDouble1Vec sample(1, samples[j]);
-                double      l1;
+                double l1;
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                      filter1.jointLogMarginalLikelihood(sample, l1));
                 loss1G.add(::log(fx) - l1);
@@ -519,8 +519,8 @@ void CMultimodalPriorTest::testMultipleModes(void) {
             }
 
             LOG_DEBUG("loss1G = " << maths::CBasicStatistics::mean(loss1G)
-                                  << ", loss12 = " << maths::CBasicStatistics::mean(loss12)
-                                  << ", differential entropy " << differentialEntropy);
+                      << ", loss12 = " << maths::CBasicStatistics::mean(loss12)
+                      << ", differential entropy " << differentialEntropy);
 
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(loss12) < 0.0);
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(loss1G) / differentialEntropy < 0.0);
@@ -529,23 +529,23 @@ void CMultimodalPriorTest::testMultipleModes(void) {
 
         loss /= 10.0;
         LOG_DEBUG("loss = " << loss
-                            << ", differential entropy = " << differentialEntropy);
+                  << ", differential entropy = " << differentialEntropy);
         CPPUNIT_ASSERT(loss / differentialEntropy < 0.0);
     }
     {
         LOG_DEBUG("Mixture Log-Normals");
 
         const std::size_t n1 = 600u;
-        const double      location1 = 2.0;
-        const double      squareScale1 = 0.04;
+        const double location1 = 2.0;
+        const double squareScale1 = 0.04;
 
         const std::size_t n2 = 300u;
-        const double      location2 = 3.0;
-        const double      squareScale2 = 0.08;
+        const double location2 = 3.0;
+        const double squareScale2 = 0.08;
 
         const std::size_t n3 = 100u;
-        const double      location3 = 4.0;
-        const double      squareScale3 = 0.01;
+        const double location3 = 4.0;
+        const double squareScale3 = 0.01;
 
         TDoubleVec samples1;
         rng.generateLogNormalSamples(location1, squareScale1, n1, samples1);
@@ -561,14 +561,14 @@ void CMultimodalPriorTest::testMultipleModes(void) {
 
         LOG_DEBUG("# samples = " << samples.size());
 
-        double                                w1 = n1 / static_cast<double>(n1 + n2 + n3);
-        double                                w2 = n2 / static_cast<double>(n1 + n2 + n3);
-        double                                w3 = n3 / static_cast<double>(n1 + n2 + n3);
+        double w1 = n1 / static_cast<double>(n1 + n2 + n3);
+        double w2 = n2 / static_cast<double>(n1 + n2 + n3);
+        double w3 = n3 / static_cast<double>(n1 + n2 + n3);
         boost::math::lognormal_distribution<> mode1Distribution(location1, ::sqrt(squareScale1));
         boost::math::lognormal_distribution<> mode2Distribution(location2, ::sqrt(squareScale2));
         boost::math::lognormal_distribution<> mode3Distribution(location3, ::sqrt(squareScale3));
 
-        double           loss = 0.0;
+        double loss = 0.0;
         TMeanAccumulator differentialEntropy_;
         for (std::size_t j = 0u; j < samples.size(); ++j) {
             double fx =  w1 * boost::math::pdf(mode1Distribution, samples[j])
@@ -581,9 +581,9 @@ void CMultimodalPriorTest::testMultipleModes(void) {
         for (std::size_t i = 0; i < 10; ++i) {
             rng.random_shuffle(samples.begin(), samples.end());
 
-            COneOfNPrior     modePrior(makeModePrior());
+            COneOfNPrior modePrior(makeModePrior());
             CMultimodalPrior filter1(makePrior(&modePrior));
-            COneOfNPrior     filter2 = modePrior;
+            COneOfNPrior filter2 = modePrior;
 
             for (std::size_t j = 0u; j < samples.size(); ++j) {
                 TDouble1Vec sample(1, samples[j]);
@@ -602,7 +602,7 @@ void CMultimodalPriorTest::testMultipleModes(void) {
                             + w2 * boost::math::pdf(mode2Distribution, samples[j])
                             + w3 * boost::math::pdf(mode3Distribution, samples[j]);
                 TDouble1Vec sample(1, samples[j]);
-                double      l1;
+                double l1;
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                      filter1.jointLogMarginalLikelihood(sample, l1));
                 loss1G.add(::log(fx) - l1);
@@ -613,8 +613,8 @@ void CMultimodalPriorTest::testMultipleModes(void) {
             }
 
             LOG_DEBUG("loss1G = " << maths::CBasicStatistics::mean(loss1G)
-                                  << ", loss12 = " << maths::CBasicStatistics::mean(loss12)
-                                  << ", differential entropy " << differentialEntropy);
+                      << ", loss12 = " << maths::CBasicStatistics::mean(loss12)
+                      << ", differential entropy " << differentialEntropy);
 
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(loss12) < 0.0);
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(loss1G) / differentialEntropy < 0.001);
@@ -623,23 +623,23 @@ void CMultimodalPriorTest::testMultipleModes(void) {
 
         loss /= 10.0;
         LOG_DEBUG("loss = " << loss
-                            << ", differential entropy = " << differentialEntropy);
+                  << ", differential entropy = " << differentialEntropy);
         CPPUNIT_ASSERT(loss / differentialEntropy < 0.0);
     }
     {
         LOG_DEBUG("Mixed Modes");
 
         const std::size_t n1 = 400u;
-        const double      mean1 = 10.0;
-        const double      variance1 = 1.0;
+        const double mean1 = 10.0;
+        const double variance1 = 1.0;
 
         const std::size_t n2 = 200u;
-        const double      location2 = 3.0;
-        const double      squareScale2 = 0.08;
+        const double location2 = 3.0;
+        const double squareScale2 = 0.08;
 
         const std::size_t n3 = 400u;
-        const double      shape3 = 120.0;
-        const double      scale3 = 0.3;
+        const double shape3 = 120.0;
+        const double scale3 = 0.3;
 
         TDoubleVec samples1;
         rng.generateNormalSamples(mean1, variance1, n1, samples1);
@@ -655,14 +655,14 @@ void CMultimodalPriorTest::testMultipleModes(void) {
 
         LOG_DEBUG("# samples = " << samples.size());
 
-        double                                w1 = n1 / static_cast<double>(n1 + n2 + n3);
-        double                                w2 = n2 / static_cast<double>(n1 + n2 + n3);
-        double                                w3 = n3 / static_cast<double>(n1 + n2 + n3);
-        boost::math::normal_distribution<>    mode1Distribution(mean1, ::sqrt(variance1));
+        double w1 = n1 / static_cast<double>(n1 + n2 + n3);
+        double w2 = n2 / static_cast<double>(n1 + n2 + n3);
+        double w3 = n3 / static_cast<double>(n1 + n2 + n3);
+        boost::math::normal_distribution<> mode1Distribution(mean1, ::sqrt(variance1));
         boost::math::lognormal_distribution<> mode2Distribution(location2, ::sqrt(squareScale2));
-        boost::math::gamma_distribution<>     mode3Distribution(shape3, scale3);
+        boost::math::gamma_distribution<> mode3Distribution(shape3, scale3);
 
-        double           loss = 0.0;
+        double loss = 0.0;
         TMeanAccumulator differentialEntropy_;
         for (std::size_t j = 0u; j < samples.size(); ++j) {
             double fx =  w1 * boost::math::pdf(mode1Distribution, samples[j])
@@ -675,9 +675,9 @@ void CMultimodalPriorTest::testMultipleModes(void) {
         for (std::size_t i = 0; i < 10; ++i) {
             rng.random_shuffle(samples.begin(), samples.end());
 
-            COneOfNPrior     modePrior(makeModePrior());
+            COneOfNPrior modePrior(makeModePrior());
             CMultimodalPrior filter1(makePrior(&modePrior));
-            COneOfNPrior     filter2 = modePrior;
+            COneOfNPrior filter2 = modePrior;
 
             for (std::size_t j = 0u; j < samples.size(); ++j) {
                 TDouble1Vec sample(1, samples[j]);
@@ -696,7 +696,7 @@ void CMultimodalPriorTest::testMultipleModes(void) {
                             + w2 * boost::math::pdf(mode2Distribution, samples[j])
                             + w3 * boost::math::pdf(mode3Distribution, samples[j]);
                 TDouble1Vec sample(1, samples[j]);
-                double      l1;
+                double l1;
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                      filter1.jointLogMarginalLikelihood(sample, l1));
                 loss1G.add(::log(fx) - l1);
@@ -707,8 +707,8 @@ void CMultimodalPriorTest::testMultipleModes(void) {
             }
 
             LOG_DEBUG("loss1G = " << maths::CBasicStatistics::mean(loss1G)
-                                  << ", loss12 = " << maths::CBasicStatistics::mean(loss12)
-                                  << ", differential entropy " << differentialEntropy);
+                      << ", loss12 = " << maths::CBasicStatistics::mean(loss12)
+                      << ", differential entropy " << differentialEntropy);
 
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(loss12) < 0.0);
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(loss1G) / differentialEntropy < 0.01);
@@ -717,7 +717,7 @@ void CMultimodalPriorTest::testMultipleModes(void) {
 
         loss /= 10.0;
         LOG_DEBUG("loss = " << loss
-                            << ", differential entropy = " << differentialEntropy);
+                  << ", differential entropy = " << differentialEntropy);
         CPPUNIT_ASSERT(loss / differentialEntropy < 0.003);
     }
 }
@@ -788,7 +788,7 @@ void CMultimodalPriorTest::testMarginalLikelihood(void) {
     const double w3 = 0.2;
     const double mean3 = 25.0;
     const double variance3 = 3.0;
-    TDoubleVec   samples1;
+    TDoubleVec samples1;
     rng.generateNormalSamples(mean1, variance1,
                               static_cast<std::size_t>(w1 * 500.0),
                               samples1);
@@ -826,7 +826,7 @@ void CMultimodalPriorTest::testMarginalLikelihood(void) {
                 TDouble1Vec sample(1, static_cast<double>(k));
 
                 LOG_DEBUG("number = " << numberSamples[i]
-                                      << ", sample = " << sample[0]);
+                          << ", sample = " << sample[0]);
 
                 double logLikelihood = 0.0;
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
@@ -893,7 +893,7 @@ void CMultimodalPriorTest::testMarginalLikelihood(void) {
         modes.push_back(boost::math::normal_distribution<>(mean2, variance2));
         modes.push_back(boost::math::normal_distribution<>(mean3, variance3));
         maths::CMixtureDistribution<boost::math::normal_distribution<> > f(weights, modes);
-        double                                                           expectedDifferentialEntropy = maths::CTools::differentialEntropy(f);
+        double expectedDifferentialEntropy = maths::CTools::differentialEntropy(f);
 
         double differentialEntropy = 0.0;
         for (std::size_t i = 0u; i < manySamples.size(); ++i) {
@@ -911,7 +911,7 @@ void CMultimodalPriorTest::testMarginalLikelihood(void) {
         differentialEntropy /= static_cast<double>(manySamples.size());
 
         LOG_DEBUG("differentialEntropy = " << differentialEntropy
-                                           << ", expectedDifferentialEntropy = " << expectedDifferentialEntropy);
+                  << ", expectedDifferentialEntropy = " << expectedDifferentialEntropy);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedDifferentialEntropy,
                                      differentialEntropy,
@@ -930,12 +930,12 @@ void CMultimodalPriorTest::testMarginalLikelihoodMode(void) {
 
     test::CRandomNumbers rng;
 
-    double     w1 = 0.1;
-    double     mean1 = 1.0;
-    double     variance1 = 1.0;
-    double     w2 = 0.9;
-    double     mean2 = 8.0;
-    double     variance2 = 1.5;
+    double w1 = 0.1;
+    double mean1 = 1.0;
+    double variance1 = 1.0;
+    double w2 = 0.9;
+    double mean2 = 8.0;
+    double variance2 = 1.5;
     TDoubleVec samples1;
     rng.generateNormalSamples(mean1, variance1,
                               static_cast<std::size_t>(w1 * 500.0),
@@ -961,8 +961,8 @@ void CMultimodalPriorTest::testMarginalLikelihoodMode(void) {
     filter.addSamples(samples);
 
     maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountVarianceScaleWeight);
-    TDouble4Vec              weight(1, 1.0);
-    TDouble4Vec1Vec          weights(1, weight);
+    TDouble4Vec weight(1, 1.0);
+    TDouble4Vec1Vec weights(1, weight);
 
     std::size_t totalCount = 0u;
     for (std::size_t i = 0u; i < boost::size(varianceScales); ++i) {
@@ -997,8 +997,8 @@ void CMultimodalPriorTest::testMarginalLikelihoodMode(void) {
         fModePlusEps  = ::exp(fModePlusEps);
         double gradient = (fModePlusEps - fModeMinusEps) / 2.0 / eps;
         LOG_DEBUG("f(mode) = " << fMode
-                               << ", f(mode-eps) = " << fModeMinusEps
-                               << ", f(mode + eps) = " << fModePlusEps);
+                  << ", f(mode-eps) = " << fModeMinusEps
+                  << ", f(mode + eps) = " << fModePlusEps);
         LOG_DEBUG("gradient = " << gradient);
         CPPUNIT_ASSERT(::fabs(gradient) < 0.05);
         CPPUNIT_ASSERT(fMode > 0.999 * fModeMinusEps);
@@ -1006,7 +1006,7 @@ void CMultimodalPriorTest::testMarginalLikelihoodMode(void) {
         TDoubleVec trials;
         rng.generateUniformSamples(mean1, mean2, 500, trials);
         std::size_t count = 0u;
-        TDoubleVec  fTrials;
+        TDoubleVec fTrials;
         for (std::size_t j = 0u; j < trials.size(); ++j) {
             double fTrial;
             filter.jointLogMarginalLikelihood(weightStyle,
@@ -1043,12 +1043,12 @@ void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval(void) {
     {
         test::CRandomNumbers rng;
 
-        double     w1 = 0.2;
-        double     location1 = 0.1;
-        double     squareScale1 = 0.2;
-        double     w2 = 0.8;
-        double     mean2 = 8.0;
-        double     variance2 = 2.0;
+        double w1 = 0.2;
+        double location1 = 0.1;
+        double squareScale1 = 0.2;
+        double w2 = 0.8;
+        double mean2 = 8.0;
+        double variance2 = 2.0;
         TDoubleVec samples1;
         rng.generateLogNormalSamples(location1, squareScale1,
                                      static_cast<std::size_t>(w1 * 2000.0),
@@ -1088,7 +1088,7 @@ void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval(void) {
                 filter.marginalLikelihoodQuantileForTest(50.0 + percentages[j] / 2.0, 1e-3, q2);
                 TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(percentages[j]);
                 LOG_DEBUG("[q1, q2] = [" << q1 << ", " << q2 << "]"
-                                         << ", interval = " << core::CContainerPrinter::print(interval));
+                          << ", interval = " << core::CContainerPrinter::print(interval));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(q1, interval.first, 0.1);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(q2, interval.second, 0.05);
                 error.add(::fabs(interval.first - q1));
@@ -1108,11 +1108,11 @@ void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval(void) {
             std::size_t i2 = static_cast<std::size_t>(
                 static_cast<double>(samples.size())
                 * (50.0 + percentages[i] / 2.0) / 100.0 + 0.5);
-            double          q1 = samples[i1];
-            double          q2 = samples[std::min(i2, samples.size() - 1)];
+            double q1 = samples[i1];
+            double q2 = samples[std::min(i2, samples.size() - 1)];
             TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(percentages[i]);
             LOG_DEBUG("[q1, q2] = [" << q1 << ", " << q2 << "]"
-                                     << ", interval = " << core::CContainerPrinter::print(interval));
+                      << ", interval = " << core::CContainerPrinter::print(interval));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(q1, interval.first, std::max(0.1 * q1, 0.15));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(q2, interval.second, 0.1 * q2);
             error.add(::fabs(interval.first - q1) / q1);
@@ -1131,11 +1131,11 @@ void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval(void) {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(state.str()));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        maths::SDistributionRestoreParams    params(maths_t::E_ContinuousData, 0.0,
-                                                    maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
-                                                    maths::MINIMUM_CLUSTER_SPLIT_COUNT,
-                                                    maths::MINIMUM_CATEGORY_COUNT);
-        TPriorPtr                    prior;
+        maths::SDistributionRestoreParams params(maths_t::E_ContinuousData, 0.0,
+                                                 maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
+                                                 maths::MINIMUM_CLUSTER_SPLIT_COUNT,
+                                                 maths::MINIMUM_CATEGORY_COUNT);
+        TPriorPtr prior;
         maths::CPriorStateSerialiser restorer;
         CPPUNIT_ASSERT(restorer(params, prior, traverser));
         TDoubleDoublePr median = prior->marginalLikelihoodConfidenceInterval(
@@ -1223,9 +1223,9 @@ void CMultimodalPriorTest::testSampleMarginalLikelihood(void) {
             sampledMoments = std::for_each(sampled.begin(), sampled.end(), sampledMoments);
 
             LOG_DEBUG("expectedMean = " << filter.marginalLikelihoodMean()
-                                        << ", sampledMean = " << maths::CBasicStatistics::mean(sampledMoments));
+                      << ", sampledMean = " << maths::CBasicStatistics::mean(sampledMoments));
             LOG_DEBUG("expectedVariance = " << filter.marginalLikelihoodVariance()
-                                            << ", sampledVariance = " << maths::CBasicStatistics::variance(sampledMoments));
+                      << ", sampledVariance = " << maths::CBasicStatistics::variance(sampledMoments));
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(filter.marginalLikelihoodMean(),
                                          maths::CBasicStatistics::mean(sampledMoments),
@@ -1250,8 +1250,8 @@ void CMultimodalPriorTest::testSampleMarginalLikelihood(void) {
             CPPUNIT_ASSERT(filter.marginalLikelihoodQuantileForTest(q, eps, expectedQuantile));
 
             LOG_DEBUG("quantile = " << q
-                                    << ", x_quantile = " << expectedQuantile
-                                    << ", quantile range = [" << sampled[j - 1] << "," << sampled[j] << "]");
+                      << ", x_quantile = " << expectedQuantile
+                      << ", quantile range = [" << sampled[j - 1] << "," << sampled[j] << "]");
 
             CPPUNIT_ASSERT(expectedQuantile >= 0.98 * sampled[j - 1]);
             CPPUNIT_ASSERT(expectedQuantile <= 1.02 * sampled[j]);
@@ -1270,7 +1270,7 @@ void CMultimodalPriorTest::testSampleMarginalLikelihood(void) {
         sampledMoments.add(sampled[i]);
     }
     LOG_DEBUG("Sample moments = " << sampledMoments
-                                  << ", sampled moments = " << sampleMoments);
+              << ", sampled moments = " << sampleMoments);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(sampleMoments),
                                  maths::CBasicStatistics::mean(sampledMoments),
                                  1e-4 * maths::CBasicStatistics::mean(sampleMoments));
@@ -1294,8 +1294,8 @@ void CMultimodalPriorTest::testCdf(void) {
     //    cdf x for x < 0 = 1
     //    cdf complement x for x < 0 = 0
 
-    const double      locations[] = { 1.0, 3.0 };
-    const double      squareScales[] = { 0.5, 0.3 };
+    const double locations[] = { 1.0, 3.0 };
+    const double squareScales[] = { 0.5, 0.3 };
     const std::size_t n[] = { 100u, 100u };
 
     test::CRandomNumbers rng;
@@ -1307,7 +1307,7 @@ void CMultimodalPriorTest::testCdf(void) {
     COneOfNPrior::TPriorPtrVec priors;
     priors.push_back(COneOfNPrior::TPriorPtr(gamma.clone()));
     priors.push_back(COneOfNPrior::TPriorPtr(logNormal.clone()));
-    COneOfNPrior     modePrior(maths::COneOfNPrior(priors, maths_t::E_ContinuousData));
+    COneOfNPrior modePrior(maths::COneOfNPrior(priors, maths_t::E_ContinuousData));
     CMultimodalPrior filter(makePrior(&modePrior));
 
     for (std::size_t i = 0u; i < boost::size(n); ++i) {
@@ -1326,7 +1326,7 @@ void CMultimodalPriorTest::testCdf(void) {
     CPPUNIT_ASSERT(filter.minusLogJointCdfComplement(TDouble1Vec(1, -1.0), lowerBound, upperBound));
     double fComplement = (lowerBound + upperBound) / 2.0;
     LOG_DEBUG("log(F(x)) = " << -f
-                             << ", log(1 - F(x)) = " << fComplement);
+              << ", log(1 - F(x)) = " << fComplement);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(std::numeric_limits<double>::min()), -f, 1e-8);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, ::exp(-fComplement), 1e-8);
 
@@ -1339,7 +1339,7 @@ void CMultimodalPriorTest::testCdf(void) {
         fComplement = (lowerBound + upperBound) / 2.0;
 
         LOG_DEBUG("log(F(x)) = " << (f == 0.0 ? f : -f)
-                                 << ", log(1 - F(x)) = " << (fComplement == 0.0 ? fComplement : -fComplement));
+                  << ", log(1 - F(x)) = " << (fComplement == 0.0 ? fComplement : -fComplement));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, ::exp(-f) + ::exp(-fComplement), 1e-8);
     }
 }
@@ -1400,9 +1400,9 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
                                                   TDouble1Vec(1, x[i]),
                                                   lowerBound, upperBound);
             LOG_DEBUG("lowerBound = " << lowerBound
-                                      << ", upperBound = " << upperBound
-                                      << ", expectedProbability = " << expectedProbability
-                                      << ", deviation = " << deviation);
+                      << ", upperBound = " << upperBound
+                      << ", expectedProbability = " << expectedProbability
+                      << ", deviation = " << deviation);
 
             double probability = (lowerBound + upperBound) / 2.0;
             error +=  probability < expectedProbability - 2.0 * deviation ?
@@ -1419,7 +1419,7 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
         LOG_DEBUG("error = " << error);
         CPPUNIT_ASSERT(error < 0.001);
 
-        double         lb, ub;
+        double lb, ub;
         maths_t::ETail tail;
         filter.probabilityOfLessLikelySamples(
             maths_t::E_TwoSided,
@@ -1459,7 +1459,7 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
         }
         rng.random_shuffle(samples.begin(), samples.end());
 
-        TDoubleVec    mixtureWeights(boost::begin(weights), boost::end(weights));
+        TDoubleVec mixtureWeights(boost::begin(weights), boost::end(weights));
         TLogNormalVec modes;
         modes.push_back(boost::math::lognormal_distribution<>(locations[0], ::sqrt(squareScales[0])));
         modes.push_back(boost::math::lognormal_distribution<>(locations[1], ::sqrt(squareScales[1])));
@@ -1485,9 +1485,9 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
                                                   TDouble1Vec(1, x[i]),
                                                   lowerBound, upperBound);
             LOG_DEBUG("lowerBound = " << lowerBound
-                                      << ", upperBound = " << upperBound
-                                      << ", expectedProbability = " << expectedProbability
-                                      << ", deviation = " << deviation);
+                      << ", upperBound = " << upperBound
+                      << ", expectedProbability = " << expectedProbability
+                      << ", deviation = " << deviation);
 
             double probability = (lowerBound + upperBound) / 2.0;
             error +=  probability < expectedProbability - 2.0 * deviation ?
@@ -1521,7 +1521,7 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
         rng.random_shuffle(samples.begin(), samples.end());
 
         TDoubleVec mixtureWeights(boost::begin(weights), boost::end(weights));
-        TGammaVec  modes;
+        TGammaVec modes;
         modes.push_back(boost::math::gamma_distribution<>(shapes[0], scales[0]));
         modes.push_back(boost::math::gamma_distribution<>(shapes[1], scales[1]));
         maths::CMixtureDistribution<boost::math::gamma_distribution<> > mixture(mixtureWeights, modes);
@@ -1545,9 +1545,9 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
                                                   TDouble1Vec(1, x[i]),
                                                   lowerBound, upperBound);
             LOG_DEBUG("lowerBound = " << lowerBound
-                                      << ", upperBound = " << upperBound
-                                      << ", expectedProbability = " << expectedProbability
-                                      << ", deviation = " << deviation);
+                      << ", upperBound = " << upperBound
+                      << ", expectedProbability = " << expectedProbability
+                      << ", deviation = " << deviation);
 
             double probability = (lowerBound + upperBound) / 2.0;
             error +=  probability < expectedProbability - 2.0 * deviation ?
@@ -1682,7 +1682,7 @@ void CMultimodalPriorTest::testLargeValues(void) {
     modePriors.push_back(TPriorPtr(gammaPrior.clone()));
     modePriors.push_back(TPriorPtr(logNormalPrior.clone()));
     modePriors.push_back(TPriorPtr(normalPrior.clone()));
-    maths::COneOfNPrior    modePrior(modePriors, maths_t::E_ContinuousData, 0.001);
+    maths::COneOfNPrior modePrior(modePriors, maths_t::E_ContinuousData, 0.001);
     maths::CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
                                      maths::CAvailableModeDistributions::ALL,
                                      maths_t::E_ClustersFractionWeight,
@@ -1693,7 +1693,7 @@ void CMultimodalPriorTest::testLargeValues(void) {
 
         multimodalPrior.addSamples(maths::CConstantWeights::COUNT,
                                    TDouble1Vec(1, value),
-                                   TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0/3.0)));
+                                   TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0 / 3.0)));
         if (!multimodalPrior.isNonInformative()) {
             TDoubleDoublePr interval =
                 multimodalPrior.marginalLikelihoodConfidenceInterval(
@@ -1739,10 +1739,10 @@ void CMultimodalPriorTest::testSeasonalVarianceScale(void) {
     TDoubleVec samples3;
     rng.generateNormalSamples(mean3, variance3, 100, samples3);
 
-    double                   varianceScales[] = { 0.2, 0.5, 1.0, 2.0, 5.0 };
+    double varianceScales[] = { 0.2, 0.5, 1.0, 2.0, 5.0 };
     maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleSeasonalVarianceScaleWeight);
-    TDouble4Vec              weight(1, 1.0);
-    TDouble4Vec1Vec          weights(1, weight);
+    TDouble4Vec weight(1, 1.0);
+    TDouble4Vec1Vec weights(1, weight);
 
     double m;
     double v;
@@ -1797,24 +1797,24 @@ void CMultimodalPriorTest::testSeasonalVarianceScale(void) {
             TDouble1Vec sample(1, 0.0);
             for (std::size_t j = 0u; j < boost::size(points); ++j) {
                 TDouble1Vec x(1, points[j]);
-                double      fx;
+                double fx;
                 filter.jointLogMarginalLikelihood(weightStyle, x, weights, fx);
                 TDouble1Vec xMinusEps(1, points[j] - 1e-3);
                 TDouble1Vec xPlusEps(1, points[j] + 1e-3);
-                double      lb, ub;
+                double lb, ub;
                 filter.minusLogJointCdf(weightStyle, xPlusEps, weights, lb, ub);
                 double FxPlusEps = ::exp(-(lb + ub) / 2.0);
                 filter.minusLogJointCdf(weightStyle, xMinusEps, weights, lb, ub);
                 double FxMinusEps = ::exp(-(lb + ub) / 2.0);
                 LOG_DEBUG("x = " << points[j]
-                                 << ", log(f(x)) = " << fx
-                                 << ", log(dF/dx)) = " << ::log((FxPlusEps - FxMinusEps) / 2e-3));
+                          << ", log(f(x)) = " << fx
+                          << ", log(dF/dx)) = " << ::log((FxPlusEps - FxMinusEps) / 2e-3));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(fx, ::log((FxPlusEps - FxMinusEps) / 2e-3), 0.05 * ::fabs(fx));
 
                 sample[0] = m + (points[j] - m) / ::sqrt(vs);
                 weights[0][0] = 1.0;
-                double         expectedLowerBound;
-                double         expectedUpperBound;
+                double expectedLowerBound;
+                double expectedUpperBound;
                 maths_t::ETail expectedTail;
                 filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                                       weightStyle,
@@ -1824,8 +1824,8 @@ void CMultimodalPriorTest::testSeasonalVarianceScale(void) {
 
                 sample[0] = points[j];
                 weights[0][0] = vs;
-                double         lowerBound;
-                double         upperBound;
+                double lowerBound;
+                double upperBound;
                 maths_t::ETail tail;
                 filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                                       weightStyle,
@@ -1847,7 +1847,7 @@ void CMultimodalPriorTest::testSeasonalVarianceScale(void) {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(expectedUpperBound),
                                                  ::log(upperBound),
                                                  0.1 * ::fabs(::log(expectedUpperBound)));
-                } else {
+                } else   {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedLowerBound,
                                                  lowerBound,
                                                  0.05 * expectedLowerBound);
@@ -1923,7 +1923,7 @@ void CMultimodalPriorTest::testPersist(void) {
                               TDouble1Vec(1, samples[i]),
                               TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0)));
     }
-    double   decayRate = origFilter.decayRate();
+    double decayRate = origFilter.decayRate();
     uint64_t checksum = origFilter.checksum();
 
     std::string origXml;
@@ -1948,7 +1948,7 @@ void CMultimodalPriorTest::testPersist(void) {
     maths::CMultimodalPrior restoredFilter(params, traverser);
 
     LOG_DEBUG("orig checksum = " << checksum
-                                 << " restored checksum = " << restoredFilter.checksum());
+              << " restored checksum = " << restoredFilter.checksum());
     CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
 
     // The XML representation of the new filter should be the same as the original

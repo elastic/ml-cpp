@@ -66,39 +66,39 @@ int main(int argc, char **argv) {
     typedef ml::autodetect::CCmdLineParser::TStrVec TStrVec;
 
     // Read command line options
-    std::string       limitConfigFile;
-    std::string       modelConfigFile;
-    std::string       fieldConfigFile;
-    std::string       modelPlotConfigFile;
-    std::string       jobId;
-    std::string       logProperties;
-    std::string       logPipe;
+    std::string limitConfigFile;
+    std::string modelConfigFile;
+    std::string fieldConfigFile;
+    std::string modelPlotConfigFile;
+    std::string jobId;
+    std::string logProperties;
+    std::string logPipe;
     ml::core_t::TTime bucketSpan(0);
     ml::core_t::TTime latency(0);
-    std::string       summaryCountFieldName;
-    char              delimiter('\t');
-    bool              lengthEncodedInput(false);
-    std::string       timeField(ml::api::CAnomalyJob::DEFAULT_TIME_FIELD_NAME);
-    std::string       timeFormat;
-    std::string       quantilesStateFile;
-    bool              deleteStateFiles(false);
+    std::string summaryCountFieldName;
+    char delimiter('\t');
+    bool lengthEncodedInput(false);
+    std::string timeField(ml::api::CAnomalyJob::DEFAULT_TIME_FIELD_NAME);
+    std::string timeFormat;
+    std::string quantilesStateFile;
+    bool deleteStateFiles(false);
     ml::core_t::TTime persistInterval(-1);
     ml::core_t::TTime maxQuantileInterval(-1);
-    std::string       inputFileName;
-    bool              isInputFileNamedPipe(false);
-    std::string       outputFileName;
-    bool              isOutputFileNamedPipe(false);
-    std::string       restoreFileName;
-    bool              isRestoreFileNamedPipe(false);
-    std::string       persistFileName;
-    bool              isPersistFileNamedPipe(false);
-    size_t            maxAnomalyRecords(100u);
-    bool              memoryUsage(false);
-    std::size_t       bucketResultsDelay(0);
-    bool              multivariateByFields(false);
-    std::string       multipleBucketspans;
-    bool              perPartitionNormalization(false);
-    TStrVec           clauseTokens;
+    std::string inputFileName;
+    bool isInputFileNamedPipe(false);
+    std::string outputFileName;
+    bool isOutputFileNamedPipe(false);
+    std::string restoreFileName;
+    bool isRestoreFileNamedPipe(false);
+    std::string persistFileName;
+    bool isPersistFileNamedPipe(false);
+    size_t maxAnomalyRecords(100u);
+    bool memoryUsage(false);
+    std::size_t bucketResultsDelay(0);
+    bool multivariateByFields(false);
+    std::string multipleBucketspans;
+    bool perPartitionNormalization(false);
+    TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(argc,
                                               argv,
                                               limitConfigFile,
@@ -218,7 +218,7 @@ int main(int argc, char **argv) {
             strm->push(ml::api::CStateRestoreStreamFilter());
             strm->push(*ioMgr.restoreStream());
             restoreSearcher.reset(new ml::api::CSingleStreamSearcher(strm));
-        } else {
+        } else   {
             restoreSearcher.reset(new ml::api::CSingleStreamSearcher(ioMgr.restoreStream()));
         }
     }
@@ -246,7 +246,7 @@ int main(int argc, char **argv) {
     TScopedInputParserP inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    } else {
+    } else   {
         inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(),
                                                        delimiter));
     }

@@ -53,7 +53,8 @@ class CKMeansOnlineTestForTest : public maths::CKMeansOnline<POINT> {
 
     public:
         CKMeansOnlineTestForTest(std::size_t k, double decayRate = 0.0) :
-            maths::CKMeansOnline<POINT>(k, decayRate) {}
+            maths::CKMeansOnline<POINT>(k, decayRate)
+        {}
 
         static void add(const POINT &x,
                         double count,
@@ -94,11 +95,11 @@ void CKMeansOnlineTest::testVariance(void) {
         for (std::size_t i = 0u; i < coordinates.size(); i += 5) {
             double c[] =
             {
-                coordinates[i+0],
-                coordinates[i+1],
-                coordinates[i+2],
-                coordinates[i+3],
-                coordinates[i+4]
+                coordinates[i + 0],
+                coordinates[i + 1],
+                coordinates[i + 2],
+                coordinates[i + 3],
+                coordinates[i + 4]
             };
             points.push_back(TVector5(c));
         }
@@ -143,14 +144,14 @@ void CKMeansOnlineTest::testAdd(void) {
         for (std::size_t i = 0u; i < coordinates.size(); i += 2) {
             double c[] =
             {
-                coordinates[i+0],
-                coordinates[i+1]
+                coordinates[i + 0],
+                coordinates[i + 1]
             };
             points.push_back(TVector2(c));
         }
 
         TMean2AccumulatorDoublePr actual;
-        TMeanVar2Accumulator      expected;
+        TMeanVar2Accumulator expected;
         for (std::size_t i = 0u; i < points.size(); ++i) {
             CKMeansOnlineTestForTest<TVector2>::add(points[i], counts[i], actual);
             expected.add(points[i], counts[i]);
@@ -159,9 +160,9 @@ void CKMeansOnlineTest::testAdd(void) {
         TVector2 ones(1.0);
 
         LOG_DEBUG("actual   = " << maths::CBasicStatistics::mean(actual.first)
-                                << "," << actual.second);
+                  << "," << actual.second);
         LOG_DEBUG("expected = " << maths::CBasicStatistics::mean(expected)
-                                << "," <<  maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones)
+                  << "," <<  maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones)
                   / static_cast<double>(ones.dimension()));
 
         CPPUNIT_ASSERT_EQUAL(print(maths::CBasicStatistics::mean(expected)),
@@ -201,8 +202,8 @@ void CKMeansOnlineTest::testReduce(void) {
         for (std::size_t i = 0u; i < coordinates.size(); i += 2) {
             double c[] =
             {
-                coordinates[i+0],
-                coordinates[i+1]
+                coordinates[i + 0],
+                coordinates[i + 1]
             };
             points.push_back(TVector2(c));
         }
@@ -217,7 +218,7 @@ void CKMeansOnlineTest::testReduce(void) {
             kmeans.add(points[i], counts[i]);
             expected.add(points[i], counts[i]);
 
-            if ((i+1) % 7 == 0) {
+            if ((i + 1) % 7 == 0) {
                 CKMeansOnlineTestForTest<TVector2>::TSphericalClusterVec clusters;
                 kmeans.clusters(clusters);
                 CPPUNIT_ASSERT(clusters.size() <= 10);
@@ -256,8 +257,8 @@ void CKMeansOnlineTest::testClustering(void) {
         TMeanVarAccumulator cost;
         TMeanVarAccumulator costOnline;
 
-        double      a[] = { 0.0, 20.0 };
-        double      b[] = { 5.0, 30.0 };
+        double a[] = { 0.0, 20.0 };
+        double b[] = { 5.0, 30.0 };
         TVector2Vec points;
         for (std::size_t i = 0u; i < 2; ++i) {
             TDoubleVec coordinates;
@@ -265,8 +266,8 @@ void CKMeansOnlineTest::testClustering(void) {
             for (std::size_t j = 0u; j < coordinates.size(); j += 2) {
                 double c[] =
                 {
-                    coordinates[j+0],
-                    coordinates[j+1]
+                    coordinates[j + 0],
+                    coordinates[j + 1]
                 };
                 points.push_back(TVector2(c));
             }
@@ -276,10 +277,10 @@ void CKMeansOnlineTest::testClustering(void) {
             LOG_DEBUG("*** test = " << t << " ***");
 
             maths::CKMeansFast<TVector2> kmeans;
-            double                       cost_ = std::numeric_limits<double>::max();
+            double cost_ = std::numeric_limits<double>::max();
             kmeans.setPoints(points);
-            TVector2Vec                     centres;
-            TVector2VecVec                  clusters;
+            TVector2Vec centres;
+            TVector2VecVec clusters;
             maths::CPRNG::CXorOShiro128Plus rng_;
             for (std::size_t i = 0u; i < 10; ++i) {
                 maths::CKMeansPlusPlusInitialization<TVector2, maths::CPRNG::CXorOShiro128Plus> seedCentres(rng_);
@@ -293,7 +294,7 @@ void CKMeansOnlineTest::testClustering(void) {
             }
 
             maths::CKMeansOnline<TVector2> kmeansOnline(24);
-            double                         costOnline_ = std::numeric_limits<double>::max();
+            double costOnline_ = std::numeric_limits<double>::max();
             {
                 for (std::size_t i = 0u; i < points.size(); ++i) {
                     kmeansOnline.add(points[i]);
@@ -305,7 +306,7 @@ void CKMeansOnlineTest::testClustering(void) {
                 costOnline_ = criterion.calculate();
             }
             LOG_DEBUG("cost = " << cost_
-                                << ", cost online = " << costOnline_);
+                      << ", cost online = " << costOnline_);
 
             cost.add(cost_);
             costOnline.add(costOnline_);
@@ -334,8 +335,8 @@ void CKMeansOnlineTest::testClustering(void) {
         for (std::size_t i = 0u; i < coordinates.size(); i += 2) {
             double v[] =
             {
-                coordinates[i+0],
-                coordinates[i+1]
+                coordinates[i + 0],
+                coordinates[i + 1]
             };
             points.push_back(TVector2(v));
         }
@@ -343,13 +344,13 @@ void CKMeansOnlineTest::testClustering(void) {
         for (std::size_t t = 1u; t <= 20; ++t) {
             LOG_DEBUG("*** test = " << t << " ***");
 
-            maths::CKMeansFast<TVector2>   kmeans;
+            maths::CKMeansFast<TVector2> kmeans;
             maths::CKMeansOnline<TVector2> kmeansOnline(24);
 
             double cost_ = std::numeric_limits<double>::max();
             kmeans.setPoints(points);
-            TVector2Vec                     centres;
-            TVector2VecVec                  clusters;
+            TVector2Vec centres;
+            TVector2VecVec clusters;
             maths::CPRNG::CXorOShiro128Plus rng_;
             for (std::size_t i = 0u; i < 10; ++i) {
                 maths::CKMeansPlusPlusInitialization<TVector2, maths::CPRNG::CXorOShiro128Plus> seedCentres(rng_);
@@ -374,7 +375,7 @@ void CKMeansOnlineTest::testClustering(void) {
                 costOnline_ = criterion.calculate();
             }
             LOG_DEBUG("cost = " << cost_
-                                << ", cost online = " << costOnline_);
+                      << ", cost online = " << costOnline_);
 
             cost.add(cost_);
             costOnline.add(costOnline_);
@@ -404,8 +405,8 @@ void CKMeansOnlineTest::testSplit(void) {
 
     test::CRandomNumbers rng;
 
-    double      m[] = { 5.0, 15.0 };
-    double      v[] = { 5.0, 10.0 };
+    double m[] = { 5.0, 15.0 };
+    double v[] = { 5.0, 10.0 };
     TVector2Vec points;
     for (std::size_t i = 0u; i < 2; ++i) {
         TDoubleVec coordinates;
@@ -413,8 +414,8 @@ void CKMeansOnlineTest::testSplit(void) {
         for (std::size_t j = 0u; j < coordinates.size(); j += 2) {
             double c[] =
             {
-                coordinates[j+0],
-                coordinates[j+1]
+                coordinates[j + 0],
+                coordinates[j + 1]
             };
             points.push_back(TVector2(c));
         }
@@ -478,8 +479,8 @@ void CKMeansOnlineTest::testMerge(void) {
 
     test::CRandomNumbers rng;
 
-    double      m[] = { 5.0, 15.0 };
-    double      v[] = { 5.0, 10.0 };
+    double m[] = { 5.0, 15.0 };
+    double v[] = { 5.0, 10.0 };
     TVector2Vec points[2];
     for (std::size_t i = 0u; i < 2; ++i) {
         TDoubleVec coordinates;
@@ -487,8 +488,8 @@ void CKMeansOnlineTest::testMerge(void) {
         for (std::size_t j = 0u; j < coordinates.size(); j += 2) {
             double c[] =
             {
-                coordinates[j+0],
-                coordinates[j+1]
+                coordinates[j + 0],
+                coordinates[j + 1]
             };
             points[i].push_back(TVector2(c));
         }
@@ -516,7 +517,7 @@ void CKMeansOnlineTest::testMerge(void) {
 
     kmeans[0].merge(kmeans[1]);
 
-    TMeanVar2Accumulator                                     actual;
+    TMeanVar2Accumulator actual;
     CKMeansOnlineTestForTest<TVector2>::TSphericalClusterVec clusters;
     kmeans[0].clusters(clusters);
     for (std::size_t j = 0u; j < clusters.size(); ++j) {
@@ -546,18 +547,18 @@ void CKMeansOnlineTest::testPropagateForwardsByTime(void) {
 
     test::CRandomNumbers rng;
 
-    double      m = 5.0;
-    double      v = 4.0;
+    double m = 5.0;
+    double v = 4.0;
     TVector2Vec points;
-    TDoubleVec  coordinates;
+    TDoubleVec coordinates;
     rng.generateNormalSamples(m, v, 700, coordinates);
-    double   outlier_[] = { 50.0, 20.0 };
+    double outlier_[] = { 50.0, 20.0 };
     TVector2 outlier(outlier_);
     for (std::size_t i = 0u; i < coordinates.size(); i += 2) {
         double c[] =
         {
-            coordinates[i+0],
-            coordinates[i+1]
+            coordinates[i + 0],
+            coordinates[i + 1]
         };
         points.push_back(TVector2(c));
         if (i == 200) {
@@ -599,7 +600,7 @@ void CKMeansOnlineTest::testSample(void) {
     maths::CSampling::seed();
 
     std::size_t n[] = { 500, 500 };
-    double      means[][2] =
+    double means[][2] =
     {
         {  0.0, 10.0 },
         { 20.0, 30.0 }
@@ -611,11 +612,11 @@ void CKMeansOnlineTest::testSample(void) {
     };
 
     maths::CBasicStatistics::SSampleCovariances<double, 2> expectedSampleCovariances[2];
-    TVector2Vec                                            samples;
+    TVector2Vec samples;
 
     for (std::size_t i = 0u; i < 2; ++i) {
-        TVector2    mean(means[i]);
-        TMatrix2    covariance(covariances[i], covariances[i] + 3);
+        TVector2 mean(means[i]);
+        TMatrix2 covariance(covariances[i], covariances[i] + 3);
         TVector2Vec modeSamples;
         maths::CSampling::multivariateNormalSample(mean,
                                                    covariance,
@@ -638,7 +639,7 @@ void CKMeansOnlineTest::testSample(void) {
 
         kmeans.add(samples[i]);
         TVector2Vec sampled;
-        kmeans.sample(i+1, sampled);
+        kmeans.sample(i + 1, sampled);
         std::sort(sampled.begin(), sampled.end());
 
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedSampled),
@@ -659,7 +660,7 @@ void CKMeansOnlineTest::testSample(void) {
         if ((sampled[i] - TVector2(means[0])).euclidean()
             < (sampled[i] - TVector2(means[1])).euclidean()) {
             sampleCovariances[0].add(sampled[i]);
-        } else {
+        } else   {
             sampleCovariances[1].add(sampled[i]);
         }
     }
@@ -683,7 +684,7 @@ void CKMeansOnlineTest::testSample(void) {
     double covarianceError0 = (covariance0 - expectedCovariance0).frobenius()
                               / expectedCovariance0.frobenius();
     LOG_DEBUG("mean error 0 = " << meanError0
-                                << ", covariance error 0 = " << covarianceError0);
+              << ", covariance error 0 = " << covarianceError0);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, meanError0, 0.01);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, covarianceError0, 0.27);
 
@@ -692,7 +693,7 @@ void CKMeansOnlineTest::testSample(void) {
     double covarianceError1 = (covariance1 - expectedCovariance1).frobenius()
                               / expectedCovariance1.frobenius();
     LOG_DEBUG("mean error 1 = " << meanError1
-                                << ", covariance error 1 = " << covarianceError1);
+              << ", covariance error 1 = " << covarianceError1);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, meanError1, 0.01);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, covarianceError1, 0.24);
 }
@@ -708,7 +709,7 @@ void CKMeansOnlineTest::testPersist(void) {
     rng.generateUniformSamples(0.0, 400.0, 998, coordinates);
     TVector2Vec points;
     for (std::size_t i = 0u; i < coordinates.size(); i += 2) {
-        points.push_back(TVector2(&coordinates[i], &coordinates[i+2]));
+        points.push_back(TVector2(&coordinates[i], &coordinates[i + 2]));
     }
 
     maths::CKMeansOnline<TVector2> origKmeans(25, 0.1);
@@ -731,12 +732,12 @@ void CKMeansOnlineTest::testPersist(void) {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        maths::CKMeansOnline<TVector2>       restoredKmeans(0);
-        maths::SDistributionRestoreParams    params(maths_t::E_ContinuousData,
-                                                    0.1,
-                                                    maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
-                                                    maths::MINIMUM_CLUSTER_SPLIT_COUNT,
-                                                    maths::MINIMUM_CATEGORY_COUNT);
+        maths::CKMeansOnline<TVector2> restoredKmeans(0);
+        maths::SDistributionRestoreParams params(maths_t::E_ContinuousData,
+                                                 0.1,
+                                                 maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
+                                                 maths::MINIMUM_CLUSTER_SPLIT_COUNT,
+                                                 maths::MINIMUM_CATEGORY_COUNT);
         CPPUNIT_ASSERT(traverser.traverseSubLevel(
                            boost::bind(&maths::CKMeansOnline<TVector2>::acceptRestoreTraverser,
                                        &restoredKmeans,
@@ -744,11 +745,11 @@ void CKMeansOnlineTest::testPersist(void) {
                                        _1)));
 
         LOG_DEBUG("orig checksum = " << origKmeans.checksum()
-                                     << ", new checksum = " << restoredKmeans.checksum());
+                  << ", new checksum = " << restoredKmeans.checksum());
         CPPUNIT_ASSERT_EQUAL(origKmeans.checksum(),
                              restoredKmeans.checksum());
 
-        std::string                         newXml;
+        std::string newXml;
         core::CRapidXmlStatePersistInserter inserter("root");
         restoredKmeans.acceptPersistInserter(inserter);
         inserter.toXml(newXml);

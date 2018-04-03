@@ -63,7 +63,8 @@ CForecastRunner::SForecast::SForecast()
       s_NumberOfModels(0),
       s_NumberOfForecastableModels(0),
       s_MemoryUsage(0),
-      s_Messages() {}
+      s_Messages()
+{}
 
 CForecastRunner::SForecast::SForecast(SForecast &&other)
     : s_ForecastId(std::move(other.s_ForecastId)),
@@ -77,7 +78,8 @@ CForecastRunner::SForecast::SForecast(SForecast &&other)
       s_NumberOfModels(other.s_NumberOfModels),
       s_NumberOfForecastableModels(other.s_NumberOfForecastableModels),
       s_MemoryUsage(other.s_MemoryUsage),
-      s_Messages(other.s_Messages) {}
+      s_Messages(other.s_Messages)
+{}
 
 CForecastRunner::SForecast &CForecastRunner::SForecast::operator=(SForecast &&other) {
     s_ForecastId = std::move(other.s_ForecastId);
@@ -98,9 +100,7 @@ CForecastRunner::SForecast &CForecastRunner::SForecast::operator=(SForecast &&ot
 
 CForecastRunner::CForecastRunner(const std::string &jobId, core::CJsonOutputStreamWrapper &strmOut, model::CResourceMonitor &resourceMonitor)
     : m_JobId(jobId), m_ConcurrentOutputStream(strmOut), m_ResourceMonitor(resourceMonitor), m_Shutdown(false) {
-    m_Worker = std::thread([this] {
-                this->forecastWorker();
-            });
+    m_Worker = std::thread([this] { this->forecastWorker(); });
 }
 
 CForecastRunner::~CForecastRunner() {
@@ -128,10 +128,10 @@ void CForecastRunner::forecastWorker() {
     while (!m_Shutdown) {
         if (this->tryGetJob(forecastJob)) {
             LOG_INFO("Start forecasting from " << core::CTimeUtils::toIso8601(forecastJob.s_StartTime)
-                                               << " to " << core::CTimeUtils::toIso8601(forecastJob.forecastEnd()));
+                     << " to " << core::CTimeUtils::toIso8601(forecastJob.forecastEnd()));
 
             core::CStopWatch timer(true);
-            uint64_t         lastStatsUpdate = 0;
+            uint64_t lastStatsUpdate = 0;
 
             LOG_TRACE("about to create sink");
             model::CForecastDataSink sink(m_JobId,
@@ -148,9 +148,9 @@ void CForecastRunner::forecastWorker() {
 
             // collecting the runtime messages first and sending it in 1 go
             TStrUSet messages(forecastJob.s_Messages);
-            double   processedModels = 0;
-            double   totalNumberOfForecastableModels = static_cast<double>(forecastJob.s_NumberOfForecastableModels);
-            size_t   failedForecasts = 0;
+            double processedModels = 0;
+            double totalNumberOfForecastableModels = static_cast<double>(forecastJob.s_NumberOfForecastableModels);
+            size_t failedForecasts = 0;
             sink.writeStats(0.0, 0, forecastJob.s_Messages);
 
             // while loops allow us to free up memory for every model right after each forecast is done
@@ -158,22 +158,22 @@ void CForecastRunner::forecastWorker() {
                 TForecastResultSeries &series = forecastJob.s_ForecastSeries.back();
 
                 while (!series.s_ToForecast.empty()) {
-                    const TForecastModelWrapper      &    model = series.s_ToForecast.back();
+                    const TForecastModelWrapper &model = series.s_ToForecast.back();
                     model_t::TDouble1VecDouble1VecPr support = model_t::support(model.s_Feature);
-                    bool                             success = model.s_ForecastModel->forecast(forecastJob.s_StartTime,
-                                                                                               forecastJob.forecastEnd(),
-                                                                                               forecastJob.s_BoundsPercentile,
-                                                                                               support.first, support.second,
-                                                                                               boost::bind(&model::CForecastDataSink::push,
-                                                                                                           &sink,
-                                                                                                           _1,
-                                                                                                           model_t::print(model.s_Feature),
-                                                                                                           series.s_PartitionFieldName,
-                                                                                                           series.s_PartitionFieldValue,
-                                                                                                           series.s_ByFieldName,
-                                                                                                           model.s_ByFieldValue,
-                                                                                                           series.s_DetectorIndex),
-                                                                                               message);
+                    bool success = model.s_ForecastModel->forecast(forecastJob.s_StartTime,
+                                                                   forecastJob.forecastEnd(),
+                                                                   forecastJob.s_BoundsPercentile,
+                                                                   support.first, support.second,
+                                                                   boost::bind(&model::CForecastDataSink::push,
+                                                                               &sink,
+                                                                               _1,
+                                                                               model_t::print(model.s_Feature),
+                                                                               series.s_PartitionFieldName,
+                                                                               series.s_PartitionFieldValue,
+                                                                               series.s_ByFieldName,
+                                                                               model.s_ByFieldValue,
+                                                                               series.s_DetectorIndex),
+                                                                   message);
                     series.s_ToForecast.pop_back();
 
                     if (success == false) {
@@ -191,7 +191,7 @@ void CForecastRunner::forecastWorker() {
                     if (processedModels != totalNumberOfForecastableModels) {
                         uint64_t elapsedTime = timer.lap();
                         if (elapsedTime - lastStatsUpdate > MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE) {
-                            sink.writeStats(processedModels/totalNumberOfForecastableModels, elapsedTime, forecastJob.s_Messages);
+                            sink.writeStats(processedModels / totalNumberOfForecastableModels, elapsedTime, forecastJob.s_Messages);
                             lastStatsUpdate = elapsedTime;
                         }
                     }
@@ -259,8 +259,8 @@ bool CForecastRunner::pushForecastJob(const std::string &controlMessage,
 
     size_t totalNumberOfModels = 0;
     size_t totalNumberOfForecastModels = 0;
-    bool   atLeastOneNonPopulationModel = false;
-    bool   atLeastOneSupportedFunction = false;
+    bool atLeastOneNonPopulationModel = false;
+    bool atLeastOneSupportedFunction = false;
     size_t totalMemoryUsage = 0;
 
     // 1st loop over the detectors to check prerequisites
@@ -349,7 +349,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string &control
     std::istringstream stringStream(controlMessage.substr(1));
     forecastJob.s_StartTime = lastResultsTime;
 
-    core_t::TTime               expiresIn = 0l;
+    core_t::TTime expiresIn = 0l;
     boost::property_tree::ptree properties;
     try {
         boost::property_tree::read_json(stringStream, properties);
@@ -364,7 +364,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string &control
 
         // note: this is not exposed on x-pack side
         forecastJob.s_BoundsPercentile = properties.get<double>("boundspercentile", 95.0);
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR(ERROR_FORECAST_REQUEST_FAILED_TO_PARSE << e.what());
         return false;
     }
@@ -407,7 +407,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string &control
         // only log
         expiresIn = DEFAULT_EXPIRY_TIME;
         LOG_INFO(WARNING_INVALID_EXPIRY);
-    } else if (expiresIn == -1l) {
+    } else if (expiresIn == -1l)   {
         // only log
         expiresIn = DEFAULT_EXPIRY_TIME;
         LOG_DEBUG(INFO_DEFAULT_EXPIRY);

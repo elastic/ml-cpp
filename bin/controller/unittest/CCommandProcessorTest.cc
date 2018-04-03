@@ -36,7 +36,7 @@ const std::string OUTPUT_FILE("slogan1.txt");
 // forward slash path separators
 const std::string INPUT_FILE1("testfiles\\slogan1.txt");
 const std::string INPUT_FILE2("testfiles\\slogan2.txt");
-const char        *winDir(::getenv("windir"));
+const char *winDir(::getenv("windir"));
 const std::string PROCESS_PATH(winDir != 0 ? std::string(winDir) + "\\System32\\cmd"
                                            : std::string("C:\\Windows\\System32\\cmd"));
 const std::string PROCESS_ARGS1[] = { "/C", "copy " + INPUT_FILE1 + " ." };
@@ -81,7 +81,7 @@ void CCommandProcessorTest::testStartPermitted(void) {
     ::remove(OUTPUT_FILE.c_str());
 
     ml::controller::CCommandProcessor::TStrVec permittedPaths(1, PROCESS_PATH);
-    ml::controller::CCommandProcessor          processor(permittedPaths);
+    ml::controller::CCommandProcessor processor(permittedPaths);
 
     std::string command(ml::controller::CCommandProcessor::START);
     command += '\t';
@@ -110,7 +110,7 @@ void CCommandProcessorTest::testStartPermitted(void) {
 
 void CCommandProcessorTest::testStartNonPermitted(void) {
     ml::controller::CCommandProcessor::TStrVec permittedPaths(1, "some other process");
-    ml::controller::CCommandProcessor          processor(permittedPaths);
+    ml::controller::CCommandProcessor processor(permittedPaths);
 
     std::string command(ml::controller::CCommandProcessor::START);
     command += '\t';
@@ -137,7 +137,7 @@ void CCommandProcessorTest::testStartNonPermitted(void) {
 
 void CCommandProcessorTest::testStartNonExistent(void) {
     ml::controller::CCommandProcessor::TStrVec permittedPaths(1, "some other process");
-    ml::controller::CCommandProcessor          processor(permittedPaths);
+    ml::controller::CCommandProcessor processor(permittedPaths);
 
     std::string command(ml::controller::CCommandProcessor::START);
     command += "\tsome other process";
@@ -150,7 +150,7 @@ void CCommandProcessorTest::testKillDisallowed(void) {
     // namely the unit test program
 
     ml::controller::CCommandProcessor::TStrVec permittedPaths(1, PROCESS_PATH);
-    ml::controller::CCommandProcessor          processor(permittedPaths);
+    ml::controller::CCommandProcessor processor(permittedPaths);
 
     std::string command(ml::controller::CCommandProcessor::KILL);
     command += '\t';
@@ -161,7 +161,7 @@ void CCommandProcessorTest::testKillDisallowed(void) {
 
 void CCommandProcessorTest::testInvalidVerb(void) {
     ml::controller::CCommandProcessor::TStrVec permittedPaths(1, "some other process");
-    ml::controller::CCommandProcessor          processor(permittedPaths);
+    ml::controller::CCommandProcessor processor(permittedPaths);
 
     std::string command("drive");
     command += "\tsome other process";

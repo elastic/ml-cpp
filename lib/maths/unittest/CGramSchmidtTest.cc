@@ -50,7 +50,7 @@ void generate(test::CRandomNumbers &rng,
     x.clear();
     for (std::size_t i = 0u; i < n; ++i) {
         x.push_back(T(&components[i     * d],
-                      &components[(i+1) * d]));
+                      &components[(i + 1) * d]));
     }
 }
 
@@ -125,7 +125,7 @@ void CGramSchmidtTest::testOrthogonality(void) {
 
             if (t % 10 == 0) debug(x);
             for (std::size_t i = 0u; i < x.size(); ++i) {
-                for (std::size_t j = i+1; j < x.size(); ++j) {
+                for (std::size_t j = i + 1; j < x.size(); ++j) {
                     double xiDotxj = inner(x[i], x[j]);
                     if (t % 10 == 0) {
                         LOG_DEBUG("x(i)' x(j) = " << xiDotxj);
@@ -146,7 +146,7 @@ void CGramSchmidtTest::testOrthogonality(void) {
 
             if (t % 10 == 0) debug(x);
             for (std::size_t i = 0u; i < x.size(); ++i) {
-                for (std::size_t j = i+1; j < x.size(); ++j) {
+                for (std::size_t j = i + 1; j < x.size(); ++j) {
                     double xiDotxj = x[i].inner(x[j]);
                     if (t % 10 == 0) {
                         LOG_DEBUG("x(i)' x(j) = " << xiDotxj);
@@ -199,7 +199,7 @@ void CGramSchmidtTest::testNormalisation(void) {
 
             if (t % 10 == 0) debug(x);
             for (std::size_t i = 0u; i < x.size(); ++i) {
-                for (std::size_t j = i+1; j < x.size(); ++j) {
+                for (std::size_t j = i + 1; j < x.size(); ++j) {
                     double normxi = x[i].euclidean();
                     if (t % 10 == 0) {
                         LOG_DEBUG("|| x(i) || = " << normxi);

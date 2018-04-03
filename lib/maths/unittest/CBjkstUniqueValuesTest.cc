@@ -82,15 +82,15 @@ void CBjkstUniqueValuesTest::testNumber(void) {
 
     CRandomNumbers rng;
 
-    double      totalError5 = 0.0;
+    double totalError5 = 0.0;
     std::size_t largeError5Count = 0u;
-    double      totalError6 = 0.0;
+    double totalError6 = 0.0;
     std::size_t largeError6Count = 0u;
 
     for (std::size_t i = 0u; i < numberTests; ++i) {
         CBjkstUniqueValues approxUniqueValues5(5, 60);
         CBjkstUniqueValues approxUniqueValues6(6, 60);
-        TUInt32Set         uniqueValues;
+        TUInt32Set uniqueValues;
 
         TDoubleVec samples;
         rng.generateUniformSamples(0.0, 20000.0, 500u + i, samples);
@@ -129,9 +129,9 @@ void CBjkstUniqueValuesTest::testNumber(void) {
     totalError6 /= static_cast<double>(numberTests);
 
     LOG_DEBUG("totalError5 = " << totalError5
-                               << ", largeErrorCount5 = " << largeError5Count);
+              << ", largeErrorCount5 = " << largeError5Count);
     LOG_DEBUG("totalError6 = " << totalError6
-                               << ", largeErrorCount6 = " << largeError6Count);
+              << ", largeErrorCount6 = " << largeError6Count);
 
     CPPUNIT_ASSERT(totalError5 < 0.07);
     CPPUNIT_ASSERT(largeError5Count < 80);
@@ -156,17 +156,17 @@ void CBjkstUniqueValuesTest::testRemove(void) {
     rng.generateUniformSamples(0, 50000, 1000, categories);
 
     std::size_t numberTests = 500u;
-    TSizeVec    toRemove;
+    TSizeVec toRemove;
     rng.generateUniformSamples(100, 500, numberTests, toRemove);
 
     TMeanAccumulator meanRelativeErrorBeforeRemove;
     TMeanAccumulator meanRelativeErrorAfterRemove;
 
     for (std::size_t t = 0u; t < numberTests; ++t) {
-        LOG_DEBUG("*** test = " << t+1 << " ***");
+        LOG_DEBUG("*** test = " << t + 1 << " ***");
 
         maths::CBjkstUniqueValues sketch(2, 150);
-        TUInt32Set                unique;
+        TUInt32Set unique;
         for (std::size_t i = 0u; i < categories.size(); ++i) {
             uint32_t category = static_cast<uint32_t>(categories[i]);
             sketch.add(category);
@@ -287,7 +287,7 @@ void CBjkstUniqueValuesTest::testSmall(void) {
     TMeanAccumulator meanRelativeError;
 
     maths::CBjkstUniqueValues sketch(3, 100);
-    TUInt32Set                unique;
+    TUInt32Set unique;
     for (std::size_t i = 0u; i < 100; ++i) {
         uint32_t category = static_cast<uint32_t>(categories[i]);
         sketch.add(category);
@@ -343,14 +343,14 @@ void CBjkstUniqueValuesTest::testPersist(void) {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        maths::CBjkstUniqueValues            restoredSketch(traverser);
+        maths::CBjkstUniqueValues restoredSketch(traverser);
 
         LOG_DEBUG("orig checksum = " << origSketch.checksum()
-                                     << ", new checksum = " << restoredSketch.checksum());
+                  << ", new checksum = " << restoredSketch.checksum());
         CPPUNIT_ASSERT_EQUAL(origSketch.checksum(),
                              restoredSketch.checksum());
 
-        std::string                         newXml;
+        std::string newXml;
         core::CRapidXmlStatePersistInserter inserter("root");
         restoredSketch.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
@@ -375,14 +375,14 @@ void CBjkstUniqueValuesTest::testPersist(void) {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        maths::CBjkstUniqueValues            restoredSketch(traverser);
+        maths::CBjkstUniqueValues restoredSketch(traverser);
 
         LOG_DEBUG("orig checksum = " << origSketch.checksum()
-                                     << ", new checksum = " << restoredSketch.checksum());
+                  << ", new checksum = " << restoredSketch.checksum());
         CPPUNIT_ASSERT_EQUAL(origSketch.checksum(),
                              restoredSketch.checksum());
 
-        std::string                         newXml;
+        std::string newXml;
         core::CRapidXmlStatePersistInserter inserter("root");
         restoredSketch.acceptPersistInserter(inserter);
         inserter.toXml(newXml);

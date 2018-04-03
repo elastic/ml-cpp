@@ -113,7 +113,7 @@ class MATHS_EXPORT CSampling : private core::CNonInstantiatable {
                 using TOptionalResultType = boost::optional<result_type>;
 
             private:
-                TOptionalResultType     m_Mock;
+                TOptionalResultType m_Mock;
                 boost::random::mt11213b m_Rng;
         };
 

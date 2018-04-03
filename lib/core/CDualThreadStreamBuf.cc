@@ -74,7 +74,7 @@ void CDualThreadStreamBuf::signalEndOfFile(void) {
         if (this->swapWriteBuffer() == false) {
             LOG_ERROR("Failed to swap write buffer on setting end-of-file");
         }
-    } else {
+    } else   {
         // We don't need to swap the write buffer, but we do need to wake up
         // the reader thread
         m_IntermediateBufferCondition.signal();
@@ -161,7 +161,7 @@ std::streamsize CDualThreadStreamBuf::xsgetn(char *s, std::streamsize n) {
             s += copyLen;
             ret += copyLen;
             this->gbump(static_cast<int>(copyLen));
-        } else {
+        } else   {
             // uflow() will call underflow(), so may block, but the buffers are
             // hopefully big enough that this should be rare
             int c(this->uflow());
@@ -253,7 +253,7 @@ std::streamsize CDualThreadStreamBuf::xsputn(const char *s, std::streamsize n) {
             s += copyLen;
             ret += copyLen;
             this->pbump(static_cast<int>(copyLen));
-        } else {
+        } else   {
             // overflow() may block, but the buffers are hopefully big enough
             // that this should be rare
             int c(this->overflow(int(*s)));
@@ -281,7 +281,7 @@ int CDualThreadStreamBuf::overflow(int c) {
         m_Eof = true;
         // If the argument indicated EOF, we don't put it in the new buffer
         ret = traits_type::not_eof(c);
-    } else {
+    } else   {
         m_WriteBuffer[0] = char(c);
         this->pbump(1);
         ret = c;
@@ -309,11 +309,11 @@ std::streampos CDualThreadStreamBuf::seekoff(std::streamoff off,
         CScopedLock lock(m_IntermediateBufferMutex);
         pos = static_cast<std::streampos>(m_ReadBytesSwapped);
         pos -= (this->egptr() - this->gptr());
-    } else if (which == std::ios_base::out) {
+    } else if (which == std::ios_base::out)   {
         CScopedLock lock(m_IntermediateBufferMutex);
         pos = static_cast<std::streampos>(m_WriteBytesSwapped);
         pos += (this->pptr() - this->pbase());
-    } else {
+    } else   {
         LOG_ERROR("Unexpected mode for seek on stream buffer: " << which);
     }
 

@@ -43,12 +43,12 @@ std::string descriptionPrefix(const CDetectorSpecification &spec,
                + CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied)
                                      / static_cast<double>(partitions))
                + "%, of distinct partition and by fields combinations are sparse.";
-    } else if (spec.byField()) {
+    } else if (spec.byField())   {
         return "A significant proportion, "
                + CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied)
                                      / static_cast<double>(partitions))
                + "%, of distinct by fields are sparse.";
-    } else if (spec.partitionField()) {
+    } else if (spec.partitionField())   {
         return "A significant proportion, "
                + CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied)
                                      / static_cast<double>(partitions))
@@ -61,7 +61,8 @@ const bool IGNORE_EMPTY[] = { false, true };
 }
 
 CNotEnoughDataPenalty::CNotEnoughDataPenalty(const CAutoconfigurerParams &params) :
-    CPenalty(params) {}
+    CPenalty(params)
+{}
 
 CNotEnoughDataPenalty *CNotEnoughDataPenalty::clone(void) const {
     return new CNotEnoughDataPenalty(*this);
@@ -110,9 +111,9 @@ void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec &bucketCounts,
 
     LOG_TRACE("bucket counts = " << core::CContainerPrinter::print(bucketCounts));
 
-    TSizeVec   indices;
+    TSizeVec indices;
     TDoubleVec penalties;
-    TStrVec    descriptions;
+    TStrVec descriptions;
     indices.reserve(2 * candidates.size());
     penalties.reserve(2 * candidates.size());
     descriptions.reserve(2 * candidates.size());
@@ -124,7 +125,7 @@ void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec &bucketCounts,
         for (std::size_t bid = 0u; bid < candidates.size(); ++bid) {
             uint64_t bc = bucketCounts[bid];
             if (bc > 0) {
-                const CBucketCountStatistics                         &                        si = statistics[bid];
+                const CBucketCountStatistics &si = statistics[bid];
                 const CBucketCountStatistics::TSizeSizePrMomentsUMap &mi = si.countMomentsPerPartition();
 
                 TMeanAccumulator penalty_;
@@ -142,7 +143,7 @@ void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec &bucketCounts,
                     }
                 }
 
-                double      penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
+                double penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
                 std::size_t index = this->params().penaltyIndexFor(bid, IGNORE_EMPTY[i]);
                 indices.push_back(index);
                 penalties.push_back(penalty);
@@ -153,7 +154,7 @@ void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec &bucketCounts,
                                               + " On average, only "
                                               + CTools::prettyPrint(100.0 * maths::CBasicStatistics::mean(meanOccupied))
                                               + "% of their buckets have a value";
-                    } else {
+                    } else   {
                         descriptions.back() =  std::string("On average only ")
                                               + CTools::prettyPrint(100.0 * maths::CBasicStatistics::mean(meanOccupied))
                                               + "% of partition buckets have a value";

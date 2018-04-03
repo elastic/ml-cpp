@@ -87,7 +87,8 @@ const CInfluencesLess INFLUENCE_LESS = CInfluencesLess();
 class CInfluencerGreater {
     public:
         CInfluencerGreater(const std::string &field)
-            : m_Field(field) {}
+            : m_Field(field)
+        {}
 
         bool operator()(const CJsonOutputWriter::TDocumentWeakPtr &lhs,
                         const CJsonOutputWriter::TDocumentWeakPtr &rhs) const {
@@ -241,7 +242,7 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults 
 
         // the document array is now full, make a max heap
         makeHeap = bucketData.s_RecordCount == m_RecordOutputLimit;
-    } else {
+    } else   {
         // Have reached the limit of records to write so compare the new doc
         // to the highest probability anomaly doc and replace if more anomalous
         if (results.s_Probability >= bucketData.s_HighestProbability) {
@@ -265,9 +266,9 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults 
     // results are also metrics
     if (results.s_ResultType == CHierarchicalResultsWriter::E_PopulationResult) {
         this->addPopulationFields(results, newDoc);
-    } else if (results.s_IsMetric) {
+    } else if (results.s_IsMetric)   {
         this->addMetricFields(results, newDoc);
-    } else {
+    } else   {
         this->addEventRateFields(results, newDoc);
     }
 
@@ -289,8 +290,8 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults 
 bool CJsonOutputWriter::acceptInfluencer(core_t::TTime time,
                                          const model::CHierarchicalResults::TNode &node,
                                          bool isBucketInfluencer) {
-    TDocumentWeakPtr    newDoc = m_Writer.makeStorableDoc();
-    SBucketData         &        bucketData = m_BucketDataByTime[time];
+    TDocumentWeakPtr newDoc = m_Writer.makeStorableDoc();
+    SBucketData &bucketData = m_BucketDataByTime[time];
     TDocumentWeakPtrVec &documents = (isBucketInfluencer) ? bucketData.s_BucketInfluencerDocuments :
                                      bucketData.s_InfluencerDocuments;
 
@@ -328,7 +329,7 @@ bool CJsonOutputWriter::acceptInfluencer(core_t::TTime time,
         bucketData.s_LowestBucketInfluencerScore = std::min(
             bucketData.s_LowestBucketInfluencerScore,
             doubleFromDocument(documents.back(), INITIAL_SCORE));
-    } else {
+    } else   {
         bucketData.s_LowestInfluencerScore = std::min(
             bucketData.s_LowestInfluencerScore,
             doubleFromDocument(documents.back(), INITIAL_INFLUENCER_SCORE));
@@ -347,7 +348,7 @@ void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
     }
 
     TDocumentWeakPtr doc = m_Writer.makeStorableDoc();
-    TDocumentPtr     newDoc = doc.lock();
+    TDocumentPtr newDoc = doc.lock();
     if (!newDoc) {
         LOG_ERROR("Failed to create new JSON document");
         return;
@@ -447,9 +448,9 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
              detectorIter != bucketData.s_DocumentsToWrite.end();
              ++detectorIter) {
             // Write the document, adding some extra fields as we go
-            int              detectorIndex = detectorIter->second;
+            int detectorIndex = detectorIter->second;
             TDocumentWeakPtr weakDoc = detectorIter->first;
-            TDocumentPtr     docPtr = weakDoc.lock();
+            TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
                 LOG_ERROR("Inconsistent program state. JSON document unavailable.");
                 continue;
@@ -478,7 +479,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
              influencerIter != bucketData.s_InfluencerDocuments.end();
              ++influencerIter) {
             TDocumentWeakPtr weakDoc = *influencerIter;
-            TDocumentPtr     docPtr = weakDoc.lock();
+            TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
                 LOG_ERROR("Inconsistent program state. JSON document unavailable.");
                 continue;
@@ -527,7 +528,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
              influencerIter != bucketData.s_BucketInfluencerDocuments.end();
              ++influencerIter) {
             TDocumentWeakPtr weakDoc = *influencerIter;
-            TDocumentPtr     docPtr = weakDoc.lock();
+            TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
                 LOG_ERROR("Inconsistent program state. JSON document unavailable.");
                 continue;
@@ -553,7 +554,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
              partitionScoresIter != bucketData.s_PartitionScoreDocuments.end();
              ++partitionScoresIter) {
             TDocumentWeakPtr weakDoc = *partitionScoresIter;
-            TDocumentPtr     docPtr = weakDoc.lock();
+            TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
                 LOG_ERROR("Inconsistent program state. JSON document unavailable.");
                 continue;
@@ -650,7 +651,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
         rapidjson::Value causeArray = m_Writer.makeArray(m_NestedDocs.size());
         for (size_t index = 0; index < m_NestedDocs.size(); ++index) {
             TDocumentWeakPtr nwDocPtr = m_NestedDocs[index];
-            TDocumentPtr     nDocPtr = nwDocPtr.lock();
+            TDocumentPtr nDocPtr = nwDocPtr.lock();
             if (!nDocPtr) {
                 LOG_ERROR("Inconsistent program state. JSON document unavailable.");
                 continue;
@@ -662,7 +663,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
         m_Writer.addMember(CAUSES, causeArray, *docPtr);
 
         m_NestedDocs.clear();
-    } else {
+    } else   {
         LOG_WARN("Expected some causes for a population anomaly but got none");
     }
 }
@@ -732,7 +733,7 @@ void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredS
     // group by influence field
     for (const auto &influenceResult : influenceResults) {
         TCharPtrCharPtrDoublePrVecPr infResult(influenceResult.first.first->c_str(), TCharPtrDoublePrVec());
-        auto                         insertResult = influences.emplace(*influenceResult.first.first, infResult);
+        auto insertResult = influences.emplace(*influenceResult.first.first, infResult);
 
         insertResult.first->second.second.emplace_back(influenceResult.first.second->c_str(), influenceResult.second);
     }
@@ -812,7 +813,7 @@ void CJsonOutputWriter::addInfluencerFields(bool isBucketInfluencer,
     m_Writer.addStringFieldCopyToObj(INFLUENCER_FIELD_NAME, personFieldName, *docPtr);
     if (isBucketInfluencer) {
         m_Writer.addDoubleFieldToObj(RAW_ANOMALY_SCORE, node.s_RawAnomalyScore, *docPtr);
-    } else {
+    } else   {
         if (!personFieldName.empty()) {
             // If name is present then force output of value too, even when empty
             m_Writer.addStringFieldCopyToObj(INFLUENCER_FIELD_VALUE, *node.s_Spec.s_PersonFieldValue, *docPtr, true);
@@ -1068,7 +1069,8 @@ CJsonOutputWriter::SBucketData::SBucketData(void)
       s_BucketSpan(0),
       s_HighestProbability(-1),
       s_LowestInfluencerScore(101.0),
-      s_LowestBucketInfluencerScore(101.0) {}
+      s_LowestBucketInfluencerScore(101.0)
+{}
 
 CJsonOutputWriter::SModelSnapshotReport::SModelSnapshotReport(core_t::TTime snapshotTimestamp,
                                                               const std::string &description,
@@ -1085,7 +1087,8 @@ CJsonOutputWriter::SModelSnapshotReport::SModelSnapshotReport(core_t::TTime snap
       s_ModelSizeStats(modelSizeStats),
       s_NormalizerState(normalizerState),
       s_LatestRecordTime(latestRecordTime),
-      s_LatestFinalResultTime(latestFinalResultTime) {}
+      s_LatestFinalResultTime(latestFinalResultTime)
+{}
 
 }
 }

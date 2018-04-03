@@ -101,7 +101,7 @@ class CRetryingFileDescriptorSink : private boost::iostreams::file_descriptor {
                         // requires it here
                         boost::throw_exception(std::ios_base::failure(reason));
                     }
-                } else {
+                } else   {
                     totalBytesWritten += ret;
                     s += ret;
                     n -= ret;
@@ -207,7 +207,7 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
                       " - it has permissions that are too open");
             return -1;
         }
-    } else {
+    } else   {
         // The file didn't exist, so create a new FIFO for it, with permissions
         // for the current user only
         if (::mkfifo(fileName.c_str(), S_IRUSR | S_IWUSR) == -1) {
@@ -225,7 +225,7 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
     if (fd == -1) {
         LOG_ERROR("Unable to open named pipe " << fileName <<
                   (forWrite ? " for writing: " : " for reading: ") << ::strerror(errno));
-    } else {
+    } else   {
         // Write a test character to the pipe - this is really only necessary on
         // Windows, but doing it on *nix too will mean the inability of the Java
         // code to tolerate the test character will be discovered sooner.

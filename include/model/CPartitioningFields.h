@@ -56,7 +56,7 @@ class MODEL_EXPORT CPartitioningFields {
         //! Get a read only reference to the last field (name, value) pair.
         const TStrCRefStrCRefPr &back(void) const;
         //! Get the last field (name, value) pair.
-        TStrCRefStrCRefPr       &back(void);
+        TStrCRefStrCRefPr &back(void);
 
         //! Get the partition field value.
         const std::string &partitionFieldValue(void) const;

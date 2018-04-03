@@ -85,7 +85,8 @@ CProcess::CProcess(void)
       m_Initialised(false),
       m_Running(false),
       m_MlMainFunc(0),
-      m_ServiceHandle(0) {}
+      m_ServiceHandle(0)
+{}
 
 CProcess &CProcess::instance(void) {
     static CProcess instance;
@@ -233,7 +234,7 @@ void WINAPI CProcess::serviceMain(DWORD argc, char *argv[]) {
             mergedArgC += static_cast<int>(argc - 1);
         }
 
-        size_t            index(0);
+        size_t index(0);
         TScopedCharPArray mergedArgV(new char *[mergedArgC]);
         for (TStrVecCItr iter = process.m_Args.begin();
              iter != process.m_Args.end();
@@ -304,10 +305,10 @@ void WINAPI CProcess::serviceCtrlHandler(DWORD ctrlType) {
             if (process.isRunning()) {
                 if (process.isInitialised()) {
                     serviceStatus.dwCurrentState = SERVICE_RUNNING;
-                } else {
+                } else   {
                     serviceStatus.dwCurrentState = SERVICE_START_PENDING;
                 }
-            } else {
+            } else   {
                 serviceStatus.dwCurrentState = SERVICE_STOPPED;
             }
             SetServiceStatus(process.m_ServiceHandle, &serviceStatus);

@@ -98,7 +98,7 @@ void CRegexTest::testInit(void) {
     }
     {
         // Uninitialised
-        std::string      regexStr = "<.*";
+        std::string regexStr = "<.*";
         ml::core::CRegex regex;
         CPPUNIT_ASSERT(!regex.matches("<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
     }
@@ -113,8 +113,8 @@ void CRegexTest::testSearch(void) {
     {
         // Uninitialised
         ml::core::CRegex regex;
-        size_t           position(0);
-        size_t           length(0);
+        size_t position(0);
+        size_t length(0);
 
         CPPUNIT_ASSERT(!regex.search("671", position, length));
     }
@@ -122,8 +122,8 @@ void CRegexTest::testSearch(void) {
         std::string regexStr = "\\d+";
 
         ml::core::CRegex regex;
-        size_t           position(0);
-        size_t           length(0);
+        size_t position(0);
+        size_t length(0);
 
         CPPUNIT_ASSERT(regex.init(regexStr));
         CPPUNIT_ASSERT(regex.search("671", position, length));
@@ -145,7 +145,7 @@ void CRegexTest::testSearch(void) {
         std::string regexStr = "(\\d+\\s+\\w+\\s+\\d+\\s+\\d+:\\d+:\\d+,\\d+)";
 
         ml::core::CRegex regex;
-        size_t           position(0);
+        size_t position(0);
 
         CPPUNIT_ASSERT(regex.init(regexStr));
         CPPUNIT_ASSERT(regex.search("03 Nov 2009 09:22:58,289", position));
@@ -168,7 +168,7 @@ void CRegexTest::testTokenise1(void) {
         // Uninitialised
         std::string regexStr;
         regexStr += "((.+?) )+";
-        ml::core::CRegex          regex;
+        ml::core::CRegex regex;
         ml::core::CRegex::TStrVec tokens;
         CPPUNIT_ASSERT(!regex.tokenise(str1, tokens));
     }
@@ -323,7 +323,7 @@ void CRegexTest::testSplit(void) {
         // Uninitialised
         std::string regexStr;
         regexStr += "\\s+";
-        ml::core::CRegex          regex;
+        ml::core::CRegex regex;
         ml::core::CRegex::TStrVec tokens;
         CPPUNIT_ASSERT(!regex.split(str1, tokens));
     }

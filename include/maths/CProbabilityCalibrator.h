@@ -74,11 +74,11 @@ class MATHS_EXPORT CProbabilityCalibrator {
 
     private:
         //! The type of calibration to perform.
-        EStyle      m_Style;
+        EStyle m_Style;
 
         //! The smallest probability where we enforce a match
         //! with the historical fraction.
-        double      m_CutoffProbability;
+        double m_CutoffProbability;
 
         //! A summary of the historical probability quantiles.
         TQDigestPtr m_DiscreteProbabilityQuantiles;

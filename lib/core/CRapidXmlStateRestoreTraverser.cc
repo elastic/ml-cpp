@@ -57,7 +57,7 @@ const std::string &CRapidXmlStateRestoreTraverser::name(void) const {
         if (m_CurrentNode != 0) {
             m_CachedName.assign(m_CurrentNode->name(),
                                 m_CurrentNode->name_size());
-        } else {
+        } else   {
             m_CachedName.clear();
         }
         m_IsNameCacheValid = true;
@@ -73,7 +73,7 @@ const std::string &CRapidXmlStateRestoreTraverser::value(void) const {
             //     the header
             m_CachedValue.assign(m_CurrentNode->value(),
                                  m_CurrentNode->value_size());
-        } else {
+        } else   {
             m_CachedValue.clear();
         }
         m_IsValueCacheValid = true;

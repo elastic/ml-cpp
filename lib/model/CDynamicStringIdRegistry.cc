@@ -42,7 +42,8 @@ CDynamicStringIdRegistry::CDynamicStringIdRegistry(const std::string &nameType,
     m_AddedStat(addedStat),
     m_AddNotAllowedStat(addNotAllowedStat),
     m_RecycledStat(recycledStat),
-    m_Uids(1) {}
+    m_Uids(1)
+{}
 
 CDynamicStringIdRegistry::CDynamicStringIdRegistry(bool isForPersistence,
                                                    const CDynamicStringIdRegistry &other) :
@@ -120,7 +121,7 @@ std::size_t CDynamicStringIdRegistry::addName(const std::string &name,
     // Is there any space in the system for us to expand the models?
     if (resourceMonitor.areAllocationsAllowed()) {
         id = m_Uids.emplace(m_Dictionary.word(name), newId).first->second;
-    } else {
+    } else   {
         // In this case we can only deal with existing people
         TWordSizeUMapCItr itr = m_Uids.find(m_Dictionary.word(name));
         if (itr == m_Uids.end()) {
@@ -136,12 +137,12 @@ std::size_t CDynamicStringIdRegistry::addName(const std::string &name,
         m_Names.push_back(CStringStore::names().get(name));
         addedPerson = true;
         core::CStatistics::stat(m_AddedStat).increment();
-    } else if (id == newId) {
+    } else if (id == newId)   {
         LOG_TRACE("Recycling " << id << " for " << m_NameType << " " << name);
         m_Names[id] = CStringStore::names().get(name);
         if (m_FreeUids.empty()) {
             LOG_ERROR("Unexpectedly missing free " << m_NameType << " entry for " << id);
-        } else {
+        } else   {
             m_FreeUids.pop_back();
         }
         m_RecycledUids.push_back(id);
@@ -265,11 +266,11 @@ bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTravers
         const std::string &name = traverser.name();
         if (name == NAMES_TAG) {
             m_Names.push_back(CStringStore::names().get(traverser.value()));
-        } else if (name == FREE_NAMES_TAG) {
+        } else if (name == FREE_NAMES_TAG)   {
             if (!core::CPersistUtils::restore(FREE_NAMES_TAG, m_FreeUids, traverser)) {
                 return false;
             }
-        } else if (name == RECYCLED_NAMES_TAG) {
+        } else if (name == RECYCLED_NAMES_TAG)   {
             if (!core::CPersistUtils::restore(RECYCLED_NAMES_TAG, m_RecycledUids, traverser)) {
                 return false;
             }
@@ -285,8 +286,8 @@ bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTravers
                                id,
                                std::greater<std::size_t>())) {
             LOG_TRACE("Restore ignoring free " << m_NameType << " name "
-                                               << *m_Names[id] << " = id " << id);
-        } else {
+                      << *m_Names[id] << " = id " << id);
+        } else   {
             m_Uids[m_Dictionary.word(*m_Names[id])] = id;
         }
     }

@@ -42,7 +42,7 @@ const std::string LEVEL_NAME("level");
 const std::string PID_NAME("pid");
 // Cast this to int64_t as the type varies between int32_t and uint32_t on
 // different platforms and int64_t covers both
-const int64_t     PID(static_cast<int64_t>(ml::core::CProcess::instance().id()));
+const int64_t PID(static_cast<int64_t>(ml::core::CProcess::instance().id()));
 const std::string THREAD_NAME("thread");
 const std::string MESSAGE_NAME("message");
 const std::string NDC_NAME("ndc");
@@ -64,7 +64,8 @@ IMPLEMENT_LOG4CXX_OBJECT(CJsonLogLayout)
 
 CJsonLogLayout::CJsonLogLayout(void)
     : m_LocationInfo(true),
-      m_Properties(false) {}
+      m_Properties(false)
+{}
 
 void CJsonLogLayout::locationInfo(bool locationInfo) {
     m_LocationInfo = locationInfo;
@@ -105,7 +106,7 @@ void CJsonLogLayout::format(LogString &output,
                             Pool & /*p*/) const {
     typedef rapidjson::Writer<rapidjson::StringBuffer> TStringBufferWriter;
     rapidjson::StringBuffer buffer;
-    TStringBufferWriter     writer(buffer);
+    TStringBufferWriter writer(buffer);
 
     writer.StartObject();
 
@@ -171,7 +172,7 @@ void CJsonLogLayout::format(LogString &output,
                  i != keySet.end();
                  ++i) {
                 const LogString &key = *i;
-                LogString       value;
+                LogString value;
                 if (event->getMDC(key, value)) {
                     LOG4CXX_ENCODE_CHAR(name, key);
                     writer.String(name);
@@ -183,7 +184,7 @@ void CJsonLogLayout::format(LogString &output,
                  i != propertySet.end();
                  ++i) {
                 const LogString &key = *i;
-                LogString       value;
+                LogString value;
                 if (event->getProperty(key, value)) {
                     LOG4CXX_ENCODE_CHAR(name, key);
                     writer.String(name);

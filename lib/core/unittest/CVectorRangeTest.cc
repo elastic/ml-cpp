@@ -69,7 +69,7 @@ void CVectorRangeTest::testAccessors(void) {
 
     TDoubleVec values{1.0, 0.1, 0.7, 9.8, 8.0};
 
-    TDoubleRng       range14{values, 1, 4};
+    TDoubleRng range14{values, 1, 4};
     const TDoubleRng crange14{values, 1, 4};
 
     CPPUNIT_ASSERT_EQUAL(0.1, range14.at(0));
@@ -100,7 +100,7 @@ void CVectorRangeTest::testIterators(void) {
 
     TDoubleVec values{1.0, 0.1, 0.7, 9.8, 8.0};
 
-    TDoubleRng       range14{values, 1, 4};
+    TDoubleRng range14{values, 1, 4};
     const TDoubleRng crange14{values, 1, 4};
 
     for (auto i = range14.begin(), j = values.begin() + 1; i != range14.end(); ++i, ++j) {
@@ -195,8 +195,8 @@ void CVectorRangeTest::testModifiers(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.7, 9.8, 8]"), core::CContainerPrinter::print(values1));
     CPPUNIT_ASSERT_EQUAL(std::string("[1]"), core::CContainerPrinter::print(range102));
 
-    TDoubleRng  range113{values1, 1, 3};
-    TDoubleRng  range223{values2, 2, 3};
+    TDoubleRng range113{values1, 1, 3};
+    TDoubleRng range223{values2, 2, 3};
     std::string s1   = core::CContainerPrinter::print(values1);
     std::string s2   = core::CContainerPrinter::print(values2);
     std::string s113 = core::CContainerPrinter::print(range113);

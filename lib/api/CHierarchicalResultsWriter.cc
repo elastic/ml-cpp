@@ -28,8 +28,8 @@ namespace {
 typedef boost::optional<double>       TOptionalDouble;
 typedef boost::optional<uint64_t>     TOptionalUInt64;
 typedef core::CSmallVector<double, 1> TDouble1Vec;
-const std::string                          COUNT_NAME("count");
-const std::string                          EMPTY_STRING;
+const std::string COUNT_NAME("count");
+const std::string EMPTY_STRING;
 const CHierarchicalResultsWriter::TStr1Vec EMPTY_STRING_LIST;
 }
 
@@ -84,7 +84,8 @@ CHierarchicalResultsWriter::SResults::SResults(bool isAllTimeResult,
       s_NormalizedAnomalyScore(normalizedAnomalyScore),
       s_Probability(probability),
       s_Influences(influences),
-      s_Identifier(identifier) {}
+      s_Identifier(identifier)
+{}
 
 CHierarchicalResultsWriter::SResults::SResults(EResultType resultType,
                                                const std::string &partitionFieldName,
@@ -139,7 +140,8 @@ CHierarchicalResultsWriter::SResults::SResults(EResultType resultType,
       s_Probability(probability),
       s_Influences(influences),
       s_Identifier(identifier),
-      s_ScheduledEventDescriptions(scheduledEventDescriptions) {}
+      s_ScheduledEventDescriptions(scheduledEventDescriptions)
+{}
 
 CHierarchicalResultsWriter::CHierarchicalResultsWriter(const model::CLimits &limits,
                                                        const model::CAnomalyDetectorModelConfig &modelConfig,
@@ -149,14 +151,15 @@ CHierarchicalResultsWriter::CHierarchicalResultsWriter(const model::CLimits &lim
     m_ModelConfig(modelConfig),
     m_ResultWriterFunc(resultWriterFunc),
     m_PivotWriterFunc(pivotWriterFunc),
-    m_BucketTime(0) {}
+    m_BucketTime(0)
+{}
 
 void CHierarchicalResultsWriter::visit(const model::CHierarchicalResults &results,
                                        const TNode &node,
                                        bool pivot) {
     if (pivot) {
         this->writePivotResult(results, node);
-    } else {
+    } else   {
         this->writePopulationResult(results, node);
         this->writeIndividualResult(results, node);
         this->writePartitionResult(results, node);
@@ -328,7 +331,7 @@ void CHierarchicalResultsWriter::writePartitionResult(const model::CHierarchical
            this->isSimpleCount(node) ||
            this->isPopulation(node) ||
            !this->isPartition(node) ||
-           !this->shouldWriteResult(m_Limits, results, node, false)) {
+           !this->shouldWriteResult(m_Limits, results, node, false))                                                            {
         return;
     }
 

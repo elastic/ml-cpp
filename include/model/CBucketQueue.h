@@ -58,7 +58,8 @@ class CBucketQueue {
                 CSerializer(const T &initial = T(),
                             const F &serializer = F()) :
                     m_InitialValue(initial),
-                    m_Serializer(serializer) {}
+                    m_Serializer(serializer)
+                {}
 
                 void operator()(const CBucketQueue &queue,
                                 core::CStatePersistInserter &inserter) const {
@@ -244,7 +245,7 @@ class CBucketQueue {
                         LOG_ERROR("Bad index in " << traverser.value());
                         return false;
                     }
-                } else if (traverser.name() == BUCKET_TAG) {
+                } else if (traverser.name() == BUCKET_TAG)   {
                     if (i >= m_Queue.size()) {
                         LOG_WARN("Bucket queue is smaller on restore than on persist: " <<
                                  i << " >= " << m_Queue.size() <<
@@ -254,7 +255,7 @@ class CBucketQueue {
                         if (!(core::CPersistUtils::restore(BUCKET_TAG, dummy, traverser))) {
                             LOG_ERROR("Invalid bucket");
                         }
-                    } else {
+                    } else   {
                         if (!(core::CPersistUtils::restore(BUCKET_TAG, m_Queue[i], traverser))) {
                             LOG_ERROR("Invalid bucket");
                             return false;
@@ -291,7 +292,7 @@ class CBucketQueue {
                         LOG_DEBUG("Bad index in " << traverser.value());
                         return false;
                     }
-                } else if (traverser.name() == BUCKET_TAG) {
+                } else if (traverser.name() == BUCKET_TAG)   {
                     if (i >= m_Queue.size()) {
                         LOG_WARN("Bucket queue is smaller on restore than on persist: " <<
                                  i << " >= " << m_Queue.size() <<
@@ -306,7 +307,7 @@ class CBucketQueue {
                                 LOG_ERROR("Invalid bucket");
                             }
                         }
-                    } else {
+                    } else   {
                         m_Queue[i] = initial;
                         if (traverser.hasSubLevel()) {
                             if (traverser.traverseSubLevel(
@@ -347,7 +348,7 @@ class CBucketQueue {
         }
 
     private:
-        TQueue        m_Queue;
+        TQueue m_Queue;
         core_t::TTime m_LatestBucketEnd;
         core_t::TTime m_BucketLength;
 };

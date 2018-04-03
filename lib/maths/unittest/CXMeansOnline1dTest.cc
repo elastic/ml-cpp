@@ -53,8 +53,8 @@ void debug(const TClusterVec &clusters) {
     c << "[";
     for (std::size_t j = 0u; j < clusters.size(); ++j) {
         c << " (" << clusters[j].weight(maths_t::E_ClustersFractionWeight)
-          << ", " << clusters[j].centre()
-          << ", " << clusters[j].spread() << ")";
+        << ", " << clusters[j].centre()
+        << ", " << clusters[j].spread() << ")";
     }
     c << " ]";
     LOG_DEBUG("clusters = " << c.str());
@@ -73,8 +73,8 @@ void CXMeansOnline1dTest::testCluster(void) {
                                      0.1);
     maths::CXMeansOnline1d::CCluster cluster(clusterer);
 
-    double     x1[] = { 1.1, 2.3, 1.5, 0.9, 4.7, 3.2, 2.8, 2.3, 1.9, 2.6 };
-    double     c1[] = { 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0 };
+    double x1[] = { 1.1, 2.3, 1.5, 0.9, 4.7, 3.2, 2.8, 2.3, 1.9, 2.6 };
+    double c1[] = { 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0 };
     TDoubleVec values;
 
     maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator moments;
@@ -143,11 +143,11 @@ void CXMeansOnline1dTest::testCluster(void) {
     CPPUNIT_ASSERT_DOUBLES_EQUAL(cluster.spread(), sampleSpread, 0.2);
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(cluster.count()),
-                                 -cluster.logLikelihoodFromCluster(maths_t::E_ClustersEqualWeight, 1.5)
+                                 - cluster.logLikelihoodFromCluster(maths_t::E_ClustersEqualWeight, 1.5)
                                  + cluster.logLikelihoodFromCluster(maths_t::E_ClustersFractionWeight, 1.5),
                                  1e-10);
 
-    uint64_t    origChecksum = cluster.checksum(0);
+    uint64_t origChecksum = cluster.checksum(0);
     std::string origXml;
     {
         core::CRapidXmlStatePersistInserter inserter("root");
@@ -162,7 +162,7 @@ void CXMeansOnline1dTest::testCluster(void) {
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
-    maths::CXMeansOnline1d::CCluster  restoredCluster(clusterer);
+    maths::CXMeansOnline1d::CCluster restoredCluster(clusterer);
     maths::SDistributionRestoreParams params(maths_t::E_ContinuousData, 0.1,
                                              maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
                                              maths::MINIMUM_CLUSTER_SPLIT_COUNT,
@@ -686,8 +686,8 @@ void CXMeansOnline1dTest::testOutliers(void) {
     spreadError /= n;
 
     LOG_DEBUG("meanError = " << meanError
-                             << ", spreadError = " << spreadError
-                             << ", n = " << n);
+              << ", spreadError = " << spreadError
+              << ", n = " << n);
 
     CPPUNIT_ASSERT(meanError < 0.15);
     CPPUNIT_ASSERT(spreadError < 1.0);
@@ -702,8 +702,8 @@ void CXMeansOnline1dTest::testManyClusters(void) {
     typedef std::vector<TTimeDoublePr>       TTimeDoublePrVec;
 
     TTimeDoublePrVec timeseries;
-    core_t::TTime    startTime;
-    core_t::TTime    endTime;
+    core_t::TTime startTime;
+    core_t::TTime endTime;
     CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/times.csv",
                                                     timeseries,
                                                     startTime,
@@ -713,7 +713,7 @@ void CXMeansOnline1dTest::testManyClusters(void) {
 
     LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(),
                                                                 timeseries.begin() + 10)
-                              << " ...");
+              << " ...");
 
     maths::CXMeansOnline1d clusterer(maths_t::E_IntegerData,
                                      maths::CAvailableModeDistributions::ALL,
@@ -789,7 +789,7 @@ void CXMeansOnline1dTest::testLargeHistory(void) {
     clusterer.decayRate(0.0001);
 
     test::CRandomNumbers rng;
-    TDoubleVec           samples1;
+    TDoubleVec samples1;
     rng.generateNormalSamples(5.0, 1.0, 10000, samples1);
     TDoubleVec samples2;
     rng.generateNormalSamples(15.0, 1.0, 100, samples2);
@@ -860,7 +860,7 @@ void CXMeansOnline1dTest::testPersist(void) {
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
-    maths::CXMeansOnline1d               restoredClusterer(params, traverser);
+    maths::CXMeansOnline1d restoredClusterer(params, traverser);
 
     // The XML representation of the new filter should be the same
     // as the original.

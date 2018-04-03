@@ -142,16 +142,16 @@ void CLogger::reset() {
         log4cxx::PropertyConfigurator::configure(props);
 
         m_Logger = log4cxx::Logger::getRootLogger();
-    } catch (log4cxx::helpers::Exception &e) {
+    } catch (log4cxx::helpers::Exception &e)   {
         if (m_Logger != 0) {
             // (Can't use the Ml LOG_ERROR macro here, as the object
             // it references is only part constructed.)
             LOG4CXX_ERROR(m_Logger,
                           "Could not initialise logger: " << e.what());
-        } else {
+        } else   {
             // We can't use the log macros if the pointer to the logger is NULL
             std::cerr << "Could not initialise logger: " << e.what()
-                      << std::endl;
+            << std::endl;
         }
     }
 }
@@ -170,7 +170,7 @@ void CLogger::logEnvironment(void) const {
     // environ is a global variable from the C runtime library
     if (environ == 0) {
         env += " (None found)";
-    } else {
+    } else   {
         for (char **envPtr = environ; *envPtr != 0; ++envPtr) {
             env += core_t::LINE_ENDING;
             env += *envPtr;
@@ -288,7 +288,7 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string &pipeName) {
 
 bool CLogger::reconfigureLogJson(void) {
     log4cxx::helpers::Properties props;
-    log4cxx::LogString           logStr;
+    log4cxx::LogString logStr;
     log4cxx::helpers::Transcoder::decode(m_ProgramName, logStr);
     props.put(LOG4CXX_STR("log4j.logger.") + logStr,
               LOG4CXX_STR("DEBUG, A2"));
@@ -318,7 +318,7 @@ bool CLogger::reconfigureFromFile(const std::string &propertiesFile) {
         // InputStreamPtr is a smart pointer
         log4cxx::helpers::InputStreamPtr inputStream(new log4cxx::helpers::FileInputStream(propertiesFile));
         props.load(inputStream);
-    } catch (const log4cxx::helpers::Exception &e) {
+    } catch (const log4cxx::helpers::Exception &e)   {
         LOG_ERROR("Unable to read from properties file " << propertiesFile <<
                   " for logger re-initialisation: " << e.what());
         return false;
@@ -352,16 +352,16 @@ bool CLogger::reconfigureFromProps(log4cxx::helpers::Properties &props) {
         if (m_Logger == 0) {
             // We can't use the log macros if the pointer to the logger is NULL
             std::cerr << "Failed to reinitialise logger for "
-                      << m_ProgramName << std::endl;
+            << m_ProgramName << std::endl;
             return false;
         }
-    } catch (log4cxx::helpers::Exception &e) {
+    } catch (log4cxx::helpers::Exception &e)   {
         if (m_Logger != 0) {
             LOG_ERROR("Failed to reinitialise logger: " << e.what());
-        } else {
+        } else   {
             // We can't use the log macros if the pointer to the logger is NULL
             std::cerr << "Failed to reinitialise logger: " << e.what()
-                      << std::endl;
+            << std::endl;
         }
 
         return false;
@@ -385,7 +385,7 @@ void CLogger::massageProperties(log4cxx::helpers::Properties &props) const {
     // 1) %D with the path to the Ml base log directory
     // 2) %N with the program name
     // 3) %P with the program's process ID
-    TLogCharLogStrMap  mappings;
+    TLogCharLogStrMap mappings;
     log4cxx::LogString logStr;
     log4cxx::helpers::Transcoder::decode(CResourceLocator::logDir(), logStr);
     mappings.insert(TLogCharLogStrMap::value_type(static_cast<log4cxx::logchar>('D'), logStr));
@@ -441,10 +441,10 @@ void CLogger::massageString(const TLogCharLogStrMap &mappings,
             if (mapping == mappings.end()) {
                 newStr += static_cast<log4cxx::logchar>('%');
                 newStr += *iter;
-            } else {
+            } else   {
                 newStr += mapping->second;
             }
-        } else {
+        } else   {
             newStr += *iter;
         }
     }

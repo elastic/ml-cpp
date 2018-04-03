@@ -96,19 +96,19 @@ class MATHS_EXPORT CCooccurrences {
 
     private:
         //! The maximum permitted event sequence length.
-        std::size_t         m_MaximumLength;
+        std::size_t m_MaximumLength;
 
         //! The current length of the event sequences.
-        std::size_t         m_Length;
+        std::size_t m_Length;
 
         //! The width of the indicator function in "captures".
-        std::size_t         m_IndicatorWidth;
+        std::size_t m_IndicatorWidth;
 
         //! The current offset from the start of the current indicator.
-        std::size_t         m_Offset;
+        std::size_t m_Offset;
 
         //! The event indicators to add in the next capture.
-        TSizeUSet           m_CurrentIndicators;
+        TSizeUSet m_CurrentIndicators;
 
         //! The indicator variables for event streams.
         TPackedBitVectorVec m_Indicators;

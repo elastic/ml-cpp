@@ -72,7 +72,7 @@ void CResourceMonitor::memoryLimit(std::size_t limitMBs) {
 
     if (m_NoLimit) {
         LOG_INFO("Setting no model memory limit");
-    } else {
+    } else   {
         LOG_INFO("Setting model memory limit to " << limitMBs << " MB");
     }
 }
@@ -87,7 +87,7 @@ void CResourceMonitor::updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs)
         // number, such as "what would total memory usage be if we allocated 10
         // more models?", and it causes problems if these calculations overflow.
         m_ByteLimitHigh = std::numeric_limits<std::size_t>::max() / 2 + 1;
-    } else {
+    } else   {
         // Background persist causes the memory size to double due to copying
         // the models. On top of that, after the persist is done we may not
         // be able to retrieve that memory back. Thus, we halve the requested
@@ -129,7 +129,7 @@ void CResourceMonitor::updateAllowAllocations(void) {
                      " bytes used, the limit is " << m_ByteLimitHigh);
             m_AllowAllocations = false;
         }
-    } else {
+    } else   {
         if (total < m_ByteLimitLow) {
             LOG_INFO("Below allocation limit, used " << total);
             m_AllowAllocations = true;
@@ -143,7 +143,7 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
     // relax the pruning window to let it go back up again.
 
     std::size_t total{this->totalMemory()};
-    bool        aboveThreshold = total > m_PruneThreshold;
+    bool aboveThreshold = total > m_PruneThreshold;
 
     if (m_HasPruningStarted == false && !aboveThreshold) {
         LOG_TRACE("No pruning required. " << total << " / " << m_PruneThreshold);
@@ -196,7 +196,7 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
                                      (endTime - m_LastPruneTime) / m_Models.begin()->first->bucketLength()),
                                  m_PruneWindowMaximum);
         LOG_TRACE("Expanding window, to " << m_PruneWindow);
-    } else {
+    } else   {
         // Shrink the window
         m_PruneWindow = std::max(static_cast<std::size_t>(m_PruneWindow * 99 / 100),
                                  m_PruneWindowMinimum);

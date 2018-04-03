@@ -38,7 +38,7 @@ typedef std::vector<TDoubleVec> TDoubleVecVec;
 double multinomialProbability(const TDoubleVec &probabilities,
                               const TSizeVec &counts) {
     std::size_t n = std::accumulate(counts.begin(), counts.end(), std::size_t(0));
-    double      logP = boost::math::lgamma(static_cast<double>(n + 1));
+    double logP = boost::math::lgamma(static_cast<double>(n + 1));
     for (std::size_t i = 0u; i < counts.size(); ++i) {
         double ni = static_cast<double>(counts[i]);
         if (ni > 0.0) {
@@ -185,9 +185,9 @@ void CSamplingTest::testMultivariateNormalSample(void) {
     maths::CSampling::seed();
 
     {
-        double     m[] = { 1.0, 3.0, 5.0 };
+        double m[] = { 1.0, 3.0, 5.0 };
         TDoubleVec m_(boost::begin(m), boost::end(m));
-        double     C[][3] =
+        double C[][3] =
         {
             { 3.0,  1.0,  0.1 },
             { 1.0,  2.0, -0.3 },

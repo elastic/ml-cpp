@@ -148,12 +148,8 @@ class CSmallVector : public boost::container::small_vector<T, N> {
         }
 
     private:
-        TBase &baseRef() {
-            return *this;
-        }
-        const TBase &baseRef() const {
-            return *this;
-        }
+        TBase &baseRef() { return *this; }
+        const TBase &baseRef() const { return *this; }
 };
 
 template<typename T, std::size_t N>

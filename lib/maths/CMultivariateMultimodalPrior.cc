@@ -60,7 +60,7 @@ jointLogMarginalLikelihood(const TModeVec &modes,
         double maxLogLikelihood = boost::numeric::bounds<double>::lowest();
 
         for (std::size_t i = 0u; i < modes.size(); ++i) {
-            double                             modeLogLikelihood;
+            double modeLogLikelihood;
             maths_t::EFloatingPointErrorStatus status =
                 modes[i].s_Prior->jointLogMarginalLikelihood(weightStyles, sample, weights, modeLogLikelihood);
             if (status & maths_t::E_FpFailed) {
@@ -104,9 +104,9 @@ jointLogMarginalLikelihood(const TModeVec &modes,
         result = (::log(sampleLikelihood) + maxLogLikelihood);
 
         LOG_TRACE("sample = " << core::CContainerPrinter::print(sample)
-                              << ", maxLogLikelihood = " << maxLogLikelihood
-                              << ", sampleLogLikelihood = " << result);
-    } catch (const std::exception &e) {
+                  << ", maxLogLikelihood = " << maxLogLikelihood
+                  << ", sampleLogLikelihood = " << result);
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to compute likelihood: " << e.what());
         return maths_t::E_FpFailed;
     }
@@ -142,7 +142,7 @@ void sampleMarginalLikelihood(const TModeVec &modes,
     CSampling::TSizeVec sampling;
     CSampling::weightedSample(numberSamples, normalizedWeights, sampling);
     LOG_TRACE("normalizedWeights = " << core::CContainerPrinter::print(normalizedWeights)
-                                     << ", sampling = " << core::CContainerPrinter::print(sampling));
+              << ", sampling = " << core::CContainerPrinter::print(sampling));
 
     if (sampling.size() != modes.size()) {
         LOG_ERROR("Failed to sample marginal likelihood");
@@ -162,9 +162,7 @@ void sampleMarginalLikelihood(const TModeVec &modes,
 
 void print(const TModeVec &modes, const std::string &separator, std::string &result) {
     double Z = std::accumulate(modes.begin(), modes.end(), 0.0,
-                               [] (double sum, const TMode &mode) {
-                    return sum + mode.weight();
-                });
+                               [] (double sum, const TMode &mode) { return sum + mode.weight(); });
 
     std::string separator_ = separator + separator;
 
@@ -191,11 +189,11 @@ void modeMergeCallback(std::size_t dimension,
     // Create the new mode.
     TMode newMode(targetIndex, seedPrior);
 
-    double           wl = 0.0;
-    double           wr = 0.0;
-    double           n  = 0.0;
-    std::size_t      nl = 0;
-    std::size_t      nr = 0;
+    double wl = 0.0;
+    double wr = 0.0;
+    double n  = 0.0;
+    std::size_t nl = 0;
+    std::size_t nr = 0;
     TDouble10Vec1Vec samples;
 
     auto leftMode = std::find_if(modes.begin(), modes.end(),
@@ -207,11 +205,11 @@ void modeMergeCallback(std::size_t dimension,
         leftMode->s_Prior->sampleMarginalLikelihood(numberSamples, leftSamples);
         nl = leftSamples.size();
         samples.insert(samples.end(), leftSamples.begin(), leftSamples.end());
-    } else {
+    } else   {
         LOG_ERROR("Couldn't find mode for " << leftMergeIndex
-                                            << " in " << printIndices(modes)
-                                            << ", other index = " << rightMergeIndex
-                                            << ", merged index = " << targetIndex);
+                  << " in " << printIndices(modes)
+                  << ", other index = " << rightMergeIndex
+                  << ", merged index = " << targetIndex);
     }
 
     auto rightMode = std::find_if(modes.begin(), modes.end(),
@@ -223,11 +221,11 @@ void modeMergeCallback(std::size_t dimension,
         rightMode->s_Prior->sampleMarginalLikelihood(numberSamples, rightSamples);
         nr = rightSamples.size();
         samples.insert(samples.end(), rightSamples.begin(), rightSamples.end());
-    } else {
+    } else   {
         LOG_ERROR("Couldn't find mode for " << rightMergeIndex
-                                            << " in " << printIndices(modes)
-                                            << ", other index = " << leftMergeIndex
-                                            << ", merged index = " << targetIndex);
+                  << " in " << printIndices(modes)
+                  << ", other index = " << leftMergeIndex
+                  << ", merged index = " << targetIndex);
     }
 
     if (n > 0.0) {
@@ -244,8 +242,8 @@ void modeMergeCallback(std::size_t dimension,
     double ns = std::min(n, 4.0);
     double s  = static_cast<double>(samples.size());
 
-    TDouble10Vec         leftSeedWeight(dimension,  wl * ns / s);
-    TDouble10Vec         rightSeedWeight(dimension, wl * ns / s);
+    TDouble10Vec leftSeedWeight(dimension,  wl * ns / s);
+    TDouble10Vec rightSeedWeight(dimension, wl * ns / s);
     TDouble10Vec4Vec1Vec weights;
     weights.reserve(samples.size());
     weights.resize(nl,      TDouble10Vec1Vec(1, leftSeedWeight));

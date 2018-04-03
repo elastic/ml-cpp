@@ -210,7 +210,7 @@ void CInformationCriteriaTest::testSphericalGaussian(void) {
         maths::CKMeansFast<TVector2> kmeans;
         kmeans.setPoints(samples);
         for (std::size_t t = 0u; t < centres.size(); t += 2) {
-            TVector2Vec tcentres(&centres[t], &centres[t+2]);
+            TVector2Vec tcentres(&centres[t], &centres[t + 2]);
             kmeans.setCentres(tcentres);
 
             kmeans.run(10);
@@ -246,8 +246,8 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster(void) {
 
     maths::CSampling::seed();
 
-    double      means_[][2]     = { { 10.0, 20.0 }, { 12.0, 30.0 } };
-    double      lowerTriangle[] = { 5.0, 0.0, 5.0 };
+    double means_[][2]     = { { 10.0, 20.0 }, { 12.0, 30.0 } };
+    double lowerTriangle[] = { 5.0, 0.0, 5.0 };
     TVector2Vec means;
     for (std::size_t i = 0u; i < boost::size(means_); ++i) {
         means.push_back(TVector2(boost::begin(means_[i]), boost::end(means_[i])));
@@ -258,20 +258,20 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster(void) {
     LOG_DEBUG("covariance = " << covariance);
 
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("*** trial = " << t+1 << " ***");
+        LOG_DEBUG("*** trial = " << t + 1 << " ***");
 
-        TVector2VecVec           points(means.size());
+        TVector2VecVec points(means.size());
         TSphericalCluster2VecVec clusters;
 
         for (std::size_t i = 0u; i < means.size(); ++i) {
             maths::CSampling::multivariateNormalSample(means[i], covariance, 1000, points[i]);
             TMeanVar2Accumulator moments;
             moments.add(points[i]);
-            double                          n = maths::CBasicStatistics::count(moments);
-            TVector2                        m = maths::CBasicStatistics::mean(moments);
-            TVector2                        v = maths::CBasicStatistics::maximumLikelihoodVariance(moments);
+            double n = maths::CBasicStatistics::count(moments);
+            TVector2 m = maths::CBasicStatistics::mean(moments);
+            TVector2 v = maths::CBasicStatistics::maximumLikelihoodVariance(moments);
             TSphericalCluster2::TAnnotation countAndVariance(n, (v(0) + v(1)) / 2.0);
-            TSphericalCluster2              cluster(m, countAndVariance);
+            TSphericalCluster2 cluster(m, countAndVariance);
             clusters.push_back(TSphericalCluster2Vec(1, cluster));
         }
 
@@ -437,7 +437,7 @@ void CInformationCriteriaTest::testGaussian(void) {
         maths::CKMeansFast<TVector2> kmeans;
         kmeans.setPoints(samples);
         for (std::size_t t = 0u; t < centres.size(); t += 2) {
-            TVector2Vec tcentres(&centres[t], &centres[t+2]);
+            TVector2Vec tcentres(&centres[t], &centres[t + 2]);
             kmeans.setCentres(tcentres);
 
             kmeans.run(10);
@@ -469,8 +469,8 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster(void) {
 
     maths::CSampling::seed();
 
-    double      means_[][2]     = { { 10.0, 20.0 }, { 12.0, 30.0 } };
-    double      lowerTriangle[] = { 5.0, 0.0, 5.0 };
+    double means_[][2]     = { { 10.0, 20.0 }, { 12.0, 30.0 } };
+    double lowerTriangle[] = { 5.0, 0.0, 5.0 };
     TVector2Vec means;
     for (std::size_t i = 0u; i < boost::size(means_); ++i) {
         means.push_back(TVector2(boost::begin(means_[i]), boost::end(means_[i])));
@@ -481,20 +481,20 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster(void) {
     LOG_DEBUG("covariance = " << covariance);
 
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("*** trial = " << t+1 << " ***");
+        LOG_DEBUG("*** trial = " << t + 1 << " ***");
 
-        TVector2VecVec           points(means.size());
+        TVector2VecVec points(means.size());
         TSphericalCluster2VecVec clusters;
 
         for (std::size_t i = 0u; i < means.size(); ++i) {
             maths::CSampling::multivariateNormalSample(means[i], covariance, 1000, points[i]);
             TMeanVar2Accumulator moments;
             moments.add(points[i]);
-            double                          n = maths::CBasicStatistics::count(moments);
-            TVector2                        m = maths::CBasicStatistics::mean(moments);
-            TVector2                        v = maths::CBasicStatistics::maximumLikelihoodVariance(moments);
+            double n = maths::CBasicStatistics::count(moments);
+            TVector2 m = maths::CBasicStatistics::mean(moments);
+            TVector2 v = maths::CBasicStatistics::maximumLikelihoodVariance(moments);
             TSphericalCluster2::TAnnotation countAndVariance(n, (v(0) + v(1)) / 2.0);
-            TSphericalCluster2              cluster(m, countAndVariance);
+            TSphericalCluster2 cluster(m, countAndVariance);
             clusters.push_back(TSphericalCluster2Vec(1, cluster));
         }
 

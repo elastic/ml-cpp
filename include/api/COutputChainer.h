@@ -102,7 +102,7 @@ class API_EXPORT COutputChainer : public COutputHandler {
         CDataProcessor      &m_DataProcessor;
 
         //! Field names in the order they are to be written to the output
-        TStrVec             m_FieldNames;
+        TStrVec m_FieldNames;
 
         //! Pre-computed hashes for each field name.  The pre-computed hashes
         //! are at the same index in this vector as the corresponding field name
@@ -111,7 +111,7 @@ class API_EXPORT COutputChainer : public COutputHandler {
 
         //! Used to build up the full set of fields to pass on to the next data
         //! processor
-        TStrStrUMap         m_WorkRecordFields;
+        TStrStrUMap m_WorkRecordFields;
 
         typedef boost::reference_wrapper<std::string> TStrRef;
         typedef std::vector<TStrRef>                  TStrRefVec;

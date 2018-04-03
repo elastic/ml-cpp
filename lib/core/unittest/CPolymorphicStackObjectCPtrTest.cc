@@ -31,30 +31,22 @@ class CBase {
 
 class CDerived1 : public CBase {
     public:
-        virtual std::string iam(void) const {
-            return "d1";
-        }
+        virtual std::string iam(void) const { return "d1"; }
 };
 
 class CDerived2 : public CBase {
     public:
-        virtual std::string iam(void) const {
-            return "d2";
-        }
+        virtual std::string iam(void) const { return "d2"; }
 };
 
 class CDerived3 : public CBase {
     public:
-        virtual std::string iam(void) const {
-            return "d3";
-        }
+        virtual std::string iam(void) const { return "d3"; }
 };
 
 class CDerived4 : public CBase {
     public:
-        virtual std::string iam(void) const {
-            return "d4";
-        }
+        virtual std::string iam(void) const { return "d4"; }
 };
 
 }

@@ -77,7 +77,7 @@ std::string CMultiFileDataAdder::makeFilename(const std::string &index,
         // boost::filesystem, and this is what we want
         boost::filesystem::path directoryPath(filename);
         boost::filesystem::create_directories(directoryPath);
-    } catch (std::exception &e) {
+    } catch (std::exception &e)   {
         LOG_ERROR("Failed to create directory " << filename <<
                   " - " << e.what());
     }

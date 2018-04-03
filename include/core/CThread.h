@@ -100,11 +100,11 @@ class CORE_EXPORT CThread : private CNonCopyable {
 
     private:
         //! ID of the most recently started thread
-        TThreadId      m_ThreadId;
+        TThreadId m_ThreadId;
 
 #ifdef Windows
         //! Windows needs a thread handle as well as a thread ID
-        HANDLE         m_ThreadHandle;
+        HANDLE m_ThreadHandle;
 #endif
 
         //! Mutex to protect access to m_ThreadId

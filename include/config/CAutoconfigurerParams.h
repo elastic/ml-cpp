@@ -284,31 +284,31 @@ class CONFIG_EXPORT CAutoconfigurerParams {
 
     private:
         //! The name of field holding the time.
-        std::string           m_TimeFieldName;
+        std::string m_TimeFieldName;
 
         //! The time field format.
-        std::string           m_TimeFieldFormat;
+        std::string m_TimeFieldFormat;
 
         //! If true then output information about all possible detectors including
         //! those that have been discarded.
-        bool                  m_Verbose;
+        bool m_Verbose;
 
         //! If true then output the top detector for each candidate in JSON format.
-        bool                  m_WriteDetectorConfigs;
+        bool m_WriteDetectorConfigs;
 
         //! The line ending to use when writing detectors in JSON format.
-        std::string           m_DetectorConfigLineEnding;
+        std::string m_DetectorConfigLineEnding;
 
         //! \name Scoping
         //@{
         //! The only fields to use in auto-configuration.
-        TOptionalStrVec       m_FieldsOfInterest;
+        TOptionalStrVec m_FieldsOfInterest;
 
         //! The only argument or partition fields to use in auto-configuration.
-        TOptionalStrVec       m_FieldsToUseInAutoconfigureByRole[constants::NUMBER_FIELD_INDICES];
+        TOptionalStrVec m_FieldsToUseInAutoconfigureByRole[constants::NUMBER_FIELD_INDICES];
 
         //! The function categories to consider configuring.
-        TFunctionCategoryVec  m_FunctionCategoriesToConfigure;
+        TFunctionCategoryVec m_FunctionCategoriesToConfigure;
         //@}
 
         //! \name Statistics
@@ -317,21 +317,21 @@ class CONFIG_EXPORT CAutoconfigurerParams {
         TStrUserDataTypePrVec m_FieldDataTypes;
 
         //! The minimum number of records to use to classify a field.
-        uint64_t              m_MinimumExamplesToClassify;
+        uint64_t m_MinimumExamplesToClassify;
 
         //! The number of field values to count occurrences for in the categorical
         //! field statistics.
-        std::size_t           m_NumberOfMostFrequentFieldsCounts;
+        std::size_t m_NumberOfMostFrequentFieldsCounts;
         //@}
 
         //! \name General Configuration
         //@{
         //! The minimum number of records needed to attempt generating search
         //! configurations.
-        uint64_t    m_MinimumRecordsToAttemptConfig;
+        uint64_t m_MinimumRecordsToAttemptConfig;
 
         //! The minimum permitted detector score.
-        double      m_MinimumDetectorScore;
+        double m_MinimumDetectorScore;
         //@}
 
         //! \name Field Role Scoring
@@ -364,86 +364,86 @@ class CONFIG_EXPORT CAutoconfigurerParams {
         //! \name Detector Scoring
         //@{
         //! The factor for a field value being in the low frequency tail.
-        double      m_HighCardinalityInTailFactor;
+        double m_HighCardinalityInTailFactor;
 
         //! The margin for a field value being in the low frequency tail.
-        uint64_t    m_HighCardinalityInTailIncrement;
+        uint64_t m_HighCardinalityInTailIncrement;
 
         //! A high proportion of records in the low frequency tail for rare
         //! analysis to be effective.
-        double      m_HighCardinalityHighTailFraction;
+        double m_HighCardinalityHighTailFraction;
 
         //! The maximum proportion of records in the low frequency tail
         //! for rare analysis.
-        double      m_HighCardinalityMaximumTailFraction;
+        double m_HighCardinalityMaximumTailFraction;
 
         //! The lower fractions for populated buckets which trigger a penalty.
-        TDoubleVec  m_LowPopulatedBucketFractions;
+        TDoubleVec m_LowPopulatedBucketFractions;
 
         //! The minimum permitted fractions of populated buckets.
-        TDoubleVec  m_MinimumPopulatedBucketFractions;
+        TDoubleVec m_MinimumPopulatedBucketFractions;
 
         //! The upper fractions for populated buckets which trigger a penalty.
-        TDoubleVec  m_HighPopulatedBucketFractions;
+        TDoubleVec m_HighPopulatedBucketFractions;
 
         //! The maximum permitted fractions of populated buckets.
-        TDoubleVec  m_MaximumPopulatedBucketFractions;
+        TDoubleVec m_MaximumPopulatedBucketFractions;
 
         //! The bucket lengths that can be selected in seconds.
-        TTimeVec    m_CandidateBucketLengths;
+        TTimeVec m_CandidateBucketLengths;
 
         //! A low number of buckets for configuration.
-        double      m_LowNumberOfBucketsForConfig;
+        double m_LowNumberOfBucketsForConfig;
 
         //! The lowest permitted number of buckets for configuration.
-        double      m_MinimumNumberOfBucketsForConfig;
+        double m_MinimumNumberOfBucketsForConfig;
 
         //! The minimum proportion of regular data to classify a data set
         //! as polled.
-        double      m_PolledDataMinimumMassAtInterval;
+        double m_PolledDataMinimumMassAtInterval;
 
         //! The maximum amount that polled data times can jitter about the
         //! polling interval.
-        double      m_PolledDataJitter;
+        double m_PolledDataJitter;
 
         //! A coefficient of variation for a bucketed statistic which is
         //! considered low.
-        double      m_LowCoefficientOfVariation;
+        double m_LowCoefficientOfVariation;
 
         //! The minimum coefficient of variation for a bucketed statistic.
-        double      m_MinimumCoefficientOfVariation;
+        double m_MinimumCoefficientOfVariation;
 
         //! A low range for the category lengths to be a suitable argument
         //! for information content.
-        double      m_LowLengthRangeForInfoContent;
+        double m_LowLengthRangeForInfoContent;
 
         //! The minimum range for the category lengths to be a suitable
         //! argument for information content.
-        double      m_MinimumLengthRangeForInfoContent;
+        double m_MinimumLengthRangeForInfoContent;
 
         //! A low maximum category length for it to be a suitable argument
         //! for information content.
-        double      m_LowMaximumLengthForInfoContent;
+        double m_LowMaximumLengthForInfoContent;
 
         //! The minimum category length for it to be a suitable argument
         //! for information content.
-        double      m_MinimumMaximumLengthForInfoContent;
+        double m_MinimumMaximumLengthForInfoContent;
 
         //! A low empirical entropy for a field to be a suitable argument
         //! for information content.
-        double      m_LowEntropyForInfoContent;
+        double m_LowEntropyForInfoContent;
 
         //! The minimum empirical entropy for a field to be a suitable
         //! argument for information content.
-        double      m_MinimumEntropyForInfoContent;
+        double m_MinimumEntropyForInfoContent;
 
         //! A low distinct count for a field to be a suitable argument
         //! for information content.
-        double      m_LowDistinctCountForInfoContent;
+        double m_LowDistinctCountForInfoContent;
 
         //! The minimum distinct count for a field to be a suitable
         //! argument for information content.
-        double      m_MinimumDistinctCountForInfoContent;
+        double m_MinimumDistinctCountForInfoContent;
         //@}
 
         //! The penalty indices for each bucket length.

@@ -46,9 +46,11 @@ class CMessageBuffer {
         CMessageBuffer(BUFFER &buffer)
             : m_Thread(*this),
               m_Condition(m_Mutex),
-              m_Buffer(buffer) {}
+              m_Buffer(buffer)
+        {}
 
-        virtual ~CMessageBuffer(void) {}
+        virtual ~CMessageBuffer(void)
+        {}
 
         //! Initialise - create the receiving thread
         bool start(void) {
@@ -83,7 +85,8 @@ class CMessageBuffer {
                 CMessageBufferThread(CMessageBuffer<MESSAGE, BUFFER> &messageBuffer)
                     : m_MessageBuffer(messageBuffer),
                       m_Shutdown(false),
-                      m_IsRunning(false) {}
+                      m_IsRunning(false)
+                {}
 
                 //! The queue must have the mutex for this to be called
                 bool isRunning(void) const {
@@ -133,13 +136,13 @@ class CMessageBuffer {
 
             private:
                 CMessageBuffer<MESSAGE, BUFFER> &m_MessageBuffer;
-                bool                            m_Shutdown;
-                bool                            m_IsRunning;
+                bool m_Shutdown;
+                bool m_IsRunning;
         };
 
         CMessageBufferThread m_Thread;
-        CMutex               m_Mutex;
-        CCondition           m_Condition;
+        CMutex m_Mutex;
+        CCondition m_Condition;
         BUFFER               &m_Buffer;
 
         friend class CMessageBufferThread;

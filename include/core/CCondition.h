@@ -67,7 +67,7 @@ class CORE_EXPORT CCondition : private CNonCopyable {
     private:
 #ifndef Windows
         //! Convert milliseconds to timespec
-        static bool        convert(uint32_t, timespec &);
+        static bool convert(uint32_t, timespec &);
 #endif
 
     private:
@@ -78,7 +78,7 @@ class CORE_EXPORT CCondition : private CNonCopyable {
 #ifdef Windows
         CONDITION_VARIABLE m_Condition;
 #else
-        pthread_cond_t     m_Condition;
+        pthread_cond_t m_Condition;
 #endif
 };
 

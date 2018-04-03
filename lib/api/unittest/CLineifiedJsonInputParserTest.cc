@@ -45,7 +45,8 @@ namespace {
 class CSetupVisitor {
     public:
         CSetupVisitor(void)
-            : m_RecordsPerBlock(0) {}
+            : m_RecordsPerBlock(0)
+        {}
 
         //! Handle a record
         bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
@@ -77,14 +78,15 @@ class CSetupVisitor {
         }
 
     private:
-        size_t                              m_RecordsPerBlock;
+        size_t m_RecordsPerBlock;
         ml::api::CLineifiedJsonOutputWriter m_OutputWriter;
 };
 
 class CVisitor {
     public:
         CVisitor(void)
-            : m_RecordCount(0) {}
+            : m_RecordCount(0)
+        {}
 
         //! Handle a record
         bool operator()(const ml::api::CLineifiedJsonInputParser::TStrStrUMap & /*dataRowFields*/) {
@@ -130,7 +132,7 @@ void CLineifiedJsonInputParserTest::runTest(bool allDocsSameStructure) {
 
     // Construct a large test input
     static const size_t TEST_SIZE(5000);
-    std::istringstream  input(setupVisitor.input(TEST_SIZE));
+    std::istringstream input(setupVisitor.input(TEST_SIZE));
 
     ml::api::CLineifiedJsonInputParser parser(input,
                                               allDocsSameStructure);

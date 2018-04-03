@@ -55,7 +55,7 @@ CppUnit::Test *CInterimBucketCorrectorTest::suite() {
 }
 
 void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue(void) {
-    core_t::TTime           bucketLength(3600);
+    core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);
 
     core_t::TTime now = 3600;
@@ -124,7 +124,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue(void) {
 }
 
 void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline(void) {
-    core_t::TTime           bucketLength(3600);
+    core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);
 
     double value = 100.0;
@@ -134,7 +134,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline(v
 }
 
 void CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode(void) {
-    core_t::TTime           bucketLength(3600);
+    core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);
 
     core_t::TTime now = 3600;
@@ -183,7 +183,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode(voi
 }
 
 void CInterimBucketCorrectorTest::testPersist(void) {
-    core_t::TTime           bucketLength(300);
+    core_t::TTime bucketLength(300);
     CInterimBucketCorrector corrector(bucketLength);
 
     core_t::TTime now = 300;
@@ -208,7 +208,7 @@ void CInterimBucketCorrectorTest::testPersist(void) {
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
-    CInterimBucketCorrector              restoredCorrector(bucketLength);
+    CInterimBucketCorrector restoredCorrector(bucketLength);
     traverser.traverseSubLevel(boost::bind(&CInterimBucketCorrector::acceptRestoreTraverser,
                                            &restoredCorrector,
                                            _1));

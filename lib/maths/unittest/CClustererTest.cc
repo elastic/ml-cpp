@@ -55,7 +55,7 @@ void CClustererTest::testIndexGenerator(void) {
 
     maths::CClusterer1d::CIndexGenerator generator;
 
-    TSizeSet    indices;
+    TSizeSet indices;
     std::size_t maxSetSize = 0u;
 
     for (std::size_t i = 0u; i < numberOperations; ++i) {
@@ -68,12 +68,12 @@ void CClustererTest::testIndexGenerator(void) {
             maxSetSize = std::max(maxSetSize, indices.size());
             if (*indices.begin() >= maxSetSize) {
                 LOG_DEBUG("index = " << *indices.begin()
-                                     << ", maxSetSize = " << maxSetSize);
+                          << ", maxSetSize = " << maxSetSize);
             }
             CPPUNIT_ASSERT(*indices.begin() < maxSetSize);
-        } else if (!indices.empty()) {
+        } else if (!indices.empty())   {
             TDoubleVec indexToErase;
-            double     max = static_cast<double>(indices.size()) - 1e-3;
+            double max = static_cast<double>(indices.size()) - 1e-3;
             rng.generateUniformSamples(0.0, max, 1u, indexToErase);
             std::size_t index = static_cast<std::size_t>(indexToErase[0]);
             TSizeSetItr itr = indices.begin();

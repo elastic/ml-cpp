@@ -42,7 +42,8 @@ const std::string INTERIM_BUCKET_CORRECTOR_TAG("e");
 CCountingModel::CCountingModel(const SModelParams &params,
                                const TDataGathererPtr &dataGatherer) :
     CAnomalyDetectorModel(params, dataGatherer, TFeatureInfluenceCalculatorCPtrPrVecVec()),
-    m_StartTime(CAnomalyDetectorModel::TIME_UNSET) {}
+    m_StartTime(CAnomalyDetectorModel::TIME_UNSET)
+{}
 
 CCountingModel::CCountingModel(const SModelParams &params,
                                const TDataGathererPtr &dataGatherer,
@@ -80,17 +81,17 @@ bool CCountingModel::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
                 return false;
             }
             this->windowBucketCount(count);
-        } else if (name == PERSON_BUCKET_COUNT_TAG) {
+        } else if (name == PERSON_BUCKET_COUNT_TAG)   {
             if (core::CPersistUtils::restore(name, this->personBucketCounts(), traverser) == false) {
                 LOG_ERROR("Invalid bucket counts in " << traverser.value());
                 return false;
             }
-        } else if (name == MEAN_COUNT_TAG) {
+        } else if (name == MEAN_COUNT_TAG)   {
             if (core::CPersistUtils::restore(name, m_MeanCounts, traverser) == false) {
                 LOG_ERROR("Invalid mean counts");
                 return false;
             }
-        } else if (name == INTERIM_BUCKET_CORRECTOR_TAG) {
+        } else if (name == INTERIM_BUCKET_CORRECTOR_TAG)   {
             if (this->interimBucketCorrectorAcceptRestoreTraverser(traverser) == false) {
                 return false;
             }
@@ -124,7 +125,7 @@ CCountingModel::TOptionalUInt64
 CCountingModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
     if (!this->bucketStatsAvailable(time)) {
         LOG_ERROR("No statistics at " << time
-                                      << ", current bucket = " << this->printCurrentBucket());
+                  << ", current bucket = " << this->printCurrentBucket());
         return TOptionalUInt64();
     }
 
@@ -168,7 +169,7 @@ void CCountingModel::currentBucketPersonIds(core_t::TTime time, TSizeVec &result
 
     if (!this->bucketStatsAvailable(time)) {
         LOG_ERROR("No statistics at " << time
-                                      << ", current bucket = " << this->printCurrentBucket());
+                  << ", current bucket = " << this->printCurrentBucket());
         return;
     }
 
@@ -252,7 +253,7 @@ void CCountingModel::setMatchedEventsDescriptions(core_t::TTime sampleTime, core
 SModelParams::TStrDetectionRulePrVec
 CCountingModel::checkScheduledEvents(core_t::TTime sampleTime) const {
     const SModelParams::TStrDetectionRulePrVec &events = this->params().s_ScheduledEvents.get();
-    SModelParams::TStrDetectionRulePrVec       matchedEvents;
+    SModelParams::TStrDetectionRulePrVec matchedEvents;
 
     for (auto &&event : events) {
         // Note that as the counting model is not aware of partitions
@@ -279,7 +280,8 @@ void CCountingModel::doSkipSampling(core_t::TTime /*startTime*/, core_t::TTime /
     // Do nothing
 }
 
-void CCountingModel::prune(std::size_t /*maximumAge*/) {}
+void CCountingModel::prune(std::size_t /*maximumAge*/)
+{}
 
 bool CCountingModel::computeProbability(std::size_t pid,
                                         core_t::TTime startTime,
@@ -361,8 +363,8 @@ void CCountingModel::createUpdateNewModels(core_t::TTime /*time*/,
                                            CResourceMonitor & /*resourceMonitor*/) {
     this->updateRecycledModels();
     CDataGatherer &gatherer = this->dataGatherer();
-    std::size_t   numberNewPeople = gatherer.numberPeople();
-    std::size_t   numberExistingPeople = m_MeanCounts.size();
+    std::size_t numberNewPeople = gatherer.numberPeople();
+    std::size_t numberExistingPeople = m_MeanCounts.size();
     numberNewPeople = numberNewPeople > numberExistingPeople ?
                       numberNewPeople - numberExistingPeople : 0;
     if (numberNewPeople > 0) {

@@ -30,10 +30,12 @@ namespace core {
 
 
 CWindowsError::CWindowsError(void)
-    : m_ErrorCode(GetLastError()) {}
+    : m_ErrorCode(GetLastError())
+{}
 
 CWindowsError::CWindowsError(uint32_t errorCode)
-    : m_ErrorCode(errorCode) {}
+    : m_ErrorCode(errorCode)
+{}
 
 uint32_t CWindowsError::errorCode(void) const {
     return m_ErrorCode;
@@ -69,7 +71,7 @@ std::ostream &operator<<(std::ostream &os,
                                0));
     if (msgLen == 0) {
         os << "unknown error code (" << windowsError.m_ErrorCode << ')';
-    } else {
+    } else   {
         os << message;
     }
 

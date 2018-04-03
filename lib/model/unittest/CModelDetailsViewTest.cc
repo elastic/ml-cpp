@@ -46,13 +46,13 @@ void CModelDetailsViewTest::testModelPlot() {
     using TStrVec = std::vector<std::string>;
     using TMockModelPtr = boost::scoped_ptr<model::CMockModel>;
 
-    core_t::TTime        bucketLength{600};
-    model::CSearchKey    key;
-    model::SModelParams  params{bucketLength};
+    core_t::TTime bucketLength{600};
+    model::CSearchKey key;
+    model::SModelParams params{bucketLength};
     model_t::TFeatureVec features;
 
     model::CAnomalyDetectorModel::TDataGathererPtr gatherer;
-    TMockModelPtr                                  model;
+    TMockModelPtr model;
 
     auto setupTest = [&] () {
                          gatherer.reset(new model::CDataGatherer{model_t::analysisCategory(features[0]),
@@ -63,7 +63,7 @@ void CModelDetailsViewTest::testModelPlot() {
                          std::string person12{"p12"};
                          std::string person21{"p21"};
                          std::string person22{"p22"};
-                         bool        addedPerson{false};
+                         bool addedPerson{false};
                          gatherer->addPerson(person11, m_ResourceMonitor, addedPerson);
                          gatherer->addPerson(person12, m_ResourceMonitor, addedPerson);
                          gatherer->addPerson(person21, m_ResourceMonitor, addedPerson);
@@ -74,7 +74,7 @@ void CModelDetailsViewTest::testModelPlot() {
                          maths::CTimeSeriesDecomposition trend;
                          maths::CNormalMeanPrecConjugate prior{
                              maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
-                         maths::CModelParams               timeSeriesModelParams{bucketLength, 1.0, 0.001, 0.2};
+                         maths::CModelParams timeSeriesModelParams{bucketLength, 1.0, 0.001, 0.2};
                          maths::CUnivariateTimeSeriesModel timeSeriesModel{timeSeriesModelParams, 0, trend, prior};
                          model->mockTimeSeriesModels({model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(0)),
                                                       model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(1)),

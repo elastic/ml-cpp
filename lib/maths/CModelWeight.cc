@@ -32,13 +32,14 @@ namespace {
 // We use short field names to reduce the state size
 const std::string LOG_WEIGHT_TAG("a");
 const std::string LONG_TERM_LOG_WEIGHT_TAG("c");
-const double      LOG_SMALLEST_WEIGHT = ::log(CTools::smallestProbability());
+const double LOG_SMALLEST_WEIGHT = ::log(CTools::smallestProbability());
 
 }
 
 CModelWeight::CModelWeight(double weight) :
     m_LogWeight(::log(weight)),
-    m_LongTermLogWeight(m_LogWeight) {}
+    m_LongTermLogWeight(m_LogWeight)
+{}
 
 CModelWeight::operator double(void) const {
     return m_LogWeight < LOG_SMALLEST_WEIGHT ? 0.0 : ::exp(m_LogWeight);

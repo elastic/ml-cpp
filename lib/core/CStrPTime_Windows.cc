@@ -75,16 +75,16 @@ char *CStrPTime::strPTime(const char *buf,
         std::string possTzName(excess);
         if (possTzName.find("GMT") == 0) {
             adjFormat.replace(tznamePos, 2, "GMT");
-        } else {
-            CTimezone   & tz = CTimezone::instance();
+        } else   {
+            CTimezone &tz = CTimezone::instance();
             std::string stdAbbrev(tz.stdAbbrev());
             if (possTzName.find(stdAbbrev) == 0) {
                 adjFormat.replace(tznamePos, 2, stdAbbrev);
-            } else {
+            } else   {
                 std::string dstAbbrev(tz.dstAbbrev());
                 if (possTzName.find(dstAbbrev) == 0) {
                     adjFormat.replace(tznamePos, 2, dstAbbrev);
-                } else {
+                } else   {
                     return 0;
                 }
             }
@@ -118,9 +118,9 @@ char *CStrPTime::strPTime(const char *buf,
         core_t::TTime sign(0);
         if (*excess == '+') {
             sign = 1;
-        } else if (*excess == '-') {
+        } else if (*excess == '-')   {
             sign = -1;
-        } else {
+        } else   {
             return 0;
         }
 
@@ -129,7 +129,7 @@ char *CStrPTime::strPTime(const char *buf,
         core_t::TTime hour(0);
         if (*excess >= '0' && *excess <= '2') {
             hour += (*excess - '0') * 10;
-        } else {
+        } else   {
             return 0;
         }
 
@@ -137,7 +137,7 @@ char *CStrPTime::strPTime(const char *buf,
 
         if (*excess >= '0' && *excess <= '9') {
             hour += (*excess - '0');
-        } else {
+        } else   {
             return 0;
         }
 
@@ -146,7 +146,7 @@ char *CStrPTime::strPTime(const char *buf,
         core_t::TTime minute(0);
         if (*excess >= '0' && *excess <= '5') {
             minute += (*excess - '0') * 10;
-        } else {
+        } else   {
             return 0;
         }
 
@@ -154,7 +154,7 @@ char *CStrPTime::strPTime(const char *buf,
 
         if (*excess >= '0' && *excess <= '9') {
             minute += (*excess - '0');
-        } else {
+        } else   {
             return 0;
         }
 

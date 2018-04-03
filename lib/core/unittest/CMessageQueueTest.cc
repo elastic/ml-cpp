@@ -40,7 +40,8 @@ namespace {
 class CReceiver {
     public:
         CReceiver(uint32_t sleepTime = 0)
-            : m_SleepTime(sleepTime) {}
+            : m_SleepTime(sleepTime)
+        {}
 
         void processMsg(const std::string &str, size_t /* backlog */) {
             m_Strings.push_back(str);
@@ -62,7 +63,7 @@ class CReceiver {
     private:
         typedef std::vector<std::string> TStrVec;
 
-        TStrVec  m_Strings;
+        TStrVec m_Strings;
 
         uint32_t m_SleepTime;
 };

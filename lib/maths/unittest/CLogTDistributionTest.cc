@@ -52,8 +52,8 @@ void CLogTDistributionTest::testMode(void) {
         for (size_t j = 0; j < boost::size(locations); ++j) {
             for (size_t k = 0; k < boost::size(squareScales); ++k) {
                 LOG_DEBUG("degrees freedom = " << degreesFreedoms[i]
-                                               << ", location = " << locations[j]
-                                               << ", scale = " << ::sqrt(squareScales[k]));
+                          << ", location = " << locations[j]
+                          << ", scale = " << ::sqrt(squareScales[k]));
 
                 CLogTDistribution logt(degreesFreedoms[i],
                                        locations[j],
@@ -91,7 +91,7 @@ void CLogTDistributionTest::testPdf(void) {
     const double degreesFreedom[] = { 2.0, 10.0, 40.0 };
     const double locations[] = { 1.0, 2.0, 3.0 };
     const double squareScales[] = { 0.5, 1, 1.5 };
-    size_t       nTests = boost::size(degreesFreedom);
+    size_t nTests = boost::size(degreesFreedom);
     nTests = std::min(nTests, boost::size(locations));
     nTests = std::min(nTests, boost::size(squareScales));
 
@@ -108,8 +108,8 @@ void CLogTDistributionTest::testPdf(void) {
             double dcdfdx = (cdf(logt, x + eps) - cdf(logt, x - eps)) / 2.0 / eps;
 
             LOG_DEBUG("percentile = " << p << "%"
-                                      << ", pdf = " << pdf
-                                      << ", dcdfdx = " << dcdfdx);
+                      << ", pdf = " << pdf
+                      << ", dcdfdx = " << dcdfdx);
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, dcdfdx, tolerance);
         }
@@ -129,7 +129,7 @@ void CLogTDistributionTest::testCdf(void) {
     const double degreesFreedom[] = { 2.0, 10.0, 40.0 };
     const double locations[] = { 1.0, 2.0, 3.0 };
     const double squareScales[] = { 0.5, 1, 1.5 };
-    size_t       nTests = boost::size(degreesFreedom);
+    size_t nTests = boost::size(degreesFreedom);
     nTests = std::min(nTests, boost::size(locations));
     nTests = std::min(nTests, boost::size(squareScales));
 
@@ -157,8 +157,8 @@ void CLogTDistributionTest::testCdf(void) {
             double expectedCdf = static_cast<double>(p) / 100;
 
             LOG_DEBUG("percentile = " << p << "%"
-                                      << ", actual cdf = " << actualCdf
-                                      << ", expected cdf = " << expectedCdf);
+                      << ", actual cdf = " << actualCdf
+                      << ", expected cdf = " << expectedCdf);
 
             // No more than a 10% error in the sample percentile.
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCdf, actualCdf, 0.1 * expectedCdf);
@@ -176,7 +176,7 @@ void CLogTDistributionTest::testQuantile(void) {
     const double degreesFreedom[] = { 2.0, 10.0, 40.0 };
     const double locations[] = { 1.0, 2.0, 3.0 };
     const double squareScales[] = { 0.5, 1, 1.5 };
-    size_t       nTests = boost::size(degreesFreedom);
+    size_t nTests = boost::size(degreesFreedom);
     nTests = std::min(nTests, boost::size(locations));
     nTests = std::min(nTests, boost::size(squareScales));
 

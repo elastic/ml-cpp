@@ -114,7 +114,7 @@ void CChecksumTest::testContainers(void) {
     // slightly, i.e. by changing an element value, permuting elements,
     // etc.
     {
-        int     values[] = { -1, 20, 10, 15, 2, 2 };
+        int values[] = { -1, 20, 10, 15, 2, 2 };
         TIntVec a(boost::begin(values), boost::end(values));
         TIntVec b(boost::begin(values), boost::end(values));
         LOG_DEBUG("checksum a = " << maths::CChecksum::calculate(seed, a));
@@ -172,9 +172,9 @@ void CChecksumTest::testContainers(void) {
                        != maths::CChecksum::calculate(seed, b));
     }
     {
-        std::string                              values[] = { "rain", "in", "spain" };
-        TStrSet                                  a(boost::begin(values), boost::end(values));
-        uint64_t                                 expected = seed;
+        std::string values[] = { "rain", "in", "spain" };
+        TStrSet a(boost::begin(values), boost::end(values));
+        uint64_t expected = seed;
         core::CHashing::CSafeMurmurHash2String64 hasher;
         for (TStrSetCItr itr = a.begin(); itr != a.end(); ++itr) {
             expected = core::CHashing::safeMurmurHash64(itr->data(),
@@ -188,10 +188,10 @@ void CChecksumTest::testContainers(void) {
 
     // Test that unordered containers are sorted.
     std::string keys[] = { "the", "quick", "brown", "fox" };
-    double      values[] = { 5.6, 2.1, -3.0, 22.1 };
+    double values[] = { 5.6, 2.1, -3.0, 22.1 };
     {
         boost::unordered_set<double> a;
-        std::set<double>             b;
+        std::set<double> b;
         for (std::size_t i = 0u; i < boost::size(values); ++i) {
             a.insert(values[i]);
             b.insert(values[i]);
@@ -204,7 +204,7 @@ void CChecksumTest::testContainers(void) {
     }
     {
         boost::unordered_map<std::string, double> a;
-        std::map<std::string, double>             b;
+        std::map<std::string, double> b;
         for (std::size_t i = 0u; i < boost::size(keys); ++i) {
             a.insert(std::make_pair(keys[i], values[i]));
             b.insert(std::make_pair(keys[i], values[i]));
@@ -233,7 +233,7 @@ void CChecksumTest::testNullable(void) {
         CPPUNIT_ASSERT_NO_THROW(maths::CChecksum::calculate(seed, TMeanVarAccumulatorPtr()));
     }
     {
-        double          value(52.1);
+        double value(52.1);
         TOptionalDouble optional(value);
         LOG_DEBUG("checksum expected = " << maths::CChecksum::calculate(seed, value));
         LOG_DEBUG("checksum actual   = " << maths::CChecksum::calculate(seed, optional));

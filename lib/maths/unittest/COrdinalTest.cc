@@ -70,7 +70,7 @@ void COrdinalTest::testEqual(void) {
             CPPUNIT_ASSERT_EQUAL(true, equal);
             equal = maths::COrdinal(::floor(sample[0])) == maths::COrdinal(static_cast<uint64_t>(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
-        } else {
+        } else   {
             equal = maths::COrdinal(static_cast<int64_t>(sample[0])) == maths::COrdinal(::ceil(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
             equal = maths::COrdinal(::ceil(sample[0])) == maths::COrdinal(static_cast<int64_t>(sample[0]));
@@ -106,7 +106,7 @@ void COrdinalTest::testEqual(void) {
         }
         CPPUNIT_ASSERT(s1[i] == s1[i]);
         CPPUNIT_ASSERT(s1[i] != maths::COrdinal(s1[i].asDouble()));
-        for (std::size_t j = i+1; j < boost::size(s1); ++j) {
+        for (std::size_t j = i + 1; j < boost::size(s1); ++j) {
             CPPUNIT_ASSERT(s1[i] != s1[j]);
         }
     }
@@ -189,7 +189,7 @@ void COrdinalTest::testLess(void) {
         for (std::size_t j = 0u; j < i; ++j) {
             CPPUNIT_ASSERT(!(s1[i] < s1[j]));
         }
-        for (std::size_t j = i+1; j < boost::size(s1); ++j) {
+        for (std::size_t j = i + 1; j < boost::size(s1); ++j) {
             CPPUNIT_ASSERT(s1[i] < s1[j]);
         }
     }

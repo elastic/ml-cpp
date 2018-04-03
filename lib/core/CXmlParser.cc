@@ -311,7 +311,7 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr,
         xmlElementType type(nodes->nodeTab[i]->type);
         if (type == XML_ELEMENT_NODE || type == XML_ATTRIBUTE_NODE) {
             const xmlChar *name(nodes->nodeTab[i]->name);
-            xmlChar       *      value(xmlNodeGetContent(nodes->nodeTab[i]));
+            xmlChar *value(xmlNodeGetContent(nodes->nodeTab[i]));
 
             CXmlNode node(reinterpret_cast<const char *>(name),
                           reinterpret_cast<char *>(value));
@@ -325,7 +325,7 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr,
             xmlAttr *prop(nodes->nodeTab[i]->properties);
             while (prop != 0) {
                 const xmlChar *propName(prop->name);
-                xmlChar       *      propValue(xmlGetProp(nodes->nodeTab[i], propName));
+                xmlChar *propValue(xmlGetProp(nodes->nodeTab[i], propName));
 
                 attrs.push_back(CXmlNode::TStrStrPr(reinterpret_cast<const char *>(propName),
                                                     reinterpret_cast<char *>(propValue)));
@@ -334,7 +334,7 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr,
 
                 prop = prop->next;
             }
-        } else {
+        } else   {
             LOG_ERROR("Node type " << type << " not supported");
         }
     }
@@ -452,7 +452,7 @@ void CXmlParser::convertChildren(const CXmlNodeWithChildren &current,
                                        0,
                                        reinterpret_cast<const xmlChar *>(child->name().c_str()),
                                        0);
-            } else {
+            } else   {
                 childRep = xmlNewTextChild(&xmlRep,
                                            0,
                                            reinterpret_cast<const xmlChar *>(child->name().c_str()),
@@ -504,7 +504,7 @@ void CXmlParser::convert(size_t indentSpaces,
         // Handle an optional attribute in the form tag@name=value
         std::string tag(itr->first);
         std::string attribute;
-        size_t      attrPos(tag.find(ATTRIBUTE_SEPARATOR));
+        size_t attrPos(tag.find(ATTRIBUTE_SEPARATOR));
         if (attrPos == 0) {
             LOG_ERROR("Attribute separator found at position zero in tag " <<
                       tag);
@@ -528,7 +528,7 @@ void CXmlParser::convert(size_t indentSpaces,
                           "' surrounded by name and value : " << attribute <<
                           core_t::LINE_ENDING << "Map key : " << itr->first <<
                           core_t::LINE_ENDING << "Map value : " << itr->second);
-            } else {
+            } else   {
                 xmlSetProp(childRep,
                            reinterpret_cast<const xmlChar *>(attribute.substr(0, eqPos).c_str()),
                            reinterpret_cast<const xmlChar *>(attribute.substr(eqPos + 1).c_str()));
@@ -752,7 +752,7 @@ bool CXmlParser::currentNodeValue(std::string &value) {
             if (textVal != 0) {
                 if (isValueSet) {
                     value += reinterpret_cast<const char *>(textVal);
-                } else {
+                } else   {
                     value = reinterpret_cast<const char *>(textVal);
                     isValueSet = true;
                 }
@@ -906,7 +906,7 @@ bool CXmlParser::stringLatin1ToUtf8(std::string &str) {
     // either 1 or 2 bytes of storage (but note that some UTF-8 characters can
     // require 3 bytes)
     typedef boost::scoped_array<char> TCharArray;
-    size_t     bufferSize(1 + 2 * str.length());
+    size_t bufferSize(1 + 2 * str.length());
     TCharArray buffer(new char[bufferSize]);
     ::memset(&buffer[0], 0, bufferSize);
 
@@ -946,7 +946,7 @@ bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
         // Get the name from the cache if there is one, as we expect relatively
         // few distinct names repeated many times
         nodePtr->m_Name = cache->stringFor(reinterpret_cast<const char *>(parentNode.name));
-    } else {
+    } else   {
         nodePtr->m_Name = reinterpret_cast<const char *>(parentNode.name);
     }
 
@@ -965,7 +965,7 @@ bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
             if (textVal != 0) {
                 if (isValueSet) {
                     nodePtr->m_Value += reinterpret_cast<const char *>(textVal);
-                } else {
+                } else   {
                     nodePtr->m_Value = reinterpret_cast<const char *>(textVal);
                     isValueSet = true;
                 }
@@ -1005,7 +1005,7 @@ bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
                 // many times
                 nodePtr->m_Attributes.push_back(CXmlNode::TStrStrPr(cache->stringFor(propName),
                                                                     cache->stringFor(propValue)));
-            } else {
+            } else   {
                 nodePtr->m_Attributes.push_back(CXmlNode::TStrStrPr(propName, propValue));
             }
         }
@@ -1037,7 +1037,7 @@ bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
 // TODO print a consolidated error message
 void CXmlParser::errorHandler(void * /* ctxt */, const char *msg, ...) {
     static const size_t ERRBUF_SIZE(1024);
-    char                errbuf[ERRBUF_SIZE] = { '\0' };
+    char errbuf[ERRBUF_SIZE] = { '\0' };
 
     va_list args;
     va_start(args, msg);

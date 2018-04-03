@@ -42,7 +42,8 @@ CAddRegisteredDomainAndEntropyToCsv::CAddRegisteredDomainAndEntropyToCsv(const C
     m_TimeFieldName(timeFieldName),
     m_EntropyFieldName(entropyFieldName),
     m_DomainNameFieldIndex(0),
-    m_TimeFieldIndex(0) {}
+    m_TimeFieldIndex(0)
+{}
 
 bool CAddRegisteredDomainAndEntropyToCsv::init(void) {
     core::CTextFileWatcher watcher;
@@ -54,7 +55,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::init(void) {
         return false;
     }
 
-    bool        readHeader(false);
+    bool readHeader(false);
     std::string lastTime;
 
     std::string remainder;
@@ -88,7 +89,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool &readHeader,
 
     // Split csv line
     core::CStringUtils::TStrVec tokens;
-    std::string                 remainder;
+    std::string remainder;
 
     core::CStringUtils::tokenise(",", line, tokens, remainder);
 
@@ -125,7 +126,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool &readHeader,
         return false;
     }
 
-    std::string       hostName = tokens.at(m_DomainNameFieldIndex);
+    std::string hostName = tokens.at(m_DomainNameFieldIndex);
     const std::string &time = tokens.at(m_TimeFieldIndex);
 
     if (time != lastTime) {
@@ -170,7 +171,7 @@ void CAddRegisteredDomainAndEntropyToCsv::flush(const std::string &time) {
         size_t length;
         if (itr->second->compressedStringLength(true, length) == false) {
             LOG_ERROR("Unable to process " << itr->first);
-        } else {
+        } else   {
             std::cout << time << "," << itr->first << "," << length << std::endl;
         }
     }

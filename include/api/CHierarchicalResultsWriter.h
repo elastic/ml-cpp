@@ -191,19 +191,19 @@ class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResults
 
     private:
         //! The various limits.
-        const model::CLimits                     &m_Limits;
+        const model::CLimits &m_Limits;
 
         //! Config options
         const model::CAnomalyDetectorModelConfig &m_ModelConfig;
 
         //! The results writer.
-        TResultWriterFunc                        m_ResultWriterFunc;
+        TResultWriterFunc m_ResultWriterFunc;
 
         //! The influencers/pivots writer
-        TPivotWriterFunc                         m_PivotWriterFunc;
+        TPivotWriterFunc m_PivotWriterFunc;
 
         //! Remember the current bucket time for writing pivots
-        core_t::TTime                            m_BucketTime;
+        core_t::TTime m_BucketTime;
 };
 
 }

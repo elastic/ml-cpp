@@ -109,7 +109,7 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent(void) {
         maths::lasso_logistic_regression_detail::CCyclicCoordinateDescent clg(50, 0.001);
 
         TDoubleVec lambda(2, 0.25);
-        double     x_[][2] =
+        double x_[][2] =
         {
             { 0.1,  1.0 },
             { 0.3,  1.0 },
@@ -128,19 +128,19 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent(void) {
         initializeMatrix(x_, xs_);
         TDoubleVec y(boost::begin(y_), boost::end(y_));
 
-        TDoubleVec  beta1;
+        TDoubleVec beta1;
         std::size_t numberIterations;
         clg.run(x, y, lambda, beta1, numberIterations);
         LOG_DEBUG("dense beta = " << core::CContainerPrinter::print(beta1)
-                                  << ", numberIterations = " << numberIterations);
+                  << ", numberIterations = " << numberIterations);
 
-        TDoubleVec                                             beta2;
+        TDoubleVec beta2;
         maths::lasso_logistic_regression_detail::CSparseMatrix xs(boost::size(x_),
                                                                   boost::size(x_[0]),
                                                                   xs_);
         clg.run(xs, y, lambda, beta2, numberIterations);
         LOG_DEBUG("sparse beta = " << core::CContainerPrinter::print(beta2)
-                                   << ", numberIterations = " << numberIterations);
+                  << ", numberIterations = " << numberIterations);
 
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(beta1),
                              core::CContainerPrinter::print(beta2));
@@ -157,7 +157,7 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent(void) {
 
             TDoubleVec betaMinusEps;
             TDoubleVec betaPlusEps;
-            double     length = 0.0;
+            double length = 0.0;
             for (std::size_t j = 0u; j < beta1.size(); ++j) {
                 betaMinusEps.push_back(beta1[j] - step[j]);
                 betaPlusEps.push_back(beta1[j] + step[j]);
@@ -167,8 +167,8 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent(void) {
 
             llMinusEps += logLikelihood(x, y, lambda, betaMinusEps);
             llPlusEps  += logLikelihood(x, y, lambda, betaPlusEps);
-            LOG_DEBUG("log-likelihood minus eps = " << llMinusEps / static_cast<double>(i+1));
-            LOG_DEBUG("log-likelihood plus eps  = " << llPlusEps  / static_cast<double>(i+1));
+            LOG_DEBUG("log-likelihood minus eps = " << llMinusEps / static_cast<double>(i + 1));
+            LOG_DEBUG("log-likelihood plus eps  = " << llPlusEps  / static_cast<double>(i + 1));
 
             double slope = (llPlusEps - llMinusEps) / length;
             LOG_DEBUG("slope = " << slope);
@@ -185,7 +185,7 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent(void) {
     // Generate linearly separable data along a random direction
     // in R^5.
 
-    double     decision = 1.0;
+    double decision = 1.0;
     TDoubleVec decisionNormal;
     rng.generateUniformSamples(0.0, 1.0, 5, decisionNormal);
     double length = ::sqrt(inner(decisionNormal, decisionNormal));
@@ -196,7 +196,7 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent(void) {
               << core::CContainerPrinter::print(decisionNormal));
 
     TDoubleVecVec x_(6, TDoubleVec(100, 0.0));
-    TDoubleVec    y_(100, 0.0);
+    TDoubleVec y_(100, 0.0);
     for (std::size_t i = 0u; i < 100; ++i) {
         TDoubleVec xi;
         rng.generateUniformSamples(-20.0, 20.0, 5, xi);
@@ -209,15 +209,15 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent(void) {
     }
 
     for (std::size_t k = 0u; k < boost::size(lambdas); ++k) {
-        TDoubleVec    lambda(6, lambdas[k]);
+        TDoubleVec lambda(6, lambdas[k]);
         TDoubleVecVec x(x_);
-        TDoubleVec    y(y_);
+        TDoubleVec y(y_);
 
-        TDoubleVec  beta;
+        TDoubleVec beta;
         std::size_t numberIterations;
         clg.run(x, y, lambda, beta, numberIterations);
         LOG_DEBUG("beta = " << core::CContainerPrinter::print(beta)
-                            << ", numberIterations = " << numberIterations);
+                  << ", numberIterations = " << numberIterations);
 
         TDoubleVec effectiveDecisionNormal;
         for (std::size_t j = 0u; j < decisionNormal.size(); ++j) {

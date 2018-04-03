@@ -141,7 +141,7 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("categorizationfield") > 0) {
             categorizationFieldName = vm["categorizationfield"].as<std::string>();
         }
-    } catch (std::exception &e) {
+    } catch (std::exception &e)   {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
     }

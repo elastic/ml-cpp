@@ -28,10 +28,10 @@ namespace api {
 
 
 // Initialise statics
-const char   CCsvInputParser::COMMA(',');
-const char   CCsvInputParser::QUOTE('"');
-const char   CCsvInputParser::RECORD_END('\n');
-const char   CCsvInputParser::STRIP_BEFORE_END('\r');
+const char CCsvInputParser::COMMA(',');
+const char CCsvInputParser::QUOTE('"');
+const char CCsvInputParser::RECORD_END('\n');
+const char CCsvInputParser::STRIP_BEFORE_END('\r');
 const size_t CCsvInputParser::WORK_BUFFER_SIZE(131072); // 128kB
 
 
@@ -44,7 +44,8 @@ CCsvInputParser::CCsvInputParser(const std::string &input,
       m_WorkBufferPtr(0),
       m_WorkBufferEnd(0),
       m_NoMoreRecords(false),
-      m_LineParser(separator) {}
+      m_LineParser(separator)
+{}
 
 CCsvInputParser::CCsvInputParser(std::istream &strmIn,
                                  char separator)
@@ -54,7 +55,8 @@ CCsvInputParser::CCsvInputParser(std::istream &strmIn,
       m_WorkBufferPtr(0),
       m_WorkBufferEnd(0),
       m_NoMoreRecords(false),
-      m_LineParser(separator) {}
+      m_LineParser(separator)
+{}
 
 const std::string &CCsvInputParser::fieldNameStr(void) const {
     return m_FieldNameStr;
@@ -128,7 +130,7 @@ bool CCsvInputParser::parseCsvRecordFromStream(void) {
         m_WorkBufferEnd = m_WorkBufferPtr;
     }
 
-    bool   startOfRecord(true);
+    bool startOfRecord(true);
     size_t quoteCount(0);
     for (;;) {
         size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
@@ -167,13 +169,13 @@ bool CCsvInputParser::parseCsvRecordFromStream(void) {
         if (startOfRecord) {
             m_CurrentRowStr.assign(m_WorkBufferPtr, endPtr - m_WorkBufferPtr);
             startOfRecord = false;
-        } else {
+        } else   {
             if (endPtr == m_WorkBufferPtr) {
                 size_t strLen(m_CurrentRowStr.length());
                 if (strLen > 0 && m_CurrentRowStr[strLen - 1] == STRIP_BEFORE_END) {
                     m_CurrentRowStr.erase(strLen - 1);
                 }
-            } else {
+            } else   {
                 m_CurrentRowStr.append(m_WorkBufferPtr, endPtr - m_WorkBufferPtr);
             }
         }
@@ -189,7 +191,7 @@ bool CCsvInputParser::parseCsvRecordFromStream(void) {
                 break;
             }
             m_CurrentRowStr += RECORD_END;
-        } else {
+        } else   {
             m_WorkBufferPtr = m_WorkBufferEnd;
         }
     }
@@ -222,7 +224,7 @@ bool CCsvInputParser::parseFieldNames(void) {
         // empty input
         if (m_NoMoreRecords) {
             LOG_DEBUG("Received input with settings only");
-        } else {
+        } else   {
             LOG_ERROR("No field names found in:" << core_t::LINE_ENDING << m_CurrentRowStr);
         }
         return false;
@@ -248,12 +250,12 @@ bool CCsvInputParser::parseDataRecord(const TStrRefVec &fieldValRefs) {
 
     if (!m_LineParser.atEnd()) {
         std::string extraField;
-        size_t      numExtraFields(0);
+        size_t numExtraFields(0);
         while (m_LineParser.parseNext(extraField) == true) {
             ++numExtraFields;
         }
         LOG_ERROR("Data record contains " << numExtraFields << " more fields than header:" << core_t::LINE_ENDING
-                                          << m_CurrentRowStr << core_t::LINE_ENDING << "and:" << core_t::LINE_ENDING << m_FieldNameStr);
+                  << m_CurrentRowStr << core_t::LINE_ENDING << "and:" << core_t::LINE_ENDING << m_FieldNameStr);
         return false;
     }
 
@@ -269,7 +271,8 @@ CCsvInputParser::CCsvLineParser::CCsvLineParser(char separator)
       m_LineCurrent(nullptr),
       m_LineEnd(nullptr),
       m_WorkFieldEnd(nullptr),
-      m_WorkFieldCapacity(0) {}
+      m_WorkFieldCapacity(0)
+{}
 
 void CCsvInputParser::CCsvLineParser::reset(const std::string &line) {
     m_SeparatorAfterLastField = false;
@@ -306,7 +309,7 @@ bool CCsvInputParser::CCsvLineParser::atEnd() const
 }
 
 bool CCsvInputParser::CCsvLineParser::parseNextToken(const char *end,
-                                                     const char *&current) {
+                                                     const char * & current) {
     m_WorkFieldEnd = m_WorkField.get();
 
     if (current == end) {
@@ -347,7 +350,7 @@ bool CCsvInputParser::CCsvLineParser::parseNextToken(const char *end,
             }
 
             *(m_WorkFieldEnd++) = *current;
-        } else {
+        } else   {
             if (*current == m_Separator) {
                 ++current;
                 m_SeparatorAfterLastField = true;
@@ -359,7 +362,7 @@ bool CCsvInputParser::CCsvLineParser::parseNextToken(const char *end,
                 // quotes regardless of the next character, and we never want to
                 // include this quote in the field value
                 insideQuotes = true;
-            } else {
+            } else   {
                 *(m_WorkFieldEnd++) = *current;
             }
         }

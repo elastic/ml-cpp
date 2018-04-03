@@ -89,8 +89,8 @@ class MODEL_EXPORT CUniqueStringFeatureData {
         std::string print(void) const;
 
     private:
-        TDictionary1                   m_Dictionary1;
-        TWordStringUMap                m_UniqueStrings;
+        TDictionary1 m_Dictionary1;
+        TWordStringUMap m_UniqueStrings;
         TStoredStringPtrWordSetUMapVec m_InfluencerUniqueStrings;
 };
 
@@ -492,16 +492,16 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer {
         //!   -# [The name of the field which identifies a function to key off],
         //!   -# [The name of the field containing the person(/attribute) count
         //!       if summarized data are being gathered]
-        TStrVec         m_FieldNames;
+        TStrVec m_FieldNames;
 
         //! The position of the first influencer field
-        std::size_t     m_BeginInfluencingFields;
+        std::size_t m_BeginInfluencingFields;
 
         //! The position of the first count/value field.
-        std::size_t     m_BeginValueField;
+        std::size_t m_BeginValueField;
 
         //! The position of the field holding the summarised count.
-        std::size_t     m_BeginSummaryFields;
+        std::size_t m_BeginSummaryFields;
 
         //! The data features we are gathering.
         TCategoryAnyMap m_FeatureData;

@@ -67,7 +67,7 @@ class CMockDataAdder : public ml::core::CDataAdder {
 
     private:
         //! Persisted events
-        TStrStrVecMap   m_Events;
+        TStrStrVecMap m_Events;
 
         TStrOStreamPMap m_Streams;
 };

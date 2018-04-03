@@ -251,7 +251,7 @@ void CCsvOutputWriterTest::testOverwrite(void) {
         if (mlFields.find(iter->first) == mlFields.end()) {
             LOG_DEBUG("Checking output contains '" << iter->second << "'");
             CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
-        } else {
+        } else   {
             LOG_DEBUG("Checking output does not contain '" << iter->second << "'");
             CPPUNIT_ASSERT(output.find(iter->second) == std::string::npos);
         }

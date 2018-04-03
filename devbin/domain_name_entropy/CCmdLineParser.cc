@@ -48,7 +48,7 @@ bool CCmdLineParser::parse(int argc,
             "Time field name string")
         ;
 
-        boost::program_options::variables_map  vm;
+        boost::program_options::variables_map vm;
         boost::program_options::parsed_options parsed =
             boost::program_options::command_line_parser(argc, argv).options(desc).allow_unregistered().run();
         boost::program_options::store(parsed, vm);
@@ -63,23 +63,23 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("domainfieldname") > 0) {
             domainNameField = vm["domainfieldname"].as<std::string>();
-        } else {
+        } else   {
             std::cerr << desc << std::endl;
             return false;
         }
         if (vm.count("timefieldname") > 0) {
             timeField = vm["timefieldname"].as<std::string>();
-        } else {
+        } else   {
             std::cerr << desc << std::endl;
             return false;
         }
         if (vm.count("csvfilename") > 0) {
             csvFileName = vm["csvfilename"].as<std::string>();
-        } else {
+        } else   {
             std::cerr << desc << std::endl;
             return false;
         }
-    } catch (std::exception &e) {
+    } catch (std::exception &e)   {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
     }

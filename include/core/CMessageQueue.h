@@ -84,9 +84,11 @@ class CMessageQueue {
               // If timing is enabled, we need a buffer one bigger than the
               // number of times to average over.  If timing is disabled, the
               // buffer can have capacity zero.
-              m_Readings((NUM_TO_TIME > 0) ? (NUM_TO_TIME + 1) : 0) {}
+              m_Readings((NUM_TO_TIME > 0) ? (NUM_TO_TIME + 1) : 0)
+        {}
 
-        virtual ~CMessageQueue(void) {}
+        virtual ~CMessageQueue(void)
+        {}
 
         //! Initialise - create the receiving thread
         bool start(void) {
@@ -178,7 +180,8 @@ class CMessageQueue {
 
     private:
         //! No-op shutdown function if no other is provided
-        static void defaultShutdownFunc(void) {}
+        static void defaultShutdownFunc(void)
+        {}
 
     private:
         class CMessageQueueThread : public CThread {
@@ -188,7 +191,8 @@ class CMessageQueue {
                                                   NUM_TO_TIME> &messageQueue)
                     : m_MessageQueue(messageQueue),
                       m_ShuttingDown(false),
-                      m_IsRunning(false) {}
+                      m_IsRunning(false)
+                {}
 
                 //! The queue must have the mutex for this to be called
                 bool isRunning(void) const {
@@ -284,29 +288,29 @@ class CMessageQueue {
 
             private:
                 CMessageQueue<MESSAGE, RECEIVER, NUM_TO_TIME> &m_MessageQueue;
-                bool                                          m_ShuttingDown;
-                bool                                          m_IsRunning;
+                bool m_ShuttingDown;
+                bool m_IsRunning;
         };
 
         CMessageQueueThread m_Thread;
-        mutable CMutex      m_Mutex;
-        CCondition          m_Condition;
+        mutable CMutex m_Mutex;
+        CCondition m_Condition;
         RECEIVER            &m_Receiver;
 
         typedef std::queue<MESSAGE>              TMessageQueue;
 
-        TMessageQueue       m_Queue;
+        TMessageQueue m_Queue;
 
         //! Function to be called on queue shutdown
-        TShutdownFunc       m_ShutdownFunc;
+        TShutdownFunc m_ShutdownFunc;
 
         //! A stop watch for timing how long it takes to process messages
-        CStopWatch          m_StopWatch;
+        CStopWatch m_StopWatch;
 
         typedef boost::circular_buffer<uint64_t> TUIntCircBuf;
 
         //! Stop watch readings
-        TUIntCircBuf        m_Readings;
+        TUIntCircBuf m_Readings;
 
         friend class CMessageQueueThread;
 };

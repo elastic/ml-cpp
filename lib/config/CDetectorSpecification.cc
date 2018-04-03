@@ -142,7 +142,7 @@ CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams &para
     this->initializePenalties();
     if (!config_t::hasArgument(function)) {
         LOG_ERROR("Ignoring argument '" + argument + "' for '" + config_t::print(function) + "'");
-    } else {
+    } else   {
         m_FunctionFields[constants::ARGUMENT_INDEX] = argument;
     }
     std::fill_n(m_FieldStatistics,
@@ -226,7 +226,7 @@ void CDetectorSpecification::setPenalty(const TPenaltyPtr &penalty) {
 
 double CDetectorSpecification::score(void) const {
     TSizeVecCPtrAry indicesInUse = this->penaltyIndicesInUse();
-    double          penalty = 0.0;
+    double penalty = 0.0;
     for (std::size_t iid = 0u; iid < TSizeVecCPtrAry::size(); ++iid) {
         penalty = std::max(penalty, maxPenalty(*indicesInUse[iid], m_Penalties));
     }
@@ -238,8 +238,8 @@ void CDetectorSpecification::scores(TParamScoresVec &result) const {
     const TTimeVec &candidates = this->params().candidateBucketLengths();
     for (std::size_t iid = 0u; iid < boost::size(IGNORE_EMPTY); ++iid) {
         for (std::size_t bid = 0u; bid < candidates.size(); ++bid) {
-            std::size_t   pid = this->params().penaltyIndexFor(bid, IGNORE_EMPTY[iid]);
-            double        score = CPenalty::score(m_Penalties[pid]);
+            std::size_t pid = this->params().penaltyIndexFor(bid, IGNORE_EMPTY[iid]);
+            double score = CPenalty::score(m_Penalties[pid]);
             const TStrVec &descriptions = m_PenaltyDescriptions[pid];
             if (score > this->params().minimumDetectorScore()) {
                 const std::string &name = config_t::ignoreEmptyVersionName(m_Function,
@@ -419,12 +419,12 @@ std::string CDetectorSpecification::detectorConfig(void) const {
     if (CPenalty::score(best[0].first) > this->params().minimumDetectorScore()) {
         const std::string &newLine = this->params().detectorConfigLineEnding();
         result << "{" << newLine
-               << "  \"analysisConfig\": {" << newLine
-               << "    \"bucketSpan\": " << best[0].second << newLine
-               << "  }," << newLine
-               << "  \"detectors\": [" << newLine
-               << "    {" << newLine
-               << "      \"function\":\"" << config_t::print(m_Function) << "\"";
+        << "  \"analysisConfig\": {" << newLine
+        << "    \"bucketSpan\": " << best[0].second << newLine
+        << "  }," << newLine
+        << "  \"detectors\": [" << newLine
+        << "    {" << newLine
+        << "      \"function\":\"" << config_t::print(m_Function) << "\"";
         if (const CDetectorSpecification::TOptionalStr &argument = this->argumentField()) {
             result << "," << newLine << "      \"fieldName\": \"" << *argument << "\"";
         }
@@ -445,10 +445,10 @@ std::string CDetectorSpecification::detectorConfig(void) const {
 std::string CDetectorSpecification::description(void) const {
     std::ostringstream result;
     result << fullFunctionName(m_Side, m_IgnoreEmpty, this->isPopulation(), m_Function)
-           << (this->argumentField() ? std::string("(") + *this->argumentField() + ")" : std::string())
-           << (this->byField() ? std::string(" by '") + *this->byField() + "'" : std::string())
-           << (this->overField() ? std::string(" over '") + *this->overField() + "'" : std::string())
-           << (this->partitionField() ? std::string(" partition '") + *this->partitionField() + "'" : std::string());
+    << (this->argumentField() ? std::string("(") + *this->argumentField() + ")" : std::string())
+    << (this->byField() ? std::string(" by '") + *this->byField() + "'" : std::string())
+    << (this->overField() ? std::string(" over '") + *this->overField() + "'" : std::string())
+    << (this->partitionField() ? std::string(" partition '") + *this->partitionField() + "'" : std::string());
     return result.str();
 }
 
@@ -468,7 +468,7 @@ int CDetectorSpecification::highestFieldIndex(void) const {
 
 CDetectorSpecification::TSizeVecCPtrAry CDetectorSpecification::penaltyIndicesInUse(void) const {
     static const TSizeVec EMPTY;
-    TSizeVecCPtrAry       result;
+    TSizeVecCPtrAry result;
     switch (m_IgnoreEmpty) {
         case E_True:
             result[ignoreEmptyId(true)]  = &this->params().penaltyIndicesFor(true);
@@ -516,7 +516,8 @@ CDetectorSpecification::SParamScores::SParamScores(core_t::TTime bucketLength,
     s_BucketLength(bucketLength),
     s_IgnoreEmpty(ignoreEmpty),
     s_Score(score),
-    s_Descriptions(descriptions) {}
+    s_Descriptions(descriptions)
+{}
 
 }
 }

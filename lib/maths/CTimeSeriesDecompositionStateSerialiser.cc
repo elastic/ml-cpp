@@ -58,10 +58,10 @@ bool CTimeSeriesDecompositionStateSerialiser::operator()(const STimeSeriesDecomp
                                                       params.s_ComponentSize,
                                                       traverser));
             ++numResults;
-        } else if (name == TIME_SERIES_DECOMPOSITION_STUB_TAG) {
+        } else if (name == TIME_SERIES_DECOMPOSITION_STUB_TAG)   {
             result.reset(new CTimeSeriesDecompositionStub());
             ++numResults;
-        } else {
+        } else   {
             LOG_ERROR("No decomposition corresponds to name " << traverser.name());
             return false;
         }
@@ -82,11 +82,11 @@ void CTimeSeriesDecompositionStateSerialiser::operator()(const CTimeSeriesDecomp
         inserter.insertLevel(TIME_SERIES_DECOMPOSITION_TAG,
                              boost::bind(&CTimeSeriesDecomposition::acceptPersistInserter,
                                          dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition), _1));
-    } else if (dynamic_cast<const CTimeSeriesDecompositionStub*>(&decomposition) != 0) {
+    } else if (dynamic_cast<const CTimeSeriesDecompositionStub*>(&decomposition) != 0)   {
         inserter.insertValue(TIME_SERIES_DECOMPOSITION_STUB_TAG, "");
-    } else {
+    } else   {
         LOG_ERROR("Decomposition with type '" << typeid(decomposition).name()
-                                              << "' has no defined name");
+                  << "' has no defined name");
     }
 }
 

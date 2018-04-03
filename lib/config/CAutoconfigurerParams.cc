@@ -42,12 +42,8 @@ template<typename T>
 class CConstraint {
     public:
         virtual ~CConstraint(void) {}
-        virtual bool operator()(const T & /*value*/) const {
-            return true;
-        }
-        virtual bool operator()(const std::vector<T> & /*value*/) const {
-            return true;
-        }
+        virtual bool operator()(const T & /*value*/) const { return true; }
+        virtual bool operator()(const std::vector<T> & /*value*/) const { return true; }
         virtual std::string print(void) const = 0;
 };
 
@@ -110,30 +106,22 @@ class CConstraintConjunction : public CConstraint<T> {
 //! \brief Less than.
 template<typename T> class CLess : public std::less<T> {
     public:
-        std::string print(void) const {
-            return "<";
-        }
+        std::string print(void) const { return "<"; }
 };
 //! \brief Less than or equal to.
 template<typename T> class CLessEqual : public std::less_equal<T> {
     public:
-        std::string print(void) const {
-            return "<=";
-        }
+        std::string print(void) const { return "<="; }
 };
 //! \brief Greater than.
 template<typename T> class CGreater : public std::greater<T> {
     public:
-        std::string print(void) const {
-            return ">";
-        }
+        std::string print(void) const { return ">"; }
 };
 //! \brief Greater than or equal to.
 template<typename T> class CGreaterEqual : public std::greater_equal<T> {
     public:
-        std::string print(void) const {
-            return ">=";
-        }
+        std::string print(void) const { return ">="; }
 };
 //! \brief The constraint that a value of type T is greater than another.
 template<typename T, template<typename> class PREDICATE>
@@ -148,7 +136,7 @@ class CValueIs : public CConstraint<T> {
         }
 
     private:
-        const T      *m_Rhs;
+        const T *m_Rhs;
         PREDICATE<T> m_Pred;
 };
 //! \brief The constraint that a value of type T is greater than another.
@@ -171,7 +159,7 @@ class CVectorValueIs : public CConstraint<T> {
 
     private:
         const std::vector<T> *m_Rhs;
-        PREDICATE<T>         m_Pred;
+        PREDICATE<T> m_Pred;
 };
 
 //! \brief The constraint that a vector isn't empty.
@@ -226,13 +214,16 @@ class CBuiltinParameter : public CParameter {
     public:
         CBuiltinParameter(T &value) :
             m_Value(value),
-            m_Constraint(new CUnconstrained<T>) {}
+            m_Constraint(new CUnconstrained<T>)
+        {}
         CBuiltinParameter(T &value, const CConstraint<T> *constraint) :
             m_Value(value),
-            m_Constraint(constraint) {}
+            m_Constraint(constraint)
+        {}
         CBuiltinParameter(T &value, TConstraintCPtr constraint) :
             m_Value(value),
-            m_Constraint(constraint) {}
+            m_Constraint(constraint)
+        {}
 
     private:
         virtual bool fromStringImpl(const std::string &value) {
@@ -256,7 +247,7 @@ class CBuiltinParameter : public CParameter {
         }
 
     private:
-        T               &m_Value;
+        T &m_Value;
         TConstraintCPtr m_Constraint;
 };
 
@@ -266,15 +257,17 @@ class CBuiltinVectorParameter : public CParameter {
     public:
         CBuiltinVectorParameter(std::vector<T> &value) :
             m_Value(value),
-            m_Constraint(new CUnconstrained<T>) {}
+            m_Constraint(new CUnconstrained<T>)
+        {}
         CBuiltinVectorParameter(std::vector<T> &value, const CConstraint<T> *constraint) :
             m_Value(value),
-            m_Constraint(constraint) {}
+            m_Constraint(constraint)
+        {}
 
     private:
         virtual bool fromStringImpl(const std::string &value) {
             std::string remainder;
-            TStrVec     tokens;
+            TStrVec tokens;
             core::CStringUtils::tokenise(std::string(" "), value, tokens, remainder);
             if (!remainder.empty()) {
                 tokens.push_back(remainder);
@@ -288,7 +281,7 @@ class CBuiltinVectorParameter : public CParameter {
             }
             if (!(*m_Constraint)(value_)) {
                 LOG_ERROR("'" << core::CContainerPrinter::print(value_)
-                              << "' doesn't satisfy '" << m_Constraint->print() << "'");
+                          << "' doesn't satisfy '" << m_Constraint->print() << "'");
                 return false;
             }
             m_Value.swap(value_);
@@ -296,7 +289,7 @@ class CBuiltinVectorParameter : public CParameter {
         }
 
     private:
-        std::vector<T>                           &m_Value;
+        std::vector<T> &m_Value;
         boost::shared_ptr<const CConstraint<T> > m_Constraint;
 };
 
@@ -305,22 +298,24 @@ class COptionalStrVecParameter : public CParameter {
     public:
         COptionalStrVecParameter(CAutoconfigurerParams::TOptionalStrVec &value) :
             m_Value(value),
-            m_Constraint(new CUnconstrained<std::string>) {}
+            m_Constraint(new CUnconstrained<std::string>)
+        {}
         COptionalStrVecParameter(CAutoconfigurerParams::TOptionalStrVec &value,
                                  const CConstraint<std::string> *constraint) :
             m_Value(value),
-            m_Constraint(constraint) {}
+            m_Constraint(constraint)
+        {}
 
         virtual bool fromStringImpl(const std::string &value) {
             std::string remainder;
-            TStrVec     value_;
+            TStrVec value_;
             core::CStringUtils::tokenise(std::string(" "), value, value_, remainder);
             if (!remainder.empty()) {
                 value_.push_back(remainder);
             }
             if (!(*m_Constraint)(value_)) {
                 LOG_ERROR("'" << core::CContainerPrinter::print(value_)
-                              << "' doesn't satisfy '" << m_Constraint->print() << "'");
+                          << "' doesn't satisfy '" << m_Constraint->print() << "'");
                 return false;
             }
             m_Value.reset(TStrVec());
@@ -329,7 +324,7 @@ class COptionalStrVecParameter : public CParameter {
         }
 
     private:
-        CAutoconfigurerParams::TOptionalStrVec             &m_Value;
+        CAutoconfigurerParams::TOptionalStrVec &m_Value;
         boost::shared_ptr<const CConstraint<std::string> > m_Constraint;
 };
 
@@ -341,7 +336,7 @@ class CFieldDataTypeParameter : public CParameter {
     private:
         virtual bool fromStringImpl(const std::string &value) {
             std::string remainder;
-            TStrVec     tokens;
+            TStrVec tokens;
             core::CStringUtils::tokenise(std::string(" "), value, tokens, remainder);
             if (!remainder.empty()) {
                 tokens.push_back(remainder);
@@ -355,9 +350,9 @@ class CFieldDataTypeParameter : public CParameter {
             value_.reserve(tokens.size());
             for (std::size_t i = 0u; i < tokens.size(); i += 2) {
                 config_t::EUserDataType type;
-                if (!this->fromString(core::CStringUtils::toLower(tokens[i+1]), type)) {
-                    LOG_ERROR("Couldn't interpret '" << tokens[i+1] << "' as a data type:"
-                                                     << " ignoring field data type for '" << tokens[i] << "'");
+                if (!this->fromString(core::CStringUtils::toLower(tokens[i + 1]), type)) {
+                    LOG_ERROR("Couldn't interpret '" << tokens[i + 1] << "' as a data type:"
+                              << " ignoring field data type for '" << tokens[i] << "'");
                     continue;
                 }
                 value_.push_back(std::make_pair(tokens[i], type));
@@ -387,16 +382,18 @@ class CFunctionCategoryParameter : public CParameter {
     public:
         CFunctionCategoryParameter(CAutoconfigurerParams::TFunctionCategoryVec &value) :
             m_Value(value),
-            m_Constraint(new CUnconstrained<config_t::EFunctionCategory>) {}
+            m_Constraint(new CUnconstrained<config_t::EFunctionCategory>)
+        {}
         CFunctionCategoryParameter(CAutoconfigurerParams::TFunctionCategoryVec &value,
                                    const CConstraint<config_t::EFunctionCategory> *constraint) :
             m_Value(value),
-            m_Constraint(constraint) {}
+            m_Constraint(constraint)
+        {}
 
     private:
         virtual bool fromStringImpl(const std::string &value) {
             std::string remainder;
-            TStrVec     tokens;
+            TStrVec tokens;
             core::CStringUtils::tokenise(std::string(" "), value, tokens, remainder);
             if (!remainder.empty()) {
                 tokens.push_back(remainder);
@@ -417,7 +414,7 @@ class CFunctionCategoryParameter : public CParameter {
             std::sort(value_.begin(), value_.end());
             if (!(*m_Constraint)(value_)) {
                 LOG_ERROR("'" << core::CContainerPrinter::print(value_)
-                              << "' doesn't satisfy '" << m_Constraint->print() << "'");
+                          << "' doesn't satisfy '" << m_Constraint->print() << "'");
                 return false;
             }
             m_Value.swap(value_);
@@ -436,7 +433,7 @@ class CFunctionCategoryParameter : public CParameter {
         }
 
     private:
-        CAutoconfigurerParams::TFunctionCategoryVec                        &m_Value;
+        CAutoconfigurerParams::TFunctionCategoryVec &m_Value;
         boost::shared_ptr<const CConstraint<config_t::EFunctionCategory> > m_Constraint;
 };
 
@@ -475,7 +472,7 @@ static bool processSetting(const boost::property_tree::ptree &propTree,
             LOG_ERROR("Invalid value for setting '" << iniPath << "' : " << value);
             return false;
         }
-    } catch (boost::property_tree::ptree_error &) {
+    } catch (boost::property_tree::ptree_error &)   {
         LOG_INFO("Keeping default value for unspecified setting '" << iniPath << "'");
     }
 
@@ -495,11 +492,11 @@ bool canUse(const CAutoconfigurerParams::TOptionalStrVec &primary,
     return true;
 }
 
-const std::size_t                 MINIMUM_EXAMPLES_TO_CLASSIFY(1000);
-const std::size_t                 MINIMUM_RECORDS_TO_ATTEMPT_CONFIG(10000);
-const double                      MINIMUM_DETECTOR_SCORE(0.1);
-const std::size_t                 NUMBER_OF_MOST_FREQUENT_FIELDS_COUNTS(10);
-std::string                       DEFAULT_DETECTOR_CONFIG_LINE_ENDING("\n");
+const std::size_t MINIMUM_EXAMPLES_TO_CLASSIFY(1000);
+const std::size_t MINIMUM_RECORDS_TO_ATTEMPT_CONFIG(10000);
+const double MINIMUM_DETECTOR_SCORE(0.1);
+const std::size_t NUMBER_OF_MOST_FREQUENT_FIELDS_COUNTS(10);
+std::string DEFAULT_DETECTOR_CONFIG_LINE_ENDING("\n");
 const config_t::EFunctionCategory FUNCTION_CATEGORIES[] =
 {
     config_t::E_Count,
@@ -521,11 +518,11 @@ const std::size_t HIGH_NUMBER_PARTITION_FIELD_VALUES(500000);
 const std::size_t MAXIMUM_NUMBER_PARTITION_FIELD_VALUES(5000000);
 const std::size_t LOW_NUMBER_OVER_FIELD_VALUES(50);
 const std::size_t MINIMUM_NUMBER_OVER_FIELD_VALUES(5);
-const double      HIGH_CARDINALITY_IN_TAIL_FACTOR(1.1);
-const uint64_t    HIGH_CARDINALITY_IN_TAIL_INCREMENT(10);
-const double      HIGH_CARDINALITY_HIGH_TAIL_FRACTION(0.005);
-const double      HIGH_CARDINALITY_MAXIMUM_TAIL_FRACTION(0.05);
-const double      LOW_POPULATED_BUCKET_FRACTIONS[] =
+const double HIGH_CARDINALITY_IN_TAIL_FACTOR(1.1);
+const uint64_t HIGH_CARDINALITY_IN_TAIL_INCREMENT(10);
+const double HIGH_CARDINALITY_HIGH_TAIL_FRACTION(0.005);
+const double HIGH_CARDINALITY_MAXIMUM_TAIL_FRACTION(0.05);
+const double LOW_POPULATED_BUCKET_FRACTIONS[] =
 {
     1.0 / 3.0, 1.0 / 50.0
 };
@@ -626,15 +623,15 @@ bool CAutoconfigurerParams::init(const std::string &file) {
         }
         skipUtf8Bom(strm);
         boost::property_tree::ini_parser::read_ini(strm, propTree);
-    } catch (boost::property_tree::ptree_error &e) {
+    } catch (boost::property_tree::ptree_error &e)   {
         LOG_ERROR("Error reading file " << file << " : " << e.what());
         return false;
     }
 
     static const core_t::TTime ZERO_TIME = 0;
-    static const double        ZERO_DOUBLE = 0.0;
-    static const double        ONE_DOUBLE  = 1.0;
-    static const std::string   LABELS[] =
+    static const double ZERO_DOUBLE = 0.0;
+    static const double ONE_DOUBLE  = 1.0;
+    static const std::string LABELS[] =
     {
         std::string("scope.fields_of_interest"),
         std::string("scope.permitted_argument_fields"),

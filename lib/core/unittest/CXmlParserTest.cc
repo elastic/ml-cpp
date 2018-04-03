@@ -273,19 +273,19 @@ void CXmlParserTest::testParse3(void) {
          ++itr) {
         if (itr->value() == "Service") {
             CPPUNIT_ASSERT(this->testAttribute(*itr, "Value", "AWSECommerceService"));
-        } else if (itr->value() == "AssociateTag") {
+        } else if (itr->value() == "AssociateTag")   {
             CPPUNIT_ASSERT(!this->testAttribute(*itr, "Value", ""));
-        } else if (itr->value() == "SearchIndex") {
+        } else if (itr->value() == "SearchIndex")   {
             CPPUNIT_ASSERT(this->testAttribute(*itr, "Value", "Books"));
-        } else if (itr->value() == "Author") {
+        } else if (itr->value() == "Author")   {
             CPPUNIT_ASSERT(!this->testAttribute(*itr, "Value", ""));
-        } else if (itr->value() == "Hacasdasdcv") {
+        } else if (itr->value() == "Hacasdasdcv")   {
             CPPUNIT_ASSERT(this->testAttribute(*itr, "Value", "1A7XKHR5BYD0WPJVQEG2"));
-        } else if (itr->value() == "Version") {
+        } else if (itr->value() == "Version")   {
             CPPUNIT_ASSERT(this->testAttribute(*itr, "Value", "2006-06-28"));
-        } else if (itr->value() == "Operation") {
+        } else if (itr->value() == "Operation")   {
             CPPUNIT_ASSERT(!this->testAttribute(*itr, "Value", ""));
-        } else {
+        } else   {
             CPPUNIT_ASSERT_MESSAGE(itr->dump(), false);
         }
     }
@@ -627,7 +627,7 @@ std::string CXmlParserTest::fileToString(const std::string &fileName) {
 
 void CXmlParserTest::testParse1(const ml::core::CXmlParser &parser) {
     ml::core::CXmlNode node;
-    std::string        value;
+    std::string value;
 
     CPPUNIT_ASSERT(!parser.evalXPathExpression("//badpath", node));
 
@@ -743,7 +743,7 @@ void CXmlParserTest::testHugeDoc(void) {
     // up as a problem in huge XML documents.
 
     // First, create an enormous XML document
-    std::string   fileName(ml::test::CTestTmpDir::tmpDir() + "/huge.xml");
+    std::string fileName(ml::test::CTestTmpDir::tmpDir() + "/huge.xml");
     std::ofstream ofs(fileName.c_str());
     CPPUNIT_ASSERT_MESSAGE(fileName, ofs.is_open());
 
@@ -760,7 +760,7 @@ void CXmlParserTest::testHugeDoc(void) {
     LOG_INFO("Starting huge XPath test at " <<
              ml::core::CTimeUtils::toTimeString(start));
 
-    ml::core::CXmlParser          parser;
+    ml::core::CXmlParser parser;
     ml::core::CXmlParser::TStrSet valueSet;
 
     CPPUNIT_ASSERT(parser.parseFile(fileName));

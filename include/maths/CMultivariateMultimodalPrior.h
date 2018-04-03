@@ -253,9 +253,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
         }
 
         //! Get the dimension of the prior.
-        virtual std::size_t dimension(void) const {
-            return N;
-        }
+        virtual std::size_t dimension(void) const { return N; }
 
         //! Set the data type.
         virtual void dataType(maths_t::EDataType value) {
@@ -328,10 +326,10 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
 
             // Declared outside the loop to minimize the number of times it
             // is initialized.
-            TWeightStyleVec      weightStyles(weightStyles_);
-            TDouble10Vec1Vec     sample(1);
+            TWeightStyleVec weightStyles(weightStyles_);
+            TDouble10Vec1Vec sample(1);
             TDouble10Vec4Vec1Vec weight(1);
-            TSizeDoublePr2Vec    clusters;
+            TSizeDoublePr2Vec clusters;
 
             std::size_t indices[maths_t::NUMBER_WEIGHT_STYLES];
             std::size_t missing = weightStyles.size() + 1;
@@ -377,9 +375,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
 
                     double Z = std::accumulate(m_Modes.begin(), m_Modes.end(),
                                                smallestCountWeight,
-                                               [] (double sum, const TMode &mode) {
-                            return sum + mode.weight();
-                        });
+                                               [] (double sum, const TMode &mode) { return sum + mode.weight(); });
 
                     double n = 0.0;
                     for (const auto &cluster : clusters) {
@@ -393,7 +389,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
                         weight[0][count].assign(N, cluster.second);
                         if (winsorisation != missing) {
                             TDouble10Vec &ww = weight[0][winsorisation];
-                            double       f = (k->weight() + cluster.second) / Z;
+                            double f = (k->weight() + cluster.second) / Z;
                             for (auto &&w : ww) {
                                 w = std::max(1.0 - (1.0 - w) / f, w * f);
                             }
@@ -403,7 +399,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
                     }
                     this->addSamples(n);
                 }
-            } catch (const std::exception &e) {
+            } catch (const std::exception &e)   {
                 LOG_ERROR("Failed to update likelihood: " << e.what());
             }
         }
@@ -454,8 +450,8 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
                                                        const TSizeDoublePr10Vec &condition) const {
             std::size_t n = m_Modes.size();
 
-            CMultimodalPrior::TPriorPtrVec                                            modes;
-            TDouble5Vec                                                               weights;
+            CMultimodalPrior::TPriorPtrVec modes;
+            TDouble5Vec weights;
             CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> > maxWeight;
             modes.reserve(n);
             weights.reserve(n);
@@ -508,7 +504,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
             std::size_t n = m_Modes.size();
 
             TPriorPtrVec modes;
-            TDouble5Vec  weights;
+            TDouble5Vec weights;
             modes.reserve(n);
             weights.reserve(n);
             CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> > maxWeight;
@@ -616,12 +612,12 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
             // We'll approximate this as the mode with the maximum likelihood.
             TPoint result(0.0);
 
-            TPoint               seasonalScale(1.0);
+            TPoint seasonalScale(1.0);
             TDouble10Vec4Vec1Vec weight_(1, TDouble10Vec4Vec(1));
             try {
                 seasonalScale = sqrt(TPoint(maths_t::seasonalVarianceScale(N, weightStyles, weight)));
                 weight_[0][0] = maths_t::countVarianceScale(N, weightStyles, weight);
-            } catch (const std::exception &e) {
+            } catch (const std::exception &e)   {
                 LOG_ERROR("Failed to get variance scale " << e.what());
             }
 
@@ -630,7 +626,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
 
             TMaxAccumulator modeLikelihood;
             for (const auto &mode_ : m_Modes) {
-                double          w = mode_.weight();
+                double w = mode_.weight();
                 const TPriorPtr &prior = mode_.s_Prior;
                 mode[0] = prior->marginalLikelihoodMode(TWeights::COUNT_VARIANCE, weight_[0]);
                 double likelihood;
@@ -734,13 +730,13 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
             namespace detail = multivariate_multimodal_prior_detail;
 
             // Declared outside the loop to minimize number of times it is created.
-            TDouble10Vec1Vec          sample(1);
+            TDouble10Vec1Vec sample(1);
             detail::TSizeDoublePr3Vec modeLogLikelihoods;
             modeLogLikelihoods.reserve(m_Modes.size());
 
             bool hasSeasonalScale = maths_t::hasSeasonalVarianceScale(weightStyles, weights);
 
-            TPoint               mean = hasSeasonalScale ? this->mean() : TPoint(0.0);
+            TPoint mean = hasSeasonalScale ? this->mean() : TPoint(0.0);
             TDouble10Vec4Vec1Vec weights_(1, TDouble10Vec4Vec(1, TDouble10Vec(N, 1.0)));
             try {
                 for (std::size_t i = 0u; i < samples.size(); ++i) {
@@ -758,7 +754,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
                     sample[0] = x.template toVector<TDouble10Vec>();
                     weights_[0][0] = maths_t::countVarianceScale(N, weightStyles, weights[i]);
 
-                    double                             sampleLogLikelihood;
+                    double sampleLogLikelihood;
                     maths_t::EFloatingPointErrorStatus status =
                         detail::jointLogMarginalLikelihood(m_Modes,
                                                            TWeights::COUNT_VARIANCE, sample, weights_,
@@ -773,7 +769,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
                     }
                     result += n * (sampleLogLikelihood - logSeasonalScale);
                 }
-            } catch (const std::exception &e) {
+            } catch (const std::exception &e)   {
                 LOG_ERROR("Failed to compute likelihood: " << e.what());
                 return maths_t::E_FpFailed;
             }
@@ -934,7 +930,8 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
 
             public:
                 CModeSplitCallback(CMultivariateMultimodalPrior &prior) :
-                    m_Prior(&prior) {}
+                    m_Prior(&prior)
+                {}
 
                 void operator()(std::size_t sourceIndex,
                                 std::size_t leftSplitIndex,
@@ -957,8 +954,8 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
                         pRight /= Z;
                     }
                     LOG_TRACE("# samples = " << numberSamples
-                                             << ", pLeft = " << pLeft
-                                             << ", pRight = " << pRight);
+                              << ", pLeft = " << pLeft
+                              << ", pRight = " << pRight);
 
                     // Create the child modes.
                     LOG_TRACE("Creating mode with index " << leftSplitIndex);
@@ -980,7 +977,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
                         for (const auto &sample : samples) {
                             samples_.push_back(sample.template toVector<TDouble10Vec>());
                         }
-                        TDouble10Vec         seedWeight(N, ns / s);
+                        TDouble10Vec seedWeight(N, ns / s);
                         TDouble10Vec4Vec1Vec weights(samples_.size(), TDouble10Vec4Vec(1, seedWeight));
                         modes.back().s_Prior->addSamples(TWeights::COUNT, samples_, weights);
                         double weight = (nl - ns) / s;
@@ -1010,7 +1007,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
                         for (const auto &sample : samples) {
                             samples_.push_back(sample.template toVector<TDouble10Vec>());
                         }
-                        TDouble10Vec         seedWeight(N, ns / s);
+                        TDouble10Vec seedWeight(N, ns / s);
                         TDouble10Vec4Vec1Vec weights(samples_.size(), TDouble10Vec4Vec(1, seedWeight));
                         modes.back().s_Prior->addSamples(TWeights::COUNT, samples_, weights);
                         double weight = (nr - ns) / s;
@@ -1036,7 +1033,8 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
 
             public:
                 CModeMergeCallback(CMultivariateMultimodalPrior &prior) :
-                    m_Prior(&prior) {}
+                    m_Prior(&prior)
+                {}
 
                 void operator()(std::size_t leftMergeIndex,
                                 std::size_t rightMergeIndex,
@@ -1126,8 +1124,8 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
 
             TMatrixMeanAccumulator result;
             for (const auto &mode : m_Modes) {
-                double  weight = mode.weight();
-                TPoint  modeMean(mode.s_Prior->marginalLikelihoodMean());
+                double weight = mode.weight();
+                TPoint modeMean(mode.s_Prior->marginalLikelihoodMean());
                 TMatrix modeVariance(mode.s_Prior->marginalLikelihoodCovariance());
                 result.add(modeMean.outer() - mean2 + modeVariance, weight);
             }
@@ -1145,10 +1143,10 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
         TClustererPtr m_Clusterer;
 
         //! The object used to initialize new cluster priors.
-        TPriorPtr     m_SeedPrior;
+        TPriorPtr m_SeedPrior;
 
         //! The modes of the distribution.
-        TModeVec      m_Modes;
+        TModeVec m_Modes;
 };
 
 template<std::size_t N>

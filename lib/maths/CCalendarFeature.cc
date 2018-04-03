@@ -82,19 +82,19 @@ CCalendarFeature::CCalendarFeature(uint16_t feature, core_t::TTime time) :
                                                month, year, secondsSinceMidnight)) {
         dayOfMonth -= 1;
         this->initialize(feature, dayOfWeek, dayOfMonth, month, year);
-    } else {
+    } else   {
         LOG_ERROR("Invalid time: " << time);
     }
 }
 
 CCalendarFeature::TCalendarFeature4Ary CCalendarFeature::features(core_t::TTime time) {
     TCalendarFeature4Ary result;
-    int                  dayOfWeek{};
-    int                  dayOfMonth{};
-    int                  dayOfYear{};
-    int                  month{};
-    int                  year{};
-    int                  secondsSinceMidnight{};
+    int dayOfWeek{};
+    int dayOfMonth{};
+    int dayOfYear{};
+    int month{};
+    int year{};
+    int secondsSinceMidnight{};
     if (core::CTimezone::instance().dateFields(time,
                                                dayOfWeek, dayOfMonth, dayOfYear,
                                                month, year, secondsSinceMidnight)) {
@@ -103,7 +103,7 @@ CCalendarFeature::TCalendarFeature4Ary CCalendarFeature::features(core_t::TTime 
         for (uint16_t feature = BEGIN_FEATURES; feature < END_FEATURES; ++feature, ++i) {
             i->initialize(feature, dayOfWeek, dayOfMonth, month, year);
         }
-    } else {
+    } else   {
         LOG_ERROR("Invalid time: " << time);
     }
     return result;
@@ -203,7 +203,7 @@ core_t::TTime CCalendarFeature::offset(core_t::TTime time) const {
                 LOG_ERROR("Invalid feature: '" << m_Feature << "'");
                 break;
         }
-    } else {
+    } else   {
         LOG_ERROR("Invalid time: '" << time << "'");
     }
     return 0;

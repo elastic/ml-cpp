@@ -95,7 +95,7 @@ core::CStoredStringPtr CStringStore::get(const std::string &value) {
         if (i != m_Strings.end()) {
             result = *i;
             m_Reading.fetch_sub(1, std::memory_order_release);
-        } else {
+        } else   {
             m_Writing.fetch_add(1, std::memory_order_acq_rel);
             // NB: fetch_sub() returns the OLD value, and we know we added 1 in
             // this thread, hence the test for 1 rather than 0
@@ -103,13 +103,13 @@ core::CStoredStringPtr CStringStore::get(const std::string &value) {
                 // This section is expected to occur infrequently so inserts
                 // are synchronized with a mutex.
                 core::CScopedFastLock lock(m_Mutex);
-                auto                  ret = m_Strings.insert(core::CStoredStringPtr::makeStoredString(value));
+                auto ret = m_Strings.insert(core::CStoredStringPtr::makeStoredString(value));
                 result = *ret.first;
                 if (ret.second) {
                     m_StoredStringsMemUse += result.actualMemoryUsage();
                 }
                 m_Writing.fetch_sub(1, std::memory_order_release);
-            } else {
+            } else   {
                 m_Writing.fetch_sub(1, std::memory_order_relaxed);
                 // This is leaked in the sense that it will never be shared and
                 // won't count towards our reported memory usage.  But it is not
@@ -118,7 +118,7 @@ core::CStoredStringPtr CStringStore::get(const std::string &value) {
                 result = core::CStoredStringPtr::makeStoredString(value);
             }
         }
-    } else {
+    } else   {
         m_Reading.fetch_sub(1, std::memory_order_relaxed);
         // This is leaked in the sense that it will never be shared and won't
         // count towards our reported memory usage.  But it is not leaked
@@ -153,7 +153,7 @@ void CStringStore::pruneNotThreadSafe(void) {
         if (i->isUnique()) {
             m_StoredStringsMemUse -= i->actualMemoryUsage();
             i = m_Strings.erase(i);
-        } else {
+        } else   {
             ++i;
         }
     }
@@ -173,7 +173,7 @@ void CStringStore::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) con
 }
 
 std::size_t CStringStore::memoryUsage(void) const {
-    std::size_t           mem = m_EmptyString.actualMemoryUsage();
+    std::size_t mem = m_EmptyString.actualMemoryUsage();
     core::CScopedFastLock lock(m_Mutex);
     // The assumption here is that the existence of
     // core::CStoredStringPtr::dynamicSizeAlwaysZero() combined with dead code
@@ -193,7 +193,8 @@ CStringStore::CStringStore(void)
     : m_Reading(0),
       m_Writing(0),
       m_EmptyString(core::CStoredStringPtr::makeStoredString(std::string())),
-      m_StoredStringsMemUse(0) {}
+      m_StoredStringsMemUse(0)
+{}
 
 void CStringStore::clearEverythingTestOnly(void) {
     // For tests that assert on memory usage it's important that these

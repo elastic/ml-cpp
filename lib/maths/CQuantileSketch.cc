@@ -63,21 +63,18 @@ class CUniqueIterator : private boost::addable2< CUniqueIterator, ptrdiff_t,
                                                                        boost::equality_comparable< CUniqueIterator > > > {
     public:
         CUniqueIterator(TFloatFloatPrVec &knots, std::size_t i) :
-            m_Knots(&knots), m_I(i) {}
+            m_Knots(&knots), m_I(i)
+        {}
 
         bool operator==(const CUniqueIterator &rhs) const {
             return m_I == rhs.m_I && m_Knots == rhs.m_Knots;
         }
 
-        TFloatFloatPr &operator*() const {
-            return (*m_Knots)[m_I];
-        }
-        TFloatFloatPr *operator->() const {
-            return &(*m_Knots)[m_I];
-        }
+        TFloatFloatPr &operator*() const { return (*m_Knots)[m_I]; }
+        TFloatFloatPr *operator->() const { return &(*m_Knots)[m_I]; }
 
         const CUniqueIterator &operator++(void) {
-            double    x = (*m_Knots)[m_I].first;
+            double x = (*m_Knots)[m_I].first;
             ptrdiff_t n = m_Knots->size();
             while (++m_I < n && (*m_Knots)[m_I].first == x) {}
             return *this;
@@ -103,16 +100,14 @@ class CUniqueIterator : private boost::addable2< CUniqueIterator, ptrdiff_t,
             return *this;
         }
 
-        ptrdiff_t index(void) const {
-            return m_I;
-        }
+        ptrdiff_t index(void) const { return m_I; }
 
     private:
         TFloatFloatPrVec *m_Knots;
-        ptrdiff_t        m_I;
+        ptrdiff_t m_I;
 };
 
-const double      EPS = static_cast<double>(std::numeric_limits<float>::epsilon());
+const double EPS = static_cast<double>(std::numeric_limits<float>::epsilon());
 const std::size_t MINIMUM_MAX_SIZE = 3u;
 const std::string UNSORTED_TAG("a");
 const std::string KNOTS_TAG("b");
@@ -187,7 +182,7 @@ bool CQuantileSketch::cdf(double x_, double &result) const {
     }
 
     CFloatStorage x = x_;
-    ptrdiff_t     n = m_Knots.size();
+    ptrdiff_t n = m_Knots.size();
     if (n == 1) {
         result = x < m_Knots[0].first ? 0.0 : (x > m_Knots[0].first ? 1.0 : 0.5);
         return true;
@@ -205,38 +200,38 @@ bool CQuantileSketch::cdf(double x_, double &result) const {
                 double f  = m_Knots[0].second / m_Count;
                 LOG_TRACE("xl = " << xl << ", xr = " << xr << ", f = " << f);
                 result = f * std::max(x - 1.5 * xl + 0.5 * xr, 0.0) / (xr - xl);
-            } else if (k == n) {
-                double xl = m_Knots[n-2].first;
-                double xr = m_Knots[n-1].first;
-                double f  = m_Knots[n-1].second / m_Count;
+            } else if (k == n)   {
+                double xl = m_Knots[n - 2].first;
+                double xr = m_Knots[n - 1].first;
+                double f  = m_Knots[n - 1].second / m_Count;
                 LOG_TRACE("xl = " << xl << ", xr = " << xr << ", f = " << f);
                 result = 1.0 - f * std::max(1.5 * xr - 0.5 * xl - x, 0.0) / (xr - xl);
-            } else {
-                double xl = m_Knots[k-1].first;
+            } else   {
+                double xl = m_Knots[k - 1].first;
                 double xr = m_Knots[k].first;
-                bool   left = (2 * k < n);
-                bool   loc  = (2.0 * x < xl + xr);
+                bool left = (2 * k < n);
+                bool loc  = (2.0 * x < xl + xr);
                 double partial = 0.0;
-                for (ptrdiff_t i = left ? 0 : (loc ? k : k+1),
-                     m = left ? (loc ? k-1 : k) : n; i < m; ++i) {
+                for (ptrdiff_t i = left ? 0 : (loc ? k : k + 1),
+                     m = left ? (loc ? k - 1 : k) : n; i < m; ++i) {
                     partial += m_Knots[i].second;
                 }
                 partial /= m_Count;
                 double dn;
                 if (loc) {
-                    double xll = k > 1 ? static_cast<double>(m_Knots[k-2].first) : 2.0 * xl - xr;
+                    double xll = k > 1 ? static_cast<double>(m_Knots[k - 2].first) : 2.0 * xl - xr;
                     xr = 0.5 * (xl  + xr);
                     xl = 0.5 * (xll + xl);
-                    dn = m_Knots[k-1].second / m_Count;
-                } else {
-                    double xrr = k+1 < n ? static_cast<double>(m_Knots[k+1].first) : 2.0 * xr - xl;
+                    dn = m_Knots[k - 1].second / m_Count;
+                } else   {
+                    double xrr = k + 1 < n ? static_cast<double>(m_Knots[k + 1].first) : 2.0 * xr - xl;
                     xl = 0.5 * (xl + xr);
                     xr = 0.5 * (xr + xrr);
                     dn = m_Knots[k].second / m_Count;
                 }
                 LOG_TRACE("left = " << left << ", loc = " << loc
-                                    << ", partial = " << partial
-                                    << ", xl = " << xl << ", xr = " << xr << ", dn = " << dn);
+                          << ", partial = " << partial
+                          << ", xl = " << xl << ", xr = " << xr << ", dn = " << dn);
                 result = left ?       partial + dn * (x - xl) / (xr - xl) :
                          1.0 - partial - dn * (xr - x) / (xr - xl);
             }
@@ -246,13 +241,13 @@ bool CQuantileSketch::cdf(double x_, double &result) const {
             if (k == 0) {
                 double f = m_Knots[0].second / m_Count;
                 result = x < m_Knots[0].first ? 0.0 : 0.5 * f;
-            } else if (k == n) {
-                double f = m_Knots[n-1].second / m_Count;
+            } else if (k == n)   {
+                double f = m_Knots[n - 1].second / m_Count;
                 result = x > m_Knots[0].first ? 1.0 : 1.0 - 0.5 * f;
-            } else {
-                bool   left = (2 * k < n);
+            } else   {
+                bool left = (2 * k < n);
                 double partial = x < m_Knots[0].first ? 0.0 : 0.5 * m_Knots[0].second;
-                for (ptrdiff_t i = left ? 0 : k+1, m = left ? k : n; i < m; ++i) {
+                for (ptrdiff_t i = left ? 0 : k + 1, m = left ? k : n; i < m; ++i) {
                     partial += m_Knots[i].second;
                 }
                 partial /= m_Count;
@@ -314,12 +309,12 @@ bool CQuantileSketch::quantile(double percentage, double &result) const {
                 case E_Linear:
                     if (n == 1) {
                         result = m_Knots[0].first;
-                    } else {
+                    } else   {
                         double x0 = m_Knots[0].first;
                         double x1 = m_Knots[1].first;
-                        double xa = i == 0   ? 2.0 * x0 - x1 : static_cast<double>(m_Knots[i-1].first);
+                        double xa = i == 0   ? 2.0 * x0 - x1 : static_cast<double>(m_Knots[i - 1].first);
                         double xb = m_Knots[i].first;
-                        double xc = i+1 == n ? 2.0 * xb - xa : static_cast<double>(m_Knots[i+1].first);
+                        double xc = i + 1 == n ? 2.0 * xb - xa : static_cast<double>(m_Knots[i + 1].first);
                         xa += 0.5 * (xb - xa);
                         xb += 0.5 * (xc - xb);
                         double dx = (xb - xa);
@@ -330,9 +325,9 @@ bool CQuantileSketch::quantile(double percentage, double &result) const {
                     return true;
 
                 case E_PiecewiseConstant:
-                    if (i+1 == n || partial > cutoff + m_Count * EPS) {
+                    if (i + 1 == n || partial > cutoff + m_Count * EPS) {
                         result =  m_Knots[i].first;
-                    } else {
+                    } else   {
                         result = (m_Knots[i].first + m_Knots[i + 1].first) / 2.0;
                     }
                     return true;
@@ -399,7 +394,7 @@ std::string CQuantileSketch::print(void) const {
 void CQuantileSketch::reduce(void) {
     typedef std::vector<std::size_t> TSizeVec;
 
-    CPRNG::CXorOShiro128Plus          rng(static_cast<uint64_t>(m_Count));
+    CPRNG::CXorOShiro128Plus rng(static_cast<uint64_t>(m_Count));
     boost::random::uniform_01<double> u01;
 
     std::size_t target = this->target();
@@ -407,11 +402,11 @@ void CQuantileSketch::reduce(void) {
 
     if (m_Knots.size() > target) {
         TDoubleDoublePrVec costs;
-        TSizeVec           indexing;
+        TSizeVec indexing;
         costs.reserve(m_Knots.size());
         indexing.reserve(m_Knots.size());
-        for (std::size_t i = 1u; i+2 < m_Knots.size(); ++i) {
-            costs.emplace_back(this->cost(m_Knots[i], m_Knots[i+1]), u01(rng));
+        for (std::size_t i = 1u; i + 2 < m_Knots.size(); ++i) {
+            costs.emplace_back(this->cost(m_Knots[i], m_Knots[i + 1]), u01(rng));
             indexing.push_back(i - 1);
         }
         LOG_TRACE("costs = " << core::CContainerPrinter::print(costs));
@@ -425,7 +420,7 @@ void CQuantileSketch::reduce(void) {
             std::size_t l = indexing[0] + 1;
             std::size_t r = (CUniqueIterator(m_Knots, l) + 1).index();
             LOG_TRACE("Considering merging " << l << " and " << r
-                                             << ", cost = " << costs[l - 1].first);
+                      << ", cost = " << costs[l - 1].first);
 
             std::pop_heap(indexing.begin(), indexing.end(), CIndexingGreater(costs));
             indexing.pop_back();
@@ -469,7 +464,7 @@ void CQuantileSketch::reduce(void) {
                     stale.push_back(rr - 1);
                 }
                 ++merged;
-            } else {
+            } else   {
                 CUniqueIterator ll(m_Knots, l);
                 costs[l - 1].first = this->cost(*(ll), *(ll + 1));
                 indexing.push_back(l - 1);
@@ -494,7 +489,7 @@ void CQuantileSketch::orderAndDeduplicate(void) {
     std::size_t end = 0u;
     for (std::size_t i = 1u; i <= m_Knots.size(); ++end, ++i) {
         TFloatFloatPr &knot = m_Knots[end];
-        knot = m_Knots[i-1];
+        knot = m_Knots[i - 1];
         double x = knot.first;
         for (/**/; i < m_Knots.size() && m_Knots[i].first == x; ++i) {
             knot.second += m_Knots[i].second;

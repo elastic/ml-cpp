@@ -94,9 +94,8 @@ CIndividualModel::CIndividualModel(const SModelParams &params,
     }
     std::sort(m_FeatureModels.begin(), m_FeatureModels.end(),
               [] (const SFeatureModels &lhs,
-                  const SFeatureModels &rhs) {
-                return lhs.s_Feature < rhs.s_Feature;
-            } );
+                  const SFeatureModels &rhs)
+              { return lhs.s_Feature < rhs.s_Feature; } );
 
     if (this->params().s_MultivariateByFields) {
         m_FeatureCorrelatesModels.reserve(featureCorrelatesModels.size());
@@ -107,9 +106,8 @@ CIndividualModel::CIndividualModel(const SModelParams &params,
         }
         std::sort(m_FeatureCorrelatesModels.begin(), m_FeatureCorrelatesModels.end(),
                   [] (const SFeatureCorrelateModels &lhs,
-                      const SFeatureCorrelateModels &rhs) {
-                    return lhs.s_Feature < rhs.s_Feature;
-                });
+                      const SFeatureCorrelateModels &rhs)
+                  { return lhs.s_Feature < rhs.s_Feature; });
     }
 }
 
@@ -146,7 +144,7 @@ CIndividualModel::TOptionalUInt64
 CIndividualModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
     if (!this->bucketStatsAvailable(time)) {
         LOG_ERROR("No statistics at " << time
-                                      << ", current bucket = " << this->printCurrentBucket());
+                  << ", current bucket = " << this->printCurrentBucket());
         return TOptionalUInt64();
     }
 
@@ -323,9 +321,9 @@ void CIndividualModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
 
 std::size_t CIndividualModel::memoryUsage(void) const {
     const CDataGatherer &gatherer = this->dataGatherer();
-    TOptionalSize       estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
-                                                             gatherer.numberActiveAttributes(),
-                                                             this->numberCorrelations());
+    TOptionalSize estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
+                                                       gatherer.numberActiveAttributes(),
+                                                       this->numberCorrelations());
     return estimate ? estimate.get() : this->computeMemoryUsage();
 }
 
@@ -427,7 +425,7 @@ void CIndividualModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
         // and test usage after each chunk.
         std::size_t numberToCreate = std::min(numberNewPeople, CHUNK_SIZE);
         LOG_TRACE("Creating batch of " << numberToCreate << " people of remaining " << numberNewPeople << ". "
-                                       << resourceLimit - ourUsage << " free bytes remaining");
+                  << resourceLimit - ourUsage << " free bytes remaining");
         this->createNewModels(numberToCreate, 0);
         numberExistingPeople += numberToCreate;
         numberNewPeople -= numberToCreate;
@@ -486,9 +484,9 @@ void CIndividualModel::updateRecycledModels(void) {
 
 void CIndividualModel::refreshCorrelationModels(std::size_t resourceLimit,
                                                 CResourceMonitor &resourceMonitor) {
-    std::size_t                        n = this->numberOfPeople();
-    double                             maxNumberCorrelations = this->params().s_CorrelationModelsOverhead * static_cast<double>(n);
-    auto                               memoryUsage = boost::bind(&CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate, this, n, 0, _1);
+    std::size_t n = this->numberOfPeople();
+    double maxNumberCorrelations = this->params().s_CorrelationModelsOverhead * static_cast<double>(n);
+    auto memoryUsage = boost::bind(&CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate, this, n, 0, _1);
     CTimeSeriesCorrelateModelAllocator allocator(resourceMonitor, memoryUsage, resourceLimit,
                                                  static_cast<std::size_t>(maxNumberCorrelations));
     for (auto &&feature : m_FeatureCorrelatesModels) {
@@ -590,7 +588,7 @@ double CIndividualModel::derate(std::size_t pid, core_t::TTime time) const {
 std::string CIndividualModel::printCurrentBucket(void) const {
     std::ostringstream result;
     result << "[" << this->currentBucketStartTime() << ","
-           << this->currentBucketStartTime() + this->bucketLength() << ")";
+    << this->currentBucketStartTime() + this->bucketLength() << ")";
     return result.str();
 }
 

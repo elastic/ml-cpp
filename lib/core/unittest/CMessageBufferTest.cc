@@ -36,7 +36,8 @@ class CBuffer {
         typedef std::vector<std::string>    TStrVec;
 
     public:
-        CBuffer(uint32_t flushInterval) : m_FlushInterval(flushInterval) {}
+        CBuffer(uint32_t flushInterval) : m_FlushInterval(flushInterval)
+        {}
 
         void    addMessage(const std::string &str) {
             if((m_Buffer.size() % 1000) == 0) {
@@ -78,8 +79,8 @@ class CBuffer {
 
     private:
         uint32_t m_FlushInterval;
-        TStrVec  m_Buffer;
-        TStrVec  m_Results;
+        TStrVec m_Buffer;
+        TStrVec m_Results;
 };
 }
 

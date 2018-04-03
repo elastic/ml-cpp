@@ -58,23 +58,23 @@ class CONFIG_EXPORT CAutoconfigurerDetectorPenalties {
 
     private:
         //! Get the penalty for the detector \p spec based on its field roles.
-        const CPenalty                        &fieldRolePenalty(const CDetectorSpecification &spec);
+        const CPenalty &fieldRolePenalty(const CDetectorSpecification &spec);
 
     private:
         //! The parameters.
-        TAutoconfigurerParamsCRef             m_Params;
+        TAutoconfigurerParamsCRef m_Params;
 
         //! The field role penalties.
         TAutoconfigurerFieldRolePenaltiesCRef m_FieldRolePenalties;
 
         //! The detector penalties based on their fields and roles.
-        TPenaltyPtrVec                        m_DetectorFieldRolePenalties;
+        TPenaltyPtrVec m_DetectorFieldRolePenalties;
 
         //! The bucket length penalties.
-        TPenaltyPtrVec                        m_BucketLengthPenalties;
+        TPenaltyPtrVec m_BucketLengthPenalties;
 
         //! The function specific penalties.
-        TPenaltyPtrVec                        m_FunctionSpecificPenalties;
+        TPenaltyPtrVec m_FunctionSpecificPenalties;
 };
 
 }

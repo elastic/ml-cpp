@@ -112,7 +112,7 @@ class CORE_EXPORT CDetachedProcessSpawner {
 
     private:
         //! Paths to processes that may be spawned.
-        TStrVec         m_PermittedProcessPaths;
+        TStrVec m_PermittedProcessPaths;
 
         //! Thread to track which processes that have been created are still
         //! alive.

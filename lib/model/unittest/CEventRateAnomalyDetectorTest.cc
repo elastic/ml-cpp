@@ -55,7 +55,8 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
                       const ml::model::CLimits &limits)
             : m_ModelConfig(modelConfig),
               m_Limits(limits),
-              m_Calls(0) {}
+              m_Calls(0)
+        {}
 
         void operator()(ml::model::CAnomalyDetector &detector,
                         ml::core_t::TTime start,
@@ -91,9 +92,9 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
 
             const std::string analysisFieldValue = *node.s_Spec.s_PersonFieldValue;
             ml::core_t::TTime bucketTime = node.s_BucketStartTime;
-            double            anomalyFactor = node.s_RawAnomalyScore;
+            double anomalyFactor = node.s_RawAnomalyScore;
             LOG_DEBUG(analysisFieldValue << " bucket time " << bucketTime
-                                         << " anomalyFactor " << anomalyFactor);
+                      << " anomalyFactor " << anomalyFactor);
             ++m_Calls;
             m_AllAnomalies.insert(TTimeStrPr(bucketTime, analysisFieldValue));
             m_AnomalyScores[bucketTime] += anomalyFactor;
@@ -117,20 +118,20 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
             return m_AllAnomalies.size();
         }
 
-        const TTimeDoubleMap                         &anomalyScores(void) const {
+        const TTimeDoubleMap &anomalyScores(void) const {
             return m_AnomalyScores;
         }
 
-        const TTimeStrPrSet                          &allAnomalies(void) const {
+        const TTimeStrPrSet &allAnomalies(void) const {
             return m_AllAnomalies;
         }
 
     private:
         const ml::model::CAnomalyDetectorModelConfig &m_ModelConfig;
-        ml::model::CLimits                           m_Limits;
-        std::size_t                                  m_Calls;
-        TTimeStrPrSet                                m_AllAnomalies;
-        TTimeDoubleMap                               m_AnomalyScores;
+        ml::model::CLimits m_Limits;
+        std::size_t m_Calls;
+        TTimeStrPrSet m_AllAnomalies;
+        TTimeDoubleMap m_AnomalyScores;
 };
 
 void importData(ml::core_t::TTime firstTime,
@@ -186,7 +187,7 @@ void importData(ml::core_t::TTime firstTime,
         if (!std::getline(*ifss[file], line)) {
             times[file] = std::numeric_limits<ml::core_t::TTime>::max();
             ifss[file].reset();
-        } else {
+        } else   {
             CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(line, times[file]));
         }
     }
@@ -203,11 +204,11 @@ void importData(ml::core_t::TTime firstTime,
 }
 
 void CEventRateAnomalyDetectorTest::testAnomalies(void) {
-    static const size_t            EXPECTED_ANOMALOUS_HOURS(12);
+    static const size_t EXPECTED_ANOMALOUS_HOURS(12);
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);
     static const ml::core_t::TTime BUCKET_SIZE(1800);
-    static const double            HIGH_ANOMALY_SCORE(0.003);
+    static const double HIGH_ANOMALY_SCORE(0.003);
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
@@ -225,7 +226,7 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void) {
                                          FIRST_TIME,
                                          modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits);
-    TStrVec       files;
+    TStrVec files;
     files.push_back("testfiles/status200.txt");
     files.push_back("testfiles/status503.txt");
     files.push_back("testfiles/mysqlabort.txt");
@@ -236,7 +237,7 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void) {
     // CPPUNIT_ASSERT_EQUAL(writer.calls(), writer.numDistinctTimes());
 
     const TTimeDoubleMap &anomalyScores = writer.anomalyScores();
-    TTimeVec             peaks;
+    TTimeVec peaks;
     for (const auto &score : anomalyScores) {
         if (score.second > HIGH_ANOMALY_SCORE) {
             peaks.push_back(score.first);
@@ -285,7 +286,7 @@ void CEventRateAnomalyDetectorTest::testPersist(void) {
                                              FIRST_TIME,
                                              modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits);
-    TStrVec       files;
+    TStrVec files;
     files.push_back("testfiles/status503.txt");
 
     importData(FIRST_TIME, LAST_TIME, BUCKET_SIZE, writer, files, origDetector);

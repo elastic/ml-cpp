@@ -25,7 +25,7 @@ namespace model {
 namespace {
 
 const CEventData::TDouble1VecArray DUMMY_ARRAY = CEventData::TDouble1VecArray();
-const std::string                  DASH("-");
+const std::string DASH("-");
 
 }
 
@@ -34,7 +34,8 @@ CEventData::CEventData(void) :
     m_Pid(),
     m_Cids(),
     m_Values(),
-    m_IsExplicitNull(false) {}
+    m_IsExplicitNull(false)
+{}
 
 void CEventData::swap(CEventData &other) {
     std::swap(m_Time, other.m_Time);
@@ -63,9 +64,9 @@ void CEventData::time(core_t::TTime time) {
 bool CEventData::person(std::size_t pid) {
     if (!m_Pid) {
         m_Pid.reset(pid);
-    } else if (pid != m_Pid) {
+    } else if (pid != m_Pid)   {
         LOG_ERROR("Ignoring subsequent person " << pid
-                                                << ", current person " << *m_Pid);
+                  << ", current person " << *m_Pid);
         return false;
     }
     return true;

@@ -329,7 +329,7 @@ class MATHS_EXPORT CChecksum {
         //! Overload for arrays which chains checksums.
         template<typename T, std::size_t SIZE>
         static uint64_t calculate(uint64_t seed, const T (&target)[SIZE]) {
-            for (std::size_t i = 0u; i+1 < SIZE; ++i) {
+            for (std::size_t i = 0u; i + 1 < SIZE; ++i) {
                 seed = checksum_detail::checksum(seed, target[i]);
             }
             return checksum_detail::checksum(seed, target[SIZE - 1]);
@@ -338,7 +338,7 @@ class MATHS_EXPORT CChecksum {
         //! Overload for 2d arrays which chains checksums.
         template<typename T, std::size_t SIZE1, std::size_t SIZE2>
         static uint64_t calculate(uint64_t seed, const T (&target)[SIZE1][SIZE2]) {
-            for (std::size_t i = 0u; i+1 < SIZE1; ++i) {
+            for (std::size_t i = 0u; i + 1 < SIZE1; ++i) {
                 seed = calculate(seed, target[i]);
             }
             return calculate(seed, target[SIZE1 - 1]);

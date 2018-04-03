@@ -73,11 +73,11 @@ char *CStrPTime::strPTime(const char *buf,
         std::string possTzName(excess);
         if (possTzName.find("GMT") == 0) {
             adjFormat.replace(tznamePos, 2, "GMT");
-        } else if (possTzName.find(::tzname[0]) == 0) {
+        } else if (possTzName.find(::tzname[0]) == 0)   {
             adjFormat.replace(tznamePos, 2, ::tzname[0]);
-        } else if (possTzName.find(::tzname[1]) == 0) {
+        } else if (possTzName.find(::tzname[1]) == 0)   {
             adjFormat.replace(tznamePos, 2, ::tzname[1]);
-        } else {
+        } else   {
             return 0;
         }
     }
@@ -109,9 +109,9 @@ char *CStrPTime::strPTime(const char *buf,
         int sign(0);
         if (*excess == '+') {
             sign = 1;
-        } else if (*excess == '-') {
+        } else if (*excess == '-')   {
             sign = -1;
-        } else {
+        } else   {
             return 0;
         }
 
@@ -120,7 +120,7 @@ char *CStrPTime::strPTime(const char *buf,
         int hour(0);
         if (*excess >= '0' && *excess <= '2') {
             hour += (*excess - '0') * 10;
-        } else {
+        } else   {
             return 0;
         }
 
@@ -128,7 +128,7 @@ char *CStrPTime::strPTime(const char *buf,
 
         if (*excess >= '0' && *excess <= '9') {
             hour += (*excess - '0');
-        } else {
+        } else   {
             return 0;
         }
 
@@ -137,7 +137,7 @@ char *CStrPTime::strPTime(const char *buf,
         int minute(0);
         if (*excess >= '0' && *excess <= '5') {
             minute += (*excess - '0') * 10;
-        } else {
+        } else   {
             return 0;
         }
 
@@ -145,7 +145,7 @@ char *CStrPTime::strPTime(const char *buf,
 
         if (*excess >= '0' && *excess <= '9') {
             minute += (*excess - '0');
-        } else {
+        } else   {
             return 0;
         }
 

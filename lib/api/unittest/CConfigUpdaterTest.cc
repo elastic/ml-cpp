@@ -56,23 +56,23 @@ CppUnit::Test *CConfigUpdaterTest::suite() {
 }
 
 void CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed(void) {
-    CFieldConfig                       fieldConfig;
+    CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
-    CConfigUpdater                     configUpdater(fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(fieldConfig, modelConfig);
     CPPUNIT_ASSERT(configUpdater.update("this is invalid") == false);
 }
 
 void CConfigUpdaterTest::testUpdateGivenUnknownStanzas(void) {
-    CFieldConfig                       fieldConfig;
+    CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
-    CConfigUpdater                     configUpdater(fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(fieldConfig, modelConfig);
     CPPUNIT_ASSERT(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
 }
 
 void CConfigUpdaterTest::testUpdateGivenModelPlotConfig(void) {
     typedef model::CAnomalyDetectorModelConfig::TStrSet TStrSet;
 
-    CFieldConfig                       fieldConfig;
+    CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     modelConfig.modelPlotBoundsPercentile(95.0);
     TStrSet terms;
@@ -95,7 +95,7 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig(void) {
 
 void CConfigUpdaterTest::testUpdateGivenDetectorRules(void) {
     CFieldConfig fieldConfig;
-    std::string  originalRules0("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
+    std::string originalRules0("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
     originalRules0 += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
     std::string originalRules1("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
     originalRules1 += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"gt\",\"value\":\"5\"}}]}]";
@@ -121,7 +121,7 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules(void) {
 
 void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex(void) {
     CFieldConfig fieldConfig;
-    std::string  originalRules("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
+    std::string originalRules("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
     originalRules += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
     fieldConfig.parseRules(0, originalRules);
 
@@ -211,7 +211,7 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents(void) {
     }
 
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
-    CConfigUpdater                     configUpdater(fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
     // Test an update that replaces the events
     {

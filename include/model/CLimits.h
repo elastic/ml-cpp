@@ -118,7 +118,7 @@ class MODEL_EXPORT CLimits {
                               " : " << valueStr);
                     return false;
                 }
-            } catch (boost::property_tree::ptree_error &) {
+            } catch (boost::property_tree::ptree_error &)   {
                 LOG_DEBUG("Using default value (" << defaultValue <<
                           ") for unspecified setting " << iniPath);
                 value = defaultValue;
@@ -129,20 +129,20 @@ class MODEL_EXPORT CLimits {
 
     private:
         //! Number of events to consume during auto-config
-        size_t           m_AutoConfigEvents;
+        size_t m_AutoConfigEvents;
 
         //! Maximum number of time buckets to process during anomaly detection
         //! before ceasing to output results
-        size_t           m_AnomalyMaxTimeBuckets;
+        size_t m_AnomalyMaxTimeBuckets;
 
         //! How many examples should we display in results tables?
-        size_t           m_MaxExamples;
+        size_t m_MaxExamples;
 
         //! Probability threshold for results to be output
-        double           m_UnusualProbabilityThreshold;
+        double m_UnusualProbabilityThreshold;
 
         //! Size of the memory limit for the resource monitor, in MB
-        size_t           m_MemoryLimitMB;
+        size_t m_MemoryLimitMB;
 
         //! Resource monitor instance
         CResourceMonitor m_ResourceMonitor;

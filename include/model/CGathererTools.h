@@ -109,7 +109,7 @@ class MODEL_EXPORT CGathererTools {
                 inline void add(core_t::TTime time, unsigned int count) {
                     if (m_LastTime == FIRST_TIME) {
                         m_LastTime = time;
-                    } else {
+                    } else   {
                         m_Value.add(  static_cast<double>(time - m_LastTime)
                                       / static_cast<double>(count));
                         m_LastTime = time;
@@ -140,7 +140,7 @@ class MODEL_EXPORT CGathererTools {
 
                 //! The mean time between messages received in the current
                 //! bucketing interval.
-                TAccumulator  m_Value;
+                TAccumulator m_Value;
         };
 
         //! \brief Mean statistic gatherer.
@@ -317,10 +317,10 @@ class MODEL_EXPORT CGathererTools {
                 bool isRedundant(core_t::TTime samplingCutoffTime) const;
             private:
                 //! Classifies the sum series.
-                CDataClassifier                    m_Classifier;
+                CDataClassifier m_Classifier;
 
                 //! The sum for each bucket within the latency window.
-                TSampleVecQueue                    m_BucketSums;
+                TSampleVecQueue m_BucketSums;
 
                 //! The sum for each influencing field value and bucket within
                 //! the latency window.

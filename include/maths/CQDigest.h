@@ -238,7 +238,7 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable {
 
         //! Represents a node of the q-digest with convenience
         //! operations for compression.
-        class MATHS_EXPORT  CNode {
+        class MATHS_EXPORT CNode {
             public:
                 //! \name XML Tag Names
                 //!
@@ -367,22 +367,22 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable {
 
             private:
                 //! The immediate ancestor of this node in the q-digest.
-                CNode       *m_Ancestor;
+                CNode *m_Ancestor;
 
                 //! The immediate descendants of this node in the q-digest.
                 TNodePtrVec m_Descendants;
 
                 //! The minimum value covered by the node.
-                uint32_t    m_Min;
+                uint32_t m_Min;
 
                 //! The maximum value covered by the node.
-                uint32_t    m_Max;
+                uint32_t m_Max;
 
                 //! The count of the node.
-                uint64_t    m_Count;
+                uint64_t m_Count;
 
                 //! The count in the subtree root at this node.
-                uint64_t    m_SubtreeCount;
+                uint64_t m_SubtreeCount;
         };
 
         //! Manages the creation and recycling of nodes.
@@ -409,7 +409,7 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable {
                 std::size_t findBlock(const CNode &node) const;
 
             private:
-                TNodeVecList   m_Nodes;
+                TNodeVecList m_Nodes;
                 TNodePtrVecVec m_FreeNodes;
         };
 
@@ -425,15 +425,15 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable {
     private:
         //! Controls the maximum number of values stored. In particular,
         //! the number of nodes is less than \f$3k\f$.
-        uint64_t       m_K;
+        uint64_t m_K;
         //! The number of values added to the q-digest.
-        uint64_t       m_N;
+        uint64_t m_N;
         //! The root node.
-        CNode          *m_Root;
+        CNode *m_Root;
         //! The node allocator.
         CNodeAllocator m_NodeAllocator;
         //! The rate at which information is lost by the digest.
-        double         m_DecayRate;
+        double m_DecayRate;
 };
 
 }

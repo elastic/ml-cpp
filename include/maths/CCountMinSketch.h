@@ -156,13 +156,13 @@ class MATHS_EXPORT CCountMinSketch {
 
     private:
         //! The number of rows.
-        std::size_t               m_Rows;
+        std::size_t m_Rows;
 
         //! The number of columns.
-        std::size_t               m_Columns;
+        std::size_t m_Columns;
 
         //! The total count.
-        CFloatStorage             m_TotalCount;
+        CFloatStorage m_TotalCount;
 
         //! The sketch.
         TUInt32FloatPrVecOrSketch m_Sketch;

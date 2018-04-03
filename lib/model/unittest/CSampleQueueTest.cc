@@ -59,11 +59,11 @@ void CSampleQueueTest::testSampleFromString(void) {
 }
 
 void CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(1, {1.0}, 1, sampleCount);
@@ -77,11 +77,11 @@ void CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample(void) {
 }
 
 void CSampleQueueTest::testAddGivenQueueIsFullShouldResize(void) {
-    std::size_t      sampleCountFactor(1);
-    std::size_t      latencyBuckets(1);
-    double           growthFactor(0.5);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(1);
+    std::size_t sampleCountFactor(1);
+    std::size_t latencyBuckets(1);
+    double growthFactor(0.5);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(1);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(1, {1.0}, 1, sampleCount);
@@ -114,11 +114,11 @@ void CSampleQueueTest::testAddGivenQueueIsFullShouldResize(void) {
 }
 
 void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     queue.add(0, {1.0}, 1, sampleCount);
 
@@ -133,11 +133,11 @@ void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample
 }
 
 void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSampleButDifferentBucket(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     CPPUNIT_ASSERT_EQUAL(core_t::TTime(0), queue.latestEnd());
 
@@ -162,11 +162,11 @@ void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample
 }
 
 void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     queue.add(0, {1.0}, 5, sampleCount);
 
@@ -188,11 +188,11 @@ void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample(vo
 }
 
 void CSampleQueueTest::testAddGivenTimeIsInOrderAndFarFromLatestSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     queue.add(0, {1.0}, 1, sampleCount);
 
@@ -214,11 +214,11 @@ void CSampleQueueTest::testAddGivenTimeIsInOrderAndFarFromLatestSubSample(void) 
 }
 
 void CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     queue.add(0, {1.0}, 2, sampleCount);
     queue.add(4, {1.0}, 3, sampleCount);
@@ -235,11 +235,11 @@ void CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample(void) {
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     queue.add(8, {1.0}, 5, sampleCount);
     queue.add(15, {1.0}, 3, sampleCount);
@@ -256,11 +256,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     queue.add(8, {1.0}, 5, sampleCount);
     queue.add(15, {1.0}, 3, sampleCount);
@@ -277,11 +277,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSub
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     queue.add(9, {1.0}, 4, sampleCount);
     queue.add(15, {1.0}, 3, sampleCount);
@@ -298,11 +298,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliest
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSampleButDifferentBucket(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     queue.add(11, {1.0}, 4, sampleCount);
 
@@ -324,11 +324,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliest
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndWithinSomeSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(0, {1.0}, 1, sampleCount);
@@ -348,11 +348,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndWithinSomeSubSample(void) 
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatest(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(0, {1.0}, 1, sampleCount);
@@ -372,11 +372,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLat
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatestButDifferentBucket(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(0, {1.0}, 1, sampleCount);
@@ -389,11 +389,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLat
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSubSamples(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(0, {1.0}, 1, sampleCount);
@@ -412,11 +412,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullS
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSamples(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(0, {1.0}, 1, sampleCount);
@@ -435,11 +435,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSa
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubSamples(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(0, {1.0}, 5, sampleCount);
@@ -458,11 +458,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubS
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSamples(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(0, {1.0}, 5, sampleCount);
@@ -481,11 +481,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSampl
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleButOnlyNextHasSpace(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(0, {1.0}, 5, sampleCount);
@@ -504,11 +504,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleB
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOnlyPreviousHasSpace(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(0, {1.0}, 1, sampleCount);
@@ -527,11 +527,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOn
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(0, {1.0}, 1, sampleCount);
@@ -549,11 +549,11 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap(void) 
 }
 
 void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInTooSmallGap(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(5);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(5);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(0, {1.0}, 1, sampleCount);
@@ -572,21 +572,21 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInTooSmallGap(void) {
 }
 
 void CSampleQueueTest::testCanSampleGivenEmptyQueue(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(2);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     CPPUNIT_ASSERT(queue.canSample(42) == false);
 }
 
 void CSampleQueueTest::testCanSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(2);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     queue.add(24, {1.0}, 1, sampleCount);
     queue.add(26, {1.0}, 1, sampleCount);
@@ -600,12 +600,12 @@ void CSampleQueueTest::testCanSample(void) {
 }
 
 void CSampleQueueTest::testSampleGivenExactlyOneSampleOfExactCountToBeCreated(void) {
-    std::size_t                  sampleCountFactor(2);
-    std::size_t                  latencyBuckets(2);
-    double                       growthFactor(0.1);
-    core_t::TTime                bucketLength(10);
-    unsigned int                 sampleCount(10);
-    TTestSampleQueue             queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
+    TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     TTestSampleQueue::TSampleVec samples;
     queue.add(0, {1.0}, 5, sampleCount);
     queue.add(6, {3.0}, 5, sampleCount);
@@ -628,12 +628,12 @@ void CSampleQueueTest::testSampleGivenExactlyOneSampleOfExactCountToBeCreated(vo
 }
 
 void CSampleQueueTest::testSampleGivenExactlyOneSampleOfOverCountToBeCreated(void) {
-    std::size_t                  sampleCountFactor(2);
-    std::size_t                  latencyBuckets(2);
-    double                       growthFactor(0.1);
-    core_t::TTime                bucketLength(10);
-    unsigned int                 sampleCount(10);
-    TTestSampleQueue             queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
+    TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     TTestSampleQueue::TSampleVec samples;
     queue.add(0, {0.0}, 3, sampleCount);
     queue.add(1, {1.0}, 1, sampleCount);
@@ -657,12 +657,12 @@ void CSampleQueueTest::testSampleGivenExactlyOneSampleOfOverCountToBeCreated(voi
 }
 
 void CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder(void) {
-    std::size_t                  sampleCountFactor(2);
-    std::size_t                  latencyBuckets(2);
-    double                       growthFactor(0.1);
-    core_t::TTime                bucketLength(10);
-    unsigned int                 sampleCount(10);
-    TTestSampleQueue             queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
+    TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     TTestSampleQueue::TSampleVec samples;
     queue.add(0, {1.0}, 5, sampleCount);
     queue.add(6, {3.0}, 5, sampleCount);
@@ -694,12 +694,12 @@ void CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder(void) {
 }
 
 void CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder(void) {
-    std::size_t                  sampleCountFactor(2);
-    std::size_t                  latencyBuckets(2);
-    double                       growthFactor(0.1);
-    core_t::TTime                bucketLength(10);
-    unsigned int                 sampleCount(10);
-    TTestSampleQueue             queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
+    TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     TTestSampleQueue::TSampleVec samples;
     queue.add(0, {1.0}, 5, sampleCount);
     queue.add(2, {4.0}, 5, sampleCount);
@@ -737,12 +737,12 @@ void CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder(void) {
 }
 
 void CSampleQueueTest::testSampleGivenNoSampleToBeCreated(void) {
-    std::size_t                  sampleCountFactor(2);
-    std::size_t                  latencyBuckets(2);
-    double                       growthFactor(0.1);
-    core_t::TTime                bucketLength(10);
-    unsigned int                 sampleCount(10);
-    TTestSampleQueue             queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
+    TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     TTestSampleQueue::TSampleVec samples;
     queue.add(0, {1.0}, 4, sampleCount);
     queue.add(30, {5.0}, 1, sampleCount);
@@ -756,12 +756,12 @@ void CSampleQueueTest::testSampleGivenNoSampleToBeCreated(void) {
 }
 
 void CSampleQueueTest::testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess(void) {
-    std::size_t                  sampleCountFactor(2);
-    std::size_t                  latencyBuckets(2);
-    double                       growthFactor(0.1);
-    core_t::TTime                bucketLength(10);
-    unsigned int                 sampleCount(10);
-    TTestSampleQueue             queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
+    TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     TTestSampleQueue::TSampleVec samples;
     queue.add(0, {2.0}, 5, sampleCount);
     queue.add(2, {2.0}, 3, sampleCount);
@@ -778,10 +778,10 @@ void CSampleQueueTest::testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUs
 }
 
 void CSampleQueueTest::testResetBucketGivenEmptyQueue(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(2);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.resetBucket(10);
@@ -790,11 +790,11 @@ void CSampleQueueTest::testResetBucketGivenEmptyQueue(void) {
 }
 
 void CSampleQueueTest::testResetBucketGivenBucketBeforeEarliestSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(2);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(10, {1.0}, 5, sampleCount);
@@ -810,11 +810,11 @@ void CSampleQueueTest::testResetBucketGivenBucketBeforeEarliestSubSample(void) {
 }
 
 void CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(2);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(10, {1.0}, 3, sampleCount);
@@ -835,11 +835,11 @@ void CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample(void) {
 }
 
 void CSampleQueueTest::testResetBucketGivenBucketInBetweenWithoutAnySubSamples(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(2);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(10, {1.0}, 5, sampleCount);
@@ -852,11 +852,11 @@ void CSampleQueueTest::testResetBucketGivenBucketInBetweenWithoutAnySubSamples(v
 }
 
 void CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(2);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(10, {1.0}, 5, sampleCount);
@@ -875,11 +875,11 @@ void CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample(void) {
 }
 
 void CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(2);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(10, {1.0}, 5, sampleCount);
@@ -900,11 +900,11 @@ void CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample(void) {
 }
 
 void CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(2);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
 
     queue.add(10, {1.0}, 5, sampleCount);
@@ -920,18 +920,18 @@ void CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample(void) {
 }
 
 void CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets(void) {
-    std::size_t   sampleCountFactor(10);
-    std::size_t   latencyBuckets(3);
-    double        growthFactor(0.1);
+    std::size_t sampleCountFactor(10);
+    std::size_t latencyBuckets(3);
+    double growthFactor(0.1);
     core_t::TTime bucketLength(600);
-    unsigned int  sampleCount(45);
+    unsigned int sampleCount(45);
 
     core_t::TTime latency = (latencyBuckets + 1) * bucketLength;
-    std::size_t   numberOfMeasurements = 5000;
+    std::size_t numberOfMeasurements = 5000;
 
     test::CRandomNumbers rng;
 
-    core_t::TTime    latestTime = bucketLength * (latencyBuckets + 1);
+    core_t::TTime latestTime = bucketLength * (latencyBuckets + 1);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     for (std::size_t measurementId = 0; measurementId < numberOfMeasurements; ++measurementId) {
         TDoubleVec testData;
@@ -952,11 +952,11 @@ void CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets(void) {
 }
 
 void CSampleQueueTest::testPersistence(void) {
-    std::size_t      sampleCountFactor(2);
-    std::size_t      latencyBuckets(2);
-    double           growthFactor(0.1);
-    core_t::TTime    bucketLength(10);
-    unsigned int     sampleCount(10);
+    std::size_t sampleCountFactor(2);
+    std::size_t latencyBuckets(2);
+    double growthFactor(0.1);
+    core_t::TTime bucketLength(10);
+    unsigned int sampleCount(10);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     queue.add(0, {1.0}, 3, sampleCount);
     queue.add(2, {3.5}, 2, sampleCount);
@@ -995,15 +995,15 @@ void CSampleQueueTest::testPersistence(void) {
 }
 
 void CSampleQueueTest::testQualityOfSamplesGivenConstantRate(void) {
-    std::size_t   sampleCountFactor(5);
-    std::size_t   latencyBuckets(3);
-    double        growthFactor(0.1);
+    std::size_t sampleCountFactor(5);
+    std::size_t latencyBuckets(3);
+    double growthFactor(0.1);
     core_t::TTime bucketLength(600);
-    unsigned int  sampleCount(30);
+    unsigned int sampleCount(30);
 
     core_t::TTime latency = (latencyBuckets + 1) * bucketLength;
-    std::size_t   numberOfMeasurements = 5000;
-    std::size_t   numberOfRuns = 100;
+    std::size_t numberOfMeasurements = 5000;
+    std::size_t numberOfRuns = 100;
 
     test::CRandomNumbers rng;
 
@@ -1012,8 +1012,8 @@ void CSampleQueueTest::testQualityOfSamplesGivenConstantRate(void) {
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanMaxVariance;
 
     for (std::size_t runId = 0; runId < numberOfRuns; ++runId) {
-        TSampleVec       samples;
-        core_t::TTime    latestTime = bucketLength * (latencyBuckets + 1);
+        TSampleVec samples;
+        core_t::TTime latestTime = bucketLength * (latencyBuckets + 1);
         TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
         for (std::size_t measurementId = 0; measurementId < numberOfMeasurements; ++measurementId) {
             TDoubleVec testData;
@@ -1026,8 +1026,8 @@ void CSampleQueueTest::testQualityOfSamplesGivenConstantRate(void) {
         meanQueueSize.add(queue.size());
         queue.sample(latestTime, sampleCount, model_t::E_IndividualMeanByPerson, samples);
 
-        maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator                     varianceStat;
-        maths::CBasicStatistics::COrderStatisticsStack<double, 5u>                        varianceMin;
+        maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
+        maths::CBasicStatistics::COrderStatisticsStack<double, 5u> varianceMin;
         maths::CBasicStatistics::COrderStatisticsStack<double, 5u, std::greater<double> > varianceMax;
         for (std::size_t i = 0; i < samples.size(); ++i) {
             varianceStat.add(samples[i].varianceScale());
@@ -1058,15 +1058,15 @@ void CSampleQueueTest::testQualityOfSamplesGivenConstantRate(void) {
 }
 
 void CSampleQueueTest::testQualityOfSamplesGivenVariableRate(void) {
-    std::size_t   sampleCountFactor(5);
-    std::size_t   latencyBuckets(3);
-    double        growthFactor(0.1);
+    std::size_t sampleCountFactor(5);
+    std::size_t latencyBuckets(3);
+    double growthFactor(0.1);
     core_t::TTime bucketLength(600);
-    unsigned int  sampleCount(30);
+    unsigned int sampleCount(30);
 
     core_t::TTime latency = (latencyBuckets + 1) * bucketLength;
-    std::size_t   numberOfMeasurements = 5000;
-    std::size_t   numberOfRuns = 100;
+    std::size_t numberOfMeasurements = 5000;
+    std::size_t numberOfRuns = 100;
 
     test::CRandomNumbers rng;
 
@@ -1075,8 +1075,8 @@ void CSampleQueueTest::testQualityOfSamplesGivenVariableRate(void) {
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanMaxVariance;
 
     for (std::size_t runId = 0; runId < numberOfRuns; ++runId) {
-        TSampleVec       samples;
-        core_t::TTime    latestTime = bucketLength * (latencyBuckets + 1);
+        TSampleVec samples;
+        core_t::TTime latestTime = bucketLength * (latencyBuckets + 1);
         TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
         for (std::size_t measurementId = 0; measurementId < numberOfMeasurements; ++measurementId) {
             TDoubleVec testData;
@@ -1091,8 +1091,8 @@ void CSampleQueueTest::testQualityOfSamplesGivenVariableRate(void) {
         meanQueueSize.add(queue.size());
         queue.sample(latestTime, sampleCount, model_t::E_IndividualMeanByPerson, samples);
 
-        maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator                     varianceStat;
-        maths::CBasicStatistics::COrderStatisticsStack<double, 5u>                        varianceMin;
+        maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
+        maths::CBasicStatistics::COrderStatisticsStack<double, 5u> varianceMin;
         maths::CBasicStatistics::COrderStatisticsStack<double, 5u, std::greater<double> > varianceMax;
         for (std::size_t i = 0; i < samples.size(); ++i) {
             varianceStat.add(samples[i].varianceScale());
@@ -1123,19 +1123,19 @@ void CSampleQueueTest::testQualityOfSamplesGivenVariableRate(void) {
 }
 
 void CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder(void) {
-    std::size_t   sampleCountFactor(5);
-    std::size_t   latencyBuckets(500);
-    double        growthFactor(0.1);
+    std::size_t sampleCountFactor(5);
+    std::size_t latencyBuckets(500);
+    double growthFactor(0.1);
     core_t::TTime bucketLength(600);
-    unsigned int  sampleCount(30);
+    unsigned int sampleCount(30);
 
     std::size_t numberOfMeasurements = 5000;
 
     test::CRandomNumbers rng;
 
-    TSampleVec       samples;
-    core_t::TTime    latestTime = 60 * numberOfMeasurements;
-    core_t::TTime    time = latestTime;
+    TSampleVec samples;
+    core_t::TTime latestTime = 60 * numberOfMeasurements;
+    core_t::TTime time = latestTime;
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
     for (std::size_t measurementId = 0; measurementId < numberOfMeasurements; ++measurementId) {
         queue.add(time, {1.0}, 1u, sampleCount);
@@ -1144,8 +1144,8 @@ void CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder
     queue.add(360000, {1.0}, 1u, sampleCount);
     queue.sample(latestTime, sampleCount, model_t::E_IndividualMeanByPerson, samples);
 
-    maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator                     varianceStat;
-    maths::CBasicStatistics::COrderStatisticsStack<double, 1u>                        varianceMin;
+    maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
+    maths::CBasicStatistics::COrderStatisticsStack<double, 1u> varianceMin;
     maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double> > varianceMax;
     for (std::size_t i = 0; i < samples.size(); ++i) {
         varianceStat.add(samples[i].varianceScale());

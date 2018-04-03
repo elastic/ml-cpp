@@ -55,7 +55,7 @@ using TErrorBarVec = std::vector<maths::SErrorBar>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TModelPtr = boost::shared_ptr<maths::CModel>;
 
-const double      DECAY_RATE{0.0005};
+const double DECAY_RATE{0.0005};
 const std::size_t TAG{0u};
 const TDouble2Vec MINIMUM_VALUE{boost::numeric::bounds<double>::lowest()};
 const TDouble2Vec MAXIMUM_VALUE{boost::numeric::bounds<double>::highest()};
@@ -87,17 +87,17 @@ void CForecastTest::testDailyNoLongTermTrend(void) {
     LOG_DEBUG("+-------------------------------------------+");
 
     core_t::TTime bucketLength{600};
-    TDoubleVec    y{  0.0,   2.0,   2.0,   4.0,   8.0,  10.0,  15.0, 20.0,
-                      120.0, 120.0, 110.0, 100.0,  90.0, 100.0, 130.0, 80.0,
-                      30.0,  15.0,  10.0,   8.0,   5.0,   3.0,   2.0,  0.0};
+    TDoubleVec y{  0.0,   2.0,   2.0,   4.0,   8.0,  10.0,  15.0, 20.0,
+                   120.0, 120.0, 110.0, 100.0,  90.0, 100.0, 130.0, 80.0,
+                   30.0,  15.0,  10.0,   8.0,   5.0,   3.0,   2.0,  0.0};
 
     test::CRandomNumbers rng;
 
     auto trend = [&y, bucketLength] (core_t::TTime time, double noise) {
                      core_t::TTime i{(time % 86400) / bucketLength};
-                     double        alpha{static_cast<double>(i % 6) / 6.0};
-                     double        beta{1.0 - alpha};
-                     return 40.0 + alpha * y[i/6] + beta * y[(i/6 + 1) % y.size()] + noise;
+                     double alpha{static_cast<double>(i % 6) / 6.0};
+                     double beta{1.0 - alpha};
+                     return 40.0 + alpha * y[i / 6] + beta * y[(i / 6 + 1) % y.size()] + noise;
                  };
 
     this->test(trend, bucketLength, 60, 64.0, 4.0, 0.13);
@@ -109,9 +109,9 @@ void CForecastTest::testDailyConstantLongTermTrend(void) {
     LOG_DEBUG("+-------------------------------------------------+");
 
     core_t::TTime bucketLength{3600};
-    TDoubleVec    y{ 0.0,   2.0,   2.0,   4.0,   8.0,  10.0, 15.0, 20.0,
-                     80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
-                     30.0,  15.0,  10.0,   8.0,   5.0,   3.0,  2.0,  0.0};
+    TDoubleVec y{ 0.0,   2.0,   2.0,   4.0,   8.0,  10.0, 15.0, 20.0,
+                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
+                  30.0,  15.0,  10.0,   8.0,   5.0,   3.0,  2.0,  0.0};
 
     auto trend = [&y, bucketLength] (core_t::TTime time, double noise) {
                      core_t::TTime i{(time % 86400) / bucketLength};
@@ -128,11 +128,11 @@ void CForecastTest::testDailyVaryingLongTermTrend(void) {
     LOG_DEBUG("+------------------------------------------------+");
 
     core_t::TTime bucketLength{3600};
-    double        day{86400.0};
-    TDoubleVec    times{ 0.0,  5.0 * day,  10.0 * day,  15.0 * day,  20.0 * day,  25.0 * day,
-                         30.0 * day, 35.0 * day,  40.0 * day,  45.0 * day,  50.0 * day,  55.0 * day,
-                         60.0 * day, 65.0 * day,  70.0 * day,  75.0 * day,  80.0 * day,  85.0 * day,
-                         90.0 * day, 95.0 * day, 100.0 * day, 105.0 * day, 110.0 * day, 115.0 * day};
+    double day{86400.0};
+    TDoubleVec times{ 0.0,  5.0 * day,  10.0 * day,  15.0 * day,  20.0 * day,  25.0 * day,
+                      30.0 * day, 35.0 * day,  40.0 * day,  45.0 * day,  50.0 * day,  55.0 * day,
+                      60.0 * day, 65.0 * day,  70.0 * day,  75.0 * day,  80.0 * day,  85.0 * day,
+                      90.0 * day, 95.0 * day, 100.0 * day, 105.0 * day, 110.0 * day, 115.0 * day};
     TDoubleVec values{20.0, 30.0, 25.0, 35.0, 45.0, 40.0, 38.0, 36.0, 35.0,  25.0,  35.0,  45.0,
                       55.0, 62.0, 70.0, 76.0, 79.0, 82.0, 86.0, 90.0, 95.0, 100.0, 106.0, 112.0};
 
@@ -155,9 +155,9 @@ void CForecastTest::testComplexNoLongTermTrend(void) {
     LOG_DEBUG("+---------------------------------------------+");
 
     core_t::TTime bucketLength{3600};
-    TDoubleVec    y{ 0.0,  10.0,  20.0,  20.0,  30.0,  40.0, 50.0, 60.0,
-                     80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
-                     60.0,  40.0,  30.0,  20.0,  10.0,  10.0,  5.0,  0.0};
+    TDoubleVec y{ 0.0,  10.0,  20.0,  20.0,  30.0,  40.0, 50.0, 60.0,
+                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
+                  60.0,  40.0,  30.0,  20.0,  10.0,  10.0,  5.0,  0.0};
     TDoubleVec scale{1.0, 1.1, 1.05, 0.95, 0.9, 0.3, 0.2};
 
     auto trend = [&y, &scale, bucketLength] (core_t::TTime time, double noise) {
@@ -175,9 +175,9 @@ void CForecastTest::testComplexConstantLongTermTrend(void) {
     LOG_DEBUG("+---------------------------------------------------+");
 
     core_t::TTime bucketLength{3600};
-    TDoubleVec    y{ 0.0,  10.0,  20.0,  20.0,  30.0,  40.0, 50.0, 60.0,
-                     80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
-                     60.0,  40.0,  30.0,  20.0,  10.0,  10.0,  5.0,  0.0};
+    TDoubleVec y{ 0.0,  10.0,  20.0,  20.0,  30.0,  40.0, 50.0, 60.0,
+                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
+                  60.0,  40.0,  30.0,  20.0,  10.0,  10.0,  5.0,  0.0};
     TDoubleVec scale{1.0, 1.1, 1.05, 0.95, 0.9, 0.3, 0.2};
 
     auto trend = [&y, &scale, bucketLength] (core_t::TTime time, double noise) {
@@ -196,11 +196,11 @@ void CForecastTest::testComplexVaryingLongTermTrend(void) {
     LOG_DEBUG("+--------------------------------------------------+");
 
     core_t::TTime bucketLength{3600};
-    double        day{86400.0};
-    TDoubleVec    times{ 0.0,  5.0 * day,  10.0 * day,  15.0 * day,  20.0 * day,  25.0 * day,
-                         30.0 * day, 35.0 * day,  40.0 * day,  45.0 * day,  50.0 * day,  55.0 * day,
-                         60.0 * day, 65.0 * day,  70.0 * day,  75.0 * day,  80.0 * day,  85.0 * day,
-                         90.0 * day, 95.0 * day, 100.0 * day, 105.0 * day, 110.0 * day, 115.0 * day};
+    double day{86400.0};
+    TDoubleVec times{ 0.0,  5.0 * day,  10.0 * day,  15.0 * day,  20.0 * day,  25.0 * day,
+                      30.0 * day, 35.0 * day,  40.0 * day,  45.0 * day,  50.0 * day,  55.0 * day,
+                      60.0 * day, 65.0 * day,  70.0 * day,  75.0 * day,  80.0 * day,  85.0 * day,
+                      90.0 * day, 95.0 * day, 100.0 * day, 105.0 * day, 110.0 * day, 115.0 * day};
     TDoubleVec values{20.0, 30.0, 25.0, 35.0, 45.0, 40.0, 38.0, 36.0, 35.0,  25.0,  35.0,  45.0,
                       55.0, 62.0, 70.0, 76.0, 79.0, 82.0, 86.0, 90.0, 95.0, 100.0, 106.0, 112.0};
     TDoubleVec y{0.0,  1.0,  2.0,  2.0,  3.0,  4.0, 5.0, 6.0,
@@ -214,7 +214,7 @@ void CForecastTest::testComplexVaryingLongTermTrend(void) {
     auto trend = [&trend_, &y, &scale, bucketLength] (core_t::TTime time, double noise) {
                      core_t::TTime d{(time % 604800) / 86400};
                      core_t::TTime h{(time % 86400)  / bucketLength};
-                     double        time_{static_cast<double>(time)};
+                     double time_{static_cast<double>(time)};
                      return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
                  };
 
@@ -234,7 +234,7 @@ void CForecastTest::testNonNegative(void) {
     maths::CNormalMeanPrecConjugate prior =
         maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
     maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{decayRateControllers()};
-    maths::CUnivariateTimeSeriesModel                           model(params(bucketLength), TAG, trend, prior, &controllers);
+    maths::CUnivariateTimeSeriesModel model(params(bucketLength), TAG, trend, prior, &controllers);
 
     LOG_DEBUG("*** learn ***");
 
@@ -245,7 +245,7 @@ void CForecastTest::testNonNegative(void) {
     //TDoubleVec my;
     //TDoubleVec uy;
 
-    core_t::TTime      time{0};
+    core_t::TTime time{0};
     TDouble2Vec4VecVec weights{{{1.0}}};
     for (std::size_t d = 0u; d < 20; ++d) {
         TDoubleVec noise;
@@ -266,11 +266,11 @@ void CForecastTest::testNonNegative(void) {
 
     LOG_DEBUG("*** forecast ***");
 
-    TErrorBarVec  prediction;
+    TErrorBarVec prediction;
     core_t::TTime start{time};
     core_t::TTime end{time + 20 * core::constants::DAY};
-    std::string   m;
-    TModelPtr     forecastModel(model.cloneForForecast());
+    std::string m;
+    TModelPtr forecastModel(model.cloneForForecast());
     forecastModel->forecast(start, end, 95.0,
                             MINIMUM_VALUE, MAXIMUM_VALUE,
                             boost::bind(&mockSink, _1, boost::ref(prediction)), m);
@@ -319,8 +319,8 @@ void CForecastTest::testFinancialIndex(void) {
     core_t::TTime bucketLength{1800};
 
     TTimeDoublePrVec timeseries;
-    core_t::TTime    startTime;
-    core_t::TTime    endTime;
+    core_t::TTime startTime;
+    core_t::TTime endTime;
     CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/financial_index.csv",
                                                     timeseries,
                                                     startTime,
@@ -330,13 +330,13 @@ void CForecastTest::testFinancialIndex(void) {
 
     LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(),
                                                                 timeseries.begin() + 10)
-                              << " ...");
+              << " ...");
 
     maths::CTimeSeriesDecomposition trend(0.012, bucketLength);
     maths::CNormalMeanPrecConjugate prior =
         maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
     maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{decayRateControllers()};
-    maths::CUnivariateTimeSeriesModel                           model(params(bucketLength), TAG, trend, prior, &controllers);
+    maths::CUnivariateTimeSeriesModel model(params(bucketLength), TAG, trend, prior, &controllers);
 
     LOG_DEBUG("*** learn ***");
 
@@ -365,17 +365,17 @@ void CForecastTest::testFinancialIndex(void) {
 
     LOG_DEBUG("*** forecast ***");
 
-    TErrorBarVec  prediction;
+    TErrorBarVec prediction;
     core_t::TTime start{timeseries[n].first};
     core_t::TTime end{timeseries[timeseries.size() - 1].first};
-    std::string   m;
-    TModelPtr     forecastModel(model.cloneForForecast());
+    std::string m;
+    TModelPtr forecastModel(model.cloneForForecast());
     forecastModel->forecast(start, end, 99.0,
                             MINIMUM_VALUE, MAXIMUM_VALUE,
                             boost::bind(&mockSink, _1, boost::ref(prediction)), m);
 
-    std::size_t      outOfBounds{0};
-    std::size_t      count{0};
+    std::size_t outOfBounds{0};
+    std::size_t count{0};
     TMeanAccumulator error;
 
     for (std::size_t i = n, j = 0u;
@@ -456,13 +456,13 @@ void CForecastTest::test(TTrend trend,
     test::CRandomNumbers rng;
 
     maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{decayRateControllers()};
-    maths::CUnivariateTimeSeriesModel                           model(
+    maths::CUnivariateTimeSeriesModel model(
         params(bucketLength), TAG,
         maths::CTimeSeriesDecomposition(0.012, bucketLength),
         maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE),
         &controllers);
 
-    core_t::TTime      time{0};
+    core_t::TTime time{0};
     TDouble2Vec4VecVec weights{{{1.0}}};
     for (std::size_t d = 0u; d < daysToLearn; ++d) {
         TDoubleVec noise;
@@ -483,17 +483,17 @@ void CForecastTest::test(TTrend trend,
 
     LOG_DEBUG("*** forecast ***");
 
-    TErrorBarVec  prediction;
+    TErrorBarVec prediction;
     core_t::TTime start{time};
     core_t::TTime end{time + 2 * core::constants::WEEK};
-    TModelPtr     forecastModel(model.cloneForForecast());
-    std::string   m;
+    TModelPtr forecastModel(model.cloneForForecast());
+    std::string m;
     forecastModel->forecast(start, end, 80.0,
                             MINIMUM_VALUE, MAXIMUM_VALUE,
                             boost::bind(&mockSink, _1, boost::ref(prediction)), m);
 
-    std::size_t      outOfBounds{0};
-    std::size_t      count{0};
+    std::size_t outOfBounds{0};
+    std::size_t count{0};
     TMeanAccumulator error;
 
     for (std::size_t i = 0u; i < prediction.size(); /**/) {

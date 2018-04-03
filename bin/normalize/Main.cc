@@ -50,19 +50,19 @@
 
 int main(int argc, char **argv) {
     // Read command line options
-    std::string       modelConfigFile;
-    std::string       logProperties;
-    std::string       logPipe;
+    std::string modelConfigFile;
+    std::string logProperties;
+    std::string logPipe;
     ml::core_t::TTime bucketSpan(0);
-    bool              lengthEncodedInput(false);
-    std::string       inputFileName;
-    bool              isInputFileNamedPipe(false);
-    std::string       outputFileName;
-    bool              isOutputFileNamedPipe(false);
-    std::string       quantilesStateFile;
-    bool              deleteStateFiles(false);
-    bool              writeCsv(false);
-    bool              perPartitionNormalization(false);
+    bool lengthEncodedInput(false);
+    std::string inputFileName;
+    bool isInputFileNamedPipe(false);
+    std::string outputFileName;
+    bool isOutputFileNamedPipe(false);
+    std::string quantilesStateFile;
+    bool deleteStateFiles(false);
+    bool writeCsv(false);
+    bool perPartitionNormalization(false);
     if (ml::normalize::CCmdLineParser::parse(argc,
                                              argv,
                                              modelConfigFile,
@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
     TScopedInputParserP inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    } else {
+    } else   {
         inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(),
                                                        ml::api::CCsvInputParser::COMMA));
     }
@@ -128,7 +128,7 @@ int main(int argc, char **argv) {
     TScopedOutputHandlerP outputWriter;
     if (writeCsv) {
         outputWriter.reset(new ml::api::CCsvOutputWriter(ioMgr.outputStream()));
-    } else {
+    } else   {
         outputWriter.reset(new ml::api::CLineifiedJsonOutputWriter({ ml::api::CResultNormalizer::PROBABILITY_NAME,
                                                                      ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME },
                                                                    ioMgr.outputStream()));

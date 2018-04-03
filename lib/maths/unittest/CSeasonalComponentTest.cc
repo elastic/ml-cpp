@@ -66,7 +66,8 @@ class CTestSeasonalComponent : public maths::CSeasonalComponent {
                                       boundaryCondition,
                                       valueInterpolationType,
                                       varianceInterpolationType),
-            m_StartTime(startTime) {}
+            m_StartTime(startTime)
+        {}
 
         void addPoint(core_t::TTime time,
                       double value,
@@ -109,14 +110,14 @@ void generateSeasonalValues(test::CRandomNumbers &rng,
     std::sort(times.begin(), times.end());
     for (std::size_t i = 0u; i < times.size(); ++i) {
         core_t::TTime offset = static_cast<core_t::TTime>(times[i] % period);
-        std::size_t   b = std::lower_bound(function.begin(),
-                                           function.end(),
-                                           offset,
-                                           maths::COrderings::SFirstLess()) - function.begin();
+        std::size_t b = std::lower_bound(function.begin(),
+                                         function.end(),
+                                         offset,
+                                         maths::COrderings::SFirstLess()) - function.begin();
         b = maths::CTools::truncate(b, std::size_t(1), std::size_t(function.size() - 1));
         std::size_t a = b - 1;
-        double      m = (function[b].second - function[a].second)
-                        / static_cast<double>(function[b].first - function[a].first);
+        double m = (function[b].second - function[a].second)
+                   / static_cast<double>(function[b].first - function[a].first);
         samples.push_back(TTimeDoublePr(
                               times[i], function[a].second
                               + m * static_cast<double>(offset - function[a].first)));
@@ -165,8 +166,8 @@ void CSeasonalComponentTest::testNoPeriodicity(void) {
     //file.open("results.m");
     //file << "hold on;\n";
 
-    double        totalError1 = 0.0;
-    double        totalError2 = 0.0;
+    double totalError1 = 0.0;
+    double totalError2 = 0.0;
     core_t::TTime time = startTime;
     for (std::size_t i = 0u, d = 0u; i < n; ++i) {
         seasonal.addPoint(samples[i].first, samples[i].second + residuals[i]);
@@ -186,7 +187,7 @@ void CSeasonalComponentTest::testNoPeriodicity(void) {
                 //t << time + function[j].first << " ";
                 //ft << function[j].second << " ";
                 TDoubleDoublePr interval = seasonal.value(time + function[j].first, 70.0);
-                double          f = function[j].second + residualMean;
+                double f = function[j].second + residualMean;
 
                 double e = mean(interval) - f;
                 error1 += ::fabs(e);
@@ -197,7 +198,7 @@ void CSeasonalComponentTest::testNoPeriodicity(void) {
 
             if (d > 1) {
                 LOG_DEBUG("f(0) = " << mean(seasonal.value(time, 0.0))
-                                    << ", f(T) = " << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
+                          << ", f(T) = " << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(mean(seasonal.value(time, 0.0)),
                                              mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.1);
             }
@@ -242,8 +243,8 @@ void CSeasonalComponentTest::testConstantPeriodic(void) {
         TTimeDoublePrVec function;
         for (core_t::TTime i = 0u; i < 49; ++i) {
             core_t::TTime t = (i * core::constants::DAY) / 48;
-            double        ft = 100.0 + 40.0 * ::sin(boost::math::double_constants::two_pi
-                                                    * static_cast<double>(i) / 48.0);
+            double ft = 100.0 + 40.0 * ::sin(boost::math::double_constants::two_pi
+                                             * static_cast<double>(i) / 48.0);
             function.push_back(TTimeDoublePr(t, ft));
         }
 
@@ -267,8 +268,8 @@ void CSeasonalComponentTest::testConstantPeriodic(void) {
         //file.open("results.m");
         //file << "hold on;\n";
 
-        double        totalError1 = 0.0;
-        double        totalError2 = 0.0;
+        double totalError1 = 0.0;
+        double totalError2 = 0.0;
         core_t::TTime time = startTime;
         for (std::size_t i = 0u, d = 0u; i < n; ++i) {
             seasonal.addPoint(samples[i].first, samples[i].second + residuals[i]);
@@ -288,8 +289,8 @@ void CSeasonalComponentTest::testConstantPeriodic(void) {
                     //t << time + function[j].first << " ";
                     //ft << function[j].second << " ";
                     TDoubleDoublePr interval = seasonal.value(time + function[j].first, 70.0);
-                    double          f = residualMean + function[j].second;
-                    double          e = mean(interval) - f;
+                    double f = residualMean + function[j].second;
+                    double e = mean(interval) - f;
                     error1 += ::fabs(e);
                     error2 += std::max(std::max(interval.first - f, f - interval.second), 0.0);
                 }
@@ -298,7 +299,7 @@ void CSeasonalComponentTest::testConstantPeriodic(void) {
 
                 if (d > 1) {
                     LOG_DEBUG("f(0) = " << mean(seasonal.value(time, 0.0))
-                                        << ", f(T) = " << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
+                              << ", f(T) = " << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(mean(seasonal.value(time, 0.0)),
                                                  mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.1);
                 }
@@ -409,8 +410,8 @@ void CSeasonalComponentTest::testConstantPeriodic(void) {
         //file.open("results.m");
         //file << "hold on;\n";
 
-        double        totalError1 = 0.0;
-        double        totalError2 = 0.0;
+        double totalError1 = 0.0;
+        double totalError2 = 0.0;
         core_t::TTime time = startTime;
         for (std::size_t i = 0u, d = 0u; i < n; ++i) {
             seasonal.addPoint(samples[i].first, samples[i].second + residuals[i]);
@@ -430,7 +431,7 @@ void CSeasonalComponentTest::testConstantPeriodic(void) {
                     //t << time + function[j].first << " ";
                     //ft << function[j].second << " ";
                     TDoubleDoublePr interval = seasonal.value(time + function[j].first, 70.0);
-                    double          f = residualMean + function[j].second;
+                    double f = residualMean + function[j].second;
 
                     double e = mean(interval) - f;
                     error1 += ::fabs(e);
@@ -441,7 +442,7 @@ void CSeasonalComponentTest::testConstantPeriodic(void) {
 
                 if (d > 1) {
                     LOG_DEBUG("f(0) = " << mean(seasonal.value(time, 0.0))
-                                        << ", f(T) = " << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
+                              << ", f(T) = " << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(mean(seasonal.value(time, 0.0)),
                                                  mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.1);
                 }
@@ -585,7 +586,7 @@ void CSeasonalComponentTest::testTimeVaryingPeriodic(void) {
                 //t << time + function[j].first << " ";
                 //ft << function[j].second << " ";
                 TDoubleDoublePr interval = seasonal.value(time + function[j].first, 70.0);
-                double          f = residualMean + scale * function[j].second;
+                double f = residualMean + scale * function[j].second;
 
                 double e = mean(interval) - f;
                 error1 += ::fabs(e);
@@ -596,7 +597,7 @@ void CSeasonalComponentTest::testTimeVaryingPeriodic(void) {
 
             if (d > 1) {
                 LOG_DEBUG("f(0) = " << mean(seasonal.value(time, 0.0))
-                                    << ", f(T) = " << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
+                          << ", f(T) = " << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(mean(seasonal.value(time, 0.0)),
                                              mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.1);
             }
@@ -665,8 +666,8 @@ void CSeasonalComponentTest::testVeryLowVariation(void) {
     //file.open("results.m");
     //file << "hold on;\n";
 
-    double        totalError1 = 0.0;
-    double        totalError2 = 0.0;
+    double totalError1 = 0.0;
+    double totalError2 = 0.0;
     core_t::TTime time = startTime;
     for (std::size_t i = 0u, d = 0u; i < n; ++i) {
         seasonal.addPoint(samples[i].first, samples[i].second + residuals[i]);
@@ -686,7 +687,7 @@ void CSeasonalComponentTest::testVeryLowVariation(void) {
                 //t << time + function[j].first << " ";
                 //ft << function[j].second << " ";
                 TDoubleDoublePr interval = seasonal.value(time + function[j].first, 70.0);
-                double          f = residualMean + function[j].second;
+                double f = residualMean + function[j].second;
 
                 double e = mean(interval) - f;
                 error1 += ::fabs(e);
@@ -697,7 +698,7 @@ void CSeasonalComponentTest::testVeryLowVariation(void) {
 
             if (d > 1) {
                 LOG_DEBUG("f(0) = " << mean(seasonal.value(time, 0.0))
-                                    << ", f(T) = " << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
+                          << ", f(T) = " << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(mean(seasonal.value(time, 0.0)),
                                              mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.1);
             }
@@ -740,8 +741,8 @@ void CSeasonalComponentTest::testVariance(void) {
     TTimeDoublePrVec function;
     for (core_t::TTime i = 0u; i < 481; ++i) {
         core_t::TTime t = (i * core::constants::DAY) / 48;
-        double        vt = 80.0 + 20.0 * ::sin(boost::math::double_constants::two_pi
-                                               * static_cast<double>(i % 48) / 48.0);
+        double vt = 80.0 + 20.0 * ::sin(boost::math::double_constants::two_pi
+                                        * static_cast<double>(i % 48) / 48.0);
         TDoubleVec sample;
         rng.generateNormalSamples(0.0, vt, 10, sample);
         for (std::size_t j = 0u; j < sample.size(); ++j) {
@@ -759,13 +760,13 @@ void CSeasonalComponentTest::testVariance(void) {
     TMeanAccumulator error;
     for (core_t::TTime i = 0u; i < 48; ++i) {
         core_t::TTime t = (i * core::constants::DAY) / 48;
-        double        v_ = 80.0 + 20.0 * ::sin(boost::math::double_constants::two_pi
-                                               * static_cast<double>(i) / 48.0);
+        double v_ = 80.0 + 20.0 * ::sin(boost::math::double_constants::two_pi
+                                        * static_cast<double>(i) / 48.0);
         TDoubleDoublePr vv = seasonal.variance(t, 98.0);
-        double          v = (vv.first + vv.second) / 2.0;
+        double v = (vv.first + vv.second) / 2.0;
         LOG_DEBUG("v_ = " << v_
-                          << ", v = " << core::CContainerPrinter::print(vv)
-                          << ", relative error = " << ::fabs(v - v_) / v_);
+                  << ", v = " << core::CContainerPrinter::print(vv)
+                  << ", relative error = " << ::fabs(v - v_) / v_);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(v_, v, 0.4 * v_);
         CPPUNIT_ASSERT(v_ > vv.first && v_ < vv.second);
@@ -785,16 +786,16 @@ void CSeasonalComponentTest::testPersist(void) {
 
     const core_t::TTime startTime = 1354492800;
     const core_t::TTime minute = 60;
-    const double        decayRate = 0.001;
-    const double        minimumBucketLength = 0.0;
+    const double decayRate = 0.001;
+    const double minimumBucketLength = 0.0;
 
     test::CRandomNumbers rng;
 
     TTimeDoublePrVec function;
     for (core_t::TTime i = 0u; i < 49; ++i) {
         core_t::TTime t = (i * core::constants::DAY) / 48;
-        double        ft = 100.0 + 40.0 * ::sin(boost::math::double_constants::two_pi
-                                                * static_cast<double>(i) / 48.0);
+        double ft = 100.0 + 40.0 * ::sin(boost::math::double_constants::two_pi
+                                         * static_cast<double>(i) / 48.0);
         function.push_back(TTimeDoublePr(t, ft));
     }
 
@@ -849,7 +850,7 @@ void CSeasonalComponentTest::testPersist(void) {
         TDoubleDoublePr xn = restoredSeasonal.value(time, 80.0);
         if (time % (15 * minute) == 0) {
             LOG_DEBUG("xo = " << core::CContainerPrinter::print(xo)
-                              << ", xn = " << core::CContainerPrinter::print(xn));
+                      << ", xn = " << core::CContainerPrinter::print(xn));
 
         }
         CPPUNIT_ASSERT_DOUBLES_EQUAL(xo.first, xn.first, 0.3);
@@ -858,7 +859,7 @@ void CSeasonalComponentTest::testPersist(void) {
         TDoubleDoublePr vn = origSeasonal.variance(time, 80.0);
         if (time % (15 * minute) == 0) {
             LOG_DEBUG("vo = " << core::CContainerPrinter::print(vo)
-                              << ", vn = " << core::CContainerPrinter::print(vn));
+                      << ", vn = " << core::CContainerPrinter::print(vn));
         }
         CPPUNIT_ASSERT_DOUBLES_EQUAL(vo.first, vn.first, 1e-3);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(vo.second, vn.second, 1e-3);

@@ -24,7 +24,8 @@ namespace ml {
 namespace config {
 
 CSpanTooSmallForBucketLengthPenalty::CSpanTooSmallForBucketLengthPenalty(const CAutoconfigurerParams &params) :
-    CPenalty(params) {}
+    CPenalty(params)
+{}
 
 CSpanTooSmallForBucketLengthPenalty *CSpanTooSmallForBucketLengthPenalty::clone(void) const {
     return new CSpanTooSmallForBucketLengthPenalty(*this);
@@ -38,9 +39,9 @@ void CSpanTooSmallForBucketLengthPenalty::penaltyFromMe(CDetectorSpecification &
     if (const CDataCountStatistics *stats = spec.countStatistics()) {
         const TTimeVec &candidates = this->params().candidateBucketLengths();
 
-        TSizeVec   indices;
+        TSizeVec indices;
         TDoubleVec penalties;
-        TStrVec    descriptions;
+        TStrVec descriptions;
         indices.reserve(2 * candidates.size());
         penalties.reserve(2 * candidates.size());
         descriptions.reserve(2 * candidates.size());

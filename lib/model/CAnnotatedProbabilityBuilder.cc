@@ -61,7 +61,7 @@ CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(SAnnotatedProbability
 
     if (function == function_t::E_IndividualRare || function == function_t::E_PopulationRare) {
         m_IsRare = true;
-    } else if (function == function_t::E_PopulationFreqRare) {
+    } else if (function == function_t::E_PopulationFreqRare)   {
         m_IsFreqRare = true;
     }
 }
@@ -71,7 +71,7 @@ void CAnnotatedProbabilityBuilder::personFrequency(double frequency, bool everSe
         if (everSeenBefore) {
             double period = (frequency == 0.0) ? 0.0 : 1 / frequency;
             m_Result.addDescriptiveData(annotated_probability::E_PERSON_PERIOD, period);
-        } else {
+        } else   {
             m_Result.addDescriptiveData(annotated_probability::E_PERSON_NEVER_SEEN_BEFORE, 1.0);
         }
     }
@@ -149,7 +149,7 @@ void CAnnotatedProbabilityBuilder::addDescriptiveData(void) {
                                         static_cast<double>(m_DistinctRareAttributes));
             m_Result.addDescriptiveData(annotated_probability::E_DISTINCT_TOTAL_ATTRIBUTES_COUNT,
                                         static_cast<double>(m_DistinctTotalAttributes));
-        } else if (m_IsFreqRare) {
+        } else if (m_IsFreqRare)   {
             double totalConcentration = m_PersonAttributeProbabilityPrior->totalConcentration();
             m_Result.addDescriptiveData(annotated_probability::E_RARE_ATTRIBUTES_COUNT, m_RareAttributes);
             m_Result.addDescriptiveData(annotated_probability::E_TOTAL_ATTRIBUTES_COUNT, totalConcentration);

@@ -51,10 +51,10 @@ utf8_force                      = false    # false/true
 
 # Add or remove space around arithmetic operator '+', '-', '/', '*', etc
 # also '>>>' '<<' '>>' '%' '|'.
-sp_arith                        = ignore   # ignore/add/remove/force
+sp_arith                        = add   # ignore/add/remove/force
 
 # Add or remove space around arithmetic operator '+' and '-'. Overrides sp_arith
-sp_arith_additive               = ignore   # ignore/add/remove/force
+sp_arith_additive               = add   # ignore/add/remove/force
 
 # Add or remove space around assignment operator '=', '+=', etc.
 sp_assign                       = ignore   # ignore/add/remove/force
@@ -404,7 +404,8 @@ sp_func_call_user_paren         = ignore   # ignore/add/remove/force
 # You need to set a keyword to be a user function, like this: 'set func_call_user _' in the config file.
 sp_func_call_user_inside_fparen = ignore   # ignore/add/remove/force
 
-# Add or remove space between nested parens with user functions: '((' vs ') )'You need to set a keyword to be a user function, like this: 'set func_call_user _' in the config file.
+# Add or remove space between nested parens with user functions: '((' vs ') )'You need to set a keyword to be a user function, like this:
+# 'set func_call_user _' in the config file.
 sp_func_call_user_paren_paren   = ignore   # ignore/add/remove/force
 
 # Add or remove space between a constructor/destructor and the open paren.
@@ -524,7 +525,7 @@ sp_member                       = remove   # ignore/add/remove/force
 sp_deref                        = remove   # ignore/add/remove/force
 
 # Add or remove space after '+' or '-', as in 'x = -5' or 'y = +7'. Default=Remove.
-sp_sign                         = remove   # ignore/add/remove/force
+sp_sign                         = ignore   # ignore/add/remove/force
 
 # Add or remove space before or after '++' and '--', as in '(--x)' or 'y++;'. Default=Remove.
 sp_incdec                       = remove   # ignore/add/remove/force
@@ -927,7 +928,8 @@ indent_oc_msg_colon             = 0        # unsigned number
 # Default=True.
 indent_oc_msg_prioritize_first_colon = true     # false/true
 
-# If indent_oc_block_msg and this option are on, blocks will be indented the way that Xcode does by default (from keyword if the parameter is on its own line; otherwise, from the previous indentation level).
+# If indent_oc_block_msg and this option are on, blocks will be indented the way that Xcode does by default (from keyword if the parameter
+# is on its own line; otherwise, from the previous indentation level).
 indent_oc_block_msg_xcode_style = false    # false/true
 
 # If indent_oc_block_msg and this option are on, blocks will be indented from where the brace is relative to a msg keyword.
@@ -966,7 +968,8 @@ indent_ternary_operator         = 2        # unsigned number
 # If true, the indentation of the chunks after a `return new` sequence will be set at return indentation column.
 indent_off_after_return_new     = false    # false/true
 
-# If true, the tokens after return are indented with regular single indentation.By default (false) the indentation is after the return token.
+# If true, the tokens after return are indented with regular single indentation.By default (false) the indentation is after the return
+# token.
 indent_single_after_return      = false    # false/true
 
 # If true, ignore indent and align for asm blocks as they have their own indentation.
@@ -1376,7 +1379,7 @@ nl_brace_struct_var             = ignore   # ignore/add/remove/force
 # Whether to alter newlines in '#define' macros.
 nl_define_macro                 = false    # false/true
 
-# Whether to alter newlines between consecutive paren closes, 
+# Whether to alter newlines between consecutive paren closes,
 # The number of closing paren in a line will depend on respective open paren lines
 nl_squeeze_paren_close          = false    # false/true
 
@@ -1687,19 +1690,19 @@ align_func_params_gap           = 0        # unsigned number
 align_same_func_call_params     = false    # false/true
 
 # The span for aligning variable definitions (0=don't align)
-align_var_def_span              = 1        # unsigned number
+align_var_def_span              = 0        # unsigned number
 
 # How to align the star in variable definitions.
 #  0=Part of the type     'void *   foo;'
 #  1=Part of the variable 'void     *foo;'
 #  2=Dangling             'void    *foo;'
-align_var_def_star_style        = 1        # unsigned number
+align_var_def_star_style        = 0        # unsigned number
 
 # How to align the '&' in variable definitions.
 #  0=Part of the type
 #  1=Part of the variable
 #  2=Dangling
-align_var_def_amp_style         = 1        # unsigned number
+align_var_def_amp_style         = 0        # unsigned number
 
 # The threshold for aligning variable definitions (0=no limit)
 align_var_def_thresh            = 0        # unsigned number
@@ -1732,7 +1735,7 @@ align_enum_equ_span             = 0        # unsigned number
 align_enum_equ_thresh           = 0        # unsigned number
 
 # The span for aligning class (0=don't align)
-align_var_class_span            = 6        # unsigned number
+align_var_class_span            = 0        # unsigned number
 
 # The threshold for aligning class member definitions (0=no limit).
 align_var_class_thresh          = 0        # unsigned number
@@ -1829,7 +1832,7 @@ align_pp_define_gap             = 0        # unsigned number
 align_pp_define_span            = 0        # unsigned number
 
 # Align lines that start with '<<' with previous '<<'. Default=True.
-align_left_shift                = true     # false/true
+align_left_shift                = false     # false/true
 
 # Align text after asm volatile () colons.
 align_asm_colon                 = false    # false/true

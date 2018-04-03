@@ -108,14 +108,16 @@ class CEqualWithTolerance : public std::binary_function<T, T, bool>,
                             const T &eps) :
             m_ToleranceType(toleranceType),
             m_AbsoluteEps(abs(norm(eps))),
-            m_RelativeEps(abs(norm(eps))) {}
+            m_RelativeEps(abs(norm(eps)))
+        {}
 
         CEqualWithTolerance(unsigned int toleranceType,
                             const T &absoluteEps,
                             const T &relativeEps) :
             m_ToleranceType(toleranceType),
             m_AbsoluteEps(abs(norm(absoluteEps))),
-            m_RelativeEps(abs(norm(relativeEps))) {}
+            m_RelativeEps(abs(norm(relativeEps)))
+        {}
 
         bool operator()(const T &lhs, const T &rhs) const {
             const T &max    = norm(rhs) > norm(lhs) ? rhs : lhs;
@@ -157,8 +159,8 @@ class CEqualWithTolerance : public std::binary_function<T, T, bool>,
 
     private:
         unsigned int m_ToleranceType;
-        TNorm        m_AbsoluteEps;
-        TNorm        m_RelativeEps;
+        TNorm m_AbsoluteEps;
+        TNorm m_RelativeEps;
 };
 
 }

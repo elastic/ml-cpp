@@ -131,19 +131,19 @@ class CORE_EXPORT CProcess : private CNonCopyable {
 
     private:
         //! Is this process running as a Windows service?
-        bool                  m_IsService;
+        bool m_IsService;
 
         //! Is this process initialised?
-        bool                  m_Initialised;
+        bool m_Initialised;
 
         //! Is this process running?
-        bool                  m_Running;
+        bool m_Running;
 
         //! Address of the mlMain() function to call
-        TMlMainFunc           m_MlMainFunc;
+        TMlMainFunc m_MlMainFunc;
 
         //! Original arguments passed to the program's main() function
-        TStrVec               m_Args;
+        TStrVec m_Args;
 
 #ifdef Windows
         //! Service handle (will be 0 if we're not running as a service)
@@ -151,11 +151,11 @@ class CORE_EXPORT CProcess : private CNonCopyable {
 #endif
 
         //! Lock to protect the shutdown function object
-        CFastMutex            m_ShutdownFuncMutex;
+        CFastMutex m_ShutdownFuncMutex;
 
         //! Function to call if the process is instructed to shut down.
         //! Will be empty until initialisation is complete.
-        TShutdownFunc         m_ShutdownFunc;
+        TShutdownFunc m_ShutdownFunc;
 };
 
 

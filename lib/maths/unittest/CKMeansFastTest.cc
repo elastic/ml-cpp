@@ -98,13 +98,14 @@ class CCentreFilterChecker {
                              std::size_t &numberAdmitted) :
             m_Centres(centres),
             m_CentreFilter(centres),
-            m_NumberAdmitted(numberAdmitted) {}
+            m_NumberAdmitted(numberAdmitted)
+        {}
 
         bool operator()(const typename maths::CKdTree<POINT, TData>::SNode &node) const {
             typedef std::pair<double, std::size_t> TDoubleSizePr;
 
             m_CentreFilter.prune(node.boundingBox());
-            const TSizeVec                                                   &                                                 filtered = m_CentreFilter.filter();
+            const TSizeVec &filtered = m_CentreFilter.filter();
             maths::CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 2> closest;
             for (std::size_t i = 0u; i < m_Centres.size(); ++i) {
                 closest.add(TDoubleSizePr((m_Centres[i] - node.s_Point).euclidean(), i));
@@ -124,16 +125,16 @@ class CCentreFilterChecker {
         }
 
     private:
-        TPointVec             m_Centres;
+        TPointVec m_Centres;
         mutable TCentreFilter m_CentreFilter;
-        std::size_t           &m_NumberAdmitted;
+        std::size_t &m_NumberAdmitted;
 };
 
 template<typename POINT>
 std::pair<std::size_t, double> closest(const std::vector<POINT> &y,
                                        const POINT &x) {
     std::size_t closest = 0u;
-    double      dmin = (x - y[0]).euclidean();
+    double dmin = (x - y[0]).euclidean();
     for (std::size_t i = 1u; i < y.size(); ++i) {
         double di = (x - y[i]).euclidean();
         if (di < dmin) {
@@ -208,7 +209,7 @@ void CKMeansFastTest::testDataPropagation(void) {
         rng.generateUniformSamples(-400.0, 400.0, 1000, samples);
         {
             maths::CKdTree<TVector2, CKMeansFastForTest<TVector2>::TKdTreeNodeData> tree;
-            TVector2Vec                                                             points;
+            TVector2Vec points;
             for (std::size_t j = 0u; j < samples.size(); j += 2) {
                 points.push_back(TVector2(&samples[j], &samples[j + 2]));
             }
@@ -218,7 +219,7 @@ void CKMeansFastTest::testDataPropagation(void) {
         }
         {
             maths::CKdTree<TVector4, CKMeansFastForTest<TVector4>::TKdTreeNodeData> tree;
-            TVector4Vec                                                             points;
+            TVector4Vec points;
             for (std::size_t j = 0u; j < samples.size(); j += 4) {
                 points.push_back(TVector4(&samples[j], &samples[j + 4]));
             }
@@ -263,7 +264,7 @@ void CKMeansFastTest::testFilter(void) {
             LOG_DEBUG("  centres = " << core::CContainerPrinter::print(centres));
             tree.postorderDepthFirst(CKMeansFastForTest<TVector2>::TDataPropagator());
 
-            std::size_t                    numberAdmitted = 0;
+            std::size_t numberAdmitted = 0;
             CCentreFilterChecker<TVector2> checker(centres, numberAdmitted);
             tree.preorderDepthFirst(checker);
             double speedup =   static_cast<double>(points.size())
@@ -289,7 +290,7 @@ void CKMeansFastTest::testFilter(void) {
             LOG_DEBUG("  centres = " << core::CContainerPrinter::print(centres));
             tree.postorderDepthFirst(CKMeansFastForTest<TVector4>::TDataPropagator());
 
-            std::size_t                    numberAdmitted = 0;
+            std::size_t numberAdmitted = 0;
             CCentreFilterChecker<TVector4> checker(centres, numberAdmitted);
             tree.preorderDepthFirst(checker);
             double speedup =   static_cast<double>(points.size())
@@ -334,7 +335,7 @@ void CKMeansFastTest::testCentroids(void) {
             }
             tree.postorderDepthFirst(CKMeansFastForTest<TVector2>::TDataPropagator());
 
-            TMean2AccumulatorVec                            centroids(centres.size());
+            TMean2AccumulatorVec centroids(centres.size());
             CKMeansFastForTest<TVector2>::TCentroidComputer computer(centres, centroids);
             tree.preorderDepthFirst(computer);
 
@@ -362,7 +363,7 @@ void CKMeansFastTest::testCentroids(void) {
             }
             tree.postorderDepthFirst(CKMeansFastForTest<TVector4>::TDataPropagator());
 
-            TMean4AccumulatorVec                            centroids(centres.size());
+            TMean4AccumulatorVec centroids(centres.size());
             CKMeansFastForTest<TVector4>::TCentroidComputer computer(centres, centroids);
             tree.preorderDepthFirst(computer);
 
@@ -412,7 +413,7 @@ void CKMeansFastTest::testClosestPoints(void) {
             }
             tree.postorderDepthFirst(CKMeansFastForTest<TVector2>::TDataPropagator());
 
-            TVector2VecVec                                        closestPoints;
+            TVector2VecVec closestPoints;
             CKMeansFastForTest<TVector2>::TClosestPointsCollector collector(points.size(),
                                                                             centres,
                                                                             closestPoints);
@@ -438,7 +439,7 @@ void CKMeansFastTest::testClosestPoints(void) {
             }
             tree.postorderDepthFirst(CKMeansFastForTest<TVector4>::TDataPropagator());
 
-            TVector4VecVec                                        closestPoints;
+            TVector4VecVec closestPoints;
             CKMeansFastForTest<TVector4>::TClosestPointsCollector collector(points.size(),
                                                                             centres,
                                                                             closestPoints);
@@ -482,7 +483,7 @@ void CKMeansFastTest::testRun(void) {
             }
 
             maths::CKMeansFast<TVector2> kmeansFast;
-            TVector2Vec                  pointsCopy(points);
+            TVector2Vec pointsCopy(points);
             kmeansFast.setPoints(pointsCopy);
             TVector2Vec centresCopy(centres);
             kmeansFast.setCentres(centresCopy);
@@ -527,20 +528,20 @@ void CKMeansFastTest::testRunWithSphericalClusters(void) {
         { 14.0, 10.5 }
     };
     std::size_t counts[] = { 10, 15, 5, 8, 17, 10, 11, 8, 12 };
-    double      lowerTriangle[] = { 1.0, 0.0, 1.0 };
+    double lowerTriangle[] = { 1.0, 0.0, 1.0 };
 
     test::CRandomNumbers rng;
 
     for (std::size_t t = 0u; t < 50; ++t) {
-        LOG_DEBUG("*** trial = " << t+1 << " ***");
+        LOG_DEBUG("*** trial = " << t + 1 << " ***");
 
-        TVector2Vec           points;
+        TVector2Vec points;
         TSphericalCluster2Vec clusters;
 
         for (std::size_t i = 0u; i < boost::size(means); ++i) {
             TVector2Vec pointsi;
-            TVector2    mean(&means[i][0], &means[i][2]);
-            TMatrix2    covariances(&lowerTriangle[0], &lowerTriangle[3]);
+            TVector2 mean(&means[i][0], &means[i][2]);
+            TMatrix2 covariances(&lowerTriangle[0], &lowerTriangle[3]);
             maths::CSampling::multivariateNormalSample(mean,
                                                        covariances,
                                                        counts[i],
@@ -548,11 +549,11 @@ void CKMeansFastTest::testRunWithSphericalClusters(void) {
             points.insert(points.end(), pointsi.begin(), pointsi.end());
             TMeanVar2Accumulator moments;
             moments.add(pointsi);
-            double                          n = maths::CBasicStatistics::count(moments);
-            TVector2                        m = maths::CBasicStatistics::mean(moments);
-            TVector2                        v = maths::CBasicStatistics::variance(moments);
+            double n = maths::CBasicStatistics::count(moments);
+            TVector2 m = maths::CBasicStatistics::mean(moments);
+            TVector2 v = maths::CBasicStatistics::variance(moments);
             TSphericalCluster2::TAnnotation countAndVariance(n, (v(0) + v(1)) / 2.0);
-            TSphericalCluster2              cluster(m, countAndVariance);
+            TSphericalCluster2 cluster(m, countAndVariance);
             clusters.push_back(cluster);
         }
 
@@ -576,10 +577,10 @@ void CKMeansFastTest::testRunWithSphericalClusters(void) {
         kmeansClusters.setCentres(centresClusters);
         kmeansClusters.run(20);
 
-        TVector2Vec           kmeansPointsCentres = kmeansPoints.centres();
+        TVector2Vec kmeansPointsCentres = kmeansPoints.centres();
         TSphericalCluster2Vec kmeansClustersCentres_ = kmeansClusters.centres();
-        TVector2Vec           kmeansClustersCentres(kmeansClustersCentres_.begin(),
-                                                    kmeansClustersCentres_.end());
+        TVector2Vec kmeansClustersCentres(kmeansClustersCentres_.begin(),
+                                          kmeansClustersCentres_.end());
         std::sort(kmeansPointsCentres.begin(), kmeansPointsCentres.end());
         std::sort(kmeansClustersCentres.begin(), kmeansClustersCentres.end());
 
@@ -610,9 +611,9 @@ void CKMeansFastTest::testPlusPlus(void) {
     std::size_t k = 5u;
 
     TMeanAccumulator numberClustersSampled;
-    double           minSSRRatio = std::numeric_limits<double>::max();
+    double minSSRRatio = std::numeric_limits<double>::max();
     TMeanAccumulator meanSSRRatio;
-    double           maxSSRRatio = 0.0;
+    double maxSSRRatio = 0.0;
 
     for (std::size_t t = 0u; t < 100; ++t) {
         TSizeVec sizes;
@@ -621,8 +622,8 @@ void CKMeansFastTest::testPlusPlus(void) {
         sizes.push_back(500);
         sizes.push_back(800);
 
-        TVector2Vec    means;
-        TMatrix2Vec    covariances;
+        TVector2Vec means;
+        TMatrix2Vec covariances;
         TVector2VecVec points;
         rng.generateRandomMultivariateNormals(sizes, means, covariances, points);
 
@@ -634,15 +635,15 @@ void CKMeansFastTest::testPlusPlus(void) {
         LOG_TRACE("# points = " << flatPoints.size());
 
         TVector2Vec randomCentres;
-        TSizeVec    random;
+        TSizeVec random;
         rng.generateUniformSamples(0, flatPoints.size(), k, random);
         LOG_DEBUG("random = " << core::CContainerPrinter::print(random));
         for (std::size_t i = 0u; i < k; ++i) {
             randomCentres.push_back(flatPoints[random[i]]);
         }
 
-        TVector2Vec                                                                     plusPlusCentres;
-        maths::CPRNG::CXorOShiro128Plus                                                 rng_;
+        TVector2Vec plusPlusCentres;
+        maths::CPRNG::CXorOShiro128Plus rng_;
         maths::CKMeansPlusPlusInitialization<TVector2, maths::CPRNG::CXorOShiro128Plus> kmeansPlusPlus(rng_);
         kmeansPlusPlus.run(flatPoints, k, plusPlusCentres);
 

@@ -52,13 +52,13 @@ class MODEL_EXPORT CResultsQueue {
         const CHierarchicalResults &get(core_t::TTime time) const;
 
         //! Get a result from the queue
-        CHierarchicalResults       &get(core_t::TTime time);
+        CHierarchicalResults &get(core_t::TTime time);
 
         //! Returns the size of the queue.
         std::size_t size(void) const;
 
         //! Get the latest result from the queue
-        CHierarchicalResults       &latest(void);
+        CHierarchicalResults &latest(void);
 
         //! Returns the latest bucket end time, as tracked by the queue
         core_t::TTime latestBucketEnd(void) const;
@@ -80,7 +80,7 @@ class MODEL_EXPORT CResultsQueue {
         THierarchicalResultsQueue m_Results;
 
         //! Which of the previous results did we output?
-        size_t                    m_LastResultsIndex;
+        size_t m_LastResultsIndex;
 };
 
 } // model

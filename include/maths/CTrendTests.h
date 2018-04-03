@@ -109,33 +109,33 @@ class MATHS_EXPORT CRandomizedPeriodicityTest {
         using TDoubleVec = std::vector<double>;
         using TVector2 = CVectorNx1<CFloatStorage, 2>;
         using TVector2MeanAccumulator = CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
-        using TVector2N = CVectorNx1<CFloatStorage, 2*N>;
+        using TVector2N = CVectorNx1<CFloatStorage, 2 * N>;
         using TVector2NMeanAccumulator = CBasicStatistics::SSampleMean<TVector2N>::TAccumulator;
         using TAtomicTime = std::atomic<core_t::TTime>;
 
     private:
         //! The length over which the periodic random projection decoheres.
-        static const core_t::TTime       SAMPLE_INTERVAL;
+        static const core_t::TTime SAMPLE_INTERVAL;
         //! The time between day resample events.
-        static const core_t::TTime       DAY_RESAMPLE_INTERVAL;
+        static const core_t::TTime DAY_RESAMPLE_INTERVAL;
         //! The time between week resample events.
-        static const core_t::TTime       WEEK_RESAMPLE_INTERVAL;
+        static const core_t::TTime WEEK_RESAMPLE_INTERVAL;
         //! The random number generator.
         static boost::random::mt19937_64 ms_Rng;
         //! The permutations daily projections.
-        static TDoubleVec                ms_DayRandomProjections[N];
+        static TDoubleVec ms_DayRandomProjections[N];
         //! The daily periodic projections.
-        static TDoubleVec                ms_DayPeriodicProjections[N];
+        static TDoubleVec ms_DayPeriodicProjections[N];
         //! The time at which we re-sampled day projections.
-        static TAtomicTime               ms_DayResampled;
+        static TAtomicTime ms_DayResampled;
         //! The permutations weekly projections.
-        static TDoubleVec                ms_WeekRandomProjections[N];
+        static TDoubleVec ms_WeekRandomProjections[N];
         //! The weekly periodic projections.
-        static TDoubleVec                ms_WeekPeriodicProjections[N];
+        static TDoubleVec ms_WeekPeriodicProjections[N];
         //! The time at which we re-sampled week projections.
-        static TAtomicTime               ms_WeekResampled;
+        static TAtomicTime ms_WeekResampled;
         //! The mutex for protecting state update.
-        static core::CMutex              ms_Lock;
+        static core::CMutex ms_Lock;
 
     private:
         //! Refresh \p projections and update \p statistics.
@@ -155,15 +155,15 @@ class MATHS_EXPORT CRandomizedPeriodicityTest {
         //! The day projections.
         TVector2NMeanAccumulator m_DayProjections;
         //! The sample mean of the square day projections.
-        TVector2MeanAccumulator  m_DayStatistics;
+        TVector2MeanAccumulator m_DayStatistics;
         //! The last time the day projections were updated.
-        core_t::TTime            m_DayRefreshedProjections;
+        core_t::TTime m_DayRefreshedProjections;
         //! The week projections.
         TVector2NMeanAccumulator m_WeekProjections;
         //! The sample mean of the square week projections.
-        TVector2MeanAccumulator  m_WeekStatistics;
+        TVector2MeanAccumulator m_WeekStatistics;
         //! The last time the day projections were updated.
-        core_t::TTime            m_WeekRefreshedProjections;
+        core_t::TTime m_WeekRefreshedProjections;
 
         friend class ::CTrendTestsTest;
 };
@@ -231,29 +231,29 @@ class MATHS_EXPORT CCalendarCyclicTest {
         //! The window length in buckets.
         static const core_t::TTime WINDOW;
         //! The percentile of a large error.
-        static const double        LARGE_ERROR_PERCENTILE;
+        static const double LARGE_ERROR_PERCENTILE;
         //! The minimum number of repeats for a testable feature.
-        static const unsigned int  MINIMUM_REPEATS;
+        static const unsigned int MINIMUM_REPEATS;
         //! The bits used to count added values.
-        static const uint32_t      COUNT_BITS;
+        static const uint32_t COUNT_BITS;
         //! The offsets that are used for different timezone offsets.
-        static const TTimeVec      TIMEZONE_OFFSETS;
+        static const TTimeVec TIMEZONE_OFFSETS;
 
     private:
         //! The rate at which the error counts are aged.
-        double                     m_DecayRate;
+        double m_DecayRate;
 
         //! The time of the last error added.
-        core_t::TTime              m_Bucket;
+        core_t::TTime m_Bucket;
 
         //! Used to estimate large error thresholds.
-        CQuantileSketch            m_ErrorQuantiles;
+        CQuantileSketch m_ErrorQuantiles;
 
         //! The counts of errors and large errors in a sliding window.
-        TUInt32CBuf                m_ErrorCounts;
+        TUInt32CBuf m_ErrorCounts;
 
         //! The bucket large error sums.
-        TTimeFloatFMap             m_ErrorSums;
+        TTimeFloatFMap m_ErrorSums;
 };
 
 }

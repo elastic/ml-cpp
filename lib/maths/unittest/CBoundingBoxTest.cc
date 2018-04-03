@@ -38,7 +38,7 @@ bool closerToX(const TBoundingBox2 &bb,
                const TVector2 &y) {
     TVector2 cc[] = { bb.blc(), bb.trc() };
     for (std::size_t c = 0u; c < 4; ++c) {
-        double   p[] = { cc[c / 2](0), cc[c % 2](1) };
+        double p[] = { cc[c / 2](0), cc[c % 2](1) };
         TVector2 corner(p, p + 2);
         if ((x - corner).euclidean() > (y - corner).euclidean()) {
             return false;
@@ -52,7 +52,7 @@ bool closerToX(const TBoundingBox4 &bb,
                const TVector4 &y) {
     TVector4 cc[] = { bb.blc(), bb.trc() };
     for (std::size_t c = 0u; c < 16; ++c) {
-        double   p[] = { cc[c / 8](0), cc[(c / 4) % 2](1), cc[(c / 2) % 2](2), cc[c % 2](3) };
+        double p[] = { cc[c / 8](0), cc[(c / 4) % 2](1), cc[(c / 2) % 2](2), cc[c % 2](3) };
         TVector4 corner(p, p + 4);
         if ((x - corner).euclidean() > (y - corner).euclidean()) {
             return false;
@@ -144,16 +144,16 @@ void CBoundingBoxTest::testCloserTo(void) {
         for (std::size_t j = 0u; j < probes.size(); j += 4) {
             TVector2 y1(&probes[j    ], &probes[j + 2]);
             TVector2 y2(&probes[j + 2], &probes[j + 4]);
-            bool     closer = closerToX(bb, y1, y2);
+            bool closer = closerToX(bb, y1, y2);
             if (closer) {
                 LOG_DEBUG("bb = " << bb.print()
-                                  << " is closer to " << y1 << " than " << y2);
+                          << " is closer to " << y1 << " than " << y2);
             }
             CPPUNIT_ASSERT_EQUAL(closer, bb.closerToX(y1, y2));
             closer = closerToX(bb, y2, y1);
             if (closer) {
                 LOG_DEBUG("bb = " << bb.print()
-                                  << " is closer to " << y2 << " than " << y1);
+                          << " is closer to " << y2 << " than " << y1);
             }
             CPPUNIT_ASSERT_EQUAL(closer, bb.closerToX(y2, y1));
         }
@@ -169,16 +169,16 @@ void CBoundingBoxTest::testCloserTo(void) {
         for (std::size_t j = 0u; j < probes.size(); j += 4) {
             TVector4 y1(&probes[j    ], &probes[j + 4]);
             TVector4 y2(&probes[j + 4], &probes[j + 8]);
-            bool     closer = closerToX(bb, y1, y2);
+            bool closer = closerToX(bb, y1, y2);
             if (closer) {
                 LOG_DEBUG("bb = " << bb.print()
-                                  << " is closer to " << y1 << " than " << y2);
+                          << " is closer to " << y1 << " than " << y2);
             }
             CPPUNIT_ASSERT_EQUAL(closer, bb.closerToX(y1, y2));
             closer = closerToX(bb, y2, y1);
             if (closer) {
                 LOG_DEBUG("bb = " << bb.print()
-                                  << " is closer to " << y2 << " than " << y1);
+                          << " is closer to " << y2 << " than " << y1);
             }
             CPPUNIT_ASSERT_EQUAL(closer, bb.closerToX(y2, y1));
         }

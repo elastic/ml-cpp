@@ -97,7 +97,8 @@ class CBootstrapClusterer {
     public:
         CBootstrapClusterer(double overlapThreshold, double chainingFactor) :
             m_OverlapThreshold(overlapThreshold),
-            m_ChainingFactor(std::max(chainingFactor, 1.0)) {}
+            m_ChainingFactor(std::max(chainingFactor, 1.0))
+        {}
 
         //! Run clustering on \p b bootstrap samples of \p points
         //! and find persistent clusters of the data.
@@ -118,8 +119,8 @@ class CBootstrapClusterer {
                  TPointVecVec &result) {
             std::sort(points.begin(), points.end());
             TSizeVecVecVec bootstrapClusters;
-            std::size_t    n = this->bootstrapClusters(b, clusterer, points, bootstrapClusters);
-            TGraph         graph(n);
+            std::size_t n = this->bootstrapClusters(b, clusterer, points, bootstrapClusters);
+            TGraph graph(n);
             this->buildClusterGraph(points, bootstrapClusters, graph);
             this->buildClusters(points, bootstrapClusters, graph, result);
         }
@@ -254,7 +255,7 @@ class CBootstrapClusterer {
             clusterer.cluster(points, result.back());
             LOG_TRACE("Run 1: # clusters = " << result.back().size());
 
-            TSizeVec  sampling;
+            TSizeVec sampling;
             TPointVec bootstrapPoints;
             sampling.reserve(n);
             bootstrapPoints.reserve(n);
@@ -277,7 +278,7 @@ class CBootstrapClusterer {
                         (result.back())[j][k] = sampling[(result.back())[j][k]];
                     }
                 }
-                LOG_TRACE("Run " << i+1 << ": # clusters = " << result.back().size());
+                LOG_TRACE("Run " << i + 1 << ": # clusters = " << result.back().size());
             }
 
             m_Offsets.clear();
@@ -336,7 +337,7 @@ class CBootstrapClusterer {
 
                         for (std::size_t l = 0u; !cik.empty() && l < bootstrapClusters[j].size(); ++l) {
                             const TSizeVec &cjl = bootstrapClusters[j][l];
-                            double         o = static_cast<double>(cik.size());
+                            double o = static_cast<double>(cik.size());
                             CSetTools::inplace_set_difference(cik, cjl.begin(), cjl.end());
                             o -= static_cast<double>(cik.size());
                             o /= nik;
@@ -346,7 +347,7 @@ class CBootstrapClusterer {
 
                         if (sum == 0.0) {
                             ambiguous.insert(std::make_pair(this->toVertex(i, k), j));
-                        } else {
+                        } else   {
                             for (std::size_t l = 0u; l < overlaps.size(); ++l) {
                                 if (overlaps[l] > m_OverlapThreshold * sum) {
                                     std::size_t u = this->toVertex(i, k);
@@ -377,7 +378,7 @@ class CBootstrapClusterer {
                 TOutEdgeItr j, endj;
                 for (boost::tie(j, endj) = boost::out_edges(u, graph); j != endj; ++j) {
                     std::size_t v = boost::target(*j, graph);
-                    double      weight = boost::get(boost::edge_weight, graph, *j);
+                    double weight = boost::get(boost::edge_weight, graph, *j);
 
                     TOutEdgeItr k, endk;
                     for (boost::tie(k, endk) = boost::out_edges(v, graph); k != endk; ++k) {
@@ -422,7 +423,7 @@ class CBootstrapClusterer {
             typedef std::vector<TSizeSizeUMap>                     TSizeSizeUMapVec;
 
             // Find the maximum connected components.
-            TSizeVec    components(boost::num_vertices(graph));
+            TSizeVec components(boost::num_vertices(graph));
             std::size_t n = boost::connected_components(graph, &components[0]);
             LOG_TRACE("# vertices = " << components.size());
             LOG_TRACE("Connected components = " << n);
@@ -435,7 +436,7 @@ class CBootstrapClusterer {
             // Build a map from voters to point indices.
             TSizeSizeUMapVec voters(n);
             for (std::size_t i = 0u; i < components.size(); ++i) {
-                TSizeSizeUMap  & cluster = voters[components[i]];
+                TSizeSizeUMap &cluster = voters[components[i]];
                 const TSizeVec &vertex = this->fromVertex(bootstrapClusters, i);
                 for (std::size_t j = 0u; j < vertex.size(); ++j) {
                     ++cluster[vertex[j]];
@@ -491,7 +492,7 @@ class CBootstrapClusterer {
             TSizeVec mapping(V);
             TSizeVec inverse;
             TBoolVec parities(V);
-            TGraph   component(1);
+            TGraph component(1);
 
             for (std::size_t i = 0u; i < n; ++i) {
                 LOG_TRACE("component = " << i);
@@ -596,9 +597,9 @@ class CBootstrapClusterer {
 
             if (bound >= threshold) {
                 LOG_TRACE("Short circuit: D = " << D
-                                                << ", V = " << V
-                                                << ", bound = " << bound
-                                                << ", threshold = " << SEPARATION_THRESHOLD * p);
+                          << ", V = " << V
+                          << ", bound = " << bound
+                          << ", threshold = " << SEPARATION_THRESHOLD * p);
                 return false;
             }
 
@@ -684,22 +685,22 @@ class CBootstrapClusterer {
 
             parities.assign(V, true);
 
-            SCutState   state(u, graph);
+            SCutState state(u, graph);
             std::size_t next = state.next();
             this->visit(next, graph, parities, state);
             next = state.nextToVisit(v);
             this->visit(next, graph, parities, state);
 
-            double      lowestCost = state.cost();
-            double      bestCut = state.s_Cut;
+            double lowestCost = state.cost();
+            double bestCut = state.s_Cut;
             std::size_t bestA = state.s_A;
-            TBoolVec    best = parities;
+            TBoolVec best = parities;
 
             while (state.s_A + 1 < V) {
                 if (!this->findNext(parities, graph, state)) {
                     LOG_TRACE("The positive subgraph is already disconnected");
 
-                    TSizeVec    components;
+                    TSizeVec components;
                     std::size_t c = this->positiveSubgraphConnected(graph, parities, components);
                     LOG_TRACE("components = " << core::CContainerPrinter::print(components));
 
@@ -732,7 +733,7 @@ class CBootstrapClusterer {
                             this->visit(next, graph, parities, state);
                         }
                     }
-                } else {
+                } else   {
                     next = state.next();
                     this->visit(next, graph, parities, state);
                 }
@@ -750,18 +751,16 @@ class CBootstrapClusterer {
             parities.swap(best);
 
             LOG_TRACE("Best cut = " << bestCut
-                                    << ", |A| = " << bestA
-                                    << ", |B| = " << V - bestA
-                                    << ", cost = " << cost
-                                    << ", threshold = " << threshold);
+                      << ", |A| = " << bestA
+                      << ", |B| = " << V - bestA
+                      << ", cost = " << cost
+                      << ", threshold = " << threshold);
 
             return cost < threshold;
         }
 
         //! Get the offsets for the clusterings.
-        TSizeVec &offsets(void) {
-            return m_Offsets;
-        }
+        TSizeVec &offsets(void) { return m_Offsets; }
 
     private:
         //! \brief A parity filter predicate which tests whether
@@ -774,7 +773,8 @@ class CBootstrapClusterer {
                 CParityFilter(const TGraph &graph, const TBoolVec &parities, bool parity) :
                     m_Graph(&graph),
                     m_Parities(&parities),
-                    m_Parity(parity) {}
+                    m_Parity(parity)
+                {}
 
                 //! Check the vertex parity.
                 bool operator()(const TVertex &v) const {
@@ -789,11 +789,11 @@ class CBootstrapClusterer {
 
             private:
                 //! The graph to filter.
-                const TGraph   *m_Graph;
+                const TGraph *m_Graph;
                 //! The parities of the vertices of \p graph.
                 const TBoolVec *m_Parities;
                 //! The parity of the filtered graph.
-                bool           m_Parity;
+                bool m_Parity;
         };
 
     private:
@@ -858,7 +858,7 @@ class CBootstrapClusterer {
             std::size_t n = state.s_ToVisit.size();
             TOutEdgeItr i, end;
             for (boost::tie(i, end) = boost::out_edges(u, graph); i != end; ++i) {
-                double      weight = boost::get(boost::edge_weight, graph, *i);
+                double weight = boost::get(boost::edge_weight, graph, *i);
                 std::size_t v = boost::target(*i, graph);
                 if (parities[v]) {
                     state.s_Adjacency[v] += weight;
@@ -866,7 +866,7 @@ class CBootstrapClusterer {
                     if (!state.toVisit(n, v)) {
                         state.s_ToVisit.push_back(v);
                     }
-                } else {
+                } else   {
                     state.s_Cut -= weight;
                 }
             }
@@ -882,7 +882,7 @@ class CBootstrapClusterer {
                                               TSizeVec &components) const {
             typedef boost::filtered_graph<TGraph, CParityFilter, CParityFilter> TParityGraph;
             CParityFilter parityFilter(graph, parities, true);
-            TParityGraph  parityGraph(graph, parityFilter, parityFilter);
+            TParityGraph parityGraph(graph, parityFilter, parityFilter);
             components.resize(boost::num_vertices(graph));
             return boost::connected_components(parityGraph, &components[0]);
         }
@@ -915,17 +915,17 @@ class CBootstrapClusterer {
 
         //! The threshold in the similarity measure for which we will
         //! consider joining clusters.
-        double                           m_OverlapThreshold;
+        double m_OverlapThreshold;
 
         //! The amount overlap between clusters causes them to chain
         //! together.
-        double                           m_ChainingFactor;
+        double m_ChainingFactor;
 
         //! A flat encoding of the vertices in each clustering.
         //!
         //! In particular, the start of the i'th clustering clusters
         //! is encoded by the i'th element.
-        TSizeVec                         m_Offsets;
+        TSizeVec m_Offsets;
 };
 
 template<typename POINT>
@@ -1016,7 +1016,8 @@ class CBootstrapClustererFacade<CXMeans<POINT, COST> > : private CBootstrapClust
             m_Xmeans(xmeans),
             m_ImproveParamsKmeansIterations(improveParamsKmeansIterations),
             m_ImproveStructureClusterSeeds(improveStructureClusterSeeds),
-            m_ImproveStructureKmeansIterations(improveStructureKmeansIterations) {}
+            m_ImproveStructureKmeansIterations(improveStructureKmeansIterations)
+        {}
 
         //! \note Assumes \p points are sorted.
         void cluster(const TPointVec &points, TSizeVecVec &result) {
@@ -1045,13 +1046,13 @@ class CBootstrapClustererFacade<CXMeans<POINT, COST> > : private CBootstrapClust
         CXMeans<POINT, COST> m_Xmeans;
         //! The number of iterations to use in k-means for a single round
         //! of improve parameters.
-        std::size_t          m_ImproveParamsKmeansIterations;
+        std::size_t m_ImproveParamsKmeansIterations;
         //! The number of random seeds to try when initializing k-means
         //! for a single round of improve structure.
-        std::size_t          m_ImproveStructureClusterSeeds;
+        std::size_t m_ImproveStructureClusterSeeds;
         //! The number of iterations to use in k-means for a single round
         //! of improve structure.
-        std::size_t          m_ImproveStructureKmeansIterations;
+        std::size_t m_ImproveStructureKmeansIterations;
 };
 
 //! \brief Adapts the x-means implementation for use by the bootstrap
@@ -1069,7 +1070,8 @@ class CBootstrapClustererFacade<CKMeansFast<POINT> > : private CBootstrapCluster
                                   std::size_t maxIterations) :
             m_Kmeans(kmeans),
             m_K(k),
-            m_MaxIterations(maxIterations) {}
+            m_MaxIterations(maxIterations)
+        {}
 
         //! \note Assumes \p points are sorted.
         void cluster(const TPointVec &points, TSizeVecVec &result) {
@@ -1078,7 +1080,7 @@ class CBootstrapClustererFacade<CKMeansFast<POINT> > : private CBootstrapCluster
             // Initialize
             TPointVec tmp(points);
             m_Kmeans.setPoints(tmp);
-            TPointVec                                                      centres;
+            TPointVec centres;
             CKMeansPlusPlusInitialization<POINT, CPRNG::CXorShift1024Mult> seedCentres(m_Rng);
             seedCentres.run(points, m_K, centres);
             m_Kmeans.setCentres(centres);
@@ -1096,11 +1098,11 @@ class CBootstrapClustererFacade<CKMeansFast<POINT> > : private CBootstrapCluster
         //! The random number generator.
         CPRNG::CXorShift1024Mult m_Rng;
         //! The k-means implementation.
-        CKMeansFast<POINT>       m_Kmeans;
+        CKMeansFast<POINT> m_Kmeans;
         //! The number of clusters to use.
-        std::size_t              m_K;
+        std::size_t m_K;
         //! The number of iterations to use in k-means.
-        std::size_t              m_MaxIterations;
+        std::size_t m_MaxIterations;
 };
 
 //! Cluster \p points using \p B bootstrap samples using x-means.
@@ -1153,7 +1155,7 @@ void bootstrapCluster(std::vector<POINT> &points,
                       double chainingFactor,
                       std::vector<std::vector<POINT> > &result) {
     CBootstrapClustererFacade<CKMeansFast<POINT> > clusterer(kmeans, k, maxIterations);
-    CBootstrapClusterer<POINT>                     bootstrapClusterer(overlapThreshold, chainingFactor);
+    CBootstrapClusterer<POINT> bootstrapClusterer(overlapThreshold, chainingFactor);
     bootstrapClusterer.run(B, clusterer, points, result);
 }
 

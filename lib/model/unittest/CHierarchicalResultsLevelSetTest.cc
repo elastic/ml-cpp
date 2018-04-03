@@ -34,14 +34,16 @@ CppUnit::Test *CHierarchicalResultsLevelSetTest::suite(void) {
 }
 
 struct TestNode {
-    TestNode(const std::string &name) : s_Name(name) {}
+    TestNode(const std::string &name) : s_Name(name)
+    {}
 
     std::string s_Name;
 };
 
 class CTestNodeFactory {
     public:
-        CTestNodeFactory() {}
+        CTestNodeFactory()
+        {}
 
         TestNode make(const std::string &name1,
                       const std::string &name2,
@@ -62,11 +64,13 @@ class CTestNodeFactory {
 class CConcreteHierarchicalResultsLevelSet : public ml::model::CHierarchicalResultsLevelSet<TestNode> {
     public:
         CConcreteHierarchicalResultsLevelSet(const TestNode &root)
-            : ml::model::CHierarchicalResultsLevelSet<TestNode>(root) {}
+            : ml::model::CHierarchicalResultsLevelSet<TestNode>(root)
+        {}
 
         //! Visit a node.
         virtual void visit(const ml::model::CHierarchicalResults & /*results*/, const TNode & /*node*/,
-                           bool /*pivot*/) {}
+                           bool /*pivot*/)
+        {}
 
         // make public
         using ml::model::CHierarchicalResultsLevelSet<TestNode>::elements;

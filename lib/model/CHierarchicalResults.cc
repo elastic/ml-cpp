@@ -194,7 +194,7 @@ void aggregateLayer(ITR beginLayer,
         LOG_TRACE("aggregating = " << core::CContainerPrinter::print(children.second));
         if (children.second.size() > 1) {
             SNode &aggregate = (results.*newNode)();
-            bool  population = false;
+            bool population = false;
             aggregate.s_Children.reserve(children.second.size());
             for (const auto &child : children.second) {
                 aggregate.s_Children.push_back(child);
@@ -204,7 +204,7 @@ void aggregateLayer(ITR beginLayer,
             aggregate.s_Spec.s_IsPopulation = population;
             aggregate.propagateFields();
             newLayer.push_back(&aggregate);
-        } else {
+        } else   {
             newLayer.push_back(children.second[0]);
         }
     }
@@ -227,7 +227,7 @@ class CCommonInfluencePropagator : public CHierarchicalResultsVisitor {
                 std::sort(node.s_AnnotatedProbability.s_Influences.begin(),
                           node.s_AnnotatedProbability.s_Influences.end(),
                           maths::COrderings::SFirstLess());
-            } else {
+            } else   {
                 for (const auto &child : node.s_Children) {
                     for (const auto &influence : child->s_AnnotatedProbability.s_Influences) {
                         if (   equal({node.s_Spec.s_PartitionFieldName,
@@ -240,7 +240,7 @@ class CCommonInfluencePropagator : public CHierarchicalResultsVisitor {
                                                       maths::COrderings::SFirstLess());
                             if (i == node.s_AnnotatedProbability.s_Influences.end()) {
                                 node.s_AnnotatedProbability.s_Influences.push_back(influence);
-                            } else if (!equal(i->first, influence.first)) {
+                            } else if (!equal(i->first, influence.first))   {
                                 node.s_AnnotatedProbability.s_Influences.insert(i, influence);
                             }
                         }
@@ -265,7 +265,8 @@ SResultSpec::SResultSpec(void) :
     s_ValueFieldName(UNSET_STRING),
     s_FunctionName(UNSET_STRING),
     s_ByFieldName(UNSET_STRING),
-    s_Function(function_t::E_IndividualCount) {}
+    s_Function(function_t::E_IndividualCount)
+{}
 
 std::string SResultSpec::print(void) const {
     return '\'' + core::CStringUtils::typeToStringPretty(s_IsSimpleCount)
@@ -348,7 +349,8 @@ SNode::SNode(void) :
     s_NormalizedAnomalyScore(0.0),
     s_Model(0),
     s_BucketStartTime(0),
-    s_BucketLength(0) {}
+    s_BucketLength(0)
+{}
 
 SNode::SNode(const SResultSpec &simpleSearch, SAnnotatedProbability &annotatedProbability) :
     s_Parent(0),
@@ -496,7 +498,7 @@ bool SNode::acceptRestoreTraverser2(core::CStateRestoreTraverser &traverser,
                                     const TSizeNodePtrUMap &nodePointers) {
     do {
         const std::string &name = traverser.name();
-        std::size_t       index = 0;
+        std::size_t index = 0;
         if (name == PARENT_TAG) {
             if (!core::CPersistUtils::restore(PARENT_TAG, index, traverser)) {
                 LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
@@ -508,7 +510,7 @@ bool SNode::acceptRestoreTraverser2(core::CStateRestoreTraverser &traverser,
                 return false;
             }
             s_Parent = found->second;
-        } else if (name == CHILD_TAG) {
+        } else if (name == CHILD_TAG)   {
             if (!core::CPersistUtils::restore(CHILD_TAG, index, traverser)) {
                 LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
                 return false;
@@ -534,7 +536,8 @@ using namespace hierarchical_results_detail;
 
 
 CHierarchicalResults::CHierarchicalResults(void) :
-    m_ResultType(model_t::CResultType::E_Final) {}
+    m_ResultType(model_t::CResultType::E_Final)
+{}
 
 void CHierarchicalResults::addSimpleCountResult(SAnnotatedProbability &annotatedProbability,
                                                 const CAnomalyDetectorModel *model,
@@ -657,7 +660,7 @@ void CHierarchicalResults::buildHierarchy(void) {
 
     if (layer.size() > 1) {
         TNode &root = this->newNode();
-        bool  population = false;
+        bool population = false;
         for (std::size_t i = 0u; i < layer.size(); ++i) {
             root.s_Children.push_back(layer[i]);
             layer[i]->s_Parent = &root;
@@ -842,10 +845,10 @@ void CHierarchicalResults::acceptPersistInserter(core::CStatePersistInserter &in
 }
 
 bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
-    TSizeNodePtrUMap       nodePointers;
+    TSizeNodePtrUMap nodePointers;
     core::CStoredStringPtr influencerName;
     core::CStoredStringPtr influencerValue;
-    std::size_t            nodesFullyRestored = 0;
+    std::size_t nodesFullyRestored = 0;
 
     do {
         const std::string &name = traverser.name();
@@ -885,7 +888,7 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser &
             influencerName = core::CStoredStringPtr();
             influencerValue = core::CStoredStringPtr();
             continue;
-        } else if (name == PIVOT_NODES_2_TAG) {
+        } else if (name == PIVOT_NODES_2_TAG)   {
             if (!influencerName || !influencerValue) {
                 LOG_ERROR("Invalid influencers for node");
                 return false;
@@ -977,7 +980,8 @@ void CHierarchicalResults::postorderDepthFirst(const TNode *node,
     visitor.visit(*this, *node, /*pivot =*/ false);
 }
 
-CHierarchicalResultsVisitor::~CHierarchicalResultsVisitor(void) {}
+CHierarchicalResultsVisitor::~CHierarchicalResultsVisitor(void)
+{}
 
 bool CHierarchicalResultsVisitor::isRoot(const TNode &node) {
     return !node.s_Parent;
@@ -1077,7 +1081,7 @@ bool CHierarchicalResultsVisitor::shouldWriteResult(const CLimits &limits,
     // in the UI where a user drills down from an aggregated result and sees
     // nothing.
     static const double OUTPUT_TOLERANCE(1.2);
-    const TNode         *       ancestor = nearestAncestorForWhichWeWriteResults(node);
+    const TNode *ancestor = nearestAncestorForWhichWeWriteResults(node);
     if (   ancestor &&
            p <= OUTPUT_TOLERANCE * ancestor->s_SmallestDescendantProbability &&
            shouldWriteResult(limits, results, *ancestor, pivot)) {

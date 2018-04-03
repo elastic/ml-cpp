@@ -63,7 +63,7 @@ void CDataSummaryStatisticsTest::testRate(void) {
         }
 
         LOG_DEBUG("earliest = " << summary.earliest()
-                                << ", latest = " << summary.latest());
+                  << ", latest = " << summary.latest());
         LOG_DEBUG("rate = " << summary.meanRate());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(rate[i], summary.meanRate(), 2.0 * rate[i] * rate[i] / n);
     }
@@ -82,7 +82,7 @@ void CDataSummaryStatisticsTest::testCategoricalDistinctCount(void) {
         LOG_DEBUG("*** Exact ***");
 
         test::CRandomNumbers rng;
-        std::size_t          n[] = { 10, 100, 1000 };
+        std::size_t n[] = { 10, 100, 1000 };
         for (std::size_t i = 0u; i < boost::size(n); ++i) {
             TStrVec categories;
             rng.generateWords(5, n[i], categories);
@@ -93,7 +93,7 @@ void CDataSummaryStatisticsTest::testCategoricalDistinctCount(void) {
             }
 
             LOG_DEBUG("# categories = " << categories.size()
-                                        << ", distinct count = " << summary.distinctCount());
+                      << ", distinct count = " << summary.distinctCount());
         }
     }
 
@@ -132,7 +132,7 @@ void CDataSummaryStatisticsTest::testCategoricalTopN(void) {
     config::CCategoricalDataSummaryStatistics summary(20);
 
     TDoubleVec p;
-    TSizeVec   index;
+    TSizeVec index;
 
     for (std::size_t j = 0u; j < 2000000; ++j) {
         rng.generateUniformSamples(0.0, 1.0, 1, p);
@@ -143,7 +143,7 @@ void CDataSummaryStatisticsTest::testCategoricalTopN(void) {
                                              j / 2000) - boost::begin(freq);
             rng.generateUniformSamples(0, b, 1, index);
             index[0] = freq[index[0]];
-        } else {
+        } else   {
             rng.generateUniformSamples(0, categories.size(), 1, index);
         }
 
@@ -313,7 +313,7 @@ void CDataSummaryStatisticsTest::testNumericDistribution(void) {
         rng.generateGammaSamples(100.0, 5.0, 100, modeSamples);
         samples.insert(samples.end(), modeSamples.begin(), modeSamples.end());
 
-        double                             weights[] = { 1.0 / 5.5, 2.0 / 5.5, 1.5 / 5.5, 1.0 / 5.5 };
+        double weights[] = { 1.0 / 5.5, 2.0 / 5.5, 1.5 / 5.5, 1.0 / 5.5 };
         boost::math::normal_distribution<> m0(10.0, ::sqrt(10.0));
         boost::math::gamma_distribution<>  m1(100.0, 1.0);
         boost::math::normal_distribution<> m2(200.0, 10.0);

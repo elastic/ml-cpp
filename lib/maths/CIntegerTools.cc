@@ -34,7 +34,7 @@ std::size_t CIntegerTools::nextPow2(uint64_t x) {
     // This is just a binary search for the highest non-zero bit.
 
     static const std::size_t SHIFTS[] = { 32u, 16u, 8u, 4u, 2u, 1u };
-    static const uint64_t    MASKS[] = { 0xffffffff, 0xffff, 0xff, 0xf, 0x3, 0x1 };
+    static const uint64_t MASKS[] = { 0xffffffff, 0xffff, 0xff, 0xf, 0x3, 0x1 };
 
     std::size_t result = 0u;
     for (std::size_t i = 0; i < 6; ++i) {
@@ -66,7 +66,7 @@ double CIntegerTools::binomial(unsigned int n, unsigned int k) {
     }
 
     double result = 1.0;
-    k = std::min(k, n-k);
+    k = std::min(k, n - k);
     for (unsigned int k_ = k; k_ > 0; --k_, --n) {
         result *= static_cast<double>(n) / static_cast<double>(k_);
     }

@@ -115,8 +115,8 @@ double numericalProbabilityOfLessLikelySampleImpl(const DISTRIBUTION &distributi
 
     double pdf = adapters::pdf(distribution, x);
     LOG_TRACE("x = " << x
-                     << ", f(x) = " << pdf
-                     << ", stationaryPoint = " << stationaryPoint.first);
+              << ", f(x) = " << pdf
+              << ", stationaryPoint = " << stationaryPoint.first);
 
     double x1 = stationaryPoint.first;
     if (x > stationaryPoint.first) {
@@ -155,7 +155,7 @@ double numericalProbabilityOfLessLikelySampleImpl(const DISTRIBUTION &distributi
         double x3 = (x1 + x2) / 2.0;
         if (adapters::pdf(distribution, x3) > pdf) {
             x2 = x3;
-        } else {
+        } else   {
             x1 = x3;
         }
     }
@@ -167,9 +167,9 @@ double numericalProbabilityOfLessLikelySampleImpl(const DISTRIBUTION &distributi
     }
 
     LOG_TRACE("x = " << x
-                     << ", y = " << y
-                     << ", f(x) = " << adapters::pdf(distribution, x)
-                     << ", f(y) = " << adapters::pdf(distribution, y));
+              << ", y = " << y
+              << ", f(x) = " << adapters::pdf(distribution, x)
+              << ", f(y) = " << adapters::pdf(distribution, y));
 
     if (stationaryPoint.second) {
         double cdfy = adapters::cdfComplement(distribution, y)
@@ -267,7 +267,8 @@ class CPdf {
 
     public:
         CPdf(const DISTRIBUTION &distribution) :
-            m_Distribution(distribution) {}
+            m_Distribution(distribution)
+        {}
 
         bool operator()(double x, double &result) const {
             result = boost::math::pdf(m_Distribution, x);
@@ -296,9 +297,9 @@ double numericalIntervalExpectation(const DISTRIBUTION &distribution,
     double numerator = 0.0;
     double denominator = 0.0;
 
-    CPdf<DISTRIBUTION>                                                  fx(distribution);
+    CPdf<DISTRIBUTION> fx(distribution);
     maths::CCompositeFunctions::CProduct<CPdf<DISTRIBUTION>, CIdentity> xfx(fx);
-    double                                                              dx = (b - a) / 10.0;
+    double dx = (b - a) / 10.0;
     for (std::size_t i = 0u; i < 10; ++i, a += dx) {
         double fxi;
         CPPUNIT_ASSERT(maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(fx,  a, a + dx, fxi));
@@ -317,7 +318,8 @@ class CTruncatedPdf {
         CTruncatedPdf(const maths::CMixtureDistribution<T> &mixture,
                       double cutoff) :
             m_Mixture(mixture),
-            m_Cutoff(cutoff) {}
+            m_Cutoff(cutoff)
+        {}
 
         bool operator()(double x, double &fx) const {
             fx = maths::pdf(m_Mixture, x);
@@ -329,14 +331,15 @@ class CTruncatedPdf {
 
     private:
         const maths::CMixtureDistribution<T> &m_Mixture;
-        double                               m_Cutoff;
+        double m_Cutoff;
 };
 
 template<typename T>
 class CLogPdf {
     public:
         CLogPdf(const maths::CMixtureDistribution<T> &mixture) :
-            m_Mixture(mixture) {}
+            m_Mixture(mixture)
+        {}
 
         double operator()(double x) const {
             return ::log(maths::pdf(m_Mixture, x));
@@ -373,9 +376,9 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
 
     CTools::CProbabilityOfLessLikelySample probabilityOfLessLikelySample(maths_t::E_TwoSided);
 
-    double         p1, p2;
+    double p1, p2;
     maths_t::ETail tail = maths_t::E_UndeterminedTail;
-    double         m;
+    double m;
 
 
     LOG_DEBUG("******** normal ********");
@@ -440,7 +443,7 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
         for (size_t i = 0; i < boost::size(successFraction); ++i) {
             for (size_t j = 0; j < boost::size(successProbability); ++j) {
                 LOG_DEBUG("**** r = " << successFraction[i]
-                                      << ", p = " << successProbability[j] << " ****");
+                          << ", p = " << successProbability[j] << " ****");
 
                 boost::math::negative_binomial_distribution<> negativeBinomial(successFraction[i],
                                                                                successProbability[j]);
@@ -475,8 +478,8 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                     p1 = numericalProbabilityOfLessLikelySample(negativeBinomial, x);
                     p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
                     LOG_DEBUG("x = " << x
-                                     << ", p1 = " << p1 << ", p2 = " << p2
-                                     << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
+                              << ", p1 = " << p1 << ", p2 = " << p2
+                              << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
                     CPPUNIT_ASSERT(::fabs(p1 - p2) <= 0.02 * std::max(p1, p2) ||
                                    ::fabs(::log(p1) - ::log(p2)) <= 0.02 * ::fabs(std::min(::log(p1), ::log(p2))));
                     if (offset > 0.0) CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
@@ -501,8 +504,8 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                     p1 = numericalProbabilityOfLessLikelySample(negativeBinomial, x);
                     p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
                     LOG_DEBUG("x = " << x
-                                     << ", p1 = " << p1 << ", p2 = " << p2
-                                     << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
+                              << ", p1 = " << p1 << ", p2 = " << p2
+                              << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
                     CPPUNIT_ASSERT(::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
                                    ::fabs(::log(p1) - ::log(p2)) <= 0.05 * ::fabs(std::min(::log(p1), ::log(p2))));
                     if (x != m1) CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
@@ -513,8 +516,8 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                     p1 = numericalProbabilityOfLessLikelySample(negativeBinomial, x);
                     p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
                     LOG_DEBUG("x = " << x
-                                     << ", p1 = " << p1 << ", p2 = " << p2
-                                     << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
+                              << ", p1 = " << p1 << ", p2 = " << p2
+                              << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
                     CPPUNIT_ASSERT(::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
                                    ::fabs(::log(p1) - ::log(p2)) <= 0.05 * ::fabs(std::min(::log(p1), ::log(p2))));
                     if (x != m1) CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
@@ -565,8 +568,8 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
             for (size_t j = 0; j < boost::size(locations); ++j) {
                 for (size_t k = 0; k < boost::size(scales); ++k) {
                     LOG_DEBUG("**** v = " << degreesFreedom[i]
-                                          << ", l = " << locations[j]
-                                          << ", s = " << scales[k] << " ****");
+                              << ", l = " << locations[j]
+                              << ", s = " << scales[k] << " ****");
 
                     CLogTDistribution logt(degreesFreedom[i],
                                            locations[j],
@@ -618,8 +621,8 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                         p1 = numericalProbabilityOfLessLikelySample(logt, x);
                         p2 = probabilityOfLessLikelySample(logt, x, tail);
                         LOG_DEBUG("x = " << x
-                                         << ", p1 = " << p1 << ", p2 = " << p2
-                                         << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
+                                  << ", p1 = " << p1 << ", p2 = " << p2
+                                  << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
                         CPPUNIT_ASSERT(::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
                                        ::fabs(::log(p1) - ::log(p2)) <= 0.05 * ::fabs(std::min(::log(p1), ::log(p2))));
                         CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
@@ -629,8 +632,8 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                         p1 = numericalProbabilityOfLessLikelySample(logt, x);
                         p2 = probabilityOfLessLikelySample(logt, x, tail);
                         LOG_DEBUG("x = " << x
-                                         << ", p1 = " << p1 << ", p2 = " << p2
-                                         << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
+                                  << ", p1 = " << p1 << ", p2 = " << p2
+                                  << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
 
                         CPPUNIT_ASSERT(::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
                                        ::fabs(::log(p1) - ::log(p2)) <= 0.05 * ::fabs(std::min(::log(p1), ::log(p2))));
@@ -651,7 +654,7 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
         for (size_t i = 0; i < boost::size(shapes); ++i) {
             for (size_t j = 0; j < boost::size(scales); ++j) {
                 LOG_DEBUG("***** shape = " << shapes[i]
-                                           << ", scale = " << scales[j] << " *****");
+                          << ", scale = " << scales[j] << " *****");
 
                 boost::math::gamma_distribution<> gamma(shapes[i], scales[j]);
 
@@ -681,8 +684,8 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                     p1 = numericalProbabilityOfLessLikelySample(gamma, x);
                     p2 = probabilityOfLessLikelySample(gamma, x, tail);
                     LOG_DEBUG("x = " << x
-                                     << ", p1 = " << p1 << ", p2 = " << p2
-                                     << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
+                              << ", p1 = " << p1 << ", p2 = " << p2
+                              << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
                     CPPUNIT_ASSERT(::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
                                    ::fabs(::log(p1) - ::log(p2)) <= 0.01 * ::fabs(std::min(::log(p1), ::log(p2))));
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
@@ -692,8 +695,8 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                     p1 = numericalProbabilityOfLessLikelySample(gamma, y);
                     p2 = probabilityOfLessLikelySample(gamma, y, tail);
                     LOG_DEBUG("y = " << y
-                                     << ", p1 = " << p1 << ", p2 = " << p2
-                                     << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
+                              << ", p1 = " << p1 << ", p2 = " << p2
+                              << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
                     CPPUNIT_ASSERT(::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
                                    ::fabs(::log(p1) - ::log(p2)) <= 0.01 * ::fabs(std::min(::log(p1), ::log(p2))));
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
@@ -708,8 +711,8 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                     p1 = numericalProbabilityOfLessLikelySample(gamma, x);
                     p2 = probabilityOfLessLikelySample(gamma, x, tail);
                     LOG_DEBUG("x = " << x
-                                     << ", p1 = " << p1 << ", p2 = " << p2
-                                     << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
+                              << ", p1 = " << p1 << ", p2 = " << p2
+                              << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
                     CPPUNIT_ASSERT(::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
                                    ::fabs(::log(p1) - ::log(p2)) <= 0.01 * ::fabs(std::min(::log(p1), ::log(p2))));
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
@@ -719,8 +722,8 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                     p1 = numericalProbabilityOfLessLikelySample(gamma, y);
                     p2 = probabilityOfLessLikelySample(gamma, y, tail);
                     LOG_DEBUG("y = " << y
-                                     << ", p1 = " << p1 << ", p2 = " << p2
-                                     << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
+                              << ", p1 = " << p1 << ", p2 = " << p2
+                              << ", log(p1) = " << ::log(p1) << ", log(p2) = " << ::log(p2));
                     CPPUNIT_ASSERT(::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
                                    ::fabs(::log(p1) - ::log(p2)) <= 0.01 * ::fabs(std::min(::log(p1), ::log(p2))));
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
@@ -739,7 +742,7 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
         for (size_t i = 0; i < boost::size(alphas); ++i) {
             for (size_t j = 0; j < boost::size(betas); ++j) {
                 LOG_DEBUG("**** alpha = " << alphas[i]
-                                          << ", beta = " << betas[j] << " ****");
+                          << ", beta = " << betas[j] << " ****");
 
                 boost::math::beta_distribution<> beta(alphas[i], betas[j]);
 
@@ -751,12 +754,12 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                         p1 = 1.0;
                         p2 = probabilityOfLessLikelySample(beta, x, tail);
                         LOG_DEBUG("x = " << x
-                                         << ", f(x) = " << CTools::safePdf(beta, x)
-                                         << ", p1 = " << p1 << ", p2 = " << p2);
+                                  << ", f(x) = " << CTools::safePdf(beta, x)
+                                  << ", p1 = " << p1 << ", p2 = " << p2);
                         CPPUNIT_ASSERT_EQUAL(p1, p2);
                         CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                     }
-                } else if (alphas[i] <= 1.0 && betas[j] >= 1.0) {
+                } else if (alphas[i] <= 1.0 && betas[j] >= 1.0)   {
                     // Monotone decreasing.
                     for (int k = 0; k < 6; ++k) {
                         double x = static_cast<double>(k) / 5.0;
@@ -764,12 +767,12 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                         p1 = CTools::safeCdfComplement(beta, x);
                         p2 = probabilityOfLessLikelySample(beta, x, tail);
                         LOG_DEBUG("x = " << x
-                                         << ", f(x) = " << CTools::safePdf(beta, x)
-                                         << ", p1 = " << p1 << ", p2 = " << p2);
+                                  << ", f(x) = " << CTools::safePdf(beta, x)
+                                  << ", p1 = " << p1 << ", p2 = " << p2);
                         CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 1e-3 * std::max(p1, p2));
                         CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
                     }
-                } else if (alphas[i] >= 1.0 && betas[j] <= 1.0) {
+                } else if (alphas[i] >= 1.0 && betas[j] <= 1.0)   {
                     // Monotone increasing.
                     for (int k = 0; k < 6; ++k) {
                         double x = static_cast<double>(k) / 5.0;
@@ -777,14 +780,14 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                         p1 = CTools::safeCdf(beta, x);
                         p2 = probabilityOfLessLikelySample(beta, x, tail);
                         LOG_DEBUG("x = " << x
-                                         << ", f(x) = " << CTools::safePdf(beta, x)
-                                         << ", p1 = " << p1 << ", p2 = " << p2);
+                                  << ", f(x) = " << CTools::safePdf(beta, x)
+                                  << ", p1 = " << p1 << ", p2 = " << p2);
                         CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 1e-3 * std::max(p1, p2));
                         CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
                     }
-                } else {
+                } else   {
                     double stationaryPoint = adapters::stationaryPoint(beta).first;
-                    bool   maximum = adapters::stationaryPoint(beta).second;
+                    bool maximum = adapters::stationaryPoint(beta).second;
                     LOG_DEBUG("stationary point = " << stationaryPoint);
 
                     double epsMinus = stationaryPoint;
@@ -796,8 +799,8 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                         p1 = numericalProbabilityOfLessLikelySample(beta, xMinus);
                         p2 = probabilityOfLessLikelySample(beta, xMinus, tail);
                         LOG_DEBUG("x- = " << xMinus
-                                          << ", p1 = " << p1 << ", p2 = " << p2
-                                          << ", log(p1) = " << log(p1) << ", log(p2) = " << ::log(p2));
+                                  << ", p1 = " << p1 << ", p2 = " << p2
+                                  << ", log(p1) = " << log(p1) << ", log(p2) = " << ::log(p2));
                         CPPUNIT_ASSERT(::fabs(p1 - p2) <= 0.05 * std::max(p1, p2) ||
                                        ::fabs(::log(p1) - ::log(p2)) < 0.25 * ::fabs(std::min(::log(p1), ::log(p2))));
                         if (maximum) CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
@@ -821,7 +824,7 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
     {
         // x at maximum
         boost::math::beta_distribution<> beta(2.0, 8.0);
-        double                           mode = adapters::stationaryPoint(beta).first;
+        double mode = adapters::stationaryPoint(beta).first;
         tail = maths_t::E_UndeterminedTail;
         p1 = 1.0;
         p2 = probabilityOfLessLikelySample(beta, mode, tail);
@@ -832,7 +835,7 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
     {
         // x at minimum
         boost::math::beta_distribution<> beta(0.6, 0.3);
-        double                           mode = adapters::stationaryPoint(beta).first;
+        double mode = adapters::stationaryPoint(beta).first;
         tail = maths_t::E_UndeterminedTail;
         p1 = 0.0;
         p2 = probabilityOfLessLikelySample(beta, mode, tail);
@@ -956,10 +959,10 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample(void) {
         TMeanAccumulator meanError;
         TMeanAccumulator meanLogError;
         for (std::size_t j = 0u; j < n - i; j += i) {
-            TDoubleVec                       modeWeights;
+            TDoubleVec modeWeights;
             std::vector<boost::math::normal> modes;
-            double                           a =  std::numeric_limits<double>::max();
-            double                           b = -std::numeric_limits<double>::max();
+            double a =  std::numeric_limits<double>::max();
+            double b = -std::numeric_limits<double>::max();
             for (std::size_t k = 0u; k < i; ++k) {
                 modeWeights.push_back(weights[j + k]);
                 modes.push_back(boost::math::normal(means[j + k], sd[j + k]));
@@ -972,7 +975,7 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample(void) {
                 double logFx = maths::pdf(mixture, x[k]);
                 if (logFx == 0.0) {
                     logFx = 10.0 * core::constants::LOG_MIN_DOUBLE;
-                } else {
+                } else   {
                     logFx = ::log(logFx);
                 }
 
@@ -985,9 +988,9 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample(void) {
 
                 double pTails = 0.0;
 
-                CLogPdf<boost::math::normal>       logPdf(mixture);
+                CLogPdf<boost::math::normal> logPdf(mixture);
                 maths::CEqualWithTolerance<double> equal(maths::CToleranceTypes::E_AbsoluteTolerance, 0.5);
-                double                             xleft;
+                double xleft;
                 CPPUNIT_ASSERT(calculator.leftTail(logPdf, 10, equal, xleft));
                 pTails += maths::cdf(mixture, xleft);
                 double xright;
@@ -996,7 +999,7 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample(void) {
 
                 double p = pTails + calculator.calculate(logPdf, pTails);
 
-                double                             pExpected = pTails;
+                double pExpected = pTails;
                 CTruncatedPdf<boost::math::normal> pdf(mixture, ::exp(logFx));
                 for (double xi = a, l = 0, step = 0.5 * (b - a) / ::floor(b - a);
                      l < 2 * static_cast<std::size_t>(b - a);
@@ -1009,17 +1012,17 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample(void) {
                 if (j % 50 == 0) {
                     LOG_DEBUG("pTails = " << pTails);
                     LOG_DEBUG("x = " << x[k]
-                                     << ", log(f(x)) = " << logFx
-                                     << ", P(x) = " << p
-                                     << ", expected P(x) = " << pExpected);
+                              << ", log(f(x)) = " << logFx
+                              << ", P(x) = " << p
+                              << ", expected P(x) = " << pExpected);
                 }
 
                 CPPUNIT_ASSERT(pExpected > 0.0);
                 if (pExpected > 0.1) {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(pExpected, p, 0.12);
-                } else if (pExpected > 1e-10) {
+                } else if (pExpected > 1e-10)   {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(pExpected), ::log(p), 0.15 * ::fabs(::log(pExpected)));
-                } else {
+                } else   {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(pExpected), ::log(p), 0.015 * ::fabs(::log(pExpected)));
                 }
                 meanError.add(::fabs(p - pExpected));
@@ -1063,8 +1066,8 @@ void CToolsTest::testSpread(void) {
             9000.0, 25700.0, 43100.0,
             73000.0, 74000.0, 84300.0
         };
-        double      separation = 20.0;
-        TDoubleVec  points(boost::begin(raw), boost::end(raw));
+        double separation = 20.0;
+        TDoubleVec points(boost::begin(raw), boost::end(raw));
         std::string expected = core::CContainerPrinter::print(points);
         CTools::spread(0.0, period, separation, points);
         CPPUNIT_ASSERT_EQUAL(expected, core::CContainerPrinter::print(points));
@@ -1081,9 +1084,9 @@ void CToolsTest::testSpread(void) {
             4700.0,  4800.0, 73000.0, 73150.0,
             73500.0, 73600.0, 73800.0, 74000.0
         };
-        double      separation = 126.0;
+        double separation = 126.0;
         std::string expected = "[97, 223, 4473.5, 4599.5, 4725.5, 4851.5, 73000, 73150, 73487, 73613, 73800, 74000]";
-        TDoubleVec  points(boost::begin(raw), boost::end(raw));
+        TDoubleVec points(boost::begin(raw), boost::end(raw));
         CTools::spread(0.0, period, separation, points);
         LOG_DEBUG("spread = " << core::CContainerPrinter::print(points));
         CPPUNIT_ASSERT_EQUAL(expected, core::CContainerPrinter::print(points));
@@ -1130,8 +1133,8 @@ void CToolsTest::testFastLog(void) {
         for (std::size_t i = 0u; i < x.size(); ++i) {
             if (i % 100 == 0) {
                 LOG_DEBUG("x = " << ::exp(x[i])
-                                 << ", log(x) = " << x[i]
-                                 << ", fast log(x) = " << maths::CTools::fastLog(::exp(x[i])));
+                          << ", log(x) = " << x[i]
+                          << ", fast log(x) = " << maths::CTools::fastLog(::exp(x[i])));
             }
             CPPUNIT_ASSERT_DOUBLES_EQUAL(x[i],
                                          maths::CTools::fastLog(::exp(x[i])),
@@ -1145,8 +1148,8 @@ void CToolsTest::testFastLog(void) {
         for (std::size_t i = 0u; i < x.size(); ++i) {
             if (i % 100 == 0) {
                 LOG_DEBUG("x = " << x[i]
-                                 << ", log(x) = " << ::log(x[i])
-                                 << ", fast log(x) = " << maths::CTools::fastLog(x[i]));
+                          << ", log(x) = " << ::log(x[i])
+                          << ", fast log(x) = " << maths::CTools::fastLog(x[i]));
             }
             CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(x[i]),
                                          maths::CTools::fastLog(x[i]),
@@ -1160,8 +1163,8 @@ void CToolsTest::testFastLog(void) {
         for (std::size_t i = 0u; i < x.size(); ++i) {
             if (i % 100 == 0) {
                 LOG_DEBUG("x = " << ::exp(x[i])
-                                 << ", log(x) = " << x[i]
-                                 << ", fast log(x) = " << maths::CTools::fastLog(::exp(x[i])));
+                          << ", log(x) = " << x[i]
+                          << ", fast log(x) = " << maths::CTools::fastLog(::exp(x[i])));
             }
             CPPUNIT_ASSERT_DOUBLES_EQUAL(x[i],
                                          maths::CTools::fastLog(::exp(x[i])),

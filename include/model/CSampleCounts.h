@@ -123,10 +123,10 @@ class MODEL_EXPORT CSampleCounts {
 
     private:
         //! This overrides the sample counts if non-zero.
-        unsigned int        m_SampleCountOverride;
+        unsigned int m_SampleCountOverride;
 
         //! The "fixed" number of measurements in a sample.
-        TUIntVec            m_SampleCounts;
+        TUIntVec m_SampleCounts;
 
         //! The mean number of measurements per bucket.
         TMeanAccumulatorVec m_MeanNonZeroBucketCounts;

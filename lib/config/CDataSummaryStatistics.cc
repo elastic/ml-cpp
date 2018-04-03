@@ -38,21 +38,22 @@ std::size_t topNSize(std::size_t n) {
     return static_cast<std::size_t>(::ceil(1.5 * static_cast<double>(n)));
 }
 
-const std::size_t                  DS_NUMBER_HASHES = 7;
-const std::size_t                  DS_MAX_SIZE = 1000;
-const std::size_t                  CS_ROWS = 7;
-const std::size_t                  CS_COLUMNS = 5000;
-const std::size_t                  QS_SIZE = 500;
-const std::size_t                  ES_K = 20;
-const double                       CLUSTER_MINIMUM_FRACTION = 0.005;
-const double                       CLUSTER_MINIMUM_COUNT = 10.0;
+const std::size_t DS_NUMBER_HASHES = 7;
+const std::size_t DS_MAX_SIZE = 1000;
+const std::size_t CS_ROWS = 7;
+const std::size_t CS_COLUMNS = 5000;
+const std::size_t QS_SIZE = 500;
+const std::size_t ES_K = 20;
+const double CLUSTER_MINIMUM_FRACTION = 0.005;
+const double CLUSTER_MINIMUM_COUNT = 10.0;
 core::CHashing::CMurmurHash2String HASHER;
-double                             PROBABILITY_TO_SAMPLE_ENTROPY = 0.5;
-double                             PROBABILITY_TO_SAMPLE_N_GRAMS = 0.02;
+double PROBABILITY_TO_SAMPLE_ENTROPY = 0.5;
+double PROBABILITY_TO_SAMPLE_N_GRAMS = 0.02;
 
 }
 
-CDataSummaryStatistics::CDataSummaryStatistics(void) : m_Count(0) {}
+CDataSummaryStatistics::CDataSummaryStatistics(void) : m_Count(0)
+{}
 
 uint64_t CDataSummaryStatistics::count(void) const {
     return m_Count;
@@ -89,7 +90,8 @@ CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(std::size_t
     m_LowestTopN(m_TopN.end()),
     m_EmpiricalEntropy(ES_K),
     m_DistinctNGrams(NUMBER_N_GRAMS, maths::CBjkstUniqueValues(DS_NUMBER_HASHES, DS_MAX_SIZE)),
-    m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {}
+    m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K))
+{}
 
 CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(const CDataSummaryStatistics &other,
                                                                      std::size_t n,
@@ -105,7 +107,8 @@ CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(const CData
     m_LowestTopN(m_TopN.end()),
     m_EmpiricalEntropy(ES_K),
     m_DistinctNGrams(NUMBER_N_GRAMS, maths::CBjkstUniqueValues(DS_NUMBER_HASHES, DS_MAX_SIZE)),
-    m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {}
+    m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K))
+{}
 
 void CCategoricalDataSummaryStatistics::add(core_t::TTime time, const std::string &example) {
     this->CDataSummaryStatistics::add(time);
@@ -114,7 +117,7 @@ void CCategoricalDataSummaryStatistics::add(core_t::TTime time, const std::strin
     if (!m_Approximating) {
         category = CTools::category64(example);
         ++m_ValueCounts[category];
-    } else {
+    } else   {
         category = CTools::category32(example);
         m_DistinctValues.add(static_cast<uint32_t>(category));
         m_CountSketch.add(static_cast<uint32_t>(category), 1.0);
@@ -147,10 +150,10 @@ void CCategoricalDataSummaryStatistics::add(core_t::TTime time, const std::strin
                     this->findLowestTopN();
                 }
             }
-        } else {
+        } else   {
             i = m_TopN.insert(std::make_pair(example, std::size_t(1))).first;
         }
-    } else {
+    } else   {
         ++i->second;
         if (i == m_LowestTopN) {
             this->findLowestTopN();
@@ -215,7 +218,7 @@ void CCategoricalDataSummaryStatistics::approximateIfCardinalityTooHigh(void) {
     if (m_ValueCounts.size() >= m_ToApproximate) {
         for (TSizeUInt64UMapCItr i = m_ValueCounts.begin(); i != m_ValueCounts.end(); ++i) {
             uint32_t category = CTools::category32(i->first);
-            double   count = static_cast<double>(i->second);
+            double count = static_cast<double>(i->second);
             m_DistinctValues.add(category);
             m_CountSketch.add(category, count);
         }
@@ -233,7 +236,7 @@ void CCategoricalDataSummaryStatistics::updateCalibrators(std::size_t category_)
         if (m_Calibrators.size() < 5) {
             m_Calibrators.insert(m_Calibrators.begin() + i, std::make_pair(category, 1));
         }
-    } else {
+    } else   {
         ++m_Calibrators[i].second;
     }
 }
@@ -283,9 +286,9 @@ CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(bool integer) :
                0.0,                          // No decay
                CLUSTER_MINIMUM_FRACTION,     // We're only interested in clusters which
                                              // comprise at least 0.5% of the data.
-               CLUSTER_MINIMUM_COUNT) {      // We need a few points to get a reasonable
+               CLUSTER_MINIMUM_COUNT)        // We need a few points to get a reasonable
                                              // variance estimate.
-}
+{}
 
 CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(const CDataSummaryStatistics &other,
                                                              bool integer) :
@@ -298,9 +301,9 @@ CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(const CDataSummaryS
                0.0,                          // No decay
                CLUSTER_MINIMUM_FRACTION,     // We're only interested in clusters which
                                              // comprise at least 0.5% of the data.
-               CLUSTER_MINIMUM_COUNT) {      // Need a few points to get a reasonable
+               CLUSTER_MINIMUM_COUNT)        // Need a few points to get a reasonable
                                              // variance estimate.
-}
+{}
 
 void CNumericDataSummaryStatistics::add(core_t::TTime time, const std::string &example) {
     std::string trimmed = example;
@@ -348,7 +351,7 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec &result) con
     typedef maths::CMixtureDistribution<boost::math::normal_distribution<> > TGMM;
 
     const maths::CXMeansOnline1d::TClusterVec &clusters = m_Clusters.clusters();
-    std::size_t                               n = clusters.size();
+    std::size_t n = clusters.size();
 
     try {
         TDoubleVec weights;
@@ -357,8 +360,8 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec &result) con
         modes.reserve(n);
         for (std::size_t i = 0u; i < n; ++i) {
             LOG_TRACE("weight = " << clusters[i].count()
-                                  << ", mean = " << clusters[i].centre()
-                                  << ", sd = " << clusters[i].spread());
+                      << ", mean = " << clusters[i].centre()
+                      << ", sd = " << clusters[i].spread());
             weights.push_back(clusters[i].count());
             modes.push_back(boost::math::normal_distribution<>(clusters[i].centre(),
                                                                clusters[i].spread()));
@@ -378,14 +381,14 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec &result) con
 
         result.reserve(10 * boost::size(QUANTILES));
         for (std::size_t i = 1u; i < pillars.size(); ++i) {
-            double x  = pillars[i-1];
+            double x  = pillars[i - 1];
             double b  = pillars[i];
             double dx = (b - x) / 10.0;
             for (std::size_t j = 0u; j < 10; ++j, x += dx) {
                 result.push_back(std::make_pair(x, maths::pdf(gmm, x)));
             }
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception &e)   {
         LOG_ERROR("Failed to compute density chart: " << e.what());
         return false;
     }

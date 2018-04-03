@@ -110,28 +110,28 @@ class MATHS_EXPORT CDecayRateController {
 
     private:
         //! The checks we perform to detect error conditions.
-        int                      m_Checks;
+        int m_Checks;
 
         //! The current target multiplier.
-        double                   m_Target;
+        double m_Target;
 
         //! The cumulative multiplier applied to the decay rate.
-        TMeanAccumulator         m_Multiplier;
+        TMeanAccumulator m_Multiplier;
 
         //! A random number generator.
         CPRNG::CXorOShiro128Plus m_Rng;
 
         //! The mean predicted value.
-        TMeanAccumulator1Vec     m_PredictionMean;
+        TMeanAccumulator1Vec m_PredictionMean;
 
         //! The mean bias in the model predictions.
-        TMeanAccumulator1Vec     m_Bias;
+        TMeanAccumulator1Vec m_Bias;
 
         //! The short term absolute errors in the model predictions.
-        TMeanAccumulator1Vec     m_RecentAbsError;
+        TMeanAccumulator1Vec m_RecentAbsError;
 
         //! The long term absolute errors in the model predictions.
-        TMeanAccumulator1Vec     m_HistoricalAbsError;
+        TMeanAccumulator1Vec m_HistoricalAbsError;
 };
 
 }

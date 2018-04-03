@@ -157,16 +157,16 @@ class CORE_EXPORT CLogger : private CNonCopyable {
         //! CLogger is a singleton, so we can not just create new instances
         void reset();
     private:
-        log4cxx::LoggerPtr        m_Logger;
+        log4cxx::LoggerPtr m_Logger;
 
         //! Has the logger ever been reconfigured?  This is not protected by a
         //! lock despite the fact that it may be accessed from different
         //! threads.  It is declared volatile to prevent the compiler optimising
         //! away reads of it.
-        volatile bool             m_Reconfigured;
+        volatile bool m_Reconfigured;
 
         //! Cache the program name
-        std::string               m_ProgramName;
+        std::string m_ProgramName;
 
         //! When logging to a named pipe this stores the C FILE pointer to
         //! access the pipe.  Should be NULL otherwise.
@@ -174,7 +174,7 @@ class CORE_EXPORT CLogger : private CNonCopyable {
 
         //! When logging to a pipe, the file descriptor that stderr was
         //! originally associated with.
-        int                       m_OrigStderrFd;
+        int m_OrigStderrFd;
 
         //! friend class for testing
         friend class ::CLoggerTest;

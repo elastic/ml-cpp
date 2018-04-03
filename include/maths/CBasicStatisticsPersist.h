@@ -102,7 +102,7 @@ bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std:
     std::size_t delimPos{str.find(INTERNAL_DELIMITER, 0)};
     if (delimPos == std::string::npos) {
         token.assign(str, 0, str.length());
-    } else {
+    } else   {
         token.assign(str, 0, delimPos);
     }
 
@@ -117,13 +117,13 @@ bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std:
         delimPos = str.find(INTERNAL_DELIMITER, lastDelimPos + 1);
         if (delimPos == std::string::npos) {
             token.assign(str, lastDelimPos + 1, str.length() - lastDelimPos);
-        } else {
+        } else   {
             token.assign(str, lastDelimPos + 1, delimPos - lastDelimPos - 1);
         }
 
         if (!basic_statistics_detail::stringToType(token, s_Moments[index++])) {
             LOG_ERROR("Invalid moment " << index
-                                        << " : element " << token << " in " << str);
+                      << " : element " << token << " in " << str);
             return false;
         }
 

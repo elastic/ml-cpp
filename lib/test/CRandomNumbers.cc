@@ -67,7 +67,7 @@ void CRandomNumbers::generateMultivariateNormalSamples(const TDoubleVec &mean,
     }
 
     Eigen::VectorXd ri(d);
-    TDoubleVec      xi(d, 0.0);
+    TDoubleVec xi(d, 0.0);
     for (std::size_t i = 0u; i < numberSamples; ++i) {
         for (std::size_t j = 0u; j < r; ++j) {
             ri(j) = j < r ? residuals[j][i] : 0.0;
@@ -155,8 +155,8 @@ void CRandomNumbers::generateMultinomialSamples(const TDoubleVec &categories,
                                          samples[i]) - transform.begin();
         if (j == transform.size()) {
             LOG_ERROR("Expected sample " << samples[i]
-                                         << " to be less than largest value in "
-                                         << core::CContainerPrinter::print(transform));
+                      << " to be less than largest value in "
+                      << core::CContainerPrinter::print(transform));
             j = transform.size() - 1;
         }
         samples[i] = categories[j];
@@ -224,7 +224,8 @@ void CRandomNumbers::discard(std::size_t n) {
 }
 
 CRandomNumbers::CUniform0nGenerator::CUniform0nGenerator(const TGenerator &generator) :
-    m_Generator(new TGenerator(generator)) {}
+    m_Generator(new TGenerator(generator))
+{}
 
 std::size_t CRandomNumbers::CUniform0nGenerator::operator()(std::size_t n) const {
     boost::random::uniform_int_distribution<std::size_t> uniform(0, n - 1);

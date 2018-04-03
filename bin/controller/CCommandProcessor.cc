@@ -39,7 +39,8 @@ const std::string CCommandProcessor::KILL("kill");
 
 
 CCommandProcessor::CCommandProcessor(const TStrVec &permittedProcessPaths)
-    : m_Spawner(permittedProcessPaths) {}
+    : m_Spawner(permittedProcessPaths)
+{}
 
 void CCommandProcessor::processCommands(std::istream &stream) {
     std::string command;
@@ -52,7 +53,7 @@ void CCommandProcessor::processCommands(std::istream &stream) {
 
 bool CCommandProcessor::handleCommand(const std::string &command) {
     // Command lines must be tab-separated
-    TStrVec     tokens;
+    TStrVec tokens;
     std::string remainder;
     core::CStringUtils::tokenise(TAB, command, tokens, remainder);
     if (!remainder.empty()) {

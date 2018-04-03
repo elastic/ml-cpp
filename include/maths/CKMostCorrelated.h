@@ -128,9 +128,9 @@ class MATHS_EXPORT CKMostCorrelated {
         static const std::size_t PROJECTION_DIMENSION;
         //! The minimum sparseness, in terms of proportion of missing values,
         //! for a variable we'll consider trying to correlate.
-        static const double      MINIMUM_SPARSENESS;
+        static const double MINIMUM_SPARSENESS;
         //! The proportion of values to replace for each projection.
-        static const double      REPLACE_FRACTION;
+        static const double REPLACE_FRACTION;
 
     protected:
         typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
@@ -147,9 +147,7 @@ class MATHS_EXPORT CKMostCorrelated {
         //! from the projected data.
         struct MATHS_EXPORT SCorrelation {
             //! See core::CMemory.
-            static bool dynamicSizeAlwaysZero(void) {
-                return true;
-            }
+            static bool dynamicSizeAlwaysZero(void) { return true; }
 
             SCorrelation(void);
             SCorrelation(std::size_t X,
@@ -222,44 +220,44 @@ class MATHS_EXPORT CKMostCorrelated {
         void nextProjection(void);
 
         //! Get the projections.
-        const TVectorVec                       &projections(void) const;
+        const TVectorVec &projections(void) const;
 
         //! Get the projected residuals.
         const TSizeVectorPackedBitVectorPrUMap &projected(void) const;
 
         //! Get the current correlation collection.
-        const TCorrelationVec                  &correlations(void) const;
+        const TCorrelationVec &correlations(void) const;
 
         //! Get the variable moments.
-        const TMeanVarAccumulatorVec           &moments(void) const;
+        const TMeanVarAccumulatorVec &moments(void) const;
 
     private:
         //! The number of correlations to find.
-        std::size_t                            m_K;
+        std::size_t m_K;
 
         //! The rate at which to forget about historical correlations.
-        double                                 m_DecayRate;
+        double m_DecayRate;
 
         //! The random number generator.
-        mutable CPRNG::CXorShift1024Mult       m_Rng;
+        mutable CPRNG::CXorShift1024Mult m_Rng;
 
         //! The random projections.
-        TVectorVec                             m_Projections;
+        TVectorVec m_Projections;
 
         //! The values to add in the next capture.
-        TSizeVectorUMap                        m_CurrentProjected;
+        TSizeVectorUMap m_CurrentProjected;
 
         //! The projected variables' "normalised" residuals.
-        TSizeVectorPackedBitVectorPrUMap       m_Projected;
+        TSizeVectorPackedBitVectorPrUMap m_Projected;
 
         //! The maximum possible metric measurement count.
-        double                                 m_MaximumCount;
+        double m_MaximumCount;
 
         //! The variables' means and variances.
-        TMeanVarAccumulatorVec                 m_Moments;
+        TMeanVarAccumulatorVec m_Moments;
 
         //! The 2 * m_Size most correlated variables.
-        TCorrelationVec                        m_MostCorrelated;
+        TCorrelationVec m_MostCorrelated;
 };
 
 }

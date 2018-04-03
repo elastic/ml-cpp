@@ -121,7 +121,7 @@ void CJsonOutputWriterTest::testSimpleWrite(void) {
     // The output writer won't close the JSON structures until is is destroyed
     {
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
         writer.writeRow(emptyFields, dataFields);
 
         dataFields["by_field_name"] = "busroute";
@@ -171,13 +171,13 @@ void CJsonOutputWriterTest::testSimpleWrite(void) {
 void CJsonOutputWriterTest::testWriteNonAnomalousBucket(void) {
     std::ostringstream sstream;
 
-    std::string                                                                       function("mean");
-    std::string                                                                       functionDescription("mean(responsetime)");
-    std::string                                                                       emptyString;
+    std::string function("mean");
+    std::string functionDescription("mean(responsetime)");
+    std::string emptyString;
     ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
     {
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
 
         ml::api::CHierarchicalResultsWriter::SResults result(false,
                                                              false,
@@ -237,13 +237,13 @@ void CJsonOutputWriterTest::testWriteNonAnomalousBucket(void) {
 }
 
 void CJsonOutputWriterTest::testFlush(void) {
-    std::string        testId("testflush");
-    ml::core_t::TTime  lastFinalizedBucketEnd(123456789);
+    std::string testId("testflush");
+    ml::core_t::TTime lastFinalizedBucketEnd(123456789);
     std::ostringstream sstream;
 
     {
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
 
         writer.acknowledgeFlush(testId, lastFinalizedBucketEnd);
     }
@@ -275,7 +275,7 @@ void CJsonOutputWriterTest::testFlush(void) {
 }
 
 void CJsonOutputWriterTest::testWriteCategoryDefinition(void) {
-    int         categoryId(42);
+    int categoryId(42);
     std::string terms("foo bar");
     std::string regex(".*?foo.+?bar.*");
     std::size_t maxMatchingLength(132);
@@ -288,7 +288,7 @@ void CJsonOutputWriterTest::testWriteCategoryDefinition(void) {
 
     {
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
 
         writer.writeCategoryDefinition(categoryId, terms, regex, maxMatchingLength, examples);
     }
@@ -323,7 +323,7 @@ void CJsonOutputWriterTest::testWriteCategoryDefinition(void) {
     CPPUNIT_ASSERT_EQUAL(maxMatchingLength, static_cast<std::size_t>(category["max_matching_length"].GetInt()));
     CPPUNIT_ASSERT(category.HasMember("examples"));
 
-    TStrSet                writtenExamplesSet;
+    TStrSet writtenExamplesSet;
     const rapidjson::Value &writtenExamples = category["examples"];
     for (rapidjson::SizeType i = 0; i < writtenExamples.Size(); i++) {
         writtenExamplesSet.insert(std::string(writtenExamples[i].GetString()));
@@ -355,19 +355,19 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
     // The output writer won't close the JSON structures until is is destroyed
     {
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
 
-        std::string                                                                       partitionFieldName("tfn");
-        std::string                                                                       partitionFieldValue("");
-        std::string                                                                       overFieldName("pfn");
-        std::string                                                                       overFieldValue("pfv");
-        std::string                                                                       byFieldName("airline");
-        std::string                                                                       byFieldValue("GAL");
-        std::string                                                                       correlatedByFieldValue("BAW");
-        std::string                                                                       fieldName("responsetime");
-        std::string                                                                       function("mean");
-        std::string                                                                       functionDescription("mean(responsetime)");
-        std::string                                                                       emptyString;
+        std::string partitionFieldName("tfn");
+        std::string partitionFieldValue("");
+        std::string overFieldName("pfn");
+        std::string overFieldValue("pfv");
+        std::string byFieldName("airline");
+        std::string byFieldValue("GAL");
+        std::string correlatedByFieldValue("BAW");
+        std::string fieldName("responsetime");
+        std::string function("mean");
+        std::string functionDescription("mean(responsetime)");
+        std::string emptyString;
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
 
         {
@@ -810,7 +810,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
 
     // Assert buckets
     for (rapidjson::SizeType i = 1; i < arrayDoc.Size(); i = i + 2) {
-        int                    buckettime = bucketTimes[i];
+        int buckettime = bucketTimes[i];
         const rapidjson::Value &bucketWrapper = arrayDoc[i];
         CPPUNIT_ASSERT(bucketWrapper.HasMember("bucket"));
 
@@ -842,7 +842,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
         if (isInterim) {
             CPPUNIT_ASSERT(bucket.HasMember("is_interim"));
             CPPUNIT_ASSERT_EQUAL(isInterim, bucket["is_interim"].GetBool());
-        } else {
+        } else   {
             CPPUNIT_ASSERT(!bucket.HasMember("is_interim"));
         }
 
@@ -891,7 +891,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
             if (isInterim) {
                 CPPUNIT_ASSERT(record.HasMember("is_interim"));
                 CPPUNIT_ASSERT_EQUAL(isInterim, record["is_interim"].GetBool());
-            } else {
+            } else   {
                 CPPUNIT_ASSERT(!record.HasMember("is_interim"));
             }
 
@@ -976,7 +976,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
                 if (isInterim) {
                     CPPUNIT_ASSERT(record.HasMember("is_interim"));
                     CPPUNIT_ASSERT_EQUAL(isInterim, record["is_interim"].GetBool());
-                } else {
+                } else   {
                     CPPUNIT_ASSERT(!record.HasMember("is_interim"));
                 }
             }
@@ -1026,7 +1026,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
                 if (isInterim) {
                     CPPUNIT_ASSERT(record.HasMember("is_interim"));
                     CPPUNIT_ASSERT_EQUAL(isInterim, record["is_interim"].GetBool());
-                } else {
+                } else   {
                     CPPUNIT_ASSERT(!record.HasMember("is_interim"));
                 }
             }
@@ -1043,19 +1043,19 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim) {
     // The output writer won't close the JSON structures until is is destroyed
     {
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
         writer.limitNumberRecords(2);
 
-        std::string                                                                       partitionFieldName("tfn");
-        std::string                                                                       partitionFieldValue("tfv");
-        std::string                                                                       overFieldName("pfn");
-        std::string                                                                       overFieldValue("pfv");
-        std::string                                                                       byFieldName("airline");
-        std::string                                                                       byFieldValue("GAL");
-        std::string                                                                       fieldName("responsetime");
-        std::string                                                                       function("mean");
-        std::string                                                                       functionDescription("mean(responsetime)");
-        std::string                                                                       emptyString;
+        std::string partitionFieldName("tfn");
+        std::string partitionFieldValue("tfv");
+        std::string overFieldName("pfn");
+        std::string overFieldValue("pfv");
+        std::string byFieldName("airline");
+        std::string byFieldValue("GAL");
+        std::string fieldName("responsetime");
+        std::string function("mean");
+        std::string functionDescription("mean(responsetime)");
+        std::string emptyString;
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
 
         {
@@ -1639,7 +1639,7 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim) {
         if (isInterim) {
             CPPUNIT_ASSERT(bucket.HasMember("is_interim"));
             CPPUNIT_ASSERT_EQUAL(isInterim, bucket["is_interim"].GetBool());
-        } else {
+        } else   {
             CPPUNIT_ASSERT(!bucket.HasMember("is_interim"));
         }
 
@@ -1664,7 +1664,7 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim) {
             if (isInterim) {
                 CPPUNIT_ASSERT(records[i].HasMember("is_interim"));
                 CPPUNIT_ASSERT_EQUAL(isInterim, records[i]["is_interim"].GetBool());
-            } else {
+            } else   {
                 CPPUNIT_ASSERT(!records[i].HasMember("is_interim"));
             }
         }
@@ -1683,7 +1683,7 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim) {
         if (isInterim) {
             CPPUNIT_ASSERT(bucket.HasMember("is_interim"));
             CPPUNIT_ASSERT_EQUAL(isInterim, bucket["is_interim"].GetBool());
-        } else {
+        } else   {
             CPPUNIT_ASSERT(!bucket.HasMember("is_interim"));
         }
 
@@ -1701,7 +1701,7 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim) {
             if (isInterim) {
                 CPPUNIT_ASSERT(records[i].HasMember("is_interim"));
                 CPPUNIT_ASSERT_EQUAL(isInterim, records[i]["is_interim"].GetBool());
-            } else {
+            } else   {
                 CPPUNIT_ASSERT(!records[i].HasMember("is_interim"));
             }
         }
@@ -1720,7 +1720,7 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim) {
         if (isInterim) {
             CPPUNIT_ASSERT(bucket.HasMember("is_interim"));
             CPPUNIT_ASSERT_EQUAL(isInterim, bucket["is_interim"].GetBool());
-        } else {
+        } else   {
             CPPUNIT_ASSERT(!bucket.HasMember("is_interim"));
         }
 
@@ -1738,7 +1738,7 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim) {
             if (isInterim) {
                 CPPUNIT_ASSERT(records[i].HasMember("is_interim"));
                 CPPUNIT_ASSERT_EQUAL(isInterim, records[i]["is_interim"].GetBool());
-            } else {
+            } else   {
                 CPPUNIT_ASSERT(!records[i].HasMember("is_interim"));
             }
         }
@@ -1794,7 +1794,7 @@ void CJsonOutputWriterTest::testWriteInfluencers(void) {
             createInfluencerNode(user, jim, 0.9, 100.0);
 
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
         CPPUNIT_ASSERT(writer.acceptInfluencer(ml::core_t::TTime(42), node1, false));
         CPPUNIT_ASSERT(writer.acceptInfluencer(ml::core_t::TTime(42), node2, false));
 
@@ -1875,7 +1875,7 @@ void CJsonOutputWriterTest::testWriteInfluencersWithLimit(void) {
             createBucketInfluencerNode(monitor, 0.3, 9.0, 0.9);
 
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
         writer.limitNumberRecords(2);
 
         CPPUNIT_ASSERT(writer.acceptInfluencer(ml::core_t::TTime(0), node1, false));
@@ -1889,16 +1889,16 @@ void CJsonOutputWriterTest::testWriteInfluencersWithLimit(void) {
 
 
         // can't add a bucket influencer unless a result has been added
-        std::string                                                                       pfn("partition_field_name");
-        std::string                                                                       pfv("partition_field_value");
-        std::string                                                                       bfn("by_field_name");
-        std::string                                                                       bfv("by_field_value");
-        std::string                                                                       fun("function");
-        std::string                                                                       fund("function_description");
-        std::string                                                                       fn("field_name");
-        std::string                                                                       emptyStr;
+        std::string pfn("partition_field_name");
+        std::string pfv("partition_field_value");
+        std::string bfn("by_field_name");
+        std::string bfv("by_field_value");
+        std::string fun("function");
+        std::string fund("function_description");
+        std::string fn("field_name");
+        std::string emptyStr;
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
-        ml::api::CHierarchicalResultsWriter::SResults                                     result(
+        ml::api::CHierarchicalResultsWriter::SResults result(
             ml::api::CHierarchicalResultsWriter::E_Result,
             pfn,
             pfv,
@@ -2000,16 +2000,16 @@ void CJsonOutputWriterTest::testWriteWithInfluences(void) {
     std::ostringstream sstream;
 
     {
-        std::string                                                                       partitionFieldName("tfn");
-        std::string                                                                       partitionFieldValue("tfv");
-        std::string                                                                       overFieldName("pfn");
-        std::string                                                                       overFieldValue("pfv");
-        std::string                                                                       byFieldName("airline");
-        std::string                                                                       byFieldValue("GAL");
-        std::string                                                                       fieldName("responsetime");
-        std::string                                                                       function("mean");
-        std::string                                                                       functionDescription("mean(responsetime)");
-        std::string                                                                       emptyString;
+        std::string partitionFieldName("tfn");
+        std::string partitionFieldValue("tfv");
+        std::string overFieldName("pfn");
+        std::string overFieldValue("pfv");
+        std::string byFieldName("airline");
+        std::string byFieldValue("GAL");
+        std::string fieldName("responsetime");
+        std::string function("mean");
+        std::string functionDescription("mean(responsetime)");
+        std::string emptyString;
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
 
         std::string user("user");
@@ -2078,7 +2078,7 @@ void CJsonOutputWriterTest::testWriteWithInfluences(void) {
                                                              EMPTY_STRING_LIST);
 
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
         CPPUNIT_ASSERT(writer.acceptResult(result));
 
         // Finished adding results
@@ -2086,7 +2086,7 @@ void CJsonOutputWriterTest::testWriteWithInfluences(void) {
     }
 
     rapidjson::Document doc;
-    std::string         out = sstream.str();
+    std::string out = sstream.str();
     doc.Parse<rapidjson::kParseDefaultFlags>(out);
 
     // Debug print record
@@ -2152,10 +2152,10 @@ void CJsonOutputWriterTest::testPersistNormalizer(void) {
 
 
     std::ostringstream sstream;
-    ml::core_t::TTime  persistTime(1);
+    ml::core_t::TTime persistTime(1);
     {
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
 
         ml::model::CHierarchicalResultsNormalizer normalizer(modelConfig);
         writer.persistNormalizer(normalizer, persistTime);
@@ -2185,9 +2185,9 @@ void CJsonOutputWriterTest::testPartitionScores(void) {
     std::ostringstream sstream;
     {
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
 
-        std::string                                                                       emptyString;
+        std::string emptyString;
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
 
         std::string partitionFieldName("part1");
@@ -2268,7 +2268,7 @@ void CJsonOutputWriterTest::testReportMemoryUsage(void) {
     std::ostringstream sstream;
     {
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
 
         ml::model::CResourceMonitor::SResults resourceUsage;
         resourceUsage.s_Usage = 1;
@@ -2318,18 +2318,18 @@ void CJsonOutputWriterTest::testWriteScheduledEvent(void) {
     std::ostringstream sstream;
 
     {
-        std::string                                                                       partitionFieldName("tfn");
-        std::string                                                                       partitionFieldValue("tfv");
-        std::string                                                                       byFieldName("airline");
-        std::string                                                                       byFieldValue("GAL");
-        std::string                                                                       fieldName("responsetime");
-        std::string                                                                       function("mean");
-        std::string                                                                       functionDescription("mean(responsetime)");
-        std::string                                                                       emptyString;
+        std::string partitionFieldName("tfn");
+        std::string partitionFieldValue("tfv");
+        std::string byFieldName("airline");
+        std::string byFieldValue("GAL");
+        std::string fieldName("responsetime");
+        std::string function("mean");
+        std::string functionDescription("mean(responsetime)");
+        std::string emptyString;
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
 
         ml::core::CJsonOutputStreamWrapper outputStream (sstream);
-        ml::api::CJsonOutputWriter         writer("job", outputStream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
 
         // This result has no scheduled events
         ml::api::CHierarchicalResultsWriter::SResults result(ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
@@ -2358,7 +2358,7 @@ void CJsonOutputWriterTest::testWriteScheduledEvent(void) {
         CPPUNIT_ASSERT(writer.acceptResult(result));
 
         // This result has 2 scheduled events
-        std::vector<std::string>                      eventDescriptions{"event-foo", "event-bar"};
+        std::vector<std::string> eventDescriptions{"event-foo", "event-bar"};
         ml::api::CHierarchicalResultsWriter::SResults result2(ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
                                                               partitionFieldName,
                                                               partitionFieldValue,
@@ -2389,7 +2389,7 @@ void CJsonOutputWriterTest::testWriteScheduledEvent(void) {
     }
 
     rapidjson::Document doc;
-    std::string         out = sstream.str();
+    std::string out = sstream.str();
     doc.Parse<rapidjson::kParseDefaultFlags>(out);
 
     // Debug print record
@@ -2432,19 +2432,19 @@ void CJsonOutputWriterTest::testThroughputHelper(bool useScopedAllocator) {
     CPPUNIT_ASSERT(ofs.is_open());
 
     ml::core::CJsonOutputStreamWrapper outputStream (ofs);
-    ml::api::CJsonOutputWriter         writer("job", outputStream);
+    ml::api::CJsonOutputWriter writer("job", outputStream);
 
-    std::string                                                                       partitionFieldName("tfn");
-    std::string                                                                       partitionFieldValue("");
-    std::string                                                                       overFieldName("pfn");
-    std::string                                                                       overFieldValue("pfv");
-    std::string                                                                       byFieldName("airline");
-    std::string                                                                       byFieldValue("GAL");
-    std::string                                                                       correlatedByFieldValue("BAW");
-    std::string                                                                       fieldName("responsetime");
-    std::string                                                                       function("mean");
-    std::string                                                                       functionDescription("mean(responsetime)");
-    std::string                                                                       emptyString;
+    std::string partitionFieldName("tfn");
+    std::string partitionFieldValue("");
+    std::string overFieldName("pfn");
+    std::string overFieldValue("pfv");
+    std::string byFieldName("airline");
+    std::string byFieldValue("GAL");
+    std::string correlatedByFieldValue("BAW");
+    std::string fieldName("responsetime");
+    std::string function("mean");
+    std::string functionDescription("mean(responsetime)");
+    std::string emptyString;
     ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
 
     ml::api::CHierarchicalResultsWriter::SResults result11(false,
@@ -2588,7 +2588,7 @@ void CJsonOutputWriterTest::testThroughputHelper(bool useScopedAllocator) {
         if (useScopedAllocator) {
             typedef ml::core::CScopedRapidJsonPoolAllocator<ml::api::CJsonOutputWriter> TScopedAllocator;
             static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
-            TScopedAllocator         scopedAllocator(ALLOCATOR_ID, writer);
+            TScopedAllocator scopedAllocator(ALLOCATOR_ID, writer);
 
             CPPUNIT_ASSERT(writer.acceptResult(result11));
             CPPUNIT_ASSERT(writer.acceptResult(result11));
@@ -2603,7 +2603,7 @@ void CJsonOutputWriterTest::testThroughputHelper(bool useScopedAllocator) {
 
             // Finished adding results
             CPPUNIT_ASSERT(writer.endOutputBatch(false, 1U));
-        } else {
+        } else   {
             CPPUNIT_ASSERT(writer.acceptResult(result11));
             CPPUNIT_ASSERT(writer.acceptResult(result11));
             CPPUNIT_ASSERT(writer.acceptResult(result112));

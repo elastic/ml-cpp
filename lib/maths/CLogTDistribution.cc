@@ -39,7 +39,8 @@ CLogTDistribution::CLogTDistribution(double degreesFreedom,
                                      double scale) :
     m_DegreesFreedom(degreesFreedom),
     m_Location(location),
-    m_Scale(scale) {}
+    m_Scale(scale)
+{}
 
 double CLogTDistribution::degreesFreedom(void) const {
     return m_DegreesFreedom;
@@ -135,7 +136,7 @@ double pdf(const CLogTDistribution &distribution, double x) {
 
     if (x < 0.0) {
         return 0.0;
-    } else if (x == 0.0) {
+    } else if (x == 0.0)   {
         // In limit x tends down to 0 it can be shown that the density
         // function tends to:
         //   f(x) = f(e^l) * (v^(1/2) * s)^(v+1) / (y * log(y)^(v+1))
@@ -149,7 +150,7 @@ double pdf(const CLogTDistribution &distribution, double x) {
         x = std::numeric_limits<double>::min();
     }
 
-    double                                 degreesFreedom = distribution.degreesFreedom();
+    double degreesFreedom = distribution.degreesFreedom();
     boost::math::students_t_distribution<> students(degreesFreedom);
 
     double scale = distribution.scale();
@@ -172,11 +173,11 @@ double cdf(const CLogTDistribution &distribution, double x) {
     if (CMathsFuncs::isNan(x)) {
         LOG_ERROR("Bad argument x = " << x);
         return 0.0;
-    } else if (x <= 0.0) {
+    } else if (x <= 0.0)   {
         return 0.0;
     }
 
-    double                                 degreesFreedom = distribution.degreesFreedom();
+    double degreesFreedom = distribution.degreesFreedom();
     boost::math::students_t_distribution<> students(degreesFreedom);
 
     double scale = distribution.scale();
@@ -193,11 +194,11 @@ double cdfComplement(const CLogTDistribution &distribution, double x) {
     if (CMathsFuncs::isNan(x)) {
         LOG_ERROR("Bad argument x = " << x);
         return 0.0;
-    } else if (x <= 0.0) {
+    } else if (x <= 0.0)   {
         return 1.0;
     }
 
-    double                                 degreesFreedom = distribution.degreesFreedom();
+    double degreesFreedom = distribution.degreesFreedom();
     boost::math::students_t_distribution<> students(degreesFreedom);
 
     double scale = distribution.scale();
@@ -212,9 +213,9 @@ double quantile(const CLogTDistribution &distribution, double q) {
     // t. This implies that the quantile's are obtained from the student's t
     // distribution by the transformation x_q = exp(s * y_q + m).
 
-    double                                 degreesFreedom = distribution.degreesFreedom();
+    double degreesFreedom = distribution.degreesFreedom();
     boost::math::students_t_distribution<> students(degreesFreedom);
-    double                                 y_q = boost::math::quantile(students, q);
+    double y_q = boost::math::quantile(students, q);
 
     double scale = distribution.scale();
     double location = distribution.location();

@@ -67,7 +67,7 @@ typedef CBucketGatherer::TStrCPtrVec                               TStrCPtrVec;
 namespace {
 
 
-const CSearchKey  key;
+const CSearchKey key;
 const std::string EMPTY_STRING("");
 
 std::size_t addPerson(CDataGatherer &gatherer,
@@ -200,7 +200,7 @@ void testInfluencerPerFeature(model_t::EFeature feature,
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    SModelParams        params(bucketLength);
+    SModelParams params(bucketLength);
 
     TFeatureVec features;
     features.push_back(feature);
@@ -286,7 +286,7 @@ void importCsvData(CDataGatherer &gatherer,
         CPPUNIT_ASSERT(core::CStringUtils::stringToType(tokens[0], time));
 
         CDataGatherer::TStrCPtrVec fieldValues;
-        CEventData                 data;
+        CEventData data;
         data.time(time);
         for (std::size_t i = 0; i < fields.size(); i++) {
             fieldValues.push_back(&tokens[fields[i]]);
@@ -304,7 +304,7 @@ void CEventRateDataGathererTest::testLatencyPersist(void) {
     core_t::TTime bucketLength = 3600;
     core_t::TTime latency = 5 * bucketLength;
     core_t::TTime startTime = 1420192800;
-    SModelParams  params(bucketLength);
+    SModelParams params(bucketLength);
     params.configureLatency(latency, bucketLength);
 
     {
@@ -326,7 +326,7 @@ void CEventRateDataGathererTest::testLatencyPersist(void) {
     {
         // Create a gatherer, with influences
         TFeatureVec features;
-        TStrVec     influencers;
+        TStrVec influencers;
         influencers.push_back("user");
         features.push_back(model_t::E_IndividualUniqueCountByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
@@ -360,7 +360,7 @@ void CEventRateDataGathererTest::testLatencyPersist(void) {
     {
         // Create a gatherer, with influences
         TFeatureVec features;
-        TStrVec     influencers;
+        TStrVec influencers;
         influencers.push_back("user");
         features.push_back(model_t::E_IndividualNonZeroCountByBucketAndPerson);
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
@@ -385,7 +385,7 @@ void CEventRateDataGathererTest::singleSeriesTests(void) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    SModelParams        params(bucketLength);
+    SModelParams params(bucketLength);
 
     core_t::TTime data[] =
     {
@@ -612,7 +612,7 @@ void CEventRateDataGathererTest::multipleSeriesTests(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
 
         core_t::TTime time = startTime;
-        std::size_t   i1 = 0u, i2 = 0u, j = 0u;
+        std::size_t i1 = 0u, i2 = 0u, j = 0u;
         for (;;) {
             for (/**/;
                      j < 5 && std::min(data1[i1], data2[i2]) >= time + bucketLength;
@@ -638,7 +638,7 @@ void CEventRateDataGathererTest::multipleSeriesTests(void) {
                 LOG_DEBUG("Adding arrival for p1 at " << data1[i1]);
                 addArrival(gatherer, m_ResourceMonitor, data1[i1], "p1");
                 ++i1;
-            } else {
+            } else   {
                 LOG_DEBUG("Adding arrival for p2 at " << data2[i2]);
                 addArrival(gatherer, m_ResourceMonitor, data2[i2], "p2");
                 ++i2;
@@ -740,7 +740,7 @@ void CEventRateDataGathererTest::testRemovePeople(void) {
     features.push_back(model_t::E_IndividualIndicatorOfBucketPerson);
     features.push_back(model_t::E_IndividualLowCountsByBucketAndPerson);
     features.push_back(model_t::E_IndividualHighCountsByBucketAndPerson);
-    SModelParams  params(bucketLength);
+    SModelParams params(bucketLength);
     CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, TStrVec(),
                            false, key, features,
@@ -849,9 +849,9 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests(void) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    std::size_t         latencyBuckets(3);
-    core_t::TTime       latencyTime = bucketLength * static_cast<core_t::TTime>(latencyBuckets);
-    SModelParams        params(bucketLength);
+    std::size_t latencyBuckets(3);
+    core_t::TTime latencyTime = bucketLength * static_cast<core_t::TTime>(latencyBuckets);
+    SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
     core_t::TTime data[] =
@@ -1006,8 +1006,8 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests(void) 
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    std::size_t         latencyBuckets(3);
-    SModelParams        params(bucketLength);
+    std::size_t latencyBuckets(3);
+    SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
     core_t::TTime data[] =
@@ -1135,9 +1135,9 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void) 
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    std::size_t         latencyBuckets(3);
-    core_t::TTime       latencyTime = bucketLength * static_cast<core_t::TTime>(latencyBuckets);
-    SModelParams        params(bucketLength);
+    std::size_t latencyBuckets(3);
+    core_t::TTime latencyTime = bucketLength * static_cast<core_t::TTime>(latencyBuckets);
+    SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
     core_t::TTime data1[] =
@@ -1179,7 +1179,7 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void) 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
 
         core_t::TTime time = startTime;
-        std::size_t   i1 = 0u, i2 = 0u, j = 0u;
+        std::size_t i1 = 0u, i2 = 0u, j = 0u;
         for (;;) {
             for (/**/;
                      j < 5 && std::min(data1[i1], data2[i2]) >= time + latencyTime;
@@ -1205,7 +1205,7 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void) 
                 LOG_DEBUG("Adding arrival for p1 at " << data1[i1]);
                 addArrival(gatherer, m_ResourceMonitor, data1[i1], "p1");
                 ++i1;
-            } else {
+            } else   {
                 LOG_DEBUG("Adding arrival for p2 at " << data2[i2]);
                 addArrival(gatherer, m_ResourceMonitor, data2[i2], "p2");
                 ++i2;
@@ -1295,8 +1295,8 @@ void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored(void) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    std::size_t         latencyBuckets(2);
-    SModelParams        params(bucketLength);
+    std::size_t latencyBuckets(2);
+    SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
     core_t::TTime data[] =
@@ -1339,8 +1339,8 @@ void CEventRateDataGathererTest::testResetBucketGivenSingleSeries(void) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    std::size_t         latencyBuckets(2);
-    SModelParams        params(bucketLength);
+    std::size_t latencyBuckets(2);
+    SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
     core_t::TTime data[] =
@@ -1396,8 +1396,8 @@ void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries(void) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    std::size_t         latencyBuckets(2);
-    SModelParams        params(bucketLength);
+    std::size_t latencyBuckets(2);
+    SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
     core_t::TTime data[] =
@@ -1457,8 +1457,8 @@ void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable(void) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    std::size_t         latencyBuckets(1);
-    SModelParams        params(bucketLength);
+    std::size_t latencyBuckets(1);
+    SModelParams params(bucketLength);
     params.s_LatencyBuckets = latencyBuckets;
 
     TFeatureVec features;
@@ -1564,7 +1564,7 @@ void CEventRateDataGathererTest::testDistinctStrings(void) {
         // Check adding values with no influences gives the correct count
         // for distinct_count
         CUniqueStringFeatureData data;
-        TStoredStringPtrVec      influencers;
+        TStoredStringPtrVec influencers;
 
         {
             SEventRateFeatureData featureData(0);
@@ -1598,7 +1598,7 @@ void CEventRateDataGathererTest::testDistinctStrings(void) {
         // Check we can add influencers now - just 1
         // First with a non-present value
         CUniqueStringFeatureData data;
-        TStoredStringPtrVec      influencers;
+        TStoredStringPtrVec influencers;
         influencers.push_back(core::CStoredStringPtr());
 
         data.insert("str1", influencers);
@@ -1640,7 +1640,7 @@ void CEventRateDataGathererTest::testDistinctStrings(void) {
     {
         // Check we can add more than one influencer
         CUniqueStringFeatureData data;
-        TStoredStringPtrVec      influencers;
+        TStoredStringPtrVec influencers;
         influencers.push_back(core::CStoredStringPtr());
         influencers.push_back(core::CStoredStringPtr());
 
@@ -1684,7 +1684,7 @@ void CEventRateDataGathererTest::testDistinctStrings(void) {
         // Now test info_content - compressed strings
         // Check adding values with no influences gives the correct count
         CUniqueStringFeatureData data;
-        TStoredStringPtrVec      influencers;
+        TStoredStringPtrVec influencers;
 
         {
             SEventRateFeatureData featureData(0);
@@ -1722,7 +1722,7 @@ void CEventRateDataGathererTest::testDistinctStrings(void) {
         // Check we can add influencers now - just 1
         // First with a non-present value
         CUniqueStringFeatureData data;
-        TStoredStringPtrVec      influencers;
+        TStoredStringPtrVec influencers;
         influencers.push_back(core::CStoredStringPtr());
 
         data.insert("str1", influencers);
@@ -1763,7 +1763,7 @@ void CEventRateDataGathererTest::testDistinctStrings(void) {
     {
         // Check we can add more than one influencer
         CUniqueStringFeatureData data;
-        TStoredStringPtrVec      influencers;
+        TStoredStringPtrVec influencers;
         influencers.push_back(core::CStoredStringPtr());
         influencers.push_back(core::CStoredStringPtr());
 
@@ -1807,8 +1807,8 @@ void CEventRateDataGathererTest::testDistinctStrings(void) {
         // Check that we can add distinct strings in latency buckets and restore them
         core_t::TTime bucketLength(1800);
         core_t::TTime startTime(1432733400);
-        std::size_t   latencyBuckets(3);
-        SModelParams  params(bucketLength);
+        std::size_t latencyBuckets(3);
+        SModelParams params(bucketLength);
         params.s_LatencyBuckets = latencyBuckets;
 
         TFeatureVec features;
@@ -1856,8 +1856,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void) {
 
         core_t::TTime bucketLength(3600);
         core_t::TTime startTime(1432731600);
-        std::size_t   latencyBuckets(3);
-        SModelParams  params(bucketLength);
+        std::size_t latencyBuckets(3);
+        SModelParams params(bucketLength);
         params.s_LatencyBuckets = latencyBuckets;
 
         TFeatureVec features;
@@ -1971,8 +1971,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void) {
 
         core_t::TTime bucketLength(3600);
         core_t::TTime startTime(1432731600);
-        std::size_t   latencyBuckets(3);
-        SModelParams  params(bucketLength);
+        std::size_t latencyBuckets(3);
+        SModelParams params(bucketLength);
         params.s_LatencyBuckets = latencyBuckets;
 
         TFeatureVec features;
@@ -2086,8 +2086,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void) {
 
         core_t::TTime bucketLength(3600);
         core_t::TTime startTime(1432731600);
-        std::size_t   latencyBuckets(3);
-        SModelParams  params(bucketLength);
+        std::size_t latencyBuckets(3);
+        SModelParams params(bucketLength);
         params.s_LatencyBuckets = latencyBuckets;
 
         TFeatureVec features;
@@ -2202,8 +2202,8 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void) {
 
         core_t::TTime bucketLength(3600);
         core_t::TTime startTime(1432731600);
-        std::size_t   latencyBuckets(3);
-        SModelParams  params(bucketLength);
+        std::size_t latencyBuckets(3);
+        SModelParams params(bucketLength);
         params.s_LatencyBuckets = latencyBuckets;
 
         TFeatureVec features;

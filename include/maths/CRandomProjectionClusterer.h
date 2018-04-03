@@ -147,7 +147,7 @@ class CRandomProjectionClusterer {
 
             if (dimension <= m_Dimension) {
                 return true;
-            } else if (dimension <= N) {
+            } else if (dimension <= N)   {
                 TVectorArray &projection = m_Projections[0];
                 for (std::size_t i = m_Dimension; i < dimension; ++i) {
                     projection[i](i) = 1.0;
@@ -157,12 +157,12 @@ class CRandomProjectionClusterer {
 
             std::size_t b = m_Projections.size();
             std::size_t d = dimension - m_Dimension;
-            double      alpha =   static_cast<double>(m_Dimension)
-                                / static_cast<double>(dimension);
+            double alpha =   static_cast<double>(m_Dimension)
+                           / static_cast<double>(dimension);
             double beta = 1.0 - alpha;
 
             TDoubleVecArray extension;
-            TDoubleVec      components;
+            TDoubleVec components;
             CSampling::normalSample(m_Rng, 0.0, 1.0, b * N * d, components);
             for (std::size_t i = 0u; i < b; ++i) {
                 for (std::size_t j = 0u; j < N; ++j) {
@@ -200,10 +200,10 @@ class CRandomProjectionClusterer {
         mutable CPRNG::CXorShift1024Mult m_Rng;
 
         //! The dimension of the data to project.
-        std::size_t                      m_Dimension;
+        std::size_t m_Dimension;
 
         //! The projections.
-        TVectorArrayVec                  m_Projections;
+        TVectorArrayVec m_Projections;
 };
 
 //! \brief Implements random projection clustering for batches
@@ -232,7 +232,8 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N> {
 
     public:
         CRandomProjectionClustererBatch(double compression) :
-            m_Compression(compression) {}
+            m_Compression(compression)
+        {}
 
         virtual ~CRandomProjectionClustererBatch(void) = default;
 
@@ -375,7 +376,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N> {
                 clusterer.setPoints(P);
                 clusterer.run();
                 const TClusterVec &clusters = clusterer.clusters();
-                double            ni = static_cast<double>(clusters.size());
+                double ni = static_cast<double>(clusters.size());
                 LOG_TRACE("# clusters = " << ni);
 
                 for (std::size_t j = 0u; j < clusters.size(); ++j) {
@@ -384,7 +385,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N> {
 
                     // Compute the number of points to sample from this cluster.
                     std::size_t nij = points.size();
-                    double      wij = static_cast<double>(nij) / static_cast<double>(n);
+                    double wij = static_cast<double>(nij) / static_cast<double>(n);
                     std::size_t nsij = static_cast<std::size_t>(std::max(m_Compression * wij * ni, 1.0));
                     LOG_TRACE("wij = " << wij << ", nsij = " << nsij);
 
@@ -392,8 +393,8 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N> {
                     TSampleCovariancesNxN covariances;
                     covariances.add(points);
                     TVectorNx1 mij = CBasicStatistics::mean(covariances);
-                    TSvdNxN    Cij(toDenseMatrix(CBasicStatistics::covariances(covariances)),
-                                   Eigen::ComputeFullU | Eigen::ComputeFullV);
+                    TSvdNxN Cij(toDenseMatrix(CBasicStatistics::covariances(covariances)),
+                                Eigen::ComputeFullU | Eigen::ComputeFullV);
 
                     // Compute the probability that a sample from the cluster
                     // is a given point in the cluster.
@@ -511,9 +512,9 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N> {
             TVectorVec Pi(h);
             for (std::size_t i = 0u; i < b; ++i) {
                 const TVectorNx1Vec &X  = m_ProjectedData[i];
-                const TDoubleVec    &   Wi    = W[i];
+                const TDoubleVec &Wi    = W[i];
                 const TVectorNx1Vec &Mi = M[i];
-                const TSvdNxNVec    &   Ci    = C[i];
+                const TSvdNxNVec &Ci    = C[i];
                 LOG_TRACE("W(i) = " << core::CContainerPrinter::print(Wi));
                 LOG_TRACE("M(i) = " << core::CContainerPrinter::print(Mi));
 
@@ -602,18 +603,18 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N> {
                                                         splits)) {
                 double height = CBasicStatistics::mean(heights[splits[0] - 1]);
                 LOG_TRACE("split = " << core::CContainerPrinter::print(splits)
-                                     << ", height = " << height);
+                          << ", height = " << height);
                 const TNode &root = tree.back();
                 root.clusteringAt(height, result);
                 for (std::size_t i = 0u; i < result.size(); ++i) {
-                    TSizeVec    &  ri = result[i];
+                    TSizeVec &ri = result[i];
                     std::size_t n = ri.size();
                     for (std::size_t j = 0u; j < n; ++j) {
                         ri.insert(ri.end(), H[ri[j]].begin(), H[ri[j]].end());
                     }
                     ri.erase(ri.begin(), ri.begin() + n);
                 }
-            } else {
+            } else   {
                 LOG_ERROR("Failed to cluster " << core::CContainerPrinter::print(heights));
             }
         }
@@ -636,7 +637,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N> {
         //! Controls the amount of compression in sampling points
         //! for computing the hierarchical clustering. Larger numbers
         //! equate to more sampled points so less compression.
-        double           m_Compression;
+        double m_Compression;
 
         //! The projected data points.
         TVectorNx1VecVec m_ProjectedData;
@@ -664,7 +665,8 @@ class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST> > {
             m_Xmeans(xmeans),
             m_ImproveParamsKmeansIterations(improveParamsKmeansIterations),
             m_ImproveStructureClusterSeeds(improveStructureClusterSeeds),
-            m_ImproveStructureKmeansIterations(improveStructureKmeansIterations) {}
+            m_ImproveStructureKmeansIterations(improveStructureKmeansIterations)
+        {}
 
         //! Set the points to cluster.
         void setPoints(TVectorNx1Vec &points) {
@@ -685,16 +687,16 @@ class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST> > {
 
     private:
         //! The x-means implementation.
-        TClusterer        m_Xmeans;
+        TClusterer m_Xmeans;
         //! The number of iterations to use in k-means for a single
         //! round of improve parameters.
-        std::size_t       m_ImproveParamsKmeansIterations;
+        std::size_t m_ImproveParamsKmeansIterations;
         //! The number of random seeds to try when initializing k-means
         //! for a single round of improve structure.
-        std::size_t       m_ImproveStructureClusterSeeds;
+        std::size_t m_ImproveStructureClusterSeeds;
         //! The number of iterations to use in k-means for a single
         //! round of improve structure.
-        std::size_t       m_ImproveStructureKmeansIterations;
+        std::size_t m_ImproveStructureKmeansIterations;
 };
 
 //! Makes an x-means adapter for random projection clustering.
@@ -726,12 +728,13 @@ class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N> > > {
                                          std::size_t maxIterations) :
             m_Kmeans(kmeans),
             m_K(k),
-            m_MaxIterations(maxIterations) {}
+            m_MaxIterations(maxIterations)
+        {}
 
         //! Set the points to cluster.
         void setPoints(TVectorNx1Vec &points) {
             m_Kmeans.setPoints(points);
-            TVectorNx1Vec                                                       centres;
+            TVectorNx1Vec centres;
             CKMeansPlusPlusInitialization<TVectorNx1, CPRNG::CXorShift1024Mult> seedCentres(m_Rng);
             seedCentres.run(points, m_K, centres);
             m_Kmeans.setCentres(centres);
@@ -752,13 +755,13 @@ class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N> > > {
         //! The random number generator.
         CPRNG::CXorShift1024Mult m_Rng;
         //! The k-means implementation.
-        TClusterer               m_Kmeans;
+        TClusterer m_Kmeans;
         //! The number of clusters to use.
-        std::size_t              m_K;
+        std::size_t m_K;
         //! The number of iterations to use in k-means.
-        std::size_t              m_MaxIterations;
+        std::size_t m_MaxIterations;
         //! The clusters.
-        mutable TClusterVec      m_Clusters;
+        mutable TClusterVec m_Clusters;
 };
 
 //! Makes a k-means adapter for random projection clustering.

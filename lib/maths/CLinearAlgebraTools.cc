@@ -152,7 +152,7 @@ class CSampleGaussian {
             // covariance matrix. See the discussion in CNormalMeanPrecConjugate
             // for more discussion on this sampling strategy.
 
-            VECTOR_PRECISE                mean(mean_);
+            VECTOR_PRECISE mean(mean_);
             Eigen::JacobiSVD<EIGENMATRIX> covariance(toDenseMatrix(covariance_),
                                                      Eigen::ComputeFullU | Eigen::ComputeFullV);
             std::size_t rank = static_cast<std::size_t>(covariance.rank());
@@ -160,7 +160,7 @@ class CSampleGaussian {
             std::size_t numberIntervals = n / rank;
             if (numberIntervals == 0) {
                 result.push_back(mean);
-            } else {
+            } else   {
                 LOG_TRACE("# intervals = " << numberIntervals);
                 result.reserve(rank * numberIntervals);
                 double scale = ::sqrt(static_cast<double>(rank));
@@ -169,7 +169,7 @@ class CSampleGaussian {
                 for (std::size_t i = 0u; i < rank; ++i) {
                     VECTOR_PRECISE u(fromDenseVector(covariance.matrixU().col(i)));
                     try {
-                        double                             variance = covariance.singularValues()(i);
+                        double variance = covariance.singularValues()(i);
                         boost::math::normal_distribution<> normal(0.0, ::sqrt(variance));
                         LOG_TRACE("[U]_{.i} = " << covariance.matrixU().col(i).transpose())
                         LOG_TRACE("variance = " << variance);
@@ -193,7 +193,7 @@ class CSampleGaussian {
                                     * lastPartialExpectation;
                         LOG_TRACE("dx = " << dx);
                         result.push_back(mean + dx * u);
-                    } catch (const std::exception &e) {
+                    } catch (const std::exception &e)   {
                         LOG_ERROR("Failed to sample eigenvector " << u << ": " << e.what());
                     }
                 }

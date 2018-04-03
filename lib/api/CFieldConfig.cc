@@ -54,8 +54,8 @@ const std::string CFieldConfig::DESCRIPTION_SUFFIX(".description");
 const std::string CFieldConfig::RULES_SUFFIX(".rules");
 const std::string CFieldConfig::CATEGORIZATION_FIELD_OPTION("categorizationfield");
 const std::string CFieldConfig::SUMMARY_COUNT_FIELD_OPTION("summarycountfield");
-const char        CFieldConfig::SUFFIX_SEPARATOR('.');
-const char        CFieldConfig::FIELDNAME_SEPARATOR('-');
+const char CFieldConfig::SUFFIX_SEPARATOR('.');
+const char CFieldConfig::FIELDNAME_SEPARATOR('-');
 const std::string CFieldConfig::IS_ENABLED_SUFFIX(".isEnabled");
 const std::string CFieldConfig::BY_SUFFIX(".by");
 const std::string CFieldConfig::OVER_SUFFIX(".over");
@@ -146,7 +146,8 @@ const std::string CFieldConfig::NONE_TOKEN("none");
 
 const std::string CFieldConfig::CLEAR("clear");
 
-CFieldConfig::CFieldConfig(void) {}
+CFieldConfig::CFieldConfig(void)
+{}
 
 CFieldConfig::CFieldConfig(const std::string &categorizationFieldName)
     : m_CategorizationFieldName(categorizationFieldName) {
@@ -239,7 +240,7 @@ bool CFieldConfig::initFromFile(const std::string &configFile) {
         model::CLimits::skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
-    } catch (boost::property_tree::ptree_error &e) {
+    } catch (boost::property_tree::ptree_error &e)   {
         LOG_ERROR("Error reading config file " << configFile << ": " << e.what());
         return false;
     }
@@ -273,7 +274,7 @@ bool CFieldConfig::initFromFile(const std::string &configFile) {
         } else if (level1Key.length() > SCHEDULED_EVENT_PREFIX.length() &&
                    level1Key.compare(0, SCHEDULED_EVENT_PREFIX.length(), SCHEDULED_EVENT_PREFIX) == 0) {
             this->processScheduledEvent(propTree, level1Key, value, handledScheduledEvents);
-        } else {
+        } else   {
             LOG_ERROR("Invalid setting " << level1Key << " = " << value << " in config file " << configFile);
             return false;
         }
@@ -309,7 +310,7 @@ bool CFieldConfig::tokenise(const std::string &clause,
             copyTokens.push_back(token);
             LOG_TRACE(token);
         }
-    } catch (boost::escaped_list_error &e) {
+    } catch (boost::escaped_list_error &e)   {
         LOG_ERROR("Cannot parse clause " << clause << ": " << e.what());
         return false;
     }
@@ -323,7 +324,7 @@ void CFieldConfig::retokenise(const TStrVec &tokens,
         size_t commaPos(token.find(','));
         if (commaPos == std::string::npos) {
             copyTokens.push_back(token);
-        } else {
+        } else   {
             size_t startPos(0);
             do {
                 if (commaPos > startPos) {
@@ -430,7 +431,7 @@ std::string CFieldConfig::findParameter(const std::string &parameter,
                                         TStrVec &copyTokens) {
     for (TStrVecItr iter = copyTokens.begin(); iter != copyTokens.end(); ++iter) {
         const std::string &token = *iter;
-        std::size_t       equalPos = token.find('=');
+        std::size_t equalPos = token.find('=');
         if (equalPos == parameter.length() &&
             core::CStrCaseCmp::strNCaseCmp(parameter.c_str(),
                                            token.c_str(),
@@ -493,7 +494,7 @@ bool CFieldConfig::addOptions(const CFieldOptions &options) {
     TFieldOptionsMIndexItrBoolPr result(m_FieldOptions.insert(options));
     if (result.second == false) {
         LOG_ERROR("Duplicate config found: " << options << core_t::LINE_ENDING
-                                             << "It clashes with config " << *result.first);
+                  << "It clashes with config " << *result.first);
         return false;
     }
 
@@ -536,7 +537,7 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
     this->seenField(summaryCountFieldName);
 
     std::string useNullStr = this->findParameter(USE_NULL_OPTION, copyTokens);
-    bool        useNull(false);
+    bool useNull(false);
     if (!useNullStr.empty() &&
         core::CStringUtils::stringToType(useNullStr, useNull) == false) {
         LOG_ERROR("Cannot convert usenull value to boolean: " << useNullStr);
@@ -592,7 +593,7 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
         return false;
     }
 
-    int    tokenNum(0);
+    int tokenNum(0);
     size_t stop(std::min(lastByTokenIndex, lastOverTokenIndex));
     if (stop > 1 && !allowMultipleFunctions) {
         LOG_ERROR("Only one analysis function is allowed in this context but " <<
@@ -603,7 +604,7 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
 
     for (size_t index = 0; index < stop; ++index) {
         model::function_t::EFunction function;
-        std::string                  fieldName;
+        std::string fieldName;
         if (this->parseFieldString(!summaryCountFieldName.empty(),
                                    isPopulation,
                                    hasByField,
@@ -867,13 +868,13 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
         function = model::function_t::E_IndividualRareNonZeroCount;
         argumentInvalid = true;
         byFieldRequired = true;
-    } else if (outerToken == FUNCTION_RARE) {
+    } else if (outerToken == FUNCTION_RARE)   {
         function = isPopulation ?
                    model::function_t::E_PopulationRare :
                    model::function_t::E_IndividualRare;
         argumentInvalid = true;
         byFieldRequired = true;
-    } else if (outerToken == FUNCTION_RARE_COUNT) {
+    } else if (outerToken == FUNCTION_RARE_COUNT)   {
         function = model::function_t::E_PopulationRareCount;
         argumentInvalid = true;
         byFieldRequired = true;
@@ -907,22 +908,22 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
         function = model::function_t::E_PopulationFreqRareCount;
         argumentInvalid = true;
         byFieldRequired = true;
-    } else if (outerToken == FUNCTION_INFO_CONTENT) {
+    } else if (outerToken == FUNCTION_INFO_CONTENT)   {
         function = isPopulation ?
                    model::function_t::E_PopulationInfoContent :
                    model::function_t::E_IndividualInfoContent;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_LOW_INFO_CONTENT) {
+    } else if (outerToken == FUNCTION_LOW_INFO_CONTENT)   {
         function = isPopulation ?
                    model::function_t::E_PopulationLowInfoContent :
                    model::function_t::E_IndividualLowInfoContent;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_HIGH_INFO_CONTENT) {
+    } else if (outerToken == FUNCTION_HIGH_INFO_CONTENT)   {
         function = isPopulation ?
                    model::function_t::E_PopulationHighInfoContent :
                    model::function_t::E_IndividualHighInfoContent;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_METRIC) {
+    } else if (outerToken == FUNCTION_METRIC)   {
         if (haveSummaryCountField) {
             LOG_ERROR("Function " << outerToken <<
                       "() cannot be used with a summary count field");
@@ -951,57 +952,57 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
                    model::function_t::E_PopulationMetricHighMean :
                    model::function_t::E_IndividualMetricHighMean;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_MEDIAN) {
+    } else if (outerToken == FUNCTION_MEDIAN)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMetricMedian :
                    model::function_t::E_IndividualMetricMedian;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_LOW_MEDIAN) {
+    } else if (outerToken == FUNCTION_LOW_MEDIAN)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMetricLowMedian :
                    model::function_t::E_IndividualMetricLowMedian;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_HIGH_MEDIAN) {
+    } else if (outerToken == FUNCTION_HIGH_MEDIAN)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMetricHighMedian :
                    model::function_t::E_IndividualMetricHighMedian;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_MIN) {
+    } else if (outerToken == FUNCTION_MIN)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMetricMin :
                    model::function_t::E_IndividualMetricMin;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_MAX) {
+    } else if (outerToken == FUNCTION_MAX)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMetricMax :
                    model::function_t::E_IndividualMetricMax;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_VARIANCE) {
+    } else if (outerToken == FUNCTION_VARIANCE)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMetricVariance :
                    model::function_t::E_IndividualMetricVariance;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_LOW_VARIANCE) {
+    } else if (outerToken == FUNCTION_LOW_VARIANCE)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMetricLowVariance :
                    model::function_t::E_IndividualMetricLowVariance;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_HIGH_VARIANCE) {
+    } else if (outerToken == FUNCTION_HIGH_VARIANCE)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMetricHighVariance :
                    model::function_t::E_IndividualMetricHighVariance;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_SUM) {
+    } else if (outerToken == FUNCTION_SUM)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMetricSum :
                    model::function_t::E_IndividualMetricSum;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_LOW_SUM) {
+    } else if (outerToken == FUNCTION_LOW_SUM)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMetricLowSum :
                    model::function_t::E_IndividualMetricLowSum;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_HIGH_SUM) {
+    } else if (outerToken == FUNCTION_HIGH_SUM)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMetricHighSum :
                    model::function_t::E_IndividualMetricHighSum;
@@ -1018,44 +1019,44 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
                outerToken == FUNCTION_HIGH_NON_NULL_SUM_ABBREV) {
         function = model::function_t::E_IndividualMetricHighNonNullSum;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_TIME_OF_DAY) {
+    } else if (outerToken == FUNCTION_TIME_OF_DAY)   {
         function = isPopulation ?
                    model::function_t::E_PopulationTimeOfDay :
                    model::function_t::E_IndividualTimeOfDay;
         argumentRequired = false;
         argumentInvalid = true;
-    } else if (outerToken == FUNCTION_TIME_OF_WEEK) {
+    } else if (outerToken == FUNCTION_TIME_OF_WEEK)   {
         function = isPopulation ?
                    model::function_t::E_PopulationTimeOfWeek :
                    model::function_t::E_IndividualTimeOfWeek;
         argumentRequired = false;
         argumentInvalid = true;
-    } else if (outerToken == FUNCTION_LAT_LONG) {
+    } else if (outerToken == FUNCTION_LAT_LONG)   {
         function = isPopulation ?
                    model::function_t::E_PopulationLatLong :
                    model::function_t::E_IndividualLatLong;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_MAX_VELOCITY) {
+    } else if (outerToken == FUNCTION_MAX_VELOCITY)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMaxVelocity :
                    model::function_t::E_IndividualMaxVelocity;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_MIN_VELOCITY) {
+    } else if (outerToken == FUNCTION_MIN_VELOCITY)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMinVelocity :
                    model::function_t::E_IndividualMinVelocity;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_MEAN_VELOCITY) {
+    } else if (outerToken == FUNCTION_MEAN_VELOCITY)   {
         function = isPopulation ?
                    model::function_t::E_PopulationMeanVelocity :
                    model::function_t::E_IndividualMeanVelocity;
         argumentRequired = true;
-    } else if (outerToken == FUNCTION_SUM_VELOCITY) {
+    } else if (outerToken == FUNCTION_SUM_VELOCITY)   {
         function = isPopulation ?
                    model::function_t::E_PopulationSumVelocity :
                    model::function_t::E_IndividualSumVelocity;
         argumentRequired = true;
-    } else {
+    } else   {
         // We expect an individual metric here, but if the original string
         // contained brackets then there's probably been a typo because a metric
         // name should not be followed by brackets
@@ -1169,7 +1170,7 @@ bool CFieldConfig::decipherExcludeFrequentSetting(const std::string &excludeFreq
         } else if (excludeFrequentString.length() == OVER_TOKEN.length() &&
                    core::CStrCaseCmp::strCaseCmp(excludeFrequentString.c_str(), OVER_TOKEN.c_str()) == 0) {
             overExcludeFrequent = isPopulation;
-        } else {
+        } else   {
             if (excludeFrequentString.length() != NONE_TOKEN.length() ||
                 core::CStrCaseCmp::strCaseCmp(excludeFrequentString.c_str(), NONE_TOKEN.c_str()) != 0) {
                 LOG_ERROR("Unexpected excludeFrequent value = " << excludeFrequentString);
@@ -1246,7 +1247,7 @@ void CFieldConfig::addCategorizationFilter(const std::string &filter) {
 
     if (tokens.size() != 1) {
         LOG_ERROR("Unexpected number of tokens: " << tokens.size()
-                                                  << "; ignoring categorization filter: " << filter);
+                  << "; ignoring categorization filter: " << filter);
         return;
     }
 
@@ -1261,7 +1262,7 @@ bool CFieldConfig::processFilter(const std::string &key,
         LOG_ERROR("Unrecognised filter key: " + key);
         return false;
     }
-    std::string       filterId = key.substr(sepPos + 1);
+    std::string filterId = key.substr(sepPos + 1);
     core::CPatternSet &filter = m_RuleFilters[filterId];
     return filter.initFromJson(value);
 }
@@ -1291,7 +1292,7 @@ bool CFieldConfig::processScheduledEvent(const boost::property_tree::ptree &prop
     }
 
     std::string indexString(key, SCHEDULED_EVENT_PREFIX.length(), sepPos - SCHEDULED_EVENT_PREFIX.length());
-    int         indexKey;
+    int indexKey;
     if (core::CStringUtils::stringToType(indexString, indexKey) == false) {
         LOG_ERROR("Cannot convert config key to integer: " << indexString);
         return false;
@@ -1354,7 +1355,8 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
       m_ConfigKey(configKey),
       m_ByHasExcludeFrequent(false),
       m_OverHasExcludeFrequent(false),
-      m_UseNull(true) {}
+      m_UseNull(true)
+{}
 
 CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
                                            int configKey,
@@ -1374,7 +1376,8 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
       m_ByFieldName(byFieldName),
       m_ByHasExcludeFrequent(byHasExcludeFrequent),
       m_OverHasExcludeFrequent(false),
-      m_UseNull(useNull) {}
+      m_UseNull(useNull)
+{}
 
 CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
                                            int configKey,
@@ -1397,7 +1400,8 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
       m_PartitionFieldName(partitionFieldName),
       m_ByHasExcludeFrequent(byHasExcludeFrequent),
       m_OverHasExcludeFrequent(overHasExcludeFrequent),
-      m_UseNull(useNull) {}
+      m_UseNull(useNull)
+{}
 
 CFieldConfig::CFieldOptions::CFieldOptions(model::function_t::EFunction function,
                                            const std::string &fieldName,
@@ -1416,7 +1420,8 @@ CFieldConfig::CFieldOptions::CFieldOptions(model::function_t::EFunction function
       m_PartitionFieldName(partitionFieldName),
       m_ByHasExcludeFrequent(byHasExcludeFrequent),
       m_OverHasExcludeFrequent(overHasExcludeFrequent),
-      m_UseNull(useNull) {}
+      m_UseNull(useNull)
+{}
 
 void CFieldConfig::CFieldOptions::description(std::string description) {
     m_Description.swap(description);
@@ -1462,10 +1467,10 @@ model_t::EExcludeFrequent CFieldConfig::CFieldOptions::excludeFrequent(void) con
     if (m_OverHasExcludeFrequent) {
         if (m_ByHasExcludeFrequent) {
             return model_t::E_XF_Both;
-        } else {
+        } else   {
             return model_t::E_XF_Over;
         }
-    } else {
+    } else   {
         if (m_ByHasExcludeFrequent) {
             return model_t::E_XF_By;
         }
@@ -1864,10 +1869,10 @@ std::ostream &CFieldConfig::CFieldOptions::debugPrintClause(std::ostream &strm) 
     if (m_OverHasExcludeFrequent) {
         if (m_ByHasExcludeFrequent) {
             strm << ' ' << EXCLUDE_FREQUENT_OPTION << '=' << ALL_TOKEN;
-        } else {
+        } else   {
             strm << ' ' << EXCLUDE_FREQUENT_OPTION << '=' << OVER_TOKEN;
         }
-    } else {
+    } else   {
         if (m_ByHasExcludeFrequent) {
             strm << ' ' << EXCLUDE_FREQUENT_OPTION << '=' << BY_TOKEN;
         }
@@ -1876,7 +1881,7 @@ std::ostream &CFieldConfig::CFieldOptions::debugPrintClause(std::ostream &strm) 
     return strm;
 }
 
-void CFieldConfig::CFieldOptions::swap(CFieldOptions &other) {
+void CFieldConfig::CFieldOptions::swap(CFieldOptions & other) {
     m_Description.swap(other.m_Description);
     std::swap(m_Function, other.m_Function);
     m_FieldName.swap(other.m_FieldName);

@@ -20,7 +20,8 @@ namespace ml {
 namespace api {
 
 CStateRestoreStreamFilter::CStateRestoreStreamFilter()
-    : boost::iostreams::basic_line_filter<char>(true), m_DocCount(0), m_RewrotePreviousLine(false) {}
+    : boost::iostreams::basic_line_filter<char>(true), m_DocCount(0), m_RewrotePreviousLine(false)
+{}
 
 CStateRestoreStreamFilter::string_type CStateRestoreStreamFilter::do_filter(const string_type &line) {
     // Persist format is:
@@ -64,9 +65,9 @@ CStateRestoreStreamFilter::string_type CStateRestoreStreamFilter::do_filter(cons
         return line.substr(leftOffset, rightOffset - leftOffset + 1)
                + ",\"_version\":1,\"found\":true,\"_source\":";
 
-    } else if (m_RewrotePreviousLine) {
+    } else if (m_RewrotePreviousLine)   {
         return line + '}' + '\0' + '\n';
-    } else {
+    } else   {
         m_RewrotePreviousLine = false;
         return line;
     }

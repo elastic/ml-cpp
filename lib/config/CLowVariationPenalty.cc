@@ -143,17 +143,17 @@ void penaltyForCountImpl(const CAutoconfigurerParams &params,
                          CDetectorSpecification &spec) {
     std::size_t n = stats.bucketStatistics().size();
 
-    TSizeVec   indices;
+    TSizeVec indices;
     TDoubleVec penalties;
-    TStrVec    descriptions;
+    TStrVec descriptions;
     indices.reserve(2 * n);
     penalties.reserve(2 * n);
     descriptions.reserve(2 * n);
 
     for (std::size_t bid = 0u; bid < n; ++bid) {
         const TSizeVec &indices_ = params.penaltyIndicesFor(bid);
-        double         penalty;
-        double         proportionWithLowVariation;
+        double penalty;
+        double proportionWithLowVariation;
         penaltyImpl(params, stats.bucketStatistics()[bid].countMomentsPerPartition(),
                     penalty, proportionWithLowVariation);
         indices.insert(indices.end(), indices_.begin(), indices_.end());
@@ -161,9 +161,9 @@ void penaltyForCountImpl(const CAutoconfigurerParams &params,
         if (penalty < 1.0) {
             if (spec.byField() || spec.partitionField()) {
                 description = descriptionPrefix(spec, proportionWithLowVariation)
-                              + " have "+ (penalty == MIN ? "too " : "") + "low"
+                              + " have " + (penalty == MIN ? "too " : "") + "low"
                               + " variation in their bucket counts";
-            } else {
+            } else   {
                 description =  std::string("The variation in the bucket counts is ")
                               + (penalty == MIN ? "too " : "") + "low";
             }
@@ -184,9 +184,9 @@ void penaltyForImpl(const CAutoconfigurerParams &params,
                     CDetectorSpecification &spec) {
     std::size_t n = stats.bucketStatistics().size();
 
-    TSizeVec   indices;
+    TSizeVec indices;
     TDoubleVec penalties;
-    TStrVec    descriptions;
+    TStrVec descriptions;
     indices.reserve(2 * n);
     penalties.reserve(2 * n);
     descriptions.reserve(2 * n);
@@ -195,8 +195,8 @@ void penaltyForImpl(const CAutoconfigurerParams &params,
         const TSizeVec &indices_ = params.penaltyIndicesFor(bid);
         indices.insert(indices.end(), indices_.begin(), indices_.end());
         const std::string &argument = *spec.argumentField();
-        double            penalty = 0.0;
-        double            proportionWithLowVariation = 0.0;
+        double penalty = 0.0;
+        double proportionWithLowVariation = 0.0;
         computePenalty(params, stats.bucketStatistics()[bid].argumentMomentsPerPartition(argument),
                        penalty, proportionWithLowVariation);
         std::string description;
@@ -205,7 +205,7 @@ void penaltyForImpl(const CAutoconfigurerParams &params,
                 description = descriptionPrefix(spec, proportionWithLowVariation)
                               + " have " + (penalty == MIN ? "too " : "") + "low"
                               + " variation in their bucket " + function;
-            } else {
+            } else   {
                 description =  std::string("The variation in the bucket ") + function + " is "
                               + (penalty == MIN ? "too " : "") + "low";
             }
@@ -219,7 +219,8 @@ void penaltyForImpl(const CAutoconfigurerParams &params,
 
 }
 
-CLowVariationPenalty::CLowVariationPenalty(const CAutoconfigurerParams &params) : CPenalty(params) {}
+CLowVariationPenalty::CLowVariationPenalty(const CAutoconfigurerParams &params) : CPenalty(params)
+{}
 
 CLowVariationPenalty *CLowVariationPenalty::clone(void) const {
     return new CLowVariationPenalty(*this);
@@ -231,19 +232,19 @@ std::string CLowVariationPenalty::name(void) const {
 
 void CLowVariationPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
 #define APPLY_COUNTING_PENALTY(penalty)                                                       \
-    if (const CDataCountStatistics *stats_ = spec.countStatistics())                      \
+    if (const CDataCountStatistics * stats_ = spec.countStatistics())                      \
     {                                                                                     \
-        if (const CPartitionDataCountStatistics *partitionStats =                         \
+        if (const CPartitionDataCountStatistics * partitionStats =                         \
                 dynamic_cast<const CPartitionDataCountStatistics*>(stats_))               \
         {                                                                                 \
             this->penalty(*partitionStats, spec);                                         \
         }                                                                                 \
-        else if (const CByAndPartitionDataCountStatistics *byAndPartitionStats =          \
+        else if (const CByAndPartitionDataCountStatistics * byAndPartitionStats =          \
                      dynamic_cast<const CByAndPartitionDataCountStatistics*>(stats_))     \
         {                                                                                 \
             this->penalty(*byAndPartitionStats, spec);                                    \
         }                                                                                 \
-        else if (const CByOverAndPartitionDataCountStatistics *byOverAndPartitionStats =  \
+        else if (const CByOverAndPartitionDataCountStatistics * byOverAndPartitionStats =  \
                      dynamic_cast<const CByOverAndPartitionDataCountStatistics*>(stats_)) \
         {                                                                                 \
             this->penalty(*byOverAndPartitionStats, spec);                                \

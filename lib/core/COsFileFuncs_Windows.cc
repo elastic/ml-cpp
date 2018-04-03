@@ -29,9 +29,9 @@ namespace {
 //! midnight on 1/1/1601 UTC (Gregorian Calendar even though many countries were
 //! still using the Julian Calendar then).
 __time64_t fileTimeToTimeT(const FILETIME &fileTime) {
-    static const ULONGLONG  TICKS_PER_SECOND = 10000000ull;
+    static const ULONGLONG TICKS_PER_SECOND = 10000000ull;
     static const __time64_t SECONDS_1601_TO_1970 = 11644473600ll;
-    ULARGE_INTEGER          largeInt;
+    ULARGE_INTEGER largeInt;
     largeInt.LowPart = fileTime.dwLowDateTime;
     largeInt.HighPart = fileTime.dwHighDateTime;
     return static_cast<__time64_t>(largeInt.QuadPart / TICKS_PER_SECOND) - SECONDS_1601_TO_1970;
@@ -84,7 +84,7 @@ int COsFileFuncs::open(const char *path, int oflag, TMode pmode) {
     DWORD desiredAccess(GENERIC_READ);
     if ((oflag & RDWR) != 0) {
         desiredAccess = GENERIC_READ | GENERIC_WRITE;
-    } else if ((oflag & WRONLY) != 0) {
+    } else if ((oflag & WRONLY) != 0)   {
         desiredAccess = GENERIC_WRITE;
     }
 
@@ -188,7 +188,7 @@ int COsFileFuncs::close(int fildes) {
 
 int COsFileFuncs::fstat(int fildes, TStat *buf) {
     struct _stati64 tmpBuf;
-    int             res(::_fstati64(fildes, &tmpBuf));
+    int res(::_fstati64(fildes, &tmpBuf));
     if (res != 0) {
         return res;
     }
@@ -227,7 +227,7 @@ int COsFileFuncs::fstat(int fildes, TStat *buf) {
 
 int COsFileFuncs::stat(const char *path, TStat *buf) {
     struct _stati64 tmpBuf;
-    int             res(::_stati64(path, &tmpBuf));
+    int res(::_stati64(path, &tmpBuf));
     if (res != 0) {
         return res;
     }

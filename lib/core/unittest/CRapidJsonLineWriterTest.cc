@@ -52,7 +52,7 @@ void CRapidJsonLineWriterTest::testDoublePrecission(void) {
         using TGenericLineWriter = ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,
                                                                   rapidjson::CrtAllocator>;
         rapidjson::OStreamWrapper writeStream(strm);
-        TGenericLineWriter        writer(writeStream);
+        TGenericLineWriter writer(writeStream);
 
         writer.StartObject();
         writer.Key("a");
@@ -92,7 +92,7 @@ void CRapidJsonLineWriterTest::testDoublePrecissionDtoa(void) {
 }
 
 void CRapidJsonLineWriterTest::microBenchmark(void) {
-    char                 buffer[100];
+    char buffer[100];
     ml::core::CStopWatch stopWatch;
 
     stopWatch.start();
@@ -118,7 +118,7 @@ void CRapidJsonLineWriterTest::microBenchmark(void) {
     }
 
     elapsed = stopWatch.stop();
-    LOG_INFO("snprintf " << runs <<" runs took " << elapsed);
+    LOG_INFO("snprintf " << runs << " runs took " << elapsed);
 }
 
 CppUnit::Test* CRapidJsonLineWriterTest::suite() {
