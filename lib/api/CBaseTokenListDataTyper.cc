@@ -24,18 +24,15 @@
 #include <boost/bind.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <ostream>
 #include <set>
-
-#include <math.h>
-
 
 namespace ml
 {
 namespace api
 {
-
 
 // Initialise statics
 const std::string CBaseTokenListDataTyper::PRETOKENISED_TOKEN_FIELD("...");
@@ -580,7 +577,7 @@ size_t CBaseTokenListDataTyper::minMatchingWeight(size_t weight, double threshol
     // enforce this.  Using floor + 1 due to threshold check being exclusive.
     // If threshold check is changed to inclusive, change formula to ceil
     // (without the + 1).
-    return static_cast<size_t>(::floor(double(weight) * threshold + EPSILON)) + 1;
+    return static_cast<size_t>(std::floor(double(weight) * threshold + EPSILON)) + 1;
 }
 
 size_t CBaseTokenListDataTyper::maxMatchingWeight(size_t weight, double threshold)
@@ -599,7 +596,7 @@ size_t CBaseTokenListDataTyper::maxMatchingWeight(size_t weight, double threshol
     // enforce this.  Using ceil - 1 due to threshold check being exclusive.
     // If threshold check is changed to inclusive, change formula to floor
     // (without the - 1).
-    return static_cast<size_t>(::ceil(double(weight) / threshold - EPSILON)) - 1;
+    return static_cast<size_t>(std::ceil(double(weight) / threshold - EPSILON)) - 1;
 }
 
 size_t CBaseTokenListDataTyper::idForToken(const std::string &token)

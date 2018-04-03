@@ -348,7 +348,7 @@ void CAgglomerativeClustererTest::testSimplePermutations(void)
             {
                 for (std::size_t j = i; j < n; ++j)
                 {
-                    distanceMatrix[j].push_back(::fabs(x[p[i]] - x[p[j]]));
+                    distanceMatrix[j].push_back(std::fabs(x[p[i]] - x[p[j]]));
                 }
                 LOG_DEBUG("D = " << core::CContainerPrinter::print(distanceMatrix[i]));
             }
@@ -428,7 +428,7 @@ void CAgglomerativeClustererTest::testDegenerate(void)
             {
                 for (std::size_t j = i; j < n; ++j)
                 {
-                    distanceMatrix[j].push_back(::fabs(x[p[i]] - x[p[j]]));
+                    distanceMatrix[j].push_back(std::fabs(x[p[i]] - x[p[j]]));
                 }
                 if (count % 10 == 0)
                 {

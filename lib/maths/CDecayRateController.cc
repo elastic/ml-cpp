@@ -29,7 +29,7 @@
 #include <boost/range.hpp>
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 namespace ml
 {

@@ -110,8 +110,8 @@ void CRandomNumbers::generateRandomMultivariateNormals(const TSizeVec &sizes,
         Eigen::Matrix<T, N, N> rotation = Eigen::Matrix<T, N, N>::Identity();
         for (std::size_t j = 1u; j < coordinates.size(); j += 2)
         {
-            double ct = ::cos(thetas[j/2]);
-            double st = ::sin(thetas[j/2]);
+            double ct = std::cos(thetas[j/2]);
+            double st = std::sin(thetas[j/2]);
 
             Eigen::Matrix<T, N, N> r = Eigen::Matrix<T, N, N>::Identity();
             r(coordinates[j/2],   coordinates[j/2])   =  ct;

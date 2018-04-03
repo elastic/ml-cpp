@@ -29,6 +29,7 @@
 #include <boost/bind.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <string>
 #include <utility>
 #include <vector>
@@ -90,7 +91,7 @@ double logLikelihoodFromCluster(const TDouble1Vec &sample,
     {
         return likelihood;
     }
-    return likelihood + ::log(normal.numberSamples());
+    return likelihood + std::log(normal.numberSamples());
 }
 
 } // detail::
@@ -200,7 +201,7 @@ bool CKMeansOnline1d::clusterSpread(std::size_t index, double &result) const
         LOG_ERROR("Cluster " << index << " doesn't exist");
         return false;
     }
-    result = ::sqrt(m_Clusters[index].marginalLikelihoodVariance());
+    result = std::sqrt(m_Clusters[index].marginalLikelihoodVariance());
     return true;
 }
 
@@ -238,8 +239,8 @@ void CKMeansOnline1d::cluster(const double &point,
         double likelihoodRight = detail::logLikelihoodFromCluster(sample, *rightCluster);
 
         double renormalizer = std::max(likelihoodLeft, likelihoodRight);
-        double pLeft  = ::exp(likelihoodLeft - renormalizer);
-        double pRight = ::exp(likelihoodRight - renormalizer);
+        double pLeft  = std::exp(likelihoodLeft - renormalizer);
+        double pRight = std::exp(likelihoodRight - renormalizer);
         double normalizer = pLeft + pRight;
         pLeft  /= normalizer;
         pRight /= normalizer;

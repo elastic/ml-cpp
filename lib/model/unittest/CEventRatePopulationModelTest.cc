@@ -964,7 +964,7 @@ void CEventRatePopulationModelTest::testFrequency(void)
             CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0 / static_cast<double>(period[i]),
                                          populationModel->personFrequency(pid),
                                          0.1 / static_cast<double>(period[i]));
-            meanError.add(::fabs(  populationModel->personFrequency(pid)
+            meanError.add(std::fabs(  populationModel->personFrequency(pid)
                                  - 1.0 / static_cast<double>(period[i])));
         }
         LOG_DEBUG("error = " << maths::CBasicStatistics::mean(meanError));

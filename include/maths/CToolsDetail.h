@@ -27,6 +27,7 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <exception>
 
 namespace ml
@@ -41,15 +42,15 @@ CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::CSmoothedK
         m_LogF(logf),
         m_LogF0(logF0),
         m_K(k),
-        m_Scale(::exp(m_LogF0) * (1.0 + ::exp(-k)))
+        m_Scale(std::exp(m_LogF0) * (1.0 + std::exp(-k)))
 {}
 
 template<typename LOGF>
 void CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::k(double k)
 {
-    double f0 = m_Scale / (1.0 + ::exp(-m_K));
+    double f0 = m_Scale / (1.0 + std::exp(-m_K));
     m_K = k;
-    m_Scale = f0 * (1.0 + ::exp(-k));
+    m_Scale = f0 * (1.0 + std::exp(-k));
 }
 
 template<typename LOGF>
@@ -79,13 +80,13 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::opera
     {
         return true;
     }
-    double fx = ::exp(logFx);
+    double fx = std::exp(logFx);
     if (fx < 1.0 + core::constants::LOG_DOUBLE_EPSILON / m_K)
     {
         result = m_Scale * fx;
         return true;
     }
-    result = m_Scale / (1.0 + ::exp(m_K * (fx - 1.0))) * fx;
+    result = m_Scale / (1.0 + std::exp(m_K * (fx - 1.0))) * fx;
     return true;
 }
 

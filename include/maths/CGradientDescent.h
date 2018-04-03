@@ -22,6 +22,7 @@
 #include <maths/CLinearAlgebra.h>
 #include <maths/ImportExport.h>
 
+#include <cmath>
 #include <cstddef>
 #include <vector>
 

@@ -186,8 +186,8 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine(void)
             double y0 = function[j - 1];
             double y1 = function[j];
             double y  = y0 + (y1 - y0) * (static_cast<double>(t) - x0) / (x1 - x0);
-            meanError1.add(::fabs(values1[i - 1] - y));
-            maxError1.add(::fabs(values1[i - 1] - y));
+            meanError1.add(std::fabs(values1[i - 1] - y));
+            maxError1.add(std::fabs(values1[i - 1] - y));
         }
 
         TMeanAccumulator meanError2;
@@ -206,8 +206,8 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine(void)
             double y0 = function[j - 1];
             double y1 = function[j];
             double y  = y0 + (y1 - y0) * (static_cast<double>(t) - x0) / (x1 - x0);
-            meanError2.add(::fabs(values2[i - 1] - y));
-            maxError2.add(::fabs(values2[i - 1] - y));
+            meanError2.add(std::fabs(values2[i - 1] - y));
+            maxError2.add(std::fabs(values2[i - 1] - y));
         }
 
         LOG_DEBUG("mean error         = " << maths::CBasicStatistics::mean(meanError1));
@@ -266,23 +266,23 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine(void)
             double v = variances[i-1];
 
             // Function mean and variance.
-            double m_ = ::fabs(a) < ::fabs(b) ?
-                        0.02 / 3.0 * ::pow(b, 3.0)
-                        * (1.0 - ::pow(a/b, 3.0)) / (b-a) :
-                        0.02 / 3.0 * ::pow(a, 3.0)
-                        * (::pow(b/a, 3.0) - 1.0) / (b-a);
+            double m_ = std::fabs(a) < std::fabs(b) ?
+                        0.02 / 3.0 * std::pow(b, 3.0)
+                        * (1.0 - std::pow(a/b, 3.0)) / (b-a) :
+                        0.02 / 3.0 * std::pow(a, 3.0)
+                        * (std::pow(b/a, 3.0) - 1.0) / (b-a);
             double v_ = 9.0;
             LOG_DEBUG("m = " << m
                       << ", m_ = " << m_
-                      << ", absolute error = " << ::fabs(m - m_));
+                      << ", absolute error = " << std::fabs(m - m_));
             LOG_DEBUG("v = " << v
                       << ", v_ = " << v_
-                      << ", relative error = " << ::fabs(v - v_) / v_);
+                      << ", relative error = " << std::fabs(v - v_) / v_);
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(m_, m, 0.7);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(v_, v, 0.4 * v_);
-            meanError.add(::fabs(m_ - m) / m_);
-            varianceError.add(::fabs(v_ - v) / v_);
+            meanError.add(std::fabs(m_ - m) / m_);
+            varianceError.add(std::fabs(v_ - v) / v_);
 
             if (i == 1 || i == endpoints.size() - 1)
             {
@@ -291,26 +291,26 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine(void)
             if ((b * b / 50.0 - m) * (a * a / 50.0 - m) < 0.0)
             {
                 // Root.
-                double c = b < 0.0 ? -::sqrt(50.0 * m) : +::sqrt(50.0 * m);
+                double c = b < 0.0 ? -std::sqrt(50.0 * m) : +::sqrt(50.0 * m);
                 // Left and right partial averaging errors.
-                double l = ::fabs(c) < ::fabs(a) ?
+                double l = std::fabs(c) < std::fabs(a) ?
                            0.02 / 3.0 * a * a * a
                            * ((c/a) * (c/a) * (c/a) - 1.0) - m * (c-a) :
                            0.02 / 3.0 * c * c * c
                            * (1.0 - (a/c) * (a/c) * (a/c)) - m * (c-a);
-                double r = ::fabs(c) < ::fabs(b) ?
+                double r = std::fabs(c) < std::fabs(b) ?
                            0.02 / 3.0 * b * b * b
                            * (1.0 - (c/b) * (c/b) * (c/b)) - m * (b-c) :
                            0.02 / 3.0 * c * c * c
                            * ((b/c) * (b/c) * (b/c) - 1.0) - m * (b-c);
                 LOG_DEBUG("c = " << c
                           << ", l = " << l << " r = " << r
-                          << ", error = " << ::fabs(l) + ::fabs(r));
-                avgError.add(::fabs(l) + ::fabs(r));
+                          << ", error = " << std::fabs(l) + std::fabs(r));
+                avgError.add(std::fabs(l) + std::fabs(r));
             }
             else
             {
-                avgError.add(::fabs((m_ - m) * (b - a)));
+                avgError.add(std::fabs((m_ - m) * (b - a)));
             }
         }
 
@@ -323,7 +323,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine(void)
         CPPUNIT_ASSERT(varianceError_ < 0.21);
 
         double avgErrorMean = maths::CBasicStatistics::mean(avgError);
-        double avgErrorStd = ::sqrt(maths::CBasicStatistics::variance(avgError));
+        double avgErrorStd = std::sqrt(maths::CBasicStatistics::variance(avgError));
         LOG_DEBUG("avgErrorMean = " << avgErrorMean
                   << ", avgErrorStd = " << avgErrorStd);
 
@@ -436,7 +436,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength(void)
         double totalError = 0.0;
         for (std::size_t j = 1u; j+1 < endpoints1.size(); ++j)
         {
-            totalError += ::fabs(endpoints2[j] - endpoints1[j]);
+            totalError += std::fabs(endpoints2[j] - endpoints1[j]);
         }
         LOG_DEBUG("minimumTotalError = " << minimumTotalError);
         LOG_DEBUG("totalError        = " << totalError);
@@ -543,14 +543,14 @@ void CSeasonalComponentAdaptiveBucketingTest::testKnots(void)
                 LOG_DEBUG("expected = " << expectedValue
                           << ", value = " << values[i]);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedValue, values[i], 15.0);
-                meanError.add(::fabs(values[i] - expectedValue));
-                meanValue.add(::fabs(expectedValue));
+                meanError.add(std::fabs(values[i] - expectedValue));
+                meanValue.add(std::fabs(expectedValue));
             }
             LOG_DEBUG("meanError = " << maths::CBasicStatistics::mean(meanError));
             LOG_DEBUG("meanValue = " << maths::CBasicStatistics::mean(meanValue));
             CPPUNIT_ASSERT(  maths::CBasicStatistics::mean(meanError)
                            / maths::CBasicStatistics::mean(meanValue)
-                                 < 0.1 / ::sqrt(static_cast<double>(p+1)));
+                                 < 0.1 / std::sqrt(static_cast<double>(p+1)));
         }
     }
     LOG_DEBUG("*** Variances ***");
@@ -595,8 +595,8 @@ void CSeasonalComponentAdaptiveBucketingTest::testKnots(void)
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVariance,
                                                  variances[i],
                                                  15.0);
-                    meanError.add(::fabs(variances[i] - expectedVariance));
-                    meanVariance.add(::fabs(expectedVariance));
+                    meanError.add(std::fabs(variances[i] - expectedVariance));
+                    meanVariance.add(std::fabs(expectedVariance));
                 }
                 LOG_DEBUG("meanError    = " << maths::CBasicStatistics::mean(meanError));
                 LOG_DEBUG("meanVariance = " << maths::CBasicStatistics::mean(meanVariance));
@@ -634,7 +634,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots(void)
             double x = static_cast<double>(i) / 144.0;
             double y = 10.0 * (  std::min(static_cast<double>(p+1) + x, 50.0)
                                - std::max(static_cast<double>(p+1) + x - 50.0, 0.0)
-                               + 10.0 * ::sin(boost::math::double_constants::two_pi * x));
+                               + 10.0 * std::sin(boost::math::double_constants::two_pi * x));
             bucketing.add(static_cast<core_t::TTime>(86400 * p + 600 * i), y + noise[i], y);
         }
         bucketing.refine(static_cast<core_t::TTime>(86400 * (p + 1)));
@@ -659,11 +659,11 @@ void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots(void)
                 double x = knots[i] / 86400.0;
                 double expectedValue = 10.0 * (  std::min(static_cast<double>(p+1) + x, 50.0)
                                                - std::max(static_cast<double>(p+1) + x - 50.0, 0.0)
-                                               + 10.0 * ::sin(boost::math::double_constants::two_pi * x));
+                                               + 10.0 * std::sin(boost::math::double_constants::two_pi * x));
                 LOG_DEBUG("expected = " << expectedValue << ", value = " << values[i]);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedValue, values[i], 70.0);
-                meanError.add(::fabs(values[i] - expectedValue));
-                meanValue.add(::fabs(expectedValue));
+                meanError.add(std::fabs(values[i] - expectedValue));
+                meanValue.add(std::fabs(expectedValue));
             }
             LOG_DEBUG("meanError = " << maths::CBasicStatistics::mean(meanError));
             LOG_DEBUG("meanValue = " << maths::CBasicStatistics::mean(meanValue));
@@ -693,7 +693,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testShiftValue(void)
     for (/**/; t < 40 * 86400; t += 600)
     {
         double x = static_cast<double>(t) / 86400.0;
-        double y = x + 20.0 + 20.0 * ::sin(boost::math::double_constants::two_pi * x);
+        double y = x + 20.0 + 20.0 * std::sin(boost::math::double_constants::two_pi * x);
         bucketing.add(t, y, y);
         if (t % 86400 == 0)
         {
@@ -743,7 +743,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testSlope(void)
     for (/**/; t < 60 * 86400; t += 600)
     {
         double x = static_cast<double>(t) / 86400.0;
-        double y = x + 20.0 + 20.0 * ::sin(boost::math::double_constants::two_pi * x);
+        double y = x + 20.0 + 20.0 * std::sin(boost::math::double_constants::two_pi * x);
         bucketing.add(t, y, y);
         if (t % 86400 == 0)
         {

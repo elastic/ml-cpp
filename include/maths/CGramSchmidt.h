@@ -154,7 +154,7 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable
                               << ", norm = " << n
                               << ", eps = " << eps);
 
-                    if (::fabs(n) > eps)
+                    if (std::fabs(n) > eps)
                     {
                         divide(x[current], n);
                         ++current;

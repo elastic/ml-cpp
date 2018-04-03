@@ -267,7 +267,7 @@ void generateTestMessages(std::size_t dimension,
                         double vd = values[l + d];
                         if (anomaly && (l % (2 * dimension)) == 0)
                         {
-                            vd += 6.0 * ::sqrt(variances[j]);
+                            vd += 6.0 * std::sqrt(variances[j]);
                         }
                         value[d] = roundToNearestPersisted(vd);
                     }
@@ -1232,7 +1232,7 @@ void CMetricPopulationModelTest::testFrequency(void)
             CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0 / static_cast<double>(period[i]),
                                          populationModel->personFrequency(pid),
                                          0.1 / static_cast<double>(period[i]));
-            meanError.add(::fabs(  populationModel->personFrequency(pid)
+            meanError.add(std::fabs(  populationModel->personFrequency(pid)
                                  - 1.0 / static_cast<double>(period[i])));
         }
         LOG_DEBUG("error = " << maths::CBasicStatistics::mean(meanError));

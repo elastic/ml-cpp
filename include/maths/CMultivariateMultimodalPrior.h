@@ -46,6 +46,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <numeric>
 #include <string>
@@ -473,7 +474,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
                 mode.s_Prior->propagateForwardsByTime(time);
             }
 
-            this->numberSamples(this->numberSamples() * ::exp(-this->scaledDecayRate() * time));
+            this->numberSamples(this->numberSamples() * std::exp(-this->scaledDecayRate() * time));
             LOG_TRACE("numberSamples = " << this->numberSamples());
         }
 
@@ -518,7 +519,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
             double Z = 0.0;
             for (auto &weight : weights)
             {
-                weight = ::exp(weight - maxWeight[0]);
+                weight = std::exp(weight - maxWeight[0]);
                 Z += weight;
             }
             for (std::size_t i = 0u; i < weights.size(); ++i)
@@ -528,7 +529,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
 
             return {TUnivariatePriorPtr(new CMultimodalPrior(this->dataType(),
                                                              this->decayRate(), modes)),
-                    Z > 0.0 ? maxWeight[0] + ::log(Z) : 0.0};
+                    Z > 0.0 ? maxWeight[0] + std::log(Z) : 0.0};
         }
 
         //! Compute the bivariate prior marginalizing over the variables
@@ -578,7 +579,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
             double Z = 0.0;
             for (auto &weight : weights)
             {
-                weight = ::exp(weight - maxWeight[0]);
+                weight = std::exp(weight - maxWeight[0]);
                 Z += weight;
             }
             for (std::size_t i = 0u; i < weights.size(); ++i)
@@ -587,7 +588,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
             }
 
             return {TPriorPtr(new CMultivariateMultimodalPrior<2>(this->dataType(), modes)),
-                    Z > 0.0 ? maxWeight[0] + ::log(Z) : 0.0};
+                    Z > 0.0 ? maxWeight[0] + std::log(Z) : 0.0};
         }
 
         //! Get the support for the marginal likelihood function.
@@ -711,7 +712,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
                 {
                     continue;
                 }
-                if (modeLikelihood.add(::log(w) + likelihood))
+                if (modeLikelihood.add(std::log(w) + likelihood))
                 {
                     result = TPoint(mode[0]);
                 }
@@ -836,7 +837,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
                     double logSeasonalScale = 0.0;
                     for (std::size_t j = 0u; j < seasonalScale.dimension(); ++j)
                     {
-                        logSeasonalScale += ::log(seasonalScale(j));
+                        logSeasonalScale += std::log(seasonalScale(j));
                     }
 
                     TPoint x(samples[i]);

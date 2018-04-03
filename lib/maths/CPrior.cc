@@ -29,12 +29,11 @@
 #include <maths/CSolvers.h>
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
-
-#include <math.h>
 
 namespace ml
 {

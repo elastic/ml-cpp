@@ -39,6 +39,7 @@
 #include <boost/range.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <cmath>
 #include <string>
 #include <vector>
 
@@ -54,7 +55,7 @@ bool reportProgress(uint64_t records)
 {
     static const double LOG_10 = maths::CTools::fastLog(10.0);
     double log10 = maths::CTools::fastLog(static_cast<double>(records) / 100.0) / LOG_10;
-    uint64_t nextPow10 = static_cast<uint64_t>(::pow(10, ::ceil(log10)));
+    uint64_t nextPow10 = static_cast<uint64_t>(std::pow(10, std::ceil(log10)));
     return records % std::max(nextPow10, uint64_t(100)) == 0;
 }
 

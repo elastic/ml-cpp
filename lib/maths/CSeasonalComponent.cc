@@ -355,7 +355,7 @@ core_t::TTime CSeasonalComponent::jitter(core_t::TTime time)
         core_t::TTime a{time_.startOfWindow(time)};
         core_t::TTime b{a + time_.windowLength() - 1};
         double jitter{0.5 * m_Bucketing.minimumBucketLength()
-                          * (f <= 0.5 ? ::sqrt(2.0 * f) - 1.0 : ::sqrt(2.0 * (f - 0.5)))};
+                          * (f <= 0.5 ? std::sqrt(2.0 * f) - 1.0 : std::sqrt(2.0 * (f - 0.5)))};
         result = CTools::truncate(result + static_cast<core_t::TTime>(jitter + 0.5), a, b);
     }
     return result;

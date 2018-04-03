@@ -55,7 +55,7 @@ struct SSqrt<VectorTag>
     {
         for (std::size_t i = 0u; i < d; ++i)
         {
-            result(i) = ::sqrt(result(i));
+            result(i) = std::sqrt(result(i));
         }
     }
 };
@@ -70,7 +70,7 @@ struct SSqrt<MatrixTag>
         {
             for (std::size_t j = 0u; j <= i; ++j)
             {
-                result(i, j) = ::sqrt(result(i, j));
+                result(i, j) = std::sqrt(result(i, j));
             }
         }
     }
@@ -264,7 +264,7 @@ struct SFabs<VectorTag>
     {
         for (std::size_t i = 0u; i < d; ++i)
         {
-            result(i) = ::fabs(result(i));
+            result(i) = std::fabs(result(i));
         }
     }
 };
@@ -279,7 +279,7 @@ struct SFabs<MatrixTag>
         {
             for (std::size_t j = 0u; j <= i; ++j)
             {
-                result(i, j) = ::fabs(result(i, j));
+                result(i, j) = std::fabs(result(i, j));
             }
         }
     }
@@ -740,7 +740,7 @@ void scaleCovariances(std::size_t i,
                       T scale,
                       CSymmetricMatrixNxN<T, N> &m)
 {
-    scale = ::sqrt(scale);
+    scale = std::sqrt(scale);
     for (std::size_t j = 0u; j < m.columns(); ++j)
     {
         if (i == j)
@@ -768,7 +768,7 @@ void scaleCovariances(std::size_t i,
                       T scale,
                       CSymmetricMatrix<T> &m)
 {
-    scale = ::sqrt(scale);
+    scale = std::sqrt(scale);
     for (std::size_t j = 0u; j < m.columns(); ++j)
     {
         if (i == j)

@@ -159,7 +159,7 @@ void generateSporadicEvents(const core_t::TTime &startTime,
         TDoubleVec gap;
         rng.generateUniformSamples(0.0, 10.0 * static_cast<double>(bucketLength), 1u, gap);
         bucketStartTime += static_cast<double>(bucketLength)
-                           * ::ceil(gap[0] / static_cast<double>(bucketLength));
+                           * std::ceil(gap[0] / static_cast<double>(bucketLength));
     }
 }
 
@@ -2878,11 +2878,11 @@ void CEventRateModelTest::testDecayRateControl(void)
             }
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
-            meanPredictionError.add(::fabs(
+            meanPredictionError.add(std::fabs(
                     model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
                   - model->baselineBucketMean(feature, 0, 0, type,
                                               NO_CORRELATES, t + bucketLength / 2)[0]));
-            meanReferencePredictionError.add(::fabs(
+            meanReferencePredictionError.add(std::fabs(
                     referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
                   - referenceModel->baselineBucketMean(feature, 0, 0, type,
                                                        NO_CORRELATES, t + bucketLength / 2)[0]));
@@ -2923,7 +2923,7 @@ void CEventRateModelTest::testDecayRateControl(void)
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
-            double rate = 10.0 * (1.0 + ::sin(  boost::math::double_constants::two_pi
+            double rate = 10.0 * (1.0 + std::sin(  boost::math::double_constants::two_pi
                                               * static_cast<double>(t)
                                               / static_cast<double>(core::constants::DAY)))
                                * (t < 5 * core::constants::WEEK ? 1.0 : 2.0);
@@ -2936,11 +2936,11 @@ void CEventRateModelTest::testDecayRateControl(void)
             }
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
-            meanPredictionError.add(::fabs(
+            meanPredictionError.add(std::fabs(
                     model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
                   - model->baselineBucketMean(feature, 0, 0, type,
                                               NO_CORRELATES, t + bucketLength / 2)[0]));
-            meanReferencePredictionError.add(::fabs(
+            meanReferencePredictionError.add(std::fabs(
                     referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
                   - referenceModel->baselineBucketMean(feature, 0, 0, type,
                                                        NO_CORRELATES, t + bucketLength / 2)[0]));
@@ -2982,10 +2982,10 @@ void CEventRateModelTest::testDecayRateControl(void)
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
-            double rate = 10.0 * (1.0 + ::sin(  boost::math::double_constants::two_pi
+            double rate = 10.0 * (1.0 + std::sin(  boost::math::double_constants::two_pi
                                               * static_cast<double>(t)
                                               / static_cast<double>(core::constants::DAY)))
-                               * (1.0 + ::sin(  boost::math::double_constants::two_pi
+                               * (1.0 + std::sin(  boost::math::double_constants::two_pi
                                               * static_cast<double>(t)
                                               / 10.0 / static_cast<double>(core::constants::WEEK)));
             TDoubleVec noise;
@@ -2997,11 +2997,11 @@ void CEventRateModelTest::testDecayRateControl(void)
             }
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
-            meanPredictionError.add(::fabs(
+            meanPredictionError.add(std::fabs(
                     model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
                   - model->baselineBucketMean(feature, 0, 0, type,
                                               NO_CORRELATES, t + bucketLength / 2)[0]));
-            meanReferencePredictionError.add(::fabs(
+            meanReferencePredictionError.add(std::fabs(
                     referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
                   - referenceModel->baselineBucketMean(feature, 0, 0, type,
                                                        NO_CORRELATES, t + bucketLength / 2)[0]));

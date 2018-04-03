@@ -29,12 +29,11 @@
 #include <boost/math/tools/roots.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <limits>
 #include <stdexcept>
 #include <utility>
-
-#include <math.h>
 
 namespace ml
 {
@@ -143,7 +142,7 @@ class MATHS_EXPORT CSolvers
                              double &fx)
         {
             tolerance = std::max(tolerance,
-                                 ::sqrt(std::numeric_limits<double>::epsilon()));
+                                 std::sqrt(std::numeric_limits<double>::epsilon()));
             const double golden = 0.3819660;
 
             if (fa < fb)
@@ -167,9 +166,9 @@ class MATHS_EXPORT CSolvers
             {
                 double xm = bisect(a, b);
 
-                double t1 = tolerance * (::fabs(x) + 0.25);
+                double t1 = tolerance * (std::fabs(x) + 0.25);
                 double t2 = 2.0 * t1;
-                if (fx <= lb || ::fabs(x - xm) <= (t2 - (b - a) / 2.0))
+                if (fx <= lb || std::fabs(x - xm) <= (t2 - (b - a) / 2.0))
                 {
                     break;
                 }
@@ -187,12 +186,12 @@ class MATHS_EXPORT CSolvers
                     {
                         p = -p;
                     }
-                    q = ::fabs(q);
+                    q = std::fabs(q);
 
                     double td = sLast;
-                    sLast = ::fabs(s);
+                    sLast = std::fabs(s);
 
-                    if (::fabs(p) >= q * td / 2.0
+                    if (std::fabs(p) >= q * td / 2.0
                         || p <= q * (a - x)
                         || p >= q * (b - x))
                     {
@@ -295,9 +294,9 @@ class MATHS_EXPORT CSolvers
                     double minStep = step;
                     double maxStep = step * step;
                     step = fa == fb ?
-                           maxStep : std::min(std::max(  ::fabs(b - a)
-                                                       / ::fabs(fb - fa)
-                                                       * ::fabs(fb),
+                           maxStep : std::min(std::max(  std::fabs(b - a)
+                                                       / std::fabs(fb - fa)
+                                                       * std::fabs(fb),
                                                        minStep), maxStep);
                 }
                 a = b;
@@ -616,7 +615,7 @@ class MATHS_EXPORT CSolvers
                 return false;
             }
 
-            if (::fabs(fa) < ::fabs(fb))
+            if (std::fabs(fa) < std::fabs(fb))
             {
                 std::swap(a, b);
                 std::swap(fa, fb);
@@ -636,8 +635,8 @@ class MATHS_EXPORT CSolvers
                 double e = (3.0 * a + b) / 4.0;
 
                 if (   (!(((s > e) && (s < b)) || ((s < e) && (s > b))))
-                    || ( bisected && ((::fabs(s - b) >= ::fabs(b - c) / 2.0) || equal(b, c)))
-                    || (!bisected && ((::fabs(s - b) >= ::fabs(c - d) / 2.0) || equal(c, d))))
+                    || ( bisected && ((std::fabs(s - b) >= std::fabs(b - c) / 2.0) || equal(b, c)))
+                    || (!bisected && ((std::fabs(s - b) >= std::fabs(c - d) / 2.0) || equal(c, d))))
                 {
                     // Use bisection.
                     s = bisect(a, b);
@@ -671,7 +670,7 @@ class MATHS_EXPORT CSolvers
                     fb = fs;
                 }
 
-                if (::fabs(fa) < ::fabs(fb))
+                if (std::fabs(fa) < std::fabs(fb))
                 {
                     std::swap(a, b);
                     std::swap(fa, fb);
@@ -1076,7 +1075,7 @@ class MATHS_EXPORT CSolvers
                       << ", f_(x) = " << fx - fc
                       << ", f_(b) = " << fb - fc);
 
-            const double eps = ::sqrt(std::numeric_limits<double>::epsilon()) * b;
+            const double eps = std::sqrt(std::numeric_limits<double>::epsilon()) * b;
             CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
             LOG_TRACE("eps = " << eps);
 
