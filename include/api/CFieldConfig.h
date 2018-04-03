@@ -342,7 +342,7 @@ class API_EXPORT CFieldConfig
         //! Uniqueness is enforced by config key and also by the combination of
         //! function, field name, by field name, over field name and
         //! partition field name.
-        typedef boost::multi_index::multi_index_container<
+        using TFieldOptionsMIndex = boost::multi_index::multi_index_container<
             CFieldOptions,
             boost::multi_index::indexed_by<
                 boost::multi_index::ordered_unique<
@@ -361,28 +361,28 @@ class API_EXPORT CFieldConfig
                     >
                 >
             >
-        > TFieldOptionsMIndex;
+        >;
 
-        typedef TFieldOptionsMIndex::iterator              TFieldOptionsMIndexItr;
-        typedef TFieldOptionsMIndex::const_iterator        TFieldOptionsMIndexCItr;
+        using TFieldOptionsMIndexItr = TFieldOptionsMIndex::iterator;
+        using TFieldOptionsMIndexCItr = TFieldOptionsMIndex::const_iterator;
 
         //! Used to maintain a list of all unique config keys
-        typedef std::set<int>                              TIntSet;
+        using TIntSet = std::set<int>;
 
         //! Used to return the superset of enabled field names
-        typedef std::set<std::string>                      TStrSet;
+        using TStrSet = std::set<std::string>;
 
         //! Used to obtain command line clause tokens
-        typedef std::vector<std::string>                   TStrVec;
-        typedef TStrVec::iterator                          TStrVecItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecItr = TStrVec::iterator;
 
-        typedef std::vector<model::CDetectionRule> TDetectionRuleVec;
-        typedef boost::unordered_map<int, TDetectionRuleVec> TIntDetectionRuleVecUMap;
+        using TDetectionRuleVec = std::vector<model::CDetectionRule>;
+        using TIntDetectionRuleVecUMap = boost::unordered_map<int, TDetectionRuleVec>;
 
-        typedef boost::unordered_map<std::string, core::CPatternSet> TStrPatternSetUMap;
+        using TStrPatternSetUMap = boost::unordered_map<std::string, core::CPatternSet>;
 
-        typedef std::pair<std::string, model::CDetectionRule> TStrDetectionRulePr;
-        typedef std::vector<TStrDetectionRulePr> TStrDetectionRulePrVec;
+        using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
+        using TStrDetectionRulePrVec = std::vector<TStrDetectionRulePr>;
 
     public:
         //! Construct empty.  This call should generally be followed by a call to

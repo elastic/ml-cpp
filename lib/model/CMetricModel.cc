@@ -255,7 +255,7 @@ void CMetricModel::sample(core_t::TTime startTime,
         maths::CModelAddSamplesParams::TDouble2Vec4VecVec trendWeights;
         maths::CModelAddSamplesParams::TDouble2Vec4VecVec priorWeights;
 
-        for (auto &&featureData : m_CurrentBucketStats.s_FeatureData)
+        for (auto &featureData : m_CurrentBucketStats.s_FeatureData)
         {
             model_t::EFeature feature = featureData.first;
             TSizeFeatureDataPrVec &data = featureData.second;

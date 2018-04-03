@@ -26,7 +26,7 @@ using namespace model;
 namespace
 {
 
-typedef std::vector<std::string> TStrVec;
+using TStrVec = std::vector<std::string>;
 
 const std::string EMPTY_STRING;
 

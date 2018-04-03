@@ -128,7 +128,7 @@ void CMathsMemoryTest::testPriors(void)
 
 void CMathsMemoryTest::testBjkstVec(void)
 {
-    typedef std::vector<maths::CBjkstUniqueValues> TBjkstValuesVec;
+    using TBjkstValuesVec = std::vector<maths::CBjkstUniqueValues>;
     {
         // Test empty
         TBjkstValuesVec values;

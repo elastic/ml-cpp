@@ -65,32 +65,32 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
             E_BadFactory
         };
 
-        typedef std::set<std::string> TStrSet;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef TTimeVec::const_iterator TTimeVecCItr;
-        typedef std::pair<double, double> TDoubleDoublePr;
-        typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-        typedef model_t::TFeatureVec TFeatureVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator TStrVecCItr;
-        typedef boost::shared_ptr<CModelFactory> TModelFactoryPtr;
-        typedef boost::shared_ptr<const CModelFactory> TModelFactoryCPtr;
-        typedef std::map<EFactoryType, TModelFactoryPtr> TFactoryTypeFactoryPtrMap;
-        typedef TFactoryTypeFactoryPtrMap::iterator TFactoryTypeFactoryPtrMapItr;
-        typedef TFactoryTypeFactoryPtrMap::const_iterator TFactoryTypeFactoryPtrMapCItr;
-        typedef std::map<CSearchKey, TModelFactoryCPtr> TSearchKeyFactoryCPtrMap;
+        using TStrSet = std::set<std::string>;
+        using TSizeVec = std::vector<std::size_t>;
+        using TTimeVec = std::vector<core_t::TTime>;
+        using TTimeVecCItr = TTimeVec::const_iterator;
+        using TDoubleDoublePr = std::pair<double, double>;
+        using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+        using TFeatureVec = model_t::TFeatureVec;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecCItr = TStrVec::const_iterator;
+        using TModelFactoryPtr = boost::shared_ptr<CModelFactory>;
+        using TModelFactoryCPtr = boost::shared_ptr<const CModelFactory>;
+        using TFactoryTypeFactoryPtrMap = std::map<EFactoryType, TModelFactoryPtr>;
+        using TFactoryTypeFactoryPtrMapItr = TFactoryTypeFactoryPtrMap::iterator;
+        using TFactoryTypeFactoryPtrMapCItr = TFactoryTypeFactoryPtrMap::const_iterator;
+        using TSearchKeyFactoryCPtrMap = std::map<CSearchKey, TModelFactoryCPtr>;
 
         // Const ref to detection rules map
-        typedef std::vector<CDetectionRule> TDetectionRuleVec;
-        typedef boost::reference_wrapper<const TDetectionRuleVec> TDetectionRuleVecCRef;
-        typedef boost::unordered_map<int, TDetectionRuleVec> TIntDetectionRuleVecUMap;
-        typedef boost::reference_wrapper<const TIntDetectionRuleVecUMap> TIntDetectionRuleVecUMapCRef;
-        typedef TIntDetectionRuleVecUMap::const_iterator TIntDetectionRuleVecUMapCItr;
+        using TDetectionRuleVec = std::vector<CDetectionRule>;
+        using TDetectionRuleVecCRef = boost::reference_wrapper<const TDetectionRuleVec>;
+        using TIntDetectionRuleVecUMap = boost::unordered_map<int, TDetectionRuleVec>;
+        using TIntDetectionRuleVecUMapCRef = boost::reference_wrapper<const TIntDetectionRuleVecUMap>;
+        using TIntDetectionRuleVecUMapCItr = TIntDetectionRuleVecUMap::const_iterator;
 
-        typedef std::pair<std::string, model::CDetectionRule> TStrDetectionRulePr;
-        typedef std::vector<TStrDetectionRulePr> TStrDetectionRulePrVec;
-        typedef boost::reference_wrapper<const TStrDetectionRulePrVec> TStrDetectionRulePrVecCRef;
+        using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
+        using TStrDetectionRulePrVec = std::vector<TStrDetectionRulePr>;
+        using TStrDetectionRulePrVecCRef = boost::reference_wrapper<const TStrDetectionRulePrVec>;
 
     public:
         //! The default value used to separate components of a multivariate feature

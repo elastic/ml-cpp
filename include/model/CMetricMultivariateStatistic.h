@@ -45,7 +45,7 @@ template<class STATISTIC>
 class CMetricMultivariateStatistic
 {
     public:
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
+        using TDouble1Vec = core::CSmallVector<double, 1>;
 
     public:
         static const std::string VALUE_TAG;
@@ -186,7 +186,7 @@ class CMetricMultivariateStatistic
         }
 
     private:
-        typedef core::CSmallVector<STATISTIC, 2> TStatistic2Vec;
+        using TStatistic2Vec = core::CSmallVector<STATISTIC, 2>;
 
     private:
         TStatistic2Vec m_Values;

@@ -222,10 +222,10 @@ class MODEL_EXPORT CCountingModel : public CAnomalyDetectorModel
         virtual const TStr1Vec &scheduledEventDescriptions(core_t::TTime time) const;
 
     public:
-        typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-        typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-        typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-        typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
+        using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+        using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
+        using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+        using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 
     protected:
         //! Get the start time of the current bucket.
@@ -282,7 +282,7 @@ class MODEL_EXPORT CCountingModel : public CAnomalyDetectorModel
         virtual CMemoryUsageEstimator *memoryUsageEstimator(void) const;
 
     private:
-        typedef boost::unordered_map<core_t::TTime, TStr1Vec> TTimeStr1VecUMap;
+        using TTimeStr1VecUMap = boost::unordered_map<core_t::TTime, TStr1Vec>;
 
     private:
         //! The start time of the last sampled bucket.

@@ -42,7 +42,7 @@ class CORE_EXPORT CCompressUtils : private CNonCopyable
 {
     public:
         //! The output type
-        typedef std::vector<Bytef> TByteVec;
+        using TByteVec = std::vector<Bytef>;
 
     public:
         explicit CCompressUtils(bool lengthOnly,

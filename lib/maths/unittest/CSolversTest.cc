@@ -70,7 +70,7 @@ double f6(const double &x)
 class CLog
 {
     public:
-        typedef double result_type;
+        using result_type = double;
 
     public:
         double operator()(const double &x) const
@@ -424,7 +424,7 @@ void CSolversTest::testBrent(void)
 
 void CSolversTest::testSublevelSet(void)
 {
-    typedef std::pair<double, double> TDoubleDoublePr;
+    using TDoubleDoublePr = std::pair<double, double>;
 
     // Should converge immediately to minimum of quadratic.
     TDoubleDoublePr sublevelSet;

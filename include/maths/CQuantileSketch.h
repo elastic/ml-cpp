@@ -49,8 +49,8 @@ namespace maths
 class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch >
 {
     public:
-        typedef std::pair<CFloatStorage, CFloatStorage> TFloatFloatPr;
-        typedef std::vector<TFloatFloatPr> TFloatFloatPrVec;
+        using TFloatFloatPr = std::pair<CFloatStorage, CFloatStorage>;
+        using TFloatFloatPrVec = std::vector<TFloatFloatPr>;
 
         //! The types of interpolation used for computing the quantile.
         enum EInterpolation

@@ -108,7 +108,7 @@ namespace
             }
 
         private:
-            typedef std::set<std::string> TStrSet;
+            using TStrSet = std::set<std::string>;
 
             TStrSet      m_OutstandingOutput;
             ml::core::CMutex m_Mutex;

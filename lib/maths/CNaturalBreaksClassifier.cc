@@ -490,7 +490,7 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
         return;
     }
 
-    typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     static const double ALMOST_ONE = 0.99999;
 
@@ -680,8 +680,8 @@ bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE> &categ
 
     double pp = static_cast<double>(p);
 
-    typedef std::vector<TDoubleVec> TDoubleVecVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TSizeVecVec = std::vector<TSizeVec>;
 
     std::size_t N = categories.size();
 

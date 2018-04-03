@@ -35,7 +35,7 @@ class CAnomalyDetectorModel;
 class MODEL_EXPORT CRuleCondition
 {
     public:
-        typedef boost::reference_wrapper<const core::CPatternSet> TPatternSetCRef;
+        using TPatternSetCRef = boost::reference_wrapper<const core::CPatternSet>;
 
     public:
         enum ERuleConditionType

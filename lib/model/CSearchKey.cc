@@ -204,7 +204,7 @@ void CSearchKey::swap(CSearchKey &other)
 
 bool CSearchKey::operator==(const CSearchKey &rhs) const
 {
-    typedef std::equal_to<std::string> TStrEqualTo;
+    using TStrEqualTo = std::equal_to<std::string>;
 
     return    this->hash() == rhs.hash()
            && m_Identifier == rhs.m_Identifier

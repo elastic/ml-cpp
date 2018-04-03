@@ -38,7 +38,7 @@ namespace model
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 //! Add valid \p probabilities to \p aggregator and return the
 //! number of valid probabilities.
@@ -607,8 +607,8 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const TDoubleVec &scores)
 
 bool CAnomalyScore::CNormalizer::updateQuantiles(double score)
 {
-    typedef std::pair<uint32_t, uint64_t> TUInt32UInt64Pr;
-    typedef std::vector<TUInt32UInt64Pr> TUInt32UInt64PrVec;
+    using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
+    using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
 
     bool bigChange(false);
     double oldMaxScore(m_MaxScore.count() == 0 ? 0.0 : m_MaxScore[0]);

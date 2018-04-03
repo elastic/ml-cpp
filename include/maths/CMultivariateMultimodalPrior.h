@@ -50,13 +50,13 @@ namespace maths
 namespace multivariate_multimodal_prior_detail
 {
 
-typedef std::pair<size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 3> TSizeDoublePr3Vec;
-typedef boost::shared_ptr<CMultivariatePrior> TPriorPtr;
-typedef CMultivariatePrior::TDouble10Vec1Vec TDouble10Vec1Vec;
-typedef CMultivariatePrior::TDouble10Vec4Vec1Vec TDouble10Vec4Vec1Vec;
-typedef SMultimodalPriorMode<boost::shared_ptr<CMultivariatePrior> > TMode;
-typedef std::vector<TMode> TModeVec;
+using TSizeDoublePr = std::pair<size_t, double>;
+using TSizeDoublePr3Vec = core::CSmallVector<TSizeDoublePr, 3>;
+using TPriorPtr = boost::shared_ptr<CMultivariatePrior>;
+using TDouble10Vec1Vec = CMultivariatePrior::TDouble10Vec1Vec;
+using TDouble10Vec4Vec1Vec = CMultivariatePrior::TDouble10Vec4Vec1Vec;
+using TMode = SMultimodalPriorMode<boost::shared_ptr<CMultivariatePrior> >;
+using TModeVec = std::vector<TMode>;
 
 //! Implementation of a sample joint log marginal likelihood calculation.
 MATHS_EXPORT
@@ -131,18 +131,18 @@ template<std::size_t N>
 class CMultivariateMultimodalPrior : public CMultivariatePrior
 {
     public:
-        typedef core::CSmallVector<double, 5> TDouble5Vec;
-        typedef CVectorNx1<double, N> TPoint;
-        typedef CVectorNx1<CFloatStorage, N> TFloatPoint;
-        typedef std::vector<TPoint> TPointVec;
-        typedef core::CSmallVector<TPoint, 4> TPoint4Vec;
-        typedef typename CBasicStatistics::SSampleMean<TPoint>::TAccumulator TMeanAccumulator;
-        typedef CSymmetricMatrixNxN<double, N> TMatrix;
-        typedef std::vector<TMatrix> TMatrixVec;
-        typedef CClusterer<TFloatPoint> TClusterer;
-        typedef boost::shared_ptr<TClusterer> TClustererPtr;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
-        typedef CConstantWeights TWeights;
+        using TDouble5Vec = core::CSmallVector<double, 5>;
+        using TPoint = CVectorNx1<double, N>;
+        using TFloatPoint = CVectorNx1<CFloatStorage, N>;
+        using TPointVec = std::vector<TPoint>;
+        using TPoint4Vec = core::CSmallVector<TPoint, 4>;
+        using TMeanAccumulator = typename CBasicStatistics::SSampleMean<TPoint>::TAccumulator;
+        using TMatrix = CSymmetricMatrixNxN<double, N>;
+        using TMatrixVec = std::vector<TMatrix>;
+        using TClusterer = CClusterer<TFloatPoint>;
+        using TClustererPtr = boost::shared_ptr<TClusterer>;
+        using TPriorPtrVec = std::vector<TPriorPtr>;
+        using TWeights = CConstantWeights;
 
         // Lift all overloads of into scope.
         //{
@@ -337,7 +337,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
 
             // See CMultimodalPrior::addSamples for discussion.
 
-            typedef core::CSmallVector<TSizeDoublePr, 2> TSizeDoublePr2Vec;
+            using TSizeDoublePr2Vec = core::CSmallVector<TSizeDoublePr, 2>;
 
             // Declared outside the loop to minimize the number of times it
             // is initialized.
@@ -415,7 +415,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
                         {
                             TDouble10Vec &ww = weight[0][winsorisation];
                             double f = (k->weight() + cluster.second) / Z;
-                            for (auto &&w : ww)
+                            for (auto &w : ww)
                             {
                                 w = std::max(1.0 - (1.0 - w) / f, w * f);
                             }
@@ -507,7 +507,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
             }
 
             double Z = 0.0;
-            for (auto &&weight : weights)
+            for (auto &weight : weights)
             {
                 weight = ::exp(weight - maxWeight[0]);
                 Z += weight;
@@ -567,7 +567,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
             }
 
             double Z = 0.0;
-            for (auto &&weight : weights)
+            for (auto &weight : weights)
             {
                 weight = ::exp(weight - maxWeight[0]);
                 Z += weight;
@@ -668,7 +668,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
                 return m_Modes[0].s_Prior->marginalLikelihoodMode(weightStyles, weight);
             }
 
-            typedef CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> > TMaxAccumulator;
+            using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> >;
 
             // We'll approximate this as the mode with the maximum likelihood.
             TPoint result(0.0);
@@ -1017,8 +1017,8 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         }
 
     protected:
-        typedef multivariate_multimodal_prior_detail::TMode TMode;
-        typedef multivariate_multimodal_prior_detail::TModeVec TModeVec;
+        using TMode = multivariate_multimodal_prior_detail::TMode;
+        using TModeVec = multivariate_multimodal_prior_detail::TModeVec;
 
     protected:
         //! Get the modes.
@@ -1241,7 +1241,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
             //     = Sum_i{ w(i) * (Integral{ x' * x * f(x | i) } - m' * m) }
             //     = Sum_i{ w(i) * ((mi' * mi + Ci) - m' * m) }
 
-            typedef typename CBasicStatistics::SSampleMean<TMatrix>::TAccumulator TMatrixMeanAccumulator;
+            using TMatrixMeanAccumulator = typename CBasicStatistics::SSampleMean<TMatrix>::TAccumulator;
 
             TMatrix mean2 = TPoint(this->marginalLikelihoodMean()).outer();
 

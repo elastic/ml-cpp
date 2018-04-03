@@ -41,11 +41,11 @@ class CXmlParser;
 class CORE_EXPORT CXmlNode
 {
     public:
-        typedef std::map<std::string, std::string>  TStrStrMap;
-        typedef std::pair<std::string, std::string> TStrStrPr;
-        typedef std::vector<TStrStrPr>              TStrStrPrVec;
-        typedef TStrStrPrVec::iterator              TStrStrPrVecItr;
-        typedef TStrStrPrVec::const_iterator        TStrStrPrVecCItr;
+        using TStrStrMap = std::map<std::string, std::string>;
+        using TStrStrPr = std::pair<std::string, std::string>;
+        using TStrStrPrVec = std::vector<TStrStrPr>;
+        using TStrStrPrVecItr = TStrStrPrVec::iterator;
+        using TStrStrPrVecCItr = TStrStrPrVec::const_iterator;
 
     private:
         class CFirstElementEquals

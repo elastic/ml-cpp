@@ -136,7 +136,7 @@ class MODEL_EXPORT CMetricModelFactory : public CModelFactory
         virtual void bucketLength(core_t::TTime bucketLength);
 
         //! Set the bucket results delay
-        virtual void bucketResultsDelay(std::size_t bucketResultsDelay) ;
+        virtual void bucketResultsDelay(std::size_t bucketResultsDelay);
         //@}
 
     private:

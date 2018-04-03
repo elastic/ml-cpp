@@ -43,14 +43,14 @@ const std::string SIZE_TAG("d");
 template<typename T>
 struct remove_const
 {
-    typedef typename boost::remove_const<T>::type type;
+    using type = typename boost::remove_const<T>::type;
 };
 
 template<typename U, typename V>
 struct remove_const<std::pair<U, V> >
 {
-    typedef std::pair<typename remove_const<U>::type,
-                      typename remove_const<V>::type> type;
+    using type = std::pair<typename remove_const<U>::type,
+                           typename remove_const<V>::type>;
 };
 
 //! Template specialisation utility classes for selecting various
@@ -69,7 +69,7 @@ class MemberFromDelimited {};
 template<typename T, typename R = void>
 struct enable_if
 {
-    typedef R type;
+    using type = R;
 };
 
 //! Auxiliary type used by has_persist_function to test for a nested
@@ -77,7 +77,7 @@ struct enable_if
 template<typename T, T, typename R = void>
 struct enable_if_is
 {
-    typedef R type;
+    using type = R;
 };
 
 
@@ -87,12 +87,12 @@ struct enable_if_is
 template<typename T, typename ITR = void>
 struct persist_container_selector
 {
-    typedef BasicPersist value;
+    using value = BasicPersist;
 };
 template<typename T>
 struct persist_container_selector<T, typename enable_if<typename T::const_iterator>::type>
 {
-    typedef ContainerPersist value;
+    using value = ContainerPersist;
 };
 //@}
 
@@ -101,17 +101,17 @@ struct persist_container_selector<T, typename enable_if<typename T::const_iterat
 template<typename T, typename ENABLE = void>
 struct persist_selector
 {
-    typedef typename persist_container_selector<T>::value value;
+    using value = typename persist_container_selector<T>::value;
 };
 template<typename T>
 struct persist_selector<T, typename enable_if_is<void (T::*)(CStatePersistInserter &) const, &T::acceptPersistInserter>::type>
 {
-    typedef MemberPersist value;
+    using value = MemberPersist;
 };
 template<typename T>
 struct persist_selector<T, typename enable_if_is<std::string (T::*)(void) const, &T::toDelimited>::type>
 {
-    typedef MemberToDelimited value;
+    using value = MemberToDelimited;
 };
 //@}
 
@@ -133,12 +133,12 @@ bool persist(const std::string &tag, const T &target, CStatePersistInserter &ins
 template<typename T, typename ITR = void>
 struct restore_container_selector
 {
-    typedef BasicRestore value;
+    using value = BasicRestore;
 };
 template<typename T>
 struct restore_container_selector<T, typename enable_if<typename T::const_iterator>::type>
 {
-    typedef ContainerRestore value;
+    using value = ContainerRestore;
 };
 //@}
 
@@ -147,17 +147,17 @@ struct restore_container_selector<T, typename enable_if<typename T::const_iterat
 template<typename T, typename ENABLE = void>
 struct restore_selector
 {
-    typedef typename restore_container_selector<T>::value value;
+    using value = typename restore_container_selector<T>::value;
 };
 template<typename T>
 struct restore_selector<T, typename enable_if_is<bool (T::*)(CStateRestoreTraverser &), &T::acceptRestoreTraverser>::type>
 {
-    typedef MemberRestore value;
+    using value = MemberRestore;
 };
 template<typename T>
 struct restore_selector<T, typename enable_if_is<bool (T::*)(const std::string &), &T::fromDelimited>::type>
 {
-    typedef MemberFromDelimited value;
+    using value = MemberFromDelimited;
 };
 //@}
 
@@ -185,12 +185,12 @@ class CanReserve {};
 template<typename T, typename ENABLE = void>
 struct reserve_selector
 {
-    typedef ENABLE value;
+    using value = ENABLE;
 };
 template<typename T>
 struct reserve_selector<T, typename enable_if_is<void (T::*)(std::size_t), &T::reserve>::type>
 {
-    typedef CanReserve value;
+    using value = CanReserve;
 };
 //@}
 
@@ -631,7 +631,7 @@ class CORE_EXPORT CPersistUtils
                                const char delimiter = DELIMITER,
                                bool append = false)
         {
-            typedef typename persist_utils_detail::remove_const<typename CONTAINER::value_type>::type T;
+            using T = typename persist_utils_detail::remove_const<typename CONTAINER::value_type>::type;
 
             if (!append)
             {
@@ -835,9 +835,9 @@ class CPersisterImpl<ContainerPersist>
                              const boost::unordered_set<T, H, P, A> &container,
                              CStatePersistInserter &inserter)
         {
-            typedef typename std::vector<T> TVec;
-            typedef typename boost::unordered_set<T, H, P, A>::const_iterator TCItr;
-            typedef typename std::vector<TCItr> TCItrVec;
+            using TVec = typename std::vector<T>;
+            using TCItr = typename boost::unordered_set<T, H, P, A>::const_iterator;
+            using TCItrVec = typename std::vector<TCItr>;
 
             if (boost::is_arithmetic<T>::value)
             {
@@ -867,8 +867,8 @@ class CPersisterImpl<ContainerPersist>
                              const boost::unordered_map<K, V, H, P, A> &container,
                              CStatePersistInserter &inserter)
         {
-            typedef typename boost::unordered_map<K, V, H, P, A>::const_iterator TCItr;
-            typedef typename std::vector<TCItr> TCItrVec;
+            using TCItr = typename boost::unordered_map<K, V, H, P, A>::const_iterator;
+            using TCItrVec = typename std::vector<TCItr>;
 
             TCItrVec iterators;
             iterators.reserve(container.size());
@@ -917,7 +917,7 @@ class CPersisterImpl<ContainerPersist>
                              boost::false_type,
                              boost::false_type)
         {
-            typedef typename T::const_iterator TCItr;
+            using TCItr = typename T::const_iterator;
             inserter.insertLevel(tag, boost::bind(&newLevel<TCItr>,
                                                   container.begin(), container.end(), container.size(), _1));
         }
@@ -933,7 +933,7 @@ class CPersisterImpl<ContainerPersist>
                              boost::false_type,
                              boost::true_type)
         {
-            typedef boost::indirect_iterator<typename T::const_iterator> TCItr;
+            using TCItr = boost::indirect_iterator<typename T::const_iterator>;
             inserter.insertLevel(tag, boost::bind(&newLevel<TCItr>,
                                                   TCItr(t.begin()), TCItr(t.end()), t.size(), _1));
         }
@@ -1098,7 +1098,7 @@ class CRestorerImpl<ContainerRestore>
             template<typename T>
             bool operator()(T &container, CStateRestoreTraverser &traverser)
             {
-                typedef typename remove_const<typename T::value_type>::type TValueType;
+                using TValueType = typename remove_const<typename T::value_type>::type;
                 do
                 {
                     if (traverser.name() == SIZE_TAG)
@@ -1131,7 +1131,7 @@ class CRestorerImpl<ContainerRestore>
             template<typename T, std::size_t N>
             bool operator()(boost::array<T, N> &container, CStateRestoreTraverser &traverser)
             {
-                typedef typename remove_const<T>::type TValueType;
+                using TValueType = typename remove_const<T>::type;
                 typename boost::array<T, N>::iterator i = container.begin();
                 do
                 {

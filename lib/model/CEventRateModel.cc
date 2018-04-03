@@ -214,7 +214,7 @@ CEventRateModel::TDouble1Vec CEventRateModel::baselineBucketMean(model_t::EFeatu
     {
         probability = 1.0;
     }
-    for (auto &&coord : result)
+    for (auto &coord : result)
     {
         coord = probability * model_t::inverseOffsetCountToZero(feature, coord);
     }
@@ -276,7 +276,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
         maths::CModel::TTimeDouble2VecSizeTrVec values;
         maths::CModelAddSamplesParams::TDouble2Vec4VecVec weights(1);
 
-        for (auto &&featureData : m_CurrentBucketStats.s_FeatureData)
+        for (auto &featureData : m_CurrentBucketStats.s_FeatureData)
         {
             model_t::EFeature feature = featureData.first;
             TSizeFeatureDataPrVec &data = featureData.second;

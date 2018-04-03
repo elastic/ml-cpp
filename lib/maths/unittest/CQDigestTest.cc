@@ -26,9 +26,9 @@ using namespace ml;
 using namespace maths;
 using namespace test;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<uint32_t, uint64_t> TUInt32UInt64Pr;
-typedef std::vector<TUInt32UInt64Pr> TUInt32UInt64PrVec;
+using TDoubleVec = std::vector<double>;
+using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
+using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
 
 void CQDigestTest::testAdd(void)
 {
@@ -82,7 +82,7 @@ void CQDigestTest::testAdd(void)
 
     // Large n uniform random.
     {
-        typedef std::multiset<uint64_t> TUInt64Set;
+        using TUInt64Set = std::multiset<uint64_t>;
 
         const double expectedMaxErrors[] = { 0.007, 0.01, 0.12, 0.011, 0.016, 0.018, 0.023, 0.025, 0.02 };
 
@@ -309,7 +309,7 @@ void CQDigestTest::testPropagateForwardByTime(void)
     LOG_DEBUG("|  CQDigestTest::testPropagateForwardByTime  |");
     LOG_DEBUG("+--------------------------------------------+");
 
-    typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumlator;
+    using TMeanAccumlator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     {
         // Check a simple case where exact aging is possible.

@@ -134,7 +134,7 @@ class CORE_EXPORT CDualThreadStreamBuf : public std::streambuf
 
     private:
         //! Used to manage the two buffers.
-        typedef boost::scoped_array<char> TScopedCharArray;
+        using TScopedCharArray = boost::scoped_array<char>;
 
         //! Buffer that put functions will write to.
         TScopedCharArray m_WriteBuffer;

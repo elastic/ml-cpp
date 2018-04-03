@@ -204,7 +204,7 @@ void removeLinearTrend(TFloatMeanAccumulatorVec &values)
         time += dt;
     }
     time = dt / 2.0;
-    for (auto &&value : values)
+    for (auto &value : values)
     {
         CBasicStatistics::moment<0>(value) -= trend.predict(time);
         time += dt;

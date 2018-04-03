@@ -87,7 +87,7 @@ class CORE_EXPORT CWordDictionary : private CNonCopyable
                 }
         };
 
-        typedef CWeightAll<2> TWeightAll2;
+        using TWeightAll2 = CWeightAll<2>;
 
         //! Functor for weighting one type of dictionary word by a certain
         //! amount and all dictionary words by a different amount
@@ -107,7 +107,7 @@ class CORE_EXPORT CWordDictionary : private CNonCopyable
                 }
         };
 
-        typedef CWeightOnePart<E_Verb, 5, 2> TWeightVerbs5Other2;
+        using TWeightVerbs5Other2 = CWeightOnePart<E_Verb, 5, 2>;
 
         //! Functor for weighting two types of dictionary word by certain
         //! amounts and all dictionary words by a different amount
@@ -189,11 +189,11 @@ class CORE_EXPORT CWordDictionary : private CNonCopyable
         //! Stores the dictionary words - using a multi-index even though
         //! there's only one index, because of its flexible key extractors.
         //! The key is the string, but hashed and compared ignoring case.
-        typedef boost::unordered_map<std::string,
-                                     EPartOfSpeech,
-                                     CStrHashIgnoreCase,
-                                     CStrEqualIgnoreCase> TStrUMap;
-        typedef TStrUMap::const_iterator                  TStrUMapCItr;
+        using TStrUMap = boost::unordered_map<std::string,
+                                              EPartOfSpeech,
+                                              CStrHashIgnoreCase,
+                                              CStrEqualIgnoreCase>;
+        using TStrUMapCItr = TStrUMap::const_iterator;
 
         //! Our dictionary of words
         TStrUMap                        m_DictionaryWords;

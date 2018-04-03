@@ -27,13 +27,13 @@
 using namespace ml;
 using namespace handy_typedefs;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<TDoubleVecVec> TDoubleVecVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
-typedef maths::CBasicStatistics::SSampleCovariances<double, 2> TCovariances2;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TDoubleVecVecVec = std::vector<TDoubleVecVec>;
+using TSizeVec = std::vector<std::size_t>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
+using TCovariances2 = maths::CBasicStatistics::SSampleCovariances<double, 2>;
 
 namespace
 {
@@ -47,8 +47,8 @@ template<std::size_t N>
 class CMultivariateMultimodalPriorForTest : public maths::CMultivariateMultimodalPrior<N>
 {
     public:
-        typedef typename maths::CMultivariateMultimodalPrior<N>::TClusterer TClusterer;
-        typedef typename maths::CMultivariateMultimodalPrior<N>::TModeVec TModeVec;
+        using TClusterer = typename maths::CMultivariateMultimodalPrior<N>::TClusterer;
+        using TModeVec = typename maths::CMultivariateMultimodalPrior<N>::TModeVec;
 
     public:
         CMultivariateMultimodalPriorForTest(const maths::CMultivariateMultimodalPrior<N> &prior) :
@@ -476,7 +476,7 @@ void CMultivariateMultimodalPriorTest::testSplitAndMerge(void)
 
     // Test clustering which changes over time.
 
-    typedef std::vector<TDoubleVecVec> TDoubleVecVecVec;
+    using TDoubleVecVecVec = std::vector<TDoubleVecVec>;
 
     maths::CSampling::seed();
 
@@ -818,7 +818,7 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode(void)
 
     // Test that the sample mode is close to the generating distribution mode.
 
-    typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> > TMaxAccumulator;
+    using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
 
     maths::CSampling::seed();
 
@@ -1133,8 +1133,8 @@ void CMultivariateMultimodalPriorTest::testLatLongData(void)
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testLatLongData  |");
     LOG_DEBUG("+-----------------------------------------------------+");
 
-    typedef std::pair<core_t::TTime, TDoubleVec> TTimeDoubleVecPr;
-    typedef std::vector<TTimeDoubleVecPr> TTimeDoubleVecPrVec;
+    using TTimeDoubleVecPr = std::pair<core_t::TTime, TDoubleVec>;
+    using TTimeDoubleVecPrVec = std::vector<TTimeDoubleVecPr>;
 
     TTimeDoubleVecPrVec timeseries;
     CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/lat_lng.csv",

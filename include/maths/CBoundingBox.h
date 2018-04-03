@@ -34,7 +34,7 @@ class CBoundingBox
         {
             return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value();
         }
-        typedef typename SFloatingPoint<POINT, double>::Type TPointPrecise;
+        using TPointPrecise = typename SFloatingPoint<POINT, double>::Type;
 
     public:
         CBoundingBox(void) : m_Empty(true), m_A(), m_B() {}

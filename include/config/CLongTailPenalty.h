@@ -43,7 +43,7 @@ class CONFIG_EXPORT CLongTailPenalty : public CPenalty
         virtual std::string name(void) const;
 
     private:
-        typedef boost::unordered_map<std::size_t, uint64_t> TSizeUInt64UMap;
+        using TSizeUInt64UMap = boost::unordered_map<std::size_t, uint64_t>;
 
     private:
         //! Compute a penalty for rare detectors.

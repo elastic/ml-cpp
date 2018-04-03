@@ -40,10 +40,10 @@ namespace core
 class CORE_EXPORT CDataAdder : private CNonCopyable
 {
     public:
-        typedef boost::shared_ptr<std::ostream> TOStreamP;
-        typedef boost::shared_ptr<CDataAdder>   TDataAdderP;
+        using TOStreamP = boost::shared_ptr<std::ostream>;
+        using TDataAdderP = boost::shared_ptr<CDataAdder>;
 
-        typedef std::function<bool(CDataAdder &)> TPersistFunc;
+        using TPersistFunc = std::function<bool(CDataAdder &)>;
 
     public:
         virtual ~CDataAdder(void);

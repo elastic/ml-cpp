@@ -41,7 +41,7 @@
 namespace
 {
 
-typedef std::vector<std::string> TStrVec;
+using TStrVec = std::vector<std::string>;
 
 void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
                            std::string &snapshotIdOut,

@@ -48,13 +48,13 @@ namespace maths
 namespace
 {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef maths_t::TWeightStyleVec TWeightStyleVec;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TSizeVec = std::vector<std::size_t>;
+using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TWeightStyleVec = maths_t::TWeightStyleVec;
 
 //! Compute x * x.
 inline double pow2(double x)
@@ -67,8 +67,8 @@ const double MINIMUM_LOGNORMAL_SHAPE = 100.0;
 namespace detail
 {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 
 //! \brief Adds "weight" x "right operand" to the "left operand".
 struct SPlusWeight
@@ -307,7 +307,7 @@ class CEvaluateOnSamples : core::CNonCopyable
 class CMeanKernel
 {
     public:
-        typedef CVectorNx1<double, 2> TValue;
+        using TValue = CVectorNx1<double, 2>;
 
     public:
         CMeanKernel(double m, double p, double a, double b) :
@@ -346,7 +346,7 @@ class CMeanKernel
 class CVarianceKernel
 {
     public:
-        typedef CVectorNx1<double, 2> TValue;
+        using TValue = CVectorNx1<double, 2>;
 
     public:
         CVarianceKernel(double mean, double m, double p, double a, double b) :
@@ -1542,7 +1542,7 @@ bool CLogNormalMeanPrecConjugate::minusLogJointCdf(const TWeightStyleVec &weight
                                                    double &lowerBound,
                                                    double &upperBound) const
 {
-    typedef detail::CEvaluateOnSamples<CTools::SMinusLogCdf> TMinusLogCdf;
+    using TMinusLogCdf = detail::CEvaluateOnSamples<CTools::SMinusLogCdf>;
 
     lowerBound = upperBound = 0.0;
 
@@ -1593,7 +1593,7 @@ bool CLogNormalMeanPrecConjugate::minusLogJointCdfComplement(const TWeightStyleV
                                                              double &lowerBound,
                                                              double &upperBound) const
 {
-    typedef detail::CEvaluateOnSamples<CTools::SMinusLogCdfComplement> TMinusLogCdfComplement;
+    using TMinusLogCdfComplement = detail::CEvaluateOnSamples<CTools::SMinusLogCdfComplement>;
 
     lowerBound = upperBound = 0.0;
 

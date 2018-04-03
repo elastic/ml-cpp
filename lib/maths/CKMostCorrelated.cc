@@ -40,11 +40,11 @@ namespace maths
 namespace
 {
 
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef boost::unordered_set<TSizeSizePr> TSizeSizePrUSet;
-typedef boost::array<double, CKMostCorrelated::NUMBER_PROJECTIONS> TPoint;
-typedef std::pair<TPoint, std::size_t> TPointSizePr;
-typedef std::vector<TPointSizePr> TPointSizePrVec;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrUSet = boost::unordered_set<TSizeSizePr>;
+using TPoint = boost::array<double, CKMostCorrelated::NUMBER_PROJECTIONS>;
+using TPointSizePr = std::pair<TPoint, std::size_t>;
+using TPointSizePrVec = std::vector<TPointSizePr>;
 
 //! \brief Unary predicate to check variables, corresponding
 //! to labeled points, are not equal to a specified variable.
@@ -442,9 +442,9 @@ std::size_t CKMostCorrelated::memoryUsage(void) const
 
 void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const
 {
-    typedef CBasicStatistics::COrderStatisticsStack<double, 2, std::greater<double> > TMaxDoubleAccumulator;
-    typedef CBasicStatistics::COrderStatisticsHeap<SCorrelation> TMaxCorrelationAccumulator;
-    typedef bgi::rtree<TPointSizePr, bgi::quadratic<16> > TPointRTree;
+    using TMaxDoubleAccumulator = CBasicStatistics::COrderStatisticsStack<double, 2, std::greater<double>>;
+    using TMaxCorrelationAccumulator = CBasicStatistics::COrderStatisticsHeap<SCorrelation>;
+    using TPointRTree = bgi::rtree<TPointSizePr, bgi::quadratic<16>>;
 
     result.clear();
 

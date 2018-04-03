@@ -60,7 +60,7 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero(void) { return true; }
 
-        typedef CEqualWithTolerance<double> TEqualWithTolerance;
+        using TEqualWithTolerance = CEqualWithTolerance<double>;
 
         //! Lift the overloads of addSamples into scope.
         using CPrior::addSamples;
@@ -357,8 +357,8 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior
         //@}
 
     private:
-        typedef CBasicStatistics::SSampleMean<CDoublePrecisionStorage>::TAccumulator TMeanAccumulator;
-        typedef CBasicStatistics::SSampleMeanVar<CDoublePrecisionStorage>::TAccumulator TMeanVarAccumulator;
+        using TMeanAccumulator = CBasicStatistics::SSampleMean<CDoublePrecisionStorage>::TAccumulator;
+        using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<CDoublePrecisionStorage>::TAccumulator;
 
     private:
         //! Read parameters from \p traverser.

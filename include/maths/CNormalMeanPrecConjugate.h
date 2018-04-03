@@ -53,8 +53,8 @@ class MATHS_EXPORT CNormalMeanPrecConjugate : public CPrior
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero(void) { return true; }
 
-        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-        typedef CEqualWithTolerance<double> TEqualWithTolerance;
+        using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+        using TEqualWithTolerance = CEqualWithTolerance<double>;
 
         //! Lift the overloads of addSamples into scope.
         using CPrior::addSamples;

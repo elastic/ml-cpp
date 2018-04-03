@@ -19,7 +19,7 @@ using namespace model;
 
 namespace
 {
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 const function_t::EFunction INDIVIDUAL_COUNT  = function_t::E_IndividualCount;
 const function_t::EFunction INDIVIDUAL_METRIC = function_t::E_IndividualMetricMin;

@@ -39,9 +39,9 @@ using namespace ml;
 namespace
 {
 
-typedef std::pair<core_t::TTime, core_t::TTime> TTimeTimePr;
-typedef std::vector<TTimeTimePr> TTimeTimePrVec;
-typedef std::vector<double> TDoubleVec;
+using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
+using TTimeTimePrVec = std::vector<TTimeTimePr>;
+using TDoubleVec = std::vector<double>;
 
 bool doIntersect(const TTimeTimePr &i1, const TTimeTimePr &i2)
 {
@@ -212,7 +212,7 @@ void importCsvData(core_t::TTime firstTime,
                    const std::string &fileName,
                    model::CAnomalyDetector &detector)
 {
-    typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
+    using TifstreamPtr = boost::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
     CPPUNIT_ASSERT(ifs->is_open());
 

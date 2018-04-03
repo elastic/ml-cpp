@@ -35,9 +35,9 @@ class CDetectorSpecification;
 class CONFIG_EXPORT CDetectorRecord
 {
     public:
-        typedef boost::array<std::size_t, constants::NUMBER_FIELD_INDICES> TSizeAry;
-        typedef boost::array<const std::string*, constants::NUMBER_FIELD_INDICES> TStrCPtrAry;
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
+        using TSizeAry = boost::array<std::size_t, constants::NUMBER_FIELD_INDICES>;
+        using TStrCPtrAry = boost::array<const std::string*, constants::NUMBER_FIELD_INDICES>;
+        using TStrStrUMap = boost::unordered_map<std::string, std::string>;
 
     public:
         CDetectorRecord(core_t::TTime time,
@@ -120,9 +120,9 @@ class CONFIG_EXPORT CDetectorRecord
 class CONFIG_EXPORT CDetectorRecordDirectAddressTable
 {
     public:
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;
-        typedef std::vector<CDetectorRecord> TDetectorRecordVec;
+        using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+        using TDetectorSpecificationVec = std::vector<CDetectorSpecification>;
+        using TDetectorRecordVec = std::vector<CDetectorRecord>;
 
     public:
         //! Build the table from \p specs.
@@ -139,12 +139,12 @@ class CONFIG_EXPORT CDetectorRecordDirectAddressTable
         void clear(void);
 
     private:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::pair<std::string, std::size_t> TStrSizePr;
-        typedef std::vector<TStrSizePr> TStrSizePrVec;
-        typedef boost::array<std::size_t, constants::NUMBER_FIELD_INDICES> TSizeAry;
-        typedef std::vector<TSizeAry> TSizeAryVec;
-        typedef std::vector<const std::string*> TStrCPtrVec;
+        using TSizeVec = std::vector<std::size_t>;
+        using TStrSizePr = std::pair<std::string, std::size_t>;
+        using TStrSizePrVec = std::vector<TStrSizePr>;
+        using TSizeAry = boost::array<std::size_t, constants::NUMBER_FIELD_INDICES>;
+        using TSizeAryVec = std::vector<TSizeAry>;
+        using TStrCPtrVec = std::vector<const std::string*>;
 
     private:
         //! A map from field to its value entry in the field value table.

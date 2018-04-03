@@ -104,41 +104,41 @@ class CSearchKey;
 class MODEL_EXPORT CDataGatherer
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator TStrVecCItr;
-        typedef std::vector<const std::string*> TStrCPtrVec;
-        typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-        typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-        typedef model_t::TFeatureVec TFeatureVec;
-        typedef TFeatureVec::const_iterator TFeatureVecCItr;
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef std::pair<TSizeSizePr, uint64_t> TSizeSizePrUInt64Pr;
-        typedef std::vector<TSizeSizePrUInt64Pr> TSizeSizePrUInt64PrVec;
-        typedef boost::unordered_map<TSizeSizePr, uint64_t> TSizeSizePrUInt64UMap;
-        typedef TSizeSizePrUInt64UMap::iterator TSizeSizePrUInt64UMapItr;
-        typedef TSizeSizePrUInt64UMap::const_iterator TSizeSizePrUInt64UMapCItr;
-        typedef CBucketQueue<TSizeSizePrUInt64UMap> TSizeSizePrUInt64UMapQueue;
-        typedef TSizeSizePrUInt64UMapQueue::iterator TSizeSizePrUInt64UMapQueueItr;
-        typedef TSizeSizePrUInt64UMapQueue::const_iterator TSizeSizePrUInt64UMapQueueCItr;
-        typedef TSizeSizePrUInt64UMapQueue::const_reverse_iterator TSizeSizePrUInt64UMapQueueCRItr;
-        typedef CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMap TSizeSizePrStoredStringPtrPrUInt64UMap;
-        typedef TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator TSizeSizePrStoredStringPtrPrUInt64UMapCItr;
-        typedef TSizeSizePrStoredStringPtrPrUInt64UMap::iterator TSizeSizePrStoredStringPtrPrUInt64UMapItr;
-        typedef std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap> TSizeSizePrStoredStringPtrPrUInt64UMapVec;
-        typedef CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec> TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue;
-        typedef boost::reference_wrapper<const CSearchKey> TSearchKeyCRef;
-        typedef std::vector<CBucketGatherer*> TBucketGathererPVec;
-        typedef TBucketGathererPVec::iterator TBucketGathererPVecItr;
-        typedef TBucketGathererPVec::const_iterator TBucketGathererPVecCItr;
-        typedef std::pair<model_t::EFeature, boost::any> TFeatureAnyPr;
-        typedef std::vector<TFeatureAnyPr> TFeatureAnyPrVec;
-        typedef std::vector<model_t::EMetricCategory> TMetricCategoryVec;
-        typedef boost::shared_ptr<CSampleCounts> TSampleCountsPtr;
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef TTimeVec::const_iterator TTimeVecCItr;
+        using TDoubleVec = std::vector<double>;
+        using TDouble1Vec = core::CSmallVector<double, 1>;
+        using TSizeVec = std::vector<std::size_t>;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecCItr = TStrVec::const_iterator;
+        using TStrCPtrVec = std::vector<const std::string*>;
+        using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+        using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
+        using TFeatureVec = model_t::TFeatureVec;
+        using TFeatureVecCItr = TFeatureVec::const_iterator;
+        using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+        using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, uint64_t>;
+        using TSizeSizePrUInt64PrVec = std::vector<TSizeSizePrUInt64Pr>;
+        using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, uint64_t>;
+        using TSizeSizePrUInt64UMapItr = TSizeSizePrUInt64UMap::iterator;
+        using TSizeSizePrUInt64UMapCItr = TSizeSizePrUInt64UMap::const_iterator;
+        using TSizeSizePrUInt64UMapQueue = CBucketQueue<TSizeSizePrUInt64UMap>;
+        using TSizeSizePrUInt64UMapQueueItr = TSizeSizePrUInt64UMapQueue::iterator;
+        using TSizeSizePrUInt64UMapQueueCItr = TSizeSizePrUInt64UMapQueue::const_iterator;
+        using TSizeSizePrUInt64UMapQueueCRItr = TSizeSizePrUInt64UMapQueue::const_reverse_iterator;
+        using TSizeSizePrStoredStringPtrPrUInt64UMap = CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMap;
+        using TSizeSizePrStoredStringPtrPrUInt64UMapCItr = TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator;
+        using TSizeSizePrStoredStringPtrPrUInt64UMapItr = TSizeSizePrStoredStringPtrPrUInt64UMap::iterator;
+        using TSizeSizePrStoredStringPtrPrUInt64UMapVec = std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap>;
+        using TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue = CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
+        using TSearchKeyCRef = boost::reference_wrapper<const CSearchKey>;
+        using TBucketGathererPVec = std::vector<CBucketGatherer*>;
+        using TBucketGathererPVecItr = TBucketGathererPVec::iterator;
+        using TBucketGathererPVecCItr = TBucketGathererPVec::const_iterator;
+        using TFeatureAnyPr = std::pair<model_t::EFeature, boost::any>;
+        using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
+        using TMetricCategoryVec = std::vector<model_t::EMetricCategory>;
+        using TSampleCountsPtr = boost::shared_ptr<CSampleCounts>;
+        using TTimeVec = std::vector<core_t::TTime>;
+        using TTimeVecCItr = TTimeVec::const_iterator;
 
     public:
         //! The summary count indicating an explicit null record.
@@ -726,7 +726,7 @@ class MODEL_EXPORT CDataGatherer
         static const std::string EXPLICIT_NULL;
 
     private:
-        typedef boost::reference_wrapper<const SModelParams> TModelParamsCRef;
+        using TModelParamsCRef = boost::reference_wrapper<const SModelParams>;
 
     private:
         //! Select the correct bucket gatherer based on the time: if we have

@@ -68,17 +68,17 @@ class API_EXPORT CFieldDataTyper : public CDataProcessor
     public:
         // A type of token list data typer that DOESN'T exclude fields from its
         // analysis
-        typedef CTokenListDataTyper<true,  // Warping
-                                    true,  // Underscores
-                                    true,  // Dots
-                                    true,  // Dashes
-                                    true,  // Ignore leading digit
-                                    true,  // Ignore hex
-                                    true,  // Ignore date words
-                                    false, // Ignore field names
-                                    2,     // Min dictionary word length
-                                    core::CWordDictionary::TWeightVerbs5Other2>
-                TTokenListDataTyperKeepsFields;
+        using TTokenListDataTyperKeepsFields =
+                  CTokenListDataTyper<true,  // Warping
+                                      true,  // Underscores
+                                      true,  // Dots
+                                      true,  // Dashes
+                                      true,  // Ignore leading digit
+                                      true,  // Ignore hex
+                                      true,  // Ignore date words
+                                      false, // Ignore field names
+                                      2,     // Min dictionary word length
+                                      core::CWordDictionary::TWeightVerbs5Other2>;
 
     public:
         //! Construct without persistence capability
@@ -151,7 +151,7 @@ class API_EXPORT CFieldDataTyper : public CDataProcessor
         void acknowledgeFlush(const std::string &flushId);
 
     private:
-        typedef CCategoryExamplesCollector::TStrSet TStrSet;
+        using TStrSet = CCategoryExamplesCollector::TStrSet;
 
     private:
         //! The job ID

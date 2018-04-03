@@ -133,7 +133,7 @@ CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::st
     {
         return TIStreamP();
     }
-    typedef boost::iostreams::stream<boost::iostreams::file_descriptor_source> TFileDescriptorSourceStream;
+    using TFileDescriptorSourceStream = boost::iostreams::stream<boost::iostreams::file_descriptor_source>;
     return TIStreamP(new TFileDescriptorSourceStream(
             boost::iostreams::file_descriptor_source(fd, boost::iostreams::close_handle)));
 }
@@ -145,7 +145,7 @@ CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::s
     {
         return TOStreamP();
     }
-    typedef boost::iostreams::stream<CRetryingFileDescriptorSink> TRetryingFileDescriptorSinkStream;
+    using TRetryingFileDescriptorSinkStream = boost::iostreams::stream<CRetryingFileDescriptorSink>;
     return TOStreamP(new TRetryingFileDescriptorSinkStream(
             CRetryingFileDescriptorSink(fd, boost::iostreams::close_handle)));
 }

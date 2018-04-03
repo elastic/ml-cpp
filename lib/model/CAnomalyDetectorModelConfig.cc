@@ -38,8 +38,8 @@ namespace model
 namespace
 {
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<core_t::TTime> TTimeVec;
+using TSizeVec = std::vector<std::size_t>;
+using TTimeVec = std::vector<core_t::TTime>;
 
 const CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMap EMPTY_RULES_MAP;
 const CAnomalyDetectorModelConfig::TStrDetectionRulePrVec EMPTY_EVENTS;
@@ -197,7 +197,7 @@ CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig(void) :
 void CAnomalyDetectorModelConfig::bucketLength(core_t::TTime length)
 {
     m_BucketLength = length;
-    for (auto &&factory : m_Factories)
+    for (auto &factory : m_Factories)
     {
         factory.second->updateBucketLength(length);
     }
@@ -515,7 +515,7 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
     {
         std::string valueStr(propTree.get<std::string>(TERMS_PROPERTY));
 
-        typedef core::CStringUtils::TStrVec TStrVec;
+        using TStrVec = core::CStringUtils::TStrVec;
         TStrVec tokens;
         std::string remainder;
         core::CStringUtils::tokenise(",", valueStr, tokens, remainder);
@@ -754,7 +754,7 @@ CAnomalyDetectorModelConfig::factory(int identifier,
 
 void CAnomalyDetectorModelConfig::decayRate(double value)
 {
-    for (auto &&factory : m_Factories)
+    for (auto &factory : m_Factories)
     {
         factory.second->decayRate(value);
     }
@@ -891,7 +891,7 @@ const std::string PER_PARTITION_NORMALIZATION_PROPERTY("perPartitionNormalizatio
 
 bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptree &propertyTree)
 {
-    typedef std::vector<std::string> TStrVec;
+    using TStrVec = std::vector<std::string>;
 
     bool result = true;
 
@@ -912,7 +912,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
 
             learnRate *= bucketNormalizationFactor(this->bucketLength());
-            for (auto &&factory : m_Factories)
+            for (auto &factory : m_Factories)
             {
                 factory.second->learnRate(learnRate);
             }
@@ -928,7 +928,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
 
             decayRate *= bucketNormalizationFactor(this->bucketLength());
-            for (auto &&factory : m_Factories)
+            for (auto &factory : m_Factories)
             {
                 factory.second->decayRate(decayRate);
             }
@@ -943,7 +943,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 continue;
             }
 
-            for (auto &&factory : m_Factories)
+            for (auto &factory : m_Factories)
             {
                 factory.second->initialDecayRateMultiplier(multiplier);
             }
@@ -959,7 +959,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 continue;
             }
 
-            for (auto &&factory : m_Factories)
+            for (auto &factory : m_Factories)
             {
                 factory.second->maximumUpdatesPerBucket(maximumUpdatesPerBucket);
             }
@@ -974,7 +974,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (auto &&factory : m_Factories)
+            for (auto &factory : m_Factories)
             {
                 factory.second->totalProbabilityCalcSamplingSize(totalProbabilityCalcSamplingSize);
             }
@@ -1048,7 +1048,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (auto &&factory : m_Factories)
+            for (auto &factory : m_Factories)
             {
                 factory.second->componentSize(componentSize);
             }
@@ -1062,7 +1062,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (auto &&factory : m_Factories)
+            for (auto &factory : m_Factories)
             {
                 factory.second->sampleCountFactor(factor);
             }
@@ -1076,7 +1076,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (auto &&factory : m_Factories)
+            for (auto &factory : m_Factories)
             {
                 factory.second->pruneWindowScaleMinimum(factor);
             }
@@ -1090,7 +1090,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (auto &&factory : m_Factories)
+            for (auto &factory : m_Factories)
             {
                 factory.second->pruneWindowScaleMaximum(factor);
             }

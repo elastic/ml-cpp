@@ -178,7 +178,7 @@ void reinitializePrior(double learnRate,
     }
     if (controllers)
     {
-        for (auto &&trend : trends)
+        for (auto &trend : trends)
         {
             trend->decayRate(trend->decayRate() / (*controllers)[0].multiplier());
         }
@@ -337,7 +337,7 @@ void CTimeSeriesModelTest::testMode(void)
         maths::CUnivariateTimeSeriesModel model{params(bucketLength), 0, trend, prior};
 
         core_t::TTime time{0};
-        for (auto &&sample : samples)
+        for (auto &sample : samples)
         {
             sample += 20.0 + 10.0 * ::sin(  boost::math::double_constants::two_pi
                                           * static_cast<double>(time)
@@ -457,7 +457,7 @@ void CTimeSeriesModelTest::testMode(void)
         maths::CMultivariateTimeSeriesModel model{params(bucketLength), *trends[0], prior};
 
         core_t::TTime time{0};
-        for (auto &&sample : samples)
+        for (auto &sample : samples)
         {
             double amplitude{10.0};
             for (std::size_t i = 0u; i < sample.size(); ++i)
@@ -847,7 +847,7 @@ void CTimeSeriesModelTest::testAddSamples(void)
         TDouble2Vec4VecVec weights{{{1.0, 1.0, 1.0}}};
 
         core_t::TTime time{0};
-        for (auto &&sample : samples)
+        for (auto &sample : samples)
         {
             bool reinitialize{false};
             bool hasTrend{false};
@@ -1063,9 +1063,9 @@ void CTimeSeriesModelTest::testPredict(void)
 
         TDouble2Vec4VecVec weights{maths::CConstantWeights::unit<TDouble2Vec>(3)};
         core_t::TTime time{0};
-        for (auto &&sample : samples)
+        for (auto &sample : samples)
         {
-            for (auto &&coordinate : sample)
+            for (auto &coordinate : sample)
             {
                 coordinate += 10.0 + 5.0 * ::sin(  boost::math::double_constants::two_pi
                                                  * static_cast<double>(time) / 86400.0);
@@ -1328,7 +1328,7 @@ void CTimeSeriesModelTest::testProbability(void)
 
         core_t::TTime time{0};
         const TDouble2Vec4VecVec weight{maths::CConstantWeights::unit<TDouble2Vec>(3)};
-        for (auto &&sample : samples)
+        for (auto &sample : samples)
         {
             maths::CModelAddSamplesParams params;
             params.integer(false)
@@ -1342,7 +1342,7 @@ void CTimeSeriesModelTest::testProbability(void)
 
             double trend{5.0 + 5.0 * ::sin(  boost::math::double_constants::two_pi
                                            * static_cast<double>(time) / 86400.0)};
-            for (auto &&component : sample_)
+            for (auto &component : sample_)
             {
                 component += trend;
             }
@@ -1453,7 +1453,7 @@ void CTimeSeriesModelTest::testProbability(void)
         TDouble2Vec4VecVec weights{weight};
         std::size_t bucket{0};
         core_t::TTime time{0};
-        for (auto &&sample : samples)
+        for (auto &sample : samples)
         {
             if (std::binary_search(anomalies.begin(), anomalies.end(), bucket++))
             {
@@ -1603,7 +1603,7 @@ void CTimeSeriesModelTest::testWeights(void)
         TDouble10Vec4Vec1Vec weight{{{1.0, 1.0, 1.0}}};
         TDouble2Vec4VecVec weights{{{1.0, 1.0, 1.0}}};
         core_t::TTime time{0};
-        for (auto &&sample : samples)
+        for (auto &sample : samples)
         {
             double scale{10.0 + 5.0 * ::sin(  boost::math::double_constants::two_pi
                                             * static_cast<double>(time) / 86400.0)};
@@ -1742,7 +1742,7 @@ void CTimeSeriesModelTest::testMemoryUsage(void)
                   .weightStyles(maths::CConstantWeights::COUNT)
                   .trendWeights(weights)
                   .priorWeights(weights);
-            for (auto &&coordinate : sample)
+            for (auto &coordinate : sample)
             {
                 coordinate += 10.0 + 5.0 * ::sin(  boost::math::double_constants::two_pi
                                                  * static_cast<double>(time) / 86400.0);
@@ -2099,7 +2099,7 @@ void CTimeSeriesModelTest::testAnomalyModel(void)
         TDouble2Vec4VecVec weights{weight};
         std::size_t bucket{0};
         core_t::TTime time{0};
-        for (auto &&sample : samples)
+        for (auto &sample : samples)
         {
             if (std::binary_search(anomalies.begin(), anomalies.end(), bucket++))
             {
@@ -2190,9 +2190,9 @@ void CTimeSeriesModelTest::testAnomalyModel(void)
         TDouble2Vec4VecVec weights{weight};
         core_t::TTime time{0};
         std::size_t bucket{0};
-        for (auto &&sample : samples)
+        for (auto &sample : samples)
         {
-            for (auto &&coordinate : sample)
+            for (auto &coordinate : sample)
             {
                 if (std::binary_search(anomalies.begin(), anomalies.end(), bucket))
                 {

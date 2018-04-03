@@ -49,7 +49,7 @@ namespace maths
 class MATHS_EXPORT CJointProbabilityOfLessLikelySamples : private boost::addable<CJointProbabilityOfLessLikelySamples>
 {
     public:
-        typedef boost::optional<double> TOptionalDouble;
+        using TOptionalDouble = boost::optional<double>;
 
         //! Functor wrapper of CJointProbabilityOfLessLikelySamples::add.
         struct SAddProbability
@@ -223,7 +223,7 @@ class MATHS_EXPORT CProbabilityOfExtremeSample : private boost::addable<CProbabi
         std::ostream &print(std::ostream &o) const;
 
     private:
-        typedef CBasicStatistics::COrderStatisticsStack<double, 1u> TMinValueAccumulator;
+        using TMinValueAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1u>;
 
     private:
         TMinValueAccumulator m_MinValue;
@@ -311,7 +311,7 @@ class MATHS_EXPORT CLogProbabilityOfMFromNExtremeSamples : private boost::addabl
         uint64_t checksum(uint64_t seed) const;
 
     private:
-        typedef CBasicStatistics::COrderStatisticsHeap<double> TMinValueAccumulator;
+        using TMinValueAccumulator = CBasicStatistics::COrderStatisticsHeap<double>;
 
     private:
         TMinValueAccumulator m_MinValues;

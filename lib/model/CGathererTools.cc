@@ -46,7 +46,7 @@ const std::string SUM_MAP_VALUE_TAG("c");
 //! \brief Manages persistence of bucket sums.
 struct SSumSerializer
 {
-    typedef std::vector<CSample> TSampleVec;
+    using TSampleVec = std::vector<CSample>;
 
     void operator()(const TSampleVec &sample, core::CStatePersistInserter &inserter) const
     {
@@ -70,11 +70,11 @@ struct SSumSerializer
 //! \brief Manages persistence of influence bucket sums.
 struct SInfluencerSumSerializer
 {
-    typedef boost::unordered_map<core::CStoredStringPtr, double> TStoredStringPtrDoubleUMap;
-    typedef TStoredStringPtrDoubleUMap::const_iterator TStoredStringPtrDoubleUMapCItr;
-    typedef boost::reference_wrapper<const std::string> TStrCRef;
-    typedef std::pair<TStrCRef, double> TStrCRefDoublePr;
-    typedef std::vector<TStrCRefDoublePr> TStrCRefDoublePrVec;
+    using TStoredStringPtrDoubleUMap = boost::unordered_map<core::CStoredStringPtr, double>;
+    using TStoredStringPtrDoubleUMapCItr = TStoredStringPtrDoubleUMap::const_iterator;
+    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRefDoublePr = std::pair<TStrCRef, double>;
+    using TStrCRefDoublePrVec = std::vector<TStrCRefDoublePr>;
 
     void operator()(const TStoredStringPtrDoubleUMap &map, core::CStatePersistInserter &inserter) const
     {
@@ -209,11 +209,11 @@ std::size_t CGathererTools::CSumGatherer::dimension(void) const
 SMetricFeatureData CGathererTools::CSumGatherer::featureData(core_t::TTime time, core_t::TTime /*bucketLength*/,
                                                      const TSampleVec &emptySample) const
 {
-    typedef boost::reference_wrapper<const std::string> TStrCRef;
-    typedef std::pair<TDouble1Vec, double> TDouble1VecDoublePr;
-    typedef std::pair<TStrCRef, TDouble1VecDoublePr> TStrCRefDouble1VecDoublePrPr;
-    typedef std::vector<TStrCRefDouble1VecDoublePrPr> TStrCRefDouble1VecDoublePrPrVec;
-    typedef std::vector<TStrCRefDouble1VecDoublePrPrVec> TStrCRefDouble1VecDoublePrPrVecVec;
+    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TDouble1VecDoublePr = std::pair<TDouble1Vec, double>;
+    using TStrCRefDouble1VecDoublePrPr = std::pair<TStrCRef, TDouble1VecDoublePr>;
+    using TStrCRefDouble1VecDoublePrPrVec = std::vector<TStrCRefDouble1VecDoublePrPr>;
+    using TStrCRefDouble1VecDoublePrPrVecVec = std::vector<TStrCRefDouble1VecDoublePrPrVec>;
 
     const TSampleVec *sum = &m_BucketSums.get(time);
     if (sum->empty())

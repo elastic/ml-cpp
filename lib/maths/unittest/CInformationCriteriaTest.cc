@@ -19,20 +19,20 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef TVector2Vec::const_iterator TVector2VecCItr;
-typedef std::vector<TVector2Vec> TVector2VecVec;
-typedef maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator TMeanVar2Accumulator;
-typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
-typedef std::vector<TMatrix2> TMatrix2Vec;
-typedef maths::CVectorNx1<double, 4> TVector4;
-typedef std::vector<TVector4> TVector4Vec;
-typedef maths::CBasicStatistics::SSampleMeanVar<TVector4>::TAccumulator TMeanVar4Accumulator;
-typedef maths::CSymmetricMatrixNxN<double, 4> TMatrix4;
-typedef std::vector<TMatrix4> TMatrix4Vec;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TVector2 = maths::CVectorNx1<double, 2>;
+using TVector2Vec = std::vector<TVector2>;
+using TVector2VecCItr = TVector2Vec::const_iterator;
+using TVector2VecVec = std::vector<TVector2Vec>;
+using TMeanVar2Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator;
+using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
+using TMatrix2Vec = std::vector<TMatrix2>;
+using TVector4 = maths::CVectorNx1<double, 4>;
+using TVector4Vec = std::vector<TVector4>;
+using TMeanVar4Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector4>::TAccumulator;
+using TMatrix4 = maths::CSymmetricMatrixNxN<double, 4>;
+using TMatrix4Vec = std::vector<TMatrix4>;
 
 template<typename POINT>
 double logfSphericalGaussian(const POINT &mean,
@@ -240,9 +240,9 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster(void)
     // same result working with clusters of points or their
     // spherical cluster representation.
 
-    typedef maths::CSphericalCluster<TVector2>::Type TSphericalCluster2;
-    typedef std::vector<TSphericalCluster2> TSphericalCluster2Vec;
-    typedef std::vector<TSphericalCluster2Vec> TSphericalCluster2VecVec;
+    using TSphericalCluster2 = maths::CSphericalCluster<TVector2>::Type;
+    using TSphericalCluster2Vec = std::vector<TSphericalCluster2>;
+    using TSphericalCluster2VecVec = std::vector<TSphericalCluster2Vec>;
 
     maths::CSampling::seed();
 
@@ -472,9 +472,9 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster(void)
     LOG_DEBUG("|  CInformationCriteriaTest::testGaussianWithSphericalCluster  |");
     LOG_DEBUG("+--------------------------------------------------------------+");
 
-    typedef maths::CSphericalCluster<TVector2>::Type TSphericalCluster2;
-    typedef std::vector<TSphericalCluster2> TSphericalCluster2Vec;
-    typedef std::vector<TSphericalCluster2Vec> TSphericalCluster2VecVec;
+    using TSphericalCluster2 = maths::CSphericalCluster<TVector2>::Type;
+    using TSphericalCluster2Vec = std::vector<TSphericalCluster2>;
+    using TSphericalCluster2VecVec = std::vector<TSphericalCluster2Vec>;
 
     maths::CSampling::seed();
 

@@ -441,7 +441,7 @@ double CHierarchicalResultsAggregator::correctProbability(const TNode &node, boo
         TDetectorEqualizerPtrVec equalizers;
         this->elements(node, pivot, factory, equalizers);
         TMaxAccumulator corrected;
-        for (auto &&equalizer : equalizers)
+        for (auto &equalizer : equalizers)
         {
             switch (m_Job)
             {

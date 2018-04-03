@@ -29,7 +29,7 @@ namespace maths
 {
 namespace kmeans_fast_detail
 {
-typedef std::vector<std::size_t> TSizeVec;
+using TSizeVec = std::vector<std::size_t>;
 
 //! Get the closest filtered centre to \p point.
 template<typename POINT, typename ITR>
@@ -87,10 +87,10 @@ template<typename POINT>
 class CKMeansFast
 {
     public:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::pair<POINT, POINT> TPointPointPr;
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
+        using TSizeVec = std::vector<std::size_t>;
+        using TPointPointPr = std::pair<POINT, POINT>;
+        using TPointVec = std::vector<POINT>;
+        using TPointVecVec = std::vector<TPointVec>;
 
         //! A cluster.
         //!
@@ -164,16 +164,16 @@ class CKMeansFast
                 uint64_t m_Checksum;
         };
 
-        typedef std::vector<CCluster> TClusterVec;
+        using TClusterVec = std::vector<CCluster>;
 
     protected:
-        typedef typename SStripped<POINT>::Type TBarePoint;
-        typedef typename SFloatingPoint<TBarePoint, double>::Type TBarePointPrecise;
-        typedef typename CBasicStatistics::SSampleMean<TBarePointPrecise>::TAccumulator TMeanAccumulator;
-        typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
-        typedef CBoundingBox<TBarePoint> TBoundingBox;
+        using TBarePoint = typename SStripped<POINT>::Type;
+        using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
+        using TMeanAccumulator = typename CBasicStatistics::SSampleMean<TBarePointPrecise>::TAccumulator;
+        using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+        using TBoundingBox = CBoundingBox<TBarePoint>;
         class CKdTreeNodeData;
-        typedef typename CKdTree<POINT, CKdTreeNodeData>::SNode TNode;
+        using TNode = typename CKdTree<POINT, CKdTreeNodeData>::SNode;
 
         //! \brief The data the x-means algorithm needs at each k-d
         //! tree node.
@@ -550,7 +550,7 @@ class CKMeansFast
         //! Single iteration of Lloyd's algorithm to update \p centres.
         bool updateCentres(void)
         {
-            typedef typename SCoordinate<POINT>::Type TCoordinate;
+            using TCoordinate = typename SCoordinate<POINT>::Type;
             static const TCoordinate PRECISION =  TCoordinate(5)
                                                 * std::numeric_limits<TCoordinate>::epsilon();
             TMeanAccumulatorVec newCentres(m_Centres.size());
@@ -586,9 +586,9 @@ template<typename POINT, typename RNG>
 class CKMeansPlusPlusInitialization : private core::CNonCopyable
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<POINT> TPointVec;
+        using TDoubleVec = std::vector<double>;
+        using TSizeVec = std::vector<std::size_t>;
+        using TPointVec = std::vector<POINT>;
 
     public:
         CKMeansPlusPlusInitialization(RNG &rng) : m_Rng(rng) {}

@@ -38,7 +38,7 @@ namespace
 {
 
 using TStrCRef = boost::reference_wrapper<const std::string>;
-using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SLess> ;
+using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SLess>;
 
 enum EEntity
 {
@@ -91,7 +91,7 @@ void hashActive(EEntity entity,
 template<typename T>
 void hashActive(EEntity entity,
                 const CDataGatherer &gatherer,
-                const std::vector<std::pair<model_t::EFeature, std::vector<T> > > &values,
+                const std::vector<std::pair<model_t::EFeature, std::vector<T>> > &values,
                 TStrCRefUInt64Map &hashes)
 {
     for (const auto &value : values)

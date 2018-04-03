@@ -21,18 +21,18 @@
 using namespace ml;
 using namespace core;
 
-typedef boost::mt19937 TRandom;
-typedef boost::uniform_int<> TDistribution;
-typedef boost::random::variate_generator<TRandom&, TDistribution> TGenerator;
-typedef boost::generator_iterator<TGenerator> TGeneratorItr;
+using TRandom = boost::mt19937;
+using TDistribution = boost::uniform_int<>;
+using TGenerator = boost::random::variate_generator<TRandom&, TDistribution>;
+using TGeneratorItr = boost::generator_iterator<TGenerator>;
 
 namespace
 {
 
-typedef std::map<std::size_t, std::string> TSizeStrMap;
-typedef TSizeStrMap::const_iterator TSizeStrMapCItr;
-typedef core::CDataAdder::TOStreamP TOStreamP;
-typedef core::CDataSearcher::TIStreamP TIStreamP;
+using TSizeStrMap = std::map<std::size_t, std::string>;
+using TSizeStrMapCItr = TSizeStrMap::const_iterator;
+using TOStreamP = core::CDataAdder::TOStreamP;
+using TIStreamP = core::CDataSearcher::TIStreamP;
 
 void insert3rdLevel(ml::core::CStatePersistInserter &inserter)
 {

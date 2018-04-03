@@ -42,15 +42,15 @@ using namespace handy_typedefs;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef boost::shared_ptr<maths::CPrior> TPriorPtr;
-typedef CPriorTestInterfaceMixin<maths::CGammaRateConjugate> CGammaRateConjugate;
-typedef CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate> CLogNormalMeanPrecConjugate;
-typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate> CNormalMeanPrecConjugate;
-typedef CPriorTestInterfaceMixin<maths::CMultimodalPrior> CMultimodalPrior;
-typedef CPriorTestInterfaceMixin<maths::COneOfNPrior> COneOfNPrior;
+using TDoubleVec = std::vector<double>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TPriorPtr = boost::shared_ptr<maths::CPrior>;
+using CGammaRateConjugate = CPriorTestInterfaceMixin<maths::CGammaRateConjugate>;
+using CLogNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate>;
+using CNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate>;
+using CMultimodalPrior = CPriorTestInterfaceMixin<maths::CMultimodalPrior>;
+using COneOfNPrior = CPriorTestInterfaceMixin<maths::COneOfNPrior>;
 
 //! Make the default mode prior.
 COneOfNPrior makeModePrior(const double &decayRate = 0.0)
@@ -140,7 +140,7 @@ void probabilityOfLessLikelySample(const maths::CMixtureDistribution<T> &mixture
                                    double &probability,
                                    double &deviation)
 {
-    typedef typename maths::CMixtureDistribution<T>::TModeVec TModeVec;
+    using TModeVec = typename maths::CMixtureDistribution<T>::TModeVec;
 
     static const double NUMBER_SAMPLES = 10000.0;
 
@@ -229,7 +229,7 @@ void CMultimodalPriorTest::testPropagation(void)
     // mean and the marginal likelihood confidence intervals increase
     // (due to influence of the prior uncertainty) after propagation.
 
-    typedef std::pair<double, double> TDoubleDoublePr;
+    using TDoubleDoublePr = std::pair<double, double>;
 
     double eps = 0.01;
 
@@ -300,7 +300,7 @@ void CMultimodalPriorTest::testSingleMode(void)
     // that the generating distribution doesn't necessarily have
     // a larger likelihood because we are using a finite sample.
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     test::CRandomNumbers rng;
 
@@ -464,7 +464,7 @@ void CMultimodalPriorTest::testMultipleModes(void)
     // have a larger likelihood because we are using a finite
     // sample.
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     test::CRandomNumbers rng;
 
@@ -759,7 +759,7 @@ void CMultimodalPriorTest::testMarginalLikelihood(void)
     LOG_DEBUG("|  CMultimodalPriorTest::testMarginalLikelihood  |");
     LOG_DEBUG("+------------------------------------------------+");
 
-    typedef std::vector<boost::math::normal_distribution<> > TNormalVec;
+    using TNormalVec = std::vector<boost::math::normal_distribution<>>;
 
     // Check that the c.d.f. <= 1 at extreme.
     {
@@ -930,7 +930,7 @@ void CMultimodalPriorTest::testMarginalLikelihood(void)
         modes.push_back(boost::math::normal_distribution<>(mean1, variance1));
         modes.push_back(boost::math::normal_distribution<>(mean2, variance2));
         modes.push_back(boost::math::normal_distribution<>(mean3, variance3));
-        maths::CMixtureDistribution<boost::math::normal_distribution<> > f(weights, modes);
+        maths::CMixtureDistribution<boost::math::normal_distribution<>> f(weights, modes);
         double expectedDifferentialEntropy = maths::CTools::differentialEntropy(f);
 
         double differentialEntropy = 0.0;
@@ -1082,7 +1082,7 @@ void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval(void)
     // Test that marginal likelihood confidence intervals are
     // what we'd expect for various variance scales.
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     LOG_DEBUG("Synthetic");
     {
@@ -1220,9 +1220,9 @@ void CMultimodalPriorTest::testSampleMarginalLikelihood(void)
     // jointLogMarginalLikelihood and minusLogJointCdf so use these
     // to compute the mean and percentiles.
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-    typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-    typedef maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator TMeanVarSkewAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TMeanVarSkewAccumulator = maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator;
 
     const double eps = 1e-3;
 
@@ -1407,9 +1407,9 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void)
     LOG_DEBUG("|  CMultimodalPriorTest::testProbabilityOfLessLikelySamples  |");
     LOG_DEBUG("+------------------------------------------------------------+");
 
-    typedef std::vector<boost::math::normal_distribution<> > TNormalVec;
-    typedef std::vector<boost::math::lognormal_distribution<> > TLogNormalVec;
-    typedef std::vector<boost::math::gamma_distribution<> > TGammaVec;
+    using TNormalVec = std::vector<boost::math::normal_distribution<>>;
+    using TLogNormalVec = std::vector<boost::math::lognormal_distribution<>>;
+    using TGammaVec = std::vector<boost::math::gamma_distribution<>>;
 
     test::CRandomNumbers rng;
 
@@ -1437,7 +1437,7 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void)
         TNormalVec modes;
         modes.push_back(boost::math::normal_distribution<>(mean1, variance1));
         modes.push_back(boost::math::normal_distribution<>(mean2, variance2));
-        maths::CMixtureDistribution<boost::math::normal_distribution<> > mixture(weights, modes);
+        maths::CMixtureDistribution<boost::math::normal_distribution<>> mixture(weights, modes);
 
         CMultimodalPrior filter(makePrior());
         filter.addSamples(samples);
@@ -1524,7 +1524,7 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void)
         modes.push_back(boost::math::lognormal_distribution<>(locations[0], ::sqrt(squareScales[0])));
         modes.push_back(boost::math::lognormal_distribution<>(locations[1], ::sqrt(squareScales[1])));
         modes.push_back(boost::math::lognormal_distribution<>(locations[2], ::sqrt(squareScales[2])));
-        maths::CMixtureDistribution<boost::math::lognormal_distribution<> > mixture(mixtureWeights, modes);
+        maths::CMixtureDistribution<boost::math::lognormal_distribution<>> mixture(mixtureWeights, modes);
 
         CMultimodalPrior filter(makePrior());
         filter.addSamples(samples);
@@ -1586,7 +1586,7 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void)
         TGammaVec modes;
         modes.push_back(boost::math::gamma_distribution<>(shapes[0], scales[0]));
         modes.push_back(boost::math::gamma_distribution<>(shapes[1], scales[1]));
-        maths::CMixtureDistribution<boost::math::gamma_distribution<> > mixture(mixtureWeights, modes);
+        maths::CMixtureDistribution<boost::math::gamma_distribution<>> mixture(mixtureWeights, modes);
 
         CMultimodalPrior filter(makePrior());
         filter.addSamples(samples);

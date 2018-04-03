@@ -32,7 +32,7 @@ namespace maths
 namespace
 {
 
-typedef maths_t::TDoubleDoublePr TDoubleDoublePr;
+using TDoubleDoublePr = maths_t::TDoubleDoublePr;
 
 const std::string MAX_SIZE_TAG{"a"};
 const std::string RNG_TAG{"b"};
@@ -227,7 +227,7 @@ double CDecompositionComponent::heteroscedasticity(void) const
         return 0.0;
     }
 
-    typedef CBasicStatistics::SMax<double>::TAccumulator TMaxAccumulator;
+    using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
 
     TMaxAccumulator result;
 
@@ -345,7 +345,7 @@ void CDecompositionComponent::CPackedSplines::clear(void)
 
 void CDecompositionComponent::CPackedSplines::shift(ESpline spline, double shift)
 {
-    for (auto &&value : m_Values[static_cast<std::size_t>(spline)])
+    for (auto &value : m_Values[static_cast<std::size_t>(spline)])
     {
         value += shift;
     }

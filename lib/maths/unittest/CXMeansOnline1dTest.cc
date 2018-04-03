@@ -29,9 +29,9 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef maths::CXMeansOnline1d::TClusterVec TClusterVec;
-typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
+using TDoubleVec = std::vector<double>;
+using TClusterVec = maths::CXMeansOnline1d::TClusterVec;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 bool restore(const maths::SDistributionRestoreParams &params,
              core::CRapidXmlStateRestoreTraverser &traverser,
@@ -726,8 +726,8 @@ void CXMeansOnline1dTest::testManyClusters(void)
     LOG_DEBUG("|  CXMeansOnline1dTest::testManyClusters  |");
     LOG_DEBUG("+-----------------------------------------+");
 
-    typedef std::pair<core_t::TTime, double> TTimeDoublePr;
-    typedef std::vector<TTimeDoublePr> TTimeDoublePrVec;
+    using TTimeDoublePr = std::pair<core_t::TTime, double>;
+    using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;

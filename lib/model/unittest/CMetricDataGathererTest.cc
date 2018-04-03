@@ -32,23 +32,23 @@ using namespace model;
 
 namespace
 {
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::vector<model_t::EFeature> TFeatureVec;
-typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::pair<std::size_t, SMetricFeatureData> TSizeFeatureDataPr;
-typedef std::vector<TSizeFeatureDataPr> TSizeFeatureDataPrVec;
-typedef std::pair<model_t::EFeature, TSizeFeatureDataPrVec> TFeatureSizeFeatureDataPrVecPr;
-typedef std::vector<TFeatureSizeFeatureDataPrVecPr> TFeatureSizeFeatureDataPrVecPrVec;
-typedef boost::optional<double> TOptionalDouble;
-typedef boost::optional<std::string> TOptionalStr;
-typedef std::pair<core_t::TTime, double> TTimeDoublePr;
-typedef std::vector<TTimeDoublePr> TTimeDoublePrVec;
-typedef std::vector<TTimeDoublePrVec> TTimeDoublePrVecVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TFeatureVec = std::vector<model_t::EFeature>;
+using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
+using TStrVec = std::vector<std::string>;
+using TSizeFeatureDataPr = std::pair<std::size_t, SMetricFeatureData>;
+using TSizeFeatureDataPrVec = std::vector<TSizeFeatureDataPr>;
+using TFeatureSizeFeatureDataPrVecPr = std::pair<model_t::EFeature, TSizeFeatureDataPrVec>;
+using TFeatureSizeFeatureDataPrVecPrVec = std::vector<TFeatureSizeFeatureDataPrVecPr>;
+using TOptionalDouble = boost::optional<double>;
+using TOptionalStr = boost::optional<std::string>;
+using TTimeDoublePr = std::pair<core_t::TTime, double>;
+using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
+using TTimeDoublePrVecVec = std::vector<TTimeDoublePrVec>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 std::size_t addPerson(const std::string &p,
                       CDataGatherer &gatherer,
@@ -1512,10 +1512,10 @@ void CMetricDataGathererTest::testInfluenceStatistics(void)
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testInfluenceStatistics ***");
 
-    typedef boost::tuple<core_t::TTime, double, std::string, std::string> TTimeDoubleStrStrTuple;
-    typedef std::pair<double, double> TDoubleDoublePr;
-    typedef std::pair<std::string, TDoubleDoublePr> TStrDoubleDoublePrPr;
-    typedef std::vector<TStrDoubleDoublePrPr> TStrDoubleDoublePrPrVec;
+    using TTimeDoubleStrStrTuple = boost::tuple<core_t::TTime, double, std::string, std::string>;
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TStrDoubleDoublePrPr = std::pair<std::string, TDoubleDoublePr>;
+    using TStrDoubleDoublePrPrVec = std::vector<TStrDoubleDoublePrPr>;
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
@@ -1657,9 +1657,9 @@ void CMetricDataGathererTest::testInfluenceStatistics(void)
 
 void CMetricDataGathererTest::testMultivariate(void)
 {
-    typedef boost::tuple<core_t::TTime, double, double> TTimeDoubleDoubleTuple;
-    typedef std::vector<TTimeDoubleDoubleTuple> TTimeDoubleDoubleTupleVec;
-    typedef std::vector<TTimeDoubleDoubleTupleVec> TTimeDoubleDoubleTupleVecVec;
+    using TTimeDoubleDoubleTuple = boost::tuple<core_t::TTime, double, double>;
+    using TTimeDoubleDoubleTupleVec = std::vector<TTimeDoubleDoubleTuple>;
+    using TTimeDoubleDoubleTupleVecVec = std::vector<TTimeDoubleDoubleTupleVec>;
 
     static const std::string DELIMITER("__");
 

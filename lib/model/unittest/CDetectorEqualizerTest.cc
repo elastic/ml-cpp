@@ -21,12 +21,12 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 namespace
 {
 
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 const double THRESHOLD = ::log(0.05);
 
 }

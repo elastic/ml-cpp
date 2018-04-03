@@ -41,13 +41,13 @@ namespace maths
 class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
 {
     public:
-        typedef std::pair<double, double> TDoubleDoublePr;
-        typedef std::vector<double> TDoubleVec;
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef core::CSmallVector<double, 4> TDouble4Vec;
-        typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-        typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-        typedef CConstantWeights TWeights;
+        using TDoubleDoublePr = std::pair<double, double>;
+        using TDoubleVec = std::vector<double>;
+        using TDouble1Vec = core::CSmallVector<double, 1>;
+        using TDouble4Vec = core::CSmallVector<double, 4>;
+        using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+        using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+        using TWeights = CConstantWeights;
 
         //! Get the mode of the marginal likelihood function.
         template<typename T>
@@ -120,7 +120,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                 return modes[0].s_Prior->marginalLikelihoodMode(weightStyles, weights);
             }
 
-            typedef CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> > TMaxAccumulator;
+            using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> >;
 
             // We'll approximate this as the maximum likelihood mode (mode).
             double result = 0.0;
@@ -374,8 +374,8 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
             // The approximation is increasingly accurate as the prior distribution
             // on each mode narrows.
 
-            typedef std::pair<std::size_t, double> TSizeDoublePr;
-            typedef core::CSmallVector<TSizeDoublePr, 5> TSizeDoublePr5Vec;
+            using TSizeDoublePr = std::pair<std::size_t, double>;
+            using TSizeDoublePr5Vec = core::CSmallVector<TSizeDoublePr, 5>;
 
             result = 0.0;
 
@@ -884,7 +884,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
         class CLogCdf
         {
             public:
-                typedef double result_type;
+                using result_type = double;
 
                 enum EStyle
                 {
@@ -958,7 +958,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                 return minusLogCdf(modes[0].s_Prior, weightStyles, samples, weights, lowerBound, upperBound);
             }
 
-            typedef CBasicStatistics::COrderStatisticsStack<double, 1> TMinAccumulator;
+            using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1>;
 
             // The c.d.f. of the marginal likelihood is the weighted sum
             // of the c.d.fs of each mode since:

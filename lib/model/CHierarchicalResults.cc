@@ -35,7 +35,7 @@ namespace hierarchical_results_detail
 namespace
 {
 
-typedef SNode::TNodeCPtr TNodeCPtr;
+using TNodeCPtr = SNode::TNodeCPtr;
 
 //! CHierarchicalResults tags
 const std::string NODES_1_TAG("a");
@@ -189,8 +189,8 @@ void aggregateLayer(ITR beginLayer,
                     FACTORY newNode,
                     std::vector<SNode*> &newLayer)
 {
-    typedef std::vector<SNode*> TNodePtrVec;
-    typedef std::map<TNodeCPtr, TNodePtrVec, LESS> TNodeCPtrNodePtrVecMap;
+    using TNodePtrVec = std::vector<SNode*>;
+    using TNodeCPtrNodePtrVecMap = std::map<TNodeCPtr, TNodePtrVec, LESS>;
 
     newLayer.clear();
 
@@ -673,7 +673,7 @@ void CHierarchicalResults::addInfluencer(const std::string &name)
 
 void CHierarchicalResults::buildHierarchy(void)
 {
-    typedef std::vector<SNode*> TNodePtrVec;
+    using TNodePtrVec = std::vector<SNode*>;
 
     m_Nodes.erase(std::remove_if(m_Nodes.begin(), m_Nodes.end(), isAggregate), m_Nodes.end());
 
@@ -778,7 +778,7 @@ void CHierarchicalResults::createPivots(void)
         }
     }
 
-    for (auto &&pivot : m_PivotNodes)
+    for (auto &pivot : m_PivotNodes)
     {
         TNode &root = this->newPivotRoot(pivot.second.s_Spec.s_PersonFieldName);
         root.s_Children.push_back(&pivot.second);
@@ -889,10 +889,10 @@ model_t::CResultType CHierarchicalResults::resultType(void) const
 
 void CHierarchicalResults::acceptPersistInserter(core::CStatePersistInserter &inserter) const
 {
-    typedef TStoredStringPtrNodeMap::const_iterator TStoredStringPtrNodeMapCItr;
-    typedef std::vector<TStoredStringPtrNodeMapCItr> TStoredStringPtrNodeMapCItrVec;
-    typedef TStoredStringPtrStoredStringPtrPrNodeMap::const_iterator TStoredStringPtrStoredStringPtrPrNodeMapCItr;
-    typedef std::vector<TStoredStringPtrStoredStringPtrPrNodeMapCItr> TStoredStringPtrStoredStringPtrPrNodeMapCItrVec;
+    using TStoredStringPtrNodeMapCItr = TStoredStringPtrNodeMap::const_iterator;
+    using TStoredStringPtrNodeMapCItrVec = std::vector<TStoredStringPtrNodeMapCItr>;
+    using TStoredStringPtrStoredStringPtrPrNodeMapCItr = TStoredStringPtrStoredStringPtrPrNodeMap::const_iterator;
+    using TStoredStringPtrStoredStringPtrPrNodeMapCItrVec = std::vector<TStoredStringPtrStoredStringPtrPrNodeMapCItr>;
 
     TNodePtrSizeUMap nodePointers;
 

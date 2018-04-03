@@ -26,8 +26,8 @@ template<typename VECTOR, typename ANNOTATION>
 class CAnnotatedVector : public VECTOR
 {
     public:
-        typedef ANNOTATION TAnnotation;
-        typedef typename SCoordinate<VECTOR>::Type TCoordinate;
+        using TAnnotation = ANNOTATION;
+        using TCoordinate = typename SCoordinate<VECTOR>::Type;
 
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero(void)

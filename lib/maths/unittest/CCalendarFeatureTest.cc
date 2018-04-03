@@ -19,9 +19,9 @@
 
 using namespace ml;
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<core_t::TTime> TTimeVec;
-typedef std::vector<maths::CCalendarFeature> TCalendarFeatureVec;
+using TSizeVec = std::vector<std::size_t>;
+using TTimeVec = std::vector<core_t::TTime>;
+using TCalendarFeatureVec = std::vector<maths::CCalendarFeature>;
 
 namespace
 {

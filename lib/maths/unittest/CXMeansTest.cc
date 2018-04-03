@@ -26,32 +26,32 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::vector<uint64_t> TUInt64Vec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef TVector2Vec::const_iterator TVector2VecCItr;
-typedef std::vector<TVector2Vec> TVector2VecVec;
-typedef maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator TMeanVar2Accumulator;
-typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
-typedef std::vector<TMatrix2> TMatrix2Vec;
-typedef maths::CVectorNx1<double, 4> TVector4;
-typedef std::vector<TVector4> TVector4Vec;
-typedef maths::CBasicStatistics::SSampleMeanVar<TVector4>::TAccumulator TMeanVar4Accumulator;
-typedef maths::CSymmetricMatrixNxN<double, 4> TMatrix4;
-typedef std::vector<TMatrix4> TMatrix4Vec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TUInt64Vec = std::vector<uint64_t>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TVector2 = maths::CVectorNx1<double, 2>;
+using TVector2Vec = std::vector<TVector2>;
+using TVector2VecCItr = TVector2Vec::const_iterator;
+using TVector2VecVec = std::vector<TVector2Vec>;
+using TMeanVar2Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator;
+using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
+using TMatrix2Vec = std::vector<TMatrix2>;
+using TVector4 = maths::CVectorNx1<double, 4>;
+using TVector4Vec = std::vector<TVector4>;
+using TMeanVar4Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector4>::TAccumulator;
+using TMatrix4 = maths::CSymmetricMatrixNxN<double, 4>;
+using TMatrix4Vec = std::vector<TMatrix4>;
 
 //! \brief Expose internals of x-means for testing.
 template<typename POINT,
-         typename COST = maths::CSphericalGaussianInfoCriterion<POINT, maths::E_BIC> >
+         typename COST = maths::CSphericalGaussianInfoCriterion<POINT, maths::E_BIC>>
 class CXMeansForTest : public maths::CXMeans<POINT, COST>
 {
     public:
-        typedef typename maths::CXMeans<POINT, COST>::TUInt64USet TUInt64USet;
+        using TUInt64USet = typename maths::CXMeans<POINT, COST>::TUInt64USet;
 
     public:
         CXMeansForTest(std::size_t kmax) :
@@ -149,7 +149,7 @@ void CXMeansTest::testCluster(void)
 
     // Test basic accessors and checksum functionality of cluster.
 
-    typedef std::vector<double> TDoubleVec;
+    using TDoubleVec = std::vector<double>;
 
     maths::CSampling::seed();
 
@@ -220,7 +220,7 @@ void CXMeansTest::testImproveStructure(void)
 
     // Test improve structure finds an obvious split of the data.
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CSampling::seed();
 
@@ -467,7 +467,7 @@ void CXMeansTest::testFiveClusters(void)
 
         std::size_t ne = flatPoints.size();
 
-        maths::CXMeans<TVector2, maths::CGaussianInfoCriterion<TVector2, maths::E_AICc> > xmeans(10);
+        maths::CXMeans<TVector2, maths::CGaussianInfoCriterion<TVector2, maths::E_AICc>> xmeans(10);
         xmeans.setPoints(flatPoints);
         xmeans.run(3, 3, 5);
 
@@ -597,7 +597,7 @@ void CXMeansTest::testTwentyClusters(void)
 
     std::size_t ne = flatPoints.size();
 
-    maths::CXMeans<TVector2, maths::CGaussianInfoCriterion<TVector2, maths::E_AICc> > xmeans(40);
+    maths::CXMeans<TVector2, maths::CGaussianInfoCriterion<TVector2, maths::E_AICc>> xmeans(40);
     xmeans.setPoints(flatPoints);
     xmeans.run(4, 4, 5);
 
@@ -743,7 +743,7 @@ void CXMeansTest::testPoorlyConditioned(void)
     }
     std::sort(cluster3.begin(), cluster3.end());
 
-    maths::CXMeans<TVector2, maths::CGaussianInfoCriterion<TVector2, maths::E_BIC> > xmeans(5);
+    maths::CXMeans<TVector2, maths::CGaussianInfoCriterion<TVector2, maths::E_BIC>> xmeans(5);
     for (std::size_t t = 0u; t < 10; ++t)
     {
         LOG_DEBUG("*** test = " << t << " ***");

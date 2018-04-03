@@ -136,9 +136,9 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler
         //! an appropriate level, avoiding regular memory allocations.
         std::string         m_WorkRecord;
 
-        typedef std::pair<std::string, std::string > TStrStrPr;
-        typedef std::set<TStrStrPr>                  TStrStrPrSet;
-        typedef TStrStrPrSet::const_iterator         TStrStrPrSetCItr;
+        using TStrStrPr = std::pair<std::string, std::string>;
+        using TStrStrPrSet = std::set<TStrStrPr>;
+        using TStrStrPrSetCItr = TStrStrPrSet::const_iterator;
 
         //! Messages to be printed before the next lot of output
         TStrStrPrSet        m_Messages;

@@ -67,9 +67,9 @@ class CStateRestoreTraverser;
 class CORE_EXPORT CStateMachine
 {
     public:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<TSizeVec> TSizeVecVec;
-        typedef std::vector<std::string> TStrVec;
+        using TSizeVec = std::vector<std::size_t>;
+        using TSizeVecVec = std::vector<TSizeVec>;
+        using TStrVec = std::vector<std::string>;
 
     public:
         //! Set the number of machines we expect the program to use.
@@ -198,8 +198,8 @@ class CORE_EXPORT CStateMachine
                 void clear(void);
 
             private:
-                typedef std::vector<SMachine> TMachineVec;
-                typedef std::list<TMachineVec> TMachineVecList;
+                using TMachineVec = std::vector<SMachine>;
+                using TMachineVecList = std::list<TMachineVec>;
 
             private:
                 //! The vector capacity.

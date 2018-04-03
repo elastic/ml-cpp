@@ -81,13 +81,13 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero(void) { return true; }
 
-        typedef std::vector<double> TDoubleVec;
-        typedef CVectorNx1<double, N> TPoint;
-        typedef std::vector<TPoint> TPointVec;
-        typedef core::CSmallVector<TPoint, 4> TPoint4Vec;
-        typedef CSymmetricMatrixNxN<double, N> TMatrix;
-        typedef std::vector<TMatrix> TMatrixVec;
-        typedef typename CBasicStatistics::SSampleCovariances<double, N> TCovariance;
+        using TDoubleVec = std::vector<double>;
+        using TPoint = CVectorNx1<double, N>;
+        using TPointVec = std::vector<TPoint>;
+        using TPoint4Vec = core::CSmallVector<TPoint, 4>;
+        using TMatrix = CSymmetricMatrixNxN<double, N>;
+        using TMatrixVec = std::vector<TMatrix>;
+        using TCovariance = typename CBasicStatistics::SSampleCovariances<double, N>;
 
         // Lift all overloads of into scope.
         //{
@@ -96,8 +96,8 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         //}
 
     private:
-        typedef typename SDenseVector<TPoint>::Type TDenseVector;
-        typedef typename SDenseMatrix<TPoint>::Type TDenseMatrix;
+        using TDenseVector = typename SDenseVector<TPoint>::Type;
+        using TDenseMatrix = typename SDenseMatrix<TPoint>::Type;
 
     public:
         //! \name Life-cycle
@@ -504,8 +504,8 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
                 return {TPriorPtr(CMultivariateNormalConjugate<2>::nonInformativePrior(dataType, decayRate).clone()), 0.0};
             }
 
-            typedef CVectorNx1<double, 2> TPoint2;
-            typedef CSymmetricMatrixNxN<double, 2> TMatrix2;
+            using TPoint2 = CVectorNx1<double, 2>;
+            using TMatrix2 = CSymmetricMatrixNxN<double, 2>;
 
             TPoint2 p;
             p(0) = m_GaussianPrecision(i1[0]);

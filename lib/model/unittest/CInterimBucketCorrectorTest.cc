@@ -22,8 +22,8 @@ using namespace model;
 
 namespace
 {
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 10> TDouble10Vec;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble10Vec = core::CSmallVector<double, 10>;
 const double EPSILON = 1e-10;
 }
 

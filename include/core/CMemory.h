@@ -66,13 +66,13 @@ const std::size_t MIN_DEQUE_PAGE_VEC_ENTRIES = 8;
 template<typename T, std::size_t (T::*)(void) const, typename R = void>
 struct enable_if_member_function
 {
-    typedef R type;
+    using type = R;
 };
 
 template<bool (*)(void), typename R = void>
 struct enable_if_function
 {
-    typedef R type;
+    using type = R;
 };
 
 //! \brief Default template declaration for CMemoryDynamicSize::dispatch.

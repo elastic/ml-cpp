@@ -17,7 +17,7 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 void CCountMinSketchTest::testCounts(void)
 {
@@ -25,7 +25,7 @@ void CCountMinSketchTest::testCounts(void)
     LOG_DEBUG("|  CCountMinSketchTest::testCounts  |");
     LOG_DEBUG("+-----------------------------------+");
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     test::CRandomNumbers rng;
 

@@ -30,10 +30,10 @@ namespace maths
 namespace
 {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef CQuantileSketch::TFloatFloatPr TFloatFloatPr;
-typedef CQuantileSketch::TFloatFloatPrVec TFloatFloatPrVec;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TFloatFloatPr = CQuantileSketch::TFloatFloatPr;
+using TFloatFloatPrVec = CQuantileSketch::TFloatFloatPrVec;
 
 //! \brief Orders two indices of a value vector by increasing value.
 class CIndexingGreater
@@ -56,7 +56,7 @@ class CIndexingGreater
 //! \brief An iterator over just the unique knot values.
 class CUniqueIterator : private boost::addable2< CUniqueIterator, ptrdiff_t,
                                 boost::subtractable2< CUniqueIterator, ptrdiff_t,
-                                boost::equality_comparable< CUniqueIterator > > >
+                                boost::equality_comparable< CUniqueIterator >> >
 {
     public:
         CUniqueIterator(TFloatFloatPrVec &knots, std::size_t i) :
@@ -458,7 +458,7 @@ std::string CQuantileSketch::print(void) const
 
 void CQuantileSketch::reduce(void)
 {
-    typedef std::vector<std::size_t> TSizeVec;
+    using TSizeVec = std::vector<std::size_t>;
 
     CPRNG::CXorOShiro128Plus rng(static_cast<uint64_t>(m_Count));
     boost::random::uniform_01<double> u01;

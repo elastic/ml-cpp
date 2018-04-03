@@ -18,8 +18,8 @@
 
 #include <vector>
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 
 using namespace ml;
 
@@ -45,8 +45,8 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
     LOG_DEBUG("|  CCategoricalToolsTest::testExpectedDistinctCategories  |");
     LOG_DEBUG("+---------------------------------------------------------+");
 
-    typedef std::vector<TDoubleVec> TDoubleVecVec;
-    typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     static const std::size_t nTrials = 4000u;
 

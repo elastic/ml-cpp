@@ -24,25 +24,25 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef maths::CBasicStatistics::SSampleCovariances<double, 2> TCovariances2;
-typedef std::vector<TCovariances2> TCovariances2Vec;
-typedef maths::CXMeansOnline<double, 2> TXMeans2;
-typedef TXMeans2::TPointPrecise TPoint;
-typedef std::vector<TPoint> TPointVec;
-typedef std::vector<TPointVec> TPointVecVec;
-typedef TXMeans2::TMatrixPrecise TMatrix;
-typedef std::vector<TMatrix> TMatrixVec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeVec = std::vector<std::size_t>;
+using TCovariances2 = maths::CBasicStatistics::SSampleCovariances<double, 2>;
+using TCovariances2Vec = std::vector<TCovariances2>;
+using TXMeans2 = maths::CXMeansOnline<double, 2>;
+using TPoint = TXMeans2::TPointPrecise;
+using TPointVec = std::vector<TPoint>;
+using TPointVecVec = std::vector<TPointVec>;
+using TMatrix = TXMeans2::TMatrixPrecise;
+using TMatrixVec = std::vector<TMatrix>;
 
 template<typename T, std::size_t N>
 class CXMeansOnlineForTest : public maths::CXMeansOnline<T, N>
 {
     public:
-        typedef typename maths::CXMeansOnline<T, N>::TSizeDoublePr2Vec TSizeDoublePr2Vec;
-        typedef typename maths::CXMeansOnline<T, N>::TPointPrecise TPoint;
-        typedef typename maths::CXMeansOnline<T, N>::TClusterVec TClusterVec;
+        using TSizeDoublePr2Vec = typename maths::CXMeansOnline<T, N>::TSizeDoublePr2Vec;
+        using TPoint = typename maths::CXMeansOnline<T, N>::TPointPrecise;
+        using TClusterVec = typename maths::CXMeansOnline<T, N>::TClusterVec;
         using maths::CXMeansOnline<T, N>::add;
 
     public:
@@ -65,8 +65,8 @@ class CXMeansOnlineForTest : public maths::CXMeansOnline<T, N>
         }
 };
 
-typedef CXMeansOnlineForTest<double, 2> TXMeans2ForTest;
-typedef CXMeansOnlineForTest<maths::CFloatStorage, 2> TXMeans2FloatForTest;
+using TXMeans2ForTest = CXMeansOnlineForTest<double, 2>;
+using TXMeans2FloatForTest = CXMeansOnlineForTest<maths::CFloatStorage, 2>;
 
 bool restore(const maths::SDistributionRestoreParams &params,
              core::CRapidXmlStateRestoreTraverser &traverser,
@@ -519,7 +519,7 @@ void CXMeansOnlineTest::testManyClusters(void)
     LOG_DEBUG("|  CXMeansOnlineTest::testManyClusters  |");
     LOG_DEBUG("+---------------------------------------+");
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CSampling::seed();
 
@@ -620,7 +620,7 @@ void CXMeansOnlineTest::testAdaption(void)
     // Specifically, the data set starts with one cluster then
     // a new cluster appears and subsequently disappears.
 
-    typedef std::vector<TDoubleVecVec> TDoubleVecVecVec;
+    using TDoubleVecVecVec = std::vector<TDoubleVecVec>;
 
     maths::CSampling::seed();
 
@@ -795,9 +795,9 @@ void CXMeansOnlineTest::testLatLongData(void)
     LOG_DEBUG("|  CXMeansOnlineTest::testLatLongData  |");
     LOG_DEBUG("+--------------------------------------+");
 
-    typedef std::pair<core_t::TTime, TDoubleVec> TTimeDoubleVecPr;
-    typedef std::vector<TTimeDoubleVecPr> TTimeDoubleVecPrVec;
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TTimeDoubleVecPr = std::pair<core_t::TTime, TDoubleVec>;
+    using TTimeDoubleVecPrVec = std::vector<TTimeDoubleVecPr>;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     TTimeDoubleVecPrVec timeseries;
     CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/lat_lng.csv",

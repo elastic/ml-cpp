@@ -71,7 +71,7 @@ class CORE_EXPORT CJsonStatePersistInserter : public CStatePersistInserter
         //! JSON writer ostream wrapper
         rapidjson::OStreamWrapper     m_WriteStream;
 
-        typedef core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
+        using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
 
         //! JSON writer
         TGenericLineWriter            m_Writer;

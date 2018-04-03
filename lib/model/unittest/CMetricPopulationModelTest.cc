@@ -50,23 +50,23 @@ using namespace model;
 namespace
 {
 
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::vector<TSizeSizePr> TSizeSizePrVec;
-typedef std::vector<TSizeSizePrVec> TSizeSizePrVecVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef std::pair<double, std::string> TDoubleStrPr;
-typedef std::vector<TDoubleStrPr> TDoubleStrPrVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<unsigned int> TUIntVec;
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u> TMinAccumulator;
-typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double> > TMaxAccumulator;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 2> TDouble2Vec;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrVec = std::vector<TSizeSizePr>;
+using TSizeSizePrVecVec = std::vector<TSizeSizePrVec>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TDoubleStrPr = std::pair<double, std::string>;
+using TDoubleStrPrVec = std::vector<TDoubleStrPr>;
+using TStrVec = std::vector<std::string>;
+using TUIntVec = std::vector<unsigned int>;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble2Vec = core::CSmallVector<double, 2>;
 
 const std::string EMPTY_STRING;
 
@@ -136,7 +136,7 @@ struct SMessage
     TDouble1Vec s_Value;
 };
 
-typedef std::vector<SMessage> TMessageVec;
+using TMessageVec = std::vector<SMessage>;
 
 const std::size_t numberAttributes = 5u;
 const std::size_t numberPeople = 10u;
@@ -342,11 +342,11 @@ void CMetricPopulationModelTest::testBasicAccessors(void)
     // Check that the correct data is read retrieved by the
     // basic model accessors.
 
-    typedef boost::optional<uint64_t> TOptionalUInt64;
-    typedef std::map<std::string, uint64_t> TStrUInt64Map;
-    typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
-    typedef std::vector<TMinAccumulator> TMinAccumulatorVec;
-    typedef std::vector<TMaxAccumulator> TMaxAccumulatorVec;
+    using TOptionalUInt64 = boost::optional<uint64_t>;
+    using TStrUInt64Map = std::map<std::string, uint64_t>;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+    using TMinAccumulatorVec = std::vector<TMinAccumulator>;
+    using TMaxAccumulatorVec = std::vector<TMaxAccumulator>;
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -494,19 +494,19 @@ void CMetricPopulationModelTest::testMinMaxAndMean(void)
     // We check that the correct data is read from the gatherer
     // into the model on sample.
 
-    typedef core::CTriple<core_t::TTime, TDouble2Vec, std::size_t> TTimeDouble2VecSizeTr;
-    typedef std::vector<TTimeDouble2VecSizeTr> TTimeDouble2VecSizeTrVec;
-    typedef core::CSmallVector<TDouble2Vec, 4> TDouble2Vec4Vec;
-    typedef std::vector<TDouble2Vec4Vec> TDouble2Vec4VecVec;
-    typedef std::map<TSizeSizePr, TDoubleVec> TSizeSizePrDoubleVecMap;
-    typedef std::map<TSizeSizePr, TMeanAccumulator> TSizeSizePrMeanAccumulatorUMap;
-    typedef std::map<TSizeSizePr, TMinAccumulator> TSizeSizePrMinAccumulatorMap;
-    typedef std::map<TSizeSizePr, TMaxAccumulator> TSizeSizePrMaxAccumulatorMap;
-    typedef boost::shared_ptr<maths::CModel> TMathsModelPtr;
-    typedef std::map<std::size_t, TMathsModelPtr> TSizeMathsModelPtrMap;
-    typedef std::pair<TTimeDouble2VecSizeTrVec, TDouble2Vec4VecVec> TTimeDouble2VecSizeTrVecDouble2Vec4VecVecPr;
-    typedef std::map<std::size_t, TTimeDouble2VecSizeTrVecDouble2Vec4VecVecPr> TSizeTimeDouble2VecSizeTrVecDouble2Vec4VecVecPrMap;
-    typedef std::map<std::size_t, TSizeTimeDouble2VecSizeTrVecDouble2Vec4VecVecPrMap> TSizeSizeTimeDouble2VecSizeTrVecDouble2Vec4VecVecPrMapMap;
+    using TTimeDouble2VecSizeTr = core::CTriple<core_t::TTime, TDouble2Vec, std::size_t>;
+    using TTimeDouble2VecSizeTrVec = std::vector<TTimeDouble2VecSizeTr>;
+    using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
+    using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
+    using TSizeSizePrDoubleVecMap = std::map<TSizeSizePr, TDoubleVec>;
+    using TSizeSizePrMeanAccumulatorUMap = std::map<TSizeSizePr, TMeanAccumulator>;
+    using TSizeSizePrMinAccumulatorMap = std::map<TSizeSizePr, TMinAccumulator>;
+    using TSizeSizePrMaxAccumulatorMap = std::map<TSizeSizePr, TMaxAccumulator>;
+    using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+    using TSizeMathsModelPtrMap = std::map<std::size_t, TMathsModelPtr>;
+    using TTimeDouble2VecSizeTrVecDouble2Vec4VecVecPr = std::pair<TTimeDouble2VecSizeTrVec, TDouble2Vec4VecVec>;
+    using TSizeTimeDouble2VecSizeTrVecDouble2Vec4VecVecPrMap = std::map<std::size_t, TTimeDouble2VecSizeTrVecDouble2Vec4VecVecPr>;
+    using TSizeSizeTimeDouble2VecSizeTrVecDouble2Vec4VecVecPrMapMap = std::map<std::size_t, TSizeTimeDouble2VecSizeTrVecDouble2Vec4VecVecPrMap>;
 
     static const maths_t::TWeightStyleVec WEIGHT_STYLES{maths_t::E_SampleCountWeight,
                                                         maths_t::E_SampleWinsorisationWeight};
@@ -758,10 +758,10 @@ void CMetricPopulationModelTest::testComputeProbability(void)
     // Test that we correctly pick out synthetic the anomalies,
     // their people and attributes.
 
-    typedef std::vector<SAnomaly> TAnomalyVec;
-    typedef std::pair<double, SAnomaly> TDoubleAnomalyPr;
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleAnomalyPr,
-                                                          maths::COrderings::SFirstLess> TAnomalyAccumulator;
+    using TAnomalyVec = std::vector<SAnomaly>;
+    using TDoubleAnomalyPr = std::pair<double, SAnomaly>;
+    using TAnomalyAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<
+                                    TDoubleAnomalyPr, maths::COrderings::SFirstLess>;
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -868,9 +868,9 @@ void CMetricPopulationModelTest::testPrune(void)
     // This test has four people and five attributes. We expect
     // person 2 and attributes 1, 2 and 5 to be deleted.
 
-    typedef std::pair<std::string, std::size_t> TStrSizePr;
-    typedef std::vector<TStrSizePr> TStrSizePrVec;
-    typedef std::vector<TStrSizePrVec> TStrSizePrVecVec;
+    using TStrSizePr = std::pair<std::string, std::size_t>;
+    using TStrSizePrVec = std::vector<TStrSizePr>;
+    using TStrSizePrVecVec = std::vector<TStrSizePrVec>;
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -1384,7 +1384,7 @@ void CMetricPopulationModelTest::testPeriodicity(void)
     // Create a daily periodic population and check that the
     // periodicity is learned and compensated (approximately).
 
-    typedef std::map<std::string, double> TStrDoubleMap;
+    using TStrDoubleMap = std::map<std::string, double>;
 
     static const core_t::TTime HOUR = 3600;
     static const core_t::TTime DAY = 86400;

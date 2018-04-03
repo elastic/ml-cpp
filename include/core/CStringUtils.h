@@ -38,9 +38,9 @@ class CORE_EXPORT CStringUtils : private CNonInstantiatable
         static const std::string WHITESPACE_CHARS;
 
     public:
-        typedef std::vector<std::string>    TStrVec;
-        typedef TStrVec::iterator           TStrVecItr;
-        typedef TStrVec::const_iterator     TStrVecCItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecItr = TStrVec::iterator;
+        using TStrVecCItr = TStrVec::const_iterator;
 
     public:
         //! If \p c is the start of a UTF-8 character, return the number of

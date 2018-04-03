@@ -30,11 +30,11 @@ using namespace ml;
 namespace
 {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<core_t::TTime> TTimeVec;
-typedef std::pair<core_t::TTime, double> TTimeDoublePr;
-typedef std::vector<TTimeDoublePr> TTimeDoublePrVec;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleVec = std::vector<double>;
+using TTimeVec = std::vector<core_t::TTime>;
+using TTimeDoublePr = std::pair<core_t::TTime, double>;
+using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 
 class CTestSeasonalComponent : public maths::CSeasonalComponent
 {
@@ -92,7 +92,7 @@ void generateSeasonalValues(test::CRandomNumbers &rng,
                             std::size_t numberSamples,
                             TTimeDoublePrVec &samples)
 {
-    typedef std::vector<std::size_t> TSizeVec;
+    using TSizeVec = std::vector<std::size_t>;
 
     // Generate time uniformly at random in the interval
     // [startTime, endTime).
@@ -760,7 +760,7 @@ void CSeasonalComponentTest::testVariance(void)
     LOG_DEBUG("|  CSeasonalComponentTest::testVariance  |");
     LOG_DEBUG("+----------------------------------------+");
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     // Check that we estimate a periodic variance.
 

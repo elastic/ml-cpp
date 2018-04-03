@@ -76,28 +76,28 @@ template<typename T, std::size_t N>
 class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
 {
     public:
-        typedef CVectorNx1<T, N> TPoint;
-        typedef std::vector<TPoint> TPointVec;
-        typedef typename CClusterer<TPoint>::TPointPrecise TPointPrecise;
-        typedef typename CClusterer<TPoint>::TPointPreciseVec TPointPreciseVec;
-        typedef typename CClusterer<TPoint>::TPointPreciseDoublePrVec TPointPreciseDoublePrVec;
-        typedef typename CClusterer<TPoint>::TSizeDoublePr TSizeDoublePr;
-        typedef typename CClusterer<TPoint>::TSizeDoublePr2Vec TSizeDoublePr2Vec;
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<TSizeVec> TSizeVecVec;
-        typedef typename SPromoted<T>::Type TPrecise;
-        typedef CSymmetricMatrixNxN<TPrecise, N> TMatrixPrecise;
-        typedef CBasicStatistics::SSampleCovariances<TPrecise, N> TCovariances;
-        typedef typename CSphericalCluster<TPoint>::Type TSphericalCluster;
-        typedef std::vector<TSphericalCluster> TSphericalClusterVec;
-        typedef std::vector<TSphericalClusterVec> TSphericalClusterVecVec;
-        typedef CKMeansOnline<TPoint> TKMeansOnline;
-        typedef std::vector<TKMeansOnline> TKMeansOnlineVec;
+        using TPoint = CVectorNx1<T, N>;
+        using TPointVec = std::vector<TPoint>;
+        using TPointPrecise = typename CClusterer<TPoint>::TPointPrecise;
+        using TPointPreciseVec = typename CClusterer<TPoint>::TPointPreciseVec;
+        using TPointPreciseDoublePrVec = typename CClusterer<TPoint>::TPointPreciseDoublePrVec;
+        using TSizeDoublePr = typename CClusterer<TPoint>::TSizeDoublePr;
+        using TSizeDoublePr2Vec = typename CClusterer<TPoint>::TSizeDoublePr2Vec;
+        using TDoubleVec = std::vector<double>;
+        using TDoubleVecVec = std::vector<TDoubleVec>;
+        using TSizeVec = std::vector<std::size_t>;
+        using TSizeVecVec = std::vector<TSizeVec>;
+        using TPrecise = typename SPromoted<T>::Type;
+        using TMatrixPrecise = CSymmetricMatrixNxN<TPrecise, N>;
+        using TCovariances = CBasicStatistics::SSampleCovariances<TPrecise, N>;
+        using TSphericalCluster = typename CSphericalCluster<TPoint>::Type;
+        using TSphericalClusterVec = std::vector<TSphericalCluster>;
+        using TSphericalClusterVecVec = std::vector<TSphericalClusterVec>;
+        using TKMeansOnline = CKMeansOnline<TPoint>;
+        using TKMeansOnlineVec = std::vector<TKMeansOnline>;
         class CCluster;
-        typedef std::pair<CCluster, CCluster> TClusterClusterPr;
-        typedef boost::optional<TClusterClusterPr> TOptionalClusterClusterPr;
+        using TClusterClusterPr = std::pair<CCluster, CCluster>;
+        using TOptionalClusterClusterPr = boost::optional<TClusterClusterPr>;
 
         //! \brief Represents a cluster.
         class CCluster
@@ -627,9 +627,9 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 TKMeansOnline m_Structure;
         };
 
-        typedef std::vector<CCluster> TClusterVec;
-        typedef typename TClusterVec::iterator TClusterVecItr;
-        typedef typename TClusterVec::const_iterator TClusterVecCItr;
+        using TClusterVec = std::vector<CCluster>;
+        using TClusterVecItr = typename TClusterVec::iterator;
+        using TClusterVecCItr = typename TClusterVec::const_iterator;
 
     public:
         //! \name Life-cycle
@@ -937,8 +937,8 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
             }
             else
             {
-                typedef std::pair<double, std::size_t> TSizeDoublePr;
-                typedef CBasicStatistics::COrderStatisticsStack<TSizeDoublePr, 2, std::greater<TSizeDoublePr> > TMaxAccumulator;
+                using TSizeDoublePr = std::pair<double, std::size_t>;
+                using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<TSizeDoublePr, 2, std::greater<TSizeDoublePr> >;
 
                 TMaxAccumulator closest;
                 for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
@@ -1268,8 +1268,8 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 return false;
             }
 
-            typedef std::pair<double, std::size_t> TDoubleSizePr;
-            typedef CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1, COrderings::SFirstLess> TMinAccumulator;
+            using TDoubleSizePr = std::pair<double, std::size_t>;
+            using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1, COrderings::SFirstLess>;
 
             bool result = false;
 
@@ -1323,7 +1323,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 return &m_Clusters[0];
             }
 
-            typedef CBasicStatistics::COrderStatisticsStack<double, 1> TMinAccumulator;
+            using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1>;
 
             CCluster *result = 0;
             TMinAccumulator min;

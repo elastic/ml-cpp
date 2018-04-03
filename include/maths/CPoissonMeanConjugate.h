@@ -51,7 +51,7 @@ struct SDistributionRestoreParams;
 class MATHS_EXPORT CPoissonMeanConjugate : public CPrior
 {
     public:
-        typedef CEqualWithTolerance<double> TEqualWithTolerance;
+        using TEqualWithTolerance = CEqualWithTolerance<double>;
 
         //! Lift the overloads of addSamples into scope.
         using CPrior::addSamples;

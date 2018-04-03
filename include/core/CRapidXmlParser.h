@@ -65,8 +65,8 @@ class CRapidXmlStateRestoreTraverser;
 class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf
 {
     public:
-        typedef std::map<std::string, std::string> TStrStrMap;
-        typedef TStrStrMap::const_iterator         TStrStrMapCItr;
+        using TStrStrMap = std::map<std::string, std::string>;
+        using TStrStrMapCItr = TStrStrMap::const_iterator;
 
     public:
         CRapidXmlParser(void);
@@ -135,9 +135,9 @@ class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf
                             std::string &result);
 
     private:
-        typedef rapidxml::xml_document<char>  TCharRapidXmlDocument;
-        typedef rapidxml::xml_node<char>      TCharRapidXmlNode;
-        typedef rapidxml::xml_attribute<char> TCharRapidXmlAttribute;
+        using TCharRapidXmlDocument = rapidxml::xml_document<char>;
+        using TCharRapidXmlNode = rapidxml::xml_node<char>;
+        using TCharRapidXmlAttribute = rapidxml::xml_attribute<char>;
 
         //! Called recursively by the public toNodeHierarchy() method
         bool toNodeHierarchy(const TCharRapidXmlNode &parentNode,
@@ -166,7 +166,7 @@ class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf
         //! than in a string to avoid any problems with reference counting in
         //! STL strings.  (Obviously the template parameter here needs to match
         //! the rapidxml typedef template arguments in the typedefs above.)
-        typedef boost::scoped_array<char>     TScopedCharArray;
+        using TScopedCharArray = boost::scoped_array<char>;
 
         //! RapidXml parses the XML in-situ, so keep a copy of the input
         TScopedCharArray      m_XmlBuf;

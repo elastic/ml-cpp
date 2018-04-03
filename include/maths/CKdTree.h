@@ -69,12 +69,12 @@ template<typename POINT,
 class CKdTree
 {
     public:
-        typedef std::vector<POINT> TPointVec;
-        typedef typename TPointVec::iterator TPointVecItr;
-        typedef typename SCoordinate<POINT>::Type TCoordinate;
-        typedef typename SPromoted<TCoordinate>::Type TCoordinatePrecise;
-        typedef std::pair<TCoordinatePrecise, POINT> TCoordinatePrecisePointPr;
-        typedef CBasicStatistics::COrderStatisticsHeap<TCoordinatePrecisePointPr> TNearestAccumulator;
+        using TPointVec = std::vector<POINT>;
+        using TPointVecItr = typename TPointVec::iterator;
+        using TCoordinate = typename SCoordinate<POINT>::Type;
+        using TCoordinatePrecise = typename SPromoted<TCoordinate>::Type;
+        using TCoordinatePrecisePointPr = std::pair<TCoordinatePrecise, POINT>;
+        using TNearestAccumulator = CBasicStatistics::COrderStatisticsHeap<TCoordinatePrecisePointPr>;
 
         //! Less on a specific coordinate of point position vector.
         class CCoordinateLess
@@ -274,7 +274,7 @@ class CKdTree
         }
 
     private:
-        typedef std::vector<SNode> TNodeVec;
+        using TNodeVec = std::vector<SNode>;
 
     private:
         //! Recursively build the k-d tree.

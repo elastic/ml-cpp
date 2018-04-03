@@ -26,7 +26,7 @@ using namespace test;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 class CGammaKernel
 {
@@ -91,7 +91,7 @@ double logUpperIncompleteGamma(double s, double x)
 class CExpectedLogProbabilityOfMFromNExtremeSamples
 {
     public:
-        typedef CBasicStatistics::COrderStatisticsHeap<double> TMinValueAccumulator;
+        using TMinValueAccumulator = CBasicStatistics::COrderStatisticsHeap<double>;
 
         class CLogIntegrand
         {
@@ -479,7 +479,7 @@ void CProbabilityAggregatorsTest::testProbabilityOfExtremeSample(void)
                 rng.generateNormalSamples(0.0, 1.0, sampleSizes[i], samples);
                 boost::math::normal_distribution<> normal(0.0, ::sqrt(1.0));
 
-                typedef CBasicStatistics::COrderStatisticsStack<double, 1u> TMinValue;
+                using TMinValue = CBasicStatistics::COrderStatisticsStack<double, 1u>;
 
                 TMinValue minValue;
                 for (std::size_t l = 0u; l < samples.size(); ++l)
@@ -576,7 +576,7 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples(void)
         {
             CPPUNIT_ASSERT(i <= numberProbabilities);
 
-            typedef std::vector<size_t> TSizeVec;
+            using TSizeVec = std::vector<size_t>;
 
             TSizeVec index(i, 0);
             for (std::size_t j = 1; j < i; ++j)
@@ -626,7 +626,7 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples(void)
                     rng.generateNormalSamples(0.0, 1.0, numberSamples, samples);
                     boost::math::normal_distribution<> normal(0.0, ::sqrt(1.0));
 
-                    typedef CBasicStatistics::COrderStatisticsHeap<double> TMinValues;
+                    using TMinValues = CBasicStatistics::COrderStatisticsHeap<double>;
 
                     TMinValues minValues(i);
                     for (std::size_t k = 0u; k < samples.size(); ++k)

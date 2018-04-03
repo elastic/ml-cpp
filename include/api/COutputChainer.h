@@ -108,9 +108,9 @@ class API_EXPORT COutputChainer : public COutputHandler
         //! processor
         TStrStrUMap         m_WorkRecordFields;
 
-        typedef boost::reference_wrapper<std::string> TStrRef;
-        typedef std::vector<TStrRef>                  TStrRefVec;
-        typedef TStrRefVec::const_iterator            TStrRefVecCItr;
+        using TStrRef = boost::reference_wrapper<std::string>;
+        using TStrRefVec = std::vector<TStrRef>;
+        using TStrRefVecCItr = TStrRefVec::const_iterator;
 
         //! References to the strings within m_WorkRecordFields in the same
         //! order as the field names in m_FieldNames.  This avoids the need to
