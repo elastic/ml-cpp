@@ -206,7 +206,7 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel &model,
             }
             for (std::size_t i = 0; i < value.size(); ++i)
             {
-                value[i] = ::fabs(value[i] - typical[i]);
+                value[i] = std::fabs(value[i] - typical[i]);
             }
             break;
         }

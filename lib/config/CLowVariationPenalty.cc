@@ -15,6 +15,7 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <cmath>
 #include <vector>
 
 namespace ml
@@ -38,8 +39,8 @@ const double INF = boost::numeric::bounds<double>::highest();
 template<typename MOMENTS>
 double cov(const MOMENTS &moments)
 {
-    double m   = ::fabs(maths::CBasicStatistics::mean(moments));
-    double sd  = ::sqrt(maths::CBasicStatistics::maximumLikelihoodVariance(moments));
+    double m   = std::fabs(maths::CBasicStatistics::mean(moments));
+    double sd  = std::sqrt(maths::CBasicStatistics::maximumLikelihoodVariance(moments));
     return sd == 0.0 ? 0.0 : (m == 0.0 ? INF : sd / m);
 }
 
@@ -63,7 +64,7 @@ void penaltyImpl(const CAutoconfigurerParams &params,
             proportionWithLowVariation += 1.0;
         }
     }
-    penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
+    penalty = std::min(std::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
     proportionWithLowVariation /= static_cast<double>(moments.size());
 }
 
@@ -89,7 +90,7 @@ struct SDistinctCountPenalty
                 proportionWithLowVariation += 1.0;
             }
         }
-        penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
+        penalty = std::min(std::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
         proportionWithLowVariation /= static_cast<double>(moments.size());
     }
 };
@@ -116,7 +117,7 @@ struct SInfoContentPenalty
                 proportionWithLowVariation += 1.0;
             }
         }
-        penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
+        penalty = std::min(std::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
         proportionWithLowVariation /= static_cast<double>(moments.size());
     }
 };

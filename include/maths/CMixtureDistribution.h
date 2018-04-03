@@ -22,10 +22,9 @@
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/variant.hpp>
 
+#include <cmath>
 #include <exception>
 #include <vector>
-
-#include <math.h>
 
 namespace ml
 {
@@ -611,7 +610,7 @@ double quantile(const CMixtureDistribution<T> &distribution, const double q)
             LOG_ERROR("Unable to bracket quantile = " << q
                       << ", (a,b) = (" << a << "," << b << ")"
                       << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
-            result = ::fabs(fa) < ::fabs(fb) ? a : b;
+            result = std::fabs(fa) < std::fabs(fb) ? a : b;
         }
         else
         {

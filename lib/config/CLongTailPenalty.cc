@@ -19,6 +19,8 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <cmath>
+
 namespace ml
 {
 namespace config
@@ -164,9 +166,9 @@ double CLongTailPenalty::penaltyFor(TSizeUInt64UMap &tail, TSizeUInt64UMap &tota
         double penalty = CTools::logInterpolate(this->params().highCardinalityHighTailFraction(),
                                            this->params().highCardinalityMaximumTailFraction(),
                                            1.0, std::min(10.0 / total, 1.0), rare / total);
-        result.add(::sqrt(-std::min(maths::CTools::fastLog(penalty), 0.0)), total);
+        result.add(std::sqrt(-std::min(maths::CTools::fastLog(penalty), 0.0)), total);
     }
-    return ::exp(-::pow(maths::CBasicStatistics::mean(result), 2.0));
+    return std::exp(-std::pow(maths::CBasicStatistics::mean(result), 2.0));
 }
 
 }

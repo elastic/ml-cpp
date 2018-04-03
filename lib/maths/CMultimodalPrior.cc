@@ -481,14 +481,14 @@ double CMultimodalPrior::nearestMarginalLikelihoodMean(double value) const
     }
 
     double mean = m_Modes[0].s_Prior->marginalLikelihoodMean();
-    double distance = ::fabs(value - mean);
+    double distance = std::fabs(value - mean);
     double result = mean;
     for (std::size_t i = 1u; i < m_Modes.size(); ++i)
     {
         mean = m_Modes[i].s_Prior->marginalLikelihoodMean();
-        if (::fabs(value - mean) < distance)
+        if (std::fabs(value - mean) < distance)
         {
-            distance = ::fabs(value - mean);
+            distance = std::fabs(value - mean);
             result = mean;
         }
     }

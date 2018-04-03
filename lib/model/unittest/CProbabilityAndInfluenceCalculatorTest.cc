@@ -459,7 +459,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                 core_t::TTime time{0};
                 for (auto &sample : samples)
                 {
-                    sample += 100.0 + 100.0 * ::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0);
+                    sample += 100.0 + 100.0 * std::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0);
                     time += bucketLength;
                 }
             }
@@ -581,8 +581,8 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                                                   weight,
                                                   coordinates,
                                                   lbs, ubs, tail);
-            double lb = ::sqrt(lbs[0][0] * lbs[1][0]);
-            double ub = ::sqrt(ubs[0][0] * ubs[1][0]);
+            double lb = std::sqrt(lbs[0][0] * lbs[1][0]);
+            double ub = std::sqrt(ubs[0][0] * ubs[1][0]);
             TStrCRefDouble1VecDouble1VecPrPrVec influencerValues;
             influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i1), make_pair( 1.0, 1.0, 1.0, 1.0)));
             influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i2), make_pair( 1.0, 1.0, 1.0, 1.0)));
@@ -616,7 +616,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                 TDouble10Vec4Vec1Vec weight(1, TDouble10Vec4Vec(1, TDouble10Vec(2, 1.0)));
                 for (core_t::TTime time = 0, i = 0; time < 10 * 86400; time += 600, ++i)
                 {
-                    double y = 100.0 + 100.0 * ::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0);
+                    double y = 100.0 + 100.0 * std::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0);
                     trend[0]->addPoint(time, y + samples[i][0]);
                     trend[1]->addPoint(time, y + samples[i][0]);
                     prior->addSamples(COUNT_WEIGHT, TDouble10Vec1Vec(1, TDouble10Vec(samples[i])), weight);
@@ -670,8 +670,8 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                                                       weight,
                                                       coordinates,
                                                       lbs, ubs, tail);
-                double lb = ::sqrt(lbs[0][0] * lbs[1][0]);
-                double ub = ::sqrt(ubs[0][0] * ubs[1][0]);
+                double lb = std::sqrt(lbs[0][0] * lbs[1][0]);
+                double ub = std::sqrt(ubs[0][0] * ubs[1][0]);
                 LOG_DEBUG("  p = " << 0.5*(lb+ub) << ", tail = " << tail);
 
                 TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
@@ -922,8 +922,8 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
                                                       weights,
                                                       coordinates,
                                                       lbs, ubs, tail);
-                double lb = ::sqrt(lbs[0][0] * lbs[1][0]);
-                double ub = ::sqrt(ubs[0][0] * ubs[1][0]);
+                double lb = std::sqrt(lbs[0][0] * lbs[1][0]);
+                double ub = std::sqrt(ubs[0][0] * ubs[1][0]);
                 TStrCRefDouble1VecDouble1VecPrPrVec influencerValues;
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i1), make_pair(10.0, 20.0, 5.0, 2.5)));
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i2), make_pair( 9.0,  9.0, 7.0, 3.5)));
@@ -956,8 +956,8 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
                                                       weight,
                                                       coordinates,
                                                       lbs, ubs, tail);
-                double lb = ::sqrt(lbs[0][0] * lbs[1][0]);
-                double ub = ::sqrt(ubs[0][0] * ubs[1][0]);
+                double lb = std::sqrt(lbs[0][0] * lbs[1][0]);
+                double ub = std::sqrt(ubs[0][0] * ubs[1][0]);
                 TStrCRefDouble1VecDouble1VecPrPrVec influencerValues;
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i1), make_pair(10.0, 15.0, 2.0, 5.0)));
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i2), make_pair(12.0, 15.0, 2.0, 6.0)));
@@ -988,8 +988,8 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
                                                       weight,
                                                       coordinates,
                                                       lbs, ubs, tail);
-                double lb = ::sqrt(lbs[0][0] * lbs[1][0]);
-                double ub = ::sqrt(ubs[0][0] * ubs[1][0]);
+                double lb = std::sqrt(lbs[0][0] * lbs[1][0]);
+                double ub = std::sqrt(ubs[0][0] * ubs[1][0]);
                 TStrCRefDouble1VecDouble1VecPrPrVec influencerValues;
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i1), make_pair(5.0, 5.0, 5.0, 5.0)));
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i2), make_pair(5.0, 5.0, 6.0, 5.0)));
@@ -1020,8 +1020,8 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
                                                       weight,
                                                       coordinates,
                                                       lbs, ubs, tail);
-                double lb = ::sqrt(lbs[0][0] * lbs[1][0]);
-                double ub = ::sqrt(ubs[0][0] * ubs[1][0]);
+                double lb = std::sqrt(lbs[0][0] * lbs[1][0]);
+                double ub = std::sqrt(ubs[0][0] * ubs[1][0]);
                 TStrCRefDouble1VecDouble1VecPrPrVec influencerValues;
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i1), make_pair( 4.5, 10.0,  9.0, 4.0)));
                 influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i2), make_pair(11.5, 11.0, 20.0, 4.0)));
@@ -1131,7 +1131,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
                 core_t::TTime time{0};
                 for (auto &sample : samples)
                 {
-                    sample += 100.0 + 100.0 * ::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0);
+                    sample += 100.0 + 100.0 * std::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0);
                     time += bucketLength;
                 }
             }
@@ -1256,8 +1256,8 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
 //                                                  weight,
 //                                                  coordinates,
 //                                                  lbs, ubs, tail);
-//            double lb = ::sqrt(lbs[0][0] * lbs[1][0]);
-//            double ub = ::sqrt(ubs[0][0] * ubs[1][0]);
+//            double lb = std::sqrt(lbs[0][0] * lbs[1][0]);
+//            double ub = std::sqrt(ubs[0][0] * ubs[1][0]);
 //            TStrCRefDouble1VecDouble1VecPrPrVec influencerValues;
 //            influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i1), make_pair(11.0, 9.0, 1.0, 1.0)));
 //            influencerValues.push_back(TStrCRefDouble1VecDouble1VecPrPr(TStrCRef(i2), make_pair(10.0, 6.0, 1.0, 1.0)));
@@ -1294,8 +1294,8 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
 //                {
 //                    double y[] =
 //                        {
-//                            200.0 + 200.0 * ::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0),
-//                            100.0 + 100.0 * ::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0)
+//                            200.0 + 200.0 * std::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0),
+//                            100.0 + 100.0 * std::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0)
 //                        };
 //                    trend[0]->addPoint(time, y[0] + samples[i][0]);
 //                    trend[1]->addPoint(time, y[1] + samples[i][1]);
@@ -1350,8 +1350,8 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
 //                                                      weight,
 //                                                      coordinates,
 //                                                      lbs, ubs, tail);
-//                double lb = ::sqrt(lbs[0][0] * lbs[1][0]);
-//                double ub = ::sqrt(ubs[0][0] * ubs[1][0]);
+//                double lb = std::sqrt(lbs[0][0] * lbs[1][0]);
+//                double ub = std::sqrt(ubs[0][0] * ubs[1][0]);
 //                LOG_DEBUG("  p = " << 0.5*(lb+ub) << ", tail = " << tail);
 //
 //                TStoredStringPtrStoredStringPtrPrDoublePrVec influences;

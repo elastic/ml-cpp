@@ -730,7 +730,7 @@ void CMetricDataGathererTest::testSampleCount(void)
         {
             TDoubleVec count;
             rng.generateUniformSamples(1.0, 5.0, 1, count);
-            LOG_DEBUG("count p2 = " << ::floor(count[0]));
+            LOG_DEBUG("count p2 = " << std::floor(count[0]));
             for (std::size_t j = 0u; j < static_cast<std::size_t>(count[0]); ++j)
             {
                 addArrival(gatherer, m_ResourceMonitor, startTime + i * bucketLength + 100 * (j + 1), "p2", 1.0);

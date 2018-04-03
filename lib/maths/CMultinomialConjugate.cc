@@ -33,6 +33,7 @@
 #include <boost/tuple/tuple_io.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 #include <string>
 #include <utility>
@@ -535,7 +536,7 @@ void CMultinomialConjugate::propagateForwardsByTime(double time)
         return;
     }
 
-    double alpha = ::exp(-this->decayRate() * time);
+    double alpha = std::exp(-this->decayRate() * time);
 
     // We want to increase the variance of each category while holding
     // its mean constant s.t. in the limit t -> inf var -> inf. The mean
@@ -927,10 +928,10 @@ bool CMultinomialConjugate::minusLogJointCdf(const TWeightStyleVec &weightStyles
         // the log blows up.
         lowerBound = sampleLowerBound == 0.0 || lowerBound == MAX_DOUBLE ?
                      MAX_DOUBLE :
-                     lowerBound - n * ::log(sampleLowerBound);
+                     lowerBound - n * std::log(sampleLowerBound);
         upperBound = sampleUpperBound == 0.0 || upperBound == MAX_DOUBLE ?
                      MAX_DOUBLE :
-                     upperBound - n * ::log(sampleUpperBound);
+                     upperBound - n * std::log(sampleUpperBound);
     }
 
     return true;
@@ -961,10 +962,10 @@ bool CMultinomialConjugate::minusLogJointCdfComplement(const TWeightStyleVec &we
         // the log blows up.
         lowerBound = sampleLowerBound == 0.0 || lowerBound == MAX_DOUBLE ?
                      MAX_DOUBLE :
-                     lowerBound - n * ::log(sampleLowerBound);
+                     lowerBound - n * std::log(sampleLowerBound);
         upperBound = sampleUpperBound == 0.0 || upperBound == MAX_DOUBLE ?
                      MAX_DOUBLE :
-                     upperBound - n * ::log(sampleUpperBound);
+                     upperBound - n * std::log(sampleUpperBound);
     }
 
     return true;

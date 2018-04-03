@@ -761,7 +761,7 @@ void CLinearAlgebraTest::testUtils(void)
         }
 
         {
-            double expected[] = { 1.0, ::sqrt(3.1), ::sqrt(2.2), ::sqrt(4.9), ::sqrt(12.0) };
+            double expected[] = { 1.0, std::sqrt(3.1), std::sqrt(2.2), std::sqrt(4.9), std::sqrt(12.0) };
             LOG_DEBUG("sqrt(v1) = " << maths::sqrt(v1));
             for (std::size_t i = 0u; i < 5; ++i)
             {
@@ -894,9 +894,9 @@ void CLinearAlgebraTest::testUtils(void)
         {
             double expected[][3] =
                 {
-                    { ::sqrt(2.1), ::sqrt(0.3), ::sqrt(0.4) },
-                    { ::sqrt(0.3), ::sqrt(1.2), ::sqrt(3.8) },
-                    { ::sqrt(0.4), ::sqrt(3.8), ::sqrt(0.2) }
+                    { std::sqrt(2.1), std::sqrt(0.3), std::sqrt(0.4) },
+                    { std::sqrt(0.3), std::sqrt(1.2), std::sqrt(3.8) },
+                    { std::sqrt(0.4), std::sqrt(3.8), std::sqrt(0.2) }
                 };
             LOG_DEBUG("sqrt(m1) = " << maths::sqrt(m1));
             for (std::size_t i = 0u; i < 3; ++i)
@@ -994,22 +994,22 @@ void CLinearAlgebraTest::testGaussianLogLikelihood(void)
 
         double likelihood;
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e1, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  3.0 * ::log(boost::math::double_constants::two_pi)
-                                             + ::log(10.0 * 5.0 * 5.0)
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  3.0 * std::log(boost::math::double_constants::two_pi)
+                                             + std::log(10.0 * 5.0 * 5.0)
                                              + 4.0 / 10.0),
                                      likelihood,
                                      1e-10);
 
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e2, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  3.0 * ::log(boost::math::double_constants::two_pi)
-                                             + ::log(10.0 * 5.0 * 5.0)
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  3.0 * std::log(boost::math::double_constants::two_pi)
+                                             + std::log(10.0 * 5.0 * 5.0)
                                              + 2.0 / 5.0),
                                      likelihood,
                                      1e-10);
 
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e3, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  3.0 * ::log(boost::math::double_constants::two_pi)
-                                             + ::log(10.0 * 5.0 * 5.0)
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  3.0 * std::log(boost::math::double_constants::two_pi)
+                                             + std::log(10.0 * 5.0 * 5.0)
                                              + 6.0 / 5.0),
                                      likelihood,
                                      1e-10);
@@ -1038,26 +1038,26 @@ void CLinearAlgebraTest::testGaussianLogLikelihood(void)
 
         double likelihood;
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e1, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  4.0 * ::log(boost::math::double_constants::two_pi)
-                                             + ::log(10.0 * 5.0 * 5.0 * 2.0)
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  4.0 * std::log(boost::math::double_constants::two_pi)
+                                             + std::log(10.0 * 5.0 * 5.0 * 2.0)
                                              + 4.0 / 10.0),
                                      likelihood,
                                      1e-10);
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e2, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  4.0 * ::log(boost::math::double_constants::two_pi)
-                                             + ::log(10.0 * 5.0 * 5.0 * 2.0)
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  4.0 * std::log(boost::math::double_constants::two_pi)
+                                             + std::log(10.0 * 5.0 * 5.0 * 2.0)
                                              + 2.0 / 5.0),
                                      likelihood,
                                      1e-10);
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e3, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  4.0 * ::log(boost::math::double_constants::two_pi)
-                                             + ::log(10.0 * 5.0 * 5.0 * 2.0)
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  4.0 * std::log(boost::math::double_constants::two_pi)
+                                             + std::log(10.0 * 5.0 * 5.0 * 2.0)
                                              + 6.0 / 5.0),
                                      likelihood,
                                      1e-10);
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e4, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  4.0 * ::log(boost::math::double_constants::two_pi)
-                                             + ::log(10.0 * 5.0 * 5.0 * 2.0)
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5 * (  4.0 * std::log(boost::math::double_constants::two_pi)
+                                             + std::log(10.0 * 5.0 * 5.0 * 2.0)
                                              + 12.0 / 2.0),
                                      likelihood,
                                      1e-10);
@@ -1226,8 +1226,8 @@ void CLinearAlgebraTest::testLogDeterminant(void)
             double logDeterminant;
             maths::logDeterminant(M, logDeterminant);
             LOG_DEBUG("expected |M| = " << expected[i]);
-            LOG_DEBUG("got      |M| = " << ::exp(logDeterminant));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i], ::exp(logDeterminant), 1e-4 * expected[i]);
+            LOG_DEBUG("got      |M| = " << std::exp(logDeterminant));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i], std::exp(logDeterminant), 1e-4 * expected[i]);
         }
     }
 
@@ -1248,7 +1248,7 @@ void CLinearAlgebraTest::testLogDeterminant(void)
                 +  2.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e4 / e4.euclidean()));
         double logDeterminant;
         maths::logDeterminant(M, logDeterminant);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(10.0 * 5.0 * 5.0 * 2.0), logDeterminant, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(std::log(10.0 * 5.0 * 5.0 * 2.0), logDeterminant, 1e-10);
     }
 }
 

@@ -8,8 +8,7 @@
 #include <core/CStringUtils.h>
 #include <core/WindowsSafe.h>
 
-#include <math.h>
-
+#include <cmath>
 
 namespace
 {

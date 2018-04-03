@@ -47,7 +47,7 @@ void CCountMinSketchTest::testCounts(void)
 
         for (std::size_t i = 0u; i < counts.size(); ++i)
         {
-            counts[i] = ::floor(counts[i]);
+            counts[i] = std::floor(counts[i]);
             sketch.add(static_cast<uint32_t>(i), counts[i]);
         }
         LOG_DEBUG("error = " << sketch.oneMinusDeltaError());
@@ -65,7 +65,7 @@ void CCountMinSketchTest::testCounts(void)
                           << ", estimated count = " << estimated);
             }
 
-            meanError.add(::fabs(estimated - count));
+            meanError.add(std::fabs(estimated - count));
             if (count + sketch.oneMinusDeltaError() < estimated)
             {
                 errorCount += 1.0;
@@ -101,12 +101,12 @@ void CCountMinSketchTest::testCounts(void)
 
         for (std::size_t i = 0u; i < heavyHitters.size(); ++i)
         {
-            heavyHitters[i] = ::floor(heavyHitters[i]);
+            heavyHitters[i] = std::floor(heavyHitters[i]);
             sketch.add(static_cast<uint32_t>(i), heavyHitters[i]);
         }
         for (std::size_t i = 0u; i < counts.size(); ++i)
         {
-            counts[i] = ::floor(counts[i]);
+            counts[i] = std::floor(counts[i]);
             sketch.add(static_cast<uint32_t>(i + heavyHitters.size()), counts[i]);
         }
         LOG_DEBUG("error = " << sketch.oneMinusDeltaError());
@@ -120,7 +120,7 @@ void CCountMinSketchTest::testCounts(void)
                       << ", true count = " << count
                       << ", estimated count = " << estimated);
 
-            double relativeError = ::fabs(estimated - count) / count;
+            double relativeError = std::fabs(estimated - count) / count;
             CPPUNIT_ASSERT(relativeError < 0.01);
 
             meanRelativeError.add(relativeError);

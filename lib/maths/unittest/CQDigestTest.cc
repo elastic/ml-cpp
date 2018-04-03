@@ -98,7 +98,7 @@ void CQDigestTest::testAdd(void)
         TUInt64Set orderedSamples;
         for (std::size_t i = 0u; i < samples.size(); ++i)
         {
-            uint32_t sample = static_cast<uint32_t>(::floor(samples[i]));
+            uint32_t sample = static_cast<uint32_t>(std::floor(samples[i]));
 
             qDigest.add(sample);
             orderedSamples.insert(sample);
@@ -130,7 +130,7 @@ void CQDigestTest::testAdd(void)
                                   << ", error " << error);
                     }
 
-                    CPPUNIT_ASSERT(::fabs(error) < 0.06);
+                    CPPUNIT_ASSERT(std::fabs(error) < 0.06);
 
                     totalErrors[j - 1u] += error;
                 }
@@ -177,7 +177,7 @@ void CQDigestTest::testCdf(void)
     std::size_t s = 0u;
     for (/**/; s < std::min(k, samples.size()); ++s)
     {
-        uint32_t sample = static_cast<uint32_t>(::floor(samples[s]));
+        uint32_t sample = static_cast<uint32_t>(std::floor(samples[s]));
         qDigest.add(sample);
     }
 
@@ -202,7 +202,7 @@ void CQDigestTest::testCdf(void)
 
     for (/**/; s < samples.size(); ++s)
     {
-        uint32_t sample = static_cast<uint32_t>(::floor(samples[s]));
+        uint32_t sample = static_cast<uint32_t>(std::floor(samples[s]));
         qDigest.add(sample);
     }
 
@@ -248,7 +248,7 @@ void CQDigestTest::testSummary(void)
 
         for (std::size_t i = 0u; i < samples.size(); ++i)
         {
-            uint32_t sample = static_cast<uint32_t>(::floor(samples[i]));
+            uint32_t sample = static_cast<uint32_t>(std::floor(samples[i]));
             qDigest.add(sample);
         }
 
@@ -331,7 +331,7 @@ void CQDigestTest::testPropagateForwardByTime(void)
         }
 
         LOG_DEBUG("Before propagation " << qDigest.print());
-        qDigest.propagateForwardsByTime(-::log(0.9));
+        qDigest.propagateForwardsByTime(-std::log(0.9));
         LOG_DEBUG("After propagation " << qDigest.print());
         CPPUNIT_ASSERT(qDigest.checkInvariants());
 
@@ -375,7 +375,7 @@ void CQDigestTest::testPropagateForwardByTime(void)
             cdfLower.push_back(lb);
             double f = boost::math::cdf(normal, x);
             cdfUpper.push_back(ub);
-            error.add(::fabs(f - (lb + ub) / 2.0));
+            error.add(std::fabs(f - (lb + ub) / 2.0));
         }
         LOG_DEBUG("error = " << CBasicStatistics::mean(error));
         intrinsicError = CBasicStatistics::mean(error);
@@ -407,8 +407,8 @@ void CQDigestTest::testPropagateForwardByTime(void)
             CPPUNIT_ASSERT_DOUBLES_EQUAL(cdfUpper[i],
                                          cdfUpperAged[i],
                                          std::min(5e-5, 2e-3 * cdfUpper[i]));
-            diff.add(::fabs(cdfLower[i] - cdfLowerAged[i]));
-            diff.add(::fabs(cdfUpper[i] - cdfUpperAged[i]));
+            diff.add(std::fabs(cdfLower[i] - cdfLowerAged[i]));
+            diff.add(std::fabs(cdfUpper[i] - cdfUpperAged[i]));
         }
         LOG_DEBUG("diff = " << CBasicStatistics::mean(diff));
         CPPUNIT_ASSERT(CBasicStatistics::mean(diff) < 1e-5);
@@ -451,7 +451,7 @@ void CQDigestTest::testPropagateForwardByTime(void)
             CPPUNIT_ASSERT(lb <= f);
             CPPUNIT_ASSERT(ub >= f);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(f, (lb + ub) / 2.0, 0.015);
-            error.add(::fabs(f - (lb + ub) / 2.0));
+            error.add(std::fabs(f - (lb + ub) / 2.0));
         }
         LOG_DEBUG("error = " << CBasicStatistics::mean(error));
         CPPUNIT_ASSERT(CBasicStatistics::mean(error) < 0.006);
@@ -560,8 +560,8 @@ void CQDigestTest::testScale(void)
                 double lowerBound;
                 double upperBound;
                 qDigest.cdf(j, 0.0, lowerBound, upperBound);
-                double type1 =  ::fabs(expectedLowerBound - lowerBound)
-                              + ::fabs(expectedUpperBound - upperBound);
+                double type1 =  std::fabs(expectedLowerBound - lowerBound)
+                              + std::fabs(expectedUpperBound - upperBound);
                 double type2 =  std::max(lowerBound - expectedLowerBound, 0.0)
                               + std::max(expectedUpperBound - upperBound, 0.0);
                 maxType1 = std::max(maxType1, type1);
@@ -597,7 +597,7 @@ void CQDigestTest::testPersist(void)
 
     for (std::size_t i = 0u; i < samples.size(); ++i)
     {
-        uint32_t sample = static_cast<uint32_t>(::floor(samples[i]));
+        uint32_t sample = static_cast<uint32_t>(std::floor(samples[i]));
 
         origQDigest.add(sample);
     }

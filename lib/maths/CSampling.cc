@@ -26,13 +26,12 @@
 #include <boost/random/uniform_real_distribution.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 #include <set>
 #include <sstream>
 #include <utility>
 #include <vector>
-
-#include <math.h>
 
 namespace ml
 {
@@ -93,7 +92,7 @@ double doNormalSample(RNG &rng, double mean, double variance)
         LOG_ERROR("Invalid variance " << variance);
         return mean;
     }
-    boost::random::normal_distribution<double> normal(mean, ::sqrt(variance));
+    boost::random::normal_distribution<double> normal(mean, std::sqrt(variance));
     return normal(rng);
 }
 
@@ -113,7 +112,7 @@ void doNormalSample(RNG &rng, double mean, double variance, std::size_t n, TDoub
     }
 
     result.reserve(n);
-    boost::random::normal_distribution<double> normal(mean, ::sqrt(variance));
+    boost::random::normal_distribution<double> normal(mean, std::sqrt(variance));
     for (std::size_t i = 0u; i < n; ++i)
     {
         result.push_back(normal(rng));
@@ -348,7 +347,7 @@ bool doMultivariateNormalSample(RNG &rng,
     stddevs.reserve(d);
     for (std::size_t i = 0u; i < d; ++i)
     {
-        stddevs.push_back(::sqrt(std::max(S(i), 0.0)));
+        stddevs.push_back(std::sqrt(std::max(S(i), 0.0)));
     }
     LOG_TRACE("Singular values of C = " << S.transpose());
     LOG_TRACE("stddevs = " << core::CContainerPrinter::print(stddevs));
@@ -412,7 +411,7 @@ void doMultivariateNormalSample(RNG &rng,
     T stddevs[N] = {};
     for (std::size_t i = 0u; i < N; ++i)
     {
-        stddevs[i] = ::sqrt(std::max(S(i), 0.0));
+        stddevs[i] = std::sqrt(std::max(S(i), 0.0));
     }
 
     {
@@ -877,16 +876,16 @@ void CSampling::weightedSample(std::size_t n,
     {
         // We need to re-normalize so that the probabilities sum to one.
         double number = weights[i] * static_cast<double>(n) / totalWeight;
-        choices.push_back((number - ::floor(number) < 0.5) ? 0u : 1u);
-        remainders[0].push_back(number - ::floor(number));
-        remainders[1].push_back(number - ::ceil(number));
+        choices.push_back((number - std::floor(number) < 0.5) ? 0u : 1u);
+        remainders[0].push_back(number - std::floor(number));
+        remainders[1].push_back(number - std::ceil(number));
         totalRemainder += remainders[choices.back()].back();
     }
 
     // The remainder will be integral so checking against 0.5 avoids
     // floating point problems.
 
-    if (::fabs(totalRemainder) > 0.5)
+    if (std::fabs(totalRemainder) > 0.5)
     {
         LOG_TRACE("ideal choice function = "
                   << core::CContainerPrinter::print(choices));
@@ -897,7 +896,7 @@ void CSampling::weightedSample(std::size_t n,
             if (   (totalRemainder > 0.0 && choices[i] == 0u)
                 || (totalRemainder < 0.0 && choices[i] == 1u))
             {
-                candidates.emplace_back(-::fabs(remainders[choices[i]][i]), i);
+                candidates.emplace_back(-std::fabs(remainders[choices[i]][i]), i);
             }
         }
         std::sort(candidates.begin(), candidates.end());
@@ -905,7 +904,7 @@ void CSampling::weightedSample(std::size_t n,
                   << core::CContainerPrinter::print(candidates));
 
         for (std::size_t i = 0u;
-             i < candidates.size() && ::fabs(totalRemainder) > 0.5;
+             i < candidates.size() && std::fabs(totalRemainder) > 0.5;
              ++i)
         {
             std::size_t j = candidates[i].second;
@@ -923,7 +922,7 @@ void CSampling::weightedSample(std::size_t n,
         double number = weights[i] * static_cast<double>(n) / totalWeight;
 
         sampling.push_back(static_cast<std::size_t>(
-                               choices[i] == 0u ? ::floor(number) : ::ceil(number)));
+                               choices[i] == 0u ? std::floor(number) : std::ceil(number)));
     }
 }
 
@@ -946,7 +945,7 @@ void CSampling::normalSampleQuantiles(double mean,
 
     try
     {
-        boost::math::normal_distribution<> normal(mean, ::sqrt(variance));
+        boost::math::normal_distribution<> normal(mean, std::sqrt(variance));
         sampleQuantiles(normal, n, result);
     }
     catch (const std::exception &e)

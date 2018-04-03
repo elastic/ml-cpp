@@ -27,7 +27,7 @@ namespace
 {
 
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-const double THRESHOLD = ::log(0.05);
+const double THRESHOLD = std::log(0.05);
 
 }
 
@@ -52,7 +52,7 @@ void CDetectorEqualizerTest::testCorrect(void)
         {
             if (-logp[j] <= THRESHOLD)
             {
-                double p = ::exp(-logp[j]);
+                double p = std::exp(-logp[j]);
                 equalizer.add(static_cast<int>(i), p);
             }
         }
@@ -69,7 +69,7 @@ void CDetectorEqualizerTest::testCorrect(void)
         {
             if (-logp[j] <= THRESHOLD)
             {
-                double p = ::exp(-logp[j]);
+                double p = std::exp(-logp[j]);
                 raw[i].push_back(p);
                 corrected[i].push_back(equalizer.correct(static_cast<int>(i), p));
             }
@@ -83,13 +83,13 @@ void CDetectorEqualizerTest::testCorrect(void)
         {
             double increase =  maths::CStatisticalTests::twoSampleKS(corrected[i], corrected[j])
                              / maths::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
-            similarityIncrease.add(::log(increase));
+            similarityIncrease.add(std::log(increase));
             LOG_DEBUG("similarity increase = " << increase);
             CPPUNIT_ASSERT(increase > 3.0);
         }
     }
-    LOG_DEBUG("mean similarity increase = " << ::exp(maths::CBasicStatistics::mean(similarityIncrease)));
-    CPPUNIT_ASSERT(::exp(maths::CBasicStatistics::mean(similarityIncrease)) > 40.0);
+    LOG_DEBUG("mean similarity increase = " << std::exp(maths::CBasicStatistics::mean(similarityIncrease)));
+    CPPUNIT_ASSERT(std::exp(maths::CBasicStatistics::mean(similarityIncrease)) > 40.0);
 }
 
 void CDetectorEqualizerTest::testAge(void)
@@ -114,7 +114,7 @@ void CDetectorEqualizerTest::testAge(void)
         {
             if (-logp[j] <= THRESHOLD)
             {
-                double p = ::exp(-logp[j]);
+                double p = std::exp(-logp[j]);
                 equalizer.add(static_cast<int>(i), p);
                 equalizerAged.add(static_cast<int>(i), p);
                 equalizerAged.age(0.995);
@@ -127,19 +127,19 @@ void CDetectorEqualizerTest::testAge(void)
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
         double logp = THRESHOLD;
-        for (std::size_t j = 0u; j < 150; ++j, logp += ::log(0.9))
+        for (std::size_t j = 0u; j < 150; ++j, logp += std::log(0.9))
         {
-            double p = ::exp(logp);
+            double p = std::exp(logp);
             double pc  = equalizer.correct(i, p);
             double pca = equalizerAged.correct(i, p);
-            double error = ::fabs((::log(pca) - ::log(pc)) / ::log(pc));
+            double error = std::fabs((std::log(pca) - std::log(pc)) / std::log(pc));
             meanError.add(error);
-            meanBias.add((::log(pca) - ::log(pc)) / ::log(pc));
+            meanBias.add((std::log(pca) - std::log(pc)) / std::log(pc));
             CPPUNIT_ASSERT(error < 0.18);
         }
         LOG_DEBUG("mean bias  = " << maths::CBasicStatistics::mean(meanBias));
         LOG_DEBUG("mean error = " << maths::CBasicStatistics::mean(meanError));
-        CPPUNIT_ASSERT(::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.053);
+        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.053);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.053);
     }
 }
@@ -165,7 +165,7 @@ void CDetectorEqualizerTest::testPersist(void)
         {
             if (-logp[j] <= THRESHOLD)
             {
-                double p = ::exp(-logp[j]);
+                double p = std::exp(-logp[j]);
                 origEqualizer.add(static_cast<int>(i), p);
             }
         }

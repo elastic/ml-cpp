@@ -56,7 +56,7 @@
 
 int main(int argc, char **argv)
 {
-    typedef ml::autodetect::CCmdLineParser::TStrVec TStrVec;
+    using TStrVec = ml::autodetect::CCmdLineParser::TStrVec;
 
     // Read command line options
     std::string       limitConfigFile;
@@ -207,7 +207,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    typedef boost::scoped_ptr<ml::core::CDataSearcher> TScopedDataSearcherP;
+    using TScopedDataSearcherP = boost::scoped_ptr<ml::core::CDataSearcher>;
     TScopedDataSearcherP restoreSearcher;
     if (ioMgr.restoreStream() != 0)
     {
@@ -227,14 +227,14 @@ int main(int argc, char **argv)
         }
     }
 
-    typedef boost::scoped_ptr<ml::core::CDataAdder> TScopedDataAdderP;
+    using TScopedDataAdderP = boost::scoped_ptr<ml::core::CDataAdder>;
     TScopedDataAdderP persister;
     if (ioMgr.persistStream() != 0)
     {
         persister.reset(new ml::api::CSingleStreamDataAdder(ioMgr.persistStream()));
     }
 
-    typedef boost::scoped_ptr<ml::api::CBackgroundPersister> TScopedBackgroundPersisterP;
+    using TScopedBackgroundPersisterP = boost::scoped_ptr<ml::api::CBackgroundPersister>;
     TScopedBackgroundPersisterP periodicPersister;
     if (persistInterval >= 0)
     {
@@ -249,7 +249,7 @@ int main(int argc, char **argv)
                                                                   *persister));
     }
 
-    typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
+    using TScopedInputParserP = boost::scoped_ptr<ml::api::CInputParser>;
     TScopedInputParserP inputParser;
     if (lengthEncodedInput)
     {

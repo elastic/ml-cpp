@@ -443,9 +443,9 @@ bool CQuantileSketch::checkInvariants(void) const
     {
         count += m_Knots[i].second;
     }
-    if (::fabs(m_Count - count) > 10.0 * EPS * m_Count)
+    if (std::fabs(m_Count - count) > 10.0 * EPS * m_Count)
     {
-        LOG_ERROR("Count mismatch: error " << ::fabs(m_Count - count) << "/" << m_Count);
+        LOG_ERROR("Count mismatch: error " << std::fabs(m_Count - count) << "/" << m_Count);
         return false;
     }
     return true;

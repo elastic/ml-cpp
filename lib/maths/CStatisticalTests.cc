@@ -53,9 +53,9 @@ double significance(double lambda)
     double termbf = 0.0;
     for (std::size_t j = 1; j <= 100; ++j)
     {
-        double term = fac * ::exp(t2 * static_cast<double>(j * j));
+        double term = fac * std::exp(t2 * static_cast<double>(j * j));
         sum += term;
-        if (::fabs(term) <= EPS1 * termbf || ::fabs(term) <= EPS2 * sum)
+        if (std::fabs(term) <= EPS1 * termbf || std::fabs(term) <= EPS2 * sum)
         {
             return sum;
         }
@@ -150,10 +150,10 @@ double CStatisticalTests::twoSampleKS(TDoubleVec x, TDoubleVec y)
         }
         double Fx = static_cast<double>(i) / static_cast<double>(nx);
         double Fy = static_cast<double>(j) / static_cast<double>(ny);
-        D = std::max(D, ::fabs(Fx - Fy));
+        D = std::max(D, std::fabs(Fx - Fy));
     }
 
-    double neff = ::sqrt(  static_cast<double>(nx)
+    double neff = std::sqrt(  static_cast<double>(nx)
                          * static_cast<double>(ny)
                          / static_cast<double>(nx + ny));
     double result = significance((neff + 0.12 + 0.11/neff) * D);
@@ -289,10 +289,10 @@ double CStatisticalTests::CCramerVonMises::pValue(void) const
         //   m = ab/(b-a) * log(f(b)/f(a))
         //   c = b/(b-a) * log(f(b)/f(a)) + log(f(a))
 
-        double m = a*b / (b - a) * ::log((fb) / (fa));
-        double c = b / (b - a) * ::log((fb) / (fa)) + ::log(fa);
+        double m = a*b / (b - a) * std::log((fb) / (fa));
+        double c = b / (b - a) * std::log((fb) / (fa)) + std::log(fa);
 
-        double p = 1.0 - ::exp(-m / t + c);
+        double p = 1.0 - std::exp(-m / t + c);
         LOG_TRACE("p = 1.0 - exp(" << -m << " / T + " << c << ") = " << p);
         return p;
     }
@@ -304,9 +304,9 @@ double CStatisticalTests::CCramerVonMises::pValue(void) const
     //   m = 1/(a-b) * log((1-f(b))/(1-f(a)))
     //   c = a/(a-b) * log((1-f(b))/(1-f(a))) + log(1-f(a))
 
-    double m = 1.0 / (a - b) * ::log((1.0 - fb) / (1.0 - fa));
-    double c = a / (a - b) * ::log((1.0 - fb) / (1.0 - fa)) + ::log(1.0 - fa);
-    double p = ::exp(-m * t + c);
+    double m = 1.0 / (a - b) * std::log((1.0 - fb) / (1.0 - fa));
+    double c = a / (a - b) * std::log((1.0 - fb) / (1.0 - fa)) + std::log(1.0 - fa);
+    double p = std::exp(-m * t + c);
     LOG_TRACE("p = exp(" << -m << " T + " << c << ") = " << p);
 
     return p;

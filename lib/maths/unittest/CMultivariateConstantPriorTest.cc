@@ -117,7 +117,7 @@ void CMultivariateConstantPriorTest::testMarginalLikelihood(void)
                                                            TDouble10Vec1Vec(1, TDouble10Vec(boost::begin(constant), boost::end(constant))),
                                                            singleUnitWeight(2),
                                                            likelihood));
-    CPPUNIT_ASSERT_EQUAL(::log(boost::numeric::bounds<double>::highest()), likelihood);
+    CPPUNIT_ASSERT_EQUAL(std::log(boost::numeric::bounds<double>::highest()), likelihood);
 
     CPPUNIT_ASSERT_EQUAL(maths_t::E_FpOverflowed,
                          filter.jointLogMarginalLikelihood(COUNT_WEIGHT,

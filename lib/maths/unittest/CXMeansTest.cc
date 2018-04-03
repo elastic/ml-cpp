@@ -82,7 +82,7 @@ double logfSphericalGaussian(const POINT &mean,
 {
     double d = static_cast<double>(x.dimension());
     double r = (x - mean).euclidean();
-    return -0.5 * d * ::log(boost::math::double_constants::two_pi * variance)
+    return -0.5 * d * std::log(boost::math::double_constants::two_pi * variance)
            -0.5 * r * r / variance;
 }
 
@@ -92,7 +92,7 @@ class CEmpiricalKullbackLeibler
         double value(void) const
         {
             return   maths::CBasicStatistics::mean(m_Divergence)
-                   - ::log(maths::CBasicStatistics::count(m_Divergence));
+                   - std::log(maths::CBasicStatistics::count(m_Divergence));
         }
 
         template<typename POINT>
@@ -546,12 +546,12 @@ void CXMeansTest::testFiveClusters(void)
     LOG_DEBUG("mean number clusters = "
               << maths::CBasicStatistics::mean(meanNumberClusters));
     LOG_DEBUG("sd number clusters = "
-              << ::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)));
+              << std::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)));
     LOG_DEBUG("KL gain = " << maths::CBasicStatistics::mean(klgain));
     LOG_DEBUG("mean total purity = " << maths::CBasicStatistics::mean(meanTotalPurity));
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, maths::CBasicStatistics::mean(meanNumberClusters), 0.3);
-    CPPUNIT_ASSERT(::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)) < 0.9);
+    CPPUNIT_ASSERT(std::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)) < 0.9);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(klgain) > -0.1);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanTotalPurity) > 0.93);
 }
@@ -671,7 +671,7 @@ void CXMeansTest::testTwentyClusters(void)
     LOG_DEBUG("totalPurity           = " << maths::CBasicStatistics::mean(totalPurity));
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL(20.0, static_cast<double>(xmeans.clusters().size()), 6.0);
-    CPPUNIT_ASSERT(klc.value() < kl.value() + 0.05 * std::max(::fabs(klc.value()), ::fabs(kl.value())));
+    CPPUNIT_ASSERT(klc.value() < kl.value() + 0.05 * std::max(std::fabs(klc.value()), std::fabs(kl.value())));
     CPPUNIT_ASSERT(minPurity > 0.4);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(totalPurity) > 0.8);
 }

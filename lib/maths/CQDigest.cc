@@ -21,12 +21,11 @@
 #include <boost/tuple/tuple.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <iterator>
 #include <limits>
 #include <sstream>
-
-#include <math.h>
 
 namespace ml
 {
@@ -161,7 +160,7 @@ void CQDigest::propagateForwardsByTime(double time)
         return;
     }
 
-    double alpha = ::exp(-m_DecayRate * time);
+    double alpha = std::exp(-m_DecayRate * time);
 
     m_N = m_Root->age(alpha);
 

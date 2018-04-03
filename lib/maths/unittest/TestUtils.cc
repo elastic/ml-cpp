@@ -278,8 +278,8 @@ bool CPriorTestInterface::marginalLikelihoodMeanForTest(double &result) const
 
     if (m_Prior->dataType() == maths_t::E_IntegerData)
     {
-        b = ::ceil(b);
-        a = ::floor(a);
+        b = std::ceil(b);
+        a = std::floor(a);
         steps = static_cast<unsigned int>(b - a) + 1;
     }
 
@@ -322,8 +322,8 @@ bool CPriorTestInterface::marginalLikelihoodVarianceForTest(double &result) cons
 
     if (m_Prior->dataType() == maths_t::E_IntegerData)
     {
-        b = ::ceil(b);
-        a = ::floor(a);
+        b = std::ceil(b);
+        a = std::floor(a);
         steps = static_cast<unsigned int>(b - a) + 1;
     }
 

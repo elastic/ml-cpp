@@ -14,7 +14,7 @@
 
 #include <boost/range.hpp>
 
-#include <math.h>
+#include <cmath>
 
 using namespace ml;
 using namespace maths;
@@ -48,11 +48,11 @@ void CLogTDistributionTest::testMode(void)
             {
                 LOG_DEBUG("degrees freedom = " << degreesFreedoms[i]
                           << ", location = " << locations[j]
-                          << ", scale = " << ::sqrt(squareScales[k]));
+                          << ", scale = " << std::sqrt(squareScales[k]));
 
                 CLogTDistribution logt(degreesFreedoms[i],
                                        locations[j],
-                                       ::sqrt(squareScales[k]));
+                                       std::sqrt(squareScales[k]));
 
                 double x = mode(logt);
 
@@ -96,7 +96,7 @@ void CLogTDistributionTest::testPdf(void)
     {
         CLogTDistribution logt(degreesFreedom[test],
                                locations[test],
-                               ::sqrt(squareScales[test]));
+                               std::sqrt(squareScales[test]));
 
         for (unsigned int p = 1; p < 100; ++p)
         {
@@ -144,13 +144,13 @@ void CLogTDistributionTest::testCdf(void)
              sampleItr != samples.end();
              ++sampleItr)
         {
-            *sampleItr = ::exp(*sampleItr * ::sqrt(squareScales[test]) + locations[test]);
+            *sampleItr = std::exp(*sampleItr * std::sqrt(squareScales[test]) + locations[test]);
         }
 
         // Check the data percentiles.
         CLogTDistribution logt(degreesFreedom[test],
                                locations[test],
-                               ::sqrt(squareScales[test]));
+                               std::sqrt(squareScales[test]));
 
         std::sort(samples.begin(), samples.end());
         for (unsigned int p = 1; p < 100; ++p)
@@ -188,7 +188,7 @@ void CLogTDistributionTest::testQuantile(void)
     {
         CLogTDistribution logt(degreesFreedom[test],
                                locations[test],
-                               ::sqrt(squareScales[test]));
+                               std::sqrt(squareScales[test]));
 
         for (unsigned int p = 1; p < 100; ++p)
         {

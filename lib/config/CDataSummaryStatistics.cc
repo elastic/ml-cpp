@@ -18,6 +18,8 @@
 
 #include <boost/math/distributions/normal.hpp>
 
+#include <cmath>
+
 namespace ml
 {
 namespace config
@@ -30,7 +32,7 @@ using TDerefSecondGreater = core::CFunctional::SDereference<maths::COrderings::S
 
 std::size_t topNSize(std::size_t n)
 {
-    return static_cast<std::size_t>(::ceil(1.5 * static_cast<double>(n)));
+    return static_cast<std::size_t>(std::ceil(1.5 * static_cast<double>(n)));
 }
 
 const std::size_t DS_NUMBER_HASHES = 7;

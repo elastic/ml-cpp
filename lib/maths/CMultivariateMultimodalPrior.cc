@@ -101,12 +101,12 @@ maths_t::EFloatingPointErrorStatus
         {
             double w = modes[likelihood.first].weight();
             // Divide through by the largest value to avoid underflow.
-            sampleLikelihood += w * ::exp(likelihood.second - maxLogLikelihood);
+            sampleLikelihood += w * std::exp(likelihood.second - maxLogLikelihood);
             Z += w;
         }
 
         sampleLikelihood /= Z;
-        result = (::log(sampleLikelihood) + maxLogLikelihood);
+        result = (std::log(sampleLikelihood) + maxLogLikelihood);
 
         LOG_TRACE("sample = " << core::CContainerPrinter::print(sample)
                   << ", maxLogLikelihood = " << maxLogLikelihood

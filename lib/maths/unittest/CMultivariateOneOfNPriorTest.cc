@@ -24,9 +24,8 @@
 
 #include "TestUtils.h"
 
+#include <cmath>
 #include <vector>
-
-#include <math.h>
 
 using namespace ml;
 using namespace handy_typedefs;
@@ -290,14 +289,14 @@ void CMultivariateOneOfNPriorTest::testPropagation(void)
     double numberSamples = filter.numberSamples();
     TDouble10Vec mean = filter.marginalLikelihoodMean();
     TDouble10Vec10Vec covariance = filter.marginalLikelihoodCovariance();
-    double logWeightRatio = ::fabs(filter.logWeights()[0] - filter.logWeights()[1]);
+    double logWeightRatio = std::fabs(filter.logWeights()[0] - filter.logWeights()[1]);
 
     filter.propagateForwardsByTime(40.0);
 
     double propagatedNumberSamples = filter.numberSamples();
     TDouble10Vec propagatedMean = filter.marginalLikelihoodMean();
     TDouble10Vec10Vec propagatedCovariance = filter.marginalLikelihoodCovariance();
-    double propagatedLogWeightRatio = ::fabs(filter.logWeights()[0] - filter.logWeights()[1]);
+    double propagatedLogWeightRatio = std::fabs(filter.logWeights()[0] - filter.logWeights()[1]);
 
     LOG_DEBUG("numberSamples           = " << numberSamples);
     LOG_DEBUG("propagatedNumberSamples = " << propagatedNumberSamples);
@@ -538,15 +537,15 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood(void)
                     }
                     double intervals[][2] =
                         {
-                            { m[0] - 3.0 * ::sqrt(trace), m[1] - 3.0 * ::sqrt(trace) },
-                            { m[0] - 3.0 * ::sqrt(trace), m[1] - 1.0 * ::sqrt(trace) },
-                            { m[0] - 3.0 * ::sqrt(trace), m[1] + 1.0 * ::sqrt(trace) },
-                            { m[0] - 1.0 * ::sqrt(trace), m[1] - 3.0 * ::sqrt(trace) },
-                            { m[0] - 1.0 * ::sqrt(trace), m[1] - 1.0 * ::sqrt(trace) },
-                            { m[0] - 1.0 * ::sqrt(trace), m[1] + 1.0 * ::sqrt(trace) },
-                            { m[0] + 1.0 * ::sqrt(trace), m[1] - 3.0 * ::sqrt(trace) },
-                            { m[0] + 1.0 * ::sqrt(trace), m[1] - 1.0 * ::sqrt(trace) },
-                            { m[0] + 1.0 * ::sqrt(trace), m[1] + 1.0 * ::sqrt(trace) }
+                            { m[0] - 3.0 * std::sqrt(trace), m[1] - 3.0 * std::sqrt(trace) },
+                            { m[0] - 3.0 * std::sqrt(trace), m[1] - 1.0 * std::sqrt(trace) },
+                            { m[0] - 3.0 * std::sqrt(trace), m[1] + 1.0 * std::sqrt(trace) },
+                            { m[0] - 1.0 * std::sqrt(trace), m[1] - 3.0 * std::sqrt(trace) },
+                            { m[0] - 1.0 * std::sqrt(trace), m[1] - 1.0 * std::sqrt(trace) },
+                            { m[0] - 1.0 * std::sqrt(trace), m[1] + 1.0 * std::sqrt(trace) },
+                            { m[0] + 1.0 * std::sqrt(trace), m[1] - 3.0 * std::sqrt(trace) },
+                            { m[0] + 1.0 * std::sqrt(trace), m[1] - 1.0 * std::sqrt(trace) },
+                            { m[0] + 1.0 * std::sqrt(trace), m[1] + 1.0 * std::sqrt(trace) }
                         };
 
                     TVector2 expectedMean(m.begin(), m.end());
@@ -564,8 +563,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood(void)
                     {
                         TDoubleVec a(boost::begin(intervals[j]), boost::end(intervals[j]));
                         TDoubleVec b(a);
-                        b[0] += 2.0 * ::sqrt(trace);
-                        b[1] += 2.0 * ::sqrt(trace);
+                        b[0] += 2.0 * std::sqrt(trace);
+                        b[1] += 2.0 * std::sqrt(trace);
 
                         double zj;
                         maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix,
@@ -658,15 +657,15 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood(void)
 
                 double intervals[][2] =
                     {
-                        { means[i](0) - 3.0 * ::sqrt(trace), means[i](1) - 3.0 * ::sqrt(trace) },
-                        { means[i](0) - 3.0 * ::sqrt(trace), means[i](1) - 1.0 * ::sqrt(trace) },
-                        { means[i](0) - 3.0 * ::sqrt(trace), means[i](1) + 1.0 * ::sqrt(trace) },
-                        { means[i](0) - 1.0 * ::sqrt(trace), means[i](1) - 3.0 * ::sqrt(trace) },
-                        { means[i](0) - 1.0 * ::sqrt(trace), means[i](1) - 1.0 * ::sqrt(trace) },
-                        { means[i](0) - 1.0 * ::sqrt(trace), means[i](1) + 1.0 * ::sqrt(trace) },
-                        { means[i](0) + 1.0 * ::sqrt(trace), means[i](1) - 3.0 * ::sqrt(trace) },
-                        { means[i](0) + 1.0 * ::sqrt(trace), means[i](1) - 1.0 * ::sqrt(trace) },
-                        { means[i](0) + 1.0 * ::sqrt(trace), means[i](1) + 1.0 * ::sqrt(trace) }
+                        { means[i](0) - 3.0 * std::sqrt(trace), means[i](1) - 3.0 * std::sqrt(trace) },
+                        { means[i](0) - 3.0 * std::sqrt(trace), means[i](1) - 1.0 * std::sqrt(trace) },
+                        { means[i](0) - 3.0 * std::sqrt(trace), means[i](1) + 1.0 * std::sqrt(trace) },
+                        { means[i](0) - 1.0 * std::sqrt(trace), means[i](1) - 3.0 * std::sqrt(trace) },
+                        { means[i](0) - 1.0 * std::sqrt(trace), means[i](1) - 1.0 * std::sqrt(trace) },
+                        { means[i](0) - 1.0 * std::sqrt(trace), means[i](1) + 1.0 * std::sqrt(trace) },
+                        { means[i](0) + 1.0 * std::sqrt(trace), means[i](1) - 3.0 * std::sqrt(trace) },
+                        { means[i](0) + 1.0 * std::sqrt(trace), means[i](1) - 1.0 * std::sqrt(trace) },
+                        { means[i](0) + 1.0 * std::sqrt(trace), means[i](1) + 1.0 * std::sqrt(trace) }
                     };
                 CUnitKernel<2> likelihoodKernel(filter);
                 CMeanKernel<2> meanKernel(filter);
@@ -676,8 +675,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood(void)
                 {
                     TDoubleVec a(boost::begin(intervals[j]), boost::end(intervals[j]));
                     TDoubleVec b(a);
-                    b[0] += 2.0 * ::sqrt(trace);
-                    b[1] += 2.0 * ::sqrt(trace);
+                    b[0] += 2.0 * std::sqrt(trace);
+                    b[1] += 2.0 * std::sqrt(trace);
 
                     double zj;
                     maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix,
@@ -1064,7 +1063,7 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples(void)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability,
                                      probability,
                                      0.3 * std::max(expectedProbability, probability));
-        error.add(::fabs(probability - expectedProbability));
+        error.add(std::fabs(probability - expectedProbability));
     }
 
     LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));

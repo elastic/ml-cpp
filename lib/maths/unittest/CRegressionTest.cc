@@ -177,8 +177,8 @@ void CRegressionTest::testFit(void)
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(intercept, params[0], 1.3);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(slope, params[1], 0.015);
-            interceptError.add(::fabs(params[0] - intercept));
-            slopeError.add(::fabs(params[1] - slope));
+            interceptError.add(std::fabs(params[0] - intercept));
+            slopeError.add(std::fabs(params[1] - slope));
         }
 
         LOG_DEBUG("intercept error = " << interceptError);
@@ -331,10 +331,10 @@ void CRegressionTest::testShiftOrdinate(void)
     LOG_DEBUG("parameters 1 = " << core::CContainerPrinter::print(params1));
     LOG_DEBUG("parameters 2 = " << core::CContainerPrinter::print(params2));
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(1000.0 + params1[0], params2[0], 1e-6 * ::fabs(params1[0]));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(         params1[1], params2[1], 1e-6 * ::fabs(params1[1]));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(         params1[2], params2[2], 1e-6 * ::fabs(params1[2]));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(         params1[3], params2[3], 1e-6 * ::fabs(params1[3]));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(1000.0 + params1[0], params2[0], 1e-6 * std::fabs(params1[0]));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(         params1[1], params2[1], 1e-6 * std::fabs(params1[1]));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(         params1[2], params2[2], 1e-6 * std::fabs(params1[2]));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(         params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
 }
 
 void CRegressionTest::testShiftGradient(void)
@@ -364,10 +364,10 @@ void CRegressionTest::testShiftGradient(void)
     LOG_DEBUG("parameters 1 = " << core::CContainerPrinter::print(params1));
     LOG_DEBUG("parameters 2 = " << core::CContainerPrinter::print(params2));
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(       params1[0], params2[0], 1e-6 * ::fabs(params1[0]));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0 + params1[1], params2[1], 1e-6 * ::fabs(params1[1]));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(       params1[2], params2[2], 1e-6 * ::fabs(params1[2]));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(       params1[3], params2[3], 1e-6 * ::fabs(params1[3]));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(       params1[0], params2[0], 1e-6 * std::fabs(params1[0]));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0 + params1[1], params2[1], 1e-6 * std::fabs(params1[1]));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(       params1[2], params2[2], 1e-6 * std::fabs(params1[2]));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(       params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
 }
 
 void CRegressionTest::testAge(void)
@@ -521,7 +521,7 @@ void CRegressionTest::testPrediction(void)
     for (std::size_t i = 0u; i <= 400; ++i)
     {
         double x = 0.005 * pi * static_cast<double>(i);
-        double y = ::sin(x);
+        double y = std::sin(x);
 
         m.add(y);
         m.age(0.95);
@@ -642,7 +642,7 @@ void CRegressionTest::testCombination(void)
 
     for (std::size_t i = 0u; i < params.size(); ++i)
     {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[i], paramsAPlusB[i], 5e-3 * ::fabs(params[i]));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[i], paramsAPlusB[i], 5e-3 * std::fabs(params[i]));
     }
 }
 

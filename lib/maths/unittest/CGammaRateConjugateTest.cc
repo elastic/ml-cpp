@@ -24,12 +24,11 @@
 #include <boost/range.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <iterator>
 #include <vector>
-
-#include <math.h>
 
 using namespace ml;
 using namespace handy_typedefs;
@@ -312,7 +311,7 @@ void CGammaRateConjugateTest::testRateEstimation(void)
         {
             // The number of errors should be inside the percentile bounds.
             unsigned int maximumErrors =
-                    static_cast<unsigned int>(::ceil((1.0 - testIntervals[j]/100.0) * nTests));
+                    static_cast<unsigned int>(std::ceil((1.0 - testIntervals[j]/100.0) * nTests));
 
             LOG_DEBUG("errors = " << errors[j] << ", maximumErrors = " << maximumErrors);
 
@@ -413,7 +412,7 @@ void CGammaRateConjugateTest::testMarginalLikelihood(void)
 
             for (size_t k = 0; k < boost::size(deltas); ++k)
             {
-                double x = mean + deltas[k] * ::sqrt(variance);
+                double x = mean + deltas[k] * std::sqrt(variance);
                 TDouble1Vec sample(1, x);
 
                 LOG_DEBUG("number = " << numberSamples[i]
@@ -422,21 +421,21 @@ void CGammaRateConjugateTest::testMarginalLikelihood(void)
                 double logLikelihood = 0.0;
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                      filter.jointLogMarginalLikelihood(sample, logLikelihood));
-                double pdf = ::exp(logLikelihood);
+                double pdf = std::exp(logLikelihood);
 
                 double lowerBound = 0.0, upperBound = 0.0;
                 sample[0] -= eps;
                 CPPUNIT_ASSERT(filter.minusLogJointCdf(sample, lowerBound, upperBound));
                 CPPUNIT_ASSERT_EQUAL(lowerBound, upperBound);
                 double minusLogCdf = (lowerBound + upperBound) / 2.0;
-                double cdfAtMinusEps = ::exp(-minusLogCdf);
+                double cdfAtMinusEps = std::exp(-minusLogCdf);
                 CPPUNIT_ASSERT(minusLogCdf >= 0.0);
 
                 sample[0] += 2.0 * eps;
                 CPPUNIT_ASSERT(filter.minusLogJointCdf(sample, lowerBound, upperBound));
                 CPPUNIT_ASSERT_EQUAL(lowerBound, upperBound);
                 minusLogCdf = (lowerBound + upperBound) / 2.0;
-                double cdfAtPlusEps = ::exp(-minusLogCdf);
+                double cdfAtPlusEps = std::exp(-minusLogCdf);
                 CPPUNIT_ASSERT(minusLogCdf >= 0.0);
 
                 double dcdfdx = (cdfAtPlusEps - cdfAtMinusEps) / 2.0 / eps;
@@ -514,8 +513,8 @@ void CGammaRateConjugateTest::testMarginalLikelihood(void)
                       << ", interval = " << core::CContainerPrinter::print(interval));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(q1, interval.first, 0.02);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(q2, interval.second, 0.02);
-            error.add(::fabs(interval.first - q1));
-            error.add(::fabs(interval.second - q2));
+            error.add(std::fabs(interval.first - q1));
+            error.add(std::fabs(interval.second - q2));
         }
         LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 4e-3);
@@ -541,8 +540,8 @@ void CGammaRateConjugateTest::testMarginalLikelihood(void)
                           << ", interval = " << core::CContainerPrinter::print(interval));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(q1, interval.first, 0.4);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(q2, interval.second, 0.4);
-                error.add(::fabs(interval.first - q1));
-                error.add(::fabs(interval.second - q2));
+                error.add(std::fabs(interval.first - q1));
+                error.add(std::fabs(interval.second - q2));
             }
             LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.09);
@@ -650,7 +649,7 @@ void CGammaRateConjugateTest::testMarginalLikelihoodMode(void)
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode,
                                              filter.marginalLikelihoodMode(weightStyle, weight),
                                              0.28 * expectedMode + 0.3);
-                double error = ::fabs(filter.marginalLikelihoodMode(weightStyle, weight) - expectedMode);
+                double error = std::fabs(filter.marginalLikelihoodMode(weightStyle, weight) - expectedMode);
                 relativeError.add(error == 0.0 ? 0.0 : error / expectedMode);
             }
             LOG_DEBUG("relativeError = " << maths::CBasicStatistics::mean(relativeError));
@@ -711,7 +710,7 @@ void CGammaRateConjugateTest::testMarginalLikelihoodVariance(void)
                                              filter.marginalLikelihoodVariance(),
                                              0.01 * expectedVariance);
 
-                relativeError.add(::fabs(expectedVariance - filter.marginalLikelihoodVariance())
+                relativeError.add(std::fabs(expectedVariance - filter.marginalLikelihoodVariance())
                                   / expectedVariance);
             }
 
@@ -796,7 +795,7 @@ void CGammaRateConjugateTest::testSampleMarginalLikelihood(void)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(filter.marginalLikelihoodVariance(),
                                      maths::CBasicStatistics::variance(sampledMoments),
                                      0.25 * filter.marginalLikelihoodVariance());
-        meanVarError.add(  ::fabs(  filter.marginalLikelihoodVariance()
+        meanVarError.add(  std::fabs(  filter.marginalLikelihoodVariance()
                                   - maths::CBasicStatistics::variance(sampledMoments))
                          / filter.marginalLikelihoodVariance());
 
@@ -859,8 +858,8 @@ void CGammaRateConjugateTest::testCdf(void)
     double fComplement = (lowerBound + upperBound) / 2.0;
     LOG_DEBUG("log(F(x)) = " << -f
               << ", log(1 - F(x)) = " << fComplement);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(std::numeric_limits<double>::min()), -f, 1e-10);
-    CPPUNIT_ASSERT_EQUAL(1.0, ::exp(-fComplement));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(std::log(std::numeric_limits<double>::min()), -f, 1e-10);
+    CPPUNIT_ASSERT_EQUAL(1.0, std::exp(-fComplement));
 
     for (std::size_t i = 1u; i < 500; ++i)
     {
@@ -873,7 +872,7 @@ void CGammaRateConjugateTest::testCdf(void)
 
         LOG_DEBUG("log(F(x)) = " << (f == 0.0 ? f : -f)
                   << ", log(1 - F(x)) = " << (fComplement == 0.0 ? fComplement : -fComplement));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, ::exp(-f) + ::exp(-fComplement), 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, std::exp(-f) + std::exp(-fComplement), 1e-10);
     }
 }
 
@@ -939,7 +938,7 @@ void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples(void)
                 double lb, ub;
                 filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, sample, lb, ub);
 
-                double ssd = ::sqrt(px * (1.0 - px) / static_cast<double>(samples.size()));
+                double ssd = std::sqrt(px * (1.0 - px) / static_cast<double>(samples.size()));
 
                 LOG_DEBUG("expected P(x) = " << px
                           << ", actual P(x) = " << (lb + ub) / 2.0
@@ -947,7 +946,7 @@ void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples(void)
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(px, (lb + ub) / 2.0, 3.0 * ssd);
 
-                meanError.add(::fabs(px - (lb + ub) / 2.0));
+                meanError.add(std::fabs(px - (lb + ub) / 2.0));
             }
 
             maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountVarianceScaleWeight);
@@ -1275,7 +1274,7 @@ void CGammaRateConjugateTest::testIntegerData(void)
 
             for (std::size_t k = 0u; k < nSamples; ++k)
             {
-                double x = ::floor(samples[k]);
+                double x = std::floor(samples[k]);
 
                 TDouble1Vec sample(1, x);
                 filter1.addSamples(sample);
@@ -1317,7 +1316,7 @@ void CGammaRateConjugateTest::testIntegerData(void)
 
             for (std::size_t k = 0u; k < nSamples; ++k)
             {
-                double x = ::floor(samples[k]);
+                double x = std::floor(samples[k]);
 
                 TDouble1Vec sample(1, x);
 
@@ -1724,9 +1723,9 @@ void CGammaRateConjugateTest::testVarianceScale(void)
                             double estimatedVariance = estimatedMean / filter.likelihoodRate();
                             double dm = (dataTypes[t] == maths_t::E_IntegerData ? 0.5 : 0.0);
                             double dv = (dataTypes[t] == maths_t::E_IntegerData ? 1.0 / 12.0 : 0.0);
-                            double trialMeanError = ::fabs(estimatedMean - (mean + dm))
+                            double trialMeanError = std::fabs(estimatedMean - (mean + dm))
                                                      / std::max(1.0, mean + dm);
-                            double trialVarianceError = ::fabs(estimatedVariance - (variance + dv))
+                            double trialVarianceError = std::fabs(estimatedVariance - (variance + dv))
                                                         / std::max(1.0, variance + dv);
 
                             LOG_DEBUG("trial mean error = " << trialMeanError);

@@ -1008,7 +1008,7 @@ struct SVector
         double result = 0.0;
         for (std::size_t i = 0u; i < m_X.size(); ++i)
         {
-            result += ::fabs(static_cast<double>(m_X[i]));
+            result += std::fabs(static_cast<double>(m_X[i]));
         }
         return result;
     }

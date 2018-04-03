@@ -51,10 +51,10 @@ void CStatisticalTestsTest::testCramerVonMises(void)
     {
         LOG_DEBUG("*** n = " << n[i] << " ***");
         {
-            LOG_DEBUG("N(" << 5.0 << "," << ::sqrt(2.0) << ")");
+            LOG_DEBUG("N(" << 5.0 << "," << std::sqrt(2.0) << ")");
             TDoubleVec samples;
             rng.generateNormalSamples(5.0, 2.0, n[i] * 1000, samples);
-            boost::math::normal_distribution<> normal(5.0, ::sqrt(2.0));
+            boost::math::normal_distribution<> normal(5.0, std::sqrt(2.0));
 
             TDoubleVec p;
             for (std::size_t j = 0u; j < samples.size()/n[i]; ++j)
@@ -79,9 +79,9 @@ void CStatisticalTestsTest::testCramerVonMises(void)
                             / static_cast<double>(p.size());
                 LOG_DEBUG("percentile = " << percentile
                           << ", p value percentile = " << pp
-                          << ", error = " << ::fabs(pp - percentile));
-                meanError += ::fabs(pp - percentile);
-                CPPUNIT_ASSERT(::fabs(pp - percentile) < 0.055);
+                          << ", error = " << std::fabs(pp - percentile));
+                meanError += std::fabs(pp - percentile);
+                CPPUNIT_ASSERT(std::fabs(pp - percentile) < 0.055);
             }
             meanError /= 21.0;
             LOG_DEBUG("meanError = " << meanError);
@@ -117,9 +117,9 @@ void CStatisticalTestsTest::testCramerVonMises(void)
                             / static_cast<double>(p.size());
                 LOG_DEBUG("percentile = " << percentile
                           << ", p value percentile = " << pp
-                          << ", error = " << ::fabs(pp - percentile));
-                meanError += ::fabs(pp - percentile);
-                CPPUNIT_ASSERT(::fabs(pp - percentile) < 0.055);
+                          << ", error = " << std::fabs(pp - percentile));
+                meanError += std::fabs(pp - percentile);
+                CPPUNIT_ASSERT(std::fabs(pp - percentile) < 0.055);
             }
             meanError /= 21.0;
             LOG_DEBUG("meanError = " << meanError);
@@ -146,7 +146,7 @@ void CStatisticalTestsTest::testPersist(void)
 
         TDoubleVec samples;
         rng.generateNormalSamples(5.0, 2.0, 25, samples);
-        boost::math::normal_distribution<> normal(5.0, ::sqrt(2.0));
+        boost::math::normal_distribution<> normal(5.0, std::sqrt(2.0));
 
         maths::CStatisticalTests::CCramerVonMises origCvm(9);
         TDoubleVec p;

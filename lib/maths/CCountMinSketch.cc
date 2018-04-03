@@ -16,6 +16,7 @@
 
 #include <boost/math/constants/constants.hpp>
 
+#include <cmath>
 #include <iomanip>
 
 namespace ml
@@ -218,7 +219,7 @@ double CCountMinSketch::delta(void) const
     {
         return 0.0;
     }
-    return ::exp(-static_cast<double>(m_Rows));
+    return std::exp(-static_cast<double>(m_Rows));
 }
 
 double CCountMinSketch::oneMinusDeltaError(void) const

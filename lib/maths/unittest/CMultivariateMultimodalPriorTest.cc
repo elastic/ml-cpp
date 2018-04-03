@@ -113,9 +113,9 @@ double logLikelihood(const double w[N],
         TMatrix2 covariance(covariances[i], covariances[i] + 3);
         double ll;
         maths::gaussianLogLikelihood(covariance, TVector2(x) - mean, ll);
-        lx += w[i] * ::exp(ll);
+        lx += w[i] * std::exp(ll);
     }
-    return ::log(lx);
+    return std::log(lx);
 }
 
 double logLikelihood(const TDoubleVec &w,
@@ -130,9 +130,9 @@ double logLikelihood(const TDoubleVec &w,
         maths::gaussianLogLikelihood(TMatrix2(covariances[i]),
                                      TVector2(x) - TVector2(means[i]),
                                      ll);
-        lx += w[i] * ::exp(ll);
+        lx += w[i] * std::exp(ll);
     }
-    return ::log(lx);
+    return std::log(lx);
 }
 
 void empiricalProbabilityOfLessLikelySamples(const TDoubleVec &w,
@@ -687,15 +687,15 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihood(void)
 
             double intervals[][2] =
                 {
-                    { means[i](0) - 3.0 * ::sqrt(trace), means[i](1) - 3.0 * ::sqrt(trace) },
-                    { means[i](0) - 3.0 * ::sqrt(trace), means[i](1) - 1.0 * ::sqrt(trace) },
-                    { means[i](0) - 3.0 * ::sqrt(trace), means[i](1) + 1.0 * ::sqrt(trace) },
-                    { means[i](0) - 1.0 * ::sqrt(trace), means[i](1) - 3.0 * ::sqrt(trace) },
-                    { means[i](0) - 1.0 * ::sqrt(trace), means[i](1) - 1.0 * ::sqrt(trace) },
-                    { means[i](0) - 1.0 * ::sqrt(trace), means[i](1) + 1.0 * ::sqrt(trace) },
-                    { means[i](0) + 1.0 * ::sqrt(trace), means[i](1) - 3.0 * ::sqrt(trace) },
-                    { means[i](0) + 1.0 * ::sqrt(trace), means[i](1) - 1.0 * ::sqrt(trace) },
-                    { means[i](0) + 1.0 * ::sqrt(trace), means[i](1) + 1.0 * ::sqrt(trace) }
+                    { means[i](0) - 3.0 * std::sqrt(trace), means[i](1) - 3.0 * std::sqrt(trace) },
+                    { means[i](0) - 3.0 * std::sqrt(trace), means[i](1) - 1.0 * std::sqrt(trace) },
+                    { means[i](0) - 3.0 * std::sqrt(trace), means[i](1) + 1.0 * std::sqrt(trace) },
+                    { means[i](0) - 1.0 * std::sqrt(trace), means[i](1) - 3.0 * std::sqrt(trace) },
+                    { means[i](0) - 1.0 * std::sqrt(trace), means[i](1) - 1.0 * std::sqrt(trace) },
+                    { means[i](0) - 1.0 * std::sqrt(trace), means[i](1) + 1.0 * std::sqrt(trace) },
+                    { means[i](0) + 1.0 * std::sqrt(trace), means[i](1) - 3.0 * std::sqrt(trace) },
+                    { means[i](0) + 1.0 * std::sqrt(trace), means[i](1) - 1.0 * std::sqrt(trace) },
+                    { means[i](0) + 1.0 * std::sqrt(trace), means[i](1) + 1.0 * std::sqrt(trace) }
                 };
             CUnitKernel<2> likelihoodKernel(filter);
             CMeanKernel<2> meanKernel(filter);
@@ -705,8 +705,8 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihood(void)
             {
                 TDoubleVec a(boost::begin(intervals[j]), boost::end(intervals[j]));
                 TDoubleVec b(a);
-                b[0] += 2.0 * ::sqrt(trace);
-                b[1] += 2.0 * ::sqrt(trace);
+                b[0] += 2.0 * std::sqrt(trace);
+                b[1] += 2.0 * std::sqrt(trace);
 
                 double zj;
                 maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix,
@@ -1093,10 +1093,10 @@ void CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples(void)
                 double pa = (lb + ub) / 2.0;
 
                 LOG_DEBUG("  p(" << x << "), actual = " << pa << ", expected = " << px);
-                meanAbsError.add(::fabs(px - pa));
+                meanAbsError.add(std::fabs(px - pa));
                 if (px < 1.0 && px > 0.0)
                 {
-                    meanRelError.add(::fabs(::log(px) - ::log(pa)) / ::fabs(::log(px)));
+                    meanRelError.add(std::fabs(std::log(px) - std::log(pa)) / std::fabs(std::log(px)));
                 }
             }
 

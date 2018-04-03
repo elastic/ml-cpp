@@ -692,7 +692,7 @@ void CMetricPopulationDataGathererTest::testFeatureData(void)
             sampleMinAccumulators[key].add(messages[i].s_Value);
             sampleMaxAccumulators[key].add(messages[i].s_Value);
             if (maths::CBasicStatistics::count(sampleMeanAccumulators[key])
-                                               == ::floor(sampleCount + 0.5))
+                                               == std::floor(sampleCount + 0.5))
             {
                 expectedMeanSamples[key].push_back(
                         maths::CBasicStatistics::mean(sampleMeanAccumulators[key]));
