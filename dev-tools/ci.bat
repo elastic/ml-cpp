@@ -2,7 +2,7 @@
 rem
 rem ELASTICSEARCH CONFIDENTIAL
 rem
-rem Copyright (c) 2017 Elasticsearch BV. All Rights Reserved.
+rem Copyright (c) 2018 Elasticsearch BV. All Rights Reserved.
 rem
 rem Notice: this software, and all information contained
 rem therein, is the exclusive property of Elasticsearch BV
