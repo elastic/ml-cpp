@@ -39,16 +39,13 @@ namespace core {
 //! comparable if both the underlying container and underlying mask
 //! are the same, although the relevant comparison operators work for
 //! both const and non-const versions of the underlying iterator.
+// clang-format off
 template<typename ITR>
-class CMaskIterator
-    : private boost::incrementable<
-          CMaskIterator<ITR>,
-          boost::decrementable<
-              CMaskIterator<ITR>,
-              boost::addable2<
-                  CMaskIterator<ITR>,
-                  typename std::iterator_traits<ITR>::difference_type,
-                  boost::subtractable2<CMaskIterator<ITR>, typename std::iterator_traits<ITR>::difference_type>>>> {
+class CMaskIterator : private boost::incrementable< CMaskIterator<ITR>,
+                              boost::decrementable< CMaskIterator<ITR>,
+                              boost::addable2< CMaskIterator<ITR>, typename std::iterator_traits<ITR>::difference_type,
+                              boost::subtractable2<CMaskIterator<ITR>, typename std::iterator_traits<ITR>::difference_type > > > > {
+// clang-format on
 public:
     typedef typename std::iterator_traits<ITR>::difference_type difference_type;
     typedef typename std::iterator_traits<ITR>::value_type value_type;

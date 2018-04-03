@@ -36,8 +36,10 @@ class CSeasonalTime;
 
 //! \brief Represents the result of running the periodicity
 //! hypothesis tests.
-class MATHS_EXPORT CPeriodicityHypothesisTestsResult
-    : boost::equality_comparable<CPeriodicityHypothesisTestsResult, boost::addable<CPeriodicityHypothesisTestsResult>> {
+// clang-format off
+class MATHS_EXPORT CPeriodicityHypothesisTestsResult : boost::equality_comparable<CPeriodicityHypothesisTestsResult,
+                                                       boost::addable<CPeriodicityHypothesisTestsResult>> {
+// clang-format on
 public:
     using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
 

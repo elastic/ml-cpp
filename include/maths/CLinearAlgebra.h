@@ -231,22 +231,18 @@ struct SSymmetricMatrix {
 //!
 //! \tparam T The floating point type.
 //! \tparam N The matrix dimension.
+// clang-format off
 template<typename T, std::size_t N>
-class CSymmetricMatrixNxN
-    : private boost::equality_comparable<
-          CSymmetricMatrixNxN<T, N>,
-          boost::partially_ordered<
-              CSymmetricMatrixNxN<T, N>,
-              boost::addable<
-                  CSymmetricMatrixNxN<T, N>,
-                  boost::subtractable<
-                      CSymmetricMatrixNxN<T, N>,
-                      boost::multipliable<CSymmetricMatrixNxN<T, N>,
-                                          boost::multipliable2<CSymmetricMatrixNxN<T, N>,
-                                                               T,
-                                                               boost::dividable2<CSymmetricMatrixNxN<T, N>, T>>>>>>>,
-      private linear_algebra_detail::SSymmetricMatrix<boost::array<T, N*(N + 1) / 2>>,
-      private linear_algebra_detail::CBoundsCheck<N>::InRange {
+class CSymmetricMatrixNxN : private boost::equality_comparable< CSymmetricMatrixNxN<T, N>,
+                                    boost::partially_ordered< CSymmetricMatrixNxN<T, N>,
+                                    boost::addable< CSymmetricMatrixNxN<T, N>,
+                                    boost::subtractable< CSymmetricMatrixNxN<T, N>,
+                                    boost::multipliable< CSymmetricMatrixNxN<T, N>,
+                                    boost::multipliable2< CSymmetricMatrixNxN<T, N>, T,
+                                    boost::dividable2< CSymmetricMatrixNxN<T, N>, T > > > > > > >,
+                            private linear_algebra_detail::SSymmetricMatrix<boost::array<T, N*(N + 1) / 2 > >,
+                            private linear_algebra_detail::CBoundsCheck<N>::InRange {
+// clang-format on
 private:
     using TBase = linear_algebra_detail::SSymmetricMatrix<boost::array<T, N*(N + 1) / 2>>;
     template<typename U, std::size_t>
@@ -485,20 +481,17 @@ struct SZero<CSymmetricMatrixNxN<T, N>> {
 //! premium.
 //!
 //! \tparam T The floating point type.
+// clang-format off
 template<typename T>
-class CSymmetricMatrix
-    : private boost::equality_comparable<
-          CSymmetricMatrix<T>,
-          boost::partially_ordered<
-              CSymmetricMatrix<T>,
-              boost::addable<
-                  CSymmetricMatrix<T>,
-                  boost::subtractable<
-                      CSymmetricMatrix<T>,
-                      boost::multipliable<
-                          CSymmetricMatrix<T>,
-                          boost::multipliable2<CSymmetricMatrix<T>, T, boost::dividable2<CSymmetricMatrix<T>, T>>>>>>>,
-      private linear_algebra_detail::SSymmetricMatrix<std::vector<T>> {
+class CSymmetricMatrix : private boost::equality_comparable< CSymmetricMatrix<T>,
+                                 boost::partially_ordered< CSymmetricMatrix<T>,
+                                 boost::addable< CSymmetricMatrix<T>,
+                                 boost::subtractable< CSymmetricMatrix<T>,
+                                 boost::multipliable< CSymmetricMatrix<T>,
+                                 boost::multipliable2< CSymmetricMatrix<T>, T,
+                                 boost::dividable2< CSymmetricMatrix<T>, T > > > > > > >,
+                         private linear_algebra_detail::SSymmetricMatrix<std::vector<T>> {
+// clang-format on
 private:
     using TBase = linear_algebra_detail::SSymmetricMatrix<std::vector<T>>;
     template<typename U>
@@ -887,23 +880,19 @@ struct SVector {
 //!
 //! \tparam T The floating point type.
 //! \tparam N The vector dimension.
+// clang-format off
 template<typename T, std::size_t N>
-class CVectorNx1
-    : private boost::equality_comparable<
-          CVectorNx1<T, N>,
-          boost::partially_ordered<
-              CVectorNx1<T, N>,
-              boost::addable<CVectorNx1<T, N>,
-                             boost::subtractable<
-                                 CVectorNx1<T, N>,
-                                 boost::multipliable<CVectorNx1<T, N>,
-                                                     boost::multipliable2<
-                                                         CVectorNx1<T, N>,
-                                                         T,
-                                                         boost::dividable<CVectorNx1<T, N>,
-                                                                          boost::dividable2<CVectorNx1<T, N>, T>>>>>>>>,
-      private linear_algebra_detail::SVector<boost::array<T, N>>,
-      private linear_algebra_detail::CBoundsCheck<N>::InRange {
+class CVectorNx1 : private boost::equality_comparable< CVectorNx1<T, N>,
+                           boost::partially_ordered< CVectorNx1<T, N>,
+                           boost::addable< CVectorNx1<T, N>,
+                           boost::subtractable< CVectorNx1<T, N>,
+                           boost::multipliable< CVectorNx1<T, N>,
+                           boost::multipliable2< CVectorNx1<T, N>, T,
+                           boost::dividable< CVectorNx1<T, N>,
+                           boost::dividable2< CVectorNx1<T, N>, T > > > > > > > >,
+                   private linear_algebra_detail::SVector<boost::array<T, N> >,
+                   private linear_algebra_detail::CBoundsCheck<N>::InRange {
+// clang-format on
 private:
     using TBase = linear_algebra_detail::SVector<boost::array<T, N>>;
     template<typename U, std::size_t>
@@ -1172,22 +1161,18 @@ struct SZero<CVectorNx1<T, N>> {
 //! so that one can use float when space is really at a premium.
 //!
 //! \tparam T The floating point type.
+// clang-format off
 template<typename T>
-class CVector
-    : private boost::equality_comparable<
-          CVector<T>,
-          boost::partially_ordered<
-              CVector<T>,
-              boost::addable<
-                  CVector<T>,
-                  boost::subtractable<
-                      CVector<T>,
-                      boost::multipliable<
-                          CVector<T>,
-                          boost::multipliable2<CVector<T>,
-                                               T,
-                                               boost::dividable<CVector<T>, boost::dividable2<CVector<T>, T>>>>>>>>,
-      private linear_algebra_detail::SVector<std::vector<T>> {
+class CVector : private boost::equality_comparable< CVector<T>,
+                        boost::partially_ordered< CVector<T>,
+                        boost::addable< CVector<T>,
+                        boost::subtractable< CVector<T>,
+                        boost::multipliable< CVector<T>,
+                        boost::multipliable2< CVector<T>, T,
+                        boost::dividable< CVector<T>,
+                        boost::dividable2< CVector<T>, T > > > > > > > >,
+                private linear_algebra_detail::SVector<std::vector<T>> {
+// clang-format on
 private:
     using TBase = linear_algebra_detail::SVector<std::vector<T>>;
     template<typename U>

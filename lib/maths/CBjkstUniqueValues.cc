@@ -59,10 +59,12 @@ typedef std::pair<uint8_t, uint8_t> TUInt8UInt8Pr;
 //!   |<-----8 bits---->|<-----8 bits---->|<-----8 bits---->|
 //!   |(g(x) >> 8) % 256|    g(x) % 256   |    zeros(x)     |
 //! \endcode
+// clang-format off
 class CHashIterator : public std::iterator<std::random_access_iterator_tag, uint16_t>,
-                      private boost::less_than_comparable<
-                          CHashIterator,
-                          boost::addable<CHashIterator, ptrdiff_t, boost::subtractable<CHashIterator, ptrdiff_t>>> {
+                      private boost::less_than_comparable< CHashIterator,
+                              boost::addable<CHashIterator, ptrdiff_t, 
+                              boost::subtractable<CHashIterator, ptrdiff_t > > > {
+// clang-format on
 public:
     //! The STL that comes with g++ requires a default constructor - this
     //! will create an object that's suitable only to be assigned to, which
