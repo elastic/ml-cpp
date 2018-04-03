@@ -209,7 +209,7 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime)
         // Do a prune and see how much we got back
         // These are the expensive operations
         std::size_t usageAfter = 0;
-        for (auto &&model : m_Models)
+        for (auto &model : m_Models)
         {
             model.first->prune(m_PruneWindow);
             model.second = model.first->memoryUsage();

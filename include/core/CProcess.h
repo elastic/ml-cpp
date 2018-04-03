@@ -61,20 +61,20 @@ class CORE_EXPORT CProcess : private CNonCopyable
 
     public:
         //! Prototype of the mlMain() function
-        typedef int (*TMlMainFunc)(int, char *[]);
+        using TMlMainFunc = int (*)(int, char *[]);
 
         //! Vector of process arguments
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator  TStrVecCItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecCItr = TStrVec::const_iterator;
 
         //! The shutdown function
-        typedef std::function<void()>    TShutdownFunc;
+        using TShutdownFunc = std::function<void()>;
 
         //! Process ID type
 #ifdef Windows
-        typedef DWORD                    TPid;
+        using TPid = DWORD;
 #else
-        typedef pid_t                    TPid;
+        using TPid = pid_t;
 #endif
 
     public:

@@ -62,26 +62,26 @@ using namespace model;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef std::vector<uint64_t> TUInt64Vec;
-typedef std::vector<core_t::TTime> TTimeVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::vector<TSizeVecVec> TSizeVecVecVec;
-typedef std::vector<std::string> TStrVec;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 2> TDouble2Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
-typedef boost::optional<std::string> TOptionalStr;
-typedef boost::optional<uint64_t> TOptionalUInt64;
-typedef boost::optional<double> TOptionalDouble;
-typedef std::vector<TOptionalDouble> TOptionalDoubleVec;
-typedef boost::shared_ptr<maths::CModel> TMathsModelPtr;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TUInt64Vec = std::vector<uint64_t>;
+using TTimeVec = std::vector<core_t::TTime>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TSizeVecVecVec = std::vector<TSizeVecVec>;
+using TStrVec = std::vector<std::string>;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble2Vec = core::CSmallVector<double, 2>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
+using TOptionalStr = boost::optional<std::string>;
+using TOptionalUInt64 = boost::optional<uint64_t>;
+using TOptionalDouble = boost::optional<double>;
+using TOptionalDoubleVec = std::vector<TOptionalDouble>;
+using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 const std::string EMPTY_STRING;
 
@@ -630,8 +630,8 @@ void CEventRateModelTest::testOnlineProbabilityCalculation(void)
 {
     LOG_DEBUG("*** testOnlineProbabilityCalculation ***");
 
-    typedef std::pair<double, std::size_t> TDoubleSizePr;
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> TMinAccumulator;
+    using TDoubleSizePr = std::pair<double, std::size_t>;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -807,8 +807,8 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
-    typedef core::CTriple<double, std::size_t, std::string> TDoubleSizeStrTr;
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr> TMinAccumulator;
+    using TDoubleSizeStrTr = core::CTriple<double, std::size_t, std::string>;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr>;
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -1062,8 +1062,8 @@ void CEventRateModelTest::testOnlineCorrelatedTrend(void)
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
-    typedef core::CTriple<double, std::size_t, std::string> TDoubleSizeStrTr;
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr> TMinAccumulator;
+    using TDoubleSizeStrTr = core::CTriple<double, std::size_t, std::string>;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr>;
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 600;
@@ -1204,9 +1204,9 @@ void CEventRateModelTest::testPrune(void)
 {
     LOG_DEBUG("*** testPrune ***");
 
-    typedef std::vector<TUInt64Vec> TUInt64VecVec;
-    typedef std::vector<CEventData> TEventDataVec;
-    typedef std::map<std::size_t, std::size_t> TSizeSizeMap;
+    using TUInt64VecVec = std::vector<TUInt64Vec>;
+    using TEventDataVec = std::vector<CEventData>;
+    using TSizeSizeMap = std::map<std::size_t, std::size_t>;
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;

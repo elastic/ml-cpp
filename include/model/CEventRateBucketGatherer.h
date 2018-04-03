@@ -47,21 +47,21 @@ namespace model
 class MODEL_EXPORT CUniqueStringFeatureData
 {
     public:
-        typedef core::CCompressedDictionary<1> TDictionary1;
-        typedef TDictionary1::CWord TWord;
-        typedef TDictionary1::TWordSet TWordSet;
-        typedef TWordSet::const_iterator TWordSetCItr;
-        typedef TDictionary1::CWordUMap<std::string>::Type TWordStringUMap;
-        typedef TWordStringUMap::const_iterator TWordStringUMapCItr;
-        typedef boost::unordered_map<core::CStoredStringPtr, TWordSet> TStoredStringPtrWordSetUMap;
-        typedef TStoredStringPtrWordSetUMap::const_iterator TStoredStringPtrWordSetUMapCItr;
-        typedef std::vector<TStoredStringPtrWordSetUMap> TStoredStringPtrWordSetUMapVec;
-        typedef SEventRateFeatureData::TStrCRef TStrCRef;
-        typedef SEventRateFeatureData::TDouble1Vec TDouble1Vec;
-        typedef SEventRateFeatureData::TDouble1VecDoublePr TDouble1VecDoublePr;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr TStrCRefDouble1VecDoublePrPr;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec TStrCRefDouble1VecDoublePrPrVec;
-        typedef CBucketGatherer::TStoredStringPtrVec TStoredStringPtrVec;
+        using TDictionary1 = core::CCompressedDictionary<1>;
+        using TWord = TDictionary1::CWord;
+        using TWordSet = TDictionary1::TWordSet;
+        using TWordSetCItr = TWordSet::const_iterator;
+        using TWordStringUMap = TDictionary1::CWordUMap<std::string>::Type;
+        using TWordStringUMapCItr = TWordStringUMap::const_iterator;
+        using TStoredStringPtrWordSetUMap = boost::unordered_map<core::CStoredStringPtr, TWordSet>;
+        using TStoredStringPtrWordSetUMapCItr = TStoredStringPtrWordSetUMap::const_iterator;
+        using TStoredStringPtrWordSetUMapVec = std::vector<TStoredStringPtrWordSetUMap>;
+        using TStrCRef = SEventRateFeatureData::TStrCRef;
+        using TDouble1Vec = SEventRateFeatureData::TDouble1Vec;
+        using TDouble1VecDoublePr = SEventRateFeatureData::TDouble1VecDoublePr;
+        using TStrCRefDouble1VecDoublePrPr = SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr;
+        using TStrCRefDouble1VecDoublePrPrVec = SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec;
+        using TStoredStringPtrVec = CBucketGatherer::TStoredStringPtrVec;
 
     public:
         //! Add a string into the collection
@@ -107,17 +107,17 @@ class MODEL_EXPORT CUniqueStringFeatureData
 class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
 {
     public:
-        typedef std::map<model_t::EEventRateCategory, boost::any> TCategoryAnyMap;
-        typedef SEventRateFeatureData::TStrCRef TStrCRef;
-        typedef SEventRateFeatureData::TDouble1Vec TDouble1Vec;
-        typedef SEventRateFeatureData::TDouble1VecDoublePr TDouble1VecDoublePr;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr TStrCRefDouble1VecDoublePrPr;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec TStrCRefDouble1VecDoublePrPrVec;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVecVec TStrCRefDouble1VecDoublePrPrVecVec;
-        typedef std::pair<std::size_t, SEventRateFeatureData> TSizeFeatureDataPr;
-        typedef std::vector<TSizeFeatureDataPr> TSizeFeatureDataPrVec;
-        typedef std::pair<TSizeSizePr, SEventRateFeatureData> TSizeSizePrFeatureDataPr;
-        typedef std::vector<TSizeSizePrFeatureDataPr> TSizeSizePrFeatureDataPrVec;
+        using TCategoryAnyMap = std::map<model_t::EEventRateCategory, boost::any>;
+        using TStrCRef = SEventRateFeatureData::TStrCRef;
+        using TDouble1Vec = SEventRateFeatureData::TDouble1Vec;
+        using TDouble1VecDoublePr = SEventRateFeatureData::TDouble1VecDoublePr;
+        using TStrCRefDouble1VecDoublePrPr = SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr;
+        using TStrCRefDouble1VecDoublePrPrVec = SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec;
+        using TStrCRefDouble1VecDoublePrPrVecVec = SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVecVec;
+        using TSizeFeatureDataPr = std::pair<std::size_t, SEventRateFeatureData>;
+        using TSizeFeatureDataPrVec = std::vector<TSizeFeatureDataPr>;
+        using TSizeSizePrFeatureDataPr = std::pair<TSizeSizePr, SEventRateFeatureData>;
+        using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
 
     public:
         //! \name Life-cycle

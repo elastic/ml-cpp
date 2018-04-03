@@ -36,7 +36,7 @@ namespace
     class CBuffer
     {
         public:
-            typedef std::vector<std::string>    TStrVec;
+            using TStrVec = std::vector<std::string>;
 
         public:
             CBuffer(uint32_t flushInterval) : m_FlushInterval(flushInterval)

@@ -45,8 +45,8 @@ namespace maths
 namespace
 {
 
-typedef core::CSmallVector<double, 10> TDouble10Vec;
-typedef boost::optional<TDouble10Vec> TOptionalDouble10Vec;
+using TDouble10Vec = core::CSmallVector<double, 10>;
+using TOptionalDouble10Vec = boost::optional<TDouble10Vec>;
 
 //! \brief Converts a constant value to a string.
 class CConstantToString

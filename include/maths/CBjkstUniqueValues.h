@@ -83,7 +83,7 @@ namespace maths
 class MATHS_EXPORT CBjkstUniqueValues
 {
     public:
-        typedef core::CHashing::CUniversalHash::TUInt32UnrestrictedHashVec TUInt32HashVec;
+        using TUInt32HashVec = core::CHashing::CUniversalHash::TUInt32UnrestrictedHashVec;
 
     public:
         //! Get the count of trailing zeros in value.
@@ -127,11 +127,11 @@ class MATHS_EXPORT CBjkstUniqueValues
         std::size_t memoryUsage(void) const;
 
     private:
-        typedef std::vector<uint8_t> TUInt8Vec;
-        typedef std::vector<TUInt8Vec> TUInt8VecVec;
-        typedef std::vector<uint32_t> TUInt32Vec;
-        typedef TUInt32Vec::iterator TUInt32VecItr;
-        typedef TUInt32Vec::const_iterator TUInt32VecCItr;
+        using TUInt8Vec = std::vector<uint8_t>;
+        using TUInt8VecVec = std::vector<TUInt8Vec>;
+        using TUInt32Vec = std::vector<uint32_t>;
+        using TUInt32VecItr = TUInt32Vec::iterator;
+        using TUInt32VecCItr = TUInt32Vec::const_iterator;
 
         //! Wraps up the sketch data.
         struct MATHS_EXPORT SSketch
@@ -168,7 +168,7 @@ class MATHS_EXPORT CBjkstUniqueValues
             TUInt8VecVec s_B;
         };
 
-        typedef boost::variant<TUInt32Vec, SSketch> TUInt32VecOrSketch;
+        using TUInt32VecOrSketch = boost::variant<TUInt32Vec, SSketch>;
 
     private:
         //! Maybe switch to sketching the distinct value set.

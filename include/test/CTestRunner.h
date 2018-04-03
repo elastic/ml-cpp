@@ -117,8 +117,8 @@ class TEST_EXPORT CTestRunner : public CppUnit::TextTestRunner
         void processCmdLine(int argc, const char **argv);
 
     private:
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::iterator        TStrVecItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecItr = TStrVec::iterator;
 
         TStrVec            m_TestCases;
         std::string        m_ExeName;

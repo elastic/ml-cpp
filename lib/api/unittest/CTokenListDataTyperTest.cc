@@ -28,17 +28,17 @@
 namespace
 {
 
-typedef ml::api::CTokenListDataTyper<true,  // Warping
-                                     true,  // Underscores
-                                     true,  // Dots
-                                     true,  // Dashes
-                                     true,  // Ignore leading digit
-                                     true,  // Ignore hex
-                                     true,  // Ignore date words
-                                     false, // Ignore field names
-                                     2,     // Min dictionary word length
-                                     ml::core::CWordDictionary::TWeightVerbs5Other2>
-        TTokenListDataTyperKeepsFields;
+using TTokenListDataTyperKeepsFields =
+           ml::api::CTokenListDataTyper<true,  // Warping
+                                        true,  // Underscores
+                                        true,  // Dots
+                                        true,  // Dashes
+                                        true,  // Ignore leading digit
+                                        true,  // Ignore hex
+                                        true,  // Ignore date words
+                                        false, // Ignore field names
+                                        2,     // Min dictionary word length
+                                        ml::core::CWordDictionary::TWeightVerbs5Other2>;
 
 const TTokenListDataTyperKeepsFields::TTokenListReverseSearchCreatorIntfCPtr NO_REVERSE_SEARCH_CREATOR;
 

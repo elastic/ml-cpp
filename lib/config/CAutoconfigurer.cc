@@ -67,9 +67,9 @@ const core_t::TTime UPDATE_SCORE_TIME_INTERVAL       = 172800;
 class CONFIG_EXPORT CAutoconfigurerImpl : public core::CNonCopyable
 {
     public:
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+        using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
     public:
         CAutoconfigurerImpl(const CAutoconfigurerParams &params, CReportWriter &reportWriter);
@@ -87,11 +87,11 @@ class CONFIG_EXPORT CAutoconfigurerImpl : public core::CNonCopyable
         uint64_t numRecordsHandled(void) const;
 
     private:
-        typedef std::pair<core_t::TTime, TStrStrUMap> TTimeStrStrUMapPr;
-        typedef std::vector<TTimeStrStrUMapPr> TTimeStrStrUMapPrVec;
-        typedef boost::optional<config_t::EUserDataType> TOptionalUserDataType;
-        typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;
-        typedef std::vector<CFieldStatistics> TFieldStatisticsVec;
+        using TTimeStrStrUMapPr = std::pair<core_t::TTime, TStrStrUMap>;
+        using TTimeStrStrUMapPrVec = std::vector<TTimeStrStrUMapPr>;
+        using TOptionalUserDataType = boost::optional<config_t::EUserDataType>;
+        using TDetectorSpecificationVec = std::vector<CDetectorSpecification>;
+        using TFieldStatisticsVec = std::vector<CFieldStatistics>;
 
     private:
         //! Extract the time from \p fieldValues.
@@ -427,8 +427,8 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce(void)
 
     LOG_DEBUG("Generate Candidate Detectors:");
 
-    typedef void (CDetectorEnumerator::*TAddField)(const std::string &);
-    typedef bool (CAutoconfigurerParams::*TCanUse)(const std::string &) const;
+    using TAddField = void (CDetectorEnumerator::*)(const std::string &);
+    using TCanUse = bool (CAutoconfigurerParams::*)(const std::string &) const;
 
     CDetectorEnumerator enumerator(m_Params);
     for (std::size_t i = 0u; i < m_Params.functionsCategoriesToConfigure().size(); ++i)

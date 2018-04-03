@@ -50,8 +50,8 @@ class CMapPopulationTest : public CppUnit::TestFixture
         class CTestData
         {
             public:
-                typedef std::vector<std::string>  TStrVec;
-                typedef std::vector<const char *> TCharPVec;
+                using TStrVec = std::vector<std::string> ;
+                using TCharPVec = std::vector<const char *>;
 
             public:
                 CTestData(size_t fillSize);
@@ -70,10 +70,10 @@ class CMapPopulationTest : public CppUnit::TestFixture
         };
 
     private:
-        typedef std::map<std::string, std::string>             TStrStrMap;
-        typedef std::vector<TStrStrMap>                        TStrStrMapVec;
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef std::vector<TStrStrUMap>                       TStrStrUMapVec;
+        using TStrStrMap = std::map<std::string, std::string>;
+        using TStrStrMapVec = std::vector<TStrStrMap>;
+        using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+        using TStrStrUMapVec = std::vector<TStrStrUMap>;
 
         template <typename INPUT_CONTAINER, typename MAP_CONTAINER>
         void addInsert(const INPUT_CONTAINER &keys,

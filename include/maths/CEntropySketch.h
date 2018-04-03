@@ -50,8 +50,8 @@ class MATHS_EXPORT CEntropySketch
         double calculate(void) const;
 
     private:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<uint64_t> TUInt64Vec;
+        using TDoubleVec = std::vector<double>;
+        using TUInt64Vec = std::vector<uint64_t>;
 
     private:
         //! Generate the projection of the category counts.

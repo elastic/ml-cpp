@@ -91,8 +91,8 @@ namespace maths
 class MATHS_EXPORT CQDigest : private core::CNonCopyable
 {
     public:
-        typedef std::pair<uint32_t, uint64_t> TUInt32UInt64Pr;
-        typedef std::vector<TUInt32UInt64Pr> TUInt32UInt64PrVec;
+        using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
+        using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
 
     public:
         //! \name XML Tag Names
@@ -218,17 +218,17 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
         //@}
 
     private:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef TSizeVec::const_iterator TSizeVecCItr;
-        typedef std::greater<std::size_t> TSizeGreater;
+        using TSizeVec = std::vector<std::size_t>;
+        using TSizeVecCItr = TSizeVec::const_iterator;
+        using TSizeGreater = std::greater<std::size_t>;
 
         class CNode;
         class CNodeAllocator;
 
-        typedef std::vector<CNode*> TNodePtrVec;
-        typedef TNodePtrVec::iterator TNodePtrVecItr;
-        typedef TNodePtrVec::const_iterator TNodePtrVecCItr;
-        typedef TNodePtrVec::const_reverse_iterator TNodePtrVecCRItr;
+        using TNodePtrVec = std::vector<CNode*>;
+        using TNodePtrVecItr = TNodePtrVec::iterator;
+        using TNodePtrVecCItr = TNodePtrVec::const_iterator;
+        using TNodePtrVecCRItr = TNodePtrVec::const_reverse_iterator;
 
         //! Orders node pointers by level order.
         struct MATHS_EXPORT SLevelLess
@@ -405,12 +405,12 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
                 void release(CNode &node);
 
             private:
-                typedef std::vector<TNodePtrVec> TNodePtrVecVec;
-                typedef std::vector<CNode> TNodeVec;
-                typedef std::vector<CNode>::const_iterator TNodeVecCItr;
-                typedef std::list<TNodeVec> TNodeVecList;
-                typedef TNodeVecList::iterator TNodeVecListItr;
-                typedef TNodeVecList::const_iterator TNodeVecListCItr;
+                using TNodePtrVecVec = std::vector<TNodePtrVec>;
+                using TNodeVec = std::vector<CNode>;
+                using TNodeVecCItr = std::vector<CNode>::const_iterator;
+                using TNodeVecList = std::list<TNodeVec>;
+                using TNodeVecListItr = TNodeVecList::iterator;
+                using TNodeVecListCItr = TNodeVecList::const_iterator;
 
             private:
                 //! Find the block to which \p node belongs.

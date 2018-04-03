@@ -53,14 +53,14 @@ class API_EXPORT CDataTyper
 {
     public:
         //! Used for storing distinct token IDs
-        typedef boost::unordered_map<std::string, std::string>        TStrStrUMap;
-        typedef TStrStrUMap::const_iterator                           TStrStrUMapCItr;
+        using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+        using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
         //! Shared pointer to an instance of this class
-        typedef boost::shared_ptr<CDataTyper>                         TDataTyperP;
+        using TDataTyperP = boost::shared_ptr<CDataTyper>;
 
         //! Shared pointer to an instance of this class
-        typedef std::function<void(core::CStatePersistInserter &)>    TPersistFunc;
+        using TPersistFunc = std::function<void(core::CStatePersistInserter &)>;
 
     public:
         CDataTyper(const std::string &fieldName);

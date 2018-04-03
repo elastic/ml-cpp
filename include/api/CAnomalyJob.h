@@ -121,21 +121,22 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
 
 
     public:
-        typedef std::function<void(const CModelSnapshotJsonWriter::SModelSnapshotReport &)> TPersistCompleteFunc;
-        typedef model::CAnomalyDetector::TAnomalyDetectorPtr TAnomalyDetectorPtr;
-        typedef std::vector<TAnomalyDetectorPtr> TAnomalyDetectorPtrVec;
-        typedef std::vector<TAnomalyDetectorPtr>::iterator TAnomalyDetectorPtrVecItr;
-        typedef std::vector<TAnomalyDetectorPtr>::const_iterator TAnomalyDetectorPtrVecCItr;
-        typedef std::vector<model::CSearchKey> TKeyVec;
-        typedef boost::unordered_map<model::CSearchKey::TStrKeyPr,
-                                     TAnomalyDetectorPtr,
-                                     model::CStrKeyPrHash,
-                                     model::CStrKeyPrEqual> TKeyAnomalyDetectorPtrUMap;
-        typedef std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr> TKeyCRefAnomalyDetectorPtrPr;
-        typedef std::vector<TKeyCRefAnomalyDetectorPtrPr>            TKeyCRefAnomalyDetectorPtrPrVec;
-        typedef model::CAnomalyDetector::TModelPlotDataVec TModelPlotDataVec;
-        typedef TModelPlotDataVec::const_iterator TModelPlotDataVecCItr;
-        typedef model::CBucketQueue<TModelPlotDataVec> TModelPlotDataVecQueue;
+        using TPersistCompleteFunc = std::function<void(const CModelSnapshotJsonWriter::SModelSnapshotReport &)>;
+        using TAnomalyDetectorPtr = model::CAnomalyDetector::TAnomalyDetectorPtr;
+        using TAnomalyDetectorPtrVec = std::vector<TAnomalyDetectorPtr>;
+        using TAnomalyDetectorPtrVecItr = std::vector<TAnomalyDetectorPtr>::iterator;
+        using TAnomalyDetectorPtrVecCItr = std::vector<TAnomalyDetectorPtr>::const_iterator;
+        using TKeyVec = std::vector<model::CSearchKey>;
+        using TKeyAnomalyDetectorPtrUMap =
+                  boost::unordered_map<model::CSearchKey::TStrKeyPr,
+                                       TAnomalyDetectorPtr,
+                                       model::CStrKeyPrHash,
+                                       model::CStrKeyPrEqual>;
+        using TKeyCRefAnomalyDetectorPtrPr = std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr>;
+        using TKeyCRefAnomalyDetectorPtrPrVec = std::vector<TKeyCRefAnomalyDetectorPtrPr>;
+        using TModelPlotDataVec = model::CAnomalyDetector::TModelPlotDataVec;
+        using TModelPlotDataVecCItr = TModelPlotDataVec::const_iterator;
+        using TModelPlotDataVecQueue = model::CBucketQueue<TModelPlotDataVec>;
 
         struct API_EXPORT SRestoredStateDetail
         {
@@ -164,7 +165,7 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
             TKeyCRefAnomalyDetectorPtrPrVec s_Detectors;
         };
 
-        typedef boost::shared_ptr<SBackgroundPersistArgs> TBackgroundPersistArgsPtr;
+        using TBackgroundPersistArgsPtr = boost::shared_ptr<SBackgroundPersistArgs>;
 
     public:
         CAnomalyJob(const std::string &jobId,

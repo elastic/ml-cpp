@@ -180,8 +180,8 @@ void CQDigest::propagateForwardsByTime(double time)
 
 bool CQDigest::scale(double factor)
 {
-    typedef boost::tuple<uint32_t, uint32_t, uint64_t> TUInt32UInt32UInt64Tr;
-    typedef std::vector<TUInt32UInt32UInt64Tr> TUInt32UInt32UInt64TrVec;
+    using TUInt32UInt32UInt64Tr = boost::tuple<uint32_t, uint32_t, uint64_t>;
+    using TUInt32UInt32UInt64TrVec = std::vector<TUInt32UInt32UInt64Tr>;
 
     if (factor <= 0.0)
     {
@@ -897,7 +897,7 @@ uint64_t CQDigest::CNode::age(double factor)
 {
     m_SubtreeCount = 0u;
 
-    for (auto &&descendant : m_Descendants)
+    for (auto &descendant : m_Descendants)
     {
         m_SubtreeCount += descendant->age(factor);
     }

@@ -32,10 +32,10 @@ using namespace test;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::set<uint32_t> TUInt32Set;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TUInt32Set = std::set<uint32_t>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 uint8_t trailingZeros(uint32_t x)
 {

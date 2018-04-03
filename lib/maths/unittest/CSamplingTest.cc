@@ -26,15 +26,15 @@
 
 #include <numeric>
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 
 using namespace ml;
 
 namespace
 {
 
-typedef std::vector<TDoubleVec> TDoubleVecVec;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 
 double multinomialProbability(const TDoubleVec &probabilities,
                               const TSizeVec &counts)
@@ -158,8 +158,8 @@ void CSamplingTest::testMultinomialSample(void)
     LOG_DEBUG("|  CSamplingTest::testMultinomialSample  |");
     LOG_DEBUG("+----------------------------------------+");
 
-    typedef std::map<TSizeVec, double> TSizeVecDoubleMap;
-    typedef TSizeVecDoubleMap::const_iterator TSizeVecDoubleMapCItr;
+    using TSizeVecDoubleMap = std::map<TSizeVec, double>;
+    using TSizeVecDoubleMapCItr = TSizeVecDoubleMap::const_iterator;
 
     maths::CSampling::seed();
 
@@ -208,7 +208,7 @@ void CSamplingTest::testMultivariateNormalSample(void)
     LOG_DEBUG("|  CSamplingTest::testMultivariateNormalSample  |");
     LOG_DEBUG("+-----------------------------------------------+");
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CSampling::seed();
 

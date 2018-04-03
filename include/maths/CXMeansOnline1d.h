@@ -121,11 +121,11 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
 {
     public:
         class CCluster;
-        typedef CClusterer1d::TPointPreciseVec TDoubleVec;
-        typedef CClusterer1d::TPointPreciseDoublePrVec TDoubleDoublePrVec;
-        typedef std::pair<CCluster, CCluster> TClusterClusterPr;
-        typedef boost::optional<TClusterClusterPr> TOptionalClusterClusterPr;
-        typedef std::pair<double, double> TDoubleDoublePr;
+        using TDoubleVec = CClusterer1d::TPointPreciseVec;
+        using TDoubleDoublePrVec = CClusterer1d::TPointPreciseDoublePrVec;
+        using TClusterClusterPr = std::pair<CCluster, CCluster>;
+        using TOptionalClusterClusterPr = boost::optional<TClusterClusterPr>;
+        using TDoubleDoublePr = std::pair<double, double>;
         using CClusterer1d::add;
 
         //! \brief Represents a cluster.
@@ -241,9 +241,9 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
                 CNaturalBreaksClassifier m_Structure;
         };
 
-        typedef std::vector<CCluster> TClusterVec;
-        typedef TClusterVec::iterator TClusterVecItr;
-        typedef TClusterVec::const_iterator TClusterVecCItr;
+        using TClusterVec = std::vector<CCluster>;
+        using TClusterVecItr = TClusterVec::iterator;
+        using TClusterVecCItr = TClusterVec::const_iterator;
 
     public:
         //! The central confidence interval on which to Winsorise.
@@ -400,8 +400,8 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
         CIndexGenerator &indexGenerator(void);
 
     private:
-        typedef CBasicStatistics::COrderStatisticsStack<double, 1> TMinAccumulator;
-        typedef CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> > TMaxAccumulator;
+        using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1>;
+        using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> >;
 
     private:
         //! The minimum Kullback-Leibler divergence at which we'll

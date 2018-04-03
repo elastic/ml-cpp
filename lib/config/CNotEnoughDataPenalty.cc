@@ -35,7 +35,7 @@ namespace config
 {
 namespace
 {
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 //! Get the description prefix.
 std::string descriptionPrefix(const CDetectorSpecification &spec,
@@ -127,7 +127,7 @@ void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec &bucketCounts,
                                        const TBucketCountStatisticsVec &statistics,
                                        CDetectorSpecification &spec) const
 {
-    typedef CBucketCountStatistics::TSizeSizePrMomentsUMap::const_iterator TSizeSizePrMomentsUMapCItr;
+    using TSizeSizePrMomentsUMapCItr = CBucketCountStatistics::TSizeSizePrMomentsUMap::const_iterator;
 
     const CAutoconfigurerParams::TTimeVec &candidates = this->params().candidateBucketLengths();
 

@@ -70,10 +70,10 @@ struct SStaticCast
 namespace detail
 {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef maths_t::TWeightStyleVec TWeightStyleVec;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TWeightStyleVec = maths_t::TWeightStyleVec;
 
 //! Adds "weight" x "right operand" to the "left operand".
 struct SPlusWeight
@@ -343,7 +343,7 @@ double CPoissonMeanConjugate::adjustOffset(const TWeightStyleVec &/*weightStyles
         return 0.0;
     }
 
-    for (auto &&sample : resamples)
+    for (auto &sample : resamples)
     {
         sample = std::max(sample, OFFSET_MARGIN - offset);
     }
@@ -821,9 +821,9 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
         using boost::math::policies::discrete_quantile;
         using boost::math::policies::real;
 
-        typedef policy<discrete_quantile<real> > TRealQuantilePolicy;
-        typedef boost::math::negative_binomial_distribution<
-                    double, TRealQuantilePolicy> TNegativeBinomialRealQuantile;
+        using TRealQuantilePolicy = policy<discrete_quantile<real>>;
+        using TNegativeBinomialRealQuantile =
+                  boost::math::negative_binomial_distribution<double, TRealQuantilePolicy>;
 
         try
         {

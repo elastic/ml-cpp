@@ -49,7 +49,7 @@ class MATHS_EXPORT CCalendarFeature : boost::less_than_comparable< CCalendarFeat
         static const uint16_t BEGIN_FEATURES = 1;
         static const uint16_t END_FEATURES = 5;
 
-        typedef boost::array<CCalendarFeature, 4> TCalendarFeature4Ary;
+        using TCalendarFeature4Ary = boost::array<CCalendarFeature, 4>;
 
     public:
         CCalendarFeature(void);

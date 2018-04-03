@@ -28,9 +28,9 @@ namespace api
 
 namespace
 {
-typedef boost::optional<double> TOptionalDouble;
-typedef boost::optional<uint64_t> TOptionalUInt64;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
+using TOptionalDouble = boost::optional<double>;
+using TOptionalUInt64 = boost::optional<uint64_t>;
+using TDouble1Vec = core::CSmallVector<double, 1>;
 const std::string COUNT_NAME("count");
 const std::string EMPTY_STRING;
 const CHierarchicalResultsWriter::TStr1Vec EMPTY_STRING_LIST;

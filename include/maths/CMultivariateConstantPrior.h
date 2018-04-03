@@ -45,7 +45,7 @@ namespace maths
 class MATHS_EXPORT CMultivariateConstantPrior : public CMultivariatePrior
 {
     public:
-        typedef boost::optional<TDouble10Vec> TOptionalDouble10Vec;
+        using TOptionalDouble10Vec = boost::optional<TDouble10Vec>;
 
         // Lift all overloads of into scope.
         //{

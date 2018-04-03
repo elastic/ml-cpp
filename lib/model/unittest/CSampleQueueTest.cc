@@ -36,10 +36,10 @@
 using namespace ml;
 using namespace model;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<CSample> TSampleVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef CSampleQueue<TMeanAccumulator> TTestSampleQueue;
+using TDoubleVec = std::vector<double>;
+using TSampleVec = std::vector<CSample>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TTestSampleQueue = CSampleQueue<TMeanAccumulator>;
 
 void CSampleQueueTest::testSampleToString(void)
 {
@@ -1074,7 +1074,7 @@ void CSampleQueueTest::testQualityOfSamplesGivenConstantRate(void)
 
         maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
         maths::CBasicStatistics::COrderStatisticsStack<double, 5u> varianceMin;
-        maths::CBasicStatistics::COrderStatisticsStack<double, 5u, std::greater<double> > varianceMax;
+        maths::CBasicStatistics::COrderStatisticsStack<double, 5u, std::greater<double>> varianceMax;
         for (std::size_t i = 0; i < samples.size(); ++i)
         {
             varianceStat.add(samples[i].varianceScale());
@@ -1143,7 +1143,7 @@ void CSampleQueueTest::testQualityOfSamplesGivenVariableRate(void)
 
         maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
         maths::CBasicStatistics::COrderStatisticsStack<double, 5u> varianceMin;
-        maths::CBasicStatistics::COrderStatisticsStack<double, 5u, std::greater<double> > varianceMax;
+        maths::CBasicStatistics::COrderStatisticsStack<double, 5u, std::greater<double>> varianceMax;
         for (std::size_t i = 0; i < samples.size(); ++i)
         {
             varianceStat.add(samples[i].varianceScale());
@@ -1199,7 +1199,7 @@ void CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder
 
     maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
     maths::CBasicStatistics::COrderStatisticsStack<double, 1u> varianceMin;
-    maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double> > varianceMax;
+    maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>> varianceMax;
     for (std::size_t i = 0; i < samples.size(); ++i)
     {
         varianceStat.add(samples[i].varianceScale());

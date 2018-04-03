@@ -258,7 +258,7 @@ void WINAPI CProcess::serviceMain(DWORD argc, char *argv[])
 
     if (process.m_MlMainFunc != 0)
     {
-        typedef boost::scoped_array<char *> TScopedCharPArray;
+        using TScopedCharPArray = boost::scoped_array<char *>;
 
         // Merge the arguments from the service itself with the arguments
         // passed to the original main() call

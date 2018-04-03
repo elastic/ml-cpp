@@ -50,13 +50,13 @@ class CResourceMonitor;
 class MODEL_EXPORT CDynamicStringIdRegistry
 {
     public:
-        typedef core::CCompressedDictionary<2> TDictionary;
-        typedef TDictionary::CWordUMap<std::size_t>::Type TWordSizeUMap;
-        typedef TWordSizeUMap::iterator TWordSizeUMapItr;
-        typedef TWordSizeUMap::const_iterator TWordSizeUMapCItr;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
+        using TDictionary = core::CCompressedDictionary<2>;
+        using TWordSizeUMap = TDictionary::CWordUMap<std::size_t>::Type;
+        using TWordSizeUMapItr = TWordSizeUMap::iterator;
+        using TWordSizeUMapCItr = TWordSizeUMap::const_iterator;
+        using TSizeVec = std::vector<std::size_t>;
+        using TStrVec = std::vector<std::string>;
+        using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
 
     public:
         //! An identifier which will never be used for a real string.

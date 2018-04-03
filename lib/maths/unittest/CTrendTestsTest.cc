@@ -59,7 +59,7 @@ void CTrendTestsTest::testRandomizedPeriodicity(void)
 
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-    using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> >;
+    using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
     using TFunction = double (*)(core_t::TTime);
 
     test::CRandomNumbers rng;

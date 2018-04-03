@@ -30,7 +30,7 @@ namespace config
 namespace
 {
 
-typedef const CFieldStatistics *(CDetectorSpecification::*TGetStatistics)(void) const;
+using TGetStatistics = const CFieldStatistics *(CDetectorSpecification::*)(void) const;
 const TGetStatistics STATISTIC[] =
     {
         &CDetectorSpecification::argumentFieldStatistics,

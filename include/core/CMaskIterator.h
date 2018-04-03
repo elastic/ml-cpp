@@ -48,12 +48,12 @@ class CMaskIterator : private boost::incrementable< CMaskIterator<ITR>,
                               boost::subtractable2< CMaskIterator<ITR>, typename std::iterator_traits<ITR>::difference_type > > > >
 {
     public:
-        typedef typename std::iterator_traits<ITR>::difference_type difference_type;
-        typedef typename std::iterator_traits<ITR>::value_type value_type;
-        typedef typename std::iterator_traits<ITR>::pointer pointer;
-        typedef typename std::iterator_traits<ITR>::reference reference;
-        typedef typename std::iterator_traits<ITR>::iterator_category iterator_category;
-        typedef std::vector<difference_type> TDifferenceVec;
+        using difference_type = typename std::iterator_traits<ITR>::difference_type;
+        using value_type = typename std::iterator_traits<ITR>::value_type;
+        using pointer = typename std::iterator_traits<ITR>::pointer;
+        using reference = typename std::iterator_traits<ITR>::reference;
+        using iterator_category = typename std::iterator_traits<ITR>::iterator_category;
+        using TDifferenceVec = std::vector<difference_type>;
 
     public:
         CMaskIterator(ITR begin, const TDifferenceVec &mask, difference_type index) :

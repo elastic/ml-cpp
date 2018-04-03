@@ -215,7 +215,7 @@ void computeInfluences(CALCULATOR &calculator,
     params.s_Values.push_back(values_);
     params.s_Counts.push_back(counts_);
     params.s_ComputeProbabilityParams.weightStyles(weightStyles);
-    //for (auto &&weight : weights)
+    //for (auto &weight : weights)
     //{
     //    weight.resize(weightStyles.size(), TDouble2Vec(2, 1.0));
     //    params.s_ComputeProbabilityParams.addWeights(weight);
@@ -466,7 +466,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
             {
                 rng.generateNormalSamples(0.0, 100.0, 10 * 86400 / 600, samples);
                 core_t::TTime time{0};
-                for (auto &&sample : samples)
+                for (auto &sample : samples)
                 {
                     sample += 100.0 + 100.0 * ::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0);
                     time += bucketLength;
@@ -1138,7 +1138,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
             {
                 rng.generateNormalSamples(0.0, 100.0, 10 * 86400 / 600, samples);
                 core_t::TTime time{0};
-                for (auto &&sample : samples)
+                for (auto &sample : samples)
                 {
                     sample += 100.0 + 100.0 * ::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0);
                     time += bucketLength;

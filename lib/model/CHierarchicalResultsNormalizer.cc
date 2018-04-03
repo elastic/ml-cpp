@@ -43,7 +43,7 @@ namespace
 class CNormalizerFactory
 {
     public:
-        typedef CHierarchicalResultsNormalizer::TNormalizer TNormalizer;
+        using TNormalizer = CHierarchicalResultsNormalizer::TNormalizer;
 
         CNormalizerFactory(const CAnomalyDetectorModelConfig &modelConfig) : m_ModelConfig(modelConfig) {}
 

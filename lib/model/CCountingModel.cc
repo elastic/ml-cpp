@@ -195,7 +195,7 @@ CCountingModel::TDouble1Vec
 
 void CCountingModel::currentBucketPersonIds(core_t::TTime time, TSizeVec &result) const
 {
-    typedef boost::unordered_set<std::size_t> TSizeUSet;
+    using TSizeUSet = boost::unordered_set<std::size_t>;
 
     result.clear();
 
@@ -287,7 +287,7 @@ void CCountingModel::setMatchedEventsDescriptions(core_t::TTime sampleTime, core
     if (matchedEvents.empty() == false)
     {
         TStr1Vec descriptions;
-        for (auto &&event : matchedEvents)
+        for (auto &event : matchedEvents)
         {
             descriptions.push_back(event.first);
         }
@@ -301,7 +301,7 @@ CCountingModel::checkScheduledEvents(core_t::TTime sampleTime) const
     const SModelParams::TStrDetectionRulePrVec &events = this->params().s_ScheduledEvents.get();
     SModelParams::TStrDetectionRulePrVec matchedEvents;
 
-    for (auto &&event : events)
+    for (auto &event : events)
     {
         // Note that as the counting model is not aware of partitions
         // scheduled events cannot support partitions as the code stands.

@@ -38,8 +38,8 @@ namespace api
 class API_EXPORT CDetectionRulesJsonParser
 {
     public:
-        typedef std::vector<model::CDetectionRule> TDetectionRuleVec;
-        typedef boost::unordered_map<std::string, core::CPatternSet> TStrPatternSetUMap;
+        using TDetectionRuleVec = std::vector<model::CDetectionRule>;
+        using TStrPatternSetUMap = boost::unordered_map<std::string, core::CPatternSet>;
 
     public:
         //! Default constructor

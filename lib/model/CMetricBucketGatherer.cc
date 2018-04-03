@@ -127,18 +127,18 @@ const std::string &overField(bool population, const TStrVec &fieldNames)
 }
 
 template<model_t::EMetricCategory> struct SDataType {};
-template<> struct SDataType<model_t::E_Mean>             { typedef TSizeSizeMeanGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Median>           { typedef TSizeSizeMedianGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Min>              { typedef TSizeSizeMinGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Max>              { typedef TSizeSizeMaxGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Sum>              { typedef TSizeSizeSumGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Variance>         { typedef TSizeSizeVarianceGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_MultivariateMean> { typedef TSizeSizeMultivariateMeanGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_MultivariateMin>  { typedef TSizeSizeMultivariateMinGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_MultivariateMax>  { typedef TSizeSizeMultivariateMaxGathererUMapUMap Type; };
+template<> struct SDataType<model_t::E_Mean>             { using Type = TSizeSizeMeanGathererUMapUMap; };
+template<> struct SDataType<model_t::E_Median>           { using Type = TSizeSizeMedianGathererUMapUMap; };
+template<> struct SDataType<model_t::E_Min>              { using Type = TSizeSizeMinGathererUMapUMap; };
+template<> struct SDataType<model_t::E_Max>              { using Type = TSizeSizeMaxGathererUMapUMap; };
+template<> struct SDataType<model_t::E_Sum>              { using Type = TSizeSizeSumGathererUMapUMap; };
+template<> struct SDataType<model_t::E_Variance>         { using Type = TSizeSizeVarianceGathererUMapUMap; };
+template<> struct SDataType<model_t::E_MultivariateMean> { using Type = TSizeSizeMultivariateMeanGathererUMapUMap; };
+template<> struct SDataType<model_t::E_MultivariateMin>  { using Type = TSizeSizeMultivariateMinGathererUMapUMap; };
+template<> struct SDataType<model_t::E_MultivariateMax>  { using Type = TSizeSizeMultivariateMaxGathererUMapUMap; };
 template<typename ITR, typename T> struct SMaybeConst {};
-template<typename T> struct SMaybeConst<TCategorySizePrAnyMapItr, T> { typedef T Type; };
-template<typename T> struct SMaybeConst<TCategorySizePrAnyMapCItr, T> { typedef const T Type; };
+template<typename T> struct SMaybeConst<TCategorySizePrAnyMapItr, T> { using Type = T;};
+template<typename T> struct SMaybeConst<TCategorySizePrAnyMapCItr, T> { using Type = const T; };
 
 //! Register the callbacks for computing the size of feature data gatherers
 //! with \p visitor.
@@ -1664,7 +1664,7 @@ void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates)
             }
             double alpha = ::exp(-m_DataGatherer.params().s_DecayRate);
 
-            for (auto &&count : counts)
+            for (auto &count : counts)
             {
                 std::sort(count.second.begin(), count.second.end());
                 std::size_t n = count.second.size() / 2;

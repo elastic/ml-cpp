@@ -54,7 +54,7 @@ struct SDistributionRestoreParams;
 class MATHS_EXPORT CClustererStateSerialiser
 {
     public:
-        typedef boost::shared_ptr<CClusterer1d> TClusterer1dPtr;
+        using TClusterer1dPtr = boost::shared_ptr<CClusterer1d>;
 
     public:
         //! Construct the appropriate CClusterer sub-class from its state

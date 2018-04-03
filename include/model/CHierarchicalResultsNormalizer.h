@@ -36,7 +36,7 @@ class CAnomalyDetectorModelConfig;
 namespace hierarchical_results_normalizer_detail
 {
 
-typedef boost::shared_ptr<CAnomalyScore::CNormalizer> TNormalizerPtr;
+using TNormalizerPtr = boost::shared_ptr<CAnomalyScore::CNormalizer>;
 
 //! \brief A normalizer instance and a descriptive string.
 struct MODEL_EXPORT SNormalizer
@@ -96,12 +96,12 @@ class MODEL_EXPORT CHierarchicalResultsNormalizer :
           private core::CNonCopyable
 {
     public:
-        typedef CHierarchicalResultsLevelSet<hierarchical_results_normalizer_detail::SNormalizer> TBase;
-        typedef TBase::Type TNormalizer;
-        typedef TBase::TTypePtrVec TNormalizerPtrVec;
-        typedef TBase::TWordTypePr TWordNormalizerPr;
-        typedef TBase::TWordTypePrVec TWordNormalizerPrVec;
-        typedef std::vector<std::string> TStrVec;
+        using TBase = CHierarchicalResultsLevelSet<hierarchical_results_normalizer_detail::SNormalizer>;
+        using TNormalizer = TBase::Type;
+        using TNormalizerPtrVec = TBase::TTypePtrVec;
+        using TWordNormalizerPr = TBase::TWordTypePr;
+        using TWordNormalizerPrVec = TBase::TWordTypePrVec;
+        using TStrVec = std::vector<std::string>;
 
         //! Enumeration of the possible jobs that the normalizer can
         //! perform when invoked.

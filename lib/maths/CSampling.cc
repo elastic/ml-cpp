@@ -398,7 +398,7 @@ void doMultivariateNormalSample(RNG &rng,
                                 const CVectorNx1<T, N> &mean,
                                 const CSymmetricMatrixNxN<T, N> &covariance,
                                 std::size_t n,
-                                std::vector<CVectorNx1<T, N> > &samples)
+                                std::vector<CVectorNx1<T, N>> &samples)
 {
     using TDenseVector = typename SDenseVector<CVectorNx1<T, N>>::Type;
     using TDenseMatrix = typename SDenseMatrix<CSymmetricMatrixNxN<T, N>>::Type;
@@ -858,9 +858,9 @@ void CSampling::weightedSample(std::size_t n,
     // that Sum_i{ w(i) } != 1.0 we round the number of samples to
     // the nearest integer to n * Sum_i{ p(i) }.
 
-    typedef std::vector<unsigned int> TUIntVec;
-    typedef std::pair<double, std::size_t> TDoubleSizePr;
-    typedef std::vector<TDoubleSizePr> TDoubleSizePrVec;
+    using TUIntVec = std::vector<unsigned int>;
+    using TDoubleSizePr = std::pair<double, std::size_t>;
+    using TDoubleSizePrVec = std::vector<TDoubleSizePr>;
 
     LOG_TRACE("Number samples = " << n);
 

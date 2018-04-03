@@ -50,7 +50,7 @@ class CONFIG_EXPORT CPolledDataPenalty : public CPenalty
         virtual std::string name(void) const;
 
     private:
-        typedef boost::optional<core_t::TTime> TOptionalTime;
+        using TOptionalTime = boost::optional<core_t::TTime>;
 
     private:
         //! Compute a penalty for rare detectors.

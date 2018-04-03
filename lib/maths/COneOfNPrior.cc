@@ -50,9 +50,9 @@ namespace maths
 namespace
 {
 
-typedef core::CSmallVector<bool, 5> TBool5Vec;
-typedef core::CSmallVector<double, 5> TDouble5Vec;
-typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TBool5Vec = core::CSmallVector<bool, 5>;
+using TDouble5Vec = core::CSmallVector<double, 5>;
+using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 //! Compute the log of \p n.
 double logn(std::size_t n)
@@ -209,7 +209,7 @@ COneOfNPrior *COneOfNPrior::clone(void) const
 void COneOfNPrior::dataType(maths_t::EDataType value)
 {
     this->CPrior::dataType(value);
-    for (auto &&model : m_Models)
+    for (auto &model : m_Models)
     {
         model.second->dataType(value);
     }
@@ -218,7 +218,7 @@ void COneOfNPrior::dataType(maths_t::EDataType value)
 void COneOfNPrior::decayRate(double value)
 {
     this->CPrior::decayRate(value);
-    for (auto &&model : m_Models)
+    for (auto &model : m_Models)
     {
         model.second->decayRate(this->decayRate());
     }
@@ -226,7 +226,7 @@ void COneOfNPrior::decayRate(double value)
 
 void COneOfNPrior::setToNonInformative(double offset, double decayRate)
 {
-    for (auto &&model : m_Models)
+    for (auto &model : m_Models)
     {
         model.first.age(0.0);
         model.second->setToNonInformative(offset, decayRate);
@@ -273,7 +273,7 @@ double COneOfNPrior::adjustOffset(const TWeightStyleVec &weightStyles,
     TMeanAccumulator result;
 
     TDouble5Vec penalties;
-    for (auto &&model : m_Models)
+    for (auto &model : m_Models)
     {
         double penalty = model.second->adjustOffset(weightStyles, samples, weights);
         penalties.push_back(penalty);
@@ -389,7 +389,7 @@ void COneOfNPrior::addSamples(const TWeightStyleVec &weightStyles,
     TDouble5Vec logLikelihoods;
     TMaxAccumulator maxLogLikelihood;
     TBool5Vec used, uses;
-    for (auto &&model : m_Models)
+    for (auto &model : m_Models)
     {
         bool use = model.second->participatesInModelSelection();
 
@@ -497,7 +497,7 @@ void COneOfNPrior::propagateForwardsByTime(double time)
 
     double alpha = std::exp(-this->decayRate() * time);
 
-    for (auto &&model : m_Models)
+    for (auto &model : m_Models)
     {
         model.first.age(alpha);
         model.second->propagateForwardsByTime(time);
@@ -793,7 +793,7 @@ void COneOfNPrior::sampleMarginalLikelihood(std::size_t numberSamples,
         weights.push_back(model.first);
         Z += model.first;
     }
-    for (auto &&weight : weights)
+    for (auto &weight : weights)
     {
         weight /= Z;
     }
@@ -989,8 +989,8 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
     //   from the m'th model and
     //   P(m) is the prior probability the data are from the m'th model.
 
-    typedef std::pair<double, maths_t::ETail> TDoubleTailPr;
-    typedef CBasicStatistics::SMax<TDoubleTailPr>::TAccumulator TMaxAccumulator;
+    using TDoubleTailPr = std::pair<double, maths_t::ETail>;
+    using TMaxAccumulator = CBasicStatistics::SMax<TDoubleTailPr>::TAccumulator;
 
     TDoubleSizePr5Vec logWeights = this->normalizedLogWeights();
 
@@ -1135,7 +1135,7 @@ void COneOfNPrior::acceptPersistInserter(core::CStatePersistInserter &inserter) 
 COneOfNPrior::TDoubleVec COneOfNPrior::weights(void) const
 {
     TDoubleVec result = this->logWeights();
-    for (auto &&weight : result)
+    for (auto &weight : result)
     {
         weight = std::exp(weight);
     }
@@ -1154,7 +1154,7 @@ COneOfNPrior::TDoubleVec COneOfNPrior::logWeights(void) const
         Z += std::exp(result.back());
     }
     Z = std::log(Z);
-    for (auto &&weight : result)
+    for (auto &weight : result)
     {
         weight -= Z;
     }
@@ -1224,7 +1224,7 @@ COneOfNPrior::TDoubleSizePr5Vec COneOfNPrior::normalizedLogWeights(void) const
         }
     }
     Z = std::log(Z);
-    for (auto &&logWeight : result)
+    for (auto &logWeight : result)
     {
         logWeight.first -= Z;
     }

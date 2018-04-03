@@ -33,18 +33,18 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef std::map<std::size_t, double> TSizeDoubleMap;
-typedef std::set<int> TIntSet;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<TStrVec> TStrVecVec;
-typedef boost::unordered_map<std::string, int> TStrIntUMap;
-typedef boost::unordered_map<std::string, TDoubleVecVec> TStrDoubleVecVecUMap;
-typedef boost::unordered_set<std::size_t> TSizeUSet;
-typedef std::vector<TSizeUSet> TSizeUSetVec;
-typedef boost::circular_buffer<TSizeDoublePr> TSizeDoublePrBuf;
+using TDoubleVec = std::vector<double>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TSizeDoubleMap = std::map<std::size_t, double>;
+using TIntSet = std::set<int>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TStrVec = std::vector<std::string>;
+using TStrVecVec = std::vector<TStrVec>;
+using TStrIntUMap = boost::unordered_map<std::string, int>;
+using TStrDoubleVecVecUMap = boost::unordered_map<std::string, TDoubleVecVec>;
+using TSizeUSet = boost::unordered_set<std::size_t>;
+using TSizeUSetVec = std::vector<TSizeUSet>;
+using TSizeDoublePrBuf = boost::circular_buffer<TSizeDoublePr>;
 
 namespace
 {
@@ -55,18 +55,18 @@ class ContainerCompare {};
 template<typename T, typename R = void>
 struct enable_if_type
 {
-    typedef R type;
+    using type = R;
 };
 
 template<typename T, typename ITR = void>
 struct compare_container_selector
 {
-    typedef BasicCompare value;
+    using value = BasicCompare;
 };
 template<typename T>
 struct compare_container_selector<T, typename enable_if_type<typename T::const_iterator>::type>
 {
-    typedef ContainerCompare value;
+    using value = ContainerCompare;
 };
 
 template<typename SELECTOR> class CCompareImpl {};
@@ -135,7 +135,7 @@ class CCompareImpl<ContainerCompare>
         template<typename T>
         static bool dispatch(const T &lhs, const T &rhs)
         {
-            typedef typename T::const_iterator TCItr;
+            using TCItr = typename T::const_iterator;
             if (lhs.size() != rhs.size())
             {
                 return false;
@@ -154,7 +154,7 @@ class CCompareImpl<ContainerCompare>
         static bool dispatch(const boost::unordered_map<K, V> &lhs,
                              const boost::unordered_map<K, V> &rhs)
         {
-            typedef std::vector<std::pair<K, V> > TVec;
+            using TVec = std::vector<std::pair<K, V>>;
             TVec lKeys(lhs.begin(), lhs.end());
             TVec rKeys(rhs.begin(), rhs.end());
             std::sort(lKeys.begin(), lKeys.end(), SFirstLess());
@@ -166,7 +166,7 @@ class CCompareImpl<ContainerCompare>
         static bool dispatch(const boost::unordered_set<T> &lhs,
                              const boost::unordered_set<T> &rhs)
         {
-            typedef std::vector<T> TVec;
+            using TVec = std::vector<T>;
             TVec lKeys(lhs.begin(), lhs.end());
             TVec rKeys(rhs.begin(), rhs.end());
             std::sort(lKeys.begin(), lKeys.end());

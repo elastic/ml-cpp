@@ -68,17 +68,17 @@ namespace model
 class MODEL_EXPORT CGathererTools
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef boost::optional<double> TOptionalDouble;
-        typedef std::vector<CSample> TSampleVec;
-        typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-        typedef maths::CFixedQuantileSketch<maths::CQuantileSketch::E_PiecewiseConstant, 30> TMedianAccumulator;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u> TMinAccumulator;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double> > TMaxAccumulator;
-        typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TVarianceAccumulator;
-        typedef CMetricMultivariateStatistic<TMeanAccumulator> TMultivariateMeanAccumulator;
-        typedef CMetricMultivariateStatistic<TMinAccumulator> TMultivariateMinAccumulator;
-        typedef CMetricMultivariateStatistic<TMaxAccumulator> TMultivariateMaxAccumulator;
+        using TDoubleVec = std::vector<double>;
+        using TOptionalDouble = boost::optional<double>;
+        using TSampleVec = std::vector<CSample>;
+        using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+        using TMedianAccumulator = maths::CFixedQuantileSketch<maths::CQuantileSketch::E_PiecewiseConstant, 30>;
+        using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+        using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double> >;
+        using TVarianceAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+        using TMultivariateMeanAccumulator = CMetricMultivariateStatistic<TMeanAccumulator>;
+        using TMultivariateMinAccumulator = CMetricMultivariateStatistic<TMinAccumulator>;
+        using TMultivariateMaxAccumulator = CMetricMultivariateStatistic<TMaxAccumulator>;
 
         //! \brief Mean arrival time gatherer.
         //!
@@ -88,7 +88,7 @@ class MODEL_EXPORT CGathererTools
         class MODEL_EXPORT CArrivalTimeGatherer
         {
             public:
-                typedef TMeanAccumulator TAccumulator;
+                using TAccumulator = TMeanAccumulator;
 
             public:
                 //! The earliest possible time.
@@ -162,22 +162,22 @@ class MODEL_EXPORT CGathererTools
         //!
         //! This also computes the mean of all measurements in the current
         //! bucketing interval.
-        typedef CSampleGatherer<TMeanAccumulator,
-                                model_t::E_IndividualMeanByPerson> TMeanGatherer;
+        using TMeanGatherer = CSampleGatherer<TMeanAccumulator,
+                                              model_t::E_IndividualMeanByPerson>;
 
         //! \brief Multivariate mean statistic gatherer.
         //!
         //! See TMeanGatherer for details.
-        typedef CSampleGatherer<TMultivariateMeanAccumulator,
-                                model_t::E_IndividualMeanByPerson> TMultivariateMeanGatherer;
+        using TMultivariateMeanGatherer = CSampleGatherer<TMultivariateMeanAccumulator,
+                                                          model_t::E_IndividualMeanByPerson>;
 
         //! \brief Median statistic gatherer.
         //!
         //! DESCRIPTION:\n
         //! Wraps up the functionality to sample the median of a fixed number
         //! of measurements, which are supplied to the add function.
-        typedef CSampleGatherer<TMedianAccumulator,
-                                model_t::E_IndividualMedianByPerson> TMedianGatherer;
+        using TMedianGatherer = CSampleGatherer<TMedianAccumulator,
+                                                model_t::E_IndividualMedianByPerson>;
 
         // TODO Add multivariate median.
 
@@ -189,14 +189,14 @@ class MODEL_EXPORT CGathererTools
         //!
         //! This also computes the minimum of all measurements in the current
         //! bucketing interval.
-        typedef CSampleGatherer<TMinAccumulator,
-                                model_t::E_IndividualMinByPerson> TMinGatherer;
+        using TMinGatherer = CSampleGatherer<TMinAccumulator,
+                                             model_t::E_IndividualMinByPerson>;
 
         //! \brief Multivariate minimum statistic gatherer.
         //!
         //! See TMinGatherer for details.
-        typedef CSampleGatherer<TMultivariateMinAccumulator,
-                                model_t::E_IndividualMinByPerson> TMultivariateMinGatherer;
+        using TMultivariateMinGatherer = CSampleGatherer<TMultivariateMinAccumulator,
+                                                         model_t::E_IndividualMinByPerson>;
 
         //! \brief Maximum statistic gatherer.
         //!
@@ -206,14 +206,14 @@ class MODEL_EXPORT CGathererTools
         //!
         //! This also computes the maximum of all measurements in the current
         //! bucketing interval.
-        typedef CSampleGatherer<TMaxAccumulator,
-                                model_t::E_IndividualMaxByPerson> TMaxGatherer;
+        using TMaxGatherer = CSampleGatherer<TMaxAccumulator,
+                                             model_t::E_IndividualMaxByPerson>;
 
         //! \brief Multivariate maximum statistic gatherer.
         //!
         //! See TMaxGatherer for details.
-        typedef CSampleGatherer<TMultivariateMaxAccumulator,
-                                model_t::E_IndividualMaxByPerson> TMultivariateMaxGatherer;
+        using TMultivariateMaxGatherer = CSampleGatherer<TMultivariateMaxAccumulator,
+                                                         model_t::E_IndividualMaxByPerson>;
 
         //! \brief Variance statistic gatherer.
         //!
@@ -223,8 +223,8 @@ class MODEL_EXPORT CGathererTools
         //!
         //! This also computes the variance of all measurements in the current
         //! bucketing interval.
-        typedef CSampleGatherer<TVarianceAccumulator,
-                                model_t::E_IndividualVarianceByPerson> TVarianceGatherer;
+        using TVarianceGatherer = CSampleGatherer<TVarianceAccumulator,
+                                                  model_t::E_IndividualVarianceByPerson>;
 
         // TODO Add multivariate variance.
 
@@ -236,20 +236,20 @@ class MODEL_EXPORT CGathererTools
         class MODEL_EXPORT CSumGatherer
         {
             public:
-                typedef core::CSmallVector<double, 1> TDouble1Vec;
-                typedef std::vector<std::string> TStrVec;
-                typedef TStrVec::const_iterator TStrVecCItr;
-                typedef boost::optional<std::string> TOptionalStr;
-                typedef std::vector<TOptionalStr> TOptionalStrVec;
-                typedef CBucketQueue<TSampleVec> TSampleVecQueue;
-                typedef TSampleVecQueue::iterator TSampleVecQueueItr;
-                typedef TSampleVecQueue::const_iterator TSampleVecQueueCItr;
-                typedef boost::unordered_map<core::CStoredStringPtr, double> TStoredStringPtrDoubleUMap;
-                typedef TStoredStringPtrDoubleUMap::const_iterator TStoredStringPtrDoubleUMapCItr;
-                typedef CBucketQueue<TStoredStringPtrDoubleUMap> TStoredStringPtrDoubleUMapQueue;
-                typedef TStoredStringPtrDoubleUMapQueue::const_reverse_iterator TStoredStringPtrDoubleUMapQueueCRItr;
-                typedef std::vector<TStoredStringPtrDoubleUMapQueue> TStoredStringPtrDoubleUMapQueueVec;
-                typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
+                using TDouble1Vec = core::CSmallVector<double, 1>;
+                using TStrVec = std::vector<std::string>;
+                using TStrVecCItr = TStrVec::const_iterator;
+                using TOptionalStr = boost::optional<std::string>;
+                using TOptionalStrVec = std::vector<TOptionalStr>;
+                using TSampleVecQueue = CBucketQueue<TSampleVec>;
+                using TSampleVecQueueItr = TSampleVecQueue::iterator;
+                using TSampleVecQueueCItr = TSampleVecQueue::const_iterator;
+                using TStoredStringPtrDoubleUMap = boost::unordered_map<core::CStoredStringPtr, double>;
+                using TStoredStringPtrDoubleUMapCItr = TStoredStringPtrDoubleUMap::const_iterator;
+                using TStoredStringPtrDoubleUMapQueue = CBucketQueue<TStoredStringPtrDoubleUMap>;
+                using TStoredStringPtrDoubleUMapQueueCRItr = TStoredStringPtrDoubleUMapQueue::const_reverse_iterator;
+                using TStoredStringPtrDoubleUMapQueueVec = std::vector<TStoredStringPtrDoubleUMapQueue>;
+                using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
 
             public:
                 CSumGatherer(const SModelParams &params,

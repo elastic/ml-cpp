@@ -75,20 +75,20 @@ class CORE_EXPORT CXmlParser : public CXmlParserIntf
         static const char        *INDENT_SPACE_STR;
 
     public:
-        typedef std::vector<std::string>           TStrVec;
-        typedef TStrVec::iterator                  TStrVecItr;
-        typedef TStrVec::const_iterator            TStrVecCItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecItr = TStrVec::iterator;
+        using TStrVecCItr = TStrVec::const_iterator;
 
-        typedef std::set<std::string>              TStrSet;
-        typedef TStrSet::iterator                  TStrSetItr;
-        typedef TStrSet::const_iterator            TStrSetCItr;
+        using TStrSet = std::set<std::string>;
+        using TStrSetItr = TStrSet::iterator;
+        using TStrSetCItr = TStrSet::const_iterator;
 
-        typedef std::vector<CXmlNode>              TXmlNodeVec;
-        typedef TXmlNodeVec::iterator              TXmlNodeVecItr;
-        typedef TXmlNodeVec::const_iterator        TXmlNodeVecCItr;
+        using TXmlNodeVec = std::vector<CXmlNode>;
+        using TXmlNodeVecItr = TXmlNodeVec::iterator;
+        using TXmlNodeVecCItr = TXmlNodeVec::const_iterator;
 
-        typedef std::map<std::string, std::string> TStrStrMap;
-        typedef TStrStrMap::const_iterator         TStrStrMapCItr;
+        using TStrStrMap = std::map<std::string, std::string>;
+        using TStrStrMapCItr = TStrStrMap::const_iterator;
 
     public:
         CXmlParser(void);

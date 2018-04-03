@@ -55,12 +55,12 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef model::CHierarchicalResults::TAttributeProbabilityVec TAttributeProbabilityVec;
-typedef model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPr TStoredStringPtrStoredStringPtrPr;
-typedef model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePr TStoredStringPtrStoredStringPtrPrDoublePr;
-typedef model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePrVec TStoredStringPtrStoredStringPtrPrDoublePrVec;
-typedef std::vector<std::string> TStrVec;
+using TDoubleVec = std::vector<double>;
+using TAttributeProbabilityVec = model::CHierarchicalResults::TAttributeProbabilityVec;
+using TStoredStringPtrStoredStringPtrPr = model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPr;
+using TStoredStringPtrStoredStringPtrPrDoublePr = model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePr;
+using TStoredStringPtrStoredStringPtrPrDoublePrVec = model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+using TStrVec = std::vector<std::string>;
 
 const std::string EMPTY_STRING;
 
@@ -68,8 +68,8 @@ const std::string EMPTY_STRING;
 class CBreadthFirstCheck : public model::CHierarchicalResultsVisitor
 {
     public:
-        typedef std::set<const TNode*> TNodeCPtrSet;
-        typedef std::vector<TNodeCPtrSet> TNodeCPtrSetVec;
+        using TNodeCPtrSet = std::set<const TNode*>;
+        using TNodeCPtrSetVec = std::vector<TNodeCPtrSet>;
 
     public:
         CBreadthFirstCheck(void) :
@@ -117,7 +117,7 @@ class CBreadthFirstCheck : public model::CHierarchicalResultsVisitor
             // Check we have the expected number of layers and that
             // all nodes are in a lower layer than their parents.
 
-            typedef TNodeCPtrSet::const_iterator TNodeCPtrSetCItr;
+            using TNodeCPtrSetCItr = TNodeCPtrSet::const_iterator;
 
             LOG_DEBUG("# layers = " << m_Layers.size());
             CPPUNIT_ASSERT_EQUAL(expectedLayers, m_Layers.size());
@@ -168,7 +168,7 @@ class CBreadthFirstCheck : public model::CHierarchicalResultsVisitor
 class CDepthFirstCheck : public model::CHierarchicalResultsVisitor
 {
     public:
-        typedef std::vector<const TNode*> TNodeCPtrVec;
+        using TNodeCPtrVec = std::vector<const TNode*>;
 
     public:
         virtual void visit(const model::CHierarchicalResults &/*results*/,
@@ -243,7 +243,7 @@ class CPrinter : public model::CHierarchicalResultsVisitor
 class CNodeExtractor : public model::CHierarchicalResultsVisitor
 {
     public:
-        typedef std::vector<const TNode*> TNodeCPtrVec;
+        using TNodeCPtrVec = std::vector<const TNode*>;
 
     public:
         virtual void visit(const model::CHierarchicalResults &/*results*/,
@@ -357,8 +357,8 @@ class CWriteConsistencyChecker : public model::CHierarchicalResultsVisitor
         const model::CLimits &m_Limits;
 };
 
-typedef std::map<int, TDoubleVec> TIntDoubleVecMap;
-typedef TIntDoubleVecMap::const_iterator TIntDoubleVecMapCItr;
+using TIntDoubleVecMap = std::map<int, TDoubleVec>;
+using TIntDoubleVecMapCItr = TIntDoubleVecMap::const_iterator;
 
 //! \brief Node probability container.
 struct SNodeProbabilities
@@ -373,8 +373,8 @@ struct SNodeProbabilities
 class CProbabilityGatherer : public model::CHierarchicalResultsLevelSet<SNodeProbabilities>
 {
     public:
-        typedef model::CHierarchicalResultsLevelSet<SNodeProbabilities> TBase;
-        typedef TBase::TTypePtrVec TNodeProbabilitiesPtrVec;
+        using TBase = model::CHierarchicalResultsLevelSet<SNodeProbabilities>;
+        using TNodeProbabilitiesPtrVec = TBase::TTypePtrVec;
 
         class CFactory
         {
@@ -1056,7 +1056,7 @@ void CHierarchicalResultsTest::testAggregator(void)
 {
     LOG_DEBUG("*** testAggregator ***");
 
-    typedef std::vector<model::SAnnotatedProbability> TAnnotatedProbabilityVec;
+    using TAnnotatedProbabilityVec = std::vector<model::SAnnotatedProbability>;
 
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CHierarchicalResultsAggregator aggregator(modelConfig);
@@ -1470,7 +1470,7 @@ void CHierarchicalResultsTest::testWriter(void)
 
     // Test complex.
     {
-        typedef model::CDataGatherer::TStrCPtrVec TStrCPtrVec;
+        using TStrCPtrVec = model::CDataGatherer::TStrCPtrVec;
         model::SModelParams params(modelConfig.bucketLength());
         model::CSearchKey key;
         model::CAnomalyDetectorModel::TDataGathererPtr dataGatherer(
@@ -1531,10 +1531,10 @@ void CHierarchicalResultsTest::testNormalizer(void)
 {
     LOG_DEBUG("*** testNormalizer ***");
 
-    typedef boost::shared_ptr<model::CAnomalyScore::CNormalizer> TNormalizerPtr;
-    typedef std::map<std::string, TNormalizerPtr> TStrNormalizerPtrMap;
-    typedef TStrNormalizerPtrMap::iterator TStrNormalizerPtrMapItr;
-    typedef std::set<const model::CHierarchicalResultsVisitor::TNode*> TNodeCPtrSet;
+    using TNormalizerPtr = boost::shared_ptr<model::CAnomalyScore::CNormalizer>;
+    using TStrNormalizerPtrMap = std::map<std::string, TNormalizerPtr>;
+    using TStrNormalizerPtrMapItr = TStrNormalizerPtrMap::iterator;
+    using TNodeCPtrSet = std::set<const model::CHierarchicalResultsVisitor::TNode*>;
 
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CHierarchicalResultsAggregator aggregator(modelConfig);
@@ -1911,7 +1911,7 @@ void CHierarchicalResultsTest::testDetectorEqualizing(void)
             results.bottomUpBreadthFirst(aggregator);
         }
 
-        typedef std::pair<double, std::size_t> TDoubleSizePr;
+        using TDoubleSizePr = std::pair<double, std::size_t>;
         maths::CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 2> mostAnomalous;
 
         for (std::size_t i = 0u; i < 100; ++i)

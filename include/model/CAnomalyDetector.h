@@ -82,23 +82,23 @@ class CSearchKey;
 class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
 {
     public:
-        typedef std::vector<std::string>                        TStrVec;
-        typedef std::vector<const std::string*>                 TStrCPtrVec;
-        typedef std::vector<CModelPlotData>                     TModelPlotDataVec;
+        using TStrVec = std::vector<std::string>;
+        using TStrCPtrVec = std::vector<const std::string*>;
+        using TModelPlotDataVec = std::vector<CModelPlotData>;
 
-        typedef boost::shared_ptr<CDataGatherer> TDataGathererPtr;
-        typedef boost::shared_ptr<const CModelFactory> TModelFactoryCPtr;
-        typedef boost::shared_ptr<CAnomalyDetectorModel> TModelPtr;
+        using TDataGathererPtr = boost::shared_ptr<CDataGatherer>;
+        using TModelFactoryCPtr = boost::shared_ptr<const CModelFactory>;
+        using TModelPtr = boost::shared_ptr<CAnomalyDetectorModel>;
 
         //! A shared pointer to an instance of this class
-        typedef boost::shared_ptr<CAnomalyDetector> TAnomalyDetectorPtr;
+        using TAnomalyDetectorPtr = boost::shared_ptr<CAnomalyDetector>;
 
-        typedef std::function<void (const std::string &,
-                                      const std::string &,
-                                      const std::string &,
-                                      const std::string &,
-                                      const CModelPlotData &)> TOutputModelPlotDataFunc;
-        typedef CAnomalyDetectorModelConfig::TStrSet TStrSet;
+        using  TOutputModelPlotDataFunc = std::function<void (const std::string&,
+                                                              const std::string &,
+                                                              const std::string &,
+                                                              const std::string &,
+                                                              const CModelPlotData &)>;
+        using TStrSet = CAnomalyDetectorModelConfig::TStrSet;
 
     public:
         //! State version.  This must be incremented every time a change to the

@@ -53,8 +53,8 @@ class CONFIG_EXPORT CTooMuchDataPenalty : public CPenalty
         virtual std::string name(void) const;
 
     private:
-        typedef std::vector<uint64_t> TUInt64Vec;
-        typedef std::vector<CBucketCountStatistics> TBucketCountStatisticsVec;
+        using TUInt64Vec = std::vector<uint64_t>;
+        using TBucketCountStatisticsVec = std::vector<CBucketCountStatistics>;
 
     private:
         //! Compute a penalty for rare detectors.

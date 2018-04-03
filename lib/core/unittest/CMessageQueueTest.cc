@@ -69,7 +69,7 @@ namespace
             }
 
         private:
-            typedef std::vector<std::string> TStrVec;
+            using TStrVec = std::vector<std::string>;
 
             TStrVec  m_Strings;
 
