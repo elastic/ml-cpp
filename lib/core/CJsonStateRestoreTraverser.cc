@@ -47,8 +47,7 @@ bool CJsonStateRestoreTraverser::next(void) {
         return false;
     }
 
-    if (this->nextLevel() == m_DesiredLevel ||
-        (this->currentLevel() == m_DesiredLevel && this->nextLevel() == m_DesiredLevel + 1)) {
+    if (this->nextLevel() == m_DesiredLevel || (this->currentLevel() == m_DesiredLevel && this->nextLevel() == m_DesiredLevel + 1)) {
         return this->advance();
     }
 
@@ -158,10 +157,9 @@ bool CJsonStateRestoreTraverser::ascend(void) {
 }
 
 void CJsonStateRestoreTraverser::debug(void) const {
-    LOG_DEBUG("Current: name = " << this->currentName() << " value = " << this->currentValue()
-                                 << " level = " << this->currentLevel() << ", Next: name = " << this->nextName()
-                                 << " value = " << this->nextValue() << " level = " << this->nextLevel()
-                                 << " is array of objects = " << m_IsArrayOfObjects);
+    LOG_DEBUG("Current: name = " << this->currentName() << " value = " << this->currentValue() << " level = " << this->currentLevel()
+                                 << ", Next: name = " << this->nextName() << " value = " << this->nextValue()
+                                 << " level = " << this->nextLevel() << " is array of objects = " << m_IsArrayOfObjects);
 }
 
 size_t CJsonStateRestoreTraverser::currentLevel(void) const {
@@ -215,11 +213,9 @@ bool CJsonStateRestoreTraverser::skipArray() {
     m_Handler.s_NextIndex = 1 - m_Handler.s_NextIndex;
 
     do {
-        if (m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayStart ||
-            m_Handler.s_Type == SRapidJsonHandler::E_TokenObjectStart) {
+        if (m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayStart || m_Handler.s_Type == SRapidJsonHandler::E_TokenObjectStart) {
             ++depth;
-        } else if (m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayEnd ||
-                   m_Handler.s_Type == SRapidJsonHandler::E_TokenObjectEnd) {
+        } else if (m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayEnd || m_Handler.s_Type == SRapidJsonHandler::E_TokenObjectEnd) {
             --depth;
         }
 
@@ -291,8 +287,7 @@ bool CJsonStateRestoreTraverser::advance() {
 
 void CJsonStateRestoreTraverser::logError(void) {
     const char* error(rapidjson::GetParseError_En(m_Reader.GetParseErrorCode()));
-    LOG_ERROR("Error parsing JSON at offset " << m_Reader.GetErrorOffset() << ": "
-                                              << ((error != 0) ? error : "No message"));
+    LOG_ERROR("Error parsing JSON at offset " << m_Reader.GetErrorOffset() << ": " << ((error != 0) ? error : "No message"));
     this->setBadState();
 }
 

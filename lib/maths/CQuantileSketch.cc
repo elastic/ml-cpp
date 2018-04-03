@@ -57,10 +57,9 @@ private:
 
 //! \brief An iterator over just the unique knot values.
 class CUniqueIterator
-    : private boost::addable2<
-          CUniqueIterator,
-          ptrdiff_t,
-          boost::subtractable2<CUniqueIterator, ptrdiff_t, boost::equality_comparable<CUniqueIterator>>> {
+    : private boost::addable2<CUniqueIterator,
+                              ptrdiff_t,
+                              boost::subtractable2<CUniqueIterator, ptrdiff_t, boost::equality_comparable<CUniqueIterator>>> {
 public:
     CUniqueIterator(TFloatFloatPrVec& knots, std::size_t i) : m_Knots(&knots), m_I(i) {}
 
@@ -219,8 +218,8 @@ bool CQuantileSketch::cdf(double x_, double& result) const {
                 xr = 0.5 * (xr + xrr);
                 dn = m_Knots[k].second / m_Count;
             }
-            LOG_TRACE("left = " << left << ", loc = " << loc << ", partial = " << partial << ", xl = " << xl
-                                << ", xr = " << xr << ", dn = " << dn);
+            LOG_TRACE("left = " << left << ", loc = " << loc << ", partial = " << partial << ", xl = " << xl << ", xr = " << xr
+                                << ", dn = " << dn);
             result = left ? partial + dn * (x - xl) / (xr - xl) : 1.0 - partial - dn * (xr - x) / (xr - xl);
         }
         return true;

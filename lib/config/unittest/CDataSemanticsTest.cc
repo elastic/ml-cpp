@@ -100,10 +100,8 @@ void CDataSemanticsTest::testNumericCategorical(void) {
     test::CRandomNumbers rng;
 
     TDoubleVec status;
-    rng.generateMultinomialSamples(TDoubleVec(boost::begin(codes), boost::end(codes)),
-                                   TDoubleVec(boost::begin(frequencies), boost::end(frequencies)),
-                                   5000,
-                                   status);
+    rng.generateMultinomialSamples(
+        TDoubleVec(boost::begin(codes), boost::end(codes)), TDoubleVec(boost::begin(frequencies), boost::end(frequencies)), 5000, status);
 
     config::CDataSemantics semantics;
 
@@ -308,16 +306,13 @@ void CDataSemanticsTest::testReal(void) {
 CppUnit::Test* CDataSemanticsTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataSemanticsTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testBinary", &CDataSemanticsTest::testBinary));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testBinary", &CDataSemanticsTest::testBinary));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testNonNumericCategorical",
                                                                       &CDataSemanticsTest::testNonNumericCategorical));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testNumericCategorical",
                                                                       &CDataSemanticsTest::testNumericCategorical));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testInteger",
-                                                                      &CDataSemanticsTest::testInteger));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testReal", &CDataSemanticsTest::testReal));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testInteger", &CDataSemanticsTest::testInteger));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testReal", &CDataSemanticsTest::testReal));
 
     return suiteOfTests;
 }

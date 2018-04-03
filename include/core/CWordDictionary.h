@@ -83,9 +83,7 @@ public:
     template<size_t DEFAULT_EXTRA_WEIGHT>
     class CWeightAll {
     public:
-        size_t operator()(EPartOfSpeech partOfSpeech) {
-            return (partOfSpeech == E_NotInDictionary) ? 0 : DEFAULT_EXTRA_WEIGHT;
-        }
+        size_t operator()(EPartOfSpeech partOfSpeech) { return (partOfSpeech == E_NotInDictionary) ? 0 : DEFAULT_EXTRA_WEIGHT; }
     };
 
     typedef CWeightAll<2> TWeightAll2;

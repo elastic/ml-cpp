@@ -122,8 +122,8 @@ SMetricFeatureData::SMetricFeatureData(bool isInteger, bool isNonNegative, const
 
 std::string SMetricFeatureData::print() const {
     std::ostringstream result;
-    result << "value = " << core::CContainerPrinter::print(s_BucketValue) << ", is integer " << s_IsInteger
-           << ", is non-negative " << s_IsNonNegative << ", samples = " << core::CContainerPrinter::print(s_Samples);
+    result << "value = " << core::CContainerPrinter::print(s_BucketValue) << ", is integer " << s_IsInteger << ", is non-negative "
+           << s_IsNonNegative << ", samples = " << core::CContainerPrinter::print(s_Samples);
     return result.str();
 }
 

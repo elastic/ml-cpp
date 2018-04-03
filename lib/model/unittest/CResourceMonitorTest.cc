@@ -30,12 +30,12 @@ using namespace model;
 CppUnit::Test* CResourceMonitorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceMonitorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testMonitor",
-                                                                        &CResourceMonitorTest::testMonitor));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testPruning",
-                                                                        &CResourceMonitorTest::testPruning));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testExtraMemory",
-                                                                        &CResourceMonitorTest::testExtraMemory));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testMonitor", &CResourceMonitorTest::testMonitor));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testPruning", &CResourceMonitorTest::testPruning));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testExtraMemory", &CResourceMonitorTest::testExtraMemory));
     return suiteOfTests;
 }
 
@@ -75,8 +75,8 @@ void CResourceMonitorTest::testMonitor(void) {
                                FIRST_TIME,
                                modelConfig.factory(key));
 
-    std::size_t mem = detector1.memoryUsage() + detector2.memoryUsage() + CStringStore::names().memoryUsage() +
-                      CStringStore::influencers().memoryUsage();
+    std::size_t mem =
+        detector1.memoryUsage() + detector2.memoryUsage() + CStringStore::names().memoryUsage() + CStringStore::influencers().memoryUsage();
 
     {
         // Test default constructor

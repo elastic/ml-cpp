@@ -527,12 +527,10 @@ void CRegressionTest::testPrediction(void) {
 
         TDoubleArray4 params4;
         ls3.parameters(params4);
-        double y4 = params4[3] * (x - x0) * (x - x0) * (x - x0) + params4[2] * (x - x0) * (x - x0) +
-                    params4[1] * (x - x0) + params4[0];
+        double y4 = params4[3] * (x - x0) * (x - x0) * (x - x0) + params4[2] * (x - x0) * (x - x0) + params4[1] * (x - x0) + params4[0];
 
         if (i % 10 == 0) {
-            LOG_DEBUG("y = " << y << ", m = " << maths::CBasicStatistics::mean(m) << ", y2 = " << y2 << ", y3 = " << y3
-                             << ", y4 = " << y4);
+            LOG_DEBUG("y = " << y << ", m = " << maths::CBasicStatistics::mean(m) << ", y2 = " << y2 << ", y3 = " << y3 << ", y4 = " << y4);
         }
 
         em.add((y - maths::CBasicStatistics::mean(m)) * (y - maths::CBasicStatistics::mean(m)));
@@ -542,8 +540,7 @@ void CRegressionTest::testPrediction(void) {
     }
 
     LOG_DEBUG("em = " << maths::CBasicStatistics::mean(em) << ", e2 = " << maths::CBasicStatistics::mean(e2)
-                      << ", e3 = " << maths::CBasicStatistics::mean(e3)
-                      << ", e4 = " << maths::CBasicStatistics::mean(e4));
+                      << ", e3 = " << maths::CBasicStatistics::mean(e3) << ", e4 = " << maths::CBasicStatistics::mean(e4));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e2) < 0.27 * maths::CBasicStatistics::mean(em));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e3) < 0.08 * maths::CBasicStatistics::mean(em));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e4) < 0.025 * maths::CBasicStatistics::mean(em));
@@ -769,8 +766,7 @@ public:
     using result_type = double;
 
 public:
-    CRegressionPrediction(const maths::CRegression::CLeastSquaresOnline<N, double>& regression)
-        : m_Regression(regression) {}
+    CRegressionPrediction(const maths::CRegression::CLeastSquaresOnline<N, double>& regression) : m_Regression(regression) {}
 
     bool operator()(double x, double& result) const {
         result = m_Regression.predict(x);
@@ -799,8 +795,7 @@ void CRegressionTest::testMean(void) {
         }
 
         double expected;
-        maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(
-            CRegressionPrediction<3>(regression), 10.0, 15.0, expected);
+        maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(CRegressionPrediction<3>(regression), 10.0, 15.0, expected);
         expected /= 5.0;
         double actual = regression.mean(10.0, 15.0);
         LOG_DEBUG("expected = " << expected);
@@ -808,8 +803,7 @@ void CRegressionTest::testMean(void) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-6);
 
         // Test interval spanning 0.0.
-        maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(
-            CRegressionPrediction<3>(regression), -3.0, 0.0, expected);
+        maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(CRegressionPrediction<3>(regression), -3.0, 0.0, expected);
         expected /= 3.0;
         actual = regression.mean(-3.0, 0.0);
         LOG_DEBUG("expected = " << expected);
@@ -961,8 +955,8 @@ void CRegressionTest::testPersist(void) {
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::CRegression::CLeastSquaresOnline<2, double> restoredRegression;
-    CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-        &maths::CRegression::CLeastSquaresOnline<2, double>::acceptRestoreTraverser, &restoredRegression, _1)));
+    CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        boost::bind(&maths::CRegression::CLeastSquaresOnline<2, double>::acceptRestoreTraverser, &restoredRegression, _1)));
 
     CPPUNIT_ASSERT_EQUAL(origRegression.checksum(), restoredRegression.checksum());
 
@@ -1056,8 +1050,7 @@ void CRegressionTest::testParameterProcess(void) {
 
             double interval = std::accumulate(intervals, intervals + 5, 0.0);
             if (run % 5 == 0) {
-                LOG_DEBUG("  " << maths::CBasicStatistics::variance(moments) << " vs "
-                               << parameterProcess.predictionVariance(interval));
+                LOG_DEBUG("  " << maths::CBasicStatistics::variance(moments) << " vs " << parameterProcess.predictionVariance(interval));
             }
             actual.add(maths::CBasicStatistics::variance(moments));
             estimate.add(parameterProcess.predictionVariance(interval));
@@ -1065,9 +1058,8 @@ void CRegressionTest::testParameterProcess(void) {
 
         LOG_DEBUG("actual   = " << maths::CBasicStatistics::mean(actual));
         LOG_DEBUG("estimate = " << maths::CBasicStatistics::mean(estimate));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(actual),
-                                     maths::CBasicStatistics::mean(estimate),
-                                     0.25 * maths::CBasicStatistics::mean(actual));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            maths::CBasicStatistics::mean(actual), maths::CBasicStatistics::mean(estimate), 0.25 * maths::CBasicStatistics::mean(actual));
 
         error.add((maths::CBasicStatistics::mean(actual) - maths::CBasicStatistics::mean(estimate)) /
                   maths::CBasicStatistics::mean(actual));
@@ -1080,36 +1072,25 @@ void CRegressionTest::testParameterProcess(void) {
 CppUnit::Test* CRegressionTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRegressionTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testInvariants", &CRegressionTest::testInvariants));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testFit", &CRegressionTest::testFit));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testInvariants", &CRegressionTest::testInvariants));
+        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testShiftAbscissa", &CRegressionTest::testShiftAbscissa));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testFit", &CRegressionTest::testFit));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testShiftAbscissa",
-                                                                   &CRegressionTest::testShiftAbscissa));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testShiftOrdinate",
-                                                                   &CRegressionTest::testShiftOrdinate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testShiftGradient",
-                                                                   &CRegressionTest::testShiftGradient));
+        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testShiftOrdinate", &CRegressionTest::testShiftOrdinate));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testAge", &CRegressionTest::testAge));
+        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testShiftGradient", &CRegressionTest::testShiftGradient));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testAge", &CRegressionTest::testAge));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testPrediction", &CRegressionTest::testPrediction));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testCombination", &CRegressionTest::testCombination));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testSingular", &CRegressionTest::testSingular));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testScale", &CRegressionTest::testScale));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testMean", &CRegressionTest::testMean));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testCovariances", &CRegressionTest::testCovariances));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testParameters", &CRegressionTest::testParameters));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testPersist", &CRegressionTest::testPersist));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testPrediction", &CRegressionTest::testPrediction));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testCombination",
-                                                                   &CRegressionTest::testCombination));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testSingular", &CRegressionTest::testSingular));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testScale", &CRegressionTest::testScale));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testMean", &CRegressionTest::testMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testCovariances",
-                                                                   &CRegressionTest::testCovariances));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testParameters", &CRegressionTest::testParameters));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testPersist", &CRegressionTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testParameterProcess",
-                                                                   &CRegressionTest::testParameterProcess));
+        new CppUnit::TestCaller<CRegressionTest>("CRegressionTest::testParameterProcess", &CRegressionTest::testParameterProcess));
 
     return suiteOfTests;
 }

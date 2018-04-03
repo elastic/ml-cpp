@@ -225,8 +225,7 @@ void CCategoricalDataSummaryStatistics::approximateIfCardinalityTooHigh(void) {
 void CCategoricalDataSummaryStatistics::updateCalibrators(std::size_t category_) {
     uint32_t category = m_Approximating ? static_cast<uint32_t>(category_) : CTools::category32(category_);
     std::size_t i =
-        std::lower_bound(m_Calibrators.begin(), m_Calibrators.end(), category, maths::COrderings::SFirstLess()) -
-        m_Calibrators.begin();
+        std::lower_bound(m_Calibrators.begin(), m_Calibrators.end(), category, maths::COrderings::SFirstLess()) - m_Calibrators.begin();
     if (i == m_Calibrators.size() || m_Calibrators[i].first != category) {
         if (m_Calibrators.size() < 5) {
             m_Calibrators.insert(m_Calibrators.begin() + i, std::make_pair(category, 1));
@@ -354,16 +353,14 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec& result) con
         weights.reserve(n);
         modes.reserve(n);
         for (std::size_t i = 0u; i < n; ++i) {
-            LOG_TRACE("weight = " << clusters[i].count() << ", mean = " << clusters[i].centre()
-                                  << ", sd = " << clusters[i].spread());
+            LOG_TRACE("weight = " << clusters[i].count() << ", mean = " << clusters[i].centre() << ", sd = " << clusters[i].spread());
             weights.push_back(clusters[i].count());
             modes.push_back(boost::math::normal_distribution<>(clusters[i].centre(), clusters[i].spread()));
         }
 
         TGMM gmm(weights, modes);
 
-        static const double QUANTILES[] = {
-            0.001, 0.005, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.995, 0.999};
+        static const double QUANTILES[] = {0.001, 0.005, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.995, 0.999};
 
         TDoubleVec pillars;
         pillars.reserve(boost::size(QUANTILES));

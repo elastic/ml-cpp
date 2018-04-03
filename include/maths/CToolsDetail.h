@@ -112,9 +112,8 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::leftTail(const LOGF& logf,
         n = iterations - n;
         CSolvers::solve(xl, xr, fl, fr, f, n, equal, result);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to find left root: " << e.what() << ", a = " << m_A << ", logf(x) = " << m_LogFx
-                                               << ", logf(a) = " << logf(m_A) << ", max deviation = "
-                                               << (m_MaxDeviation.count() > 0 ? m_MaxDeviation[0] : 0.0));
+        LOG_ERROR("Failed to find left root: " << e.what() << ", a = " << m_A << ", logf(x) = " << m_LogFx << ", logf(a) = " << logf(m_A)
+                                               << ", max deviation = " << (m_MaxDeviation.count() > 0 ? m_MaxDeviation[0] : 0.0));
         return false;
     }
     return true;
@@ -155,8 +154,7 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::rightTail(const LOGF& logf,
         n = iterations - n;
         CSolvers::solve(xl, xr, fl, fr, f, n, equal, result);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to find right root: " << e.what() << ",b = " << m_B << ", logf(x) = " << m_LogFx
-                                                << ", logf(b) = " << logf(m_B));
+        LOG_ERROR("Failed to find right root: " << e.what() << ",b = " << m_B << ", logf(x) = " << m_LogFx << ", logf(b) = " << logf(m_B));
         return false;
     }
     return true;
@@ -171,8 +169,7 @@ double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF& logf
     TDoubleVec pIntervals(intervals.size(), 0.0);
     CSmoothedKernel<const LOGF&> kernel(logf, m_LogFx, 3.0);
     for (std::size_t i = 0u; i < intervals.size(); ++i) {
-        if (!CIntegration::gaussLegendre<CIntegration::OrderFour>(
-                kernel, intervals[i].first, intervals[i].second, pIntervals[i])) {
+        if (!CIntegration::gaussLegendre<CIntegration::OrderFour>(kernel, intervals[i].first, intervals[i].second, pIntervals[i])) {
             LOG_ERROR("Couldn't integrate kernel over " << core::CContainerPrinter::print(intervals[i]));
         }
     }

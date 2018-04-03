@@ -105,8 +105,7 @@ public:
     virtual bool needsOffset(void) const;
 
     //! No-op.
-    virtual double
-    adjustOffset(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
+    virtual double adjustOffset(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
     //! Returns zero.
     virtual double offset(void) const;
@@ -119,8 +118,7 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void
-    addSamples(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
+    virtual void addSamples(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -160,10 +158,9 @@ public:
     //! \param[in] weightStyles Ignored.
     //! \param[in] weights Ignored.
     //! \note \p percentage should be in the range [0.0, 100.0).
-    virtual TDoubleDoublePr
-    marginalLikelihoodConfidenceInterval(double percentage,
-                                         const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                         const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(double percentage,
+                                                                 const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                                                 const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the category probability parameters.

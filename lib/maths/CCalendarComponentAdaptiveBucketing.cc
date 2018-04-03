@@ -70,9 +70,8 @@ CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(double 
 }
 
 void CCalendarComponentAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(
-        ADAPTIVE_BUCKETING_TAG,
-        boost::bind(&CAdaptiveBucketing::acceptPersistInserter, static_cast<const CAdaptiveBucketing*>(this), _1));
+    inserter.insertLevel(ADAPTIVE_BUCKETING_TAG,
+                         boost::bind(&CAdaptiveBucketing::acceptPersistInserter, static_cast<const CAdaptiveBucketing*>(this), _1));
     inserter.insertValue(FEATURE_TAG, m_Feature.toDelimited());
     core::CPersistUtils::persist(VALUES_TAG, m_Values, inserter);
 }
@@ -212,8 +211,8 @@ bool CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
     do {
         const std::string& name{traverser.name()};
         RESTORE(ADAPTIVE_BUCKETING_TAG,
-                traverser.traverseSubLevel(boost::bind(
-                    &CAdaptiveBucketing::acceptRestoreTraverser, static_cast<CAdaptiveBucketing*>(this), _1)));
+                traverser.traverseSubLevel(
+                    boost::bind(&CAdaptiveBucketing::acceptRestoreTraverser, static_cast<CAdaptiveBucketing*>(this), _1)));
         RESTORE(FEATURE_TAG, m_Feature.fromDelimited(traverser.value()));
         RESTORE(VALUES_TAG, core::CPersistUtils::restore(VALUES_TAG, m_Values, traverser))
     } while (traverser.next());
@@ -287,13 +286,12 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& endpoints) {
             double interval{xr - m_Endpoints[i - 1]};
             double w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
             TDoubleMeanVarAccumulator value{CBasicStatistics::scaled(m_Values[l - 1], w)};
-            TDoubleMeanAccumulator centre{CBasicStatistics::accumulator(w * CBasicStatistics::count(m_Values[l - 1]),
-                                                                        static_cast<double>(m_Centres[l - 1]))};
+            TDoubleMeanAccumulator centre{
+                CBasicStatistics::accumulator(w * CBasicStatistics::count(m_Values[l - 1]), static_cast<double>(m_Centres[l - 1]))};
             double count{w * w * CBasicStatistics::count(m_Values[l - 1])};
             while (++l < r) {
                 value += m_Values[l - 1];
-                centre += CBasicStatistics::accumulator(CBasicStatistics::count(m_Values[l - 1]),
-                                                        static_cast<double>(m_Centres[l - 1]));
+                centre += CBasicStatistics::accumulator(CBasicStatistics::count(m_Values[l - 1]), static_cast<double>(m_Centres[l - 1]));
                 count += CBasicStatistics::count(m_Values[l - 1]);
             }
             xl = endpoints[l - 1];
@@ -301,8 +299,7 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& endpoints) {
             interval = m_Endpoints[i] - xl;
             w = CTools::truncate(interval / (xr - xl), 0.0, 1.0);
             value += CBasicStatistics::scaled(m_Values[l - 1], w);
-            centre += CBasicStatistics::accumulator(w * CBasicStatistics::count(m_Values[l - 1]),
-                                                    static_cast<double>(m_Centres[l - 1]));
+            centre += CBasicStatistics::accumulator(w * CBasicStatistics::count(m_Values[l - 1]), static_cast<double>(m_Centres[l - 1]));
             count += w * w * CBasicStatistics::count(m_Values[l - 1]);
             double scale{count / CBasicStatistics::count(value)};
             values.push_back(CBasicStatistics::scaled(value, scale));
@@ -352,8 +349,7 @@ double CCalendarComponentAdaptiveBucketing::count(std::size_t bucket) const {
     return CBasicStatistics::count(m_Values[bucket]);
 }
 
-double
-CCalendarComponentAdaptiveBucketing::predict(std::size_t bucket, core_t::TTime /*time*/, double /*offset*/) const {
+double CCalendarComponentAdaptiveBucketing::predict(std::size_t bucket, core_t::TTime /*time*/, double /*offset*/) const {
     return CBasicStatistics::mean(m_Values[bucket]);
 }
 

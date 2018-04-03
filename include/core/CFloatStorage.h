@@ -29,8 +29,7 @@ namespace ml {
 namespace core {
 
 namespace {
-const int
-MAX_PRECISE_INTEGER_FLOAT(static_cast<int>(::pow(10.0, static_cast<double>(std::numeric_limits<float>::digits10))) - 1);
+const int MAX_PRECISE_INTEGER_FLOAT(static_cast<int>(::pow(10.0, static_cast<double>(std::numeric_limits<float>::digits10))) - 1);
 }
 
 //! \brief This class should be used in place of float whenever
@@ -149,8 +148,7 @@ private:
         }
         if (value < std::numeric_limits<float>::min() && -value < std::numeric_limits<float>::min()) {
             LOG_WARN("Value underflows float " << value);
-        } else if (value < 100 * std::numeric_limits<float>::min() &&
-                   -value < 100 * std::numeric_limits<float>::min()) {
+        } else if (value < 100 * std::numeric_limits<float>::min() && -value < 100 * std::numeric_limits<float>::min()) {
             LOG_WARN("Less than 3 s.f. precision retained for " << value);
         }
 #endif // CFLOATSTORAGE_BOUNDS_CHECK

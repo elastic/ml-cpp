@@ -52,10 +52,7 @@ using TForecastPushDatapointFunc = std::function<void(SErrorBar)>;
 //! \brief Model parameters.
 class MATHS_EXPORT CModelParams {
 public:
-    CModelParams(core_t::TTime bucketLength,
-                 const double& learnRate,
-                 const double& decayRate,
-                 double minimumSeasonalVarianceScale);
+    CModelParams(core_t::TTime bucketLength, const double& learnRate, const double& decayRate, double minimumSeasonalVarianceScale);
 
     //! Get the bucket length.
     core_t::TTime bucketLength(void) const;
@@ -319,26 +316,22 @@ public:
     virtual void skipTime(core_t::TTime gap) = 0;
 
     //! Get the most likely value for the time series at \p time.
-    virtual TDouble2Vec
-    mode(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const = 0;
+    virtual TDouble2Vec mode(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const = 0;
 
     //! Get the most likely value for each correlate time series at
     //! \p time, if there are any.
-    virtual TDouble2Vec1Vec correlateModes(core_t::TTime time,
-                                           const maths_t::TWeightStyleVec& weightStyles,
-                                           const TDouble2Vec4Vec1Vec& weights) const = 0;
+    virtual TDouble2Vec1Vec
+    correlateModes(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec1Vec& weights) const = 0;
 
     //! Get the local maxima of the residual distribution.
-    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles,
-                                          const TDouble2Vec4Vec& weights) const = 0;
+    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const = 0;
 
     //! Remove any trend components from \p value.
     virtual void detrend(const TTime2Vec1Vec& time, double confidenceInterval, TDouble2Vec1Vec& value) const = 0;
 
     //! Get the best (least MSE) predicted value at \p time.
-    virtual TDouble2Vec predict(core_t::TTime time,
-                                const TSizeDoublePr1Vec& correlated = TSizeDoublePr1Vec(),
-                                TDouble2Vec hint = TDouble2Vec()) const = 0;
+    virtual TDouble2Vec
+    predict(core_t::TTime time, const TSizeDoublePr1Vec& correlated = TSizeDoublePr1Vec(), TDouble2Vec hint = TDouble2Vec()) const = 0;
 
     //! Get the prediction and \p confidenceInterval percentage
     //! confidence interval for the time series at \p time.
@@ -415,8 +408,7 @@ protected:
 
     //! Get the error in the prior prediction for \p sample.
     template<typename PRIOR, typename VECTOR>
-    static boost::optional<VECTOR>
-    predictionError(double propagationInterval, const PRIOR& prior, const VECTOR& sample);
+    static boost::optional<VECTOR> predictionError(double propagationInterval, const PRIOR& prior, const VECTOR& sample);
 
     //! Correct \p probability with \p probabilityEmptyBucket.
     static double correctForEmptyBucket(maths_t::EProbabilityCalculation calculation,
@@ -473,24 +465,20 @@ public:
     virtual void skipTime(core_t::TTime gap);
 
     //! Returns empty.
-    virtual TDouble2Vec
-    mode(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec mode(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
 
     //! Returns empty.
-    virtual TDouble2Vec1Vec correlateModes(core_t::TTime time,
-                                           const maths_t::TWeightStyleVec& weightStyles,
-                                           const TDouble2Vec4Vec1Vec& weights) const;
+    virtual TDouble2Vec1Vec
+    correlateModes(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec1Vec& weights) const;
 
     //! Returns empty.
-    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles,
-                                          const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
 
     //! No-op.
     virtual void detrend(const TTime2Vec1Vec& time, double confidenceInterval, TDouble2Vec1Vec& value) const;
 
     //! Returns empty.
-    virtual TDouble2Vec
-    predict(core_t::TTime time, const TSizeDoublePr1Vec& correlated, TDouble2Vec hint = TDouble2Vec()) const;
+    virtual TDouble2Vec predict(core_t::TTime time, const TSizeDoublePr1Vec& correlated, TDouble2Vec hint = TDouble2Vec()) const;
 
     //! Returns empty.
     virtual TDouble2Vec3Vec confidenceInterval(core_t::TTime time,

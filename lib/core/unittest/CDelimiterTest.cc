@@ -23,16 +23,15 @@
 CppUnit::Test* CDelimiterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDelimiterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testSimpleTokenise",
-                                                                  &CDelimiterTest::testSimpleTokenise));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testRegexTokenise",
-                                                                  &CDelimiterTest::testRegexTokenise));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testQuotedTokenise",
-                                                                  &CDelimiterTest::testQuotedTokenise));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testQuotedEscapedTokenise",
-                                                                  &CDelimiterTest::testQuotedEscapedTokenise));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testInvalidQuotedTokenise",
-                                                                  &CDelimiterTest::testInvalidQuotedTokenise));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testSimpleTokenise", &CDelimiterTest::testSimpleTokenise));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testRegexTokenise", &CDelimiterTest::testRegexTokenise));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testQuotedTokenise", &CDelimiterTest::testQuotedTokenise));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testQuotedEscapedTokenise", &CDelimiterTest::testQuotedEscapedTokenise));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testInvalidQuotedTokenise", &CDelimiterTest::testInvalidQuotedTokenise));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testQuoteEqualsEscapeTokenise",
                                                                   &CDelimiterTest::testQuoteEqualsEscapeTokenise));
     return suiteOfTests;

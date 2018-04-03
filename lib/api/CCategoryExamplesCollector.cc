@@ -90,12 +90,10 @@ void CCategoryExamplesCollector::acceptPersistInserter(core::CStatePersistInsert
     std::sort(orderedData.begin(), orderedData.end());
 
     for (const auto& exampleByCategory : orderedData) {
-        inserter.insertLevel(EXAMPLES_BY_CATEGORY_TAG,
-                             boost::bind(&CCategoryExamplesCollector::persistExamples,
-                                         this,
-                                         exampleByCategory.first,
-                                         boost::cref(*exampleByCategory.second),
-                                         _1));
+        inserter.insertLevel(
+            EXAMPLES_BY_CATEGORY_TAG,
+            boost::bind(
+                &CCategoryExamplesCollector::persistExamples, this, exampleByCategory.first, boost::cref(*exampleByCategory.second), _1));
     }
 }
 
@@ -113,8 +111,7 @@ bool CCategoryExamplesCollector::acceptRestoreTraverser(core::CStateRestoreTrave
     do {
         const std::string& name = traverser.name();
         if (name == EXAMPLES_BY_CATEGORY_TAG) {
-            if (traverser.traverseSubLevel(boost::bind(&CCategoryExamplesCollector::restoreExamples, this, _1)) ==
-                false) {
+            if (traverser.traverseSubLevel(boost::bind(&CCategoryExamplesCollector::restoreExamples, this, _1)) == false) {
                 LOG_ERROR("Error restoring examples by category");
                 return false;
             }

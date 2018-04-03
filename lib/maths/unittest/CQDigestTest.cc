@@ -71,8 +71,7 @@ void CQDigestTest::testAdd(void) {
             std::string("2 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[0,1],0,2\" }"),
             std::string("3 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[2,2],1,1\" \"[0,3],0,3\" }"),
             std::string("4 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[2,2],1,1\" \"[3,3],1,1\" \"[0,3],0,4\" }"),
-            std::string(
-                "5 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[2,2],1,1\" \"[3,3],1,1\" \"[4,4],1,1\" \"[0,7],0,5\" }"),
+            std::string("5 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[2,2],1,1\" \"[3,3],1,1\" \"[4,4],1,1\" \"[0,7],0,5\" }"),
         };
 
         for (std::size_t i = 0u; i < 5u; ++i) {
@@ -124,8 +123,8 @@ void CQDigestTest::testAdd(void) {
                     double error = (static_cast<double>(rank) - q * n) / n;
 
                     if ((i + 1) % 1000 == 0) {
-                        LOG_DEBUG("q = " << q << ", quantile = " << quantile << ", rank = " << rank << ", n = " << n
-                                         << ", error " << error);
+                        LOG_DEBUG("q = " << q << ", quantile = " << quantile << ", rank = " << rank << ", n = " << n << ", error "
+                                         << error);
                     }
 
                     CPPUNIT_ASSERT(::fabs(error) < 0.06);
@@ -209,8 +208,7 @@ void CQDigestTest::testCdf(void) {
         // Get the true c.d.f. value.
         double ft = std::min(static_cast<double>(summary[i].first) / 500.0, 1.0);
 
-        LOG_DEBUG("x = " << summary[i].first << ", F(x) = " << ft << ", F(x) >= " << lowerBound
-                         << ", F(x) <= " << upperBound);
+        LOG_DEBUG("x = " << summary[i].first << ", F(x) = " << ft << ", F(x) >= " << lowerBound << ", F(x) <= " << upperBound);
 
         CPPUNIT_ASSERT(fx >= lowerBound && fx <= upperBound);
         CPPUNIT_ASSERT(ft >= lowerBound - 0.01 && ft <= upperBound + 0.01);
@@ -518,8 +516,7 @@ void CQDigestTest::testScale(void) {
                 double upperBound;
                 qDigest.cdf(j, 0.0, lowerBound, upperBound);
                 double type1 = ::fabs(expectedLowerBound - lowerBound) + ::fabs(expectedUpperBound - upperBound);
-                double type2 =
-                    std::max(lowerBound - expectedLowerBound, 0.0) + std::max(expectedUpperBound - upperBound, 0.0);
+                double type2 = std::max(lowerBound - expectedLowerBound, 0.0) + std::max(expectedUpperBound - upperBound, 0.0);
                 maxType1 = std::max(maxType1, type1);
                 totalType1 += type1;
                 maxType2 = std::max(maxType2, type2);
@@ -571,8 +568,7 @@ void CQDigestTest::testPersist(void) {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(
-            traverser.traverseSubLevel(boost::bind(&CQDigest::acceptRestoreTraverser, &restoredQDigest, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(&CQDigest::acceptRestoreTraverser, &restoredQDigest, _1)));
     }
 
     CPPUNIT_ASSERT(restoredQDigest.checkInvariants());
@@ -594,13 +590,11 @@ CppUnit::Test* CQDigestTest::suite(void) {
     suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testAdd", &CQDigestTest::testAdd));
     suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testMerge", &CQDigestTest::testMerge));
     suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testCdf", &CQDigestTest::testCdf));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testSummary", &CQDigestTest::testSummary));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testSummary", &CQDigestTest::testSummary));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testPropagateForwardByTime",
-                                                                &CQDigestTest::testPropagateForwardByTime));
+        new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testPropagateForwardByTime", &CQDigestTest::testPropagateForwardByTime));
     suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testScale", &CQDigestTest::testScale));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testPersist", &CQDigestTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testPersist", &CQDigestTest::testPersist));
 
     return suiteOfTests;
 }

@@ -45,10 +45,8 @@ double confidence(double df) {
     return boost::math::quantile(chi, VARIANCE_CONFIDENCE) / df;
 }
 
-#define LOG_DETERMINANT(N)                                                                                             \
-    double logDeterminant(const CSymmetricMatrixNxN<double, N>& c, double upper) {                                     \
-        return logDeterminant_(toDenseMatrix(c), upper);                                                               \
-    }
+#define LOG_DETERMINANT(N)                                                                                                                 \
+    double logDeterminant(const CSymmetricMatrixNxN<double, N>& c, double upper) { return logDeterminant_(toDenseMatrix(c), upper); }
 LOG_DETERMINANT(2)
 LOG_DETERMINANT(3)
 LOG_DETERMINANT(4)

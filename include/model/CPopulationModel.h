@@ -126,11 +126,9 @@ protected:
     static typename T::const_iterator find(const T& data, std::size_t pid, std::size_t cid);
 
     //! Extract the bucket value for count feature data.
-    static inline TDouble1Vec extractValue(model_t::EFeature /*feature*/,
-                                           const std::pair<TSizeSizePr, SEventRateFeatureData>& data);
+    static inline TDouble1Vec extractValue(model_t::EFeature /*feature*/, const std::pair<TSizeSizePr, SEventRateFeatureData>& data);
     //! Extract the bucket value for metric feature data.
-    static inline TDouble1Vec extractValue(model_t::EFeature feature,
-                                           const std::pair<TSizeSizePr, SMetricFeatureData>& data);
+    static inline TDouble1Vec extractValue(model_t::EFeature feature, const std::pair<TSizeSizePr, SMetricFeatureData>& data);
     //@}
 
 public:
@@ -251,10 +249,7 @@ protected:
     //! Remove heavy hitting people and attributes from the feature
     //! data if necessary.
     template<typename T, typename PERSON_FILTER, typename ATTRIBUTE_FILTER>
-    void applyFilters(bool updateStatistics,
-                      const PERSON_FILTER& personFilter,
-                      const ATTRIBUTE_FILTER& attributeFilter,
-                      T& data) const;
+    void applyFilters(bool updateStatistics, const PERSON_FILTER& personFilter, const ATTRIBUTE_FILTER& attributeFilter, T& data) const;
 
     //! Get the first time each attribute was seen.
     const TTimeVec& attributeFirstBucketTimes(void) const;
@@ -262,10 +257,8 @@ protected:
     const TTimeVec& attributeLastBucketTimes(void) const;
 
     //! Get the people and attributes to remove if any.
-    void peopleAndAttributesToRemove(core_t::TTime time,
-                                     std::size_t maximumAge,
-                                     TSizeVec& peopleToRemove,
-                                     TSizeVec& attributesToRemove) const;
+    void
+    peopleAndAttributesToRemove(core_t::TTime time, std::size_t maximumAge, TSizeVec& peopleToRemove, TSizeVec& attributesToRemove) const;
 
     //! Remove the \p people.
     void removePeople(const TSizeVec& peopleToRemove);

@@ -46,11 +46,11 @@ void CIndividualModel::currentBucketPersonIds(core_t::TTime time, const T& featu
 }
 
 template<typename T>
-const T* CIndividualModel::featureData(
-    model_t::EFeature feature,
-    std::size_t pid,
-    core_t::TTime time,
-    const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>& featureData) const {
+const T*
+CIndividualModel::featureData(model_t::EFeature feature,
+                              std::size_t pid,
+                              core_t::TTime time,
+                              const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>& featureData) const {
     if (!this->bucketStatsAvailable(time)) {
         LOG_ERROR("No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
         return 0;
@@ -104,8 +104,7 @@ bool CIndividualModel::addProbabilityAndInfluences(std::size_t pid,
         LOG_ERROR("Failed to compute P(" << params.describe() << ", person = " << this->personName(pid) << ")");
         return false;
     } else {
-        LOG_TRACE("P(" << params.describe() << ", person = " << this->personName(pid)
-                       << ") = " << params.s_Probability);
+        LOG_TRACE("P(" << params.describe() << ", person = " << this->personName(pid) << ") = " << params.s_Probability);
     }
 
     if (!influences.empty()) {

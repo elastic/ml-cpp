@@ -346,8 +346,7 @@ public:
 
         // Prune any dead categories: we're not interested in
         // maintaining categories with low counts.
-        m_Clusters.erase(std::remove_if(m_Clusters.begin(), m_Clusters.end(), CShouldDelete(m_MinimumCategoryCount)),
-                         m_Clusters.end());
+        m_Clusters.erase(std::remove_if(m_Clusters.begin(), m_Clusters.end(), CShouldDelete(m_MinimumCategoryCount)), m_Clusters.end());
 
         LOG_TRACE("clusters = " << core::CContainerPrinter::print(m_Clusters));
     }
@@ -475,10 +474,7 @@ public:
 protected:
     //! Construct a new classifier with the specified space limit
     //! \p space and categories \p categories.
-    CKMeansOnline(std::size_t k,
-                  double decayRate,
-                  double minimumCategoryCount,
-                  TFloatMeanAccumulatorDoublePrVec& clusters)
+    CKMeansOnline(std::size_t k, double decayRate, double minimumCategoryCount, TFloatMeanAccumulatorDoublePrVec& clusters)
         : m_K(std::max(k, MINIMUM_SPACE)), m_DecayRate(decayRate), m_MinimumCategoryCount(minimumCategoryCount) {
         m_Clusters.swap(clusters);
         m_Clusters.reserve(m_K + MAXIMUM_BUFFER_SIZE + 1u);
@@ -552,8 +548,7 @@ protected:
         double nc = CBasicStatistics::count(cluster.first);
         TDoublePoint mc = CBasicStatistics::mean(cluster.first);
         TDoublePoint vc(cluster.second);
-        TDoubleMeanVarAccumulator moments =
-            CBasicStatistics::accumulator(nc, mc, vc) + CBasicStatistics::accumulator(nx, mx, vx);
+        TDoubleMeanVarAccumulator moments = CBasicStatistics::accumulator(nc, mc, vc) + CBasicStatistics::accumulator(nx, mx, vx);
         TFloatCoordinate ncx = CBasicStatistics::count(moments);
         TFloatPoint mcx = CBasicStatistics::mean(moments);
         cluster.first = CBasicStatistics::accumulator(ncx, mcx);

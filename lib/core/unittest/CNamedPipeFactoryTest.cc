@@ -134,18 +134,18 @@ private:
 CppUnit::Test* CNamedPipeFactoryTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNamedPipeFactoryTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
-        "CNamedPipeFactoryTest::testServerIsCppReader", &CNamedPipeFactoryTest::testServerIsCppReader));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCppReader",
+                                                                         &CNamedPipeFactoryTest::testServerIsCppReader));
     suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCReader",
                                                                          &CNamedPipeFactoryTest::testServerIsCReader));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
-        "CNamedPipeFactoryTest::testServerIsCppWriter", &CNamedPipeFactoryTest::testServerIsCppWriter));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCppWriter",
+                                                                         &CNamedPipeFactoryTest::testServerIsCppWriter));
     suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCWriter",
                                                                          &CNamedPipeFactoryTest::testServerIsCWriter));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testCancelBlock",
-                                                                         &CNamedPipeFactoryTest::testCancelBlock));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
-        "CNamedPipeFactoryTest::testErrorIfRegularFile", &CNamedPipeFactoryTest::testErrorIfRegularFile));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testCancelBlock", &CNamedPipeFactoryTest::testCancelBlock));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testErrorIfRegularFile",
+                                                                         &CNamedPipeFactoryTest::testErrorIfRegularFile));
     suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testErrorIfSymlink",
                                                                          &CNamedPipeFactoryTest::testErrorIfSymlink));
 

@@ -89,8 +89,7 @@ public:
 
     //! A node of the k-d tree.
     struct SNode : public NODE_DATA {
-        SNode(SNode* parent, const POINT& point)
-            : NODE_DATA(), s_Parent(parent), s_LeftChild(0), s_RightChild(0), s_Point(point) {}
+        SNode(SNode* parent, const POINT& point) : NODE_DATA(), s_Parent(parent), s_LeftChild(0), s_RightChild(0), s_Point(point) {}
 
         //! Check node invariants.
         bool checkInvariants(std::size_t dimension) const {
@@ -104,13 +103,11 @@ public:
             std::size_t coordinate = this->depth() % dimension;
             CCoordinateLess less(coordinate);
             if (s_LeftChild && less(s_Point, s_LeftChild->s_Point)) {
-                LOG_ERROR("parent = " << s_Point << ", left child = " << s_LeftChild->s_Point
-                                      << ", coordinate = " << coordinate);
+                LOG_ERROR("parent = " << s_Point << ", left child = " << s_LeftChild->s_Point << ", coordinate = " << coordinate);
                 return false;
             }
             if (s_RightChild && less(s_RightChild->s_Point, s_Point)) {
-                LOG_ERROR("parent = " << s_Point << ", right child = " << s_RightChild->s_Point
-                                      << ", coordinate = " << coordinate);
+                LOG_ERROR("parent = " << s_Point << ", right child = " << s_RightChild->s_Point << ", coordinate = " << coordinate);
                 return false;
             }
             return true;
@@ -285,10 +282,7 @@ private:
     }
 
     //! Recursively find the nearest point to \p point.
-    void nearestNeighbours(const POINT& point,
-                           const SNode& node,
-                           std::size_t coordinate,
-                           TNearestAccumulator& nearest) const {
+    void nearestNeighbours(const POINT& point, const SNode& node, std::size_t coordinate, TNearestAccumulator& nearest) const {
         TCoordinatePrecise distance = kdtree_detail::euclidean(point - node.s_Point);
 
         nearest.add(TCoordinatePrecisePointPr(distance, node.s_Point));

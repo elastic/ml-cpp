@@ -72,21 +72,16 @@ public:
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
 
     //! No-op.
-    virtual void adjustOffset(const TWeightStyleVec& weightStyle,
-                              const TDouble10Vec1Vec& samples,
-                              const TDouble10Vec4Vec1Vec& weights);
+    virtual void adjustOffset(const TWeightStyleVec& weightStyle, const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights);
 
     //! Set the constant if it hasn't been set.
-    virtual void addSamples(const TWeightStyleVec& weightStyle,
-                            const TDouble10Vec1Vec& samples,
-                            const TDouble10Vec4Vec1Vec& weights);
+    virtual void addSamples(const TWeightStyleVec& weightStyle, const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights);
 
     //! No-op.
     virtual void propagateForwardsByTime(double time);
 
     //! Get the corresponding constant univariate prior.
-    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize,
-                                                   const TSizeDoublePr10Vec& condition) const;
+    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const;
 
     //! Compute the bivariate const bivariate prior.
     virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const;
@@ -98,8 +93,7 @@ public:
     virtual TDouble10Vec marginalLikelihoodMean(void) const;
 
     //! Returns constant or zero if unset (by equidistribution).
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
-                                                const TDouble10Vec4Vec& weights) const;
+    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) const;
 
     //! Get the covariance matrix of the marginal likelihood.
     virtual TDouble10Vec10Vec marginalLikelihoodCovariance(void) const;

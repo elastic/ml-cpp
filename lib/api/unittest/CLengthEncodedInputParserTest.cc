@@ -36,13 +36,12 @@
 CppUnit::Test* CLengthEncodedInputParserTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLengthEncodedInputParserTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>("CLengthEncodedInputParserTest::testCsvEquivalence",
+                                                                                 &CLengthEncodedInputParserTest::testCsvEquivalence));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>("CLengthEncodedInputParserTest::testThroughput",
+                                                                                 &CLengthEncodedInputParserTest::testThroughput));
     suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
-        "CLengthEncodedInputParserTest::testCsvEquivalence", &CLengthEncodedInputParserTest::testCsvEquivalence));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
-        "CLengthEncodedInputParserTest::testThroughput", &CLengthEncodedInputParserTest::testThroughput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
-        "CLengthEncodedInputParserTest::testCorruptStreamDetection",
-        &CLengthEncodedInputParserTest::testCorruptStreamDetection));
+        "CLengthEncodedInputParserTest::testCorruptStreamDetection", &CLengthEncodedInputParserTest::testCorruptStreamDetection));
 
     return suiteOfTests;
 }
@@ -128,11 +127,9 @@ public:
 
         // Check the field names
         CPPUNIT_ASSERT_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
-        for (ml::api::CCsvInputParser::TStrStrUMapCItr iter = dataRowFields.begin(); iter != dataRowFields.end();
-             ++iter) {
+        for (ml::api::CCsvInputParser::TStrStrUMapCItr iter = dataRowFields.begin(); iter != dataRowFields.end(); ++iter) {
             LOG_DEBUG("Field " << iter->first << " is " << iter->second);
-            CPPUNIT_ASSERT(std::find(m_ExpectedFieldNames.begin(), m_ExpectedFieldNames.end(), iter->first) !=
-                           m_ExpectedFieldNames.end());
+            CPPUNIT_ASSERT(std::find(m_ExpectedFieldNames.begin(), m_ExpectedFieldNames.end(), iter->first) != m_ExpectedFieldNames.end());
         }
 
         // Check the line count is consistent with the _raw field

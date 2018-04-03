@@ -322,11 +322,8 @@ void CGramSchmidtTest::testEdgeCases(void) {
         LOG_DEBUG("");
         LOG_DEBUG("*** Test degenerate ***");
 
-        double x_[][4] = {{1.0, 1.0, 1.0, 1.0},
-                          {-1.0, 2.3, 1.0, 0.03},
-                          {1.0, 1.0, 1.0, 1.0},
-                          {-1.0, 2.3, 1.0, 0.03},
-                          {-4.0, 0.3, 1.4, 1.03}};
+        double x_[][4] = {
+            {1.0, 1.0, 1.0, 1.0}, {-1.0, 2.3, 1.0, 0.03}, {1.0, 1.0, 1.0, 1.0}, {-1.0, 2.3, 1.0, 0.03}, {-4.0, 0.3, 1.4, 1.03}};
 
         std::size_t p[] = {0, 1, 2, 3, 4};
 
@@ -350,14 +347,12 @@ void CGramSchmidtTest::testEdgeCases(void) {
 CppUnit::Test* CGramSchmidtTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CGramSchmidtTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testOrthogonality",
-                                                                    &CGramSchmidtTest::testOrthogonality));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testNormalisation",
-                                                                    &CGramSchmidtTest::testNormalisation));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testSpan", &CGramSchmidtTest::testSpan));
+        new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testOrthogonality", &CGramSchmidtTest::testOrthogonality));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testEdgeCases", &CGramSchmidtTest::testEdgeCases));
+        new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testNormalisation", &CGramSchmidtTest::testNormalisation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testSpan", &CGramSchmidtTest::testSpan));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testEdgeCases", &CGramSchmidtTest::testEdgeCases));
 
     return suiteOfTests;
 }

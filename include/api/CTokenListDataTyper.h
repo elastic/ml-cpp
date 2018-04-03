@@ -61,11 +61,8 @@ public:
     //! Create a data typer with threshold for how comparable types are
     //! 0.0 means everything is the same type
     //! 1.0 means things have to match exactly to be the same type
-    CTokenListDataTyper(const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
-                        double threshold,
-                        const std::string& fieldName)
-        : CBaseTokenListDataTyper(reverseSearchCreator, threshold, fieldName),
-          m_Dict(core::CWordDictionary::instance()) {}
+    CTokenListDataTyper(const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator, double threshold, const std::string& fieldName)
+        : CBaseTokenListDataTyper(reverseSearchCreator, threshold, fieldName), m_Dict(core::CWordDictionary::instance()) {}
 
 protected:
     //! Split the string into a list of tokens.  The result of the
@@ -90,8 +87,8 @@ protected:
             // Basically tokenise into [a-zA-Z0-9]+ strings, possibly
             // allowing underscores, dots and dashes in the middle
             if (::isalnum(static_cast<unsigned char>(curChar)) ||
-                (!temp.empty() && ((ALLOW_UNDERSCORE && curChar == '_') || (ALLOW_DOT && curChar == '.') ||
-                                   (ALLOW_DASH && curChar == '-')))) {
+                (!temp.empty() &&
+                 ((ALLOW_UNDERSCORE && curChar == '_') || (ALLOW_DOT && curChar == '.') || (ALLOW_DASH && curChar == '-')))) {
                 temp += curChar;
                 if (IGNORE_HEX) {
                     // Count dots and dashes as numeric
@@ -121,10 +118,7 @@ protected:
 
     //! Take a string token, convert it to a numeric ID and a weighting and
     //! add these to the provided data structures.
-    virtual void tokenToIdAndWeight(const std::string& token,
-                                    TSizeSizePrVec& tokenIds,
-                                    TSizeSizeMap& tokenUniqueIds,
-                                    size_t& totalWeight) {
+    virtual void tokenToIdAndWeight(const std::string& token, TSizeSizePrVec& tokenIds, TSizeSizeMap& tokenUniqueIds, size_t& totalWeight) {
         TSizeSizePr idWithWeight(this->idForToken(token), 1);
 
         if (token.length() >= MIN_DICTIONARY_LENGTH) {
@@ -137,14 +131,12 @@ protected:
     }
 
     //! Compute similarity between two vectors
-    virtual double
-    similarity(const TSizeSizePrVec& left, size_t leftWeight, const TSizeSizePrVec& right, size_t rightWeight) const {
+    virtual double similarity(const TSizeSizePrVec& left, size_t leftWeight, const TSizeSizePrVec& right, size_t rightWeight) const {
         double similarity(1.0);
 
         size_t maxWeight(std::max(leftWeight, rightWeight));
         if (maxWeight > 0) {
-            size_t diff(DO_WARPING ? m_SimilarityTester.weightedEditDistance(left, right)
-                                   : this->compareNoWarp(left, right));
+            size_t diff(DO_WARPING ? m_SimilarityTester.weightedEditDistance(left, right) : this->compareNoWarp(left, right));
 
             similarity = 1.0 - double(diff) / double(maxWeight);
         }

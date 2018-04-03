@@ -53,8 +53,7 @@ public:
 public:
     //! Construct the appropriate CPrior sub-class from its state
     //! document representation.  Sets \p ptr to NULL on failure.
-    bool
-    operator()(const SDistributionRestoreParams& params, TPriorPtr& ptr, core::CStateRestoreTraverser& traverser) const;
+    bool operator()(const SDistributionRestoreParams& params, TPriorPtr& ptr, core::CStateRestoreTraverser& traverser) const;
 
     //! Persist state by passing information to the supplied inserter
     void operator()(const CPrior& prior, core::CStatePersistInserter& inserter) const;
@@ -62,9 +61,7 @@ public:
     //! Construct the appropriate CMultivariatePrior sub-class from
     //! its state document representation.  Sets \p ptr to NULL on
     //! failure.
-    bool operator()(const SDistributionRestoreParams& params,
-                    TMultivariatePriorPtr& ptr,
-                    core::CStateRestoreTraverser& traverser) const;
+    bool operator()(const SDistributionRestoreParams& params, TMultivariatePriorPtr& ptr, core::CStateRestoreTraverser& traverser) const;
 
     //! Persist state by passing information to the supplied inserter
     void operator()(const CMultivariatePrior& prior, core::CStatePersistInserter& inserter) const;

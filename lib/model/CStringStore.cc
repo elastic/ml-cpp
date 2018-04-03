@@ -185,10 +185,7 @@ std::size_t CStringStore::memoryUsage(void) const {
 }
 
 CStringStore::CStringStore(void)
-    : m_Reading(0),
-      m_Writing(0),
-      m_EmptyString(core::CStoredStringPtr::makeStoredString(std::string())),
-      m_StoredStringsMemUse(0) {
+    : m_Reading(0), m_Writing(0), m_EmptyString(core::CStoredStringPtr::makeStoredString(std::string())), m_StoredStringsMemUse(0) {
 }
 
 void CStringStore::clearEverythingTestOnly(void) {

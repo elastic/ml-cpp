@@ -42,9 +42,7 @@ namespace {
 
 //! Get the desired weight for the regression model.
 double modelWeight(double targetDecayRate, double modelDecayRate) {
-    return targetDecayRate == modelDecayRate
-               ? 1.0
-               : std::min(targetDecayRate, modelDecayRate) / std::max(targetDecayRate, modelDecayRate);
+    return targetDecayRate == modelDecayRate ? 1.0 : std::min(targetDecayRate, modelDecayRate) / std::max(targetDecayRate, modelDecayRate);
 }
 
 //! We scale the time used for the regression model to improve
@@ -227,8 +225,7 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time, doub
 
     if (confidence > 0.0 && m_PredictionErrorVariance > 0.0) {
         double variance{a * m_PredictionErrorVariance / std::max(this->count(), 1.0) +
-                        b * CBasicStatistics::variance(m_ValueMoments) /
-                            std::max(CBasicStatistics::count(m_ValueMoments), 1.0)};
+                        b * CBasicStatistics::variance(m_ValueMoments) / std::max(CBasicStatistics::count(m_ValueMoments), 1.0)};
         try {
             boost::math::normal normal{prediction, std::sqrt(variance)};
             double ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
@@ -236,8 +233,7 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time, doub
             return {ql, qu};
         } catch (const std::exception& e) {
             LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", prediction = " << prediction
-                                                                 << ", variance = " << variance
-                                                                 << ", confidence = " << confidence);
+                                                                 << ", variance = " << variance << ", confidence = " << confidence);
         }
     }
 
@@ -259,8 +255,7 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::variance(double confidence) co
             double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
             return {ql * variance / df, qu * variance / df};
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", df = " << df
-                                                                 << ", confidence = " << confidence);
+            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", df = " << df << ", confidence = " << confidence);
         }
     }
 
@@ -426,8 +421,7 @@ double CTrendComponent::weightOfPrediction(core_t::TTime time) const {
         return 0.0;
     }
 
-    double extrapolateInterval{
-        static_cast<double>(CBasicStatistics::max(time - m_LastUpdate, m_FirstUpdate - time, core_t::TTime(0)))};
+    double extrapolateInterval{static_cast<double>(CBasicStatistics::max(time - m_LastUpdate, m_FirstUpdate - time, core_t::TTime(0)))};
     if (extrapolateInterval == 0.0) {
         return 1.0;
     }
@@ -449,8 +443,7 @@ bool CTrendComponent::SModel::acceptRestoreTraverser(core::CStateRestoreTraverse
     do {
         const std::string& name{traverser.name()};
         RESTORE(WEIGHT_TAG, s_Weight.fromDelimited(traverser.value()))
-        RESTORE(REGRESSION_TAG,
-                traverser.traverseSubLevel(boost::bind(&TRegression::acceptRestoreTraverser, &s_Regression, _1)))
+        RESTORE(REGRESSION_TAG, traverser.traverseSubLevel(boost::bind(&TRegression::acceptRestoreTraverser, &s_Regression, _1)))
         RESTORE(RESIDUAL_MOMENTS_TAG, s_ResidualMoments.fromDelimited(traverser.value()))
     } while (traverser.next());
     return true;

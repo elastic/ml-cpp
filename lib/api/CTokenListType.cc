@@ -42,8 +42,7 @@ const std::string NUM_MATCHES("i");
 const std::string EMPTY_STRING;
 
 //! Functor for comparing just the first element of a pair of sizes
-class CSizePairFirstElementLess
-    : public std::binary_function<CTokenListType::TSizeSizePr, CTokenListType::TSizeSizePr, bool> {
+class CSizePairFirstElementLess : public std::binary_function<CTokenListType::TSizeSizePr, CTokenListType::TSizeSizePr, bool> {
 public:
     bool operator()(CTokenListType::TSizeSizePr lhs, CTokenListType::TSizeSizePr rhs) { return lhs.first < rhs.first; }
 };
@@ -197,10 +196,9 @@ bool CTokenListType::addString(bool isDryRun,
     TSizeSizePrVecCItr testIter = tokenIds.begin();
     for (size_t index = 0; index < m_OutOfOrderCommonTokenIndex; ++index) {
         // Ignore tokens that are not in the common unique tokens
-        if (std::binary_search(m_CommonUniqueTokenIds.begin(),
-                               m_CommonUniqueTokenIds.end(),
-                               m_BaseTokenIds[index],
-                               CSizePairFirstElementLess()) == false) {
+        if (std::binary_search(
+                m_CommonUniqueTokenIds.begin(), m_CommonUniqueTokenIds.end(), m_BaseTokenIds[index], CSizePairFirstElementLess()) ==
+            false) {
             continue;
         }
 
@@ -335,8 +333,7 @@ bool CTokenListType::containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds)
     TSizeSizePrVecCItr testIter = tokenIds.begin();
     for (TSizeSizePrVecCItr baseIter = m_BaseTokenIds.begin(); baseIter != m_BaseTokenIds.end(); ++baseIter) {
         // Ignore tokens that are not in the common unique tokens
-        if (std::binary_search(
-                m_CommonUniqueTokenIds.begin(), m_CommonUniqueTokenIds.end(), *baseIter, CSizePairFirstElementLess()) ==
+        if (std::binary_search(m_CommonUniqueTokenIds.begin(), m_CommonUniqueTokenIds.end(), *baseIter, CSizePairFirstElementLess()) ==
             false) {
             continue;
         }

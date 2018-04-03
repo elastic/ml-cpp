@@ -40,9 +40,7 @@ struct SToString {
     std::string operator()(const T& value) const {
         return core::CStringUtils::typeToString(value);
     }
-    std::string operator()(double value) const {
-        return core::CStringUtils::typeToStringPrecise(value, core::CIEEE754::E_DoublePrecision);
-    }
+    std::string operator()(double value) const { return core::CStringUtils::typeToStringPrecise(value, core::CIEEE754::E_DoublePrecision); }
     std::string operator()(CFloatStorage value) const { return value.toString(); }
 };
 

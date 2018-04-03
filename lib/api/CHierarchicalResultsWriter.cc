@@ -184,8 +184,7 @@ void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchica
 
     TOptionalDouble null;
     for (std::size_t i = 0; i < node.s_AnnotatedProbability.s_AttributeProbabilities.size(); ++i) {
-        const model::SAttributeProbability& attributeProbability =
-            node.s_AnnotatedProbability.s_AttributeProbabilities[i];
+        const model::SAttributeProbability& attributeProbability = node.s_AnnotatedProbability.s_AttributeProbabilities[i];
 
         // TODO - At present the display code can only cope with all the
         // attribute rows having the same output function name as the
@@ -217,32 +216,31 @@ void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchica
             continue;
         }
 
-        m_ResultWriterFunc(TResults(false,
-                                    false, // not an overall result
-                                    *node.s_Spec.s_PartitionFieldName,
-                                    *node.s_Spec.s_PartitionFieldValue,
-                                    *node.s_Spec.s_PersonFieldName,
-                                    *node.s_Spec.s_PersonFieldValue,
-                                    *node.s_Spec.s_ByFieldName,
-                                    attribute, // attribute field value
-                                    attributeProbability.s_CorrelatedAttributes.empty()
-                                        ? EMPTY_STRING
-                                        : *attributeProbability.s_CorrelatedAttributes[0],
-                                    node.s_BucketStartTime,
-                                    *node.s_Spec.s_FunctionName,
-                                    functionDescription,
-                                    personAttributeValue,
-                                    attributeMean,
-                                    node.s_RawAnomalyScore,
-                                    node.s_NormalizedAnomalyScore,
-                                    attributeProbability.s_Probability,
-                                    node.s_AnnotatedProbability.s_CurrentBucketCount,
-                                    *node.s_Spec.s_ValueFieldName,
-                                    node.s_AnnotatedProbability.s_Influences,
-                                    node.s_Spec.s_UseNull,
-                                    model::function_t::isMetric(node.s_Spec.s_Function),
-                                    node.s_Spec.s_Detector,
-                                    node.s_BucketLength));
+        m_ResultWriterFunc(
+            TResults(false,
+                     false, // not an overall result
+                     *node.s_Spec.s_PartitionFieldName,
+                     *node.s_Spec.s_PartitionFieldValue,
+                     *node.s_Spec.s_PersonFieldName,
+                     *node.s_Spec.s_PersonFieldValue,
+                     *node.s_Spec.s_ByFieldName,
+                     attribute, // attribute field value
+                     attributeProbability.s_CorrelatedAttributes.empty() ? EMPTY_STRING : *attributeProbability.s_CorrelatedAttributes[0],
+                     node.s_BucketStartTime,
+                     *node.s_Spec.s_FunctionName,
+                     functionDescription,
+                     personAttributeValue,
+                     attributeMean,
+                     node.s_RawAnomalyScore,
+                     node.s_NormalizedAnomalyScore,
+                     attributeProbability.s_Probability,
+                     node.s_AnnotatedProbability.s_CurrentBucketCount,
+                     *node.s_Spec.s_ValueFieldName,
+                     node.s_AnnotatedProbability.s_Influences,
+                     node.s_Spec.s_UseNull,
+                     model::function_t::isMetric(node.s_Spec.s_Function),
+                     node.s_Spec.s_Detector,
+                     node.s_BucketLength));
     }
 
     // Overall result for this person
@@ -290,36 +288,35 @@ void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchica
 
     const model::SAttributeProbability& attributeProbability = node.s_AnnotatedProbability.s_AttributeProbabilities[0];
 
-    m_ResultWriterFunc(TResults(E_Result,
-                                *node.s_Spec.s_PartitionFieldName,
-                                *node.s_Spec.s_PartitionFieldValue,
-                                *node.s_Spec.s_ByFieldName,
-                                *node.s_Spec.s_PersonFieldValue,
-                                attributeProbability.s_CorrelatedAttributes.empty()
-                                    ? EMPTY_STRING
-                                    : *attributeProbability.s_CorrelatedAttributes[0],
-                                node.s_BucketStartTime,
-                                *node.s_Spec.s_FunctionName,
-                                model_t::outputFunctionName(feature),
-                                node.s_AnnotatedProbability.s_BaselineBucketCount,
-                                node.s_AnnotatedProbability.s_CurrentBucketCount,
-                                attributeProbability.s_BaselineBucketMean,
-                                attributeProbability.s_CurrentBucketValue,
-                                node.s_RawAnomalyScore,
-                                node.s_NormalizedAnomalyScore,
-                                node.probability(),
-                                *node.s_Spec.s_ValueFieldName,
-                                node.s_AnnotatedProbability.s_Influences,
-                                node.s_Spec.s_UseNull,
-                                model::function_t::isMetric(node.s_Spec.s_Function),
-                                node.s_Spec.s_Detector,
-                                node.s_BucketLength,
-                                EMPTY_STRING_LIST));
+    m_ResultWriterFunc(
+        TResults(E_Result,
+                 *node.s_Spec.s_PartitionFieldName,
+                 *node.s_Spec.s_PartitionFieldValue,
+                 *node.s_Spec.s_ByFieldName,
+                 *node.s_Spec.s_PersonFieldValue,
+                 attributeProbability.s_CorrelatedAttributes.empty() ? EMPTY_STRING : *attributeProbability.s_CorrelatedAttributes[0],
+                 node.s_BucketStartTime,
+                 *node.s_Spec.s_FunctionName,
+                 model_t::outputFunctionName(feature),
+                 node.s_AnnotatedProbability.s_BaselineBucketCount,
+                 node.s_AnnotatedProbability.s_CurrentBucketCount,
+                 attributeProbability.s_BaselineBucketMean,
+                 attributeProbability.s_CurrentBucketValue,
+                 node.s_RawAnomalyScore,
+                 node.s_NormalizedAnomalyScore,
+                 node.probability(),
+                 *node.s_Spec.s_ValueFieldName,
+                 node.s_AnnotatedProbability.s_Influences,
+                 node.s_Spec.s_UseNull,
+                 model::function_t::isMetric(node.s_Spec.s_Function),
+                 node.s_Spec.s_Detector,
+                 node.s_BucketLength,
+                 EMPTY_STRING_LIST));
 }
 
 void CHierarchicalResultsWriter::writePartitionResult(const model::CHierarchicalResults& results, const TNode& node) {
-    if (!m_ModelConfig.perPartitionNormalization() || this->isSimpleCount(node) || this->isPopulation(node) ||
-        !this->isPartition(node) || !this->shouldWriteResult(m_Limits, results, node, false)) {
+    if (!m_ModelConfig.perPartitionNormalization() || this->isSimpleCount(node) || this->isPopulation(node) || !this->isPartition(node) ||
+        !this->shouldWriteResult(m_Limits, results, node, false)) {
         return;
     }
 
@@ -401,9 +398,7 @@ void CHierarchicalResultsWriter::writeSimpleCountResult(const TNode& node) {
                                 node.s_Spec.s_ScheduledEventDescriptions));
 }
 
-void CHierarchicalResultsWriter::findParentProbabilities(const TNode& node,
-                                                         double& personProbability,
-                                                         double& partitionProbability) {
+void CHierarchicalResultsWriter::findParentProbabilities(const TNode& node, double& personProbability, double& partitionProbability) {
     // The idea is that if person doesn't exist then the person probability is
     // set to the leaf probability, and if partition doesn't exist then the
     // partition probability is set to the person probability (or if person

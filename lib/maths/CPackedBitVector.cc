@@ -110,8 +110,7 @@ void CPackedBitVector::extend(bool bit) {
 bool CPackedBitVector::fromDelimited(const std::string& str) {
     std::size_t last = 0u;
     std::size_t pos = str.find_first_of(core::CPersistUtils::DELIMITER, last);
-    if (pos == std::string::npos ||
-        core::CStringUtils::stringToType(str.substr(last, pos - last), m_Dimension) == false) {
+    if (pos == std::string::npos || core::CStringUtils::stringToType(str.substr(last, pos - last), m_Dimension) == false) {
         LOG_ERROR("Invalid packed vector in " << str);
         return false;
     }
@@ -119,8 +118,7 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
     last = pos;
     pos = str.find_first_of(core::CPersistUtils::DELIMITER, last + 1);
     int first = 0;
-    if (pos == std::string::npos ||
-        core::CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), first) == false) {
+    if (pos == std::string::npos || core::CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), first) == false) {
         LOG_ERROR("Invalid packed vector in " << str);
         return false;
     }
@@ -129,8 +127,7 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
     last = pos;
     pos = str.find_first_of(core::CPersistUtils::DELIMITER, last + 1);
     int parity = 0;
-    if (pos == std::string::npos ||
-        core::CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), parity) == false) {
+    if (pos == std::string::npos || core::CStringUtils::stringToType(str.substr(last + 1, pos - last - 1), parity) == false) {
         LOG_ERROR("Invalid packed vector in " << str);
         return false;
     }
@@ -159,8 +156,7 @@ std::size_t CPackedBitVector::dimension(void) const {
 
 bool CPackedBitVector::operator()(std::size_t i) const {
     bool parity = true;
-    for (std::size_t j = 0u, k = static_cast<std::size_t>(m_RunLengths[j]); k <= i;
-         k += static_cast<std::size_t>(m_RunLengths[++j])) {
+    for (std::size_t j = 0u, k = static_cast<std::size_t>(m_RunLengths[j]); k <= i; k += static_cast<std::size_t>(m_RunLengths[++j])) {
         if (m_RunLengths[j] != MAX_RUN_LENGTH) {
             parity = !parity;
         }
@@ -169,8 +165,7 @@ bool CPackedBitVector::operator()(std::size_t i) const {
 }
 
 bool CPackedBitVector::operator==(const CPackedBitVector& other) const {
-    return m_Dimension == other.m_Dimension && m_First == other.m_First && m_Parity == other.m_Parity &&
-           m_RunLengths == other.m_RunLengths;
+    return m_Dimension == other.m_Dimension && m_First == other.m_First && m_Parity == other.m_Parity && m_RunLengths == other.m_RunLengths;
 }
 
 bool CPackedBitVector::operator<(const CPackedBitVector& rhs) const {

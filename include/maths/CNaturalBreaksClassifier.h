@@ -136,9 +136,7 @@ public:
     //! \note This will store as much information about the points
     //! subject to this constraint so will generally hold approximately
     //! \p space tuples.
-    CNaturalBreaksClassifier(std::size_t space,
-                             double decayRate = 0.0,
-                             double minimumCategoryCount = MINIMUM_CATEGORY_COUNT);
+    CNaturalBreaksClassifier(std::size_t space, double decayRate = 0.0, double minimumCategoryCount = MINIMUM_CATEGORY_COUNT);
 
     //! Create from part of a state document.
     bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
@@ -260,14 +258,12 @@ public:
     //! programming approach in complexity \f$O(N^2n)\f$ where
     //! \f$N\f$ the number of tuples and \f$n\f$ is the desired
     //! size for the partition.
-    static bool
-    naturalBreaks(const TTupleVec& categories, std::size_t n, std::size_t p, EObjective target, TSizeVec& result);
+    static bool naturalBreaks(const TTupleVec& categories, std::size_t n, std::size_t p, EObjective target, TSizeVec& result);
 
     //! Double tuple version.
     //!
     //! \see naturalBreaks for more details.
-    static bool
-    naturalBreaks(const TDoubleTupleVec& categories, std::size_t n, std::size_t p, EObjective target, TSizeVec& result);
+    static bool naturalBreaks(const TDoubleTupleVec& categories, std::size_t n, std::size_t p, EObjective target, TSizeVec& result);
 
 private:
     typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
@@ -276,11 +272,7 @@ private:
     //! Implementation called by naturalBreaks with explicit
     //! tuple types.
     template<typename TUPLE>
-    static bool naturalBreaksImpl(const std::vector<TUPLE>& categories,
-                                  std::size_t n,
-                                  std::size_t p,
-                                  EObjective target,
-                                  TSizeVec& result);
+    static bool naturalBreaksImpl(const std::vector<TUPLE>& categories, std::size_t n, std::size_t p, EObjective target, TSizeVec& result);
 
 private:
     //! The minimum permitted size for the classifier.

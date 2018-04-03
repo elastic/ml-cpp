@@ -194,8 +194,7 @@ public:
     //! \name Anomaly Score Calculation
     //@{
     //! The default values for the aggregation styles' parameters.
-    static const double DEFAULT_AGGREGATION_STYLE_PARAMS[model_t::NUMBER_AGGREGATION_STYLES]
-                                                        [model_t::NUMBER_AGGREGATION_PARAMS];
+    static const double DEFAULT_AGGREGATION_STYLE_PARAMS[model_t::NUMBER_AGGREGATION_STYLES][model_t::NUMBER_AGGREGATION_PARAMS];
 
     //! The default maximum probability which is deemed to be anomalous.
     static const double DEFAULT_MAXIMUM_ANOMALOUS_PROBABILITY;
@@ -338,16 +337,15 @@ public:
     //! \param[in] attributeFieldName The name of the by field.
     //! \param[in] valueFieldName The name of the field containing metric values.
     //! \param[in] influenceFieldNames The list of influence field names.
-    TModelFactoryCPtr
-    factory(int identifier,
-            function_t::EFunction function,
-            bool useNull = false,
-            model_t::EExcludeFrequent excludeFrequent = model_t::E_XF_None,
-            const std::string& partitionFieldName = std::string(),
-            const std::string& personFieldName = std::string(),
-            const std::string& attributeFieldName = std::string(),
-            const std::string& valueFieldName = std::string(),
-            const CSearchKey::TStoredStringPtrVec& influenceFieldNames = CSearchKey::TStoredStringPtrVec()) const;
+    TModelFactoryCPtr factory(int identifier,
+                              function_t::EFunction function,
+                              bool useNull = false,
+                              model_t::EExcludeFrequent excludeFrequent = model_t::E_XF_None,
+                              const std::string& partitionFieldName = std::string(),
+                              const std::string& personFieldName = std::string(),
+                              const std::string& attributeFieldName = std::string(),
+                              const std::string& valueFieldName = std::string(),
+                              const CSearchKey::TStoredStringPtrVec& influenceFieldNames = CSearchKey::TStoredStringPtrVec()) const;
 
     //! Set the rate at which the models lose information.
     void decayRate(double value);

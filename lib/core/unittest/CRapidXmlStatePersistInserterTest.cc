@@ -20,8 +20,8 @@
 CppUnit::Test* CRapidXmlStatePersistInserterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidXmlStatePersistInserterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlStatePersistInserterTest>(
-        "CRapidXmlStatePersistInserterTest::testPersist", &CRapidXmlStatePersistInserterTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlStatePersistInserterTest>("CRapidXmlStatePersistInserterTest::testPersist",
+                                                                                     &CRapidXmlStatePersistInserterTest::testPersist));
 
     return suiteOfTests;
 }

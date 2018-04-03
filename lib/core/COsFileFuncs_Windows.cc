@@ -113,13 +113,8 @@ int COsFileFuncs::open(const char* path, int oflag, TMode pmode) {
         attributes = FILE_ATTRIBUTE_READONLY;
     }
 
-    HANDLE handle = CreateFile(path,
-                               desiredAccess,
-                               FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
-                               0,
-                               creationDisposition,
-                               attributes,
-                               0);
+    HANDLE handle =
+        CreateFile(path, desiredAccess, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, 0, creationDisposition, attributes, 0);
     if (handle == INVALID_HANDLE_VALUE) {
         switch (GetLastError()) {
         case ERROR_FILE_NOT_FOUND:

@@ -85,8 +85,7 @@ public:
         // copy into the buffer while there is data to read and space in the buffer
         std::streamsize done = 0;
         while (done < n) {
-            std::streamsize toCopy =
-                std::min(std::streamsize(n - done), std::streamsize(m_Buffer.capacity() - m_Buffer.size()));
+            std::streamsize toCopy = std::min(std::streamsize(n - done), std::streamsize(m_Buffer.capacity() - m_Buffer.size()));
             m_Buffer.insert(m_Buffer.end(), s + done, s + done + toCopy);
             done += toCopy;
             this->Encode(snk, false);
@@ -193,8 +192,7 @@ public:
         char buf[4096];
         while (done < n) {
             std::streamsize toCopy = std::min(std::streamsize(m_BufferOut.size()), std::streamsize(n - done));
-            LOG_TRACE("Trying to copy " << toCopy << " bytes into stream, max " << n << ", available "
-                                        << m_BufferOut.size());
+            LOG_TRACE("Trying to copy " << toCopy << " bytes into stream, max " << n << ", available " << m_BufferOut.size());
             for (std::streamsize i = 0; i < toCopy; i++) {
                 s[done++] = m_BufferOut.front();
                 m_BufferOut.pop_front();

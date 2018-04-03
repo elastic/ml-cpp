@@ -101,8 +101,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    ml::model::CAnomalyDetectorModelConfig modelConfig =
-        ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSpan);
+    ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSpan);
     if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false) {
         LOG_FATAL("Ml model config file '" << modelConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
@@ -124,8 +123,7 @@ int main(int argc, char** argv) {
         outputWriter.reset(new ml::api::CCsvOutputWriter(ioMgr.outputStream()));
     } else {
         outputWriter.reset(new ml::api::CLineifiedJsonOutputWriter(
-            {ml::api::CResultNormalizer::PROBABILITY_NAME, ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME},
-            ioMgr.outputStream()));
+            {ml::api::CResultNormalizer::PROBABILITY_NAME, ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME}, ioMgr.outputStream()));
     }
 
     // This object will do the work

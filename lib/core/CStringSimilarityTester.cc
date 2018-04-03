@@ -54,9 +54,8 @@ bool CStringSimilarityTester::similarity(const std::string& first,
     size_t secondPlusFirstCompLength(0);
 
     if (m_Compressor.addString(first) == false || m_Compressor.addString(second) == false ||
-        m_Compressor.compressedLength(true, firstPlusSecondCompLength) == false ||
-        m_Compressor.addString(second) == false || m_Compressor.addString(first) == false ||
-        m_Compressor.compressedLength(true, secondPlusFirstCompLength) == false) {
+        m_Compressor.compressedLength(true, firstPlusSecondCompLength) == false || m_Compressor.addString(second) == false ||
+        m_Compressor.addString(first) == false || m_Compressor.compressedLength(true, secondPlusFirstCompLength) == false) {
         // The compressor will have logged the detailed reason
         LOG_ERROR("Compression problem");
         return false;
@@ -79,9 +78,7 @@ bool CStringSimilarityTester::compressedLengthOf(const std::string& str, size_t&
     return m_Compressor.addString(str) && m_Compressor.compressedLength(true, length);
 }
 
-int** CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
-                                                       TScopedIntArray& dataArray,
-                                                       TScopedIntPArray& matrixArray) {
+int** CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist, TScopedIntArray& dataArray, TScopedIntPArray& matrixArray) {
     // Ensure that we don't suffer memory corruption due to an incorrect input
     if (maxDist <= 0) {
         LOG_ERROR("Programmatic error - maxDist too small " << maxDist);

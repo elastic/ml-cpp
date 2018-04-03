@@ -84,8 +84,7 @@ void CHashingTest::testUniversalHash(void) {
 
                 double pc = 2.0 * static_cast<double>(collisions) / static_cast<double>(n * (n - 1));
 
-                LOG_DEBUG("collisions = " << collisions << ", P(collision) = " << pc
-                                          << ", 1/m = " << (1.0 / static_cast<double>(m[i])));
+                LOG_DEBUG("collisions = " << collisions << ", P(collision) = " << pc << ", 1/m = " << (1.0 / static_cast<double>(m[i])));
 
                 // Note that the definition of universality doesn't require
                 // the P(collision) <= 1/m for every hash function.
@@ -292,16 +291,14 @@ void CHashingTest::testMurmurHash(void) {
         LOG_DEBUG("Finished throughput of boost::unordered_set with murmur hash");
     }
 
-    LOG_DEBUG("default insert runtime = " << defaultInsertTime << "ms, murmur insert runtime = " << murmurInsertTime
-                                          << "ms");
-    LOG_DEBUG("default lookup runtime = " << defaultLookupTime << "ms, murmur lookup runtime = " << murmurLookupTime
-                                          << "ms");
+    LOG_DEBUG("default insert runtime = " << defaultInsertTime << "ms, murmur insert runtime = " << murmurInsertTime << "ms");
+    LOG_DEBUG("default lookup runtime = " << defaultLookupTime << "ms, murmur lookup runtime = " << murmurLookupTime << "ms");
 
     // The benefits of the murmur hash are mainly at lookup time, so just assert
     // on that, but still log a warning for slower insert time
     if (murmurInsertTime > defaultInsertTime) {
-        LOG_WARN("murmur insert runtime (" << murmurInsertTime << "ms) was longer than default insert runtime ("
-                                           << defaultInsertTime << "ms)");
+        LOG_WARN("murmur insert runtime (" << murmurInsertTime << "ms) was longer than default insert runtime (" << defaultInsertTime
+                                           << "ms)");
     }
 
     // Most of the times the murmur lookup time will be faster. But it is not
@@ -365,8 +362,7 @@ void CHashingTest::testHashCombine(void) {
         LOG_DEBUG("# unique hashes          = " << uniqueHashes.size());
         LOG_DEBUG("# unique combined hashes = " << uniqueHashCombines.size());
 
-        CPPUNIT_ASSERT(uniqueHashCombines.size() >
-                       static_cast<std::size_t>(0.999 * static_cast<double>(uniqueHashes.size())));
+        CPPUNIT_ASSERT(uniqueHashCombines.size() > static_cast<std::size_t>(0.999 * static_cast<double>(uniqueHashes.size())));
     }
 }
 
@@ -441,13 +437,9 @@ void CHashingTest::testConstructors(void) {
 CppUnit::Test* CHashingTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHashingTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CHashingTest>("CHashingTest::testUniversalHash", &CHashingTest::testUniversalHash));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CHashingTest>("CHashingTest::testMurmurHash", &CHashingTest::testMurmurHash));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CHashingTest>("CHashingTest::testHashCombine", &CHashingTest::testHashCombine));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CHashingTest>("CHashingTest::testConstructors", &CHashingTest::testConstructors));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CHashingTest>("CHashingTest::testUniversalHash", &CHashingTest::testUniversalHash));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CHashingTest>("CHashingTest::testMurmurHash", &CHashingTest::testMurmurHash));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CHashingTest>("CHashingTest::testHashCombine", &CHashingTest::testHashCombine));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CHashingTest>("CHashingTest::testConstructors", &CHashingTest::testConstructors));
     return suiteOfTests;
 }

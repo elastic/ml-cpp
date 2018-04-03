@@ -64,9 +64,8 @@ CMemoryUsageEstimator::TOptionalSize CMemoryUsageEstimator::estimate(const TSize
     for (std::size_t i = 0u; i < predictors.size(); ++i) {
         origin &= (predictors[i] == 0);
         if (predictors[i] - static_cast<size_t>(x0[i]) > this->maximumExtrapolation(static_cast<EComponent>(i))) {
-            LOG_TRACE("Sample too big for variance of predictor("
-                      << i << "): " << predictors[i] << " > "
-                      << this->maximumExtrapolation(static_cast<EComponent>(i)));
+            LOG_TRACE("Sample too big for variance of predictor(" << i << "): " << predictors[i] << " > "
+                                                                  << this->maximumExtrapolation(static_cast<EComponent>(i)));
             return TOptionalSize();
         }
     }
@@ -110,8 +109,7 @@ void CMemoryUsageEstimator::addValue(const TSizeArray& predictors, std::size_t m
         for (std::size_t i = 0u; closestDistance > 0 && i < m_Values.size(); ++i) {
             std::size_t distance = 0u;
             for (std::size_t j = 0u; j < predictors.size(); ++j) {
-                distance +=
-                    std::max(m_Values[i].first[j], predictors[j]) - std::min(m_Values[i].first[j], predictors[j]);
+                distance += std::max(m_Values[i].first[j], predictors[j]) - std::min(m_Values[i].first[j], predictors[j]);
             }
             if (distance < closestDistance) {
                 closest = i;

@@ -36,8 +36,7 @@ const std::string OUTPUT_FILE("slogan1.txt");
 const std::string INPUT_FILE1("testfiles\\slogan1.txt");
 const std::string INPUT_FILE2("testfiles\\slogan2.txt");
 const char* winDir(::getenv("windir"));
-const std::string PROCESS_PATH(winDir != 0 ? std::string(winDir) + "\\System32\\cmd"
-                                           : std::string("C:\\Windows\\System32\\cmd"));
+const std::string PROCESS_PATH(winDir != 0 ? std::string(winDir) + "\\System32\\cmd" : std::string("C:\\Windows\\System32\\cmd"));
 const std::string PROCESS_ARGS1[] = {"/C", "copy " + INPUT_FILE1 + " ."};
 const std::string PROCESS_ARGS2[] = {"/C", "del " + INPUT_FILE2};
 #else
@@ -56,14 +55,14 @@ CppUnit::Test* CCommandProcessorTest::suite() {
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testStartPermitted",
                                                                          &CCommandProcessorTest::testStartPermitted));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>(
-        "CCommandProcessorTest::testStartNonPermitted", &CCommandProcessorTest::testStartNonPermitted));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testStartNonPermitted",
+                                                                         &CCommandProcessorTest::testStartNonPermitted));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testStartNonExistent",
                                                                          &CCommandProcessorTest::testStartNonExistent));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testKillDisallowed",
                                                                          &CCommandProcessorTest::testKillDisallowed));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testInvalidVerb",
-                                                                         &CCommandProcessorTest::testInvalidVerb));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testInvalidVerb", &CCommandProcessorTest::testInvalidVerb));
 
     return suiteOfTests;
 }

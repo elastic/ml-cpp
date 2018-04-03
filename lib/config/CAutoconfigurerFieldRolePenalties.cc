@@ -51,8 +51,7 @@ CAutoconfigurerFieldRolePenalties::CAutoconfigurerFieldRolePenalties(const CAuto
     m_Penalties[METRIC_ARGUMENT_INDEX].reset(new CCantBeCategorical(params));
     for (std::size_t i = 0u; i < boost::size(PENALTY_INDICES); ++i) {
         m_Penalties[PENALTY_INDICES[i]].reset(
-            (CCantBeNumeric(params) *
-             CDistinctCountThresholdPenalty(params, (params.*PENALTY_THRESHOLD[i])(), (params.*HARD_CUTOFF[i])()) *
+            (CCantBeNumeric(params) * CDistinctCountThresholdPenalty(params, (params.*PENALTY_THRESHOLD[i])(), (params.*HARD_CUTOFF[i])()) *
              CDontUseUnaryField(params))
                 .clone());
     }

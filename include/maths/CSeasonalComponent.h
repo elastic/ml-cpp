@@ -90,9 +90,8 @@ public:
     bool initialized(void) const;
 
     //! Initialize the adaptive bucketing.
-    bool initialize(core_t::TTime startTime = 0,
-                    core_t::TTime endTime = 0,
-                    const TFloatMeanAccumulatorVec& values = TFloatMeanAccumulatorVec());
+    bool
+    initialize(core_t::TTime startTime = 0, core_t::TTime endTime = 0, const TFloatMeanAccumulatorVec& values = TFloatMeanAccumulatorVec());
 
     //! Get the size of this component.
     std::size_t size(void) const;

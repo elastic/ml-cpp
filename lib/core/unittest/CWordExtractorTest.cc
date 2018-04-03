@@ -20,18 +20,17 @@
 CppUnit::Test* CWordExtractorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CWordExtractorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordExtractorTest>("CWordExtractorTest::testWordExtract",
-                                                                      &CWordExtractorTest::testWordExtract));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordExtractorTest>("CWordExtractorTest::testMinConsecutive",
-                                                                      &CWordExtractorTest::testMinConsecutive));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CWordExtractorTest>("CWordExtractorTest::testWordExtract", &CWordExtractorTest::testWordExtract));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CWordExtractorTest>("CWordExtractorTest::testMinConsecutive", &CWordExtractorTest::testMinConsecutive));
 
     return suiteOfTests;
 }
 
 void CWordExtractorTest::testWordExtract(void) {
     {
-        std::string message(
-            "2017-01-25 02:10:03,551 ERROR [co.elastic.tradefeedtracker.MessageLoggerService] Failed to Rollback");
+        std::string message("2017-01-25 02:10:03,551 ERROR [co.elastic.tradefeedtracker.MessageLoggerService] Failed to Rollback");
         std::string words;
 
         ml::core::CWordExtractor::extractWordsFromMessage(message, words);
@@ -55,8 +54,7 @@ void CWordExtractorTest::testWordExtract(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("Found corresponding"), words);
     }
     {
-        std::string message(
-            "]\", which is more than the configured time (StuckThreadMaxTime) of \"600\" seconds. Stack trace:");
+        std::string message("]\", which is more than the configured time (StuckThreadMaxTime) of \"600\" seconds. Stack trace:");
         std::string words;
 
         ml::core::CWordExtractor::extractWordsFromMessage(message, words);
@@ -70,8 +68,7 @@ void CWordExtractorTest::testWordExtract(void) {
 
 void CWordExtractorTest::testMinConsecutive(void) {
     {
-        std::string message(
-            "2017-01-25 02:10:03,551 ERROR [co.elastic.tradefeedtracker.MessageLoggerService] Failed to Rollback");
+        std::string message("2017-01-25 02:10:03,551 ERROR [co.elastic.tradefeedtracker.MessageLoggerService] Failed to Rollback");
         std::string words;
 
         ml::core::CWordExtractor::extractWordsFromMessage(2, message, words);
@@ -99,8 +96,7 @@ void CWordExtractorTest::testMinConsecutive(void) {
         CPPUNIT_ASSERT_EQUAL(std::string(""), words);
     }
     {
-        std::string message(
-            "]\", which is more than the configured time (StuckThreadMaxTime) of \"600\" seconds. Stack trace:");
+        std::string message("]\", which is more than the configured time (StuckThreadMaxTime) of \"600\" seconds. Stack trace:");
         std::string words;
 
         ml::core::CWordExtractor::extractWordsFromMessage(2, message, words);
@@ -138,8 +134,7 @@ void CWordExtractorTest::testMinConsecutive(void) {
         LOG_DEBUG("Message: " << message);
         LOG_DEBUG("Words: " << words);
 
-        CPPUNIT_ASSERT_EQUAL(std::string("Output threshold breached for at position using application on channel"),
-                             words);
+        CPPUNIT_ASSERT_EQUAL(std::string("Output threshold breached for at position using application on channel"), words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 

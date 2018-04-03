@@ -39,8 +39,7 @@ const double LOG_TWO = std::log(2.0);
 
 //! A fast lower bound for the binomial probability of \p m
 //! successes for \p n trials and probability of success \p p.
-inline maths_t::EFloatingPointErrorStatus
-logBinomialProbabilityFastLowerBound(std::size_t n, double p, std::size_t m, double& result) {
+inline maths_t::EFloatingPointErrorStatus logBinomialProbabilityFastLowerBound(std::size_t n, double p, std::size_t m, double& result) {
     double n_ = static_cast<double>(n);
     double m_ = static_cast<double>(m);
 
@@ -81,8 +80,7 @@ logBinomialProbabilityFastLowerBound(std::size_t n, double p, std::size_t m, dou
     static const double CONSTANT = std::log(boost::math::double_constants::root_two_pi) - 2.0;
 
     double p_ = m_ / n_;
-    result = -0.5 * std::log(n_ * (1.0 - p_) * p_) + m_ * std::log(p / p_) +
-             (n_ - m_) * std::log((1.0 - p) / (1.0 - p_)) + CONSTANT;
+    result = -0.5 * std::log(n_ * (1.0 - p_) * p_) + m_ * std::log(p / p_) + (n_ - m_) * std::log((1.0 - p) / (1.0 - p_)) + CONSTANT;
     return maths_t::E_FpNoErrors;
 }
 
@@ -90,8 +88,7 @@ logBinomialProbabilityFastLowerBound(std::size_t n, double p, std::size_t m, dou
 //! binomial, i.e. the probability of seeing m or a larger value
 //! from a binomial with \p trials and probability of success
 //! \p p.
-maths_t::EFloatingPointErrorStatus
-logRightTailProbabilityUpperBound(std::size_t n, double p, std::size_t m, double& result) {
+maths_t::EFloatingPointErrorStatus logRightTailProbabilityUpperBound(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
         LOG_ERROR("Invalid sample: " << m << " > " << n);
         result = boost::numeric::bounds<double>::lowest();
@@ -148,8 +145,7 @@ logRightTailProbabilityUpperBound(std::size_t n, double p, std::size_t m, double
 //! binomial, i.e. the probability of seeing m or a larger value
 //! from a binomial with \p trials and probability of success
 //! \p p.
-maths_t::EFloatingPointErrorStatus
-logRightTailProbabilityLowerBound(std::size_t n, double p, std::size_t m, double& result) {
+maths_t::EFloatingPointErrorStatus logRightTailProbabilityLowerBound(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
         LOG_ERROR("Invalid sample: " << m << " > " << n);
         result = boost::numeric::bounds<double>::lowest();
@@ -326,8 +322,7 @@ bool CCategoricalTools::probabilityOfLessLikelyMultinomialSample(const TDoubleVe
     result = 1.0;
 
     if (i.size() != ni.size()) {
-        LOG_ERROR("Inconsistent categories and counts: " << core::CContainerPrinter::print(i) << " "
-                                                         << core::CContainerPrinter::print(ni));
+        LOG_ERROR("Inconsistent categories and counts: " << core::CContainerPrinter::print(i) << " " << core::CContainerPrinter::print(ni));
         return false;
     }
 
@@ -416,8 +411,7 @@ bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec& probabi
     result.clear();
 
     if (i.size() != ni.size()) {
-        LOG_ERROR("Inconsistent categories and counts: " << core::CContainerPrinter::print(i) << " "
-                                                         << core::CContainerPrinter::print(ni));
+        LOG_ERROR("Inconsistent categories and counts: " << core::CContainerPrinter::print(i) << " " << core::CContainerPrinter::print(ni));
         return false;
     }
 
@@ -504,8 +498,7 @@ bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec& probabi
     return 0.0;
 }
 
-maths_t::EFloatingPointErrorStatus
-CCategoricalTools::logBinomialProbability(std::size_t n, double p, std::size_t m, double& result) {
+maths_t::EFloatingPointErrorStatus CCategoricalTools::logBinomialProbability(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
         result = boost::numeric::bounds<double>::lowest();
         return maths_t::E_FpOverflowed;
@@ -534,8 +527,8 @@ CCategoricalTools::logBinomialProbability(std::size_t n, double p, std::size_t m
 
     double n_ = static_cast<double>(n);
     double m_ = static_cast<double>(m);
-    result = std::min(boost::math::lgamma(n_ + 1.0) - boost::math::lgamma(m_ + 1.0) -
-                          boost::math::lgamma(n_ - m_ + 1.0) + m_ * std::log(p) + (n_ - m_) * std::log(1.0 - p),
+    result = std::min(boost::math::lgamma(n_ + 1.0) - boost::math::lgamma(m_ + 1.0) - boost::math::lgamma(n_ - m_ + 1.0) +
+                          m_ * std::log(p) + (n_ - m_) * std::log(1.0 - p),
                       0.0);
     return maths_t::E_FpNoErrors;
 }

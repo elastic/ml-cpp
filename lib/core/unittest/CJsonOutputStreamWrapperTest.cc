@@ -31,10 +31,10 @@
 CppUnit::Test* CJsonOutputStreamWrapperTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonOutputStreamWrapperTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>(
-        "CJsonOutputStreamWrapperTest::testConcurrentWrites", &CJsonOutputStreamWrapperTest::testConcurrentWrites));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>(
-        "CJsonOutputStreamWrapperTest::testShrink", &CJsonOutputStreamWrapperTest::testShrink));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>("CJsonOutputStreamWrapperTest::testConcurrentWrites",
+                                                                                &CJsonOutputStreamWrapperTest::testConcurrentWrites));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>("CJsonOutputStreamWrapperTest::testShrink",
+                                                                                &CJsonOutputStreamWrapperTest::testShrink));
 
     return suiteOfTests;
 }

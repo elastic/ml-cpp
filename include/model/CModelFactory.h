@@ -124,9 +124,7 @@ public:
     //! need to change the signature of every factory function each
     //! time we need extra data to initialize a data gatherer.
     struct MODEL_EXPORT SGathererInitializationData {
-        SGathererInitializationData(core_t::TTime startTime,
-                                    const std::string& partitionFieldValue,
-                                    unsigned int sampleOverrideCount = 0u);
+        SGathererInitializationData(core_t::TTime startTime, const std::string& partitionFieldValue, unsigned int sampleOverrideCount = 0u);
 
         //! This constructor is meant to simplify unit tests
         SGathererInitializationData(const core_t::TTime startTime);
@@ -160,8 +158,7 @@ public:
     //! the model.
     //! \param[in,out] traverser A state document traverser.
     //! \warning It is owned by the calling code.
-    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData,
-                                             core::CStateRestoreTraverser& traverser) const = 0;
+    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData, core::CStateRestoreTraverser& traverser) const = 0;
 
     //! Make a new data gatherer.
     //!
@@ -175,8 +172,7 @@ public:
     //! \param[in,out] traverser A state document traverser.
     //! \param[in] partitionFieldValue The partition field value.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer* makeDataGatherer(const std::string& partitionFieldValue,
-                                            core::CStateRestoreTraverser& traverser) const = 0;
+    virtual CDataGatherer* makeDataGatherer(const std::string& partitionFieldValue, core::CStateRestoreTraverser& traverser) const = 0;
     //@}
 
     //! \name Defaults
@@ -220,16 +216,14 @@ public:
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
-    virtual TMultivariatePriorPtr defaultMultivariatePrior(model_t::EFeature feature,
-                                                           const SModelParams& params) const = 0;
+    virtual TMultivariatePriorPtr defaultMultivariatePrior(model_t::EFeature feature, const SModelParams& params) const = 0;
 
     //! Get the default prior for pairs of correlated time series
     //! of \p feature.
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
-    virtual TMultivariatePriorPtr defaultCorrelatePrior(model_t::EFeature feature,
-                                                        const SModelParams& params) const = 0;
+    virtual TMultivariatePriorPtr defaultCorrelatePrior(model_t::EFeature feature, const SModelParams& params) const = 0;
 
     //! Get the default prior to use for categorical data.
     maths::CMultinomialConjugate defaultCategoricalPrior(void) const;
@@ -373,18 +367,16 @@ protected:
     //! \param[in] dimension The dimension.
     //! \param[in] params The model parameters.
     //! \warning Up to ten dimensions are supported.
-    TMultivariatePriorPtr multivariateMultimodalPrior(std::size_t dimension,
-                                                      const SModelParams& params,
-                                                      const maths::CMultivariatePrior& modePrior) const;
+    TMultivariatePriorPtr
+    multivariateMultimodalPrior(std::size_t dimension, const SModelParams& params, const maths::CMultivariatePrior& modePrior) const;
 
     //! Get a multivariate 1-of-n prior with dimension \p dimension.
     //!
     //! \param[in] dimension The dimension.
     //! \param[in] params The model parameters.
     //! \param[in] models The component models to select between.
-    TMultivariatePriorPtr multivariateOneOfNPrior(std::size_t dimension,
-                                                  const SModelParams& params,
-                                                  const TMultivariatePriorPtrVec& models) const;
+    TMultivariatePriorPtr
+    multivariateOneOfNPrior(std::size_t dimension, const SModelParams& params, const TMultivariatePriorPtrVec& models) const;
 
     //! Get the default prior for time-of-day and time-of-week modeling.
     //! This is just a mixture of normals which allows more modes than

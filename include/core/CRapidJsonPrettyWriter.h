@@ -36,19 +36,11 @@ template<typename OUTPUT_STREAM,
          typename TARGET_ENCODING = rapidjson::UTF8<>,
          typename STACK_ALLOCATOR = rapidjson::CrtAllocator,
          unsigned WRITE_FLAGS = rapidjson::kWriteDefaultFlags>
-class CRapidJsonPrettyWriter : public CRapidJsonWriterBase<OUTPUT_STREAM,
-                                                           SOURCE_ENCODING,
-                                                           TARGET_ENCODING,
-                                                           STACK_ALLOCATOR,
-                                                           WRITE_FLAGS,
-                                                           rapidjson::PrettyWriter> {
+class CRapidJsonPrettyWriter
+    : public CRapidJsonWriterBase<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::PrettyWriter> {
 public:
-    using TRapidJsonPrettyWriterBase = CRapidJsonWriterBase<OUTPUT_STREAM,
-                                                            SOURCE_ENCODING,
-                                                            TARGET_ENCODING,
-                                                            STACK_ALLOCATOR,
-                                                            WRITE_FLAGS,
-                                                            rapidjson::PrettyWriter>;
+    using TRapidJsonPrettyWriterBase =
+        CRapidJsonWriterBase<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::PrettyWriter>;
     using TRapidJsonPrettyWriterBase::TRapidJsonPrettyWriterBase;
 };
 }

@@ -47,8 +47,7 @@ typedef std::vector<CPackedBitVector> TPackedBitVectorVec;
 //! \brief Counts the (co-)occurrences of two variables.
 struct SCooccurrence {
     SCooccurrence(void) : s_Nxy(0.0), s_Nx(0.0), s_Ny(0.0), s_X(0), s_Y(0) {}
-    SCooccurrence(double nxy, double nx, double ny, std::size_t x, std::size_t y)
-        : s_Nxy(nxy), s_Nx(nx), s_Ny(ny), s_X(x), s_Y(y) {}
+    SCooccurrence(double nxy, double nx, double ny, std::size_t x, std::size_t y) : s_Nxy(nxy), s_Nx(nx), s_Ny(ny), s_X(x), s_Y(y) {}
 
     bool operator<(const SCooccurrence& rhs) const {
         return s_Nxy * static_cast<double>(rhs.s_X) * static_cast<double>(rhs.s_Y) < rhs.s_Nxy * s_Nx * s_Ny;
@@ -105,10 +104,7 @@ void generateProjection(std::size_t dimension, CPackedBitVector& result) {
 //! \param[in] lengths The Euclidean lengths of the indicator vectors.
 //! \param[in] mask A mask of events to consider.
 //! \param[in] result Filled in with the p projections of indicator vectors.
-void generateProjections(const TPackedBitVectorVec& indicators,
-                         const TDoubleVec& lengths,
-                         const TSizeVec& mask,
-                         TDoubleVecVec& result) {
+void generateProjections(const TPackedBitVectorVec& indicators, const TDoubleVec& lengths, const TSizeVec& mask, TDoubleVecVec& result) {
     std::size_t dimension = indicators[0].dimension();
     for (std::size_t i = 0u; i < result.size(); ++i) {
         CPackedBitVector projection;
@@ -251,8 +247,7 @@ void searchForMostSignificantCooccurrences(const TPackedBitVectorVec& indicators
     TSizeVec placeholder;
 
     for (std::size_t i = 0u; i < n; ++i) {
-        double lambda =
-            mostSignificant.biggest().s_Nxy / (mostSignificant.biggest().s_Nx * mostSignificant.biggest().s_Ny);
+        double lambda = mostSignificant.biggest().s_Nxy / (mostSignificant.biggest().s_Nx * mostSignificant.biggest().s_Ny);
 
         double bound = 2.0 * ::asin(1.0 - lambda);
 
@@ -339,10 +334,9 @@ double significance(double nxy, double nx, double ny, double n) {
         double px = nx / n;
         double py = ny / n;
 
-        double lambda =
-            n * (-g * px * py * ::log(g) + px * (1.0 - g * py) * ::log((1.0 - py) / (1.0 - g * py)) +
-                 py * (1.0 - g * px) * ::log((1.0 - px) / (1.0 - g * px)) +
-                 (1.0 - px - py + g * px * py) * ::log((1.0 - px) * (1.0 - py) / (1.0 - px - py + g * px * py)));
+        double lambda = n * (-g * px * py * ::log(g) + px * (1.0 - g * py) * ::log((1.0 - py) / (1.0 - g * py)) +
+                             py * (1.0 - g * px) * ::log((1.0 - px) / (1.0 - g * px)) +
+                             (1.0 - px - py + g * px * py) * ::log((1.0 - px) * (1.0 - py) / (1.0 - px - py + g * px * py)));
 
         boost::math::chi_squared_distribution<> chi(1.0);
 
@@ -392,10 +386,7 @@ void CCooccurrences::acceptPersistInserter(core::CStatePersistInserter& inserter
     core::CPersistUtils::persist(INDICATOR_TAG, m_Indicators, inserter);
 }
 
-void CCooccurrences::topNBySignificance(std::size_t X,
-                                        std::size_t /*n*/,
-                                        TSizeSizePrVec& /*top*/,
-                                        TDoubleVec& /*significances*/) const {
+void CCooccurrences::topNBySignificance(std::size_t X, std::size_t /*n*/, TSizeSizePrVec& /*top*/, TDoubleVec& /*significances*/) const {
     if (X >= m_Indicators.size()) {
         LOG_ERROR("Unexpected event " << X);
         return;

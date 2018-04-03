@@ -50,8 +50,7 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 
 class CAnnotatedProbabilityBuilderForTest : public CAnnotatedProbabilityBuilder {
 public:
-    CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability& annotatedProbability)
-        : CAnnotatedProbabilityBuilder(annotatedProbability) {}
+    CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability& annotatedProbability) : CAnnotatedProbabilityBuilder(annotatedProbability) {}
 
     CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability& annotatedProbability,
                                         std::size_t numberAttributeProbabilities,
@@ -135,14 +134,12 @@ void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulatio
 
     CPPUNIT_ASSERT_EQUAL(C2, *result.s_AttributeProbabilities[0].s_Attribute);
     CPPUNIT_ASSERT_EQUAL(0.04, result.s_AttributeProbabilities[0].s_Probability);
-    CPPUNIT_ASSERT_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute,
-                         result.s_AttributeProbabilities[0].s_Feature);
+    CPPUNIT_ASSERT_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute, result.s_AttributeProbabilities[0].s_Feature);
     CPPUNIT_ASSERT(result.s_AttributeProbabilities[0].s_DescriptiveData.empty());
 
     CPPUNIT_ASSERT_EQUAL(C1, *result.s_AttributeProbabilities[1].s_Attribute);
     CPPUNIT_ASSERT_EQUAL(0.05, result.s_AttributeProbabilities[1].s_Probability);
-    CPPUNIT_ASSERT_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute,
-                         result.s_AttributeProbabilities[1].s_Feature);
+    CPPUNIT_ASSERT_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute, result.s_AttributeProbabilities[1].s_Feature);
     CPPUNIT_ASSERT(result.s_AttributeProbabilities[1].s_DescriptiveData.empty());
 }
 
@@ -232,22 +229,18 @@ void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulatio
     CPPUNIT_ASSERT_EQUAL(0.01, result.s_AttributeProbabilities[0].s_Probability);
     CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson, result.s_AttributeProbabilities[0].s_Feature);
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), result.s_AttributeProbabilities[0].s_DescriptiveData.size());
-    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
-                         result.s_AttributeProbabilities[0].s_DescriptiveData[0].first);
+    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION, result.s_AttributeProbabilities[0].s_DescriptiveData[0].first);
     CPPUNIT_ASSERT_EQUAL(3.0, result.s_AttributeProbabilities[0].s_DescriptiveData[0].second);
-    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION,
-                         result.s_AttributeProbabilities[0].s_DescriptiveData[1].first);
+    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION, result.s_AttributeProbabilities[0].s_DescriptiveData[1].first);
     CPPUNIT_ASSERT_EQUAL(6.0, result.s_AttributeProbabilities[0].s_DescriptiveData[1].second);
 
     CPPUNIT_ASSERT_EQUAL(C1, *result.s_AttributeProbabilities[1].s_Attribute);
     CPPUNIT_ASSERT_EQUAL(0.02, result.s_AttributeProbabilities[1].s_Probability);
     CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson, result.s_AttributeProbabilities[1].s_Feature);
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), result.s_AttributeProbabilities[1].s_DescriptiveData.size());
-    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
-                         result.s_AttributeProbabilities[1].s_DescriptiveData[0].first);
+    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION, result.s_AttributeProbabilities[1].s_DescriptiveData[0].first);
     CPPUNIT_ASSERT_EQUAL(1.0, result.s_AttributeProbabilities[1].s_DescriptiveData[0].second);
-    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION,
-                         result.s_AttributeProbabilities[1].s_DescriptiveData[1].first);
+    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION, result.s_AttributeProbabilities[1].s_DescriptiveData[1].first);
     CPPUNIT_ASSERT_EQUAL(2.0, result.s_AttributeProbabilities[1].s_DescriptiveData[1].second);
 }
 
@@ -319,22 +312,18 @@ void CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulatio
     CPPUNIT_ASSERT_EQUAL(0.01, result.s_AttributeProbabilities[0].s_Probability);
     CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson, result.s_AttributeProbabilities[0].s_Feature);
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), result.s_AttributeProbabilities[0].s_DescriptiveData.size());
-    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
-                         result.s_AttributeProbabilities[0].s_DescriptiveData[0].first);
+    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION, result.s_AttributeProbabilities[0].s_DescriptiveData[0].first);
     CPPUNIT_ASSERT_EQUAL(3.0, result.s_AttributeProbabilities[0].s_DescriptiveData[0].second);
-    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION,
-                         result.s_AttributeProbabilities[0].s_DescriptiveData[1].first);
+    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION, result.s_AttributeProbabilities[0].s_DescriptiveData[1].first);
     CPPUNIT_ASSERT_EQUAL(6.0, result.s_AttributeProbabilities[0].s_DescriptiveData[1].second);
 
     CPPUNIT_ASSERT_EQUAL(C1, *result.s_AttributeProbabilities[1].s_Attribute);
     CPPUNIT_ASSERT_EQUAL(0.02, result.s_AttributeProbabilities[1].s_Probability);
     CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson, result.s_AttributeProbabilities[1].s_Feature);
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), result.s_AttributeProbabilities[1].s_DescriptiveData.size());
-    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
-                         result.s_AttributeProbabilities[1].s_DescriptiveData[0].first);
+    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION, result.s_AttributeProbabilities[1].s_DescriptiveData[0].first);
     CPPUNIT_ASSERT_EQUAL(1.0, result.s_AttributeProbabilities[1].s_DescriptiveData[0].second);
-    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION,
-                         result.s_AttributeProbabilities[1].s_DescriptiveData[1].first);
+    CPPUNIT_ASSERT_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION, result.s_AttributeProbabilities[1].s_DescriptiveData[1].first);
     CPPUNIT_ASSERT_EQUAL(2.0, result.s_AttributeProbabilities[1].s_DescriptiveData[1].second);
 }
 
@@ -382,8 +371,8 @@ void CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenPopulationRare(vo
 CppUnit::Test* CAnnotatedProbabilityBuilderTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnnotatedProbabilityBuilderTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
-        "CAnnotatedProbabilityBuilderTest::testProbability", &CAnnotatedProbabilityBuilderTest::testProbability));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>("CAnnotatedProbabilityBuilderTest::testProbability",
+                                                                                    &CAnnotatedProbabilityBuilderTest::testProbability));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
         "CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenIndividualCount",
         &CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenIndividualCount));

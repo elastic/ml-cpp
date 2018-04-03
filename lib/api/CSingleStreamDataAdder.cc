@@ -26,8 +26,7 @@ const size_t CSingleStreamDataAdder::MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16M
 CSingleStreamDataAdder::CSingleStreamDataAdder(const TOStreamP& stream) : m_Stream(stream) {
 }
 
-CSingleStreamDataAdder::TOStreamP CSingleStreamDataAdder::addStreamed(const std::string& /*index*/,
-                                                                      const std::string& id) {
+CSingleStreamDataAdder::TOStreamP CSingleStreamDataAdder::addStreamed(const std::string& /*index*/, const std::string& id) {
     if (m_Stream != 0 && !m_Stream->bad()) {
         // Start with metadata, leaving the index for the receiving code to set
         (*m_Stream) << "{\"index\":{\"_id\":\"" << id << "\"}}\n";

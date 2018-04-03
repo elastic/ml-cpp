@@ -342,8 +342,7 @@ public:
                 T dMean2Rhs{dMeanRhs * dMeanRhs};
                 T varianceRhs{rhs.s_Moments[1]};
 
-                s_Moments[1] =
-                    max(beta * (s_Moments[1] - dMean2Lhs) - alpha * (varianceRhs + dMean2Rhs - dMean2Lhs), T{0});
+                s_Moments[1] = max(beta * (s_Moments[1] - dMean2Lhs) - alpha * (varianceRhs + dMean2Rhs - dMean2Lhs), T{0});
 
                 if (ORDER > 2) {
                     T skewLhs{s_Moments[2]};
@@ -454,8 +453,7 @@ public:
 
     //! Extract the count from an accumulator object.
     template<typename T, unsigned int N>
-    static inline const typename SSampleCentralMoments<T, N>::TCoordinate&
-    count(const SSampleCentralMoments<T, N>& accumulator) {
+    static inline const typename SSampleCentralMoments<T, N>::TCoordinate& count(const SSampleCentralMoments<T, N>& accumulator) {
         return accumulator.s_Count;
     }
 
@@ -656,8 +654,8 @@ public:
     template<typename T>
     static inline std::string print(const SSampleCentralMoments<T, 3u>& accumulator) {
         std::ostringstream result;
-        result << '(' << count(accumulator) << ", " << mean(accumulator) << ", " << variance(accumulator) << ", "
-               << skewness(accumulator) << ')';
+        result << '(' << count(accumulator) << ", " << mean(accumulator) << ", " << variance(accumulator) << ", " << skewness(accumulator)
+               << ')';
         return result.str();
     }
     //@}
@@ -912,9 +910,8 @@ public:
 
     //! Make a covariances accumulator.
     template<typename T, std::size_t N>
-    static inline SSampleCovariances<T, N> accumulator(const CVectorNx1<T, N>& count,
-                                                       const CVectorNx1<T, N>& mean,
-                                                       const CSymmetricMatrixNxN<T, N>& covariances) {
+    static inline SSampleCovariances<T, N>
+    accumulator(const CVectorNx1<T, N>& count, const CVectorNx1<T, N>& mean, const CSymmetricMatrixNxN<T, N>& covariances) {
         return SSampleCovariances<T, N>(count, mean, covariances);
     }
 
@@ -951,8 +948,7 @@ public:
     //!
     //! \note This is the unbiased form.
     template<typename T, std::size_t N>
-    static inline const CSymmetricMatrixNxN<T, N>&
-    maximumLikelihoodCovariances(const SSampleCovariances<T, N>& accumulator) {
+    static inline const CSymmetricMatrixNxN<T, N>& maximumLikelihoodCovariances(const SSampleCovariances<T, N>& accumulator) {
         return accumulator.s_Covariances;
     }
 
@@ -1214,9 +1210,7 @@ public:
         static bool dynamicSizeAlwaysZero(void) { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
 
     public:
-        explicit COrderStatisticsStack(const LESS& less = LESS{}) : TImpl{TArray(), less} {
-            this->statistics().assign(T{});
-        }
+        explicit COrderStatisticsStack(const LESS& less = LESS{}) : TImpl{TArray(), less} { this->statistics().assign(T{}); }
 
         explicit COrderStatisticsStack(std::size_t /*n*/, const LESS& less = LESS{}) : TImpl{TArray(), less} {
             this->statistics().assign(T{});
@@ -1437,8 +1431,7 @@ namespace basic_statistics_detail {
 template<typename U>
 struct SCentralMomentsCustomAdd {
     template<typename T, unsigned int ORDER>
-    static inline void
-    add(const U& x, typename SCoordinate<T>::Type n, CBasicStatistics::SSampleCentralMoments<T, ORDER>& moments) {
+    static inline void add(const U& x, typename SCoordinate<T>::Type n, CBasicStatistics::SSampleCentralMoments<T, ORDER>& moments) {
         moments.add(static_cast<T>(x), n, 0);
     }
 };
@@ -1447,8 +1440,7 @@ struct SCentralMomentsCustomAdd {
 //! estimator.
 template<typename T, std::size_t N>
 struct SCovariancesCustomAdd<CVectorNx1<T, N>> {
-    static inline void
-    add(const CVectorNx1<T, N>& x, const CVectorNx1<T, N>& n, CBasicStatistics::SSampleCovariances<T, N>& covariances) {
+    static inline void add(const CVectorNx1<T, N>& x, const CVectorNx1<T, N>& n, CBasicStatistics::SSampleCovariances<T, N>& covariances) {
         covariances.add(x, n, 0);
     }
 };
@@ -1465,8 +1457,7 @@ struct SCovariancesCustomAdd<CVectorNx1<T, N>> {
 template<typename T, std::size_t N>
 struct SCovariancesLedoitWolf<CVectorNx1<T, N>> {
     template<typename U>
-    static void estimate(const std::vector<CVectorNx1<T, N>>& points,
-                         CBasicStatistics::SSampleCovariances<U, N>& covariances) {
+    static void estimate(const std::vector<CVectorNx1<T, N>>& points, CBasicStatistics::SSampleCovariances<U, N>& covariances) {
         U d{static_cast<U>(N)};
 
         U n{CBasicStatistics::count(covariances)};
@@ -1484,8 +1475,7 @@ struct SCovariancesLedoitWolf<CVectorNx1<T, N>> {
         bn = std::min(bn, dn);
         LOG_TRACE("m = " << mn << ", d = " << dn << ", b = " << bn);
 
-        covariances.s_Covariances =
-            CVectorNx1<U, N>{bn / dn * mn}.diagonal() + (U{1} - bn / dn) * covariances.s_Covariances;
+        covariances.s_Covariances = CVectorNx1<U, N>{bn / dn * mn}.diagonal() + (U{1} - bn / dn) * covariances.s_Covariances;
     }
 
     template<typename U>

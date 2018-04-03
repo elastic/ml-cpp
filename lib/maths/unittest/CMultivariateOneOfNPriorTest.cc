@@ -58,10 +58,9 @@ public:
     CMinusLogLikelihood(const maths::CMultivariateOneOfNPrior& prior) : m_Prior(&prior) {}
 
     bool operator()(const maths::CGradientDescent::TVector& x, double& result) const {
-        if (m_Prior->jointLogMarginalLikelihood(COUNT_WEIGHT,
-                                                TDouble10Vec1Vec(1, TDouble10Vec(x.toVector<TDouble10Vec>())),
-                                                SINGLE_UNIT_WEIGHT_2,
-                                                result) == maths_t::E_FpNoErrors) {
+        if (m_Prior->jointLogMarginalLikelihood(
+                COUNT_WEIGHT, TDouble10Vec1Vec(1, TDouble10Vec(x.toVector<TDouble10Vec>())), SINGLE_UNIT_WEIGHT_2, result) ==
+            maths_t::E_FpNoErrors) {
             result = -result;
             return true;
         }
@@ -76,17 +75,13 @@ template<std::size_t N>
 maths::CMultivariateMultimodalPrior<N> makeMultimodal(maths_t::EDataType dataType, double decayRate = 0.0) {
     maths::CXMeansOnline<maths::CFloatStorage, N> clusterer(dataType, maths_t::E_ClustersFractionWeight, decayRate);
     return maths::CMultivariateMultimodalPrior<N>(
-        dataType,
-        clusterer,
-        maths::CMultivariateNormalConjugate<N>::nonInformativePrior(dataType, decayRate),
-        decayRate);
+        dataType, clusterer, maths::CMultivariateNormalConjugate<N>::nonInformativePrior(dataType, decayRate), decayRate);
 }
 
 template<std::size_t N>
 maths::CMultivariateOneOfNPrior makeOneOfN(maths_t::EDataType dataType, double decayRate = 0.0) {
     TPriorPtrVec priors;
-    priors.push_back(
-        TPriorPtr(maths::CMultivariateNormalConjugate<N>::nonInformativePrior(dataType, decayRate).clone()));
+    priors.push_back(TPriorPtr(maths::CMultivariateNormalConjugate<N>::nonInformativePrior(dataType, decayRate).clone()));
     priors.push_back(TPriorPtr(makeMultimodal<N>(dataType, decayRate).clone()));
     return maths::CMultivariateOneOfNPrior(N, priors, dataType, decayRate);
 }
@@ -101,8 +96,7 @@ void gaussianSamples(test::CRandomNumbers& rng,
         TVector2 mean(means[i], means[i] + 2);
         TMatrix2 covariance(covariances[i], covariances[i] + 3);
         TDoubleVecVec samples_;
-        rng.generateMultivariateNormalSamples(
-            mean.toVector<TDoubleVec>(), covariance.toVectors<TDoubleVecVec>(), n[i], samples_);
+        rng.generateMultivariateNormalSamples(mean.toVector<TDoubleVec>(), covariance.toVectors<TDoubleVecVec>(), n[i], samples_);
         samples.reserve(samples.size() + samples_.size());
         for (std::size_t j = 0u; j < samples_.size(); ++j) {
             samples.push_back(TDouble10Vec(samples_[j].begin(), samples_[j].end()));
@@ -154,8 +148,7 @@ void CMultivariateOneOfNPriorTest::testMultipleUpdate(void) {
     TDouble10Vec1Vec samples;
     {
         TDoubleVecVec samples_;
-        rng.generateMultivariateNormalSamples(
-            mean.toVector<TDoubleVec>(), covariance.toVectors<TDoubleVecVec>(), 100, samples_);
+        rng.generateMultivariateNormalSamples(mean.toVector<TDoubleVec>(), covariance.toVectors<TDoubleVecVec>(), 100, samples_);
         seedSamples.reserve(10);
         for (std::size_t i = 0u; i < 10; ++i) {
             seedSamples.push_back(TDouble10Vec(samples_[i].begin(), samples_[i].end()));
@@ -382,8 +375,7 @@ void CMultivariateOneOfNPriorTest::testModelUpdate(void) {
     const maths_t::EDataType dataTypes[] = {maths_t::E_IntegerData, maths_t::E_ContinuousData};
 
     for (std::size_t i = 0u; i < boost::size(dataTypes); ++i) {
-        maths::CMultivariateNormalConjugate<2> normal =
-            maths::CMultivariateNormalConjugate<2>::nonInformativePrior(dataTypes[i]);
+        maths::CMultivariateNormalConjugate<2> normal = maths::CMultivariateNormalConjugate<2>::nonInformativePrior(dataTypes[i]);
         maths::CMultivariateMultimodalPrior<2> multimodal = makeMultimodal<2>(dataTypes[i]);
         maths::CMultivariateOneOfNPrior oneOfN(makeOneOfN<2>(dataTypes[i]));
 
@@ -490,16 +482,13 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood(void) {
                         b[1] += 2.0 * ::sqrt(trace);
 
                         double zj;
-                        maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix,
-                                                                 maths::CIntegration::TwoDimensions>(
+                        maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix, maths::CIntegration::TwoDimensions>(
                             likelihoodKernel, a, b, zj);
                         TVector2 mj;
-                        maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix,
-                                                                 maths::CIntegration::TwoDimensions>(
+                        maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix, maths::CIntegration::TwoDimensions>(
                             meanKernel, a, b, mj);
                         TMatrix2 cj;
-                        maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix,
-                                                                 maths::CIntegration::TwoDimensions>(
+                        maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix, maths::CIntegration::TwoDimensions>(
                             covarianceKernel, a, b, cj);
 
                         z += zj;
@@ -595,15 +584,13 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood(void) {
                     b[1] += 2.0 * ::sqrt(trace);
 
                     double zj;
-                    maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix,
-                                                             maths::CIntegration::TwoDimensions>(
+                    maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix, maths::CIntegration::TwoDimensions>(
                         likelihoodKernel, a, b, zj);
                     TVector2 mj;
-                    maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix,
-                                                             maths::CIntegration::TwoDimensions>(meanKernel, a, b, mj);
+                    maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix, maths::CIntegration::TwoDimensions>(
+                        meanKernel, a, b, mj);
                     TMatrix2 cj;
-                    maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix,
-                                                             maths::CIntegration::TwoDimensions>(
+                    maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix, maths::CIntegration::TwoDimensions>(
                         covarianceKernel, a, b, cj);
 
                     z += zj;
@@ -693,11 +680,10 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean(void) {
 
             if (!filter.isNonInformative()) {
                 if (j % 10 == 0) {
-                    LOG_DEBUG("expected = " << maths::CBasicStatistics::mean(expectedMean) << " actual = "
-                                            << core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
+                    LOG_DEBUG("expected = " << maths::CBasicStatistics::mean(expectedMean)
+                                            << " actual = " << core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
                 }
-                double error = (TVector2(filter.marginalLikelihoodMean()) - maths::CBasicStatistics::mean(expectedMean))
-                                   .euclidean() /
+                double error = (TVector2(filter.marginalLikelihoodMean()) - maths::CBasicStatistics::mean(expectedMean)).euclidean() /
                                maths::CBasicStatistics::mean(expectedMean).euclidean();
                 meanError.add(error);
                 CPPUNIT_ASSERT(error < 0.2);
@@ -739,8 +725,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode(void) {
                 std::size_t n[] = {100};
                 const double mean[][2] = {{means[i][0], means[i][1]}};
                 const double covariance[][3] = {{covariances[i][0], covariances[i][1], covariances[i][2]}};
-                LOG_DEBUG("*** mean = " << core::CContainerPrinter::print(mean[0], mean[0] + 2)
-                                        << ", variance = " << covariance[0][0] << " ***");
+                LOG_DEBUG("*** mean = " << core::CContainerPrinter::print(mean[0], mean[0] + 2) << ", variance = " << covariance[0][0]
+                                        << " ***");
 
                 TDouble10Vec1Vec samples;
                 gaussianSamples(rng, 1, n, mean, covariance, samples);
@@ -764,8 +750,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode(void) {
 
                 TDouble10Vec mode = filter.marginalLikelihoodMode(COUNT_WEIGHT, UNIT_WEIGHT_2);
 
-                LOG_DEBUG("marginalLikelihoodMode = " << core::CContainerPrinter::print(mode)
-                                                      << ", expectedMode = " << expectedMode);
+                LOG_DEBUG("marginalLikelihoodMode = " << core::CContainerPrinter::print(mode) << ", expectedMode = " << expectedMode);
 
                 for (std::size_t k = 0u; k < 2; ++k) {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode(k), mode[k], 0.01 * expectedMode(k));
@@ -809,8 +794,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode(void) {
 
         TDouble10Vec mode = filter.marginalLikelihoodMode(COUNT_WEIGHT, UNIT_WEIGHT_2);
 
-        LOG_DEBUG("marginalLikelihoodMode = " << core::CContainerPrinter::print(mode)
-                                              << ", expectedMode = " << expectedMode);
+        LOG_DEBUG("marginalLikelihoodMode = " << core::CContainerPrinter::print(mode) << ", expectedMode = " << expectedMode);
 
         for (std::size_t i = 0u; i < 2; ++i) {
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode(i), mode[i], 0.2 * expectedMode(i));
@@ -872,8 +856,7 @@ void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood(void) {
             std::sort(expectedSampled.begin(), expectedSampled.end());
             LOG_DEBUG("expected samples = " << core::CContainerPrinter::print(expectedSampled));
             LOG_DEBUG("samples          = " << core::CContainerPrinter::print(sampled));
-            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedSampled),
-                                 core::CContainerPrinter::print(sampled));
+            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedSampled), core::CContainerPrinter::print(sampled));
         }
     }
 }
@@ -927,22 +910,16 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples(void) {
         for (std::size_t j = 0u; j < weights.size(); ++j) {
             double modelLowerBound, modelUpperBound;
             double weight = weights[j];
-            CPPUNIT_ASSERT(models[j]->probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                                     COUNT_WEIGHT,
-                                                                     sample,
-                                                                     SINGLE_UNIT_WEIGHT_2,
-                                                                     modelLowerBound,
-                                                                     modelUpperBound,
-                                                                     tail));
+            CPPUNIT_ASSERT(models[j]->probabilityOfLessLikelySamples(
+                maths_t::E_TwoSided, COUNT_WEIGHT, sample, SINGLE_UNIT_WEIGHT_2, modelLowerBound, modelUpperBound, tail));
             CPPUNIT_ASSERT_EQUAL(modelLowerBound, modelUpperBound);
             double modelProbability = (modelLowerBound + modelUpperBound) / 2.0;
             expectedProbability += weight * modelProbability;
         }
 
-        LOG_DEBUG("weights = " << core::CContainerPrinter::print(weights) << ", expectedProbability = "
-                               << expectedProbability << ", probability = " << probability);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            expectedProbability, probability, 0.3 * std::max(expectedProbability, probability));
+        LOG_DEBUG("weights = " << core::CContainerPrinter::print(weights) << ", expectedProbability = " << expectedProbability
+                               << ", probability = " << probability);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability, probability, 0.3 * std::max(expectedProbability, probability));
         error.add(::fabs(probability - expectedProbability));
     }
 
@@ -1013,32 +990,29 @@ void CMultivariateOneOfNPriorTest::testPersist(void) {
 CppUnit::Test* CMultivariateOneOfNPriorTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultivariateOneOfNPriorTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>("CMultivariateOneOfNPriorTest::testMultipleUpdate",
+                                                                                &CMultivariateOneOfNPriorTest::testMultipleUpdate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>("CMultivariateOneOfNPriorTest::testPropagation",
+                                                                                &CMultivariateOneOfNPriorTest::testPropagation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>("CMultivariateOneOfNPriorTest::testWeightUpdate",
+                                                                                &CMultivariateOneOfNPriorTest::testWeightUpdate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>("CMultivariateOneOfNPriorTest::testModelUpdate",
+                                                                                &CMultivariateOneOfNPriorTest::testModelUpdate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>("CMultivariateOneOfNPriorTest::testModelSelection",
+                                                                                &CMultivariateOneOfNPriorTest::testModelSelection));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>("CMultivariateOneOfNPriorTest::testMarginalLikelihood",
+                                                                                &CMultivariateOneOfNPriorTest::testMarginalLikelihood));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>("CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean",
+                                                                                &CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>("CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode",
+                                                                                &CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testMultipleUpdate", &CMultivariateOneOfNPriorTest::testMultipleUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testPropagation", &CMultivariateOneOfNPriorTest::testPropagation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testWeightUpdate", &CMultivariateOneOfNPriorTest::testWeightUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testModelUpdate", &CMultivariateOneOfNPriorTest::testModelUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testModelSelection", &CMultivariateOneOfNPriorTest::testModelSelection));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testMarginalLikelihood", &CMultivariateOneOfNPriorTest::testMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean",
-        &CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode",
-        &CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood",
-        &CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples",
-        &CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testPersist", &CMultivariateOneOfNPriorTest::testPersist));
+        "CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood", &CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>("CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples",
+                                                              &CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>("CMultivariateOneOfNPriorTest::testPersist",
+                                                                                &CMultivariateOneOfNPriorTest::testPersist));
 
     return suiteOfTests;
 }

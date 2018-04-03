@@ -61,8 +61,7 @@ public:
                     core::CStateRestoreTraverser& traverser) const;
 
     //! Persist state by passing information to the supplied inserter.
-    void operator()(const CTimeSeriesDecompositionInterface& decomposition,
-                    core::CStatePersistInserter& inserter) const;
+    void operator()(const CTimeSeriesDecompositionInterface& decomposition, core::CStatePersistInserter& inserter) const;
 };
 }
 }

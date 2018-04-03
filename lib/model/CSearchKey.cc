@@ -70,11 +70,7 @@ CSearchKey::CSearchKey(int identifier,
                        std::string overFieldName,
                        std::string partitionFieldName,
                        const TStrVec& influenceFieldNames)
-    : m_Identifier(identifier),
-      m_Function(function),
-      m_UseNull(useNull),
-      m_ExcludeFrequent(excludeFrequent),
-      m_Hash(0) {
+    : m_Identifier(identifier), m_Function(function), m_UseNull(useNull), m_ExcludeFrequent(excludeFrequent), m_Hash(0) {
     m_FieldName = CStringStore::names().get(fieldName);
     m_ByFieldName = CStringStore::names().get(byFieldName);
     m_OverFieldName = CStringStore::names().get(overFieldName);
@@ -85,11 +81,7 @@ CSearchKey::CSearchKey(int identifier,
 }
 
 CSearchKey::CSearchKey(core::CStateRestoreTraverser& traverser, bool& successful)
-    : m_Identifier(0),
-      m_Function(function_t::E_IndividualCount),
-      m_UseNull(false),
-      m_ExcludeFrequent(model_t::E_XF_None),
-      m_Hash(0) {
+    : m_Identifier(0), m_Function(function_t::E_IndividualCount), m_UseNull(false), m_ExcludeFrequent(model_t::E_XF_None), m_Hash(0) {
     successful = traverser.traverseSubLevel(boost::bind(&CSearchKey::acceptRestoreTraverser, this, _1));
 }
 
@@ -117,8 +109,7 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
             m_UseNull = (useNull != 0);
         } else if (name == EXCLUDE_FREQUENT_TAG) {
             int excludeFrequent(-1);
-            if ((core::CStringUtils::stringToType(traverser.value(), excludeFrequent) == false) ||
-                (excludeFrequent < 0)) {
+            if ((core::CStringUtils::stringToType(traverser.value(), excludeFrequent) == false) || (excludeFrequent < 0)) {
                 LOG_ERROR("Invalid excludeFrequent flag in " << traverser.value());
                 return false;
             }
@@ -169,10 +160,9 @@ void CSearchKey::swap(CSearchKey& other) {
 bool CSearchKey::operator==(const CSearchKey& rhs) const {
     typedef std::equal_to<std::string> TStrEqualTo;
 
-    return this->hash() == rhs.hash() && m_Identifier == rhs.m_Identifier && m_Function == rhs.m_Function &&
-           m_UseNull == rhs.m_UseNull && m_ExcludeFrequent == rhs.m_ExcludeFrequent && m_FieldName == rhs.m_FieldName &&
-           m_ByFieldName == rhs.m_ByFieldName && m_OverFieldName == rhs.m_OverFieldName &&
-           m_PartitionFieldName == rhs.m_PartitionFieldName &&
+    return this->hash() == rhs.hash() && m_Identifier == rhs.m_Identifier && m_Function == rhs.m_Function && m_UseNull == rhs.m_UseNull &&
+           m_ExcludeFrequent == rhs.m_ExcludeFrequent && m_FieldName == rhs.m_FieldName && m_ByFieldName == rhs.m_ByFieldName &&
+           m_OverFieldName == rhs.m_OverFieldName && m_PartitionFieldName == rhs.m_PartitionFieldName &&
            m_InfluenceFieldNames.size() == rhs.m_InfluenceFieldNames.size()
            // Compare dereferenced strings rather than pointers as there's a
            // (small) possibility that the string store will not always return
@@ -271,8 +261,7 @@ bool CSearchKey::isPopulation(void) const {
 std::string CSearchKey::toCue(void) const {
     std::string cue;
     cue.reserve(64 + // hopefully covers function description and slashes
-                m_FieldName->length() + m_ByFieldName->length() + m_OverFieldName->length() +
-                m_PartitionFieldName->length());
+                m_FieldName->length() + m_ByFieldName->length() + m_OverFieldName->length() + m_PartitionFieldName->length());
     cue += function_t::print(m_Function);
     cue += CUE_DELIMITER;
     cue += m_UseNull ? '1' : '0';
@@ -361,8 +350,8 @@ std::ostream& operator<<(std::ostream& strm, const CSearchKey& key) {
     // time of writing.  However, do NOT combine the code because the intention
     // is to simplify toCue() in the future.
     strm << key.m_Identifier << "==" << function_t::print(key.m_Function) << '/' << (key.m_UseNull ? '1' : '0') << '/'
-         << static_cast<int>(key.m_ExcludeFrequent) << '/' << *key.m_FieldName << '/' << *key.m_ByFieldName << '/'
-         << *key.m_OverFieldName << '/' << *key.m_PartitionFieldName << '/';
+         << static_cast<int>(key.m_ExcludeFrequent) << '/' << *key.m_FieldName << '/' << *key.m_ByFieldName << '/' << *key.m_OverFieldName
+         << '/' << *key.m_PartitionFieldName << '/';
 
     for (size_t i = 0; i < key.m_InfluenceFieldNames.size(); ++i) {
         if (i > 0) {

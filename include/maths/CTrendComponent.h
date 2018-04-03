@@ -116,11 +116,7 @@ public:
     TDoubleDoublePr variance(double confidence) const;
 
     //! Create \p n sample forecast paths.
-    void forecast(core_t::TTime startTime,
-                  core_t::TTime endTime,
-                  core_t::TTime step,
-                  double confidence,
-                  TDouble3VecVec& result) const;
+    void forecast(core_t::TTime startTime, core_t::TTime endTime, core_t::TTime step, double confidence, TDouble3VecVec& result) const;
 
     //! Get the interval which has been observed so far.
     core_t::TTime observedInterval() const;

@@ -39,15 +39,13 @@ public:
     enum EStyle { E_Lower, E_Upper, E_GeometricMean };
 
 public:
-    CCdf(EStyle style, const CPrior& prior, double target)
-        : m_Style(style), m_Prior(&prior), m_Target(target), m_X(1u) {}
+    CCdf(EStyle style, const CPrior& prior, double target) : m_Style(style), m_Prior(&prior), m_Target(target), m_X(1u) {}
 
     double operator()(double x) const {
         double lowerBound, upperBound;
 
         m_X[0] = x;
-        if (!m_Prior->minusLogJointCdf(
-                CConstantWeights::COUNT_VARIANCE, m_X, CConstantWeights::SINGLE_UNIT, lowerBound, upperBound)) {
+        if (!m_Prior->minusLogJointCdf(CConstantWeights::COUNT_VARIANCE, m_X, CConstantWeights::SINGLE_UNIT, lowerBound, upperBound)) {
             // We have no choice but to throw because this is
             // invoked inside a boost root finding function.
 
@@ -105,8 +103,7 @@ void CPriorTestInterface::addSamples(const TDouble1Vec& samples) {
     m_Prior->addSamples(TWeights::COUNT, samples, weights);
 }
 
-maths_t::EFloatingPointErrorStatus CPriorTestInterface::jointLogMarginalLikelihood(const TDouble1Vec& samples,
-                                                                                   double& result) const {
+maths_t::EFloatingPointErrorStatus CPriorTestInterface::jointLogMarginalLikelihood(const TDouble1Vec& samples, double& result) const {
     TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
     return m_Prior->jointLogMarginalLikelihood(TWeights::COUNT, samples, weights, result);
 }
@@ -116,9 +113,7 @@ bool CPriorTestInterface::minusLogJointCdf(const TDouble1Vec& samples, double& l
     return m_Prior->minusLogJointCdf(TWeights::COUNT, samples, weights, lowerBound, upperBound);
 }
 
-bool CPriorTestInterface::minusLogJointCdfComplement(const TDouble1Vec& samples,
-                                                     double& lowerBound,
-                                                     double& upperBound) const {
+bool CPriorTestInterface::minusLogJointCdfComplement(const TDouble1Vec& samples, double& lowerBound, double& upperBound) const {
     TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
     return m_Prior->minusLogJointCdfComplement(TWeights::COUNT, samples, weights, lowerBound, upperBound);
 }
@@ -129,13 +124,10 @@ bool CPriorTestInterface::probabilityOfLessLikelySamples(maths_t::EProbabilityCa
                                                          double& upperBound) const {
     TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
     maths_t::ETail tail;
-    return m_Prior->probabilityOfLessLikelySamples(
-        calculation, TWeights::COUNT, samples, weights, lowerBound, upperBound, tail);
+    return m_Prior->probabilityOfLessLikelySamples(calculation, TWeights::COUNT, samples, weights, lowerBound, upperBound, tail);
 }
 
-bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculation,
-                                       const TDouble1Vec& samples,
-                                       double& result) const {
+bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculation, const TDouble1Vec& samples, double& result) const {
     TDoubleDoublePr1Vec weightedSamples;
     weightedSamples.reserve(samples.size());
     for (std::size_t i = 0u; i < samples.size(); ++i) {
@@ -160,8 +152,7 @@ bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculat
 
     double lowerBound, upperBound;
     maths_t::ETail tail;
-    if (!m_Prior->probabilityOfLessLikelySamples(
-            calculation, weightStyles, samples_, weights, lowerBound, upperBound, tail)) {
+    if (!m_Prior->probabilityOfLessLikelySamples(calculation, weightStyles, samples_, weights, lowerBound, upperBound, tail)) {
         LOG_ERROR("Failed computing probability of less likely samples");
         return false;
     }
@@ -196,8 +187,7 @@ bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage, d
 
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 2.0 * eps);
 
-        CSolvers::solve(
-            bracket.first, bracket.second, fBracket.first, fBracket.second, cdf, maxIterations, equal, result);
+        CSolvers::solve(bracket.first, bracket.second, fBracket.first, fBracket.second, cdf, maxIterations, equal, result);
     } catch (const std::exception& e) {
         LOG_ERROR("Failed to compute quantile: " << e.what() << ", quantile = " << percentage);
         return false;
@@ -208,8 +198,7 @@ bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage, d
 
 bool CPriorTestInterface::marginalLikelihoodMeanForTest(double& result) const {
     using TMarginalLikelihood = CCompositeFunctions::CExp<const CPrior::CLogMarginalLikelihood&>;
-    using TFunctionTimesMarginalLikelihood =
-        CCompositeFunctions::CProduct<bool (*)(double, double&), TMarginalLikelihood>;
+    using TFunctionTimesMarginalLikelihood = CCompositeFunctions::CProduct<bool (*)(double, double&), TMarginalLikelihood>;
 
     const double eps = 1e-3;
     unsigned int steps = 100u;
@@ -217,8 +206,7 @@ bool CPriorTestInterface::marginalLikelihoodMeanForTest(double& result) const {
     result = 0.0;
 
     double a, b;
-    if (!this->marginalLikelihoodQuantileForTest(0.001, eps, a) ||
-        !this->marginalLikelihoodQuantileForTest(99.999, eps, b)) {
+    if (!this->marginalLikelihoodQuantileForTest(0.001, eps, a) || !this->marginalLikelihoodQuantileForTest(99.999, eps, b)) {
         LOG_ERROR("Unable to compute mean likelihood");
         return false;
     }
@@ -256,8 +244,7 @@ bool CPriorTestInterface::marginalLikelihoodVarianceForTest(double& result) cons
     result = 0.0;
 
     double a, b;
-    if (!this->marginalLikelihoodQuantileForTest(0.001, eps, a) ||
-        !this->marginalLikelihoodQuantileForTest(99.999, eps, b)) {
+    if (!this->marginalLikelihoodQuantileForTest(0.001, eps, a) || !this->marginalLikelihoodQuantileForTest(99.999, eps, b)) {
         LOG_ERROR("Unable to compute mean likelihood");
         return false;
     }
@@ -318,23 +305,20 @@ double spikeyDaily(core_t::TTime time) {
 }
 
 double spikeyWeekly(core_t::TTime time) {
-    double pattern[]{1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1,
-                     0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1,
-                     0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1,
-                     0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1,
-                     0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1,
-                     0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1,
-                     0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1};
+    double pattern[]{
+        1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1,
+        0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1,
+        0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+        1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1,
+        0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1,
+        0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+        0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1,
+        0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+        0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+        1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1,
+        0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1,
+        0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+        0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1};
     return pattern[(time % WEEK) / HALF_HOUR];
 }
 

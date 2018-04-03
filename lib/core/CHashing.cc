@@ -83,8 +83,7 @@ std::string CHashing::CUniversalHash::CUInt32UnrestrictedHash::print(void) const
     return result.str();
 }
 
-CHashing::CUniversalHash::CUInt32VecHash::CUInt32VecHash(uint32_t m, const TUInt32Vec& a, uint32_t b)
-    : m_M(m), m_A(a), m_B(b) {
+CHashing::CUniversalHash::CUInt32VecHash::CUInt32VecHash(uint32_t m, const TUInt32Vec& a, uint32_t b) : m_M(m), m_A(a), m_B(b) {
 }
 
 uint32_t CHashing::CUniversalHash::CUInt32VecHash::m(void) const {

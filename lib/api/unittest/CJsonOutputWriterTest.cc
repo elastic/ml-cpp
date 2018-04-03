@@ -47,43 +47,40 @@ const TStr1Vec EMPTY_STRING_LIST;
 
 CppUnit::Test* CJsonOutputWriterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonOutputWriterTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testSimpleWrite",
-                                                                         &CJsonOutputWriterTest::testSimpleWrite));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
-        "CJsonOutputWriterTest::testWriteNonAnomalousBucket", &CJsonOutputWriterTest::testWriteNonAnomalousBucket));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testBucketWrite",
-                                                                         &CJsonOutputWriterTest::testBucketWrite));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
-        "CJsonOutputWriterTest::testBucketWriteInterim", &CJsonOutputWriterTest::testBucketWriteInterim));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
-        "CJsonOutputWriterTest::testLimitedRecordsWrite", &CJsonOutputWriterTest::testLimitedRecordsWrite));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testLimitedRecordsWriteInterim",
-                                                       &CJsonOutputWriterTest::testLimitedRecordsWriteInterim));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testFlush",
-                                                                         &CJsonOutputWriterTest::testFlush));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
-        "CJsonOutputWriterTest::testWriteCategoryDefinition", &CJsonOutputWriterTest::testWriteCategoryDefinition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
-        "CJsonOutputWriterTest::testWriteWithInfluences", &CJsonOutputWriterTest::testWriteWithInfluences));
+        new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testSimpleWrite", &CJsonOutputWriterTest::testSimpleWrite));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testWriteNonAnomalousBucket",
+                                                                         &CJsonOutputWriterTest::testWriteNonAnomalousBucket));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testBucketWrite", &CJsonOutputWriterTest::testBucketWrite));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testBucketWriteInterim",
+                                                                         &CJsonOutputWriterTest::testBucketWriteInterim));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testLimitedRecordsWrite",
+                                                                         &CJsonOutputWriterTest::testLimitedRecordsWrite));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testLimitedRecordsWriteInterim",
+                                                                         &CJsonOutputWriterTest::testLimitedRecordsWriteInterim));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testFlush", &CJsonOutputWriterTest::testFlush));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testWriteCategoryDefinition",
+                                                                         &CJsonOutputWriterTest::testWriteCategoryDefinition));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testWriteWithInfluences",
+                                                                         &CJsonOutputWriterTest::testWriteWithInfluences));
     suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testWriteInfluencers",
                                                                          &CJsonOutputWriterTest::testWriteInfluencers));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
-        "CJsonOutputWriterTest::testWriteInfluencersWithLimit", &CJsonOutputWriterTest::testWriteInfluencersWithLimit));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
-        "CJsonOutputWriterTest::testPersistNormalizer", &CJsonOutputWriterTest::testPersistNormalizer));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testWriteInfluencersWithLimit",
+                                                                         &CJsonOutputWriterTest::testWriteInfluencersWithLimit));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testPersistNormalizer",
+                                                                         &CJsonOutputWriterTest::testPersistNormalizer));
     suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testPartitionScores",
                                                                          &CJsonOutputWriterTest::testPartitionScores));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
-        "CJsonOutputWriterTest::testReportMemoryUsage", &CJsonOutputWriterTest::testReportMemoryUsage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
-        "CJsonOutputWriterTest::testWriteScheduledEvent", &CJsonOutputWriterTest::testWriteScheduledEvent));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testThroughputWithScopedAllocator",
-                                                       &CJsonOutputWriterTest::testThroughputWithScopedAllocator));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testThroughputWithoutScopedAllocator",
-                                                       &CJsonOutputWriterTest::testThroughputWithoutScopedAllocator));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testReportMemoryUsage",
+                                                                         &CJsonOutputWriterTest::testReportMemoryUsage));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testWriteScheduledEvent",
+                                                                         &CJsonOutputWriterTest::testWriteScheduledEvent));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testThroughputWithScopedAllocator",
+                                                                         &CJsonOutputWriterTest::testThroughputWithScopedAllocator));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>("CJsonOutputWriterTest::testThroughputWithoutScopedAllocator",
+                                                                         &CJsonOutputWriterTest::testThroughputWithoutScopedAllocator));
     return suiteOfTests;
 }
 
@@ -255,8 +252,7 @@ void CJsonOutputWriterTest::testFlush(void) {
     CPPUNIT_ASSERT(flush.HasMember("id"));
     CPPUNIT_ASSERT_EQUAL(testId, std::string(flush["id"].GetString()));
     CPPUNIT_ASSERT(flush.HasMember("last_finalized_bucket_end"));
-    CPPUNIT_ASSERT_EQUAL(lastFinalizedBucketEnd * 1000,
-                         static_cast<ml::core_t::TTime>(flush["last_finalized_bucket_end"].GetInt64()));
+    CPPUNIT_ASSERT_EQUAL(lastFinalizedBucketEnd * 1000, static_cast<ml::core_t::TTime>(flush["last_finalized_bucket_end"].GetInt64()));
 }
 
 void CJsonOutputWriterTest::testWriteCategoryDefinition(void) {
@@ -430,30 +426,29 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
                                                                    100,
                                                                    EMPTY_STRING_LIST);
 
-            ml::api::CHierarchicalResultsWriter::SResults result13(
-                ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
-                partitionFieldName,
-                partitionFieldValue,
-                byFieldName,
-                byFieldValue,
-                correlatedByFieldValue,
-                1,
-                function,
-                functionDescription,
-                42.0,
-                79,
-                TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0),
-                2.24,
-                0.5,
-                0.0,
-                fieldName,
-                influences,
-                false,
-                false,
-                3,
-                100,
-                EMPTY_STRING_LIST);
+            ml::api::CHierarchicalResultsWriter::SResults result13(ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
+                                                                   partitionFieldName,
+                                                                   partitionFieldValue,
+                                                                   byFieldName,
+                                                                   byFieldValue,
+                                                                   correlatedByFieldValue,
+                                                                   1,
+                                                                   function,
+                                                                   functionDescription,
+                                                                   42.0,
+                                                                   79,
+                                                                   TDouble1Vec(1, 6953.0),
+                                                                   TDouble1Vec(1, 10090.0),
+                                                                   2.24,
+                                                                   0.5,
+                                                                   0.0,
+                                                                   fieldName,
+                                                                   influences,
+                                                                   false,
+                                                                   false,
+                                                                   3,
+                                                                   100,
+                                                                   EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result14(ml::api::CHierarchicalResultsWriter::E_Result,
                                                                    partitionFieldName,
@@ -567,30 +562,29 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
                                                                    100,
                                                                    EMPTY_STRING_LIST);
 
-            ml::api::CHierarchicalResultsWriter::SResults result23(
-                ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
-                partitionFieldName,
-                partitionFieldValue,
-                byFieldName,
-                byFieldValue,
-                correlatedByFieldValue,
-                2,
-                function,
-                functionDescription,
-                42.0,
-                79,
-                TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0),
-                2.24,
-                0.0,
-                0.0,
-                fieldName,
-                influences,
-                false,
-                false,
-                3,
-                100,
-                EMPTY_STRING_LIST);
+            ml::api::CHierarchicalResultsWriter::SResults result23(ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
+                                                                   partitionFieldName,
+                                                                   partitionFieldValue,
+                                                                   byFieldName,
+                                                                   byFieldValue,
+                                                                   correlatedByFieldValue,
+                                                                   2,
+                                                                   function,
+                                                                   functionDescription,
+                                                                   42.0,
+                                                                   79,
+                                                                   TDouble1Vec(1, 6953.0),
+                                                                   TDouble1Vec(1, 10090.0),
+                                                                   2.24,
+                                                                   0.0,
+                                                                   0.0,
+                                                                   fieldName,
+                                                                   influences,
+                                                                   false,
+                                                                   false,
+                                                                   3,
+                                                                   100,
+                                                                   EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result24(ml::api::CHierarchicalResultsWriter::E_Result,
                                                                    partitionFieldName,
@@ -704,30 +698,29 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
                                                                    100,
                                                                    EMPTY_STRING_LIST);
 
-            ml::api::CHierarchicalResultsWriter::SResults result33(
-                ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
-                partitionFieldName,
-                partitionFieldValue,
-                byFieldName,
-                byFieldValue,
-                correlatedByFieldValue,
-                3,
-                function,
-                functionDescription,
-                42.0,
-                79,
-                TDouble1Vec(1, 6953.0),
-                TDouble1Vec(1, 10090.0),
-                2.24,
-                0.0,
-                0.0,
-                fieldName,
-                influences,
-                false,
-                false,
-                3,
-                100,
-                EMPTY_STRING_LIST);
+            ml::api::CHierarchicalResultsWriter::SResults result33(ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
+                                                                   partitionFieldName,
+                                                                   partitionFieldValue,
+                                                                   byFieldName,
+                                                                   byFieldValue,
+                                                                   correlatedByFieldValue,
+                                                                   3,
+                                                                   function,
+                                                                   functionDescription,
+                                                                   42.0,
+                                                                   79,
+                                                                   TDouble1Vec(1, 6953.0),
+                                                                   TDouble1Vec(1, 10090.0),
+                                                                   2.24,
+                                                                   0.0,
+                                                                   0.0,
+                                                                   fieldName,
+                                                                   influences,
+                                                                   false,
+                                                                   false,
+                                                                   3,
+                                                                   100,
+                                                                   EMPTY_STRING_LIST);
 
             ml::api::CHierarchicalResultsWriter::SResults result34(ml::api::CHierarchicalResultsWriter::E_Result,
                                                                    partitionFieldName,
@@ -810,8 +803,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(70.0, bucketInfluencer["initial_anomaly_score"].GetDouble(), 0.00001);
         CPPUNIT_ASSERT(bucketInfluencer.HasMember("anomaly_score"));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(70.0, bucketInfluencer["anomaly_score"].GetDouble(), 0.00001);
-        CPPUNIT_ASSERT_EQUAL(std::string("bucket_time"),
-                             std::string(bucketInfluencer["influencer_field_name"].GetString()));
+        CPPUNIT_ASSERT_EQUAL(std::string("bucket_time"), std::string(bucketInfluencer["influencer_field_name"].GetString()));
 
         CPPUNIT_ASSERT_EQUAL(79, bucket["event_count"].GetInt());
         CPPUNIT_ASSERT(bucket.HasMember("anomaly_score"));
@@ -856,8 +848,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
             CPPUNIT_ASSERT(record.HasMember("function"));
             CPPUNIT_ASSERT_EQUAL(std::string("mean"), std::string(record["function"].GetString()));
             CPPUNIT_ASSERT(record.HasMember("function_description"));
-            CPPUNIT_ASSERT_EQUAL(std::string("mean(responsetime)"),
-                                 std::string(record["function_description"].GetString()));
+            CPPUNIT_ASSERT_EQUAL(std::string("mean(responsetime)"), std::string(record["function_description"].GetString()));
             CPPUNIT_ASSERT(record.HasMember("over_field_name"));
             CPPUNIT_ASSERT_EQUAL(std::string("pfn"), std::string(record["over_field_name"].GetString()));
             CPPUNIT_ASSERT(record.HasMember("over_field_value"));
@@ -898,8 +889,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
                 CPPUNIT_ASSERT(cause.HasMember("function"));
                 CPPUNIT_ASSERT_EQUAL(std::string("mean"), std::string(cause["function"].GetString()));
                 CPPUNIT_ASSERT(cause.HasMember("function_description"));
-                CPPUNIT_ASSERT_EQUAL(std::string("mean(responsetime)"),
-                                     std::string(cause["function_description"].GetString()));
+                CPPUNIT_ASSERT_EQUAL(std::string("mean(responsetime)"), std::string(cause["function_description"].GetString()));
                 CPPUNIT_ASSERT(cause.HasMember("typical"));
                 CPPUNIT_ASSERT(cause["typical"].IsArray());
                 CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(1), cause["typical"].Size());
@@ -943,8 +933,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
                 CPPUNIT_ASSERT(record.HasMember("function"));
                 CPPUNIT_ASSERT_EQUAL(std::string("mean"), std::string(record["function"].GetString()));
                 CPPUNIT_ASSERT(record.HasMember("function_description"));
-                CPPUNIT_ASSERT_EQUAL(std::string("mean(responsetime)"),
-                                     std::string(record["function_description"].GetString()));
+                CPPUNIT_ASSERT_EQUAL(std::string("mean(responsetime)"), std::string(record["function_description"].GetString()));
                 CPPUNIT_ASSERT(record.HasMember("partition_field_name"));
                 CPPUNIT_ASSERT_EQUAL(std::string("tfn"), std::string(record["partition_field_name"].GetString()));
                 CPPUNIT_ASSERT(record.HasMember("partition_field_value"));
@@ -994,8 +983,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
                 // This would be count in the real case with properly generated input data
                 CPPUNIT_ASSERT_EQUAL(std::string("mean"), std::string(record["function"].GetString()));
                 CPPUNIT_ASSERT(record.HasMember("function_description"));
-                CPPUNIT_ASSERT_EQUAL(std::string("mean(responsetime)"),
-                                     std::string(record["function_description"].GetString()));
+                CPPUNIT_ASSERT_EQUAL(std::string("mean(responsetime)"), std::string(record["function_description"].GetString()));
                 CPPUNIT_ASSERT(record.HasMember("partition_field_name"));
                 CPPUNIT_ASSERT_EQUAL(std::string("tfn"), std::string(record["partition_field_name"].GetString()));
                 CPPUNIT_ASSERT(record.HasMember("partition_field_value"));
@@ -1721,10 +1709,8 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim) {
     }
 }
 
-ml::model::CHierarchicalResults::TNode createInfluencerNode(const std::string& personName,
-                                                            const std::string& personValue,
-                                                            double probability,
-                                                            double normalisedAnomalyScore) {
+ml::model::CHierarchicalResults::TNode
+createInfluencerNode(const std::string& personName, const std::string& personValue, double probability, double normalisedAnomalyScore) {
     ml::model::CHierarchicalResults::TResultSpec spec;
     spec.s_PersonFieldName = ml::model::CStringStore::names().get(personName);
     spec.s_PersonFieldValue = ml::model::CStringStore::names().get(personValue);
@@ -1737,10 +1723,8 @@ ml::model::CHierarchicalResults::TNode createInfluencerNode(const std::string& p
     return node;
 }
 
-ml::model::CHierarchicalResults::TNode createBucketInfluencerNode(const std::string& personName,
-                                                                  double probability,
-                                                                  double normalisedAnomalyScore,
-                                                                  double rawAnomalyScore) {
+ml::model::CHierarchicalResults::TNode
+createBucketInfluencerNode(const std::string& personName, double probability, double normalisedAnomalyScore, double rawAnomalyScore) {
     ml::model::CHierarchicalResults::TResultSpec spec;
     spec.s_PersonFieldName = ml::model::CStringStore::names().get(personName);
 
@@ -1982,32 +1966,27 @@ void CJsonOutputWriterTest::testWriteWithInfluences(void) {
         std::string webserver("web-server");
 
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field1 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(user), ml::model::CStringStore::names().get(dave));
+            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(ml::model::CStringStore::names().get(user),
+                                                                                   ml::model::CStringStore::names().get(dave));
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field2 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(user), ml::model::CStringStore::names().get(cat));
+            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(ml::model::CStringStore::names().get(user),
+                                                                                   ml::model::CStringStore::names().get(cat));
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr field3 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(user), ml::model::CStringStore::names().get(jo));
+            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(ml::model::CStringStore::names().get(user),
+                                                                                   ml::model::CStringStore::names().get(jo));
 
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr hostField1 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(host), ml::model::CStringStore::names().get(localhost));
+            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(ml::model::CStringStore::names().get(host),
+                                                                                   ml::model::CStringStore::names().get(localhost));
         ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr hostField2 =
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(
-                ml::model::CStringStore::names().get(host), ml::model::CStringStore::names().get(webserver));
+            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPr(ml::model::CStringStore::names().get(host),
+                                                                                   ml::model::CStringStore::names().get(webserver));
 
-        influences.push_back(
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(field1, 0.4));
-        influences.push_back(
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(field2, 1.0));
-        influences.push_back(
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(hostField1, 0.7));
-        influences.push_back(
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(field3, 0.1));
-        influences.push_back(
-            ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(hostField2, 0.8));
+        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(field1, 0.4));
+        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(field2, 1.0));
+        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(hostField1, 0.7));
+        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(field3, 0.1));
+        influences.push_back(ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePr(hostField2, 0.8));
 
         // The output writer won't close the JSON structures until is is destroyed
 
@@ -2079,10 +2058,8 @@ void CJsonOutputWriterTest::testWriteWithInfluences(void) {
         CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(2), influencerFieldValues.Size());
 
         // Check influencers are ordered
-        CPPUNIT_ASSERT_EQUAL(std::string("web-server"),
-                             std::string(influencerFieldValues[rapidjson::SizeType(0)].GetString()));
-        CPPUNIT_ASSERT_EQUAL(std::string("localhost"),
-                             std::string(influencerFieldValues[rapidjson::SizeType(1)].GetString()));
+        CPPUNIT_ASSERT_EQUAL(std::string("web-server"), std::string(influencerFieldValues[rapidjson::SizeType(0)].GetString()));
+        CPPUNIT_ASSERT_EQUAL(std::string("localhost"), std::string(influencerFieldValues[rapidjson::SizeType(1)].GetString()));
     }
     {
         const rapidjson::Value& influence = influences[rapidjson::SizeType(1)];
@@ -2094,10 +2071,8 @@ void CJsonOutputWriterTest::testWriteWithInfluences(void) {
         CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(3), influencerFieldValues.Size());
 
         // Check influencers are ordered
-        CPPUNIT_ASSERT_EQUAL(std::string("cat"),
-                             std::string(influencerFieldValues[rapidjson::SizeType(0)].GetString()));
-        CPPUNIT_ASSERT_EQUAL(std::string("dave"),
-                             std::string(influencerFieldValues[rapidjson::SizeType(1)].GetString()));
+        CPPUNIT_ASSERT_EQUAL(std::string("cat"), std::string(influencerFieldValues[rapidjson::SizeType(0)].GetString()));
+        CPPUNIT_ASSERT_EQUAL(std::string("dave"), std::string(influencerFieldValues[rapidjson::SizeType(1)].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("jo"), std::string(influencerFieldValues[rapidjson::SizeType(2)].GetString()));
     }
 }

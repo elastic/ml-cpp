@@ -62,8 +62,7 @@ void CFieldStatistics::maybeStartCapturingTypeStatistics(void) {
 
             LOG_DEBUG("Classified '" << m_FieldName << "' as " << config_t::print(type));
             if (config_t::isCategorical(type)) {
-                m_SummaryStatistics =
-                    CCategoricalDataSummaryStatistics(*summary, this->params().numberOfMostFrequentFieldsCounts());
+                m_SummaryStatistics = CCategoricalDataSummaryStatistics(*summary, this->params().numberOfMostFrequentFieldsCounts());
                 this->replayBuffer();
             } else if (config_t::isNumeric(type)) {
                 m_SummaryStatistics = CNumericDataSummaryStatistics(*summary, config_t::isInteger(type));

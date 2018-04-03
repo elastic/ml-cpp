@@ -42,10 +42,7 @@ const std::string CORRELATED_ATTRIBUTE_TAG("n");
 }
 
 SAttributeProbability::SAttributeProbability(void)
-    : s_Cid(0),
-      s_Probability(1.0),
-      s_Type(model_t::CResultType::E_Unconditional),
-      s_Feature(model_t::E_IndividualCountByBucketAndPerson) {
+    : s_Cid(0), s_Probability(1.0), s_Type(model_t::CResultType::E_Unconditional), s_Feature(model_t::E_IndividualCountByBucketAndPerson) {
 }
 
 SAttributeProbability::SAttributeProbability(std::size_t cid,

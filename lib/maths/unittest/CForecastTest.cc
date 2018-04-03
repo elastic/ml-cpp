@@ -69,13 +69,12 @@ maths::CModelParams params(core_t::TTime bucketLength) {
 }
 
 maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary decayRateControllers(void) {
-    return {
-        {maths::CDecayRateController(
-             maths::CDecayRateController::E_PredictionBias | maths::CDecayRateController::E_PredictionErrorIncrease, 1),
-         maths::CDecayRateController(maths::CDecayRateController::E_PredictionBias |
-                                         maths::CDecayRateController::E_PredictionErrorIncrease |
-                                         maths::CDecayRateController::E_PredictionErrorDecrease,
-                                     1)}};
+    return {{maths::CDecayRateController(
+                 maths::CDecayRateController::E_PredictionBias | maths::CDecayRateController::E_PredictionErrorIncrease, 1),
+             maths::CDecayRateController(maths::CDecayRateController::E_PredictionBias |
+                                             maths::CDecayRateController::E_PredictionErrorIncrease |
+                                             maths::CDecayRateController::E_PredictionErrorDecrease,
+                                         1)}};
 }
 }
 
@@ -128,10 +127,9 @@ void CForecastTest::testDailyVaryingLongTermTrend(void) {
 
     core_t::TTime bucketLength{3600};
     double day{86400.0};
-    TDoubleVec times{0.0,        5.0 * day,  10.0 * day,  15.0 * day,  20.0 * day,  25.0 * day,
-                     30.0 * day, 35.0 * day, 40.0 * day,  45.0 * day,  50.0 * day,  55.0 * day,
-                     60.0 * day, 65.0 * day, 70.0 * day,  75.0 * day,  80.0 * day,  85.0 * day,
-                     90.0 * day, 95.0 * day, 100.0 * day, 105.0 * day, 110.0 * day, 115.0 * day};
+    TDoubleVec times{0.0,        5.0 * day,  10.0 * day, 15.0 * day, 20.0 * day,  25.0 * day,  30.0 * day,  35.0 * day,
+                     40.0 * day, 45.0 * day, 50.0 * day, 55.0 * day, 60.0 * day,  65.0 * day,  70.0 * day,  75.0 * day,
+                     80.0 * day, 85.0 * day, 90.0 * day, 95.0 * day, 100.0 * day, 105.0 * day, 110.0 * day, 115.0 * day};
     TDoubleVec values{20.0, 30.0, 25.0, 35.0, 45.0, 40.0, 38.0, 36.0, 35.0, 25.0,  35.0,  45.0,
                       55.0, 62.0, 70.0, 76.0, 79.0, 82.0, 86.0, 90.0, 95.0, 100.0, 106.0, 112.0};
 
@@ -191,10 +189,9 @@ void CForecastTest::testComplexVaryingLongTermTrend(void) {
 
     core_t::TTime bucketLength{3600};
     double day{86400.0};
-    TDoubleVec times{0.0,        5.0 * day,  10.0 * day,  15.0 * day,  20.0 * day,  25.0 * day,
-                     30.0 * day, 35.0 * day, 40.0 * day,  45.0 * day,  50.0 * day,  55.0 * day,
-                     60.0 * day, 65.0 * day, 70.0 * day,  75.0 * day,  80.0 * day,  85.0 * day,
-                     90.0 * day, 95.0 * day, 100.0 * day, 105.0 * day, 110.0 * day, 115.0 * day};
+    TDoubleVec times{0.0,        5.0 * day,  10.0 * day, 15.0 * day, 20.0 * day,  25.0 * day,  30.0 * day,  35.0 * day,
+                     40.0 * day, 45.0 * day, 50.0 * day, 55.0 * day, 60.0 * day,  65.0 * day,  70.0 * day,  75.0 * day,
+                     80.0 * day, 85.0 * day, 90.0 * day, 95.0 * day, 100.0 * day, 105.0 * day, 110.0 * day, 115.0 * day};
     TDoubleVec values{20.0, 30.0, 25.0, 35.0, 45.0, 40.0, 38.0, 36.0, 35.0, 25.0,  35.0,  45.0,
                       55.0, 62.0, 70.0, 76.0, 79.0, 82.0, 86.0, 90.0, 95.0, 100.0, 106.0, 112.0};
     TDoubleVec y{0.0,  1.0,  2.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 11.0, 12.0,
@@ -224,8 +221,7 @@ void CForecastTest::testNonNegative(void) {
     test::CRandomNumbers rng;
 
     maths::CTimeSeriesDecomposition trend(0.012, bucketLength);
-    maths::CNormalMeanPrecConjugate prior =
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
+    maths::CNormalMeanPrecConjugate prior = maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
     maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{decayRateControllers()};
     maths::CUnivariateTimeSeriesModel model(params(bucketLength), TAG, trend, prior, &controllers);
 
@@ -264,8 +260,7 @@ void CForecastTest::testNonNegative(void) {
     core_t::TTime end{time + 20 * core::constants::DAY};
     std::string m;
     TModelPtr forecastModel(model.cloneForForecast());
-    forecastModel->forecast(
-        start, end, 95.0, MINIMUM_VALUE, MAXIMUM_VALUE, boost::bind(&mockSink, _1, boost::ref(prediction)), m);
+    forecastModel->forecast(start, end, 95.0, MINIMUM_VALUE, MAXIMUM_VALUE, boost::bind(&mockSink, _1, boost::ref(prediction)), m);
 
     std::size_t outOfBounds{0};
     std::size_t count{0};
@@ -273,8 +268,7 @@ void CForecastTest::testNonNegative(void) {
     for (std::size_t i = 0u; i < prediction.size(); ++i) {
         TDoubleVec noise;
         rng.generateNormalSamples(2.0, 3.0, 48, noise);
-        for (auto value = noise.begin(); i < prediction.size() && value != noise.end();
-             ++i, ++value, time += bucketLength) {
+        for (auto value = noise.begin(); i < prediction.size() && value != noise.end(); ++i, ++value, time += bucketLength) {
             CPPUNIT_ASSERT(prediction[i].s_LowerBound >= 0);
             CPPUNIT_ASSERT(prediction[i].s_Predicted >= 0);
             CPPUNIT_ASSERT(prediction[i].s_UpperBound >= 0);
@@ -310,15 +304,14 @@ void CForecastTest::testFinancialIndex(void) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse(
-        "testfiles/financial_index.csv", timeseries, startTime, endTime, "^([0-9]+),([0-9\\.]+)"));
+    CPPUNIT_ASSERT(
+        test::CTimeSeriesTestData::parse("testfiles/financial_index.csv", timeseries, startTime, endTime, "^([0-9]+),([0-9\\.]+)"));
     CPPUNIT_ASSERT(!timeseries.empty());
 
     LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
 
     maths::CTimeSeriesDecomposition trend(0.012, bucketLength);
-    maths::CNormalMeanPrecConjugate prior =
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
+    maths::CNormalMeanPrecConjugate prior = maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
     maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{decayRateControllers()};
     maths::CUnivariateTimeSeriesModel model(params(bucketLength), TAG, trend, prior, &controllers);
 
@@ -352,8 +345,7 @@ void CForecastTest::testFinancialIndex(void) {
     core_t::TTime end{timeseries[timeseries.size() - 1].first};
     std::string m;
     TModelPtr forecastModel(model.cloneForForecast());
-    forecastModel->forecast(
-        start, end, 99.0, MINIMUM_VALUE, MAXIMUM_VALUE, boost::bind(&mockSink, _1, boost::ref(prediction)), m);
+    forecastModel->forecast(start, end, 99.0, MINIMUM_VALUE, MAXIMUM_VALUE, boost::bind(&mockSink, _1, boost::ref(prediction)), m);
 
     std::size_t outOfBounds{0};
     std::size_t count{0};
@@ -386,22 +378,20 @@ void CForecastTest::testFinancialIndex(void) {
 CppUnit::Test* CForecastTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CForecastTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>("CForecastTest::testDailyNoLongTermTrend",
-                                                                 &CForecastTest::testDailyNoLongTermTrend));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CForecastTest>("CForecastTest::testDailyNoLongTermTrend", &CForecastTest::testDailyNoLongTermTrend));
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>("CForecastTest::testDailyConstantLongTermTrend",
                                                                  &CForecastTest::testDailyConstantLongTermTrend));
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>("CForecastTest::testDailyVaryingLongTermTrend",
                                                                  &CForecastTest::testDailyVaryingLongTermTrend));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>("CForecastTest::testComplexNoLongTermTrend",
-                                                                 &CForecastTest::testComplexNoLongTermTrend));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CForecastTest>("CForecastTest::testComplexNoLongTermTrend", &CForecastTest::testComplexNoLongTermTrend));
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>("CForecastTest::testComplexConstantLongTermTrend",
                                                                  &CForecastTest::testComplexConstantLongTermTrend));
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>("CForecastTest::testComplexVaryingLongTermTrend",
                                                                  &CForecastTest::testComplexVaryingLongTermTrend));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CForecastTest>("CForecastTest::testNonNegative", &CForecastTest::testNonNegative));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>("CForecastTest::testFinancialIndex",
-                                                                 &CForecastTest::testFinancialIndex));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>("CForecastTest::testNonNegative", &CForecastTest::testNonNegative));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>("CForecastTest::testFinancialIndex", &CForecastTest::testFinancialIndex));
 
     return suiteOfTests;
 }
@@ -425,12 +415,11 @@ void CForecastTest::test(TTrend trend,
     test::CRandomNumbers rng;
 
     maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{decayRateControllers()};
-    maths::CUnivariateTimeSeriesModel model(
-        params(bucketLength),
-        TAG,
-        maths::CTimeSeriesDecomposition(0.012, bucketLength),
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE),
-        &controllers);
+    maths::CUnivariateTimeSeriesModel model(params(bucketLength),
+                                            TAG,
+                                            maths::CTimeSeriesDecomposition(0.012, bucketLength),
+                                            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE),
+                                            &controllers);
 
     core_t::TTime time{0};
     TDouble2Vec4VecVec weights{{{1.0}}};
@@ -458,8 +447,7 @@ void CForecastTest::test(TTrend trend,
     core_t::TTime end{time + 2 * core::constants::WEEK};
     TModelPtr forecastModel(model.cloneForForecast());
     std::string m;
-    forecastModel->forecast(
-        start, end, 80.0, MINIMUM_VALUE, MAXIMUM_VALUE, boost::bind(&mockSink, _1, boost::ref(prediction)), m);
+    forecastModel->forecast(start, end, 80.0, MINIMUM_VALUE, MAXIMUM_VALUE, boost::bind(&mockSink, _1, boost::ref(prediction)), m);
 
     std::size_t outOfBounds{0};
     std::size_t count{0};

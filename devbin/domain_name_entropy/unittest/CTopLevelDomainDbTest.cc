@@ -32,9 +32,7 @@ CppUnit::Test* CTopLevelDomainDbTest::suite() {
 }
 
 namespace {
-void checkPublicSuffix(const std::string& fullName,
-                       const std::string& registeredNameExpected,
-                       CTopLevelDomainDb& tldDb) {
+void checkPublicSuffix(const std::string& fullName, const std::string& registeredNameExpected, CTopLevelDomainDb& tldDb) {
     std::string registeredName;
 
     tldDb.registeredDomainName(fullName, registeredName);

@@ -51,13 +51,13 @@ public:
 
     template<typename O1, typename O2, typename O3, typename O4>
     CPolymorphicStackObjectCPtr(const CPolymorphicStackObjectCPtr<BASE, O1, O2, O3, O4>& other) {
-#define MAYBE_SET(TYPE)                                                                                                \
-    {                                                                                                                  \
-        TYPE* d = other.template get<TYPE>();                                                                          \
-        if (d) {                                                                                                       \
-            m_Storage = *d;                                                                                            \
-            return;                                                                                                    \
-        }                                                                                                              \
+#define MAYBE_SET(TYPE)                                                                                                                    \
+    {                                                                                                                                      \
+        TYPE* d = other.template get<TYPE>();                                                                                              \
+        if (d) {                                                                                                                           \
+            m_Storage = *d;                                                                                                                \
+            return;                                                                                                                        \
+        }                                                                                                                                  \
     }
         MAYBE_SET(TConstD1);
         MAYBE_SET(TConstD2);
@@ -77,12 +77,12 @@ public:
     operator bool() const { return boost::relaxed_get<CNullPolymorphicStackObjectCPtr>(&m_Storage) == 0; }
 
     TConstBase* operator->(void)const {
-#define MAYBE_RETURN(TYPE)                                                                                             \
-    {                                                                                                                  \
-        TYPE* result = boost::relaxed_get<TYPE>(&m_Storage);                                                           \
-        if (result) {                                                                                                  \
-            return static_cast<TConstBase*>(result);                                                                   \
-        }                                                                                                              \
+#define MAYBE_RETURN(TYPE)                                                                                                                 \
+    {                                                                                                                                      \
+        TYPE* result = boost::relaxed_get<TYPE>(&m_Storage);                                                                               \
+        if (result) {                                                                                                                      \
+            return static_cast<TConstBase*>(result);                                                                                       \
+        }                                                                                                                                  \
     }
         MAYBE_RETURN(TConstD1);
         MAYBE_RETURN(TConstD2);

@@ -64,12 +64,8 @@ bool MATHS_EXPORT solveTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDo
 //! \param[in,out] x Initially contains the input vector \f$y\f$,
 //! and returns the solution \f$x\f$, indexed from [0, ..., n - 1].
 //! \note The contents of input vector c will be modified.
-bool MATHS_EXPORT solvePeturbedTridiagonal(const TDoubleVec& a,
-                                           const TDoubleVec& b,
-                                           TDoubleVec& c,
-                                           TDoubleVec& u,
-                                           const TDoubleVec& v,
-                                           TDoubleVec& x);
+bool MATHS_EXPORT
+solvePeturbedTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c, TDoubleVec& u, const TDoubleVec& v, TDoubleVec& x);
 }
 
 //! \brief Defines types used by the spline implementation.
@@ -177,10 +173,10 @@ public:
             return 0.0;
         }
 
-        std::size_t k = CTools::truncate(
-            std::size_t(std::lower_bound(this->knots().begin(), this->knots().end(), x) - this->knots().begin()),
-            std::size_t(1),
-            this->knots().size() - 1);
+        std::size_t k =
+            CTools::truncate(std::size_t(std::lower_bound(this->knots().begin(), this->knots().end(), x) - this->knots().begin()),
+                             std::size_t(1),
+                             this->knots().size() - 1);
 
         if (x == this->knots()[k]) {
             return this->values()[k];
@@ -198,8 +194,8 @@ public:
             double h = this->knots()[k] - this->knots()[k - 1];
             double a = (this->curvatures()[k] - this->curvatures()[k - 1]) / 6.0 / h;
             double b = this->curvatures()[k - 1] / 2.0;
-            double c = (this->values()[k] - this->values()[k - 1]) / h -
-                       (this->curvatures()[k] / 6.0 + this->curvatures()[k - 1] / 3.0) * h;
+            double c =
+                (this->values()[k] - this->values()[k - 1]) / h - (this->curvatures()[k] / 6.0 + this->curvatures()[k - 1] / 3.0) * h;
             double d = this->values()[k - 1];
             double r = x - this->knots()[k - 1];
             return ((a * r + b) * r + c) * r + d;
@@ -234,8 +230,8 @@ public:
                 double h = this->knots()[i] - this->knots()[i - 1];
                 double a = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
                 double b = this->curvatures()[i - 1] / 2.0;
-                double c = (this->values()[i] - this->values()[i - 1]) / h -
-                           (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
+                double c =
+                    (this->values()[i] - this->values()[i - 1]) / h - (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
                 double d = this->values()[i - 1];
                 result.add(((a * h / 4.0 + b / 3.0) * h + c / 2.0) * h + d, h / interval);
             }
@@ -255,10 +251,10 @@ public:
             return 0.0;
         }
 
-        std::size_t k = CTools::truncate(
-            std::size_t(std::lower_bound(this->knots().begin(), this->knots().end(), x) - this->knots().begin()),
-            std::size_t(1),
-            this->knots().size() - 1);
+        std::size_t k =
+            CTools::truncate(std::size_t(std::lower_bound(this->knots().begin(), this->knots().end(), x) - this->knots().begin()),
+                             std::size_t(1),
+                             this->knots().size() - 1);
 
         switch (m_Type) {
         case E_Linear: {
@@ -269,8 +265,8 @@ public:
             double h = this->knots()[k] - this->knots()[k - 1];
             double a = (this->curvatures()[k] - this->curvatures()[k - 1]) / 6.0 / h;
             double b = this->curvatures()[k - 1] / 2.0;
-            double c = (this->values()[k] - this->values()[k - 1]) / h -
-                       (this->curvatures()[k] / 6.0 + this->curvatures()[k - 1] / 3.0) * h;
+            double c =
+                (this->values()[k] - this->values()[k - 1]) / h - (this->curvatures()[k] / 6.0 + this->curvatures()[k - 1] / 3.0) * h;
             double r = x - this->knots()[k - 1];
             return ((3.0 * a * r + 2.0 * b) * r + c);
         }
@@ -304,8 +300,8 @@ public:
                 double h = b - a;
                 double ai = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
                 double bi = this->curvatures()[i - 1] / 2.0;
-                double ci = (this->values()[i] - this->values()[i - 1]) / h -
-                            (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
+                double ci =
+                    (this->values()[i] - this->values()[i - 1]) / h - (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
 
                 double descriminant = bi * bi - 3.0 * ai * ci;
                 if (descriminant < 0.0) {
@@ -399,8 +395,7 @@ public:
         }
         if (knots.size() != values.size()) {
             LOG_ERROR("Number knots not equal to number of values: "
-                      << " knots = " << core::CContainerPrinter::print(knots)
-                      << " values = " << core::CContainerPrinter::print(values));
+                      << " knots = " << core::CContainerPrinter::print(knots) << " values = " << core::CContainerPrinter::print(values));
             return false;
         }
 
@@ -485,8 +480,8 @@ public:
             case E_Periodic:
                 b.push_back(2.0 * (h + h_));
                 c.push_back(h - 1.0);
-                this->curvaturesRef().push_back(6.0 * ((this->values()[1] - this->values()[0]) / h -
-                                                       (this->values()[0] - this->values()[n - 2]) / h_));
+                this->curvaturesRef().push_back(
+                    6.0 * ((this->values()[1] - this->values()[0]) / h - (this->values()[0] - this->values()[n - 2]) / h_));
                 break;
             }
 
@@ -496,8 +491,8 @@ public:
                 a.push_back(h_);
                 b.push_back(2.0 * (h + h_));
                 c.push_back(h);
-                this->curvaturesRef().push_back(6.0 * ((this->values()[i + 1] - this->values()[i]) / h -
-                                                       (this->values()[i] - this->values()[i - 1]) / h_));
+                this->curvaturesRef().push_back(
+                    6.0 * ((this->values()[i + 1] - this->values()[i]) / h - (this->values()[i] - this->values()[i - 1]) / h_));
             }
 
             h_ = h;
@@ -533,8 +528,8 @@ public:
                 TDoubleVec v(n, 0.0);
                 v[1] = 1.0;
                 v[n - 2] = h_;
-                this->curvaturesRef().push_back(6.0 * ((this->values()[1] - this->values()[n - 1]) / h -
-                                                       (this->values()[n - 1] - this->values()[n - 2]) / h_));
+                this->curvaturesRef().push_back(
+                    6.0 * ((this->values()[1] - this->values()[n - 1]) / h - (this->values()[n - 1] - this->values()[n - 2]) / h_));
                 if (!spline_detail::solvePeturbedTridiagonal(a, b, c, u, v, this->curvaturesRef())) {
                     LOG_ERROR("Failed to calculate curvatures");
                     return false;
@@ -578,14 +573,13 @@ public:
                 double h = this->knots()[i] - this->knots()[i - 1];
                 double a = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
                 double b = this->curvatures()[i - 1] / 2.0;
-                double c = (this->values()[i] - this->values()[i - 1]) / h -
-                           (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
+                double c =
+                    (this->values()[i] - this->values()[i - 1]) / h - (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
                 double d = this->values()[i - 1];
                 std::string kl = core::CStringUtils::typeToStringPretty(this->knots()[i - 1]);
                 result += "\n" + indent + core::CStringUtils::typeToStringPretty(a) + " (x - " + kl + ")^3 + " +
-                          core::CStringUtils::typeToStringPretty(b) + " (x - " + kl + ")^2 + " +
-                          core::CStringUtils::typeToStringPretty(c) + " (x - " + kl + ") + " +
-                          core::CStringUtils::typeToStringPretty(d) + "   x in [" + kl + "," +
+                          core::CStringUtils::typeToStringPretty(b) + " (x - " + kl + ")^2 + " + core::CStringUtils::typeToStringPretty(c) +
+                          " (x - " + kl + ") + " + core::CStringUtils::typeToStringPretty(d) + "   x in [" + kl + "," +
                           core::CStringUtils::typeToStringPretty(this->knots()[i]) + ")";
             }
             break;

@@ -191,14 +191,12 @@ CppUnit::Test* CBucketQueueTest::suite() {
                                                                     &CBucketQueueTest::testGetGivenFullQueueWithNoPop));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>("CBucketQueueTest::testGetGivenFullQueueAfterPop",
                                                                     &CBucketQueueTest::testGetGivenFullQueueAfterPop));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>("CBucketQueueTest::testClear", &CBucketQueueTest::testClear));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>("CBucketQueueTest::testIterators", &CBucketQueueTest::testIterators));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CBucketQueueTest>("CBucketQueueTest::testClear", &CBucketQueueTest::testClear));
+        new CppUnit::TestCaller<CBucketQueueTest>("CBucketQueueTest::testReverseIterators", &CBucketQueueTest::testReverseIterators));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CBucketQueueTest>("CBucketQueueTest::testIterators", &CBucketQueueTest::testIterators));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>("CBucketQueueTest::testReverseIterators",
-                                                                    &CBucketQueueTest::testReverseIterators));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>("CBucketQueueTest::testBucketQueueUMap",
-                                                                    &CBucketQueueTest::testBucketQueueUMap));
+        new CppUnit::TestCaller<CBucketQueueTest>("CBucketQueueTest::testBucketQueueUMap", &CBucketQueueTest::testBucketQueueUMap));
 
     return suiteOfTests;
 }

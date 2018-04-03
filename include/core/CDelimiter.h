@@ -73,10 +73,7 @@ public:
 
     //! Tokenise a string, also retrieving an example of the literal
     //! delimiter that was found
-    void tokenise(const std::string& str,
-                  CStringUtils::TStrVec& tokens,
-                  std::string& exampleDelimiter,
-                  std::string& remainder) const;
+    void tokenise(const std::string& str, CStringUtils::TStrVec& tokens, std::string& exampleDelimiter, std::string& remainder) const;
 
     //! Tokenise a string, also retrieving an example of the literal
     //! delimiter that was found, stating whether time has passed since the

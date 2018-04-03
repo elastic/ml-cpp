@@ -55,8 +55,7 @@ class CPrior;
 //!
 //! By default this assumes the data has one day and one week
 //! periodicity, i.e. \f${ T_i } = { 86400, 604800 }\f$.
-class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInterface,
-                                              private CTimeSeriesDecompositionDetail {
+class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInterface, private CTimeSeriesDecompositionDetail {
 public:
     using TSizeVec = std::vector<std::size_t>;
 
@@ -165,8 +164,7 @@ public:
     //! to scale.
     //! \param[in] confidence The symmetric confidence interval
     //! for the variance scale as a percentage.
-    virtual maths_t::TDoubleDoublePr
-    scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
+    virtual maths_t::TDoubleDoublePr scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval);

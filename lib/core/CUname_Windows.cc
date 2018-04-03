@@ -130,23 +130,18 @@ std::string CUname::version(void) {
 
     DWORDLONG conditionMask(0);
     versionInfoEx.wProductType = VER_NT_DOMAIN_CONTROLLER;
-    if (VerifyVersionInfo(&versionInfoEx,
-                          VER_PRODUCT_TYPE,
-                          VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE, VER_EQUAL)) != FALSE) {
+    if (VerifyVersionInfo(&versionInfoEx, VER_PRODUCT_TYPE, VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE, VER_EQUAL)) != FALSE) {
         strm << " (Domain Controller)";
     } else {
         conditionMask = 0;
         versionInfoEx.wProductType = VER_NT_SERVER;
-        if (VerifyVersionInfo(&versionInfoEx,
-                              VER_PRODUCT_TYPE,
-                              VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE, VER_EQUAL)) != FALSE) {
+        if (VerifyVersionInfo(&versionInfoEx, VER_PRODUCT_TYPE, VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE, VER_EQUAL)) != FALSE) {
             strm << " (Server)";
         } else {
             conditionMask = 0;
             versionInfoEx.wProductType = VER_NT_WORKSTATION;
-            if (VerifyVersionInfo(&versionInfoEx,
-                                  VER_PRODUCT_TYPE,
-                                  VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE, VER_EQUAL)) != FALSE) {
+            if (VerifyVersionInfo(&versionInfoEx, VER_PRODUCT_TYPE, VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE, VER_EQUAL)) !=
+                FALSE) {
                 strm << " (Workstation)";
             }
         }

@@ -52,9 +52,7 @@ public:
 
     //! Wrapper for 1 timeseries model, its feature and by Field
     struct MODEL_EXPORT SForecastModelWrapper {
-        SForecastModelWrapper(model_t::EFeature feature,
-                              TMathsModelPtr&& forecastModel,
-                              const std::string& byFieldValue);
+        SForecastModelWrapper(model_t::EFeature feature, TMathsModelPtr&& forecastModel, const std::string& byFieldValue);
 
         SForecastModelWrapper(SForecastModelWrapper&& other);
 

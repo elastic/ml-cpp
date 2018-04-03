@@ -28,12 +28,7 @@ const char CLineifiedInputParser::LINE_END('\n');
 const size_t CLineifiedInputParser::WORK_BUFFER_SIZE(131072); // 128kB
 
 CLineifiedInputParser::CLineifiedInputParser(std::istream& strmIn)
-    : CInputParser(),
-      m_StrmIn(strmIn),
-      m_WorkBuffer(0),
-      m_WorkBufferCapacity(0),
-      m_WorkBufferPtr(0),
-      m_WorkBufferEnd(0) {
+    : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(0), m_WorkBufferCapacity(0), m_WorkBufferPtr(0), m_WorkBufferEnd(0) {
 }
 
 CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine(void) {

@@ -107,14 +107,12 @@ void CMultivariatePrior::addSamples(const TWeightStyleVec& weightStyles,
     this->addSamples(smallest(n));
 }
 
-CMultivariatePrior::TDouble10Vec
-CMultivariatePrior::nearestMarginalLikelihoodMean(const TDouble10Vec& /*value*/) const {
+CMultivariatePrior::TDouble10Vec CMultivariatePrior::nearestMarginalLikelihoodMean(const TDouble10Vec& /*value*/) const {
     return this->marginalLikelihoodMean();
 }
 
-CMultivariatePrior::TDouble10Vec1Vec
-CMultivariatePrior::marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
-                                            const TDouble10Vec4Vec& weights) const {
+CMultivariatePrior::TDouble10Vec1Vec CMultivariatePrior::marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
+                                                                                 const TDouble10Vec4Vec& weights) const {
     return TDouble10Vec1Vec{this->marginalLikelihoodMode(weightStyles, weights)};
 }
 
@@ -153,12 +151,10 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     static const TSize10Vec NO_MARGINS;
     static const TSizeDoublePr10Vec NO_CONDITIONS;
 
-    TJointProbabilityOfLessLikelySamplesVec lowerBounds_[2] = {
-        TJointProbabilityOfLessLikelySamplesVec(coordinates.size()),
-        TJointProbabilityOfLessLikelySamplesVec(coordinates.size())};
-    TJointProbabilityOfLessLikelySamplesVec upperBounds_[2] = {
-        TJointProbabilityOfLessLikelySamplesVec(coordinates.size()),
-        TJointProbabilityOfLessLikelySamplesVec(coordinates.size())};
+    TJointProbabilityOfLessLikelySamplesVec lowerBounds_[2] = {TJointProbabilityOfLessLikelySamplesVec(coordinates.size()),
+                                                               TJointProbabilityOfLessLikelySamplesVec(coordinates.size())};
+    TJointProbabilityOfLessLikelySamplesVec upperBounds_[2] = {TJointProbabilityOfLessLikelySamplesVec(coordinates.size()),
+                                                               TJointProbabilityOfLessLikelySamplesVec(coordinates.size())};
 
     std::size_t d = this->dimension();
     TSize10Vec marginalize(d - 1);
@@ -252,8 +248,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         sample[0] = samples[i];
         weight[0] = weights[i];
-        if (!this->probabilityOfLessLikelySamples(
-                calculation, weightStyles, sample, weight, coordinates, lbs, ubs, tail)) {
+        if (!this->probabilityOfLessLikelySamples(calculation, weightStyles, sample, weight, coordinates, lbs, ubs, tail)) {
             return false;
         }
 
@@ -433,9 +428,7 @@ bool CMultivariatePrior::check(const TSize10Vec& marginalize, const TSizeDoubleP
     return true;
 }
 
-void CMultivariatePrior::remainingVariables(const TSize10Vec& marginalize,
-                                            const TSizeDoublePr10Vec& condition,
-                                            TSize10Vec& result) const {
+void CMultivariatePrior::remainingVariables(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition, TSize10Vec& result) const {
     std::size_t d = this->dimension();
     result.reserve(d - marginalize.size() - condition.size());
     for (std::size_t i = 0u, j = 0u, k = 0u; k < d; ++k) {

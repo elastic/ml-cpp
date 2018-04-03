@@ -43,16 +43,8 @@ CCsvOutputWriter::CCsvOutputWriter(bool outputMessages, bool outputHeader, char 
     }
 }
 
-CCsvOutputWriter::CCsvOutputWriter(std::ostream& strmOut,
-                                   bool outputMessages,
-                                   bool outputHeader,
-                                   char escape,
-                                   char separator)
-    : m_StrmOut(strmOut),
-      m_OutputMessages(outputMessages),
-      m_OutputHeader(outputHeader),
-      m_Escape(escape),
-      m_Separator(separator) {
+CCsvOutputWriter::CCsvOutputWriter(std::ostream& strmOut, bool outputMessages, bool outputHeader, char escape, char separator)
+    : m_StrmOut(strmOut), m_OutputMessages(outputMessages), m_OutputHeader(outputHeader), m_Escape(escape), m_Separator(separator) {
     if (m_Separator == QUOTE || m_Separator == m_Escape || m_Separator == RECORD_END) {
         LOG_ERROR("CSV output writer will not generate parsable output because "
                   "separator character ("
@@ -161,8 +153,7 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrU
     }
     this->appendField(fieldValueIter->second);
 
-    for (++fieldNameIter, ++preComputedHashIter;
-         fieldNameIter != m_FieldNames.end() && preComputedHashIter != m_Hashes.end();
+    for (++fieldNameIter, ++preComputedHashIter; fieldNameIter != m_FieldNames.end() && preComputedHashIter != m_Hashes.end();
          ++fieldNameIter, ++preComputedHashIter) {
         m_WorkRecord += m_Separator;
 

@@ -47,13 +47,9 @@ public:
 
 public:
     CCalendarComponentAdaptiveBucketing(void);
-    explicit CCalendarComponentAdaptiveBucketing(CCalendarFeature feature,
-                                                 double decayRate = 0.0,
-                                                 double minimumBucketLength = 0.0);
+    explicit CCalendarComponentAdaptiveBucketing(CCalendarFeature feature, double decayRate = 0.0, double minimumBucketLength = 0.0);
     //! Construct by traversing a state document.
-    CCalendarComponentAdaptiveBucketing(double decayRate,
-                                        double minimumBucketLength,
-                                        core::CStateRestoreTraverser& traverser);
+    CCalendarComponentAdaptiveBucketing(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser);
 
     //! Persist by passing information to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

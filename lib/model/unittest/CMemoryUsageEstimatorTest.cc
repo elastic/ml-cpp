@@ -173,8 +173,7 @@ void CMemoryUsageEstimatorTest::testPersist(void) {
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         CMemoryUsageEstimator restoredEstimator;
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&CMemoryUsageEstimator::acceptRestoreTraverser, &restoredEstimator, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(&CMemoryUsageEstimator::acceptRestoreTraverser, &restoredEstimator, _1)));
 
         // The XML representation of the new data gatherer should be the same
         // as the original.
@@ -211,8 +210,7 @@ void CMemoryUsageEstimatorTest::testPersist(void) {
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         CMemoryUsageEstimator restoredEstimator;
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&CMemoryUsageEstimator::acceptRestoreTraverser, &restoredEstimator, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(&CMemoryUsageEstimator::acceptRestoreTraverser, &restoredEstimator, _1)));
 
         // The XML representation of the new data gatherer should be the same
         // as the original.
@@ -229,10 +227,10 @@ void CMemoryUsageEstimatorTest::testPersist(void) {
 CppUnit::Test* CMemoryUsageEstimatorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMemoryUsageEstimatorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>(
-        "CMemoryUsageEstimatorTest::testEstimateLinear", &CMemoryUsageEstimatorTest::testEstimateLinear));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>(
-        "CMemoryUsageEstimatorTest::testEstimateNonlinear", &CMemoryUsageEstimatorTest::testEstimateNonlinear));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>("CMemoryUsageEstimatorTest::testEstimateLinear",
+                                                                             &CMemoryUsageEstimatorTest::testEstimateLinear));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>("CMemoryUsageEstimatorTest::testEstimateNonlinear",
+                                                                             &CMemoryUsageEstimatorTest::testEstimateNonlinear));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>("CMemoryUsageEstimatorTest::testPersist",
                                                                              &CMemoryUsageEstimatorTest::testPersist));
 

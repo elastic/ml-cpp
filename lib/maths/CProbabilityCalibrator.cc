@@ -53,9 +53,7 @@ const std::string EMPTY_STRING;
 }
 
 CProbabilityCalibrator::CProbabilityCalibrator(EStyle style, double cutoffProbability)
-    : m_Style(style),
-      m_CutoffProbability(cutoffProbability),
-      m_DiscreteProbabilityQuantiles(new CQDigest(QUANTILE_SIZE)) {
+    : m_Style(style), m_CutoffProbability(cutoffProbability), m_DiscreteProbabilityQuantiles(new CQDigest(QUANTILE_SIZE)) {
     if (!(m_CutoffProbability >= 0.0 && m_CutoffProbability <= 1.0)) {
         LOG_ERROR("Invalid cutoff probability " << m_CutoffProbability);
         CTools::truncate(m_CutoffProbability, 0.0, 1.0);
@@ -85,8 +83,8 @@ bool CProbabilityCalibrator::acceptRestoreTraverser(core::CStateRestoreTraverser
                 return false;
             }
         } else if (name == DISCRETE_PROBABILITY_QUANTILE_TAG) {
-            if (traverser.traverseSubLevel(boost::bind(
-                    &CQDigest::acceptRestoreTraverser, m_DiscreteProbabilityQuantiles.get(), _1)) == false) {
+            if (traverser.traverseSubLevel(boost::bind(&CQDigest::acceptRestoreTraverser, m_DiscreteProbabilityQuantiles.get(), _1)) ==
+                false) {
                 LOG_ERROR("Invalid quantiles in " << traverser.value());
                 return false;
             }

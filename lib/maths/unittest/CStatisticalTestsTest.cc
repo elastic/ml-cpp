@@ -76,10 +76,9 @@ void CStatisticalTestsTest::testCramerVonMises(void) {
             double meanError = 0.0;
             for (std::size_t j = 0; j < 21; ++j) {
                 double percentile = static_cast<double>(j) / 20.0;
-                double pp = static_cast<double>(std::lower_bound(p.begin(), p.end(), percentile) - p.begin()) /
-                            static_cast<double>(p.size());
-                LOG_DEBUG("percentile = " << percentile << ", p value percentile = " << pp
-                                          << ", error = " << ::fabs(pp - percentile));
+                double pp =
+                    static_cast<double>(std::lower_bound(p.begin(), p.end(), percentile) - p.begin()) / static_cast<double>(p.size());
+                LOG_DEBUG("percentile = " << percentile << ", p value percentile = " << pp << ", error = " << ::fabs(pp - percentile));
                 meanError += ::fabs(pp - percentile);
                 CPPUNIT_ASSERT(::fabs(pp - percentile) < 0.055);
             }
@@ -107,10 +106,9 @@ void CStatisticalTestsTest::testCramerVonMises(void) {
             double meanError = 0.0;
             for (std::size_t j = 0; j < 21; ++j) {
                 double percentile = static_cast<double>(j) / 20.0;
-                double pp = static_cast<double>(std::lower_bound(p.begin(), p.end(), percentile) - p.begin()) /
-                            static_cast<double>(p.size());
-                LOG_DEBUG("percentile = " << percentile << ", p value percentile = " << pp
-                                          << ", error = " << ::fabs(pp - percentile));
+                double pp =
+                    static_cast<double>(std::lower_bound(p.begin(), p.end(), percentile) - p.begin()) / static_cast<double>(p.size());
+                LOG_DEBUG("percentile = " << percentile << ", p value percentile = " << pp << ", error = " << ::fabs(pp - percentile));
                 meanError += ::fabs(pp - percentile);
                 CPPUNIT_ASSERT(::fabs(pp - percentile) < 0.055);
             }
@@ -178,8 +176,8 @@ CppUnit::Test* CStatisticalTestsTest::suite(void) {
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>("CStatisticalTestsTest::testCramerVonMises",
                                                                          &CStatisticalTestsTest::testCramerVonMises));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>("CStatisticalTestsTest::testPersist",
-                                                                         &CStatisticalTestsTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStatisticalTestsTest>("CStatisticalTestsTest::testPersist", &CStatisticalTestsTest::testPersist));
 
     return suiteOfTests;
 }

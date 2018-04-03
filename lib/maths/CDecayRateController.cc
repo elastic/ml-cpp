@@ -136,8 +136,7 @@ bool CDecayRateController::acceptRestoreTraverser(core::CStateRestoreTraverser& 
         RESTORE(PREDICTION_MEAN_TAG, core::CPersistUtils::restore(PREDICTION_MEAN_TAG, m_PredictionMean, traverser));
         RESTORE(BIAS_TAG, core::CPersistUtils::restore(BIAS_TAG, m_Bias, traverser))
         RESTORE(RECENT_ABS_ERROR_TAG, core::CPersistUtils::restore(RECENT_ABS_ERROR_TAG, m_RecentAbsError, traverser))
-        RESTORE(HISTORICAL_ABS_ERROR_TAG,
-                core::CPersistUtils::restore(HISTORICAL_ABS_ERROR_TAG, m_HistoricalAbsError, traverser))
+        RESTORE(HISTORICAL_ABS_ERROR_TAG, core::CPersistUtils::restore(HISTORICAL_ABS_ERROR_TAG, m_HistoricalAbsError, traverser))
     } while (traverser.next());
     if (CBasicStatistics::count(m_Multiplier) == 0.0) {
         m_Multiplier.add(m_Target);
@@ -210,9 +209,8 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
     }
 
     if (count > 0.0) {
-        double factors[]{std::exp(-FAST_DECAY_RATE * decayRate),
-                         std::exp(-FAST_DECAY_RATE * decayRate),
-                         std::exp(-SLOW_DECAY_RATE * decayRate)};
+        double factors[]{
+            std::exp(-FAST_DECAY_RATE * decayRate), std::exp(-FAST_DECAY_RATE * decayRate), std::exp(-SLOW_DECAY_RATE * decayRate)};
         for (auto& component : m_PredictionMean) {
             component.age(factors[2]);
         }
@@ -238,9 +236,7 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
             change.add(this->change(stats, bucketLength));
         }
 
-        m_Target *=
-            CTools::truncate(m_Target * change[0], MINIMUM_MULTIPLIER, adjustedMaximumMultiplier(bucketLength)) /
-            m_Target;
+        m_Target *= CTools::truncate(m_Target * change[0], MINIMUM_MULTIPLIER, adjustedMaximumMultiplier(bucketLength)) / m_Target;
 
         // We smooth the target decay rate. Over time this should
         // converge to the single decay rate which would minimize

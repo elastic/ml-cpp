@@ -48,10 +48,8 @@ const std::string TTIME_ARRAY_NAME("TTime[]");
 void CRapidJsonLineWriterTest::testDoublePrecission(void) {
     std::ostringstream strm;
     {
-        using TGenericLineWriter = ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper,
-                                                                  rapidjson::UTF8<>,
-                                                                  rapidjson::UTF8<>,
-                                                                  rapidjson::CrtAllocator>;
+        using TGenericLineWriter =
+            ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>, rapidjson::CrtAllocator>;
         rapidjson::OStreamWrapper writeStream(strm);
         TGenericLineWriter writer(writeStream);
 
@@ -125,10 +123,10 @@ void CRapidJsonLineWriterTest::microBenchmark(void) {
 CppUnit::Test* CRapidJsonLineWriterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidJsonLineWriterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonLineWriterTest>(
-        "CRapidJsonLineWriterTest::testDoublePrecissionDtoa", &CRapidJsonLineWriterTest::testDoublePrecissionDtoa));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonLineWriterTest>(
-        "CRapidJsonLineWriterTest::testDoublePrecission", &CRapidJsonLineWriterTest::testDoublePrecission));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonLineWriterTest>("CRapidJsonLineWriterTest::testDoublePrecissionDtoa",
+                                                                            &CRapidJsonLineWriterTest::testDoublePrecissionDtoa));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonLineWriterTest>("CRapidJsonLineWriterTest::testDoublePrecission",
+                                                                            &CRapidJsonLineWriterTest::testDoublePrecission));
 
     // microbenchmark, enable if you are interested
     /*suiteOfTests->addTest( new CppUnit::TestCaller<CRapidJsonLineWriterTest>(

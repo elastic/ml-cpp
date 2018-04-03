@@ -24,8 +24,7 @@
 CppUnit::Test* CBuildInfoTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBuildInfoTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CBuildInfoTest>("CBuildInfoTest::testFullInfo", &CBuildInfoTest::testFullInfo));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBuildInfoTest>("CBuildInfoTest::testFullInfo", &CBuildInfoTest::testFullInfo));
 
     return suiteOfTests;
 }

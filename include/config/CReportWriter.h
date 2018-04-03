@@ -117,14 +117,10 @@ public:
     void addFieldStatistics(const std::string& field, config_t::EDataType type, const CDataSummaryStatistics& summary);
 
     //! Add the summary for the categorical field \p field.
-    void addFieldStatistics(const std::string& field,
-                            config_t::EDataType type,
-                            const CCategoricalDataSummaryStatistics& summary);
+    void addFieldStatistics(const std::string& field, config_t::EDataType type, const CCategoricalDataSummaryStatistics& summary);
 
     //! Add the summary for the numeric field \p field.
-    void addFieldStatistics(const std::string& field,
-                            config_t::EDataType type,
-                            const CNumericDataSummaryStatistics& summary);
+    void addFieldStatistics(const std::string& field, config_t::EDataType type, const CNumericDataSummaryStatistics& summary);
 
     //! Add a summary of the detector \p detector.
     void addDetector(const CDetectorSpecification& spec);

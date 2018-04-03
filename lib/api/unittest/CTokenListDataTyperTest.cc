@@ -44,32 +44,32 @@ const TTokenListDataTyperKeepsFields::TTokenListReverseSearchCreatorIntfCPtr NO_
 CppUnit::Test* CTokenListDataTyperTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTokenListDataTyperTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testHexData",
-                                                                           &CTokenListDataTyperTest::testHexData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testRmdsData",
-                                                                           &CTokenListDataTyperTest::testRmdsData));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testHexData", &CTokenListDataTyperTest::testHexData));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testRmdsData", &CTokenListDataTyperTest::testRmdsData));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testProxyData",
                                                                            &CTokenListDataTyperTest::testProxyData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testFxData",
-                                                                           &CTokenListDataTyperTest::testFxData));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testFxData", &CTokenListDataTyperTest::testFxData));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testApacheData",
                                                                            &CTokenListDataTyperTest::testApacheData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>(
-        "CTokenListDataTyperTest::testBrokerageData", &CTokenListDataTyperTest::testBrokerageData));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testBrokerageData",
+                                                                           &CTokenListDataTyperTest::testBrokerageData));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testVmwareData",
                                                                            &CTokenListDataTyperTest::testVmwareData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testBankData",
-                                                                           &CTokenListDataTyperTest::testBankData));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testBankData", &CTokenListDataTyperTest::testBankData));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testJavaGcData",
                                                                            &CTokenListDataTyperTest::testJavaGcData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testPersist",
-                                                                           &CTokenListDataTyperTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>(
-        "CTokenListDataTyperTest::testLongReverseSearch", &CTokenListDataTyperTest::testLongReverseSearch));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testPersist", &CTokenListDataTyperTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testLongReverseSearch",
+                                                                           &CTokenListDataTyperTest::testLongReverseSearch));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testPreTokenised",
                                                                            &CTokenListDataTyperTest::testPreTokenised));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>(
-        "CTokenListDataTyperTest::testPreTokenisedPerformance", &CTokenListDataTyperTest::testPreTokenisedPerformance));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListDataTyperTest>("CTokenListDataTyperTest::testPreTokenisedPerformance",
+                                                                           &CTokenListDataTyperTest::testPreTokenisedPerformance));
 
     return suiteOfTests;
 }
@@ -97,43 +97,31 @@ void CTokenListDataTyperTest::testHexData(void) {
 void CTokenListDataTyperTest::testRmdsData(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
-    CPPUNIT_ASSERT_EQUAL(
-        1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        1, typer.computeType(false, "<ml13-4602.1.p2ps: Info: > Source MONEYBROKER on 13112:736 has shut down.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        1, typer.computeType(false, "<ml13-4606.1.p2ps: Info: > Source CUBE_LIQUID on 13188:2010 has shut down.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML SERVICE2 on 13122:867 has shut down.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        2, typer.computeType(false, "<ml13-4602.1.p2ps: Info: > Source MONEYBROKER on 13112:736 has started.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        2, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has started.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        3, typer.computeType(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX, id of 132, has started.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        3, typer.computeType(false, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        3, typer.computeType(false, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.", 500));
-    CPPUNIT_ASSERT_EQUAL(4,
-                         typer.computeType(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
+    CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.", 500));
+    CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<ml13-4602.1.p2ps: Info: > Source MONEYBROKER on 13112:736 has shut down.", 500));
+    CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<ml13-4606.1.p2ps: Info: > Source CUBE_LIQUID on 13188:2010 has shut down.", 500));
+    CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML SERVICE2 on 13122:867 has shut down.", 500));
+    CPPUNIT_ASSERT_EQUAL(2, typer.computeType(false, "<ml13-4602.1.p2ps: Info: > Source MONEYBROKER on 13112:736 has started.", 500));
+    CPPUNIT_ASSERT_EQUAL(2, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has started.", 500));
+    CPPUNIT_ASSERT_EQUAL(3, typer.computeType(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX, id of 132, has started.", 500));
+    CPPUNIT_ASSERT_EQUAL(3, typer.computeType(false, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.", 500));
+    CPPUNIT_ASSERT_EQUAL(3, typer.computeType(false, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.", 500));
+    CPPUNIT_ASSERT_EQUAL(4, typer.computeType(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
 }
 
 void CTokenListDataTyperTest::testProxyData(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
-    CPPUNIT_ASSERT_EQUAL(
-        1,
-        typer.computeType(false,
-                          " [1094662464] INFO  transaction <3c26701d3140-kn8n1c8f5d2o> - Transaction TID: "
-                          "z9hG4bKy6aEy6aEy6aEaUgi!UmU-Ma.9-6bf50ea0192.168.251.8SUBSCRIBE deleted",
-                          500));
-    CPPUNIT_ASSERT_EQUAL(
-        1,
-        typer.computeType(false,
-                          " [1091504448] INFO  transaction <3c26701ad775-1cref2zy3w9e> - Transaction TID: "
-                          "z9hG4bK_UQA_UQA_UQAsO0i!OG!yYK.25-5bee09e0192.168.251.8SUBSCRIBE deleted",
-                          500));
+    CPPUNIT_ASSERT_EQUAL(1,
+                         typer.computeType(false,
+                                           " [1094662464] INFO  transaction <3c26701d3140-kn8n1c8f5d2o> - Transaction TID: "
+                                           "z9hG4bKy6aEy6aEy6aEaUgi!UmU-Ma.9-6bf50ea0192.168.251.8SUBSCRIBE deleted",
+                                           500));
+    CPPUNIT_ASSERT_EQUAL(1,
+                         typer.computeType(false,
+                                           " [1091504448] INFO  transaction <3c26701ad775-1cref2zy3w9e> - Transaction TID: "
+                                           "z9hG4bK_UQA_UQA_UQAsO0i!OG!yYK.25-5bee09e0192.168.251.8SUBSCRIBE deleted",
+                                           500));
     CPPUNIT_ASSERT_EQUAL(2,
                          typer.computeType(false,
                                            " [1094662464] INFO  transactionuser <6508700927200972648@10.10.18.82> - "
@@ -192,15 +180,14 @@ void CTokenListDataTyperTest::testApacheData(void) {
 void CTokenListDataTyperTest::testBrokerageData(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
-    CPPUNIT_ASSERT_EQUAL(
-        1,
-        typer.computeType(false,
-                          "AUDIT  ; tomcat-http--16; ee96c0c4567c0c11d6b90f9bc8b54aaa77; "
-                          "REQ4e42023e0a0328d020003e460005aa33; applnx911.elastic.co; ; Request Complete: "
-                          "/mlgw/mlb/ofsummary/summary "
-                          "[T=283ms,CUSTPREF-WEB_ACCOUNT_PREFERENCES=95,MAUI-ETSPROF2=155,NBMSG-NB_MESSAGING_SERVICE="
-                          "164,CustAcctProfile=BRK=2;NB=0;FILI=0;CESG=0;CC=0;AcctTotal=2,migrated=2]",
-                          500));
+    CPPUNIT_ASSERT_EQUAL(1,
+                         typer.computeType(false,
+                                           "AUDIT  ; tomcat-http--16; ee96c0c4567c0c11d6b90f9bc8b54aaa77; "
+                                           "REQ4e42023e0a0328d020003e460005aa33; applnx911.elastic.co; ; Request Complete: "
+                                           "/mlgw/mlb/ofsummary/summary "
+                                           "[T=283ms,CUSTPREF-WEB_ACCOUNT_PREFERENCES=95,MAUI-ETSPROF2=155,NBMSG-NB_MESSAGING_SERVICE="
+                                           "164,CustAcctProfile=BRK=2;NB=0;FILI=0;CESG=0;CC=0;AcctTotal=2,migrated=2]",
+                                           500));
     CPPUNIT_ASSERT_EQUAL(2,
                          typer.computeType(false,
                                            "AUDIT  ; tomcat-http--39; ee763e95747c0b11d6b90f9bc8b54aaa77; "
@@ -223,9 +210,7 @@ void CTokenListDataTyperTest::testVmwareData(void) {
     CPPUNIT_ASSERT_EQUAL(
         1,
         typer.computeType(
-            false,
-            "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback",
-            103));
+            false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback", 103));
     CPPUNIT_ASSERT_EQUAL(2,
                          typer.computeType(false,
                                            "Vpxa: [49EC0B90 verbose 'Default' opID=WFU-ddeadb59] [VpxaHalVmHostagent] "
@@ -234,15 +219,11 @@ void CTokenListDataTyperTest::testVmwareData(void) {
     CPPUNIT_ASSERT_EQUAL(
         3,
         typer.computeType(
-            false,
-            "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Completed callback",
-            104));
+            false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Completed callback", 104));
     CPPUNIT_ASSERT_EQUAL(
         1,
         typer.computeType(
-            false,
-            "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-35689729] [WaitForUpdatesDone] Received callback",
-            103));
+            false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-35689729] [WaitForUpdatesDone] Received callback", 103));
     CPPUNIT_ASSERT_EQUAL(2,
                          typer.computeType(false,
                                            "Vpxa: [49EC0B90 verbose 'Default' opID=WFU-35689729] [VpxaHalVmHostagent] "
@@ -251,9 +232,7 @@ void CTokenListDataTyperTest::testVmwareData(void) {
     CPPUNIT_ASSERT_EQUAL(
         3,
         typer.computeType(
-            false,
-            "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-35689729] [WaitForUpdatesDone] Completed callback",
-            104));
+            false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-35689729] [WaitForUpdatesDone] Completed callback", 104));
 }
 
 void CTokenListDataTyperTest::testBankData(void) {
@@ -264,12 +243,11 @@ void CTokenListDataTyperTest::testBankData(void) {
                                            "INFO  [co.elastic.settlement.synchronization.PaymentFlowProcessorImpl] "
                                            "Process payment flow for tradeId=80894728 and backOfficeId=9354474",
                                            500));
-    CPPUNIT_ASSERT_EQUAL(
-        2,
-        typer.computeType(false,
-                          "INFO  [co.elastic.settlement.synchronization.PaymentFlowProcessorImpl] Synchronization of "
-                          "payment flow is complete for tradeId=80013186 and backOfficeId=265573",
-                          500));
+    CPPUNIT_ASSERT_EQUAL(2,
+                         typer.computeType(false,
+                                           "INFO  [co.elastic.settlement.synchronization.PaymentFlowProcessorImpl] Synchronization of "
+                                           "payment flow is complete for tradeId=80013186 and backOfficeId=265573",
+                                           500));
 
     // This is not great, but it's tricky when only 1 word differs from the
     // first type
@@ -363,8 +341,8 @@ void CTokenListDataTyperTest::testPersist(void) {
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&TTokenListDataTyperKeepsFields::acceptRestoreTraverser, &restoredTyper, _1)));
+        CPPUNIT_ASSERT(
+            traverser.traverseSubLevel(boost::bind(&TTokenListDataTyperKeepsFields::acceptRestoreTraverser, &restoredTyper, _1)));
     }
 
     // The XML representation of the new typer should be the same as the original
@@ -427,35 +405,23 @@ void CTokenListDataTyperTest::testLongReverseSearch(void) {
 void CTokenListDataTyperTest::testPreTokenised(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
-    CPPUNIT_ASSERT_EQUAL(
-        1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        1, typer.computeType(false, "<ml13-4602.1.p2ps: Info: > Source MONEYBROKER on 13112:736 has shut down.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        1, typer.computeType(false, "<ml13-4606.1.p2ps: Info: > Source CUBE_LIQUID on 13188:2010 has shut down.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML SERVICE2 on 13122:867 has shut down.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        2, typer.computeType(false, "<ml13-4602.1.p2ps: Info: > Source MONEYBROKER on 13112:736 has started.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        2, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has started.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        3, typer.computeType(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX, id of 132, has started.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        3, typer.computeType(false, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.", 500));
-    CPPUNIT_ASSERT_EQUAL(
-        3, typer.computeType(false, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.", 500));
-    CPPUNIT_ASSERT_EQUAL(4,
-                         typer.computeType(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
+    CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.", 500));
+    CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<ml13-4602.1.p2ps: Info: > Source MONEYBROKER on 13112:736 has shut down.", 500));
+    CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<ml13-4606.1.p2ps: Info: > Source CUBE_LIQUID on 13188:2010 has shut down.", 500));
+    CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML SERVICE2 on 13122:867 has shut down.", 500));
+    CPPUNIT_ASSERT_EQUAL(2, typer.computeType(false, "<ml13-4602.1.p2ps: Info: > Source MONEYBROKER on 13112:736 has started.", 500));
+    CPPUNIT_ASSERT_EQUAL(2, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has started.", 500));
+    CPPUNIT_ASSERT_EQUAL(3, typer.computeType(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX, id of 132, has started.", 500));
+    CPPUNIT_ASSERT_EQUAL(3, typer.computeType(false, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.", 500));
+    CPPUNIT_ASSERT_EQUAL(3, typer.computeType(false, "<ml00-4601.1.p2ps: Info: > Service CUBE_IDEM, id of 232, has started.", 500));
+    CPPUNIT_ASSERT_EQUAL(4, typer.computeType(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
 
     TTokenListDataTyperKeepsFields::TStrStrUMap fields;
 
     // The pre-tokenised tokens exactly match those of the other message in
     // category 4, so this should get put it category 4
-    fields[TTokenListDataTyperKeepsFields::PRETOKENISED_TOKEN_FIELD] =
-        "ml00-4201.1.p2ps,Info,Service,CUBE_CHIX,has,shut,down";
-    CPPUNIT_ASSERT_EQUAL(
-        4, typer.computeType(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
+    fields[TTokenListDataTyperKeepsFields::PRETOKENISED_TOKEN_FIELD] = "ml00-4201.1.p2ps,Info,Service,CUBE_CHIX,has,shut,down";
+    CPPUNIT_ASSERT_EQUAL(4, typer.computeType(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
 
     // Here we cheat.  The pre-tokenised tokens exactly match those of the
     // first message, so this should get put in category 1.  But the full
@@ -464,16 +430,13 @@ void CTokenListDataTyperTest::testPreTokenised(void) {
     // means there's a bug where the pre-tokenised tokens are being ignored.
     // (Obviously in production we wouldn't get the discrepancy between the
     // pre-tokenised tokens and the full message.)
-    fields[TTokenListDataTyperKeepsFields::PRETOKENISED_TOKEN_FIELD] =
-        "ml13-4608.1.p2ps,Info,Source,ML_SERVICE2,on,has,shut,down";
-    CPPUNIT_ASSERT_EQUAL(
-        1, typer.computeType(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
+    fields[TTokenListDataTyperKeepsFields::PRETOKENISED_TOKEN_FIELD] = "ml13-4608.1.p2ps,Info,Source,ML_SERVICE2,on,has,shut,down";
+    CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
 
     // Similar principle, but with Chinese, Japanese and Korean tokens, so
     // should go in a new category.
     fields[TTokenListDataTyperKeepsFields::PRETOKENISED_TOKEN_FIELD] = "编码,コーディング,코딩";
-    CPPUNIT_ASSERT_EQUAL(
-        5, typer.computeType(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
+    CPPUNIT_ASSERT_EQUAL(5, typer.computeType(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
 }
 
 void CTokenListDataTyperTest::testPreTokenisedPerformance(void) {

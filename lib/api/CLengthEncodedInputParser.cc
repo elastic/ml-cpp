@@ -38,12 +38,7 @@ namespace api {
 const size_t CLengthEncodedInputParser::WORK_BUFFER_SIZE(8192); // 8kB
 
 CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream& strmIn)
-    : CInputParser(),
-      m_StrmIn(strmIn),
-      m_WorkBuffer(0),
-      m_WorkBufferPtr(0),
-      m_WorkBufferEnd(0),
-      m_NoMoreRecords(false) {
+    : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(0), m_WorkBufferPtr(0), m_WorkBufferEnd(0), m_NoMoreRecords(false) {
     // This test is not ideal because std::cin's stream buffer could have been
     // changed
     if (strmIn.rdbuf() == std::cin.rdbuf()) {
@@ -156,8 +151,7 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
             std::string temp;
             results.resize(numFields, typename STR_VEC::value_type(temp));
         } else {
-            LOG_ERROR("Incorrect number of fields in input stream record: expected " << results.size() << " but got "
-                                                                                     << numFields);
+            LOG_ERROR("Incorrect number of fields in input stream record: expected " << results.size() << " but got " << numFields);
             return false;
         }
     }

@@ -153,8 +153,7 @@ void CDataSemantics::add(const std::string& example) {
         m_NonNumericValues.push_back(trimmed);
     }
 
-    if (m_DistinctValues.size() < 3 &&
-        std::find(m_DistinctValues.begin(), m_DistinctValues.end(), example) == m_DistinctValues.end()) {
+    if (m_DistinctValues.size() < 3 && std::find(m_DistinctValues.begin(), m_DistinctValues.end(), example) == m_DistinctValues.end()) {
         m_DistinctValues.push_back(example);
     }
 
@@ -219,8 +218,7 @@ config_t::EDataType CDataSemantics::integerType(void) const {
 
 bool CDataSemantics::isNumeric(void) const {
     return m_NumericProportion >= NUMERIC_PROPORTION_FOR_METRIC_STRICT ||
-           (m_NonNumericValues.size() < 2 &&
-            m_NumericProportion >= NUMERIC_PROPORTION_FOR_METRIC_WITH_SUSPECTED_MISSING_VALUES);
+           (m_NonNumericValues.size() < 2 && m_NumericProportion >= NUMERIC_PROPORTION_FOR_METRIC_WITH_SUSPECTED_MISSING_VALUES);
 }
 
 bool CDataSemantics::isInteger(void) const {

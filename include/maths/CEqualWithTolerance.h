@@ -93,9 +93,7 @@ public:
         : m_ToleranceType(toleranceType), m_AbsoluteEps(abs(norm(eps))), m_RelativeEps(abs(norm(eps))) {}
 
     CEqualWithTolerance(unsigned int toleranceType, const T& absoluteEps, const T& relativeEps)
-        : m_ToleranceType(toleranceType),
-          m_AbsoluteEps(abs(norm(absoluteEps))),
-          m_RelativeEps(abs(norm(relativeEps))) {}
+        : m_ToleranceType(toleranceType), m_AbsoluteEps(abs(norm(absoluteEps))), m_RelativeEps(abs(norm(relativeEps))) {}
 
     bool operator()(const T& lhs, const T& rhs) const {
         const T& max = norm(rhs) > norm(lhs) ? rhs : lhs;

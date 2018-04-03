@@ -268,8 +268,7 @@ bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, CXmlParser::T
         return false;
     }
 
-    xmlXPathObject* xpathObj(
-        xmlXPathEvalExpression(reinterpret_cast<const xmlChar*>(xpathExpr.c_str()), m_XPathContext));
+    xmlXPathObject* xpathObj(xmlXPathEvalExpression(reinterpret_cast<const xmlChar*>(xpathExpr.c_str()), m_XPathContext));
     if (xpathObj == 0) {
         LOG_ERROR("Unable to evaluate xpath expression " << xpathExpr);
         return false;
@@ -311,8 +310,7 @@ bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, CXmlParser::T
                 const xmlChar* propName(prop->name);
                 xmlChar* propValue(xmlGetProp(nodes->nodeTab[i], propName));
 
-                attrs.push_back(
-                    CXmlNode::TStrStrPr(reinterpret_cast<const char*>(propName), reinterpret_cast<char*>(propValue)));
+                attrs.push_back(CXmlNode::TStrStrPr(reinterpret_cast<const char*>(propName), reinterpret_cast<char*>(propValue)));
 
                 xmlFree(propValue);
 
@@ -410,8 +408,7 @@ void CXmlParser::convert(size_t indentSpaces, const CXmlNodeWithChildren& root, 
 void CXmlParser::convertChildren(const CXmlNodeWithChildren& current, xmlNode& xmlRep) {
     const CXmlNodeWithChildren::TChildNodePVec& childVec = current.children();
 
-    for (CXmlNodeWithChildren::TChildNodePVecCItr childIter = childVec.begin(); childIter != childVec.end();
-         ++childIter) {
+    for (CXmlNodeWithChildren::TChildNodePVecCItr childIter = childVec.begin(); childIter != childVec.end(); ++childIter) {
         const CXmlNodeWithChildren* child = childIter->get();
         if (child != 0) {
             xmlNode* childRep(0);
@@ -471,17 +468,15 @@ void CXmlParser::convert(size_t indentSpaces, const std::string& root, const TSt
             tag.erase(attrPos);
         }
 
-        xmlNode* childRep(xmlNewTextChild(rootNode,
-                                          0,
-                                          reinterpret_cast<const xmlChar*>(tag.c_str()),
-                                          reinterpret_cast<const xmlChar*>(itr->second.c_str())));
+        xmlNode* childRep(xmlNewTextChild(
+            rootNode, 0, reinterpret_cast<const xmlChar*>(tag.c_str()), reinterpret_cast<const xmlChar*>(itr->second.c_str())));
 
         if (!attribute.empty()) {
             size_t eqPos(attribute.find(ATTRIBUTE_EQUALS));
             if (eqPos == std::string::npos || eqPos == 0) {
-                LOG_ERROR("Attribute format does not contain '"
-                          << ATTRIBUTE_EQUALS << "' surrounded by name and value : " << attribute << core_t::LINE_ENDING
-                          << "Map key : " << itr->first << core_t::LINE_ENDING << "Map value : " << itr->second);
+                LOG_ERROR("Attribute format does not contain '" << ATTRIBUTE_EQUALS << "' surrounded by name and value : " << attribute
+                                                                << core_t::LINE_ENDING << "Map key : " << itr->first << core_t::LINE_ENDING
+                                                                << "Map value : " << itr->second);
             } else {
                 xmlSetProp(childRep,
                            reinterpret_cast<const xmlChar*>(attribute.substr(0, eqPos).c_str()),
@@ -521,10 +516,8 @@ bool CXmlParser::convert(const std::string& root, const TStrStrMap& values) {
 
     // Create child nodes
     for (TStrStrMapCItr itr = values.begin(); itr != values.end(); ++itr) {
-        xmlNewTextChild(rootNode,
-                        0,
-                        reinterpret_cast<const xmlChar*>(itr->first.c_str()),
-                        reinterpret_cast<const xmlChar*>(itr->second.c_str()));
+        xmlNewTextChild(
+            rootNode, 0, reinterpret_cast<const xmlChar*>(itr->first.c_str()), reinterpret_cast<const xmlChar*>(itr->second.c_str()));
     }
 
     xmlDocSetRootElement(m_Doc, rootNode);
@@ -552,8 +545,7 @@ bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& ro
     return this->toNodeHierarchy(pool, rootNodePtr);
 }
 
-bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const {
+bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool& pool, CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const {
     rootNodePtr.reset();
 
     if (m_Doc == 0) {
@@ -759,9 +751,7 @@ bool CXmlParser::addNewChildNode(const std::string& name, const std::string& val
     }
 
     // Note the namespace is NULL here
-    if (xmlNewTextChild(
-            root, 0, reinterpret_cast<const xmlChar*>(name.c_str()), reinterpret_cast<const xmlChar*>(value.c_str())) ==
-        0) {
+    if (xmlNewTextChild(root, 0, reinterpret_cast<const xmlChar*>(name.c_str()), reinterpret_cast<const xmlChar*>(value.c_str())) == 0) {
         LOG_ERROR("Unable to add new child to " << root);
         return false;
     }
@@ -785,17 +775,16 @@ bool CXmlParser::addNewChildNode(const std::string& name, const std::string& val
     }
 
     // Note the namespace is NULL here
-    xmlNode* child(xmlNewTextChild(
-        root, 0, reinterpret_cast<const xmlChar*>(name.c_str()), reinterpret_cast<const xmlChar*>(value.c_str())));
+    xmlNode* child(
+        xmlNewTextChild(root, 0, reinterpret_cast<const xmlChar*>(name.c_str()), reinterpret_cast<const xmlChar*>(value.c_str())));
     if (child == 0) {
         LOG_ERROR("Unable to add new child to " << root);
         return false;
     }
 
     for (TStrStrMapCItr attrIter = attrs.begin(); attrIter != attrs.end(); ++attrIter) {
-        xmlSetProp(child,
-                   reinterpret_cast<const xmlChar*>(attrIter->first.c_str()),
-                   reinterpret_cast<const xmlChar*>(attrIter->second.c_str()));
+        xmlSetProp(
+            child, reinterpret_cast<const xmlChar*>(attrIter->first.c_str()), reinterpret_cast<const xmlChar*>(attrIter->second.c_str()));
     }
 
     // This makes XPath operations on large documents much faster
@@ -852,15 +841,12 @@ bool CXmlParser::stringLatin1ToUtf8(std::string& str) {
     int outLen(static_cast<int>(bufferSize));
 
     // This function is provided by libxml2
-    int ret = ::isolat1ToUTF8(reinterpret_cast<unsigned char*>(&buffer[0]),
-                              &outLen,
-                              reinterpret_cast<const unsigned char*>(str.c_str()),
-                              &inLen);
+    int ret =
+        ::isolat1ToUTF8(reinterpret_cast<unsigned char*>(&buffer[0]), &outLen, reinterpret_cast<const unsigned char*>(str.c_str()), &inLen);
     if (ret == -1 || inLen < static_cast<int>(str.length())) {
         LOG_ERROR("Failure converting Latin1 string to UTF-8"
-                  << core_t::LINE_ENDING << "Return code: " << ret << core_t::LINE_ENDING
-                  << "Remaining length: " << inLen << core_t::LINE_ENDING << "Original string: " << str
-                  << core_t::LINE_ENDING << "Result so far: " << &buffer[0]);
+                  << core_t::LINE_ENDING << "Return code: " << ret << core_t::LINE_ENDING << "Remaining length: " << inLen
+                  << core_t::LINE_ENDING << "Original string: " << str << core_t::LINE_ENDING << "Result so far: " << &buffer[0]);
 
         return false;
     }
@@ -937,8 +923,7 @@ bool CXmlParser::toNodeHierarchy(const xmlNode& parentNode,
                 // Get attribute names and values from the cache if there is
                 // one, as we expect relatively few distinct attributes repeated
                 // many times
-                nodePtr->m_Attributes.push_back(
-                    CXmlNode::TStrStrPr(cache->stringFor(propName), cache->stringFor(propValue)));
+                nodePtr->m_Attributes.push_back(CXmlNode::TStrStrPr(cache->stringFor(propName), cache->stringFor(propValue)));
             } else {
                 nodePtr->m_Attributes.push_back(CXmlNode::TStrStrPr(propName, propValue));
             }

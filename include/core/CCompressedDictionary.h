@@ -194,8 +194,7 @@ public:
     }
 
     //! Extract the dictionary word corresponding to (\p word1, \p word2, \p word3, \p word4).
-    CWord
-    word(const std::string& word1, const std::string& word2, const std::string& word3, const std::string& word4) const {
+    CWord word(const std::string& word1, const std::string& word2, const std::string& word3, const std::string& word4) const {
         TStrCPtr words[] = {&word1, &word2, &word3, &word4};
         return this->word(words);
     }
@@ -208,8 +207,7 @@ private:
             uint64_t& hash = hashes[i];
             for (std::size_t wordIndex = 0; wordIndex < NUMBER_OF_WORDS; ++wordIndex) {
                 const std::string& word = *words[wordIndex];
-                hash = CHashing::safeMurmurHash64(
-                    word.c_str(), static_cast<int>(word.size()), (wordIndex) == 0 ? m_Seeds[i] : hash);
+                hash = CHashing::safeMurmurHash64(word.c_str(), static_cast<int>(word.size()), (wordIndex) == 0 ? m_Seeds[i] : hash);
             }
         }
         return CWord(hashes);

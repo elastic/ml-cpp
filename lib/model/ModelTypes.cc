@@ -905,8 +905,7 @@ maths_t::EProbabilityCalculation probabilityCalculation(EFeature feature) {
     return maths_t::E_TwoSided;
 }
 
-core_t::TTime
-sampleTime(EFeature feature, core_t::TTime bucketStartTime, core_t::TTime bucketLength, core_t::TTime time) {
+core_t::TTime sampleTime(EFeature feature, core_t::TTime bucketStartTime, core_t::TTime bucketLength, core_t::TTime time) {
     switch (feature) {
     CASE_INDIVIDUAL_COUNT:
         return bucketStartTime + bucketLength / 2;

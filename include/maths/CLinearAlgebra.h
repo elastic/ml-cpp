@@ -139,8 +139,7 @@ struct SSymmetricMatrix {
 
     //! Check if this is zero.
     bool isZero(void) const {
-        return std::find_if(m_LowerTriangle.begin(), m_LowerTriangle.end(), [](double ei) { return ei != 0.0; }) ==
-               m_LowerTriangle.end();
+        return std::find_if(m_LowerTriangle.begin(), m_LowerTriangle.end(), [](double ei) { return ei != 0.0; }) == m_LowerTriangle.end();
     }
 
     //! Get the matrix diagonal.
@@ -242,7 +241,7 @@ class CSymmetricMatrixNxN : private boost::equality_comparable< CSymmetricMatrix
                                     boost::dividable2< CSymmetricMatrixNxN<T, N>, T > > > > > > >,
                             private linear_algebra_detail::SSymmetricMatrix<boost::array<T, N*(N + 1) / 2 > >,
                             private linear_algebra_detail::CBoundsCheck<N>::InRange {
-// clang-format on
+    // clang-format on
 private:
     using TBase = linear_algebra_detail::SSymmetricMatrix<boost::array<T, N*(N + 1) / 2>>;
     template<typename U, std::size_t>
@@ -491,7 +490,7 @@ class CSymmetricMatrix : private boost::equality_comparable< CSymmetricMatrix<T>
                                  boost::multipliable2< CSymmetricMatrix<T>, T,
                                  boost::dividable2< CSymmetricMatrix<T>, T > > > > > > >,
                          private linear_algebra_detail::SSymmetricMatrix<std::vector<T>> {
-// clang-format on
+    // clang-format on
 private:
     using TBase = linear_algebra_detail::SSymmetricMatrix<std::vector<T>>;
     template<typename U>
@@ -697,9 +696,7 @@ public:
     }
 
     //! Get a checksum for the matrix.
-    uint64_t checksum(void) const {
-        return core::CHashing::hashCombine(this->TBase::checksum(), static_cast<uint64_t>(m_D));
-    }
+    uint64_t checksum(void) const { return core::CHashing::hashCombine(this->TBase::checksum(), static_cast<uint64_t>(m_D)); }
 
 private:
     //! Compute the dimension from the number of elements.
@@ -892,7 +889,7 @@ class CVectorNx1 : private boost::equality_comparable< CVectorNx1<T, N>,
                            boost::dividable2< CVectorNx1<T, N>, T > > > > > > > >,
                    private linear_algebra_detail::SVector<boost::array<T, N> >,
                    private linear_algebra_detail::CBoundsCheck<N>::InRange {
-// clang-format on
+    // clang-format on
 private:
     using TBase = linear_algebra_detail::SVector<boost::array<T, N>>;
     template<typename U, std::size_t>
@@ -1172,7 +1169,7 @@ class CVector : private boost::equality_comparable< CVector<T>,
                         boost::dividable< CVector<T>,
                         boost::dividable2< CVector<T>, T > > > > > > > >,
                 private linear_algebra_detail::SVector<std::vector<T>> {
-// clang-format on
+    // clang-format on
 private:
     using TBase = linear_algebra_detail::SVector<std::vector<T>>;
     template<typename U>

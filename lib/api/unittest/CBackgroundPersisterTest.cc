@@ -57,16 +57,14 @@ void reportPersistComplete(ml::core_t::TTime /*snapshotTimestamp*/,
 
 CppUnit::Test* CBackgroundPersisterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBackgroundPersisterTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>(
-        "CBackgroundPersisterTest::testDetectorPersistBy", &CBackgroundPersisterTest::testDetectorPersistBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>(
-        "CBackgroundPersisterTest::testDetectorPersistOver", &CBackgroundPersisterTest::testDetectorPersistOver));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CBackgroundPersisterTest>("CBackgroundPersisterTest::testDetectorPersistPartition",
-                                                          &CBackgroundPersisterTest::testDetectorPersistPartition));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CBackgroundPersisterTest>("CBackgroundPersisterTest::testCategorizationOnlyPersist",
-                                                          &CBackgroundPersisterTest::testCategorizationOnlyPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>("CBackgroundPersisterTest::testDetectorPersistBy",
+                                                                            &CBackgroundPersisterTest::testDetectorPersistBy));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>("CBackgroundPersisterTest::testDetectorPersistOver",
+                                                                            &CBackgroundPersisterTest::testDetectorPersistOver));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>("CBackgroundPersisterTest::testDetectorPersistPartition",
+                                                                            &CBackgroundPersisterTest::testDetectorPersistPartition));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>("CBackgroundPersisterTest::testCategorizationOnlyPersist",
+                                                                            &CBackgroundPersisterTest::testCategorizationOnlyPersist));
 
     return suiteOfTests;
 }
@@ -148,8 +146,7 @@ void CBackgroundPersisterTest::testCategorizationOnlyPersist(void) {
     CPPUNIT_ASSERT_EQUAL(backgroundState, foregroundState);
 }
 
-void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyDetection(
-    const std::string& configFileName) {
+void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string& configFileName) {
     // Start by creating processors with non-trivial state
 
     static const ml::core_t::TTime BUCKET_SIZE(3600);
@@ -168,8 +165,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
     ml::api::CFieldConfig fieldConfig;
     CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
 
-    ml::model::CAnomalyDetectorModelConfig modelConfig =
-        ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+    ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
     std::ostringstream* backgroundStream(0);
     ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(backgroundStream = new std::ostringstream());
@@ -190,17 +186,16 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
 
-        ml::api::CAnomalyJob job(
-            JOB_ID,
-            limits,
-            fieldConfig,
-            modelConfig,
-            wrappedOutputStream,
-            boost::bind(&reportPersistComplete, _1, _2, _3, _4, boost::ref(snapshotId), boost::ref(numDocs)),
-            &backgroundPersister,
-            -1,
-            "time",
-            "%d/%b/%Y:%T %z");
+        ml::api::CAnomalyJob job(JOB_ID,
+                                 limits,
+                                 fieldConfig,
+                                 modelConfig,
+                                 wrappedOutputStream,
+                                 boost::bind(&reportPersistComplete, _1, _2, _3, _4, boost::ref(snapshotId), boost::ref(numDocs)),
+                                 &backgroundPersister,
+                                 -1,
+                                 "time",
+                                 "%d/%b/%Y:%T %z");
 
         ml::api::CDataProcessor* firstProcessor(&job);
 
@@ -239,10 +234,8 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
 
     // The snapshot ID can be different between the two persists, so replace the
     // first occurrence of it (which is in the bulk metadata)
-    CPPUNIT_ASSERT_EQUAL(size_t(1),
-                         ml::core::CStringUtils::replaceFirst(backgroundSnapshotId, "snap", backgroundState));
-    CPPUNIT_ASSERT_EQUAL(size_t(1),
-                         ml::core::CStringUtils::replaceFirst(foregroundSnapshotId, "snap", foregroundState));
+    CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(backgroundSnapshotId, "snap", backgroundState));
+    CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(foregroundSnapshotId, "snap", foregroundState));
 
     // Replace the zero byte separators so the expected/actual strings don't get
     // truncated by CppUnit if the test fails

@@ -33,8 +33,7 @@ const std::string INPUT_FILE("testfiles\\withNs.xml");
 // File size is different on Windows due to CRLF line endings
 const size_t EXPECTED_FILE_SIZE(585);
 const char* winDir(::getenv("windir"));
-const std::string PROCESS_PATH1(winDir != 0 ? std::string(winDir) + "\\System32\\cmd"
-                                            : std::string("C:\\Windows\\System32\\cmd"));
+const std::string PROCESS_PATH1(winDir != 0 ? std::string(winDir) + "\\System32\\cmd" : std::string("C:\\Windows\\System32\\cmd"));
 const std::string PROCESS_ARGS1[] = {"/C", "copy " + INPUT_FILE + " ."};
 const std::string& PROCESS_PATH2 = PROCESS_PATH1;
 const std::string PROCESS_ARGS2[] = {"/C", "ping 127.0.0.1 -n 11"};
@@ -54,14 +53,14 @@ const std::string PROCESS_ARGS2[] = {"10"};
 CppUnit::Test* CDetachedProcessSpawnerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetachedProcessSpawnerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetachedProcessSpawnerTest>(
-        "CDetachedProcessSpawnerTest::testSpawn", &CDetachedProcessSpawnerTest::testSpawn));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetachedProcessSpawnerTest>("CDetachedProcessSpawnerTest::testSpawn",
+                                                                               &CDetachedProcessSpawnerTest::testSpawn));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetachedProcessSpawnerTest>("CDetachedProcessSpawnerTest::testKill",
                                                                                &CDetachedProcessSpawnerTest::testKill));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetachedProcessSpawnerTest>(
-        "CDetachedProcessSpawnerTest::testPermitted", &CDetachedProcessSpawnerTest::testPermitted));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetachedProcessSpawnerTest>(
-        "CDetachedProcessSpawnerTest::testNonExistent", &CDetachedProcessSpawnerTest::testNonExistent));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetachedProcessSpawnerTest>("CDetachedProcessSpawnerTest::testPermitted",
+                                                                               &CDetachedProcessSpawnerTest::testPermitted));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetachedProcessSpawnerTest>("CDetachedProcessSpawnerTest::testNonExistent",
+                                                                               &CDetachedProcessSpawnerTest::testNonExistent));
 
     return suiteOfTests;
 }

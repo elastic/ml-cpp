@@ -67,21 +67,20 @@ const std::vector<SRestoreTestConfig> BWC_VERSIONS{SRestoreTestConfig{"5.6.0", f
 
 CppUnit::Test* CRestorePreviousStateTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRestorePreviousStateTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreDetectorPersistBy", &CRestorePreviousStateTest::testRestoreDetectorBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreDetectorOver", &CRestorePreviousStateTest::testRestoreDetectorOver));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreDetectorPartition",
-                                                           &CRestorePreviousStateTest::testRestoreDetectorPartition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreDetectorDc", &CRestorePreviousStateTest::testRestoreDetectorDc));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreDetectorCount", &CRestorePreviousStateTest::testRestoreDetectorCount));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreNormalizer", &CRestorePreviousStateTest::testRestoreNormalizer));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreCategorizer", &CRestorePreviousStateTest::testRestoreCategorizer));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreDetectorPersistBy",
+                                                                             &CRestorePreviousStateTest::testRestoreDetectorBy));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreDetectorOver",
+                                                                             &CRestorePreviousStateTest::testRestoreDetectorOver));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreDetectorPartition",
+                                                                             &CRestorePreviousStateTest::testRestoreDetectorPartition));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreDetectorDc",
+                                                                             &CRestorePreviousStateTest::testRestoreDetectorDc));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreDetectorCount",
+                                                                             &CRestorePreviousStateTest::testRestoreDetectorCount));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreNormalizer",
+                                                                             &CRestorePreviousStateTest::testRestoreNormalizer));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreCategorizer",
+                                                                             &CRestorePreviousStateTest::testRestoreCategorizer));
     return suiteOfTests;
 }
 
@@ -137,8 +136,7 @@ void CRestorePreviousStateTest::testRestoreDetectorCount(void) {
 
 void CRestorePreviousStateTest::testRestoreNormalizer() {
     for (const auto& version : BWC_VERSIONS) {
-        ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
+        ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
         ml::api::CCsvOutputWriter outputWriter;
         ml::api::CResultNormalizer normalizer(modelConfig, outputWriter);
         CPPUNIT_ASSERT(normalizer.initNormalizer("testfiles/state/" + version.s_Version + "/normalizer_state.json"));
@@ -227,8 +225,7 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& 
         fieldConfig,
         modelConfig,
         wrappedOutputStream,
-        boost::bind(
-            &reportPersistComplete, _1, _2, _3, _4, boost::ref(restoredSnapshotId), boost::ref(numRestoredDocs)));
+        boost::bind(&reportPersistComplete, _1, _2, _3, _4, boost::ref(restoredSnapshotId), boost::ref(numRestoredDocs)));
 
     std::size_t numDocsInStateFile(0);
     {

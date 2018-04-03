@@ -75,8 +75,7 @@ bool CDecompositionComponent::acceptRestoreTraverser(core::CStateRestoreTraverse
                                core::CStringUtils::stringToType(traverser.value(), boundaryCondition),
                                m_BoundaryCondition = static_cast<CSplineTypes::EBoundaryCondition>(boundaryCondition))
         RESTORE(SPLINES_TAG,
-                traverser.traverseSubLevel(
-                    boost::bind(&CPackedSplines::acceptRestoreTraverser, &m_Splines, m_BoundaryCondition, _1)))
+                traverser.traverseSubLevel(boost::bind(&CPackedSplines::acceptRestoreTraverser, &m_Splines, m_BoundaryCondition, _1)))
     } while (traverser.next());
 
     if (this->initialized()) {
@@ -113,9 +112,7 @@ void CDecompositionComponent::clear(void) {
     m_MeanVariance = 0.0;
 }
 
-void CDecompositionComponent::interpolate(const TDoubleVec& knots,
-                                          const TDoubleVec& values,
-                                          const TDoubleVec& variances) {
+void CDecompositionComponent::interpolate(const TDoubleVec& knots, const TDoubleVec& values, const TDoubleVec& variances) {
     m_Splines.interpolate(knots, values, variances, m_BoundaryCondition);
     m_MeanValue = this->valueSpline().mean();
     m_MeanVariance = this->varianceSpline().mean();
@@ -152,8 +149,8 @@ TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double c
             double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
             return {ql, qu};
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", n = " << n << ", m = " << m
-                                                                 << ", sd = " << sd << ", confidence = " << confidence);
+            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", n = " << n << ", m = " << m << ", sd = " << sd
+                                                                 << ", confidence = " << confidence);
         }
         return {m, m};
     }
@@ -184,8 +181,7 @@ TDoubleDoublePr CDecompositionComponent::variance(double offset, double n, doubl
             double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
             return std::make_pair(ql * v / (n - 1.0), qu * v / (n - 1.0));
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", n = " << n
-                                                                 << ", confidence = " << confidence);
+            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", n = " << n << ", confidence = " << confidence);
         }
         return {v, v};
     }

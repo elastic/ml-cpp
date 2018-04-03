@@ -69,8 +69,7 @@ struct SMultimodalPriorMode {
             const std::string& name = traverser.name();
             RESTORE_BUILT_IN(INDEX_TAG, s_Index)
             RESTORE(PRIOR_TAG,
-                    traverser.traverseSubLevel(
-                        boost::bind<bool>(CPriorStateSerialiser(), boost::cref(params), boost::ref(s_Prior), _1)))
+                    traverser.traverseSubLevel(boost::bind<bool>(CPriorStateSerialiser(), boost::cref(params), boost::ref(s_Prior), _1)))
         } while (traverser.next());
 
         return true;

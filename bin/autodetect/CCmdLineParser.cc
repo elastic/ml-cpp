@@ -245,8 +245,7 @@ bool CCmdLineParser::parse(int argc,
             perPartitionNormalization = true;
         }
 
-        boost::program_options::collect_unrecognized(parsed.options, boost::program_options::include_positional)
-            .swap(clauseTokens);
+        boost::program_options::collect_unrecognized(parsed.options, boost::program_options::include_positional).swap(clauseTokens);
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;

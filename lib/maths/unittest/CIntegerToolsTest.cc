@@ -54,8 +54,7 @@ void CIntegerToolsTest::testNextPow2(void) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t test = 1u, shift = 1u; test < (std::numeric_limits<std::size_t>::max() >> 1) + 1;
-         test <<= 1, ++shift) {
+    for (std::size_t test = 1u, shift = 1u; test < (std::numeric_limits<std::size_t>::max() >> 1) + 1; test <<= 1, ++shift) {
         LOG_DEBUG("Testing shift = " << shift);
 
         // Edge cases.
@@ -126,11 +125,8 @@ void CIntegerToolsTest::testGcd(void) {
         std::sort(indices.begin() + split[0], indices.end());
 
         TSizeVec cf;
-        std::set_intersection(indices.begin(),
-                              indices.begin() + split[0],
-                              indices.begin() + split[0],
-                              indices.end(),
-                              std::back_inserter(cf));
+        std::set_intersection(
+            indices.begin(), indices.begin() + split[0], indices.begin() + split[0], indices.end(), std::back_inserter(cf));
 
         // Use 64 bit integers here otherwise overflow will occur in 32 bit code
         uint64_t bigGcd = 1;
@@ -160,8 +156,7 @@ void CIntegerToolsTest::testGcd(void) {
         std::sort(indices.begin() + 6, indices.end());
 
         TSizeVec cf;
-        std::set_intersection(
-            indices.begin(), indices.begin() + 3, indices.begin() + 3, indices.begin() + 6, std::back_inserter(cf));
+        std::set_intersection(indices.begin(), indices.begin() + 3, indices.begin() + 3, indices.begin() + 6, std::back_inserter(cf));
         TSizeVec tmp;
         std::set_intersection(cf.begin(), cf.end(), indices.begin() + 6, indices.end(), std::back_inserter(tmp));
         cf.swap(tmp);
@@ -180,8 +175,7 @@ void CIntegerToolsTest::testGcd(void) {
         for (std::size_t j = 6; j < indices.size(); ++j) {
             n[2] *= primes[indices[j]];
         }
-        LOG_DEBUG("n = " << core::CContainerPrinter::print(n) << " - expected gcd = " << gcd
-                         << ", gcd = " << maths::CIntegerTools::gcd(n));
+        LOG_DEBUG("n = " << core::CContainerPrinter::print(n) << " - expected gcd = " << gcd << ", gcd = " << maths::CIntegerTools::gcd(n));
     }
 
     LOG_DEBUG("--- gcd(a, b, c, d) ---");
@@ -206,9 +200,9 @@ void CIntegerToolsTest::testBinomial(void) {
         for (unsigned int j = 0u; j <= n[i]; ++j) {
             LOG_DEBUG("j = " << j << ", n = " << n[i] << ", (n j) = " << maths::CIntegerTools::binomial(n[i], j));
 
-            double expected = ::exp(boost::math::lgamma(static_cast<double>(n[i] + 1)) -
-                                    boost::math::lgamma(static_cast<double>(n[i] - j + 1)) -
-                                    boost::math::lgamma(static_cast<double>(j + 1)));
+            double expected =
+                ::exp(boost::math::lgamma(static_cast<double>(n[i] + 1)) - boost::math::lgamma(static_cast<double>(n[i] - j + 1)) -
+                      boost::math::lgamma(static_cast<double>(j + 1)));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, maths::CIntegerTools::binomial(n[i], j), 1e-10);
         }
     }
@@ -217,14 +211,11 @@ void CIntegerToolsTest::testBinomial(void) {
 CppUnit::Test* CIntegerToolsTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIntegerToolsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testNextPow2",
-                                                                     &CIntegerToolsTest::testNextPow2));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testReverseBits",
-                                                                     &CIntegerToolsTest::testReverseBits));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testNextPow2", &CIntegerToolsTest::testNextPow2));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testGcd", &CIntegerToolsTest::testGcd));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testBinomial",
-                                                                     &CIntegerToolsTest::testBinomial));
+        new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testReverseBits", &CIntegerToolsTest::testReverseBits));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testGcd", &CIntegerToolsTest::testGcd));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testBinomial", &CIntegerToolsTest::testBinomial));
 
     return suiteOfTests;
 }

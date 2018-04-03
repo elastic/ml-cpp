@@ -59,18 +59,7 @@ CONFIG_EXPORT
 std::ostream& operator<<(std::ostream& o, EDataType type);
 
 //! Enumeration of the top-level functions we'll consider configuring.
-enum EFunctionCategory {
-    E_Count,
-    E_Rare,
-    E_DistinctCount,
-    E_InfoContent,
-    E_Mean,
-    E_Min,
-    E_Max,
-    E_Sum,
-    E_Varp,
-    E_Median
-};
+enum EFunctionCategory { E_Count, E_Rare, E_DistinctCount, E_InfoContent, E_Mean, E_Min, E_Max, E_Sum, E_Varp, E_Median };
 
 //! Check if the function takes an argument.
 CONFIG_EXPORT

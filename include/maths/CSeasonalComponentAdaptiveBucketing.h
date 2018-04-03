@@ -48,14 +48,10 @@ public:
 
 public:
     CSeasonalComponentAdaptiveBucketing(void);
-    explicit CSeasonalComponentAdaptiveBucketing(const CSeasonalTime& time,
-                                                 double decayRate = 0.0,
-                                                 double minimumBucketLength = 0.0);
+    explicit CSeasonalComponentAdaptiveBucketing(const CSeasonalTime& time, double decayRate = 0.0, double minimumBucketLength = 0.0);
     CSeasonalComponentAdaptiveBucketing(const CSeasonalComponentAdaptiveBucketing& other);
     //! Construct by traversing a state document.
-    CSeasonalComponentAdaptiveBucketing(double decayRate,
-                                        double minimumBucketLength,
-                                        core::CStateRestoreTraverser& traverser);
+    CSeasonalComponentAdaptiveBucketing(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser);
 
     //! Copy from \p rhs.
     const CSeasonalComponentAdaptiveBucketing& operator=(const CSeasonalComponentAdaptiveBucketing& rhs);

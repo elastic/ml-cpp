@@ -240,8 +240,7 @@ public:
         std::size_t dimension(void) const;
 
         //! Get the feature data for the current bucketing interval.
-        SMetricFeatureData
-        featureData(core_t::TTime time, core_t::TTime bucketLength, const TSampleVec& emptySample) const;
+        SMetricFeatureData featureData(core_t::TTime time, core_t::TTime bucketLength, const TSampleVec& emptySample) const;
 
         //! Returns false.
         bool sample(core_t::TTime time, unsigned int sampleCount);

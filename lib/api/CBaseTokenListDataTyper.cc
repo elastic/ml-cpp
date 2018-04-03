@@ -67,16 +67,12 @@ void CBaseTokenListDataTyper::dumpStats(void) const {
     }
 }
 
-int CBaseTokenListDataTyper::computeType(bool isDryRun,
-                                         const TStrStrUMap& fields,
-                                         const std::string& str,
-                                         size_t rawStringLen) {
+int CBaseTokenListDataTyper::computeType(bool isDryRun, const TStrStrUMap& fields, const std::string& str, size_t rawStringLen) {
     // First tokenise string
     size_t workWeight(0);
     auto preTokenisedIter = fields.find(PRETOKENISED_TOKEN_FIELD);
     if (preTokenisedIter != fields.end()) {
-        if (this->addPretokenisedTokens(preTokenisedIter->second, m_WorkTokenIds, m_WorkTokenUniqueIds, workWeight) ==
-            false) {
+        if (this->addPretokenisedTokens(preTokenisedIter->second, m_WorkTokenIds, m_WorkTokenUniqueIds, workWeight) == false) {
             return -1;
         }
     } else {
@@ -117,8 +113,7 @@ int CBaseTokenListDataTyper::computeType(bool isDryRun,
             size_t origUniqueTokenWeight(compType.origUniqueTokenWeight());
             size_t commonUniqueTokenWeight(compType.commonUniqueTokenWeight());
             size_t missingCommonTokenWeight(compType.missingCommonTokenWeight(m_WorkTokenUniqueIds));
-            double proportionOfOrig(double(commonUniqueTokenWeight - missingCommonTokenWeight) /
-                                    double(origUniqueTokenWeight));
+            double proportionOfOrig(double(commonUniqueTokenWeight - missingCommonTokenWeight) / double(origUniqueTokenWeight));
             if (proportionOfOrig < m_LowerThreshold) {
                 continue;
             }
@@ -132,8 +127,7 @@ int CBaseTokenListDataTyper::computeType(bool isDryRun,
             if (similarity <= m_LowerThreshold) {
                 // Not an ideal situation, but log at trace level to avoid
                 // excessive log file spam
-                LOG_TRACE("Reverse search match below threshold : " << similarity << '-' << compType.baseString() << '|'
-                                                                    << str);
+                LOG_TRACE("Reverse search match below threshold : " << similarity << '-' << compType.baseString() << '|' << str);
             }
 
             // This is a strong match, so accept it immediately and stop
@@ -159,8 +153,7 @@ int CBaseTokenListDataTyper::computeType(bool isDryRun,
     if (bestSoFarIter != m_TypesByCount.end()) {
         // Return the best match - use vector index plus one as type
         int type(1 + int(bestSoFarIter->second));
-        this->addTypeMatch(
-            isDryRun, str, rawStringLen, m_WorkTokenIds, m_WorkTokenUniqueIds, bestSoFarSimilarity, bestSoFarIter);
+        this->addTypeMatch(isDryRun, str, rawStringLen, m_WorkTokenIds, m_WorkTokenUniqueIds, bestSoFarSimilarity, bestSoFarIter);
         return type;
     }
 
@@ -223,8 +216,8 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
     const TSizeSizePrVec& commonUniqueTokenIds = typeObj.commonUniqueTokenIds();
     if (commonUniqueTokenIds.empty()) {
         // There's quite a high chance this call will return false
-        if (m_ReverseSearchCreator->createNoUniqueTokenSearch(
-                type, typeObj.baseString(), typeObj.maxMatchingStringLen(), part1, part2) == false) {
+        if (m_ReverseSearchCreator->createNoUniqueTokenSearch(type, typeObj.baseString(), typeObj.maxMatchingStringLen(), part1, part2) ==
+            false) {
             // More detail should have been logged by the failed call
             LOG_ERROR("Could not create reverse search");
 
@@ -248,8 +241,7 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
     size_t lowestCost(std::numeric_limits<size_t>::max());
     for (const auto& commonUniqueTokenId : commonUniqueTokenIds) {
         size_t tokenId(commonUniqueTokenId.first);
-        size_t occurrences(
-            std::count_if(baseTokenIds.begin(), baseTokenIds.end(), CSizePairFirstElementEquals(tokenId)));
+        size_t occurrences(std::count_if(baseTokenIds.begin(), baseTokenIds.end(), CSizePairFirstElementEquals(tokenId)));
         const CTokenInfoItem& info = m_TokenIdLookup[tokenId];
         size_t cost(m_ReverseSearchCreator->costOfToken(info.str(), occurrences));
         rareIdsWithCost.insert(TSizeSizeSizePrMMap::value_type(info.typeCount(), TSizeSizePr(tokenId, cost)));
@@ -284,8 +276,7 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
         } else {
             LOG_ERROR("No token was short enough to include in reverse search "
                       "for "
-                      << type << " - cheapest token was " << cheapestIter->second.first << " with cost "
-                      << cheapestCost);
+                      << type << " - cheapest token was " << cheapestIter->second.first << " with cost " << cheapestCost);
         }
 
         part1.clear();
@@ -297,8 +288,7 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
     // If we get here we're going to create a search in the standard way - there
     // shouldn't be any more errors after this point
 
-    m_ReverseSearchCreator->initStandardSearch(
-        type, typeObj.baseString(), typeObj.maxMatchingStringLen(), part1, part2);
+    m_ReverseSearchCreator->initStandardSearch(type, typeObj.baseString(), typeObj.maxMatchingStringLen(), part1, part2);
 
     for (auto costedCommonUniqueTokenId : costedCommonUniqueTokenIds) {
         m_ReverseSearchCreator->addCommonUniqueToken(m_TokenIdLookup[costedCommonUniqueTokenId].str(), part1, part2);
@@ -500,8 +490,7 @@ bool CBaseTokenListDataTyper::addPretokenisedTokens(const std::string& tokensCsv
     return true;
 }
 
-CBaseTokenListDataTyper::CTokenInfoItem::CTokenInfoItem(const std::string& str, size_t index)
-    : m_Str(str), m_Index(index), m_TypeCount(0) {
+CBaseTokenListDataTyper::CTokenInfoItem::CTokenInfoItem(const std::string& str, size_t index) : m_Str(str), m_Index(index), m_TypeCount(0) {
 }
 
 const std::string& CBaseTokenListDataTyper::CTokenInfoItem::str(void) const {
@@ -527,9 +516,7 @@ void CBaseTokenListDataTyper::CTokenInfoItem::incTypeCount(void) {
 CBaseTokenListDataTyper::CSizePairFirstElementEquals::CSizePairFirstElementEquals(size_t value) : m_Value(value) {
 }
 
-CBaseTokenListDataTyper::SIdTranslater::SIdTranslater(const CBaseTokenListDataTyper& typer,
-                                                      const TSizeSizePrVec& tokenIds,
-                                                      char separator)
+CBaseTokenListDataTyper::SIdTranslater::SIdTranslater(const CBaseTokenListDataTyper& typer, const TSizeSizePrVec& tokenIds, char separator)
     : s_Typer(typer), s_TokenIds(tokenIds), s_Separator(separator) {
 }
 

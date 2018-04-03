@@ -285,8 +285,7 @@ double CQDigest::cdfQuantile(double n, double p, double q) {
         boost::math::beta_distribution<> beta(a, b);
         return boost::math::quantile(beta, q);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to calculate c.d.f. quantile: " << e.what() << ", n = " << n << ", p = " << p
-                                                          << ", q = " << q);
+        LOG_ERROR("Failed to calculate c.d.f. quantile: " << e.what() << ", n = " << n << ", p = " << p << ", q = " << q);
     }
     return p;
 }
@@ -339,13 +338,11 @@ void CQDigest::pdf(uint32_t x, double confidence, double& lowerBound, double& up
     double supremumUpperBound;
     this->cdf(supremum, confidence, supremumLowerBound, supremumUpperBound);
 
-    lowerBound =
-        std::max(supremumLowerBound - infimumUpperBound, 0.0) / std::max(static_cast<double>(supremum - infimum), 1.0);
-    upperBound =
-        std::max(supremumUpperBound - infimumLowerBound, 0.0) / std::max(static_cast<double>(supremum - infimum), 1.0);
+    lowerBound = std::max(supremumLowerBound - infimumUpperBound, 0.0) / std::max(static_cast<double>(supremum - infimum), 1.0);
+    upperBound = std::max(supremumUpperBound - infimumLowerBound, 0.0) / std::max(static_cast<double>(supremum - infimum), 1.0);
 
-    LOG_TRACE("x = " << x << ", supremum = " << supremum << ", infimum = " << infimum << ", cdf(supremum) = ["
-                     << supremumLowerBound << "," << supremumUpperBound << "]"
+    LOG_TRACE("x = " << x << ", supremum = " << supremum << ", infimum = " << infimum << ", cdf(supremum) = [" << supremumLowerBound << ","
+                     << supremumUpperBound << "]"
                      << ", cdf(infimum) = [" << infimumLowerBound << "," << infimumUpperBound << "]"
                      << ", pdf = [" << lowerBound << "," << upperBound << "]");
 }
@@ -488,12 +485,7 @@ const std::string CQDigest::CNode::MAX_TAG("b");
 const std::string CQDigest::CNode::COUNT_TAG("c");
 
 CQDigest::CNode::CNode(void)
-    : m_Ancestor(0),
-      m_Descendants(),
-      m_Min(0xDEADBEEF),
-      m_Max(0xDEADBEEF),
-      m_Count(0xDEADBEEF),
-      m_SubtreeCount(0xDEADBEEF) {
+    : m_Ancestor(0), m_Descendants(), m_Min(0xDEADBEEF), m_Max(0xDEADBEEF), m_Count(0xDEADBEEF), m_SubtreeCount(0xDEADBEEF) {
 }
 
 CQDigest::CNode::CNode(uint32_t min, uint32_t max, uint64_t count, uint64_t subtreeCount)
@@ -676,8 +668,7 @@ CQDigest::CNode* CQDigest::CNode::compress(CNodeAllocator& allocator, uint64_t c
     // Get the sibling of this node if it exists.
     CNode* sibling = ancestor->sibling(*this);
 
-    uint64_t count =
-        (ancestor->isParent(*this) ? ancestor->count() : 0ull) + this->count() + (sibling ? sibling->count() : 0ull);
+    uint64_t count = (ancestor->isParent(*this) ? ancestor->count() : 0ull) + this->count() + (sibling ? sibling->count() : 0ull);
 
     // Check if we should compress this node.
     if (count >= compressionFactor) {
@@ -837,8 +828,7 @@ bool CQDigest::CNode::checkInvariants(uint64_t compressionFactor) const {
 
     if (!this->isRoot()) {
         const CNode* sibling = m_Ancestor->sibling(*this);
-        uint64_t count =
-            m_Count + (sibling ? sibling->count() : 0ull) + (m_Ancestor->isParent(*this) ? m_Ancestor->count() : 0ull);
+        uint64_t count = m_Count + (sibling ? sibling->count() : 0ull) + (m_Ancestor->isParent(*this) ? m_Ancestor->count() : 0ull);
         if (count < compressionFactor) {
             LOG_ERROR("Bad triple count: " << count << ", floor(n/k) = " << compressionFactor);
             return false;

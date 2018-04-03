@@ -67,10 +67,7 @@ public:
 
     //! \brief The score for a given set of parameters.
     struct CONFIG_EXPORT SParamScores {
-        SParamScores(core_t::TTime bucketLength,
-                     const std::string& ignoreEmpty,
-                     double score,
-                     const TStrVec& descriptions);
+        SParamScores(core_t::TTime bucketLength, const std::string& ignoreEmpty, double score, const TStrVec& descriptions);
 
         //! The bucket length.
         core_t::TTime s_BucketLength;

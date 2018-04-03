@@ -54,8 +54,7 @@ int dayOfFirst(int dayOfMonth, int dayOfWeek) {
 //! Print the day or week count.
 std::string print_(int count, bool suffix) {
     static const std::string suffix_[] = {"th", "st", "nd", "rd", "th"};
-    return core::CStringUtils::typeToString(count) +
-           (suffix ? suffix_[count < 20 ? std::min(count, 4) : std::min(count % 10, 4)] : "");
+    return core::CStringUtils::typeToString(count) + (suffix ? suffix_[count < 20 ? std::min(count, 4) : std::min(count % 10, 4)] : "");
 }
 }
 
@@ -69,8 +68,7 @@ CCalendarFeature::CCalendarFeature(uint16_t feature, core_t::TTime time) : m_Fea
     int month{};
     int year{};
     int secondsSinceMidnight{};
-    if (core::CTimezone::instance().dateFields(
-            time, dayOfWeek, dayOfMonth, dayOfYear, month, year, secondsSinceMidnight)) {
+    if (core::CTimezone::instance().dateFields(time, dayOfWeek, dayOfMonth, dayOfYear, month, year, secondsSinceMidnight)) {
         dayOfMonth -= 1;
         this->initialize(feature, dayOfWeek, dayOfMonth, month, year);
     } else {
@@ -86,8 +84,7 @@ CCalendarFeature::TCalendarFeature4Ary CCalendarFeature::features(core_t::TTime 
     int month{};
     int year{};
     int secondsSinceMidnight{};
-    if (core::CTimezone::instance().dateFields(
-            time, dayOfWeek, dayOfMonth, dayOfYear, month, year, secondsSinceMidnight)) {
+    if (core::CTimezone::instance().dateFields(time, dayOfWeek, dayOfMonth, dayOfYear, month, year, secondsSinceMidnight)) {
         dayOfMonth -= 1;
         auto i = result.begin();
         for (uint16_t feature = BEGIN_FEATURES; feature < END_FEATURES; ++feature, ++i) {
@@ -155,15 +152,13 @@ core_t::TTime CCalendarFeature::offset(core_t::TTime time) const {
     int month{};
     int year{};
     int secondsSinceMidnight{};
-    if (core::CTimezone::instance().dateFields(
-            time, dayOfWeek, dayOfMonth, dayOfYear, month, year, secondsSinceMidnight)) {
+    if (core::CTimezone::instance().dateFields(time, dayOfWeek, dayOfMonth, dayOfYear, month, year, secondsSinceMidnight)) {
         dayOfMonth -= 1;
         switch (m_Feature) {
         case DAYS_SINCE_START_OF_MONTH:
             return DAY * (dayOfMonth - static_cast<int>(m_Value)) + secondsSinceMidnight;
         case DAYS_BEFORE_END_OF_MONTH:
-            return DAY * (dayOfMonth - (lastDayInMonth(year, month) - static_cast<int>(m_Value))) +
-                   secondsSinceMidnight;
+            return DAY * (dayOfMonth - (lastDayInMonth(year, month) - static_cast<int>(m_Value))) + secondsSinceMidnight;
         case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH: {
             int dayOfFirst_ = dayOfFirst(dayOfMonth, dayOfWeek);
             int dayOfWeek_ = static_cast<int>(m_Value) % 8;

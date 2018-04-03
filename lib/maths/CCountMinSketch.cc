@@ -48,8 +48,7 @@ CCountMinSketch::CCountMinSketch(std::size_t rows, std::size_t columns)
     : m_Rows(rows), m_Columns(columns), m_TotalCount(0.0), m_Sketch(TUInt32FloatPrVec()) {
 }
 
-CCountMinSketch::CCountMinSketch(core::CStateRestoreTraverser& traverser)
-    : m_Rows(0), m_Columns(0), m_TotalCount(0.0), m_Sketch() {
+CCountMinSketch::CCountMinSketch(core::CStateRestoreTraverser& traverser) : m_Rows(0), m_Columns(0), m_TotalCount(0.0), m_Sketch() {
     traverser.traverseSubLevel(boost::bind(&CCountMinSketch::acceptRestoreTraverser, this, _1));
 }
 
@@ -128,8 +127,7 @@ bool CCountMinSketch::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
             SSketch& sketch = boost::get<SSketch>(m_Sketch);
             sketch.s_Hashes.reserve(m_Rows);
             sketch.s_Counts.reserve(m_Rows);
-            if (traverser.traverseSubLevel(
-                    boost::bind(&SSketch::acceptRestoreTraverser, &sketch, _1, m_Rows, m_Columns)) == false) {
+            if (traverser.traverseSubLevel(boost::bind(&SSketch::acceptRestoreTraverser, &sketch, _1, m_Rows, m_Columns)) == false) {
                 return false;
             }
         }
@@ -360,9 +358,7 @@ CCountMinSketch::SSketch::SSketch(std::size_t rows, std::size_t columns) : s_Cou
     core::CHashing::CUniversalHash::generateHashes(rows, s_Hashes);
 }
 
-bool CCountMinSketch::SSketch::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
-                                                      std::size_t rows,
-                                                      std::size_t columns) {
+bool CCountMinSketch::SSketch::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser, std::size_t rows, std::size_t columns) {
     do {
         const std::string& name = traverser.name();
         if (name == HASHES_TAG) {

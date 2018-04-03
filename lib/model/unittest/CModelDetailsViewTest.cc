@@ -83,8 +83,7 @@ void CModelDetailsViewTest::testModelPlot() {
         model.reset(new model::CMockModel{params, gatherer, {/*we don't care about influence*/}});
 
         maths::CTimeSeriesDecomposition trend;
-        maths::CNormalMeanPrecConjugate prior{
-            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
+        maths::CNormalMeanPrecConjugate prior{maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
         maths::CModelParams timeSeriesModelParams{bucketLength, 1.0, 0.001, 0.2};
         maths::CUnivariateTimeSeriesModel timeSeriesModel{timeSeriesModelParams, 0, trend, prior};
         model->mockTimeSeriesModels({model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(0)),
@@ -155,8 +154,8 @@ void CModelDetailsViewTest::testModelPlot() {
 CppUnit::Test* CModelDetailsViewTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelDetailsViewTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelDetailsViewTest>("CModelDetailsViewTest::testModelPlot",
-                                                                         &CModelDetailsViewTest::testModelPlot));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CModelDetailsViewTest>("CModelDetailsViewTest::testModelPlot", &CModelDetailsViewTest::testModelPlot));
 
     return suiteOfTests;
 }

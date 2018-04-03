@@ -44,17 +44,14 @@ std::size_t fieldRolePenaltyIndex(const CDetectorSpecification& spec) {
 }
 }
 
-CAutoconfigurerDetectorPenalties::CAutoconfigurerDetectorPenalties(
-    const CAutoconfigurerParams& params,
-    const CAutoconfigurerFieldRolePenalties& fieldRolePenalties)
+CAutoconfigurerDetectorPenalties::CAutoconfigurerDetectorPenalties(const CAutoconfigurerParams& params,
+                                                                   const CAutoconfigurerFieldRolePenalties& fieldRolePenalties)
     : m_Params(params), m_FieldRolePenalties(fieldRolePenalties) {
 }
 
-CAutoconfigurerDetectorPenalties::TPenaltyPtr
-CAutoconfigurerDetectorPenalties::penaltyFor(const CDetectorSpecification& spec) {
-    return TPenaltyPtr((this->fieldRolePenalty(spec) * CSpanTooSmallForBucketLengthPenalty(m_Params) *
-                        CPolledDataPenalty(m_Params) * CLongTailPenalty(m_Params) *
-                        CLowInformationContentPenalty(m_Params) * CNotEnoughDataPenalty(m_Params) *
+CAutoconfigurerDetectorPenalties::TPenaltyPtr CAutoconfigurerDetectorPenalties::penaltyFor(const CDetectorSpecification& spec) {
+    return TPenaltyPtr((this->fieldRolePenalty(spec) * CSpanTooSmallForBucketLengthPenalty(m_Params) * CPolledDataPenalty(m_Params) *
+                        CLongTailPenalty(m_Params) * CLowInformationContentPenalty(m_Params) * CNotEnoughDataPenalty(m_Params) *
                         CTooMuchDataPenalty(m_Params) * CLowVariationPenalty(m_Params) * CSparseCountPenalty(m_Params))
                            .clone());
 }
@@ -71,8 +68,7 @@ const CPenalty& CAutoconfigurerDetectorPenalties::fieldRolePenalty(const CDetect
                                                                    : penalties.categoricalFunctionArgumentPenalty());
         }
         if (spec.byField()) {
-            penalty.addPenalty(constants::BY_INDEX,
-                               config_t::isRare(spec.function()) ? penalties.rareByPenalty() : penalties.byPenalty());
+            penalty.addPenalty(constants::BY_INDEX, config_t::isRare(spec.function()) ? penalties.rareByPenalty() : penalties.byPenalty());
         }
         if (spec.overField()) {
             penalty.addPenalty(constants::OVER_INDEX, penalties.overPenalty());

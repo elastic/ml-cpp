@@ -61,8 +61,7 @@ struct SDoAssign {
 };
 template<typename VECTOR>
 struct SDoAssign<const VECTOR> {
-    static const CVectorRange<const VECTOR>& dispatch(CVectorRange<const VECTOR>& lhs,
-                                                      const CVectorRange<const VECTOR>& rhs) {
+    static const CVectorRange<const VECTOR>& dispatch(CVectorRange<const VECTOR>& lhs, const CVectorRange<const VECTOR>& rhs) {
         CVectorRange<const VECTOR> tmp(*rhs.base(), rhs.a(), rhs.b());
         lhs.swap(tmp);
         return lhs;
@@ -89,9 +88,7 @@ public:
     CVectorRange(VECTOR& vector, size_type a, size_type b) : m_Vector(&vector), m_A(a), m_B(b) {}
 
     //! Copy assignment.
-    const CVectorRange& operator=(const CVectorRange& other) {
-        return vector_range_detail::SDoAssign<VECTOR>::dispatch(*this, other);
-    }
+    const CVectorRange& operator=(const CVectorRange& other) { return vector_range_detail::SDoAssign<VECTOR>::dispatch(*this, other); }
 
     //! Assign from value.
     template<typename T>

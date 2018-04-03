@@ -121,8 +121,8 @@ void CDetectorEnumerator::generateNoPartitioning(TDetectorSpecificationVec& resu
             std::size_t id = result.size();
 
             if (config_t::hasArgument(function)) {
-                const TStrVec& arguments = config_t::isMetric(function) ? m_CandidateMetricFunctionArguments
-                                                                        : m_CandidateCategoricalFunctionArguments;
+                const TStrVec& arguments =
+                    config_t::isMetric(function) ? m_CandidateMetricFunctionArguments : m_CandidateCategoricalFunctionArguments;
                 for (std::size_t j = 0u; j < arguments.size(); ++j) {
                     result.push_back(CDetectorSpecification(m_Params, function, arguments[j], id));
                 }
@@ -136,12 +136,7 @@ void CDetectorEnumerator::generateNoPartitioning(TDetectorSpecificationVec& resu
 void CDetectorEnumerator::addOnePartitioning(std::size_t a, std::size_t b, TDetectorSpecificationVec& result) const {
     TStrVecCRef candidates[] = {
         boost::cref(m_CandidateByFields), boost::cref(m_CandidateOverFields), boost::cref(m_CandidatePartitionFields)};
-    add(boost::size(constants::CFieldIndices::PARTITIONING),
-        constants::CFieldIndices::PARTITIONING,
-        candidates,
-        a,
-        b,
-        result);
+    add(boost::size(constants::CFieldIndices::PARTITIONING), constants::CFieldIndices::PARTITIONING, candidates, a, b, result);
 
     for (std::size_t i = 0u; i < m_Functions.size(); ++i) {
         config_t::EFunctionCategory function = m_Functions[i];

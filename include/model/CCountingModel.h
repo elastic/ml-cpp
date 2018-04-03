@@ -50,9 +50,7 @@ public:
     //!
     //! \note The current bucket statistics are left default initialized
     //! and so must be sampled for before this model can be used.
-    CCountingModel(const SModelParams& params,
-                   const TDataGathererPtr& dataGatherer,
-                   core::CStateRestoreTraverser& traverser);
+    CCountingModel(const SModelParams& params, const TDataGathererPtr& dataGatherer, core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
@@ -114,8 +112,7 @@ public:
     //! \param[in] pid The identifier of the person of interest.
     //! \param[in] cid Ignored.
     //! \param[in] time The time of interest.
-    virtual TDouble1Vec
-    currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
+    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
 
     //! Get the mean bucket count or the reference model mean bucket
     //! count if one is defined for the person identified by \p pid.
@@ -153,8 +150,7 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void
-    sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! This samples the bucket statistics, and any state needed
     //! by computeProbablity, in the time interval [\p startTime,

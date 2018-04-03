@@ -33,8 +33,8 @@
 CppUnit::Test* COutputChainerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COutputChainerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutputChainerTest>("COutputChainerTest::testChaining",
-                                                                      &COutputChainerTest::testChaining));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<COutputChainerTest>("COutputChainerTest::testChaining", &COutputChainerTest::testChaining));
 
     return suiteOfTests;
 }
@@ -60,8 +60,7 @@ void COutputChainerTest::testChaining(void) {
         ml::api::CFieldConfig fieldConfig;
         CPPUNIT_ASSERT(fieldConfig.initFromFile("testfiles/new_mlfields.conf"));
 
-        ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+        ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
         ml::api::CAnomalyJob job("job",
                                  limits,

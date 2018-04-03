@@ -56,8 +56,7 @@ CModelPlotData::CModelPlotData(core_t::TTime time,
       m_DetectorIndex(detectorIndex) {
 }
 
-CModelPlotData::SByFieldData::SByFieldData(void)
-    : s_LowerBound(0.0), s_UpperBound(0.0), s_Median(0.0), s_ValuesPerOverField() {
+CModelPlotData::SByFieldData::SByFieldData(void) : s_LowerBound(0.0), s_UpperBound(0.0), s_Median(0.0), s_ValuesPerOverField() {
 }
 
 CModelPlotData::SByFieldData::SByFieldData(double lowerBound, double upperBound, double median)

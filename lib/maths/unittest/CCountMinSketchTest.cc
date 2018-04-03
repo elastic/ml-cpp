@@ -265,12 +265,11 @@ void CCountMinSketchTest::testPersist(void) {
 CppUnit::Test* CCountMinSketchTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCountMinSketchTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCountMinSketchTest>("CCountMinSketchTest::testCounts",
-                                                                       &CCountMinSketchTest::testCounts));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCountMinSketchTest>("CCountMinSketchTest::testSwap", &CCountMinSketchTest::testSwap));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCountMinSketchTest>("CCountMinSketchTest::testPersist",
-                                                                       &CCountMinSketchTest::testPersist));
+        new CppUnit::TestCaller<CCountMinSketchTest>("CCountMinSketchTest::testCounts", &CCountMinSketchTest::testCounts));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCountMinSketchTest>("CCountMinSketchTest::testSwap", &CCountMinSketchTest::testSwap));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCountMinSketchTest>("CCountMinSketchTest::testPersist", &CCountMinSketchTest::testPersist));
 
     return suiteOfTests;
 }

@@ -217,9 +217,7 @@ private:
 
     //! Remove [\p begin, \p end) from \p x.
     template<typename VECTOR>
-    static void erase(std::vector<VECTOR>& x,
-                      typename std::vector<VECTOR>::iterator begin,
-                      typename std::vector<VECTOR>::iterator end) {
+    static void erase(std::vector<VECTOR>& x, typename std::vector<VECTOR>::iterator begin, typename std::vector<VECTOR>::iterator end) {
         x.erase(begin, end);
     }
 

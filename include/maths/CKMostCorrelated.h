@@ -176,8 +176,7 @@ protected:
 
         //! Estimate the correlation based on the projections
         //! \p px and \p py.
-        static double
-        correlation(const TVector& px, const CPackedBitVector& ix, const TVector& py, const CPackedBitVector& iy);
+        static double correlation(const TVector& px, const CPackedBitVector& ix, const TVector& py, const CPackedBitVector& iy);
 
         //! Get the checksum of this object.
         uint64_t checksum(uint64_t seed) const;

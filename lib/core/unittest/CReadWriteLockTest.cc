@@ -33,10 +33,10 @@
 CppUnit::Test* CReadWriteLockTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CReadWriteLockTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CReadWriteLockTest>("CReadWriteLockTest::testReadLock",
-                                                                      &CReadWriteLockTest::testReadLock));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CReadWriteLockTest>("CReadWriteLockTest::testWriteLock",
-                                                                      &CReadWriteLockTest::testWriteLock));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CReadWriteLockTest>("CReadWriteLockTest::testReadLock", &CReadWriteLockTest::testReadLock));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CReadWriteLockTest>("CReadWriteLockTest::testWriteLock", &CReadWriteLockTest::testWriteLock));
     suiteOfTests->addTest(new CppUnit::TestCaller<CReadWriteLockTest>("CReadWriteLockTest::testPerformanceVersusMutex",
                                                                       &CReadWriteLockTest::testPerformanceVersusMutex));
 
@@ -100,11 +100,7 @@ public:
                              uint32_t iterations,
                              uint32_t increment,
                              volatile uint32_t& variable)
-        : m_Mutex(mutex),
-          m_SleepTime(sleepTime),
-          m_Iterations(iterations),
-          m_Increment(increment),
-          m_Variable(variable) {}
+        : m_Mutex(mutex), m_SleepTime(sleepTime), m_Iterations(iterations), m_Increment(increment), m_Variable(variable) {}
 
 protected:
     void run(void) {
@@ -130,16 +126,8 @@ private:
 
 class CMutexProtectedAdder : public ml::core::CThread {
 public:
-    CMutexProtectedAdder(ml::core::CMutex& mutex,
-                         uint32_t sleepTime,
-                         uint32_t iterations,
-                         uint32_t increment,
-                         volatile uint32_t& variable)
-        : m_Mutex(mutex),
-          m_SleepTime(sleepTime),
-          m_Iterations(iterations),
-          m_Increment(increment),
-          m_Variable(variable) {}
+    CMutexProtectedAdder(ml::core::CMutex& mutex, uint32_t sleepTime, uint32_t iterations, uint32_t increment, volatile uint32_t& variable)
+        : m_Mutex(mutex), m_SleepTime(sleepTime), m_Iterations(iterations), m_Increment(increment), m_Variable(variable) {}
 
 protected:
     void run(void) {
@@ -170,11 +158,7 @@ public:
                              uint32_t iterations,
                              uint32_t increment,
                              volatile uint32_t& variable)
-        : m_ReadWriteLock(readWriteLock),
-          m_SleepTime(sleepTime),
-          m_Iterations(iterations),
-          m_Increment(increment),
-          m_Variable(variable) {}
+        : m_ReadWriteLock(readWriteLock), m_SleepTime(sleepTime), m_Iterations(iterations), m_Increment(increment), m_Variable(variable) {}
 
 protected:
     void run(void) {
@@ -200,15 +184,8 @@ private:
 
 class CReadLockProtectedReader : public ml::core::CThread {
 public:
-    CReadLockProtectedReader(ml::core::CReadWriteLock& readWriteLock,
-                             uint32_t sleepTime,
-                             uint32_t iterations,
-                             volatile uint32_t& variable)
-        : m_ReadWriteLock(readWriteLock),
-          m_SleepTime(sleepTime),
-          m_Iterations(iterations),
-          m_Variable(variable),
-          m_LastRead(variable) {}
+    CReadLockProtectedReader(ml::core::CReadWriteLock& readWriteLock, uint32_t sleepTime, uint32_t iterations, volatile uint32_t& variable)
+        : m_ReadWriteLock(readWriteLock), m_SleepTime(sleepTime), m_Iterations(iterations), m_Variable(variable), m_LastRead(variable) {}
 
     uint32_t lastRead(void) const { return m_LastRead; }
 
@@ -381,8 +358,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex(void) {
         ml::core_t::TTime end(ml::core::CTimeUtils::now());
         LOG_INFO("Finished fast mutex lock throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-        LOG_INFO("Fast mutex lock throughput test with test size " << TEST_SIZE << " took " << (end - start)
-                                                                   << " seconds");
+        LOG_INFO("Fast mutex lock throughput test with test size " << TEST_SIZE << " took " << (end - start) << " seconds");
 
         LOG_INFO("Fast mutex lock protected variable incremented to " << testVariable);
 
@@ -438,8 +414,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex(void) {
         ml::core_t::TTime end(ml::core::CTimeUtils::now());
         LOG_INFO("Finished read-write lock throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-        LOG_INFO("Read-write lock throughput test with test size " << TEST_SIZE << " took " << (end - start)
-                                                                   << " seconds");
+        LOG_INFO("Read-write lock throughput test with test size " << TEST_SIZE << " took " << (end - start) << " seconds");
 
         LOG_INFO("Write lock protected variable incremented to " << testVariable);
 

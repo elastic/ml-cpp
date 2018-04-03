@@ -90,8 +90,7 @@ public:
     std::size_t columns(void) const { return m_Columns; }
     //! Get the beginning of the rows present for the j'th column.
     iterator beginRows(std::size_t j) const {
-        return std::lower_bound(
-            m_Elements.begin(), m_Elements.end(), TSizeSizePr(j, size_t(0)), COrderings::SFirstLess());
+        return std::lower_bound(m_Elements.begin(), m_Elements.end(), TSizeSizePr(j, size_t(0)), COrderings::SFirstLess());
     }
     //! Get the end of the rows present for the j'th column.
     iterator endRows(std::size_t j) const {
@@ -152,11 +151,7 @@ public:
     //! regression.
     //! \param[out] numberIterations The number of iterations of
     //! the main optimization loop used.
-    bool run(const CDenseMatrix& x,
-             const TDoubleVec& y,
-             const TDoubleVec& lambda,
-             TDoubleVec& beta,
-             std::size_t& numberIterations);
+    bool run(const CDenseMatrix& x, const TDoubleVec& y, const TDoubleVec& lambda, TDoubleVec& beta, std::size_t& numberIterations);
 
     //! Compute the regression parameters for sparse feature vectors.
     //!
@@ -167,11 +162,7 @@ public:
     //! regression.
     //! \param[out] numberIterations The number of iterations of
     //! the main optimization loop used.
-    bool run(const CSparseMatrix& x,
-             const TDoubleVec& y,
-             const TDoubleVec& lambda,
-             TDoubleVec& beta,
-             std::size_t& numberIterations);
+    bool run(const CSparseMatrix& x, const TDoubleVec& y, const TDoubleVec& lambda, TDoubleVec& beta, std::size_t& numberIterations);
 
     //! Compute the regression parameters for dense feature vectors
     //! using the input value of beta to initialize the optimization
@@ -184,11 +175,8 @@ public:
     //! regression.
     //! \param[out] numberIterations The number of iterations of
     //! the main optimization loop used.
-    bool runIncremental(const CDenseMatrix& x,
-                        const TDoubleVec& y,
-                        const TDoubleVec& lambda,
-                        TDoubleVec& beta,
-                        std::size_t& numberIterations);
+    bool
+    runIncremental(const CDenseMatrix& x, const TDoubleVec& y, const TDoubleVec& lambda, TDoubleVec& beta, std::size_t& numberIterations);
 
     //! Compute the regression parameters for sparse feature vectors
     //! using the input value of beta to initialize the optimization
@@ -201,11 +189,8 @@ public:
     //! regression.
     //! \param[out] numberIterations The number of iterations of
     //! the main optimization loop used.
-    bool runIncremental(const CSparseMatrix& x,
-                        const TDoubleVec& y,
-                        const TDoubleVec& lambda,
-                        TDoubleVec& beta,
-                        std::size_t& numberIterations);
+    bool
+    runIncremental(const CSparseMatrix& x, const TDoubleVec& y, const TDoubleVec& lambda, TDoubleVec& beta, std::size_t& numberIterations);
 
 private:
     //! Check the validity of the training data and the prior parameters.

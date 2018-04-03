@@ -160,8 +160,7 @@ public:
         }
 
         if (m_Readings.front() > m_Readings.back()) {
-            LOG_ERROR("Time to process last " << NUM_TO_TIME << " messages is negative (-"
-                                              << (m_Readings.front() - m_Readings.back())
+            LOG_ERROR("Time to process last " << NUM_TO_TIME << " messages is negative (-" << (m_Readings.front() - m_Readings.back())
                                               << "ms).  "
                                                  "Maybe the system clock has been put back?");
             return -1.0;

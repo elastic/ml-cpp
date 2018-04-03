@@ -118,20 +118,14 @@ std::string CDistinctCountThresholdPenalty::name(void) const {
            core::CStringUtils::typeToString(m_DistinctCountForPenaltyOfOne);
 }
 
-void CDistinctCountThresholdPenalty::penaltyFromMe(const CFieldStatistics& stats,
-                                                   double& penalty,
-                                                   std::string& description) const {
+void CDistinctCountThresholdPenalty::penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const {
     if (const CCategoricalDataSummaryStatistics* summary = stats.categoricalSummary()) {
-        double penalty_ = CTools::interpolate(m_DistinctCountForPenaltyOfZero,
-                                              m_DistinctCountForPenaltyOfOne,
-                                              0.0,
-                                              1.0,
-                                              static_cast<double>(summary->distinctCount()));
+        double penalty_ = CTools::interpolate(
+            m_DistinctCountForPenaltyOfZero, m_DistinctCountForPenaltyOfOne, 0.0, 1.0, static_cast<double>(summary->distinctCount()));
         if (penalty_ < 1.0) {
             penalty *= penalty_;
-            description += prefix(description) + "A distinct count of " +
-                           core::CStringUtils::typeToString(summary->distinctCount()) + " is" +
-                           (penalty_ == 0.0 ? " too " : " ") +
+            description += prefix(description) + "A distinct count of " + core::CStringUtils::typeToString(summary->distinctCount()) +
+                           " is" + (penalty_ == 0.0 ? " too " : " ") +
                            (m_DistinctCountForPenaltyOfZero > m_DistinctCountForPenaltyOfOne ? "high" : "low");
         }
     }

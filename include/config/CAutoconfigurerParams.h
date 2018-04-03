@@ -65,10 +65,7 @@ public:
     typedef std::vector<config_t::EFunctionCategory> TFunctionCategoryVec;
 
 public:
-    CAutoconfigurerParams(const std::string& timeFieldName,
-                          const std::string& timeFieldFormat,
-                          bool verbose,
-                          bool writeDetectorConfigs);
+    CAutoconfigurerParams(const std::string& timeFieldName, const std::string& timeFieldFormat, bool verbose, bool writeDetectorConfigs);
 
     //! Initialize from the specified file.
     bool init(const std::string& file);

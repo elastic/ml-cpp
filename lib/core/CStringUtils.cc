@@ -369,20 +369,17 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     int ret = 0;
     switch (precision) {
     case CIEEE754::E_HalfPrecision:
-        ret = ::fabs(d) < 1.0 && d != 0.0
-                  ? ::sprintf(buf, "%.2e", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)))
-                  : ::sprintf(buf, "%.3g", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
+        ret = ::fabs(d) < 1.0 && d != 0.0 ? ::sprintf(buf, "%.2e", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)))
+                                          : ::sprintf(buf, "%.3g", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
         break;
 
     case CIEEE754::E_SinglePrecision:
-        ret = ::fabs(d) < 1.0 && d != 0.0
-                  ? ::sprintf(buf, "%.6e", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)))
-                  : ::sprintf(buf, "%.7g", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
+        ret = ::fabs(d) < 1.0 && d != 0.0 ? ::sprintf(buf, "%.6e", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)))
+                                          : ::sprintf(buf, "%.7g", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
         break;
 
     case CIEEE754::E_DoublePrecision:
-        ret = ::fabs(d) < 1.0 && d != 0.0 ? ::sprintf(buf, "%.14e", clampToReadable(d))
-                                          : ::sprintf(buf, "%.15g", clampToReadable(d));
+        ret = ::fabs(d) < 1.0 && d != 0.0 ? ::sprintf(buf, "%.14e", clampToReadable(d)) : ::sprintf(buf, "%.15g", clampToReadable(d));
         break;
     }
 
@@ -1000,8 +997,7 @@ std::string CStringUtils::wideToNarrow(const std::wstring& wideStr) {
     // cope with UTF8 either, so we should replace it with a proper
     // string conversion library, e.g. ICU
     typedef std::ctype<wchar_t> TWCharTCType;
-    std::use_facet<TWCharTCType>(CStringUtils::locale())
-        .narrow(wideStr.data(), wideStr.data() + wideStr.length(), '?', &narrowStr[0]);
+    std::use_facet<TWCharTCType>(CStringUtils::locale()).narrow(wideStr.data(), wideStr.data() + wideStr.length(), '?', &narrowStr[0]);
     return narrowStr;
 }
 
@@ -1014,8 +1010,7 @@ std::wstring CStringUtils::narrowToWide(const std::string& narrowStr) {
     // cope with UTF8 either, so we should replace it with a proper
     // string conversion library, e.g. ICU
     typedef std::ctype<wchar_t> TWCharTCType;
-    std::use_facet<TWCharTCType>(CStringUtils::locale())
-        .widen(narrowStr.data(), narrowStr.data() + narrowStr.length(), &wideStr[0]);
+    std::use_facet<TWCharTCType>(CStringUtils::locale()).widen(narrowStr.data(), narrowStr.data() + narrowStr.length(), &wideStr[0]);
     return wideStr;
 }
 

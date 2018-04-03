@@ -66,15 +66,11 @@ public:
 
 public:
     CMinusLogLikelihood(const maths::CPrior& prior)
-        : m_Prior(&prior),
-          m_WeightStyle(1, maths_t::E_SampleCountWeight),
-          m_X(1, 0.0),
-          m_Weight(1, TDoubleVec(1, 1.0)) {}
+        : m_Prior(&prior), m_WeightStyle(1, maths_t::E_SampleCountWeight), m_X(1, 0.0), m_Weight(1, TDoubleVec(1, 1.0)) {}
 
     bool operator()(const double& x, double& result) const {
         m_X[0] = x;
-        maths_t::EFloatingPointErrorStatus status =
-            m_Prior->jointLogMarginalLikelihood(m_WeightStyle, m_X, m_Weight, result);
+        maths_t::EFloatingPointErrorStatus status = m_Prior->jointLogMarginalLikelihood(m_WeightStyle, m_X, m_Weight, result);
         result = -result;
         return !(status & maths_t::E_FpFailed);
     }
@@ -132,8 +128,7 @@ void CPriorTest::testExpectation(void) {
     for (std::size_t n = 1; n < 10; ++n) {
         double entropy;
         CPPUNIT_ASSERT(prior.expectation(CMinusLogLikelihood(prior), n, entropy));
-        LOG_DEBUG("n = " << n << ", differential entropy = " << entropy
-                         << ", error = " << ::fabs(entropy - trueEntropy));
+        LOG_DEBUG("n = " << n << ", differential entropy = " << entropy << ", error = " << ::fabs(entropy - trueEntropy));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(trueEntropy, entropy, entropyErrors[n - 1]);
     }
 }
@@ -141,8 +136,7 @@ void CPriorTest::testExpectation(void) {
 CppUnit::Test* CPriorTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPriorTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CPriorTest>("CPriorTest::testExpectation", &CPriorTest::testExpectation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPriorTest>("CPriorTest::testExpectation", &CPriorTest::testExpectation));
 
     return suiteOfTests;
 }

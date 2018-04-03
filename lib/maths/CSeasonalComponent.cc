@@ -64,8 +64,7 @@ CSeasonalComponent::CSeasonalComponent(double decayRate,
                                        CSplineTypes::EType valueInterpolationType,
                                        CSplineTypes::EType varianceInterpolationType)
     : CDecompositionComponent{0, CSplineTypes::E_Periodic, valueInterpolationType, varianceInterpolationType} {
-    traverser.traverseSubLevel(
-        boost::bind(&CSeasonalComponent::acceptRestoreTraverser, this, decayRate, minimumBucketLength, _1));
+    traverser.traverseSubLevel(boost::bind(&CSeasonalComponent::acceptRestoreTraverser, this, decayRate, minimumBucketLength, _1));
 }
 
 void CSeasonalComponent::swap(CSeasonalComponent& other) {
@@ -74,14 +73,12 @@ void CSeasonalComponent::swap(CSeasonalComponent& other) {
     m_Bucketing.swap(other.m_Bucketing);
 }
 
-bool CSeasonalComponent::acceptRestoreTraverser(double decayRate,
-                                                double minimumBucketLength,
-                                                core::CStateRestoreTraverser& traverser) {
+bool CSeasonalComponent::acceptRestoreTraverser(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
         RESTORE(DECOMPOSITION_COMPONENT_TAG,
-                traverser.traverseSubLevel(boost::bind(
-                    &CDecompositionComponent::acceptRestoreTraverser, static_cast<CDecompositionComponent*>(this), _1)))
+                traverser.traverseSubLevel(
+                    boost::bind(&CDecompositionComponent::acceptRestoreTraverser, static_cast<CDecompositionComponent*>(this), _1)))
         RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
         RESTORE_SETUP_TEARDOWN(BUCKETING_TAG,
                                CSeasonalComponentAdaptiveBucketing bucketing(decayRate, minimumBucketLength, traverser),
@@ -93,22 +90,18 @@ bool CSeasonalComponent::acceptRestoreTraverser(double decayRate,
 }
 
 void CSeasonalComponent::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(DECOMPOSITION_COMPONENT_TAG,
-                         boost::bind(&CDecompositionComponent::acceptPersistInserter,
-                                     static_cast<const CDecompositionComponent*>(this),
-                                     _1));
+    inserter.insertLevel(
+        DECOMPOSITION_COMPONENT_TAG,
+        boost::bind(&CDecompositionComponent::acceptPersistInserter, static_cast<const CDecompositionComponent*>(this), _1));
     inserter.insertValue(RNG_TAG, m_Rng.toString());
-    inserter.insertLevel(BUCKETING_TAG,
-                         boost::bind(&CSeasonalComponentAdaptiveBucketing::acceptPersistInserter, &m_Bucketing, _1));
+    inserter.insertLevel(BUCKETING_TAG, boost::bind(&CSeasonalComponentAdaptiveBucketing::acceptPersistInserter, &m_Bucketing, _1));
 }
 
 bool CSeasonalComponent::initialized(void) const {
     return this->CDecompositionComponent::initialized();
 }
 
-bool CSeasonalComponent::initialize(core_t::TTime startTime,
-                                    core_t::TTime endTime,
-                                    const TFloatMeanAccumulatorVec& values) {
+bool CSeasonalComponent::initialize(core_t::TTime startTime, core_t::TTime endTime, const TFloatMeanAccumulatorVec& values) {
     this->clear();
 
     if (!m_Bucketing.initialize(this->maxSize())) {
@@ -305,8 +298,7 @@ core_t::TTime CSeasonalComponent::jitter(core_t::TTime time) {
         double f{CSampling::uniformSample(m_Rng, 0.0, 1.0)};
         core_t::TTime a{time_.startOfWindow(time)};
         core_t::TTime b{a + time_.windowLength() - 1};
-        double jitter{0.5 * m_Bucketing.minimumBucketLength() *
-                      (f <= 0.5 ? ::sqrt(2.0 * f) - 1.0 : ::sqrt(2.0 * (f - 0.5)))};
+        double jitter{0.5 * m_Bucketing.minimumBucketLength() * (f <= 0.5 ? ::sqrt(2.0 * f) - 1.0 : ::sqrt(2.0 * (f - 0.5)))};
         result = CTools::truncate(result + static_cast<core_t::TTime>(jitter + 0.5), a, b);
     }
     return result;

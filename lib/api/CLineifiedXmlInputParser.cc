@@ -22,9 +22,7 @@
 namespace ml {
 namespace api {
 
-CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf& parser,
-                                                   std::istream& strmIn,
-                                                   bool allDocsSameStructure)
+CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf& parser, std::istream& strmIn, bool allDocsSameStructure)
     : CLineifiedInputParser(strmIn), m_Parser(parser), m_AllDocsSameStructure(allDocsSameStructure) {
 }
 
@@ -70,9 +68,7 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc& readerFunc) {
     return true;
 }
 
-bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec& fieldNames,
-                                                              TStrRefVec& fieldValRefs,
-                                                              TStrStrUMap& recordFields) {
+bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec& fieldNames, TStrRefVec& fieldValRefs, TStrStrUMap& recordFields) {
     if (fieldValRefs.empty()) {
         // We haven't yet decoded any documents, so decode the first one long-hand
         this->decodeDocumentWithArbitraryFields(fieldNames, recordFields);

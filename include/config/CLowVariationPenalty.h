@@ -65,8 +65,7 @@ private:
     void penaltyForDistinctCount(const CByAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
 
     //! Apply the penalty for distinct count with by, over and optionally a partition.
-    void penaltyForDistinctCount(const CByOverAndPartitionDataCountStatistics& stats,
-                                 CDetectorSpecification& spec) const;
+    void penaltyForDistinctCount(const CByOverAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
 
     //! Apply the penalty for info content with optionally a partition.
     void penaltyForInfoContent(const CPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;

@@ -48,15 +48,14 @@ void CHierarchicalResultsPopulator::visit(const CHierarchicalResults& results, c
     SAnnotatedProbability& probability = node.s_AnnotatedProbability;
     for (std::size_t i = 0; i < probability.s_AttributeProbabilities.size(); ++i) {
         const SAttributeProbability& attribute = probability.s_AttributeProbabilities[i];
-        attribute.s_CurrentBucketValue = node.s_Model->currentBucketValue(
-            attribute.s_Feature, pid, attribute.s_Cid, node.s_BucketStartTime + node.s_BucketLength / 2);
-        attribute.s_BaselineBucketMean =
-            node.s_Model->baselineBucketMean(attribute.s_Feature,
-                                             pid,
-                                             attribute.s_Cid,
-                                             attribute.s_Type,
-                                             attribute.s_Correlated,
-                                             node.s_BucketStartTime + node.s_BucketLength / 2);
+        attribute.s_CurrentBucketValue =
+            node.s_Model->currentBucketValue(attribute.s_Feature, pid, attribute.s_Cid, node.s_BucketStartTime + node.s_BucketLength / 2);
+        attribute.s_BaselineBucketMean = node.s_Model->baselineBucketMean(attribute.s_Feature,
+                                                                          pid,
+                                                                          attribute.s_Cid,
+                                                                          attribute.s_Type,
+                                                                          attribute.s_Correlated,
+                                                                          node.s_BucketStartTime + node.s_BucketLength / 2);
     }
 
     probability.s_CurrentBucketCount = node.s_Model->currentBucketCount(pid, node.s_BucketStartTime);

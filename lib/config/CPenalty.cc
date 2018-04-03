@@ -95,8 +95,7 @@ void CPenalty::penalize(CDetectorSpecification& spec) const {
 }
 
 double CPenalty::score(double penalty) {
-    return constants::DETECTOR_SCORE_EPSILON *
-           ::floor(constants::MAXIMUM_DETECTOR_SCORE * penalty / constants::DETECTOR_SCORE_EPSILON);
+    return constants::DETECTOR_SCORE_EPSILON * ::floor(constants::MAXIMUM_DETECTOR_SCORE * penalty / constants::DETECTOR_SCORE_EPSILON);
 }
 
 bool CPenalty::scoreIsZeroFor(double penalty) {
@@ -107,9 +106,7 @@ const CAutoconfigurerParams& CPenalty::params(void) const {
     return m_Params;
 }
 
-void CPenalty::penaltyFromMe(const CFieldStatistics& /*stats*/,
-                             double& /*penalty*/,
-                             std::string& /*description*/) const {
+void CPenalty::penaltyFromMe(const CFieldStatistics& /*stats*/, double& /*penalty*/, std::string& /*description*/) const {
 }
 
 void CPenalty::penaltyFromMe(CDetectorSpecification& /*spec*/) const {

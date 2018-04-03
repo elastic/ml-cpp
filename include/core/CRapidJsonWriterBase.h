@@ -68,8 +68,7 @@ template<typename OUTPUT_STREAM,
          typename STACK_ALLOCATOR = rapidjson::CrtAllocator,
          unsigned WRITE_FLAGS = rapidjson::kWriteDefaultFlags,
          template<typename, typename, typename, typename, unsigned> class JSON_WRITER = rapidjson::Writer>
-class CRapidJsonWriterBase
-    : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS> {
+class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS> {
 public:
     typedef std::vector<core_t::TTime> TTimeVec;
     typedef std::vector<std::string> TStrVec;
@@ -91,8 +90,7 @@ public:
     typedef std::pair<TStrPoolAllocatorPtrMapItr, bool> TStrPoolAllocatorPtrMapItrBoolPr;
 
 public:
-    using TRapidJsonWriterBase =
-        JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS>;
+    using TRapidJsonWriterBase = JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS>;
 
     CRapidJsonWriterBase(OUTPUT_STREAM& os) : TRapidJsonWriterBase(os) {
         // push a default rapidjson allocator onto our stack
@@ -171,9 +169,7 @@ public:
     //! \p[in] value constant string
     //! \p[out] obj rapidjson value to contain the \p value
     //! \p name must outlive \p obj or memory corruption will occur.
-    void pushBack(const char* value, TValue& obj) const {
-        obj.PushBack(rapidjson::StringRef(value), this->getRawAllocator());
-    }
+    void pushBack(const char* value, TValue& obj) const { obj.PushBack(rapidjson::StringRef(value), this->getRawAllocator()); }
 
     //! Push a generic rapidjson value object into a supplied rapidjson object value
     //! \p[in] value generic rapidjson value object
@@ -297,10 +293,7 @@ public:
 
     //! Adds a copy of a string field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addStringFieldCopyToObj(const std::string& fieldName,
-                                 const std::string& value,
-                                 TValue& obj,
-                                 bool allowEmptyString = false) const {
+    void addStringFieldCopyToObj(const std::string& fieldName, const std::string& value, TValue& obj, bool allowEmptyString = false) const {
         // Don't add empty strings unless explicitly told to
         if (!allowEmptyString && value.empty()) {
             return;
@@ -313,10 +306,8 @@ public:
     //! \p fieldName AND \p value must outlive \p obj or memory corruption will occur.
     //! This is an optimized version of addStringFieldToObj() avoiding
     //! the string copy for the value. Use with care.
-    void addStringFieldReferenceToObj(const std::string& fieldName,
-                                      const std::string& value,
-                                      TValue& obj,
-                                      bool allowEmptyString = false) const {
+    void
+    addStringFieldReferenceToObj(const std::string& fieldName, const std::string& value, TValue& obj, bool allowEmptyString = false) const {
         // Don't add empty strings unless explicitly told to
         if (!allowEmptyString && value.empty()) {
             return;
@@ -393,9 +384,8 @@ public:
 
     //! Add an array of pair double, pair double double to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addDoubleDoubleDoublePrPrArrayFieldToObj(const std::string& fieldName,
-                                                  const TDoubleDoubleDoublePrPrVec& values,
-                                                  TValue& obj) const {
+    void
+    addDoubleDoubleDoublePrPrArrayFieldToObj(const std::string& fieldName, const TDoubleDoubleDoublePrPrVec& values, TValue& obj) const {
         TValue array = this->makeArray(values.size());
 
         bool considerLogging(true);

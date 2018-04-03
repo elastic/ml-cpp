@@ -61,11 +61,8 @@ inline double cost(const TDoubleVecVec& costs, std::size_t i, std::size_t j) {
 //! \param[in] columnPotential The column potential function.
 //! \param[in] i The row index.
 //! \param[in] j The column index.
-inline double adjustedCost(const TDoubleVecVec& costs,
-                           const TDoubleVec& rowPotential,
-                           const TDoubleVec& columnPotential,
-                           std::size_t i,
-                           std::size_t j) {
+inline double
+adjustedCost(const TDoubleVecVec& costs, const TDoubleVec& rowPotential, const TDoubleVec& columnPotential, std::size_t i, std::size_t j) {
     // The bracketing is important in this expression since
     // it ensures we find the correct initial feasible solution.
     return (cost(costs, i, j) - columnPotential[j]) - rowPotential[i];
@@ -246,8 +243,7 @@ bool CAssignment::kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matchi
 
         std::size_t check = 0u;
         for (/**/; check < N; ++check) {
-            LOG_TRACE(" minSlackValue = " << minSlackValue << ", minSlackRow = " << minSlackRow
-                                          << ", minSlackColumn = " << minSlackColumn);
+            LOG_TRACE(" minSlackValue = " << minSlackValue << ", minSlackRow = " << minSlackRow << ", minSlackColumn = " << minSlackColumn);
 
             // Checking greater than zero here is important since
             // due to non-associativity of floating point arithmetic
@@ -295,8 +291,7 @@ bool CAssignment::kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matchi
                 break;
             } else {
                 LOG_TRACE(" pivot = " << pivot);
-                LOG_TRACE(
-                    " parentRowByCommittedColumn = " << core::CContainerPrinter::print(parentRowByCommittedColumn));
+                LOG_TRACE(" parentRowByCommittedColumn = " << core::CContainerPrinter::print(parentRowByCommittedColumn));
 
                 // Grow the path to include the pivot row.
                 grow(costs,

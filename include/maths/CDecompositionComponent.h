@@ -45,9 +45,8 @@ public:
     using TSplineCRef = CSpline<boost::reference_wrapper<const TFloatVec>,
                                 boost::reference_wrapper<const TFloatVec>,
                                 boost::reference_wrapper<const TDoubleVec>>;
-    using TSplineRef = CSpline<boost::reference_wrapper<TFloatVec>,
-                               boost::reference_wrapper<TFloatVec>,
-                               boost::reference_wrapper<TDoubleVec>>;
+    using TSplineRef =
+        CSpline<boost::reference_wrapper<TFloatVec>, boost::reference_wrapper<TFloatVec>, boost::reference_wrapper<TDoubleVec>>;
 
 public:
     //! Persist state by passing information to \p inserter.

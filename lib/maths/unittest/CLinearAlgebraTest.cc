@@ -537,10 +537,7 @@ void CLinearAlgebraTest::testNorms(void) {
     LOG_DEBUG("|  CLinearAlgebraTest::testNorms  |");
     LOG_DEBUG("+---------------------------------+");
 
-    double v[][5] = {{1.0, 2.1, 3.2, 1.7, 0.1},
-                     {0.0, -2.1, 1.2, 1.9, 4.1},
-                     {-1.0, 7.1, 5.2, 1.7, -0.1},
-                     {-3.0, 1.1, -3.3, 1.8, 6.1}};
+    double v[][5] = {{1.0, 2.1, 3.2, 1.7, 0.1}, {0.0, -2.1, 1.2, 1.9, 4.1}, {-1.0, 7.1, 5.2, 1.7, -0.1}, {-3.0, 1.1, -3.3, 1.8, 6.1}};
     double expectedEuclidean[] = {4.30697, 5.12543, 9.01942, 7.84538};
 
     for (std::size_t i = 0u; i < boost::size(v); ++i) {
@@ -687,9 +684,8 @@ void CLinearAlgebraTest::testUtils(void) {
         }
 
         {
-            double expected[][3] = {{::sqrt(2.1), ::sqrt(0.3), ::sqrt(0.4)},
-                                    {::sqrt(0.3), ::sqrt(1.2), ::sqrt(3.8)},
-                                    {::sqrt(0.4), ::sqrt(3.8), ::sqrt(0.2)}};
+            double expected[][3] = {
+                {::sqrt(2.1), ::sqrt(0.3), ::sqrt(0.4)}, {::sqrt(0.3), ::sqrt(1.2), ::sqrt(3.8)}, {::sqrt(0.4), ::sqrt(3.8), ::sqrt(0.2)}};
             LOG_DEBUG("sqrt(m1) = " << maths::sqrt(m1));
             for (std::size_t i = 0u; i < 3; ++i) {
                 for (std::size_t j = 0u; j < 3; ++j) {
@@ -734,16 +730,8 @@ void CLinearAlgebraTest::testGaussianLogLikelihood(void) {
                                 {1.214063, 0.067988, -0.241846, -0.425730},
                                 {-0.306693, -0.188497, -1.092719, 1.288093}};
 
-        const double expected[] = {-8.512128,
-                                   -8.569778,
-                                   -8.706920,
-                                   -8.700537,
-                                   -9.794163,
-                                   -8.602336,
-                                   -8.462027,
-                                   -9.096402,
-                                   -8.521042,
-                                   -8.590054};
+        const double expected[] = {
+            -8.512128, -8.569778, -8.706920, -8.700537, -9.794163, -8.602336, -8.462027, -9.096402, -8.521042, -8.590054};
 
         for (std::size_t i = 0u; i < boost::size(x_); ++i) {
             maths::CVectorNx1<double, 4> x(x_[i]);
@@ -773,21 +761,15 @@ void CLinearAlgebraTest::testGaussianLogLikelihood(void) {
         double likelihood;
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e1, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (3.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0) + 4.0 / 10.0),
-            likelihood,
-            1e-10);
+            -0.5 * (3.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0) + 4.0 / 10.0), likelihood, 1e-10);
 
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e2, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (3.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0) + 2.0 / 5.0),
-            likelihood,
-            1e-10);
+            -0.5 * (3.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0) + 2.0 / 5.0), likelihood, 1e-10);
 
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e3, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (3.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0) + 6.0 / 5.0),
-            likelihood,
-            1e-10);
+            -0.5 * (3.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0) + 6.0 / 5.0), likelihood, 1e-10);
 
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpOverflowed, maths::gaussianLogLikelihood(covariance, e1, likelihood, false));
         CPPUNIT_ASSERT(likelihood > 0.0);
@@ -814,24 +796,16 @@ void CLinearAlgebraTest::testGaussianLogLikelihood(void) {
         double likelihood;
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e1, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (4.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0 * 2.0) + 4.0 / 10.0),
-            likelihood,
-            1e-10);
+            -0.5 * (4.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0 * 2.0) + 4.0 / 10.0), likelihood, 1e-10);
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e2, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (4.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0 * 2.0) + 2.0 / 5.0),
-            likelihood,
-            1e-10);
+            -0.5 * (4.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0 * 2.0) + 2.0 / 5.0), likelihood, 1e-10);
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e3, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (4.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0 * 2.0) + 6.0 / 5.0),
-            likelihood,
-            1e-10);
+            -0.5 * (4.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0 * 2.0) + 6.0 / 5.0), likelihood, 1e-10);
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e4, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (4.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0 * 2.0) + 12.0 / 2.0),
-            likelihood,
-            1e-10);
+            -0.5 * (4.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0 * 2.0) + 12.0 / 2.0), likelihood, 1e-10);
     }
 }
 
@@ -874,11 +848,9 @@ void CLinearAlgebraTest::testSampleGaussian(void) {
         LOG_DEBUG("sample mean       = " << maths::CBasicStatistics::mean(covariances));
         LOG_DEBUG("sample covariance = " << maths::CBasicStatistics::maximumLikelihoodCovariances(covariances));
 
-        maths::CVectorNx1<double, 4> meanError =
-            maths::CVectorNx1<double, 4>(mean) - maths::CBasicStatistics::mean(covariances);
+        maths::CVectorNx1<double, 4> meanError = maths::CVectorNx1<double, 4>(mean) - maths::CBasicStatistics::mean(covariances);
         maths::CSymmetricMatrixNxN<double, 4> covarianceError =
-            maths::CSymmetricMatrixNxN<double, 4>(covariance) -
-            maths::CBasicStatistics::maximumLikelihoodCovariances(covariances);
+            maths::CSymmetricMatrixNxN<double, 4>(covariance) - maths::CBasicStatistics::maximumLikelihoodCovariances(covariances);
 
         LOG_DEBUG("|error| / |mean| = " << meanError.euclidean() / mean.euclidean());
         LOG_DEBUG("|error| / |covariance| = " << covarianceError.frobenius() / covariance.frobenius());
@@ -921,11 +893,9 @@ void CLinearAlgebraTest::testSampleGaussian(void) {
         LOG_DEBUG("sample mean       = " << maths::CBasicStatistics::mean(covariances));
         LOG_DEBUG("sample covariance = " << maths::CBasicStatistics::maximumLikelihoodCovariances(covariances));
 
-        maths::CVectorNx1<double, 4> meanError =
-            maths::CVectorNx1<double, 4>(mean) - maths::CBasicStatistics::mean(covariances);
+        maths::CVectorNx1<double, 4> meanError = maths::CVectorNx1<double, 4>(mean) - maths::CBasicStatistics::mean(covariances);
         maths::CSymmetricMatrixNxN<double, 4> covarianceError =
-            maths::CSymmetricMatrixNxN<double, 4>(covariance) -
-            maths::CBasicStatistics::maximumLikelihoodCovariances(covariances);
+            maths::CSymmetricMatrixNxN<double, 4>(covariance) - maths::CBasicStatistics::maximumLikelihoodCovariances(covariances);
 
         LOG_DEBUG("|error| / |mean| = " << meanError.euclidean() / mean.euclidean());
         LOG_DEBUG("|error| / |covariance| = " << covarianceError.frobenius() / covariance.frobenius());
@@ -941,28 +911,19 @@ void CLinearAlgebraTest::testLogDeterminant(void) {
 
     // Test the determinant (expected from octave).
     {
-        const double matrices[][3][3] = {
-            {{0.25451, 0.52345, 0.61308}, {0.52345, 1.19825, 1.12804}, {0.61308, 1.12804, 1.78833}},
-            {{0.83654, 0.24520, 0.80310}, {0.24520, 0.38368, 0.30554}, {0.80310, 0.30554, 0.78936}},
-            {{0.73063, 0.87818, 0.85836}, {0.87818, 1.50305, 1.17931}, {0.85836, 1.17931, 1.05850}},
-            {{0.38947, 0.61062, 0.34423}, {0.61062, 1.60437, 0.91664}, {0.34423, 0.91664, 0.52448}},
-            {{1.79563, 1.78751, 2.17200}, {1.78751, 1.83443, 2.17340}, {2.17200, 2.17340, 2.62958}},
-            {{0.57023, 0.47992, 0.71581}, {0.47992, 1.09182, 0.97989}, {0.71581, 0.97989, 1.32316}},
-            {{2.31264, 0.72098, 2.38050}, {0.72098, 0.28103, 0.78025}, {2.38050, 0.78025, 2.49219}},
-            {{0.83678, 0.45230, 0.74564}, {0.45230, 0.26482, 0.33491}, {0.74564, 0.33491, 1.29216}},
-            {{0.84991, 0.85443, 0.36922}, {0.85443, 1.12737, 0.83074}, {0.36922, 0.83074, 1.01195}},
-            {{0.27156, 0.26441, 0.29726}, {0.26441, 0.32388, 0.18895}, {0.29726, 0.18895, 0.47884}}};
+        const double matrices[][3][3] = {{{0.25451, 0.52345, 0.61308}, {0.52345, 1.19825, 1.12804}, {0.61308, 1.12804, 1.78833}},
+                                         {{0.83654, 0.24520, 0.80310}, {0.24520, 0.38368, 0.30554}, {0.80310, 0.30554, 0.78936}},
+                                         {{0.73063, 0.87818, 0.85836}, {0.87818, 1.50305, 1.17931}, {0.85836, 1.17931, 1.05850}},
+                                         {{0.38947, 0.61062, 0.34423}, {0.61062, 1.60437, 0.91664}, {0.34423, 0.91664, 0.52448}},
+                                         {{1.79563, 1.78751, 2.17200}, {1.78751, 1.83443, 2.17340}, {2.17200, 2.17340, 2.62958}},
+                                         {{0.57023, 0.47992, 0.71581}, {0.47992, 1.09182, 0.97989}, {0.71581, 0.97989, 1.32316}},
+                                         {{2.31264, 0.72098, 2.38050}, {0.72098, 0.28103, 0.78025}, {2.38050, 0.78025, 2.49219}},
+                                         {{0.83678, 0.45230, 0.74564}, {0.45230, 0.26482, 0.33491}, {0.74564, 0.33491, 1.29216}},
+                                         {{0.84991, 0.85443, 0.36922}, {0.85443, 1.12737, 0.83074}, {0.36922, 0.83074, 1.01195}},
+                                         {{0.27156, 0.26441, 0.29726}, {0.26441, 0.32388, 0.18895}, {0.29726, 0.18895, 0.47884}}};
 
-        const double expected[] = {5.1523e-03,
-                                   6.7423e-04,
-                                   4.5641e-04,
-                                   1.5880e-04,
-                                   3.1654e-06,
-                                   8.5319e-02,
-                                   2.0840e-03,
-                                   6.8008e-03,
-                                   1.4755e-02,
-                                   2.6315e-05};
+        const double expected[] = {
+            5.1523e-03, 6.7423e-04, 4.5641e-04, 1.5880e-04, 3.1654e-06, 8.5319e-02, 2.0840e-03, 6.8008e-03, 1.4755e-02, 2.6315e-05};
 
         for (std::size_t i = 0u; i < boost::size(matrices); ++i) {
             maths::CSymmetricMatrixNxN<double, 3> M(matrices[i]);
@@ -984,11 +945,10 @@ void CLinearAlgebraTest::testLogDeterminant(void) {
         maths::CVectorNx1<double, 4> e2(e2_);
         maths::CVectorNx1<double, 4> e3(e3_);
         maths::CVectorNx1<double, 4> e4(e4_);
-        maths::CSymmetricMatrixNxN<double, 4> M(
-            10.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e1 / e1.euclidean()) +
-            5.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e2 / e2.euclidean()) +
-            5.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e3 / e3.euclidean()) +
-            2.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e4 / e4.euclidean()));
+        maths::CSymmetricMatrixNxN<double, 4> M(10.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e1 / e1.euclidean()) +
+                                                5.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e2 / e2.euclidean()) +
+                                                5.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e3 / e3.euclidean()) +
+                                                2.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e4 / e4.euclidean()));
         double logDeterminant;
         maths::logDeterminant(M, logDeterminant);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(10.0 * 5.0 * 5.0 * 2.0), logDeterminant, 1e-10);
@@ -1119,26 +1079,22 @@ CppUnit::Test* CLinearAlgebraTest::suite(void) {
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testSymmetricMatrixNxN",
                                                                       &CLinearAlgebraTest::testSymmetricMatrixNxN));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testVectorNx1",
-                                                                      &CLinearAlgebraTest::testVectorNx1));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testSymmetricMatrix",
-                                                                      &CLinearAlgebraTest::testSymmetricMatrix));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testVector", &CLinearAlgebraTest::testVector));
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testVectorNx1", &CLinearAlgebraTest::testVectorNx1));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testNorms", &CLinearAlgebraTest::testNorms));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testUtils", &CLinearAlgebraTest::testUtils));
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testSymmetricMatrix", &CLinearAlgebraTest::testSymmetricMatrix));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testVector", &CLinearAlgebraTest::testVector));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testNorms", &CLinearAlgebraTest::testNorms));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testUtils", &CLinearAlgebraTest::testUtils));
     suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testGaussianLogLikelihood",
                                                                       &CLinearAlgebraTest::testGaussianLogLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testSampleGaussian",
-                                                                      &CLinearAlgebraTest::testSampleGaussian));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testLogDeterminant",
-                                                                      &CLinearAlgebraTest::testLogDeterminant));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testProjected",
-                                                                      &CLinearAlgebraTest::testProjected));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testPersist",
-                                                                      &CLinearAlgebraTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testSampleGaussian", &CLinearAlgebraTest::testSampleGaussian));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testLogDeterminant", &CLinearAlgebraTest::testLogDeterminant));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testProjected", &CLinearAlgebraTest::testProjected));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testPersist", &CLinearAlgebraTest::testPersist));
 
     return suiteOfTests;
 }

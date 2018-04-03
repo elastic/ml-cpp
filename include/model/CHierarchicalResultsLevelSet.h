@@ -77,16 +77,12 @@ protected:
     //! Get an influencer element for \p influencerFieldName.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const T* influencerElement(const std::string& influencerFieldName) const {
-        return element(m_InfluencerSet, influencerFieldName);
-    }
+    const T* influencerElement(const std::string& influencerFieldName) const { return element(m_InfluencerSet, influencerFieldName); }
 
     //! Get a partition element for \p partitionFieldName.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const T* partitionElement(const std::string& partitionFieldName) const {
-        return element(m_PartitionSet, partitionFieldName);
-    }
+    const T* partitionElement(const std::string& partitionFieldName) const { return element(m_PartitionSet, partitionFieldName); }
 
     //! Get a person element.
     //!
@@ -166,11 +162,7 @@ protected:
 
     //! Get and possibly add a normalizer for \p node.
     template<typename FACTORY>
-    void elements(const TNode& node,
-                  bool pivot,
-                  const FACTORY& factory,
-                  TTypePtrVec& result,
-                  bool distinctLeavesPerPartition = false) {
+    void elements(const TNode& node, bool pivot, const FACTORY& factory, TTypePtrVec& result, bool distinctLeavesPerPartition = false) {
         result.clear();
         if (this->isSimpleCount(node)) {
             return;
@@ -195,23 +187,20 @@ protected:
             return;
         }
 
-        std::string partitionKey = distinctLeavesPerPartition
-                                       ? *node.s_Spec.s_PartitionFieldName + *node.s_Spec.s_PartitionFieldValue
-                                       : *node.s_Spec.s_PartitionFieldName;
+        std::string partitionKey = distinctLeavesPerPartition ? *node.s_Spec.s_PartitionFieldName + *node.s_Spec.s_PartitionFieldValue
+                                                              : *node.s_Spec.s_PartitionFieldName;
 
         if (this->isLeaf(node)) {
-            TWord word = ms_Dictionary.word(partitionKey,
-                                            *node.s_Spec.s_PersonFieldName,
-                                            *node.s_Spec.s_FunctionName,
-                                            *node.s_Spec.s_ValueFieldName);
+            TWord word = ms_Dictionary.word(
+                partitionKey, *node.s_Spec.s_PersonFieldName, *node.s_Spec.s_FunctionName, *node.s_Spec.s_ValueFieldName);
             TWordTypePrVecItr i = element(m_LeafSet, word);
             if (i == m_LeafSet.end() || i->first != word) {
-                i = m_LeafSet.insert(i,
-                                     TWordTypePr(word,
-                                                 factory.make(partitionKey,
-                                                              *node.s_Spec.s_PersonFieldName,
-                                                              *node.s_Spec.s_FunctionName,
-                                                              *node.s_Spec.s_ValueFieldName)));
+                i = m_LeafSet.insert(
+                    i,
+                    TWordTypePr(
+                        word,
+                        factory.make(
+                            partitionKey, *node.s_Spec.s_PersonFieldName, *node.s_Spec.s_FunctionName, *node.s_Spec.s_ValueFieldName)));
             }
             result.push_back(&i->second);
         }
@@ -219,8 +208,7 @@ protected:
             TWord word = ms_Dictionary.word(partitionKey, *node.s_Spec.s_PersonFieldName);
             TWordTypePrVecItr i = element(m_PersonSet, word);
             if (i == m_PersonSet.end() || i->first != word) {
-                i = m_PersonSet.insert(i,
-                                       TWordTypePr(word, factory.make(partitionKey, *node.s_Spec.s_PersonFieldName)));
+                i = m_PersonSet.insert(i, TWordTypePr(word, factory.make(partitionKey, *node.s_Spec.s_PersonFieldName)));
             }
             result.push_back(&i->second);
         }

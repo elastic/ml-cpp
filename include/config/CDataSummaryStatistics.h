@@ -62,8 +62,7 @@ public:
 
 protected:
     typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1> TMinTimeAccumulator;
-    typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime>>
-        TMaxTimeAccumulator;
+    typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime>> TMaxTimeAccumulator;
 
 private:
     //! The earliest example time.
@@ -95,9 +94,7 @@ public:
 
 public:
     explicit CCategoricalDataSummaryStatistics(std::size_t n, std::size_t toApproximate = TO_APPROXIMATE);
-    CCategoricalDataSummaryStatistics(const CDataSummaryStatistics& other,
-                                      std::size_t n,
-                                      std::size_t toApproximate = TO_APPROXIMATE);
+    CCategoricalDataSummaryStatistics(const CDataSummaryStatistics& other, std::size_t n, std::size_t toApproximate = TO_APPROXIMATE);
 
     //! Add an example at \p time.
     void add(core_t::TTime time, const std::string& example);
@@ -133,8 +130,7 @@ private:
     typedef TStrUInt64UMap::const_iterator TStrUInt64UMapCItr;
     typedef std::vector<TStrUInt64UMapCItr> TStrUInt64UMapCItrVec;
     typedef maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1> TMinSizeAccumulator;
-    typedef maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1, std::greater<std::size_t>>
-        TMaxSizeAccumulator;
+    typedef maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1, std::greater<std::size_t>> TMaxSizeAccumulator;
     typedef std::vector<maths::CBjkstUniqueValues> TBjkstUniqueValuesVec;
     typedef std::vector<maths::CEntropySketch> TEntropySketchVec;
 

@@ -169,8 +169,8 @@ core_t::TTime CModelTools::CFuzzyDeduplicate::quantize(core_t::TTime time) const
 }
 
 std::size_t CModelTools::CFuzzyDeduplicate::SDuplicateValueHash::operator()(const TTimeDouble2VecPr& value) const {
-    return static_cast<std::size_t>(std::accumulate(
-        value.second.begin(), value.second.end(), static_cast<uint64_t>(value.first), [](uint64_t seed, double v) {
+    return static_cast<std::size_t>(
+        std::accumulate(value.second.begin(), value.second.end(), static_cast<uint64_t>(value.first), [](uint64_t seed, double v) {
             return core::CHashing::hashCombine(seed, static_cast<uint64_t>(v));
         }));
 }
@@ -225,8 +225,7 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
             n += aggregator.second;
         }
         for (const auto& aggregator : m_Aggregators) {
-            if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(), aggregator.second / n, boost::ref(p), _1),
-                                      aggregator.first)) {
+            if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(), aggregator.second / n, boost::ref(p), _1), aggregator.first)) {
                 return false;
             }
         }
@@ -282,8 +281,7 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
     }
 
     std::size_t index;
-    result = (!m_Prior->index(static_cast<double>(attribute), index) || index >= m_Cache.size()) ? m_SmallestProbability
-                                                                                                 : m_Cache[index];
+    result = (!m_Prior->index(static_cast<double>(attribute), index) || index >= m_Cache.size()) ? m_SmallestProbability : m_Cache[index];
     return true;
 }
 
@@ -314,8 +312,8 @@ void CModelTools::CProbabilityCache::addModes(model_t::EFeature feature, std::si
     if (model_t::dimension(feature) == 1) {
         TDouble1Vec& modes{m_Caches[{feature, id}].s_Modes};
         if (modes.empty()) {
-            TDouble2Vec1Vec modes_(model.residualModes(maths::CConstantWeights::COUNT_VARIANCE,
-                                                       maths::CConstantWeights::unit<TDouble2Vec>(1)));
+            TDouble2Vec1Vec modes_(
+                model.residualModes(maths::CConstantWeights::COUNT_VARIANCE, maths::CConstantWeights::unit<TDouble2Vec>(1)));
             for (const auto& mode : modes_) {
                 modes.push_back(mode[0]);
             }
@@ -332,8 +330,7 @@ void CModelTools::CProbabilityCache::addProbability(model_t::EFeature feature,
                                                     bool conditional,
                                                     const TSize1Vec& mostAnomalousCorrelate) {
     if (m_MaximumError > 0.0 && value.size() == 1 && value[0].size() == 1) {
-        m_Caches[{feature, id}].s_Probabilities.emplace(
-            value[0][0], SProbability{probability, tail, conditional, mostAnomalousCorrelate});
+        m_Caches[{feature, id}].s_Probabilities.emplace(value[0][0], SProbability{probability, tail, conditional, mostAnomalousCorrelate});
     }
 }
 
@@ -370,9 +367,8 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
                 conditional = right->second.s_Conditional;
                 mostAnomalousCorrelate = right->second.s_MostAnomalousCorrelate;
                 return true;
-            } else if (right != probabilities.end() && right + 1 != probabilities.end() &&
-                       right != probabilities.begin() && right - 1 != probabilities.begin() &&
-                       right - 2 != probabilities.begin()) {
+            } else if (right != probabilities.end() && right + 1 != probabilities.end() && right != probabilities.begin() &&
+                       right - 1 != probabilities.begin() && right - 2 != probabilities.begin()) {
                 auto left = right - 1;
                 double v[]{(left - 1)->first, left->first, right->first, (right + 1)->first};
                 auto beginModes = std::lower_bound(modes.begin(), modes.end(), v[0]);
@@ -386,8 +382,7 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
                                (right + 1)->second.s_Probability};
                     LOG_TRACE("p(v) = " << core::CContainerPrinter::print(p));
 
-                    if (std::is_sorted(p, p + 4, std::less<double>()) ||
-                        std::is_sorted(p, p + 4, std::greater<double>())) {
+                    if (std::is_sorted(p, p + 4, std::less<double>()) || std::is_sorted(p, p + 4, std::greater<double>())) {
                         auto nearest = x - v[1] < v[2] - x ? left : right;
                         probability = (p[2] * (x - v[1]) + p[1] * (v[2] - x)) / (v[2] - v[1]);
                         tail = nearest->second.s_Tail;

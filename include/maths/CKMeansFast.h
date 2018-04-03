@@ -99,9 +99,7 @@ public:
 
         //! Check for equality using checksum and then points if the
         //! checksum is ambiguous.
-        bool operator==(const CCluster& other) const {
-            return m_Checksum == other.m_Checksum && m_Points == other.m_Points;
-        }
+        bool operator==(const CCluster& other) const { return m_Checksum == other.m_Checksum && m_Points == other.m_Points; }
 
         //! Total ordering by checksum breaking ties using expensive
         //! comparison on all points.
@@ -236,12 +234,9 @@ protected:
         //! of points than a specified point.
         class CFurtherFrom {
         public:
-            CFurtherFrom(const TBoundingBox& bb_, std::size_t x_, const TPointVec& centres_)
-                : bb(&bb_), x(x_), centres(&centres_) {}
+            CFurtherFrom(const TBoundingBox& bb_, std::size_t x_, const TPointVec& centres_) : bb(&bb_), x(x_), centres(&centres_) {}
 
-            bool operator()(std::size_t y) const {
-                return y == x ? false : bb->closerToX((*centres)[x], (*centres)[y]);
-            }
+            bool operator()(std::size_t y) const { return y == x ? false : bb->closerToX((*centres)[x], (*centres)[y]); }
 
         private:
             const TBoundingBox* bb;
@@ -252,8 +247,7 @@ protected:
     public:
         explicit CCentreFilter(const TPointVec& centres)
             : m_Centres(&centres),
-              m_Filter(boost::counting_iterator<std::size_t>(0),
-                       boost::counting_iterator<std::size_t>(centres.size())) {}
+              m_Filter(boost::counting_iterator<std::size_t>(0), boost::counting_iterator<std::size_t>(centres.size())) {}
 
         //! Get the centres.
         const TPointVec& centres(void) const { return *m_Centres; }
@@ -283,8 +277,7 @@ protected:
 
             if (m_Filter.size() > 1) {
                 std::size_t closest = detail::closest(*m_Centres, m_Filter, POINT(bb.centre()));
-                m_Filter.erase(std::remove_if(m_Filter.begin(), m_Filter.end(), CFurtherFrom(bb, closest, *m_Centres)),
-                               m_Filter.end());
+                m_Filter.erase(std::remove_if(m_Filter.begin(), m_Filter.end(), CFurtherFrom(bb, closest, *m_Centres)), m_Filter.end());
             }
         }
 
@@ -308,8 +301,7 @@ protected:
     //! of its assigned points.
     class CCentroidComputer {
     public:
-        CCentroidComputer(const TPointVec& centres, TMeanAccumulatorVec& centroids)
-            : m_Centres(centres), m_Centroids(&centroids) {}
+        CCentroidComputer(const TPointVec& centres, TMeanAccumulatorVec& centroids) : m_Centres(centres), m_Centroids(&centroids) {}
 
         //! Update the centres with \p node.
         //!
@@ -362,10 +354,8 @@ protected:
             namespace detail = kmeans_fast_detail;
             std::size_t n = m_Centres->size();
             const POINT& point = node.s_Point;
-            (*m_ClosestPoints)[detail::closest(*m_Centres,
-                                               boost::counting_iterator<std::size_t>(0),
-                                               boost::counting_iterator<std::size_t>(n),
-                                               point)]
+            (*m_ClosestPoints)[detail::closest(
+                                   *m_Centres, boost::counting_iterator<std::size_t>(0), boost::counting_iterator<std::size_t>(n), point)]
                 .push_back(point);
         }
 

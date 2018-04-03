@@ -287,8 +287,7 @@ void CModelTypesTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_TwoSided, model_t::probabilityCalculation(feature));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10050), model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
         CPPUNIT_ASSERT_EQUAL(std::string("info_content"), model_t::outputFunctionName(feature));
-        CPPUNIT_ASSERT_EQUAL(std::string("'information content of value per bucket by person'"),
-                             model_t::print(feature));
+        CPPUNIT_ASSERT_EQUAL(std::string("'information content of value per bucket by person'"), model_t::print(feature));
 
         feature = model_t::E_IndividualLowInfoContentByBucketAndPerson;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
@@ -305,8 +304,7 @@ void CModelTypesTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedBelow, model_t::probabilityCalculation(feature));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10050), model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
         CPPUNIT_ASSERT_EQUAL(std::string("info_content"), model_t::outputFunctionName(feature));
-        CPPUNIT_ASSERT_EQUAL(std::string("'low information content of value per bucket by person'"),
-                             model_t::print(feature));
+        CPPUNIT_ASSERT_EQUAL(std::string("'low information content of value per bucket by person'"), model_t::print(feature));
 
         feature = model_t::E_IndividualHighInfoContentByBucketAndPerson;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
@@ -323,8 +321,7 @@ void CModelTypesTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedAbove, model_t::probabilityCalculation(feature));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10050), model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
         CPPUNIT_ASSERT_EQUAL(std::string("info_content"), model_t::outputFunctionName(feature));
-        CPPUNIT_ASSERT_EQUAL(std::string("'high information content of value per bucket by person'"),
-                             model_t::print(feature));
+        CPPUNIT_ASSERT_EQUAL(std::string("'high information content of value per bucket by person'"), model_t::print(feature));
 
         feature = model_t::E_IndividualTimeOfDayByBucketAndPerson;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
@@ -631,8 +628,7 @@ void CModelTypesTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_TwoSided, model_t::probabilityCalculation(feature));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10050), model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
         CPPUNIT_ASSERT_EQUAL(std::string("count"), model_t::outputFunctionName(feature));
-        CPPUNIT_ASSERT_EQUAL(std::string("'non-zero count per bucket by person and attribute'"),
-                             model_t::print(feature));
+        CPPUNIT_ASSERT_EQUAL(std::string("'non-zero count per bucket by person and attribute'"), model_t::print(feature));
 
         feature = model_t::E_PopulationIndicatorOfBucketPersonAndAttribute;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
@@ -703,8 +699,7 @@ void CModelTypesTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedBelow, model_t::probabilityCalculation(feature));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10050), model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
         CPPUNIT_ASSERT_EQUAL(std::string("count"), model_t::outputFunctionName(feature));
-        CPPUNIT_ASSERT_EQUAL(std::string("'low values of non-zero count per bucket by person and attribute'"),
-                             model_t::print(feature));
+        CPPUNIT_ASSERT_EQUAL(std::string("'low values of non-zero count per bucket by person and attribute'"), model_t::print(feature));
 
         feature = model_t::E_PopulationHighCountsByBucketPersonAndAttribute;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
@@ -722,8 +717,7 @@ void CModelTypesTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedAbove, model_t::probabilityCalculation(feature));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10050), model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
         CPPUNIT_ASSERT_EQUAL(std::string("count"), model_t::outputFunctionName(feature));
-        CPPUNIT_ASSERT_EQUAL(std::string("'high values of non-zero count per bucket by person and attribute'"),
-                             model_t::print(feature));
+        CPPUNIT_ASSERT_EQUAL(std::string("'high values of non-zero count per bucket by person and attribute'"), model_t::print(feature));
 
         feature = model_t::E_PopulationInfoContentByBucketPersonAndAttribute;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
@@ -741,8 +735,7 @@ void CModelTypesTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_TwoSided, model_t::probabilityCalculation(feature));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10050), model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
         CPPUNIT_ASSERT_EQUAL(std::string("info_content"), model_t::outputFunctionName(feature));
-        CPPUNIT_ASSERT_EQUAL(std::string("'information content of value per bucket by person and attribute'"),
-                             model_t::print(feature));
+        CPPUNIT_ASSERT_EQUAL(std::string("'information content of value per bucket by person and attribute'"), model_t::print(feature));
 
         feature = model_t::E_PopulationLowInfoContentByBucketPersonAndAttribute;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
@@ -760,8 +753,7 @@ void CModelTypesTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedBelow, model_t::probabilityCalculation(feature));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10050), model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
         CPPUNIT_ASSERT_EQUAL(std::string("info_content"), model_t::outputFunctionName(feature));
-        CPPUNIT_ASSERT_EQUAL(std::string("'low information content of value per bucket by person and attribute'"),
-                             model_t::print(feature));
+        CPPUNIT_ASSERT_EQUAL(std::string("'low information content of value per bucket by person and attribute'"), model_t::print(feature));
 
         feature = model_t::E_PopulationHighInfoContentByBucketPersonAndAttribute;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
@@ -798,8 +790,7 @@ void CModelTypesTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedBelow, model_t::probabilityCalculation(feature));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10050), model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
         CPPUNIT_ASSERT_EQUAL(std::string("distinct_count"), model_t::outputFunctionName(feature));
-        CPPUNIT_ASSERT_EQUAL(std::string("'low unique count per bucket by person and attribute'"),
-                             model_t::print(feature));
+        CPPUNIT_ASSERT_EQUAL(std::string("'low unique count per bucket by person and attribute'"), model_t::print(feature));
 
         feature = model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
@@ -817,8 +808,7 @@ void CModelTypesTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedAbove, model_t::probabilityCalculation(feature));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10050), model_t::sampleTime(feature, bucketStartTime, bucketLength, time));
         CPPUNIT_ASSERT_EQUAL(std::string("distinct_count"), model_t::outputFunctionName(feature));
-        CPPUNIT_ASSERT_EQUAL(std::string("'high unique count per bucket by person and attribute'"),
-                             model_t::print(feature));
+        CPPUNIT_ASSERT_EQUAL(std::string("'high unique count per bucket by person and attribute'"), model_t::print(feature));
 
         feature = model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute;
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), model_t::dimension(feature));
@@ -1025,8 +1015,7 @@ void CModelTypesTest::testAll(void) {
 CppUnit::Test* CModelTypesTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelTypesTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CModelTypesTest>("CModelTypesTest::testAll", &CModelTypesTest::testAll));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelTypesTest>("CModelTypesTest::testAll", &CModelTypesTest::testAll));
 
     return suiteOfTests;
 }

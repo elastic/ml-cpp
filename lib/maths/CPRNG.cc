@@ -229,8 +229,7 @@ void CPRNG::CXorShift1024Mult::jump(void) {
 std::string CPRNG::CXorShift1024Mult::toString(void) const {
     const uint64_t* begin = &m_X[0];
     const uint64_t* end = &m_X[16];
-    return core::CPersistUtils::toString(begin, end) + core::CPersistUtils::PAIR_DELIMITER +
-           core::CStringUtils::typeToString(m_P);
+    return core::CPersistUtils::toString(begin, end) + core::CPersistUtils::PAIR_DELIMITER + core::CStringUtils::typeToString(m_P);
 }
 
 bool CPRNG::CXorShift1024Mult::fromString(std::string state) {

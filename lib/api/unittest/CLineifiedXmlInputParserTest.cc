@@ -30,18 +30,15 @@
 CppUnit::Test* CLineifiedXmlInputParserTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLineifiedXmlInputParserTest");
 
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLineifiedXmlInputParserTest>("CLineifiedXmlInputParserTest::testThroughputArbitraryConformant",
+                                                              &CLineifiedXmlInputParserTest::testThroughputArbitraryConformant));
     suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedXmlInputParserTest>(
-        "CLineifiedXmlInputParserTest::testThroughputArbitraryConformant",
-        &CLineifiedXmlInputParserTest::testThroughputArbitraryConformant));
+        "CLineifiedXmlInputParserTest::testThroughputCommonConformant", &CLineifiedXmlInputParserTest::testThroughputCommonConformant));
     suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedXmlInputParserTest>(
-        "CLineifiedXmlInputParserTest::testThroughputCommonConformant",
-        &CLineifiedXmlInputParserTest::testThroughputCommonConformant));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedXmlInputParserTest>(
-        "CLineifiedXmlInputParserTest::testThroughputArbitraryRapid",
-        &CLineifiedXmlInputParserTest::testThroughputArbitraryRapid));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedXmlInputParserTest>(
-        "CLineifiedXmlInputParserTest::testThroughputCommonRapid",
-        &CLineifiedXmlInputParserTest::testThroughputCommonRapid));
+        "CLineifiedXmlInputParserTest::testThroughputArbitraryRapid", &CLineifiedXmlInputParserTest::testThroughputArbitraryRapid));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedXmlInputParserTest>("CLineifiedXmlInputParserTest::testThroughputCommonRapid",
+                                                                                &CLineifiedXmlInputParserTest::testThroughputCommonRapid));
 
     return suiteOfTests;
 }

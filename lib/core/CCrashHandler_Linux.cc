@@ -66,8 +66,7 @@ void crashHandler(int sig, siginfo_t* info, void* context) {
             errorAddress,
             symbolInfo.dli_fname,
             symbolInfo.dli_fbase,
-            reinterpret_cast<void*>(reinterpret_cast<intptr_t>(errorAddress) -
-                                    reinterpret_cast<intptr_t>(symbolInfo.dli_fbase)));
+            reinterpret_cast<void*>(reinterpret_cast<intptr_t>(errorAddress) - reinterpret_cast<intptr_t>(symbolInfo.dli_fbase)));
 
     // Still generate a core dump,
     // see http://www.alexonlinux.com/how-to-handle-sigsegv-but-also-generate-core-dump

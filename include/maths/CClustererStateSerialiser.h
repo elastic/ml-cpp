@@ -59,8 +59,7 @@ public:
     //! document representation.
     //!
     //! \note Sets \p ptr to NULL on failure.
-    bool
-    operator()(const SDistributionRestoreParams& params, TClusterer1dPtr& ptr, core::CStateRestoreTraverser& traverser);
+    bool operator()(const SDistributionRestoreParams& params, TClusterer1dPtr& ptr, core::CStateRestoreTraverser& traverser);
 
     //! Construct the appropriate CClusterer sub-class from its state
     //! document representation.
@@ -120,8 +119,7 @@ public:
     //! Persist state by passing information to the supplied inserter.
     template<typename T, std::size_t N>
     void operator()(const CClusterer<CVectorNx1<T, N>>& clusterer, core::CStatePersistInserter& inserter) {
-        inserter.insertLevel(clusterer.persistenceTag(),
-                             boost::bind(&CClusterer<CVectorNx1<T, N>>::acceptPersistInserter, &clusterer, _1));
+        inserter.insertLevel(clusterer.persistenceTag(), boost::bind(&CClusterer<CVectorNx1<T, N>>::acceptPersistInserter, &clusterer, _1));
     }
 };
 }

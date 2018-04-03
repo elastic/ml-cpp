@@ -86,8 +86,7 @@ public:
     //!
     //! \note This can fail if the supplied data are inconsistent in
     //! which case the state is set to bad.
-    static CStateMachine
-    create(const TStrVec& alphabet, const TStrVec& states, const TSizeVecVec& transitionFunction, std::size_t state);
+    static CStateMachine create(const TStrVec& alphabet, const TStrVec& states, const TSizeVecVec& transitionFunction, std::size_t state);
 
     //! \name Persistence
     //@{

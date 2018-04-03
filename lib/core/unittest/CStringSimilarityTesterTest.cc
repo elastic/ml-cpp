@@ -28,24 +28,23 @@
 CppUnit::Test* CStringSimilarityTesterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringSimilarityTesterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testStringSimilarity", &CStringSimilarityTesterTest::testStringSimilarity));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testLevensteinDistance", &CStringSimilarityTesterTest::testLevensteinDistance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testLevensteinDistance2", &CStringSimilarityTesterTest::testLevensteinDistance2));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent",
-        &CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar",
-        &CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence",
-        &CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testStringSimilarity",
+                                                                               &CStringSimilarityTesterTest::testStringSimilarity));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testLevensteinDistance",
+                                                                               &CStringSimilarityTesterTest::testLevensteinDistance));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testLevensteinDistance2",
+                                                                               &CStringSimilarityTesterTest::testLevensteinDistance2));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testWeightedEditDistance",
-                                                             &CStringSimilarityTesterTest::testWeightedEditDistance));
+        new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent",
+                                                             &CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar",
+                                                             &CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence",
+                                                             &CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testWeightedEditDistance",
+                                                                               &CStringSimilarityTesterTest::testWeightedEditDistance));
 
     return suiteOfTests;
 }
@@ -277,8 +276,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent(void
     }
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting Levenstein distance throughput test for low commonality strings at "
-             << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO("Starting Levenstein distance throughput test for low commonality strings at " << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t i = 0; i < TEST_SIZE; ++i) {
         for (size_t j = 0; j < TEST_SIZE; ++j) {
@@ -290,8 +288,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent(void
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished Levenstein distance throughput test for low commonality strings at "
-             << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO("Finished Levenstein distance throughput test for low commonality strings at " << ml::core::CTimeUtils::toTimeString(end));
 
     LOG_INFO("Levenstein distance throughput test for low commonality strings with size "
              << TEST_SIZE << " and maximum string length " << MAX_LEN << " took " << (end - start) << " seconds");
@@ -321,8 +318,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar(void) 
     }
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting Levenstein distance throughput test for similar strings at "
-             << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO("Starting Levenstein distance throughput test for similar strings at " << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t i = 0; i < TEST_SIZE; ++i) {
         for (size_t j = 0; j < TEST_SIZE; ++j) {
@@ -334,8 +330,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar(void) 
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished Levenstein distance throughput test for similar strings at "
-             << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO("Finished Levenstein distance throughput test for similar strings at " << ml::core::CTimeUtils::toTimeString(end));
 
     LOG_INFO("Levenstein distance throughput test for similar strings with size "
              << TEST_SIZE << " and " << EXTRA_CHARS << " extra characters took " << (end - start) << " seconds");

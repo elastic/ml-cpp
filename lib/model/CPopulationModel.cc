@@ -74,10 +74,7 @@ const std::string& name(EEntity entity, const CDataGatherer& gatherer, std::size
 
 //! Update \p hashes with the hash of the active entities in \p values.
 template<typename T>
-void hashActive(EEntity entity,
-                const CDataGatherer& gatherer,
-                const std::vector<T>& values,
-                TStrCRefUInt64Map& hashes) {
+void hashActive(EEntity entity, const CDataGatherer& gatherer, const std::vector<T>& values, TStrCRefUInt64Map& hashes) {
     for (std::size_t id = 0u; id < values.size(); ++id) {
         if (isActive(entity, gatherer, id)) {
             uint64_t& hash = hashes[boost::cref(name(entity, gatherer, id))];
@@ -122,8 +119,7 @@ const std::string INTERIM_BUCKET_CORRECTOR_TAG("i");
 CPopulationModel::CPopulationModel(const SModelParams& params,
                                    const TDataGathererPtr& dataGatherer,
                                    const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators)
-    : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators),
-      m_NewDistinctPersonCounts(BJKST_HASHES, BJKST_MAX_SIZE) {
+    : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators), m_NewDistinctPersonCounts(BJKST_HASHES, BJKST_MAX_SIZE) {
     const model_t::TFeatureVec& features = dataGatherer->features();
     for (std::size_t i = 0u; i < features.size(); ++i) {
         if (!model_t::isCategorical(features[i]) && !model_t::isConstant(features[i])) {
@@ -179,9 +175,7 @@ void CPopulationModel::currentBucketPersonIds(core_t::TTime time, TSizeVec& resu
     }
 }
 
-void CPopulationModel::sampleOutOfPhase(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        CResourceMonitor& resourceMonitor) {
+void CPopulationModel::sampleOutOfPhase(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) {
     CDataGatherer& gatherer = this->dataGatherer();
 
     if (!gatherer.dataAvailable(startTime)) {
@@ -278,8 +272,8 @@ double CPopulationModel::sampleRateWeight(std::size_t pid, std::size_t cid) cons
     LOG_TRACE("personCount = " << personCount);
 
     double totalCount = counts.totalCount();
-    double distinctPeopleCount = std::min(static_cast<double>(distinctPeople.number()),
-                                          static_cast<double>(this->dataGatherer().numberActivePeople()));
+    double distinctPeopleCount =
+        std::min(static_cast<double>(distinctPeople.number()), static_cast<double>(this->dataGatherer().numberActivePeople()));
     double meanPersonCount = totalCount / distinctPeopleCount;
     LOG_TRACE("meanPersonCount = " << meanPersonCount);
 
@@ -293,14 +287,12 @@ void CPopulationModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
     core::CPersistUtils::persist(ATTRIBUTE_FIRST_BUCKET_TIME_TAG, m_AttributeFirstBucketTimes, inserter);
     core::CPersistUtils::persist(ATTRIBUTE_LAST_BUCKET_TIME_TAG, m_AttributeLastBucketTimes, inserter);
     for (std::size_t cid = 0; cid < m_PersonAttributeBucketCounts.size(); ++cid) {
-        inserter.insertLevel(
-            PERSON_ATTRIBUTE_BUCKET_COUNT_TAG,
-            boost::bind(&maths::CCountMinSketch::acceptPersistInserter, &m_PersonAttributeBucketCounts[cid], _1));
+        inserter.insertLevel(PERSON_ATTRIBUTE_BUCKET_COUNT_TAG,
+                             boost::bind(&maths::CCountMinSketch::acceptPersistInserter, &m_PersonAttributeBucketCounts[cid], _1));
     }
     for (std::size_t cid = 0; cid < m_DistinctPersonCounts.size(); ++cid) {
-        inserter.insertLevel(
-            DISTINCT_PERSON_COUNT_TAG,
-            boost::bind(&maths::CBjkstUniqueValues::acceptPersistInserter, &m_DistinctPersonCounts[cid], _1));
+        inserter.insertLevel(DISTINCT_PERSON_COUNT_TAG,
+                             boost::bind(&maths::CBjkstUniqueValues::acceptPersistInserter, &m_DistinctPersonCounts[cid], _1));
     }
     this->interimBucketCorrectorAcceptPersistInserter(INTERIM_BUCKET_CORRECTOR_TAG, inserter);
 }
@@ -314,10 +306,8 @@ bool CPopulationModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
                                this->windowBucketCount(count));
         RESTORE(PERSON_BUCKET_COUNT_TAG, core::CPersistUtils::restore(name, this->personBucketCounts(), traverser))
         RESTORE(PERSON_LAST_BUCKET_TIME_TAG, core::CPersistUtils::restore(name, m_PersonLastBucketTimes, traverser))
-        RESTORE(ATTRIBUTE_FIRST_BUCKET_TIME_TAG,
-                core::CPersistUtils::restore(name, m_AttributeFirstBucketTimes, traverser))
-        RESTORE(ATTRIBUTE_LAST_BUCKET_TIME_TAG,
-                core::CPersistUtils::restore(name, m_AttributeLastBucketTimes, traverser))
+        RESTORE(ATTRIBUTE_FIRST_BUCKET_TIME_TAG, core::CPersistUtils::restore(name, m_AttributeFirstBucketTimes, traverser))
+        RESTORE(ATTRIBUTE_LAST_BUCKET_TIME_TAG, core::CPersistUtils::restore(name, m_AttributeLastBucketTimes, traverser))
         if (name == PERSON_ATTRIBUTE_BUCKET_COUNT_TAG) {
             maths::CCountMinSketch sketch(traverser);
             m_PersonAttributeBucketCounts.push_back(maths::CCountMinSketch(0, 0));
@@ -343,25 +333,22 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
 
     std::size_t numberExistingPeople = m_PersonLastBucketTimes.size();
     std::size_t numberExistingAttributes = m_AttributeLastBucketTimes.size();
-    TOptionalSize usageEstimate =
-        this->estimateMemoryUsage(std::min(numberExistingPeople, gatherer.numberActivePeople()),
-                                  std::min(numberExistingAttributes, gatherer.numberActiveAttributes()),
-                                  0); // # correlations
+    TOptionalSize usageEstimate = this->estimateMemoryUsage(std::min(numberExistingPeople, gatherer.numberActivePeople()),
+                                                            std::min(numberExistingAttributes, gatherer.numberActiveAttributes()),
+                                                            0); // # correlations
     std::size_t ourUsage = usageEstimate ? usageEstimate.get() : this->computeMemoryUsage();
     std::size_t resourceLimit = ourUsage + resourceMonitor.allocationLimit();
     std::size_t numberNewPeople = gatherer.numberPeople();
     numberNewPeople = numberNewPeople > numberExistingPeople ? numberNewPeople - numberExistingPeople : 0;
     std::size_t numberNewAttributes = gatherer.numberAttributes();
-    numberNewAttributes =
-        numberNewAttributes > numberExistingAttributes ? numberNewAttributes - numberExistingAttributes : 0;
+    numberNewAttributes = numberNewAttributes > numberExistingAttributes ? numberNewAttributes - numberExistingAttributes : 0;
 
-    while (numberNewPeople > 0 && resourceMonitor.areAllocationsAllowed() &&
-           (resourceMonitor.haveNoLimit() || ourUsage < resourceLimit)) {
+    while (numberNewPeople > 0 && resourceMonitor.areAllocationsAllowed() && (resourceMonitor.haveNoLimit() || ourUsage < resourceLimit)) {
         // We batch people in CHUNK_SIZE (500) and create models in chunks
         // and test usage after each chunk.
         std::size_t numberToCreate = std::min(numberNewPeople, CHUNK_SIZE);
-        LOG_TRACE("Creating batch of " << numberToCreate << " people of remaining " << numberNewPeople << ". "
-                                       << resourceLimit - ourUsage << " free bytes remaining");
+        LOG_TRACE("Creating batch of " << numberToCreate << " people of remaining " << numberNewPeople << ". " << resourceLimit - ourUsage
+                                       << " free bytes remaining");
         this->createNewModels(numberToCreate, 0);
         numberExistingPeople += numberToCreate;
         numberNewPeople -= numberToCreate;
@@ -395,9 +382,7 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
     if (numberNewAttributes > 0) {
         resourceMonitor.acceptAllocationFailureResult(time);
         LOG_DEBUG("Not enough memory to create attribute models");
-        core::CStatistics::instance()
-            .stat(stat_t::E_NumberMemoryLimitModelCreationFailures)
-            .increment(numberNewAttributes);
+        core::CStatistics::instance().stat(stat_t::E_NumberMemoryLimitModelCreationFailures).increment(numberNewAttributes);
         std::size_t toRemove = gatherer.numberAttributes() - numberNewAttributes;
         gatherer.removeAttributes(toRemove);
     }
@@ -407,8 +392,7 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
 
 void CPopulationModel::createNewModels(std::size_t n, std::size_t m) {
     if (n > 0) {
-        core::CAllocationStrategy::resize(
-            m_PersonLastBucketTimes, n + m_PersonLastBucketTimes.size(), CAnomalyDetectorModel::TIME_UNSET);
+        core::CAllocationStrategy::resize(m_PersonLastBucketTimes, n + m_PersonLastBucketTimes.size(), CAnomalyDetectorModel::TIME_UNSET);
     }
 
     if (m > 0) {
@@ -497,8 +481,7 @@ void CPopulationModel::peopleAndAttributesToRemove(core_t::TTime time,
 
     for (std::size_t pid = 0u; pid < m_PersonLastBucketTimes.size(); ++pid) {
         if ((gatherer.isPersonActive(pid)) && (!CAnomalyDetectorModel::isTimeUnset(m_PersonLastBucketTimes[pid]))) {
-            std::size_t bucketsSinceLastEvent =
-                static_cast<std::size_t>((time - m_PersonLastBucketTimes[pid]) / gatherer.bucketLength());
+            std::size_t bucketsSinceLastEvent = static_cast<std::size_t>((time - m_PersonLastBucketTimes[pid]) / gatherer.bucketLength());
             if (bucketsSinceLastEvent > maximumAge) {
                 LOG_TRACE(gatherer.personName(pid)
                           << ", bucketsSinceLastEvent = " << bucketsSinceLastEvent << ", maximumAge = " << maximumAge);
@@ -508,8 +491,7 @@ void CPopulationModel::peopleAndAttributesToRemove(core_t::TTime time,
     }
 
     for (std::size_t cid = 0u; cid < m_AttributeLastBucketTimes.size(); ++cid) {
-        if ((gatherer.isAttributeActive(cid)) &&
-            (!CAnomalyDetectorModel::isTimeUnset(m_AttributeLastBucketTimes[cid]))) {
+        if ((gatherer.isAttributeActive(cid)) && (!CAnomalyDetectorModel::isTimeUnset(m_AttributeLastBucketTimes[cid]))) {
             std::size_t bucketsSinceLastEvent =
                 static_cast<std::size_t>((time - m_AttributeLastBucketTimes[cid]) / gatherer.bucketLength());
             if (bucketsSinceLastEvent > maximumAge) {
@@ -550,10 +532,7 @@ void CPopulationModel::doSkipSampling(core_t::TTime startTime, core_t::TTime end
     }
 }
 
-CPopulationModel::CCorrectionKey::CCorrectionKey(model_t::EFeature feature,
-                                                 std::size_t pid,
-                                                 std::size_t cid,
-                                                 std::size_t correlated)
+CPopulationModel::CCorrectionKey::CCorrectionKey(model_t::EFeature feature, std::size_t pid, std::size_t cid, std::size_t correlated)
     : m_Feature(feature), m_Pid(pid), m_Cid(cid), m_Correlate(correlated) {
 }
 

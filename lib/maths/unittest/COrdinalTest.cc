@@ -54,8 +54,7 @@ void COrdinalTest::testEqual(void) {
     for (std::size_t i = 0u; i < 1000; ++i) {
         TDoubleVec sample;
         rng.generateUniformSamples(-10000.0, 10000.0, 1, sample);
-        bool equal =
-            maths::COrdinal(static_cast<int64_t>(sample[0])) == maths::COrdinal(static_cast<int64_t>(sample[0]));
+        bool equal = maths::COrdinal(static_cast<int64_t>(sample[0])) == maths::COrdinal(static_cast<int64_t>(sample[0]));
         CPPUNIT_ASSERT_EQUAL(true, equal);
         equal = maths::COrdinal(static_cast<uint64_t>(sample[0])) == maths::COrdinal(static_cast<uint64_t>(sample[0]));
         CPPUNIT_ASSERT_EQUAL(true, equal);
@@ -91,8 +90,7 @@ void COrdinalTest::testEqual(void) {
                             maths::COrdinal(int64_t(-179809067369808277)),
                             maths::COrdinal(int64_t(569817345679111267)),
                             maths::COrdinal(int64_t(569817345679111268))};
-    maths::COrdinal s2[] = {maths::COrdinal(uint64_t(569817345679111267)),
-                            maths::COrdinal(uint64_t(569817345679111268))};
+    maths::COrdinal s2[] = {maths::COrdinal(uint64_t(569817345679111267)), maths::COrdinal(uint64_t(569817345679111268))};
     for (std::size_t i = 0u; i < boost::size(s1); ++i) {
         LOG_DEBUG(s1[i] << " (as double " << precisePrint(s1[i].asDouble()) << ")");
         for (std::size_t j = 0u; j < i; ++j) {
@@ -124,23 +122,19 @@ void COrdinalTest::testLess(void) {
         TDoubleVec samples;
         rng.generateUniformSamples(-10000.0, 10000.0, 2, samples);
         bool less = static_cast<int64_t>(samples[0]) < static_cast<int64_t>(samples[1]);
-        bool ordinalLess =
-            maths::COrdinal(static_cast<int64_t>(samples[0])) < maths::COrdinal(static_cast<int64_t>(samples[1]));
+        bool ordinalLess = maths::COrdinal(static_cast<int64_t>(samples[0])) < maths::COrdinal(static_cast<int64_t>(samples[1]));
         CPPUNIT_ASSERT_EQUAL(less, ordinalLess);
         if (samples[0] >= 0.0) {
             less = static_cast<int64_t>(samples[0]) < static_cast<int64_t>(samples[1]);
-            ordinalLess =
-                maths::COrdinal(static_cast<uint64_t>(samples[0])) < maths::COrdinal(static_cast<int64_t>(samples[1]));
+            ordinalLess = maths::COrdinal(static_cast<uint64_t>(samples[0])) < maths::COrdinal(static_cast<int64_t>(samples[1]));
         }
         if (samples[1] >= 0.0) {
             less = static_cast<int64_t>(samples[0]) < static_cast<int64_t>(samples[1]);
-            ordinalLess =
-                maths::COrdinal(static_cast<int64_t>(samples[0])) < maths::COrdinal(static_cast<uint64_t>(samples[1]));
+            ordinalLess = maths::COrdinal(static_cast<int64_t>(samples[0])) < maths::COrdinal(static_cast<uint64_t>(samples[1]));
         }
         if (samples[0] >= 0.0 && samples[1] >= 0.0) {
             less = static_cast<uint64_t>(samples[0]) < static_cast<uint64_t>(samples[1]);
-            ordinalLess =
-                maths::COrdinal(static_cast<uint64_t>(samples[0])) < maths::COrdinal(static_cast<uint64_t>(samples[1]));
+            ordinalLess = maths::COrdinal(static_cast<uint64_t>(samples[0])) < maths::COrdinal(static_cast<uint64_t>(samples[1]));
         }
         less = static_cast<double>(static_cast<int64_t>(samples[0])) < samples[1];
         ordinalLess = maths::COrdinal(static_cast<int64_t>(samples[0])) < maths::COrdinal(samples[1]);
@@ -174,8 +168,7 @@ void COrdinalTest::testLess(void) {
                             maths::COrdinal(int64_t(-179809067369808277)),
                             maths::COrdinal(int64_t(569817345679111267)),
                             maths::COrdinal(int64_t(569817345679111268))};
-    maths::COrdinal s2[] = {maths::COrdinal(uint64_t(569817345679111267)),
-                            maths::COrdinal(uint64_t(569817345679111268))};
+    maths::COrdinal s2[] = {maths::COrdinal(uint64_t(569817345679111267)), maths::COrdinal(uint64_t(569817345679111268))};
     for (std::size_t i = 0u; i < boost::size(s1); ++i) {
         LOG_DEBUG(s1[i] << " (as double " << precisePrint(s1[i].asDouble()) << ")");
         for (std::size_t j = 0u; j < i; ++j) {
@@ -318,8 +311,7 @@ CppUnit::Test* COrdinalTest::suite(void) {
     suiteOfTests->addTest(new CppUnit::TestCaller<COrdinalTest>("COrdinalTest::testLess", &COrdinalTest::testLess));
     suiteOfTests->addTest(new CppUnit::TestCaller<COrdinalTest>("COrdinalTest::testLess", &COrdinalTest::testLess));
     suiteOfTests->addTest(new CppUnit::TestCaller<COrdinalTest>("COrdinalTest::testIsNan", &COrdinalTest::testIsNan));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<COrdinalTest>("COrdinalTest::testAsDouble", &COrdinalTest::testAsDouble));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COrdinalTest>("COrdinalTest::testAsDouble", &COrdinalTest::testAsDouble));
     suiteOfTests->addTest(new CppUnit::TestCaller<COrdinalTest>("COrdinalTest::testHash", &COrdinalTest::testHash));
 
     return suiteOfTests;

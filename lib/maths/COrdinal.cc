@@ -102,8 +102,7 @@ bool COrdinal::operator<(COrdinal rhs) const {
     case E_PositiveInteger:
         switch (rhs.m_Type) {
         case E_Integer:
-            return !this->equal(rhs.m_Value.integer, m_Value.positiveInteger) &&
-                   !this->less(rhs.m_Value.integer, m_Value.positiveInteger);
+            return !this->equal(rhs.m_Value.integer, m_Value.positiveInteger) && !this->less(rhs.m_Value.integer, m_Value.positiveInteger);
         case E_PositiveInteger:
             return m_Value.positiveInteger < rhs.m_Value.positiveInteger;
         case E_Real:
@@ -117,8 +116,7 @@ bool COrdinal::operator<(COrdinal rhs) const {
         case E_Integer:
             return !this->equal(rhs.m_Value.integer, m_Value.real) && !this->less(rhs.m_Value.integer, m_Value.real);
         case E_PositiveInteger:
-            return !this->equal(rhs.m_Value.positiveInteger, m_Value.real) &&
-                   !this->less(rhs.m_Value.positiveInteger, m_Value.real);
+            return !this->equal(rhs.m_Value.positiveInteger, m_Value.real) && !this->less(rhs.m_Value.positiveInteger, m_Value.real);
         case E_Real:
             return m_Value.real < rhs.m_Value.real;
         case E_Nan:

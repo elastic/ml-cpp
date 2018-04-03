@@ -86,9 +86,7 @@ void CRadialBasisFunctionTest::testDerivative(void) {
             for (std::size_t k = 0u; k < 10; ++k) {
                 double x = a + static_cast<double>(k) / 10.0 * (b - a);
                 double d = gaussian.derivative(x, centres[i], scales[j]);
-                double e =
-                    (gaussian.value(x + eps, centres[i], scales[j]) - gaussian.value(x - eps, centres[i], scales[j])) /
-                    2.0 / eps;
+                double e = (gaussian.value(x + eps, centres[i], scales[j]) - gaussian.value(x - eps, centres[i], scales[j])) / 2.0 / eps;
 
                 // Centred difference nuemrical derivative should
                 // be accurate to o(eps^2).
@@ -107,9 +105,9 @@ void CRadialBasisFunctionTest::testDerivative(void) {
             for (std::size_t k = 0u; k < 10; ++k) {
                 double x = a + static_cast<double>(k) / 10.0 * (b - a);
                 double d = inverseQuadratic.derivative(x, centres[i], scales[j]);
-                double e = (inverseQuadratic.value(x + eps, centres[i], scales[j]) -
-                            inverseQuadratic.value(x - eps, centres[i], scales[j])) /
-                           2.0 / eps;
+                double e =
+                    (inverseQuadratic.value(x + eps, centres[i], scales[j]) - inverseQuadratic.value(x - eps, centres[i], scales[j])) /
+                    2.0 / eps;
 
                 // Centred difference nuemrical derivative should
                 // be accurate to o(eps^2).
@@ -321,12 +319,12 @@ CppUnit::Test* CRadialBasisFunctionTest::suite(void) {
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testDerivative",
                                                                             &CRadialBasisFunctionTest::testDerivative));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testMean",
-                                                                            &CRadialBasisFunctionTest::testMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>(
-        "CRadialBasisFunctionTest::testMeanSquareDerivative", &CRadialBasisFunctionTest::testMeanSquareDerivative));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testProduct",
-                                                                            &CRadialBasisFunctionTest::testProduct));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testMean", &CRadialBasisFunctionTest::testMean));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testMeanSquareDerivative",
+                                                                            &CRadialBasisFunctionTest::testMeanSquareDerivative));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testProduct", &CRadialBasisFunctionTest::testProduct));
 
     return suiteOfTests;
 }

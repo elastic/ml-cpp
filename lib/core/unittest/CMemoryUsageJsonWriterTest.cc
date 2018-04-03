@@ -25,8 +25,8 @@ using namespace ml;
 CppUnit::Test* CMemoryUsageJsonWriterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMemoryUsageJsonWriterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageJsonWriterTest>("CMemoryUsageJsonWriterTest::test",
-                                                                              &CMemoryUsageJsonWriterTest::test));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMemoryUsageJsonWriterTest>("CMemoryUsageJsonWriterTest::test", &CMemoryUsageJsonWriterTest::test));
 
     return suiteOfTests;
 }

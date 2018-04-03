@@ -208,9 +208,7 @@ void CSamplingTest::testMultivariateNormalSample(void) {
         // Get the sample covariance matrix.
         TDoubleVecVec covariance(3, TDoubleVec(3, 0.0));
         for (std::size_t i = 0u; i < samples.size(); ++i) {
-            test_detail::add(
-                test_detail::outer(test_detail::minus(samples[i], mean_), test_detail::minus(samples[i], mean_)),
-                covariance);
+            test_detail::add(test_detail::outer(test_detail::minus(samples[i], mean_), test_detail::minus(samples[i], mean_)), covariance);
         }
         test_detail::divide(covariance, static_cast<double>(samples.size() - 1));
         LOG_DEBUG("actual covariance = " << core::CContainerPrinter::print(covariance));
@@ -230,8 +228,8 @@ void CSamplingTest::testMultivariateNormalSample(void) {
 CppUnit::Test* CSamplingTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSamplingTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSamplingTest>("CSamplingTest::testMultinomialSample",
-                                                                 &CSamplingTest::testMultinomialSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSamplingTest>("CSamplingTest::testMultinomialSample", &CSamplingTest::testMultinomialSample));
     suiteOfTests->addTest(new CppUnit::TestCaller<CSamplingTest>("CSamplingTest::testMultivariateNormalSample",
                                                                  &CSamplingTest::testMultivariateNormalSample));
 

@@ -117,8 +117,7 @@ const double MINIMUM_FREQUENCY = 0.25;
 
 } // unnamed::
 
-CKMostCorrelated::CKMostCorrelated(std::size_t k, double decayRate, bool initialize)
-    : m_K(k), m_DecayRate(decayRate), m_MaximumCount(0.0) {
+CKMostCorrelated::CKMostCorrelated(std::size_t k, double decayRate, bool initialize) : m_K(k), m_DecayRate(decayRate), m_MaximumCount(0.0) {
     if (initialize) {
         this->nextProjection();
     }
@@ -135,8 +134,7 @@ bool CKMostCorrelated::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         const std::string& name = traverser.name();
         RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
         RESTORE(PROJECTIONS_TAG, core::CPersistUtils::restore(PROJECTIONS_TAG, m_Projections, traverser))
-        RESTORE(CURRENT_PROJECTED_TAG,
-                core::CPersistUtils::restore(CURRENT_PROJECTED_TAG, m_CurrentProjected, traverser))
+        RESTORE(CURRENT_PROJECTED_TAG, core::CPersistUtils::restore(CURRENT_PROJECTED_TAG, m_CurrentProjected, traverser))
         RESTORE(PROJECTED_TAG, core::CPersistUtils::restore(PROJECTED_TAG, m_Projected, traverser))
         RESTORE_BUILT_IN(MAXIMUM_COUNT_TAG, m_MaximumCount)
         RESTORE(MOMENTS_TAG, core::CPersistUtils::restore(MOMENTS_TAG, m_Moments, traverser))
@@ -219,9 +217,8 @@ void CKMostCorrelated::removeVariables(const TSizeVec& remove) {
         if (remove[i] < m_Moments.size()) {
             m_Moments[remove[i]] = TMeanVarAccumulator();
             m_Projected.erase(remove[i]);
-            m_MostCorrelated.erase(
-                std::remove_if(m_MostCorrelated.begin(), m_MostCorrelated.end(), CMatches(remove[i])),
-                m_MostCorrelated.end());
+            m_MostCorrelated.erase(std::remove_if(m_MostCorrelated.begin(), m_MostCorrelated.end(), CMatches(remove[i])),
+                                   m_MostCorrelated.end());
         }
     }
 }
@@ -258,10 +255,7 @@ void CKMostCorrelated::capture(void) {
         if (j == m_Projected.end()) {
             TVector zero(0.0);
             CPackedBitVector indicator(PROJECTION_DIMENSION - m_Projections.size(), false);
-            j = m_Projected
-                    .emplace(
-                        boost::unordered::piecewise_construct, boost::make_tuple(X), boost::make_tuple(zero, indicator))
-                    .first;
+            j = m_Projected.emplace(boost::unordered::piecewise_construct, boost::make_tuple(X), boost::make_tuple(zero, indicator)).first;
         }
         j->second.first += i->second;
     }
@@ -395,8 +389,8 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
         lookup.insert(std::make_pair(std::min(X, Y), std::max(X, Y)));
     }
 
-    std::size_t replace = std::max(static_cast<std::size_t>(REPLACE_FRACTION * static_cast<double>(desired) + 0.5),
-                                   std::max(desired - N, std::size_t(1)));
+    std::size_t replace =
+        std::max(static_cast<std::size_t>(REPLACE_FRACTION * static_cast<double>(desired) + 0.5), std::max(desired - N, std::size_t(1)));
     LOG_TRACE("replace = " << replace);
 
     TMaxCorrelationAccumulator mostCorrelated(replace);
@@ -514,8 +508,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
                 TVector width(::sqrt(threshold));
                 nearest.clear();
                 {
-                    bgm::box<TPoint> box((px.first - width).to<double>().toBoostArray(),
-                                         (px.first + width).to<double>().toBoostArray());
+                    bgm::box<TPoint> box((px.first - width).to<double>().toBoostArray(), (px.first + width).to<double>().toBoostArray());
                     bgi::query(rtree,
                                bgi::within(box) && bgi::satisfies(CNotEqual(X)) &&
                                    bgi::satisfies(CCloserThan(threshold, px.first.to<double>().toBoostArray())) &&
@@ -523,8 +516,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
                                std::back_inserter(nearest));
                 }
                 {
-                    bgm::box<TPoint> box((-px.first - width).to<double>().toBoostArray(),
-                                         (-px.first + width).to<double>().toBoostArray());
+                    bgm::box<TPoint> box((-px.first - width).to<double>().toBoostArray(), (-px.first + width).to<double>().toBoostArray());
                     bgi::query(rtree,
                                bgi::within(box) && bgi::satisfies(CNotEqual(X)) &&
                                    bgi::satisfies(CCloserThan(threshold, (-px.first).to<double>().toBoostArray())) &&
@@ -649,8 +641,7 @@ void CKMostCorrelated::SCorrelation::acceptPersistInserter(core::CStatePersistIn
 }
 
 bool CKMostCorrelated::SCorrelation::operator<(const SCorrelation& rhs) const {
-    return COrderings::lexicographical_compare(
-        -this->absCorrelation(), s_X, s_Y, -rhs.absCorrelation(), rhs.s_X, rhs.s_Y);
+    return COrderings::lexicographical_compare(-this->absCorrelation(), s_X, s_Y, -rhs.absCorrelation(), rhs.s_X, rhs.s_Y);
 }
 
 void CKMostCorrelated::SCorrelation::update(const TSizeVectorPackedBitVectorPrUMap& projected) {
@@ -671,14 +662,11 @@ double CKMostCorrelated::SCorrelation::distance(double amax) const {
 
 double CKMostCorrelated::SCorrelation::absCorrelation(void) const {
     return ::fabs(CBasicStatistics::mean(s_Correlation)) -
-           (1.0 / std::max(CBasicStatistics::count(s_Correlation), 2.0) +
-            ::sqrt(CBasicStatistics::variance(s_Correlation)));
+           (1.0 / std::max(CBasicStatistics::count(s_Correlation), 2.0) + ::sqrt(CBasicStatistics::variance(s_Correlation)));
 }
 
-double CKMostCorrelated::SCorrelation::correlation(const TVector& px,
-                                                   const CPackedBitVector& ix,
-                                                   const TVector& py,
-                                                   const CPackedBitVector& iy) {
+double
+CKMostCorrelated::SCorrelation::correlation(const TVector& px, const CPackedBitVector& ix, const TVector& py, const CPackedBitVector& iy) {
     double result = 0.0;
 
     double nx = ix.manhattan() / static_cast<double>(ix.dimension());

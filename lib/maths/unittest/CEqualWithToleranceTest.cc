@@ -163,10 +163,8 @@ void CEqualWithToleranceTest::testMatrix(void) {
     maths::CSymmetricMatrix<double> epsAbs(2, 0.21 / 2.0);
     maths::CSymmetricMatrix<double> epsRel(2, 0.005 / 2.0);
 
-    maths::CEqualWithTolerance<maths::CSymmetricMatrix<double>> abs(maths::CToleranceTypes::E_AbsoluteTolerance,
-                                                                    epsAbs);
-    maths::CEqualWithTolerance<maths::CSymmetricMatrix<double>> rel(maths::CToleranceTypes::E_RelativeTolerance,
-                                                                    epsRel);
+    maths::CEqualWithTolerance<maths::CSymmetricMatrix<double>> abs(maths::CToleranceTypes::E_AbsoluteTolerance, epsAbs);
+    maths::CEqualWithTolerance<maths::CSymmetricMatrix<double>> rel(maths::CToleranceTypes::E_RelativeTolerance, epsRel);
     maths::CEqualWithTolerance<maths::CSymmetricMatrix<double>> absAndRel(
         maths::CToleranceTypes::E_AbsoluteTolerance & maths::CToleranceTypes::E_RelativeTolerance, epsAbs, epsRel);
     maths::CEqualWithTolerance<maths::CSymmetricMatrix<double>> absOrRel(
@@ -219,12 +217,12 @@ void CEqualWithToleranceTest::testMatrix(void) {
 CppUnit::Test* CEqualWithToleranceTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEqualWithToleranceTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEqualWithToleranceTest>("CEqualWithToleranceTest::testScalar",
-                                                                           &CEqualWithToleranceTest::testScalar));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEqualWithToleranceTest>("CEqualWithToleranceTest::testVector",
-                                                                           &CEqualWithToleranceTest::testVector));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEqualWithToleranceTest>("CEqualWithToleranceTest::testMatrix",
-                                                                           &CEqualWithToleranceTest::testMatrix));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CEqualWithToleranceTest>("CEqualWithToleranceTest::testScalar", &CEqualWithToleranceTest::testScalar));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CEqualWithToleranceTest>("CEqualWithToleranceTest::testVector", &CEqualWithToleranceTest::testVector));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CEqualWithToleranceTest>("CEqualWithToleranceTest::testMatrix", &CEqualWithToleranceTest::testMatrix));
 
     return suiteOfTests;
 }

@@ -356,9 +356,7 @@ public:
     //! \param[out] result Filled in with the feature data at \p time.
     //! \tparam T The type of the feature data.
     template<typename T>
-    bool featureData(core_t::TTime time,
-                     core_t::TTime bucketLength,
-                     std::vector<std::pair<model_t::EFeature, T>>& result) const {
+    bool featureData(core_t::TTime time, core_t::TTime bucketLength, std::vector<std::pair<model_t::EFeature, T>>& result) const {
         TFeatureAnyPrVec rawFeatureData;
         this->chooseBucketGatherer(time).featureData(time, bucketLength, rawFeatureData);
 
@@ -372,8 +370,8 @@ public:
             // Check the typeid before attempting the cast so we
             // don't use throw to handle failure, which is slow.
             if (feature.second.type() != typeid(T)) {
-                LOG_ERROR("Bad type for feature = " << model_t::print(feature.first) << ", expected "
-                                                    << typeid(T).name() << " got " << feature.second.type().name());
+                LOG_ERROR("Bad type for feature = " << model_t::print(feature.first) << ", expected " << typeid(T).name() << " got "
+                                                    << feature.second.type().name());
                 succeeded = false;
                 continue;
             }

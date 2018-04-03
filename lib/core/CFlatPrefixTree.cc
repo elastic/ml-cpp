@@ -72,8 +72,7 @@ bool CFlatPrefixTree::build(const TStrVec& prefixes) {
     if (prefixes.size() > 1) {
         for (std::size_t i = 0; i < prefixes.size() - 1; ++i) {
             if (prefixes[i] == prefixes[i + 1]) {
-                LOG_ERROR(
-                    "FlatPrefixTree cannot be build from a vector containing duplicate prefixes: " << prefixes[i]);
+                LOG_ERROR("FlatPrefixTree cannot be build from a vector containing duplicate prefixes: " << prefixes[i]);
                 return false;
             }
         }
@@ -96,10 +95,7 @@ bool CFlatPrefixTree::build(const TStrVec& prefixes) {
     return true;
 }
 
-void CFlatPrefixTree::buildRecursively(const TStrVec& prefixes,
-                                       std::size_t prefixesStart,
-                                       std::size_t prefixesEnd,
-                                       std::size_t charPos) {
+void CFlatPrefixTree::buildRecursively(const TStrVec& prefixes, std::size_t prefixesStart, std::size_t prefixesEnd, std::size_t charPos) {
     // First, we extract the distinct characters for the current character position and we
     // record their start/end indices in the prefixes vector.
     TDistinctCharVec distinctCharsWithRange;

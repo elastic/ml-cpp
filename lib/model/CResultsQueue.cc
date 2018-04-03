@@ -73,16 +73,14 @@ bool CResultsQueue::hasInterimResults(void) const {
     return m_Results.size() > 2 && m_LastResultsIndex == 0;
 }
 
-core_t::TTime CResultsQueue::chooseResultTime(core_t::TTime bucketStartTime,
-                                              core_t::TTime bucketLength,
-                                              model::CHierarchicalResults& results) {
+core_t::TTime
+CResultsQueue::chooseResultTime(core_t::TTime bucketStartTime, core_t::TTime bucketLength, model::CHierarchicalResults& results) {
     if (m_Results.size() == 1) {
         return bucketStartTime;
     }
 
     // Select the correct bucket to use
-    LOG_TRACE("Asking for queue items at " << (bucketStartTime - bucketLength) << " and "
-                                           << (bucketStartTime - (bucketLength / 2)));
+    LOG_TRACE("Asking for queue items at " << (bucketStartTime - bucketLength) << " and " << (bucketStartTime - (bucketLength / 2)));
 
     core_t::TTime resultsTime = 0;
     const model::CHierarchicalResults::TNode* node = m_Results.get(bucketStartTime - bucketLength).root();

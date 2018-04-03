@@ -82,12 +82,9 @@ public:
     typedef std::vector<TSizeVecVec> TSizeVecVecVec;
     typedef std::vector<POINT> TPointVec;
     typedef std::vector<TPointVec> TPointVecVec;
-    typedef boost::adjacency_list<boost::vecS,
-                                  boost::vecS,
-                                  boost::undirectedS,
-                                  boost::no_property,
-                                  boost::property<boost::edge_weight_t, double>>
-        TGraph;
+    typedef boost::
+        adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, boost::no_property, boost::property<boost::edge_weight_t, double>>
+            TGraph;
     typedef typename boost::graph_traits<TGraph>::vertex_descriptor TVertex;
     typedef typename boost::graph_traits<TGraph>::edge_descriptor TEdge;
     typedef typename boost::graph_traits<TGraph>::vertex_iterator TVertexItr;
@@ -153,17 +150,14 @@ protected:
         bool toVisit(std::size_t i) const { return this->toVisit(s_ToVisit.size(), i); }
 
         //! Check if the vertex is to visit.
-        bool toVisit(std::size_t n, std::size_t i) const {
-            return std::binary_search(s_ToVisit.begin(), s_ToVisit.begin() + n, i);
-        }
+        bool toVisit(std::size_t n, std::size_t i) const { return std::binary_search(s_ToVisit.begin(), s_ToVisit.begin() + n, i); }
 
         //! Get the next vertex to visit.
         std::size_t next(void) const { return s_Queue.front().second; }
 
         //! Get the first right or equal vertex.
         std::size_t nextToVisit(std::size_t i) const {
-            return static_cast<std::size_t>(std::lower_bound(s_ToVisit.begin(), s_ToVisit.end(), i) -
-                                            s_ToVisit.begin());
+            return static_cast<std::size_t>(std::lower_bound(s_ToVisit.begin(), s_ToVisit.end(), i) - s_ToVisit.begin());
         }
 
         //! Merge any vertices to visit after \p n.
@@ -332,11 +326,10 @@ protected:
                                     std::swap(u, v);
                                 }
                                 if (edges.insert(std::make_pair(u, v)).second) {
-                                    boost::put(
-                                        boost::edge_weight,
-                                        graph,
-                                        boost::add_edge(u, v, graph).first,
-                                        std::min(m_ChainingFactor * (overlaps[l] - m_OverlapThreshold * sum), 1.0));
+                                    boost::put(boost::edge_weight,
+                                               graph,
+                                               boost::add_edge(u, v, graph).first,
+                                               std::min(m_ChainingFactor * (overlaps[l] - m_OverlapThreshold * sum), 1.0));
                                 }
                             }
                         }
@@ -369,10 +362,7 @@ protected:
             LOG_TRACE("consistent = " << core::CContainerPrinter::print(consistent));
 
             for (std::size_t k = 0u; k < consistent.size(); ++k) {
-                boost::put(boost::edge_weight,
-                           graph,
-                           boost::add_edge(u, consistent[k].second, graph).first,
-                           consistent[k].first);
+                boost::put(boost::edge_weight, graph, boost::add_edge(u, consistent[k].second, graph).first, consistent[k].first);
             }
         }
     }
@@ -387,10 +377,7 @@ protected:
     //! \p bootstrapClusters.
     //! \param[out] result Filled in with the majority vote clusters
     //! of \p bootstrapClusters.
-    void buildClusters(const TPointVec& points,
-                       const TSizeVecVecVec& bootstrapClusters,
-                       const TGraph& graph,
-                       TPointVecVec& result) const {
+    void buildClusters(const TPointVec& points, const TSizeVecVecVec& bootstrapClusters, const TGraph& graph, TPointVecVec& result) const {
         typedef boost::unordered_map<std::size_t, std::size_t> TSizeSizeUMap;
         typedef TSizeSizeUMap::const_iterator TSizeSizeUMapCItr;
         typedef std::vector<TSizeSizeUMap> TSizeSizeUMapVec;
@@ -559,15 +546,13 @@ protected:
             weights[i] += weights[i - 1];
         }
         for (std::size_t i = 1u; i <= V / 2 + 1; ++i) {
-            std::size_t C =
-                std::max(i * (D - std::min(D, i - 1)), (i * (V - i)) - std::min(i * (V - i), (V * (V - 1)) / 2 - E));
+            std::size_t C = std::max(i * (D - std::min(D, i - 1)), (i * (V - i)) - std::min(i * (V - i), (V * (V - 1)) / 2 - E));
             bound = std::min(bound, weights[C] / static_cast<double>(i * (V - i)));
         }
         LOG_TRACE("bound = " << bound << " threshold = " << threshold);
 
         if (bound >= threshold) {
-            LOG_TRACE("Short circuit: D = " << D << ", V = " << V << ", bound = " << bound
-                                            << ", threshold = " << SEPARATION_THRESHOLD * p);
+            LOG_TRACE("Short circuit: D = " << D << ", V = " << V << ", bound = " << bound << ", threshold = " << SEPARATION_THRESHOLD * p);
             return false;
         }
 
@@ -579,8 +564,7 @@ protected:
         for (std::size_t i = 0u; i < seeds.size(); ++i) {
             if (cut.empty()) {
                 TEdgeItr seed = boost::edges(graph).first;
-                for (std::size_t j = 0u; j < static_cast<std::size_t>(seeds[i] * static_cast<double>(E)); ++j, ++seed) {
-                }
+                for (std::size_t j = 0u; j < static_cast<std::size_t>(seeds[i] * static_cast<double>(E)); ++j, ++seed) {}
                 cut.push_back(std::make_pair(boost::source(*seed, graph), boost::target(*seed, graph)));
             }
 
@@ -603,8 +587,7 @@ protected:
             if (n > 0) {
                 std::sort(cut.begin() + n, cut.end());
                 newCut.clear();
-                std::set_intersection(
-                    cut.begin(), cut.begin() + n, cut.begin() + n, cut.end(), std::back_inserter(newCut));
+                std::set_intersection(cut.begin(), cut.begin() + n, cut.begin() + n, cut.end(), std::back_inserter(newCut));
                 cut.swap(newCut);
             }
         }
@@ -639,12 +622,7 @@ protected:
     //! the lowest cost cut.
     //! \return True if the cut should split \p graph and false
     //! otherwise.
-    bool cutSearch(std::size_t u,
-                   std::size_t v,
-                   const TGraph& graph,
-                   double threshold,
-                   double& cost,
-                   TBoolVec& parities) const {
+    bool cutSearch(std::size_t u, std::size_t v, const TGraph& graph, double threshold, double& cost, TBoolVec& parities) const {
         LOG_TRACE("Seed edge = (" << u << "," << v << ")");
 
         std::size_t V = boost::num_vertices(graph);
@@ -677,8 +655,7 @@ protected:
                         ++sizes[components[i]];
                     }
                 }
-                std::size_t smallest =
-                    static_cast<std::size_t>(std::min_element(sizes.begin(), sizes.end()) - sizes.begin());
+                std::size_t smallest = static_cast<std::size_t>(std::min_element(sizes.begin(), sizes.end()) - sizes.begin());
                 LOG_TRACE("sizes = " << core::CContainerPrinter::print(sizes));
                 LOG_TRACE("smallest = " << smallest);
 
@@ -740,8 +717,7 @@ private:
 
         //! Check the end vertices' parity.
         bool operator()(const TEdge& e) const {
-            return (*m_Parities)[boost::source(e, *m_Graph)] == m_Parity &&
-                   (*m_Parities)[boost::target(e, *m_Graph)] == m_Parity;
+            return (*m_Parities)[boost::source(e, *m_Graph)] == m_Parity && (*m_Parities)[boost::target(e, *m_Graph)] == m_Parity;
         }
 
     private:
@@ -843,8 +819,7 @@ private:
     //! Extract the clustering and cluster from the vertex
     //! representation \p v.
     TSizeSizePr fromVertex(std::size_t v) const {
-        std::size_t i =
-            static_cast<std::size_t>(std::upper_bound(m_Offsets.begin(), m_Offsets.end(), v) - m_Offsets.begin()) - 1;
+        std::size_t i = static_cast<std::size_t>(std::upper_bound(m_Offsets.begin(), m_Offsets.end(), v) - m_Offsets.begin()) - 1;
         return std::make_pair(i, v - m_Offsets[i]);
     }
 
@@ -907,9 +882,7 @@ public:
 
             for (std::size_t j = 0u; j < clusterPoints.size(); ++j) {
                 std::size_t k = points.size();
-                for (TPointVecCItr l = this->begin(points, clusterPoints[j]), end = this->end(points, clusterPoints[j]);
-                     l != end;
-                     ++l) {
+                for (TPointVecCItr l = this->begin(points, clusterPoints[j]), end = this->end(points, clusterPoints[j]); l != end; ++l) {
                     if (*l == clusterPoints[j]) {
                         k = static_cast<std::size_t>(l - points.begin());
                         break;
@@ -928,14 +901,10 @@ public:
 
 private:
     //! Get the first point equal or right of \p x.
-    TPointVecCItr begin(const TPointVec& points, const POINT& x) const {
-        return std::lower_bound(points.begin(), points.end(), x);
-    }
+    TPointVecCItr begin(const TPointVec& points, const POINT& x) const { return std::lower_bound(points.begin(), points.end(), x); }
 
     //! Get the first point right of \p x.
-    TPointVecCItr end(const TPointVec& points, const POINT& x) const {
-        return std::upper_bound(points.begin(), points.end(), x);
-    }
+    TPointVecCItr end(const TPointVec& points, const POINT& x) const { return std::upper_bound(points.begin(), points.end(), x); }
 };
 
 //! \brief Adapts clustering implementations for use by the bootstrap
@@ -972,8 +941,7 @@ public:
         m_Xmeans.setPoints(tmp);
 
         // Run
-        m_Xmeans.run(
-            m_ImproveParamsKmeansIterations, m_ImproveStructureClusterSeeds, m_ImproveStructureKmeansIterations);
+        m_Xmeans.run(m_ImproveParamsKmeansIterations, m_ImproveStructureClusterSeeds, m_ImproveStructureKmeansIterations);
 
         // Extract
         TPointVecCRefVec clusterPoints;

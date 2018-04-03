@@ -43,13 +43,10 @@ class TEST_EXPORT CTimingXmlOutputterHook : public CppUnit::XmlOutputterHook {
 public:
     CTimingXmlOutputterHook(const CTestTimer& testTimer, const std::string& topPath, const std::string& testPath);
 
-    virtual void failTestAdded(CppUnit::XmlDocument* document,
-                               CppUnit::XmlElement* testElement,
-                               CppUnit::Test* test,
-                               CppUnit::TestFailure* failure);
-
     virtual void
-    successfulTestAdded(CppUnit::XmlDocument* document, CppUnit::XmlElement* testElement, CppUnit::Test* test);
+    failTestAdded(CppUnit::XmlDocument* document, CppUnit::XmlElement* testElement, CppUnit::Test* test, CppUnit::TestFailure* failure);
+
+    virtual void successfulTestAdded(CppUnit::XmlDocument* document, CppUnit::XmlElement* testElement, CppUnit::Test* test);
 
     virtual void statisticsAdded(CppUnit::XmlDocument* document, CppUnit::XmlElement* statisticsElement);
 

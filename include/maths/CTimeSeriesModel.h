@@ -93,26 +93,22 @@ public:
     virtual void skipTime(core_t::TTime gap);
 
     //! Get the most likely value for the time series at \p time.
-    virtual TDouble2Vec
-    mode(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec mode(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
 
     //! Get the most likely value for each correlate time series at
     //! \p time, if there are any.
-    virtual TDouble2Vec1Vec correlateModes(core_t::TTime time,
-                                           const maths_t::TWeightStyleVec& weightStyles,
-                                           const TDouble2Vec4Vec1Vec& weights) const;
+    virtual TDouble2Vec1Vec
+    correlateModes(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec1Vec& weights) const;
 
     //! Get the local maxima of the residual distribution.
-    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles,
-                                          const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
 
     //! Remove any trend components from \p value.
     virtual void detrend(const TTime2Vec1Vec& time, double confidenceInterval, TDouble2Vec1Vec& value) const;
 
     //! Get the best (least MSE) predicted value at \p time.
-    virtual TDouble2Vec predict(core_t::TTime time,
-                                const TSizeDoublePr1Vec& correlated = TSizeDoublePr1Vec(),
-                                TDouble2Vec hint = TDouble2Vec()) const;
+    virtual TDouble2Vec
+    predict(core_t::TTime time, const TSizeDoublePr1Vec& correlated = TSizeDoublePr1Vec(), TDouble2Vec hint = TDouble2Vec()) const;
 
     //! Get the prediction and \p confidenceInterval percentage
     //! confidence interval for the time series at \p time.
@@ -297,8 +293,7 @@ public:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TMultivariatePriorPtr = boost::shared_ptr<CMultivariatePrior>;
     using TMultivariatePriorPtrDoublePr = std::pair<TMultivariatePriorPtr, double>;
-    using TSizeSizePrMultivariatePriorPtrDoublePrUMap =
-        boost::unordered_map<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
+    using TSizeSizePrMultivariatePriorPtrDoublePrUMap = boost::unordered_map<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
     using TMultivariatePriorCPtrSizePr = std::pair<const CMultivariatePrior*, std::size_t>;
     using TMultivariatePriorCPtrSizePr1Vec = core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
 
@@ -494,25 +489,21 @@ public:
     virtual void skipTime(core_t::TTime gap);
 
     //! Get the most likely value for the time series at \p time.
-    virtual TDouble2Vec
-    mode(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec mode(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
 
     //! Returns empty.
-    virtual TDouble2Vec1Vec correlateModes(core_t::TTime time,
-                                           const maths_t::TWeightStyleVec& weightStyles,
-                                           const TDouble2Vec4Vec1Vec& weights) const;
+    virtual TDouble2Vec1Vec
+    correlateModes(core_t::TTime time, const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec1Vec& weights) const;
 
     //! Get the local maxima of the residual distribution.
-    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles,
-                                          const TDouble2Vec4Vec& weights) const;
+    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles, const TDouble2Vec4Vec& weights) const;
 
     //! Remove any trend components from \p value.
     virtual void detrend(const TTime2Vec1Vec& time, double confidenceInterval, TDouble2Vec1Vec& value) const;
 
     //! Get the best (least MSE) predicted value at \p time.
-    virtual TDouble2Vec predict(core_t::TTime time,
-                                const TSizeDoublePr1Vec& correlated = TSizeDoublePr1Vec(),
-                                TDouble2Vec hint = TDouble2Vec()) const;
+    virtual TDouble2Vec
+    predict(core_t::TTime time, const TSizeDoublePr1Vec& correlated = TSizeDoublePr1Vec(), TDouble2Vec hint = TDouble2Vec()) const;
 
     //! Get the prediction and \p confidenceInterval percentage
     //! confidence interval for the time series at \p time.

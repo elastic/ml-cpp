@@ -178,19 +178,11 @@ int main(int argc, char** argv) {
     ml::api::CFieldConfig fieldConfig;
 
     ml::model_t::ESummaryMode summaryMode(summaryCountFieldName.empty() ? ml::model_t::E_None : ml::model_t::E_Manual);
-    ml::model::CAnomalyDetectorModelConfig modelConfig =
-        ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSpan,
-                                                              summaryMode,
-                                                              summaryCountFieldName,
-                                                              latency,
-                                                              bucketResultsDelay,
-                                                              multivariateByFields,
-                                                              multipleBucketspans);
+    ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(
+        bucketSpan, summaryMode, summaryCountFieldName, latency, bucketResultsDelay, multivariateByFields, multipleBucketspans);
     modelConfig.perPartitionNormalization(perPartitionNormalization);
-    modelConfig.detectionRules(
-        ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(fieldConfig.detectionRules()));
-    modelConfig.scheduledEvents(
-        ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(fieldConfig.scheduledEvents()));
+    modelConfig.detectionRules(ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(fieldConfig.detectionRules()));
+    modelConfig.scheduledEvents(ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(fieldConfig.scheduledEvents()));
 
     if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false) {
         LOG_FATAL("Ml model config file '" << modelConfigFile << "' could not be loaded");
@@ -254,18 +246,17 @@ int main(int argc, char** argv) {
     }
 
     // The anomaly job knows how to detect anomalies
-    ml::api::CAnomalyJob job(
-        jobId,
-        limits,
-        fieldConfig,
-        modelConfig,
-        wrappedOutputStream,
-        boost::bind(&ml::api::CJsonOutputWriter::reportPersistComplete, &outputWriter, _1, _2, _3, _4, _5, _6, _7, _8),
-        periodicPersister.get(),
-        maxQuantileInterval,
-        timeField,
-        timeFormat,
-        maxAnomalyRecords);
+    ml::api::CAnomalyJob job(jobId,
+                             limits,
+                             fieldConfig,
+                             modelConfig,
+                             wrappedOutputStream,
+                             boost::bind(&ml::api::CJsonOutputWriter::reportPersistComplete, &outputWriter, _1, _2, _3, _4, _5, _6, _7, _8),
+                             periodicPersister.get(),
+                             maxQuantileInterval,
+                             timeField,
+                             timeFormat,
+                             maxAnomalyRecords);
 
     if (!quantilesStateFile.empty()) {
         if (job.initNormalizer(quantilesStateFile) == false) {

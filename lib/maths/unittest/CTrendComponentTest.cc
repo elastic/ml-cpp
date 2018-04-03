@@ -45,8 +45,7 @@ using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumula
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 using TRegression = maths::CRegression::CLeastSquaresOnline<2, double>;
 
-TDoubleVec
-multiscaleRandomWalk(test::CRandomNumbers& rng, core_t::TTime bucketLength, core_t::TTime start, core_t::TTime end) {
+TDoubleVec multiscaleRandomWalk(test::CRandomNumbers& rng, core_t::TTime bucketLength, core_t::TTime start, core_t::TTime end) {
     TDoubleVecVec noise(4);
 
     core_t::TTime buckets{(end - start) / bucketLength + 1};
@@ -75,8 +74,7 @@ multiscaleRandomWalk(test::CRandomNumbers& rng, core_t::TTime bucketLength, core
     return result;
 }
 
-TDoubleVec
-piecewiseLinear(test::CRandomNumbers& rng, core_t::TTime bucketLength, core_t::TTime start, core_t::TTime end) {
+TDoubleVec piecewiseLinear(test::CRandomNumbers& rng, core_t::TTime bucketLength, core_t::TTime start, core_t::TTime end) {
     core_t::TTime buckets{(end - start) / bucketLength + 1};
 
     TDoubleVec knots;
@@ -199,8 +197,7 @@ void CTrendComponentTest::testValueAndVariance() {
         }
 
         component.add(time, value);
-        controller.multiplier(
-            {prediction}, {{values[(time - start) / bucketLength] - prediction}}, bucketLength, 1.0, 0.012);
+        controller.multiplier({prediction}, {{values[(time - start) / bucketLength] - prediction}}, bucketLength, 1.0, 0.012);
         component.decayRate(0.012 * controller.multiplier());
         component.propagateForwardsByTime(bucketLength);
     }
@@ -248,8 +245,7 @@ void CTrendComponentTest::testDecayRate() {
         error.add(std::fabs(prediction - expectedPrediction));
         level.add(value);
 
-        controller.multiplier(
-            {prediction}, {{values[(time - start) / bucketLength] - prediction}}, bucketLength, 1.0, 0.012);
+        controller.multiplier({prediction}, {{values[(time - start) / bucketLength] - prediction}}, bucketLength, 1.0, 0.012);
         component.decayRate(0.012 * controller.multiplier());
         component.propagateForwardsByTime(bucketLength);
         regression.age(std::exp(-0.012 * controller.multiplier() * 600.0 / 86400.0));
@@ -418,12 +414,12 @@ CppUnit::Test* CTrendComponentTest::suite() {
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testValueAndVariance",
                                                                        &CTrendComponentTest::testValueAndVariance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testDecayRate",
-                                                                       &CTrendComponentTest::testDecayRate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testForecast",
-                                                                       &CTrendComponentTest::testForecast));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testPersist",
-                                                                       &CTrendComponentTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testDecayRate", &CTrendComponentTest::testDecayRate));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testForecast", &CTrendComponentTest::testForecast));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testPersist", &CTrendComponentTest::testPersist));
 
     return suiteOfTests;
 }

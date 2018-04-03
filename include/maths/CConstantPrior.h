@@ -74,15 +74,13 @@ public:
     virtual bool needsOffset(void) const;
 
     //! No-op.
-    virtual double
-    adjustOffset(const TWeightStyleVec& weightStyle, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
+    virtual double adjustOffset(const TWeightStyleVec& weightStyle, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
     //! Returns zero.
     virtual double offset(void) const;
 
     //! Set the constant if it hasn't been set.
-    virtual void
-    addSamples(const TWeightStyleVec& weightStyle, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
+    virtual void addSamples(const TWeightStyleVec& weightStyle, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
     //! No-op.
     virtual void propagateForwardsByTime(double time);
@@ -98,10 +96,9 @@ public:
                                           const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! All confidence intervals are the point [constant, constant].
-    virtual TDoubleDoublePr
-    marginalLikelihoodConfidenceInterval(double percentage,
-                                         const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                         const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(double percentage,
+                                                                 const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                                                 const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the variance of the marginal likelihood.
     virtual double marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,

@@ -113,25 +113,16 @@ private:
     typedef std::vector<std::string::size_type> TSizeTypeVec;
 
     //! If a normal rule matches, split domain
-    static void ruleDomains(const std::string& str,
-                            const TSizeTypeVec& periods,
-                            std::string& subDomain,
-                            std::string& domain,
-                            std::string& suffix);
+    static void
+    ruleDomains(const std::string& str, const TSizeTypeVec& periods, std::string& subDomain, std::string& domain, std::string& suffix);
 
     //! If a wildcard rule matches, split domain
-    static void wildcardDomains(const std::string& str,
-                                const TSizeTypeVec& periods,
-                                std::string& subDomain,
-                                std::string& domain,
-                                std::string& suffix);
+    static void
+    wildcardDomains(const std::string& str, const TSizeTypeVec& periods, std::string& subDomain, std::string& domain, std::string& suffix);
 
     //! If an exception rule matches, split domain
-    static void exceptionDomains(const std::string& str,
-                                 const TSizeTypeVec& periods,
-                                 std::string& subDomain,
-                                 std::string& domain,
-                                 std::string& suffix);
+    static void
+    exceptionDomains(const std::string& str, const TSizeTypeVec& periods, std::string& subDomain, std::string& domain, std::string& suffix);
 
 private:
     static const std::string PERIOD;

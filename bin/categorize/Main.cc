@@ -196,8 +196,7 @@ int main(int argc, char** argv) {
     ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, nullOutput, outputWriter, periodicPersister.get());
 
     if (periodicPersister != nullptr) {
-        periodicPersister->firstProcessorPeriodicPersistFunc(
-            boost::bind(&ml::api::CFieldDataTyper::periodicPersistState, &typer, _1));
+        periodicPersister->firstProcessorPeriodicPersistFunc(boost::bind(&ml::api::CFieldDataTyper::periodicPersistState, &typer, _1));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code

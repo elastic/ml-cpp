@@ -24,20 +24,19 @@
 CppUnit::Test* CRapidXmlParserTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidXmlParserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testParse1",
-                                                                       &CRapidXmlParserTest::testParse1));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testParse2",
-                                                                       &CRapidXmlParserTest::testParse2));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testNavigate",
-                                                                       &CRapidXmlParserTest::testNavigate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testConvert",
-                                                                       &CRapidXmlParserTest::testConvert));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testDump", &CRapidXmlParserTest::testDump));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testParseSpeed",
-                                                                       &CRapidXmlParserTest::testParseSpeed));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testConvertSpeed",
-                                                                       &CRapidXmlParserTest::testConvertSpeed));
+        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testParse1", &CRapidXmlParserTest::testParse1));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testParse2", &CRapidXmlParserTest::testParse2));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testNavigate", &CRapidXmlParserTest::testNavigate));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testConvert", &CRapidXmlParserTest::testConvert));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testDump", &CRapidXmlParserTest::testDump));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testParseSpeed", &CRapidXmlParserTest::testParseSpeed));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testConvertSpeed", &CRapidXmlParserTest::testConvertSpeed));
 
     return suiteOfTests;
 }
@@ -157,8 +156,7 @@ ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP CRapidXmlParserTest::makeT
     ml::core::CXmlNode::TStrStrMap attrMap;
     attrMap["attr1"] = "you & me";
 
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP child2(
-        new ml::core::CXmlNodeWithChildren("child", "2nd", attrMap));
+    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP child2(new ml::core::CXmlNodeWithChildren("child", "2nd", attrMap));
     parent->addChildP(child2);
 
     ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP empty(new ml::core::CXmlNodeWithChildren("empty"));
@@ -196,8 +194,7 @@ void CRapidXmlParserTest::testConvert(void) {
     CPPUNIT_ASSERT(converted.find("</child>") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("<child ") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("&amp; ") != std::string::npos);
-    CPPUNIT_ASSERT(converted.find("<empty/>") != std::string::npos ||
-                   converted.find("<empty></empty>") != std::string::npos);
+    CPPUNIT_ASSERT(converted.find("<empty/>") != std::string::npos || converted.find("<empty></empty>") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("<dual ") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("first") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("second") != std::string::npos);
@@ -291,9 +288,7 @@ std::string CRapidXmlParserTest::fileToString(const std::string& fileName) {
     return ret;
 }
 
-bool CRapidXmlParserTest::testAttribute(const ml::core::CXmlNode& node,
-                                        const std::string& key,
-                                        const std::string& expected) {
+bool CRapidXmlParserTest::testAttribute(const ml::core::CXmlNode& node, const std::string& key, const std::string& expected) {
     std::string actual;
     if (node.attribute(key, actual) == false) {
         return false;

@@ -229,8 +229,7 @@ void CDenseMatrix::swap(CDenseMatrix& other) {
 CSparseMatrix::CSparseMatrix(void) : m_Rows(0), m_Columns(0) {
 }
 
-CSparseMatrix::CSparseMatrix(std::size_t rows, std::size_t columns, TSizeSizePrDoublePrVec& elements)
-    : m_Rows(rows), m_Columns(columns) {
+CSparseMatrix::CSparseMatrix(std::size_t rows, std::size_t columns, TSizeSizePrDoublePrVec& elements) : m_Rows(rows), m_Columns(columns) {
     m_Elements.swap(elements);
     std::sort(m_Elements.begin(), m_Elements.end(), COrderings::SFirstLess());
 }
@@ -243,8 +242,7 @@ void CSparseMatrix::swap(CSparseMatrix& other) {
 
 ////// CCyclicCoordinateDescent //////
 
-CCyclicCoordinateDescent::CCyclicCoordinateDescent(std::size_t maxIterations, double eps)
-    : m_MaxIterations(maxIterations), m_Eps(eps) {
+CCyclicCoordinateDescent::CCyclicCoordinateDescent(std::size_t maxIterations, double eps) : m_MaxIterations(maxIterations), m_Eps(eps) {
 }
 
 template<typename MATRIX>
@@ -420,11 +418,7 @@ typedef boost::unordered_set<std::size_t> TSizeUSet;
 //! \param[in] mask The indices of the feature vectors to remove.
 //! \param[out] xMasked The training matrix corresponding to \p x.
 //! \param[out] yMasked The training labels corresponding to \p y.
-void setupTrainingData(const TDoubleVecVec& x,
-                       const TDoubleVec& y,
-                       const TSizeUSet& mask,
-                       CDenseMatrix& xMasked,
-                       TDoubleVec& yMasked) {
+void setupTrainingData(const TDoubleVecVec& x, const TDoubleVec& y, const TSizeUSet& mask, CDenseMatrix& xMasked, TDoubleVec& yMasked) {
     xMasked = CDenseMatrix();
     yMasked.clear();
 
@@ -583,8 +577,7 @@ public:
     //! Add a 2-split of the training data.
     void addSplit(MATRIX& xTrain, TDoubleVec& yTrain, MATRIX& xTest, TDoubleVec& yTest) {
         if (xTrain.rows() != m_D || xTest.rows() != m_D) {
-            LOG_ERROR("Bad training data: |train| = " << xTrain.rows() << ", |test| = " << xTest.rows()
-                                                      << ", D = " << m_D);
+            LOG_ERROR("Bad training data: |train| = " << xTrain.rows() << ", |test| = " << xTest.rows() << ", D = " << m_D);
             return;
         }
         ++m_Splits;
@@ -678,8 +671,7 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
         (m_Y[i] > 0.0 ? positive : negative).push_back(i);
     }
     if (positive.size() <= 1 || negative.size() <= 1) {
-        LOG_WARN("Can't cross-validate: insufficient " << (positive.size() <= 1 ? "" : "un")
-                                                       << "interesting examples provided");
+        LOG_WARN("Can't cross-validate: insufficient " << (positive.size() <= 1 ? "" : "un") << "interesting examples provided");
         return;
     }
     for (std::size_t i = 0u, np = positive.size(), nn = negative.size(); i < 2; ++i) {
@@ -719,15 +711,8 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
 
     std::size_t maxIterations = boost::size(scales) / 2;
     double logLikelihood;
-    CSolvers::maximize(scales[a] * lambda,
-                       scales[b] * lambda,
-                       logLikelihoods[a],
-                       logLikelihoods[b],
-                       objective,
-                       0.0,
-                       maxIterations,
-                       lambda,
-                       logLikelihood);
+    CSolvers::maximize(
+        scales[a] * lambda, scales[b] * lambda, logLikelihoods[a], logLikelihoods[b], objective, 0.0, maxIterations, lambda, logLikelihood);
     LOG_TRACE("lambda = " << lambda << " log(L(lambda)) = " << logLikelihood);
 
     m_Lambda = logLikelihood > *max ? lambda : scales[max - logLikelihoods] * min;

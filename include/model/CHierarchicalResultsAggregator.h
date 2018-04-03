@@ -103,10 +103,7 @@ private:
     void aggregateNode(const TNode& node, bool pivot);
 
     //! Partition the child probabilities into groups to aggregate together.
-    bool partitionChildProbabilities(const TNode& node,
-                                     bool pivot,
-                                     std::size_t& numberDetectors,
-                                     TIntSizePrDouble1VecUMap (&partition)[N]);
+    bool partitionChildProbabilities(const TNode& node, bool pivot, std::size_t& numberDetectors, TIntSizePrDouble1VecUMap (&partition)[N]);
 
     //! Compute the probability for each of the detectors.
     void detectorProbabilities(const TNode& node,

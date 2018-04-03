@@ -362,8 +362,7 @@ private:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the unique value counts
     //! by person and attribute
-    void
-    bucketUniqueValuesPerPersonAttribute(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
+    void bucketUniqueValuesPerPersonAttribute(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the compressed length of the unique attributes each person
     //! hits in the bucketing interval containing \p time.
@@ -379,9 +378,7 @@ private:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the compressed length of the
     //! unique values by person and attribute
-    void bucketCompressedLengthPerPersonAttribute(model_t::EFeature feature,
-                                                  core_t::TTime time,
-                                                  TFeatureAnyPrVec& result) const;
+    void bucketCompressedLengthPerPersonAttribute(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the time-of-day/week values for each person in the
     //! bucketing interval \p time.
@@ -397,8 +394,7 @@ private:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the arrival time values
     //! by attribute and person
-    void
-    bucketMeanTimesPerPersonAttribute(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
+    void bucketMeanTimesPerPersonAttribute(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Resize the necessary data structures so they can accommodate
     //! the person and attribute identified by \p pid and \p cid,

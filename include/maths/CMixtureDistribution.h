@@ -61,9 +61,7 @@ public:
     }
 
 private:
-    typedef boost::variant<boost::math::normal_distribution<>,
-                           boost::math::gamma_distribution<>,
-                           boost::math::lognormal_distribution<>>
+    typedef boost::variant<boost::math::normal_distribution<>, boost::math::gamma_distribution<>, boost::math::lognormal_distribution<>>
         TDistribution;
 
 private:
@@ -234,12 +232,10 @@ mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T>& distribut
     const TModeVec& modes = distribution.modes();
 
     if (modes.empty()) {
-        return mixture_detail::TDoubleDoublePr(boost::numeric::bounds<double>::lowest(),
-                                               boost::numeric::bounds<double>::highest());
+        return mixture_detail::TDoubleDoublePr(boost::numeric::bounds<double>::lowest(), boost::numeric::bounds<double>::highest());
     }
 
-    mixture_detail::TDoubleDoublePr result(boost::numeric::bounds<double>::highest(),
-                                           boost::numeric::bounds<double>::lowest());
+    mixture_detail::TDoubleDoublePr result(boost::numeric::bounds<double>::highest(), boost::numeric::bounds<double>::lowest());
 
     for (std::size_t i = 0u; i < modes.size(); ++i) {
         try {
@@ -493,12 +489,10 @@ double quantile(const CMixtureDistribution<T>& distribution, const double q) {
             LOG_TRACE("(a,b) = (" << a << "," << b << ")"
                                   << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
             maxIterations = MAX_ITERATIONS - maxIterations;
-            CEqualWithTolerance<double> equal(
-                CToleranceTypes::E_AbsoluteTolerance,
-                std::min(std::numeric_limits<double>::epsilon() * b, EPS * q / std::max(fa, fb)));
+            CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance,
+                                              std::min(std::numeric_limits<double>::epsilon() * b, EPS * q / std::max(fa, fb)));
             CSolvers::solve(a, b, fa, fb, fq, maxIterations, equal, result);
-            LOG_TRACE("q = " << q << ", x = " << result << ", f(x) = " << fq(result)
-                             << ", iterations = " << maxIterations);
+            LOG_TRACE("q = " << q << ", x = " << result << ", f(x) = " << fq(result) << ", iterations = " << maxIterations);
         }
     } catch (const std::exception& e) {
         LOG_ERROR("Failed to compute quantile " << q);

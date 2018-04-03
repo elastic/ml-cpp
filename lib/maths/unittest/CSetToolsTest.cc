@@ -145,8 +145,8 @@ void CSetToolsTest::testSetSizes(void) {
             expected.clear();
             std::set_union(left.begin(), left.end(), right.begin(), right.end(), std::back_inserter(expected));
             test = maths::CSetTools::setUnionSize(left.begin(), left.end(), right.begin(), right.end());
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(left)
-                             << ", B = " << core::CContainerPrinter::print(right) << ", |A U B| = " << test);
+            LOG_DEBUG("A = " << core::CContainerPrinter::print(left) << ", B = " << core::CContainerPrinter::print(right)
+                             << ", |A U B| = " << test);
             CPPUNIT_ASSERT_EQUAL(expected.size(), test);
         }
     }
@@ -304,14 +304,11 @@ void CSetToolsTest::testOverlap(void) {
 CppUnit::Test* CSetToolsTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSetToolsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testInplaceSetDifference",
-                                                                 &CSetToolsTest::testInplaceSetDifference));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testSetSizes", &CSetToolsTest::testSetSizes));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testJaccard", &CSetToolsTest::testJaccard));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testOverlap", &CSetToolsTest::testOverlap));
+        new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testInplaceSetDifference", &CSetToolsTest::testInplaceSetDifference));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testSetSizes", &CSetToolsTest::testSetSizes));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testJaccard", &CSetToolsTest::testJaccard));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testOverlap", &CSetToolsTest::testOverlap));
 
     return suiteOfTests;
 }

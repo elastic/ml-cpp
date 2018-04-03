@@ -44,17 +44,15 @@ class CTriple : private boost::equality_comparable<CTriple<T1, T2, T3>, boost::p
 public:
     //! See CMemory.
     static bool dynamicSizeAlwaysZero(void) {
-        return memory_detail::SDynamicSizeAlwaysZero<T1>::value() &&
-               memory_detail::SDynamicSizeAlwaysZero<T2>::value() && memory_detail::SDynamicSizeAlwaysZero<T3>::value();
+        return memory_detail::SDynamicSizeAlwaysZero<T1>::value() && memory_detail::SDynamicSizeAlwaysZero<T2>::value() &&
+               memory_detail::SDynamicSizeAlwaysZero<T3>::value();
     }
 
 public:
     CTriple(void) : first(), second(), third() {}
     CTriple(const T1& first_, const T2& second_, const T3& third_) : first(first_), second(second_), third(third_) {}
 
-    bool operator==(const CTriple& other) const {
-        return first == other.first && second == other.second && third == other.third;
-    }
+    bool operator==(const CTriple& other) const { return first == other.first && second == other.second && third == other.third; }
 
     bool operator<(const CTriple& other) const {
         if (first == other.first) {

@@ -60,9 +60,7 @@ public:
     static const double HIGH_ANOMALY_SCORE;
 
 public:
-    CResultWriter(const model::CAnomalyDetectorModelConfig& modelConfig,
-                  const model::CLimits& limits,
-                  core_t::TTime bucketLength)
+    CResultWriter(const model::CAnomalyDetectorModelConfig& modelConfig, const model::CLimits& limits, core_t::TTime bucketLength)
         : m_ModelConfig(modelConfig), m_Limits(limits), m_BucketLength(bucketLength) {}
 
     void operator()(ml::model::CAnomalyDetector& detector, ml::core_t::TTime start, ml::core_t::TTime end) {
@@ -79,9 +77,7 @@ public:
     }
 
     //! Visit a node.
-    virtual void visit(const ml::model::CHierarchicalResults& results,
-                       const ml::model::CHierarchicalResults::TNode& node,
-                       bool pivot) {
+    virtual void visit(const ml::model::CHierarchicalResults& results, const ml::model::CHierarchicalResults::TNode& node, bool pivot) {
         if (pivot) {
             return;
         }
@@ -112,8 +108,7 @@ public:
         }
     }
 
-    bool
-    operator()(ml::core_t::TTime time, const ml::model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
+    bool operator()(ml::core_t::TTime time, const ml::model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
         LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
                   << node.s_Spec.print() << " initial score " << node.probability() << ", time:  " << time);
 
@@ -254,15 +249,13 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
     static const core_t::TTime FIRST_TIME(1360540800);
     static const core_t::TTime LAST_TIME(FIRST_TIME + 86400);
     static const core_t::TTime BUCKET_LENGTHS[] = {120, 150, 180, 210, 240, 300, 450, 600, 900, 1200};
-    static const TTimeTimePr ANOMALOUS_INTERVALS[] = {TTimeTimePr(1360576852, 1360578629),
-                                                      TTimeTimePr(1360617335, 1360617481)};
+    static const TTimeTimePr ANOMALOUS_INTERVALS[] = {TTimeTimePr(1360576852, 1360578629), TTimeTimePr(1360617335, 1360617481)};
 
     double highRateNoise = 0.0;
     double lowRateNoise = 0.0;
 
     for (size_t i = 0; i < boost::size(BUCKET_LENGTHS); ++i) {
-        model::CAnomalyDetectorModelConfig modelConfig =
-            model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTHS[i]);
+        model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTHS[i]);
         model::CLimits limits;
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric,
@@ -292,8 +285,7 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
         LOG_DEBUG("anomaly rates = " << core::CContainerPrinter::print(anomalyRates));
 
         for (std::size_t j = 0u; j < highAnomalyTimes.size(); ++j) {
-            LOG_DEBUG("Testing " << core::CContainerPrinter::print(highAnomalyTimes[j]) << ' '
-                                 << highAnomalyFactors[j]);
+            LOG_DEBUG("Testing " << core::CContainerPrinter::print(highAnomalyTimes[j]) << ' ' << highAnomalyFactors[j]);
             CPPUNIT_ASSERT(doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0]) ||
                            doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1]));
         }
@@ -310,8 +302,7 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
         std::sort(orderedAnomalyRates.begin(), orderedAnomalyRates.end());
         std::size_t maxStep = 1;
         for (std::size_t j = 2; j < orderedAnomalyRates.size(); ++j) {
-            if (orderedAnomalyRates[j] - orderedAnomalyRates[j - 1] >
-                orderedAnomalyRates[maxStep] - orderedAnomalyRates[maxStep - 1]) {
+            if (orderedAnomalyRates[j] - orderedAnomalyRates[j - 1] > orderedAnomalyRates[maxStep] - orderedAnomalyRates[maxStep - 1]) {
                 maxStep = j;
             }
         }
@@ -376,8 +367,8 @@ void CMetricAnomalyDetectorTest::testPersist(void) {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&model::CAnomalyDetector::acceptRestoreTraverser, &restoredDetector, EMPTY_STRING, _1)));
+        CPPUNIT_ASSERT(
+            traverser.traverseSubLevel(boost::bind(&model::CAnomalyDetector::acceptRestoreTraverser, &restoredDetector, EMPTY_STRING, _1)));
     }
 
     // The XML representation of the new typer should be the same as the original
@@ -395,8 +386,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
     static const core_t::TTime BUCKET_LENGTH(3600);
 
     {
-        model::CAnomalyDetectorModelConfig modelConfig =
-            model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         model::CLimits limits;
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric,
@@ -425,8 +415,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(92.0, highAnomalyFactors[1], 0.5);
     }
     {
-        model::CAnomalyDetectorModelConfig modelConfig =
-            model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         model::CLimits limits;
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric,
@@ -459,12 +448,12 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
 CppUnit::Test* CMetricAnomalyDetectorTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricAnomalyDetectorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
-        "CMetricAnomalyDetectorTest::testAnomalies", &CMetricAnomalyDetectorTest::testAnomalies));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
-        "CMetricAnomalyDetectorTest::testPersist", &CMetricAnomalyDetectorTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
-        "CMetricAnomalyDetectorTest::testExcludeFrequent", &CMetricAnomalyDetectorTest::testExcludeFrequent));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>("CMetricAnomalyDetectorTest::testAnomalies",
+                                                                              &CMetricAnomalyDetectorTest::testAnomalies));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>("CMetricAnomalyDetectorTest::testPersist",
+                                                                              &CMetricAnomalyDetectorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>("CMetricAnomalyDetectorTest::testExcludeFrequent",
+                                                                              &CMetricAnomalyDetectorTest::testExcludeFrequent));
 
     return suiteOfTests;
 }

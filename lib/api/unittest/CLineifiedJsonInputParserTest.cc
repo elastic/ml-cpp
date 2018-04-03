@@ -28,11 +28,10 @@
 CppUnit::Test* CLineifiedJsonInputParserTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLineifiedJsonInputParserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
-        "CLineifiedJsonInputParserTest::testThroughputArbitrary",
-        &CLineifiedJsonInputParserTest::testThroughputArbitrary));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
-        "CLineifiedJsonInputParserTest::testThroughputCommon", &CLineifiedJsonInputParserTest::testThroughputCommon));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>("CLineifiedJsonInputParserTest::testThroughputArbitrary",
+                                                                                 &CLineifiedJsonInputParserTest::testThroughputArbitrary));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>("CLineifiedJsonInputParserTest::testThroughputCommon",
+                                                                                 &CLineifiedJsonInputParserTest::testThroughputCommon));
 
     return suiteOfTests;
 }

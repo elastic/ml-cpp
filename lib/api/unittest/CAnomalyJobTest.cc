@@ -107,10 +107,8 @@ public:
                 return;
             }
             for (std::size_t i = 0; i < node.s_AnnotatedProbability.s_AttributeProbabilities.size(); ++i) {
-                const ml::model::SAttributeProbability& attribute =
-                    node.s_AnnotatedProbability.s_AttributeProbabilities[i];
-                m_LastResult += node.s_Model->currentBucketValue(
-                    attribute.s_Feature, pid, attribute.s_Cid, node.s_BucketStartTime)[0];
+                const ml::model::SAttributeProbability& attribute = node.s_AnnotatedProbability.s_AttributeProbabilities[i];
+                m_LastResult += node.s_Model->currentBucketValue(attribute.s_Feature, pid, attribute.s_Cid, node.s_BucketStartTime)[0];
             }
         }
     }
@@ -1453,8 +1451,7 @@ void CAnomalyJobTest::testBucketSelection(void) {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(
-            0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
         CResultsScoreVisitor visitor(10);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1000);
@@ -1464,8 +1461,7 @@ void CAnomalyJobTest::testBucketSelection(void) {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(
-            0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
         CResultsScoreVisitor visitor(20);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1050);
@@ -1475,8 +1471,7 @@ void CAnomalyJobTest::testBucketSelection(void) {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(
-            0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
         CResultsScoreVisitor visitor(15);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1100);
@@ -1487,8 +1482,7 @@ void CAnomalyJobTest::testBucketSelection(void) {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(
-            0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
         CResultsScoreVisitor visitor(20);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1150);
@@ -1499,8 +1493,7 @@ void CAnomalyJobTest::testBucketSelection(void) {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(
-            0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
         CResultsScoreVisitor visitor(25);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1200);
@@ -1511,8 +1504,7 @@ void CAnomalyJobTest::testBucketSelection(void) {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(
-            0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
         CResultsScoreVisitor visitor(0);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1250);
@@ -1523,8 +1515,7 @@ void CAnomalyJobTest::testBucketSelection(void) {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(
-            0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
         CResultsScoreVisitor visitor(5);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1300);
@@ -1535,8 +1526,7 @@ void CAnomalyJobTest::testBucketSelection(void) {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(
-            0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
         CResultsScoreVisitor visitor(5);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1350);
@@ -1547,8 +1537,7 @@ void CAnomalyJobTest::testBucketSelection(void) {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(
-            0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
         CResultsScoreVisitor visitor(1);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1400);
@@ -1824,20 +1813,17 @@ void CAnomalyJobTest::testRestoreFailsWithEmptyStream(void) {
 CppUnit::Test* CAnomalyJobTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnomalyJobTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testBadTimes", &CAnomalyJobTest::testBadTimes));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testBadTimes", &CAnomalyJobTest::testBadTimes));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testOutOfSequence",
-                                                                   &CAnomalyJobTest::testOutOfSequence));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testControlMessages",
-                                                                   &CAnomalyJobTest::testControlMessages));
+        new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testOutOfSequence", &CAnomalyJobTest::testOutOfSequence));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testControlMessages", &CAnomalyJobTest::testControlMessages));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testSkipTimeControlMessage",
                                                                    &CAnomalyJobTest::testSkipTimeControlMessage));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testOutOfPhase", &CAnomalyJobTest::testOutOfPhase));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testOutOfPhase", &CAnomalyJobTest::testOutOfPhase));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testBucketSelection",
-                                                                   &CAnomalyJobTest::testBucketSelection));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testModelPlot", &CAnomalyJobTest::testModelPlot));
+        new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testBucketSelection", &CAnomalyJobTest::testBucketSelection));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testModelPlot", &CAnomalyJobTest::testModelPlot));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testInterimResultEdgeCases",
                                                                    &CAnomalyJobTest::testInterimResultEdgeCases));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testRestoreFailsWithEmptyStream",

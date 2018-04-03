@@ -75,9 +75,7 @@ public:
 
         //! Check for equality using checksum and then points if the
         //! checksum is ambiguous.
-        bool operator==(const CCluster& other) const {
-            return m_Checksum == other.m_Checksum && m_Points == other.m_Points;
-        }
+        bool operator==(const CCluster& other) const { return m_Checksum == other.m_Checksum && m_Points == other.m_Points; }
 
         //! Total ordering by checksum breaking ties using expensive
         //! comparison on all points.
@@ -167,9 +165,8 @@ public:
     //! \param[in] improveStructureKmeansIterations The number
     //! of iterations of Lloyd's algorithm to use in k-means for
     //! a single round of improve structure.
-    void run(std::size_t improveParamsKmeansIterations,
-             std::size_t improveStructureClusterSeeds,
-             std::size_t improveStructureKmeansIterations) {
+    void
+    run(std::size_t improveParamsKmeansIterations, std::size_t improveStructureClusterSeeds, std::size_t improveStructureKmeansIterations) {
         while (this->improveStructure(improveStructureClusterSeeds, improveStructureKmeansIterations)) {
             this->improveParams(improveParamsKmeansIterations);
         }

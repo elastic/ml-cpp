@@ -132,8 +132,7 @@ CDataGatherer* CMetricModelFactory::makeDataGatherer(const std::string& partitio
                              traverser);
 }
 
-CMetricModelFactory::TPriorPtr CMetricModelFactory::defaultPrior(model_t::EFeature feature,
-                                                                 const SModelParams& params) const {
+CMetricModelFactory::TPriorPtr CMetricModelFactory::defaultPrior(model_t::EFeature feature, const SModelParams& params) const {
     // Categorical data all use the multinomial prior. The creation
     // of these priors is managed by defaultCategoricalPrior.
     if (model_t::isCategorical(feature)) {
@@ -159,14 +158,12 @@ CMetricModelFactory::TPriorPtr CMetricModelFactory::defaultPrior(model_t::EFeatu
 
     maths_t::EDataType dataType = this->dataType();
 
-    maths::CGammaRateConjugate gammaPrior =
-        maths::CGammaRateConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
+    maths::CGammaRateConjugate gammaPrior = maths::CGammaRateConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
 
     maths::CLogNormalMeanPrecConjugate logNormalPrior =
         maths::CLogNormalMeanPrecConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
 
-    maths::CNormalMeanPrecConjugate normalPrior =
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
+    maths::CNormalMeanPrecConjugate normalPrior = maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
 
     // Create the component priors.
     TPriorPtrVec priors;
@@ -196,8 +193,8 @@ CMetricModelFactory::TPriorPtr CMetricModelFactory::defaultPrior(model_t::EFeatu
     return boost::make_shared<maths::COneOfNPrior>(priors, dataType, params.s_DecayRate);
 }
 
-CMetricModelFactory::TMultivariatePriorPtr
-CMetricModelFactory::defaultMultivariatePrior(model_t::EFeature feature, const SModelParams& params) const {
+CMetricModelFactory::TMultivariatePriorPtr CMetricModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
+                                                                                         const SModelParams& params) const {
     std::size_t dimension = model_t::dimension(feature);
 
     // Gaussian mixture for modeling (latitude, longitude).
@@ -216,8 +213,8 @@ CMetricModelFactory::defaultMultivariatePrior(model_t::EFeature feature, const S
     return this->multivariateOneOfNPrior(dimension, params, priors);
 }
 
-CMetricModelFactory::TMultivariatePriorPtr
-CMetricModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/, const SModelParams& params) const {
+CMetricModelFactory::TMultivariatePriorPtr CMetricModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
+                                                                                      const SModelParams& params) const {
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
     TMultivariatePriorPtr multivariateNormal = this->multivariateNormalPrior(2, params);

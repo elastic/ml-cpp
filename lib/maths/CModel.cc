@@ -46,9 +46,8 @@ bool greaterThanEqual(const TDouble2Vec& lhs, double rhs) {
 //! if the calculation is one sided below (above) we need to add on twice
 //! the probability of zero if the actual feature value is greater (less)
 //! than zero.
-double oneSidedEmptyBucketCorrection(maths_t::EProbabilityCalculation calculation,
-                                     const TDouble2Vec& value,
-                                     double probabilityEmptyBucket) {
+double
+oneSidedEmptyBucketCorrection(maths_t::EProbabilityCalculation calculation, const TDouble2Vec& value, double probabilityEmptyBucket) {
     switch (calculation) {
     case maths_t::E_OneSidedBelow:
         return greaterThanEqual(value, 0.0) ? 2.0 * probabilityEmptyBucket : 0.0;
@@ -173,10 +172,7 @@ const CModelAddSamplesParams::TDouble2Vec4VecVec& CModelAddSamplesParams::priorW
 }
 
 CModelProbabilityParams::CModelProbabilityParams(void)
-    : m_Tag(0),
-      m_SeasonalConfidenceInterval(DEFAULT_SEASONAL_CONFIDENCE_INTERVAL),
-      m_WeightStyles(0),
-      m_UpdateAnomalyModel(true) {
+    : m_Tag(0), m_SeasonalConfidenceInterval(DEFAULT_SEASONAL_CONFIDENCE_INTERVAL), m_WeightStyles(0), m_UpdateAnomalyModel(true) {
 }
 
 CModelProbabilityParams& CModelProbabilityParams::tag(std::size_t tag) {
@@ -360,9 +356,8 @@ CModelStub::TSize2Vec1Vec CModelStub::correlates(void) const {
     return TSize2Vec1Vec();
 }
 
-CModelStub::TDouble2Vec CModelStub::mode(core_t::TTime /*time*/,
-                                         const maths_t::TWeightStyleVec& /*weightStyles*/,
-                                         const TDouble2Vec4Vec& /*weights*/) const {
+CModelStub::TDouble2Vec
+CModelStub::mode(core_t::TTime /*time*/, const maths_t::TWeightStyleVec& /*weightStyles*/, const TDouble2Vec4Vec& /*weights*/) const {
     return TDouble2Vec();
 }
 
@@ -380,21 +375,17 @@ CModelStub::TDouble2Vec1Vec CModelStub::residualModes(const maths_t::TWeightStyl
 void CModelStub::addBucketValue(const TTimeDouble2VecSizeTrVec& /*value*/) {
 }
 
-CModelStub::EUpdateResult CModelStub::addSamples(const CModelAddSamplesParams& /*params*/,
-                                                 TTimeDouble2VecSizeTrVec /*samples*/) {
+CModelStub::EUpdateResult CModelStub::addSamples(const CModelAddSamplesParams& /*params*/, TTimeDouble2VecSizeTrVec /*samples*/) {
     return E_Success;
 }
 
 void CModelStub::skipTime(core_t::TTime /*gap*/) {
 }
 
-void CModelStub::detrend(const TTime2Vec1Vec& /*time*/,
-                         double /*confidenceInterval*/,
-                         TDouble2Vec1Vec& /*value*/) const {
+void CModelStub::detrend(const TTime2Vec1Vec& /*time*/, double /*confidenceInterval*/, TDouble2Vec1Vec& /*value*/) const {
 }
 
-CModelStub::TDouble2Vec
-CModelStub::predict(core_t::TTime /*time*/, const TSizeDoublePr1Vec& /*correlated*/, TDouble2Vec /*hint*/) const {
+CModelStub::TDouble2Vec CModelStub::predict(core_t::TTime /*time*/, const TSizeDoublePr1Vec& /*correlated*/, TDouble2Vec /*hint*/) const {
     return TDouble2Vec();
 }
 
@@ -429,8 +420,7 @@ bool CModelStub::probability(const CModelProbabilityParams& /*params*/,
     return true;
 }
 
-CModelStub::TDouble2Vec
-CModelStub::winsorisationWeight(double /*derate*/, core_t::TTime /*time*/, const TDouble2Vec& /*value*/) const {
+CModelStub::TDouble2Vec CModelStub::winsorisationWeight(double /*derate*/, core_t::TTime /*time*/, const TDouble2Vec& /*value*/) const {
     return TDouble2Vec();
 }
 

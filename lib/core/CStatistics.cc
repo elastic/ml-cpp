@@ -131,10 +131,7 @@ std::ostream& operator<<(std::ostream& o, const CStatistics& /*stats*/) {
                  "Number of new people not allowed",
                  CStatistics::stat(stat_t::E_NumberNewPeopleNotAllowed).value());
 
-    addStringInt(writer,
-                 "E_NumberNewPeople",
-                 "Number of new people created",
-                 CStatistics::stat(stat_t::E_NumberNewPeople).value());
+    addStringInt(writer, "E_NumberNewPeople", "Number of new people created", CStatistics::stat(stat_t::E_NumberNewPeople).value());
 
     addStringInt(writer,
                  "E_NumberNewPeopleRecycled",
@@ -181,25 +178,18 @@ std::ostream& operator<<(std::ostream& o, const CStatistics& /*stats*/) {
                  "Number of new attributes not allowed",
                  CStatistics::stat(stat_t::E_NumberNewAttributesNotAllowed).value());
 
-    addStringInt(writer,
-                 "E_NumberNewAttributes",
-                 "Number of new attributes created",
-                 CStatistics::stat(stat_t::E_NumberNewAttributes).value());
+    addStringInt(
+        writer, "E_NumberNewAttributes", "Number of new attributes created", CStatistics::stat(stat_t::E_NumberNewAttributes).value());
 
     addStringInt(writer,
                  "E_NumberNewAttributesRecycled",
                  "Number of new attributes recycled into existing space",
                  CStatistics::stat(stat_t::E_NumberNewAttributesRecycled).value());
 
-    addStringInt(writer,
-                 "E_NumberByFields",
-                 "Number of 'by' fields within the model",
-                 CStatistics::stat(stat_t::E_NumberByFields).value());
+    addStringInt(writer, "E_NumberByFields", "Number of 'by' fields within the model", CStatistics::stat(stat_t::E_NumberByFields).value());
 
-    addStringInt(writer,
-                 "E_NumberOverFields",
-                 "Number of 'over' fields within the model",
-                 CStatistics::stat(stat_t::E_NumberOverFields).value());
+    addStringInt(
+        writer, "E_NumberOverFields", "Number of 'over' fields within the model", CStatistics::stat(stat_t::E_NumberOverFields).value());
 
     addStringInt(writer,
                  "E_NumberExcludedFrequentInvocations",

@@ -31,8 +31,7 @@ const std::string COUNT_TREND_TAG("a");
 const std::string COUNT_MEAN_TAG("b");
 
 double meanDecayRate(core_t::TTime bucketLength) {
-    return CAnomalyDetectorModelConfig::DEFAULT_DECAY_RATE *
-           CAnomalyDetectorModelConfig::bucketNormalizationFactor(bucketLength);
+    return CAnomalyDetectorModelConfig::DEFAULT_DECAY_RATE * CAnomalyDetectorModelConfig::bucketNormalizationFactor(bucketLength);
 }
 
 double trendDecayRate(core_t::TTime bucketLength) {
@@ -77,8 +76,7 @@ double CInterimBucketCorrector::estimateBucketCompleteness(core_t::TTime time, s
     return maths::CTools::truncate(static_cast<double>(currentCount) / baselineCount, 0.0, 1.0);
 }
 
-double
-CInterimBucketCorrector::corrections(core_t::TTime time, std::size_t currentCount, double mode, double value) const {
+double CInterimBucketCorrector::corrections(core_t::TTime time, std::size_t currentCount, double mode, double value) const {
     double correction = (1.0 - this->estimateBucketCompleteness(time, currentCount)) * mode;
     return maths::CTools::truncate(mode - value, std::min(0.0, correction), std::max(0.0, correction));
 }
@@ -92,8 +90,7 @@ CInterimBucketCorrector::TDouble10Vec CInterimBucketCorrector::corrections(core_
     double correction = 0.0;
     for (std::size_t i = 0; i < corrections.size(); ++i) {
         correction = incompleteBucketFraction * modes[i];
-        corrections[i] =
-            maths::CTools::truncate(modes[i] - values[i], std::min(0.0, correction), std::max(0.0, correction));
+        corrections[i] = maths::CTools::truncate(modes[i] - values[i], std::min(0.0, correction), std::max(0.0, correction));
     }
     return corrections;
 }
@@ -116,8 +113,7 @@ bool CInterimBucketCorrector::acceptRestoreTraverser(core::CStateRestoreTraverse
     do {
         const std::string& name = traverser.name();
         if (name == COUNT_TREND_TAG) {
-            maths::CTimeSeriesDecomposition restored(
-                trendDecayRate(m_BucketLength), m_BucketLength, COMPONENT_SIZE, traverser);
+            maths::CTimeSeriesDecomposition restored(trendDecayRate(m_BucketLength), m_BucketLength, COMPONENT_SIZE, traverser);
             m_CountTrend.swap(restored);
         } else if (name == COUNT_MEAN_TAG) {
             if (m_CountMean.fromDelimited(traverser.value()) == false) {

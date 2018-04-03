@@ -72,11 +72,7 @@ inline double distance(const TDoubleVecVec& distanceMatrix, std::size_t i, std::
 //!   \f$\displaystyle \max_{a \in A, b \in B}{d[a,b]}\f$
 //! </pre>
 struct SComplete {
-    void operator()(const TDoubleVec& /*sizes*/,
-                    std::size_t x,
-                    std::size_t a,
-                    std::size_t b,
-                    TDoubleVecVec& distanceMatrix) const {
+    void operator()(const TDoubleVec& /*sizes*/, std::size_t x, std::size_t a, std::size_t b, TDoubleVecVec& distanceMatrix) const {
         distance(distanceMatrix, b, x) = std::max(distance(distanceMatrix, a, x), distance(distanceMatrix, b, x));
     }
 };
@@ -88,25 +84,16 @@ struct SComplete {
 //!   \f$\displaystyle \frac{1}{|A||B|}\sum_{a \in A, b \in B}{d[a,b]}\f$
 //! </pre>
 struct SAverage {
-    void operator()(const TDoubleVec& sizes,
-                    std::size_t x,
-                    std::size_t a,
-                    std::size_t b,
-                    TDoubleVecVec& distanceMatrix) const {
+    void operator()(const TDoubleVec& sizes, std::size_t x, std::size_t a, std::size_t b, TDoubleVecVec& distanceMatrix) const {
         double sa = sizes[a];
         double sb = sizes[b];
-        distance(distanceMatrix, b, x) =
-            (sa * distance(distanceMatrix, a, x) + sb * distance(distanceMatrix, b, x)) / (sa + sb);
+        distance(distanceMatrix, b, x) = (sa * distance(distanceMatrix, a, x) + sb * distance(distanceMatrix, b, x)) / (sa + sb);
     }
 };
 
 //! \brief Weighted objective distance update function.
 struct SWeighted {
-    void operator()(const TDoubleVec /*sizes*/,
-                    std::size_t x,
-                    std::size_t a,
-                    std::size_t b,
-                    TDoubleVecVec& distanceMatrix) const {
+    void operator()(const TDoubleVec /*sizes*/, std::size_t x, std::size_t a, std::size_t b, TDoubleVecVec& distanceMatrix) const {
         distance(distanceMatrix, b, x) = (distance(distanceMatrix, a, x) + distance(distanceMatrix, b, x)) / 2.0;
     }
 };
@@ -115,18 +102,13 @@ struct SWeighted {
 //!
 //! See https://en.wikipedia.org/wiki/Ward%27s_method.
 struct SWard {
-    void operator()(const TDoubleVec sizes,
-                    std::size_t x,
-                    std::size_t a,
-                    std::size_t b,
-                    TDoubleVecVec& distanceMatrix) const {
+    void operator()(const TDoubleVec sizes, std::size_t x, std::size_t a, std::size_t b, TDoubleVecVec& distanceMatrix) const {
         double sa = sizes[a];
         double sb = sizes[b];
         double sx = sizes[x];
-        distance(distanceMatrix, b, x) =
-            ::sqrt((sa + sx) * distance(distanceMatrix, a, x) + (sb + sx) * distance(distanceMatrix, b, x) -
-                   sx * distance(distanceMatrix, a, b)) /
-            (sa + sb + sx);
+        distance(distanceMatrix, b, x) = ::sqrt((sa + sx) * distance(distanceMatrix, a, x) + (sb + sx) * distance(distanceMatrix, b, x) -
+                                                sx * distance(distanceMatrix, a, b)) /
+                                         (sa + sb + sx);
     }
 };
 
@@ -284,8 +266,7 @@ void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPr
         std::size_t rb = rightmost[b];
 
         LOG_TRACE("chain = " << core::CContainerPrinter::print(chain));
-        LOG_TRACE("d = " << d << ", a = " << a << ", b = " << b << ", rightmost a = " << ra << ", rightmost b " << rb
-                         << ", m = " << m);
+        LOG_TRACE("d = " << d << ", a = " << a << ", b = " << b << ", rightmost a = " << ra << ", rightmost b " << rb << ", m = " << m);
 
         // a and b are reciprocal nearest neighbors.
         L.emplace_back(d, std::make_pair(ra, rb));

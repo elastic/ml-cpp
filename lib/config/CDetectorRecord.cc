@@ -52,11 +52,7 @@ CDetectorRecord::CDetectorRecord(core_t::TTime time,
                                  const TStrCPtrAry& fieldNames,
                                  const TStrCPtrAry& fieldValues,
                                  const TSizeAry& hashedFieldValues)
-    : m_Time(time),
-      m_Function(function),
-      m_FieldNames(fieldNames),
-      m_FieldValues(fieldValues),
-      m_HashedFieldValues(hashedFieldValues) {
+    : m_Time(time), m_Function(function), m_FieldNames(fieldNames), m_FieldValues(fieldValues), m_HashedFieldValues(hashedFieldValues) {
 }
 
 core_t::TTime CDetectorRecord::time(void) const {
@@ -116,9 +112,8 @@ std::size_t CDetectorRecord::partitionFieldValueHash(void) const {
 }
 
 std::string CDetectorRecord::print(void) const {
-    return core::CStringUtils::typeToString(m_Time) + ' ' + extract(this->argumentFieldValue()) + ' ' +
-           extract(this->byFieldValue()) + ' ' + extract(this->overFieldValue()) + ' ' +
-           extract(this->partitionFieldValue());
+    return core::CStringUtils::typeToString(m_Time) + ' ' + extract(this->argumentFieldValue()) + ' ' + extract(this->byFieldValue()) +
+           ' ' + extract(this->overFieldValue()) + ' ' + extract(this->partitionFieldValue());
 }
 
 void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec& specs) {

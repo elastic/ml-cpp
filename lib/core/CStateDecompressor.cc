@@ -116,8 +116,7 @@ std::streamsize CStateDecompressor::CDechunkFilter::read(char* s, std::streamsiz
 bool CStateDecompressor::CDechunkFilter::parseNext() {
     if (m_Reader->HasParseError()) {
         const char* error(rapidjson::GetParseError_En(m_Reader->GetParseErrorCode()));
-        LOG_ERROR("Error parsing JSON at offset " << m_Reader->GetErrorOffset() << ": "
-                                                  << ((error != 0) ? error : "No message"));
+        LOG_ERROR("Error parsing JSON at offset " << m_Reader->GetErrorOffset() << ": " << ((error != 0) ? error : "No message"));
         return false;
     }
 
@@ -139,10 +138,8 @@ bool CStateDecompressor::CDechunkFilter::readHeader(void) {
 
     while (this->parseNext()) {
         if (m_Handler.s_Type == SRapidJsonHandler::E_TokenKey &&
-            CStateCompressor::COMPRESSED_ATTRIBUTE.compare(0,
-                                                           CStateCompressor::COMPRESSED_ATTRIBUTE.length(),
-                                                           m_Handler.s_CompressedChunk,
-                                                           m_Handler.s_CompressedChunkLength) == 0) {
+            CStateCompressor::COMPRESSED_ATTRIBUTE.compare(
+                0, CStateCompressor::COMPRESSED_ATTRIBUTE.length(), m_Handler.s_CompressedChunk, m_Handler.s_CompressedChunkLength) == 0) {
             if (this->parseNext() && m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayStart) {
                 m_Initialised = true;
                 m_BufferOffset = 0;
@@ -189,14 +186,14 @@ void CStateDecompressor::CDechunkFilter::handleRead(char* s, std::streamsize n, 
 
                 // Read the value of the CStateCompressor::END_OF_STREAM_ATTRIBUTE field and the closing brace
                 if (this->parseNext() && m_Handler.s_Type != SRapidJsonHandler::E_TokenBool) {
-                    LOG_ERROR("Expecting bool value to follow  " << CStateCompressor::END_OF_STREAM_ATTRIBUTE
-                                                                 << ", got " << m_Handler.s_Type);
+                    LOG_ERROR("Expecting bool value to follow  " << CStateCompressor::END_OF_STREAM_ATTRIBUTE << ", got "
+                                                                 << m_Handler.s_Type);
                 }
 
                 while (m_NestedLevel > 0) {
                     if (this->parseNext() && m_Handler.s_Type != SRapidJsonHandler::E_TokenObjectEnd) {
-                        LOG_ERROR("Expecting end object to follow " << CStateCompressor::END_OF_STREAM_ATTRIBUTE
-                                                                    << ", got " << m_Handler.s_Type);
+                        LOG_ERROR("Expecting end object to follow " << CStateCompressor::END_OF_STREAM_ATTRIBUTE << ", got "
+                                                                    << m_Handler.s_Type);
                     }
 
                     --m_NestedLevel;

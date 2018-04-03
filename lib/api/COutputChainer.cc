@@ -77,8 +77,7 @@ bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMa
     TPreComputedHashVecCItr preComputedHashIter = m_Hashes.begin();
     TStrRefVecCItr fieldRefIter = m_WorkRecordFieldRefs.begin();
     for (TStrVecCItr fieldNameIter = m_FieldNames.begin();
-         fieldNameIter != m_FieldNames.end() && preComputedHashIter != m_Hashes.end() &&
-         fieldRefIter != m_WorkRecordFieldRefs.end();
+         fieldNameIter != m_FieldNames.end() && preComputedHashIter != m_Hashes.end() && fieldRefIter != m_WorkRecordFieldRefs.end();
          ++fieldNameIter, ++preComputedHashIter, ++fieldRefIter) {
         TStrStrUMapCItr fieldValueIter = overrideDataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
         if (fieldValueIter == overrideDataRowFields.end()) {
@@ -96,8 +95,8 @@ bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMa
     }
 
     if (m_DataProcessor.handleRecord(m_WorkRecordFields) == false) {
-        LOG_ERROR("Chained data processor function returned false for record:"
-                  << core_t::LINE_ENDING << CDataProcessor::debugPrintRecord(m_WorkRecordFields));
+        LOG_ERROR("Chained data processor function returned false for record:" << core_t::LINE_ENDING
+                                                                               << CDataProcessor::debugPrintRecord(m_WorkRecordFields));
         return false;
     }
 

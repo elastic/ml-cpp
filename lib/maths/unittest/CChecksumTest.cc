@@ -240,8 +240,7 @@ void CChecksumTest::testAccumulators(void) {
         value.add(653.0);
         LOG_DEBUG("checksum expected = " << core::CHashing::hashCombine(seed, value.checksum()));
         LOG_DEBUG("checksum actual   = " << maths::CChecksum::calculate(seed, value));
-        CPPUNIT_ASSERT_EQUAL(core::CHashing::hashCombine(seed, value.checksum()),
-                             maths::CChecksum::calculate(seed, value));
+        CPPUNIT_ASSERT_EQUAL(core::CHashing::hashCombine(seed, value.checksum()), maths::CChecksum::calculate(seed, value));
     }
 }
 
@@ -368,19 +367,13 @@ void CChecksumTest::testCombinations(void) {
 CppUnit::Test* CChecksumTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CChecksumTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testMemberChecksum",
-                                                                 &CChecksumTest::testMemberChecksum));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testContainers", &CChecksumTest::testContainers));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testNullable", &CChecksumTest::testNullable));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testAccumulators", &CChecksumTest::testAccumulators));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testMemberChecksum", &CChecksumTest::testMemberChecksum));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testContainers", &CChecksumTest::testContainers));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testNullable", &CChecksumTest::testNullable));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testAccumulators", &CChecksumTest::testAccumulators));
     suiteOfTests->addTest(new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testPair", &CChecksumTest::testPair));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testArray", &CChecksumTest::testArray));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testCombinations", &CChecksumTest::testCombinations));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testArray", &CChecksumTest::testArray));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testCombinations", &CChecksumTest::testCombinations));
 
     return suiteOfTests;
 }

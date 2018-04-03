@@ -59,8 +59,7 @@ namespace detail {
 
 //! Make sure \p features only includes supported features, doesn't
 //! contain any duplicates, etc.
-const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
-                                           model_t::EAnalysisCategory gathererType) {
+const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features, model_t::EAnalysisCategory gathererType) {
     std::size_t j = 0u;
 
     for (std::size_t i = 0u; i < features.size(); ++i) {
@@ -142,8 +141,7 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
 }
 
 //! Wrapper which copies \p features.
-CDataGatherer::TFeatureVec sanitize(const CDataGatherer::TFeatureVec& features,
-                                    model_t::EAnalysisCategory gathererType) {
+CDataGatherer::TFeatureVec sanitize(const CDataGatherer::TFeatureVec& features, model_t::EAnalysisCategory gathererType) {
     CDataGatherer::TFeatureVec result(features);
     return sanitize(result, gathererType);
 }
@@ -194,10 +192,7 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
       m_PartitionFieldName(partitionFieldName),
       m_PartitionFieldValue(CStringStore::names().get(partitionFieldValue)),
       m_SearchKey(key),
-      m_PeopleRegistry(PERSON,
-                       stat_t::E_NumberNewPeople,
-                       stat_t::E_NumberNewPeopleNotAllowed,
-                       stat_t::E_NumberNewPeopleRecycled),
+      m_PeopleRegistry(PERSON, stat_t::E_NumberNewPeople, stat_t::E_NumberNewPeopleNotAllowed, stat_t::E_NumberNewPeopleRecycled),
       m_AttributesRegistry(ATTRIBUTE,
                            stat_t::E_NumberNewAttributes,
                            stat_t::E_NumberNewAttributesNotAllowed,
@@ -250,10 +245,7 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
       m_PartitionFieldName(partitionFieldName),
       m_PartitionFieldValue(CStringStore::names().get(partitionFieldValue)),
       m_SearchKey(key),
-      m_PeopleRegistry(PERSON,
-                       stat_t::E_NumberNewPeople,
-                       stat_t::E_NumberNewPeopleNotAllowed,
-                       stat_t::E_NumberNewPeopleRecycled),
+      m_PeopleRegistry(PERSON, stat_t::E_NumberNewPeople, stat_t::E_NumberNewPeopleNotAllowed, stat_t::E_NumberNewPeopleRecycled),
       m_AttributesRegistry(ATTRIBUTE,
                            stat_t::E_NumberNewAttributes,
                            stat_t::E_NumberNewAttributesNotAllowed,
@@ -369,9 +361,7 @@ std::size_t CDataGatherer::numberOverFieldValues(void) const {
     return this->isPopulation() ? this->numberActivePeople() : 0;
 }
 
-bool CDataGatherer::processFields(const TStrCPtrVec& fieldValues,
-                                  CEventData& result,
-                                  CResourceMonitor& resourceMonitor) {
+bool CDataGatherer::processFields(const TStrCPtrVec& fieldValues, CEventData& result, CResourceMonitor& resourceMonitor) {
     return m_Gatherers.front()->processFields(fieldValues, result, resourceMonitor);
 }
 
@@ -496,8 +486,7 @@ bool CDataGatherer::isPersonActive(std::size_t pid) const {
 }
 
 std::size_t CDataGatherer::addPerson(const std::string& person, CResourceMonitor& resourceMonitor, bool& addedPerson) {
-    return m_PeopleRegistry.addName(
-        person, this->chooseBucketGatherer(0).currentBucketStartTime(), resourceMonitor, addedPerson);
+    return m_PeopleRegistry.addName(person, this->chooseBucketGatherer(0).currentBucketStartTime(), resourceMonitor, addedPerson);
 }
 
 std::size_t CDataGatherer::numberActiveAttributes(void) const {
@@ -565,10 +554,8 @@ bool CDataGatherer::isAttributeActive(std::size_t cid) const {
     return m_AttributesRegistry.isIdActive(cid);
 }
 
-std::size_t
-CDataGatherer::addAttribute(const std::string& attribute, CResourceMonitor& resourceMonitor, bool& addedAttribute) {
-    return m_AttributesRegistry.addName(
-        attribute, this->chooseBucketGatherer(0).currentBucketStartTime(), resourceMonitor, addedAttribute);
+std::size_t CDataGatherer::addAttribute(const std::string& attribute, CResourceMonitor& resourceMonitor, bool& addedAttribute) {
+    return m_AttributesRegistry.addName(attribute, this->chooseBucketGatherer(0).currentBucketStartTime(), resourceMonitor, addedAttribute);
 }
 
 double CDataGatherer::sampleCount(std::size_t id) const {
@@ -638,8 +625,7 @@ const CDataGatherer::TSizeSizePrUInt64UMap& CDataGatherer::bucketCounts(core_t::
     return this->chooseBucketGatherer(time).bucketCounts(time);
 }
 
-const CDataGatherer::TSizeSizePrStoredStringPtrPrUInt64UMapVec&
-CDataGatherer::influencerCounts(core_t::TTime time) const {
+const CDataGatherer::TSizeSizePrStoredStringPtrPrUInt64UMapVec& CDataGatherer::influencerCounts(core_t::TTime time) const {
     return this->chooseBucketGatherer(time).influencerCounts(time);
 }
 
@@ -723,14 +709,11 @@ void CDataGatherer::acceptPersistInserter(core::CStatePersistInserter& inserter)
     for (std::size_t i = 0u; i < m_Features.size(); ++i) {
         inserter.insertValue(FEATURE_TAG, static_cast<int>(m_Features[i]));
     }
-    inserter.insertLevel(PEOPLE_REGISTRY_TAG,
-                         boost::bind(&CDynamicStringIdRegistry::acceptPersistInserter, m_PeopleRegistry, _1));
-    inserter.insertLevel(ATTRIBUTES_REGISTRY_TAG,
-                         boost::bind(&CDynamicStringIdRegistry::acceptPersistInserter, m_AttributesRegistry, _1));
+    inserter.insertLevel(PEOPLE_REGISTRY_TAG, boost::bind(&CDynamicStringIdRegistry::acceptPersistInserter, m_PeopleRegistry, _1));
+    inserter.insertLevel(ATTRIBUTES_REGISTRY_TAG, boost::bind(&CDynamicStringIdRegistry::acceptPersistInserter, m_AttributesRegistry, _1));
 
     if (m_SampleCounts) {
-        inserter.insertLevel(SAMPLE_COUNTS_TAG,
-                             boost::bind(&CSampleCounts::acceptPersistInserter, m_SampleCounts.get(), _1));
+        inserter.insertLevel(SAMPLE_COUNTS_TAG, boost::bind(&CSampleCounts::acceptPersistInserter, m_SampleCounts.get(), _1));
     }
 
     inserter.insertLevel(BUCKET_GATHERER_TAG, boost::bind(&CDataGatherer::persistBucketGatherers, this, _1));
@@ -758,9 +741,7 @@ bool CDataGatherer::determineMetricCategory(TMetricCategoryVec& fieldMetricCateg
     return true;
 }
 
-bool CDataGatherer::extractCountFromField(const std::string& fieldName,
-                                          const std::string* fieldValue,
-                                          std::size_t& count) const {
+bool CDataGatherer::extractCountFromField(const std::string& fieldName, const std::string* fieldValue, std::size_t& count) const {
     if (fieldValue == 0) {
         // Treat not present as explicit null
         count = EXPLICIT_NULL_SUMMARY_COUNT;
@@ -785,9 +766,7 @@ bool CDataGatherer::extractCountFromField(const std::string& fieldName,
     return count > 0;
 }
 
-bool CDataGatherer::extractMetricFromField(const std::string& fieldName,
-                                           std::string fieldValue,
-                                           TDouble1Vec& result) const {
+bool CDataGatherer::extractMetricFromField(const std::string& fieldName, std::string fieldValue, TDouble1Vec& result) const {
     result.clear();
 
     core::CStringUtils::trimWhitespace(fieldValue);
@@ -870,16 +849,13 @@ bool CDataGatherer::acceptRestoreTraverser(const std::string& summaryCountFieldN
             continue;
         }
         RESTORE(PEOPLE_REGISTRY_TAG,
-                traverser.traverseSubLevel(
-                    boost::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser, &m_PeopleRegistry, _1)))
+                traverser.traverseSubLevel(boost::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser, &m_PeopleRegistry, _1)))
         RESTORE(ATTRIBUTES_REGISTRY_TAG,
-                traverser.traverseSubLevel(
-                    boost::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser, &m_AttributesRegistry, _1)))
-        RESTORE_SETUP_TEARDOWN(
-            SAMPLE_COUNTS_TAG,
-            m_SampleCounts.reset(new CSampleCounts(0)),
-            traverser.traverseSubLevel(boost::bind(&CSampleCounts::acceptRestoreTraverser, m_SampleCounts.get(), _1)),
-            /**/)
+                traverser.traverseSubLevel(boost::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser, &m_AttributesRegistry, _1)))
+        RESTORE_SETUP_TEARDOWN(SAMPLE_COUNTS_TAG,
+                               m_SampleCounts.reset(new CSampleCounts(0)),
+                               traverser.traverseSubLevel(boost::bind(&CSampleCounts::acceptRestoreTraverser, m_SampleCounts.get(), _1)),
+                               /**/)
         RESTORE(BUCKET_GATHERER_TAG,
                 traverser.traverseSubLevel(boost::bind(&CDataGatherer::restoreBucketGatherer,
                                                        this,
@@ -903,13 +879,8 @@ bool CDataGatherer::restoreBucketGatherer(const std::string& summaryCountFieldNa
     do {
         const std::string& name = traverser.name();
         if (name == CBucketGatherer::EVENTRATE_BUCKET_GATHERER_TAG) {
-            CEventRateBucketGatherer* gatherer = new CEventRateBucketGatherer(*this,
-                                                                              summaryCountFieldName,
-                                                                              personFieldName,
-                                                                              attributeFieldName,
-                                                                              valueFieldName,
-                                                                              influenceFieldNames,
-                                                                              traverser);
+            CEventRateBucketGatherer* gatherer = new CEventRateBucketGatherer(
+                *this, summaryCountFieldName, personFieldName, attributeFieldName, valueFieldName, influenceFieldNames, traverser);
 
             if (gatherer == 0) {
                 LOG_ERROR("Failed to create gatherer");
@@ -917,13 +888,8 @@ bool CDataGatherer::restoreBucketGatherer(const std::string& summaryCountFieldNa
             }
             m_Gatherers.push_back(gatherer);
         } else if (name == CBucketGatherer::METRIC_BUCKET_GATHERER_TAG) {
-            CMetricBucketGatherer* gatherer = new CMetricBucketGatherer(*this,
-                                                                        summaryCountFieldName,
-                                                                        personFieldName,
-                                                                        attributeFieldName,
-                                                                        valueFieldName,
-                                                                        influenceFieldNames,
-                                                                        traverser);
+            CMetricBucketGatherer* gatherer = new CMetricBucketGatherer(
+                *this, summaryCountFieldName, personFieldName, attributeFieldName, valueFieldName, influenceFieldNames, traverser);
             if (gatherer == 0) {
                 LOG_ERROR("Failed to create gatherer");
                 return false;
@@ -941,12 +907,10 @@ void CDataGatherer::persistBucketGatherers(core::CStatePersistInserter& inserter
 
         if (tag == CBucketGatherer::EVENTRATE_BUCKET_GATHERER_TAG) {
             CEventRateBucketGatherer* const gatherer = dynamic_cast<CEventRateBucketGatherer* const>(*i);
-            inserter.insertLevel(
-                tag, boost::bind(&CEventRateBucketGatherer::acceptPersistInserter, boost::cref(gatherer), _1));
+            inserter.insertLevel(tag, boost::bind(&CEventRateBucketGatherer::acceptPersistInserter, boost::cref(gatherer), _1));
         } else if (tag == CBucketGatherer::METRIC_BUCKET_GATHERER_TAG) {
             CMetricBucketGatherer* const gatherer = dynamic_cast<CMetricBucketGatherer* const>(*i);
-            inserter.insertLevel(tag,
-                                 boost::bind(&CMetricBucketGatherer::acceptPersistInserter, boost::cref(gatherer), _1));
+            inserter.insertLevel(tag, boost::bind(&CMetricBucketGatherer::acceptPersistInserter, boost::cref(gatherer), _1));
         }
     }
 }
@@ -963,25 +927,15 @@ void CDataGatherer::createBucketGatherer(model_t::EAnalysisCategory gathererType
     case model_t::E_EventRate:
     case model_t::E_PopulationEventRate:
     case model_t::E_PeersEventRate:
-        m_Gatherers.push_back(new CEventRateBucketGatherer(*this,
-                                                           summaryCountFieldName,
-                                                           personFieldName,
-                                                           attributeFieldName,
-                                                           valueFieldName,
-                                                           influenceFieldNames,
-                                                           startTime));
+        m_Gatherers.push_back(new CEventRateBucketGatherer(
+            *this, summaryCountFieldName, personFieldName, attributeFieldName, valueFieldName, influenceFieldNames, startTime));
         break;
     case model_t::E_Metric:
     case model_t::E_PopulationMetric:
     case model_t::E_PeersMetric:
         m_SampleCounts.reset(new CSampleCounts(sampleCountOverride));
-        m_Gatherers.push_back(new CMetricBucketGatherer(*this,
-                                                        summaryCountFieldName,
-                                                        personFieldName,
-                                                        attributeFieldName,
-                                                        valueFieldName,
-                                                        influenceFieldNames,
-                                                        startTime));
+        m_Gatherers.push_back(new CMetricBucketGatherer(
+            *this, summaryCountFieldName, personFieldName, attributeFieldName, valueFieldName, influenceFieldNames, startTime));
         break;
     }
 }

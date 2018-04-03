@@ -233,8 +233,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
 }
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args, CProcess::TPid& childPid) {
-    if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(), processPath) ==
-        m_PermittedProcessPaths.end()) {
+    if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(), processPath) == m_PermittedProcessPaths.end()) {
         LOG_ERROR("Spawning process '" << processPath << "' is not permitted");
         return false;
     }

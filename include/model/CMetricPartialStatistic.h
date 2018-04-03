@@ -64,8 +64,7 @@ public:
     static const std::string TIME_TAG;
 
 public:
-    CMetricPartialStatistic(std::size_t dimension)
-        : m_Value(CMetricStatisticWrappers::template make<STATISTIC>(dimension)) {}
+    CMetricPartialStatistic(std::size_t dimension) : m_Value(CMetricStatisticWrappers::template make<STATISTIC>(dimension)) {}
 
     //! Persist to a state document.
     void persist(core::CStatePersistInserter& inserter) const {
@@ -109,9 +108,7 @@ public:
     inline double count(void) const { return maths::CBasicStatistics::count(m_Time); }
 
     //! Returns the mean time of all the measurements.
-    inline core_t::TTime time(void) const {
-        return static_cast<core_t::TTime>(maths::CBasicStatistics::mean(m_Time) + 0.5);
-    }
+    inline core_t::TTime time(void) const { return static_cast<core_t::TTime>(maths::CBasicStatistics::mean(m_Time) + 0.5); }
 
     //! Combine two partial statistics.
     inline const CMetricPartialStatistic& operator+=(const CMetricPartialStatistic& rhs) {

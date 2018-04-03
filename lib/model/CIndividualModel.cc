@@ -96,15 +96,12 @@ CIndividualModel::CIndividualModel(const SModelParams& params,
     if (this->params().s_MultivariateByFields) {
         m_FeatureCorrelatesModels.reserve(featureCorrelatesModels.size());
         for (std::size_t i = 0u; i < featureCorrelatesModels.size(); ++i) {
-            m_FeatureCorrelatesModels.emplace_back(featureCorrelatesModels[i].first,
-                                                   newFeatureCorrelateModelPriors[i].second,
-                                                   featureCorrelatesModels[i].second);
+            m_FeatureCorrelatesModels.emplace_back(
+                featureCorrelatesModels[i].first, newFeatureCorrelateModelPriors[i].second, featureCorrelatesModels[i].second);
         }
         std::sort(m_FeatureCorrelatesModels.begin(),
                   m_FeatureCorrelatesModels.end(),
-                  [](const SFeatureCorrelateModels& lhs, const SFeatureCorrelateModels& rhs) {
-                      return lhs.s_Feature < rhs.s_Feature;
-                  });
+                  [](const SFeatureCorrelateModels& lhs, const SFeatureCorrelateModels& rhs) { return lhs.s_Feature < rhs.s_Feature; });
     }
 }
 
@@ -143,22 +140,17 @@ CIndividualModel::TOptionalUInt64 CIndividualModel::currentBucketCount(std::size
         return TOptionalUInt64();
     }
 
-    auto result = std::lower_bound(this->currentBucketPersonCounts().begin(),
-                                   this->currentBucketPersonCounts().end(),
-                                   pid,
-                                   maths::COrderings::SFirstLess());
+    auto result = std::lower_bound(
+        this->currentBucketPersonCounts().begin(), this->currentBucketPersonCounts().end(), pid, maths::COrderings::SFirstLess());
 
-    return result != this->currentBucketPersonCounts().end() && result->first == pid ? result->second
-                                                                                     : static_cast<uint64_t>(0);
+    return result != this->currentBucketPersonCounts().end() && result->first == pid ? result->second : static_cast<uint64_t>(0);
 }
 
 bool CIndividualModel::bucketStatsAvailable(core_t::TTime time) const {
     return time >= this->currentBucketStartTime() && time < this->currentBucketStartTime() + this->bucketLength();
 }
 
-void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
-                                              core_t::TTime endTime,
-                                              CResourceMonitor& resourceMonitor) {
+void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) {
     CDataGatherer& gatherer = this->dataGatherer();
 
     if (!gatherer.dataAvailable(startTime)) {
@@ -176,9 +168,7 @@ void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
     }
 }
 
-void CIndividualModel::sampleOutOfPhase(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        CResourceMonitor& resourceMonitor) {
+void CIndividualModel::sampleOutOfPhase(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) {
     CDataGatherer& gatherer = this->dataGatherer();
     if (!gatherer.dataAvailable(startTime)) {
         return;
@@ -222,8 +212,7 @@ void CIndividualModel::prune(std::size_t maximumAge) {
     TSizeVec peopleToRemove;
     for (std::size_t pid = 0u; pid < m_LastBucketTimes.size(); ++pid) {
         if (gatherer.isPersonActive(pid) && !CAnomalyDetectorModel::isTimeUnset(m_LastBucketTimes[pid])) {
-            std::size_t bucketsSinceLastEvent =
-                static_cast<std::size_t>((time - m_LastBucketTimes[pid]) / gatherer.bucketLength());
+            std::size_t bucketsSinceLastEvent = static_cast<std::size_t>((time - m_LastBucketTimes[pid]) / gatherer.bucketLength());
             if (bucketsSinceLastEvent > maximumAge) {
                 LOG_TRACE(gatherer.personName(pid)
                           << ", bucketsSinceLastEvent = " << bucketsSinceLastEvent << ", maximumAge = " << maximumAge);
@@ -271,8 +260,7 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
         for (const auto& prior : feature.s_Models->correlatePriors()) {
             std::size_t pids[]{prior.first.first, prior.first.second};
             if (gatherer.isPersonActive(pids[0]) && gatherer.isPersonActive(pids[1])) {
-                uint64_t& hash =
-                    hashes2[{boost::cref(this->personName(pids[0])), boost::cref(this->personName(pids[1]))}];
+                uint64_t& hash = hashes2[{boost::cref(this->personName(pids[0])), boost::cref(this->personName(pids[1]))}];
                 hash = maths::CChecksum::calculate(hash, prior.second);
             }
         }
@@ -307,8 +295,8 @@ void CIndividualModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
 
 std::size_t CIndividualModel::memoryUsage(void) const {
     const CDataGatherer& gatherer = this->dataGatherer();
-    TOptionalSize estimate = this->estimateMemoryUsage(
-        gatherer.numberActivePeople(), gatherer.numberActiveAttributes(), this->numberCorrelations());
+    TOptionalSize estimate =
+        this->estimateMemoryUsage(gatherer.numberActivePeople(), gatherer.numberActiveAttributes(), this->numberCorrelations());
     return estimate ? estimate.get() : this->computeMemoryUsage();
 }
 
@@ -339,8 +327,7 @@ void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
         inserter.insertLevel(FEATURE_MODELS_TAG, boost::bind(&SFeatureModels::acceptPersistInserter, &feature, _1));
     }
     for (const auto& feature : m_FeatureCorrelatesModels) {
-        inserter.insertLevel(FEATURE_CORRELATE_MODELS_TAG,
-                             boost::bind(&SFeatureCorrelateModels::acceptPersistInserter, &feature, _1));
+        inserter.insertLevel(FEATURE_CORRELATE_MODELS_TAG, boost::bind(&SFeatureCorrelateModels::acceptPersistInserter, &feature, _1));
     }
     this->interimBucketCorrectorAcceptPersistInserter(INTERIM_BUCKET_CORRECTOR_TAG, inserter);
     core::CPersistUtils::persist(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, inserter);
@@ -357,17 +344,15 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
         RESTORE(PERSON_BUCKET_COUNT_TAG, core::CPersistUtils::restore(name, this->personBucketCounts(), traverser))
         RESTORE(FIRST_BUCKET_TIME_TAG, core::CPersistUtils::restore(name, m_FirstBucketTimes, traverser))
         RESTORE(LAST_BUCKET_TIME_TAG, core::CPersistUtils::restore(name, m_LastBucketTimes, traverser))
+        RESTORE(FEATURE_MODELS_TAG,
+                i == m_FeatureModels.size() ||
+                    traverser.traverseSubLevel(
+                        boost::bind(&SFeatureModels::acceptRestoreTraverser, &m_FeatureModels[i++], boost::cref(this->params()), _1)))
         RESTORE(
-            FEATURE_MODELS_TAG,
-            i == m_FeatureModels.size() ||
+            FEATURE_CORRELATE_MODELS_TAG,
+            j == m_FeatureCorrelatesModels.size() ||
                 traverser.traverseSubLevel(boost::bind(
-                    &SFeatureModels::acceptRestoreTraverser, &m_FeatureModels[i++], boost::cref(this->params()), _1)))
-        RESTORE(FEATURE_CORRELATE_MODELS_TAG,
-                j == m_FeatureCorrelatesModels.size() ||
-                    traverser.traverseSubLevel(boost::bind(&SFeatureCorrelateModels::acceptRestoreTraverser,
-                                                           &m_FeatureCorrelatesModels[j++],
-                                                           boost::cref(this->params()),
-                                                           _1)))
+                    &SFeatureCorrelateModels::acceptRestoreTraverser, &m_FeatureCorrelatesModels[j++], boost::cref(this->params()), _1)))
         RESTORE(INTERIM_BUCKET_CORRECTOR_TAG, this->interimBucketCorrectorAcceptRestoreTraverser(traverser))
         RESTORE(MEMORY_ESTIMATOR_TAG, core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
     } while (traverser.next());
@@ -393,22 +378,20 @@ void CIndividualModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
     std::size_t numberExistingPeople = m_FirstBucketTimes.size();
     std::size_t numberCorrelations = this->numberCorrelations();
 
-    TOptionalSize usageEstimate =
-        this->estimateMemoryUsage(std::min(numberExistingPeople, gatherer.numberActivePeople()),
-                                  0, // # attributes
-                                  numberCorrelations);
+    TOptionalSize usageEstimate = this->estimateMemoryUsage(std::min(numberExistingPeople, gatherer.numberActivePeople()),
+                                                            0, // # attributes
+                                                            numberCorrelations);
     std::size_t ourUsage = usageEstimate ? usageEstimate.get() : this->computeMemoryUsage();
     std::size_t resourceLimit = ourUsage + resourceMonitor.allocationLimit();
     std::size_t numberNewPeople = gatherer.numberPeople();
     numberNewPeople = numberNewPeople > numberExistingPeople ? numberNewPeople - numberExistingPeople : 0;
 
-    while (numberNewPeople > 0 && resourceMonitor.areAllocationsAllowed() &&
-           (resourceMonitor.haveNoLimit() || ourUsage < resourceLimit)) {
+    while (numberNewPeople > 0 && resourceMonitor.areAllocationsAllowed() && (resourceMonitor.haveNoLimit() || ourUsage < resourceLimit)) {
         // We batch people in CHUNK_SIZE (500) and create models in chunks
         // and test usage after each chunk.
         std::size_t numberToCreate = std::min(numberNewPeople, CHUNK_SIZE);
-        LOG_TRACE("Creating batch of " << numberToCreate << " people of remaining " << numberNewPeople << ". "
-                                       << resourceLimit - ourUsage << " free bytes remaining");
+        LOG_TRACE("Creating batch of " << numberToCreate << " people of remaining " << numberNewPeople << ". " << resourceLimit - ourUsage
+                                       << " free bytes remaining");
         this->createNewModels(numberToCreate, 0);
         numberExistingPeople += numberToCreate;
         numberNewPeople -= numberToCreate;
@@ -500,8 +483,7 @@ double CIndividualModel::probabilityBucketEmpty(model_t::EFeature feature, std::
     double result = 0.0;
     if (model_t::countsEmptyBuckets(feature)) {
         double frequency = this->personFrequency(pid);
-        double emptyBucketWeight =
-            model_t::emptyBucketCountWeight(feature, frequency, this->params().s_CutoffToModelEmptyBuckets);
+        double emptyBucketWeight = model_t::emptyBucketCountWeight(feature, frequency, this->params().s_CutoffToModelEmptyBuckets);
         result = (1.0 - frequency) * (1.0 - emptyBucketWeight);
     }
     return result;
@@ -512,9 +494,8 @@ const maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::siz
 }
 
 maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::size_t pid) {
-    auto i = std::find_if(m_FeatureModels.begin(), m_FeatureModels.end(), [feature](const SFeatureModels& model) {
-        return model.s_Feature == feature;
-    });
+    auto i = std::find_if(
+        m_FeatureModels.begin(), m_FeatureModels.end(), [feature](const SFeatureModels& model) { return model.s_Feature == feature; });
     return i != m_FeatureModels.end() && pid < i->s_Models.size() ? i->s_Models[pid].get() : 0;
 }
 
@@ -557,15 +538,12 @@ const CIndividualModel::TTimeVec& CIndividualModel::lastBucketTimes(void) const 
 }
 
 double CIndividualModel::derate(std::size_t pid, core_t::TTime time) const {
-    return std::max(
-        1.0 - static_cast<double>(time - m_FirstBucketTimes[pid]) / static_cast<double>(3 * core::constants::WEEK),
-        0.0);
+    return std::max(1.0 - static_cast<double>(time - m_FirstBucketTimes[pid]) / static_cast<double>(3 * core::constants::WEEK), 0.0);
 }
 
 std::string CIndividualModel::printCurrentBucket(void) const {
     std::ostringstream result;
-    result << "[" << this->currentBucketStartTime() << "," << this->currentBucketStartTime() + this->bucketLength()
-           << ")";
+    result << "[" << this->currentBucketStartTime() << "," << this->currentBucketStartTime() + this->bucketLength() << ")";
     return result.str();
 }
 

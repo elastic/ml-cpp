@@ -53,13 +53,8 @@ size_t countBuckets(const std::string& key, const std::string& output) {
     return count;
 }
 
-core_t::TTime playData(core_t::TTime start,
-                       core_t::TTime span,
-                       int numBuckets,
-                       int numPeople,
-                       int numPartitions,
-                       int anomaly,
-                       api::CAnomalyJob& job) {
+core_t::TTime
+playData(core_t::TTime start, core_t::TTime span, int numBuckets, int numPeople, int numPartitions, int anomaly, api::CAnomalyJob& job) {
     std::string people[] = {"Elgar", "Holst", "Delius", "Vaughan Williams", "Bliss", "Warlock", "Walton"};
     if (numPeople > 7) {
         LOG_ERROR("Too many people: " << numPeople);
@@ -195,8 +190,7 @@ void CStringStoreTest::testPersonStringPruning(void) {
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob job(
-            "job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -234,8 +228,7 @@ void CStringStoreTest::testPersonStringPruning(void) {
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob job(
-            "job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -274,8 +267,7 @@ void CStringStoreTest::testPersonStringPruning(void) {
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob job(
-            "job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -376,8 +368,7 @@ void CStringStoreTest::testAttributeStringPruning(void) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job(
-            "job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -416,8 +407,7 @@ void CStringStoreTest::testAttributeStringPruning(void) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job(
-            "job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -457,8 +447,7 @@ void CStringStoreTest::testAttributeStringPruning(void) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job(
-            "job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -606,8 +595,8 @@ void CStringStoreTest::testInfluencerStringPruning(void) {
 CppUnit::Test* CStringStoreTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testPersonStringPruning",
-                                                                    &CStringStoreTest::testPersonStringPruning));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testPersonStringPruning", &CStringStoreTest::testPersonStringPruning));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testAttributeStringPruning",
                                                                     &CStringStoreTest::testAttributeStringPruning));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testInfluencerStringPruning",

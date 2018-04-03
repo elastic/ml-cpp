@@ -126,8 +126,7 @@ private:
             do {
                 const std::string& name = traverser.name();
                 if (name == SAMPLE_TAG) {
-                    if (traverser.traverseSubLevel(boost::bind(&TMetricPartialStatistic::restore, &s_Statistic, _1)) ==
-                        false) {
+                    if (traverser.traverseSubLevel(boost::bind(&TMetricPartialStatistic::restore, &s_Statistic, _1)) == false) {
                         LOG_ERROR("Invalid sample value");
                         return false;
                     }
@@ -164,8 +163,8 @@ private:
 
         //! Print the sub-sample for debug.
         std::string print(void) const {
-            return "{[" + core::CStringUtils::typeToString(s_Start) + ", " + core::CStringUtils::typeToString(s_End) +
-                   "] -> " + s_Statistic.print() + "}";
+            return "{[" + core::CStringUtils::typeToString(s_Start) + ", " + core::CStringUtils::typeToString(s_End) + "] -> " +
+                   s_Statistic.print() + "}";
         }
 
         TMetricPartialStatistic s_Statistic;
@@ -252,8 +251,7 @@ public:
             double countRatio = sampleCount / count;
             double countRatioIncludingNext = sampleCount / countIncludingNext;
 
-            if (countIncludingNext >= sampleCount &&
-                (std::abs(1.0 - countRatio) <= std::abs(1.0 - countRatioIncludingNext))) {
+            if (countIncludingNext >= sampleCount && (std::abs(1.0 - countRatio) <= std::abs(1.0 - countRatioIncludingNext))) {
                 TDouble1Vec sample = combinedSubSample->s_Statistic.value();
                 core_t::TTime sampleTime = combinedSubSample->s_Statistic.time();
                 double vs = model_t::varianceScale(feature, sampleCount, count);
@@ -273,8 +271,7 @@ public:
         iterator firstEarlierThanBucket = std::upper_bound(m_Queue.begin(), m_Queue.end(), bucketStart, timeLater);
 
         // This is equivalent to lower_bound(., ., bucketStart + m_BucketLength - 1, .);
-        iterator latestWithinBucket =
-            std::upper_bound(m_Queue.begin(), m_Queue.end(), bucketStart + m_BucketLength, timeLater);
+        iterator latestWithinBucket = std::upper_bound(m_Queue.begin(), m_Queue.end(), bucketStart + m_BucketLength, timeLater);
 
         m_Queue.erase(latestWithinBucket, firstEarlierThanBucket);
     }
@@ -308,8 +305,7 @@ public:
             const std::string& name = traverser.name();
             if (name == SUB_SAMPLE_TAG) {
                 SSubSample subSample(m_Dimension, 0);
-                if (traverser.traverseSubLevel(boost::bind(&SSubSample::acceptRestoreTraverser, &subSample, _1)) ==
-                    false) {
+                if (traverser.traverseSubLevel(boost::bind(&SSubSample::acceptRestoreTraverser, &subSample, _1)) == false) {
                     LOG_ERROR("Invalid sub-sample in " << traverser.value());
                     return false;
                 }
@@ -367,10 +363,7 @@ private:
         }
     }
 
-    void addAfterLatestStartTime(const TDouble1Vec& measurement,
-                                 core_t::TTime time,
-                                 unsigned int count,
-                                 unsigned int sampleCount) {
+    void addAfterLatestStartTime(const TDouble1Vec& measurement, core_t::TTime time, unsigned int count, unsigned int sampleCount) {
         if (time >= m_Queue[0].s_End && this->shouldCreateNewSubSampleAfterLatest(time, sampleCount)) {
             this->pushFrontNewSubSample(measurement, time, count);
         } else {
@@ -386,8 +379,7 @@ private:
         // If latency is non-zero, we also want to check whether the new measurement
         // is too far from the latest sub-sample or whether they belong in different buckets.
         if (m_Latency > 0) {
-            if (!m_Queue[0].isClose(time, this->targetSubSampleSpan()) ||
-                !m_Queue[0].isInSameBucket(time, m_BucketLength)) {
+            if (!m_Queue[0].isClose(time, this->targetSubSampleSpan()) || !m_Queue[0].isInSameBucket(time, m_BucketLength)) {
                 return true;
             }
         }
@@ -395,16 +387,12 @@ private:
     }
 
     core_t::TTime targetSubSampleSpan(void) const {
-        return (m_BucketLength + static_cast<core_t::TTime>(m_SampleCountFactor) - 1) /
-               static_cast<core_t::TTime>(m_SampleCountFactor);
+        return (m_BucketLength + static_cast<core_t::TTime>(m_SampleCountFactor) - 1) / static_cast<core_t::TTime>(m_SampleCountFactor);
     }
 
-    std::size_t targetSubSampleCount(unsigned int sampleCount) const {
-        return static_cast<std::size_t>(sampleCount) / m_SampleCountFactor;
-    }
+    std::size_t targetSubSampleCount(unsigned int sampleCount) const { return static_cast<std::size_t>(sampleCount) / m_SampleCountFactor; }
 
-    void
-    addHistorical(const TDouble1Vec& measurement, core_t::TTime time, unsigned int count, unsigned int sampleCount) {
+    void addHistorical(const TDouble1Vec& measurement, core_t::TTime time, unsigned int count, unsigned int sampleCount) {
         // We have to resize before we do the search of the upper bound. Otherwise,
         // a later resize will invalidate the upper bound iterator.
         this->resizeIfFull();
@@ -414,8 +402,7 @@ private:
 
         if (upperBound == m_Queue.rbegin()) {
             if ((upperBound->s_Statistic.count() >= static_cast<double>(this->targetSubSampleCount(sampleCount))) ||
-                !upperBound->isClose(time, targetSubSampleSpan) ||
-                !(*upperBound).isInSameBucket(time, m_BucketLength)) {
+                !upperBound->isClose(time, targetSubSampleSpan) || !(*upperBound).isInSameBucket(time, m_BucketLength)) {
                 this->pushBackNewSubSample(measurement, time, count);
             } else {
                 upperBound->add(measurement, time, count);

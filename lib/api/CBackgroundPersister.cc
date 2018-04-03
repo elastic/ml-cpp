@@ -140,8 +140,7 @@ bool CBackgroundPersister::clear(void) {
     return true;
 }
 
-bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(
-    const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc) {
+bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc) {
     core::CScopedFastLock lock(m_Mutex);
 
     if (m_IsBusy) {
@@ -166,8 +165,7 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void) {
 
         LOG_WARN("Periodic persist is due at "
                  << due << " but previous persist started at " << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime)
-                 << " is still in progress - increased persistence interval to " << m_PeriodicPersistInterval
-                 << " seconds");
+                 << " is still in progress - increased persistence interval to " << m_PeriodicPersistInterval << " seconds");
 
         return false;
     }

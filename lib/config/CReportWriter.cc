@@ -114,10 +114,7 @@ void writeTableRow(std::ostream& o, const TSizeVec& padTo, const std::size_t (&s
 
 //! Write the summary statistic table.
 template<std::size_t M, std::size_t N>
-void writeTable(std::ostream& o,
-                const std::string (&labels)[M],
-                const std::size_t (&stats)[N],
-                const TStrVecVec& values) {
+void writeTable(std::ostream& o, const std::string (&labels)[M], const std::size_t (&stats)[N], const TStrVecVec& values) {
     // Compute the table pads.
     TSizeVec padTo(N, 0);
     std::size_t tableWidth = 0;
@@ -161,9 +158,7 @@ void CReportWriter::addInvalidRecords(uint64_t n) {
     m_InvalidRecords = print(n);
 }
 
-void CReportWriter::addFieldStatistics(const std::string& field,
-                                       config_t::EDataType type,
-                                       const CDataSummaryStatistics& summary) {
+void CReportWriter::addFieldStatistics(const std::string& field, config_t::EDataType type, const CDataSummaryStatistics& summary) {
     std::size_t n = m_UnclassifiedFields.size();
     m_UnclassifiedFields.push_back(TStrVec(NUMBER_STATISTICS));
     m_UnclassifiedFields[n][FIELD_NAME] = field;
@@ -189,9 +184,7 @@ void CReportWriter::addFieldStatistics(const std::string& field,
     m_CategoricalFields[n][CATEGORICAL_TOP_N_COUNTS] = print(topn);
 }
 
-void CReportWriter::addFieldStatistics(const std::string& field,
-                                       config_t::EDataType type,
-                                       const CNumericDataSummaryStatistics& summary) {
+void CReportWriter::addFieldStatistics(const std::string& field, config_t::EDataType type, const CNumericDataSummaryStatistics& summary) {
     std::size_t n = m_NumericFields.size();
     m_NumericFields.push_back(TStrVec(NUMBER_STATISTICS));
     m_NumericFields[n][FIELD_NAME] = field;
@@ -233,8 +226,7 @@ void CReportWriter::write(void) const {
     m_WriteStream << "DATA SUMMARY\n";
     m_WriteStream << "============\n\n";
 
-    m_WriteStream << "Found " << (m_UnclassifiedFields.size() + m_CategoricalFields.size() + m_NumericFields.size())
-                  << " fields\n";
+    m_WriteStream << "Found " << (m_UnclassifiedFields.size() + m_CategoricalFields.size() + m_NumericFields.size()) << " fields\n";
     m_WriteStream << "Processed " << m_TotalRecords << " records\n";
     m_WriteStream << "There were " << m_InvalidRecords << " invalid records\n";
 
@@ -296,11 +288,7 @@ const std::string CReportWriter::PARAMETER_LABELS[NUMBER_PARAMETERS] = {std::str
                                                                         std::string("Score"),
                                                                         std::string("Explanation")};
 
-const std::size_t CReportWriter::UNCLASSIFIED_STATISTICS[] = {FIELD_NAME,
-                                                              DATA_TYPE,
-                                                              EARLIEST_TIME,
-                                                              LATEST_TIME,
-                                                              MEAN_RATE};
+const std::size_t CReportWriter::UNCLASSIFIED_STATISTICS[] = {FIELD_NAME, DATA_TYPE, EARLIEST_TIME, LATEST_TIME, MEAN_RATE};
 
 const std::size_t CReportWriter::CATEGORICAL_STATISTICS[] =
     {FIELD_NAME, DATA_TYPE, EARLIEST_TIME, LATEST_TIME, MEAN_RATE, CATEGORICAL_DISTINCT_COUNT};

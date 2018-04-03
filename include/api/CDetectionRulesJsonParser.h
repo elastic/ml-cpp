@@ -54,8 +54,7 @@ private:
     static bool hasArrayMember(const rapidjson::Value& object, const std::string& name);
     static bool parseRuleActions(const rapidjson::Value& ruleObject, model::CDetectionRule& rule);
     static bool parseConditionsConnective(const rapidjson::Value& ruleObject, model::CDetectionRule& rule);
-    static bool parseRuleConditionType(const rapidjson::Value& ruleConditionObject,
-                                       model::CRuleCondition& ruleCondition);
+    static bool parseRuleConditionType(const rapidjson::Value& ruleConditionObject, model::CRuleCondition& ruleCondition);
     static bool parseCondition(const rapidjson::Value& ruleConditionObject, model::CRuleCondition& ruleCondition);
     static bool parseConditionOperator(const rapidjson::Value& conditionObject, model::CRuleCondition& ruleCondition);
     static bool parseConditionThreshold(const rapidjson::Value& conditionObject, model::CRuleCondition& ruleCondition);

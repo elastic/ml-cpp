@@ -48,16 +48,12 @@ public:
     typedef typename maths::CRandomProjectionClustererBatch<N>::TMeanAccumulatorVecVec TMeanAccumulatorVecVec;
 
 public:
-    CRandomProjectionClustererForTest(double compression = 1.0)
-        : maths::CRandomProjectionClustererBatch<N>(compression) {}
+    CRandomProjectionClustererForTest(double compression = 1.0) : maths::CRandomProjectionClustererBatch<N>(compression) {}
 
-    const TVectorArrayVec& projections(void) const {
-        return this->maths::CRandomProjectionClustererBatch<N>::projections();
-    }
+    const TVectorArrayVec& projections(void) const { return this->maths::CRandomProjectionClustererBatch<N>::projections(); }
 
     template<typename CLUSTERER>
-    void clusterProjections(CLUSTERER clusterer, TDoubleVecVec& W, TVectorNx1VecVec& M, TSvdNxNVecVec& C, TSizeUSet& I)
-        const {
+    void clusterProjections(CLUSTERER clusterer, TDoubleVecVec& W, TVectorNx1VecVec& M, TSvdNxNVecVec& C, TSizeUSet& I) const {
         std::size_t b = this->projectedData().size();
         W.resize(b);
         M.resize(b);
@@ -65,15 +61,10 @@ public:
         this->maths::CRandomProjectionClustererBatch<N>::clusterProjections(clusterer, W, M, C, I);
     }
 
-    void neighbourhoods(const TSizeUSet& I, TSizeVecVec& H) const {
-        this->maths::CRandomProjectionClustererBatch<N>::neighbourhoods(I, H);
-    }
+    void neighbourhoods(const TSizeUSet& I, TSizeVecVec& H) const { this->maths::CRandomProjectionClustererBatch<N>::neighbourhoods(I, H); }
 
-    void similarities(const TDoubleVecVec& W,
-                      const TVectorNx1VecVec& M,
-                      const TSvdNxNVecVec& C,
-                      const TSizeVecVec& H,
-                      TDoubleVecVec& S) const {
+    void
+    similarities(const TDoubleVecVec& W, const TVectorNx1VecVec& M, const TSvdNxNVecVec& C, const TSizeVecVec& H, TDoubleVecVec& S) const {
         this->maths::CRandomProjectionClustererBatch<N>::similarities(W, M, C, H, S);
     }
 
@@ -103,8 +94,7 @@ void CRandomProjectionClustererTest::testGenerateProjections(void) {
         const TVectorArrayVec& projections = clusterer.projections();
         LOG_DEBUG("projections = " << core::CContainerPrinter::print(projections));
 
-        CPPUNIT_ASSERT_EQUAL(std::string("[[[1 0 0], [0 1 0], [0 0 1], [0 0 0], [0 0 0]]]"),
-                             core::CContainerPrinter::print(projections));
+        CPPUNIT_ASSERT_EQUAL(std::string("[[[1 0 0], [0 1 0], [0 0 1], [0 0 0], [0 0 0]]]"), core::CContainerPrinter::print(projections));
     }
 
     // Test that the projections are mutually orthonormal and
@@ -152,8 +142,7 @@ void CRandomProjectionClustererTest::testGenerateProjections(void) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             1.0 / static_cast<double>(t), maths::CBasicStatistics::variance(moments), 0.2 / static_cast<double>(t));
 
-        error.add(static_cast<double>(t) *
-                  ::fabs(maths::CBasicStatistics::variance(moments) - 1.0 / static_cast<double>(t)));
+        error.add(static_cast<double>(t) * ::fabs(maths::CBasicStatistics::variance(moments) - 1.0 / static_cast<double>(t)));
     }
 
     LOG_DEBUG("Relative error = " << 100.0 * maths::CBasicStatistics::mean(error) << "%");
@@ -196,10 +185,8 @@ void CRandomProjectionClustererTest::testClusterProjections(void) {
 
     TDoubleVec expectedWeights;
     CRandomProjectionClustererForTest<5>::TVectorNx1VecVec expectedMeans;
-    expectedWeights.push_back(static_cast<double>(samples1.size()) /
-                              static_cast<double>(samples1.size() + samples2.size()));
-    expectedWeights.push_back(static_cast<double>(samples2.size()) /
-                              static_cast<double>(samples1.size() + samples2.size()));
+    expectedWeights.push_back(static_cast<double>(samples1.size()) / static_cast<double>(samples1.size() + samples2.size()));
+    expectedWeights.push_back(static_cast<double>(samples2.size()) / static_cast<double>(samples1.size() + samples2.size()));
     std::sort(expectedWeights.begin(), expectedWeights.end());
     for (std::size_t i = 0u; i < clusterer.projections().size(); ++i) {
         CRandomProjectionClustererForTest<5>::TVectorNx1Vec means;
@@ -237,11 +224,8 @@ void CRandomProjectionClustererTest::testClusterProjections(void) {
     CRandomProjectionClustererForTest<5>::TVectorNx1VecVec means;
     CRandomProjectionClustererForTest<5>::TSvdNxNVecVec covariances;
     CRandomProjectionClustererForTest<5>::TSizeUSet samples;
-    clusterer.clusterProjections(maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 2, 5),
-                                 weights_,
-                                 means,
-                                 covariances,
-                                 samples);
+    clusterer.clusterProjections(
+        maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 2, 5), weights_, means, covariances, samples);
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(4), weights_.size());
     CPPUNIT_ASSERT_EQUAL(std::size_t(4), means.size());
@@ -310,11 +294,8 @@ void CRandomProjectionClustererTest::testNeighbourhoods(void) {
     CRandomProjectionClustererForTest<5>::TVectorNx1VecVec clusterMeans;
     CRandomProjectionClustererForTest<5>::TSvdNxNVecVec clusterCovariances;
     CRandomProjectionClustererForTest<5>::TSizeUSet examples;
-    clusterer.clusterProjections(maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 3, 5),
-                                 weights,
-                                 clusterMeans,
-                                 clusterCovariances,
-                                 examples);
+    clusterer.clusterProjections(
+        maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 3, 5), weights, clusterMeans, clusterCovariances, examples);
     LOG_DEBUG("examples = " << core::CContainerPrinter::print(examples));
 
     TSizeVecVec neighbourhoods(examples.size());
@@ -345,10 +326,8 @@ void CRandomProjectionClustererTest::testNeighbourhoods(void) {
 
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanJaccard;
     for (std::size_t i = 0u; i < neighbourhoods.size(); ++i) {
-        double jaccard = maths::CSetTools::jaccard(neighbourhoods[i].begin(),
-                                                   neighbourhoods[i].end(),
-                                                   expectedNeighbourhoods[i].begin(),
-                                                   expectedNeighbourhoods[i].end());
+        double jaccard = maths::CSetTools::jaccard(
+            neighbourhoods[i].begin(), neighbourhoods[i].end(), expectedNeighbourhoods[i].begin(), expectedNeighbourhoods[i].end());
         LOG_DEBUG("jaccard = " << jaccard);
         meanJaccard.add(jaccard, static_cast<double>(expectedNeighbourhoods[i].size()));
         CPPUNIT_ASSERT(jaccard > 0.1);
@@ -398,19 +377,15 @@ void CRandomProjectionClustererTest::testSimilarities(void) {
     CRandomProjectionClustererForTest<5>::TVectorNx1VecVec clusterMeans;
     CRandomProjectionClustererForTest<5>::TSvdNxNVecVec clusterCovariances;
     CRandomProjectionClustererForTest<5>::TSizeUSet examples;
-    clusterer.clusterProjections(maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 3, 5),
-                                 weights,
-                                 clusterMeans,
-                                 clusterCovariances,
-                                 examples);
+    clusterer.clusterProjections(
+        maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 3, 5), weights, clusterMeans, clusterCovariances, examples);
     LOG_DEBUG("examples = " << core::CContainerPrinter::print(examples));
 
     TSizeVecVec expectedConnectivity(examples.size(), TSizeVec(examples.size()));
     TSizeVec examples_(examples.begin(), examples.end());
     for (std::size_t i = 0u; i < examples_.size(); ++i) {
         for (std::size_t j = 0u; j <= i; ++j) {
-            expectedConnectivity[i][j] = expectedConnectivity[j][i] =
-                clusters[examples_[i]] == clusters[examples_[j]] ? 1 : 0;
+            expectedConnectivity[i][j] = expectedConnectivity[j][i] = clusters[examples_[i]] == clusters[examples_[j]] ? 1 : 0;
         }
     }
     LOG_DEBUG("expected connectivity =");
@@ -487,11 +462,8 @@ void CRandomProjectionClustererTest::testClusterNeighbourhoods(void) {
     CRandomProjectionClustererForTest<5>::TVectorNx1VecVec clusterMeans;
     CRandomProjectionClustererForTest<5>::TSvdNxNVecVec clusterCovariances;
     CRandomProjectionClustererForTest<5>::TSizeUSet examples;
-    clusterer.clusterProjections(maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 3, 5),
-                                 weights,
-                                 clusterMeans,
-                                 clusterCovariances,
-                                 examples);
+    clusterer.clusterProjections(
+        maths::forRandomProjectionClusterer(maths::CKMeansFast<TVector5>(), 3, 5), weights, clusterMeans, clusterCovariances, examples);
     LOG_DEBUG("examples = " << core::CContainerPrinter::print(examples));
 
     TSizeVecVec neighbourhoods(examples.size());
@@ -523,8 +495,7 @@ void CRandomProjectionClustererTest::testClusterNeighbourhoods(void) {
     }
 
     for (std::size_t i = 0u; i < expectedClustering.size(); ++i) {
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedClustering[i]),
-                             core::CContainerPrinter::print(clustering[i]));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedClustering[i]), core::CContainerPrinter::print(clustering[i]));
     }
 }
 
@@ -538,20 +509,17 @@ CppUnit::Test* CRandomProjectionClustererTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRandomProjectionClustererTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
-        "CRandomProjectionClustererTest::testGenerateProjections",
-        &CRandomProjectionClustererTest::testGenerateProjections));
+        "CRandomProjectionClustererTest::testGenerateProjections", &CRandomProjectionClustererTest::testGenerateProjections));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>("CRandomProjectionClustererTest::testClusterProjections",
+                                                                                  &CRandomProjectionClustererTest::testClusterProjections));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>("CRandomProjectionClustererTest::testNeighbourhoods",
+                                                                                  &CRandomProjectionClustererTest::testNeighbourhoods));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>("CRandomProjectionClustererTest::testSimilarities",
+                                                                                  &CRandomProjectionClustererTest::testSimilarities));
     suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
-        "CRandomProjectionClustererTest::testClusterProjections",
-        &CRandomProjectionClustererTest::testClusterProjections));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
-        "CRandomProjectionClustererTest::testNeighbourhoods", &CRandomProjectionClustererTest::testNeighbourhoods));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
-        "CRandomProjectionClustererTest::testSimilarities", &CRandomProjectionClustererTest::testSimilarities));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
-        "CRandomProjectionClustererTest::testClusterNeighbourhoods",
-        &CRandomProjectionClustererTest::testClusterNeighbourhoods));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
-        "CRandomProjectionClustererTest::testAccuracy", &CRandomProjectionClustererTest::testAccuracy));
+        "CRandomProjectionClustererTest::testClusterNeighbourhoods", &CRandomProjectionClustererTest::testClusterNeighbourhoods));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>("CRandomProjectionClustererTest::testAccuracy",
+                                                                                  &CRandomProjectionClustererTest::testAccuracy));
 
     return suiteOfTests;
 }

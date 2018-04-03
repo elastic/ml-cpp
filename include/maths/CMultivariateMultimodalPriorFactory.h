@@ -49,10 +49,8 @@ public:
                                     const CMultivariatePrior& seedPrior);
 
     //! Create reading state from its state document representation.
-    static bool restore(std::size_t dimension,
-                        const SDistributionRestoreParams& params,
-                        TPriorPtr& ptr,
-                        core::CStateRestoreTraverser& traverser);
+    static bool
+    restore(std::size_t dimension, const SDistributionRestoreParams& params, TPriorPtr& ptr, core::CStateRestoreTraverser& traverser);
 };
 }
 }

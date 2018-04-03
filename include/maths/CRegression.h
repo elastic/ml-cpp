@@ -286,9 +286,7 @@ public:
         //! the Gramian this will consider solving. If the condition
         //! is worse than this it'll fit a lower order polynomial.
         //! \param[out] result Filled in with the covariance matrix.
-        bool covariances(double variance,
-                         TMatrix& result,
-                         double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const;
+        bool covariances(double variance, TMatrix& result, double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const;
 
         //! Get the safe prediction horizon based on the spread
         //! of the abscissa added to the model so far.
@@ -341,9 +339,8 @@ public:
 
             for (std::size_t i = 0u; i < N; ++i) {
                 for (std::size_t j = 0u; j <= i; ++j) {
-                    result += CCategoricalTools::binomialCoefficient(i + 1, j + 1) * params[i] /
-                              static_cast<double>(i + 1) * std::pow(a, static_cast<double>(i - j)) *
-                              std::pow(interval, static_cast<double>(j + 1));
+                    result += CCategoricalTools::binomialCoefficient(i + 1, j + 1) * params[i] / static_cast<double>(i + 1) *
+                              std::pow(a, static_cast<double>(i - j)) * std::pow(interval, static_cast<double>(j + 1));
                 }
             }
 

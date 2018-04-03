@@ -82,16 +82,15 @@ void CForecastRunnerTest::testSummaryCount() {
         clauses.push_back("count");
         clauses.push_back("summarycountfield=count");
         fieldConfig.initFromClause(clauses);
-        ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
         ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
         populateJob(generateRecordWithSummaryCount, job);
 
         ml::api::CAnomalyJob::TStrStrUMap dataRows;
         dataRows["."] = "p{\"duration\":" + std::to_string(13 * BUCKET_LENGTH) + ",\"forecast_id\": \"42\"" +
-                        ",\"forecast_alias\": \"sumcount\"" + ",\"create_time\": \"1511370819\"" +
-                        ",\"expires_in\": \"" + std::to_string(100 * ml::core::constants::DAY) + "\" }";
+                        ",\"forecast_alias\": \"sumcount\"" + ",\"create_time\": \"1511370819\"" + ",\"expires_in\": \"" +
+                        std::to_string(100 * ml::core::constants::DAY) + "\" }";
         CPPUNIT_ASSERT(job.handleRecord(dataRows));
     }
 
@@ -130,8 +129,7 @@ void CForecastRunnerTest::testSummaryCount() {
     CPPUNIT_ASSERT_EQUAL(std::string("finished"), std::string(forecastStats["forecast_status"].GetString()));
     CPPUNIT_ASSERT_EQUAL(15591600 * int64_t(1000), forecastStats["timestamp"].GetInt64());
     CPPUNIT_ASSERT_EQUAL(15591600 * int64_t(1000), forecastStats["forecast_start_timestamp"].GetInt64());
-    CPPUNIT_ASSERT_EQUAL((15591600 + 13 * BUCKET_LENGTH) * int64_t(1000),
-                         forecastStats["forecast_end_timestamp"].GetInt64());
+    CPPUNIT_ASSERT_EQUAL((15591600 + 13 * BUCKET_LENGTH) * int64_t(1000), forecastStats["forecast_end_timestamp"].GetInt64());
     CPPUNIT_ASSERT_EQUAL((1511370819 + 100 * ml::core::constants::DAY) * int64_t(1000),
                          forecastStats["forecast_expiry_timestamp"].GetInt64());
 }
@@ -149,15 +147,14 @@ void CForecastRunnerTest::testPopulation() {
         clauses.push_back("over");
         clauses.push_back("person");
         fieldConfig.initFromClause(clauses);
-        ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
         ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
         populateJob(generatePopulationRecord, job);
 
         ml::api::CAnomalyJob::TStrStrUMap dataRows;
-        dataRows["."] = "p{\"duration\":" + std::to_string(13 * BUCKET_LENGTH) + ",\"forecast_id\": \"31\"" +
-                        ",\"create_time\": \"1511370819\" }";
+        dataRows["."] =
+            "p{\"duration\":" + std::to_string(13 * BUCKET_LENGTH) + ",\"forecast_id\": \"31\"" + ",\"create_time\": \"1511370819\" }";
         CPPUNIT_ASSERT(job.handleRecord(dataRows));
     }
 
@@ -192,8 +189,7 @@ void CForecastRunnerTest::testRare() {
         clauses.push_back("status");
 
         fieldConfig.initFromClause(clauses);
-        ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
         ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
         populateJob(generateRecordWithStatus, job, 5000);
@@ -231,15 +227,14 @@ void CForecastRunnerTest::testInsufficientData() {
         ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
         fieldConfig.initFromClause(clauses);
-        ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
         ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
         populateJob(generateRecord, job, 3);
 
         ml::api::CAnomalyJob::TStrStrUMap dataRows;
-        dataRows["."] = "p{\"duration\":" + std::to_string(13 * BUCKET_LENGTH) + ",\"forecast_id\": \"31\"" +
-                        ",\"create_time\": \"1511370819\" }";
+        dataRows["."] =
+            "p{\"duration\":" + std::to_string(13 * BUCKET_LENGTH) + ",\"forecast_id\": \"31\"" + ",\"create_time\": \"1511370819\" }";
         CPPUNIT_ASSERT(job.handleRecord(dataRows));
     }
 
@@ -262,8 +257,8 @@ void CForecastRunnerTest::testInsufficientData() {
 void CForecastRunnerTest::testValidateDuration() {
     ml::api::CForecastRunner::SForecast forecastJob;
 
-    std::string message("p{\"duration\":" + std::to_string(10 * ml::core::constants::WEEK) +
-                        ",\"forecast_id\": \"42\"" + ",\"create_time\": \"1511370819\" }");
+    std::string message("p{\"duration\":" + std::to_string(10 * ml::core::constants::WEEK) + ",\"forecast_id\": \"42\"" +
+                        ",\"create_time\": \"1511370819\" }");
 
     CPPUNIT_ASSERT(ml::api::CForecastRunner::parseAndValidateForecastRequest(message, forecastJob, 1400000000));
     CPPUNIT_ASSERT_EQUAL(8 * ml::core::constants::WEEK, forecastJob.s_Duration);
@@ -281,8 +276,8 @@ void CForecastRunnerTest::testValidateDefaultExpiry() {
     CPPUNIT_ASSERT_EQUAL(2 * ml::core::constants::WEEK, forecastJob.s_Duration);
     CPPUNIT_ASSERT_EQUAL(14 * ml::core::constants::DAY + 1511370819, forecastJob.s_ExpiryTime);
 
-    std::string message2("p{\"duration\":" + std::to_string(2 * ml::core::constants::WEEK) +
-                         ",\"forecast_id\": \"42\"" + ",\"create_time\": \"1511370819\"" + ",\"expires_in\": -1 }");
+    std::string message2("p{\"duration\":" + std::to_string(2 * ml::core::constants::WEEK) + ",\"forecast_id\": \"42\"" +
+                         ",\"create_time\": \"1511370819\"" + ",\"expires_in\": -1 }");
     CPPUNIT_ASSERT(ml::api::CForecastRunner::parseAndValidateForecastRequest(message2, forecastJob, 1400000000));
     CPPUNIT_ASSERT_EQUAL(2 * ml::core::constants::WEEK, forecastJob.s_Duration);
     CPPUNIT_ASSERT_EQUAL(14 * ml::core::constants::DAY + 1511370819, forecastJob.s_ExpiryTime);
@@ -316,43 +311,39 @@ void CForecastRunnerTest::testValidateBrokenMessage() {
 
     std::string message("p{\"dura");
 
-    CPPUNIT_ASSERT(ml::api::CForecastRunner::parseAndValidateForecastRequest(message, forecastJob, 1400000000) ==
-                   false);
+    CPPUNIT_ASSERT(ml::api::CForecastRunner::parseAndValidateForecastRequest(message, forecastJob, 1400000000) == false);
 }
 
 void CForecastRunnerTest::testValidateMissingId() {
     ml::api::CForecastRunner::SForecast forecastJob;
 
-    std::string message("p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) +
-                        ",\"create_time\": \"1511370819\"}");
+    std::string message("p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) + ",\"create_time\": \"1511370819\"}");
 
-    CPPUNIT_ASSERT(ml::api::CForecastRunner::parseAndValidateForecastRequest(message, forecastJob, 1400000000) ==
-                   false);
+    CPPUNIT_ASSERT(ml::api::CForecastRunner::parseAndValidateForecastRequest(message, forecastJob, 1400000000) == false);
 }
 
 CppUnit::Test* CForecastRunnerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CForecastRunnerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testSummaryCount",
-                                                                       &CForecastRunnerTest::testSummaryCount));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testPopulation",
-                                                                       &CForecastRunnerTest::testPopulation));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testRare", &CForecastRunnerTest::testRare));
+        new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testSummaryCount", &CForecastRunnerTest::testSummaryCount));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testPopulation", &CForecastRunnerTest::testPopulation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testRare", &CForecastRunnerTest::testRare));
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testInsufficientData",
                                                                        &CForecastRunnerTest::testInsufficientData));
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testValidateDuration",
                                                                        &CForecastRunnerTest::testValidateDuration));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>(
-        "CForecastRunnerTest::testValidateExpiry", &CForecastRunnerTest::testValidateDefaultExpiry));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testValidateExpiry",
+                                                                       &CForecastRunnerTest::testValidateDefaultExpiry));
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testValidateNoExpiry",
                                                                        &CForecastRunnerTest::testValidateNoExpiry));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>(
-        "CForecastRunnerTest::testValidateInvalidExpiry", &CForecastRunnerTest::testValidateInvalidExpiry));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>(
-        "CForecastRunnerTest::testBrokenMessage", &CForecastRunnerTest::testValidateBrokenMessage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testMissingId",
-                                                                       &CForecastRunnerTest::testValidateMissingId));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testValidateInvalidExpiry",
+                                                                       &CForecastRunnerTest::testValidateInvalidExpiry));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testBrokenMessage",
+                                                                       &CForecastRunnerTest::testValidateBrokenMessage));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CForecastRunnerTest>("CForecastRunnerTest::testMissingId", &CForecastRunnerTest::testValidateMissingId));
 
     return suiteOfTests;
 }

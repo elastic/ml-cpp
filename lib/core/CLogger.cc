@@ -282,8 +282,7 @@ bool CLogger::reconfigureLogJson(void) {
 bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
     COsFileFuncs::TStat statBuf;
     if (COsFileFuncs::stat(propertiesFile.c_str(), &statBuf) != 0) {
-        LOG_ERROR("Unable to access properties file " << propertiesFile
-                                                      << " for logger re-initialisation: " << ::strerror(errno));
+        LOG_ERROR("Unable to access properties file " << propertiesFile << " for logger re-initialisation: " << ::strerror(errno));
         return false;
     }
 
@@ -296,8 +295,7 @@ bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
         log4cxx::helpers::InputStreamPtr inputStream(new log4cxx::helpers::FileInputStream(propertiesFile));
         props.load(inputStream);
     } catch (const log4cxx::helpers::Exception& e) {
-        LOG_ERROR("Unable to read from properties file " << propertiesFile
-                                                         << " for logger re-initialisation: " << e.what());
+        LOG_ERROR("Unable to read from properties file " << propertiesFile << " for logger re-initialisation: " << e.what());
         return false;
     }
 
@@ -393,9 +391,7 @@ void CLogger::massageProperties(log4cxx::helpers::Properties& props) const {
     }
 }
 
-void CLogger::massageString(const TLogCharLogStrMap& mappings,
-                            const log4cxx::LogString& oldStr,
-                            log4cxx::LogString& newStr) const {
+void CLogger::massageString(const TLogCharLogStrMap& mappings, const log4cxx::LogString& oldStr, log4cxx::LogString& newStr) const {
     newStr.clear();
 
     for (log4cxx::LogString::const_iterator iter = oldStr.begin(); iter != oldStr.end(); ++iter) {

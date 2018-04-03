@@ -110,14 +110,12 @@ void CMultinomialConjugateTest::testPropagation(void) {
 
     TDoubleVec propagatedExpectedProbabilities = filter.probabilities();
 
-    LOG_DEBUG("expectedProbabilities = " << core::CContainerPrinter::print(expectedProbabilities)
-                                         << ", propagatedExpectedProbabilities = "
+    LOG_DEBUG("expectedProbabilities = " << core::CContainerPrinter::print(expectedProbabilities) << ", propagatedExpectedProbabilities = "
                                          << core::CContainerPrinter::print(propagatedExpectedProbabilities));
 
     typedef maths::CEqualWithTolerance<double> TEqual;
     TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-12);
-    CPPUNIT_ASSERT(std::equal(
-        expectedProbabilities.begin(), expectedProbabilities.end(), propagatedExpectedProbabilities.begin(), equal));
+    CPPUNIT_ASSERT(std::equal(expectedProbabilities.begin(), expectedProbabilities.end(), propagatedExpectedProbabilities.begin(), equal));
 }
 
 void CMultinomialConjugateTest::testProbabilityEstimation(void) {
@@ -143,14 +141,8 @@ void CMultinomialConjugateTest::testProbabilityEstimation(void) {
     for (size_t i = 0; i < boost::size(decayRates); ++i) {
         test::CRandomNumbers rng;
 
-        TUIntVec errors[] = {TUIntVec(6, 0),
-                             TUIntVec(6, 0),
-                             TUIntVec(6, 0),
-                             TUIntVec(6, 0),
-                             TUIntVec(6, 0),
-                             TUIntVec(6, 0),
-                             TUIntVec(6, 0),
-                             TUIntVec(6, 0)};
+        TUIntVec errors[] = {
+            TUIntVec(6, 0), TUIntVec(6, 0), TUIntVec(6, 0), TUIntVec(6, 0), TUIntVec(6, 0), TUIntVec(6, 0), TUIntVec(6, 0), TUIntVec(6, 0)};
 
         for (unsigned int test = 0; test < nTests; ++test) {
             TDoubleVec samples;
@@ -168,8 +160,7 @@ void CMultinomialConjugateTest::testProbabilityEstimation(void) {
                 CPPUNIT_ASSERT_EQUAL(confidenceIntervals.size(), probabilities.size());
 
                 for (std::size_t k = 0u; k < probabilities.size(); ++k) {
-                    if (probabilities[k] < confidenceIntervals[k].first ||
-                        probabilities[k] > confidenceIntervals[k].second) {
+                    if (probabilities[k] < confidenceIntervals[k].first || probabilities[k] > confidenceIntervals[k].second) {
                         ++errors[j][k];
                     }
                 }
@@ -182,16 +173,14 @@ void CMultinomialConjugateTest::testProbabilityEstimation(void) {
             for (std::size_t k = 0u; k < errors[j].size(); ++k) {
                 intervals.push_back(100.0 * errors[j][k] / static_cast<double>(nTests));
             }
-            LOG_DEBUG("interval = " << core::CContainerPrinter::print(intervals)
-                                    << ", expectedInterval = " << (100.0 - testIntervals[j]));
+            LOG_DEBUG("interval = " << core::CContainerPrinter::print(intervals) << ", expectedInterval = " << (100.0 - testIntervals[j]));
 
             // If the decay rate is zero the intervals should be accurate.
             // Otherwise, they should be an upper bound.
             double meanError = 0.0;
             for (std::size_t k = 0u; k < intervals.size(); ++k) {
                 if (decayRates[i] == 0.0) {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                        intervals[k], 100.0 - testIntervals[j], std::min(5.0, 0.4 * (100.0 - testIntervals[j])));
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(intervals[k], 100.0 - testIntervals[j], std::min(5.0, 0.4 * (100.0 - testIntervals[j])));
                     meanError += ::fabs(intervals[k] - (100.0 - testIntervals[j]));
                 } else {
                     CPPUNIT_ASSERT(intervals[k] <= (100.0 - testIntervals[j]));
@@ -241,14 +230,12 @@ void CMultinomialConjugateTest::testMarginalLikelihood(void) {
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, filter.jointLogMarginalLikelihood(sample, logp));
 
                 const TDoubleVec& filterCategories = filter.categories();
-                std::size_t k = std::lower_bound(filterCategories.begin(), filterCategories.end(), samples[j]) -
-                                filterCategories.begin();
+                std::size_t k = std::lower_bound(filterCategories.begin(), filterCategories.end(), samples[j]) - filterCategories.begin();
                 TDoubleVec filterProbabilities(filter.probabilities());
                 CPPUNIT_ASSERT(k < filterProbabilities.size());
                 double p = filterProbabilities[k];
 
-                LOG_DEBUG("sample = " << samples[j] << ", expected likelihood = " << p
-                                      << ", likelihood = " << ::exp(logp));
+                LOG_DEBUG("sample = " << samples[j] << ", expected likelihood = " << p << ", likelihood = " << ::exp(logp));
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(p, ::exp(logp), 1e-12);
             }
@@ -332,8 +319,7 @@ void CMultinomialConjugateTest::testMarginalLikelihood(void) {
             for (std::size_t i = 0u; i < o2.size(); ++i) {
                 double p = frequencies[i] / static_cast<double>(nTests);
 
-                LOG_DEBUG("category = " << core::CContainerPrinter::print(o2[i]) << ", p = " << p
-                                        << ", expected p = " << p2[i]);
+                LOG_DEBUG("category = " << core::CContainerPrinter::print(o2[i]) << ", p = " << p << ", expected p = " << p2[i]);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(p, p2[i], 0.05 * std::max(p, p2[i]));
             }
         }
@@ -370,8 +356,7 @@ void CMultinomialConjugateTest::testMarginalLikelihood(void) {
             for (std::size_t i = 0u; i < o3.size(); ++i) {
                 double p = frequencies[i] / static_cast<double>(nTests);
 
-                LOG_DEBUG("category = " << core::CContainerPrinter::print(o3[i]) << ", p = " << p
-                                        << ", expected p = " << p3[i]);
+                LOG_DEBUG("category = " << core::CContainerPrinter::print(o3[i]) << ", p = " << p << ", expected p = " << p3[i]);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(p, p3[i], 0.05 * std::max(p, p3[i]));
             }
         }
@@ -413,8 +398,7 @@ void CMultinomialConjugateTest::testSampleMarginalLikelihood(void) {
 
         LOG_DEBUG("samples = " << core::CContainerPrinter::print(samples));
 
-        CPPUNIT_ASSERT_EQUAL(std::string("[1.1, 1.1, 1.1, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2]"),
-                             core::CContainerPrinter::print(samples));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1.1, 1.1, 1.1, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2]"), core::CContainerPrinter::print(samples));
     }
 
     {
@@ -436,8 +420,7 @@ void CMultinomialConjugateTest::testSampleMarginalLikelihood(void) {
 
         LOG_DEBUG("samples = " << core::CContainerPrinter::print(samples));
 
-        CPPUNIT_ASSERT_EQUAL(std::string("[1.1, 1.2, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 5.1]"),
-                             core::CContainerPrinter::print(samples));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1.1, 1.2, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 5.1]"), core::CContainerPrinter::print(samples));
     }
 
     {
@@ -459,8 +442,7 @@ void CMultinomialConjugateTest::testSampleMarginalLikelihood(void) {
 
         LOG_DEBUG("samples = " << core::CContainerPrinter::print(samples));
 
-        CPPUNIT_ASSERT_EQUAL(std::string("[1.1, 1.2, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 3.2]"),
-                             core::CContainerPrinter::print(samples));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1.1, 1.2, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 3.2]"), core::CContainerPrinter::print(samples));
     }
 }
 
@@ -521,11 +503,10 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
 
             for (size_t i = 0; i < boost::size(categories); ++i) {
                 double lowerBound, upperBound;
-                filter.probabilityOfLessLikelySamples(
-                    maths_t::E_TwoSided, TDouble1Vec(1, categories[i]), lowerBound, upperBound);
+                filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, TDouble1Vec(1, categories[i]), lowerBound, upperBound);
 
-                LOG_DEBUG("category = " << categories[i] << ", lower bound = " << lowerBound << ", upper bound = "
-                                        << upperBound << ", expected probability = " << expectedProbabilities[i]);
+                LOG_DEBUG("category = " << categories[i] << ", lower bound = " << lowerBound << ", upper bound = " << upperBound
+                                        << ", expected probability = " << expectedProbabilities[i]);
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(lowerBound, expectedProbabilities[i], 1e-10);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(upperBound, expectedProbabilities[i], 1e-10);
@@ -564,11 +545,10 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
 
             for (size_t i = 0; i < boost::size(categories); ++i) {
                 double lowerBound, upperBound;
-                filter.probabilityOfLessLikelySamples(
-                    maths_t::E_TwoSided, TDouble1Vec(1, categories[i]), lowerBound, upperBound);
+                filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, TDouble1Vec(1, categories[i]), lowerBound, upperBound);
 
-                LOG_DEBUG("category = " << categories[i] << ", lower bound = " << lowerBound << ", upper bound = "
-                                        << upperBound << ", expected probability = " << expectedProbabilities[i]);
+                LOG_DEBUG("category = " << categories[i] << ", lower bound = " << lowerBound << ", upper bound = " << upperBound
+                                        << ", expected probability = " << expectedProbabilities[i]);
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(lowerBound, expectedProbabilities[i], 1e-10);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(upperBound, expectedProbabilities[i], 1e-10);
@@ -606,11 +586,10 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
 
             for (size_t i = 0; i < boost::size(categories); ++i) {
                 double lowerBound, upperBound;
-                filter.probabilityOfLessLikelySamples(
-                    maths_t::E_TwoSided, TDouble1Vec(1, categories[i]), lowerBound, upperBound);
+                filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, TDouble1Vec(1, categories[i]), lowerBound, upperBound);
 
-                LOG_DEBUG("category = " << categories[i] << ", lower bound = " << lowerBound << ", upper bound = "
-                                        << upperBound << ", expected probability = " << expectedProbabilities[i]);
+                LOG_DEBUG("category = " << categories[i] << ", lower bound = " << lowerBound << ", upper bound = " << upperBound
+                                        << ", expected probability = " << expectedProbabilities[i]);
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(lowerBound, expectedProbabilities[i], 1e-10);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(upperBound, expectedProbabilities[i], 1e-10);
@@ -630,11 +609,10 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
 
             for (size_t i = 0; i < boost::size(expectedProbabilities); ++i) {
                 double lowerBound, upperBound;
-                filter.probabilityOfLessLikelySamples(
-                    maths_t::E_TwoSided, TDouble1Vec(1, categories[i]), lowerBound, upperBound);
+                filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, TDouble1Vec(1, categories[i]), lowerBound, upperBound);
 
-                LOG_DEBUG("category = " << categories[i] << ", lower bound = " << lowerBound << ", upper bound = "
-                                        << upperBound << ", expected probability = " << expectedProbabilities[i]);
+                LOG_DEBUG("category = " << categories[i] << ", lower bound = " << lowerBound << ", upper bound = " << upperBound
+                                        << ", expected probability = " << expectedProbabilities[i]);
 
                 CPPUNIT_ASSERT(lowerBound > expectedProbabilities[i]);
                 CPPUNIT_ASSERT(upperBound > expectedProbabilities[i]);
@@ -653,8 +631,7 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
                     double p = (i != j ? 2.0 : 1.0) * categoryProbabilities[i] * categoryProbabilities[j];
 
                     TDoubleVec& categoryPair =
-                        categoryPairProbabilities.insert(TDoubleDoubleVecMap::value_type(p, TDoubleVec()))
-                            .first->second;
+                        categoryPairProbabilities.insert(TDoubleDoubleVecMap::value_type(p, TDoubleVec())).first->second;
                     categoryPair.push_back(categories[i]);
                     categoryPair.push_back(categories[j]);
                 }
@@ -663,9 +640,7 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
 
             double pc = 0.0;
             TDoubleVecDoubleMap trueProbabilities;
-            for (TDoubleDoubleVecMapCItr itr = categoryPairProbabilities.begin();
-                 itr != categoryPairProbabilities.end();
-                 ++itr) {
+            for (TDoubleDoubleVecMapCItr itr = categoryPairProbabilities.begin(); itr != categoryPairProbabilities.end(); ++itr) {
                 pc += itr->first * static_cast<double>(itr->second.size() / 2u);
                 for (std::size_t i = 0u; i < itr->second.size(); i += 2u) {
                     TDoubleVec categoryPair;
@@ -711,18 +686,16 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
 
                 maths::CJointProbabilityOfLessLikelySamples expectedProbabilityCalculator;
                 {
-                    ptrdiff_t i =
-                        std::lower_bound(categories.begin(), categories.end(), itr->first[0]) - categories.begin();
-                    ptrdiff_t j =
-                        std::lower_bound(categories.begin(), categories.end(), itr->first[1]) - categories.begin();
+                    ptrdiff_t i = std::lower_bound(categories.begin(), categories.end(), itr->first[0]) - categories.begin();
+                    ptrdiff_t j = std::lower_bound(categories.begin(), categories.end(), itr->first[1]) - categories.begin();
                     expectedProbabilityCalculator.add(expectedProbabilities[i]);
                     expectedProbabilityCalculator.add(expectedProbabilities[j]);
                 }
                 double expectedProbability;
                 CPPUNIT_ASSERT(expectedProbabilityCalculator.calculate(expectedProbability));
 
-                LOG_DEBUG("category pair = " << core::CContainerPrinter::print(itr->first) << ", probability = "
-                                             << probability << ", expected probability = " << expectedProbability
+                LOG_DEBUG("category pair = " << core::CContainerPrinter::print(itr->first) << ", probability = " << probability
+                                             << ", expected probability = " << expectedProbability
                                              << ", true probability = " << itr->second);
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability, probability, 1e-10);
@@ -731,9 +704,8 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
     }
     {
         // Test the function to compute all category probabilities.
-        const double rawCategories[] = {1.1,  1.2,  2.1,  2.2,  3.2,  5.1,  5.5,  6.0,  6.2,  6.6,
-                                        7.8,  8.0,  9.0,  9.9,  10.0, 10.1, 10.2, 12.0, 12.1, 12.8,
-                                        13.1, 13.7, 15.2, 17.1, 17.5, 17.9, 18.2, 19.6, 20.0, 20.2};
+        const double rawCategories[] = {1.1,  1.2,  2.1,  2.2,  3.2,  5.1,  5.5,  6.0,  6.2,  6.6,  7.8,  8.0,  9.0,  9.9,  10.0,
+                                        10.1, 10.2, 12.0, 12.1, 12.8, 13.1, 13.7, 15.2, 17.1, 17.5, 17.9, 18.2, 19.6, 20.0, 20.2};
         const double rawProbabilities[] = {0.02, 0.05, 0.01,  0.2,   0.001, 0.03,  0.02,  0.005, 0.1,  0.03,
                                            0.04, 0.01, 0.001, 0.006, 0.02,  0.05,  0.001, 0.001, 0.01, 0.01,
                                            0.2,  0.01, 0.02,  0.07,  0.01,  0.002, 0.01,  0.02,  0.03, 0.013};
@@ -804,8 +776,8 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
 
         for (std::size_t i = 0u; i < categories.size(); ++i) {
             double lowerBound, upperBound;
-            CPPUNIT_ASSERT(filter.probabilityOfLessLikelySamples(
-                maths_t::E_TwoSided, TDouble1Vec(1, categories[i]), lowerBound, upperBound));
+            CPPUNIT_ASSERT(
+                filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, TDouble1Vec(1, categories[i]), lowerBound, upperBound));
             CPPUNIT_ASSERT_EQUAL(lowerBound, upperBound);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(lowerBounds[i], lowerBound, 1e-10);
         }
@@ -848,8 +820,7 @@ void CMultinomialConjugateTest::testRemoveCategories(void) {
         expectedConcentrations.push_back(1.0);
         expectedConcentrations.push_back(1.5);
         expectedConcentrations.push_back(2.0);
-        CMultinomialConjugate expectedPrior(
-            maths::CMultinomialConjugate(100, expectedCategories, expectedConcentrations));
+        CMultinomialConjugate expectedPrior(maths::CMultinomialConjugate(100, expectedCategories, expectedConcentrations));
 
         LOG_DEBUG("expectedCategories = " << core::CContainerPrinter::print(expectedCategories));
         LOG_DEBUG("expectedConcentrations = " << core::CContainerPrinter::print(expectedConcentrations));
@@ -873,8 +844,7 @@ void CMultinomialConjugateTest::testRemoveCategories(void) {
         expectedConcentrations.push_back(2.0);
         expectedConcentrations.push_back(12.0);
         expectedConcentrations.push_back(10.0);
-        CMultinomialConjugate expectedPrior(
-            maths::CMultinomialConjugate(90, expectedCategories, expectedConcentrations));
+        CMultinomialConjugate expectedPrior(maths::CMultinomialConjugate(90, expectedCategories, expectedConcentrations));
 
         LOG_DEBUG("expectedCategories = " << core::CContainerPrinter::print(expectedCategories));
         LOG_DEBUG("expectedConcentrations = " << core::CContainerPrinter::print(expectedConcentrations));
@@ -908,9 +878,8 @@ void CMultinomialConjugateTest::testPersist(void) {
     rng.generateMultinomialSamples(categories, probabilities, 100, samples);
     maths::CMultinomialConjugate origFilter(CMultinomialConjugate::nonInformativePrior(5));
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        origFilter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, samples[i]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0)));
+        origFilter.addSamples(
+            maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight), TDouble1Vec(1, samples[i]), TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0)));
     }
     double decayRate = origFilter.decayRate();
     uint64_t checksum = origFilter.checksum();
@@ -970,30 +939,28 @@ void CMultinomialConjugateTest::testConcentration(void) {
 CppUnit::Test* CMultinomialConjugateTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultinomialConjugateTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>("CMultinomialConjugateTest::testMultipleUpdate",
+                                                                             &CMultinomialConjugateTest::testMultipleUpdate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>("CMultinomialConjugateTest::testPropagation",
+                                                                             &CMultinomialConjugateTest::testPropagation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>("CMultinomialConjugateTest::testProbabilityEstimation",
+                                                                             &CMultinomialConjugateTest::testProbabilityEstimation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>("CMultinomialConjugateTest::testMarginalLikelihood",
+                                                                             &CMultinomialConjugateTest::testMarginalLikelihood));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>("CMultinomialConjugateTest::testSampleMarginalLikelihood",
+                                                                             &CMultinomialConjugateTest::testSampleMarginalLikelihood));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>(
-        "CMultinomialConjugateTest::testMultipleUpdate", &CMultinomialConjugateTest::testMultipleUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>(
-        "CMultinomialConjugateTest::testPropagation", &CMultinomialConjugateTest::testPropagation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>(
-        "CMultinomialConjugateTest::testProbabilityEstimation", &CMultinomialConjugateTest::testProbabilityEstimation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>(
-        "CMultinomialConjugateTest::testMarginalLikelihood", &CMultinomialConjugateTest::testMarginalLikelihood));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMultinomialConjugateTest>("CMultinomialConjugateTest::testSampleMarginalLikelihood",
-                                                           &CMultinomialConjugateTest::testSampleMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>(
-        "CMultinomialConjugateTest::testProbabilityOfLessLikelySamples",
-        &CMultinomialConjugateTest::testProbabilityOfLessLikelySamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>(
-        "CMultinomialConjugateTest::testAnomalyScore", &CMultinomialConjugateTest::testAnomalyScore));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>(
-        "CMultinomialConjugateTest::testRemoveCategories", &CMultinomialConjugateTest::testRemoveCategories));
+        "CMultinomialConjugateTest::testProbabilityOfLessLikelySamples", &CMultinomialConjugateTest::testProbabilityOfLessLikelySamples));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>("CMultinomialConjugateTest::testAnomalyScore",
+                                                                             &CMultinomialConjugateTest::testAnomalyScore));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>("CMultinomialConjugateTest::testRemoveCategories",
+                                                                             &CMultinomialConjugateTest::testRemoveCategories));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>("CMultinomialConjugateTest::testPersist",
                                                                              &CMultinomialConjugateTest::testPersist));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>("CMultinomialConjugateTest::testOverflow",
                                                                              &CMultinomialConjugateTest::testOverflow));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>(
-        "CMultinomialConjugateTest::testConcentration", &CMultinomialConjugateTest::testConcentration));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>("CMultinomialConjugateTest::testConcentration",
+                                                                             &CMultinomialConjugateTest::testConcentration));
 
     return suiteOfTests;
 }

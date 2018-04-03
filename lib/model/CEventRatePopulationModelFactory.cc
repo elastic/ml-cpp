@@ -133,8 +133,8 @@ CDataGatherer* CEventRatePopulationModelFactory::makeDataGatherer(const std::str
                              traverser);
 }
 
-CEventRatePopulationModelFactory::TPriorPtr
-CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature, const SModelParams& params) const {
+CEventRatePopulationModelFactory::TPriorPtr CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature,
+                                                                                           const SModelParams& params) const {
     // Categorical data all use the multinomial prior. The creation
     // of these priors is managed by defaultCategoricalPrior.
     if (model_t::isCategorical(feature)) {
@@ -162,17 +162,14 @@ CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature, const 
 
     maths_t::EDataType dataType = this->dataType();
 
-    maths::CGammaRateConjugate gammaPrior =
-        maths::CGammaRateConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
+    maths::CGammaRateConjugate gammaPrior = maths::CGammaRateConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
 
     maths::CLogNormalMeanPrecConjugate logNormalPrior =
         maths::CLogNormalMeanPrecConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
 
-    maths::CNormalMeanPrecConjugate normalPrior =
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
+    maths::CNormalMeanPrecConjugate normalPrior = maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
 
-    maths::CPoissonMeanConjugate poissonPrior =
-        maths::CPoissonMeanConjugate::nonInformativePrior(0.0, params.s_DecayRate);
+    maths::CPoissonMeanConjugate poissonPrior = maths::CPoissonMeanConjugate::nonInformativePrior(0.0, params.s_DecayRate);
 
     // Create the component priors.
     TPriorPtrVec priors;
@@ -204,8 +201,7 @@ CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature, const 
 }
 
 CEventRatePopulationModelFactory::TMultivariatePriorPtr
-CEventRatePopulationModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
-                                                           const SModelParams& params) const {
+CEventRatePopulationModelFactory::defaultMultivariatePrior(model_t::EFeature feature, const SModelParams& params) const {
     std::size_t dimension = model_t::dimension(feature);
 
     TMultivariatePriorPtrVec priors;
@@ -220,8 +216,7 @@ CEventRatePopulationModelFactory::defaultMultivariatePrior(model_t::EFeature fea
 }
 
 CEventRatePopulationModelFactory::TMultivariatePriorPtr
-CEventRatePopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
-                                                        const SModelParams& params) const {
+CEventRatePopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/, const SModelParams& params) const {
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
     TMultivariatePriorPtr multivariateNormal = this->multivariateNormalPrior(2, params);

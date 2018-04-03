@@ -46,10 +46,7 @@ const std::string IGNORE_EMPTY_VERSION_NAMES[][2] = {{std::string("n/a"), std::s
                                                      {std::string("count"), std::string("non_zero_count")},
                                                      {std::string("sum"), std::string("non_null_sum")}};
 
-const std::string SIDE_NAME[] = {std::string("high"),
-                                 std::string("low"),
-                                 std::string("both"),
-                                 std::string("<unknown>")};
+const std::string SIDE_NAME[] = {std::string("high"), std::string("low"), std::string("both"), std::string("<unknown>")};
 }
 
 const std::string& print(EUserDataType type) {

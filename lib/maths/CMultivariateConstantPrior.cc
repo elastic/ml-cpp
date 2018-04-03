@@ -48,9 +48,7 @@ typedef boost::optional<TDouble10Vec> TOptionalDouble10Vec;
 //! \brief Converts a constant value to a string.
 class CConstantToString {
 public:
-    std::string operator()(double value) const {
-        return core::CStringUtils::typeToStringPrecise(value, core::CIEEE754::E_DoublePrecision);
-    }
+    std::string operator()(double value) const { return core::CStringUtils::typeToStringPrecise(value, core::CIEEE754::E_DoublePrecision); }
 };
 
 //! Set the constant, validating the input.
@@ -85,10 +83,8 @@ CMultivariateConstantPrior::CMultivariateConstantPrior(std::size_t dimension, co
 bool CMultivariateConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(CONSTANT_TAG,
-                               TDouble10Vec constant,
-                               core::CPersistUtils::fromString(traverser.value(), constant),
-                               m_Constant.reset(constant))
+        RESTORE_SETUP_TEARDOWN(
+            CONSTANT_TAG, TDouble10Vec constant, core::CPersistUtils::fromString(traverser.value(), constant), m_Constant.reset(constant))
     } while (traverser.next());
 
     return true;
@@ -123,8 +119,8 @@ void CMultivariateConstantPrior::addSamples(const TWeightStyleVec& /*weightStyle
 void CMultivariateConstantPrior::propagateForwardsByTime(double /*time*/) {
 }
 
-CMultivariateConstantPrior::TUnivariatePriorPtrDoublePr
-CMultivariateConstantPrior::univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
+CMultivariateConstantPrior::TUnivariatePriorPtrDoublePr CMultivariateConstantPrior::univariate(const TSize10Vec& marginalize,
+                                                                                               const TSizeDoublePr10Vec& condition) const {
     if (!this->check(marginalize, condition)) {
         return TUnivariatePriorPtrDoublePr();
     }
@@ -138,13 +134,12 @@ CMultivariateConstantPrior::univariate(const TSize10Vec& marginalize, const TSiz
         return TUnivariatePriorPtrDoublePr();
     }
 
-    return this->isNonInformative()
-               ? TUnivariatePriorPtrDoublePr(TUnivariatePriorPtr(new CConstantPrior), 0.0)
-               : TUnivariatePriorPtrDoublePr(TUnivariatePriorPtr(new CConstantPrior((*m_Constant)[i1[0]])), 0.0);
+    return this->isNonInformative() ? TUnivariatePriorPtrDoublePr(TUnivariatePriorPtr(new CConstantPrior), 0.0)
+                                    : TUnivariatePriorPtrDoublePr(TUnivariatePriorPtr(new CConstantPrior((*m_Constant)[i1[0]])), 0.0);
 }
 
-CMultivariateConstantPrior::TPriorPtrDoublePr
-CMultivariateConstantPrior::bivariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
+CMultivariateConstantPrior::TPriorPtrDoublePr CMultivariateConstantPrior::bivariate(const TSize10Vec& marginalize,
+                                                                                    const TSizeDoublePr10Vec& condition) const {
     if (m_Dimension == 2) {
         return TPriorPtrDoublePr(TPriorPtr(this->clone()), 0.0);
     }
@@ -171,8 +166,7 @@ CMultivariateConstantPrior::bivariate(const TSize10Vec& marginalize, const TSize
     return TPriorPtrDoublePr(TPriorPtr(new CMultivariateConstantPrior(2)), 0.0);
 }
 
-CMultivariateConstantPrior::TDouble10VecDouble10VecPr
-CMultivariateConstantPrior::marginalLikelihoodSupport(void) const {
+CMultivariateConstantPrior::TDouble10VecDouble10VecPr CMultivariateConstantPrior::marginalLikelihoodSupport(void) const {
     TDouble10Vec lowest(m_Dimension);
     TDouble10Vec highest(m_Dimension);
     for (std::size_t i = 0u; i < m_Dimension; ++i) {
@@ -190,9 +184,8 @@ CMultivariateConstantPrior::TDouble10Vec CMultivariateConstantPrior::marginalLik
     return *m_Constant;
 }
 
-CMultivariateConstantPrior::TDouble10Vec
-CMultivariateConstantPrior::marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
-                                                   const TDouble10Vec4Vec& /*weights*/) const {
+CMultivariateConstantPrior::TDouble10Vec CMultivariateConstantPrior::marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
+                                                                                            const TDouble10Vec4Vec& /*weights*/) const {
     return this->marginalLikelihoodMean();
 }
 
@@ -210,11 +203,10 @@ CMultivariateConstantPrior::TDouble10Vec CMultivariateConstantPrior::marginalLik
     return TDouble10Vec(m_Dimension, this->isNonInformative() ? boost::numeric::bounds<double>::highest() : 0.0);
 }
 
-maths_t::EFloatingPointErrorStatus
-CMultivariateConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                                                       const TDouble10Vec1Vec& samples,
-                                                       const TDouble10Vec4Vec1Vec& weights,
-                                                       double& result) const {
+maths_t::EFloatingPointErrorStatus CMultivariateConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                                                                          const TDouble10Vec1Vec& samples,
+                                                                                          const TDouble10Vec4Vec1Vec& weights,
+                                                                                          double& result) const {
     result = 0.0;
 
     if (samples.empty()) {

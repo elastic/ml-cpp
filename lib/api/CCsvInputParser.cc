@@ -242,9 +242,8 @@ bool CCsvInputParser::parseDataRecord(const TStrRefVec& fieldValRefs) {
         while (m_LineParser.parseNext(extraField) == true) {
             ++numExtraFields;
         }
-        LOG_ERROR("Data record contains " << numExtraFields << " more fields than header:" << core_t::LINE_ENDING
-                                          << m_CurrentRowStr << core_t::LINE_ENDING << "and:" << core_t::LINE_ENDING
-                                          << m_FieldNameStr);
+        LOG_ERROR("Data record contains " << numExtraFields << " more fields than header:" << core_t::LINE_ENDING << m_CurrentRowStr
+                                          << core_t::LINE_ENDING << "and:" << core_t::LINE_ENDING << m_FieldNameStr);
         return false;
     }
 

@@ -48,8 +48,7 @@ void CMixtureDistributionTest::testSupport(void) {
         modes.push_back(n1);
         modes.push_back(n2);
         CMixtureDistribution<boost::math::normal_distribution<>> mixture(weights, modes);
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(boost::math::support(n1)),
-                             core::CContainerPrinter::print(support(mixture)));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(boost::math::support(n1)), core::CContainerPrinter::print(support(mixture)));
     }
     {
         boost::math::lognormal_distribution<> l1(1.0, 0.5);
@@ -61,8 +60,7 @@ void CMixtureDistributionTest::testSupport(void) {
         modes.push_back(l1);
         modes.push_back(l2);
         CMixtureDistribution<boost::math::lognormal_distribution<>> mixture(weights, modes);
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(boost::math::support(l1)),
-                             core::CContainerPrinter::print(support(mixture)));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(boost::math::support(l1)), core::CContainerPrinter::print(support(mixture)));
     }
 }
 
@@ -80,16 +78,8 @@ void CMixtureDistributionTest::testMode(void) {
     {
         LOG_DEBUG("Mixture Two Normals");
 
-        double means[][2] = {{0.0, 10.0},
-                             {0.0, 9.0},
-                             {0.0, 8.0},
-                             {0.0, 7.0},
-                             {0.0, 6.0},
-                             {0.0, 5.0},
-                             {0.0, 4.0},
-                             {0.0, 3.0},
-                             {0.0, 2.0},
-                             {0.0, 1.0}};
+        double means[][2] = {
+            {0.0, 10.0}, {0.0, 9.0}, {0.0, 8.0}, {0.0, 7.0}, {0.0, 6.0}, {0.0, 5.0}, {0.0, 4.0}, {0.0, 3.0}, {0.0, 2.0}, {0.0, 1.0}};
 
         for (std::size_t i = 0u; i < boost::size(means); ++i) {
             LOG_DEBUG("means = " << core::CContainerPrinter::print(means[i]));
@@ -190,36 +180,12 @@ void CMixtureDistributionTest::testPdf(void) {
     const double eps = 1e-6;
 
     {
-        double weights[][2] = {{0.5, 0.5},
-                               {0.3, 0.7},
-                               {0.6, 0.4},
-                               {0.5, 0.5},
-                               {0.1, 0.9},
-                               {0.61, 0.39},
-                               {0.7, 0.3},
-                               {0.8, 0.2},
-                               {0.15, 0.85},
-                               {0.3, 0.7}};
-        double means[][2] = {{0.0, 10.0},
-                             {1.0, 9.0},
-                             {1.4, 6.0},
-                             {0.0, 7.0},
-                             {3.0, 7.5},
-                             {0.0, 5.0},
-                             {2.0, 4.0},
-                             {1.0, 3.0},
-                             {1.1, 2.0},
-                             {3.0, 3.2}};
-        double variances[][2] = {{0.3, 10.0},
-                                 {1.0, 0.4},
-                                 {1.4, 6.0},
-                                 {3.0, 1.1},
-                                 {3.0, 3.5},
-                                 {1.0, 5.0},
-                                 {2.3, 4.0},
-                                 {3.0, 1.0},
-                                 {1.1, 1.0},
-                                 {3.0, 3.2}};
+        double weights[][2] = {
+            {0.5, 0.5}, {0.3, 0.7}, {0.6, 0.4}, {0.5, 0.5}, {0.1, 0.9}, {0.61, 0.39}, {0.7, 0.3}, {0.8, 0.2}, {0.15, 0.85}, {0.3, 0.7}};
+        double means[][2] = {
+            {0.0, 10.0}, {1.0, 9.0}, {1.4, 6.0}, {0.0, 7.0}, {3.0, 7.5}, {0.0, 5.0}, {2.0, 4.0}, {1.0, 3.0}, {1.1, 2.0}, {3.0, 3.2}};
+        double variances[][2] = {
+            {0.3, 10.0}, {1.0, 0.4}, {1.4, 6.0}, {3.0, 1.1}, {3.0, 3.5}, {1.0, 5.0}, {2.3, 4.0}, {3.0, 1.0}, {1.1, 1.0}, {3.0, 3.2}};
 
         CPPUNIT_ASSERT_EQUAL(boost::size(weights), boost::size(means));
         CPPUNIT_ASSERT_EQUAL(boost::size(means), boost::size(variances));
@@ -276,15 +242,11 @@ void CMixtureDistributionTest::testCdf(void) {
         LOG_DEBUG("*** Test Case " << i << " ***");
 
         TDoubleVec samples1;
-        rng.generateGammaSamples(shapes[i][0],
-                                 scales[i][0],
-                                 static_cast<std::size_t>(weights[i][0] * static_cast<double>(nSamples)),
-                                 samples1);
+        rng.generateGammaSamples(
+            shapes[i][0], scales[i][0], static_cast<std::size_t>(weights[i][0] * static_cast<double>(nSamples)), samples1);
         TDoubleVec samples2;
-        rng.generateGammaSamples(shapes[i][1],
-                                 scales[i][1],
-                                 static_cast<std::size_t>(weights[i][1] * static_cast<double>(nSamples)),
-                                 samples2);
+        rng.generateGammaSamples(
+            shapes[i][1], scales[i][1], static_cast<std::size_t>(weights[i][1] * static_cast<double>(nSamples)), samples2);
 
         TDoubleVec samples;
         samples.insert(samples.end(), samples1.begin(), samples1.end());
@@ -358,14 +320,14 @@ void CMixtureDistributionTest::testQuantile(void) {
 CppUnit::Test* CMixtureDistributionTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMixtureDistributionTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testSupport",
-                                                                            &CMixtureDistributionTest::testSupport));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testMode",
-                                                                            &CMixtureDistributionTest::testMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testPdf",
-                                                                            &CMixtureDistributionTest::testPdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testCdf",
-                                                                            &CMixtureDistributionTest::testCdf));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testSupport", &CMixtureDistributionTest::testSupport));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testMode", &CMixtureDistributionTest::testMode));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testPdf", &CMixtureDistributionTest::testPdf));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testCdf", &CMixtureDistributionTest::testCdf));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testQuantile",
                                                                             &CMixtureDistributionTest::testQuantile));
 

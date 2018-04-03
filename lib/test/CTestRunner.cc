@@ -90,13 +90,11 @@ void CTestRunner::processCmdLine(int argc, const char** argv) {
         for (int i = 1; i < argc; ++i) {
             m_TestCases.push_back(argv[i]);
             std::string& testName = m_TestCases.back();
-            if (testName.length() > SRC_EXT.length() &&
-                testName.rfind(SRC_EXT) == testName.length() - SRC_EXT.length()) {
+            if (testName.length() > SRC_EXT.length() && testName.rfind(SRC_EXT) == testName.length() - SRC_EXT.length()) {
                 testName.erase(testName.length() - SRC_EXT.length());
                 ++numSrcStrips;
                 lastSrcIndex = i;
-            } else if (testName.length() > HDR_EXT.length() &&
-                       testName.rfind(HDR_EXT) == testName.length() - HDR_EXT.length()) {
+            } else if (testName.length() > HDR_EXT.length() && testName.rfind(HDR_EXT) == testName.length() - HDR_EXT.length()) {
                 testName.erase(testName.length() - HDR_EXT.length());
                 ++numHdrStrips;
                 lastHdrIndex = i;
@@ -105,14 +103,12 @@ void CTestRunner::processCmdLine(int argc, const char** argv) {
         if (numSrcStrips == 1) {
             LOG_INFO("Source file extension " << SRC_EXT << " stripped from supplied test name " << argv[lastSrcIndex]);
         } else if (numSrcStrips > 0) {
-            LOG_INFO("Source file extension " << SRC_EXT << " stripped from " << numSrcStrips
-                                              << " supplied test names");
+            LOG_INFO("Source file extension " << SRC_EXT << " stripped from " << numSrcStrips << " supplied test names");
         }
         if (numHdrStrips == 1) {
             LOG_INFO("Header file extension " << HDR_EXT << " stripped from supplied test name " << argv[lastHdrIndex]);
         } else if (numHdrStrips > 0) {
-            LOG_INFO("Header file extension " << HDR_EXT << " stripped from " << numHdrStrips
-                                              << " supplied test names");
+            LOG_INFO("Header file extension " << HDR_EXT << " stripped from " << numHdrStrips << " supplied test names");
         }
         std::sort(m_TestCases.begin(), m_TestCases.end());
         size_t numDuplicates(m_TestCases.size());
@@ -136,8 +132,7 @@ bool CTestRunner::runTests(void) {
 
     bool passed(false);
     if (this->checkSkipFile(cwd.string(), passed) == true) {
-        LOG_WARN("Skipping tests for directory " << cwd << " and using previous test result " << std::boolalpha
-                                                 << passed);
+        LOG_WARN("Skipping tests for directory " << cwd << " and using previous test result " << std::boolalpha << passed);
         return passed;
     }
 
@@ -233,8 +228,7 @@ bool CTestRunner::updateSkipFile(const std::string& cwd, bool passed) const {
 
     // Don't create the file if it doesn't already exist, and don't write to it
     // if it's not writable
-    if (core::COsFileFuncs::access(fullPath.c_str(), core::COsFileFuncs::READABLE | core::COsFileFuncs::WRITABLE) ==
-        -1) {
+    if (core::COsFileFuncs::access(fullPath.c_str(), core::COsFileFuncs::READABLE | core::COsFileFuncs::WRITABLE) == -1) {
         LOG_TRACE("Will not update skip file " << fullPath << " : " << ::strerror(errno));
         return false;
     }

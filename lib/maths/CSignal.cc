@@ -160,8 +160,7 @@ double CSignal::autocorrelation(std::size_t offset, TFloatMeanAccumulatorCRng va
         double ni = CBasicStatistics::count(values[i]);
         double nj = CBasicStatistics::count(values[j]);
         if (ni > 0.0 && nj > 0.0) {
-            autocorrelation.add((CBasicStatistics::mean(values[i]) - mean) *
-                                (CBasicStatistics::mean(values[j]) - mean));
+            autocorrelation.add((CBasicStatistics::mean(values[i]) - mean) * (CBasicStatistics::mean(values[j]) - mean));
         }
     }
 

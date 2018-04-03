@@ -131,11 +131,8 @@ void CAssignmentTest::testKuhnMunkres(void) {
     }
     {
         LOG_DEBUG("test 3: 5x4");
-        const double test3[][4] = {{2.0, 1.0, 1.0, 2.0},
-                                   {1.0, 2.0, 2.0, 2.0},
-                                   {2.0, 2.0, 2.0, 1.0},
-                                   {1.0, 1.0, 2.0, 2.0},
-                                   {2.0, 2.0, 2.0, 2.0}};
+        const double test3[][4] = {
+            {2.0, 1.0, 1.0, 2.0}, {1.0, 2.0, 2.0, 2.0}, {2.0, 2.0, 2.0, 1.0}, {1.0, 1.0, 2.0, 2.0}, {2.0, 2.0, 2.0, 2.0}};
         TDoubleVecVec costs;
         fill(test3, costs);
 
@@ -279,8 +276,7 @@ void CAssignmentTest::testKuhnMunkres(void) {
 CppUnit::Test* CAssignmentTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAssignmentTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAssignmentTest>("CAssignmentTest::testKuhnMunkres",
-                                                                   &CAssignmentTest::testKuhnMunkres));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAssignmentTest>("CAssignmentTest::testKuhnMunkres", &CAssignmentTest::testKuhnMunkres));
 
     return suiteOfTests;
 }

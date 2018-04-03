@@ -226,8 +226,7 @@ template<typename T>
 class CBuiltinVectorParameter : public CParameter {
 public:
     CBuiltinVectorParameter(std::vector<T>& value) : m_Value(value), m_Constraint(new CUnconstrained<T>) {}
-    CBuiltinVectorParameter(std::vector<T>& value, const CConstraint<T>* constraint)
-        : m_Value(value), m_Constraint(constraint) {}
+    CBuiltinVectorParameter(std::vector<T>& value, const CConstraint<T>* constraint) : m_Value(value), m_Constraint(constraint) {}
 
 private:
     virtual bool fromStringImpl(const std::string& value) {
@@ -245,8 +244,7 @@ private:
             }
         }
         if (!(*m_Constraint)(value_)) {
-            LOG_ERROR("'" << core::CContainerPrinter::print(value_) << "' doesn't satisfy '" << m_Constraint->print()
-                          << "'");
+            LOG_ERROR("'" << core::CContainerPrinter::print(value_) << "' doesn't satisfy '" << m_Constraint->print() << "'");
             return false;
         }
         m_Value.swap(value_);
@@ -274,8 +272,7 @@ public:
             value_.push_back(remainder);
         }
         if (!(*m_Constraint)(value_)) {
-            LOG_ERROR("'" << core::CContainerPrinter::print(value_) << "' doesn't satisfy '" << m_Constraint->print()
-                          << "'");
+            LOG_ERROR("'" << core::CContainerPrinter::print(value_) << "' doesn't satisfy '" << m_Constraint->print() << "'");
             return false;
         }
         m_Value.reset(TStrVec());
@@ -369,8 +366,7 @@ private:
         }
         std::sort(value_.begin(), value_.end());
         if (!(*m_Constraint)(value_)) {
-            LOG_ERROR("'" << core::CContainerPrinter::print(value_) << "' doesn't satisfy '" << m_Constraint->print()
-                          << "'");
+            LOG_ERROR("'" << core::CContainerPrinter::print(value_) << "' doesn't satisfy '" << m_Constraint->print() << "'");
             return false;
         }
         m_Value.swap(value_);
@@ -415,8 +411,7 @@ void skipUtf8Bom(std::ifstream& strm) {
 
 //! Helper method for CAutoconfigurerParams::init() to extract parameter
 //! value from the property file.
-static bool
-processSetting(const boost::property_tree::ptree& propTree, const std::string& iniPath, CParameter& parameter) {
+static bool processSetting(const boost::property_tree::ptree& propTree, const std::string& iniPath, CParameter& parameter) {
     try {
         // This get() will throw an exception if the path isn't found
         std::string value = propTree.get<std::string>(iniPath);
@@ -427,9 +422,7 @@ processSetting(const boost::property_tree::ptree& propTree, const std::string& i
             LOG_ERROR("Invalid value for setting '" << iniPath << "' : " << value);
             return false;
         }
-    } catch (boost::property_tree::ptree_error&) {
-        LOG_INFO("Keeping default value for unspecified setting '" << iniPath << "'");
-    }
+    } catch (boost::property_tree::ptree_error&) { LOG_INFO("Keeping default value for unspecified setting '" << iniPath << "'"); }
 
     return true;
 }
@@ -478,8 +471,7 @@ const double LOW_POPULATED_BUCKET_FRACTIONS[] = {1.0 / 3.0, 1.0 / 50.0};
 const double MINIMUM_POPULATED_BUCKET_FRACTIONS[] = {1.0 / 50.0, 1.0 / 500.0};
 const double HIGH_POPULATED_BUCKET_FRACTIONS[] = {1.1, 1.0 / 10.0};
 const double MAXIMUM_POPULATED_BUCKET_FRACTIONS[] = {1.2, 5.0 / 10.0};
-const core_t::TTime CANDIDATE_BUCKET_LENGTHS[] =
-    {60, 300, 600, 1800, 3600, 7200, 14400, constants::LONGEST_BUCKET_LENGTH};
+const core_t::TTime CANDIDATE_BUCKET_LENGTHS[] = {60, 300, 600, 1800, 3600, 7200, 14400, constants::LONGEST_BUCKET_LENGTH};
 const double LOW_NUMBER_OF_BUCKETS_FOR_CONFIG(500.0);
 const double MINIMUM_NUMBER_OF_BUCKETS_FOR_CONFIG(50.0);
 const double POLLED_DATA_MINIMUM_MASS_AT_INTERVAL(0.99);
@@ -522,14 +514,10 @@ CAutoconfigurerParams::CAutoconfigurerParams(const std::string& timeFieldName,
       m_HighCardinalityInTailIncrement(HIGH_CARDINALITY_IN_TAIL_INCREMENT),
       m_HighCardinalityHighTailFraction(HIGH_CARDINALITY_HIGH_TAIL_FRACTION),
       m_HighCardinalityMaximumTailFraction(HIGH_CARDINALITY_MAXIMUM_TAIL_FRACTION),
-      m_LowPopulatedBucketFractions(boost::begin(LOW_POPULATED_BUCKET_FRACTIONS),
-                                    boost::end(LOW_POPULATED_BUCKET_FRACTIONS)),
-      m_MinimumPopulatedBucketFractions(boost::begin(MINIMUM_POPULATED_BUCKET_FRACTIONS),
-                                        boost::end(MINIMUM_POPULATED_BUCKET_FRACTIONS)),
-      m_HighPopulatedBucketFractions(boost::begin(HIGH_POPULATED_BUCKET_FRACTIONS),
-                                     boost::end(HIGH_POPULATED_BUCKET_FRACTIONS)),
-      m_MaximumPopulatedBucketFractions(boost::begin(MAXIMUM_POPULATED_BUCKET_FRACTIONS),
-                                        boost::end(MAXIMUM_POPULATED_BUCKET_FRACTIONS)),
+      m_LowPopulatedBucketFractions(boost::begin(LOW_POPULATED_BUCKET_FRACTIONS), boost::end(LOW_POPULATED_BUCKET_FRACTIONS)),
+      m_MinimumPopulatedBucketFractions(boost::begin(MINIMUM_POPULATED_BUCKET_FRACTIONS), boost::end(MINIMUM_POPULATED_BUCKET_FRACTIONS)),
+      m_HighPopulatedBucketFractions(boost::begin(HIGH_POPULATED_BUCKET_FRACTIONS), boost::end(HIGH_POPULATED_BUCKET_FRACTIONS)),
+      m_MaximumPopulatedBucketFractions(boost::begin(MAXIMUM_POPULATED_BUCKET_FRACTIONS), boost::end(MAXIMUM_POPULATED_BUCKET_FRACTIONS)),
       m_CandidateBucketLengths(boost::begin(CANDIDATE_BUCKET_LENGTHS), boost::end(CANDIDATE_BUCKET_LENGTHS)),
       m_LowNumberOfBucketsForConfig(LOW_NUMBER_OF_BUCKETS_FOR_CONFIG),
       m_MinimumNumberOfBucketsForConfig(MINIMUM_NUMBER_OF_BUCKETS_FOR_CONFIG),
@@ -628,117 +616,103 @@ bool CAutoconfigurerParams::init(const std::string& file) {
         TParameterPtr(new CBuiltinParameter<uint64_t>(m_MinimumRecordsToAttemptConfig,
                                                       new CValueIs<uint64_t, CGreater>(m_MinimumExamplesToClassify))),
         TParameterPtr(new CBuiltinParameter<std::size_t>(m_HighNumberByFieldValues)),
-        TParameterPtr(new CBuiltinParameter<std::size_t>(
-            m_MaximumNumberByFieldValues, new CValueIs<std::size_t, CGreaterEqual>(m_HighNumberByFieldValues))),
+        TParameterPtr(new CBuiltinParameter<std::size_t>(m_MaximumNumberByFieldValues,
+                                                         new CValueIs<std::size_t, CGreaterEqual>(m_HighNumberByFieldValues))),
         TParameterPtr(new CBuiltinParameter<std::size_t>(m_HighNumberRareByFieldValues)),
-        TParameterPtr(new CBuiltinParameter<std::size_t>(
-            m_MaximumNumberRareByFieldValues, new CValueIs<std::size_t, CGreaterEqual>(m_HighNumberRareByFieldValues))),
+        TParameterPtr(new CBuiltinParameter<std::size_t>(m_MaximumNumberRareByFieldValues,
+                                                         new CValueIs<std::size_t, CGreaterEqual>(m_HighNumberRareByFieldValues))),
         TParameterPtr(new CBuiltinParameter<std::size_t>(m_HighNumberPartitionFieldValues)),
-        TParameterPtr(new CBuiltinParameter<std::size_t>(
-            m_MaximumNumberPartitionFieldValues,
-            new CValueIs<std::size_t, CGreaterEqual>(m_HighNumberPartitionFieldValues))),
+        TParameterPtr(new CBuiltinParameter<std::size_t>(m_MaximumNumberPartitionFieldValues,
+                                                         new CValueIs<std::size_t, CGreaterEqual>(m_HighNumberPartitionFieldValues))),
         TParameterPtr(new CBuiltinParameter<std::size_t>(m_LowNumberOverFieldValues)),
-        TParameterPtr(new CBuiltinParameter<std::size_t>(
-            m_MinimumNumberOverFieldValues, new CValueIs<std::size_t, CLessEqual>(m_LowNumberOverFieldValues))),
-        TParameterPtr(new CBuiltinParameter<double>(m_HighCardinalityInTailFactor,
-                                                    new CValueIs<double, CGreaterEqual>(ONE_DOUBLE))),
+        TParameterPtr(new CBuiltinParameter<std::size_t>(m_MinimumNumberOverFieldValues,
+                                                         new CValueIs<std::size_t, CLessEqual>(m_LowNumberOverFieldValues))),
+        TParameterPtr(new CBuiltinParameter<double>(m_HighCardinalityInTailFactor, new CValueIs<double, CGreaterEqual>(ONE_DOUBLE))),
         TParameterPtr(new CBuiltinParameter<uint64_t>(m_HighCardinalityInTailIncrement)),
+        TParameterPtr(new CBuiltinParameter<double>(m_HighCardinalityHighTailFraction,
+                                                    (new CConstraintConjunction<double>)
+                                                        ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
+                                                        ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE)))),
         TParameterPtr(
-            new CBuiltinParameter<double>(m_HighCardinalityHighTailFraction,
+            new CBuiltinParameter<double>(m_HighCardinalityMaximumTailFraction,
                                           (new CConstraintConjunction<double>)
-                                              ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
+                                              ->addConstraint(new CValueIs<double, CGreaterEqual>(m_HighCardinalityHighTailFraction))
                                               ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE)))),
-        TParameterPtr(new CBuiltinParameter<double>(
-            m_HighCardinalityMaximumTailFraction,
-            (new CConstraintConjunction<double>)
-                ->addConstraint(new CValueIs<double, CGreaterEqual>(m_HighCardinalityHighTailFraction))
-                ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE)))),
-        TParameterPtr(new CBuiltinVectorParameter<double>(
-            m_LowPopulatedBucketFractions,
-            (new CConstraintConjunction<double>)
-                ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
-                ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE))
-                ->addConstraint(new CSizeIs<double>(2)))),
+        TParameterPtr(new CBuiltinVectorParameter<double>(m_LowPopulatedBucketFractions,
+                                                          (new CConstraintConjunction<double>)
+                                                              ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
+                                                              ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE))
+                                                              ->addConstraint(new CSizeIs<double>(2)))),
         TParameterPtr(new CBuiltinVectorParameter<double>(
             m_MinimumPopulatedBucketFractions,
             (new CConstraintConjunction<double>)
                 ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
                 ->addConstraint(new CVectorValueIs<double, CLessEqual>(m_LowPopulatedBucketFractions))
                 ->addConstraint(new CSizeIs<double>(2)))),
+        TParameterPtr(new CBuiltinParameter<double>(m_HighPopulatedBucketFractions[1],
+                                                    (new CConstraintConjunction<double>)
+                                                        ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
+                                                        ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE)))),
         TParameterPtr(
-            new CBuiltinParameter<double>(m_HighPopulatedBucketFractions[1],
+            new CBuiltinParameter<double>(m_MaximumPopulatedBucketFractions[1],
                                           (new CConstraintConjunction<double>)
-                                              ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
+                                              ->addConstraint(new CVectorValueIs<double, CGreaterEqual>(m_HighPopulatedBucketFractions))
                                               ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE)))),
-        TParameterPtr(new CBuiltinParameter<double>(
-            m_MaximumPopulatedBucketFractions[1],
-            (new CConstraintConjunction<double>)
-                ->addConstraint(new CVectorValueIs<double, CGreaterEqual>(m_HighPopulatedBucketFractions))
-                ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE)))),
-        TParameterPtr(new CBuiltinVectorParameter<core_t::TTime>(
-            m_CandidateBucketLengths,
-            (new CConstraintConjunction<core_t::TTime>)
-                ->addConstraint(new CValueIs<core_t::TTime, CGreater>(ZERO_TIME))
-                ->addConstraint(new CNotEmpty<core_t::TTime>))),
-        TParameterPtr(
-            new CBuiltinParameter<double>(m_LowNumberOfBucketsForConfig, new CValueIs<double, CGreater>(ZERO_DOUBLE))),
-        TParameterPtr(new CBuiltinParameter<double>(
-            m_MinimumNumberOfBucketsForConfig,
-            (new CConstraintConjunction<double>)
-                ->addConstraint(new CValueIs<double, CGreater>(ZERO_DOUBLE))
-                ->addConstraint(new CValueIs<double, CLessEqual>(m_LowNumberOfBucketsForConfig)))),
-        TParameterPtr(
-            new CBuiltinParameter<double>(m_PolledDataMinimumMassAtInterval,
-                                          (new CConstraintConjunction<double>)
-                                              ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
-                                              ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE)))),
-        TParameterPtr(
-            new CBuiltinParameter<double>(m_PolledDataJitter,
-                                          (new CConstraintConjunction<double>)
-                                              ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
-                                              ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE)))),
+        TParameterPtr(new CBuiltinVectorParameter<core_t::TTime>(m_CandidateBucketLengths,
+                                                                 (new CConstraintConjunction<core_t::TTime>)
+                                                                     ->addConstraint(new CValueIs<core_t::TTime, CGreater>(ZERO_TIME))
+                                                                     ->addConstraint(new CNotEmpty<core_t::TTime>))),
+        TParameterPtr(new CBuiltinParameter<double>(m_LowNumberOfBucketsForConfig, new CValueIs<double, CGreater>(ZERO_DOUBLE))),
+        TParameterPtr(new CBuiltinParameter<double>(m_MinimumNumberOfBucketsForConfig,
+                                                    (new CConstraintConjunction<double>)
+                                                        ->addConstraint(new CValueIs<double, CGreater>(ZERO_DOUBLE))
+                                                        ->addConstraint(new CValueIs<double, CLessEqual>(m_LowNumberOfBucketsForConfig)))),
+        TParameterPtr(new CBuiltinParameter<double>(m_PolledDataMinimumMassAtInterval,
+                                                    (new CConstraintConjunction<double>)
+                                                        ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
+                                                        ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE)))),
+        TParameterPtr(new CBuiltinParameter<double>(m_PolledDataJitter,
+                                                    (new CConstraintConjunction<double>)
+                                                        ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
+                                                        ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE)))),
         TParameterPtr(new CBuiltinParameter<double>(
             m_LowCoefficientOfVariation,
             (new CConstraintConjunction<double>)->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE)))),
-        TParameterPtr(new CBuiltinParameter<double>(
-            m_MinimumCoefficientOfVariation,
-            (new CConstraintConjunction<double>)
-                ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
-                ->addConstraint(new CValueIs<double, CLessEqual>(m_LowCoefficientOfVariation)))),
+        TParameterPtr(new CBuiltinParameter<double>(m_MinimumCoefficientOfVariation,
+                                                    (new CConstraintConjunction<double>)
+                                                        ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
+                                                        ->addConstraint(new CValueIs<double, CLessEqual>(m_LowCoefficientOfVariation)))),
         TParameterPtr(new CBuiltinParameter<double>(
             m_LowLengthRangeForInfoContent,
             (new CConstraintConjunction<double>)->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE)))),
-        TParameterPtr(new CBuiltinParameter<double>(
-            m_MinimumLengthRangeForInfoContent,
-            (new CConstraintConjunction<double>)
-                ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
-                ->addConstraint(new CValueIs<double, CLessEqual>(m_LowLengthRangeForInfoContent)))),
+        TParameterPtr(new CBuiltinParameter<double>(m_MinimumLengthRangeForInfoContent,
+                                                    (new CConstraintConjunction<double>)
+                                                        ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
+                                                        ->addConstraint(new CValueIs<double, CLessEqual>(m_LowLengthRangeForInfoContent)))),
         TParameterPtr(new CBuiltinParameter<double>(
             m_LowMaximumLengthForInfoContent,
             (new CConstraintConjunction<double>)->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE)))),
-        TParameterPtr(new CBuiltinParameter<double>(
-            m_MinimumMaximumLengthForInfoContent,
-            (new CConstraintConjunction<double>)
-                ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
-                ->addConstraint(new CValueIs<double, CLessEqual>(m_LowMaximumLengthForInfoContent)))),
         TParameterPtr(
-            new CBuiltinParameter<double>(m_LowEntropyForInfoContent,
+            new CBuiltinParameter<double>(m_MinimumMaximumLengthForInfoContent,
                                           (new CConstraintConjunction<double>)
                                               ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
-                                              ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE)))),
-        TParameterPtr(new CBuiltinParameter<double>(
-            m_MinimumEntropyForInfoContent,
-            (new CConstraintConjunction<double>)
-                ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
-                ->addConstraint(new CValueIs<double, CLessEqual>(m_LowEntropyForInfoContent)))),
+                                              ->addConstraint(new CValueIs<double, CLessEqual>(m_LowMaximumLengthForInfoContent)))),
+        TParameterPtr(new CBuiltinParameter<double>(m_LowEntropyForInfoContent,
+                                                    (new CConstraintConjunction<double>)
+                                                        ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
+                                                        ->addConstraint(new CValueIs<double, CLessEqual>(ONE_DOUBLE)))),
+        TParameterPtr(new CBuiltinParameter<double>(m_MinimumEntropyForInfoContent,
+                                                    (new CConstraintConjunction<double>)
+                                                        ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
+                                                        ->addConstraint(new CValueIs<double, CLessEqual>(m_LowEntropyForInfoContent)))),
         TParameterPtr(new CBuiltinParameter<double>(
             m_LowDistinctCountForInfoContent,
             (new CConstraintConjunction<double>)->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE)))),
-        TParameterPtr(new CBuiltinParameter<double>(
-            m_MinimumDistinctCountForInfoContent,
-            (new CConstraintConjunction<double>)
-                ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
-                ->addConstraint(new CValueIs<double, CLessEqual>(m_LowDistinctCountForInfoContent))))};
+        TParameterPtr(
+            new CBuiltinParameter<double>(m_MinimumDistinctCountForInfoContent,
+                                          (new CConstraintConjunction<double>)
+                                              ->addConstraint(new CValueIs<double, CGreaterEqual>(ZERO_DOUBLE))
+                                              ->addConstraint(new CValueIs<double, CLessEqual>(m_LowDistinctCountForInfoContent))))};
 
     bool result = true;
     for (std::size_t i = 0u; i < boost::size(LABELS); ++i) {
@@ -803,8 +777,7 @@ const CAutoconfigurerParams::TFunctionCategoryVec& CAutoconfigurerParams::functi
 CAutoconfigurerParams::TOptionalUserDataType CAutoconfigurerParams::dataType(const std::string& field) const {
     TStrUserDataTypePrVec::const_iterator result =
         std::lower_bound(m_FieldDataTypes.begin(), m_FieldDataTypes.end(), field, maths::COrderings::SFirstLess());
-    return result != m_FieldDataTypes.end() && result->first == field ? TOptionalUserDataType(result->second)
-                                                                      : TOptionalUserDataType();
+    return result != m_FieldDataTypes.end() && result->first == field ? TOptionalUserDataType(result->second) : TOptionalUserDataType();
 }
 
 uint64_t CAutoconfigurerParams::minimumExamplesToClassify(void) const {
@@ -875,18 +848,15 @@ double CAutoconfigurerParams::lowPopulatedBucketFraction(config_t::EFunctionCate
     return m_LowPopulatedBucketFractions[config_t::hasDoAndDontIgnoreEmptyVersions(function) && ignoreEmpty];
 }
 
-double CAutoconfigurerParams::minimumPopulatedBucketFraction(config_t::EFunctionCategory function,
-                                                             bool ignoreEmpty) const {
+double CAutoconfigurerParams::minimumPopulatedBucketFraction(config_t::EFunctionCategory function, bool ignoreEmpty) const {
     return m_MinimumPopulatedBucketFractions[config_t::hasDoAndDontIgnoreEmptyVersions(function) && ignoreEmpty];
 }
 
-double CAutoconfigurerParams::highPopulatedBucketFraction(config_t::EFunctionCategory function,
-                                                          bool ignoreEmpty) const {
+double CAutoconfigurerParams::highPopulatedBucketFraction(config_t::EFunctionCategory function, bool ignoreEmpty) const {
     return m_HighPopulatedBucketFractions[config_t::hasDoAndDontIgnoreEmptyVersions(function) && ignoreEmpty];
 }
 
-double CAutoconfigurerParams::maximumPopulatedBucketFraction(config_t::EFunctionCategory function,
-                                                             bool ignoreEmpty) const {
+double CAutoconfigurerParams::maximumPopulatedBucketFraction(config_t::EFunctionCategory function, bool ignoreEmpty) const {
     return m_MaximumPopulatedBucketFractions[config_t::hasDoAndDontIgnoreEmptyVersions(function) && ignoreEmpty];
 }
 

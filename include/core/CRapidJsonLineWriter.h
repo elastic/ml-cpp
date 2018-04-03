@@ -36,19 +36,11 @@ template<typename OUTPUT_STREAM,
          typename TARGET_ENCODING = rapidjson::UTF8<>,
          typename STACK_ALLOCATOR = rapidjson::CrtAllocator,
          unsigned WRITE_FLAGS = rapidjson::kWriteDefaultFlags>
-class CRapidJsonLineWriter : public CRapidJsonWriterBase<OUTPUT_STREAM,
-                                                         SOURCE_ENCODING,
-                                                         TARGET_ENCODING,
-                                                         STACK_ALLOCATOR,
-                                                         WRITE_FLAGS,
-                                                         rapidjson::Writer> {
+class CRapidJsonLineWriter
+    : public CRapidJsonWriterBase<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::Writer> {
 public:
-    using TRapidJsonWriterBase = CRapidJsonWriterBase<OUTPUT_STREAM,
-                                                      SOURCE_ENCODING,
-                                                      TARGET_ENCODING,
-                                                      STACK_ALLOCATOR,
-                                                      WRITE_FLAGS,
-                                                      rapidjson::Writer>;
+    using TRapidJsonWriterBase =
+        CRapidJsonWriterBase<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::Writer>;
     using TRapidJsonWriterBase::TRapidJsonWriterBase;
 
     //! Overwrites the Writer::StartObject in order to count nested objects

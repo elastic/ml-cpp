@@ -79,11 +79,7 @@ public:
     //! combined with the original search.  Note that the reverse search is
     //! only approximate - it may select more records than have actually
     //! been classified as the returned type.
-    virtual bool createReverseSearch(int type,
-                                     std::string& part1,
-                                     std::string& part2,
-                                     size_t& maxMatchingLength,
-                                     bool& wasCached) = 0;
+    virtual bool createReverseSearch(int type, std::string& part1, std::string& part2, size_t& maxMatchingLength, bool& wasCached) = 0;
 
     //! Has the data typer's state changed?
     virtual bool hasChanged(void) const = 0;

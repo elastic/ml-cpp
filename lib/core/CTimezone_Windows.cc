@@ -59,9 +59,7 @@ CTimezone::CTimezone(void) {
     path += "/date_time_zonespec.csv";
     try {
         m_TimezoneDb.load_from_file(path);
-    } catch (std::exception& ex) {
-        LOG_ERROR("Failed to load Boost timezone database from " << path << " : " << ex.what());
-    }
+    } catch (std::exception& ex) { LOG_ERROR("Failed to load Boost timezone database from " << path << " : " << ex.what()); }
 }
 
 CTimezone::~CTimezone(void) {
@@ -145,8 +143,7 @@ core_t::TTime CTimezone::localToUtc(struct tm& localTime) const {
 
     boost::posix_time::time_duration diff;
     try {
-        boost::local_time::local_date_time boostLocal(
-            dateIn, timeIn, m_Timezone, boost::local_time::local_date_time::EXCEPTION_ON_ERROR);
+        boost::local_time::local_date_time boostLocal(dateIn, timeIn, m_Timezone, boost::local_time::local_date_time::EXCEPTION_ON_ERROR);
         diff = boostLocal.utc_time() - EPOCH;
         localTime.tm_isdst = (boostLocal.is_dst() ? 1 : 0);
     } catch (boost::local_time::ambiguous_result&) {

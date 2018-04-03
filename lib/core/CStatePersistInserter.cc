@@ -24,8 +24,7 @@ void CStatePersistInserter::insertValue(const std::string& name, double value, C
     this->insertValue(name, CStringUtils::typeToStringPrecise(value, precision));
 }
 
-CStatePersistInserter::CAutoLevel::CAutoLevel(const std::string& name, CStatePersistInserter& inserter)
-    : m_Inserter(inserter) {
+CStatePersistInserter::CAutoLevel::CAutoLevel(const std::string& name, CStatePersistInserter& inserter) : m_Inserter(inserter) {
     m_Inserter.newLevel(name);
 }
 

@@ -161,10 +161,7 @@ void CModelMemoryTest::testOnlineMetricModel(void) {
         rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
-            addArrival(*gatherer,
-                       time + static_cast<core_t::TTime>(j),
-                       "p",
-                       values[j] + (i == anomalousBucket ? anomaly : 0.0));
+            addArrival(*gatherer, time + static_cast<core_t::TTime>(j), "p", values[j] + (i == anomalousBucket ? anomaly : 0.0));
         }
         model.sample(time, time + bucketLength, resourceMonitor);
 
@@ -184,8 +181,8 @@ CppUnit::Test* CModelMemoryTest::suite(void) {
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineEventRateModel",
                                                                     &CModelMemoryTest::testOnlineEventRateModel));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineMetricModel",
-                                                                    &CModelMemoryTest::testOnlineMetricModel));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineMetricModel", &CModelMemoryTest::testOnlineMetricModel));
 
     return suiteOfTests;
 }

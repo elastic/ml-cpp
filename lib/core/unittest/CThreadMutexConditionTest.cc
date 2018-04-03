@@ -25,8 +25,8 @@ CppUnit::Test* CThreadMutexConditionTest::suite() {
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CThreadMutexConditionTest>("CThreadMutexConditionTest::testThread",
                                                                              &CThreadMutexConditionTest::testThread));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadMutexConditionTest>(
-        "CThreadMutexConditionTest::testThreadCondition", &CThreadMutexConditionTest::testThreadCondition));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadMutexConditionTest>("CThreadMutexConditionTest::testThreadCondition",
+                                                                             &CThreadMutexConditionTest::testThreadCondition));
 
     return suiteOfTests;
 }

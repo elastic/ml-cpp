@@ -98,18 +98,17 @@ CDataGatherer* CCountingModelFactory::makeDataGatherer(const std::string& partit
                              traverser);
 }
 
-CCountingModelFactory::TPriorPtr CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
-                                                                     const SModelParams& /*params*/) const {
+CCountingModelFactory::TPriorPtr CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/, const SModelParams& /*params*/) const {
     return boost::make_shared<maths::CConstantPrior>();
 }
 
-CCountingModelFactory::TMultivariatePriorPtr
-CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature, const SModelParams& /*params*/) const {
+CCountingModelFactory::TMultivariatePriorPtr CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
+                                                                                             const SModelParams& /*params*/) const {
     return boost::make_shared<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
 }
 
-CCountingModelFactory::TMultivariatePriorPtr
-CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/, const SModelParams& /*params*/) const {
+CCountingModelFactory::TMultivariatePriorPtr CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
+                                                                                          const SModelParams& /*params*/) const {
     return boost::make_shared<maths::CMultivariateConstantPrior>(2);
 }
 

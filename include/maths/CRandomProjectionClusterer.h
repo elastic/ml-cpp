@@ -122,8 +122,7 @@ protected:
         for (std::size_t i = 0u; i < b; ++i) {
             TVectorArray& projection = m_Projections[i];
             for (std::size_t j = 0u; j < N; ++j) {
-                projection[j].assign(&components[(i * N + j) * m_Dimension],
-                                     &components[(i * N + j + 1) * m_Dimension]);
+                projection[j].assign(&components[(i * N + j) * m_Dimension], &components[(i * N + j + 1) * m_Dimension]);
             }
 
             if (!CGramSchmidt::basis(projection)) {
@@ -325,8 +324,7 @@ protected:
     //! \param[out] I Filled in with the indices of distinct sampled
     //! points.
     template<typename CLUSTERER>
-    void clusterProjections(CLUSTERER clusterer, TDoubleVecVec& W, TVectorNx1VecVec& M, TSvdNxNVecVec& C, TSizeUSet& I)
-        const {
+    void clusterProjections(CLUSTERER clusterer, TDoubleVecVec& W, TVectorNx1VecVec& M, TSvdNxNVecVec& C, TSizeUSet& I) const {
         using TVectorNx1CRef = boost::reference_wrapper<const TVectorNx1>;
         using TVectorNx1CRefSizeUMap = boost::unordered_map<TVectorNx1CRef, std::size_t, SHashVector, SVectorsEqual>;
         using TClusterVec = typename CLUSTERER::TClusterVec;
@@ -380,8 +378,7 @@ protected:
                 TSampleCovariancesNxN covariances;
                 covariances.add(points);
                 TVectorNx1 mij = CBasicStatistics::mean(covariances);
-                TSvdNxN Cij(toDenseMatrix(CBasicStatistics::covariances(covariances)),
-                            Eigen::ComputeFullU | Eigen::ComputeFullV);
+                TSvdNxN Cij(toDenseMatrix(CBasicStatistics::covariances(covariances)), Eigen::ComputeFullU | Eigen::ComputeFullV);
 
                 // Compute the probability that a sample from the cluster
                 // is a given point in the cluster.
@@ -486,11 +483,8 @@ protected:
     //! i.e. the indices of the closest points.
     //! \param[out] S Filled in with the mean similarities between
     //! neighbourhoods over the different clusterings.
-    void similarities(const TDoubleVecVec& W,
-                      const TVectorNx1VecVec& M,
-                      const TSvdNxNVecVec& C,
-                      const TSizeVecVec& H,
-                      TDoubleVecVec& S) const {
+    void
+    similarities(const TDoubleVecVec& W, const TVectorNx1VecVec& M, const TSvdNxNVecVec& C, const TSizeVecVec& H, TDoubleVecVec& S) const {
         std::size_t b = m_ProjectedData.size();
         std::size_t h = H.size();
 
@@ -652,10 +646,7 @@ public:
     void setPoints(TVectorNx1Vec& points) { m_Xmeans.setPoints(points); }
 
     //! Cluster the points.
-    void run(void) {
-        m_Xmeans.run(
-            m_ImproveParamsKmeansIterations, m_ImproveStructureClusterSeeds, m_ImproveStructureKmeansIterations);
-    }
+    void run(void) { m_Xmeans.run(m_ImproveParamsKmeansIterations, m_ImproveStructureClusterSeeds, m_ImproveStructureKmeansIterations); }
 
     //! Get the clusters (should only be called after run).
     const TClusterVec& clusters(void) const { return m_Xmeans.clusters(); }
@@ -732,9 +723,7 @@ private:
 //! Makes a k-means adapter for random projection clustering.
 template<std::size_t N>
 CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
-forRandomProjectionClusterer(const CKMeansFast<CVectorNx1<double, N>>& kmeans,
-                             std::size_t k,
-                             std::size_t maxIterations) {
+forRandomProjectionClusterer(const CKMeansFast<CVectorNx1<double, N>>& kmeans, std::size_t k, std::size_t maxIterations) {
     return CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>(kmeans, k, maxIterations);
 }
 }

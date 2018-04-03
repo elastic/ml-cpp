@@ -99,12 +99,7 @@ bool solveTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c, T
     return true;
 }
 
-bool solvePeturbedTridiagonal(const TDoubleVec& a,
-                              const TDoubleVec& b,
-                              TDoubleVec& c,
-                              TDoubleVec& u,
-                              const TDoubleVec& v,
-                              TDoubleVec& x) {
+bool solvePeturbedTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c, TDoubleVec& u, const TDoubleVec& v, TDoubleVec& x) {
     if (!checkTridiagonal(a, b, c, x)) {
         return false;
     }

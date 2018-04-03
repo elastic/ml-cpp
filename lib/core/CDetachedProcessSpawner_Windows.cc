@@ -162,14 +162,12 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
 }
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args, CProcess::TPid& childPid) {
-    if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(), processPath) ==
-        m_PermittedProcessPaths.end()) {
+    if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(), processPath) == m_PermittedProcessPaths.end()) {
         LOG_ERROR("Spawning process '" << processPath << "' is not permitted");
         return false;
     }
 
-    bool processPathHasExeExt(processPath.length() > 4 &&
-                              processPath.compare(processPath.length() - 4, 4, ".exe") == 0);
+    bool processPathHasExeExt(processPath.length() > 4 && processPath.compare(processPath.length() - 4, 4, ".exe") == 0);
 
     // Windows takes command lines as a single string
     std::string cmdLine(CShellArgQuoter::quote(processPath));

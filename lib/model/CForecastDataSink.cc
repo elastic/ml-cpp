@@ -68,9 +68,7 @@ CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(model_t::EFeatur
 }
 
 CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(SForecastModelWrapper&& other)
-    : s_Feature(other.s_Feature),
-      s_ForecastModel(std::move(other.s_ForecastModel)),
-      s_ByFieldValue(std::move(other.s_ByFieldValue)) {
+    : s_Feature(other.s_Feature), s_ForecastModel(std::move(other.s_ForecastModel)), s_ByFieldValue(std::move(other.s_ByFieldValue)) {
 }
 
 CForecastDataSink::SForecastResultSeries::SForecastResultSeries()

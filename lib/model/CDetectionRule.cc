@@ -22,11 +22,7 @@ namespace ml {
 namespace model {
 
 CDetectionRule::CDetectionRule(void)
-    : m_Action(E_FilterResults),
-      m_Conditions(),
-      m_ConditionsConnective(E_Or),
-      m_TargetFieldName(),
-      m_TargetFieldValue() {
+    : m_Action(E_FilterResults), m_Conditions(), m_ConditionsConnective(E_Or), m_TargetFieldName(), m_TargetFieldValue() {
     m_Conditions.reserve(1);
 }
 
@@ -66,8 +62,7 @@ bool CDetectionRule::apply(ERuleAction action,
     }
 
     for (std::size_t i = 0; i < m_Conditions.size(); ++i) {
-        bool conditionResult =
-            m_Conditions[i].test(model, feature, resultType, !m_TargetFieldName.empty(), pid, cid, time);
+        bool conditionResult = m_Conditions[i].test(model, feature, resultType, !m_TargetFieldName.empty(), pid, cid, time);
         switch (m_ConditionsConnective) {
         case E_Or:
             if (conditionResult == true) {

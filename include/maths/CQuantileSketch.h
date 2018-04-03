@@ -157,9 +157,7 @@ public:
     //! NB1: Needs to be redeclared to work with CMemoryDebug.
     //! NB2: This method is not currently virtual - needs changing if any of the
     //! methods of this class ever do anything other than forward to the base class
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
-        this->CQuantileSketch::debugMemoryUsage(mem);
-    }
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const { this->CQuantileSketch::debugMemoryUsage(mem); }
 
     //! Get the memory used by this object.
     //! NB1: Needs to be redeclared to work with CMemory.

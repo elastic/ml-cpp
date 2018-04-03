@@ -23,8 +23,7 @@
 namespace ml {
 namespace config {
 
-CSpanTooSmallForBucketLengthPenalty::CSpanTooSmallForBucketLengthPenalty(const CAutoconfigurerParams& params)
-    : CPenalty(params) {
+CSpanTooSmallForBucketLengthPenalty::CSpanTooSmallForBucketLengthPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {
 }
 
 CSpanTooSmallForBucketLengthPenalty* CSpanTooSmallForBucketLengthPenalty::clone(void) const {
@@ -54,8 +53,7 @@ void CSpanTooSmallForBucketLengthPenalty::penaltyFromMe(CDetectorSpecification& 
                                                     0.0,
                                                     1.0,
                                                     static_cast<double>(stats->timeRange() / candidates[bid]));
-            std::string description =
-                penalty < 1.0 ? "The data span is too short to properly assess the bucket length" : "";
+            std::string description = penalty < 1.0 ? "The data span is too short to properly assess the bucket length" : "";
             std::fill_n(std::back_inserter(penalties), indices_.size(), penalty);
             std::fill_n(std::back_inserter(descriptions), indices_.size(), description);
         }

@@ -122,8 +122,7 @@ CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::st
         return TIStreamP();
     }
     typedef boost::iostreams::stream<boost::iostreams::file_descriptor_source> TFileDescriptorSourceStream;
-    return TIStreamP(
-        new TFileDescriptorSourceStream(boost::iostreams::file_descriptor_source(fd, boost::iostreams::close_handle)));
+    return TIStreamP(new TFileDescriptorSourceStream(boost::iostreams::file_descriptor_source(fd, boost::iostreams::close_handle)));
 }
 
 CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
@@ -132,8 +131,7 @@ CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::s
         return TOStreamP();
     }
     typedef boost::iostreams::stream<CRetryingFileDescriptorSink> TRetryingFileDescriptorSinkStream;
-    return TOStreamP(
-        new TRetryingFileDescriptorSinkStream(CRetryingFileDescriptorSink(fd, boost::iostreams::close_handle)));
+    return TOStreamP(new TRetryingFileDescriptorSinkStream(CRetryingFileDescriptorSink(fd, boost::iostreams::close_handle)));
 }
 
 CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string& fileName) {
@@ -216,8 +214,7 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
     // named pipe
     int fd = COsFileFuncs::open(fileName.c_str(), forWrite ? COsFileFuncs::WRONLY : COsFileFuncs::RDONLY);
     if (fd == -1) {
-        LOG_ERROR("Unable to open named pipe " << fileName << (forWrite ? " for writing: " : " for reading: ")
-                                               << ::strerror(errno));
+        LOG_ERROR("Unable to open named pipe " << fileName << (forWrite ? " for writing: " : " for reading: ") << ::strerror(errno));
     } else {
         // Write a test character to the pipe - this is really only necessary on
         // Windows, but doing it on *nix too will mean the inability of the Java

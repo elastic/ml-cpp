@@ -127,9 +127,8 @@ public:
     typedef std::vector<TAnomalyDetectorPtr>::iterator TAnomalyDetectorPtrVecItr;
     typedef std::vector<TAnomalyDetectorPtr>::const_iterator TAnomalyDetectorPtrVecCItr;
     typedef std::vector<model::CSearchKey> TKeyVec;
-    typedef boost::
-        unordered_map<model::CSearchKey::TStrKeyPr, TAnomalyDetectorPtr, model::CStrKeyPrHash, model::CStrKeyPrEqual>
-            TKeyAnomalyDetectorPtrUMap;
+    typedef boost::unordered_map<model::CSearchKey::TStrKeyPr, TAnomalyDetectorPtr, model::CStrKeyPrHash, model::CStrKeyPrEqual>
+        TKeyAnomalyDetectorPtrUMap;
     typedef std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr> TKeyCRefAnomalyDetectorPtrPr;
     typedef std::vector<TKeyCRefAnomalyDetectorPtrPr> TKeyCRefAnomalyDetectorPtrPrVec;
     typedef model::CAnomalyDetector::TModelPlotDataVec TModelPlotDataVec;
@@ -250,17 +249,15 @@ private:
     void resetBuckets(const std::string& controlMessage);
 
     //! Attempt to restore the detectors
-    bool
-    restoreState(core::CStateRestoreTraverser& traverser, core_t::TTime& completeToTime, std::size_t& numDetectors);
+    bool restoreState(core::CStateRestoreTraverser& traverser, core_t::TTime& completeToTime, std::size_t& numDetectors);
 
     //! Attempt to restore one detector from an already-created traverser.
     bool restoreSingleDetector(core::CStateRestoreTraverser& traverser);
 
     //! Restore the detector identified by \p key and \p partitionFieldValue
     //! from \p traverser.
-    bool restoreDetectorState(const model::CSearchKey& key,
-                              const std::string& partitionFieldValue,
-                              core::CStateRestoreTraverser& traverser);
+    bool
+    restoreDetectorState(const model::CSearchKey& key, const std::string& partitionFieldValue, core::CStateRestoreTraverser& traverser);
 
     //! Persist current state in the background
     bool backgroundPersistState(CBackgroundPersister& backgroundPersister);
@@ -354,8 +351,7 @@ private:
     //! the member variables of an object.  This makes it safer to call
     //! from within a persistence thread that's working off a cloned
     //! anomaly detector.
-    static void persistIndividualDetector(const model::CAnomalyDetector& detector,
-                                          core::CStatePersistInserter& inserter);
+    static void persistIndividualDetector(const model::CAnomalyDetector& detector, core::CStatePersistInserter& inserter);
 
     //! Iterate over the models, refresh their memory status, and send a report
     //! to the API
@@ -364,13 +360,12 @@ private:
     //! Update configuration
     void doForecast(const std::string& controlMessage);
 
-    model::CAnomalyDetector::TAnomalyDetectorPtr
-    makeDetector(int identifier,
-                 const model::CAnomalyDetectorModelConfig& modelConfig,
-                 model::CLimits& limits,
-                 const std::string& partitionFieldValue,
-                 core_t::TTime firstTime,
-                 const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory);
+    model::CAnomalyDetector::TAnomalyDetectorPtr makeDetector(int identifier,
+                                                              const model::CAnomalyDetectorModelConfig& modelConfig,
+                                                              model::CLimits& limits,
+                                                              const std::string& partitionFieldValue,
+                                                              core_t::TTime firstTime,
+                                                              const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory);
 
     //! Populate detector keys from the field config.
     void populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys);

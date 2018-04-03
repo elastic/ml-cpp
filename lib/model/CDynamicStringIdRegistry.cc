@@ -38,11 +38,7 @@ CDynamicStringIdRegistry::CDynamicStringIdRegistry(const std::string& nameType,
                                                    stat_t::EStatTypes addedStat,
                                                    stat_t::EStatTypes addNotAllowedStat,
                                                    stat_t::EStatTypes recycledStat)
-    : m_NameType(nameType),
-      m_AddedStat(addedStat),
-      m_AddNotAllowedStat(addNotAllowedStat),
-      m_RecycledStat(recycledStat),
-      m_Uids(1) {
+    : m_NameType(nameType), m_AddedStat(addedStat), m_AddNotAllowedStat(addNotAllowedStat), m_RecycledStat(recycledStat), m_Uids(1) {
 }
 
 CDynamicStringIdRegistry::CDynamicStringIdRegistry(bool isForPersistence, const CDynamicStringIdRegistry& other)
@@ -97,14 +93,11 @@ std::size_t CDynamicStringIdRegistry::numberNames(void) const {
 }
 
 bool CDynamicStringIdRegistry::isIdActive(std::size_t id) const {
-    return id < m_Names.size() &&
-           !std::binary_search(m_FreeUids.begin(), m_FreeUids.end(), id, std::greater<std::size_t>());
+    return id < m_Names.size() && !std::binary_search(m_FreeUids.begin(), m_FreeUids.end(), id, std::greater<std::size_t>());
 }
 
-std::size_t CDynamicStringIdRegistry::addName(const std::string& name,
-                                              core_t::TTime time,
-                                              CResourceMonitor& resourceMonitor,
-                                              bool& addedPerson) {
+std::size_t
+CDynamicStringIdRegistry::addName(const std::string& name, core_t::TTime time, CResourceMonitor& resourceMonitor, bool& addedPerson) {
     // Get the identifier or create one if this is the
     // first time we've seen them. (Use emplace to avoid copying
     // the string if it is already in the collection.)

@@ -76,21 +76,15 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
 
     //! Add \p value to an order statistic.
     template<typename LESS>
-    static void add(const TDouble1Vec& value,
-                    unsigned int count,
-                    maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
+    static void add(const TDouble1Vec& value, unsigned int count, maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
         stat.add(value[0], count);
     }
     //! Add \p value to a mean statistic.
     static void add(const TDouble1Vec& value, unsigned int count, TMeanAccumulator& stat) { stat.add(value[0], count); }
     //! Add \p value to a variance statistic.
-    static void add(const TDouble1Vec& value, unsigned int count, TVarianceAccumulator& stat) {
-        stat.add(value[0], count);
-    }
+    static void add(const TDouble1Vec& value, unsigned int count, TVarianceAccumulator& stat) { stat.add(value[0], count); }
     //! Add \p value to a median statistic.
-    static void add(const TDouble1Vec& value, unsigned int count, TMedianAccumulator& stat) {
-        stat.add(value[0], count);
-    }
+    static void add(const TDouble1Vec& value, unsigned int count, TMedianAccumulator& stat) { stat.add(value[0], count); }
     //! Add \p value to a multivariate statistic.
     template<typename STATISTIC>
     static void add(const TDouble1Vec& value, unsigned int count, CMetricMultivariateStatistic<STATISTIC>& stat) {
@@ -108,8 +102,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     static TDouble1Vec value(const TVarianceAccumulator& stat) {
         TDouble1Vec result;
         if (maths::CBasicStatistics::count(stat) >= 2.0) {
-            result.assign(
-                {maths::CBasicStatistics::maximumLikelihoodVariance(stat), maths::CBasicStatistics::mean(stat)});
+            result.assign({maths::CBasicStatistics::maximumLikelihoodVariance(stat), maths::CBasicStatistics::mean(stat)});
         }
         return result;
     }
@@ -155,13 +148,9 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
         return 1.0;
     }
     //! Get the count of the statistic.
-    static double count(const TMeanAccumulator& stat) {
-        return static_cast<double>(maths::CBasicStatistics::count(stat));
-    }
+    static double count(const TMeanAccumulator& stat) { return static_cast<double>(maths::CBasicStatistics::count(stat)); }
     //! Get the count of the statistic.
-    static double count(const TVarianceAccumulator& stat) {
-        return static_cast<double>(maths::CBasicStatistics::count(stat));
-    }
+    static double count(const TVarianceAccumulator& stat) { return static_cast<double>(maths::CBasicStatistics::count(stat)); }
     //! Get the count of the statistic.
     static double count(const TMedianAccumulator& stat) { return stat.count(); }
     //! Get the count of a multivariate statistic.
@@ -182,8 +171,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
         inserter.insertValue(tag, stat.toDelimited());
     }
     //! Persist a variance statistic.
-    static void
-    persist(const TVarianceAccumulator& stat, const std::string& tag, core::CStatePersistInserter& inserter) {
+    static void persist(const TVarianceAccumulator& stat, const std::string& tag, core::CStatePersistInserter& inserter) {
         inserter.insertValue(tag, stat.toDelimited());
     }
     //! Persist a median statistic.
@@ -192,9 +180,8 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     }
     //! Persist a multivariate statistic.
     template<typename STATISTIC>
-    static void persist(const CMetricMultivariateStatistic<STATISTIC>& stat,
-                        const std::string& tag,
-                        core::CStatePersistInserter& inserter) {
+    static void
+    persist(const CMetricMultivariateStatistic<STATISTIC>& stat, const std::string& tag, core::CStatePersistInserter& inserter) {
         inserter.insertLevel(tag, boost::bind(&CMetricMultivariateStatistic<STATISTIC>::persist, &stat, _1));
     }
 

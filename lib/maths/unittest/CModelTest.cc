@@ -60,10 +60,8 @@ void CModelTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(1.5, params.propagationInterval());
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(maths::CConstantWeights::SEASONAL_VARIANCE),
                              core::CContainerPrinter::print(params.weightStyles()));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(trendWeights),
-                             core::CContainerPrinter::print(params.trendWeights()));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(priorWeights),
-                             core::CContainerPrinter::print(params.priorWeights()));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(trendWeights), core::CContainerPrinter::print(params.trendWeights()));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(priorWeights), core::CContainerPrinter::print(params.priorWeights()));
     }
     {
         maths::CModelProbabilityParams::TDouble2Vec weight1(2, 0.4);
@@ -88,12 +86,10 @@ void CModelTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedAbove, params.calculation(0));
         CPPUNIT_ASSERT_EQUAL(maths_t::E_TwoSided, params.calculation(1));
         CPPUNIT_ASSERT_EQUAL(50.0, params.seasonalConfidenceInterval());
-        CPPUNIT_ASSERT_EQUAL(std::string("[[true, true], [false, true]]"),
-                             core::CContainerPrinter::print(params.bucketEmpty()));
+        CPPUNIT_ASSERT_EQUAL(std::string("[[true, true], [false, true]]"), core::CContainerPrinter::print(params.bucketEmpty()));
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(maths::CConstantWeights::COUNT_VARIANCE),
                              core::CContainerPrinter::print(params.weightStyles()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[[[0.4, 0.4]], [[0.7, 0.7]]]"),
-                             core::CContainerPrinter::print(params.weights()));
+        CPPUNIT_ASSERT_EQUAL(std::string("[[[0.4, 0.4]], [[0.7, 0.7]]]"), core::CContainerPrinter::print(params.weights()));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), *params.mostAnomalousCorrelate());
         CPPUNIT_ASSERT_EQUAL(std::string("[1, 0]"), core::CContainerPrinter::print(params.coordinates()));
     }

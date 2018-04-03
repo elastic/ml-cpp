@@ -43,10 +43,7 @@ class CInputParser;
 //!
 class API_EXPORT CCmdSkeleton : private core::CNonCopyable {
 public:
-    CCmdSkeleton(core::CDataSearcher* restoreSearcher,
-                 core::CDataAdder* persister,
-                 CInputParser& inputParser,
-                 CDataProcessor& processor);
+    CCmdSkeleton(core::CDataSearcher* restoreSearcher, core::CDataAdder* persister, CInputParser& inputParser, CDataProcessor& processor);
 
     //! Pass input to the processor until it's consumed as much as it can.
     bool ioLoop(void);

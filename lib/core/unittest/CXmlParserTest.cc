@@ -31,50 +31,29 @@
 CppUnit::Test* CXmlParserTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXmlParserTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse1File", &CXmlParserTest::testParse1File));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse1String", &CXmlParserTest::testParse1String));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse2", &CXmlParserTest::testParse2));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testNavigate", &CXmlParserTest::testNavigate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParseXInclude", &CXmlParserTest::testParseXInclude));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse3", &CXmlParserTest::testParse3));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse4", &CXmlParserTest::testParse4));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse5", &CXmlParserTest::testParse5));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse6", &CXmlParserTest::testParse6));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvert1", &CXmlParserTest::testConvert1));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvert2", &CXmlParserTest::testConvert2));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvert3", &CXmlParserTest::testConvert3));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvert4", &CXmlParserTest::testConvert4));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse1File", &CXmlParserTest::testParse1File));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse1String", &CXmlParserTest::testParse1String));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse2", &CXmlParserTest::testParse2));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testNavigate", &CXmlParserTest::testNavigate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParseXInclude",
-                                                                  &CXmlParserTest::testParseXInclude));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse3", &CXmlParserTest::testParse3));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse4", &CXmlParserTest::testParse4));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse5", &CXmlParserTest::testParse5));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParse6", &CXmlParserTest::testParse6));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvert1", &CXmlParserTest::testConvert1));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvert2", &CXmlParserTest::testConvert2));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvert3", &CXmlParserTest::testConvert3));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvert4", &CXmlParserTest::testConvert4));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testAddNewChildNode",
-                                                                  &CXmlParserTest::testAddNewChildNode));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testSetRootNode", &CXmlParserTest::testSetRootNode));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testDump", &CXmlParserTest::testDump));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testMakeValidName",
-                                                                  &CXmlParserTest::testMakeValidName));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testChangeChild", &CXmlParserTest::testChangeChild));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testHugeDoc", &CXmlParserTest::testHugeDoc));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParseSpeed", &CXmlParserTest::testParseSpeed));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvertSpeed", &CXmlParserTest::testConvertSpeed));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testComplexXPath", &CXmlParserTest::testComplexXPath));
+        new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testAddNewChildNode", &CXmlParserTest::testAddNewChildNode));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testSetRootNode", &CXmlParserTest::testSetRootNode));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testDump", &CXmlParserTest::testDump));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testMakeValidName", &CXmlParserTest::testMakeValidName));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testChangeChild", &CXmlParserTest::testChangeChild));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testHugeDoc", &CXmlParserTest::testHugeDoc));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testParseSpeed", &CXmlParserTest::testParseSpeed));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testConvertSpeed", &CXmlParserTest::testConvertSpeed));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlParserTest>("CXmlParserTest::testComplexXPath", &CXmlParserTest::testComplexXPath));
 
     return suiteOfTests;
 }
@@ -504,8 +483,7 @@ void CXmlParserTest::testConvert4(void) {
     CPPUNIT_ASSERT(converted.find("</child>") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("<child ") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("&amp; ") != std::string::npos);
-    CPPUNIT_ASSERT(converted.find("<empty/>") != std::string::npos ||
-                   converted.find("<empty></empty>") != std::string::npos);
+    CPPUNIT_ASSERT(converted.find("<empty/>") != std::string::npos || converted.find("<empty></empty>") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("<dual ") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("first") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("second") != std::string::npos);
@@ -607,10 +585,9 @@ void CXmlParserTest::testParse1(const ml::core::CXmlParser& parser) {
 
     CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/OperationRequest/HTTPHeaders/Header/@Value", node));
     CPPUNIT_ASSERT_EQUAL(std::string("Value"), node.name());
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant Browser; Avant Browser; .NET CLR "
-                    "1.0.3705; .NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC 4.0; InfoPath.2)"),
-        node.value());
+    CPPUNIT_ASSERT_EQUAL(std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant Browser; Avant Browser; .NET CLR "
+                                     "1.0.3705; .NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC 4.0; InfoPath.2)"),
+                         node.value());
     CPPUNIT_ASSERT(node.attributes().empty());
 
     CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/OperationRequest/RequestId", node));
@@ -636,9 +613,7 @@ void CXmlParserTest::testParse1(const ml::core::CXmlParser& parser) {
     CPPUNIT_ASSERT_EQUAL(std::string("ItemSearchResponse"), parser.rootElementName());
 }
 
-bool CXmlParserTest::testAttribute(const ml::core::CXmlNode& node,
-                                   const std::string& key,
-                                   const std::string& expected) {
+bool CXmlParserTest::testAttribute(const ml::core::CXmlNode& node, const std::string& key, const std::string& expected) {
     std::string actual;
     if (node.attribute(key, actual) == false) {
         return false;
@@ -814,7 +789,7 @@ void CXmlParserTest::testComplexXPath(void) {
 
     // This convoluted query is for XML schemas that
     // have a default namespace but don't give it a name!
-    CPPUNIT_ASSERT(parser.evalXPathExpression(
-        "//*[local-name()='title' and .='ml']/..//*[local-name()='key' and @name='disabled']", disabled));
+    CPPUNIT_ASSERT(
+        parser.evalXPathExpression("//*[local-name()='title' and .='ml']/..//*[local-name()='key' and @name='disabled']", disabled));
     CPPUNIT_ASSERT_EQUAL(true, disabled);
 }

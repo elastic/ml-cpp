@@ -193,8 +193,7 @@ public:
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \return The penalty to apply in model selection.
-    virtual double
-    adjustOffset(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights) = 0;
+    virtual double adjustOffset(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights) = 0;
 
     //! Get the current sample offset.
     virtual double offset(void) const = 0;
@@ -207,8 +206,7 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void
-    addSamples(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights) = 0;
+    virtual void addSamples(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights) = 0;
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) = 0;
@@ -244,10 +242,9 @@ public:
     //! \param[in] weightStyles Optional variance scale weight styles.
     //! \param[in] weights Optional variance scale weights.
     //! \note \p percentage should be in the range [0.0, 100.0).
-    virtual TDoubleDoublePr
-    marginalLikelihoodConfidenceInterval(double percentage,
-                                         const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                         const TDouble4Vec& weights = TWeights::UNIT) const = 0;
+    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(double percentage,
+                                                                 const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                                                 const TDouble4Vec& weights = TWeights::UNIT) const = 0;
 
     //! Get the variance of the marginal likelihood.
     virtual double marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
@@ -476,9 +473,7 @@ protected:
         virtual ~COffsetParameters(void) = default;
 
         //! Add a collection of samples.
-        void samples(const maths_t::TWeightStyleVec& weightStyles,
-                     const TDouble1Vec& samples,
-                     const TDouble4Vec1Vec& weights);
+        void samples(const maths_t::TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
         //! Capture a collection of re-samples from the prior.
         virtual void resample(double minimumSample);

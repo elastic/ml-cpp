@@ -132,10 +132,7 @@ bool CTopLevelDomainDb::registeredDomainName(const std::string& host, std::strin
     return false;
 }
 
-void CTopLevelDomainDb::splitHostName(const std::string& host,
-                                      std::string& subDomain,
-                                      std::string& domain,
-                                      std::string& suffix) const {
+void CTopLevelDomainDb::splitHostName(const std::string& host, std::string& subDomain, std::string& domain, std::string& suffix) const {
     if (m_EffectiveTldNames.empty()) {
         LOG_ERROR("No rules. Call ::init to initialize object.");
     }
@@ -160,10 +157,7 @@ void CTopLevelDomainDb::splitHostName(const std::string& host,
     }
 }
 
-void CTopLevelDomainDb::extract(const std::string& str,
-                                std::string& subDomain,
-                                std::string& domain,
-                                std::string& suffix) const {
+void CTopLevelDomainDb::extract(const std::string& str, std::string& subDomain, std::string& domain, std::string& suffix) const {
     /*
 https://publicsuffix.org/list/#list-format
 

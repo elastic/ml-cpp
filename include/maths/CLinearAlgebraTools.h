@@ -230,12 +230,12 @@ struct SFabs<MatrixTag> {
     }
 };
 
-#define INVERSE_QUADRATIC_PRODUCT(T, N)                                                                                \
-    MATHS_EXPORT                                                                                                       \
-    maths_t::EFloatingPointErrorStatus inverseQuadraticProduct(std::size_t d,                                          \
-                                                               const CSymmetricMatrixNxN<T, N>& covariance,            \
-                                                               const CVectorNx1<T, N>& residual,                       \
-                                                               double& result,                                         \
+#define INVERSE_QUADRATIC_PRODUCT(T, N)                                                                                                    \
+    MATHS_EXPORT                                                                                                                           \
+    maths_t::EFloatingPointErrorStatus inverseQuadraticProduct(std::size_t d,                                                              \
+                                                               const CSymmetricMatrixNxN<T, N>& covariance,                                \
+                                                               const CVectorNx1<T, N>& residual,                                           \
+                                                               double& result,                                                             \
                                                                bool ignoreSingularSubspace)
 INVERSE_QUADRATIC_PRODUCT(CFloatStorage, 2);
 INVERSE_QUADRATIC_PRODUCT(CFloatStorage, 3);
@@ -259,12 +259,12 @@ maths_t::EFloatingPointErrorStatus inverseQuadraticProduct(std::size_t d,
                                                            double& result,
                                                            bool ignoreSingularSubspace);
 
-#define GAUSSIAN_LOG_LIKELIHOOD(T, N)                                                                                  \
-    MATHS_EXPORT                                                                                                       \
-    maths_t::EFloatingPointErrorStatus gaussianLogLikelihood(std::size_t d,                                            \
-                                                             const CSymmetricMatrixNxN<T, N>& covariance,              \
-                                                             const CVectorNx1<T, N>& residual,                         \
-                                                             double& result,                                           \
+#define GAUSSIAN_LOG_LIKELIHOOD(T, N)                                                                                                      \
+    MATHS_EXPORT                                                                                                                           \
+    maths_t::EFloatingPointErrorStatus gaussianLogLikelihood(std::size_t d,                                                                \
+                                                             const CSymmetricMatrixNxN<T, N>& covariance,                                  \
+                                                             const CVectorNx1<T, N>& residual,                                             \
+                                                             double& result,                                                               \
                                                              bool ignoreSingularSubspace)
 GAUSSIAN_LOG_LIKELIHOOD(CFloatStorage, 2);
 GAUSSIAN_LOG_LIKELIHOOD(CFloatStorage, 3);
@@ -289,11 +289,11 @@ maths_t::EFloatingPointErrorStatus gaussianLogLikelihood(std::size_t d,
                                                          bool ignoreSingularSubspace);
 
 //! Shared implementation of Gaussian sampling.
-#define SAMPLE_GAUSSIAN(T, N)                                                                                          \
-    MATHS_EXPORT                                                                                                       \
-    void sampleGaussian(std::size_t n,                                                                                 \
-                        const CVectorNx1<T, N>& mean,                                                                  \
-                        const CSymmetricMatrixNxN<T, N>& covariance,                                                   \
+#define SAMPLE_GAUSSIAN(T, N)                                                                                                              \
+    MATHS_EXPORT                                                                                                                           \
+    void sampleGaussian(std::size_t n,                                                                                                     \
+                        const CVectorNx1<T, N>& mean,                                                                                      \
+                        const CSymmetricMatrixNxN<T, N>& covariance,                                                                       \
                         std::vector<CVectorNx1<double, N>>& result)
 SAMPLE_GAUSSIAN(CFloatStorage, 2);
 SAMPLE_GAUSSIAN(CFloatStorage, 3);
@@ -316,9 +316,9 @@ void sampleGaussian(std::size_t n,
                     std::vector<CVector<double>>& result);
 
 //! Shared implementation of the log-determinant function.
-#define LOG_DETERMINANT(T, N)                                                                                          \
-    MATHS_EXPORT                                                                                                       \
-    maths_t::EFloatingPointErrorStatus logDeterminant(                                                                 \
+#define LOG_DETERMINANT(T, N)                                                                                                              \
+    MATHS_EXPORT                                                                                                                           \
+    maths_t::EFloatingPointErrorStatus logDeterminant(                                                                                     \
         std::size_t d, const CSymmetricMatrixNxN<T, N>& matrix, double& result, bool ignoreSingularSubspace)
 LOG_DETERMINANT(CFloatStorage, 2);
 LOG_DETERMINANT(CFloatStorage, 3);
@@ -330,10 +330,8 @@ LOG_DETERMINANT(double, 4);
 LOG_DETERMINANT(double, 5);
 #undef LOG_DETERMINANT
 MATHS_EXPORT
-maths_t::EFloatingPointErrorStatus logDeterminant(std::size_t d,
-                                                  const CSymmetricMatrix<CFloatStorage>& matrix,
-                                                  double& result,
-                                                  bool ignoreSingularSubspace);
+maths_t::EFloatingPointErrorStatus
+logDeterminant(std::size_t d, const CSymmetricMatrix<CFloatStorage>& matrix, double& result, bool ignoreSingularSubspace);
 MATHS_EXPORT
 maths_t::EFloatingPointErrorStatus
 logDeterminant(std::size_t d, const CSymmetricMatrix<double>& matrix, double& result, bool ignoreSingularSubspace);
@@ -525,48 +523,42 @@ CSymmetricMatrix<T> sqrt(const CSymmetricMatrix<T>& m) {
 template<typename T>
 CVector<T> min(const CVector<T>& lhs, const CVector<T>& rhs) {
     CVector<T> result(rhs);
-    linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::VectorVectorTag>::calculate(
-        result.dimension(), lhs, result);
+    linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::VectorVectorTag>::calculate(result.dimension(), lhs, result);
     return result;
 }
 //! Overload minimum for CVector.
 template<typename T>
 CVector<T> min(const CVector<T>& lhs, const T& rhs) {
     CVector<T> result(lhs);
-    linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::VectorScalarTag>::calculate(
-        result.dimension(), result, rhs);
+    linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::VectorScalarTag>::calculate(result.dimension(), result, rhs);
     return result;
 }
 //! Overload minimum for CVector.
 template<typename T>
 CVector<T> min(const T& lhs, const CVector<T>& rhs) {
     CVector<T> result(rhs);
-    linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::ScalarVectorTag>::calculate(
-        result.dimension(), lhs, result);
+    linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::ScalarVectorTag>::calculate(result.dimension(), lhs, result);
     return result;
 }
 //! Overload minimum for CSymmetricMatrix.
 template<typename T>
 CSymmetricMatrix<T> min(const CSymmetricMatrix<T>& lhs, const CSymmetricMatrix<T>& rhs) {
     CSymmetricMatrix<T> result(rhs);
-    linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::MatrixMatrixTag>::calculate(
-        result.rows(), lhs, result);
+    linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::MatrixMatrixTag>::calculate(result.rows(), lhs, result);
     return result;
 }
 //! Overload minimum for CSymmetricMatrix.
 template<typename T>
 CSymmetricMatrix<T> min(const CSymmetricMatrix<T>& lhs, const T& rhs) {
     CSymmetricMatrix<T> result(lhs);
-    linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::MatrixScalarTag>::calculate(
-        result.rows(), result, rhs);
+    linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::MatrixScalarTag>::calculate(result.rows(), result, rhs);
     return result;
 }
 //! Overload minimum for CSymmetricMatrix.
 template<typename T>
 CSymmetricMatrix<T> min(const T& lhs, const CSymmetricMatrix<T>& rhs) {
     CSymmetricMatrix<T> result(rhs);
-    linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::ScalarMatrixTag>::calculate(
-        result.rows(), lhs, result);
+    linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::ScalarMatrixTag>::calculate(result.rows(), lhs, result);
     return result;
 }
 
@@ -574,48 +566,42 @@ CSymmetricMatrix<T> min(const T& lhs, const CSymmetricMatrix<T>& rhs) {
 template<typename T>
 CVector<T> max(const CVector<T>& lhs, const CVector<T>& rhs) {
     CVector<T> result(rhs);
-    linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::VectorVectorTag>::calculate(
-        result.dimension(), lhs, result);
+    linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::VectorVectorTag>::calculate(result.dimension(), lhs, result);
     return result;
 }
 //! Overload maximum for CVector.
 template<typename T>
 CVector<T> max(const CVector<T>& lhs, const T& rhs) {
     CVector<T> result(lhs);
-    linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::VectorScalarTag>::calculate(
-        result.dimension(), result, rhs);
+    linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::VectorScalarTag>::calculate(result.dimension(), result, rhs);
     return result;
 }
 //! Overload maximum for CVector.
 template<typename T>
 CVector<T> max(const T& lhs, const CVector<T>& rhs) {
     CVector<T> result(rhs);
-    linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::ScalarVectorTag>::calculate(
-        result.dimension(), lhs, result);
+    linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::ScalarVectorTag>::calculate(result.dimension(), lhs, result);
     return result;
 }
 //! Overload maximum for CSymmetricMatrix.
 template<typename T>
 CSymmetricMatrix<T> max(const CSymmetricMatrix<T>& lhs, const CSymmetricMatrix<T>& rhs) {
     CSymmetricMatrix<T> result(rhs);
-    linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::MatrixMatrixTag>::calculate(
-        result.rows(), lhs, result);
+    linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::MatrixMatrixTag>::calculate(result.rows(), lhs, result);
     return result;
 }
 //! Overload maximum for CSymmetricMatrix.
 template<typename T>
 CSymmetricMatrix<T> max(const CSymmetricMatrix<T>& lhs, const T& rhs) {
     CSymmetricMatrix<T> result(lhs);
-    linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::MatrixScalarTag>::calculate(
-        result.rows(), result, rhs);
+    linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::MatrixScalarTag>::calculate(result.rows(), result, rhs);
     return result;
 }
 //! Overload maximum for CSymmetricMatrix.
 template<typename T>
 CSymmetricMatrix<T> max(const T& lhs, const CSymmetricMatrix<T>& rhs) {
     CSymmetricMatrix<T> result(rhs);
-    linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::ScalarMatrixTag>::calculate(
-        result.rows(), lhs, result);
+    linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::ScalarMatrixTag>::calculate(result.rows(), lhs, result);
     return result;
 }
 
@@ -687,8 +673,7 @@ maths_t::EFloatingPointErrorStatus inverseQuadraticForm(const CSymmetricMatrixNx
                                                         const CVectorNx1<T, N>& residual,
                                                         double& result,
                                                         bool ignoreSingularSubspace = true) {
-    return linear_algebra_tools_detail::inverseQuadraticProduct(
-        N, covariance, residual, result, ignoreSingularSubspace);
+    return linear_algebra_tools_detail::inverseQuadraticProduct(N, covariance, residual, result, ignoreSingularSubspace);
 }
 
 //! Compute the log-likelihood for the residual \p x and covariance
@@ -748,8 +733,7 @@ maths_t::EFloatingPointErrorStatus inverseQuadraticForm(const CSymmetricMatrix<T
                                                         const CVector<T>& residual,
                                                         double& result,
                                                         bool ignoreSingularSubspace = true) {
-    return linear_algebra_tools_detail::inverseQuadraticProduct(
-        covariance.rows(), covariance, residual, result, ignoreSingularSubspace);
+    return linear_algebra_tools_detail::inverseQuadraticProduct(covariance.rows(), covariance, residual, result, ignoreSingularSubspace);
 }
 
 //! Compute the log-likelihood for the residual \p x and covariance
@@ -766,8 +750,7 @@ maths_t::EFloatingPointErrorStatus gaussianLogLikelihood(const CSymmetricMatrix<
                                                          const CVector<T>& residual,
                                                          double& result,
                                                          bool ignoreSingularSubspace = true) {
-    return linear_algebra_tools_detail::gaussianLogLikelihood(
-        covariance.rows(), covariance, residual, result, ignoreSingularSubspace);
+    return linear_algebra_tools_detail::gaussianLogLikelihood(covariance.rows(), covariance, residual, result, ignoreSingularSubspace);
 }
 
 //! Sample from a Gaussian with \p mean and \p covariance in such
@@ -779,10 +762,7 @@ maths_t::EFloatingPointErrorStatus gaussianLogLikelihood(const CSymmetricMatrix<
 //! \param[in] covariance The covariance matrix of the Gaussian.
 //! \param[out] result Filled in with the samples.
 template<typename T, typename U>
-void sampleGaussian(std::size_t n,
-                    const CVector<T>& mean,
-                    const CSymmetricMatrix<T>& covariance,
-                    std::vector<CVector<U>>& result) {
+void sampleGaussian(std::size_t n, const CVector<T>& mean, const CSymmetricMatrix<T>& covariance, std::vector<CVector<U>>& result) {
     return linear_algebra_tools_detail::sampleGaussian(n, mean, covariance, result);
 }
 
@@ -792,8 +772,7 @@ void sampleGaussian(std::size_t n,
 //! \param[in] ignoreSingularSubspace If true then we ignore any
 //! singular subspace of m. Otherwise, the result is minus infinity.
 template<typename T>
-maths_t::EFloatingPointErrorStatus
-logDeterminant(const CSymmetricMatrix<T>& matrix, double& result, bool ignoreSingularSubspace = true) {
+maths_t::EFloatingPointErrorStatus logDeterminant(const CSymmetricMatrix<T>& matrix, double& result, bool ignoreSingularSubspace = true) {
     return linear_algebra_tools_detail::logDeterminant(matrix.rows(), matrix, result, ignoreSingularSubspace);
 }
 
@@ -813,8 +792,7 @@ inline Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> projectedMatrix(con
 
 //! Project the vector on to \p subspace.
 template<typename VECTOR>
-inline Eigen::Matrix<double, Eigen::Dynamic, 1> projectedVector(const std::vector<std::size_t>& subspace,
-                                                                const VECTOR& vector) {
+inline Eigen::Matrix<double, Eigen::Dynamic, 1> projectedVector(const std::vector<std::size_t>& subspace, const VECTOR& vector) {
     std::size_t d = subspace.size();
     Eigen::Matrix<double, Eigen::Dynamic, 1> result(d);
     for (std::size_t i = 0u; i < d; ++i) {

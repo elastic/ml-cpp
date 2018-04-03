@@ -66,22 +66,21 @@ struct SRestore {
 CppUnit::Test* CBasicStatisticsTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBasicStatisticsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testMean",
-                                                                        &CBasicStatisticsTest::testMean));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testMean", &CBasicStatisticsTest::testMean));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testCentralMoments",
                                                                         &CBasicStatisticsTest::testCentralMoments));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
-        "CBasicStatisticsTest::testVectorCentralMoments", &CBasicStatisticsTest::testVectorCentralMoments));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testCovariances",
-                                                                        &CBasicStatisticsTest::testCovariances));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
-        "CBasicStatisticsTest::testCovariancesLedoitWolf", &CBasicStatisticsTest::testCovariancesLedoitWolf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testMedian",
-                                                                        &CBasicStatisticsTest::testMedian));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testVectorCentralMoments",
+                                                                        &CBasicStatisticsTest::testVectorCentralMoments));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testCovariances", &CBasicStatisticsTest::testCovariances));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testCovariancesLedoitWolf",
+                                                                        &CBasicStatisticsTest::testCovariancesLedoitWolf));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testMedian", &CBasicStatisticsTest::testMedian));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testOrderStatistics",
                                                                         &CBasicStatisticsTest::testOrderStatistics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testMinMax",
-                                                                        &CBasicStatisticsTest::testMinMax));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testMinMax", &CBasicStatisticsTest::testMinMax));
 
     return suiteOfTests;
 }
@@ -202,8 +201,7 @@ void CBasicStatisticsTest::testCentralMoments(void) {
                 }
             }
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                ml::maths::CBasicStatistics::mean(acc1), ml::maths::CBasicStatistics::mean(acc2), 1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::mean(acc1), ml::maths::CBasicStatistics::mean(acc2), 1e-10);
         }
 
         {
@@ -217,10 +215,8 @@ void CBasicStatisticsTest::testCentralMoments(void) {
                 }
             }
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                ml::maths::CBasicStatistics::mean(acc1), ml::maths::CBasicStatistics::mean(acc2), 1e-10);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                ml::maths::CBasicStatistics::variance(acc1), ml::maths::CBasicStatistics::variance(acc2), 1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::mean(acc1), ml::maths::CBasicStatistics::mean(acc2), 1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::variance(acc1), ml::maths::CBasicStatistics::variance(acc2), 1e-10);
         }
 
         {
@@ -234,12 +230,9 @@ void CBasicStatisticsTest::testCentralMoments(void) {
                 }
             }
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                ml::maths::CBasicStatistics::mean(acc1), ml::maths::CBasicStatistics::mean(acc2), 1e-10);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                ml::maths::CBasicStatistics::variance(acc1), ml::maths::CBasicStatistics::variance(acc2), 1e-10);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                ml::maths::CBasicStatistics::skewness(acc1), ml::maths::CBasicStatistics::skewness(acc2), 1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::mean(acc1), ml::maths::CBasicStatistics::mean(acc2), 1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::variance(acc1), ml::maths::CBasicStatistics::variance(acc2), 1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::skewness(acc1), ml::maths::CBasicStatistics::skewness(acc2), 1e-10);
         }
     }
 
@@ -319,14 +312,10 @@ void CBasicStatisticsTest::testCentralMoments(void) {
 
                 TMeanAccumulator sum = acc1 + acc2;
 
-                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(acc1),
-                                     ml::maths::CBasicStatistics::count(sum - acc2));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    ml::maths::CBasicStatistics::mean(acc1), ml::maths::CBasicStatistics::mean(sum - acc2), 1e-10);
-                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(acc2),
-                                     ml::maths::CBasicStatistics::count(sum - acc1));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    ml::maths::CBasicStatistics::mean(acc2), ml::maths::CBasicStatistics::mean(sum - acc1), 1e-10);
+                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(acc1), ml::maths::CBasicStatistics::count(sum - acc2));
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::mean(acc1), ml::maths::CBasicStatistics::mean(sum - acc2), 1e-10);
+                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(acc2), ml::maths::CBasicStatistics::count(sum - acc1));
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::mean(acc2), ml::maths::CBasicStatistics::mean(sum - acc1), 1e-10);
             }
         }
         LOG_DEBUG("Test mean and variance");
@@ -349,20 +338,14 @@ void CBasicStatisticsTest::testCentralMoments(void) {
 
                 TMeanVarAccumulator sum = acc1 + acc2;
 
-                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(acc1),
-                                     ml::maths::CBasicStatistics::count(sum - acc2));
+                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(acc1), ml::maths::CBasicStatistics::count(sum - acc2));
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::mean(acc1), ml::maths::CBasicStatistics::mean(sum - acc2), 1e-10);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    ml::maths::CBasicStatistics::mean(acc1), ml::maths::CBasicStatistics::mean(sum - acc2), 1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::variance(acc1),
-                                             ml::maths::CBasicStatistics::variance(sum - acc2),
-                                             1e-10);
-                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(acc2),
-                                     ml::maths::CBasicStatistics::count(sum - acc1));
+                    ml::maths::CBasicStatistics::variance(acc1), ml::maths::CBasicStatistics::variance(sum - acc2), 1e-10);
+                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(acc2), ml::maths::CBasicStatistics::count(sum - acc1));
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::mean(acc2), ml::maths::CBasicStatistics::mean(sum - acc1), 1e-10);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    ml::maths::CBasicStatistics::mean(acc2), ml::maths::CBasicStatistics::mean(sum - acc1), 1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::variance(acc2),
-                                             ml::maths::CBasicStatistics::variance(sum - acc1),
-                                             1e-10);
+                    ml::maths::CBasicStatistics::variance(acc2), ml::maths::CBasicStatistics::variance(sum - acc1), 1e-10);
             }
         }
         LOG_DEBUG("Test mean, variance and skew");
@@ -385,35 +368,25 @@ void CBasicStatisticsTest::testCentralMoments(void) {
 
                 TMeanVarSkewAccumulator sum = acc1 + acc2;
 
-                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(acc1),
-                                     ml::maths::CBasicStatistics::count(sum - acc2));
+                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(acc1), ml::maths::CBasicStatistics::count(sum - acc2));
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::mean(acc1), ml::maths::CBasicStatistics::mean(sum - acc2), 1e-10);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    ml::maths::CBasicStatistics::mean(acc1), ml::maths::CBasicStatistics::mean(sum - acc2), 1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::variance(acc1),
-                                             ml::maths::CBasicStatistics::variance(sum - acc2),
-                                             1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::skewness(acc1),
-                                             ml::maths::CBasicStatistics::skewness(sum - acc2),
-                                             1e-10);
-                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(acc2),
-                                     ml::maths::CBasicStatistics::count(sum - acc1));
+                    ml::maths::CBasicStatistics::variance(acc1), ml::maths::CBasicStatistics::variance(sum - acc2), 1e-10);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    ml::maths::CBasicStatistics::mean(acc2), ml::maths::CBasicStatistics::mean(sum - acc1), 1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::variance(acc2),
-                                             ml::maths::CBasicStatistics::variance(sum - acc1),
-                                             1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::skewness(acc2),
-                                             ml::maths::CBasicStatistics::skewness(sum - acc1),
-                                             1e-10);
+                    ml::maths::CBasicStatistics::skewness(acc1), ml::maths::CBasicStatistics::skewness(sum - acc2), 1e-10);
+                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(acc2), ml::maths::CBasicStatistics::count(sum - acc1));
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(ml::maths::CBasicStatistics::mean(acc2), ml::maths::CBasicStatistics::mean(sum - acc1), 1e-10);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                    ml::maths::CBasicStatistics::variance(acc2), ml::maths::CBasicStatistics::variance(sum - acc1), 1e-10);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                    ml::maths::CBasicStatistics::skewness(acc2), ml::maths::CBasicStatistics::skewness(sum - acc1), 1e-10);
             }
         }
     }
 
     LOG_DEBUG("test vector") {
-        typedef ml::maths::CBasicStatistics::SSampleMean<ml::maths::CVectorNx1<double, 4>>::TAccumulator
-            TVectorMeanAccumulator;
-        typedef ml::maths::CBasicStatistics::SSampleMeanVar<ml::maths::CVectorNx1<double, 4>>::TAccumulator
-            TVectorMeanVarAccumulator;
+        typedef ml::maths::CBasicStatistics::SSampleMean<ml::maths::CVectorNx1<double, 4>>::TAccumulator TVectorMeanAccumulator;
+        typedef ml::maths::CBasicStatistics::SSampleMeanVar<ml::maths::CVectorNx1<double, 4>>::TAccumulator TVectorMeanVarAccumulator;
         typedef ml::maths::CBasicStatistics::SSampleMeanVarSkew<ml::maths::CVectorNx1<double, 4>>::TAccumulator
             TVectorMeanVarSkewAccumulator;
 
@@ -437,11 +410,9 @@ void CBasicStatisticsTest::testCentralMoments(void) {
                 LOG_DEBUG("v = " << v);
                 vectorMean.add(v);
 
-                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(means[0]),
-                                     ml::maths::CBasicStatistics::count(vectorMean));
+                CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::count(means[0]), ml::maths::CBasicStatistics::count(vectorMean));
                 for (std::size_t j = 0u; j < 4; ++j) {
-                    CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::mean(means[j]),
-                                         (ml::maths::CBasicStatistics::mean(vectorMean))(j));
+                    CPPUNIT_ASSERT_EQUAL(ml::maths::CBasicStatistics::mean(means[j]), (ml::maths::CBasicStatistics::mean(vectorMean))(j));
                 }
             }
         }
@@ -775,16 +746,15 @@ void CBasicStatisticsTest::testCovariances(void) {
 
     LOG_DEBUG("N(3,I)");
     {
-        const double raw[][3] = {{2.58894, 2.87211, 1.62609}, {3.88246, 2.98577, 2.70981}, {2.03317, 3.33715, 2.93560},
-                                 {3.30100, 4.38844, 1.65705}, {2.12426, 2.21127, 2.57000}, {4.21041, 4.20745, 1.90752},
-                                 {3.56139, 3.14454, 0.89316}, {4.29444, 1.58715, 3.58402}, {3.06731, 3.91581, 2.85951},
-                                 {3.62798, 2.28786, 2.89994}, {2.05834, 2.96137, 3.57654}, {2.72185, 3.36003, 3.09708},
-                                 {0.94924, 2.19797, 3.30941}, {2.11159, 2.49182, 3.56793}, {3.10364, 0.32747, 3.62487},
-                                 {2.28235, 3.83542, 3.35942}, {3.30549, 2.95951, 2.97006}, {3.05787, 2.94188, 2.64095},
-                                 {3.98245, 2.02892, 3.07909}, {3.81189, 2.89389, 3.81389}, {3.32811, 3.88484, 4.17866},
-                                 {2.06964, 3.80683, 2.46835}, {4.58989, 2.00321, 1.93029}, {2.51484, 4.46106, 3.71248},
-                                 {3.30729, 2.44768, 3.43241}, {3.52222, 2.91724, 1.49631}, {1.71826, 4.79752, 4.38398},
-                                 {3.14173, 3.16237, 2.49654}, {3.26538, 2.21858, 5.05477}, {2.88352, 1.94396, 3.08744}};
+        const double raw[][3] = {
+            {2.58894, 2.87211, 1.62609}, {3.88246, 2.98577, 2.70981}, {2.03317, 3.33715, 2.93560}, {3.30100, 4.38844, 1.65705},
+            {2.12426, 2.21127, 2.57000}, {4.21041, 4.20745, 1.90752}, {3.56139, 3.14454, 0.89316}, {4.29444, 1.58715, 3.58402},
+            {3.06731, 3.91581, 2.85951}, {3.62798, 2.28786, 2.89994}, {2.05834, 2.96137, 3.57654}, {2.72185, 3.36003, 3.09708},
+            {0.94924, 2.19797, 3.30941}, {2.11159, 2.49182, 3.56793}, {3.10364, 0.32747, 3.62487}, {2.28235, 3.83542, 3.35942},
+            {3.30549, 2.95951, 2.97006}, {3.05787, 2.94188, 2.64095}, {3.98245, 2.02892, 3.07909}, {3.81189, 2.89389, 3.81389},
+            {3.32811, 3.88484, 4.17866}, {2.06964, 3.80683, 2.46835}, {4.58989, 2.00321, 1.93029}, {2.51484, 4.46106, 3.71248},
+            {3.30729, 2.44768, 3.43241}, {3.52222, 2.91724, 1.49631}, {1.71826, 4.79752, 4.38398}, {3.14173, 3.16237, 2.49654},
+            {3.26538, 2.21858, 5.05477}, {2.88352, 1.94396, 3.08744}};
 
         const double expectedMean[] = {3.013898, 2.952637, 2.964104};
         const double expectedCovariances[][3] = {
@@ -811,8 +781,8 @@ void CBasicStatisticsTest::testCovariances(void) {
             }
         }
 
-        bool dynamicSizeAlwaysZero = ml::core::memory_detail::SDynamicSizeAlwaysZero<
-            ml::maths::CBasicStatistics::SSampleCovariances<double, 3>>::value();
+        bool dynamicSizeAlwaysZero =
+            ml::core::memory_detail::SDynamicSizeAlwaysZero<ml::maths::CBasicStatistics::SSampleCovariances<double, 3>>::value();
         CPPUNIT_ASSERT_EQUAL(true, dynamicSizeAlwaysZero);
     }
 
@@ -833,14 +803,10 @@ void CBasicStatisticsTest::testCovariances(void) {
         ml::maths::CVectorNx1<double, 4> covariances4(covariances4_);
 
         ml::maths::CSymmetricMatrixNxN<double, 4> covariance(
-            10.0 * ml::maths::CSymmetricMatrixNxN<double, 4>(ml::maths::E_OuterProduct,
-                                                             covariances1 / covariances1.euclidean()) +
-            5.0 * ml::maths::CSymmetricMatrixNxN<double, 4>(ml::maths::E_OuterProduct,
-                                                            covariances2 / covariances2.euclidean()) +
-            5.0 * ml::maths::CSymmetricMatrixNxN<double, 4>(ml::maths::E_OuterProduct,
-                                                            covariances3 / covariances3.euclidean()) +
-            2.0 * ml::maths::CSymmetricMatrixNxN<double, 4>(ml::maths::E_OuterProduct,
-                                                            covariances4 / covariances4.euclidean()));
+            10.0 * ml::maths::CSymmetricMatrixNxN<double, 4>(ml::maths::E_OuterProduct, covariances1 / covariances1.euclidean()) +
+            5.0 * ml::maths::CSymmetricMatrixNxN<double, 4>(ml::maths::E_OuterProduct, covariances2 / covariances2.euclidean()) +
+            5.0 * ml::maths::CSymmetricMatrixNxN<double, 4>(ml::maths::E_OuterProduct, covariances3 / covariances3.euclidean()) +
+            2.0 * ml::maths::CSymmetricMatrixNxN<double, 4>(ml::maths::E_OuterProduct, covariances4 / covariances4.euclidean()));
 
         std::size_t n = 10000u;
 
@@ -862,8 +828,7 @@ void CBasicStatisticsTest::testCovariances(void) {
         for (std::size_t i = 0u; i < 4; ++i) {
             CPPUNIT_ASSERT_DOUBLES_EQUAL(mean(i), (ml::maths::CBasicStatistics::mean(sampleCovariance))(i), 0.05);
             for (std::size_t j = 0u; j < 4; ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    covariance(i, j), (ml::maths::CBasicStatistics::covariances(sampleCovariance))(i, j), 0.16);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(covariance(i, j), (ml::maths::CBasicStatistics::covariances(sampleCovariance))(i, j), 0.16);
             }
         }
     }

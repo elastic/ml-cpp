@@ -130,15 +130,12 @@ void CMetricPopulationModel::initialize(const TFeatureMathsModelPtrPrVec& newFea
     if (this->params().s_MultivariateByFields) {
         m_FeatureCorrelatesModels.reserve(featureCorrelatesModels.size());
         for (std::size_t i = 0u; i < featureCorrelatesModels.size(); ++i) {
-            m_FeatureCorrelatesModels.emplace_back(featureCorrelatesModels[i].first,
-                                                   newFeatureCorrelateModelPriors[i].second,
-                                                   featureCorrelatesModels[i].second);
+            m_FeatureCorrelatesModels.emplace_back(
+                featureCorrelatesModels[i].first, newFeatureCorrelateModelPriors[i].second, featureCorrelatesModels[i].second);
         }
         std::sort(m_FeatureCorrelatesModels.begin(),
                   m_FeatureCorrelatesModels.end(),
-                  [](const SFeatureCorrelateModels& lhs, const SFeatureCorrelateModels& rhs) {
-                      return lhs.s_Feature < rhs.s_Feature;
-                  });
+                  [](const SFeatureCorrelateModels& lhs, const SFeatureCorrelateModels& rhs) { return lhs.s_Feature < rhs.s_Feature; });
     }
 }
 
@@ -173,8 +170,7 @@ void CMetricPopulationModel::acceptPersistInserter(core::CStatePersistInserter& 
         inserter.insertLevel(FEATURE_MODELS_TAG, boost::bind(&SFeatureModels::acceptPersistInserter, &feature, _1));
     }
     for (const auto& feature : m_FeatureCorrelatesModels) {
-        inserter.insertLevel(FEATURE_CORRELATE_MODELS_TAG,
-                             boost::bind(&SFeatureCorrelateModels::acceptPersistInserter, &feature, _1));
+        inserter.insertLevel(FEATURE_CORRELATE_MODELS_TAG, boost::bind(&SFeatureCorrelateModels::acceptPersistInserter, &feature, _1));
     }
     core::CPersistUtils::persist(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, inserter);
 }
@@ -183,19 +179,16 @@ bool CMetricPopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser
     std::size_t i = 0u, j = 0u;
     do {
         const std::string& name = traverser.name();
-        RESTORE(POPULATION_STATE_TAG,
-                traverser.traverseSubLevel(boost::bind(&CMetricPopulationModel::doAcceptRestoreTraverser, this, _1)))
+        RESTORE(POPULATION_STATE_TAG, traverser.traverseSubLevel(boost::bind(&CMetricPopulationModel::doAcceptRestoreTraverser, this, _1)))
+        RESTORE(FEATURE_MODELS_TAG,
+                i == m_FeatureModels.size() ||
+                    traverser.traverseSubLevel(
+                        boost::bind(&SFeatureModels::acceptRestoreTraverser, &m_FeatureModels[i++], boost::cref(this->params()), _1)))
         RESTORE(
-            FEATURE_MODELS_TAG,
-            i == m_FeatureModels.size() ||
+            FEATURE_CORRELATE_MODELS_TAG,
+            j == m_FeatureCorrelatesModels.size() ||
                 traverser.traverseSubLevel(boost::bind(
-                    &SFeatureModels::acceptRestoreTraverser, &m_FeatureModels[i++], boost::cref(this->params()), _1)))
-        RESTORE(FEATURE_CORRELATE_MODELS_TAG,
-                j == m_FeatureCorrelatesModels.size() ||
-                    traverser.traverseSubLevel(boost::bind(&SFeatureCorrelateModels::acceptRestoreTraverser,
-                                                           &m_FeatureCorrelatesModels[j++],
-                                                           boost::cref(this->params()),
-                                                           _1)))
+                    &SFeatureCorrelateModels::acceptRestoreTraverser, &m_FeatureCorrelatesModels[j++], boost::cref(this->params()), _1)))
         RESTORE(MEMORY_ESTIMATOR_TAG, core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
     } while (traverser.next());
 
@@ -228,10 +221,8 @@ bool CMetricPopulationModel::isMetric(void) const {
     return true;
 }
 
-CMetricPopulationModel::TDouble1Vec CMetricPopulationModel::currentBucketValue(model_t::EFeature feature,
-                                                                               std::size_t pid,
-                                                                               std::size_t cid,
-                                                                               core_t::TTime time) const {
+CMetricPopulationModel::TDouble1Vec
+CMetricPopulationModel::currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const {
     const TSizeSizePrFeatureDataPrVec& featureData = this->featureData(feature, time);
     auto i = find(featureData, pid, cid);
     return i != featureData.end() ? extractValue(feature, *i) : TDouble1Vec();
@@ -249,8 +240,7 @@ CMetricPopulationModel::TDouble1Vec CMetricPopulationModel::baselineBucketMean(m
     }
     static const TSizeDoublePr1Vec NO_CORRELATED;
     TDouble1Vec result(model->predict(time, type.isUnconditional() ? NO_CORRELATED : correlated));
-    this->correctBaselineForInterim(
-        feature, pid, cid, type, correlated, this->currentBucketInterimCorrections(), result);
+    this->correctBaselineForInterim(feature, pid, cid, type, correlated, this->currentBucketInterimCorrections(), result);
     TDouble1VecDouble1VecPr support = model_t::support(feature);
     return maths::CTools::truncate(result, support.first, support.second);
 }
@@ -259,9 +249,7 @@ bool CMetricPopulationModel::bucketStatsAvailable(core_t::TTime time) const {
     return time >= m_CurrentBucketStats.s_StartTime && time < m_CurrentBucketStats.s_StartTime + this->bucketLength();
 }
 
-void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime,
-                                                    core_t::TTime endTime,
-                                                    CResourceMonitor& resourceMonitor) {
+void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) {
     CDataGatherer& gatherer = this->dataGatherer();
     core_t::TTime bucketLength = gatherer.bucketLength();
     if (!gatherer.dataAvailable(startTime)) {
@@ -393,13 +381,11 @@ void CMetricPopulationModel::sample(core_t::TTime startTime, core_t::TTime endTi
                     attribute.s_BucketValues.emplace_back(bucket->time(), TDouble2Vec(bucket->value(dimension)), pid);
                 }
 
-                std::size_t n = std::count_if(samples.begin(), samples.end(), [cutoff](const CSample& sample) {
-                    return sample.time() >= cutoff;
-                });
+                std::size_t n =
+                    std::count_if(samples.begin(), samples.end(), [cutoff](const CSample& sample) { return sample.time() >= cutoff; });
                 double updatesPerBucket = this->params().s_MaximumUpdatesPerBucket;
-                double countWeight =
-                    this->sampleRateWeight(pid, cid) * this->learnRate(feature) *
-                    (updatesPerBucket > 0.0 && n > 0 ? updatesPerBucket / static_cast<double>(n) : 1.0);
+                double countWeight = this->sampleRateWeight(pid, cid) * this->learnRate(feature) *
+                                     (updatesPerBucket > 0.0 && n > 0 ? updatesPerBucket / static_cast<double>(n) : 1.0);
                 LOG_TRACE("countWeight = " << countWeight);
 
                 for (const auto& sample : samples) {
@@ -551,17 +537,13 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
 
             const TOptionalSample& bucket = CDataGatherer::extractData(featureData[j]).s_BucketValue;
             if (!bucket) {
-                LOG_ERROR("Expected a value for feature = " << model_t::print(feature)
-                                                            << ", person = " << gatherer.personName(pid)
+                LOG_ERROR("Expected a value for feature = " << model_t::print(feature) << ", person = " << gatherer.personName(pid)
                                                             << ", attribute = " << gatherer.attributeName(cid));
                 continue;
             }
 
-            if (this->shouldIgnoreResult(feature,
-                                         result.s_ResultType,
-                                         pid,
-                                         cid,
-                                         model_t::sampleTime(feature, startTime, bucketLength, bucket->time()))) {
+            if (this->shouldIgnoreResult(
+                    feature, result.s_ResultType, pid, cid, model_t::sampleTime(feature, startTime, bucketLength, bucket->time()))) {
                 continue;
             }
 
@@ -601,8 +583,7 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                                                           NO_CORRELATED_ATTRIBUTES,
                                                           NO_CORRELATES);
                 } else {
-                    LOG_ERROR("Failed to compute P(" << params.describe()
-                                                     << ", attribute = " << gatherer.attributeName(cid)
+                    LOG_ERROR("Failed to compute P(" << params.describe() << ", attribute = " << gatherer.attributeName(cid)
                                                      << ", person = " << this->personName(pid) << ")");
                 }
             }
@@ -661,8 +642,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
         for (const auto& prior : feature.s_Models->correlatePriors()) {
             std::size_t cids[]{prior.first.first, prior.first.second};
             if (gatherer.isAttributeActive(cids[0]) && gatherer.isAttributeActive(cids[1])) {
-                uint64_t& hash = hashes[{boost::cref(gatherer.attributeName(cids[0])),
-                                         boost::cref(gatherer.attributeName(cids[1]))}];
+                uint64_t& hash = hashes[{boost::cref(gatherer.attributeName(cids[0])), boost::cref(gatherer.attributeName(cids[1]))}];
                 hash = maths::CChecksum::calculate(hash, prior.second);
             }
         }
@@ -697,8 +677,7 @@ void CMetricPopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePt
     this->CPopulationModel::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts", m_CurrentBucketStats.s_PersonCounts, mem);
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_FeatureData", m_CurrentBucketStats.s_FeatureData, mem);
-    core::CMemoryDebug::dynamicSize(
-        "m_CurrentBucketStats.s_InterimCorrections", m_CurrentBucketStats.s_InterimCorrections, mem);
+    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections", m_CurrentBucketStats.s_InterimCorrections, mem);
     core::CMemoryDebug::dynamicSize("m_FeatureModels", m_FeatureModels, mem);
     core::CMemoryDebug::dynamicSize("m_FeatureCorrelatesModels", m_FeatureCorrelatesModels, mem);
     core::CMemoryDebug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
@@ -735,8 +714,7 @@ CMetricPopulationModel::CModelDetailsViewPtr CMetricPopulationModel::details(voi
     return CModelDetailsViewPtr(new CMetricPopulationModelDetailsView(*this));
 }
 
-const TSizeSizePrFeatureDataPrVec& CMetricPopulationModel::featureData(model_t::EFeature feature,
-                                                                       core_t::TTime time) const {
+const TSizeSizePrFeatureDataPrVec& CMetricPopulationModel::featureData(model_t::EFeature feature, core_t::TTime time) const {
     static const TSizeSizePrFeatureDataPrVec EMPTY;
     if (!this->bucketStatsAvailable(time)) {
         LOG_ERROR("No statistics at " << time << ", current bucket = [" << m_CurrentBucketStats.s_StartTime << ","
@@ -845,16 +823,12 @@ const maths::CModel* CMetricPopulationModel::model(model_t::EFeature feature, st
 }
 
 maths::CModel* CMetricPopulationModel::model(model_t::EFeature feature, std::size_t cid) {
-    auto i = std::find_if(m_FeatureModels.begin(), m_FeatureModels.end(), [feature](const SFeatureModels& model) {
-        return model.s_Feature == feature;
-    });
+    auto i = std::find_if(
+        m_FeatureModels.begin(), m_FeatureModels.end(), [feature](const SFeatureModels& model) { return model.s_Feature == feature; });
     return i != m_FeatureModels.end() && cid < i->s_Models.size() ? i->s_Models[cid].get() : 0;
 }
 
-bool CMetricPopulationModel::correlates(model_t::EFeature feature,
-                                        std::size_t pid,
-                                        std::size_t cid,
-                                        core_t::TTime time) const {
+bool CMetricPopulationModel::correlates(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const {
     if (model_t::dimension(feature) > 1 || !this->params().s_MultivariateByFields) {
         return false;
     }
@@ -866,8 +840,7 @@ bool CMetricPopulationModel::correlates(model_t::EFeature feature,
     for (std::size_t j = range.first; j < range.second; ++j) {
         std::size_t cids[]{cid, CDataGatherer::extractAttributeId(data[j])};
         for (const auto& correlate : model->correlates()) {
-            if ((cids[0] == correlate[0] && cids[1] == correlate[1]) ||
-                (cids[1] == correlate[0] && cids[0] == correlate[1])) {
+            if ((cids[0] == correlate[0] && cids[1] == correlate[1]) || (cids[1] == correlate[0] && cids[0] == correlate[1])) {
                 return true;
             }
         }
@@ -896,8 +869,8 @@ void CMetricPopulationModel::fill(model_t::EFeature feature,
     params.s_Value.assign(1, bucket->value());
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
         TDouble2Vec mode(params.s_Model->mode(time, PROBABILITY_WEIGHT_STYLES, weights));
-        TDouble2Vec correction(this->interimValueCorrector().corrections(
-            time, this->currentBucketTotalCount(), mode, bucket->value(dimension)));
+        TDouble2Vec correction(
+            this->interimValueCorrector().corrections(time, this->currentBucketTotalCount(), mode, bucket->value(dimension)));
         params.s_Value[0] += correction;
         this->currentBucketInterimCorrections().emplace(CCorrectionKey(feature, pid, cid), correction);
     }

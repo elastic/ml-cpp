@@ -89,11 +89,8 @@ public:
 
     //! Calculate how similar two strings are in the case where
     //! we already know their individual compressed lengths
-    bool similarity(const std::string& first,
-                    size_t firstCompLength,
-                    const std::string& second,
-                    size_t secondCompLength,
-                    double& result) const;
+    bool
+    similarity(const std::string& first, size_t firstCompLength, const std::string& second, size_t secondCompLength, double& result) const;
 
     //! Remove those characters from a string that cause a provided
     //! predicate to return true (can be used with ctype.h functions
@@ -111,10 +108,8 @@ public:
     //! Calculate how similar two strings are, excluding
     //! certain characters
     template<typename PREDICATE>
-    bool
-    similarityEx(const std::string& first, const std::string& second, PREDICATE excludePred, double& result) const {
-        return this->similarity(
-            this->strippedString(first, excludePred), this->strippedString(second, excludePred), result);
+    bool similarityEx(const std::string& first, const std::string& second, PREDICATE excludePred, double& result) const {
+        return this->similarity(this->strippedString(first, excludePred), this->strippedString(second, excludePred), result);
     }
 
     //! Find the length of the compressed version of a string - note
@@ -125,8 +120,7 @@ public:
     //! excluding certain characters
     template<typename STRINGLIKE, typename PREDICATE>
     size_t levenshteinDistanceEx(const STRINGLIKE& first, const STRINGLIKE& second, PREDICATE excludePred) const {
-        return this->levenshteinDistance(this->strippedString(first, excludePred),
-                                         this->strippedString(second, excludePred));
+        return this->levenshteinDistance(this->strippedString(first, excludePred), this->strippedString(second, excludePred));
     }
 
     //! Calculate the Levenshtein distance between two strings or
@@ -273,9 +267,8 @@ public:
                 // OR
                 //    No extra cost in the case where the corresponding
                 //    elements are equal
-                size_t option3(prevCol[downMinusOne] + ((first[acrossMinusOne].first == second[downMinusOne].first)
-                                                            ? 0
-                                                            : std::max(firstCost, secondCost)));
+                size_t option3(prevCol[downMinusOne] +
+                               ((first[acrossMinusOne].first == second[downMinusOne].first) ? 0 : std::max(firstCost, secondCost)));
 
                 // Take the cheapest option of the 3
                 currentCol[downMinusOne + 1] = std::min(std::min(option1, option2), option3);

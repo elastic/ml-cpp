@@ -88,9 +88,7 @@ CAdaptiveBucketing::CAdaptiveBucketing(double decayRate, double minimumBucketLen
     : m_DecayRate{std::max(decayRate, MINIMUM_DECAY_RATE)}, m_MinimumBucketLength{minimumBucketLength} {
 }
 
-CAdaptiveBucketing::CAdaptiveBucketing(double decayRate,
-                                       double minimumBucketLength,
-                                       core::CStateRestoreTraverser& traverser)
+CAdaptiveBucketing::CAdaptiveBucketing(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser)
     : m_DecayRate{std::max(decayRate, MINIMUM_DECAY_RATE)}, m_MinimumBucketLength{minimumBucketLength} {
     traverser.traverseSubLevel(boost::bind(&CAdaptiveBucketing::acceptRestoreTraverser, this, _1));
 }
@@ -170,8 +168,7 @@ void CAdaptiveBucketing::clear(void) {
 }
 
 void CAdaptiveBucketing::add(std::size_t bucket, core_t::TTime time, double weight) {
-    TDoubleMeanAccumulator centre{
-        CBasicStatistics::accumulator(this->count(bucket), static_cast<double>(m_Centres[bucket]))};
+    TDoubleMeanAccumulator centre{CBasicStatistics::accumulator(this->count(bucket), static_cast<double>(m_Centres[bucket]))};
     centre.add(this->offset(time), weight);
     m_Centres[bucket] = CBasicStatistics::mean(centre);
 }
@@ -225,11 +222,8 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     TDoubleVec ranges;
     ranges.reserve(n);
     for (std::size_t i = 0u; i < n; ++i) {
-        TDoubleDoublePr v[]{values[(n + i - 2) % n],
-                            values[(n + i - 1) % n],
-                            values[(n + i + 0) % n],
-                            values[(n + i + 1) % n],
-                            values[(n + i + 2) % n]};
+        TDoubleDoublePr v[]{
+            values[(n + i - 2) % n], values[(n + i - 1) % n], values[(n + i + 0) % n], values[(n + i + 1) % n], values[(n + i + 2) % n]};
 
         TMinAccumulator min;
         TMaxAccumulator max;
@@ -241,9 +235,8 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         }
 
         if (min.count() > 0) {
-            ranges.push_back(
-                WEIGHTS[max[0].second > min[0].second ? max[0].second - min[0].second : min[0].second - max[0].second] *
-                std::pow(max[0].first - min[0].first, 0.75));
+            ranges.push_back(WEIGHTS[max[0].second > min[0].second ? max[0].second - min[0].second : min[0].second - max[0].second] *
+                             std::pow(max[0].first - min[0].first, 0.75));
         } else {
             ranges.push_back(0.0);
         }
@@ -321,8 +314,8 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
                 double x{h * e_ / averagingErrors[i]};
                 m_Endpoints[j] = endpoints[j] + alpha * (ai + x - endpoints[j]);
                 force += (ai + x) - endpoints[j];
-                LOG_TRACE("interval averaging error = " << e << ", a(i) = " << ai << ", x = " << x << ", endpoint "
-                                                        << endpoints[j] << " -> " << ai + x);
+                LOG_TRACE("interval averaging error = " << e << ", a(i) = " << ai << ", x = " << x << ", endpoint " << endpoints[j]
+                                                        << " -> " << ai + x);
                 ++j;
             }
         }

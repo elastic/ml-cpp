@@ -219,12 +219,11 @@ bool persistOverDetector(const std::string& version) {
 }
 
 bool persistPartitionDetector(const std::string& version) {
-    return persistAnomalyDetectorStateToFile(
-        "../unittest/testfiles/new_mlfields_partition.conf",
-        "../unittest/testfiles/big_ascending.txt",
-        "../unittest/testfiles/state/" + version + "/partition_detector_state.json",
-        0,
-        "%d/%b/%Y:%T %z");
+    return persistAnomalyDetectorStateToFile("../unittest/testfiles/new_mlfields_partition.conf",
+                                             "../unittest/testfiles/big_ascending.txt",
+                                             "../unittest/testfiles/state/" + version + "/partition_detector_state.json",
+                                             0,
+                                             "%d/%b/%Y:%T %z");
 }
 
 bool persistDcDetector(const std::string& version) {

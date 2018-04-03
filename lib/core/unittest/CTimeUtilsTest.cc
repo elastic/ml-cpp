@@ -26,16 +26,11 @@ CppUnit::Test* CTimeUtilsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeUtilsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testNow", &CTimeUtilsTest::testNow));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testToIso8601", &CTimeUtilsTest::testToIso8601));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testToLocal", &CTimeUtilsTest::testToLocal));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testStrptime", &CTimeUtilsTest::testStrptime));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testTimezone", &CTimeUtilsTest::testTimezone));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testDateWords", &CTimeUtilsTest::testDateWords));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testToIso8601", &CTimeUtilsTest::testToIso8601));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testToLocal", &CTimeUtilsTest::testToLocal));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testStrptime", &CTimeUtilsTest::testStrptime));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testTimezone", &CTimeUtilsTest::testTimezone));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testDateWords", &CTimeUtilsTest::testDateWords));
 
     return suiteOfTests;
 }
@@ -216,8 +211,7 @@ void CTimeUtilsTest::testStrptime(void) {
         // print a warning too
         CPPUNIT_ASSERT(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
         char buf[128] = {'\0'};
-        LOG_WARN("If the following date is not within the last year then something is wrong: "
-                 << ml::core::CCTimeR::cTimeR(&actual, buf));
+        LOG_WARN("If the following date is not within the last year then something is wrong: " << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
         CPPUNIT_ASSERT(actual <= ml::core::CTimeUtils::now() + ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
@@ -237,8 +231,7 @@ void CTimeUtilsTest::testStrptime(void) {
         // print a warning too
         CPPUNIT_ASSERT(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
         char buf[128] = {'\0'};
-        LOG_WARN("If the following date is not within the last year then something is wrong: "
-                 << ml::core::CCTimeR::cTimeR(&actual, buf));
+        LOG_WARN("If the following date is not within the last year then something is wrong: " << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
         CPPUNIT_ASSERT(actual <= ml::core::CTimeUtils::now() + ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
@@ -258,8 +251,7 @@ void CTimeUtilsTest::testStrptime(void) {
         // print a warning too
         CPPUNIT_ASSERT(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
         char buf[128] = {'\0'};
-        LOG_WARN("If the following date is not within the last year then something is wrong: "
-                 << ml::core::CCTimeR::cTimeR(&actual, buf));
+        LOG_WARN("If the following date is not within the last year then something is wrong: " << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
         CPPUNIT_ASSERT(actual <= ml::core::CTimeUtils::now() + ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);

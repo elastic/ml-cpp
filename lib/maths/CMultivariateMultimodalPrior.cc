@@ -155,8 +155,7 @@ void sampleMarginalLikelihood(const TModeVec& modes, std::size_t numberSamples, 
 }
 
 void print(const TModeVec& modes, const std::string& separator, std::string& result) {
-    double Z = std::accumulate(
-        modes.begin(), modes.end(), 0.0, [](double sum, const TMode& mode) { return sum + mode.weight(); });
+    double Z = std::accumulate(modes.begin(), modes.end(), 0.0, [](double sum, const TMode& mode) { return sum + mode.weight(); });
 
     std::string separator_ = separator + separator;
 
@@ -198,8 +197,8 @@ void modeMergeCallback(std::size_t dimension,
         nl = leftSamples.size();
         samples.insert(samples.end(), leftSamples.begin(), leftSamples.end());
     } else {
-        LOG_ERROR("Couldn't find mode for " << leftMergeIndex << " in " << printIndices(modes) << ", other index = "
-                                            << rightMergeIndex << ", merged index = " << targetIndex);
+        LOG_ERROR("Couldn't find mode for " << leftMergeIndex << " in " << printIndices(modes) << ", other index = " << rightMergeIndex
+                                            << ", merged index = " << targetIndex);
     }
 
     auto rightMode = std::find_if(modes.begin(), modes.end(), CSetTools::CIndexInSet(rightMergeIndex));
@@ -211,8 +210,8 @@ void modeMergeCallback(std::size_t dimension,
         nr = rightSamples.size();
         samples.insert(samples.end(), rightSamples.begin(), rightSamples.end());
     } else {
-        LOG_ERROR("Couldn't find mode for " << rightMergeIndex << " in " << printIndices(modes) << ", other index = "
-                                            << leftMergeIndex << ", merged index = " << targetIndex);
+        LOG_ERROR("Couldn't find mode for " << rightMergeIndex << " in " << printIndices(modes) << ", other index = " << leftMergeIndex
+                                            << ", merged index = " << targetIndex);
     }
 
     if (n > 0.0) {

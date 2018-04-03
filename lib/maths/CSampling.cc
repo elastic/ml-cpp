@@ -146,9 +146,9 @@ std::size_t doCategoricalSample(RNG& rng, TDoubleVec& probabilities) {
         uniform0X = uniform(rng);
     }
 
-    return std::min(static_cast<std::size_t>(std::lower_bound(probabilities.begin(), probabilities.end(), uniform0X) -
-                                             probabilities.begin()),
-                    probabilities.size() - 1);
+    return std::min(
+        static_cast<std::size_t>(std::lower_bound(probabilities.begin(), probabilities.end(), uniform0X) - probabilities.begin()),
+        probabilities.size() - 1);
 }
 
 //! Implementation of categorical sampling with replacement.
@@ -177,8 +177,7 @@ void doCategoricalSampleWithReplacement(RNG& rng, TDoubleVec& probabilities, std
         for (std::size_t i = 0u; i < n; ++i) {
             double uniform0X = uniform(rng);
             result.push_back(std::min(
-                static_cast<std::size_t>(std::lower_bound(probabilities.begin(), probabilities.end(), uniform0X) -
-                                         probabilities.begin()),
+                static_cast<std::size_t>(std::lower_bound(probabilities.begin(), probabilities.end(), uniform0X) - probabilities.begin()),
                 probabilities.size() - 1));
         }
     }
@@ -218,8 +217,7 @@ void doCategoricalSampleWithoutReplacement(RNG& rng, TDoubleVec& probabilities, 
             boost::random::uniform_real_distribution<> uniform(0.0, probabilities[p - 1]);
             double uniform0X = uniform(rng);
             s[0] = std::min(
-                static_cast<std::size_t>(std::lower_bound(probabilities.begin(), probabilities.end(), uniform0X) -
-                                         probabilities.begin()),
+                static_cast<std::size_t>(std::lower_bound(probabilities.begin(), probabilities.end(), uniform0X) - probabilities.begin()),
                 probabilities.size() - 1);
 
             result.push_back(indices[s[0]]);
@@ -236,11 +234,7 @@ void doCategoricalSampleWithoutReplacement(RNG& rng, TDoubleVec& probabilities, 
 
 //! Implementation of multivariate normal sampling.
 template<typename RNG>
-bool doMultivariateNormalSample(RNG& rng,
-                                const TDoubleVec& mean,
-                                const TDoubleVecVec& covariance,
-                                std::size_t n,
-                                TDoubleVecVec& samples) {
+bool doMultivariateNormalSample(RNG& rng, const TDoubleVec& mean, const TDoubleVecVec& covariance, std::size_t n, TDoubleVecVec& samples) {
     using TJacobiSvd = Eigen::JacobiSVD<CDenseMatrix<double>>;
 
     if (mean.size() != covariance.size()) {
@@ -432,28 +426,22 @@ void CSampling::seed(void) {
     ms_Rng.seed();
 }
 
-#define UNIFORM_SAMPLE(TYPE)                                                                                           \
-    TYPE CSampling::uniformSample(TYPE a, TYPE b) {                                                                    \
-        core::CScopedFastLock scopedLock(ms_Lock);                                                                     \
-        return doUniformSample(ms_Rng, a, b);                                                                          \
-    }                                                                                                                  \
-    TYPE CSampling::uniformSample(CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b) {                                     \
-        return doUniformSample(rng, a, b);                                                                             \
-    }                                                                                                                  \
-    TYPE CSampling::uniformSample(CPRNG::CXorShift1024Mult& rng, TYPE a, TYPE b) {                                     \
-        return doUniformSample(rng, a, b);                                                                             \
-    }                                                                                                                  \
-    void CSampling::uniformSample(TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result) {                          \
-        core::CScopedFastLock scopedLock(ms_Lock);                                                                     \
-        doUniformSample(ms_Rng, a, b, n, result);                                                                      \
-    }                                                                                                                  \
-    void CSampling::uniformSample(                                                                                     \
-        CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result) {                     \
-        doUniformSample(rng, a, b, n, result);                                                                         \
-    }                                                                                                                  \
-    void CSampling::uniformSample(                                                                                     \
-        CPRNG::CXorShift1024Mult& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result) {                     \
-        doUniformSample(rng, a, b, n, result);                                                                         \
+#define UNIFORM_SAMPLE(TYPE)                                                                                                               \
+    TYPE CSampling::uniformSample(TYPE a, TYPE b) {                                                                                        \
+        core::CScopedFastLock scopedLock(ms_Lock);                                                                                         \
+        return doUniformSample(ms_Rng, a, b);                                                                                              \
+    }                                                                                                                                      \
+    TYPE CSampling::uniformSample(CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b) { return doUniformSample(rng, a, b); }                    \
+    TYPE CSampling::uniformSample(CPRNG::CXorShift1024Mult& rng, TYPE a, TYPE b) { return doUniformSample(rng, a, b); }                    \
+    void CSampling::uniformSample(TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result) {                                              \
+        core::CScopedFastLock scopedLock(ms_Lock);                                                                                         \
+        doUniformSample(ms_Rng, a, b, n, result);                                                                                          \
+    }                                                                                                                                      \
+    void CSampling::uniformSample(CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result) {               \
+        doUniformSample(rng, a, b, n, result);                                                                                             \
+    }                                                                                                                                      \
+    void CSampling::uniformSample(CPRNG::CXorShift1024Mult& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result) {               \
+        doUniformSample(rng, a, b, n, result);                                                                                             \
     }
 UNIFORM_SAMPLE(std::size_t)
 UNIFORM_SAMPLE(std::ptrdiff_t)
@@ -478,19 +466,11 @@ void CSampling::normalSample(double mean, double variance, std::size_t n, TDoubl
     doNormalSample(ms_Rng, mean, variance, n, result);
 }
 
-void CSampling::normalSample(CPRNG::CXorOShiro128Plus& rng,
-                             double mean,
-                             double variance,
-                             std::size_t n,
-                             TDoubleVec& result) {
+void CSampling::normalSample(CPRNG::CXorOShiro128Plus& rng, double mean, double variance, std::size_t n, TDoubleVec& result) {
     doNormalSample(rng, mean, variance, n, result);
 }
 
-void CSampling::normalSample(CPRNG::CXorShift1024Mult& rng,
-                             double mean,
-                             double variance,
-                             std::size_t n,
-                             TDoubleVec& result) {
+void CSampling::normalSample(CPRNG::CXorShift1024Mult& rng, double mean, double variance, std::size_t n, TDoubleVec& result) {
     doNormalSample(rng, mean, variance, n, result);
 }
 
@@ -507,10 +487,7 @@ void CSampling::chiSquaredSample(CPRNG::CXorShift1024Mult& rng, double f, std::s
     doChiSquaredSample(rng, f, n, result);
 }
 
-bool CSampling::multivariateNormalSample(const TDoubleVec& mean,
-                                         const TDoubleVecVec& covariance,
-                                         std::size_t n,
-                                         TDoubleVecVec& samples) {
+bool CSampling::multivariateNormalSample(const TDoubleVec& mean, const TDoubleVecVec& covariance, std::size_t n, TDoubleVecVec& samples) {
     core::CScopedFastLock scopedLock(ms_Lock);
     return doMultivariateNormalSample(ms_Rng, mean, covariance, n, samples);
 }
@@ -531,27 +508,27 @@ bool CSampling::multivariateNormalSample(CPRNG::CXorShift1024Mult& rng,
     return doMultivariateNormalSample(rng, mean, covariance, n, samples);
 }
 
-#define MULTIVARIATE_NORMAL_SAMPLE(N)                                                                                  \
-    void CSampling::multivariateNormalSample(const CVectorNx1<double, N>& mean,                                        \
-                                             const CSymmetricMatrixNxN<double, N>& covariance,                         \
-                                             std::size_t n,                                                            \
-                                             std::vector<CVectorNx1<double, N>>& samples) {                            \
-        core::CScopedFastLock scopedLock(ms_Lock);                                                                     \
-        doMultivariateNormalSample(ms_Rng, mean, covariance, n, samples);                                              \
-    }                                                                                                                  \
-    void CSampling::multivariateNormalSample(CPRNG::CXorOShiro128Plus& rng,                                            \
-                                             const CVectorNx1<double, N>& mean,                                        \
-                                             const CSymmetricMatrixNxN<double, N>& covariance,                         \
-                                             std::size_t n,                                                            \
-                                             std::vector<CVectorNx1<double, N>>& samples) {                            \
-        doMultivariateNormalSample(rng, mean, covariance, n, samples);                                                 \
-    }                                                                                                                  \
-    void CSampling::multivariateNormalSample(CPRNG::CXorShift1024Mult& rng,                                            \
-                                             const CVectorNx1<double, N>& mean,                                        \
-                                             const CSymmetricMatrixNxN<double, N>& covariance,                         \
-                                             std::size_t n,                                                            \
-                                             std::vector<CVectorNx1<double, N>>& samples) {                            \
-        doMultivariateNormalSample(rng, mean, covariance, n, samples);                                                 \
+#define MULTIVARIATE_NORMAL_SAMPLE(N)                                                                                                      \
+    void CSampling::multivariateNormalSample(const CVectorNx1<double, N>& mean,                                                            \
+                                             const CSymmetricMatrixNxN<double, N>& covariance,                                             \
+                                             std::size_t n,                                                                                \
+                                             std::vector<CVectorNx1<double, N>>& samples) {                                                \
+        core::CScopedFastLock scopedLock(ms_Lock);                                                                                         \
+        doMultivariateNormalSample(ms_Rng, mean, covariance, n, samples);                                                                  \
+    }                                                                                                                                      \
+    void CSampling::multivariateNormalSample(CPRNG::CXorOShiro128Plus& rng,                                                                \
+                                             const CVectorNx1<double, N>& mean,                                                            \
+                                             const CSymmetricMatrixNxN<double, N>& covariance,                                             \
+                                             std::size_t n,                                                                                \
+                                             std::vector<CVectorNx1<double, N>>& samples) {                                                \
+        doMultivariateNormalSample(rng, mean, covariance, n, samples);                                                                     \
+    }                                                                                                                                      \
+    void CSampling::multivariateNormalSample(CPRNG::CXorShift1024Mult& rng,                                                                \
+                                             const CVectorNx1<double, N>& mean,                                                            \
+                                             const CSymmetricMatrixNxN<double, N>& covariance,                                             \
+                                             std::size_t n,                                                                                \
+                                             std::vector<CVectorNx1<double, N>>& samples) {                                                \
+        doMultivariateNormalSample(rng, mean, covariance, n, samples);                                                                     \
     }
 MULTIVARIATE_NORMAL_SAMPLE(2)
 MULTIVARIATE_NORMAL_SAMPLE(3)
@@ -790,8 +767,7 @@ void CSampling::normalSampleQuantiles(double mean, double variance, std::size_t 
         boost::math::normal_distribution<> normal(mean, ::sqrt(variance));
         sampleQuantiles(normal, n, result);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to sample normal quantiles: " << e.what() << ", mean = " << mean
-                                                        << ", variance = " << variance);
+        LOG_ERROR("Failed to sample normal quantiles: " << e.what() << ", mean = " << mean << ", variance = " << variance);
         result.clear();
     }
 }

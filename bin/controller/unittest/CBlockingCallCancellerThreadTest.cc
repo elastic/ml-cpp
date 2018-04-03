@@ -46,8 +46,8 @@ private:
 CppUnit::Test* CBlockingCallCancellerThreadTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBlockingCallCancellerThreadTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBlockingCallCancellerThreadTest>(
-        "CBlockingCallCancellerThreadTest::testCancelBlock", &CBlockingCallCancellerThreadTest::testCancelBlock));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBlockingCallCancellerThreadTest>("CBlockingCallCancellerThreadTest::testCancelBlock",
+                                                                                    &CBlockingCallCancellerThreadTest::testCancelBlock));
 
     return suiteOfTests;
 }

@@ -35,22 +35,18 @@ namespace {
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 //! Get the description prefix.
-std::string
-descriptionPrefix(const CDetectorSpecification& spec, const TMeanAccumulator& meanOccupied, std::size_t partitions) {
+std::string descriptionPrefix(const CDetectorSpecification& spec, const TMeanAccumulator& meanOccupied, std::size_t partitions) {
     if (spec.byField() && spec.partitionField()) {
         return "A significant proportion, " +
-               CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) /
-                                   static_cast<double>(partitions)) +
+               CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) / static_cast<double>(partitions)) +
                "%, of distinct partition and by fields combinations are sparse.";
     } else if (spec.byField()) {
         return "A significant proportion, " +
-               CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) /
-                                   static_cast<double>(partitions)) +
+               CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) / static_cast<double>(partitions)) +
                "%, of distinct by fields are sparse.";
     } else if (spec.partitionField()) {
         return "A significant proportion, " +
-               CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) /
-                                   static_cast<double>(partitions)) +
+               CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) / static_cast<double>(partitions)) +
                "%, of distinct partition fields are sparse.";
     }
     return "";
@@ -89,13 +85,11 @@ void CNotEnoughDataPenalty::penaltyFor(const CPartitionDataCountStatistics& stat
     this->penaltyFor(stats.bucketCounts(), stats.bucketStatistics(), spec);
 }
 
-void CNotEnoughDataPenalty::penaltyFor(const CByAndPartitionDataCountStatistics& stats,
-                                       CDetectorSpecification& spec) const {
+void CNotEnoughDataPenalty::penaltyFor(const CByAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const {
     this->penaltyFor(stats.bucketCounts(), stats.bucketStatistics(), spec);
 }
 
-void CNotEnoughDataPenalty::penaltyFor(const CByOverAndPartitionDataCountStatistics& stats,
-                                       CDetectorSpecification& spec) const {
+void CNotEnoughDataPenalty::penaltyFor(const CByOverAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const {
     this->penaltyFor(stats.bucketCounts(), stats.bucketStatistics(), spec);
 }
 
@@ -130,12 +124,11 @@ void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec& bucketCounts,
 
                 for (TSizeSizePrMomentsUMapCItr j = mi.begin(); j != mi.end(); ++j) {
                     double occupied = maths::CBasicStatistics::count(j->second) / static_cast<double>(bc);
-                    double penalty =
-                        CTools::logInterpolate(this->params().lowPopulatedBucketFraction(function, IGNORE_EMPTY[i]),
-                                               this->params().minimumPopulatedBucketFraction(function, IGNORE_EMPTY[i]),
-                                               1.0,
-                                               1.0 / static_cast<double>(bc),
-                                               occupied);
+                    double penalty = CTools::logInterpolate(this->params().lowPopulatedBucketFraction(function, IGNORE_EMPTY[i]),
+                                                            this->params().minimumPopulatedBucketFraction(function, IGNORE_EMPTY[i]),
+                                                            1.0,
+                                                            1.0 / static_cast<double>(bc),
+                                                            occupied);
                     penalty_.add(maths::CTools::fastLog(penalty));
                     if (penalty < 1.0) {
                         meanOccupied.add(occupied);
@@ -150,10 +143,8 @@ void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec& bucketCounts,
                 if (penalty < 1.0) {
                     if (spec.byField() || spec.partitionField()) {
                         descriptions.back() =
-                            descriptionPrefix(spec, meanOccupied, si.countMomentsPerPartition().size()) +
-                            " On average, only " +
-                            CTools::prettyPrint(100.0 * maths::CBasicStatistics::mean(meanOccupied)) +
-                            "% of their buckets have a value";
+                            descriptionPrefix(spec, meanOccupied, si.countMomentsPerPartition().size()) + " On average, only " +
+                            CTools::prettyPrint(100.0 * maths::CBasicStatistics::mean(meanOccupied)) + "% of their buckets have a value";
                     } else {
                         descriptions.back() = std::string("On average only ") +
                                               CTools::prettyPrint(100.0 * maths::CBasicStatistics::mean(meanOccupied)) +

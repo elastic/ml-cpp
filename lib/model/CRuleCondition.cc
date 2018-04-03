@@ -108,8 +108,8 @@ bool CRuleCondition::test(const CAnomalyDetectorModel& model,
                 // series which have resolved to check this condition.
                 // Thus we ignore the supplied pid/cid and instead look up
                 // the time series identifier that matches the condition's m_FieldValue.
-                bool successfullyResolvedId = model.isPopulation() ? gatherer.attributeId(m_FieldValue, cid)
-                                                                   : gatherer.personId(m_FieldValue, pid);
+                bool successfullyResolvedId =
+                    model.isPopulation() ? gatherer.attributeId(m_FieldValue, cid) : gatherer.personId(m_FieldValue, pid);
                 if (successfullyResolvedId == false) {
                     return false;
                 }

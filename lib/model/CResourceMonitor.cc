@@ -197,9 +197,8 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
 
     if (total < m_PruneThreshold) {
         // Expand the window
-        m_PruneWindow =
-            std::min(m_PruneWindow + std::size_t((endTime - m_LastPruneTime) / m_Models.begin()->first->bucketLength()),
-                     m_PruneWindowMaximum);
+        m_PruneWindow = std::min(m_PruneWindow + std::size_t((endTime - m_LastPruneTime) / m_Models.begin()->first->bucketLength()),
+                                 m_PruneWindowMaximum);
         LOG_TRACE("Expanding window, to " << m_PruneWindow);
     } else {
         // Shrink the window
@@ -318,8 +317,7 @@ void CResourceMonitor::clearExtraMemory(void) {
 }
 
 std::size_t CResourceMonitor::totalMemory(void) const {
-    return m_CurrentAnomalyDetectorMemory + m_ExtraMemory + CStringStore::names().memoryUsage() +
-           CStringStore::influencers().memoryUsage();
+    return m_CurrentAnomalyDetectorMemory + m_ExtraMemory + CStringStore::names().memoryUsage() + CStringStore::influencers().memoryUsage();
 }
 
 } // model

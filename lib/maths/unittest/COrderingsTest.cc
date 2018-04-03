@@ -192,36 +192,22 @@ void COrderingsTest::testLess(void) {
     double three(3.0);
 
     {
-        CPPUNIT_ASSERT(
-            less(std::make_pair(std::make_pair(one, three), three), std::make_pair(std::make_pair(two, two), two)));
-        CPPUNIT_ASSERT(
-            less(std::make_pair(std::make_pair(one, two), three), std::make_pair(std::make_pair(one, three), two)));
-        CPPUNIT_ASSERT(
-            less(std::make_pair(std::make_pair(one, two), two), std::make_pair(std::make_pair(one, two), three)));
-        CPPUNIT_ASSERT(
-            !less(std::make_pair(std::make_pair(one, two), three), std::make_pair(std::make_pair(one, two), three)));
-        CPPUNIT_ASSERT(
-            !less(std::make_pair(std::make_pair(two, two), two), std::make_pair(std::make_pair(one, three), three)));
-        CPPUNIT_ASSERT(
-            !less(std::make_pair(std::make_pair(one, three), two), std::make_pair(std::make_pair(one, two), three)));
-        CPPUNIT_ASSERT(
-            !less(std::make_pair(std::make_pair(one, two), three), std::make_pair(std::make_pair(one, two), two)));
+        CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(one, three), three), std::make_pair(std::make_pair(two, two), two)));
+        CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(one, two), three), std::make_pair(std::make_pair(one, three), two)));
+        CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(one, two), two), std::make_pair(std::make_pair(one, two), three)));
+        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(one, two), three), std::make_pair(std::make_pair(one, two), three)));
+        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(two, two), two), std::make_pair(std::make_pair(one, three), three)));
+        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(one, three), two), std::make_pair(std::make_pair(one, two), three)));
+        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(one, two), three), std::make_pair(std::make_pair(one, two), two)));
     }
     {
-        CPPUNIT_ASSERT(
-            less(std::make_pair(std::make_pair(&one, three), three), std::make_pair(std::make_pair(&two, two), two)));
-        CPPUNIT_ASSERT(
-            less(std::make_pair(std::make_pair(&one, two), three), std::make_pair(std::make_pair(&one, three), two)));
-        CPPUNIT_ASSERT(
-            less(std::make_pair(std::make_pair(one, &two), two), std::make_pair(std::make_pair(one, &two), three)));
-        CPPUNIT_ASSERT(
-            !less(std::make_pair(std::make_pair(one, &two), three), std::make_pair(std::make_pair(one, &two), three)));
-        CPPUNIT_ASSERT(
-            !less(std::make_pair(std::make_pair(two, two), &two), std::make_pair(std::make_pair(one, three), &three)));
-        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(&one, &three), &two),
-                             std::make_pair(std::make_pair(&one, &two), &three)));
-        CPPUNIT_ASSERT(
-            !less(std::make_pair(std::make_pair(one, two), three), std::make_pair(std::make_pair(one, two), two)));
+        CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(&one, three), three), std::make_pair(std::make_pair(&two, two), two)));
+        CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(&one, two), three), std::make_pair(std::make_pair(&one, three), two)));
+        CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(one, &two), two), std::make_pair(std::make_pair(one, &two), three)));
+        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(one, &two), three), std::make_pair(std::make_pair(one, &two), three)));
+        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(two, two), &two), std::make_pair(std::make_pair(one, three), &three)));
+        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(&one, &three), &two), std::make_pair(std::make_pair(&one, &two), &three)));
+        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(one, two), three), std::make_pair(std::make_pair(one, two), two)));
     }
 }
 
@@ -278,12 +264,9 @@ void COrderingsTest::testFirstGreater(void) {
     CPPUNIT_ASSERT(greater(2.0, std::make_pair(1.0, 1.0)));
     CPPUNIT_ASSERT(greater(std::make_pair(2.0, 2.0), 1.0));
 
-    CPPUNIT_ASSERT(
-        !greater(std::make_pair(std::make_pair(1.0, 1.0), 1.0), std::make_pair(std::make_pair(1.0, 2.0), 1.0)));
-    CPPUNIT_ASSERT(
-        !greater(std::make_pair(std::make_pair(1.0, 1.0), 1.0), std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
-    CPPUNIT_ASSERT(
-        greater(std::make_pair(std::make_pair(1.0, 2.0), 1.0), std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
+    CPPUNIT_ASSERT(!greater(std::make_pair(std::make_pair(1.0, 1.0), 1.0), std::make_pair(std::make_pair(1.0, 2.0), 1.0)));
+    CPPUNIT_ASSERT(!greater(std::make_pair(std::make_pair(1.0, 1.0), 1.0), std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
+    CPPUNIT_ASSERT(greater(std::make_pair(std::make_pair(1.0, 2.0), 1.0), std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
 
     double one(1.0);
     double two(2.0);
@@ -355,12 +338,9 @@ void COrderingsTest::testSecondGreater(void) {
     CPPUNIT_ASSERT(!greater(2.0, std::make_pair(1.0, 3.0)));
     CPPUNIT_ASSERT(!greater(std::make_pair(2.0, 1.0), 2.0));
 
-    CPPUNIT_ASSERT(
-        greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)), std::make_pair(2.0, std::make_pair(2.0, 1.0))));
-    CPPUNIT_ASSERT(
-        !greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)), std::make_pair(2.0, std::make_pair(2.0, 2.0))));
-    CPPUNIT_ASSERT(
-        !greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)), std::make_pair(2.0, std::make_pair(2.0, 3.0))));
+    CPPUNIT_ASSERT(greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)), std::make_pair(2.0, std::make_pair(2.0, 1.0))));
+    CPPUNIT_ASSERT(!greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)), std::make_pair(2.0, std::make_pair(2.0, 2.0))));
+    CPPUNIT_ASSERT(!greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)), std::make_pair(2.0, std::make_pair(2.0, 3.0))));
     CPPUNIT_ASSERT(greater(std::make_pair(2.0, 2.0), std::make_pair(3.0, std::make_pair(1.0, 2.0))));
     CPPUNIT_ASSERT(greater(std::make_pair(1.0, std::make_pair(3.0, 3.0)), std::make_pair(3.0, 2.0)));
 
@@ -530,12 +510,8 @@ void COrderingsTest::testSimultaneousSort(void) {
 
     {
         TDoubleVec keys{0.0, 1.0, 0.2, 1.1, 0.7, 5.0};
-        TStrVec values{std::string(1, 'c'),
-                       std::string(1, 'q'),
-                       std::string(1, '!'),
-                       std::string(1, 'a'),
-                       std::string(1, 'z'),
-                       std::string(1, 'p')};
+        TStrVec values{
+            std::string(1, 'c'), std::string(1, 'q'), std::string(1, '!'), std::string(1, 'a'), std::string(1, 'z'), std::string(1, 'p')};
 
         std::string expectedKeys("[0, 0.2, 0.7, 1, 1.1, 5]");
         std::string expectedValues("[c, !, z, q, a, p]");
@@ -552,12 +528,8 @@ void COrderingsTest::testSimultaneousSort(void) {
     }
     {
         TDouble1Vec keys{7.0, 1.0, 0.2, 1.1, 0.7, 5.0};
-        TStrVec values1{std::string(1, 'w'),
-                        std::string(1, 'q'),
-                        std::string(1, '~'),
-                        std::string(1, 'e'),
-                        std::string(1, ';'),
-                        std::string(1, 'y')};
+        TStrVec values1{
+            std::string(1, 'w'), std::string(1, 'q'), std::string(1, '~'), std::string(1, 'e'), std::string(1, ';'), std::string(1, 'y')};
         TDoubleDoublePrVec values2{{2.0, 1.0}, {2.1, 1.1}, {1.3, 1.9}, {3.2, 12.9}, {1.2, 10.1}, {1.3, 6.2}};
 
         std::string expectedKeys("[0.2, 0.7, 1, 1.1, 5, 7]");
@@ -583,8 +555,7 @@ void COrderingsTest::testSimultaneousSort(void) {
                         std::string("zz"),
                         std::string("sss"),
                         std::string("pq")};
-        TDoubleDoublePrVec values2{
-            {1.0, 1.0}, {4.1, 1.1}, {5.3, 3.9}, {7.2, 22.9}, {2.2, 1.1}, {0.3, 16.2}, {21.2, 11.1}, {10.3, 13.2}};
+        TDoubleDoublePrVec values2{{1.0, 1.0}, {4.1, 1.1}, {5.3, 3.9}, {7.2, 22.9}, {2.2, 1.1}, {0.3, 16.2}, {21.2, 11.1}, {10.3, 13.2}};
         TStrVec rawWords;
         rng.generateWords(5, keys.size() * 5, rawWords);
         TDictionaryVec values3;
@@ -595,8 +566,7 @@ void COrderingsTest::testSimultaneousSort(void) {
         LOG_DEBUG("values3 = " << core::CContainerPrinter::print(values3));
         std::string expectedKeys("[0.1, 0.7, 0.9, 1.4, 4, 5.1, 7.1, 80]");
         std::string expectedValues1("[23, ;;, ~1, b4, pq, zz, a1, sss]");
-        std::string expectedValues2(
-            "[(4.1, 1.1), (2.2, 1.1), (5.3, 3.9), (7.2, 22.9), (10.3, 13.2), (0.3, 16.2), (1, 1), (21.2, 11.1)]");
+        std::string expectedValues2("[(4.1, 1.1), (2.2, 1.1), (5.3, 3.9), (7.2, 22.9), (10.3, 13.2), (0.3, 16.2), (1, 1), (21.2, 11.1)]");
 
         maths::COrderings::simultaneousSort(keys, values1, values2, values3);
         LOG_DEBUG("keys = " << core::CContainerPrinter::print(keys));
@@ -693,26 +663,19 @@ void COrderingsTest::testSimultaneousSort(void) {
 CppUnit::Test* COrderingsTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COrderingsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testOptionalOrdering",
-                                                                  &COrderingsTest::testOptionalOrdering));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testPtrOrdering", &COrderingsTest::testPtrOrdering));
+        new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testOptionalOrdering", &COrderingsTest::testOptionalOrdering));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testPtrOrdering", &COrderingsTest::testPtrOrdering));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testLess", &COrderingsTest::testLess));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testFirstLess", &COrderingsTest::testFirstLess));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testFirstGreater", &COrderingsTest::testFirstGreater));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testSecondLess", &COrderingsTest::testSecondLess));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testSecondGreater", &COrderingsTest::testSecondGreater));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testDereference", &COrderingsTest::testDereference));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testLess", &COrderingsTest::testLess));
+        new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testLexicographicalCompare", &COrderingsTest::testLexicographicalCompare));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testFirstLess", &COrderingsTest::testFirstLess));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testFirstGreater", &COrderingsTest::testFirstGreater));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testSecondLess", &COrderingsTest::testSecondLess));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testSecondGreater",
-                                                                  &COrderingsTest::testSecondGreater));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testDereference", &COrderingsTest::testDereference));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testLexicographicalCompare",
-                                                                  &COrderingsTest::testLexicographicalCompare));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testSimultaneousSort",
-                                                                  &COrderingsTest::testSimultaneousSort));
+        new CppUnit::TestCaller<COrderingsTest>("COrderingsTest::testSimultaneousSort", &COrderingsTest::testSimultaneousSort));
 
     return suiteOfTests;
 }

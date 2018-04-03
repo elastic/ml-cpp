@@ -138,8 +138,8 @@ CEventData::TOptionalSize CEventData::count(void) const {
 }
 
 std::string CEventData::print(void) const {
-    return core::CStringUtils::typeToString(m_Time) + ' ' + (m_Pid ? core::CStringUtils::typeToString(*m_Pid) : DASH) +
-           ' ' + core::CContainerPrinter::print(m_Cids) + ' ' + core::CContainerPrinter::print(m_Values);
+    return core::CStringUtils::typeToString(m_Time) + ' ' + (m_Pid ? core::CStringUtils::typeToString(*m_Pid) : DASH) + ' ' +
+           core::CContainerPrinter::print(m_Cids) + ' ' + core::CContainerPrinter::print(m_Values);
 }
 
 CEventData::TOptionalSize CEventData::attributeId(std::size_t i) const {

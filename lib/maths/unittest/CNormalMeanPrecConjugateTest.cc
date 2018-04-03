@@ -53,8 +53,7 @@ typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumula
 typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
 typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate> CNormalMeanPrecConjugate;
 
-CNormalMeanPrecConjugate makePrior(maths_t::EDataType dataType = maths_t::E_ContinuousData,
-                                   const double& decayRate = 0.0) {
+CNormalMeanPrecConjugate makePrior(maths_t::EDataType dataType = maths_t::E_ContinuousData, const double& decayRate = 0.0) {
     return CNormalMeanPrecConjugate::nonInformativePrior(dataType, decayRate);
 }
 }
@@ -420,16 +419,14 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihood(void) {
 
         differentialEntropy /= static_cast<double>(samples.size());
 
-        LOG_DEBUG("differentialEntropy = " << differentialEntropy
-                                           << ", expectedDifferentialEntropy = " << expectedDifferentialEntropy);
+        LOG_DEBUG("differentialEntropy = " << differentialEntropy << ", expectedDifferentialEntropy = " << expectedDifferentialEntropy);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedDifferentialEntropy, differentialEntropy, 2e-3);
     }
 
     {
         boost::math::normal_distribution<> normal(mean, ::sqrt(variance));
-        const double varianceScales[] = {
-            0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0};
+        const double varianceScales[] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0};
 
         CNormalMeanPrecConjugate filter(makePrior());
         TDoubleVec samples;
@@ -469,9 +466,7 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihood(void) {
                     double q1 = boost::math::quantile(scaledNormal, (50.0 - percentages[j] / 2.0) / 100.0);
                     double q2 = boost::math::quantile(scaledNormal, (50.0 + percentages[j] / 2.0) / 100.0);
                     TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(
-                        percentages[j],
-                        maths_t::TWeightStyleVec(1, maths_t::E_SampleCountVarianceScaleWeight),
-                        TDouble4Vec(1, vs));
+                        percentages[j], maths_t::TWeightStyleVec(1, maths_t::E_SampleCountVarianceScaleWeight), TDouble4Vec(1, vs));
                     LOG_DEBUG("[q1, q2] = [" << q1 << ", " << q2 << "]"
                                              << ", interval = " << core::CContainerPrinter::print(interval));
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(q1, interval.first, 0.3);
@@ -523,8 +518,7 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean(void) {
                 CPPUNIT_ASSERT(filter.marginalLikelihoodMeanForTest(expectedMean));
 
                 if (k % 10 == 0) {
-                    LOG_DEBUG("marginalLikelihoodMean = " << filter.marginalLikelihoodMean()
-                                                          << ", expectedMean = " << expectedMean);
+                    LOG_DEBUG("marginalLikelihoodMean = " << filter.marginalLikelihoodMean() << ", expectedMean = " << expectedMean);
                 }
 
                 // The error is at the precision of the numerical integration.
@@ -549,8 +543,7 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode(void) {
 
     const double means[] = {1.0, 5.0, 100.0};
     const double variances[] = {2.0, 5.0, 20.0};
-    const double varianceScales[] = {
-        0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0};
+    const double varianceScales[] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0};
 
     test::CRandomNumbers rng;
 
@@ -574,8 +567,7 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode(void) {
                 double expectedMode = boost::math::mode(scaledNormal);
                 LOG_DEBUG("marginalLikelihoodMode = " << filter.marginalLikelihoodMode(weightStyle, weight)
                                                       << ", expectedMode = " << expectedMode);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    expectedMode, filter.marginalLikelihoodMode(weightStyle, weight), 0.12 * ::sqrt(variances[j]));
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode, filter.marginalLikelihoodMode(weightStyle, weight), 0.12 * ::sqrt(variances[j]));
             }
         }
     }
@@ -686,14 +678,12 @@ void CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood(void) {
         LOG_DEBUG("expectedVariance = " << filter.marginalLikelihoodVariance()
                                         << ", sampledVariance = " << maths::CBasicStatistics::variance(sampledMoments));
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            filter.marginalLikelihoodMean(), maths::CBasicStatistics::mean(sampledMoments), 1e-8);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(filter.marginalLikelihoodMean(), maths::CBasicStatistics::mean(sampledMoments), 1e-8);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(filter.marginalLikelihoodVariance(),
                                      maths::CBasicStatistics::variance(sampledMoments),
                                      0.2 * filter.marginalLikelihoodVariance());
-        meanVarError.add(
-            ::fabs(filter.marginalLikelihoodVariance() - maths::CBasicStatistics::variance(sampledMoments)) /
-            filter.marginalLikelihoodVariance());
+        meanVarError.add(::fabs(filter.marginalLikelihoodVariance() - maths::CBasicStatistics::variance(sampledMoments)) /
+                         filter.marginalLikelihoodVariance());
 
         std::sort(sampled.begin(), sampled.end());
         for (std::size_t j = 1u; j < sampled.size(); ++j) {
@@ -702,8 +692,8 @@ void CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood(void) {
             double expectedQuantile;
             CPPUNIT_ASSERT(filter.marginalLikelihoodQuantileForTest(q, eps, expectedQuantile));
 
-            LOG_DEBUG("quantile = " << q << ", x_quantile = " << expectedQuantile << ", quantile range = ["
-                                    << sampled[j - 1] << "," << sampled[j] << "]");
+            LOG_DEBUG("quantile = " << q << ", x_quantile = " << expectedQuantile << ", quantile range = [" << sampled[j - 1] << ","
+                                    << sampled[j] << "]");
 
             CPPUNIT_ASSERT(expectedQuantile >= sampled[j - 1]);
             CPPUNIT_ASSERT(expectedQuantile <= sampled[j]);
@@ -751,8 +741,7 @@ void CNormalMeanPrecConjugateTest::testCdf(void) {
             CPPUNIT_ASSERT(filter.minusLogJointCdfComplement(TDouble1Vec(1, x), lowerBound, upperBound));
             double fComplement = (lowerBound + upperBound) / 2.0;
 
-            LOG_DEBUG("log(F(x)) = " << (f == 0.0 ? f : -f)
-                                     << ", log(1 - F(x)) = " << (fComplement == 0.0 ? fComplement : -fComplement));
+            LOG_DEBUG("log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = " << (fComplement == 0.0 ? fComplement : -fComplement));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, ::exp(-f) + ::exp(-fComplement), 1e-10);
         }
     }
@@ -807,8 +796,7 @@ void CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples(void) {
                 double fx;
                 filter.jointLogMarginalLikelihood(sample, fx);
 
-                double px = static_cast<double>(std::lower_bound(likelihoods.begin(), likelihoods.end(), fx) -
-                                                likelihoods.begin()) /
+                double px = static_cast<double>(std::lower_bound(likelihoods.begin(), likelihoods.end(), fx) - likelihoods.begin()) /
                             static_cast<double>(likelihoods.size());
 
                 double lb, ub;
@@ -835,13 +823,8 @@ void CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples(void) {
                 maths_t::ETail tail;
 
                 {
-                    filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                          weightStyle,
-                                                          TDouble1Vec(1, ss[0]),
-                                                          TDouble4Vec1Vec(1, TDouble4Vec(1, vs[k])),
-                                                          lb,
-                                                          ub,
-                                                          tail);
+                    filter.probabilityOfLessLikelySamples(
+                        maths_t::E_TwoSided, weightStyle, TDouble1Vec(1, ss[0]), TDouble4Vec1Vec(1, TDouble4Vec(1, vs[k])), lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
                     if (mode > 0.0) {
                         filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
@@ -871,21 +854,11 @@ void CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples(void) {
                     }
                 }
                 if (mode > 0.0) {
-                    filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                          weightStyle,
-                                                          TDouble1Vec(1, ss[1]),
-                                                          TDouble4Vec1Vec(1, TDouble4Vec(1, vs[k])),
-                                                          lb,
-                                                          ub,
-                                                          tail);
+                    filter.probabilityOfLessLikelySamples(
+                        maths_t::E_TwoSided, weightStyle, TDouble1Vec(1, ss[1]), TDouble4Vec1Vec(1, TDouble4Vec(1, vs[k])), lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
-                    filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                          weightStyle,
-                                                          TDouble1Vec(ss, ss + 2),
-                                                          TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])),
-                                                          lb,
-                                                          ub,
-                                                          tail);
+                    filter.probabilityOfLessLikelySamples(
+                        maths_t::E_TwoSided, weightStyle, TDouble1Vec(ss, ss + 2), TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                     filter.probabilityOfLessLikelySamples(maths_t::E_OneSidedBelow,
                                                           weightStyle,
@@ -967,10 +940,10 @@ void CNormalMeanPrecConjugateTest::testAnomalyScore(void) {
 
                 TUIntVec candidateAnomalies;
                 for (unsigned int time = 0; time < samples.size(); ++time) {
-                    double sample = samples[time] +
-                                    (anomalies[std::find(boost::begin(anomalyTimes), boost::end(anomalyTimes), time) -
-                                               boost::begin(anomalyTimes)] *
-                                     boost::math::standard_deviation(normal));
+                    double sample =
+                        samples[time] +
+                        (anomalies[std::find(boost::begin(anomalyTimes), boost::end(anomalyTimes), time) - boost::begin(anomalyTimes)] *
+                         boost::math::standard_deviation(normal));
 
                     TDouble1Vec sampleVec(1, sample);
                     filter.addSamples(sampleVec);
@@ -999,8 +972,7 @@ void CNormalMeanPrecConjugateTest::testAnomalyScore(void) {
                                     boost::end(anomalyTimes),
                                     std::back_inserter(falsePositives));
 
-                double falsePositiveRate =
-                    static_cast<double>(falsePositives.size()) / static_cast<double>(samples.size());
+                double falsePositiveRate = static_cast<double>(falsePositives.size()) / static_cast<double>(samples.size());
 
                 totalFalsePositiveRate += falsePositiveRate;
 
@@ -1096,8 +1068,7 @@ void CNormalMeanPrecConjugateTest::testIntegerData(void) {
         }
 
         LOG_DEBUG("meanLogLikelihood1 = " << maths::CBasicStatistics::mean(meanLogLikelihood1)
-                                          << ", meanLogLikelihood2 = "
-                                          << maths::CBasicStatistics::mean(meanLogLikelihood2));
+                                          << ", meanLogLikelihood2 = " << maths::CBasicStatistics::mean(meanLogLikelihood2));
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             maths::CBasicStatistics::mean(meanLogLikelihood1), maths::CBasicStatistics::mean(meanLogLikelihood2), 0.02);
@@ -1155,8 +1126,7 @@ void CNormalMeanPrecConjugateTest::testLowVariationData(void) {
 
         TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(68.0);
         double sigma = (interval.second - interval.first) / 2.0;
-        LOG_DEBUG("68% confidence interval " << core::CContainerPrinter::print(interval)
-                                             << ", approximate variance = " << sigma * sigma);
+        LOG_DEBUG("68% confidence interval " << core::CContainerPrinter::print(interval) << ", approximate variance = " << sigma * sigma);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(12.0, 1.0 / (sigma * sigma), 0.15);
     }
     {
@@ -1167,8 +1137,7 @@ void CNormalMeanPrecConjugateTest::testLowVariationData(void) {
 
         TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(68.0);
         double sigma = (interval.second - interval.first) / 2.0;
-        LOG_DEBUG("68% confidence interval " << core::CContainerPrinter::print(interval)
-                                             << ", approximate s.t.d. = " << sigma);
+        LOG_DEBUG("68% confidence interval " << core::CContainerPrinter::print(interval) << ", approximate s.t.d. = " << sigma);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0 / maths::MINIMUM_COEFFICIENT_OF_VARIATION / 430.5, 1.0 / sigma, 7.0);
     }
 }
@@ -1190,9 +1159,8 @@ void CNormalMeanPrecConjugateTest::testPersist(void) {
 
     maths::CNormalMeanPrecConjugate origFilter(makePrior());
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        origFilter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, samples[i]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0)));
+        origFilter.addSamples(
+            maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight), TDouble1Vec(1, samples[i]), TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0)));
     }
     double decayRate = origFilter.decayRate();
     uint64_t checksum = origFilter.checksum();
@@ -1292,11 +1260,7 @@ void CNormalMeanPrecConjugateTest::testSeasonalVarianceScale(void) {
 
                     LOG_DEBUG("sv = " << filter.marginalLikelihoodVariance(weightStyle, weight));
                     double expectationVariance;
-                    filter.expectation(CVarianceKernel(filter.marginalLikelihoodMean()),
-                                       100,
-                                       expectationVariance,
-                                       weightStyle,
-                                       weight);
+                    filter.expectation(CVarianceKernel(filter.marginalLikelihoodMean()), 100, expectationVariance, weightStyle, weight);
                     LOG_DEBUG("expectationVariance = " << expectationVariance);
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(
                         vs * unscaledExpectationVariance, expectationVariance, 0.01 * vs * unscaledExpectationVariance);
@@ -1310,8 +1274,7 @@ void CNormalMeanPrecConjugateTest::testSeasonalVarianceScale(void) {
                     filter.jointLogMarginalLikelihood(weightStyle, TDouble1Vec(1, mode - 1e-3), weights, fmMinusEps);
                     filter.jointLogMarginalLikelihood(weightStyle, TDouble1Vec(1, mode), weights, fm);
                     filter.jointLogMarginalLikelihood(weightStyle, TDouble1Vec(1, mode + 1e-3), weights, fmPlusEps);
-                    LOG_DEBUG("log(f(mode)) = " << fm << ", log(f(mode - eps)) = " << fmMinusEps
-                                                << ", log(f(mode + eps)) = " << fmPlusEps);
+                    LOG_DEBUG("log(f(mode)) = " << fm << ", log(f(mode - eps)) = " << fmMinusEps << ", log(f(mode + eps)) = " << fmPlusEps);
                     CPPUNIT_ASSERT(fm > fmMinusEps);
                     CPPUNIT_ASSERT(fm > fmPlusEps);
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, (::exp(fmPlusEps) - ::exp(fmMinusEps)) / 2e-3, 1e-6);
@@ -1328,8 +1291,7 @@ void CNormalMeanPrecConjugateTest::testSeasonalVarianceScale(void) {
                         filter.minusLogJointCdf(weightStyle, xMinusEps, weights, lb, ub);
                         double FxMinusEps = ::exp(-(lb + ub) / 2.0);
                         LOG_DEBUG("x = " << points[l] << ", log(f(x)) = " << fx << ", F(x - eps) = " << FxMinusEps
-                                         << ", F(x + eps) = " << FxPlusEps
-                                         << ", log(dF/dx)) = " << ::log((FxPlusEps - FxMinusEps) / 2e-3));
+                                         << ", F(x + eps) = " << FxPlusEps << ", log(dF/dx)) = " << ::log((FxPlusEps - FxMinusEps) / 2e-3));
                         CPPUNIT_ASSERT_DOUBLES_EQUAL(fx, ::log((FxPlusEps - FxMinusEps) / 2e-3), 0.05 * ::fabs(fx));
 
                         sample[0] = m + (points[l] - m) / ::sqrt(vs);
@@ -1337,13 +1299,8 @@ void CNormalMeanPrecConjugateTest::testSeasonalVarianceScale(void) {
                         double expectedLowerBound;
                         double expectedUpperBound;
                         maths_t::ETail expectedTail;
-                        filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                              weightStyle,
-                                                              sample,
-                                                              weights,
-                                                              expectedLowerBound,
-                                                              expectedUpperBound,
-                                                              expectedTail);
+                        filter.probabilityOfLessLikelySamples(
+                            maths_t::E_TwoSided, weightStyle, sample, weights, expectedLowerBound, expectedUpperBound, expectedTail);
 
                         sample[0] = points[l];
                         weights[0][0] = vs;
@@ -1458,8 +1415,7 @@ void CNormalMeanPrecConjugateTest::testCountVarianceScale(void) {
                 TDouble1Vec sample(1, unscaledSamples[j]);
 
                 double lowerBound, upperBound;
-                CPPUNIT_ASSERT(
-                    filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, sample, lowerBound, upperBound));
+                CPPUNIT_ASSERT(filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, sample, lowerBound, upperBound));
                 CPPUNIT_ASSERT_EQUAL(lowerBound, upperBound);
                 double probability = (lowerBound + upperBound) / 2.0;
                 probabilities.push_back(probability);
@@ -1467,8 +1423,7 @@ void CNormalMeanPrecConjugateTest::testCountVarianceScale(void) {
             std::sort(probabilities.begin(), probabilities.end());
 
             for (std::size_t j = 0; j < boost::size(percentiles); ++j) {
-                std::size_t index =
-                    static_cast<std::size_t>(static_cast<double>(nScaledSamples) * percentiles[j] / 100.0);
+                std::size_t index = static_cast<std::size_t>(static_cast<double>(nScaledSamples) * percentiles[j] / 100.0);
                 double error = ::fabs(probabilities[index] - percentiles[j] / 100.0);
                 expectedPercentileErrors.push_back(error);
                 expectedTotalError += error;
@@ -1487,14 +1442,13 @@ void CNormalMeanPrecConjugateTest::testCountVarianceScale(void) {
 
                 double lowerBound, upperBound;
                 maths_t::ETail tail;
-                CPPUNIT_ASSERT(filter.probabilityOfLessLikelySamples(
-                    maths_t::E_TwoSided,
-                    maths_t::TWeightStyleVec(1, maths_t::E_SampleCountVarianceScaleWeight),
-                    TDouble1Vec(1, scaledSamples[k]),
-                    TDouble4Vec1Vec(1, TDouble4Vec(1, varianceScales[j])),
-                    lowerBound,
-                    upperBound,
-                    tail));
+                CPPUNIT_ASSERT(filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
+                                                                     maths_t::TWeightStyleVec(1, maths_t::E_SampleCountVarianceScaleWeight),
+                                                                     TDouble1Vec(1, scaledSamples[k]),
+                                                                     TDouble4Vec1Vec(1, TDouble4Vec(1, varianceScales[j])),
+                                                                     lowerBound,
+                                                                     upperBound,
+                                                                     tail));
                 CPPUNIT_ASSERT_EQUAL(lowerBound, upperBound);
                 double probability = (lowerBound + upperBound) / 2.0;
                 probabilities.push_back(probability);
@@ -1503,14 +1457,13 @@ void CNormalMeanPrecConjugateTest::testCountVarianceScale(void) {
 
             double totalError = 0.0;
             for (std::size_t k = 0; k < boost::size(percentiles); ++k) {
-                std::size_t index =
-                    static_cast<std::size_t>(static_cast<double>(nScaledSamples) * percentiles[k] / 100.0);
+                std::size_t index = static_cast<std::size_t>(static_cast<double>(nScaledSamples) * percentiles[k] / 100.0);
                 double error = fabs(probabilities[index] - percentiles[k] / 100.0);
                 totalError += error;
                 double errorThreshold = percentileErrorTolerances[i] + expectedPercentileErrors[k];
 
-                LOG_DEBUG("percentile = " << percentiles[k] << ", probability = " << probabilities[index]
-                                          << ", error = " << error << ", error threshold = " << errorThreshold);
+                LOG_DEBUG("percentile = " << percentiles[k] << ", probability = " << probabilities[index] << ", error = " << error
+                                          << ", error threshold = " << errorThreshold);
 
                 CPPUNIT_ASSERT(error < errorThreshold);
             }
@@ -1551,18 +1504,16 @@ void CNormalMeanPrecConjugateTest::testCountVarianceScale(void) {
         for (std::size_t j = 0u; j < scaledSamples.size(); ++j) {
             double logLikelihood = 0.0;
             CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                                 filter.jointLogMarginalLikelihood(
-                                     maths_t::TWeightStyleVec(1, maths_t::E_SampleCountVarianceScaleWeight),
-                                     TDouble1Vec(1, scaledSamples[j]),
-                                     TDouble4Vec1Vec(1, TDouble4Vec(1, varianceScales[i])),
-                                     logLikelihood));
+                                 filter.jointLogMarginalLikelihood(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountVarianceScaleWeight),
+                                                                   TDouble1Vec(1, scaledSamples[j]),
+                                                                   TDouble4Vec1Vec(1, TDouble4Vec(1, varianceScales[i])),
+                                                                   logLikelihood));
             differentialEntropy -= logLikelihood;
         }
 
         differentialEntropy /= static_cast<double>(scaledSamples.size());
 
-        LOG_DEBUG("differentialEntropy = " << differentialEntropy
-                                           << ", expectedDifferentialEntropy = " << expectedDifferentialEntropy);
+        LOG_DEBUG("differentialEntropy = " << differentialEntropy << ", expectedDifferentialEntropy = " << expectedDifferentialEntropy);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedDifferentialEntropy, differentialEntropy, 0.03);
     }
@@ -1610,47 +1561,41 @@ void CNormalMeanPrecConjugateTest::testCountVarianceScale(void) {
 CppUnit::Test* CNormalMeanPrecConjugateTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNormalMeanPrecConjugateTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testMultipleUpdate",
+                                                                                &CNormalMeanPrecConjugateTest::testMultipleUpdate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testPropagation",
+                                                                                &CNormalMeanPrecConjugateTest::testPropagation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testMeanEstimation",
+                                                                                &CNormalMeanPrecConjugateTest::testMeanEstimation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testPrecisionEstimation",
+                                                                                &CNormalMeanPrecConjugateTest::testPrecisionEstimation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testMarginalLikelihood",
+                                                                                &CNormalMeanPrecConjugateTest::testMarginalLikelihood));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean",
+                                                                                &CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode",
+                                                                                &CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode));
     suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testMultipleUpdate", &CNormalMeanPrecConjugateTest::testMultipleUpdate));
+        "CNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance", &CNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance));
     suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testPropagation", &CNormalMeanPrecConjugateTest::testPropagation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testMeanEstimation", &CNormalMeanPrecConjugateTest::testMeanEstimation));
+        "CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood", &CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testCdf",
+                                                                                &CNormalMeanPrecConjugateTest::testCdf));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testPrecisionEstimation",
-                                                              &CNormalMeanPrecConjugateTest::testPrecisionEstimation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testMarginalLikelihood", &CNormalMeanPrecConjugateTest::testMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean",
-        &CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode",
-        &CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance",
-        &CNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood",
-        &CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testCdf", &CNormalMeanPrecConjugateTest::testCdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples",
-        &CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testAnomalyScore", &CNormalMeanPrecConjugateTest::testAnomalyScore));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testIntegerData", &CNormalMeanPrecConjugateTest::testIntegerData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testLowVariationData", &CNormalMeanPrecConjugateTest::testLowVariationData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testPersist", &CNormalMeanPrecConjugateTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testSeasonalVarianceScale",
-        &CNormalMeanPrecConjugateTest::testSeasonalVarianceScale));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
-        "CNormalMeanPrecConjugateTest::testCountVarianceScale", &CNormalMeanPrecConjugateTest::testCountVarianceScale));
+        new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples",
+                                                              &CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testAnomalyScore",
+                                                                                &CNormalMeanPrecConjugateTest::testAnomalyScore));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testIntegerData",
+                                                                                &CNormalMeanPrecConjugateTest::testIntegerData));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testLowVariationData",
+                                                                                &CNormalMeanPrecConjugateTest::testLowVariationData));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testPersist",
+                                                                                &CNormalMeanPrecConjugateTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testSeasonalVarianceScale",
+                                                                                &CNormalMeanPrecConjugateTest::testSeasonalVarianceScale));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>("CNormalMeanPrecConjugateTest::testCountVarianceScale",
+                                                                                &CNormalMeanPrecConjugateTest::testCountVarianceScale));
 
     return suiteOfTests;
 }

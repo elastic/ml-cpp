@@ -25,8 +25,7 @@
 CppUnit::Test* CFileDeleterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFileDeleterTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CFileDeleterTest>("CFileDeleterTest::testDelete", &CFileDeleterTest::testDelete));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFileDeleterTest>("CFileDeleterTest::testDelete", &CFileDeleterTest::testDelete));
 
     return suiteOfTests;
 }

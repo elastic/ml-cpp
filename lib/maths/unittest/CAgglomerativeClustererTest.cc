@@ -316,18 +316,12 @@ void CAgglomerativeClustererTest::testDegenerate(void) {
                                                                maths::CAgglomerativeClusterer::E_Complete};
 
     std::string expected[][3] = {
-        {std::string(
-             "[(3.3, [0, 1, 2, 3, 4, 5]), (2.2, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [1, 2])]"),
-         std::string(
-             "[(3.3, [0, 1, 2, 3, 4, 5]), (2.2, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [1, 3])]"),
-         std::string(
-             "[(3.3, [0, 1, 2, 3, 4, 5]), (2.2, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [2, 3])]")},
-        {std::string(
-             "[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [1, 2])]"),
-         std::string(
-             "[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [1, 3])]"),
-         std::string(
-             "[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [2, 3])]")}};
+        {std::string("[(3.3, [0, 1, 2, 3, 4, 5]), (2.2, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [1, 2])]"),
+         std::string("[(3.3, [0, 1, 2, 3, 4, 5]), (2.2, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [1, 3])]"),
+         std::string("[(3.3, [0, 1, 2, 3, 4, 5]), (2.2, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [2, 3])]")},
+        {std::string("[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [1, 2])]"),
+         std::string("[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [1, 3])]"),
+         std::string("[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [2, 3])]")}};
 
     for (std::size_t o = 0u, count = 0u; o < boost::size(objectives); ++o) {
         LOG_DEBUG("****** " << print(objectives[o]) << " ******");
@@ -448,8 +442,7 @@ void CAgglomerativeClustererTest::testRandom(void) {
 
             LOG_DEBUG("clusters          = " << core::CContainerPrinter::print(clusters));
 
-            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedClusters),
-                                 core::CContainerPrinter::print(clusters));
+            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedClusters), core::CContainerPrinter::print(clusters));
         }
     }
 }
@@ -459,12 +452,12 @@ CppUnit::Test* CAgglomerativeClustererTest::suite(void) {
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>("CAgglomerativeClustererTest::testNode",
                                                                                &CAgglomerativeClustererTest::testNode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>(
-        "CAgglomerativeClustererTest::testSimplePermutations", &CAgglomerativeClustererTest::testSimplePermutations));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>(
-        "CAgglomerativeClustererTest::testDegenerate", &CAgglomerativeClustererTest::testDegenerate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>(
-        "CAgglomerativeClustererTest::testRandom", &CAgglomerativeClustererTest::testRandom));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>("CAgglomerativeClustererTest::testSimplePermutations",
+                                                                               &CAgglomerativeClustererTest::testSimplePermutations));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>("CAgglomerativeClustererTest::testDegenerate",
+                                                                               &CAgglomerativeClustererTest::testDegenerate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>("CAgglomerativeClustererTest::testRandom",
+                                                                               &CAgglomerativeClustererTest::testRandom));
 
     return suiteOfTests;
 }

@@ -154,8 +154,7 @@ public:
     //! Get a person normalizer.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer* personNormalizer(const std::string& partitionFieldName,
-                                                       const std::string& personFieldName) const;
+    const CAnomalyScore::CNormalizer* personNormalizer(const std::string& partitionFieldName, const std::string& personFieldName) const;
 
     //! Get a leaf normalizer.
     //!

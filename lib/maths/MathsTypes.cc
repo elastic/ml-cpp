@@ -166,8 +166,7 @@ double countForUpdate(const TWeightStyleVec& weightStyles, const TDouble4Vec& we
     return result;
 }
 
-TDouble10Vec
-countForUpdate(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+TDouble10Vec countForUpdate(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
     TDouble10Vec result(dimension, 1.0);
     detail::countForUpdate(weightStyles, weights, result);
     for (std::size_t i = 0u; i < dimension; ++i) {
@@ -187,8 +186,7 @@ double seasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4
     return result;
 }
 
-TDouble10Vec
-seasonalVarianceScale(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+TDouble10Vec seasonalVarianceScale(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
     TDouble10Vec result(dimension, 1.0);
     detail::seasonalVarianceScale(weightStyles, weights, result);
     for (std::size_t i = 0u; i < dimension; ++i) {
@@ -208,8 +206,7 @@ double countVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec
     return result;
 }
 
-TDouble10Vec
-countVarianceScale(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+TDouble10Vec countVarianceScale(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
     TDouble10Vec result(dimension, 1.0);
     detail::countVarianceScale(weightStyles, weights, result);
     for (std::size_t i = 0u; i < dimension; ++i) {

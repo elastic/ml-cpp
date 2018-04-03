@@ -463,8 +463,7 @@ private:
             x.s_Sign = 0;
             x.s_Mantissa = (dx / 2) & core::CIEEE754::IEEE754_MANTISSA_MASK;
             x.s_Exponent = 1022;
-            for (std::size_t i = 0u; i < BINS;
-                 ++i, x.s_Mantissa = (x.s_Mantissa + dx) & core::CIEEE754::IEEE754_MANTISSA_MASK) {
+            for (std::size_t i = 0u; i < BINS; ++i, x.s_Mantissa = (x.s_Mantissa + dx) & core::CIEEE754::IEEE754_MANTISSA_MASK) {
                 double value;
                 static_assert(sizeof(double) == sizeof(core::CIEEE754::SDoubleRep),
                               "SDoubleRep definition unsuitable for memcpy to double");

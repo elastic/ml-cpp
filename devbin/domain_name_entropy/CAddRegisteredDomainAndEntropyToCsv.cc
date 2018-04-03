@@ -56,8 +56,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::init(void) {
 
     std::string remainder;
     if (watcher.readAllLines(
-            boost::bind(
-                &CAddRegisteredDomainAndEntropyToCsv::readLine, this, boost::ref(readHeader), boost::ref(lastTime), _1),
+            boost::bind(&CAddRegisteredDomainAndEntropyToCsv::readLine, this, boost::ref(readHeader), boost::ref(lastTime), _1),
             remainder) == false) {
         LOG_ERROR("Error reading " << m_CsvFileName);
         return false;
@@ -140,8 +139,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader, std::string
     if (itr == m_RegisteredDomainEntropy.end()) {
         TCompressUtilsP compressedSubDomainsP(new CCompressUtils);
 
-        itr = m_RegisteredDomainEntropy.insert(TStrCompressUtilsPMap::value_type(pivotDomain, compressedSubDomainsP))
-                  .first;
+        itr = m_RegisteredDomainEntropy.insert(TStrCompressUtilsPMap::value_type(pivotDomain, compressedSubDomainsP)).first;
     }
 
     if (itr->second->compressString(false, subDomain) == false) {
@@ -153,8 +151,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader, std::string
 
 void CAddRegisteredDomainAndEntropyToCsv::flush(const std::string& time) {
     // Finish all strings and dump
-    for (TStrCompressUtilsPMapCItr itr = m_RegisteredDomainEntropy.begin(); itr != m_RegisteredDomainEntropy.end();
-         ++itr) {
+    for (TStrCompressUtilsPMapCItr itr = m_RegisteredDomainEntropy.begin(); itr != m_RegisteredDomainEntropy.end(); ++itr) {
         size_t length;
         if (itr->second->compressedStringLength(true, length) == false) {
             LOG_ERROR("Unable to process " << itr->first);

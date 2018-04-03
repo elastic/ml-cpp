@@ -93,10 +93,7 @@ TStrVec allPeople(void) {
     return people;
 }
 
-void generateTestMessages(test::CRandomNumbers& rng,
-                          core_t::TTime time,
-                          core_t::TTime bucketLength,
-                          TMessageVec& messages) {
+void generateTestMessages(test::CRandomNumbers& rng, core_t::TTime time, core_t::TTime bucketLength, TMessageVec& messages) {
     typedef std::vector<unsigned int> TUIntVec;
     typedef std::vector<double> TDoubleVec;
 
@@ -131,9 +128,8 @@ void generateTestMessages(test::CRandomNumbers& rng,
         rng.generateUniformSamples(0.0, static_cast<double>(bucketLength) - 1.0, bucketCounts[i], offsets);
 
         for (std::size_t j = 0u; j < offsets.size(); ++j) {
-            messages.push_back(SMessage(time + static_cast<core_t::TTime>(offsets[j]),
-                                        categories[i],
-                                        people[bucketPeople[j % bucketPeople.size()]]));
+            messages.push_back(
+                SMessage(time + static_cast<core_t::TTime>(offsets[j]), categories[i], people[bucketPeople[j % bucketPeople.size()]]));
         }
     }
 
@@ -141,8 +137,7 @@ void generateTestMessages(test::CRandomNumbers& rng,
     LOG_DEBUG("Generated " << messages.size() << " messages");
 }
 
-const TSizeSizePrFeatureDataPrVec& extract(const TFeatureSizeSizePrFeatureDataPrVecPrVec& featureData,
-                                           model_t::EFeature feature) {
+const TSizeSizePrFeatureDataPrVec& extract(const TFeatureSizeSizePrFeatureDataPrVecPrVec& featureData, model_t::EFeature feature) {
     for (std::size_t i = 0u; i < featureData.size(); ++i) {
         if (featureData[i].first == feature) {
             return featureData[i].second;
@@ -165,21 +160,16 @@ const TSizeSizePrFeatureDataPrVec& extractAttributeIndicator(TFeatureSizeSizePrF
     return extract(featureData, model_t::E_PopulationIndicatorOfBucketPersonAndAttribute);
 }
 
-const TSizeSizePrFeatureDataPrVec&
-extractBucketAttributesPerPerson(TFeatureSizeSizePrFeatureDataPrVecPrVec& featureData) {
+const TSizeSizePrFeatureDataPrVec& extractBucketAttributesPerPerson(TFeatureSizeSizePrFeatureDataPrVecPrVec& featureData) {
     return extract(featureData, model_t::E_PopulationUniqueCountByBucketPersonAndAttribute);
 }
 
-const TSizeSizePrFeatureDataPrVec&
-extractCompressedLengthPerPerson(TFeatureSizeSizePrFeatureDataPrVecPrVec& featureData) {
+const TSizeSizePrFeatureDataPrVec& extractCompressedLengthPerPerson(TFeatureSizeSizePrFeatureDataPrVecPrVec& featureData) {
     return extract(featureData, model_t::E_PopulationInfoContentByBucketPersonAndAttribute);
 }
 
-CEventData addArrival(core_t::TTime time,
-                      const std::string& p,
-                      const std::string& a,
-                      CDataGatherer& gatherer,
-                      CResourceMonitor& resourceMonitor) {
+CEventData
+addArrival(core_t::TTime time, const std::string& p, const std::string& a, CDataGatherer& gatherer, CResourceMonitor& resourceMonitor) {
     CDataGatherer::TStrCPtrVec fields;
     fields.push_back(&p);
     fields.push_back(&a);
@@ -263,8 +253,7 @@ void CEventRatePopulationDataGathererTest::testAttributeCounts(void) {
 
         TSizeSizePrUInt64Map expectedAttributeCounts;
         for (std::size_t j = 0u; j < messages.size(); ++j) {
-            addArrival(
-                messages[j].s_Time, messages[j].s_Person, messages[j].s_Attribute, dataGatherer, m_ResourceMonitor);
+            addArrival(messages[j].s_Time, messages[j].s_Person, messages[j].s_Attribute, dataGatherer, m_ResourceMonitor);
 
             std::size_t cid;
             dataGatherer.attributeId(messages[j].s_Attribute, cid);
@@ -274,8 +263,7 @@ void CEventRatePopulationDataGathererTest::testAttributeCounts(void) {
 
             ++expectedAttributeCounts[std::make_pair(pid, cid)];
             expectedAttributePeople[cid].insert(pid);
-            if (expectedAttributeOrder.insert(TStrSizeMap::value_type(messages[j].s_Attribute, attributeOrder))
-                    .second) {
+            if (expectedAttributeOrder.insert(TStrSizeMap::value_type(messages[j].s_Attribute, attributeOrder)).second) {
                 ++attributeOrder;
             }
             if (expectedPeopleOrder.insert(TStrSizeMap::value_type(messages[j].s_Person, personOrder)).second) {
@@ -293,8 +281,7 @@ void CEventRatePopulationDataGathererTest::testAttributeCounts(void) {
         CPPUNIT_ASSERT_EQUAL(expectedAttributePeople.size(), peoplePerAttribute.size());
         TSizeSizePrFeatureDataPrVec expectedPeoplePerAttribute;
         for (std::size_t j = 0u; j < peoplePerAttribute.size(); ++j) {
-            expectedPeoplePerAttribute.push_back(
-                TSizeSizePrFeatureDataPr(std::make_pair(size_t(0), j), expectedAttributePeople[j].size()));
+            expectedPeoplePerAttribute.push_back(TSizeSizePrFeatureDataPr(std::make_pair(size_t(0), j), expectedAttributePeople[j].size()));
         }
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedPeoplePerAttribute),
                              core::CContainerPrinter::print(peoplePerAttribute));
@@ -373,8 +360,7 @@ void CEventRatePopulationDataGathererTest::testAttributeIndicator(void) {
 
         TSizeSizePrUInt64Map expectedAttributeIndicator;
         for (std::size_t j = 0u; j < messages.size(); ++j) {
-            addArrival(
-                messages[j].s_Time, messages[j].s_Person, messages[j].s_Attribute, dataGatherer, m_ResourceMonitor);
+            addArrival(messages[j].s_Time, messages[j].s_Person, messages[j].s_Attribute, dataGatherer, m_ResourceMonitor);
 
             std::size_t cid;
             dataGatherer.attributeId(messages[j].s_Attribute, cid);
@@ -449,12 +435,7 @@ void CEventRatePopulationDataGathererTest::testUniqueValueCounts(void) {
             ss << "thing"
                << "_" << time << "_" << i;
             std::string value(ss.str());
-            addArrival(messages[j].s_Time,
-                       messages[j].s_Person,
-                       messages[j].s_Attribute,
-                       value,
-                       dataGatherer,
-                       m_ResourceMonitor);
+            addArrival(messages[j].s_Time, messages[j].s_Person, messages[j].s_Attribute, value, dataGatherer, m_ResourceMonitor);
 
             std::size_t cid;
             dataGatherer.attributeId(messages[j].s_Attribute, cid);
@@ -526,12 +507,7 @@ void CEventRatePopulationDataGathererTest::testCompressedLength(void) {
 
         TSizeStrSetMap bucketPeopleCategories;
         for (std::size_t j = 0u; j < messages.size(); ++j) {
-            addArrival(messages[j].s_Time,
-                       messages[j].s_Person,
-                       "attribute",
-                       messages[j].s_Attribute,
-                       dataGatherer,
-                       m_ResourceMonitor);
+            addArrival(messages[j].s_Time, messages[j].s_Person, "attribute", messages[j].s_Attribute, dataGatherer, m_ResourceMonitor);
 
             std::size_t cid;
             dataGatherer.attributeId(messages[j].s_Attribute, cid);
@@ -554,8 +530,7 @@ void CEventRatePopulationDataGathererTest::testCompressedLength(void) {
         const TSizeSizePrFeatureDataPrVec& attributeIndicator = extractAttributeIndicator(featureData);
         CPPUNIT_ASSERT(attributeIndicator.empty());
 
-        const TSizeSizePrFeatureDataPrVec& bucketCompressedLengthPerPerson =
-            extractCompressedLengthPerPerson(featureData);
+        const TSizeSizePrFeatureDataPrVec& bucketCompressedLengthPerPerson = extractCompressedLengthPerPerson(featureData);
         CPPUNIT_ASSERT_EQUAL(bucketPeopleCategories.size(), bucketCompressedLengthPerPerson.size());
 
         TSizeSizePrUInt64Map expectedBucketCompressedLengthPerPerson;
@@ -566,9 +541,8 @@ void CEventRatePopulationDataGathererTest::testCompressedLength(void) {
             core::CCompressUtils compressor(false);
             CPPUNIT_ASSERT_EQUAL(
                 uniqueValues.size(),
-                static_cast<size_t>(std::count_if(uniqueValues.begin(),
-                                                  uniqueValues.end(),
-                                                  boost::bind(&core::CCompressUtils::addString, &compressor, _1))));
+                static_cast<size_t>(std::count_if(
+                    uniqueValues.begin(), uniqueValues.end(), boost::bind(&core::CCompressUtils::addString, &compressor, _1))));
             size_t length(0);
             CPPUNIT_ASSERT(compressor.compressedLength(true, length));
             expectedBucketCompressedLengthPerPerson[key] = length;
@@ -670,8 +644,7 @@ void CEventRatePopulationDataGathererTest::testRemovePeople(void) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
             for (std::size_t j = 0u; j < data.size(); ++j) {
                 if (!std::binary_search(peopleToRemove.begin(), peopleToRemove.end(), data[j].first.first)) {
-                    std::string key = model_t::print(featureData[i].first) + " " +
-                                      gatherer.personName(data[j].first.first) + " " +
+                    std::string key = model_t::print(featureData[i].first) + " " + gatherer.personName(data[j].first.first) + " " +
                                       gatherer.attributeName(data[j].first.second);
                     expected.push_back(TStrFeatureDataPr(key, data[j].second));
                     LOG_DEBUG("  " << key << " = " << data[j].second.s_Count);
@@ -699,8 +672,7 @@ void CEventRatePopulationDataGathererTest::testRemovePeople(void) {
     }
     LOG_DEBUG("actualNonZeroCounts = " << core::CContainerPrinter::print(actualNonZeroCounts));
 
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNonZeroCounts),
-                         core::CContainerPrinter::print(actualNonZeroCounts));
+    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNonZeroCounts), core::CContainerPrinter::print(actualNonZeroCounts));
 
     std::string actualFeatureData;
     {
@@ -711,8 +683,7 @@ void CEventRatePopulationDataGathererTest::testRemovePeople(void) {
         for (std::size_t i = 0u; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
             for (std::size_t j = 0u; j < data.size(); ++j) {
-                std::string key = model_t::print(featureData[i].first) + " " +
-                                  gatherer.personName(data[j].first.first) + " " +
+                std::string key = model_t::print(featureData[i].first) + " " + gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
                 actual.push_back(TStrFeatureDataPr(key, data[j].second));
                 LOG_DEBUG("  " << key << " = " << data[j].second.s_Count);
@@ -791,8 +762,7 @@ void CEventRatePopulationDataGathererTest::testRemoveAttributes(void) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
             for (std::size_t j = 0u; j < data.size(); ++j) {
                 if (!std::binary_search(attributesToRemove.begin(), attributesToRemove.end(), data[j].first.second)) {
-                    std::string key = model_t::print(featureData[i].first) + " " +
-                                      gatherer.personName(data[j].first.first) + " " +
+                    std::string key = model_t::print(featureData[i].first) + " " + gatherer.personName(data[j].first.first) + " " +
                                       gatherer.attributeName(data[j].first.second);
                     expected.push_back(TStrFeatureDataPr(key, data[j].second));
                     LOG_DEBUG("  " << key << " = " << data[j].second.s_Count);
@@ -820,8 +790,7 @@ void CEventRatePopulationDataGathererTest::testRemoveAttributes(void) {
         for (std::size_t i = 0u; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
             for (std::size_t j = 0u; j < data.size(); ++j) {
-                std::string key = model_t::print(featureData[i].first) + " " +
-                                  gatherer.personName(data[j].first.first) + " " +
+                std::string key = model_t::print(featureData[i].first) + " " + gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
                 actual.push_back(TStrFeatureDataPr(key, data[j].second));
                 LOG_DEBUG("  " << key << " = " << data[j].second.s_Count);
@@ -872,8 +841,7 @@ void CEventRatePopulationDataGathererTest::testPersistence(void) {
         generateTestMessages(rng, startTime, bucketLength, messages);
 
         for (std::size_t i = 0u; i < messages.size(); ++i) {
-            addArrival(
-                messages[i].s_Time, messages[i].s_Person, messages[i].s_Attribute, origDataGatherer, m_ResourceMonitor);
+            addArrival(messages[i].s_Time, messages[i].s_Person, messages[i].s_Attribute, origDataGatherer, m_ResourceMonitor);
         }
 
         std::string origXml;
@@ -884,8 +852,7 @@ void CEventRatePopulationDataGathererTest::testPersistence(void) {
         }
 
         LOG_DEBUG("origXml = " << origXml);
-        LOG_DEBUG("length = " << origXml.length() << ", # tabs "
-                              << std::count_if(origXml.begin(), origXml.end(), isSpace));
+        LOG_DEBUG("length = " << origXml.length() << ", # tabs " << std::count_if(origXml.begin(), origXml.end(), isSpace));
 
         // Restore the XML into a new data gatherer
         core::CRapidXmlParser parser;
@@ -946,12 +913,7 @@ void CEventRatePopulationDataGathererTest::testPersistence(void) {
             generateTestMessages(rng, time, bucketLength, messages);
 
             for (std::size_t j = 0u; j < messages.size(); ++j) {
-                addArrival(messages[j].s_Time,
-                           messages[j].s_Person,
-                           "attribute",
-                           messages[j].s_Attribute,
-                           dataGatherer,
-                           m_ResourceMonitor);
+                addArrival(messages[j].s_Time, messages[j].s_Person, "attribute", messages[j].s_Attribute, dataGatherer, m_ResourceMonitor);
 
                 std::size_t cid;
                 dataGatherer.attributeId(messages[j].s_Attribute, cid);
@@ -974,8 +936,7 @@ void CEventRatePopulationDataGathererTest::testPersistence(void) {
         }
 
         LOG_DEBUG("origXml = " << origXml);
-        LOG_DEBUG("length = " << origXml.length() << ", # tabs "
-                              << std::count_if(origXml.begin(), origXml.end(), isSpace));
+        LOG_DEBUG("length = " << origXml.length() << ", # tabs " << std::count_if(origXml.begin(), origXml.end(), isSpace));
 
         // Restore the XML into a new data gatherer
         core::CRapidXmlParser parser;
@@ -1013,26 +974,19 @@ CppUnit::Test* CEventRatePopulationDataGathererTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRatePopulationDataGathererTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationDataGathererTest>(
-        "CEventRatePopulationDataGathererTest::testAttributeCounts",
-        &CEventRatePopulationDataGathererTest::testAttributeCounts));
+        "CEventRatePopulationDataGathererTest::testAttributeCounts", &CEventRatePopulationDataGathererTest::testAttributeCounts));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationDataGathererTest>(
-        "CEventRatePopulationDataGathererTest::testAttributeIndicator",
-        &CEventRatePopulationDataGathererTest::testAttributeIndicator));
+        "CEventRatePopulationDataGathererTest::testAttributeIndicator", &CEventRatePopulationDataGathererTest::testAttributeIndicator));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationDataGathererTest>(
-        "CEventRatePopulationDataGathererTest::testUniqueValueCounts",
-        &CEventRatePopulationDataGathererTest::testUniqueValueCounts));
+        "CEventRatePopulationDataGathererTest::testUniqueValueCounts", &CEventRatePopulationDataGathererTest::testUniqueValueCounts));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationDataGathererTest>(
-        "CEventRatePopulationDataGathererTest::testCompressedLength",
-        &CEventRatePopulationDataGathererTest::testCompressedLength));
+        "CEventRatePopulationDataGathererTest::testCompressedLength", &CEventRatePopulationDataGathererTest::testCompressedLength));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationDataGathererTest>(
-        "CEventRatePopulationDataGathererTest::testRemovePeople",
-        &CEventRatePopulationDataGathererTest::testRemovePeople));
+        "CEventRatePopulationDataGathererTest::testRemovePeople", &CEventRatePopulationDataGathererTest::testRemovePeople));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationDataGathererTest>(
-        "CEventRatePopulationDataGathererTest::testRemoveAttributes",
-        &CEventRatePopulationDataGathererTest::testRemoveAttributes));
+        "CEventRatePopulationDataGathererTest::testRemoveAttributes", &CEventRatePopulationDataGathererTest::testRemoveAttributes));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationDataGathererTest>(
-        "CEventRatePopulationDataGathererTest::testPersistence",
-        &CEventRatePopulationDataGathererTest::testPersistence));
+        "CEventRatePopulationDataGathererTest::testPersistence", &CEventRatePopulationDataGathererTest::testPersistence));
 
     return suiteOfTests;
 }

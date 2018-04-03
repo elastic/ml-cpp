@@ -175,8 +175,7 @@ public:
 
     //! Checksum an Eigen dense vector.
     template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
-    static uint64_t dispatch(uint64_t seed,
-                             const Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& target) {
+    static uint64_t dispatch(uint64_t seed, const Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& target) {
         std::ptrdiff_t dimension = target.size();
         if (dimension > 0) {
             for (std::ptrdiff_t i = 0; i + 1 < dimension; ++i) {
@@ -292,9 +291,7 @@ public:
     }
 
     //! Handle std::string which has a const_iterator.
-    static uint64_t dispatch(uint64_t seed, const std::string& target) {
-        return CChecksumImpl<BasicChecksum>::dispatch(seed, target);
-    }
+    static uint64_t dispatch(uint64_t seed, const std::string& target) { return CChecksumImpl<BasicChecksum>::dispatch(seed, target); }
 };
 
 //! Convenience function to select implementation.

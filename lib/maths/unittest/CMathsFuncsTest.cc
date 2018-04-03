@@ -108,14 +108,10 @@ void CMathsFuncsTest::testFpStatus(void) {
 CppUnit::Test* CMathsFuncsTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMathsFuncsTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testIsNan", &CMathsFuncsTest::testIsNan));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testIsInf", &CMathsFuncsTest::testIsInf));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testIsFinite", &CMathsFuncsTest::testIsFinite));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testFpStatus", &CMathsFuncsTest::testFpStatus));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testIsNan", &CMathsFuncsTest::testIsNan));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testIsInf", &CMathsFuncsTest::testIsInf));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testIsFinite", &CMathsFuncsTest::testIsFinite));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testFpStatus", &CMathsFuncsTest::testFpStatus));
 
     return suiteOfTests;
 }

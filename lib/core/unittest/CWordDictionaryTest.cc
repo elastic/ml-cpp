@@ -21,14 +21,14 @@
 CppUnit::Test* CWordDictionaryTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CWordDictionaryTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testLookups",
-                                                                       &CWordDictionaryTest::testLookups));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testPartOfSpeech",
-                                                                       &CWordDictionaryTest::testPartOfSpeech));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testLookups", &CWordDictionaryTest::testLookups));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testPartOfSpeech", &CWordDictionaryTest::testPartOfSpeech));
     suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testWeightingFunctors",
                                                                        &CWordDictionaryTest::testWeightingFunctors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testPerformance",
-                                                                       &CWordDictionaryTest::testPerformance));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testPerformance", &CWordDictionaryTest::testPerformance));
 
     return suiteOfTests;
 }

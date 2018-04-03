@@ -104,8 +104,7 @@ public:
     //! \brief Hashes a ((size_t, size_t), string*) pair.
     struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrHash {
         std::size_t operator()(const TSizeSizePrStoredStringPtrPr& key) const {
-            uint64_t seed = core::CHashing::hashCombine(static_cast<uint64_t>(key.first.first),
-                                                        static_cast<uint64_t>(key.first.second));
+            uint64_t seed = core::CHashing::hashCombine(static_cast<uint64_t>(key.first.first), static_cast<uint64_t>(key.first.second));
             return core::CHashing::hashCombine(seed, s_Hasher(*key.second));
         }
         core::CHashing::CMurmurHash2String s_Hasher;
@@ -118,18 +117,15 @@ public:
         }
     };
 
-    typedef boost::unordered_map<TSizeSizePrStoredStringPtrPr,
-                                 uint64_t,
-                                 SSizeSizePrStoredStringPtrPrHash,
-                                 SSizeSizePrStoredStringPtrPrEqual>
-        TSizeSizePrStoredStringPtrPrUInt64UMap;
+    typedef boost::
+        unordered_map<TSizeSizePrStoredStringPtrPr, uint64_t, SSizeSizePrStoredStringPtrPrHash, SSizeSizePrStoredStringPtrPrEqual>
+            TSizeSizePrStoredStringPtrPrUInt64UMap;
     typedef TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator TSizeSizePrStoredStringPtrPrUInt64UMapCItr;
     typedef TSizeSizePrStoredStringPtrPrUInt64UMap::iterator TSizeSizePrStoredStringPtrPrUInt64UMapItr;
     typedef std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap> TSizeSizePrStoredStringPtrPrUInt64UMapVec;
     typedef CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec> TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue;
     typedef TSizeSizePrStoredStringPtrPrUInt64UMapVec::const_iterator TSizeSizePrStoredStringPtrPrUInt64UMapVecCItr;
-    typedef std::map<core_t::TTime, TSizeSizePrStoredStringPtrPrUInt64UMapVec>
-        TTimeSizeSizePrStoredStringPtrPrUInt64UMapVecMap;
+    typedef std::map<core_t::TTime, TSizeSizePrStoredStringPtrPrUInt64UMapVec> TTimeSizeSizePrStoredStringPtrPrUInt64UMapVecMap;
     typedef boost::reference_wrapper<const CSearchKey> TSearchKeyCRef;
     typedef std::pair<model_t::EFeature, boost::any> TFeatureAnyPr;
     typedef std::vector<TFeatureAnyPr> TFeatureAnyPrVec;
@@ -218,8 +214,7 @@ public:
     //!
     //! This adds people and attributes as necessary and fills out the
     //! event data from \p fieldValues.
-    virtual bool
-    processFields(const TStrCPtrVec& fieldValues, CEventData& result, CResourceMonitor& resourceMonitor) = 0;
+    virtual bool processFields(const TStrCPtrVec& fieldValues, CEventData& result, CResourceMonitor& resourceMonitor) = 0;
 
     //! Record the arrival of \p data at \p time.
     bool addEventData(CEventData& data);

@@ -58,10 +58,8 @@ private:
 CppUnit::Test* CStatisticsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStatisticsTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStatisticsTest>("CStatisticsTest::testStatistics", &CStatisticsTest::testStatistics));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStatisticsTest>("CStatisticsTest::testPersist", &CStatisticsTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>("CStatisticsTest::testStatistics", &CStatisticsTest::testStatistics));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>("CStatisticsTest::testPersist", &CStatisticsTest::testPersist));
 
     return suiteOfTests;
 }

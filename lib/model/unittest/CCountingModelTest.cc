@@ -33,8 +33,7 @@ using namespace ml;
 using namespace model;
 
 namespace {
-std::size_t
-addPerson(const std::string& p, const CModelFactory::TDataGathererPtr& gatherer, CResourceMonitor& resourceMonitor) {
+std::size_t addPerson(const std::string& p, const CModelFactory::TDataGathererPtr& gatherer, CResourceMonitor& resourceMonitor) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
     CEventData result;
@@ -42,10 +41,7 @@ addPerson(const std::string& p, const CModelFactory::TDataGathererPtr& gatherer,
     return *result.personId();
 }
 
-void addArrival(CDataGatherer& gatherer,
-                CResourceMonitor& resourceMonitor,
-                core_t::TTime time,
-                const std::string& person) {
+void addArrival(CDataGatherer& gatherer, CResourceMonitor& resourceMonitor, core_t::TTime time, const std::string& person) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
 
@@ -237,8 +233,8 @@ void CCountingModelTest::testCheckScheduledEvents(void) {
 CppUnit::Test* CCountingModelTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCountingModelTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCountingModelTest>("CCountingModelTest::testSkipSampling",
-                                                                      &CCountingModelTest::testSkipSampling));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCountingModelTest>("CCountingModelTest::testSkipSampling", &CCountingModelTest::testSkipSampling));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCountingModelTest>("CCountingModelTest::testCheckScheduledEvents",
                                                                       &CCountingModelTest::testCheckScheduledEvents));
     return suiteOfTests;

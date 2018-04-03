@@ -100,10 +100,7 @@ public:
     //! for details).
     //! \param[in] decayRate The rate at which to revert to the non-informative prior.
     //! \warning This class takes ownership of \p models.
-    CMultivariateOneOfNPrior(std::size_t dimension,
-                             const TPriorPtrVec& models,
-                             maths_t::EDataType dataType,
-                             double decayRate = 0.0);
+    CMultivariateOneOfNPrior(std::size_t dimension, const TPriorPtrVec& models, maths_t::EDataType dataType, double decayRate = 0.0);
 
     //! Create with a weighted collection of models.
     //!
@@ -120,9 +117,7 @@ public:
                              double decayRate = 0.0);
 
     //! Construct from part of a state document.
-    CMultivariateOneOfNPrior(std::size_t dimension,
-                             const SDistributionRestoreParams& params,
-                             core::CStateRestoreTraverser& traverser);
+    CMultivariateOneOfNPrior(std::size_t dimension, const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
 
     //! Implements value semantics for copy construction.
     CMultivariateOneOfNPrior(const CMultivariateOneOfNPrior& other);
@@ -160,9 +155,7 @@ public:
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
 
     //! Forward the offset to the model priors.
-    virtual void adjustOffset(const TWeightStyleVec& weightStyles,
-                              const TDouble10Vec1Vec& samples,
-                              const TDouble10Vec4Vec1Vec& weights);
+    virtual void adjustOffset(const TWeightStyleVec& weightStyles, const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights);
 
     //! Update the model weights using the marginal likelihoods for
     //! the data. The component prior parameters are then updated.
@@ -172,9 +165,7 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles,
-                            const TDouble10Vec1Vec& samples,
-                            const TDouble10Vec4Vec1Vec& weights);
+    virtual void addSamples(const TWeightStyleVec& weightStyles, const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights);
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -199,8 +190,7 @@ public:
     //! \note The caller must specify dimension - 1 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize,
-                                                   const TSizeDoublePr10Vec& condition) const;
+    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const;
 
     //! Compute the bivariate prior marginalizing over the variables
     //! \p marginalize and conditioning on the variables \p condition.
@@ -232,8 +222,7 @@ public:
     virtual TDouble10Vec marginalLikelihoodVariances(void) const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
-                                                const TDouble10Vec4Vec& weights) const;
+    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the distribution parameters.

@@ -33,22 +33,18 @@ namespace {
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 //! Get the description prefix.
-std::string
-descriptionPrefix(const CDetectorSpecification& spec, const TMeanAccumulator& meanOccupied, std::size_t partitions) {
+std::string descriptionPrefix(const CDetectorSpecification& spec, const TMeanAccumulator& meanOccupied, std::size_t partitions) {
     if (spec.byField() && spec.partitionField()) {
         return "A significant proportion, " +
-               CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) /
-                                   static_cast<double>(partitions)) +
+               CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) / static_cast<double>(partitions)) +
                "%, of distinct partition and by fields combinations have values in many buckets.";
     } else if (spec.byField()) {
         return "A significant proportion, " +
-               CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) /
-                                   static_cast<double>(partitions)) +
+               CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) / static_cast<double>(partitions)) +
                "%, of distinct by fields have values in many buckets.";
     } else if (spec.partitionField()) {
         return "A significant proportion, " +
-               CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) /
-                                   static_cast<double>(partitions)) +
+               CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) / static_cast<double>(partitions)) +
                "%, of distinct partition fields have values in many buckets.";
     }
     return "";
@@ -85,13 +81,11 @@ void CTooMuchDataPenalty::penaltyFor(const CPartitionDataCountStatistics& stats,
     this->penaltyFor(stats.bucketCounts(), stats.bucketStatistics(), spec);
 }
 
-void CTooMuchDataPenalty::penaltyFor(const CByAndPartitionDataCountStatistics& stats,
-                                     CDetectorSpecification& spec) const {
+void CTooMuchDataPenalty::penaltyFor(const CByAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const {
     this->penaltyFor(stats.bucketCounts(), stats.bucketStatistics(), spec);
 }
 
-void CTooMuchDataPenalty::penaltyFor(const CByOverAndPartitionDataCountStatistics& stats,
-                                     CDetectorSpecification& spec) const {
+void CTooMuchDataPenalty::penaltyFor(const CByOverAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const {
     this->penaltyFor(stats.bucketCounts(), stats.bucketStatistics(), spec);
 }
 
@@ -143,15 +137,13 @@ void CTooMuchDataPenalty::penaltyFor(const TUInt64Vec& bucketCounts,
                 descriptions.push_back("");
                 if (penalty < 1.0) {
                     if (spec.byField() || spec.partitionField()) {
-                        descriptions.back() =
-                            descriptionPrefix(spec, penalizedOccupancy, mi.size()) + " On average, " +
-                            CTools::prettyPrint(100.0 * maths::CBasicStatistics::mean(penalizedOccupancy)) +
-                            "% of their buckets have a value";
+                        descriptions.back() = descriptionPrefix(spec, penalizedOccupancy, mi.size()) + " On average, " +
+                                              CTools::prettyPrint(100.0 * maths::CBasicStatistics::mean(penalizedOccupancy)) +
+                                              "% of their buckets have a value";
                     } else {
-                        descriptions.back() =
-                            "A significant proportion, " +
-                            CTools::prettyPrint(100.0 * maths::CBasicStatistics::mean(penalizedOccupancy)) + "%, of " +
-                            CTools::prettyPrint(candidates[bid]) + " buckets have a value";
+                        descriptions.back() = "A significant proportion, " +
+                                              CTools::prettyPrint(100.0 * maths::CBasicStatistics::mean(penalizedOccupancy)) + "%, of " +
+                                              CTools::prettyPrint(candidates[bid]) + " buckets have a value";
                     }
                 }
             }

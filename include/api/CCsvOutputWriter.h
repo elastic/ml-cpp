@@ -64,10 +64,7 @@ public:
 public:
     //! Constructor that causes output to be written to the internal string
     //! stream
-    CCsvOutputWriter(bool outputMessages = false,
-                     bool outputHeader = true,
-                     char escape = QUOTE,
-                     char separator = COMMA);
+    CCsvOutputWriter(bool outputMessages = false, bool outputHeader = true, char escape = QUOTE, char separator = COMMA);
 
     //! Constructor that causes output to be written to the specified stream
     CCsvOutputWriter(std::ostream& strmOut,

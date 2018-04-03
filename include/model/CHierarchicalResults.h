@@ -258,10 +258,8 @@ public:
     typedef hierarchical_results_detail::SResultSpec TResultSpec;
     typedef core::CStoredStringPtr TStoredStringPtr;
     typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr TStoredStringPtrStoredStringPtrPr;
-    typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr
-        TStoredStringPtrStoredStringPtrPrDoublePr;
-    typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec
-        TStoredStringPtrStoredStringPtrPrDoublePrVec;
+    typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr TStoredStringPtrStoredStringPtrPrDoublePr;
+    typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec TStoredStringPtrStoredStringPtrPrDoublePrVec;
     typedef hierarchical_results_detail::SNode TNode;
     typedef hierarchical_results_detail::SNode::TNodePtrSizeUMap TNodePtrSizeUMap;
     typedef hierarchical_results_detail::SNode::TSizeNodePtrUMap TSizeNodePtrUMap;
@@ -465,8 +463,7 @@ protected:
     static const TNode* nearestAncestorForWhichWeWriteResults(const TNode& node);
 
     //! Check if we'll write a result for the node.
-    static bool
-    shouldWriteResult(const CLimits& limits, const CHierarchicalResults& results, const TNode& node, bool pivot);
+    static bool shouldWriteResult(const CLimits& limits, const CHierarchicalResults& results, const TNode& node, bool pivot);
 
     friend class ::CHierarchicalResultsTest;
 };

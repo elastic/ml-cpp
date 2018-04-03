@@ -103,8 +103,7 @@ bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::
     }
 
     TStrRefVecItr refIter = fieldValRefs.begin();
-    for (rapidjson::Value::ConstMemberIterator iter = document.MemberBegin(); iter != document.MemberEnd();
-         ++iter, ++refIter) {
+    for (rapidjson::Value::ConstMemberIterator iter = document.MemberBegin(); iter != document.MemberEnd(); ++iter, ++refIter) {
         if (refIter == fieldValRefs.end()) {
             LOG_ERROR("More fields than field references");
             return false;

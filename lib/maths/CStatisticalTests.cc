@@ -142,8 +142,7 @@ double CStatisticalTests::twoSampleKS(TDoubleVec x, TDoubleVec y) {
     return result;
 }
 
-CStatisticalTests::CCramerVonMises::CCramerVonMises(std::size_t size)
-    : m_Size(CTools::truncate(size, N[0] - 1, N[12] - 1)) {
+CStatisticalTests::CCramerVonMises::CCramerVonMises(std::size_t size) : m_Size(CTools::truncate(size, N[0] - 1, N[12] - 1)) {
     m_F.reserve(size);
 }
 
@@ -159,10 +158,8 @@ bool CStatisticalTests::CCramerVonMises::acceptRestoreTraverser(core::CStateRest
                                core::CStringUtils::stringToType(traverser.value(), m_Size),
                                m_F.reserve(m_Size))
         RESTORE(T_TAG, m_T.fromDelimited(traverser.value()))
-        RESTORE_SETUP_TEARDOWN(F_TAG,
-                               int f,
-                               core::CStringUtils::stringToType(traverser.value(), f),
-                               m_F.push_back(static_cast<uint16_t>(f)))
+        RESTORE_SETUP_TEARDOWN(
+            F_TAG, int f, core::CStringUtils::stringToType(traverser.value(), f), m_F.push_back(static_cast<uint16_t>(f)))
     } while (traverser.next());
 
     return true;
@@ -210,8 +207,7 @@ double CStatisticalTests::CCramerVonMises::pValue(void) const {
     // Linearly interpolate between the rows of the T statistic
     // values.
     double tt[16];
-    ptrdiff_t row =
-        CTools::truncate(std::lower_bound(boost::begin(N), boost::end(N), m_Size + 1) - N, ptrdiff_t(1), ptrdiff_t(12));
+    ptrdiff_t row = CTools::truncate(std::lower_bound(boost::begin(N), boost::end(N), m_Size + 1) - N, ptrdiff_t(1), ptrdiff_t(12));
     double alpha = static_cast<double>(m_Size + 1 - N[row - 1]) / static_cast<double>(N[row] - N[row - 1]);
     double beta = 1.0 - alpha;
     for (std::size_t i = 0u; i < 16; ++i) {
@@ -226,8 +222,7 @@ double CStatisticalTests::CCramerVonMises::pValue(void) const {
         return 1.0;
     }
 
-    ptrdiff_t col =
-        CTools::truncate(std::lower_bound(boost::begin(tt), boost::end(tt), t) - tt, ptrdiff_t(1), ptrdiff_t(15));
+    ptrdiff_t col = CTools::truncate(std::lower_bound(boost::begin(tt), boost::end(tt), t) - tt, ptrdiff_t(1), ptrdiff_t(15));
     double a = tt[col - 1];
     double b = tt[col];
     double fa = P_VALUES[col - 1];

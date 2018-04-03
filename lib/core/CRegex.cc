@@ -95,8 +95,7 @@ bool CRegex::init(const std::string& regex) {
         m_Regex = boost::regex(regex.c_str());
     } catch (boost::regex_error& e) {
         if (static_cast<size_t>(e.position()) <= regex.size()) {
-            LOG_ERROR("Unable to compile regex: '" << regex << "' '" << regex.substr(0, e.position()) << "' '"
-                                                   << regex.substr(e.position())
+            LOG_ERROR("Unable to compile regex: '" << regex << "' '" << regex.substr(0, e.position()) << "' '" << regex.substr(e.position())
                                                    << "': " << ::translateErrorCode(e.code()));
         } else {
             LOG_ERROR("Unable to compile regex: '" << regex << "': " << ::translateErrorCode(e.code()));
@@ -283,8 +282,8 @@ size_t CRegex::literalCount(void) const {
                 return count;
             }
             thisChar = *iter;
-            if (thisChar != 'd' && thisChar != 's' && thisChar != 'w' && thisChar != 'D' && thisChar != 'S' &&
-                thisChar != 'W' && (thisChar < '0' || thisChar > '9')) {
+            if (thisChar != 'd' && thisChar != 's' && thisChar != 'w' && thisChar != 'D' && thisChar != 'S' && thisChar != 'W' &&
+                (thisChar < '0' || thisChar > '9')) {
                 if (squareBracketCount == 0 && braceCount == 0) {
                     std::string::iterator nextIter(iter + 1);
                     if (nextIter == regexStr.end() || (*nextIter != '*' && *nextIter != '+' && *nextIter != '?')) {

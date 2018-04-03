@@ -27,10 +27,7 @@ CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(void)
 }
 
 CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(const TStrSet& numericFields)
-    : m_NumericFields(numericFields),
-      m_OutStream(m_StringOutputBuf),
-      m_WriteStream(m_OutStream),
-      m_Writer(m_WriteStream) {
+    : m_NumericFields(numericFields), m_OutStream(m_StringOutputBuf), m_WriteStream(m_OutStream), m_Writer(m_WriteStream) {
 }
 
 CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(std::ostream& strmOut)
@@ -98,9 +95,7 @@ std::string CLineifiedJsonOutputWriter::internalString(void) const {
     return m_StringOutputBuf.str();
 }
 
-void CLineifiedJsonOutputWriter::writeField(const std::string& name,
-                                            const std::string& value,
-                                            rapidjson::Document& doc) const {
+void CLineifiedJsonOutputWriter::writeField(const std::string& name, const std::string& value, rapidjson::Document& doc) const {
     if (m_NumericFields.find(name) != m_NumericFields.end()) {
         double numericValue(0.0);
         if (core::CStringUtils::stringToType(value, numericValue) == false) {

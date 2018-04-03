@@ -23,14 +23,14 @@
 CppUnit::Test* CXmlNodeWithChildrenTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXmlNodeWithChildrenTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-        "CXmlNodeWithChildrenTest::testNodeHierarchyToXml", &CXmlNodeWithChildrenTest::testNodeHierarchyToXml));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-        "CXmlNodeWithChildrenTest::testParserToNodeHierarchy", &CXmlNodeWithChildrenTest::testParserToNodeHierarchy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-        "CXmlNodeWithChildrenTest::testPerformanceNoPool", &CXmlNodeWithChildrenTest::testPerformanceNoPool));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-        "CXmlNodeWithChildrenTest::testPerformanceWithPool", &CXmlNodeWithChildrenTest::testPerformanceWithPool));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>("CXmlNodeWithChildrenTest::testNodeHierarchyToXml",
+                                                                            &CXmlNodeWithChildrenTest::testNodeHierarchyToXml));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>("CXmlNodeWithChildrenTest::testParserToNodeHierarchy",
+                                                                            &CXmlNodeWithChildrenTest::testParserToNodeHierarchy));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>("CXmlNodeWithChildrenTest::testPerformanceNoPool",
+                                                                            &CXmlNodeWithChildrenTest::testPerformanceNoPool));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>("CXmlNodeWithChildrenTest::testPerformanceWithPool",
+                                                                            &CXmlNodeWithChildrenTest::testPerformanceWithPool));
 
     return suiteOfTests;
 }
@@ -171,8 +171,7 @@ void CXmlNodeWithChildrenTest::testPerformanceNoPool(void) {
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO("Finished node hierarchy performance test with no pool at " << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Node hierarchy performance test of size " << TEST_SIZE << " with no pool took " << (end - start)
-                                                        << " seconds");
+    LOG_INFO("Node hierarchy performance test of size " << TEST_SIZE << " with no pool took " << (end - start) << " seconds");
 }
 
 void CXmlNodeWithChildrenTest::testPerformanceWithPool(void) {
@@ -196,6 +195,5 @@ void CXmlNodeWithChildrenTest::testPerformanceWithPool(void) {
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO("Finished node hierarchy performance test with pool at " << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Node hierarchy performance test of size " << TEST_SIZE << " with pool took " << (end - start)
-                                                        << " seconds");
+    LOG_INFO("Node hierarchy performance test of size " << TEST_SIZE << " with pool took " << (end - start) << " seconds");
 }

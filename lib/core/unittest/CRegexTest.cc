@@ -26,8 +26,7 @@ CppUnit::Test* CRegexTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CRegexTest>("CRegexTest::testTokenise1", &CRegexTest::testTokenise1));
     suiteOfTests->addTest(new CppUnit::TestCaller<CRegexTest>("CRegexTest::testTokenise2", &CRegexTest::testTokenise2));
     suiteOfTests->addTest(new CppUnit::TestCaller<CRegexTest>("CRegexTest::testEscape", &CRegexTest::testEscape));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRegexTest>("CRegexTest::testLiteralCount", &CRegexTest::testLiteralCount));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexTest>("CRegexTest::testLiteralCount", &CRegexTest::testLiteralCount));
 
     return suiteOfTests;
 }
@@ -80,15 +79,15 @@ void CRegexTest::testInit(void) {
         CPPUNIT_ASSERT(regex.init(regexStr));
 
         CPPUNIT_ASSERT_EQUAL(regexStr, regex.str());
-        CPPUNIT_ASSERT(regex.matches(
-            "<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
+        CPPUNIT_ASSERT(
+            regex.matches("<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
     }
     {
         // Uninitialised
         std::string regexStr = "<.*";
         ml::core::CRegex regex;
-        CPPUNIT_ASSERT(!regex.matches(
-            "<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
+        CPPUNIT_ASSERT(
+            !regex.matches("<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
     }
 }
 
@@ -150,8 +149,7 @@ void CRegexTest::testSearch(void) {
 
 void CRegexTest::testTokenise1(void) {
     std::string str1("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:53:44 2008> Transport node error on node 0x1234<END>");
-    std::string str2(
-        "<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> Transport read error (8) on node 0x1235<END>");
+    std::string str2("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> Transport read error (8) on node 0x1235<END>");
 
     {
         // Uninitialised
@@ -309,8 +307,7 @@ void CRegexTest::testTokenise2(void) {
 
 void CRegexTest::testSplit(void) {
     std::string str1("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:53:44 2008> Transport node error on node 0x1234<END>");
-    std::string str2(
-        "<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> Transport read error (8) on node 0x1235<END>");
+    std::string str2("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> Transport read error (8) on node 0x1235<END>");
 
     {
         // Uninitialised

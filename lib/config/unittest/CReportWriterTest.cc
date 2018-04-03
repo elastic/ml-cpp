@@ -43,11 +43,9 @@ void CReportWriterTest::testPretty(void) {
     core_t::TTime startTime = 1459468810;
     core_t::TTime endTime = startTime + 7 * core::constants::DAY;
 
-    std::string fields[] = {
-        std::string("name"), std::string("phylum"), std::string("species"), std::string("code"), std::string("weight")};
+    std::string fields[] = {std::string("name"), std::string("phylum"), std::string("species"), std::string("code"), std::string("weight")};
 
-    std::string categories1[] = {
-        std::string("Annelida"), std::string("Nematoda"), std::string("Arthropoda"), std::string("Chordata")};
+    std::string categories1[] = {std::string("Annelida"), std::string("Nematoda"), std::string("Arthropoda"), std::string("Chordata")};
 
     std::size_t breaks[] = {0, 6, 10, 13, 20};
     std::string categories2[] = {// Annelida
@@ -151,8 +149,7 @@ void CReportWriterTest::testJSON(void) {
 CppUnit::Test* CReportWriterTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CReportWriterTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CReportWriterTest>("CReportWriterTest::testPretty", &CReportWriterTest::testPretty));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CReportWriterTest>("CReportWriterTest::testPretty", &CReportWriterTest::testPretty));
 
     return suiteOfTests;
 }

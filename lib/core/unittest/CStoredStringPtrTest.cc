@@ -27,10 +27,9 @@ CppUnit::Test* CStoredStringPtrTest::suite() {
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testPointerSemantics",
                                                                         &CStoredStringPtrTest::testPointerSemantics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testMemoryUsage",
-                                                                        &CStoredStringPtrTest::testMemoryUsage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testHash",
-                                                                        &CStoredStringPtrTest::testHash));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testMemoryUsage", &CStoredStringPtrTest::testMemoryUsage));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testHash", &CStoredStringPtrTest::testHash));
 
     return suiteOfTests;
 }

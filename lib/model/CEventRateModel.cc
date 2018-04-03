@@ -116,22 +116,19 @@ CEventRateModel::CEventRateModel(bool isForPersistence, const CEventRateModel& o
 
 void CEventRateModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(INDIVIDUAL_STATE_TAG, boost::bind(&CEventRateModel::doAcceptPersistInserter, this, _1));
-    inserter.insertLevel(PROBABILITY_PRIOR_TAG,
-                         boost::bind(&maths::CMultinomialConjugate::acceptPersistInserter, &m_ProbabilityPrior, _1));
+    inserter.insertLevel(PROBABILITY_PRIOR_TAG, boost::bind(&maths::CMultinomialConjugate::acceptPersistInserter, &m_ProbabilityPrior, _1));
 }
 
 bool CEventRateModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
         if (name == INDIVIDUAL_STATE_TAG) {
-            if (traverser.traverseSubLevel(boost::bind(&CEventRateModel::doAcceptRestoreTraverser, this, _1)) ==
-                false) {
+            if (traverser.traverseSubLevel(boost::bind(&CEventRateModel::doAcceptRestoreTraverser, this, _1)) == false) {
                 // Logging handled already.
                 return false;
             }
         } else if (name == PROBABILITY_PRIOR_TAG) {
-            maths::CMultinomialConjugate prior(this->params().distributionRestoreParams(maths_t::E_DiscreteData),
-                                               traverser);
+            maths::CMultinomialConjugate prior(this->params().distributionRestoreParams(maths_t::E_DiscreteData), traverser);
             m_ProbabilityPrior.swap(prior);
         }
     } while (traverser.next());
@@ -163,10 +160,8 @@ CEventRateModel::TOptionalDouble CEventRateModel::baselineBucketCount(std::size_
     return TOptionalDouble();
 }
 
-CEventRateModel::TDouble1Vec CEventRateModel::currentBucketValue(model_t::EFeature feature,
-                                                                 std::size_t pid,
-                                                                 std::size_t /*cid*/,
-                                                                 core_t::TTime time) const {
+CEventRateModel::TDouble1Vec
+CEventRateModel::currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t /*cid*/, core_t::TTime time) const {
     const TFeatureData* data = this->featureData(feature, pid, time);
     if (data) {
         return TDouble1Vec(1, static_cast<double>(data->s_Count));
@@ -205,9 +200,7 @@ CEventRateModel::TDouble1Vec CEventRateModel::baselineBucketMean(model_t::EFeatu
     return maths::CTools::truncate(result, support.first, support.second);
 }
 
-void CEventRateModel::sampleBucketStatistics(core_t::TTime startTime,
-                                             core_t::TTime endTime,
-                                             CResourceMonitor& resourceMonitor) {
+void CEventRateModel::sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) {
     this->createUpdateNewModels(startTime, resourceMonitor);
     this->currentBucketInterimCorrections().clear();
     this->CIndividualModel::sampleBucketStatistics(
@@ -294,13 +287,11 @@ void CEventRateModel::sample(core_t::TTime startTime, core_t::TTime endTime, CRe
 
                 double count = model_t::offsetCountToZero(feature, static_cast<double>(data_.second.s_Count));
                 double derate = this->derate(pid, sampleTime);
-                double interval =
-                    (1.0 + (this->params().s_InitialDecayRateMultiplier - 1.0) * derate) * emptyBucketWeight;
+                double interval = (1.0 + (this->params().s_InitialDecayRateMultiplier - 1.0) * derate) * emptyBucketWeight;
 
-                LOG_TRACE("Bucket = " << this->printCurrentBucket() << ", feature = " << model_t::print(feature)
-                                      << ", count = " << count << ", person = " << this->personName(pid)
-                                      << ", empty bucket weight = " << emptyBucketWeight << ", derate = " << derate
-                                      << ", interval = " << interval);
+                LOG_TRACE("Bucket = " << this->printCurrentBucket() << ", feature = " << model_t::print(feature) << ", count = " << count
+                                      << ", person = " << this->personName(pid) << ", empty bucket weight = " << emptyBucketWeight
+                                      << ", derate = " << derate << ", interval = " << interval);
 
                 model->params().probabilityBucketEmpty(this->probabilityBucketEmpty(feature, pid));
 
@@ -460,8 +451,7 @@ void CEventRateModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
     this->CIndividualModel::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts", m_CurrentBucketStats.s_PersonCounts, mem);
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_FeatureData", m_CurrentBucketStats.s_FeatureData, mem);
-    core::CMemoryDebug::dynamicSize(
-        "m_CurrentBucketStats.s_InterimCorrections", m_CurrentBucketStats.s_InterimCorrections, mem);
+    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections", m_CurrentBucketStats.s_InterimCorrections, mem);
     core::CMemoryDebug::dynamicSize("s_Probabilities", m_Probabilities, mem);
     core::CMemoryDebug::dynamicSize("m_ProbabilityPrior", m_ProbabilityPrior, mem);
 }
@@ -488,8 +478,7 @@ CEventRateModel::CModelDetailsViewPtr CEventRateModel::details(void) const {
     return CModelDetailsViewPtr(new CEventRateModelDetailsView(*this));
 }
 
-const CEventRateModel::TFeatureData*
-CEventRateModel::featureData(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const {
+const CEventRateModel::TFeatureData* CEventRateModel::featureData(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const {
     return this->CIndividualModel::featureData(feature, pid, time, m_CurrentBucketStats.s_FeatureData);
 }
 
@@ -535,8 +524,7 @@ void CEventRateModel::clearPrunedResources(const TSizeVec& people, const TSizeVe
     // Stop collecting for these people and add them to the free list.
     gatherer.recyclePeople(people);
     if (gatherer.dataAvailable(m_CurrentBucketStats.s_StartTime)) {
-        gatherer.featureData(
-            m_CurrentBucketStats.s_StartTime, gatherer.bucketLength(), m_CurrentBucketStats.s_FeatureData);
+        gatherer.featureData(m_CurrentBucketStats.s_StartTime, gatherer.bucketLength(), m_CurrentBucketStats.s_FeatureData);
     }
 
     TDoubleVec categoriesToRemove;
@@ -583,8 +571,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
     params.s_Value.assign(1, TDouble2Vec{value});
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
         double mode{params.s_Model->mode(time, PROBABILITY_WEIGHT_STYLES, weight)[0]};
-        TDouble2Vec correction{
-            this->interimValueCorrector().corrections(time, this->currentBucketTotalCount(), mode, value)};
+        TDouble2Vec correction{this->interimValueCorrector().corrections(time, this->currentBucketTotalCount(), mode, value)};
         params.s_Value[0] += correction;
         this->currentBucketInterimCorrections().emplace(core::make_triple(feature, pid, pid), correction);
     }
@@ -618,8 +605,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
     params.s_Variables.resize(correlates.size());
     params.s_CorrelatedLabels.resize(correlates.size());
     params.s_Correlated.resize(correlates.size());
-    params.s_ComputeProbabilityParams.addCalculation(model_t::probabilityCalculation(feature))
-        .weightStyles(PROBABILITY_WEIGHT_STYLES);
+    params.s_ComputeProbabilityParams.addCalculation(model_t::probabilityCalculation(feature)).weightStyles(PROBABILITY_WEIGHT_STYLES);
 
     // These are indexed as follows:
     //   influenceValues["influencer name"]["correlate"]["influence value"]
@@ -643,8 +629,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
         TOptionalUInt64 count[2];
         count[0] = this->currentBucketCount(correlates[i][0], bucketTime);
         count[1] = this->currentBucketCount(correlates[i][1], bucketTime);
-        params.s_ComputeProbabilityParams
-            .addBucketEmpty(TBool2Vec{!count[0] || *count[0] == 0, !count[1] || *count[1] == 0})
+        params.s_ComputeProbabilityParams.addBucketEmpty(TBool2Vec{!count[0] || *count[0] == 0, !count[1] || *count[1] == 0})
             .addWeights(weight);
 
         const TFeatureData* data[2];
@@ -654,19 +639,17 @@ void CEventRateModel::fill(model_t::EFeature feature,
             params.s_ElapsedTime = std::min(params.s_ElapsedTime, bucketTime - firstBucketTimes[correlates[i][0]]);
             params.s_ElapsedTime = std::min(params.s_ElapsedTime, bucketTime - firstBucketTimes[correlates[i][1]]);
             params.s_Times[i] = TTime2Vec(2, time);
-            params.s_Values[i] =
-                TDouble2Vec{model_t::offsetCountToZero(feature, static_cast<double>(data[0]->s_Count)),
-                            model_t::offsetCountToZero(feature, static_cast<double>(data[1]->s_Count))};
+            params.s_Values[i] = TDouble2Vec{model_t::offsetCountToZero(feature, static_cast<double>(data[0]->s_Count)),
+                                             model_t::offsetCountToZero(feature, static_cast<double>(data[1]->s_Count))};
             for (std::size_t j = 0u; j < data[0]->s_InfluenceValues.size(); ++j) {
                 for (const auto& influenceValue : data[0]->s_InfluenceValues[j]) {
                     TStrCRef influence = influenceValue.first;
-                    std::size_t match =
-                        static_cast<std::size_t>(std::find_if(data[1]->s_InfluenceValues[j].begin(),
-                                                              data[1]->s_InfluenceValues[j].end(),
-                                                              [influence](const TStrCRefDouble1VecDoublePrPr& value_) {
-                                                                  return value_.first.get() == influence.get();
-                                                              }) -
-                                                 data[1]->s_InfluenceValues[j].begin());
+                    std::size_t match = static_cast<std::size_t>(std::find_if(data[1]->s_InfluenceValues[j].begin(),
+                                                                              data[1]->s_InfluenceValues[j].end(),
+                                                                              [influence](const TStrCRefDouble1VecDoublePrPr& value_) {
+                                                                                  return value_.first.get() == influence.get();
+                                                                              }) -
+                                                                 data[1]->s_InfluenceValues[j].begin());
                     if (match < data[1]->s_InfluenceValues[j].size()) {
                         const TDouble1VecDoublePr& value0 = influenceValue.second;
                         const TDouble1VecDoublePr& value1 = data[1]->s_InfluenceValues[j][match].second;
@@ -679,13 +662,12 @@ void CEventRateModel::fill(model_t::EFeature feature,
         }
     }
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
-        TDouble2Vec1Vec modes = params.s_Model->correlateModes(
-            time, PROBABILITY_WEIGHT_STYLES, params.s_ComputeProbabilityParams.weights());
+        TDouble2Vec1Vec modes =
+            params.s_Model->correlateModes(time, PROBABILITY_WEIGHT_STYLES, params.s_ComputeProbabilityParams.weights());
         for (std::size_t i = 0u; i < modes.size(); ++i) {
             TDouble2Vec& value_ = params.s_Values[i];
             if (!value_.empty()) {
-                TDouble2Vec correction(
-                    this->interimValueCorrector().corrections(time, this->currentBucketTotalCount(), modes[i], value_));
+                TDouble2Vec correction(this->interimValueCorrector().corrections(time, this->currentBucketTotalCount(), modes[i], value_));
                 value_ += correction;
                 this->currentBucketInterimCorrections().emplace(core::make_triple(feature, pid, params.s_Correlated[i]),
                                                                 TDouble1Vec{correction[params.s_Variables[i][0]]});
@@ -696,8 +678,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
 
 ////////// CEventRateModel::SBucketStats Implementation //////////
 
-CEventRateModel::SBucketStats::SBucketStats(core_t::TTime startTime)
-    : s_StartTime(startTime), s_TotalCount(0), s_InterimCorrections(1) {
+CEventRateModel::SBucketStats::SBucketStats(core_t::TTime startTime) : s_StartTime(startTime), s_TotalCount(0), s_InterimCorrections(1) {
 }
 }
 }

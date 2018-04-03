@@ -33,12 +33,12 @@ CppUnit::Test* CDualThreadStreamBufTest::suite() {
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testThroughput",
                                                                             &CDualThreadStreamBufTest::testThroughput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-        "CDualThreadStreamBufTest::testSlowConsumer", &CDualThreadStreamBufTest::testSlowConsumer));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testPutback",
-                                                                            &CDualThreadStreamBufTest::testPutback));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testFatal",
-                                                                            &CDualThreadStreamBufTest::testFatal));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testSlowConsumer",
+                                                                            &CDualThreadStreamBufTest::testSlowConsumer));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testPutback", &CDualThreadStreamBufTest::testPutback));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testFatal", &CDualThreadStreamBufTest::testFatal));
 
     return suiteOfTests;
 }
@@ -116,8 +116,7 @@ void CDualThreadStreamBufTest::testThroughput(void) {
         }
     }
 
-    CPPUNIT_ASSERT_EQUAL(static_cast<std::streampos>(totalDataSize),
-                         buf.pubseekoff(0, std::ios_base::cur, std::ios_base::out));
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::streampos>(totalDataSize), buf.pubseekoff(0, std::ios_base::cur, std::ios_base::out));
 
     buf.signalEndOfFile();
 
@@ -128,8 +127,8 @@ void CDualThreadStreamBufTest::testThroughput(void) {
 
     CPPUNIT_ASSERT_EQUAL(totalDataSize, inputThread.totalData());
 
-    LOG_INFO("REST buffer throughput test with test size " << TEST_SIZE << " (total data transferred " << totalDataSize
-                                                           << " bytes) took " << (end - start) << " seconds");
+    LOG_INFO("REST buffer throughput test with test size " << TEST_SIZE << " (total data transferred " << totalDataSize << " bytes) took "
+                                                           << (end - start) << " seconds");
 }
 
 void CDualThreadStreamBufTest::testSlowConsumer(void) {
@@ -167,9 +166,8 @@ void CDualThreadStreamBufTest::testSlowConsumer(void) {
     CPPUNIT_ASSERT_EQUAL(totalDataSize, inputThread.totalData());
 
     ml::core_t::TTime duration(end - start);
-    LOG_INFO("REST buffer slow consumer test with test size "
-             << TEST_SIZE << ", " << numNewLines << " newlines per message and delay " << DELAY << "ms took "
-             << duration << " seconds");
+    LOG_INFO("REST buffer slow consumer test with test size " << TEST_SIZE << ", " << numNewLines << " newlines per message and delay "
+                                                              << DELAY << "ms took " << duration << " seconds");
 
     ml::core_t::TTime delaySecs(static_cast<ml::core_t::TTime>((DELAY * numNewLines * TEST_SIZE) / 1000));
     CPPUNIT_ASSERT(duration >= delaySecs);

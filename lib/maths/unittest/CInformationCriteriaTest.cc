@@ -480,16 +480,15 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster(void) {
 CppUnit::Test* CInformationCriteriaTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CInformationCriteriaTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>(
-        "CInformationCriteriaTest::testSphericalGaussian", &CInformationCriteriaTest::testSphericalGaussian));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>(
-        "CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster",
-        &CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>("CInformationCriteriaTest::testSphericalGaussian",
+                                                                            &CInformationCriteriaTest::testSphericalGaussian));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CInformationCriteriaTest>("CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster",
+                                                          &CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster));
     suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>("CInformationCriteriaTest::testGaussian",
                                                                             &CInformationCriteriaTest::testGaussian));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CInformationCriteriaTest>("CInformationCriteriaTest::testGaussianWithSphericalCluster",
-                                                          &CInformationCriteriaTest::testGaussianWithSphericalCluster));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>("CInformationCriteriaTest::testGaussianWithSphericalCluster",
+                                                                            &CInformationCriteriaTest::testGaussianWithSphericalCluster));
 
     return suiteOfTests;
 }

@@ -62,8 +62,7 @@ void CProbabilityCalibratorTest::testCalibration(void) {
             maths::CProbabilityCalibrator calibrator(styles[i], 0.99);
 
             CNormalMeanPrecConjugate normal = CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-            CLogNormalMeanPrecConjugate lognormal =
-                CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+            CLogNormalMeanPrecConjugate lognormal = CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
 
             double rawError = 0.0;
             double calibratedError = 0.0;
@@ -176,8 +175,8 @@ void CProbabilityCalibratorTest::testCalibration(void) {
 CppUnit::Test* CProbabilityCalibratorTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProbabilityCalibratorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityCalibratorTest>(
-        "CProbabilityCalibratorTest::testCalibration", &CProbabilityCalibratorTest::testCalibration));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityCalibratorTest>("CProbabilityCalibratorTest::testCalibration",
+                                                                              &CProbabilityCalibratorTest::testCalibration));
 
     return suiteOfTests;
 }

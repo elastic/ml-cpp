@@ -143,9 +143,8 @@ public:
     //! for more details.
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void adjustOffset(const TWeightStyleVec& weightStyles,
-                              const TDouble10Vec1Vec& samples,
-                              const TDouble10Vec4Vec1Vec& weights) = 0;
+    virtual void
+    adjustOffset(const TWeightStyleVec& weightStyles, const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights) = 0;
 
     //! Update the prior with a collection of independent samples from the
     //! process.
@@ -155,9 +154,7 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles,
-                            const TDouble10Vec1Vec& samples,
-                            const TDouble10Vec4Vec1Vec& weights) = 0;
+    virtual void addSamples(const TWeightStyleVec& weightStyles, const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights) = 0;
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) = 0;
@@ -174,8 +171,7 @@ public:
     //! \note The caller must specify dimension - 1 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize,
-                                                   const TSizeDoublePr10Vec& condition) const = 0;
+    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const = 0;
 
     //! Compute the bivariate prior marginalizing over the variables
     //! \p marginalize and conditioning on the variables \p condition.
@@ -202,12 +198,10 @@ public:
     virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec& value) const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
-                                                const TDouble10Vec4Vec& weights) const = 0;
+    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) const = 0;
 
     //! Get the local maxima of the marginal likelihood function.
-    virtual TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
-                                                     const TDouble10Vec4Vec& weights) const;
+    virtual TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) const;
 
     //! Get the covariance matrix for the marginal likelihood.
     virtual TDouble10Vec10Vec marginalLikelihoodCovariance(void) const = 0;
@@ -405,8 +399,7 @@ protected:
     bool check(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const;
 
     //! Get the remaining variables.
-    void
-    remainingVariables(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition, TSize10Vec& results) const;
+    void remainingVariables(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition, TSize10Vec& results) const;
 
     //! Get the smallest component of \p x.
     double smallest(const TDouble10Vec& x) const;

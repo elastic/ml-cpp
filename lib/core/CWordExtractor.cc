@@ -27,9 +27,7 @@ void CWordExtractor::extractWordsFromMessage(const std::string& message, std::st
     CWordExtractor::extractWordsFromMessage(1, message, messageWords);
 }
 
-void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
-                                             const std::string& message,
-                                             std::string& messageWords) {
+void CWordExtractor::extractWordsFromMessage(size_t minConsecutive, const std::string& message, std::string& messageWords) {
     // Words are taken to be sub-strings of 1 or more letters, all lower case
     // except possibly the first, preceded by a space, and followed by 0 or 1
     // punctuation characters and then a space (or the end of the string).

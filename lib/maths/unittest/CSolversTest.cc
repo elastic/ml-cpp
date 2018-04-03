@@ -61,8 +61,7 @@ double f5(const double& x) {
 
 //! This has local maxima at 4, 6 and 10.
 double f6(const double& x) {
-    return 1.1 * ::exp(-2.0 * (x - 4.0) * (x - 4.0)) + 0.1 * ::exp(-(x - 6.0) * (x - 6.0)) +
-           0.4 * ::exp(-(x - 10.0) * (x - 10.0) / 2.0);
+    return 1.1 * ::exp(-2.0 * (x - 4.0) * (x - 4.0)) + 0.1 * ::exp(-(x - 6.0) * (x - 6.0)) + 0.4 * ::exp(-(x - 10.0) * (x - 10.0) / 2.0);
 }
 
 class CLog {
@@ -90,8 +89,7 @@ void CSolversTest::testBracket(void) {
         double a = 0.5, b = 0.5;
         double fa = f(a), fb = f(b);
         CPPUNIT_ASSERT(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
-        LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << fa << ", f(b) = " << fb
-                         << ", maxIterations = " << maxIterations);
+        LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << fa << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
         CPPUNIT_ASSERT_EQUAL(f(a), fa);
         CPPUNIT_ASSERT_EQUAL(f(b), fb);
         CPPUNIT_ASSERT(fa * fb <= 0.0);
@@ -103,8 +101,7 @@ void CSolversTest::testBracket(void) {
         double a = 0.5, b = 0.6;
         double fa = f(a), fb = f(b);
         CPPUNIT_ASSERT(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
-        LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << fa << ", f(b) = " << fb
-                         << ", maxIterations = " << maxIterations);
+        LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << fa << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
         CPPUNIT_ASSERT_EQUAL(f(a), fa);
         CPPUNIT_ASSERT_EQUAL(f(b), fb);
         CPPUNIT_ASSERT(fa * fb <= 0.0);
@@ -116,8 +113,7 @@ void CSolversTest::testBracket(void) {
         double a = 0.5, b = 5.0;
         double fa = f(a), fb = f(b);
         CPPUNIT_ASSERT(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
-        LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << fa << ", f(b) = " << fb
-                         << ", maxIterations = " << maxIterations);
+        LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << fa << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
         CPPUNIT_ASSERT_EQUAL(f(a), fa);
         CPPUNIT_ASSERT_EQUAL(f(b), fb);
         CPPUNIT_ASSERT(fa * fb <= 0.0);
@@ -129,8 +125,7 @@ void CSolversTest::testBracket(void) {
         double a = 100.0, b = 100.0;
         double fa = f(a), fb = f(b);
         CPPUNIT_ASSERT(CSolvers::leftBracket(a, b, fa, fb, f, maxIterations, std::numeric_limits<double>::min()));
-        LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << fa << ", f(b) = " << fb
-                         << ", maxIterations = " << maxIterations);
+        LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << fa << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
         CPPUNIT_ASSERT_EQUAL(f(a), fa);
         CPPUNIT_ASSERT_EQUAL(f(b), fb);
         CPPUNIT_ASSERT(fa * fb <= 0.0);
@@ -176,8 +171,8 @@ void CSolversTest::testBisection(void) {
         iterations = 10;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
         CPPUNIT_ASSERT(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations, equal, bestGuess));
-        LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << f1(a) << ", f(b) = " << f1(b)
-                         << ", iterations = " << iterations << ", bestGuess = " << bestGuess);
+        LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << f1(a) << ", f(b) = " << f1(b) << ", iterations = " << iterations
+                         << ", bestGuess = " << bestGuess);
         CPPUNIT_ASSERT_EQUAL(5.0, bestGuess);
     }
 
@@ -424,13 +419,10 @@ void CSolversTest::testSublevelSet(void) {
 CppUnit::Test* CSolversTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSolversTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBracket", &CSolversTest::testBracket));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBisection", &CSolversTest::testBisection));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBracket", &CSolversTest::testBracket));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBisection", &CSolversTest::testBisection));
     suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBrent", &CSolversTest::testBrent));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CSolversTest>("CSolversTest::testSublevelSet", &CSolversTest::testSublevelSet));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>("CSolversTest::testSublevelSet", &CSolversTest::testSublevelSet));
 
     return suiteOfTests;
 }

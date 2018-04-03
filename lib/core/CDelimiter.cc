@@ -60,8 +60,7 @@ CDelimiter::CDelimiter(const std::string& delimiter, const std::string& followin
 
 bool CDelimiter::operator==(const CDelimiter& rhs) const {
     if (m_Valid != rhs.m_Valid || m_HaveFollowingRegex != rhs.m_HaveFollowingRegex ||
-        m_WaiveFollowingRegexAfterTime != rhs.m_WaiveFollowingRegexAfterTime || m_Quote != rhs.m_Quote ||
-        m_Escape != rhs.m_Escape) {
+        m_WaiveFollowingRegexAfterTime != rhs.m_WaiveFollowingRegexAfterTime || m_Quote != rhs.m_Quote || m_Escape != rhs.m_Escape) {
         return false;
     }
 
@@ -119,10 +118,7 @@ void CDelimiter::tokenise(const std::string& str, CStringUtils::TStrVec& tokens,
     this->tokenise(str, false, tokens, exampleDelimiter, remainder);
 }
 
-void CDelimiter::tokenise(const std::string& str,
-                          bool timePassed,
-                          CStringUtils::TStrVec& tokens,
-                          std::string& remainder) const {
+void CDelimiter::tokenise(const std::string& str, bool timePassed, CStringUtils::TStrVec& tokens, std::string& remainder) const {
     std::string exampleDelimiter;
     this->tokenise(str, timePassed, tokens, exampleDelimiter, remainder);
 }

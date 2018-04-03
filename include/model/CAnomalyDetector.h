@@ -88,8 +88,7 @@ public:
     //! A shared pointer to an instance of this class
     typedef boost::shared_ptr<CAnomalyDetector> TAnomalyDetectorPtr;
 
-    typedef std::function<
-        void(const std::string&, const std::string&, const std::string&, const std::string&, const CModelPlotData&)>
+    typedef std::function<void(const std::string&, const std::string&, const std::string&, const std::string&, const CModelPlotData&)>
         TOutputModelPlotDataFunc;
     typedef CAnomalyDetectorModelConfig::TStrSet TStrSet;
 
@@ -172,8 +171,7 @@ public:
     //! \note This is static so it can be called before the state is fully
     //! deserialised, because we need this value before to restoring the
     //! detector.
-    static bool partitionFieldAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
-                                                     std::string& partitionFieldValue);
+    static bool partitionFieldAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser, std::string& partitionFieldValue);
 
     //! Find the detector keys given part of an state document.
     //!
@@ -320,8 +318,7 @@ private:
 
     //! Restores the state that was formerly part of the model ensemble class.
     //! This includes the data gatherer and the model.
-    bool legacyModelEnsembleAcceptRestoreTraverser(const std::string& partitionFieldValue,
-                                                   core::CStateRestoreTraverser& traverser);
+    bool legacyModelEnsembleAcceptRestoreTraverser(const std::string& partitionFieldValue, core::CStateRestoreTraverser& traverser);
 
     //! Restores the state that was formerly part of the live models
     //! in the model ensemble class.

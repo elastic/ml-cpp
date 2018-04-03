@@ -213,12 +213,9 @@ void CBase64FilterTest::testBoth(void) {
 CppUnit::Test* CBase64FilterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBase64FilterTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CBase64FilterTest>("CBase64FilterTest::testDecode", &CBase64FilterTest::testDecode));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CBase64FilterTest>("CBase64FilterTest::testEncode", &CBase64FilterTest::testEncode));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CBase64FilterTest>("CBase64FilterTest::testBoth", &CBase64FilterTest::testBoth));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBase64FilterTest>("CBase64FilterTest::testDecode", &CBase64FilterTest::testDecode));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBase64FilterTest>("CBase64FilterTest::testEncode", &CBase64FilterTest::testEncode));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBase64FilterTest>("CBase64FilterTest::testBoth", &CBase64FilterTest::testBoth));
 
     return suiteOfTests;
 }

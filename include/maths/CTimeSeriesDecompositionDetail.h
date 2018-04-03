@@ -482,9 +482,7 @@ public:
         //! \brief The seasonal components of the decomposition.
         struct MATHS_EXPORT SSeasonal {
             //! Initialize by reading state from \p traverser.
-            bool acceptRestoreTraverser(double decayRate,
-                                        core_t::TTime bucketLength,
-                                        core::CStateRestoreTraverser& traverser);
+            bool acceptRestoreTraverser(double decayRate, core_t::TTime bucketLength, core::CStateRestoreTraverser& traverser);
 
             //! Persist state by passing information to \p inserter.
             void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -541,9 +539,7 @@ public:
         //! \brief Calendar periodic components of the decomposition.
         struct MATHS_EXPORT SCalendar {
             //! Initialize by reading state from \p traverser.
-            bool acceptRestoreTraverser(double decayRate,
-                                        core_t::TTime bucketLength,
-                                        core::CStateRestoreTraverser& traverser);
+            bool acceptRestoreTraverser(double decayRate, core_t::TTime bucketLength, core::CStateRestoreTraverser& traverser);
 
             //! Persist state by passing information to \p inserter.
             void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -562,9 +558,7 @@ public:
             bool haveComponent(CCalendarFeature feature) const;
 
             //! Get the state to update.
-            void componentsAndErrors(core_t::TTime time,
-                                     TCalendarComponentPtrVec& components,
-                                     TComponentErrorsPtrVec& errors);
+            void componentsAndErrors(core_t::TTime time, TCalendarComponentPtrVec& components, TComponentErrorsPtrVec& errors);
 
             //! Check if we need to interpolate any of the components.
             bool shouldInterpolate(core_t::TTime time, core_t::TTime last) const;
@@ -683,14 +677,12 @@ public:
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CPeriodicityTest& lhs,
-                 CTimeSeriesDecompositionDetail::CPeriodicityTest& rhs) {
+inline void swap(CTimeSeriesDecompositionDetail::CPeriodicityTest& lhs, CTimeSeriesDecompositionDetail::CPeriodicityTest& rhs) {
     lhs.swap(rhs);
 }
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CCalendarTest& lhs,
-                 CTimeSeriesDecompositionDetail::CCalendarTest& rhs) {
+inline void swap(CTimeSeriesDecompositionDetail::CCalendarTest& lhs, CTimeSeriesDecompositionDetail::CCalendarTest& rhs) {
     lhs.swap(rhs);
 }
 

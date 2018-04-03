@@ -34,8 +34,7 @@ bool CCmdLineParser::parse(int argc, const char* const* argv, std::string& confi
     try {
         boost::program_options::options_description desc(DESCRIPTION);
 
-        desc.add_options()("help", "Display this information and exit")("version",
-                                                                        "Display version information and exit")(
+        desc.add_options()("help", "Display this information and exit")("version", "Display version information and exit")(
             "config", boost::program_options::value<std::string>(), "Read configuration from <arg>")(
             "syslogline", boost::program_options::value<std::string>(), "Optional line of syslog");
 

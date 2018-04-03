@@ -42,8 +42,8 @@ const std::string EMPTY_STRING;
 CppUnit::Test* CRuleConditionTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRuleConditionTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRuleConditionTest>("CRuleConditionTest::testTimeContition",
-                                                                      &CRuleConditionTest::testTimeContition));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CRuleConditionTest>("CRuleConditionTest::testTimeContition", &CRuleConditionTest::testTimeContition));
 
     return suiteOfTests;
 }
@@ -92,13 +92,8 @@ void CRuleConditionTest::testTimeContition(void) {
                                       std::size_t(0),
                                       std::size_t(1),
                                       core_t::TTime(450)) == false);
-        CPPUNIT_ASSERT(condition.test(model,
-                                      model_t::E_IndividualCountByBucketAndPerson,
-                                      resultType,
-                                      false,
-                                      std::size_t(0),
-                                      std::size_t(1),
-                                      core_t::TTime(550)));
+        CPPUNIT_ASSERT(condition.test(
+            model, model_t::E_IndividualCountByBucketAndPerson, resultType, false, std::size_t(0), std::size_t(1), core_t::TTime(550)));
     }
 
     {
@@ -118,12 +113,7 @@ void CRuleConditionTest::testTimeContition(void) {
                                       std::size_t(0),
                                       std::size_t(1),
                                       core_t::TTime(600)) == false);
-        CPPUNIT_ASSERT(condition.test(model,
-                                      model_t::E_IndividualCountByBucketAndPerson,
-                                      resultType,
-                                      false,
-                                      std::size_t(0),
-                                      std::size_t(1),
-                                      core_t::TTime(599)));
+        CPPUNIT_ASSERT(condition.test(
+            model, model_t::E_IndividualCountByBucketAndPerson, resultType, false, std::size_t(0), std::size_t(1), core_t::TTime(599)));
     }
 }

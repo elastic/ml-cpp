@@ -194,10 +194,7 @@ public:
         //! model the clusters.
         //! \param[in] smallest The smallest sample added to date.
         //! \param[in] interval The Winsorisation interval.
-        bool shouldMerge(CCluster& other,
-                         CAvailableModeDistributions distributions,
-                         double smallest,
-                         const TDoubleDoublePr& interval);
+        bool shouldMerge(CCluster& other, CAvailableModeDistributions distributions, double smallest, const TDoubleDoublePr& interval);
 
         //! Merge this and \p other cluster.
         CCluster merge(CCluster& other, CIndexGenerator& indexGenerator);

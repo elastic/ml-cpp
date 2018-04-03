@@ -326,10 +326,7 @@ public:
     //! than the others.
     //! Only one per bucket is expected, this does not add to the influencer
     //! count if limitNumberRecords is used
-    virtual void acceptBucketTimeInfluencer(core_t::TTime time,
-                                            double probability,
-                                            double rawAnomalyScore,
-                                            double normalizedAnomalyScore);
+    virtual void acceptBucketTimeInfluencer(core_t::TTime time, double probability, double rawAnomalyScore, double normalizedAnomalyScore);
 
     //! This method must be called after all the results for a given bucket
     //! are available.  It triggers the writing of the results.
@@ -395,9 +392,7 @@ private:
     void addEventRateFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc);
 
     //! Add the influencer fields to the doc
-    void addInfluencerFields(bool isBucketInfluencer,
-                             const model::CHierarchicalResults::TNode& node,
-                             TDocumentWeakPtr weakDoc);
+    void addInfluencerFields(bool isBucketInfluencer, const model::CHierarchicalResults::TNode& node, TDocumentWeakPtr weakDoc);
 
     //! Write the influence results.
     void addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec& influenceResults,

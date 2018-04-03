@@ -23,10 +23,10 @@
 CppUnit::Test* CLineifiedJsonOutputWriterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLineifiedJsonOutputWriterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonOutputWriterTest>(
-        "CLineifiedJsonOutputWriterTest::testStringOutput", &CLineifiedJsonOutputWriterTest::testStringOutput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonOutputWriterTest>(
-        "CLineifiedJsonOutputWriterTest::testNumericOutput", &CLineifiedJsonOutputWriterTest::testNumericOutput));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonOutputWriterTest>("CLineifiedJsonOutputWriterTest::testStringOutput",
+                                                                                  &CLineifiedJsonOutputWriterTest::testStringOutput));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonOutputWriterTest>("CLineifiedJsonOutputWriterTest::testNumericOutput",
+                                                                                  &CLineifiedJsonOutputWriterTest::testNumericOutput));
 
     return suiteOfTests;
 }

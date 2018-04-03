@@ -170,8 +170,7 @@ public:
     //!
     //! \note The priors are shallow copied.
     //! \note This constructor doesn't support subsequent update of the prior.
-    CMultivariateMultimodalPrior(maths_t::EDataType dataType, TPriorPtrVec& priors)
-        : CMultivariatePrior(dataType, 0.0) {
+    CMultivariateMultimodalPrior(maths_t::EDataType dataType, TPriorPtrVec& priors) : CMultivariatePrior(dataType, 0.0) {
         m_Modes.reserve(priors.size());
         for (std::size_t i = 0u; i < priors.size(); ++i) {
             m_Modes.emplace_back(i, priors[i]);
@@ -181,8 +180,7 @@ public:
     //! Construct from part of a state document.
     CMultivariateMultimodalPrior(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser)
         : CMultivariatePrior(params.s_DataType, params.s_DecayRate) {
-        traverser.traverseSubLevel(
-            boost::bind(&CMultivariateMultimodalPrior::acceptRestoreTraverser, this, boost::cref(params), _1));
+        traverser.traverseSubLevel(boost::bind(&CMultivariateMultimodalPrior::acceptRestoreTraverser, this, boost::cref(params), _1));
     }
 
     //! Implements value semantics for copy construction.
@@ -280,9 +278,7 @@ public:
     //! for more details.
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void adjustOffset(const TWeightStyleVec& weightStyles,
-                              const TDouble10Vec1Vec& samples,
-                              const TDouble10Vec4Vec1Vec& weights) {
+    virtual void adjustOffset(const TWeightStyleVec& weightStyles, const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights) {
         // This has to adjust offsets for its modes because it must be
         // possible to call jointLogMarginalLikelihood before the samples
         // have been added to the prior in order for model selection to
@@ -300,9 +296,7 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles_,
-                            const TDouble10Vec1Vec& samples,
-                            const TDouble10Vec4Vec1Vec& weights) {
+    virtual void addSamples(const TWeightStyleVec& weightStyles_, const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights) {
         if (samples.empty()) {
             return;
         }
@@ -364,9 +358,7 @@ public:
                 m_Clusterer->add(x, clusters, smallestCountWeight);
 
                 double Z = std::accumulate(
-                    m_Modes.begin(), m_Modes.end(), smallestCountWeight, [](double sum, const TMode& mode) {
-                        return sum + mode.weight();
-                    });
+                    m_Modes.begin(), m_Modes.end(), smallestCountWeight, [](double sum, const TMode& mode) { return sum + mode.weight(); });
 
                 double n = 0.0;
                 for (const auto& cluster : clusters) {
@@ -434,8 +426,7 @@ public:
     //! \note The caller must specify dimension - 1 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize,
-                                                   const TSizeDoublePr10Vec& condition) const {
+    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
         std::size_t n = m_Modes.size();
 
         CMultimodalPrior::TPriorPtrVec modes;
@@ -517,15 +508,13 @@ public:
             modes[i]->numberSamples(weights[i] / Z * modes[i]->numberSamples());
         }
 
-        return {TPriorPtr(new CMultivariateMultimodalPrior<2>(this->dataType(), modes)),
-                Z > 0.0 ? maxWeight[0] + ::log(Z) : 0.0};
+        return {TPriorPtr(new CMultivariateMultimodalPrior<2>(this->dataType(), modes)), Z > 0.0 ? maxWeight[0] + ::log(Z) : 0.0};
     }
 
     //! Get the support for the marginal likelihood function.
     virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const {
         if (m_Modes.size() == 0) {
-            return {TPoint::smallest().template toVector<TDouble10Vec>(),
-                    TPoint::largest().template toVector<TDouble10Vec>()};
+            return {TPoint::smallest().template toVector<TDouble10Vec>(), TPoint::largest().template toVector<TDouble10Vec>()};
         }
         if (m_Modes.size() == 1) {
             return m_Modes[0].s_Prior->marginalLikelihoodSupport();
@@ -583,8 +572,7 @@ public:
     }
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
-                                                const TDouble10Vec4Vec& weight) const {
+    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weight) const {
         if (m_Modes.size() == 0) {
             return TDouble10Vec(N, 0.0);
         }
@@ -613,8 +601,7 @@ public:
             const TPriorPtr& prior = mode_.s_Prior;
             mode[0] = prior->marginalLikelihoodMode(TWeights::COUNT_VARIANCE, weight_[0]);
             double likelihood;
-            if (prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE, mode, weight_, likelihood) &
-                maths_t::E_FpAllErrors) {
+            if (prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE, mode, weight_, likelihood) & maths_t::E_FpAllErrors) {
                 continue;
             }
             if (modeLikelihood.add(::log(w) + likelihood)) {
@@ -628,8 +615,7 @@ public:
     }
 
     //! Get the local maxima of the marginal likelihood functions.
-    TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
-                                             const TDouble10Vec4Vec& weights) const {
+    TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) const {
         TDouble10Vec1Vec result;
         result.reserve(m_Modes.size());
         for (const auto& mode : m_Modes) {
@@ -795,9 +781,7 @@ public:
     }
 
     //! Check if this is a non-informative prior.
-    virtual bool isNonInformative(void) const {
-        return m_Modes.empty() || (m_Modes.size() == 1 && m_Modes[0].s_Prior->isNonInformative());
-    }
+    virtual bool isNonInformative(void) const { return m_Modes.empty() || (m_Modes.size() == 1 && m_Modes[0].s_Prior->isNonInformative()); }
 
     //! Get a human readable description of the prior.
     //!
@@ -846,8 +830,7 @@ public:
 
     //! Persist state by passing information to the supplied inserter
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        inserter.insertLevel(CLUSTERER_TAG,
-                             boost::bind<void>(CClustererStateSerialiser(), boost::cref(*m_Clusterer), _1));
+        inserter.insertLevel(CLUSTERER_TAG, boost::bind<void>(CClustererStateSerialiser(), boost::cref(*m_Clusterer), _1));
         inserter.insertLevel(SEED_PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(), boost::cref(*m_SeedPrior), _1));
         for (std::size_t i = 0u; i < m_Modes.size(); ++i) {
             inserter.insertLevel(MODE_TAG, boost::bind(&TMode::acceptPersistInserter, &m_Modes[i], _1));
@@ -990,13 +973,8 @@ private:
 
         void operator()(std::size_t leftMergeIndex, std::size_t rightMergeIndex, std::size_t targetIndex) const {
             namespace detail = multivariate_multimodal_prior_detail;
-            detail::modeMergeCallback(N,
-                                      m_Prior->m_Modes,
-                                      m_Prior->m_SeedPrior,
-                                      MODE_MERGE_NUMBER_SAMPLES,
-                                      leftMergeIndex,
-                                      rightMergeIndex,
-                                      targetIndex);
+            detail::modeMergeCallback(
+                N, m_Prior->m_Modes, m_Prior->m_SeedPrior, MODE_MERGE_NUMBER_SAMPLES, leftMergeIndex, rightMergeIndex, targetIndex);
         }
 
     private:
@@ -1025,16 +1003,15 @@ private:
                                    core::CStringUtils::stringToType(traverser.value(), decayRate),
                                    this->decayRate(decayRate))
             RESTORE(CLUSTERER_TAG,
-                    traverser.traverseSubLevel(boost::bind<bool>(
-                        CClustererStateSerialiser(), boost::cref(params), boost::ref(m_Clusterer), _1)))
-            RESTORE(SEED_PRIOR_TAG,
                     traverser.traverseSubLevel(
-                        boost::bind<bool>(CPriorStateSerialiser(), boost::cref(params), boost::ref(m_SeedPrior), _1)))
-            RESTORE_SETUP_TEARDOWN(
-                MODE_TAG,
-                TMode mode,
-                traverser.traverseSubLevel(boost::bind(&TMode::acceptRestoreTraverser, &mode, boost::cref(params), _1)),
-                m_Modes.push_back(mode))
+                        boost::bind<bool>(CClustererStateSerialiser(), boost::cref(params), boost::ref(m_Clusterer), _1)))
+            RESTORE(
+                SEED_PRIOR_TAG,
+                traverser.traverseSubLevel(boost::bind<bool>(CPriorStateSerialiser(), boost::cref(params), boost::ref(m_SeedPrior), _1)))
+            RESTORE_SETUP_TEARDOWN(MODE_TAG,
+                                   TMode mode,
+                                   traverser.traverseSubLevel(boost::bind(&TMode::acceptRestoreTraverser, &mode, boost::cref(params), _1)),
+                                   m_Modes.push_back(mode))
             RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG,
                                    double numberSamples,
                                    core::CStringUtils::stringToType(traverser.value(), numberSamples),
@@ -1056,9 +1033,7 @@ private:
     //! Get the number of nuisance parameters in the marginal likelihood.
     //!
     //! This is just number modes - 1 due to the normalization constraint.
-    virtual double unmarginalizedParameters(void) const {
-        return std::max(static_cast<double>(m_Modes.size()), 1.0) - 1.0;
-    }
+    virtual double unmarginalizedParameters(void) const { return std::max(static_cast<double>(m_Modes.size()), 1.0) - 1.0; }
 
     //! Get the convariance matrix for the marginal likelihood.
     TMatrix covarianceMatrix(void) const {

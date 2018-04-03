@@ -271,14 +271,13 @@ bool CAutoconfigurerImpl::extractTime(const TStrStrUMap& fieldValues, core_t::TT
 
     if (m_Params.timeFieldFormat().empty()) {
         if (!core::CStringUtils::stringToType(i->second, time)) {
-            LOG_ERROR("Cannot interpret time field '" << m_Params.timeFieldName()
-                                                      << "' in record:" << core_t::LINE_ENDING
+            LOG_ERROR("Cannot interpret time field '" << m_Params.timeFieldName() << "' in record:" << core_t::LINE_ENDING
                                                       << CAutoconfigurer::debugPrintRecord(fieldValues));
             return false;
         }
     } else if (!core::CTimeUtils::strptime(m_Params.timeFieldFormat(), i->second, time)) {
-        LOG_ERROR("Cannot interpret time field '" << m_Params.timeFieldName() << "' using format '"
-                                                  << m_Params.timeFieldFormat() << "' in record:" << core_t::LINE_ENDING
+        LOG_ERROR("Cannot interpret time field '" << m_Params.timeFieldName() << "' using format '" << m_Params.timeFieldFormat()
+                                                  << "' in record:" << core_t::LINE_ENDING
                                                   << CAutoconfigurer::debugPrintRecord(fieldValues));
         return false;
     }
@@ -324,8 +323,7 @@ void CAutoconfigurerImpl::updateStatisticsAndMaybeComputeScores(core_t::TTime ti
     CDetectorRecordDirectAddressTable::TDetectorRecordVec records;
     m_DetectorRecordFactory.detectorRecords(time, fieldValues, m_CandidateDetectors, records);
     m_DetectorCountStatistics.add(records);
-    if (m_NumberRecords % UPDATE_SCORE_RECORD_COUNT_INTERVAL == 0 &&
-        time >= m_LastTimeScoresWereRefreshed + UPDATE_SCORE_TIME_INTERVAL) {
+    if (m_NumberRecords % UPDATE_SCORE_RECORD_COUNT_INTERVAL == 0 && time >= m_LastTimeScoresWereRefreshed + UPDATE_SCORE_TIME_INTERVAL) {
         this->computeScores(false);
         m_LastTimeScoresWereRefreshed = time;
     }

@@ -104,8 +104,7 @@ public:
     static void derive(const TTimeDoublePrVec& data, TTimeDoublePrVec& results);
 
     //! Pad a vector from minTime to maxTime with zeros
-    static bool
-    pad(const TTimeDoublePrVec& data, core_t::TTime minTime, core_t::TTime maxTime, TTimeDoublePrVec& results);
+    static bool pad(const TTimeDoublePrVec& data, core_t::TTime minTime, core_t::TTime maxTime, TTimeDoublePrVec& results);
 
 private:
     template<typename T>

@@ -65,9 +65,7 @@ public:
         results.bottomUpBreadthFirst(*this);
     }
 
-    virtual void visit(const ml::model::CHierarchicalResults& results,
-                       const ml::model::CHierarchicalResults::TNode& node,
-                       bool pivot) {
+    virtual void visit(const ml::model::CHierarchicalResults& results, const ml::model::CHierarchicalResults::TNode& node, bool pivot) {
         if (pivot) {
             return;
         }
@@ -92,8 +90,7 @@ public:
         m_AnomalyScores[bucketTime] += anomalyFactor;
     }
 
-    bool
-    operator()(ml::core_t::TTime time, const ml::model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
+    bool operator()(ml::core_t::TTime time, const ml::model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
         LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
                   << node.s_Spec.print() << " initial score " << node.probability() << ", time:  " << time);
 
@@ -183,8 +180,7 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void) {
     static const ml::core_t::TTime BUCKET_SIZE(1800);
     static const double HIGH_ANOMALY_SCORE(0.003);
 
-    ml::model::CAnomalyDetectorModelConfig modelConfig =
-        ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+    ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
     ml::model::CSearchKey key(1, // identifier
@@ -242,8 +238,7 @@ void CEventRateAnomalyDetectorTest::testPersist(void) {
     static const ml::core_t::TTime LAST_TIME(1347317974);
     static const ml::core_t::TTime BUCKET_SIZE(3600);
 
-    ml::model::CAnomalyDetectorModelConfig modelConfig =
-        ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+    ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
     ml::model::CSearchKey key(1, // identifier
@@ -302,10 +297,10 @@ void CEventRateAnomalyDetectorTest::testPersist(void) {
 CppUnit::Test* CEventRateAnomalyDetectorTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateAnomalyDetectorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
-        "CEventRateAnomalyDetectorTest::testAnomalies", &CEventRateAnomalyDetectorTest::testAnomalies));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
-        "CEventRateAnomalyDetectorTest::testPersist", &CEventRateAnomalyDetectorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>("CEventRateAnomalyDetectorTest::testAnomalies",
+                                                                                 &CEventRateAnomalyDetectorTest::testAnomalies));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>("CEventRateAnomalyDetectorTest::testPersist",
+                                                                                 &CEventRateAnomalyDetectorTest::testPersist));
 
     return suiteOfTests;
 }

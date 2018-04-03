@@ -121,8 +121,7 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void
-    sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
+    virtual void sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
 
     //! Sample any state needed by computeProbablity for the out-
     //! of-phase bucket in the time interval [\p startTime, \p endTime]
@@ -216,11 +215,10 @@ protected:
     //! Get the value of the \p feature of the person identified
     //! by \p pid for the bucketing interval containing \p time.
     template<typename T>
-    const T* featureData(
-        model_t::EFeature feature,
-        std::size_t pid,
-        core_t::TTime time,
-        const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>& featureData) const;
+    const T* featureData(model_t::EFeature feature,
+                         std::size_t pid,
+                         core_t::TTime time,
+                         const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>& featureData) const;
 
     //! Sample the bucket statistics and write the results in to
     //! \p featureData.

@@ -79,9 +79,7 @@ const std::string PRIOR_TAG("b");
 const std::string EMPTY_STRING;
 
 //! Persist state for a models by passing information to \p inserter.
-void modelAcceptPersistInserter(const CModelWeight& weight,
-                                const CPrior& prior,
-                                core::CStatePersistInserter& inserter) {
+void modelAcceptPersistInserter(const CModelWeight& weight, const CPrior& prior, core::CStatePersistInserter& inserter) {
     inserter.insertLevel(WEIGHT_TAG, boost::bind(&CModelWeight::acceptPersistInserter, &weight, _1));
     inserter.insertLevel(PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(), boost::cref(prior), _1));
 }
@@ -89,8 +87,7 @@ void modelAcceptPersistInserter(const CModelWeight& weight,
 
 //////// COneOfNPrior Implementation ////////
 
-COneOfNPrior::COneOfNPrior(const TPriorPtrVec& models, maths_t::EDataType dataType, double decayRate)
-    : CPrior(dataType, decayRate) {
+COneOfNPrior::COneOfNPrior(const TPriorPtrVec& models, maths_t::EDataType dataType, double decayRate) : CPrior(dataType, decayRate) {
     if (models.empty()) {
         LOG_ERROR("Can't initialize one-of-n with no models!");
         return;
@@ -125,17 +122,13 @@ COneOfNPrior::COneOfNPrior(const SDistributionRestoreParams& params, core::CStat
     traverser.traverseSubLevel(boost::bind(&COneOfNPrior::acceptRestoreTraverser, this, boost::cref(params), _1));
 }
 
-bool COneOfNPrior::acceptRestoreTraverser(const SDistributionRestoreParams& params,
-                                          core::CStateRestoreTraverser& traverser) {
+bool COneOfNPrior::acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG,
-                               double decayRate,
-                               core::CStringUtils::stringToType(traverser.value(), decayRate),
-                               this->decayRate(decayRate))
+        RESTORE_SETUP_TEARDOWN(
+            DECAY_RATE_TAG, double decayRate, core::CStringUtils::stringToType(traverser.value(), decayRate), this->decayRate(decayRate))
         RESTORE(MODEL_TAG,
-                traverser.traverseSubLevel(
-                    boost::bind(&COneOfNPrior::modelAcceptRestoreTraverser, this, boost::cref(params), _1)))
+                traverser.traverseSubLevel(boost::bind(&COneOfNPrior::modelAcceptRestoreTraverser, this, boost::cref(params), _1)))
         RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG,
                                double numberSamples,
                                core::CStringUtils::stringToType(traverser.value(), numberSamples),
@@ -223,9 +216,7 @@ bool COneOfNPrior::needsOffset(void) const {
     return false;
 }
 
-double COneOfNPrior::adjustOffset(const TWeightStyleVec& weightStyles,
-                                  const TDouble1Vec& samples,
-                                  const TDouble4Vec1Vec& weights) {
+double COneOfNPrior::adjustOffset(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights) {
     TMeanAccumulator result;
 
     TDouble5Vec penalties;
@@ -256,9 +247,7 @@ double COneOfNPrior::offset(void) const {
     return offset;
 }
 
-void COneOfNPrior::addSamples(const TWeightStyleVec& weightStyles,
-                              const TDouble1Vec& samples,
-                              const TDouble4Vec1Vec& weights) {
+void COneOfNPrior::addSamples(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights) {
     if (samples.empty()) {
         return;
     }
@@ -339,8 +328,7 @@ void COneOfNPrior::addSamples(const TWeightStyleVec& weightStyles,
         // Update the weights with the marginal likelihoods.
         double logLikelihood = 0.0;
         maths_t::EFloatingPointErrorStatus status =
-            use ? model.second->jointLogMarginalLikelihood(weightStyles, samples, weights, logLikelihood)
-                : maths_t::E_FpOverflowed;
+            use ? model.second->jointLogMarginalLikelihood(weightStyles, samples, weights, logLikelihood) : maths_t::E_FpOverflowed;
 
         if (status & maths_t::E_FpFailed) {
             LOG_ERROR("Failed to compute log-likelihood");
@@ -565,8 +553,7 @@ COneOfNPrior::TDoubleDoublePr COneOfNPrior::marginalLikelihoodConfidenceInterval
     for (const auto& model : m_Models) {
         double weight = model.first;
         if (weight >= MAXIMUM_RELATIVE_ERROR) {
-            TDoubleDoublePr interval =
-                model.second->marginalLikelihoodConfidenceInterval(percentage, weightStyles, weights);
+            TDoubleDoublePr interval = model.second->marginalLikelihoodConfidenceInterval(percentage, weightStyles, weights);
             x1.add(interval.first, weight);
             x2.add(interval.second, weight);
         }
@@ -679,8 +666,7 @@ void COneOfNPrior::sampleMarginalLikelihood(std::size_t numberSamples, TDouble1V
 
     CSampling::TSizeVec sampling;
     CSampling::weightedSample(numberSamples, weights, sampling);
-    LOG_TRACE("weights = " << core::CContainerPrinter::print(weights)
-                           << ", sampling = " << core::CContainerPrinter::print(sampling));
+    LOG_TRACE("weights = " << core::CContainerPrinter::print(weights) << ", sampling = " << core::CContainerPrinter::print(sampling));
 
     if (sampling.size() != m_Models.size()) {
         LOG_ERROR("Failed to sample marginal likelihood");
@@ -789,8 +775,7 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
     lowerBound = std::max(lowerBound, 0.0);
     upperBound = std::max(upperBound, 0.0);
 
-    LOG_TRACE("Joint -log(c.d.f." << (complement ? " complement" : "") << ") = [" << lowerBound << "," << upperBound
-                                  << "]");
+    LOG_TRACE("Joint -log(c.d.f." << (complement ? " complement" : "") << ") = [" << lowerBound << "," << upperBound << "]");
 
     return true;
 }
@@ -876,8 +861,7 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
             return false;
         }
 
-        LOG_TRACE("weight = " << weight << ", modelLowerBound = " << modelLowerBound
-                              << ", modelUpperBound = " << modelLowerBound);
+        LOG_TRACE("weight = " << weight << ", modelLowerBound = " << modelLowerBound << ", modelUpperBound = " << modelLowerBound);
 
         lowerBound += weight * modelLowerBound;
         upperBound += weight * modelUpperBound;
@@ -922,8 +906,7 @@ void COneOfNPrior::print(const std::string& indent, std::string& result) const {
     static const double MINIMUM_SIGNIFICANT_WEIGHT = 0.05;
 
     result += ':';
-    result +=
-        core_t::LINE_ENDING + indent + " # samples " + core::CStringUtils::typeToStringPretty(this->numberSamples());
+    result += core_t::LINE_ENDING + indent + " # samples " + core::CStringUtils::typeToStringPretty(this->numberSamples());
     for (const auto& model : m_Models) {
         double weight = model.first;
         if (weight >= MINIMUM_SIGNIFICANT_WEIGHT) {
@@ -957,9 +940,7 @@ std::size_t COneOfNPrior::staticSize(void) const {
 
 void COneOfNPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     for (const auto& model : m_Models) {
-        inserter.insertLevel(
-            MODEL_TAG,
-            boost::bind(&modelAcceptPersistInserter, boost::cref(model.first), boost::cref(*model.second), _1));
+        inserter.insertLevel(MODEL_TAG, boost::bind(&modelAcceptPersistInserter, boost::cref(model.first), boost::cref(*model.second), _1));
     }
     inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
@@ -999,22 +980,19 @@ COneOfNPrior::TPriorCPtrVec COneOfNPrior::models(void) const {
     return result;
 }
 
-bool COneOfNPrior::modelAcceptRestoreTraverser(const SDistributionRestoreParams& params,
-                                               core::CStateRestoreTraverser& traverser) {
+bool COneOfNPrior::modelAcceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser) {
     CModelWeight weight(1.0);
     bool gotWeight = false;
     TPriorPtr model;
 
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(
-            WEIGHT_TAG,
-            /*no-op*/,
-            traverser.traverseSubLevel(boost::bind(&CModelWeight::acceptRestoreTraverser, &weight, _1)),
-            gotWeight = true)
+        RESTORE_SETUP_TEARDOWN(WEIGHT_TAG,
+                               /*no-op*/,
+                               traverser.traverseSubLevel(boost::bind(&CModelWeight::acceptRestoreTraverser, &weight, _1)),
+                               gotWeight = true)
         RESTORE(PRIOR_TAG,
-                traverser.traverseSubLevel(
-                    boost::bind<bool>(CPriorStateSerialiser(), boost::cref(params), boost::ref(model), _1)))
+                traverser.traverseSubLevel(boost::bind<bool>(CPriorStateSerialiser(), boost::cref(params), boost::ref(model), _1)))
     } while (traverser.next());
 
     if (!gotWeight) {

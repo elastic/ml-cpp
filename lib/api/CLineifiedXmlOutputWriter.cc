@@ -27,8 +27,7 @@ namespace {
 const std::string EMPTY_STRING;
 }
 
-CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string& rootName)
-    : m_RootName(rootName), m_OutStream(m_StringOutputBuf) {
+CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string& rootName) : m_RootName(rootName), m_OutStream(m_StringOutputBuf) {
 }
 
 CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string& rootName, std::ostream& strmOut)

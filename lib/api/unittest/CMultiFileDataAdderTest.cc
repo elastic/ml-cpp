@@ -67,17 +67,16 @@ CppUnit::Test* CMultiFileDataAdderTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultiFileDataAdderTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testSimpleWrite",
                                                                            &CMultiFileDataAdderTest::testSimpleWrite));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistBy", &CMultiFileDataAdderTest::testDetectorPersistBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistOver", &CMultiFileDataAdderTest::testDetectorPersistOver));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistPartition",
-                                                         &CMultiFileDataAdderTest::testDetectorPersistPartition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistDc", &CMultiFileDataAdderTest::testDetectorPersistDc));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistCount", &CMultiFileDataAdderTest::testDetectorPersistCount));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistBy",
+                                                                           &CMultiFileDataAdderTest::testDetectorPersistBy));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistOver",
+                                                                           &CMultiFileDataAdderTest::testDetectorPersistOver));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistPartition",
+                                                                           &CMultiFileDataAdderTest::testDetectorPersistPartition));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistDc",
+                                                                           &CMultiFileDataAdderTest::testDetectorPersistDc));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistCount",
+                                                                           &CMultiFileDataAdderTest::testDetectorPersistCount));
     return suiteOfTests;
 }
 
@@ -150,8 +149,7 @@ void CMultiFileDataAdderTest::testDetectorPersistOver(void) {
 }
 
 void CMultiFileDataAdderTest::testDetectorPersistPartition(void) {
-    this->detectorPersistHelper(
-        "testfiles/new_mlfields_partition.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+    this->detectorPersistHelper("testfiles/new_mlfields_partition.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
 void CMultiFileDataAdderTest::testDetectorPersistDc(void) {
@@ -187,17 +185,16 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
 
     std::string origSnapshotId;
     std::size_t numOrigDocs(0);
-    ml::api::CAnomalyJob origJob(
-        JOB_ID,
-        limits,
-        fieldConfig,
-        modelConfig,
-        wrappedOutputStream,
-        boost::bind(&reportPersistComplete, _1, _2, _3, _4, boost::ref(origSnapshotId), boost::ref(numOrigDocs)),
-        nullptr,
-        -1,
-        "time",
-        timeFormat);
+    ml::api::CAnomalyJob origJob(JOB_ID,
+                                 limits,
+                                 fieldConfig,
+                                 modelConfig,
+                                 wrappedOutputStream,
+                                 boost::bind(&reportPersistComplete, _1, _2, _3, _4, boost::ref(origSnapshotId), boost::ref(numOrigDocs)),
+                                 nullptr,
+                                 -1,
+                                 "time",
+                                 timeFormat);
 
     using TScopedInputParserP = boost::scoped_ptr<ml::api::CInputParser>;
     TScopedInputParserP parser;
@@ -254,8 +251,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         fieldConfig,
         modelConfig,
         wrappedOutputStream,
-        boost::bind(
-            &reportPersistComplete, _1, _2, _3, _4, boost::ref(restoredSnapshotId), boost::ref(numRestoredDocs)));
+        boost::bind(&reportPersistComplete, _1, _2, _3, _4, boost::ref(restoredSnapshotId), boost::ref(numRestoredDocs)));
 
     {
         ml::core_t::TTime completeToTime(0);

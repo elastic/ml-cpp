@@ -28,9 +28,7 @@ namespace test {
 const std::string CMultiFileSearcher::JSON_FILE_EXT(".json");
 
 CMultiFileSearcher::CMultiFileSearcher(std::string baseFilename, std::string baseDocId, std::string fileExtension)
-    : m_BaseFilename(std::move(baseFilename)),
-      m_BaseDocId(std::move(baseDocId)),
-      m_FileExtension(std::move(fileExtension)) {
+    : m_BaseFilename(std::move(baseFilename)), m_BaseDocId(std::move(baseDocId)), m_FileExtension(std::move(fileExtension)) {
 }
 
 CMultiFileSearcher::TIStreamP CMultiFileSearcher::search(size_t currentDocNum, size_t limit) {

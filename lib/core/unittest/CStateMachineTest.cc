@@ -48,14 +48,12 @@ struct SMachine {
     TSizeVecVec s_TransitionFunction;
 
     bool operator==(const SMachine& rhs) const {
-        return s_Alphabet == rhs.s_Alphabet && s_States == rhs.s_States &&
-               s_TransitionFunction == rhs.s_TransitionFunction;
+        return s_Alphabet == rhs.s_Alphabet && s_States == rhs.s_States && s_TransitionFunction == rhs.s_TransitionFunction;
     }
 
     bool operator<(const SMachine& rhs) const {
         return s_Alphabet < rhs.s_Alphabet || (s_Alphabet == rhs.s_Alphabet && s_States < rhs.s_States) ||
-               (s_Alphabet == rhs.s_Alphabet && s_States == rhs.s_States &&
-                s_TransitionFunction < rhs.s_TransitionFunction);
+               (s_Alphabet == rhs.s_Alphabet && s_States == rhs.s_States && s_TransitionFunction < rhs.s_TransitionFunction);
     }
 };
 
@@ -150,8 +148,7 @@ void CStateMachineTest::testBasics(void) {
                 const std::string& newState = machines[m].s_States[sm.state()];
 
                 LOG_DEBUG("  " << oldState << " -> " << newState);
-                CPPUNIT_ASSERT_EQUAL(machines[m].s_States[machines[m].s_TransitionFunction[i][j]],
-                                     sm.printState(sm.state()));
+                CPPUNIT_ASSERT_EQUAL(machines[m].s_States[machines[m].s_TransitionFunction[i][j]], sm.printState(sm.state()));
             }
         }
     }
@@ -237,12 +234,10 @@ void CStateMachineTest::testMultithreaded(void) {
 CppUnit::Test* CStateMachineTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStateMachineTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStateMachineTest>("CStateMachineTest::testBasics", &CStateMachineTest::testBasics));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStateMachineTest>("CStateMachineTest::testPersist", &CStateMachineTest::testPersist));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStateMachineTest>("CStateMachineTest::testBasics", &CStateMachineTest::testBasics));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStateMachineTest>("CStateMachineTest::testPersist", &CStateMachineTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateMachineTest>("CStateMachineTest::testMultithreaded",
-                                                                     &CStateMachineTest::testMultithreaded));
+        new CppUnit::TestCaller<CStateMachineTest>("CStateMachineTest::testMultithreaded", &CStateMachineTest::testMultithreaded));
 
     return suiteOfTests;
 }

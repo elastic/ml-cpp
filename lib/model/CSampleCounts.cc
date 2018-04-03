@@ -150,11 +150,9 @@ void CSampleCounts::refresh(const CDataGatherer& gatherer) {
                 if (scale < maths::MINIMUM_ACCURATE_VARIANCE_SCALE || scale > maths::MAXIMUM_ACCURATE_VARIANCE_SCALE) {
                     unsigned int oldCount = m_SampleCounts[id];
                     unsigned int newCount = std::max(sampleCountThreshold, static_cast<unsigned int>(count + 0.5));
-                    LOG_TRACE("Sample count "
-                              << oldCount << " is too far from the bucket mean " << count << " count, resetting to "
-                              << newCount << ". This may cause temporary instability"
-                              << " for " << this->name(gatherer, id) << " (" << id << "). (Mean count " << count_
-                              << ")");
+                    LOG_TRACE("Sample count " << oldCount << " is too far from the bucket mean " << count << " count, resetting to "
+                                              << newCount << ". This may cause temporary instability"
+                                              << " for " << this->name(gatherer, id) << " (" << id << "). (Mean count " << count_ << ")");
                     m_SampleCounts[id] = newCount;
                     // Avoid compiler warning in the case of LOG_TRACE being compiled out
                     static_cast<void>(oldCount);
@@ -163,8 +161,8 @@ void CSampleCounts::refresh(const CDataGatherer& gatherer) {
         } else if (maths::CBasicStatistics::count(count_) >= NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT) {
             double count = maths::CBasicStatistics::mean(count_);
             m_SampleCounts[id] = std::max(sampleCountThreshold, static_cast<unsigned int>(count + 0.5));
-            LOG_TRACE("Setting sample count to " << m_SampleCounts[id] << " for " << this->name(gatherer, id) << " ("
-                                                 << id << "). (Mean count " << count_ << ")");
+            LOG_TRACE("Setting sample count to " << m_SampleCounts[id] << " for " << this->name(gatherer, id) << " (" << id
+                                                 << "). (Mean count " << count_ << ")");
         }
     }
 }
@@ -197,10 +195,8 @@ void CSampleCounts::recycle(const TSizeVec& idsToRemove) {
 void CSampleCounts::remove(std::size_t lowestIdToRemove) {
     if (lowestIdToRemove < m_SampleCounts.size()) {
         m_SampleCounts.erase(m_SampleCounts.begin() + lowestIdToRemove, m_SampleCounts.end());
-        m_MeanNonZeroBucketCounts.erase(m_MeanNonZeroBucketCounts.begin() + lowestIdToRemove,
-                                        m_MeanNonZeroBucketCounts.end());
-        m_EffectiveSampleVariances.erase(m_EffectiveSampleVariances.begin() + lowestIdToRemove,
-                                         m_EffectiveSampleVariances.end());
+        m_MeanNonZeroBucketCounts.erase(m_MeanNonZeroBucketCounts.begin() + lowestIdToRemove, m_MeanNonZeroBucketCounts.end());
+        m_EffectiveSampleVariances.erase(m_EffectiveSampleVariances.begin() + lowestIdToRemove, m_EffectiveSampleVariances.end());
         LOG_TRACE("m_SampleCounts = " << core::CContainerPrinter::print(m_SampleCounts));
         LOG_TRACE("m_MeanNonZeroBucketCounts = " << core::CContainerPrinter::print(m_MeanNonZeroBucketCounts));
         LOG_TRACE("m_EffectiveSampleVariances = " << core::CContainerPrinter::print(m_EffectiveSampleVariances));

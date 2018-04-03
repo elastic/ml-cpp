@@ -147,8 +147,7 @@ const std::string CFieldConfig::CLEAR("clear");
 CFieldConfig::CFieldConfig(void) {
 }
 
-CFieldConfig::CFieldConfig(const std::string& categorizationFieldName)
-    : m_CategorizationFieldName(categorizationFieldName) {
+CFieldConfig::CFieldConfig(const std::string& categorizationFieldName) : m_CategorizationFieldName(categorizationFieldName) {
     this->seenField(categorizationFieldName);
 }
 
@@ -235,12 +234,10 @@ bool CFieldConfig::initFromFile(const std::string& configFile) {
     TIntSet handledConfigs;
     TIntSet handledScheduledEvents;
 
-    for (boost::property_tree::ptree::iterator level1Iter = propTree.begin(); level1Iter != propTree.end();
-         ++level1Iter) {
+    for (boost::property_tree::ptree::iterator level1Iter = propTree.begin(); level1Iter != propTree.end(); ++level1Iter) {
         const std::string& level1Key = level1Iter->first;
         const std::string& value = level1Iter->second.data();
-        if (level1Key.length() > DETECTOR_PREFIX.length() &&
-            level1Key.compare(0, DETECTOR_PREFIX.length(), DETECTOR_PREFIX) == 0) {
+        if (level1Key.length() > DETECTOR_PREFIX.length() && level1Key.compare(0, DETECTOR_PREFIX.length(), DETECTOR_PREFIX) == 0) {
             if (this->processDetector(propTree, level1Key, value, handledConfigs) == false) {
                 LOG_ERROR("Error reading config file " << configFile);
                 return false;
@@ -251,8 +248,7 @@ bool CFieldConfig::initFromFile(const std::string& configFile) {
         } else if (level1Key.length() > INFLUENCER_PREFIX.length() &&
                    level1Key.compare(0, INFLUENCER_PREFIX.length(), INFLUENCER_PREFIX) == 0) {
             this->addInfluencerFieldName(value);
-        } else if (level1Key.length() > FILTER_PREFIX.length() &&
-                   level1Key.compare(0, FILTER_PREFIX.length(), FILTER_PREFIX) == 0) {
+        } else if (level1Key.length() > FILTER_PREFIX.length() && level1Key.compare(0, FILTER_PREFIX.length(), FILTER_PREFIX) == 0) {
             this->processFilter(level1Key, value);
         } else if (level1Key.length() > SCHEDULED_EVENT_PREFIX.length() &&
                    level1Key.compare(0, SCHEDULED_EVENT_PREFIX.length(), SCHEDULED_EVENT_PREFIX) == 0) {
@@ -325,9 +321,7 @@ void CFieldConfig::retokenise(const TStrVec& tokens, TStrVec& copyTokens) {
     }
 }
 
-bool CFieldConfig::findLastByOverTokens(const TStrVec& copyTokens,
-                                        std::size_t& lastByTokenIndex,
-                                        std::size_t& lastOverTokenIndex) {
+bool CFieldConfig::findLastByOverTokens(const TStrVec& copyTokens, std::size_t& lastByTokenIndex, std::size_t& lastOverTokenIndex) {
     for (size_t index = 0; index < copyTokens.size(); ++index) {
         if (copyTokens[index].length() == BY_TOKEN.length() &&
             core::CStrCaseCmp::strCaseCmp(copyTokens[index].c_str(), BY_TOKEN.c_str()) == 0) {
@@ -373,8 +367,7 @@ bool CFieldConfig::validateByOverField(const TStrVec& copyTokens,
         }
 
         if (thisIndex + 2 < copyTokens.size() && thisIndex + 2 < otherIndex) {
-            LOG_ERROR("Only one field name may follow the '" << copyTokens[thisIndex]
-                                                             << "' token in the analysis clause");
+            LOG_ERROR("Only one field name may follow the '" << copyTokens[thisIndex] << "' token in the analysis clause");
             return false;
         }
 
@@ -394,8 +387,7 @@ std::string CFieldConfig::findParameter(const std::string& parameter, TStrVec& c
     for (TStrVecItr iter = copyTokens.begin(); iter != copyTokens.end(); ++iter) {
         const std::string& token = *iter;
         std::size_t equalPos = token.find('=');
-        if (equalPos == parameter.length() &&
-            core::CStrCaseCmp::strNCaseCmp(parameter.c_str(), token.c_str(), equalPos) == 0) {
+        if (equalPos == parameter.length() && core::CStrCaseCmp::strNCaseCmp(parameter.c_str(), token.c_str(), equalPos) == 0) {
             std::string value(token, equalPos + 1, token.length() - equalPos);
             LOG_TRACE("Found parameter " << parameter << " : " << value);
             copyTokens.erase(iter);
@@ -426,8 +418,7 @@ bool CFieldConfig::initFromClause(const TStrVec& tokens) {
     std::string defaultCategorizationFieldName;
     std::string summaryCountFieldName;
 
-    if (this->parseClause(
-            true, 0, EMPTY_STRING, copyTokens, m_FieldOptions, defaultCategorizationFieldName, summaryCountFieldName) ==
+    if (this->parseClause(true, 0, EMPTY_STRING, copyTokens, m_FieldOptions, defaultCategorizationFieldName, summaryCountFieldName) ==
         false) {
         // parseClause() will have logged the problem
         return false;
@@ -449,8 +440,7 @@ bool CFieldConfig::addOptions(const CFieldOptions& options) {
     typedef std::pair<TFieldOptionsMIndexItr, bool> TFieldOptionsMIndexItrBoolPr;
     TFieldOptionsMIndexItrBoolPr result(m_FieldOptions.insert(options));
     if (result.second == false) {
-        LOG_ERROR("Duplicate config found: " << options << core_t::LINE_ENDING << "It clashes with config "
-                                             << *result.first);
+        LOG_ERROR("Duplicate config found: " << options << core_t::LINE_ENDING << "It clashes with config " << *result.first);
         return false;
     }
 
@@ -524,8 +514,8 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
     //! Validate the "excludefrequent" flag if it has been set
     bool byExcludeFrequent(false);
     bool overExcludeFrequent(false);
-    if (this->decipherExcludeFrequentSetting(
-            excludeFrequentString, hasByField, isPopulation, byExcludeFrequent, overExcludeFrequent) == false) {
+    if (this->decipherExcludeFrequentSetting(excludeFrequentString, hasByField, isPopulation, byExcludeFrequent, overExcludeFrequent) ==
+        false) {
         LOG_ERROR("Unknown setting for excludefrequent: " << excludeFrequentString);
         return false;
     }
@@ -541,8 +531,7 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
     for (size_t index = 0; index < stop; ++index) {
         model::function_t::EFunction function;
         std::string fieldName;
-        if (this->parseFieldString(
-                !summaryCountFieldName.empty(), isPopulation, hasByField, copyTokens[index], function, fieldName) ==
+        if (this->parseFieldString(!summaryCountFieldName.empty(), isPopulation, hasByField, copyTokens[index], function, fieldName) ==
             false) {
             LOG_ERROR("Failed to process token '" << copyTokens[index] << "'");
 
@@ -653,15 +642,14 @@ bool CFieldConfig::processDetector(const boost::property_tree::ptree& propTree,
         return true;
     }
 
-    std::string description(propTree.get(
-        boost::property_tree::ptree::path_type(DETECTOR_PREFIX + configKeyString + DESCRIPTION_SUFFIX, '\t'),
-        EMPTY_STRING));
+    std::string description(
+        propTree.get(boost::property_tree::ptree::path_type(DETECTOR_PREFIX + configKeyString + DESCRIPTION_SUFFIX, '\t'), EMPTY_STRING));
 
-    std::string clause(propTree.get(
-        boost::property_tree::ptree::path_type(DETECTOR_PREFIX + configKeyString + CLAUSE_SUFFIX, '\t'), EMPTY_STRING));
+    std::string clause(
+        propTree.get(boost::property_tree::ptree::path_type(DETECTOR_PREFIX + configKeyString + CLAUSE_SUFFIX, '\t'), EMPTY_STRING));
 
-    std::string rules(propTree.get(
-        boost::property_tree::ptree::path_type(DETECTOR_PREFIX + configKeyString + RULES_SUFFIX, '\t'), EMPTY_STRING));
+    std::string rules(
+        propTree.get(boost::property_tree::ptree::path_type(DETECTOR_PREFIX + configKeyString + RULES_SUFFIX, '\t'), EMPTY_STRING));
 
     TStrVec tokens;
     if (this->tokenise(clause, tokens) == false) {
@@ -677,20 +665,12 @@ bool CFieldConfig::processDetector(const boost::property_tree::ptree& propTree,
     return true;
 }
 
-bool CFieldConfig::addActiveDetector(int configKey,
-                                     const std::string& description,
-                                     const std::string& rules,
-                                     TStrVec& copyTokens) {
+bool CFieldConfig::addActiveDetector(int configKey, const std::string& description, const std::string& rules, TStrVec& copyTokens) {
     std::string categorizationFieldName;
     std::string summaryCountFieldName;
 
-    if (this->parseClause(false,
-                          configKey,
-                          description,
-                          copyTokens,
-                          m_FieldOptions,
-                          categorizationFieldName,
-                          summaryCountFieldName) == false) {
+    if (this->parseClause(false, configKey, description, copyTokens, m_FieldOptions, categorizationFieldName, summaryCountFieldName) ==
+        false) {
         // parseClause() will have logged the error
         return false;
     }
@@ -764,16 +744,13 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
         function = isPopulation ? model::function_t::E_PopulationCount : model::function_t::E_IndividualRareCount;
         argumentInvalid = true;
     } else if (outerToken == FUNCTION_DISTINCT_COUNT || outerToken == FUNCTION_DISTINCT_COUNT_ABBREV) {
-        function =
-            isPopulation ? model::function_t::E_PopulationDistinctCount : model::function_t::E_IndividualDistinctCount;
+        function = isPopulation ? model::function_t::E_PopulationDistinctCount : model::function_t::E_IndividualDistinctCount;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_LOW_DISTINCT_COUNT || outerToken == FUNCTION_LOW_DISTINCT_COUNT_ABBREV) {
-        function = isPopulation ? model::function_t::E_PopulationLowDistinctCount
-                                : model::function_t::E_IndividualLowDistinctCount;
+        function = isPopulation ? model::function_t::E_PopulationLowDistinctCount : model::function_t::E_IndividualLowDistinctCount;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_HIGH_DISTINCT_COUNT || outerToken == FUNCTION_HIGH_DISTINCT_COUNT_ABBREV) {
-        function = isPopulation ? model::function_t::E_PopulationHighDistinctCount
-                                : model::function_t::E_IndividualHighDistinctCount;
+        function = isPopulation ? model::function_t::E_PopulationHighDistinctCount : model::function_t::E_IndividualHighDistinctCount;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_NON_ZERO_COUNT || outerToken == FUNCTION_NON_ZERO_COUNT_ABBREV) {
         function = model::function_t::E_IndividualNonZeroCount;
@@ -811,16 +788,13 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
         argumentInvalid = true;
         byFieldRequired = true;
     } else if (outerToken == FUNCTION_INFO_CONTENT) {
-        function =
-            isPopulation ? model::function_t::E_PopulationInfoContent : model::function_t::E_IndividualInfoContent;
+        function = isPopulation ? model::function_t::E_PopulationInfoContent : model::function_t::E_IndividualInfoContent;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_LOW_INFO_CONTENT) {
-        function = isPopulation ? model::function_t::E_PopulationLowInfoContent
-                                : model::function_t::E_IndividualLowInfoContent;
+        function = isPopulation ? model::function_t::E_PopulationLowInfoContent : model::function_t::E_IndividualLowInfoContent;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_HIGH_INFO_CONTENT) {
-        function = isPopulation ? model::function_t::E_PopulationHighInfoContent
-                                : model::function_t::E_IndividualHighInfoContent;
+        function = isPopulation ? model::function_t::E_PopulationHighInfoContent : model::function_t::E_IndividualHighInfoContent;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_METRIC) {
         if (haveSummaryCountField) {
@@ -834,24 +808,19 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
         function = isPopulation ? model::function_t::E_PopulationMetricMean : model::function_t::E_IndividualMetricMean;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_LOW_AVERAGE || outerToken == FUNCTION_LOW_MEAN) {
-        function =
-            isPopulation ? model::function_t::E_PopulationMetricLowMean : model::function_t::E_IndividualMetricLowMean;
+        function = isPopulation ? model::function_t::E_PopulationMetricLowMean : model::function_t::E_IndividualMetricLowMean;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_HIGH_AVERAGE || outerToken == FUNCTION_HIGH_MEAN) {
-        function = isPopulation ? model::function_t::E_PopulationMetricHighMean
-                                : model::function_t::E_IndividualMetricHighMean;
+        function = isPopulation ? model::function_t::E_PopulationMetricHighMean : model::function_t::E_IndividualMetricHighMean;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_MEDIAN) {
-        function =
-            isPopulation ? model::function_t::E_PopulationMetricMedian : model::function_t::E_IndividualMetricMedian;
+        function = isPopulation ? model::function_t::E_PopulationMetricMedian : model::function_t::E_IndividualMetricMedian;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_LOW_MEDIAN) {
-        function = isPopulation ? model::function_t::E_PopulationMetricLowMedian
-                                : model::function_t::E_IndividualMetricLowMedian;
+        function = isPopulation ? model::function_t::E_PopulationMetricLowMedian : model::function_t::E_IndividualMetricLowMedian;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_HIGH_MEDIAN) {
-        function = isPopulation ? model::function_t::E_PopulationMetricHighMedian
-                                : model::function_t::E_IndividualMetricHighMedian;
+        function = isPopulation ? model::function_t::E_PopulationMetricHighMedian : model::function_t::E_IndividualMetricHighMedian;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_MIN) {
         function = isPopulation ? model::function_t::E_PopulationMetricMin : model::function_t::E_IndividualMetricMin;
@@ -860,27 +829,22 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
         function = isPopulation ? model::function_t::E_PopulationMetricMax : model::function_t::E_IndividualMetricMax;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_VARIANCE) {
-        function = isPopulation ? model::function_t::E_PopulationMetricVariance
-                                : model::function_t::E_IndividualMetricVariance;
+        function = isPopulation ? model::function_t::E_PopulationMetricVariance : model::function_t::E_IndividualMetricVariance;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_LOW_VARIANCE) {
-        function = isPopulation ? model::function_t::E_PopulationMetricLowVariance
-                                : model::function_t::E_IndividualMetricLowVariance;
+        function = isPopulation ? model::function_t::E_PopulationMetricLowVariance : model::function_t::E_IndividualMetricLowVariance;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_HIGH_VARIANCE) {
-        function = isPopulation ? model::function_t::E_PopulationMetricHighVariance
-                                : model::function_t::E_IndividualMetricHighVariance;
+        function = isPopulation ? model::function_t::E_PopulationMetricHighVariance : model::function_t::E_IndividualMetricHighVariance;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_SUM) {
         function = isPopulation ? model::function_t::E_PopulationMetricSum : model::function_t::E_IndividualMetricSum;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_LOW_SUM) {
-        function =
-            isPopulation ? model::function_t::E_PopulationMetricLowSum : model::function_t::E_IndividualMetricLowSum;
+        function = isPopulation ? model::function_t::E_PopulationMetricLowSum : model::function_t::E_IndividualMetricLowSum;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_HIGH_SUM) {
-        function =
-            isPopulation ? model::function_t::E_PopulationMetricHighSum : model::function_t::E_IndividualMetricHighSum;
+        function = isPopulation ? model::function_t::E_PopulationMetricHighSum : model::function_t::E_IndividualMetricHighSum;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_NON_NULL_SUM || outerToken == FUNCTION_NON_NULL_SUM_ABBREV) {
         function = model::function_t::E_IndividualMetricNonNullSum;
@@ -903,20 +867,16 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
         function = isPopulation ? model::function_t::E_PopulationLatLong : model::function_t::E_IndividualLatLong;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_MAX_VELOCITY) {
-        function =
-            isPopulation ? model::function_t::E_PopulationMaxVelocity : model::function_t::E_IndividualMaxVelocity;
+        function = isPopulation ? model::function_t::E_PopulationMaxVelocity : model::function_t::E_IndividualMaxVelocity;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_MIN_VELOCITY) {
-        function =
-            isPopulation ? model::function_t::E_PopulationMinVelocity : model::function_t::E_IndividualMinVelocity;
+        function = isPopulation ? model::function_t::E_PopulationMinVelocity : model::function_t::E_IndividualMinVelocity;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_MEAN_VELOCITY) {
-        function =
-            isPopulation ? model::function_t::E_PopulationMeanVelocity : model::function_t::E_IndividualMeanVelocity;
+        function = isPopulation ? model::function_t::E_PopulationMeanVelocity : model::function_t::E_IndividualMeanVelocity;
         argumentRequired = true;
     } else if (outerToken == FUNCTION_SUM_VELOCITY) {
-        function =
-            isPopulation ? model::function_t::E_PopulationSumVelocity : model::function_t::E_IndividualSumVelocity;
+        function = isPopulation ? model::function_t::E_PopulationSumVelocity : model::function_t::E_IndividualSumVelocity;
         argumentRequired = true;
     } else {
         // We expect an individual metric here, but if the original string
@@ -1153,12 +1113,10 @@ bool CFieldConfig::processScheduledEvent(const boost::property_tree::ptree& prop
     }
 
     std::string description(propTree.get(
-        boost::property_tree::ptree::path_type(SCHEDULED_EVENT_PREFIX + indexString + DESCRIPTION_SUFFIX, '\t'),
-        EMPTY_STRING));
+        boost::property_tree::ptree::path_type(SCHEDULED_EVENT_PREFIX + indexString + DESCRIPTION_SUFFIX, '\t'), EMPTY_STRING));
 
     std::string rules(
-        propTree.get(boost::property_tree::ptree::path_type(SCHEDULED_EVENT_PREFIX + indexString + RULES_SUFFIX, '\t'),
-                     EMPTY_STRING));
+        propTree.get(boost::property_tree::ptree::path_type(SCHEDULED_EVENT_PREFIX + indexString + RULES_SUFFIX, '\t'), EMPTY_STRING));
 
     TDetectionRuleVec detectionRules;
     if (this->parseRules(detectionRules, rules) == false) {
@@ -1197,8 +1155,7 @@ bool CFieldConfig::updateScheduledEvents(const boost::property_tree::ptree& prop
 }
 
 CFieldConfig::CFieldOptions::CFieldOptions(const std::string& fieldName, int configKey)
-    : m_Function(fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount
-                                         : model::function_t::E_IndividualMetric),
+    : m_Function(fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount : model::function_t::E_IndividualMetric),
       m_FieldName(fieldName),
       m_ConfigKey(configKey),
       m_ByHasExcludeFrequent(false),
@@ -1214,8 +1171,7 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string& fieldName,
     // For historical reasons, the only function name we interpret in this
     // constructor is "count" - every other word is considered to be a metric
     // field name.
-    : m_Function(fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount
-                                         : model::function_t::E_IndividualMetric),
+    : m_Function(fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount : model::function_t::E_IndividualMetric),
       m_FieldName(fieldName == COUNT_NAME ? EMPTY_STRING : fieldName),
       m_ConfigKey(configKey),
       m_ByFieldName(byFieldName),
@@ -1234,8 +1190,7 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string& fieldName,
     // For historical reasons, the only function name we interpret in this
     // constructor is "count" - every other word is considered to be a metric
     // field name.
-    : m_Function(fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount
-                                         : model::function_t::E_IndividualMetric),
+    : m_Function(fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount : model::function_t::E_IndividualMetric),
       m_FieldName(fieldName == COUNT_NAME ? EMPTY_STRING : fieldName),
       m_ConfigKey(configKey),
       m_ByFieldName(byFieldName),

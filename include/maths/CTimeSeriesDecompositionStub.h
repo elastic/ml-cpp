@@ -74,8 +74,7 @@ public:
     virtual double meanVariance(void) const;
 
     //! Returns (1.0, 1.0).
-    virtual maths_t::TDoubleDoublePr
-    scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
+    virtual maths_t::TDoubleDoublePr scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
 
     //! No-op.
     virtual void skipTime(core_t::TTime skipInterval);

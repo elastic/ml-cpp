@@ -56,10 +56,8 @@ public:
     //! \brief Generate random samples from the specified distribution
     //! using a custom random number generator.
     template<typename RNG, typename Distribution, typename Container>
-    static void generateSamples(RNG& randomNumberGenerator,
-                                const Distribution& distribution,
-                                std::size_t numberSamples,
-                                Container& samples);
+    static void
+    generateSamples(RNG& randomNumberGenerator, const Distribution& distribution, std::size_t numberSamples, Container& samples);
 
     //! Shuffle the elements of a sequence using a random number generator.
     //!

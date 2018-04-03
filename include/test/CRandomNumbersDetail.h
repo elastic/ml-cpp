@@ -40,8 +40,7 @@ void CRandomNumbers::generateSamples(RNG& randomNumberGenerator,
                                      Container& samples) {
     samples.clear();
     samples.reserve(numberSamples);
-    std::generate_n(
-        std::back_inserter(samples), numberSamples, boost::bind(distribution, boost::ref(randomNumberGenerator)));
+    std::generate_n(std::back_inserter(samples), numberSamples, boost::bind(distribution, boost::ref(randomNumberGenerator)));
 }
 
 template<typename ITR>
@@ -116,10 +115,8 @@ void CRandomNumbers::generateRandomMultivariateNormals(const TSizeVec& sizes,
     for (std::size_t i = 0u; i < k; ++i) {
         LOG_TRACE("mean = " << means[i]);
         LOG_TRACE("covariance = " << covariances[i]);
-        this->generateMultivariateNormalSamples(means[i].template toVector<TDoubleVec>(),
-                                                covariances[i].template toVectors<TDoubleVecVec>(),
-                                                sizes[i],
-                                                pointsi);
+        this->generateMultivariateNormalSamples(
+            means[i].template toVector<TDoubleVec>(), covariances[i].template toVectors<TDoubleVecVec>(), sizes[i], pointsi);
         for (std::size_t j = 0u; j < pointsi.size(); ++j) {
             points[i].emplace_back(pointsi[j]);
         }

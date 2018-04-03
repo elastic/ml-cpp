@@ -49,8 +49,7 @@ CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::st
         return TIStreamP();
     }
     typedef boost::iostreams::stream<boost::iostreams::file_descriptor_source> TFileDescriptorSourceStream;
-    return TIStreamP(new TFileDescriptorSourceStream(
-        boost::iostreams::file_descriptor_source(handle, boost::iostreams::close_handle)));
+    return TIStreamP(new TFileDescriptorSourceStream(boost::iostreams::file_descriptor_source(handle, boost::iostreams::close_handle)));
 }
 
 CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
@@ -59,8 +58,7 @@ CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::s
         return TOStreamP();
     }
     typedef boost::iostreams::stream<boost::iostreams::file_descriptor_sink> TFileDescriptorSinkStream;
-    return TOStreamP(
-        new TFileDescriptorSinkStream(boost::iostreams::file_descriptor_sink(handle, boost::iostreams::close_handle)));
+    return TOStreamP(new TFileDescriptorSinkStream(boost::iostreams::file_descriptor_sink(handle, boost::iostreams::close_handle)));
 }
 
 CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string& fileName) {

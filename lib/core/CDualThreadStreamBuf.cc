@@ -283,8 +283,7 @@ int CDualThreadStreamBuf::overflow(int c) {
     return ret;
 }
 
-std::streampos
-CDualThreadStreamBuf::seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which) {
+std::streampos CDualThreadStreamBuf::seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which) {
     std::streampos pos(static_cast<std::streampos>(-1));
 
     if (off != 0) {

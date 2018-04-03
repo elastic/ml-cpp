@@ -94,8 +94,7 @@ bool CFieldDataTyper::handleRecord(const TStrStrUMap& dataRowFields) {
         }
 
         if (m_OutputHandler.fieldNames(fieldNames, m_ExtraFieldNames) == false) {
-            LOG_ERROR("Unable to set field names for output:" << core_t::LINE_ENDING
-                                                              << this->debugPrintRecord(dataRowFields));
+            LOG_ERROR("Unable to set field names for output:" << core_t::LINE_ENDING << this->debugPrintRecord(dataRowFields));
             return false;
         }
         m_WriteFieldNames = false;
@@ -152,8 +151,7 @@ int CFieldDataTyper::computeType(const TStrStrUMap& dataRowFields) {
 
     const std::string& fieldValue = fieldIter->second;
     if (fieldValue.empty()) {
-        LOG_WARN("Assigning type -1 to record with blank " << categorizationFieldName
-                                                           << " field:" << core_t::LINE_ENDING
+        LOG_WARN("Assigning type -1 to record with blank " << categorizationFieldName << " field:" << core_t::LINE_ENDING
                                                            << this->debugPrintRecord(dataRowFields));
         return -1;
     }
@@ -173,8 +171,7 @@ int CFieldDataTyper::computeType(const TStrStrUMap& dataRowFields) {
     bool searchTermsChanged = this->createReverseSearch(type);
     if (exampleAdded || searchTermsChanged) {
         const TStrSet& examples = m_ExamplesCollector.examples(static_cast<std::size_t>(type));
-        m_JsonOutputWriter.writeCategoryDefinition(
-            type, m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength, examples);
+        m_JsonOutputWriter.writeCategoryDefinition(type, m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength, examples);
     }
 
     // Check if a periodic persist is due.
@@ -197,8 +194,7 @@ void CFieldDataTyper::createTyper(const std::string& fieldName) {
 
 bool CFieldDataTyper::createReverseSearch(int type) {
     bool wasCached(false);
-    if (m_DataTyper->createReverseSearch(type, m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength, wasCached) ==
-        false) {
+    if (m_DataTyper->createReverseSearch(type, m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength, wasCached) == false) {
         m_SearchTerms.clear();
         m_SearchTermsRegex.clear();
     }
@@ -273,8 +269,8 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
             return true;
         }
     } else {
-        LOG_ERROR("Cannot restore categorizer - " << VERSION_TAG << " element expected but found " << traverser.name()
-                                                  << '=' << traverser.value());
+        LOG_ERROR("Cannot restore categorizer - " << VERSION_TAG << " element expected but found " << traverser.name() << '='
+                                                  << traverser.value());
         return false;
     }
 
@@ -289,27 +285,26 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
             return false;
         }
     } else {
-        LOG_ERROR("Cannot restore categorizer - " << TYPER_TAG << " element expected but found " << traverser.name()
-                                                  << '=' << traverser.value());
+        LOG_ERROR("Cannot restore categorizer - " << TYPER_TAG << " element expected but found " << traverser.name() << '='
+                                                  << traverser.value());
         return false;
     }
 
     if (traverser.next() == false) {
-        LOG_ERROR("Cannot restore categorizer - end of object reached when " << EXAMPLES_COLLECTOR_TAG
-                                                                             << " was expected");
+        LOG_ERROR("Cannot restore categorizer - end of object reached when " << EXAMPLES_COLLECTOR_TAG << " was expected");
         return false;
     }
 
     if (traverser.name() == EXAMPLES_COLLECTOR_TAG) {
-        if (traverser.traverseSubLevel(boost::bind(
-                &CCategoryExamplesCollector::acceptRestoreTraverser, boost::ref(m_ExamplesCollector), _1)) == false ||
+        if (traverser.traverseSubLevel(
+                boost::bind(&CCategoryExamplesCollector::acceptRestoreTraverser, boost::ref(m_ExamplesCollector), _1)) == false ||
             traverser.haveBadState()) {
             LOG_ERROR("Cannot restore categorizer, unexpected element: " << traverser.value());
             return false;
         }
     } else {
-        LOG_ERROR("Cannot restore categorizer - " << EXAMPLES_COLLECTOR_TAG << " element expected but found "
-                                                  << traverser.name() << '=' << traverser.value());
+        LOG_ERROR("Cannot restore categorizer - " << EXAMPLES_COLLECTOR_TAG << " element expected but found " << traverser.name() << '='
+                                                  << traverser.value());
         return false;
     }
 
@@ -384,8 +379,7 @@ void CFieldDataTyper::acceptPersistInserter(const CDataTyper::TPersistFunc& data
                                             core::CStatePersistInserter& inserter) const {
     inserter.insertValue(VERSION_TAG, STATE_VERSION);
     inserter.insertLevel(TYPER_TAG, dataTyperPersistFunc);
-    inserter.insertLevel(EXAMPLES_COLLECTOR_TAG,
-                         boost::bind(&CCategoryExamplesCollector::acceptPersistInserter, &examplesCollector, _1));
+    inserter.insertLevel(EXAMPLES_COLLECTOR_TAG, boost::bind(&CCategoryExamplesCollector::acceptPersistInserter, &examplesCollector, _1));
 }
 
 bool CFieldDataTyper::periodicPersistState(CBackgroundPersister& persister) {
@@ -442,8 +436,8 @@ bool CFieldDataTyper::handleControlMessage(const std::string& controlMessage) {
         this->acknowledgeFlush(controlMessage.substr(1));
         break;
     default:
-        LOG_WARN("Ignoring unknown control message of length " << controlMessage.length() << " beginning with '"
-                                                               << controlMessage[0] << '\'');
+        LOG_WARN("Ignoring unknown control message of length " << controlMessage.length() << " beginning with '" << controlMessage[0]
+                                                               << '\'');
         // Don't return false here (for the time being at least), as it
         // seems excessive to cause the entire job to fail
         break;

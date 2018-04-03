@@ -182,9 +182,7 @@ std::string CAnomalyDetectorModel::printAttributes(const TSizeVec& cids, std::si
     return result;
 }
 
-void CAnomalyDetectorModel::sampleBucketStatistics(core_t::TTime startTime,
-                                                   core_t::TTime endTime,
-                                                   CResourceMonitor& /*resourceMonitor*/) {
+void CAnomalyDetectorModel::sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& /*resourceMonitor*/) {
     const CDataGatherer& gatherer{this->dataGatherer()};
     core_t::TTime bucketLength{this->bucketLength()};
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
@@ -197,9 +195,7 @@ void CAnomalyDetectorModel::sampleBucketStatistics(core_t::TTime startTime,
     }
 }
 
-void CAnomalyDetectorModel::sample(core_t::TTime startTime,
-                                   core_t::TTime endTime,
-                                   CResourceMonitor& /*resourceMonitor*/) {
+void CAnomalyDetectorModel::sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& /*resourceMonitor*/) {
     using TSizeUSet = boost::unordered_set<std::size_t>;
 
     const CDataGatherer& gatherer{this->dataGatherer()};
@@ -262,19 +258,17 @@ bool CAnomalyDetectorModel::addResults(int detector,
     for (auto pid : personIds) {
         if (this->category() == model_t::E_Counting) {
             SAnnotatedProbability annotatedProbability;
-            this->computeProbability(
-                pid, startTime, endTime, partitioningFields, numberAttributeProbabilities, annotatedProbability);
+            this->computeProbability(pid, startTime, endTime, partitioningFields, numberAttributeProbabilities, annotatedProbability);
             results.addSimpleCountResult(annotatedProbability, this, startTime);
         } else {
             LOG_TRACE("AddResult, for time [" << startTime << "," << endTime << ")");
             partitioningFields.back().second = boost::cref(this->personName(pid));
-            std::for_each(m_DataGatherer->beginInfluencers(),
-                          m_DataGatherer->endInfluencers(),
-                          [&results](const std::string& influencer) { results.addInfluencer(influencer); });
+            std::for_each(m_DataGatherer->beginInfluencers(), m_DataGatherer->endInfluencers(), [&results](const std::string& influencer) {
+                results.addInfluencer(influencer);
+            });
             SAnnotatedProbability annotatedProbability;
             annotatedProbability.s_ResultType = results.resultType();
-            if (this->computeProbability(
-                    pid, startTime, endTime, partitioningFields, numberAttributeProbabilities, annotatedProbability)) {
+            if (this->computeProbability(pid, startTime, endTime, partitioningFields, numberAttributeProbabilities, annotatedProbability)) {
                 function_t::EFunction function{m_DataGatherer->function()};
                 results.addModelResult(detector,
                                        this->isPopulation(),
@@ -299,15 +293,13 @@ std::size_t CAnomalyDetectorModel::defaultPruneWindow(void) const {
     // The longest we'll consider keeping priors for is 1M buckets.
     double decayRate{this->params().s_DecayRate};
     double factor{this->params().s_PruneWindowScaleMaximum};
-    return (decayRate == 0.0) ? MAXIMUM_PERMITTED_AGE
-                              : std::min(static_cast<std::size_t>(factor / decayRate), MAXIMUM_PERMITTED_AGE);
+    return (decayRate == 0.0) ? MAXIMUM_PERMITTED_AGE : std::min(static_cast<std::size_t>(factor / decayRate), MAXIMUM_PERMITTED_AGE);
 }
 
 std::size_t CAnomalyDetectorModel::minimumPruneWindow(void) const {
     double decayRate{this->params().s_DecayRate};
     double factor{this->params().s_PruneWindowScaleMinimum};
-    return (decayRate == 0.0) ? MAXIMUM_PERMITTED_AGE
-                              : std::min(static_cast<std::size_t>(factor / decayRate), MAXIMUM_PERMITTED_AGE);
+    return (decayRate == 0.0) ? MAXIMUM_PERMITTED_AGE : std::min(static_cast<std::size_t>(factor / decayRate), MAXIMUM_PERMITTED_AGE);
 }
 
 void CAnomalyDetectorModel::prune(void) {
@@ -349,9 +341,8 @@ std::size_t CAnomalyDetectorModel::memoryUsage(void) const {
     return mem;
 }
 
-CAnomalyDetectorModel::TOptionalSize CAnomalyDetectorModel::estimateMemoryUsage(std::size_t numberPeople,
-                                                                                std::size_t numberAttributes,
-                                                                                std::size_t numberCorrelations) const {
+CAnomalyDetectorModel::TOptionalSize
+CAnomalyDetectorModel::estimateMemoryUsage(std::size_t numberPeople, std::size_t numberAttributes, std::size_t numberCorrelations) const {
     CMemoryUsageEstimator::TSizeArray predictors;
     predictors[CMemoryUsageEstimator::E_People] = numberPeople;
     predictors[CMemoryUsageEstimator::E_Attributes] = numberAttributes;
@@ -412,8 +403,7 @@ double CAnomalyDetectorModel::learnRate(model_t::EFeature feature) const {
     return model_t::learnRate(feature, m_Params);
 }
 
-const CInfluenceCalculator* CAnomalyDetectorModel::influenceCalculator(model_t::EFeature feature,
-                                                                       std::size_t iid) const {
+const CInfluenceCalculator* CAnomalyDetectorModel::influenceCalculator(model_t::EFeature feature, std::size_t iid) const {
     if (iid >= m_InfluenceCalculators.size()) {
         LOG_ERROR("Influencer identifier " << iid << " out of range");
         return 0;
@@ -483,10 +473,7 @@ bool CAnomalyDetectorModel::shouldIgnoreResult(model_t::EFeature feature,
     return shouldIgnore;
 }
 
-bool CAnomalyDetectorModel::shouldIgnoreSample(model_t::EFeature feature,
-                                               std::size_t pid,
-                                               std::size_t cid,
-                                               core_t::TTime time) const {
+bool CAnomalyDetectorModel::shouldIgnoreSample(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const {
     bool shouldIgnore = checkScheduledEvents(this->params().s_ScheduledEvents.get(),
                                              boost::cref(*this),
                                              feature,
@@ -508,8 +495,8 @@ bool CAnomalyDetectorModel::shouldIgnoreSample(model_t::EFeature feature,
 }
 
 bool CAnomalyDetectorModel::interimBucketCorrectorAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(boost::bind(
-            &CInterimBucketCorrector::acceptRestoreTraverser, m_InterimBucketCorrector.get(), _1)) == false) {
+    if (traverser.traverseSubLevel(boost::bind(&CInterimBucketCorrector::acceptRestoreTraverser, m_InterimBucketCorrector.get(), _1)) ==
+        false) {
         LOG_ERROR("Invalid interim bucket corrector");
         return false;
     }
@@ -518,8 +505,7 @@ bool CAnomalyDetectorModel::interimBucketCorrectorAcceptRestoreTraverser(core::C
 
 void CAnomalyDetectorModel::interimBucketCorrectorAcceptPersistInserter(const std::string& tag,
                                                                         core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(
-        tag, boost::bind(&CInterimBucketCorrector::acceptPersistInserter, m_InterimBucketCorrector.get(), _1));
+    inserter.insertLevel(tag, boost::bind(&CInterimBucketCorrector::acceptPersistInserter, m_InterimBucketCorrector.get(), _1));
 }
 
 const CAnomalyDetectorModel::TStr1Vec& CAnomalyDetectorModel::scheduledEventDescriptions(core_t::TTime /*time*/) const {
@@ -538,16 +524,14 @@ CAnomalyDetectorModel::SFeatureModels::SFeatureModels(model_t::EFeature feature,
     : s_Feature(feature), s_NewModel(newModel) {
 }
 
-bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelParams& params_,
-                                                                   core::CStateRestoreTraverser& traverser) {
+bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelParams& params_, core::CStateRestoreTraverser& traverser) {
     maths_t::EDataType dataType{s_NewModel->dataType()};
-    maths::SModelRestoreParams params{
-        s_NewModel->params(),
-        maths::STimeSeriesDecompositionRestoreParams{
-            CAnomalyDetectorModelConfig::trendDecayRate(params_.s_DecayRate, params_.s_BucketLength),
-            params_.s_BucketLength,
-            params_.s_ComponentSize},
-        params_.distributionRestoreParams(dataType)};
+    maths::SModelRestoreParams params{s_NewModel->params(),
+                                      maths::STimeSeriesDecompositionRestoreParams{
+                                          CAnomalyDetectorModelConfig::trendDecayRate(params_.s_DecayRate, params_.s_BucketLength),
+                                          params_.s_BucketLength,
+                                          params_.s_ComponentSize},
+                                      params_.distributionRestoreParams(dataType)};
     do {
         if (traverser.name() == MODEL_TAG) {
             TMathsModelPtr prior;
@@ -590,10 +574,8 @@ bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(cons
     std::size_t count{0u};
     do {
         if (traverser.name() == MODEL_TAG) {
-            if (!traverser.traverseSubLevel(boost::bind(&maths::CTimeSeriesCorrelations::acceptRestoreTraverser,
-                                                        s_Models.get(),
-                                                        boost::cref(params),
-                                                        _1)) ||
+            if (!traverser.traverseSubLevel(
+                    boost::bind(&maths::CTimeSeriesCorrelations::acceptRestoreTraverser, s_Models.get(), boost::cref(params), _1)) ||
                 count++ > 0) {
                 return false;
             }
@@ -602,10 +584,8 @@ bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(cons
     return true;
 }
 
-void CAnomalyDetectorModel::SFeatureCorrelateModels::acceptPersistInserter(
-    core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(MODEL_TAG,
-                         boost::bind(&maths::CTimeSeriesCorrelations::acceptPersistInserter, s_Models.get(), _1));
+void CAnomalyDetectorModel::SFeatureCorrelateModels::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    inserter.insertLevel(MODEL_TAG, boost::bind(&maths::CTimeSeriesCorrelations::acceptPersistInserter, s_Models.get(), _1));
 }
 
 void CAnomalyDetectorModel::SFeatureCorrelateModels::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
@@ -618,11 +598,10 @@ std::size_t CAnomalyDetectorModel::SFeatureCorrelateModels::memoryUsage(void) co
     return core::CMemory::dynamicSize(s_ModelPrior) + core::CMemory::dynamicSize(s_Models);
 }
 
-CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::CTimeSeriesCorrelateModelAllocator(
-    CResourceMonitor& resourceMonitor,
-    TMemoryUsage memoryUsage,
-    std::size_t resourceLimit,
-    std::size_t maxNumberCorrelations)
+CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::CTimeSeriesCorrelateModelAllocator(CResourceMonitor& resourceMonitor,
+                                                                                              TMemoryUsage memoryUsage,
+                                                                                              std::size_t resourceLimit,
+                                                                                              std::size_t maxNumberCorrelations)
     : m_ResourceMonitor(&resourceMonitor),
       m_MemoryUsage(memoryUsage),
       m_ResourceLimit(resourceLimit),
@@ -645,8 +624,7 @@ std::size_t CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::chunkSize
     return 500;
 }
 
-CAnomalyDetectorModel::TMultivariatePriorPtr
-CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::newPrior(void) const {
+CAnomalyDetectorModel::TMultivariatePriorPtr CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::newPrior(void) const {
     return TMultivariatePriorPtr(m_PrototypePrior->clone());
 }
 

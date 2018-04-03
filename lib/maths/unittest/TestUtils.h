@@ -66,16 +66,13 @@ public:
     void addSamples(const handy_typedefs::TDouble1Vec& samples);
 
     //! Wrapper which takes care of weights.
-    maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const handy_typedefs::TDouble1Vec& samples,
-                                                                  double& result) const;
+    maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const handy_typedefs::TDouble1Vec& samples, double& result) const;
 
     //! Wrapper which takes care of weights.
     bool minusLogJointCdf(const handy_typedefs::TDouble1Vec& samples, double& lowerBound, double& upperBound) const;
 
     //! Wrapper which takes care of weights.
-    bool minusLogJointCdfComplement(const handy_typedefs::TDouble1Vec& samples,
-                                    double& lowerBound,
-                                    double& upperBound) const;
+    bool minusLogJointCdfComplement(const handy_typedefs::TDouble1Vec& samples, double& lowerBound, double& upperBound) const;
 
     //! Wrapper which takes care of weights.
     bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
@@ -85,9 +82,7 @@ public:
 
     //! A wrapper around weighted compute anomaly scores which uses unit
     //! weights for all samples.
-    bool anomalyScore(maths_t::EProbabilityCalculation calculation,
-                      const handy_typedefs::TDouble1Vec& samples,
-                      double& result) const;
+    bool anomalyScore(maths_t::EProbabilityCalculation calculation, const handy_typedefs::TDouble1Vec& samples, double& result) const;
 
     //! Calculate an anomaly score for a collection of independent samples
     //! from the variable.
@@ -166,8 +161,7 @@ public:
     using PRIOR::probabilityOfLessLikelySamples;
 
 public:
-    CPriorTestInterfaceMixin(const PRIOR& prior)
-        : PRIOR(prior), CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {}
+    CPriorTestInterfaceMixin(const PRIOR& prior) : PRIOR(prior), CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {}
 
     CPriorTestInterfaceMixin(const CPriorTestInterfaceMixin& other)
         : PRIOR(static_cast<const PRIOR&>(other)), CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {}
@@ -226,8 +220,8 @@ private:
 };
 
 template<std::size_t N>
-handy_typedefs::TDouble10Vec4Vec1Vec
-    CUnitKernel<N>::SINGLE_UNIT(1, handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
+handy_typedefs::TDouble10Vec4Vec1Vec CUnitKernel<N>::SINGLE_UNIT(1,
+                                                                 handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
 
 //! \brief The kernel for computing the mean of a multivariate prior.
 template<std::size_t N>
@@ -253,8 +247,8 @@ private:
 };
 
 template<std::size_t N>
-handy_typedefs::TDouble10Vec4Vec1Vec
-    CMeanKernel<N>::SINGLE_UNIT(1, handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
+handy_typedefs::TDouble10Vec4Vec1Vec CMeanKernel<N>::SINGLE_UNIT(1,
+                                                                 handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
 
 //! \brief The kernel for computing the variance of a multivariate prior.
 template<std::size_t N>

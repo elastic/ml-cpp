@@ -156,8 +156,7 @@ void CVectorRangeTest::testModifiers(void) {
 
     TDoubleRng range125{values1, 2, 5};
     range125.insert(range125.begin(), values2.begin(), values2.end());
-    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 2, 3.5, 8.1, 1.8, 0.7, 9.8, 8]"),
-                         core::CContainerPrinter::print(values1));
+    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 2, 3.5, 8.1, 1.8, 0.7, 9.8, 8]"), core::CContainerPrinter::print(values1));
     CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 1.8, 0.7, 9.8, 8]"), core::CContainerPrinter::print(range125));
     CPPUNIT_ASSERT_EQUAL(std::size_t(7), range125.size());
     range125.erase(range125.begin(), range125.begin() + 4);
@@ -242,18 +241,13 @@ void CVectorRangeTest::testComparisons(void) {
 CppUnit::Test* CVectorRangeTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CVectorRangeTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testCreation", &CVectorRangeTest::testCreation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testAccessors", &CVectorRangeTest::testAccessors));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testIterators", &CVectorRangeTest::testIterators));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testSizing", &CVectorRangeTest::testSizing));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testModifiers", &CVectorRangeTest::testModifiers));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testCreation", &CVectorRangeTest::testCreation));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testAccessors", &CVectorRangeTest::testAccessors));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testIterators", &CVectorRangeTest::testIterators));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testSizing", &CVectorRangeTest::testSizing));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testModifiers", &CVectorRangeTest::testModifiers));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testComparisons",
-                                                                    &CVectorRangeTest::testComparisons));
+        new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testComparisons", &CVectorRangeTest::testComparisons));
 
     return suiteOfTests;
 }

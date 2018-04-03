@@ -66,8 +66,7 @@ public:
     public:
         std::size_t operator()(const Type& lhs, const Type& rhs) const {
             return static_cast<const POINT&>(lhs) == static_cast<const POINT&>(rhs) &&
-                   lhs.annotation().s_Count == rhs.annotation().s_Count &&
-                   lhs.annotation().s_Variance == rhs.annotation().s_Variance;
+                   lhs.annotation().s_Count == rhs.annotation().s_Count && lhs.annotation().s_Variance == rhs.annotation().s_Variance;
         }
     };
 
@@ -102,8 +101,7 @@ struct SCentralMomentsCustomAdd<CAnnotatedVector<CVectorNx1<U, N>, SCountAndVari
                            typename SCoordinate<T>::Type n,
                            CBasicStatistics::SSampleCentralMoments<T, 2>& moments) {
         typedef typename SCoordinate<T>::Type TCoordinate;
-        moments +=
-            CBasicStatistics::accumulator(TCoordinate(x.annotation().s_Count) * n, T(x), T(x.annotation().s_Variance));
+        moments += CBasicStatistics::accumulator(TCoordinate(x.annotation().s_Count) * n, T(x), T(x.annotation().s_Variance));
     }
 };
 
@@ -156,8 +154,7 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarian
         bn = std::min(bn, dn);
         LOG_TRACE("m = " << mn << ", d = " << dn << ", b = " << bn);
 
-        covariances.s_Covariances =
-            CVectorNx1<U, N>(bn / dn * mn).diagonal() + (U(1) - bn / dn) * covariances.s_Covariances;
+        covariances.s_Covariances = CVectorNx1<U, N>(bn / dn * mn).diagonal() + (U(1) - bn / dn) * covariances.s_Covariances;
     }
 
     template<typename U>
@@ -170,8 +167,8 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarian
 //! Write a description of \p cluster for debugging.
 template<typename POINT>
 std::ostream& operator<<(std::ostream& o, const CAnnotatedVector<POINT, SCountAndVariance>& cluster) {
-    return o << static_cast<const POINT&>(cluster) << " (" << cluster.annotation().s_Count << ","
-             << ::sqrt(cluster.annotation().s_Variance) << ")";
+    return o << static_cast<const POINT&>(cluster) << " (" << cluster.annotation().s_Count << "," << ::sqrt(cluster.annotation().s_Variance)
+             << ")";
 }
 }
 }

@@ -34,12 +34,7 @@ void CGradientDescent::momentum(double momentum) {
     m_Momentum = momentum;
 }
 
-bool CGradientDescent::run(std::size_t n,
-                           const TVector& x0,
-                           const CFunction& f,
-                           const CGradient& gf,
-                           TVector& xBest,
-                           TDoubleVec& fi) {
+bool CGradientDescent::run(std::size_t n, const TVector& x0, const CFunction& f, const CGradient& gf, TVector& xBest, TDoubleVec& fi) {
     fi.clear();
     fi.reserve(n);
 
@@ -87,8 +82,7 @@ CGradientDescent::CFunction::~CFunction(void) {
 CGradientDescent::CGradient::~CGradient(void) {
 }
 
-CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFunction& f, double eps)
-    : m_Eps(eps), m_F(f) {
+CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFunction& f, double eps) : m_Eps(eps), m_F(f) {
 }
 
 bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector& x, TVector& result) const {

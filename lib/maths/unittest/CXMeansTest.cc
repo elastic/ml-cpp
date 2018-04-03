@@ -62,9 +62,7 @@ public:
 public:
     CXMeansForTest(std::size_t kmax) : maths::CXMeans<POINT, COST>(kmax) {}
 
-    void improveParams(std::size_t kmeansIterations) {
-        this->maths::CXMeans<POINT, COST>::improveParams(kmeansIterations);
-    }
+    void improveParams(std::size_t kmeansIterations) { this->maths::CXMeans<POINT, COST>::improveParams(kmeansIterations); }
 
     bool improveStructure(std::size_t clusterSeeds, std::size_t kmeansIterations) {
         return this->maths::CXMeans<POINT, COST>::improveStructure(clusterSeeds, kmeansIterations);
@@ -82,9 +80,7 @@ double logfSphericalGaussian(const POINT& mean, double variance, const POINT& x)
 
 class CEmpiricalKullbackLeibler {
 public:
-    double value(void) const {
-        return maths::CBasicStatistics::mean(m_Divergence) - ::log(maths::CBasicStatistics::count(m_Divergence));
-    }
+    double value(void) const { return maths::CBasicStatistics::mean(m_Divergence) - ::log(maths::CBasicStatistics::count(m_Divergence)); }
 
     template<typename POINT>
     void add(const std::vector<POINT>& points) {
@@ -118,8 +114,7 @@ void computePurities(const TSizeVecVec& clusters, TDoubleVec& purities) {
             counts.resize(std::max(counts.size(), clusters[i][j] + 1));
             ++counts[clusters[i][j]];
         }
-        purities[i] = static_cast<double>(*std::max_element(counts.begin(), counts.end())) /
-                      static_cast<double>(clusters[i].size());
+        purities[i] = static_cast<double>(*std::max_element(counts.begin(), counts.end())) / static_cast<double>(clusters[i].size());
     }
 }
 }
@@ -251,11 +246,8 @@ void CXMeansTest::testImproveStructure(void) {
         std::sort(newChecksums.begin(), newChecksums.end());
 
         TUInt64Vec inactive;
-        std::set_intersection(oldChecksums.begin(),
-                              oldChecksums.end(),
-                              newChecksums.begin(),
-                              newChecksums.end(),
-                              std::back_inserter(inactive));
+        std::set_intersection(
+            oldChecksums.begin(), oldChecksums.end(), newChecksums.begin(), newChecksums.end(), std::back_inserter(inactive));
         LOG_DEBUG("inactive = " << core::CContainerPrinter::print(inactive));
         for (std::size_t i = 0u; i < inactive.size(); ++i) {
             CPPUNIT_ASSERT(xmeans.inactive().count(inactive[i]) > 0);
@@ -509,8 +501,7 @@ void CXMeansTest::testTwentyClusters(void) {
 
     maths::CSampling::seed();
 
-    const std::size_t sizes_[] = {1800, 800, 1100, 400, 600,  400,  600, 1300, 400,  900,
-                                  500,  700, 400,  800, 1500, 1200, 500, 300,  1200, 800};
+    const std::size_t sizes_[] = {1800, 800, 1100, 400, 600, 400, 600, 1300, 400, 900, 500, 700, 400, 800, 1500, 1200, 500, 300, 1200, 800};
     TSizeVec sizes(boost::begin(sizes_), boost::end(sizes_));
 
     test::CRandomNumbers rng;
@@ -609,12 +600,11 @@ void CXMeansTest::testPoorlyConditioned(void) {
 
     maths::CSampling::seed();
 
-    double points_[][2] = {{0.0, 0.0},    {1.0, 0.5},    {2.0, 1.0},    {3.0, 1.5},    {4.0, 2.0},    {5.0, 2.5},
-                           {6.0, 3.0},    {7.0, 3.5},    {8.0, 4.0},    {9.0, 4.5},    {101.0, 21.9}, {102.0, 21.2},
-                           {101.5, 22.0}, {104.0, 23.0}, {102.6, 21.4}, {101.3, 22.0}, {101.2, 21.0}, {101.1, 22.1},
-                           {101.7, 23.0}, {101.0, 24.0}, {50.0, 50.0},  {51.0, 51.0},  {50.0, 51.0},  {54.0, 53.0},
-                           {52.0, 51.0},  {51.0, 52.0},  {51.0, 52.0},  {53.0, 53.0},  {53.0, 52.0},  {52.0, 54.0},
-                           {52.0, 52.0},  {52.0, 52.0},  {53.0, 52.0},  {51.0, 52.0}};
+    double points_[][2] = {{0.0, 0.0},    {1.0, 0.5},    {2.0, 1.0},    {3.0, 1.5},    {4.0, 2.0},    {5.0, 2.5},    {6.0, 3.0},
+                           {7.0, 3.5},    {8.0, 4.0},    {9.0, 4.5},    {101.0, 21.9}, {102.0, 21.2}, {101.5, 22.0}, {104.0, 23.0},
+                           {102.6, 21.4}, {101.3, 22.0}, {101.2, 21.0}, {101.1, 22.1}, {101.7, 23.0}, {101.0, 24.0}, {50.0, 50.0},
+                           {51.0, 51.0},  {50.0, 51.0},  {54.0, 53.0},  {52.0, 51.0},  {51.0, 52.0},  {51.0, 52.0},  {53.0, 53.0},
+                           {53.0, 52.0},  {52.0, 54.0},  {52.0, 52.0},  {52.0, 52.0},  {53.0, 52.0},  {51.0, 52.0}};
 
     TVector2Vec cluster1;
     for (std::size_t i = 0u; i < 10; ++i) {
@@ -658,18 +648,12 @@ CppUnit::Test* CXMeansTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXMeansTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testCluster", &CXMeansTest::testCluster));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testImproveStructure", &CXMeansTest::testImproveStructure));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testImproveParams", &CXMeansTest::testImproveParams));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testOneCluster", &CXMeansTest::testOneCluster));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testFiveClusters", &CXMeansTest::testFiveClusters));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testTwentyClusters", &CXMeansTest::testTwentyClusters));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testPoorlyConditioned",
-                                                               &CXMeansTest::testPoorlyConditioned));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testImproveStructure", &CXMeansTest::testImproveStructure));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testImproveParams", &CXMeansTest::testImproveParams));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testOneCluster", &CXMeansTest::testOneCluster));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testFiveClusters", &CXMeansTest::testFiveClusters));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testTwentyClusters", &CXMeansTest::testTwentyClusters));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testPoorlyConditioned", &CXMeansTest::testPoorlyConditioned));
 
     return suiteOfTests;
 }

@@ -52,9 +52,8 @@ typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumula
 typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
 typedef CPriorTestInterfaceMixin<maths::CGammaRateConjugate> CGammaRateConjugate;
 
-CGammaRateConjugate makePrior(maths_t::EDataType dataType = maths_t::E_ContinuousData,
-                              const double& offset = 0.0,
-                              const double& decayRate = 0.0) {
+CGammaRateConjugate
+makePrior(maths_t::EDataType dataType = maths_t::E_ContinuousData, const double& offset = 0.0, const double& decayRate = 0.0) {
     return CGammaRateConjugate::nonInformativePrior(dataType, offset, decayRate, 0.0);
 }
 }
@@ -426,14 +425,12 @@ void CGammaRateConjugateTest::testMarginalLikelihood(void) {
 
         differentialEntropy /= static_cast<double>(samples.size());
 
-        LOG_DEBUG("differentialEntropy = " << differentialEntropy
-                                           << ", expectedDifferentialEntropy = " << expectedDifferentialEntropy);
+        LOG_DEBUG("differentialEntropy = " << differentialEntropy << ", expectedDifferentialEntropy = " << expectedDifferentialEntropy);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedDifferentialEntropy, differentialEntropy, 0.0025);
     }
 
-    const double varianceScales[] = {
-        0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0};
+    const double varianceScales[] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0};
 
     CGammaRateConjugate filter(makePrior());
     TDoubleVec samples;
@@ -475,8 +472,7 @@ void CGammaRateConjugateTest::testMarginalLikelihood(void) {
                 boost::math::gamma_distribution<> scaledGamma(shape / vs, vs * scale);
                 double q1 = boost::math::quantile(scaledGamma, (50.0 - percentages[j] / 2.0) / 100.0);
                 double q2 = boost::math::quantile(scaledGamma, (50.0 + percentages[j] / 2.0) / 100.0);
-                TDoubleDoublePr interval =
-                    filter.marginalLikelihoodConfidenceInterval(percentages[j], weightStyle, weight);
+                TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(percentages[j], weightStyle, weight);
                 LOG_DEBUG("[q1, q2] = [" << q1 << ", " << q2 << "]"
                                          << ", interval = " << core::CContainerPrinter::print(interval));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(q1, interval.first, 0.4);
@@ -526,8 +522,7 @@ void CGammaRateConjugateTest::testMarginalLikelihoodMean(void) {
                 CPPUNIT_ASSERT(filter.marginalLikelihoodMeanForTest(expectedMean));
 
                 if (k % 10 == 0) {
-                    LOG_DEBUG("marginalLikelihoodMean = " << filter.marginalLikelihoodMean()
-                                                          << ", expectedMean = " << expectedMean);
+                    LOG_DEBUG("marginalLikelihoodMean = " << filter.marginalLikelihoodMean() << ", expectedMean = " << expectedMean);
                 }
 
                 // The error is mainly due to the truncation in the
@@ -572,8 +567,7 @@ void CGammaRateConjugateTest::testMarginalLikelihoodMode(void) {
                 double expectedMode = boost::math::mode(scaledGamma);
                 LOG_DEBUG("marginalLikelihoodMode = " << filter.marginalLikelihoodMode(weightStyle, weight)
                                                       << ", expectedMode = " << expectedMode);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    expectedMode, filter.marginalLikelihoodMode(weightStyle, weight), 0.28 * expectedMode + 0.3);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode, filter.marginalLikelihoodMode(weightStyle, weight), 0.28 * expectedMode + 0.3);
                 double error = ::fabs(filter.marginalLikelihoodMode(weightStyle, weight) - expectedMode);
                 relativeError.add(error == 0.0 ? 0.0 : error / expectedMode);
             }
@@ -625,8 +619,7 @@ void CGammaRateConjugateTest::testMarginalLikelihoodVariance(void) {
 
                 // The error is mainly due to the truncation in the
                 // integration range used to compute the expected mean.
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    expectedVariance, filter.marginalLikelihoodVariance(), 0.01 * expectedVariance);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVariance, filter.marginalLikelihoodVariance(), 0.01 * expectedVariance);
 
                 relativeError.add(::fabs(expectedVariance - filter.marginalLikelihoodVariance()) / expectedVariance);
             }
@@ -679,8 +672,7 @@ void CGammaRateConjugateTest::testSampleMarginalLikelihood(void) {
         sampledMeanVar = std::for_each(sampled.begin(), sampled.end(), sampledMeanVar);
 
         CPPUNIT_ASSERT_EQUAL(i + 1, sampled.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            maths::CBasicStatistics::mean(sampleMeanVar), maths::CBasicStatistics::mean(sampledMeanVar), eps);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(sampleMeanVar), maths::CBasicStatistics::mean(sampledMeanVar), eps);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             maths::CBasicStatistics::variance(sampleMeanVar), maths::CBasicStatistics::variance(sampledMeanVar), eps);
     }
@@ -703,14 +695,12 @@ void CGammaRateConjugateTest::testSampleMarginalLikelihood(void) {
         LOG_DEBUG("expectedVar = " << filter.marginalLikelihoodVariance()
                                    << ", sampledVar = " << maths::CBasicStatistics::variance(sampledMoments));
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            filter.marginalLikelihoodMean(), maths::CBasicStatistics::mean(sampledMoments), 1e-8);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(filter.marginalLikelihoodMean(), maths::CBasicStatistics::mean(sampledMoments), 1e-8);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(filter.marginalLikelihoodVariance(),
                                      maths::CBasicStatistics::variance(sampledMoments),
                                      0.25 * filter.marginalLikelihoodVariance());
-        meanVarError.add(
-            ::fabs(filter.marginalLikelihoodVariance() - maths::CBasicStatistics::variance(sampledMoments)) /
-            filter.marginalLikelihoodVariance());
+        meanVarError.add(::fabs(filter.marginalLikelihoodVariance() - maths::CBasicStatistics::variance(sampledMoments)) /
+                         filter.marginalLikelihoodVariance());
 
         std::sort(sampled.begin(), sampled.end());
         for (std::size_t j = 1u; j < sampled.size(); ++j) {
@@ -719,8 +709,8 @@ void CGammaRateConjugateTest::testSampleMarginalLikelihood(void) {
             double expectedQuantile;
             CPPUNIT_ASSERT(filter.marginalLikelihoodQuantileForTest(q, eps, expectedQuantile));
 
-            LOG_DEBUG("quantile = " << q << ", x_quantile = " << expectedQuantile << ", quantile range = ["
-                                    << sampled[j - 1u] << "," << sampled[j] << "]");
+            LOG_DEBUG("quantile = " << q << ", x_quantile = " << expectedQuantile << ", quantile range = [" << sampled[j - 1u] << ","
+                                    << sampled[j] << "]");
 
             CPPUNIT_ASSERT(expectedQuantile >= sampled[j - 1u]);
             CPPUNIT_ASSERT(expectedQuantile <= sampled[j]);
@@ -777,8 +767,7 @@ void CGammaRateConjugateTest::testCdf(void) {
         CPPUNIT_ASSERT(filter.minusLogJointCdfComplement(TDouble1Vec(1, x), lowerBound, upperBound));
         fComplement = (lowerBound + upperBound) / 2.0;
 
-        LOG_DEBUG("log(F(x)) = " << (f == 0.0 ? f : -f)
-                                 << ", log(1 - F(x)) = " << (fComplement == 0.0 ? fComplement : -fComplement));
+        LOG_DEBUG("log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = " << (fComplement == 0.0 ? fComplement : -fComplement));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, ::exp(-f) + ::exp(-fComplement), 1e-10);
     }
 }
@@ -832,8 +821,7 @@ void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples(void) {
                 double fx;
                 filter.jointLogMarginalLikelihood(sample, fx);
 
-                double px = static_cast<double>(std::lower_bound(likelihoods.begin(), likelihoods.end(), fx) -
-                                                likelihoods.begin()) /
+                double px = static_cast<double>(std::lower_bound(likelihoods.begin(), likelihoods.end(), fx) - likelihoods.begin()) /
                             static_cast<double>(likelihoods.size());
 
                 double lb, ub;
@@ -860,13 +848,8 @@ void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples(void) {
                 maths_t::ETail tail;
 
                 {
-                    filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                          weightStyle,
-                                                          TDouble1Vec(1, ss[0]),
-                                                          TDouble4Vec1Vec(1, TDouble4Vec(1, vs[k])),
-                                                          lb,
-                                                          ub,
-                                                          tail);
+                    filter.probabilityOfLessLikelySamples(
+                        maths_t::E_TwoSided, weightStyle, TDouble1Vec(1, ss[0]), TDouble4Vec1Vec(1, TDouble4Vec(1, vs[k])), lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
                     if (mode > 0.0) {
                         filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
@@ -896,21 +879,11 @@ void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples(void) {
                     }
                 }
                 if (mode > 0.0) {
-                    filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                          weightStyle,
-                                                          TDouble1Vec(1, ss[1]),
-                                                          TDouble4Vec1Vec(1, TDouble4Vec(1, vs[k])),
-                                                          lb,
-                                                          ub,
-                                                          tail);
+                    filter.probabilityOfLessLikelySamples(
+                        maths_t::E_TwoSided, weightStyle, TDouble1Vec(1, ss[1]), TDouble4Vec1Vec(1, TDouble4Vec(1, vs[k])), lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
-                    filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                          weightStyle,
-                                                          TDouble1Vec(ss, ss + 2),
-                                                          TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])),
-                                                          lb,
-                                                          ub,
-                                                          tail);
+                    filter.probabilityOfLessLikelySamples(
+                        maths_t::E_TwoSided, weightStyle, TDouble1Vec(ss, ss + 2), TDouble4Vec1Vec(2, TDouble4Vec(1, vs[k])), lb, ub, tail);
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                     filter.probabilityOfLessLikelySamples(maths_t::E_OneSidedBelow,
                                                           weightStyle,
@@ -992,10 +965,10 @@ void CGammaRateConjugateTest::testAnomalyScore(void) {
 
                 TUIntVec candidateAnomalies;
                 for (unsigned int time = 0; time < samples.size(); ++time) {
-                    double sample = samples[time] +
-                                    (anomalies[std::find(boost::begin(anomalyTimes), boost::end(anomalyTimes), time) -
-                                               boost::begin(anomalyTimes)] *
-                                     boost::math::standard_deviation(gamma));
+                    double sample =
+                        samples[time] +
+                        (anomalies[std::find(boost::begin(anomalyTimes), boost::end(anomalyTimes), time) - boost::begin(anomalyTimes)] *
+                         boost::math::standard_deviation(gamma));
 
                     TDouble1Vec sampleVec(1, sample);
                     filter.addSamples(sampleVec);
@@ -1024,8 +997,7 @@ void CGammaRateConjugateTest::testAnomalyScore(void) {
                                     boost::end(anomalyTimes),
                                     std::back_inserter(falsePositives));
 
-                double falsePositiveRate =
-                    static_cast<double>(falsePositives.size()) / static_cast<double>(samples.size());
+                double falsePositiveRate = static_cast<double>(falsePositives.size()) / static_cast<double>(samples.size());
 
                 totalFalsePositiveRate += falsePositiveRate;
 
@@ -1104,8 +1076,7 @@ void CGammaRateConjugateTest::testOffset(void) {
                     double likelihood1;
                     filter1.jointLogMarginalLikelihood(offsetSampleVec, likelihood1);
                     double lowerBound1, upperBound1;
-                    filter1.probabilityOfLessLikelySamples(
-                        maths_t::E_TwoSided, offsetSampleVec, lowerBound1, upperBound1);
+                    filter1.probabilityOfLessLikelySamples(maths_t::E_TwoSided, offsetSampleVec, lowerBound1, upperBound1);
                     CPPUNIT_ASSERT_EQUAL(lowerBound1, upperBound1);
                     double probability1 = (lowerBound1 + upperBound1) / 2.0;
 
@@ -1239,8 +1210,7 @@ void CGammaRateConjugateTest::testLowVariationData(void) {
 
         TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(68.0);
         double sigma = (interval.second - interval.first) / 2.0;
-        LOG_DEBUG("68% confidence interval " << core::CContainerPrinter::print(interval)
-                                             << ", approximate variance = " << sigma * sigma);
+        LOG_DEBUG("68% confidence interval " << core::CContainerPrinter::print(interval) << ", approximate variance = " << sigma * sigma);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(12.0, 1.0 / (sigma * sigma), 0.5);
     }
@@ -1252,8 +1222,7 @@ void CGammaRateConjugateTest::testLowVariationData(void) {
 
         TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(68.0);
         double sigma = (interval.second - interval.first) / 2.0;
-        LOG_DEBUG("68% confidence interval " << core::CContainerPrinter::print(interval)
-                                             << ", approximate s.t.d. = " << sigma);
+        LOG_DEBUG("68% confidence interval " << core::CContainerPrinter::print(interval) << ", approximate s.t.d. = " << sigma);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1e-4, sigma / 430.5, 5e-6);
     }
 }
@@ -1270,9 +1239,8 @@ void CGammaRateConjugateTest::testPersist(void) {
 
     maths::CGammaRateConjugate origFilter(makePrior(maths_t::E_ContinuousData, 0.1));
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        origFilter.addSamples(maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight),
-                              TDouble1Vec(1, samples[i]),
-                              TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0)));
+        origFilter.addSamples(
+            maths_t::TWeightStyleVec(1, maths_t::E_SampleCountWeight), TDouble1Vec(1, samples[i]), TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0)));
     }
     double decayRate = origFilter.decayRate();
 
@@ -1334,8 +1302,7 @@ void CGammaRateConjugateTest::testVarianceScale(void) {
     // Finally, we test update with scaled samples produces the
     // correct posterior.
 
-    maths_t::ESampleWeightStyle scales[] = {maths_t::E_SampleSeasonalVarianceScaleWeight,
-                                            maths_t::E_SampleCountVarianceScaleWeight};
+    maths_t::ESampleWeightStyle scales[] = {maths_t::E_SampleSeasonalVarianceScaleWeight, maths_t::E_SampleCountVarianceScaleWeight};
 
     for (std::size_t s = 0u; s < boost::size(scales); ++s) {
         const double shape = 3.0;
@@ -1373,8 +1340,7 @@ void CGammaRateConjugateTest::testVarianceScale(void) {
                     TDouble1Vec sample(1, unscaledSamples[i]);
 
                     double lowerBound, upperBound;
-                    CPPUNIT_ASSERT(
-                        filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, sample, lowerBound, upperBound));
+                    CPPUNIT_ASSERT(filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, sample, lowerBound, upperBound));
                     CPPUNIT_ASSERT_EQUAL(lowerBound, upperBound);
                     double probability = (lowerBound + upperBound) / 2.0;
                     probabilities.push_back(probability);
@@ -1382,8 +1348,7 @@ void CGammaRateConjugateTest::testVarianceScale(void) {
                 std::sort(probabilities.begin(), probabilities.end());
 
                 for (size_t i = 0; i < boost::size(percentiles); ++i) {
-                    std::size_t index =
-                        static_cast<std::size_t>(static_cast<double>(nScaledSamples) * percentiles[i] / 100.0);
+                    std::size_t index = static_cast<std::size_t>(static_cast<double>(nScaledSamples) * percentiles[i] / 100.0);
                     double error = fabs(probabilities[index] - percentiles[i] / 100.0);
                     expectedPercentileErrors.push_back(error);
                     expectedTotalError += error;
@@ -1408,14 +1373,13 @@ void CGammaRateConjugateTest::testVarianceScale(void) {
                 for (std::size_t j = 0; j < scaledSamples.size(); ++j) {
                     double lowerBound, upperBound;
                     maths_t::ETail tail;
-                    CPPUNIT_ASSERT(
-                        filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
-                                                              maths_t::TWeightStyleVec(1, scales[s]),
-                                                              TDouble1Vec(1, scaledSamples[j]),
-                                                              TDouble4Vec1Vec(1, TDouble4Vec(1, varianceScales[i])),
-                                                              lowerBound,
-                                                              upperBound,
-                                                              tail));
+                    CPPUNIT_ASSERT(filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
+                                                                         maths_t::TWeightStyleVec(1, scales[s]),
+                                                                         TDouble1Vec(1, scaledSamples[j]),
+                                                                         TDouble4Vec1Vec(1, TDouble4Vec(1, varianceScales[i])),
+                                                                         lowerBound,
+                                                                         upperBound,
+                                                                         tail));
                     CPPUNIT_ASSERT_EQUAL(lowerBound, upperBound);
                     double probability = (lowerBound + upperBound) / 2.0;
                     probabilities.push_back(probability);
@@ -1424,14 +1388,13 @@ void CGammaRateConjugateTest::testVarianceScale(void) {
 
                 double totalError = 0.0;
                 for (size_t j = 0; j < boost::size(percentiles); ++j) {
-                    std::size_t index =
-                        static_cast<std::size_t>(static_cast<double>(nScaledSamples) * percentiles[j] / 100.0);
+                    std::size_t index = static_cast<std::size_t>(static_cast<double>(nScaledSamples) * percentiles[j] / 100.0);
                     double error = fabs(probabilities[index] - percentiles[j] / 100.0);
                     totalError += error;
                     double errorThreshold = 0.017 + expectedPercentileErrors[j];
 
-                    LOG_DEBUG("percentile = " << percentiles[j] << ", probability = " << probabilities[index]
-                                              << ", error = " << error << ", error threshold = " << errorThreshold);
+                    LOG_DEBUG("percentile = " << percentiles[j] << ", probability = " << probabilities[index] << ", error = " << error
+                                              << ", error threshold = " << errorThreshold);
 
                     CPPUNIT_ASSERT(error < errorThreshold);
                 }
@@ -1469,19 +1432,17 @@ void CGammaRateConjugateTest::testVarianceScale(void) {
 
             for (std::size_t j = 0u; j < scaledSamples.size(); ++j) {
                 double logLikelihood = 0.0;
-                CPPUNIT_ASSERT_EQUAL(
-                    maths_t::E_FpNoErrors,
-                    filter.jointLogMarginalLikelihood(maths_t::TWeightStyleVec(1, scales[s]),
-                                                      TDouble1Vec(1, scaledSamples[j]),
-                                                      TDouble4Vec1Vec(1, TDouble4Vec(1, varianceScales[i])),
-                                                      logLikelihood));
+                CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
+                                     filter.jointLogMarginalLikelihood(maths_t::TWeightStyleVec(1, scales[s]),
+                                                                       TDouble1Vec(1, scaledSamples[j]),
+                                                                       TDouble4Vec1Vec(1, TDouble4Vec(1, varianceScales[i])),
+                                                                       logLikelihood));
                 differentialEntropy -= logLikelihood;
             }
 
             differentialEntropy /= static_cast<double>(scaledSamples.size());
 
-            LOG_DEBUG("differentialEntropy = " << differentialEntropy
-                                               << ", expectedDifferentialEntropy = " << expectedDifferentialEntropy);
+            LOG_DEBUG("differentialEntropy = " << differentialEntropy << ", expectedDifferentialEntropy = " << expectedDifferentialEntropy);
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedDifferentialEntropy, differentialEntropy, 0.05);
         }
@@ -1552,8 +1513,7 @@ void CGammaRateConjugateTest::testVarianceScale(void) {
                             double dm = (dataTypes[t] == maths_t::E_IntegerData ? 0.5 : 0.0);
                             double dv = (dataTypes[t] == maths_t::E_IntegerData ? 1.0 / 12.0 : 0.0);
                             double trialMeanError = ::fabs(estimatedMean - (mean + dm)) / std::max(1.0, mean + dm);
-                            double trialVarianceError =
-                                ::fabs(estimatedVariance - (variance + dv)) / std::max(1.0, variance + dv);
+                            double trialVarianceError = ::fabs(estimatedVariance - (variance + dv)) / std::max(1.0, variance + dv);
 
                             LOG_DEBUG("trial mean error = " << trialMeanError);
                             LOG_DEBUG("trial variance error = " << trialVarianceError);
@@ -1622,45 +1582,42 @@ void CGammaRateConjugateTest::testNegativeSample(void) {
 CppUnit::Test* CGammaRateConjugateTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CGammaRateConjugateTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>(
-        "CGammaRateConjugateTest::testMultipleUpdate", &CGammaRateConjugateTest::testMultipleUpdate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testMultipleUpdate",
+                                                                           &CGammaRateConjugateTest::testMultipleUpdate));
     suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testPropagation",
                                                                            &CGammaRateConjugateTest::testPropagation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>(
-        "CGammaRateConjugateTest::testShapeEstimation", &CGammaRateConjugateTest::testShapeEstimation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>(
-        "CGammaRateConjugateTest::testRateEstimation", &CGammaRateConjugateTest::testRateEstimation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>(
-        "CGammaRateConjugateTest::testMarginalLikelihood", &CGammaRateConjugateTest::testMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>(
-        "CGammaRateConjugateTest::testMarginalLikelihoodMean", &CGammaRateConjugateTest::testMarginalLikelihoodMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>(
-        "CGammaRateConjugateTest::testMarginalLikelihoodMode", &CGammaRateConjugateTest::testMarginalLikelihoodMode));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testShapeEstimation",
+                                                                           &CGammaRateConjugateTest::testShapeEstimation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testRateEstimation",
+                                                                           &CGammaRateConjugateTest::testRateEstimation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testMarginalLikelihood",
+                                                                           &CGammaRateConjugateTest::testMarginalLikelihood));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testMarginalLikelihoodMean",
+                                                                           &CGammaRateConjugateTest::testMarginalLikelihoodMean));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testMarginalLikelihoodMode",
+                                                                           &CGammaRateConjugateTest::testMarginalLikelihoodMode));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testMarginalLikelihoodVariance",
+                                                                           &CGammaRateConjugateTest::testMarginalLikelihoodVariance));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testSampleMarginalLikelihood",
+                                                                           &CGammaRateConjugateTest::testSampleMarginalLikelihood));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testMarginalLikelihoodVariance",
-                                                         &CGammaRateConjugateTest::testMarginalLikelihoodVariance));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testSampleMarginalLikelihood",
-                                                         &CGammaRateConjugateTest::testSampleMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testCdf",
-                                                                           &CGammaRateConjugateTest::testCdf));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testProbabilityOfLessLikelySamples",
-                                                         &CGammaRateConjugateTest::testProbabilityOfLessLikelySamples));
+        new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testCdf", &CGammaRateConjugateTest::testCdf));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testProbabilityOfLessLikelySamples",
+                                                                           &CGammaRateConjugateTest::testProbabilityOfLessLikelySamples));
     suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testAnomalyScore",
                                                                            &CGammaRateConjugateTest::testAnomalyScore));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testOffset",
-                                                                           &CGammaRateConjugateTest::testOffset));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testOffset", &CGammaRateConjugateTest::testOffset));
     suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testIntegerData",
                                                                            &CGammaRateConjugateTest::testIntegerData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>(
-        "CGammaRateConjugateTest::testLowVariationData", &CGammaRateConjugateTest::testLowVariationData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testPersist",
-                                                                           &CGammaRateConjugateTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>(
-        "CGammaRateConjugateTest::testVarianceScale", &CGammaRateConjugateTest::testVarianceScale));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>(
-        "CGammaRateConjugateTest::testNegativeSample", &CGammaRateConjugateTest::testNegativeSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testLowVariationData",
+                                                                           &CGammaRateConjugateTest::testLowVariationData));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testPersist", &CGammaRateConjugateTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testVarianceScale",
+                                                                           &CGammaRateConjugateTest::testVarianceScale));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>("CGammaRateConjugateTest::testNegativeSample",
+                                                                           &CGammaRateConjugateTest::testNegativeSample));
 
     return suiteOfTests;
 }

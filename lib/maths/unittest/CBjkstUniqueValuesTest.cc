@@ -167,12 +167,10 @@ void CBjkstUniqueValuesTest::testRemove(void) {
         }
         LOG_DEBUG("exact  = " << unique.size());
         LOG_DEBUG("approx = " << sketch.number());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(unique.size()),
-                                     static_cast<double>(sketch.number()),
-                                     0.3 * static_cast<double>(unique.size()));
-        meanRelativeErrorBeforeRemove.add(
-            ::fabs(static_cast<double>(unique.size()) - static_cast<double>(sketch.number())) /
-            static_cast<double>(unique.size()));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            static_cast<double>(unique.size()), static_cast<double>(sketch.number()), 0.3 * static_cast<double>(unique.size()));
+        meanRelativeErrorBeforeRemove.add(::fabs(static_cast<double>(unique.size()) - static_cast<double>(sketch.number())) /
+                                          static_cast<double>(unique.size()));
 
         rng.random_shuffle(categories.begin(), categories.end());
         for (std::size_t i = 0u; i < toRemove[t]; ++i) {
@@ -182,12 +180,10 @@ void CBjkstUniqueValuesTest::testRemove(void) {
         }
         LOG_DEBUG("exact  = " << unique.size());
         LOG_DEBUG("approx = " << sketch.number());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(unique.size()),
-                                     static_cast<double>(sketch.number()),
-                                     0.25 * static_cast<double>(unique.size()));
-        meanRelativeErrorAfterRemove.add(
-            ::fabs(static_cast<double>(unique.size()) - static_cast<double>(sketch.number())) /
-            static_cast<double>(unique.size()));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            static_cast<double>(unique.size()), static_cast<double>(sketch.number()), 0.25 * static_cast<double>(unique.size()));
+        meanRelativeErrorAfterRemove.add(::fabs(static_cast<double>(unique.size()) - static_cast<double>(sketch.number())) /
+                                         static_cast<double>(unique.size()));
     }
 
     LOG_DEBUG("meanRelativeErrorBeforeRemove = " << maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove));
@@ -293,9 +289,8 @@ void CBjkstUniqueValuesTest::testSmall(void) {
         unique.insert(category);
         LOG_DEBUG("exact  = " << unique.size());
         LOG_DEBUG("approx = " << sketch.number());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(unique.size()),
-                                     static_cast<double>(sketch.number()),
-                                     0.15 * static_cast<double>(unique.size()));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            static_cast<double>(unique.size()), static_cast<double>(sketch.number()), 0.15 * static_cast<double>(unique.size()));
         meanRelativeError.add(::fabs(static_cast<double>(unique.size()) - static_cast<double>(sketch.number())) /
                               static_cast<double>(unique.size()));
     }
@@ -381,16 +376,16 @@ CppUnit::Test* CBjkstUniqueValuesTest::suite(void) {
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testTrailingZeros",
                                                                           &CBjkstUniqueValuesTest::testTrailingZeros));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testNumber",
-                                                                          &CBjkstUniqueValuesTest::testNumber));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testRemove",
-                                                                          &CBjkstUniqueValuesTest::testRemove));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testSwap",
-                                                                          &CBjkstUniqueValuesTest::testSwap));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testSmall",
-                                                                          &CBjkstUniqueValuesTest::testSmall));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testPersist",
-                                                                          &CBjkstUniqueValuesTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testNumber", &CBjkstUniqueValuesTest::testNumber));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testRemove", &CBjkstUniqueValuesTest::testRemove));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testSwap", &CBjkstUniqueValuesTest::testSwap));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testSmall", &CBjkstUniqueValuesTest::testSmall));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testPersist", &CBjkstUniqueValuesTest::testPersist));
 
     return suiteOfTests;
 }

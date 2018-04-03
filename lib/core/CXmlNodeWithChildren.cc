@@ -30,14 +30,11 @@ CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name) : CXmlNode(n
 CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name, const std::string& value) : CXmlNode(name, value) {
 }
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name,
-                                           const std::string& value,
-                                           const CXmlNode::TStrStrMap& attributes)
+CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name, const std::string& value, const CXmlNode::TStrStrMap& attributes)
     : CXmlNode(name, value, attributes) {
 }
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(const CXmlNodeWithChildren& arg)
-    : CXmlNode(arg), m_Children(arg.m_Children) {
+CXmlNodeWithChildren::CXmlNodeWithChildren(const CXmlNodeWithChildren& arg) : CXmlNode(arg), m_Children(arg.m_Children) {
 }
 
 CXmlNodeWithChildren::~CXmlNodeWithChildren(void) {

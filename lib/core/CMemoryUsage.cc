@@ -44,9 +44,7 @@ public:
     explicit CMemoryUsageComparisonTwo(const std::string& baseline, const CMemoryUsage* firstItem)
         : m_Baseline(baseline), m_FirstItem(firstItem) {}
 
-    bool operator()(const CMemoryUsage* rhs) {
-        return (rhs != m_FirstItem) && (m_Baseline == rhs->m_Description.s_Name);
-    }
+    bool operator()(const CMemoryUsage* rhs) { return (rhs != m_FirstItem) && (m_Baseline == rhs->m_Description.s_Name); }
 
 private:
     std::string m_Baseline;

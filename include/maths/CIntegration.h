@@ -166,8 +166,7 @@ public:
     //! \tparam V The type of range of \p g. This must have a meaningful default
     //! constructor, support multiplication by a double and addition.
     template<EOrder ORDER, typename F, typename G, typename U, typename V>
-    static bool
-    productGaussLegendre(const F& f, const G& g, double a, double b, U& productIntegral, U& fIntegral, V& gIntegral) {
+    static bool productGaussLegendre(const F& f, const G& g, double a, double b, U& productIntegral, U& fIntegral, V& gIntegral) {
         productIntegral = U();
         fIntegral = U();
         gIntegral = V();
@@ -291,8 +290,7 @@ public:
                                       double tolerance,
                                       double& result) {
         if (intervals.size() != fIntervals.size()) {
-            LOG_ERROR("Inconsistent intervals and function integrals: " << core::CContainerPrinter::print(intervals)
-                                                                        << " "
+            LOG_ERROR("Inconsistent intervals and function integrals: " << core::CContainerPrinter::print(intervals) << " "
                                                                         << core::CContainerPrinter::print(fIntervals));
             return false;
         }
@@ -649,8 +647,7 @@ private:
 };
 
 template<CIntegration::EOrder O, CIntegration::EDimension D>
-std::atomic<const CIntegration::CSparseGaussLegendreQuadrature<O, D>*>
-    CIntegration::CSparseGaussLegendreQuadrature<O, D>::ms_Instance;
+std::atomic<const CIntegration::CSparseGaussLegendreQuadrature<O, D>*> CIntegration::CSparseGaussLegendreQuadrature<O, D>::ms_Instance;
 }
 }
 

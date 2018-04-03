@@ -71,13 +71,11 @@ public:
     virtual bool toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
 
     //! As above, but use a pool to avoid XML node memory allocations where possible
-    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
+    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool, CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
 
     //! As above, but use a string cache to avoid string representation memory
     //! allocations where possible
-    virtual bool toNodeHierarchy(CStringCache& cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
+    virtual bool toNodeHierarchy(CStringCache& cache, CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
 
     //! As above, but use both a node pool and a string cache
     virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,

@@ -42,8 +42,7 @@ class CTestNodeFactory {
 public:
     CTestNodeFactory() {}
 
-    TestNode
-    make(const std::string& name1, const std::string& name2, const std::string& name3, const std::string& name4) const {
+    TestNode make(const std::string& name1, const std::string& name2, const std::string& name3, const std::string& name4) const {
         return make(name1 + ' ' + name2 + ' ' + name3 + ' ' + name4);
     }
 
@@ -54,8 +53,7 @@ public:
 
 class CConcreteHierarchicalResultsLevelSet : public ml::model::CHierarchicalResultsLevelSet<TestNode> {
 public:
-    CConcreteHierarchicalResultsLevelSet(const TestNode& root)
-        : ml::model::CHierarchicalResultsLevelSet<TestNode>(root) {}
+    CConcreteHierarchicalResultsLevelSet(const TestNode& root) : ml::model::CHierarchicalResultsLevelSet<TestNode>(root) {}
 
     //! Visit a node.
     virtual void visit(const ml::model::CHierarchicalResults& /*results*/, const TNode& /*node*/, bool /*pivot*/) {}

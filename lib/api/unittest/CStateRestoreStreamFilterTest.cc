@@ -26,11 +26,10 @@ CppUnit::Test* CStateRestoreStreamFilterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRestoreStreamFilterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStateRestoreStreamFilterTest>(
-        "CRestoreStreamFilterTest::testBulkIndexHeaderRemoval",
-        &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateRestoreStreamFilterTest>(
-        "CRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte",
-        &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte));
+        "CRestoreStreamFilterTest::testBulkIndexHeaderRemoval", &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStateRestoreStreamFilterTest>("CRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte",
+                                                               &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte));
 
     return suiteOfTests;
 }

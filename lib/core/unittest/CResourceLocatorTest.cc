@@ -21,12 +21,12 @@
 CppUnit::Test* CResourceLocatorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceLocatorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLocatorTest>("CResourceLocatorTest::testResourceDir",
-                                                                        &CResourceLocatorTest::testResourceDir));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLocatorTest>("CResourceLocatorTest::testLogDir",
-                                                                        &CResourceLocatorTest::testLogDir));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLocatorTest>("CResourceLocatorTest::testSrcRootDir",
-                                                                        &CResourceLocatorTest::testSrcRootDir));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResourceLocatorTest>("CResourceLocatorTest::testResourceDir", &CResourceLocatorTest::testResourceDir));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResourceLocatorTest>("CResourceLocatorTest::testLogDir", &CResourceLocatorTest::testLogDir));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResourceLocatorTest>("CResourceLocatorTest::testSrcRootDir", &CResourceLocatorTest::testSrcRootDir));
 
     return suiteOfTests;
 }

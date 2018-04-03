@@ -121,8 +121,7 @@ public:
     //! that are classified as the given type.  Note that the reverse search
     //! is only approximate - it may select more records than have actually
     //! been classified as the returned type.
-    virtual bool
-    createReverseSearch(int type, std::string& part1, std::string& part2, size_t& maxMatchingLength, bool& wasCached);
+    virtual bool createReverseSearch(int type, std::string& part1, std::string& part2, size_t& maxMatchingLength, bool& wasCached);
 
     //! Has the data typer's state changed?
     virtual bool hasChanged(void) const;
@@ -148,16 +147,11 @@ protected:
 
     //! Take a string token, convert it to a numeric ID and a weighting and
     //! add these to the provided data structures.
-    virtual void tokenToIdAndWeight(const std::string& token,
-                                    TSizeSizePrVec& tokenIds,
-                                    TSizeSizeMap& tokenUniqueIds,
-                                    size_t& totalWeight) = 0;
+    virtual void
+    tokenToIdAndWeight(const std::string& token, TSizeSizePrVec& tokenIds, TSizeSizeMap& tokenUniqueIds, size_t& totalWeight) = 0;
 
     //! Compute similarity between two vectors
-    virtual double similarity(const TSizeSizePrVec& left,
-                              size_t leftWeight,
-                              const TSizeSizePrVec& right,
-                              size_t rightWeight) const = 0;
+    virtual double similarity(const TSizeSizePrVec& left, size_t leftWeight, const TSizeSizePrVec& right, size_t rightWeight) const = 0;
 
     //! Used to hold statistics about the types we compute:
     //! first -> count of matches
@@ -241,25 +235,20 @@ private:
         CTokenInfoItem,
         boost::multi_index::indexed_by<
             boost::multi_index::random_access<>,
-            boost::multi_index::hashed_unique<
-                boost::multi_index::tag<SToken>,
-                BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CTokenInfoItem, std::string, str)>>>;
+            boost::multi_index::hashed_unique<boost::multi_index::tag<SToken>,
+                                              BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CTokenInfoItem, std::string, str)>>>;
 
 private:
     //! Used by deferred persistence functions
-    static void acceptPersistInserter(const TTokenMIndex& tokenIdLookup,
-                                      const TTokenListTypeVec& types,
-                                      core::CStatePersistInserter& inserter);
+    static void
+    acceptPersistInserter(const TTokenMIndex& tokenIdLookup, const TTokenListTypeVec& types, core::CStatePersistInserter& inserter);
 
     //! Given a string containing comma separated pre-tokenised input, add
     //! the tokens to the working data structures in the same way as if they
     //! had been determined by the tokeniseString() method.  The result of
     //! the tokenisation is returned in \p tokenIds, \p tokenUniqueIds and
     //! \p totalWeight.  Any previous content of these variables is wiped.
-    bool addPretokenisedTokens(const std::string& tokensCsv,
-                               TSizeSizePrVec& tokenIds,
-                               TSizeSizeMap& tokenUniqueIds,
-                               size_t& totalWeight);
+    bool addPretokenisedTokens(const std::string& tokensCsv, TSizeSizePrVec& tokenIds, TSizeSizeMap& tokenUniqueIds, size_t& totalWeight);
 
 private:
     //! Reference to the object we'll use to create reverse searches

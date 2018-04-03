@@ -48,8 +48,7 @@ const std::string FIELD_VALUE("field_value");
 const std::string FILTER_ID("filter_id");
 }
 
-CDetectionRulesJsonParser::CDetectionRulesJsonParser(TStrPatternSetUMap& filtersByIdMap)
-    : m_FiltersByIdMap(filtersByIdMap) {
+CDetectionRulesJsonParser::CDetectionRulesJsonParser(TStrPatternSetUMap& filtersByIdMap) : m_FiltersByIdMap(filtersByIdMap) {
 }
 
 bool CDetectionRulesJsonParser::parseRules(const std::string& json, TDetectionRuleVec& rules) {
@@ -150,8 +149,7 @@ bool CDetectionRulesJsonParser::parseRuleActions(const rapidjson::Value& ruleObj
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseConditionsConnective(const rapidjson::Value& ruleObject,
-                                                          model::CDetectionRule& rule) {
+bool CDetectionRulesJsonParser::parseConditionsConnective(const rapidjson::Value& ruleObject, model::CDetectionRule& rule) {
     if (!hasStringMember(ruleObject, CONDITIONS_CONNECTIVE)) {
         LOG_ERROR("Missing rule field: " << CONDITIONS_CONNECTIVE);
         return false;
@@ -217,8 +215,7 @@ bool CDetectionRulesJsonParser::parseRuleConditions(const rapidjson::Value& rule
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseFilterId(const rapidjson::Value& conditionObject,
-                                              model::CRuleCondition& ruleCondition) {
+bool CDetectionRulesJsonParser::parseFilterId(const rapidjson::Value& conditionObject, model::CRuleCondition& ruleCondition) {
     if (!hasStringMember(conditionObject, FILTER_ID)) {
         LOG_ERROR("Missing condition field: " << FILTER_ID);
         return false;
@@ -233,8 +230,7 @@ bool CDetectionRulesJsonParser::parseFilterId(const rapidjson::Value& conditionO
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseRuleConditionType(const rapidjson::Value& ruleConditionObject,
-                                                       model::CRuleCondition& ruleCondition) {
+bool CDetectionRulesJsonParser::parseRuleConditionType(const rapidjson::Value& ruleConditionObject, model::CRuleCondition& ruleCondition) {
     if (!hasStringMember(ruleConditionObject, TYPE)) {
         LOG_ERROR("Missing ruleCondition field: " << TYPE);
         return false;
@@ -258,8 +254,7 @@ bool CDetectionRulesJsonParser::parseRuleConditionType(const rapidjson::Value& r
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseCondition(const rapidjson::Value& ruleConditionObject,
-                                               model::CRuleCondition& ruleCondition) {
+bool CDetectionRulesJsonParser::parseCondition(const rapidjson::Value& ruleConditionObject, model::CRuleCondition& ruleCondition) {
     if (!ruleConditionObject.HasMember(CONDITION.c_str())) {
         LOG_ERROR("Missing ruleCondition field: " << CONDITION);
         return false;
@@ -270,12 +265,10 @@ bool CDetectionRulesJsonParser::parseCondition(const rapidjson::Value& ruleCondi
         return false;
     }
 
-    return parseConditionOperator(conditionObject, ruleCondition) &&
-           parseConditionThreshold(conditionObject, ruleCondition);
+    return parseConditionOperator(conditionObject, ruleCondition) && parseConditionThreshold(conditionObject, ruleCondition);
 }
 
-bool CDetectionRulesJsonParser::parseConditionOperator(const rapidjson::Value& conditionObject,
-                                                       model::CRuleCondition& ruleCondition) {
+bool CDetectionRulesJsonParser::parseConditionOperator(const rapidjson::Value& conditionObject, model::CRuleCondition& ruleCondition) {
     if (!hasStringMember(conditionObject, OPERATOR)) {
         LOG_ERROR("Missing condition field: " << OPERATOR);
         return false;
@@ -297,8 +290,7 @@ bool CDetectionRulesJsonParser::parseConditionOperator(const rapidjson::Value& c
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseConditionThreshold(const rapidjson::Value& conditionObject,
-                                                        model::CRuleCondition& ruleCondition) {
+bool CDetectionRulesJsonParser::parseConditionThreshold(const rapidjson::Value& conditionObject, model::CRuleCondition& ruleCondition) {
     if (!hasStringMember(conditionObject, VALUE)) {
         LOG_ERROR("Missing condition field: " << VALUE);
         return false;

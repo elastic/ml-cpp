@@ -58,9 +58,7 @@ public:
         maths::CKMeansOnline<POINT>::add(x, count, cluster);
     }
 
-    static double variance(const TDoubleMeanVarAccumulator& moments) {
-        return maths::CKMeansOnline<POINT>::variance(moments);
-    }
+    static double variance(const TDoubleMeanVarAccumulator& moments) { return maths::CKMeansOnline<POINT>::variance(moments); }
 };
 
 template<typename POINT>
@@ -88,8 +86,7 @@ void CKMeansOnlineTest::testVariance(void) {
         rng.generateUniformSamples(0.0, 10.0, 50, coordinates);
         TVector5Vec points;
         for (std::size_t i = 0u; i < coordinates.size(); i += 5) {
-            double c[] = {
-                coordinates[i + 0], coordinates[i + 1], coordinates[i + 2], coordinates[i + 3], coordinates[i + 4]};
+            double c[] = {coordinates[i + 0], coordinates[i + 1], coordinates[i + 2], coordinates[i + 3], coordinates[i + 4]};
             points.push_back(TVector5(c));
         }
 
@@ -145,17 +142,15 @@ void CKMeansOnlineTest::testAdd(void) {
         TVector2 ones(1.0);
 
         LOG_DEBUG("actual   = " << maths::CBasicStatistics::mean(actual.first) << "," << actual.second);
-        LOG_DEBUG("expected = " << maths::CBasicStatistics::mean(expected) << ","
-                                << maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones) /
-                                       static_cast<double>(ones.dimension()));
+        LOG_DEBUG("expected = "
+                  << maths::CBasicStatistics::mean(expected) << ","
+                  << maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones) / static_cast<double>(ones.dimension()));
 
-        CPPUNIT_ASSERT_EQUAL(print(maths::CBasicStatistics::mean(expected)),
-                             print(maths::CBasicStatistics::mean(actual.first)));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones) /
-                                         static_cast<double>(ones.dimension()),
-                                     actual.second,
-                                     1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones) /
-                                         static_cast<double>(ones.dimension()));
+        CPPUNIT_ASSERT_EQUAL(print(maths::CBasicStatistics::mean(expected)), print(maths::CBasicStatistics::mean(actual.first)));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones) / static_cast<double>(ones.dimension()),
+            actual.second,
+            1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones) / static_cast<double>(ones.dimension()));
     }
 }
 
@@ -209,14 +204,11 @@ void CKMeansOnlineTest::testReduce(void) {
 
                 LOG_DEBUG("expected = " << expected);
                 LOG_DEBUG("actual   = " << actual);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    maths::CBasicStatistics::count(expected), maths::CBasicStatistics::count(actual), 1e-10);
-                CPPUNIT_ASSERT_EQUAL(print(maths::CBasicStatistics::mean(expected)),
-                                     print(maths::CBasicStatistics::mean(actual)));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones),
-                    maths::CBasicStatistics::maximumLikelihoodVariance(actual).inner(ones),
-                    1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones));
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::count(expected), maths::CBasicStatistics::count(actual), 1e-10);
+                CPPUNIT_ASSERT_EQUAL(print(maths::CBasicStatistics::mean(expected)), print(maths::CBasicStatistics::mean(actual)));
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones),
+                                             maths::CBasicStatistics::maximumLikelihoodVariance(actual).inner(ones),
+                                             1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones));
             }
         }
     }
@@ -276,8 +268,7 @@ void CKMeansOnlineTest::testClustering(void) {
                 }
                 maths::CKMeansOnline<TVector2>::TSphericalClusterVecVec clustersOnline;
                 kmeansOnline.kmeans(2, clustersOnline);
-                maths::CSphericalGaussianInfoCriterion<maths::CKMeansOnline<TVector2>::TSphericalCluster, maths::E_BIC>
-                    criterion;
+                maths::CSphericalGaussianInfoCriterion<maths::CKMeansOnline<TVector2>::TSphericalCluster, maths::E_BIC> criterion;
                 criterion.add(clustersOnline);
                 costOnline_ = criterion.calculate();
             }
@@ -292,11 +283,9 @@ void CKMeansOnlineTest::testClustering(void) {
         LOG_DEBUG("cost        = " << cost);
         LOG_DEBUG("cost online = " << costOnline);
 
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(costOnline), maths::CBasicStatistics::mean(cost), 1e-10);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            maths::CBasicStatistics::mean(costOnline), maths::CBasicStatistics::mean(cost), 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(::sqrt(maths::CBasicStatistics::variance(costOnline)),
-                                     ::sqrt(maths::CBasicStatistics::variance(cost)),
-                                     1e-10);
+            ::sqrt(maths::CBasicStatistics::variance(costOnline)), ::sqrt(maths::CBasicStatistics::variance(cost)), 1e-10);
     }
 
     {
@@ -340,8 +329,7 @@ void CKMeansOnlineTest::testClustering(void) {
                 }
                 maths::CKMeansOnline<TVector2>::TSphericalClusterVecVec clustersOnline;
                 kmeansOnline.kmeans(3, clustersOnline);
-                maths::CSphericalGaussianInfoCriterion<maths::CKMeansOnline<TVector2>::TSphericalCluster, maths::E_BIC>
-                    criterion;
+                maths::CSphericalGaussianInfoCriterion<maths::CKMeansOnline<TVector2>::TSphericalCluster, maths::E_BIC> criterion;
                 criterion.add(clustersOnline);
                 costOnline_ = criterion.calculate();
             }
@@ -357,8 +345,7 @@ void CKMeansOnlineTest::testClustering(void) {
         LOG_DEBUG("cost online = " << costOnline);
 
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(costOnline) <= 1.01 * maths::CBasicStatistics::mean(cost));
-        CPPUNIT_ASSERT(::sqrt(maths::CBasicStatistics::variance(costOnline)) <=
-                       26.0 * ::sqrt(maths::CBasicStatistics::variance(cost)));
+        CPPUNIT_ASSERT(::sqrt(maths::CBasicStatistics::variance(costOnline)) <= 26.0 * ::sqrt(maths::CBasicStatistics::variance(cost)));
     }
 }
 
@@ -666,8 +653,8 @@ void CKMeansOnlineTest::testPersist(void) {
                                                  maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
                                                  maths::MINIMUM_CLUSTER_SPLIT_COUNT,
                                                  maths::MINIMUM_CATEGORY_COUNT);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-            &maths::CKMeansOnline<TVector2>::acceptRestoreTraverser, &restoredKmeans, boost::cref(params), _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            boost::bind(&maths::CKMeansOnline<TVector2>::acceptRestoreTraverser, &restoredKmeans, boost::cref(params), _1)));
 
         LOG_DEBUG("orig checksum = " << origKmeans.checksum() << ", new checksum = " << restoredKmeans.checksum());
         CPPUNIT_ASSERT_EQUAL(origKmeans.checksum(), restoredKmeans.checksum());
@@ -684,24 +671,17 @@ void CKMeansOnlineTest::testPersist(void) {
 CppUnit::Test* CKMeansOnlineTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKMeansOnlineTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testVariance",
-                                                                     &CKMeansOnlineTest::testVariance));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testVariance", &CKMeansOnlineTest::testVariance));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testAdd", &CKMeansOnlineTest::testAdd));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testReduce", &CKMeansOnlineTest::testReduce));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testAdd", &CKMeansOnlineTest::testAdd));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testReduce", &CKMeansOnlineTest::testReduce));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testClustering",
-                                                                     &CKMeansOnlineTest::testClustering));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testSplit", &CKMeansOnlineTest::testSplit));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testMerge", &CKMeansOnlineTest::testMerge));
+        new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testClustering", &CKMeansOnlineTest::testClustering));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testSplit", &CKMeansOnlineTest::testSplit));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testMerge", &CKMeansOnlineTest::testMerge));
     suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testPropagateForwardsByTime",
                                                                      &CKMeansOnlineTest::testPropagateForwardsByTime));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testSample", &CKMeansOnlineTest::testSample));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testPersist", &CKMeansOnlineTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testSample", &CKMeansOnlineTest::testSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>("CKMeansOnlineTest::testPersist", &CKMeansOnlineTest::testPersist));
 
     return suiteOfTests;
 }

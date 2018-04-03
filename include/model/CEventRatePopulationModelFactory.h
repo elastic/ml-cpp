@@ -64,8 +64,7 @@ public:
     //! the model.
     //! \param[in,out] traverser A state document traverser.
     //! \warning It is owned by the calling code.
-    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData,
-                                             core::CStateRestoreTraverser& traverser) const;
+    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData, core::CStateRestoreTraverser& traverser) const;
 
     //! Make a new event rate population data gatherer.
     //! \param[in] initData The parameters needed to initialize the
@@ -79,8 +78,7 @@ public:
     //! \param[in] partitionFieldValue The partition field value.
     //! \param[in,out] traverser A state document traverser.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer* makeDataGatherer(const std::string& partitionFieldValue,
-                                            core::CStateRestoreTraverser& traverser) const;
+    virtual CDataGatherer* makeDataGatherer(const std::string& partitionFieldValue, core::CStateRestoreTraverser& traverser) const;
     //@}
 
     //! \name Defaults

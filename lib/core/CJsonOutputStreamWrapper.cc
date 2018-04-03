@@ -24,8 +24,7 @@ const char CJsonOutputStreamWrapper::JSON_ARRAY_START('[');
 const char CJsonOutputStreamWrapper::JSON_ARRAY_END(']');
 const char CJsonOutputStreamWrapper::JSON_ARRAY_DELIMITER(',');
 
-CJsonOutputStreamWrapper::CJsonOutputStreamWrapper(std::ostream& outStream)
-    : m_ConcurrentOutputStream(outStream), m_FirstObject(true) {
+CJsonOutputStreamWrapper::CJsonOutputStreamWrapper(std::ostream& outStream) : m_ConcurrentOutputStream(outStream), m_FirstObject(true) {
     // initialize the bufferpool
     for (size_t i = 0; i < BUFFER_POOL_SIZE; ++i) {
         m_StringBuffers[i].Reserve(BUFFER_START_SIZE);

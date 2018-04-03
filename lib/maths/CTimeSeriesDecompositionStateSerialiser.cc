@@ -43,16 +43,14 @@ const std::string TIME_SERIES_DECOMPOSITION_STUB_TAG("b");
 const std::string EMPTY_STRING;
 }
 
-bool CTimeSeriesDecompositionStateSerialiser::operator()(const STimeSeriesDecompositionRestoreParams& params,
-                                                         TDecompositionPtr& result,
-                                                         core::CStateRestoreTraverser& traverser) const {
+bool CTimeSeriesDecompositionStateSerialiser::
+operator()(const STimeSeriesDecompositionRestoreParams& params, TDecompositionPtr& result, core::CStateRestoreTraverser& traverser) const {
     std::size_t numResults = 0;
 
     do {
         const std::string& name = traverser.name();
         if (name == TIME_SERIES_DECOMPOSITION_TAG) {
-            result.reset(new CTimeSeriesDecomposition(
-                params.s_DecayRate, params.s_MinimumBucketLength, params.s_ComponentSize, traverser));
+            result.reset(new CTimeSeriesDecomposition(params.s_DecayRate, params.s_MinimumBucketLength, params.s_ComponentSize, traverser));
             ++numResults;
         } else if (name == TIME_SERIES_DECOMPOSITION_STUB_TAG) {
             result.reset(new CTimeSeriesDecompositionStub());

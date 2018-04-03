@@ -251,10 +251,9 @@ void CStringStoreTest::testMemUsage(void) {
 CppUnit::Test* CStringStoreTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testStringStore",
-                                                                    &CStringStoreTest::testStringStore));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testMemUsage", &CStringStoreTest::testMemUsage));
+        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testStringStore", &CStringStoreTest::testStringStore));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testMemUsage", &CStringStoreTest::testMemUsage));
 
     return suiteOfTests;
 }

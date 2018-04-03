@@ -20,10 +20,7 @@ namespace config {
 namespace constants {
 namespace {
 
-const std::string FIELD_NAME[] = {std::string("argument"),
-                                  std::string("by"),
-                                  std::string("over"),
-                                  std::string("partition")};
+const std::string FIELD_NAME[] = {std::string("argument"), std::string("by"), std::string("over"), std::string("partition")};
 }
 
 const std::size_t CFieldIndices::PARTITIONING[] = {BY_INDEX, OVER_INDEX, PARTITION_INDEX};

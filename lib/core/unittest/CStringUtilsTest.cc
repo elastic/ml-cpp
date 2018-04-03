@@ -31,48 +31,39 @@
 CppUnit::Test* CStringUtilsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringUtilsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testNumMatches",
-                                                                    &CStringUtilsTest::testNumMatches));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testNumMatches", &CStringUtilsTest::testNumMatches));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testReplace", &CStringUtilsTest::testReplace));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testReplace", &CStringUtilsTest::testReplace));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testReplaceFirst",
-                                                                    &CStringUtilsTest::testReplaceFirst));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTypeToString",
-                                                                    &CStringUtilsTest::testTypeToString));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTypeToStringPrecise",
-                                                                    &CStringUtilsTest::testTypeToStringPrecise));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTypeToStringPretty",
-                                                                    &CStringUtilsTest::testTypeToStringPretty));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testStringToType",
-                                                                    &CStringUtilsTest::testStringToType));
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testReplaceFirst", &CStringUtilsTest::testReplaceFirst));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTokeniser", &CStringUtilsTest::testTokeniser));
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTypeToString", &CStringUtilsTest::testTypeToString));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTrim", &CStringUtilsTest::testTrim));
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTypeToStringPrecise", &CStringUtilsTest::testTypeToStringPrecise));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testJoin", &CStringUtilsTest::testJoin));
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTypeToStringPretty", &CStringUtilsTest::testTypeToStringPretty));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testLower", &CStringUtilsTest::testLower));
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testStringToType", &CStringUtilsTest::testStringToType));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTokeniser", &CStringUtilsTest::testTokeniser));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTrim", &CStringUtilsTest::testTrim));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testJoin", &CStringUtilsTest::testJoin));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testLower", &CStringUtilsTest::testLower));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testUpper", &CStringUtilsTest::testUpper));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testUpper", &CStringUtilsTest::testUpper));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testNarrowWiden",
-                                                                    &CStringUtilsTest::testNarrowWiden));
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testNarrowWiden", &CStringUtilsTest::testNarrowWiden));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testEscape", &CStringUtilsTest::testEscape));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testUnEscape", &CStringUtilsTest::testUnEscape));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testEscape", &CStringUtilsTest::testEscape));
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testLongestSubstr", &CStringUtilsTest::testLongestSubstr));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testUnEscape", &CStringUtilsTest::testUnEscape));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testLongestSubstr",
-                                                                    &CStringUtilsTest::testLongestSubstr));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testLongestSubseq",
-                                                                    &CStringUtilsTest::testLongestSubseq));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testNormaliseWhitespace",
-                                                                    &CStringUtilsTest::testNormaliseWhitespace));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testPerformance",
-                                                                    &CStringUtilsTest::testPerformance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testUtf8ByteType",
-                                                                    &CStringUtilsTest::testUtf8ByteType));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testRoundtripMaxDouble",
-                                                                    &CStringUtilsTest::testRoundtripMaxDouble));
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testLongestSubseq", &CStringUtilsTest::testLongestSubseq));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testNormaliseWhitespace", &CStringUtilsTest::testNormaliseWhitespace));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testPerformance", &CStringUtilsTest::testPerformance));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testUtf8ByteType", &CStringUtilsTest::testUtf8ByteType));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testRoundtripMaxDouble", &CStringUtilsTest::testRoundtripMaxDouble));
 
     return suiteOfTests;
 }
@@ -293,8 +284,7 @@ void CStringUtilsTest::testTypeToStringPretty(void) {
     LOG_DEBUG("0.123456e10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456e10));
     LOG_DEBUG("0.123456e-10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456e-10));
     LOG_DEBUG("0.123456787654321e-10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456787654321e-10));
-    LOG_DEBUG("0.00000000012345678765432123456 -> "
-              << ml::core::CStringUtils::typeToStringPretty(0.00000000012345678765432123456));
+    LOG_DEBUG("0.00000000012345678765432123456 -> " << ml::core::CStringUtils::typeToStringPretty(0.00000000012345678765432123456));
     LOG_DEBUG("123456787654321.23456 -> " << ml::core::CStringUtils::typeToStringPretty(123456787654321.23456));
 }
 
@@ -925,8 +915,7 @@ void CStringUtilsTest::testUtf8ByteType(void) {
 }
 
 void CStringUtilsTest::testRoundtripMaxDouble(void) {
-    ml::core::CIEEE754::EPrecision precisions[] = {ml::core::CIEEE754::E_SinglePrecision,
-                                                   ml::core::CIEEE754::E_DoublePrecision};
+    ml::core::CIEEE754::EPrecision precisions[] = {ml::core::CIEEE754::E_SinglePrecision, ml::core::CIEEE754::E_DoublePrecision};
     double tolerances[] = {5e-7, 5e-15};
     for (std::size_t i = 0u; i < boost::size(precisions); ++i) {
         double max = std::numeric_limits<double>::max();

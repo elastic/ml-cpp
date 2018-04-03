@@ -158,14 +158,12 @@ CMetricPopulationModelFactory::TPriorPtr CMetricPopulationModelFactory::defaultP
 
     maths_t::EDataType dataType = this->dataType();
 
-    maths::CGammaRateConjugate gammaPrior =
-        maths::CGammaRateConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
+    maths::CGammaRateConjugate gammaPrior = maths::CGammaRateConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
 
     maths::CLogNormalMeanPrecConjugate logNormalPrior =
         maths::CLogNormalMeanPrecConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
 
-    maths::CNormalMeanPrecConjugate normalPrior =
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
+    maths::CNormalMeanPrecConjugate normalPrior = maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
 
     // Create the component priors.
     TPriorPtrVec priors;

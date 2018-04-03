@@ -24,10 +24,8 @@ using namespace domain_name_entropy;
 CppUnit::Test* CIpAddressTestTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIpAddressTestTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CIpAddressTestTest>("CIpAddressTestTest::testIpv4", &CIpAddressTestTest::testIpv4));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CIpAddressTestTest>("CIpAddressTestTest::testIpv6", &CIpAddressTestTest::testIpv6));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIpAddressTestTest>("CIpAddressTestTest::testIpv4", &CIpAddressTestTest::testIpv4));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIpAddressTestTest>("CIpAddressTestTest::testIpv6", &CIpAddressTestTest::testIpv6));
     return suiteOfTests;
 }
 

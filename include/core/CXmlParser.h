@@ -185,17 +185,15 @@ public:
     virtual bool toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! As above, but use a pool to avoid XML node memory allocations where possible
-    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
+    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool, CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! As above, but use a string cache to avoid string representation memory
     //! allocations where possible
     virtual bool toNodeHierarchy(CStringCache& cache, CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! As above, but use both a node pool and a string cache
-    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
-                                 CStringCache& cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
+    virtual bool
+    toNodeHierarchy(CXmlNodeWithChildrenPool& pool, CStringCache& cache, CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! Functions for navigating an XML document without converting it to a
     //! node hierarchy

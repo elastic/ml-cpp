@@ -176,8 +176,7 @@ public:
     //! \param[in] pid The identifier of the person of interest.
     //! \param[in] cid The identifier of the attribute of interest.
     //! \param[in] time The time of interest.
-    virtual TDouble1Vec
-    currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
+    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
 
     //! Get the population baseline mean of \p feature for the
     //! attribute identified by \p cid as of the start of the
@@ -211,8 +210,7 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void
-    sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! Update the model with the samples of the various processes
     //! in the time interval [\p startTime, \p endTime].

@@ -69,10 +69,8 @@ CConstantPrior::CConstantPrior(core::CStateRestoreTraverser& traverser) : CPrior
 bool CConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(CONSTANT_TAG,
-                               double constant,
-                               core::CStringUtils::stringToType(traverser.value(), constant),
-                               m_Constant.reset(constant))
+        RESTORE_SETUP_TEARDOWN(
+            CONSTANT_TAG, double constant, core::CStringUtils::stringToType(traverser.value(), constant), m_Constant.reset(constant))
     } while (traverser.next());
 
     return true;
@@ -94,9 +92,8 @@ bool CConstantPrior::needsOffset(void) const {
     return false;
 }
 
-double CConstantPrior::adjustOffset(const TWeightStyleVec& /*weightStyle*/,
-                                    const TDouble1Vec& /*samples*/,
-                                    const TDouble4Vec1Vec& /*weights*/) {
+double
+CConstantPrior::adjustOffset(const TWeightStyleVec& /*weightStyle*/, const TDouble1Vec& /*samples*/, const TDouble4Vec1Vec& /*weights*/) {
     return 0.0;
 }
 
@@ -104,9 +101,7 @@ double CConstantPrior::offset(void) const {
     return 0.0;
 }
 
-void CConstantPrior::addSamples(const TWeightStyleVec& /*weightStyle*/,
-                                const TDouble1Vec& samples,
-                                const TDouble4Vec1Vec& /*weights*/) {
+void CConstantPrior::addSamples(const TWeightStyleVec& /*weightStyle*/, const TDouble1Vec& samples, const TDouble4Vec1Vec& /*weights*/) {
     if (m_Constant || samples.empty()) {
         return;
     }
@@ -128,15 +123,13 @@ double CConstantPrior::marginalLikelihoodMean(void) const {
     return *m_Constant;
 }
 
-double CConstantPrior::marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
-                                              const TDouble4Vec& /*weights*/) const {
+double CConstantPrior::marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/, const TDouble4Vec& /*weights*/) const {
     return this->marginalLikelihoodMean();
 }
 
-CConstantPrior::TDoubleDoublePr
-CConstantPrior::marginalLikelihoodConfidenceInterval(double /*percentage*/,
-                                                     const TWeightStyleVec& /*weightStyles*/,
-                                                     const TDouble4Vec& /*weights*/) const {
+CConstantPrior::TDoubleDoublePr CConstantPrior::marginalLikelihoodConfidenceInterval(double /*percentage*/,
+                                                                                     const TWeightStyleVec& /*weightStyles*/,
+                                                                                     const TDouble4Vec& /*weights*/) const {
     if (this->isNonInformative()) {
         return this->marginalLikelihoodSupport();
     }
@@ -144,8 +137,7 @@ CConstantPrior::marginalLikelihoodConfidenceInterval(double /*percentage*/,
     return std::make_pair(*m_Constant, *m_Constant);
 }
 
-double CConstantPrior::marginalLikelihoodVariance(const TWeightStyleVec& /*weightStyles*/,
-                                                  const TDouble4Vec& /*weights*/) const {
+double CConstantPrior::marginalLikelihoodVariance(const TWeightStyleVec& /*weightStyles*/, const TDouble4Vec& /*weights*/) const {
     return this->isNonInformative() ? boost::numeric::bounds<double>::highest() : 0.0;
 }
 
@@ -320,9 +312,8 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
         }
     }
 
-    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples) << ", constant = " << *m_Constant
-                           << ", lowerBound = " << lowerBound << ", upperBound = " << upperBound
-                           << ", tail = " << tail);
+    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples) << ", constant = " << *m_Constant << ", lowerBound = " << lowerBound
+                           << ", upperBound = " << upperBound << ", tail = " << tail);
 
     tail = static_cast<maths_t::ETail>(tail_);
     return true;
@@ -333,9 +324,8 @@ bool CConstantPrior::isNonInformative(void) const {
 }
 
 void CConstantPrior::print(const std::string& indent, std::string& result) const {
-    result +=
-        core_t::LINE_ENDING + indent + "constant " +
-        (this->isNonInformative() ? std::string("non-informative") : core::CStringUtils::typeToString(*m_Constant));
+    result += core_t::LINE_ENDING + indent + "constant " +
+              (this->isNonInformative() ? std::string("non-informative") : core::CStringUtils::typeToString(*m_Constant));
 }
 
 std::string CConstantPrior::printMarginalLikelihoodFunction(double /*weight*/) const {

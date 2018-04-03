@@ -258,8 +258,7 @@ public:
     //! \param[in] time The time of interest.
     //! \return The value of \p feature in the bucket containing
     //! \p time if available and empty otherwise.
-    virtual TDouble1Vec
-    currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const = 0;
+    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const = 0;
 
     //! Get the appropriate baseline bucket value of \p feature for
     //! the person identified by \p pid and the attribute identified
@@ -342,8 +341,7 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void
-    sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
+    virtual void sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
 
     //! Update the model with the samples of the process in the
     //! time interval [\p startTime, \p endTime].
@@ -360,8 +358,7 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void
-    sampleOutOfPhase(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
+    virtual void sampleOutOfPhase(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
 
     //! Rolls time to \p endTime while skipping sampling the models for
     //! buckets within the gap.
@@ -456,15 +453,13 @@ public:
     //! Estimate the memory usage of the model based on number of people,
     //! attributes and correlations. Returns empty when the estimator
     //! is unable to produce an estimate.
-    TOptionalSize
-    estimateMemoryUsage(std::size_t numberPeople, std::size_t numberAttributes, std::size_t numberCorrelations) const;
+    TOptionalSize estimateMemoryUsage(std::size_t numberPeople, std::size_t numberAttributes, std::size_t numberCorrelations) const;
 
     //! Estimate the memory usage of the model based on number of people,
     //! attributes and correlations. When an estimate cannot be produced,
     //! the memory usage is computed and the estimator is updated.
-    std::size_t estimateMemoryUsageOrComputeAndUpdate(std::size_t numberPeople,
-                                                      std::size_t numberAttributes,
-                                                      std::size_t numberCorrelations);
+    std::size_t
+    estimateMemoryUsageOrComputeAndUpdate(std::size_t numberPeople, std::size_t numberAttributes, std::size_t numberCorrelations);
 
     //! Get the static size of this object - used for virtual hierarchies
     virtual std::size_t staticSize(void) const = 0;
@@ -669,8 +664,7 @@ protected:
     bool interimBucketCorrectorAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist the interim bucket corrector.
-    void interimBucketCorrectorAcceptPersistInserter(const std::string& tag,
-                                                     core::CStatePersistInserter& inserter) const;
+    void interimBucketCorrectorAcceptPersistInserter(const std::string& tag, core::CStatePersistInserter& inserter) const;
 
     //! Create a stub version of maths::CModel for use when pruning people
     //! or attributes to free memory resource.

@@ -43,8 +43,7 @@ const std::string ARBITRARY_PERIOD_TIME_TAG("b");
 CSeasonalTime::CSeasonalTime(void) : m_Period(0), m_RegressionOrigin(0), m_Precedence(0) {
 }
 
-CSeasonalTime::CSeasonalTime(core_t::TTime period, double precedence)
-    : m_Period(period), m_RegressionOrigin(0), m_Precedence(precedence) {
+CSeasonalTime::CSeasonalTime(core_t::TTime period, double precedence) : m_Period(period), m_RegressionOrigin(0), m_Precedence(precedence) {
 }
 
 bool CSeasonalTime::operator<(const CSeasonalTime& rhs) const {
@@ -105,13 +104,11 @@ bool CSeasonalTime::windowed(void) const {
 }
 
 double CSeasonalTime::fractionInWindow(void) const {
-    return static_cast<double>(std::max(this->period(), this->windowLength())) /
-           static_cast<double>(this->windowRepeat());
+    return static_cast<double>(std::max(this->period(), this->windowLength())) / static_cast<double>(this->windowRepeat());
 }
 
 bool CSeasonalTime::excludes(const CSeasonalTime& other) const {
-    return std::abs(other.m_Period - m_Period) < std::max(other.m_Period, m_Period) / 20 &&
-           m_Precedence >= other.m_Precedence;
+    return std::abs(other.m_Period - m_Period) < std::max(other.m_Period, m_Period) / 20 && m_Precedence >= other.m_Precedence;
 }
 
 core_t::TTime CSeasonalTime::startOfWindowRepeat(core_t::TTime offset, core_t::TTime time) const {
@@ -128,10 +125,7 @@ CDiurnalTime::CDiurnalTime(core_t::TTime startOfWeek,
                            core_t::TTime windowEnd,
                            core_t::TTime period,
                            double precedence)
-    : CSeasonalTime(period, precedence),
-      m_StartOfWeek(startOfWeek),
-      m_WindowStart(windowStart),
-      m_WindowEnd(windowEnd) {
+    : CSeasonalTime(period, precedence), m_StartOfWeek(startOfWeek), m_WindowStart(windowStart), m_WindowEnd(windowEnd) {
 }
 
 CDiurnalTime* CDiurnalTime::clone(void) const {
@@ -248,8 +242,7 @@ core_t::TTime CGeneralPeriodTime::regressionTimeScale(void) const {
 
 //////// CSeasonalTimeStateSerializer ////////
 
-bool CSeasonalTimeStateSerializer::acceptRestoreTraverser(TSeasonalTimePtr& result,
-                                                          core::CStateRestoreTraverser& traverser) {
+bool CSeasonalTimeStateSerializer::acceptRestoreTraverser(TSeasonalTimePtr& result, core::CStateRestoreTraverser& traverser) {
     std::size_t numResults = 0;
 
     do {
@@ -277,8 +270,7 @@ bool CSeasonalTimeStateSerializer::acceptRestoreTraverser(TSeasonalTimePtr& resu
     return true;
 }
 
-void CSeasonalTimeStateSerializer::acceptPersistInserter(const CSeasonalTime& time,
-                                                         core::CStatePersistInserter& inserter) {
+void CSeasonalTimeStateSerializer::acceptPersistInserter(const CSeasonalTime& time, core::CStatePersistInserter& inserter) {
     if (dynamic_cast<const CDiurnalTime*>(&time) != 0) {
         inserter.insertValue(DIURNAL_TIME_TAG, time.toString());
     } else if (dynamic_cast<const CGeneralPeriodTime*>(&time) != 0) {

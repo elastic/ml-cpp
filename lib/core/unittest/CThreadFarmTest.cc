@@ -28,10 +28,8 @@
 CppUnit::Test* CThreadFarmTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CThreadFarmTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CThreadFarmTest>("CThreadFarmTest::testNumCpus", &CThreadFarmTest::testNumCpus));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadFarmTest>("CThreadFarmTest::testSendReceive",
-                                                                   &CThreadFarmTest::testSendReceive));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadFarmTest>("CThreadFarmTest::testNumCpus", &CThreadFarmTest::testNumCpus));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadFarmTest>("CThreadFarmTest::testSendReceive", &CThreadFarmTest::testSendReceive));
 
     return suiteOfTests;
 }

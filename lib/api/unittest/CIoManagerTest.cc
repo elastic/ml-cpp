@@ -138,16 +138,13 @@ private:
 CppUnit::Test* CIoManagerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIoManagerTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testStdinStdout", &CIoManagerTest::testStdinStdout));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testFileIoGood", &CIoManagerTest::testFileIoGood));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testFileIoBad", &CIoManagerTest::testFileIoBad));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testStdinStdout", &CIoManagerTest::testStdinStdout));
+        new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testNamedPipeIoGood", &CIoManagerTest::testNamedPipeIoGood));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testFileIoGood", &CIoManagerTest::testFileIoGood));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testFileIoBad", &CIoManagerTest::testFileIoBad));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testNamedPipeIoGood",
-                                                                  &CIoManagerTest::testNamedPipeIoGood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testNamedPipeIoBad",
-                                                                  &CIoManagerTest::testNamedPipeIoBad));
+        new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testNamedPipeIoBad", &CIoManagerTest::testNamedPipeIoBad));
 
     return suiteOfTests;
 }

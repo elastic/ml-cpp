@@ -29,8 +29,7 @@ CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string& 
     m_Doc.append_node(m_LevelParent);
 }
 
-CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string& rootName,
-                                                             const TStrStrMap& rootAttributes)
+CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string& rootName, const TStrStrMap& rootAttributes)
     : m_LevelParent(m_Doc.allocate_node(rapidxml::node_element, this->nameFromCache(rootName), 0, rootName.length())),
       m_ApproxLen(12 + rootName.length() * 2) {
     m_Doc.append_node(m_LevelParent);
@@ -38,24 +37,22 @@ CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string& 
     for (TStrStrMapCItr iter = rootAttributes.begin(); iter != rootAttributes.end(); ++iter) {
         const std::string& name = iter->first;
         const std::string& value = iter->second;
-        m_LevelParent->append_attribute(
-            m_Doc.allocate_attribute(m_Doc.allocate_string(name.c_str(), name.length()),
-                                     value.empty() ? 0 : m_Doc.allocate_string(value.c_str(), value.length()),
-                                     name.length(),
-                                     value.length()));
+        m_LevelParent->append_attribute(m_Doc.allocate_attribute(m_Doc.allocate_string(name.c_str(), name.length()),
+                                                                 value.empty() ? 0 : m_Doc.allocate_string(value.c_str(), value.length()),
+                                                                 name.length(),
+                                                                 value.length()));
 
         m_ApproxLen += 5 + name.length() + value.length();
     }
 }
 
 void CRapidXmlStatePersistInserter::insertValue(const std::string& name, const std::string& value) {
-    m_LevelParent->append_node(
-        m_Doc.allocate_node(rapidxml::node_element,
-                            this->nameFromCache(name),
-                            value.empty() ? 0 : m_Doc.allocate_string(value.c_str(), value.length()),
+    m_LevelParent->append_node(m_Doc.allocate_node(rapidxml::node_element,
+                                                   this->nameFromCache(name),
+                                                   value.empty() ? 0 : m_Doc.allocate_string(value.c_str(), value.length()),
 
-                            name.length(),
-                            value.length()));
+                                                   name.length(),
+                                                   value.length()));
 
     m_ApproxLen += 5 + name.length() * 2 + value.length();
 }

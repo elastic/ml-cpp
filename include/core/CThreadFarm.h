@@ -96,8 +96,7 @@ public:
 
         ++m_MessagesAdded;
         if (m_MessagesAdded % 1000 == 0) {
-            LOG_INFO("Added message " << m_MessagesAdded << " to the " << m_Name << " thread farm; pending count now "
-                                      << m_Pending);
+            LOG_INFO("Added message " << m_MessagesAdded << " to the " << m_Name << " thread farm; pending count now " << m_Pending);
         }
 
         pending = m_Pending;
@@ -158,8 +157,7 @@ public:
         m_LastPrint = 0;
 
         if (m_Pending != 0) {
-            LOG_ERROR("Inconsistency - " << m_Pending << " pending messages after stopping the " << m_Name
-                                         << " thread farm");
+            LOG_ERROR("Inconsistency - " << m_Pending << " pending messages after stopping the " << m_Name << " thread farm");
             m_Pending = 0;
         }
 
@@ -173,8 +171,7 @@ private:
         CScopedLock lock(m_Mutex);
 
         if (m_Pending <= 0) {
-            LOG_ERROR("Inconsistency - result added with " << m_Pending << " pending messages in the " << m_Name
-                                                           << " thread farm");
+            LOG_ERROR("Inconsistency - result added with " << m_Pending << " pending messages in the " << m_Name << " thread farm");
             return;
         }
 

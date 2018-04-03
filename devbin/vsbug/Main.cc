@@ -27,8 +27,7 @@ int main(int, char**) {
     eventTimes.push_back(1347019162);
 
     std::time_t endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-    std::cout << "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size()
-              << std::endl;
+    std::cout << "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size() << std::endl;
 
     {
         std::time_t offset = endTime - startTime;

@@ -101,8 +101,7 @@ private:
     };
 
     typedef boost::unordered_map<TSizeSizeSizeTr, SBucketArgumentData> TSizeSizeSizeTrArgumentDataUMap;
-    typedef std::pair<const std::string*, TSizeSizeSizeTrArgumentDataUMap>
-        TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr;
+    typedef std::pair<const std::string*, TSizeSizeSizeTrArgumentDataUMap> TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr;
     typedef std::vector<TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr> TStrCPtrSizeSizeSizeTrArgumentDataUMapPrVec;
 
 private:
@@ -205,8 +204,7 @@ private:
     typedef boost::optional<core_t::TTime> TOptionalTime;
     typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
     typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1> TMinTimeAccumulator;
-    typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime>>
-        TMaxTimeAccumulator;
+    typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime>> TMaxTimeAccumulator;
 
 private:
     //! Fill in the last bucket end times if they are empty.

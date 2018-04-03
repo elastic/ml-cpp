@@ -78,8 +78,7 @@ void CProcessPriorityTest::testReducePriority(void) {
     }
     if (readFromSystemFile("/proc/self/oom_adj", content) == true) {
         if (readFromOneOrOther) {
-            LOG_DEBUG("oom_score_adj 667 corresponds to oom_adj " << content << " on kernel "
-                                                                  << ml::core::CUname::release());
+            LOG_DEBUG("oom_score_adj 667 corresponds to oom_adj " << content << " on kernel " << ml::core::CUname::release());
             int oomAdj = 0;
             CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(content, oomAdj));
             // For the kernel versions that support both, there's variation in
