@@ -26,11 +26,10 @@
 #include <maths/MathsTypes.h>
 
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <string>
 #include <vector>
-
-#include <stdint.h>
-
 
 namespace ml
 {
@@ -345,7 +344,7 @@ class CSpline : public CSplineTypes
             case E_Linear:
                 for (std::size_t i = 1u; i < n; ++i)
                 {
-                    result += ::fabs((this->values()[i] - this->values()[i-1]));
+                    result += std::fabs((this->values()[i] - this->values()[i-1]));
                 }
                 break;
 
@@ -363,7 +362,7 @@ class CSpline : public CSplineTypes
                     double descriminant = bi * bi - 3.0 * ai * ci;
                     if (descriminant < 0.0)
                     {
-                        result += ::fabs(((ai * h + bi) * h + ci) * h);
+                        result += std::fabs(((ai * h + bi) * h + ci) * h);
                         continue;
                     }
                     double rl = CTools::truncate(a - ( bi + descriminant) / 3.0 / ai, a, b);
@@ -372,9 +371,9 @@ class CSpline : public CSplineTypes
                     {
                         std::swap(rl, rr);
                     }
-                    result += ::fabs(((ai * (rl - a)  + bi) * (rl - a)  + ci) * (rl - a))
-                            + ::fabs(((ai * (rr - rl) + bi) * (rr - rl) + ci) * (rr - rl))
-                            + ::fabs(((ai * (b - rr)  + bi) * (b - rr)  + ci) * (b - rr));
+                    result += std::fabs(((ai * (rl - a)  + bi) * (rl - a)  + ci) * (rl - a))
+                            + std::fabs(((ai * (rr - rl) + bi) * (rr - rl) + ci) * (rr - rl))
+                            + std::fabs(((ai * (b - rr)  + bi) * (b - rr)  + ci) * (b - rr));
                 }
                 break;
             }

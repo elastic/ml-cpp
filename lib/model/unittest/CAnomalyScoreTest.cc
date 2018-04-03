@@ -154,7 +154,7 @@ void CAnomalyScoreTest::testComputeScores(void)
         CPPUNIT_ASSERT(jointProbabilityCalculator.calculate(jointProbability));
         double extremeProbability;
         CPPUNIT_ASSERT(extremeProbabilityCalculator.calculate(extremeProbability));
-        extremeProbability = ::exp(extremeProbability);
+        extremeProbability = std::exp(extremeProbability);
 
         LOG_DEBUG("3) probabilities = " << core::CContainerPrinter::print(p));
         LOG_DEBUG("   joint probability = " << jointProbability
@@ -196,7 +196,7 @@ void CAnomalyScoreTest::testComputeScores(void)
 
         double extremeProbability;
         CPPUNIT_ASSERT(extremeProbabilityCalculator.calculate(extremeProbability));
-        extremeProbability = ::exp(extremeProbability);
+        extremeProbability = std::exp(extremeProbability);
 
         LOG_DEBUG("4) probabilities = " << core::CContainerPrinter::print(probabilities));
         LOG_DEBUG("   joint probability = " << jointProbability
@@ -238,7 +238,7 @@ void CAnomalyScoreTest::testComputeScores(void)
 
         double extremeProbability;
         CPPUNIT_ASSERT(extremeProbabilityCalculator.calculate(extremeProbability));
-        extremeProbability = ::exp(extremeProbability);
+        extremeProbability = std::exp(extremeProbability);
 
         LOG_DEBUG("5) probabilities = " << core::CContainerPrinter::print(probabilities));
         LOG_DEBUG("   joint probability = " << jointProbability
@@ -313,7 +313,7 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles(void)
             normalizer.quantile(samples[i], 0.0, lowerBound, upperBound);
 
             double quantile = (lowerBound + upperBound) / 2.0;
-            double error = ::fabs(quantile - trueQuantile);
+            double error = std::fabs(quantile - trueQuantile);
 
             totalError += error;
             numberSamples += 1.0;

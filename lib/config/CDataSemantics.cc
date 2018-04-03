@@ -23,6 +23,8 @@
 
 #include <boost/math/distributions/normal.hpp>
 
+#include <cmath>
+
 namespace ml
 {
 namespace config
@@ -71,7 +73,7 @@ class CMixtureData
             {
                 double ci = maths::CBasicStatistics::count(m_Categories[i]);
                 double vi = maths::CBasicStatistics::maximumLikelihoodVariance(m_Categories[i]);
-                double si = std::max(3.0 * ::sqrt(vi), 1.0 / boost::math::constants::root_two_pi<double>());
+                double si = std::max(3.0 * std::sqrt(vi), 1.0 / boost::math::constants::root_two_pi<double>());
                 scale.add(static_cast<double>(counts[i]) / si, ci);
             }
             return maths::CBasicStatistics::mean(scale);
@@ -99,7 +101,7 @@ class CMixtureData
                 double ci = maths::CBasicStatistics::count(m_Categories[i]);
                 double mi = maths::CBasicStatistics::mean(m_Categories[i]);
                 double vi = maths::CBasicStatistics::maximumLikelihoodVariance(m_Categories[i]);
-                double si = std::max(::sqrt(vi), 1.0 / boost::math::constants::root_two_pi<double>());
+                double si = std::max(std::sqrt(vi), 1.0 / boost::math::constants::root_two_pi<double>());
                 m_Gmm.weights().push_back(ci / m_Count);
                 m_Gmm.modes().push_back(boost::math::normal_distribution<>(mi, si));
             }
@@ -288,7 +290,7 @@ bool CDataSemantics::GMMGoodFit(void) const
     std::size_t N = m_EmpiricalDistribution.size();
     LOG_TRACE("N = " << N);
 
-    double logc     = ::log(m_Count);
+    double logc     = std::log(m_Count);
     double smallest = m_Smallest[0].asDouble();
     double offset   = std::max(-smallest + 1.0, 0.0);
     LOG_TRACE("offset = " << offset);
@@ -299,7 +301,7 @@ bool CDataSemantics::GMMGoodFit(void) const
          ++i)
     {
         double ni = static_cast<double>(i->second);
-        categoricalBIC -= 2.0 * ni * ::log(ni / m_Count);
+        categoricalBIC -= 2.0 * ni * std::log(ni / m_Count);
     }
     LOG_TRACE("categorical BIC = " << categoricalBIC);
 
@@ -332,7 +334,7 @@ bool CDataSemantics::GMMGoodFit(void) const
             double xi = smallest + scale * (i->first.asDouble() - smallest);
             double ni = static_cast<double>(i->second);
             light.add(xi, ni);
-            heavy.add(::log(xi + offset), ni);
+            heavy.add(std::log(xi + offset), ni);
         }
 
         try
@@ -349,9 +351,9 @@ bool CDataSemantics::GMMGoodFit(void) const
                 double xi = smallest + scale * (i->first.asDouble() - smallest);
                 double ni = static_cast<double>(i->second);
                 double fx = light.pdf(xi);
-                double gx = 1.0 / (xi + offset) * heavy.pdf(::log(xi + offset));
-                lightGmmBIC -= 2.0 * ni * (fx == 0.0 ? boost::numeric::bounds<double>::lowest() : ::log(fx));
-                heavyGmmBIC -= 2.0 * ni * (gx == 0.0 ? boost::numeric::bounds<double>::lowest() : ::log(gx));
+                double gx = 1.0 / (xi + offset) * heavy.pdf(std::log(xi + offset));
+                lightGmmBIC -= 2.0 * ni * (fx == 0.0 ? boost::numeric::bounds<double>::lowest() : std::log(fx));
+                heavyGmmBIC -= 2.0 * ni * (gx == 0.0 ? boost::numeric::bounds<double>::lowest() : std::log(gx));
             }
             LOG_TRACE("light BIC = " << lightGmmBIC << ", heavy BIC = " << heavyGmmBIC);
 

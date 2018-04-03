@@ -18,8 +18,6 @@
 
 #include <maths/ImportExport.h>
 
-#include <math.h>
-
 namespace ml
 {
 namespace maths

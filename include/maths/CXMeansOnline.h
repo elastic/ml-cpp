@@ -38,6 +38,7 @@
 
 #include <boost/iterator/counting_iterator.hpp>
 
+#include <cmath>
 #include <cstddef>
 #include <vector>
 
@@ -191,7 +192,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 //! Propagate the cluster forwards by \p time.
                 void propagateForwardsByTime(double time)
                 {
-                    double alpha = ::exp(-this->scaledDecayRate() * time);
+                    double alpha = std::exp(-this->scaledDecayRate() * time);
                     m_Covariances.age(alpha);
                     m_Structure.age(alpha);
                 }
@@ -215,7 +216,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 //! This is defined as the trace of the sample covariance matrix.
                 double spread(void) const
                 {
-                    return ::sqrt(  CBasicStatistics::maximumLikelihoodCovariances(m_Covariances).trace()
+                    return std::sqrt(  CBasicStatistics::maximumLikelihoodCovariances(m_Covariances).trace()
                                   / static_cast<double>(N));
                 }
 
@@ -263,7 +264,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                     {
                         return likelihood;
                     }
-                    return likelihood + ::log(this->weight(calc));
+                    return likelihood + std::log(this->weight(calc));
                 }
 
                 //! Get \p numberSamples from this cluster.
@@ -616,7 +617,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 //! Get the scaled decay rate for use by propagateForwardsByTime.
                 double scaledDecayRate(void) const
                 {
-                    return ::pow(0.5, static_cast<double>(N)) * m_DecayRate;
+                    return std::pow(0.5, static_cast<double>(N)) * m_DecayRate;
                 }
 
             private:
@@ -905,7 +906,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
             double normalizer = 0.0;
             for (std::size_t i = 0u; i < result.size(); ++i)
             {
-                result[i].second = ::exp(result[i].second - renormalizer);
+                result[i].second = std::exp(result[i].second - renormalizer);
                 normalizer += result[i].second;
             }
             double pmax = 0.0;
@@ -962,7 +963,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
 
                 // Normalize the likelihood values.
                 double p0 = 1.0;
-                double p1 = ::exp(likelihood1 - likelihood0);
+                double p1 = std::exp(likelihood1 - likelihood0);
                 double normalizer = p0 + p1;
                 p0 /= normalizer;
                 p1 /= normalizer;
@@ -1039,7 +1040,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 LOG_ERROR("Can't propagate backwards in time");
                 return;
             }
-            m_HistoryLength *= ::exp(-m_DecayRate * time);
+            m_HistoryLength *= std::exp(-m_DecayRate * time);
             for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
             {
                 m_Clusters[i].propagateForwardsByTime(time);
@@ -1210,7 +1211,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 {
                     count += m_Clusters[i].count();
                 }
-                double scale = std::max(m_HistoryLength * (1.0 - ::exp(-m_InitialDecayRate)), 1.0);
+                double scale = std::max(m_HistoryLength * (1.0 - std::exp(-m_InitialDecayRate)), 1.0);
                 count *= m_MinimumClusterFraction / scale;
                 result = std::max(result, count);
             }

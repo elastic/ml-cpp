@@ -26,11 +26,10 @@
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <utility>
 #include <vector>
-
-#include <math.h>
 
 namespace ml
 {
@@ -148,7 +147,7 @@ struct SWard
         double sb = sizes[b];
         double sx = sizes[x];
         distance(distanceMatrix, b, x) =
-                ::sqrt(  (sa + sx) * distance(distanceMatrix, a, x)
+                std::sqrt(  (sa + sx) * distance(distanceMatrix, a, x)
                        + (sb + sx) * distance(distanceMatrix, b, x)
                        -        sx * distance(distanceMatrix, a, b))
               / (sa + sb + sx);

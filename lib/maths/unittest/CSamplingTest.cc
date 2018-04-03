@@ -46,10 +46,10 @@ double multinomialProbability(const TDoubleVec &probabilities,
         double ni = static_cast<double>(counts[i]);
         if (ni > 0.0)
         {
-            logP += ni * ::log(probabilities[i]) - boost::math::lgamma(ni + 1.0);
+            logP += ni * std::log(probabilities[i]) - boost::math::lgamma(ni + 1.0);
         }
     }
-    return ::exp(logP);
+    return std::exp(logP);
 }
 
 namespace test_detail
@@ -131,7 +131,7 @@ double euclidean(const TDoubleVec &v)
     {
         result += v[i] * v[i];
     }
-    return ::sqrt(result);
+    return std::sqrt(result);
 }
 
 //! Frobenius norm of a matrix.
@@ -145,7 +145,7 @@ double frobenius(const TDoubleVecVec &m)
             result += m[i][j] * m[i][j];
         }
     }
-    return ::sqrt(result);
+    return std::sqrt(result);
 }
 
 }
@@ -193,8 +193,8 @@ void CSamplingTest::testMultinomialSample(void)
         double p = multinomialProbability(probabilities, pItr->first);
         double pe = pItr->second;
         LOG_DEBUG("p  = " << p << ", pe = " << pe);
-        CPPUNIT_ASSERT(::fabs(pe - p) < std::max(0.27 * p, 3e-5));
-        error += ::fabs(pe - p);
+        CPPUNIT_ASSERT(std::fabs(pe - p) < std::max(0.27 * p, 3e-5));
+        error += std::fabs(pe - p);
         pTotal += p;
     }
 

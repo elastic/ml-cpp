@@ -137,7 +137,7 @@ double CDetectorEqualizer::correct(int detector, double probability)
         double alpha = maths::CTools::truncate((logp - A) / (B - A), 0.0, 1.0);
         LOG_TRACE("Corrected log(p) = " << -alpha * logpc - (1.0 - alpha) * logp);
 
-        return ::exp(-alpha * logpc - (1.0 - alpha) * logp);
+        return std::exp(-alpha * logpc - (1.0 - alpha) * logp);
     }
 
     return probability;

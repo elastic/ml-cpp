@@ -405,7 +405,7 @@ void CMetricAnomalyDetectorTest::testAnomalies(void)
               << ", low rate noise = " << lowRateNoise);
 
     // We don't have significantly more noise in the low rate channel.
-    CPPUNIT_ASSERT(::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.2);
+    CPPUNIT_ASSERT(std::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.2);
 }
 
 void CMetricAnomalyDetectorTest::testPersist(void)

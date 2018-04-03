@@ -18,10 +18,9 @@
 #include <core/CLogger.h>
 #include <core/CIEEE754.h>
 
+#include <cmath>
 #include <iomanip>
 #include <sstream>
-
-#include <math.h>
 
 using namespace ml;
 using namespace core;
@@ -70,9 +69,9 @@ void CIEEE754Test::testRound(void)
     }
     {
         // Check rounding for very large numbers.
-        double test5 = 0.49999998 * ::pow(2.0, 1023.0);
+        double test5 = 0.49999998 * std::pow(2.0, 1023.0);
         std::ostringstream o1;
-        o1 << std::setprecision(10) << 0.4999999702 * ::pow(2, 1023.0);
+        o1 << std::setprecision(10) << 0.4999999702 * std::pow(2, 1023.0);
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test5, CIEEE754::E_SinglePrecision);
         LOG_DEBUG("test5 " << o1.str() << " " << o2.str());
@@ -80,9 +79,9 @@ void CIEEE754Test::testRound(void)
     }
     {
         // Check rounding for very large numbers.
-        double test6 = 0.499999998 * ::pow(2.0, 1023.0);
+        double test6 = 0.499999998 * std::pow(2.0, 1023.0);
         std::ostringstream o1;
-        o1 << std::setprecision(10) << ::pow(2.0, 1022.0);
+        o1 << std::setprecision(10) << std::pow(2.0, 1022.0);
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test6, CIEEE754::E_SinglePrecision);
         LOG_DEBUG("test6 " << o1.str() << " " << o2.str());

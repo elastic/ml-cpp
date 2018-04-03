@@ -41,7 +41,7 @@ void CRandomNumbers::generateNormalSamples(double mean,
                                            std::size_t numberSamples,
                                            TDoubleVec &samples)
 {
-    boost::random::normal_distribution<> normal(mean, ::sqrt(variance));
+    boost::random::normal_distribution<> normal(mean, std::sqrt(variance));
     generateSamples(m_Generator, normal, numberSamples, samples);
 }
 
@@ -112,7 +112,7 @@ void CRandomNumbers::generateLogNormalSamples(double location,
                                               std::size_t numberSamples,
                                               TDoubleVec &samples)
 {
-    boost::random::lognormal_distribution<> logNormal(location, ::sqrt(squareScale));
+    boost::random::lognormal_distribution<> logNormal(location, std::sqrt(squareScale));
     generateSamples(m_Generator, logNormal, numberSamples, samples);
 }
 

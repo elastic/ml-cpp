@@ -24,11 +24,11 @@
 
 #include <boost/operators.hpp>
 
+#include <cmath>
 #include <cstddef>
 #include <string>
 #include <vector>
 
-#include <math.h>
 #include <stdint.h>
 
 
@@ -112,7 +112,7 @@ class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable< CPacke
         //! Euclidean norm.
         double euclidean(void) const
         {
-            return ::sqrt(this->inner(*this));
+            return std::sqrt(this->inner(*this));
         }
 
         //! Manhattan norm.

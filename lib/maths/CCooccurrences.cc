@@ -27,6 +27,7 @@
 
 #include <boost/math/distributions/chi_squared.hpp>
 
+#include <cmath>
 #include <string>
 
 namespace ml
@@ -202,7 +203,7 @@ void seed(const TPackedBitVectorVec &indicators,
         {
             theta[i] += pow2(projected[j][i]);
         }
-        theta[i] = ::acos(::sqrt(theta[i]));
+        theta[i] = std::acos(std::sqrt(theta[i]));
     }
     COrderings::simultaneousSort(theta, mask);
     for (std::size_t i = 1u; i < n; ++i)
@@ -281,7 +282,7 @@ void searchForMostSignificantCooccurrences(const TPackedBitVectorVec &indicators
     {
         for (std::size_t j = 0u; j < n; ++j)
         {
-            thetas[i][j] = ::acos(thetas[i][j]);
+            thetas[i][j] = std::acos(thetas[i][j]);
         }
         COrderings::simultaneousSort(thetas[i], masks[i]);
     }
@@ -295,7 +296,7 @@ void searchForMostSignificantCooccurrences(const TPackedBitVectorVec &indicators
         double lambda =   mostSignificant.biggest().s_Nxy
                        / (mostSignificant.biggest().s_Nx * mostSignificant.biggest().s_Ny);
 
-        double bound = 2.0 * ::asin(1.0 - lambda);
+        double bound = 2.0 * std::asin(1.0 - lambda);
 
         computeFilter(masks[0], thetas[0], i, bound, candidates);
         for (std::size_t j = 1u; !candidates.empty() && j < p; ++j)
@@ -385,10 +386,10 @@ double significance(double nxy, double nx, double ny, double n)
         double px = nx / n;
         double py = ny / n;
 
-        double lambda = n * (  -g * px * py * ::log(g)
-                             + px * (1.0 - g * py) * ::log((1.0 - py) / (1.0 - g * py))
-                             + py * (1.0 - g * px) * ::log((1.0 - px) / (1.0 - g * px))
-                             + (1.0 - px - py + g*px*py) * ::log((1.0 - px) * (1.0 - py) / (1.0 - px - py + g*px*py)));
+        double lambda = n * (  -g * px * py * std::log(g)
+                             + px * (1.0 - g * py) * std::log((1.0 - py) / (1.0 - g * py))
+                             + py * (1.0 - g * px) * std::log((1.0 - px) / (1.0 - g * px))
+                             + (1.0 - px - py + g*px*py) * std::log((1.0 - px) * (1.0 - py) / (1.0 - px - py + g*px*py)));
 
         boost::math::chi_squared_distribution<> chi(1.0);
 
@@ -496,7 +497,7 @@ void CCooccurrences::topNBySignificance(std::size_t n,
         }
     }
 
-    std::size_t p = static_cast<std::size_t>(std::max(::sqrt(static_cast<double>(dimension)), 1.0) + 0.5);
+    std::size_t p = static_cast<std::size_t>(std::max(std::sqrt(static_cast<double>(dimension)), 1.0) + 0.5);
 
     TMostSignificant mostSignificant(n);
     searchForMostSignificantCooccurrences(m_Indicators, lengths, mask, p, mostSignificant);

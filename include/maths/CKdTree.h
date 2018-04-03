@@ -24,6 +24,7 @@
 #include <maths/CTypeConversions.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <vector>
 
@@ -349,7 +350,7 @@ class CKdTree
                                                  nextCoordinate,
                                                  nearest,
                                                  distanceToNearest);
-                if (secondary && ::fabs(distanceToHyperplane) < distanceToNearest)
+                if (secondary && std::fabs(distanceToHyperplane) < distanceToNearest)
                 {
                     nearest = this->nearestNeighbour(point,
                                                      *secondary,
@@ -386,7 +387,7 @@ class CKdTree
 
                 std::size_t nextCoordinate = (coordinate + 1) % m_Dimension;
                 this->nearestNeighbours(point, *primary, nextCoordinate, nearest);
-                if (secondary && ::fabs(distanceToHyperplane) < nearest.biggest().first)
+                if (secondary && std::fabs(distanceToHyperplane) < nearest.biggest().first)
                 {
                     this->nearestNeighbours(point, *secondary, nextCoordinate, nearest);
                 }

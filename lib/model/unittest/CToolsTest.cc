@@ -157,7 +157,7 @@ void CToolsTest::testProbabilityAggregator(void)
             joint.calculate(pj);
             extreme.calculate(pe);
             LOG_DEBUG("pj = " << pj << " pe = " << pe << " pi = " << pi);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(::sqrt(pj) * ::sqrt(pe), pi, 1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(std::sqrt(pj) * std::sqrt(pe), pi, 1e-10);
         }
     }
 }

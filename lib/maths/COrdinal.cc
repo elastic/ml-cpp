@@ -17,8 +17,8 @@
 
 #include <boost/numeric/conversion/bounds.hpp>
 
+#include <cmath>
 #include <limits>
-#include <math.h>
 #include <ostream>
 #include <stdint.h>
 

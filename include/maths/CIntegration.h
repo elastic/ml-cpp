@@ -29,10 +29,9 @@
 
 #include <atomic>
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <numeric>
-
-#include <math.h>
 
 namespace ml
 {
@@ -223,7 +222,7 @@ class MATHS_EXPORT CIntegration
         //! of the integral is returned. This is intended to support integration
         //! where the integrand is very small and may underflow double. This is
         //! handled by renormalizing the integral so only underflows if values
-        //! are less than ::exp(-std::numeric_limits<double>::max()), so really
+        //! are less than std::exp(-std::numeric_limits<double>::max()), so really
         //! very small!
         //!
         //! \param[in] function The log of the function to integrate.
@@ -270,7 +269,7 @@ class MATHS_EXPORT CIntegration
             double fmax = *std::max_element(fx, fx + ORDER);
             for (unsigned int i = 0; i < ORDER; ++i)
             {
-                fx[i] = ::exp(fx[i] - fmax);
+                fx[i] = std::exp(fx[i] - fmax);
             }
 
             // Quadrature.
@@ -279,7 +278,7 @@ class MATHS_EXPORT CIntegration
                 result += weights[i] * fx[i];
             }
             result *= range;
-            result = result <= 0.0 ? core::constants::LOG_MIN_DOUBLE : fmax + ::log(result);
+            result = result <= 0.0 ? core::constants::LOG_MIN_DOUBLE : fmax + std::log(result);
 
             return true;
         }
@@ -333,7 +332,7 @@ class MATHS_EXPORT CIntegration
             corrections.reserve(fIntervals.size());
             for (std::size_t i = 0u; i < fIntervals.size(); ++i)
             {
-                corrections.push_back(::fabs(fIntervals[i]));
+                corrections.push_back(std::fabs(fIntervals[i]));
             }
 
             for (std::size_t i = 0u;
@@ -341,7 +340,7 @@ class MATHS_EXPORT CIntegration
                  ++i)
             {
                 std::size_t n = intervals.size();
-                double cutoff = tolerance * ::fabs(result) / static_cast<double>(n);
+                double cutoff = tolerance * std::fabs(result) / static_cast<double>(n);
 
                 std::size_t end = 0u;
                 for (std::size_t j = 0u; j < corrections.size(); ++j)
@@ -415,13 +414,13 @@ class MATHS_EXPORT CIntegration
                     double correction = fjNew - fjOld;
                     if (i + 1 < refinements)
                     {
-                        corrections[j] = ::fabs(correction);
+                        corrections[j] = std::fabs(correction);
                         corrections.resize(corrections.size() + splitsPerRefinement - 1,
-                                           ::fabs(correction));
+                                           std::fabs(correction));
                     }
 
                     result += correction;
-                    cutoff = tolerance * ::fabs(result) / static_cast<double>(n);
+                    cutoff = tolerance * std::fabs(result) / static_cast<double>(n);
                 }
             }
 

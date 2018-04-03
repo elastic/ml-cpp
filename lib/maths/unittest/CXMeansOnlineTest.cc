@@ -132,7 +132,7 @@ void CXMeansOnlineTest::testCluster(void)
 
     double expectedCount  = maths::CBasicStatistics::count(moments);
     TPoint expectedCentre = maths::CBasicStatistics::mean(moments);
-    double expectedSpread = ::sqrt(maths::CBasicStatistics::maximumLikelihoodCovariances(moments).trace() / 2.0);
+    double expectedSpread = std::sqrt(maths::CBasicStatistics::maximumLikelihoodCovariances(moments).trace() / 2.0);
     LOG_DEBUG("expected count  = " << expectedCount);
     LOG_DEBUG("expected centre = " << expectedCentre);
     LOG_DEBUG("expected spread = " << expectedSpread);
@@ -163,13 +163,13 @@ void CXMeansOnlineTest::testCluster(void)
         sampleMoments.add(samples[i]);
     }
     TPoint sampleCentre = maths::CBasicStatistics::mean(sampleMoments);
-    double sampleSpread = ::sqrt(maths::CBasicStatistics::covariances(sampleMoments).trace() / 2.0);
+    double sampleSpread = std::sqrt(maths::CBasicStatistics::covariances(sampleMoments).trace() / 2.0);
     LOG_DEBUG("sample centre = " << sampleCentre);
     LOG_DEBUG("sample spread = " << sampleSpread);
     CPPUNIT_ASSERT((sampleCentre - cluster.centre()).euclidean() < 1e-10);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(cluster.spread(), sampleSpread, 0.1);
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(cluster.count()),
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(std::log(cluster.count()),
                                  - cluster.logLikelihoodFromCluster(maths_t::E_ClustersEqualWeight, TPoint(1.5))
                                  + cluster.logLikelihoodFromCluster(maths_t::E_ClustersFractionWeight, TPoint(1.5)),
                                  1e-10);
@@ -574,10 +574,10 @@ void CXMeansOnlineTest::testManyClusters(void)
         {
             double lj;
             maths::gaussianLogLikelihood(covariances[j], samples[i] - means[j], lj);
-            lgenerating[i] += static_cast<double>(sizes[j]) * ::exp(lj);
+            lgenerating[i] += static_cast<double>(sizes[j]) * std::exp(lj);
         }
         lgenerating[i] /= Z;
-        differentialEntropy.add(-::log(lgenerating[i]));
+        differentialEntropy.add(-std::log(lgenerating[i]));
     }
     LOG_DEBUG("differentialEntropy = " << maths::CBasicStatistics::mean(differentialEntropy));
 
@@ -609,10 +609,10 @@ void CXMeansOnlineTest::testManyClusters(void)
                 const TMatrix &covariance = maths::CBasicStatistics::maximumLikelihoodCovariances(clusters[j].covariances());
                 double lj;
                 maths::gaussianLogLikelihood(covariance, samples[i] - mean, lj);
-                l += n * ::exp(lj);
+                l += n * std::exp(lj);
             }
             l /= Z;
-            loss.add(::log(lgenerating[i]) - ::log(l));
+            loss.add(std::log(lgenerating[i]) - std::log(l));
         }
         LOG_DEBUG("loss = " << maths::CBasicStatistics::mean(loss));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(loss) < 0.02 * maths::CBasicStatistics::mean(differentialEntropy));
@@ -859,11 +859,11 @@ void CXMeansOnlineTest::testLatLongData(void)
                 TMatrix covariance = maths::CBasicStatistics::covariances(clusters[j].covariances());
                 double llj;
                 maths::gaussianLogLikelihood(covariance, x - mean, llj);
-                ll += w * ::exp(llj);
+                ll += w * std::exp(llj);
                 Z  += w;
             }
             ll /= Z;
-            LLC.add(::log(ll));
+            LLC.add(std::log(ll));
         }
     }
 

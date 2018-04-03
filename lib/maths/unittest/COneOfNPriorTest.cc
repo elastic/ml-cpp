@@ -369,9 +369,9 @@ void COneOfNPriorTest::testModels(void)
                   << ", precision = " << normalModel->precision()
                   << ", expectedPrecision " << (1.0 / variance));
 
-        CPPUNIT_ASSERT(::fabs(poissonModel->priorMean() - rate) / rate < 0.01);
-        CPPUNIT_ASSERT(::fabs(normalModel->mean() - mean) / mean < 0.01);
-        CPPUNIT_ASSERT(::fabs(normalModel->precision() - 1.0 / variance) * variance < 0.06);
+        CPPUNIT_ASSERT(std::fabs(poissonModel->priorMean() - rate) / rate < 0.01);
+        CPPUNIT_ASSERT(std::fabs(normalModel->mean() - mean) / mean < 0.01);
+        CPPUNIT_ASSERT(std::fabs(normalModel->precision() - 1.0 / variance) * variance < 0.06);
     }
 
     {
@@ -443,7 +443,7 @@ void COneOfNPriorTest::testModelSelection(void)
         const double variance = rate;
 
         boost::math::poisson_distribution<> poisson(rate);
-        boost::math::normal_distribution<> normal(mean, ::sqrt(variance));
+        boost::math::normal_distribution<> normal(mean, std::sqrt(variance));
 
         double poissonExpectedLogWeight = -maths::CTools::differentialEntropy(poisson);
         double normalExpectedLogWeight  = -maths::CTools::differentialEntropy(normal);
@@ -497,8 +497,8 @@ void COneOfNPriorTest::testModelSelection(void)
         const double mean = 100.0;
         const double variance = 5.0;
 
-        boost::math::normal_distribution<> poissonApprox(mean, ::sqrt(mean));
-        boost::math::normal_distribution<> normal(mean, ::sqrt(variance));
+        boost::math::normal_distribution<> poissonApprox(mean, std::sqrt(mean));
+        boost::math::normal_distribution<> normal(mean, std::sqrt(variance));
 
         double poissonExpectedLogWeight = -maths::CTools::differentialEntropy(poissonApprox);
         double normalExpectedLogWeight  = -maths::CTools::differentialEntropy(normal);
@@ -567,7 +567,7 @@ void COneOfNPriorTest::testModelSelection(void)
         double logWeightRatio = logWeights[0] - logWeights[1];
 
         LOG_DEBUG("logWeightRatio = " << logWeightRatio);
-        CPPUNIT_ASSERT(::exp(logWeightRatio) < 1e-6);
+        CPPUNIT_ASSERT(std::exp(logWeightRatio) < 1e-6);
   }
 }
 
@@ -656,15 +656,15 @@ void COneOfNPriorTest::testMarginalLikelihood(void)
             double fx;
             CPPUNIT_ASSERT(filter.jointLogMarginalLikelihood(TDouble1Vec(1, x), fx)
                                == maths_t::E_FpNoErrors);
-            fx = ::exp(fx);
+            fx = std::exp(fx);
 
             double lb;
             double ub;
             CPPUNIT_ASSERT(filter.minusLogJointCdf(TDouble1Vec(1, x + EPS), lb, ub));
-            double FxPlusEps = ::exp(-(lb + ub) / 2.0);
+            double FxPlusEps = std::exp(-(lb + ub) / 2.0);
 
             CPPUNIT_ASSERT(filter.minusLogJointCdf(TDouble1Vec(1, x - EPS), lb, ub));
-            double FxMinusEps = ::exp(-(lb + ub) / 2.0);
+            double FxMinusEps = std::exp(-(lb + ub) / 2.0);
 
             double dFdx = (FxPlusEps - FxMinusEps) / (2.0 * EPS);
 
@@ -673,10 +673,10 @@ void COneOfNPriorTest::testMarginalLikelihood(void)
 
 
             CPPUNIT_ASSERT(filter.minusLogJointCdf(TDouble1Vec(1, x), lb, ub));
-            double Fx = ::exp(-(lb + ub) / 2.0);
+            double Fx = std::exp(-(lb + ub) / 2.0);
 
             CPPUNIT_ASSERT(filter.minusLogJointCdfComplement(TDouble1Vec(1, x), lb, ub));
-            double FxComplement = ::exp(-(lb + ub) / 2.0);
+            double FxComplement = std::exp(-(lb + ub) / 2.0);
             LOG_DEBUG("F(x) = " << Fx << " 1 - F(x) = " << FxComplement);
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, Fx + FxComplement, 1e-3);
@@ -787,7 +787,7 @@ void COneOfNPriorTest::testMarginalLikelihoodMean(void)
                                                  filter.marginalLikelihoodMean(),
                                                  0.2 * expectedMean);
 
-                    relativeError.add(::fabs(filter.marginalLikelihoodMean() - expectedMean) / expectedMean);
+                    relativeError.add(std::fabs(filter.marginalLikelihoodMean() - expectedMean) / expectedMean);
                 }
 
                 LOG_DEBUG("relativeError = " << maths::CBasicStatistics::mean(relativeError));
@@ -837,8 +837,8 @@ void COneOfNPriorTest::testMarginalLikelihoodMode(void)
                 double mode;
                 double fmode;
                 maths::CCompositeFunctions::CExp<maths::CPrior::CLogMarginalLikelihood> likelihood(filter);
-                double a = means[i] - 2.0 * ::sqrt(variances[j]);
-                double b = means[i] + 2.0 * ::sqrt(variances[j]);
+                double a = means[i] - 2.0 * std::sqrt(variances[j]);
+                double b = means[i] + 2.0 * std::sqrt(variances[j]);
                 maths::CSolvers::maximize(a, b, likelihood(a), likelihood(b), likelihood, 0.0, iterations, mode, fmode);
 
                 LOG_DEBUG("marginalLikelihoodMode = " << filter.marginalLikelihoodMode()
@@ -879,7 +879,7 @@ void COneOfNPriorTest::testMarginalLikelihoodMode(void)
                 double mode;
                 double fmode;
                 maths::CCompositeFunctions::CExp<maths::CPrior::CLogMarginalLikelihood> likelihood(filter);
-                boost::math::lognormal_distribution<> logNormal(locations[i], ::sqrt(squareScales[j]));
+                boost::math::lognormal_distribution<> logNormal(locations[i], std::sqrt(squareScales[j]));
                 double a = 0.01;
                 double b = boost::math::mode(logNormal) + 1.0 * boost::math::standard_deviation(logNormal);
                 maths::CSolvers::maximize(a, b, likelihood(a), likelihood(b), likelihood, 0.0, iterations, mode, fmode);
@@ -948,7 +948,7 @@ void COneOfNPriorTest::testMarginalLikelihoodVariance(void)
                                                  filter.marginalLikelihoodVariance(),
                                                  0.02 * expectedVariance);
 
-                    relativeError.add(::fabs(expectedVariance - filter.marginalLikelihoodVariance())
+                    relativeError.add(std::fabs(expectedVariance - filter.marginalLikelihoodVariance())
                                       / expectedVariance);
                 }
 
@@ -1005,7 +1005,7 @@ void COneOfNPriorTest::testMarginalLikelihoodVariance(void)
                                                  filter.marginalLikelihoodVariance(),
                                                  0.01 * expectedVariance);
 
-                    relativeError.add(::fabs(expectedVariance - filter.marginalLikelihoodVariance())
+                    relativeError.add(std::fabs(expectedVariance - filter.marginalLikelihoodVariance())
                                       / expectedVariance);
                 }
 
@@ -1141,7 +1141,7 @@ void COneOfNPriorTest::testCdf(void)
 
             LOG_DEBUG("log(F(x)) = " << (f == 0.0 ? f : -f)
                       << ", log(1 - F(x)) = " << (fComplement == 0.0 ? fComplement : -fComplement));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, ::exp(-f) + ::exp(-fComplement), 1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, std::exp(-f) + std::exp(-fComplement), 1e-10);
         }
     }
 }

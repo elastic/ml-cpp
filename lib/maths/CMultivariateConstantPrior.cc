@@ -35,8 +35,6 @@
 #include <limits>
 #include <sstream>
 
-#include <math.h>
-
 namespace ml
 {
 namespace maths
