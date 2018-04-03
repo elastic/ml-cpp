@@ -28,10 +28,9 @@
 #include <boost/range.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <numeric>
-
-#include <math.h>
 
 using namespace ml;
 using namespace maths;
@@ -55,7 +54,7 @@ class CPolynomialFunction : public std::unary_function<double, double>
             result = 0.0;
             for (unsigned int i = 0u; i < ORDER + 1; ++i)
             {
-                result += m_Coefficients[i] * ::pow(x, static_cast<double>(i));
+                result += m_Coefficients[i] * std::pow(x, static_cast<double>(i));
             }
             return true;
         }
@@ -98,7 +97,7 @@ double integrate(const CPolynomialFunction<ORDER> &f,
     for (unsigned int i = 0; i < ORDER + 1; ++i)
     {
         double n = static_cast<double>(i) + 1.0;
-        result += f.coefficient(i) / n * (::pow(b, n) - ::pow(a, n));
+        result += f.coefficient(i) / n * (std::pow(b, n) - std::pow(a, n));
     }
     return result;
 }
@@ -146,7 +145,7 @@ class CMultivariatePolynomialFunction
                 {
                     if (monomial.s_Powers[j] > 0.0)
                     {
-                        term *= ::pow(x(j), monomial.s_Powers[j]);
+                        term *= std::pow(x(j), monomial.s_Powers[j]);
                     }
                 }
                 result += term;
@@ -202,7 +201,7 @@ double integrate(const CMultivariatePolynomialFunction<DIMENSION> &f,
         for (unsigned int j = 0; j < DIMENSION; ++j)
         {
             double n = (f.terms())[i].s_Powers[j] + 1.0;
-            term *= (::pow(b[j], n) - ::pow(a[j], n)) / n;
+            term *= (std::pow(b[j], n) - std::pow(a[j], n)) / n;
         }
         result += term;
     }
@@ -272,8 +271,8 @@ class CSmoothHeavySide
 
         bool operator()(double x, double &result) const
         {
-            result =    ::exp(m_Slope * (x - m_Offset))
-                     / (::exp(m_Slope * (x - m_Offset)) + 1.0);
+            result =    std::exp(m_Slope * (x - m_Offset))
+                     / (std::exp(m_Slope * (x - m_Offset)) + 1.0);
             return true;
         }
 
@@ -1143,7 +1142,7 @@ void CIntegrationTest::testSparseGrid(void)
         {
             LOG_DEBUG("weight = " << (sparse.weights())[i]);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i],
-                                         (sparse.weights())[i] / ::pow(2.0, 7.0), 1e-6);
+                                         (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             LOG_DEBUG("point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j)
@@ -1179,7 +1178,7 @@ void CIntegrationTest::testSparseGrid(void)
                 LOG_DEBUG("weight = " << (sparse.weights())[i]);
             }
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i],
-                                         (sparse.weights())[i] / ::pow(2.0, 7.0), 1e-6);
+                                         (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             if (i % 10 == 0)
             {

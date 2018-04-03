@@ -136,7 +136,7 @@ double CNaturalBreaksClassifier::percentile(double p) const
         if (percentileCount < count)
         {
             double mean = CBasicStatistics::mean(m_Categories[i]);
-            double deviation = ::sqrt(CBasicStatistics::maximumLikelihoodVariance(m_Categories[i]));
+            double deviation = std::sqrt(CBasicStatistics::maximumLikelihoodVariance(m_Categories[i]));
             if (deviation == 0.0)
             {
                 return mean;
@@ -155,14 +155,14 @@ double CNaturalBreaksClassifier::percentile(double p) const
                 // Left truncate by the assignment boundary between
                 // this and the left category. See deviation for
                 // details.
-                double n1 = ::sqrt(CBasicStatistics::count(m_Categories[i-1]));
+                double n1 = std::sqrt(CBasicStatistics::count(m_Categories[i-1]));
                 double m1 = CBasicStatistics::mean(m_Categories[i-1]);
-                double d1 = ::sqrt(CBasicStatistics::maximumLikelihoodVariance(m_Categories[i-1]));
+                double d1 = std::sqrt(CBasicStatistics::maximumLikelihoodVariance(m_Categories[i-1]));
                 double n2 = count;
                 double m2 = mean;
                 double d2 = deviation;
-                double w1 = ::sqrt(n2 * d2);
-                double w2 = ::sqrt(n1 * d1);
+                double w1 = std::sqrt(n2 * d2);
+                double w2 = std::sqrt(n1 * d1);
                 double xl = (w1 * m1 + w2 * m2) / (w1 + w2);
                 LOG_TRACE("Left truncate to " << xl);
                 x = std::max(x, xl);
@@ -175,11 +175,11 @@ double CNaturalBreaksClassifier::percentile(double p) const
                 double n1 = count;
                 double m1 = mean;
                 double d1 = deviation;
-                double n2 = ::sqrt(CBasicStatistics::count(m_Categories[i+1]));
+                double n2 = std::sqrt(CBasicStatistics::count(m_Categories[i+1]));
                 double m2 = CBasicStatistics::mean(m_Categories[i+1]);
-                double d2 = ::sqrt(CBasicStatistics::maximumLikelihoodVariance(m_Categories[i+1]));
-                double w1 = ::sqrt(n2 * d2);
-                double w2 = ::sqrt(n1 * d1);
+                double d2 = std::sqrt(CBasicStatistics::maximumLikelihoodVariance(m_Categories[i+1]));
+                double w1 = std::sqrt(n2 * d2);
+                double w2 = std::sqrt(n1 * d1);
                 double xr = (w1 * m1 + w2 * m2) / (w1 + w2);
                 LOG_TRACE("Right truncate to " << xr);
                 x = std::min(x, xr);
@@ -464,7 +464,7 @@ void CNaturalBreaksClassifier::propagateForwardsByTime(double time)
         return;
     }
 
-    double alpha = ::exp(-m_DecayRate * time);
+    double alpha = std::exp(-m_DecayRate * time);
     LOG_TRACE("alpha = " << alpha);
     LOG_TRACE("categories = " << core::CContainerPrinter::print(m_Categories));
 
@@ -534,7 +534,7 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
     for (std::size_t i = 0u; i < m_Categories.size(); ++i)
     {
         double ni = static_cast<double>(numberSamples) * weights[i];
-        std::size_t ni_ = static_cast<std::size_t>(::ceil(ni));
+        std::size_t ni_ = static_cast<std::size_t>(std::ceil(ni));
 
         double m = CBasicStatistics::mean(m_Categories[i]);
         double v = CBasicStatistics::maximumLikelihoodVariance(m_Categories[i]);
@@ -898,7 +898,7 @@ double CNaturalBreaksClassifier::deviation(const TTuple &category)
 
     double count = CBasicStatistics::count(category);
     double variance = CBasicStatistics::maximumLikelihoodVariance(category);
-    return ::sqrt(count * variance);
+    return std::sqrt(count * variance);
 }
 
 double CNaturalBreaksClassifier::variation(const TTuple &category)

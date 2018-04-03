@@ -293,8 +293,8 @@ void CKMostCorrelated::add(std::size_t X, double x)
     if (CBasicStatistics::count(moments) > 2.0)
     {
         double m  = CBasicStatistics::mean(moments);
-        double sd = ::sqrt(CBasicStatistics::variance(moments));
-        if (sd > 10.0 * std::numeric_limits<double>::epsilon() * ::fabs(m))
+        double sd = std::sqrt(CBasicStatistics::variance(moments));
+        if (sd > 10.0 * std::numeric_limits<double>::epsilon() * std::fabs(m))
         {
             projected = m_Projections.back() * (x - m) / sd;
             m_CurrentProjected[X] += projected;
@@ -620,7 +620,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const
                 std::size_t X = points[i].second;
                 const TVectorPackedBitVectorPr &px = m_Projected.at(X);
 
-                TVector width(::sqrt(threshold));
+                TVector width(std::sqrt(threshold));
                 nearest.clear();
                 {
                     bgm::box<TPoint> box((px.first - width).to<double>().toBoostArray(),
@@ -697,7 +697,7 @@ void CKMostCorrelated::nextProjection(void)
 
     m_Projected.clear();
 
-    double factor = ::exp(-m_DecayRate);
+    double factor = std::exp(-m_DecayRate);
     m_MaximumCount *= factor;
     for (std::size_t i = 0u; i < m_Moments.size(); ++i)
     {
@@ -816,14 +816,14 @@ double CKMostCorrelated::SCorrelation::distance(double amax) const
 {
     return static_cast<double>(NUMBER_PROJECTIONS)
            * amax
-           * 2.0 * (1.0 - ::fabs(CBasicStatistics::mean(s_Correlation)));
+           * 2.0 * (1.0 - std::fabs(CBasicStatistics::mean(s_Correlation)));
 }
 
 double CKMostCorrelated::SCorrelation::absCorrelation(void) const
 {
-    return   ::fabs(CBasicStatistics::mean(s_Correlation))
+    return   std::fabs(CBasicStatistics::mean(s_Correlation))
            - (  1.0 / std::max(CBasicStatistics::count(s_Correlation), 2.0)
-              + ::sqrt(CBasicStatistics::variance(s_Correlation)));
+              + std::sqrt(CBasicStatistics::variance(s_Correlation)));
 }
 
 double CKMostCorrelated::SCorrelation::correlation(const TVector &px,

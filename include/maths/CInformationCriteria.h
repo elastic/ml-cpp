@@ -196,7 +196,7 @@ class CSphericalGaussianInfoCriterion
                 m_Likelihood +=   ni * log(ni)
                                - 0.5 * m_D * ni * (  1.0
                                                    + core::constants::LOG_TWO_PI
-                                                   + ::log(upper * vi / m_D));
+                                                   + std::log(upper * vi / m_D));
             }
             else
             {
@@ -215,7 +215,7 @@ class CSphericalGaussianInfoCriterion
                 return 0.0;
             }
 
-            double logN = ::log(m_N);
+            double logN = std::log(m_N);
             double p = (m_D * m_K + 2.0 * m_K - 1.0);
             switch (TYPE)
             {
@@ -327,7 +327,7 @@ class CGaussianInfoCriterion
                 return 0.0;
             }
 
-            double logN = ::log(m_N);
+            double logN = std::log(m_N);
             double p = (m_D * (1.0 + 0.5 * (m_D + 1.0)) * m_K + m_K - 1.0);
             switch (TYPE)
             {

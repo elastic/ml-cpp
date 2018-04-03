@@ -610,7 +610,7 @@ void CNormalMeanPrecConjugate::reset(maths_t::EDataType dataType,
 
     if (m_GaussianPrecision > 1.5)
     {
-        double truncatedMean = std::max(::fabs(m_GaussianMean), 1e-8);
+        double truncatedMean = std::max(std::fabs(m_GaussianMean), 1e-8);
         double minimumDeviation = truncatedMean * MINIMUM_COEFFICIENT_OF_VARIATION;
         double minimumRate = (m_GaussianPrecision - 1.0) * minimumDeviation * minimumDeviation;
         m_GammaRate = std::max(m_GammaRate, minimumRate);
@@ -785,7 +785,7 @@ void CNormalMeanPrecConjugate::addSamples(const TWeightStyleVec &weightStyles,
 
     if (m_GaussianPrecision > 1.5)
     {
-        double truncatedMean = std::max(::fabs(m_GaussianMean), 1e-8);
+        double truncatedMean = std::max(std::fabs(m_GaussianMean), 1e-8);
         double minimumDeviation = truncatedMean * MINIMUM_COEFFICIENT_OF_VARIATION;
         double minimumRate = (2.0 * m_GammaShape - 1.0) * minimumDeviation * minimumDeviation;
         m_GammaRate = std::max(m_GammaRate, minimumRate);

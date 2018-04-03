@@ -114,10 +114,10 @@ void CBjkstUniqueValuesTest::testNumber(void)
         double n = static_cast<double>(uniqueValues.size());
 
         double e5 = static_cast<double>(approxUniqueValues5.number());
-        double error5 = ::fabs(e5 - n) / std::max(e5, n);
+        double error5 = std::fabs(e5 - n) / std::max(e5, n);
 
         double e6 = static_cast<double>(approxUniqueValues6.number());
-        double error6 = ::fabs(e6 - n) / std::max(e6, n);
+        double error6 = std::fabs(e6 - n) / std::max(e6, n);
 
         LOG_DEBUG("error5 = " << error5 << ", error6 = " << error6);
         CPPUNIT_ASSERT(error5 < 0.35);
@@ -191,7 +191,7 @@ void CBjkstUniqueValuesTest::testRemove(void)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(unique.size()),
                                      static_cast<double>(sketch.number()),
                                      0.3 * static_cast<double>(unique.size()));
-        meanRelativeErrorBeforeRemove.add(::fabs(  static_cast<double>(unique.size())
+        meanRelativeErrorBeforeRemove.add(std::fabs(  static_cast<double>(unique.size())
                                                  - static_cast<double>(sketch.number()))
                                           / static_cast<double>(unique.size()));
 
@@ -208,7 +208,7 @@ void CBjkstUniqueValuesTest::testRemove(void)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(unique.size()),
                                      static_cast<double>(sketch.number()),
                                      0.25 * static_cast<double>(unique.size()));
-        meanRelativeErrorAfterRemove.add(::fabs(  static_cast<double>(unique.size())
+        meanRelativeErrorAfterRemove.add(std::fabs(  static_cast<double>(unique.size())
                                                 - static_cast<double>(sketch.number()))
                                          / static_cast<double>(unique.size()));
     }
@@ -329,7 +329,7 @@ void CBjkstUniqueValuesTest::testSmall(void)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(unique.size()),
                                      static_cast<double>(sketch.number()),
                                      0.15 * static_cast<double>(unique.size()));
-        meanRelativeError.add(::fabs(  static_cast<double>(unique.size())
+        meanRelativeError.add(std::fabs(  static_cast<double>(unique.size())
                                      - static_cast<double>(sketch.number()))
                               / static_cast<double>(unique.size()));
     }

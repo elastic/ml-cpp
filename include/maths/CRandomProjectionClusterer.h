@@ -463,7 +463,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                         double Zij = 0.0;
                         for (std::size_t k = 0u; k < pij.size(); ++k)
                         {
-                            pij[k] = ::exp(pij[k] - pmax);
+                            pij[k] = std::exp(pij[k] - pmax);
                             Zij += pij[k];
                         }
                         for (std::size_t k = 0u; k < pij.size(); ++k)
@@ -585,7 +585,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                 // a given cluster.
                 for (std::size_t c = 0u; c < nci; ++c)
                 {
-                    double wic = ::log(Wi[c]) - 0.5 * this->logDeterminant(Ci[c]);
+                    double wic = std::log(Wi[c]) - 0.5 * this->logDeterminant(Ci[c]);
                     LOG_TRACE("  w(" << i << "," << c << ") = " << wic);
                     for (std::size_t j = 0u; j < h; ++j)
                     {
@@ -605,7 +605,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                     double Z = 0.0;
                     for (std::size_t c = 0u; c < nci; ++c)
                     {
-                        Pi[j](c) = ::exp(Pi[j](c) - Pmax);
+                        Pi[j](c) = std::exp(Pi[j](c) - Pmax);
                         Z += Pi[j](c);
                     }
                     for (std::size_t c = 0u; c < nci; ++c)
@@ -621,7 +621,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                     S_[j].resize(j + 1);
                     for (std::size_t k = 0u; k <= j; ++k)
                     {
-                        S_[j][k].add(-::log(std::max(Pi[j].inner(Pi[k]),
+                        S_[j][k].add(-std::log(std::max(Pi[j].inner(Pi[k]),
                                                      boost::numeric::bounds<double>::smallest())));
                     }
                 }
@@ -708,7 +708,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
             double result = 0.0;
             for (std::size_t i = 0u, rank = static_cast<std::size_t>(svd.rank()); i < rank; ++i)
             {
-                result += ::log(svd.singularValues()[i]);
+                result += std::log(svd.singularValues()[i]);
             }
             return result;
         }

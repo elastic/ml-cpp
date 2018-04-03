@@ -216,7 +216,7 @@ void CMultinomialConjugateTest::testProbabilityEstimation(void)
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(intervals[k],
                                                  100.0 - testIntervals[j],
                                                  std::min(5.0, 0.4 * (100.0 - testIntervals[j])));
-                    meanError += ::fabs(intervals[k] - (100.0 - testIntervals[j]));
+                    meanError += std::fabs(intervals[k] - (100.0 - testIntervals[j]));
                 }
                 else
                 {
@@ -283,9 +283,9 @@ void CMultinomialConjugateTest::testMarginalLikelihood(void)
 
                 LOG_DEBUG("sample = " << samples[j]
                           << ", expected likelihood = " << p
-                          << ", likelihood = " << ::exp(logp));
+                          << ", likelihood = " << std::exp(logp));
 
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(p, ::exp(logp), 1e-12);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(p, std::exp(logp), 1e-12);
             }
         }
     }
@@ -350,7 +350,7 @@ void CMultinomialConjugateTest::testMarginalLikelihood(void)
                 double p;
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                      filter.jointLogMarginalLikelihood(o2[i], p));
-                p = ::exp(p);
+                p = std::exp(p);
                 p2.push_back(p);
                 LOG_DEBUG("categories = " << core::CContainerPrinter::print(o2[i])
                           << ", p = " << p);
@@ -393,7 +393,7 @@ void CMultinomialConjugateTest::testMarginalLikelihood(void)
                 double p;
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                      filter.jointLogMarginalLikelihood(o3[i], p));
-                p = ::exp(p);
+                p = std::exp(p);
                 p3.push_back(p);
                 LOG_DEBUG("categories = " << core::CContainerPrinter::print(o3[i])
                           << ", p = " << p);
@@ -918,7 +918,7 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void)
         for (std::size_t i = 0u; i < lowerBounds.size(); ++i)
         {
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbabilities[i], lowerBounds[i], 0.1);
-            totalError += ::fabs(lowerBounds[i] - expectedProbabilities[i]);
+            totalError += std::fabs(lowerBounds[i] - expectedProbabilities[i]);
         }
         LOG_DEBUG("totalError = " << totalError);
         CPPUNIT_ASSERT(totalError < 0.7);

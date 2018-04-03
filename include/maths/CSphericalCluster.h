@@ -24,7 +24,7 @@
 
 #include <boost/functional/hash.hpp>
 
-#include <math.h>
+#include <cmath>
 
 namespace ml
 {
@@ -197,7 +197,7 @@ std::ostream &operator<<(std::ostream &o,
 {
     return o << static_cast<const POINT&>(cluster)
              << " (" << cluster.annotation().s_Count
-             << "," << ::sqrt(cluster.annotation().s_Variance) << ")";
+             << "," << std::sqrt(cluster.annotation().s_Variance) << ")";
 }
 
 }

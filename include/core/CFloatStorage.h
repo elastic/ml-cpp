@@ -21,10 +21,8 @@
 
 #include <maths/ImportExport.h>
 
+#include <cmath>
 #include <limits>
-
-#include <math.h>
-
 
 namespace ml
 {
@@ -35,7 +33,7 @@ namespace
 {
 const int MAX_PRECISE_INTEGER_FLOAT(
     static_cast<int>(
-        ::pow(10.0,
+        std::pow(10.0,
               static_cast<double>(std::numeric_limits<float>::digits10))
     ) - 1
 );

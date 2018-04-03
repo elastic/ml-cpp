@@ -143,7 +143,7 @@ void CReportWriterTest::testPretty(void)
         const std::string &code = codes[index[0]];
         stats2[2].add(time, code);
 
-        double range = weight_ > 1.0 ? ::sqrt(weight_) : weight_ * weight_;
+        double range = weight_ > 1.0 ? std::sqrt(weight_) : weight_ * weight_;
         rng.generateUniformSamples(weight_ - range / 2.0, weight_ + range / 2.0, 1, weight);
         stats3.add(time, core::CStringUtils::typeToString(weight[0]));
 

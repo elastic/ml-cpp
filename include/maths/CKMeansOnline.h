@@ -385,7 +385,7 @@ class CKMeansOnline
                 return;
             }
 
-            double alpha = ::exp(-m_DecayRate * time);
+            double alpha = std::exp(-m_DecayRate * time);
             LOG_TRACE("alpha = " << alpha);
 
             this->age(alpha);
@@ -471,7 +471,7 @@ class CKMeansOnline
                 }
                 else
                 {
-                    std::size_t ni_ = static_cast<std::size_t>(::ceil(ni));
+                    std::size_t ni_ = static_cast<std::size_t>(std::ceil(ni));
                     TDoublePoint v(m_Clusters[i].second);
                     sampleGaussian(ni_, m, v.diagonal(), categorySamples);
                 }
@@ -485,7 +485,7 @@ class CKMeansOnline
             LOG_TRACE("weights = " << core::CContainerPrinter::print(weights));
 
             TDoublePointVec final;
-            final.reserve(static_cast<std::size_t>(::ceil(std::accumulate(weights.begin(), weights.end(), 0.0))));
+            final.reserve(static_cast<std::size_t>(std::ceil(std::accumulate(weights.begin(), weights.end(), 0.0))));
             TDoubleMeanAccumulator sample;
             for (;;)
             {

@@ -166,7 +166,7 @@ void CTooMuchDataPenalty::penaltyFor(const TUInt64Vec &bucketCounts,
 
             if (maths::CBasicStatistics::count(penalizedOccupancy) > 0.95 * static_cast<double>(mi.size()))
             {
-                double penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
+                double penalty = std::min(std::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
                 std::size_t index = this->params().penaltyIndexFor(bid, true);
                 indices.push_back(index);
                 penalties.push_back(penalty);

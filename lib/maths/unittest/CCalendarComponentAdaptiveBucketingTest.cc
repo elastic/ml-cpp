@@ -198,8 +198,8 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine(void)
         double y0{function[j - 1]};
         double y1{function[j]};
         double y{y0 + (y1 - y0) * (static_cast<double>(t) - x0) / (x1 - x0)};
-        meanError1.add(::fabs(values1[i - 1] - y));
-        maxError1.add(::fabs(values1[i - 1] - y));
+        meanError1.add(std::fabs(values1[i - 1] - y));
+        maxError1.add(std::fabs(values1[i - 1] - y));
     }
 
     TMeanAccumulator meanError2;
@@ -218,8 +218,8 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine(void)
         double y0{function[j - 1]};
         double y1{function[j]};
         double y{y0 + (y1 - y0) * (static_cast<double>(t) - x0) / (x1 - x0)};
-        meanError2.add(::fabs(values2[i - 1] - y));
-        maxError2.add(::fabs(values2[i - 1] - y));
+        meanError2.add(std::fabs(values2[i - 1] - y));
+        maxError2.add(std::fabs(values2[i - 1] - y));
     }
 
     LOG_DEBUG("mean error         = " << maths::CBasicStatistics::mean(meanError1));
@@ -328,7 +328,7 @@ void CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength(void)
         double totalError{0.0};
         for (std::size_t j = 0u; j < endpoints1.size(); ++j)
         {
-            totalError += ::fabs(endpoints2[j] - endpoints1[j]);
+            totalError += std::fabs(endpoints2[j] - endpoints1[j]);
         }
 
         LOG_DEBUG("minimumTotalError = " << minimumTotalError);
@@ -429,8 +429,8 @@ void CCalendarComponentAdaptiveBucketingTest::testKnots(void)
                                         * (knots[i] - 43800.0)};
             LOG_DEBUG("expected = " << expectedValue << ", value = " << values[i]);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedValue, values[i], 50000.0);
-            meanError.add(::fabs(values[i] - expectedValue));
-            meanValue.add(::fabs(expectedValue));
+            meanError.add(std::fabs(values[i] - expectedValue));
+            meanValue.add(std::fabs(expectedValue));
         }
         LOG_DEBUG("meanError = " << maths::CBasicStatistics::mean(meanError));
         LOG_DEBUG("meanValue = " << maths::CBasicStatistics::mean(meanValue));
@@ -479,8 +479,8 @@ void CCalendarComponentAdaptiveBucketingTest::testKnots(void)
             LOG_DEBUG("expected = " << expectedVariance
                       << ", variance = " << variances[i]);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVariance, variances[i], 5.0);
-            meanError.add(::fabs(variances[i] - expectedVariance));
-            meanVariance.add(::fabs(expectedVariance));
+            meanError.add(std::fabs(variances[i] - expectedVariance));
+            meanVariance.add(std::fabs(expectedVariance));
         }
         LOG_DEBUG("meanError    = " << maths::CBasicStatistics::mean(meanError));
         LOG_DEBUG("meanVariance = " << maths::CBasicStatistics::mean(meanVariance));

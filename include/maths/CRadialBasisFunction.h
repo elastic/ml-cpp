@@ -18,7 +18,7 @@
 
 #include <maths/ImportExport.h>
 
-#include <math.h>
+#include <cmath>
 
 namespace ml
 {

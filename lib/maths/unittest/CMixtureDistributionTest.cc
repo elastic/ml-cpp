@@ -424,7 +424,7 @@ void CMixtureDistributionTest::testQuantile(void)
         {
             double q = static_cast<double>(p) / 100.0;
             double f = cdf(mixture, quantile(mixture, q));
-            LOG_DEBUG("Error = " << ::fabs(q - f));
+            LOG_DEBUG("Error = " << std::fabs(q - f));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(q, f, 1e-10);
         }
     }

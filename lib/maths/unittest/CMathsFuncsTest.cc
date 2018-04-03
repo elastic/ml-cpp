@@ -17,10 +17,9 @@
 
 #include <maths/CMathsFuncs.h>
 
+#include <cmath>
 #include <limits>
 #include <vector>
-
-#include <math.h>
 
 using namespace ml;
 
@@ -53,8 +52,8 @@ void CMathsFuncsTest::testIsInf(void)
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isInf(-std::numeric_limits<double>::min()));
     CPPUNIT_ASSERT(maths::CMathsFuncs::isInf(1.0 / zero()));
     CPPUNIT_ASSERT(maths::CMathsFuncs::isInf(2.0 / zero()));
-    CPPUNIT_ASSERT(maths::CMathsFuncs::isInf(::log(zero())));
-    CPPUNIT_ASSERT(maths::CMathsFuncs::isInf(::exp(1.0 / zero())));
+    CPPUNIT_ASSERT(maths::CMathsFuncs::isInf(std::log(zero())));
+    CPPUNIT_ASSERT(maths::CMathsFuncs::isInf(std::exp(1.0 / zero())));
 }
 
 void CMathsFuncsTest::testIsFinite(void)
@@ -70,7 +69,7 @@ void CMathsFuncsTest::testIsFinite(void)
     CPPUNIT_ASSERT(maths::CMathsFuncs::isFinite(-std::numeric_limits<double>::min()));
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isFinite(1.0 / zero()));
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isFinite(2.0 / zero()));
-    CPPUNIT_ASSERT(!maths::CMathsFuncs::isFinite(::log(zero())));
+    CPPUNIT_ASSERT(!maths::CMathsFuncs::isFinite(std::log(zero())));
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isFinite(zero() / zero()));
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isFinite(1.0 / zero() - 2.0 / zero()));
 

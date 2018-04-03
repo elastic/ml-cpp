@@ -351,7 +351,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
                 return;
             }
 
-            double alpha = ::exp(-this->scaledDecayRate() * time);
+            double alpha = std::exp(-this->scaledDecayRate() * time);
 
             m_GaussianPrecision =         alpha  * m_GaussianPrecision
                                  + (1.0 - alpha) * TPoint(NON_INFORMATIVE_PRECISION);
@@ -457,8 +457,8 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
 
                 double mean = m1 + c12.transpose() * c22SolvexcMinusm2;
                 double variance = std::max(c11 - c12.transpose() * c22.solve(c12),
-                                           MINIMUM_COEFFICIENT_OF_VARIATION * ::fabs(mean));
-                double weight = 0.5 * (::log(variance) - (xc - m2).transpose() * c22SolvexcMinusm2);
+                                           MINIMUM_COEFFICIENT_OF_VARIATION * std::fabs(mean));
+                double weight = 0.5 * (std::log(variance) - (xc - m2).transpose() * c22SolvexcMinusm2);
                 LOG_TRACE("mean = " << mean
                           << ", variance = " << variance
                           << ", weight = " << weight);
@@ -689,14 +689,14 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
 
                     if (logLikelihood > maxLogLikelihood)
                     {
-                        sum *= ::exp(maxLogLikelihood - logLikelihood);
+                        sum *= std::exp(maxLogLikelihood - logLikelihood);
                         maxLogLikelihood = logLikelihood;
                     }
-                    sum += ::exp(logLikelihood - maxLogLikelihood);
+                    sum += std::exp(logLikelihood - maxLogLikelihood);
                     n   += 1.0;
                 }
 
-                result = maxLogLikelihood + ::log(sum / n);
+                result = maxLogLikelihood + std::log(sum / n);
             }
             else
             {
@@ -936,7 +936,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
             TDenseVector diag = precision.singularValues();
             for (std::size_t i = 0u; i < rank; ++i)
             {
-                diag(i) = 1.0 / ::sqrt(diag(i));
+                diag(i) = 1.0 / std::sqrt(diag(i));
             }
             for (std::size_t i = rank; i < N; ++i)
             {
@@ -964,7 +964,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
                 A.setZero();
                 for (std::size_t i = 0, k = 0u; i < rank; ++i)
                 {
-                    A(i,i) = ::sqrt(chi[i * n + s]);
+                    A(i,i) = std::sqrt(chi[i * n + s]);
                     for (std::size_t j = 0u; j < i; ++j, ++k)
                     {
                         A(i,j) = normal[(s * rank * (rank - 1)) / 2 + k];
@@ -1186,7 +1186,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
                     covariancePost.add(x, n / countVarianceScale);
                     for (std::size_t j = 0u; j < N; ++j)
                     {
-                        logCountVarianceScales -= 0.5 * ::log(countVarianceScale(j));
+                        logCountVarianceScales -= 0.5 * std::log(countVarianceScale(j));
                     }
                 }
             }
@@ -1206,8 +1206,8 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
             double logGaussianPrecisionPost  = 0.0;
             for (std::size_t i = 0u; i < N; ++i)
             {
-                logGaussianPrecisionPrior += ::log(m_GaussianPrecision(i));
-                logGaussianPrecisionPost  += ::log(m_GaussianPrecision(i) + scaledNumberSamples(i));
+                logGaussianPrecisionPrior += std::log(m_GaussianPrecision(i));
+                logGaussianPrecisionPost  += std::log(m_GaussianPrecision(i) + scaledNumberSamples(i));
             }
             double wishartDegreesFreedomPrior = m_WishartDegreesFreedom;
             double wishartDegreesFreedomPost  = m_WishartDegreesFreedom + numberSamples;

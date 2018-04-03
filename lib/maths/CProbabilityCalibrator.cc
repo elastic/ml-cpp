@@ -42,14 +42,14 @@ const double DISCRETIZATION_FACTOR = 100.0;
 uint32_t discreteProbability(const double probability)
 {
     return static_cast<uint32_t>(DISCRETIZATION_FACTOR
-                                 * -::log(probability) + 0.5);
+                                 * -std::log(probability) + 0.5);
 }
 
 //! Convert a discrete probability integer into the
 //! approximate probability which generated it.
 double rawProbability(const uint32_t &discreteProbability)
 {
-    return ::exp(-static_cast<double>(discreteProbability)
+    return std::exp(-static_cast<double>(discreteProbability)
                  / DISCRETIZATION_FACTOR);
 }
 

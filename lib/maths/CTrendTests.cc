@@ -634,7 +634,7 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test(void) const
         double s = stat.second.s_Significance;
         if (   stat.second.s_Repeats >= MINIMUM_REPEATS
             && e > errorThreshold * x
-            && ::pow(s, r) < MAXIMUM_SIGNIFICANCE)
+            && std::pow(s, r) < MAXIMUM_SIGNIFICANCE)
         {
             result.add({e, stat.second.s_Offset, feature});
         }

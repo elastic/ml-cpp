@@ -30,12 +30,11 @@
 #include <boost/bind.hpp>
 #include <boost/optional.hpp>
 
+#include <cmath>
 #include <iomanip>
 #include <ios>
 #include <limits>
 #include <sstream>
-
-#include <math.h>
 
 namespace ml
 {

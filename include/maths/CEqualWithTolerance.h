@@ -20,9 +20,8 @@
 
 #include <maths/CLinearAlgebraFwd.h>
 
+#include <cmath>
 #include <functional>
-
-#include <math.h>
 
 namespace ml
 {

@@ -17,10 +17,8 @@
 #include <core/CLogger.h>
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
-
-#include <math.h>
-
 
 namespace ml
 {

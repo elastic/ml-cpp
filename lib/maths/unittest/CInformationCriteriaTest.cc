@@ -50,7 +50,7 @@ double logfSphericalGaussian(const POINT &mean,
 {
     double d = static_cast<double>(x.dimension());
     double r = (x - mean).euclidean();
-    return -0.5 * (  d * ::log(boost::math::double_constants::two_pi * variance)
+    return -0.5 * (  d * std::log(boost::math::double_constants::two_pi * variance)
                    + r * r / variance);
 }
 
@@ -100,10 +100,10 @@ void CInformationCriteriaTest::testSphericalGaussian(void)
         for (std::size_t i = 0u; i < samples.size(); ++i)
         {
             likelihood += -2.0 * logfSphericalGaussian(mean, variance, samples[i])
-                         + 2.0 * ::log(upper);
+                         + 2.0 * std::log(upper);
         }
         double expectedAICc = likelihood + 6.0 + 12.0 / (n - 4.0);
-        double expectedBIC  = likelihood + 3.0 * ::log(n);
+        double expectedBIC  = likelihood + 3.0 * std::log(n);
 
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_BIC> bic;
         bic.add(samples);
@@ -142,10 +142,10 @@ void CInformationCriteriaTest::testSphericalGaussian(void)
         for (std::size_t i = 0u; i < samples.size(); ++i)
         {
             likelihood += -2.0 * logfSphericalGaussian(mean, variance, samples[i])
-                         + 4.0 * ::log(upper);
+                         + 4.0 * std::log(upper);
         }
         double expectedAICc = likelihood + 10.0 + 30.0 / (n - 6.0);
-        double expectedBIC  = likelihood + 5.0 * ::log(n);
+        double expectedBIC  = likelihood + 5.0 * std::log(n);
 
         maths::CSphericalGaussianInfoCriterion<TVector4, maths::E_BIC> bic;
         bic.add(samples);
@@ -338,10 +338,10 @@ void CInformationCriteriaTest::testGaussian(void)
         for (std::size_t i = 0u; i < samples.size(); ++i)
         {
             likelihood += -2.0 * logfGaussian(mean, covariance, samples[i])
-                         + 2.0 * ::log(upper);
+                         + 2.0 * std::log(upper);
         }
         double expectedAICc = likelihood + 10.0 + 30.0 / (n - 6.0);
-        double expectedBIC  = likelihood + 5.0 * ::log(n);
+        double expectedBIC  = likelihood + 5.0 * std::log(n);
 
         maths::CGaussianInfoCriterion<TVector2, maths::E_BIC> bic;
         bic.add(samples);
@@ -379,10 +379,10 @@ void CInformationCriteriaTest::testGaussian(void)
         for (std::size_t i = 0u; i < samples.size(); ++i)
         {
             likelihood += -2.0 * logfGaussian(mean, covariance, samples[i])
-                         + 4.0 * ::log(upper);
+                         + 4.0 * std::log(upper);
         }
         double expectedAICc = likelihood + 28.0 + 210.0 / (n - 15.0);
-        double expectedBIC  = likelihood + 14.0 * ::log(n);
+        double expectedBIC  = likelihood + 14.0 * std::log(n);
 
         maths::CGaussianInfoCriterion<TVector4, maths::E_BIC> bic;
         bic.add(samples);

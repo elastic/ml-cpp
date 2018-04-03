@@ -47,7 +47,7 @@ bool computeDeviation(const TTuple &category,
 {
     double count = CBasicStatistics::count(category);
     double variance = CBasicStatistics::variance(category);
-    result = ::sqrt((count - 1.0) * variance);
+    result = std::sqrt((count - 1.0) * variance);
     return count >= static_cast<double>(p);
 }
 
@@ -303,13 +303,13 @@ void CNaturalBreaksClassifierTest::testCategories(void)
         double c1 = CBasicStatistics::count(twoSplit[0]);
         double c2 = CBasicStatistics::count(twoSplit[1]);
         LOG_DEBUG("count ratio = " << c1/c2);
-        CPPUNIT_ASSERT(::fabs(c1/c2 - 1.0) < 0.8);
-        double separation = ::fabs(CBasicStatistics::mean(twoSplit[0])
+        CPPUNIT_ASSERT(std::fabs(c1/c2 - 1.0) < 0.8);
+        double separation = std::fabs(CBasicStatistics::mean(twoSplit[0])
                                    - CBasicStatistics::mean(twoSplit[1]))
-                            / (::sqrt(CBasicStatistics::variance(twoSplit[0]))
-                               + ::sqrt(CBasicStatistics::variance(twoSplit[1])));
+                            / (std::sqrt(CBasicStatistics::variance(twoSplit[0]))
+                               + std::sqrt(CBasicStatistics::variance(twoSplit[1])));
         LOG_DEBUG("separation = " << separation);
-        CPPUNIT_ASSERT(::fabs(separation - 1.0) < 0.4);
+        CPPUNIT_ASSERT(std::fabs(separation - 1.0) < 0.4);
     }
     {
         const double mean1 = 10.0;
@@ -345,14 +345,14 @@ void CNaturalBreaksClassifierTest::testCategories(void)
                           << ", (mean1,var1) = (" << mean1 << "," << var1 << ")"
                           << ", (mean2,var2) = (" << mean2 << "," << var2 << ")");
 
-                CPPUNIT_ASSERT(::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.5);
-                CPPUNIT_ASSERT(::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.6);
-                CPPUNIT_ASSERT(::fabs(CBasicStatistics::count(twoSplit[0])
+                CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.5);
+                CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.6);
+                CPPUNIT_ASSERT(std::fabs(CBasicStatistics::count(twoSplit[0])
                                       - static_cast<double>(n1))
                                    / static_cast<double>(n1) < 0.33);
-                CPPUNIT_ASSERT(::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.4);
-                CPPUNIT_ASSERT(::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 0.63);
-                CPPUNIT_ASSERT(::fabs(CBasicStatistics::count(twoSplit[1])
+                CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.4);
+                CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 0.63);
+                CPPUNIT_ASSERT(std::fabs(CBasicStatistics::count(twoSplit[1])
                                       - static_cast<double>(n2))
                                    / static_cast<double>(n2) < 0.11);
             }
@@ -383,22 +383,22 @@ void CNaturalBreaksClassifierTest::testCategories(void)
             LOG_DEBUG("split 1 = " << CBasicStatistics::print(twoSplit[0])
                       << ", split 2 = " << CBasicStatistics::print(twoSplit[1]));
 
-            CPPUNIT_ASSERT(::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.7);
-            CPPUNIT_ASSERT(::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
-            CPPUNIT_ASSERT(::fabs(CBasicStatistics::count(twoSplit[0])
+            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.7);
+            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
+            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::count(twoSplit[0])
                                   - static_cast<double>(n1)) / static_cast<double>(n1) < 0.7);
-            CPPUNIT_ASSERT(::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.6);
-            CPPUNIT_ASSERT(::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 1.0);
-            CPPUNIT_ASSERT(::fabs(CBasicStatistics::count(twoSplit[1])
+            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.6);
+            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 1.0);
+            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::count(twoSplit[1])
                                   - static_cast<double>(n2)) / static_cast<double>(n2) < 0.3);
 
-            totalMeanError1 += ::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1);
-            totalVarError1 += ::fabs(CBasicStatistics::variance(twoSplit[0]) - var1);
-            totalCountError1 += ::fabs(CBasicStatistics::count(twoSplit[0])
+            totalMeanError1 += std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1);
+            totalVarError1 += std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1);
+            totalCountError1 += std::fabs(CBasicStatistics::count(twoSplit[0])
                                        - static_cast<double>(n1)) / static_cast<double>(n1);
-            totalMeanError2 += ::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2);
-            totalVarError2 += ::fabs(CBasicStatistics::variance(twoSplit[1]) - var2);
-            totalCountError2 += ::fabs(CBasicStatistics::count(twoSplit[1])
+            totalMeanError2 += std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2);
+            totalVarError2 += std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2);
+            totalCountError2 += std::fabs(CBasicStatistics::count(twoSplit[1])
                                        - static_cast<double>(n2)) / static_cast<double>(n2);
         }
 
@@ -479,22 +479,22 @@ void CNaturalBreaksClassifierTest::testCategories(void)
                       << ", split 2 = " << CBasicStatistics::print(twoSplit[1])
                       << ", split 3 = " << CBasicStatistics::print(twoSplit[2]));
 
-            CPPUNIT_ASSERT(::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.15);
-            CPPUNIT_ASSERT(::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
-            CPPUNIT_ASSERT(::fabs(CBasicStatistics::count(twoSplit[0])
+            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.15);
+            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
+            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::count(twoSplit[0])
                                   - static_cast<double>(n1)) / static_cast<double>(n1) < 0.05);
-            CPPUNIT_ASSERT(::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.5);
-            CPPUNIT_ASSERT(::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 2.5);
-            CPPUNIT_ASSERT(::fabs(CBasicStatistics::count(twoSplit[1])
+            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.5);
+            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 2.5);
+            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::count(twoSplit[1])
                                   - static_cast<double>(n2)) / static_cast<double>(n2) < 0.15);
 
-            totalMeanError1 += ::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1);
-            totalVarError1 += ::fabs(CBasicStatistics::variance(twoSplit[0]) - var1);
-            totalCountError1 += ::fabs(CBasicStatistics::count(twoSplit[0])
+            totalMeanError1 += std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1);
+            totalVarError1 += std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1);
+            totalCountError1 += std::fabs(CBasicStatistics::count(twoSplit[0])
                                        - static_cast<double>(n1)) / static_cast<double>(n1);
-            totalMeanError2 += ::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2);
-            totalVarError2 += ::fabs(CBasicStatistics::variance(twoSplit[1]) - var2);
-            totalCountError2 += ::fabs(CBasicStatistics::count(twoSplit[1])
+            totalMeanError2 += std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2);
+            totalVarError2 += std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2);
+            totalCountError2 += std::fabs(CBasicStatistics::count(twoSplit[1])
                                        - static_cast<double>(n2)) / static_cast<double>(n2);
         }
 
@@ -619,7 +619,7 @@ void CNaturalBreaksClassifierTest::testSample(void)
     double error = 0.0;
     for (std::size_t i = 0u; i < expectedSampled.size(); ++i)
     {
-        error += ::fabs(expectedSampled[i] - sampled[i]);
+        error += std::fabs(expectedSampled[i] - sampled[i]);
     }
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, error, 2e-6);

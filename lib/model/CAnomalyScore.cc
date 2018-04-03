@@ -181,12 +181,12 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
         return false;
     }
 
-    double logMaximumAnomalousProbability = ::log(maximumAnomalousProbability);
+    double logMaximumAnomalousProbability = std::log(maximumAnomalousProbability);
     if (   logPJoint > logMaximumAnomalousProbability
         && logPExtreme > logMaximumAnomalousProbability)
     {
-        overallProbability =   ::exp(jointProbabilityWeight * logPJoint)
-                             * ::exp(extremeProbabilityWeight * logPExtreme);
+        overallProbability =   std::exp(jointProbabilityWeight * logPJoint)
+                             * std::exp(extremeProbabilityWeight * logPExtreme);
         return true;
     }
 
@@ -194,7 +194,7 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
     // [e^-100000, 1].
 
     static const double NORMAL_RANGE_SCORE_FRACTION = 0.8;
-    static const double LOG_SMALLEST_PROBABILITY = ::log(maths::CTools::smallestProbability());
+    static const double LOG_SMALLEST_PROBABILITY = std::log(maths::CTools::smallestProbability());
     static const double SMALLEST_PROBABILITY_DEVIATION = probabilityToScore(maths::CTools::smallestProbability());
     static const double SMALLEST_LOG_JOINT_PROBABILTY   = -100000.0;
     static const double SMALLEST_LOG_EXTREME_PROBABILTY = -1500.0;
@@ -213,7 +213,7 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
     {
         overallAnomalyScore =   NORMAL_RANGE_SCORE_FRACTION
                               * jointProbabilityWeight
-                              * probabilityToScore(::exp(logPJoint));
+                              * probabilityToScore(std::exp(logPJoint));
     }
 
     if (logPExtreme < LOG_SMALLEST_PROBABILITY)
@@ -230,7 +230,7 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
     {
         overallAnomalyScore +=   NORMAL_RANGE_SCORE_FRACTION
                                * extremeProbabilityWeight
-                               * probabilityToScore(::exp(logPExtreme));
+                               * probabilityToScore(std::exp(logPExtreme));
     }
 
     // Invert the deviation in the region it is 1-to-1 otherwise
@@ -239,8 +239,8 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
                          scoreToProbability(std::min(  overallAnomalyScore
                                                      / NORMAL_RANGE_SCORE_FRACTION,
                                                      SMALLEST_PROBABILITY_DEVIATION)) :
-                           ::exp(jointProbabilityWeight * logPJoint)
-                         * ::exp(extremeProbabilityWeight * logPExtreme);
+                           std::exp(jointProbabilityWeight * logPJoint)
+                         * std::exp(extremeProbabilityWeight * logPExtreme);
 
     LOG_TRACE("logJointProbability = " << logPJoint
               << ", jointProbabilityWeight = " << jointProbabilityWeight
@@ -428,8 +428,8 @@ bool CAnomalyScore::CNormalizer::normalize(double &score) const
     double lowerBound;
     double upperBound;
     this->quantile(score, CONFIDENCE_INTERVAL, lowerBound, upperBound);
-    double lowerPercentile = 100.0 * ::pow(lowerBound, 1.0 / m_BucketNormalizationFactor);
-    double upperPercentile = 100.0 * ::pow(upperBound, 1.0 / m_BucketNormalizationFactor);
+    double lowerPercentile = 100.0 * std::pow(lowerBound, 1.0 / m_BucketNormalizationFactor);
+    double upperPercentile = 100.0 * std::pow(upperBound, 1.0 / m_BucketNormalizationFactor);
     if (lowerPercentile > upperPercentile)
     {
         std::swap(lowerPercentile, upperPercentile);
@@ -500,11 +500,11 @@ bool CAnomalyScore::CNormalizer::normalize(double &score) const
     // largest significant and small probability.
     static const double M =  (  probabilityToScore(maths::SMALL_PROBABILITY)
                               - probabilityToScore(maths::LARGEST_SIGNIFICANT_PROBABILITY))
-                           / (  ::log(maths::SMALL_PROBABILITY)
-                              - ::log(maths::LARGEST_SIGNIFICANT_PROBABILITY));
-    static const double C = ::log(maths::LARGEST_SIGNIFICANT_PROBABILITY);
+                           / (  std::log(maths::SMALL_PROBABILITY)
+                              - std::log(maths::LARGEST_SIGNIFICANT_PROBABILITY));
+    static const double C = std::log(maths::LARGEST_SIGNIFICANT_PROBABILITY);
     normalizedScores[3] =  m_MaximumNormalizedScore
-                         * (0.95 * M * (::log(scoreToProbability(score)) - C) + 0.05);
+                         * (0.95 * M * (std::log(scoreToProbability(score)) - C) + 0.05);
     LOG_TRACE("normalizedScores[3] = " << normalizedScores[3]
               << ", score = " << score
               << ", probability = " << scoreToProbability(score));
@@ -806,7 +806,7 @@ void CAnomalyScore::CNormalizer::propagateForwardByTime(double time)
         return;
     }
 
-    double alpha = ::exp(-2.0 * m_DecayRate * time);
+    double alpha = std::exp(-2.0 * m_DecayRate * time);
     m_MaxScore.age(alpha);
 
     // Quantiles age at a much slower rate than everything else so that
@@ -815,7 +815,7 @@ void CAnomalyScore::CNormalizer::propagateForwardByTime(double time)
     m_TimeToQuantileDecay -= time;
     if (m_TimeToQuantileDecay <= 0.0)
     {
-        time = ::floor( (QUANTILE_DECAY_TIME - m_TimeToQuantileDecay)
+        time = std::floor( (QUANTILE_DECAY_TIME - m_TimeToQuantileDecay)
                        / QUANTILE_DECAY_TIME);
 
         uint64_t n = m_RawScoreQuantileSummary.n();
@@ -829,7 +829,7 @@ void CAnomalyScore::CNormalizer::propagateForwardByTime(double time)
                                       * static_cast<double>(m_HighPercentileCount) + 0.5);
         }
         m_TimeToQuantileDecay +=   QUANTILE_DECAY_TIME
-                                + ::floor(-m_TimeToQuantileDecay / QUANTILE_DECAY_TIME);
+                                + std::floor(-m_TimeToQuantileDecay / QUANTILE_DECAY_TIME);
     }
 }
 

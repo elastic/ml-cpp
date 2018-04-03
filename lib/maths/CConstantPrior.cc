@@ -26,12 +26,11 @@
 
 #include <boost/bind.hpp>
 
+#include <cmath>
 #include <iomanip>
 #include <ios>
 #include <limits>
 #include <sstream>
-
-#include <math.h>
 
 namespace ml
 {
@@ -60,7 +59,7 @@ const std::string CONSTANT_TAG("a");
 
 const std::string EMPTY_STRING;
 
-const double LOG_TWO = ::log(2.0);
+const double LOG_TWO = std::log(2.0);
 
 }
 

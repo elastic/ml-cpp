@@ -118,7 +118,7 @@ void CPenalty::penalize(CDetectorSpecification &spec) const
 
 double CPenalty::score(double penalty)
 {
-    return constants::DETECTOR_SCORE_EPSILON * ::floor(  constants::MAXIMUM_DETECTOR_SCORE * penalty
+    return constants::DETECTOR_SCORE_EPSILON * std::floor(  constants::MAXIMUM_DETECTOR_SCORE * penalty
                                                        / constants::DETECTOR_SCORE_EPSILON);
 }
 

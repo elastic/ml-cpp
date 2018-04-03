@@ -25,7 +25,7 @@
 #include <boost/bind.hpp>
 #include <boost/range.hpp>
 
-#include <math.h>
+#include <cmath>
 
 namespace ml
 {
@@ -46,12 +46,12 @@ using TDoubleVec = std::vector<double>;
 //! iterative solver.
 double F(double r, double delta)
 {
-    r = ::fabs(r);
+    r = std::fabs(r);
     if (r <= delta)
     {
         return 0.25;
     }
-    double s = ::exp(r - delta);
+    double s = std::exp(r - delta);
     return 1.0 / (2.0 + s + 1.0 / s);
 }
 
@@ -120,11 +120,11 @@ double logLikelihood(const MATRIX &x,
 
     for (std::size_t i = 0u; i < f.size(); ++i)
     {
-        result -= ::log(1.0 + ::exp(-f[i] * y[i]));
+        result -= std::log(1.0 + std::exp(-f[i] * y[i]));
     }
     for (std::size_t j = 0u; j < beta.size(); ++j)
     {
-        result -= lambda[j] * ::fabs(beta[j]);
+        result -= lambda[j] * std::fabs(beta[j]);
     }
 
     return result;
@@ -169,8 +169,8 @@ void CLG(std::size_t maxIterations,
             double xy  = xij * y[i];
             double xx  = xij * xij;
             double ri  = r[i];
-            num[j] += xy / (1.0 + ::exp(ri));
-            den[j] += xx * F(ri, Dj * ::fabs(xij));
+            num[j] += xy / (1.0 + std::exp(ri));
+            den[j] += xx * F(ri, Dj * std::fabs(xij));
         }
     }
 
@@ -188,7 +188,7 @@ void CLG(std::size_t maxIterations,
             double dbj = CTools::truncate(dvj, -Dj, +Dj);
 
             beta[j] += dbj;
-            delta[j] = std::max(2.0 * ::fabs(dbj), Dj / 2.0);
+            delta[j] = std::max(2.0 * std::fabs(dbj), Dj / 2.0);
             if (dbj != 0.0 || j+1 == d)
             {
                 for (iterator itr = x.beginRows(j); itr != x.endRows(j); ++itr)
@@ -209,8 +209,8 @@ void CLG(std::size_t maxIterations,
                     double xy  = xij * y[i];
                     double xx  = xij * xij;
                     double ri  = r[i];
-                    numjPlus1 += xy / (1.0 + ::exp(ri));
-                    denjPlus1 += xx * F(ri, DjPlus1 * ::fabs(xij));
+                    numjPlus1 += xy / (1.0 + std::exp(ri));
+                    denjPlus1 += xx * F(ri, DjPlus1 * std::fabs(xij));
                 }
             }
         }
@@ -226,8 +226,8 @@ void CLG(std::size_t maxIterations,
         double sum  = 0.0;
         for (std::size_t i = 0u; i < r.size(); ++i)
         {
-            dsum += ::fabs(r[i] - rlast[i]);
-            sum  += ::fabs(r[i]);
+            dsum += std::fabs(r[i] - rlast[i]);
+            sum  += std::fabs(r[i]);
         }
         LOG_TRACE("sum |dr| = " << dsum << ", sum |r| = " << sum);
         if (dsum < eps * (1.0 + sum))
@@ -465,7 +465,7 @@ bool CLogisticRegressionModel::operator()(const TDoubleVec &x,
     {
         r -= m_Beta[i].second * x[m_Beta[i].first];
     }
-    probability = 1.0 / (1.0 + ::exp(-r));
+    probability = 1.0 / (1.0 + std::exp(-r));
     return true;
 }
 
@@ -494,7 +494,7 @@ double CLogisticRegressionModel::operator()(const TSizeDoublePrVec &x) const
             ++j;
         }
     }
-    return 1.0 / (1.0 + ::exp(-r));
+    return 1.0 / (1.0 + std::exp(-r));
 }
 
 namespace
@@ -798,7 +798,7 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
     std::size_t n = m_X.size();
     LOG_DEBUG("d = " << m_D << ", n = " << n);
 
-    double lambda = ::sqrt(l22Norm(m_X) / 2.0);
+    double lambda = std::sqrt(l22Norm(m_X) / 2.0);
     m_Lambda = lambda;
     if (n <= 1)
     {

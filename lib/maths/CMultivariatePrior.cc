@@ -341,8 +341,8 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     LOG_TRACE("lb = " << core::CContainerPrinter::print(lb)
               << ", ub = " << core::CContainerPrinter::print(ub));
 
-    lowerBound = ::sqrt(lb[0] * lb[1]);
-    upperBound = ::sqrt(ub[0] * ub[1]);
+    lowerBound = std::sqrt(lb[0] * lb[1]);
+    upperBound = std::sqrt(ub[0] * ub[1]);
     return true;
 }
 
@@ -427,7 +427,7 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x, s
             sample[0][1] = y_;
             double l;
             xyMargin->jointLogMarginalLikelihood(CConstantWeights::COUNT, sample, weight, l);
-            likelihood << ::exp(l) << " ";
+            likelihood << std::exp(l) << " ";
         }
         likelihood << core_t::LINE_ENDING;
     }
@@ -479,7 +479,7 @@ double CMultivariatePrior::unmarginalizedParameters(void) const
 
 double CMultivariatePrior::scaledDecayRate(void) const
 {
-    return ::pow(0.5, static_cast<double>(this->dimension())) * this->decayRate();
+    return std::pow(0.5, static_cast<double>(this->dimension())) * this->decayRate();
 }
 
 void CMultivariatePrior::addSamples(double n)

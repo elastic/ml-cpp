@@ -23,7 +23,7 @@
 
 #include <boost/numeric/conversion/bounds.hpp>
 
-#include <math.h>
+#include <cmath>
 #include <stdint.h>
 
 

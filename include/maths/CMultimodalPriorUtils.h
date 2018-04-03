@@ -138,7 +138,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
             double countVarianceScale = 1.0;
             try
             {
-                seasonalScale = ::sqrt(maths_t::seasonalVarianceScale(weightStyles, weights));
+                seasonalScale = std::sqrt(maths_t::seasonalVarianceScale(weightStyles, weights));
                 countVarianceScale = maths_t::countVarianceScale(weightStyles, weights);
             }
             catch (const std::exception &e)
@@ -163,7 +163,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                 {
                     continue;
                 }
-                if (maxLikelihood.add(::log(w) + likelihood))
+                if (maxLikelihood.add(std::log(w) + likelihood))
                 {
                     result = mode[0];
                 }
@@ -258,8 +258,8 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                 return support;
             }
 
-            double p1 = ::log((1.0 - percentage) / 2.0);
-            double p2 = ::log((1.0 + percentage) / 2.0);
+            double p1 = std::log((1.0 - percentage) / 2.0);
+            double p2 = std::log((1.0 + percentage) / 2.0);
 
             CLogCdf<PRIOR> fl(CLogCdf<PRIOR>::E_Lower, prior, weightStyles, weights);
             CLogCdf<PRIOR> fu(CLogCdf<PRIOR>::E_Upper, prior, weightStyles, weights);
@@ -401,8 +401,8 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                 for (std::size_t i = 0u; i < samples.size(); ++i)
                 {
                     double n = maths_t::countForUpdate(weightStyles, weights[i]);
-                    double seasonalScale = ::sqrt(maths_t::seasonalVarianceScale(weightStyles, weights[i]));
-                    double logSeasonalScale = seasonalScale != 1.0 ? ::log(seasonalScale) : 0.0;
+                    double seasonalScale = std::sqrt(maths_t::seasonalVarianceScale(weightStyles, weights[i]));
+                    double logSeasonalScale = seasonalScale != 1.0 ? std::log(seasonalScale) : 0.0;
 
                     sample[0] = mean + (samples[i] - mean) / seasonalScale;
                     weight[0][0] = maths_t::countVarianceScale(weightStyles, weights[i]);
@@ -457,12 +457,12 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                     {
                         double w = modes[modeLogLikelihoods[j].first].weight();
                         // Divide through by the largest value to avoid underflow.
-                        sampleLikelihood += w * ::exp(modeLogLikelihoods[j].second - maxLogLikelihood);
+                        sampleLikelihood += w * std::exp(modeLogLikelihoods[j].second - maxLogLikelihood);
                         Z += w;
                     }
 
                     sampleLikelihood /= Z;
-                    double sampleLogLikelihood = n * (::log(sampleLikelihood) + maxLogLikelihood);
+                    double sampleLogLikelihood = n * (std::log(sampleLikelihood) + maxLogLikelihood);
 
                     LOG_TRACE("sample = " << core::CContainerPrinter::print(sample)
                               << ", maxLogLikelihood = " << maxLogLikelihood
@@ -658,8 +658,8 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                               << core::CContainerPrinter::print(samples));
                     return false;
                 }
-                lowerBound = ::exp(-lowerBound);
-                upperBound = ::exp(-upperBound);
+                lowerBound = std::exp(-lowerBound);
+                upperBound = std::exp(-upperBound);
                 tail = maths_t::E_LeftTail;
                 break;
 
@@ -735,7 +735,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                         {
                             double w = mode.weight() / Z;
                             double centre = mode.s_Prior->marginalLikelihoodMode(weightStyles, weight[0]);
-                            double spread = ::sqrt(mode.s_Prior->marginalLikelihoodVariance(weightStyles, weight[0]));
+                            double spread = std::sqrt(mode.s_Prior->marginalLikelihoodVariance(weightStyles, weight[0]));
                             calculator.addMode(w, centre, spread);
                             tail_ = tail_ | (x < centre ? maths_t::E_LeftTail : maths_t::E_RightTail);
                         }
@@ -751,14 +751,14 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                         {
                             wt[0] = l;
                             minusLogJointCdf(modes, weightStyles, wt, weight, lb, ub);
-                            sampleLowerBound += ::exp(std::min(-lb, -ub));
-                            sampleUpperBound += ::exp(std::max(-lb, -ub));
+                            sampleLowerBound += std::exp(std::min(-lb, -ub));
+                            sampleUpperBound += std::exp(std::max(-lb, -ub));
                         }
                         else
                         {
                             wt[0] = l;
                             minusLogJointCdf(modes, weightStyles, wt, weight, lb, ub);
-                            sampleUpperBound += ::exp(std::max(-lb, -ub));
+                            sampleUpperBound += std::exp(std::max(-lb, -ub));
                         }
 
                         double r;
@@ -767,14 +767,14 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                         {
                             wt[0] = r;
                             minusLogJointCdfComplement(modes, weightStyles, wt, weight, lb, ub);
-                            sampleLowerBound += ::exp(std::min(-lb, -ub));
-                            sampleUpperBound += ::exp(std::max(-lb, -ub));
+                            sampleLowerBound += std::exp(std::min(-lb, -ub));
+                            sampleUpperBound += std::exp(std::max(-lb, -ub));
                         }
                         else
                         {
                             wt[0] = r;
                             minusLogJointCdfComplement(modes, weightStyles, wt, weight, lb, ub);
-                            sampleUpperBound += ::exp(std::max(-lb, -ub));
+                            sampleUpperBound += std::exp(std::max(-lb, -ub));
                         }
 
                         double p = 0.0;
@@ -810,8 +810,8 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                               << core::CContainerPrinter::print(samples));
                     return false;
                 }
-                lowerBound = ::exp(-lowerBound);
-                upperBound = ::exp(-upperBound);
+                lowerBound = std::exp(-lowerBound);
+                upperBound = std::exp(-upperBound);
                 tail = maths_t::E_RightTail;
                 break;
             }
@@ -992,13 +992,13 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                 for (std::size_t i = 0; i < samples.size(); ++i)
                 {
                     double n = maths_t::count(weightStyles, weights[i]);
-                    double seasonalScale = ::sqrt(maths_t::seasonalVarianceScale(weightStyles, weights[i]));
+                    double seasonalScale = std::sqrt(maths_t::seasonalVarianceScale(weightStyles, weights[i]));
                     double countVarianceScale = maths_t::countVarianceScale(weightStyles, weights[i]);
 
                     if (isNonInformative(modes))
                     {
-                        lowerBound -= n * ::log(CTools::IMPROPER_CDF);
-                        upperBound -= n * ::log(CTools::IMPROPER_CDF);
+                        lowerBound -= n * std::log(CTools::IMPROPER_CDF);
+                        upperBound -= n * std::log(CTools::IMPROPER_CDF);
                         continue;
                     }
 
@@ -1042,12 +1042,12 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable
                         // Divide through by the largest value to avoid underflow.
                         // Remember we are working with minus logs so the largest
                         // value corresponds to the smallest log.
-                        sampleLowerBound.add(::exp(-(modeLowerBounds[j] - minLowerBound[0])), w);
-                        sampleUpperBound.add(::exp(-(modeUpperBounds[j] - minUpperBound[0])), w);
+                        sampleLowerBound.add(std::exp(-(modeLowerBounds[j] - minLowerBound[0])), w);
+                        sampleUpperBound.add(std::exp(-(modeUpperBounds[j] - minUpperBound[0])), w);
                     }
 
-                    lowerBound += n * std::max(minLowerBound[0] - ::log(CBasicStatistics::mean(sampleLowerBound)), 0.0);
-                    upperBound += n * std::max(minUpperBound[0] - ::log(CBasicStatistics::mean(sampleUpperBound)), 0.0);
+                    lowerBound += n * std::max(minLowerBound[0] - std::log(CBasicStatistics::mean(sampleLowerBound)), 0.0);
+                    upperBound += n * std::max(minUpperBound[0] - std::log(CBasicStatistics::mean(sampleUpperBound)), 0.0);
 
                     LOG_TRACE("sample = " << core::CContainerPrinter::print(sample)
                               << ", sample -log(c.d.f.) = ["

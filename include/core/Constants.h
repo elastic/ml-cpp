@@ -18,8 +18,8 @@
 
 #include <core/CoreTypes.h>
 
+#include <cmath>
 #include <limits>
-#include <math.h>
 
 namespace ml
 {
@@ -47,13 +47,13 @@ const core_t::TTime WEEK = 604800;
 const core_t::TTime YEAR = 31449600;
 
 //! Log of min double.
-const double LOG_MIN_DOUBLE = ::log(std::numeric_limits<double>::min());
+const double LOG_MIN_DOUBLE = std::log(std::numeric_limits<double>::min());
 
 //! Log of max double.
-const double LOG_MAX_DOUBLE = ::log(std::numeric_limits<double>::max());
+const double LOG_MAX_DOUBLE = std::log(std::numeric_limits<double>::max());
 
 //! Log of double epsilon.
-const double LOG_DOUBLE_EPSILON = ::log(std::numeric_limits<double>::epsilon());
+const double LOG_DOUBLE_EPSILON = std::log(std::numeric_limits<double>::epsilon());
 
 //! Log of two.
 const double LOG_TWO = 0.693147180559945;

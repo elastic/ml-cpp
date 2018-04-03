@@ -63,7 +63,7 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
         double sq;
         CPPUNIT_ASSERT(sketch.quantile(100.0 * q, sq));
         bias.add(xq - sq);
-        error.add(::fabs(xq - sq));
+        error.add(std::fabs(xq - sq));
     }
 
     double min, max;
@@ -73,7 +73,7 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
 
     LOG_DEBUG("bias = " << maths::CBasicStatistics::mean(bias)
               << ", error " << maths::CBasicStatistics::mean(error));
-    CPPUNIT_ASSERT(::fabs(maths::CBasicStatistics::mean(bias)) < maxBias);
+    CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(bias)) < maxBias);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < maxError);
 
     meanBias  += maths::CBasicStatistics::accumulator(maths::CBasicStatistics::count(bias),
@@ -204,7 +204,7 @@ void CQuantileSketchTest::testReduce(void)
             CPPUNIT_ASSERT(sketch.quantile(cdf[i], x));
             LOG_DEBUG("expected quantile = " << points[i] << ", actual quantile = " << x);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(points[i], x, 10.0);
-            error.add(::fabs(points[i] - x));
+            error.add(std::fabs(points[i] - x));
         }
         LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 1.5);
@@ -297,7 +297,7 @@ void CQuantileSketchTest::testReduce(void)
             CPPUNIT_ASSERT(sketch.quantile(cdf[i], x));
             LOG_DEBUG("expected quantile = " << points[i] << ", actual quantile = " << x);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(points[i], x, 10.0);
-            error.add(::fabs(points[i] - x));
+            error.add(std::fabs(points[i] - x));
         }
         LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 1.8);
@@ -367,7 +367,7 @@ void CQuantileSketchTest::testMerge(void)
             CPPUNIT_ASSERT(sketch3.quantile(cdf[i], x));
             LOG_DEBUG("expected quantile = " << points[i] << ", actual quantile = " << x);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(points[i], x, 10.0);
-            error.add(::fabs(points[i] - x));
+            error.add(std::fabs(points[i] - x));
         }
         LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 1.8);
@@ -428,14 +428,14 @@ void CQuantileSketchTest::testMedian(void)
         double expectedMedian = samples[250];
         double actualMedian;
         sketch.quantile(50.0, actualMedian);
-        CPPUNIT_ASSERT(::fabs(actualMedian - expectedMedian) < 6.7);
+        CPPUNIT_ASSERT(std::fabs(actualMedian - expectedMedian) < 6.7);
         bias.add(actualMedian - expectedMedian);
-        error.add(::fabs(actualMedian - expectedMedian));
+        error.add(std::fabs(actualMedian - expectedMedian));
     }
 
     LOG_DEBUG("bias  = " << maths::CBasicStatistics::mean(bias));
     LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
-    CPPUNIT_ASSERT(::fabs(maths::CBasicStatistics::mean(bias)) < 0.2);
+    CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(bias)) < 0.2);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 1.6);
 }
 
@@ -481,9 +481,9 @@ void CQuantileSketchTest::testQuantileAccuracy(void)
             rng.generateUniformSamples(0.0, 20.0 * static_cast<double>(t + 1), 1000, samples);
             testSketch(maths::CQuantileSketch::E_Linear, 20, samples, 0.15, 0.3, meanBias, meanError);
         }
-        LOG_DEBUG("mean bias = " << ::fabs(maths::CBasicStatistics::mean(meanBias))
+        LOG_DEBUG("mean bias = " << std::fabs(maths::CBasicStatistics::mean(meanBias))
                   << ", mean error " << maths::CBasicStatistics::mean(meanError));
-        CPPUNIT_ASSERT(::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.0007);
+        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.0007);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.003);
     }
 
@@ -501,7 +501,7 @@ void CQuantileSketchTest::testQuantileAccuracy(void)
         }
         LOG_DEBUG("mean bias = " << maths::CBasicStatistics::mean(meanBias)
                   << ", mean error " << maths::CBasicStatistics::mean(meanError));
-        CPPUNIT_ASSERT(::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.002);
+        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.002);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.003);
     }
 
@@ -519,7 +519,7 @@ void CQuantileSketchTest::testQuantileAccuracy(void)
         }
         LOG_DEBUG("mean bias = " << maths::CBasicStatistics::mean(meanBias)
                   << ", mean error " << maths::CBasicStatistics::mean(meanError));
-        CPPUNIT_ASSERT(::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.0006);
+        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.0006);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.0009);
     }
     LOG_DEBUG("*** Mixture ***");
@@ -556,11 +556,11 @@ void CQuantileSketchTest::testQuantileAccuracy(void)
         }
         LOG_DEBUG("linear mean bias = " << maths::CBasicStatistics::mean(meanBiasLinear)
                   << ", mean error " << maths::CBasicStatistics::mean(meanErrorLinear));
-        CPPUNIT_ASSERT(::fabs(maths::CBasicStatistics::mean(meanBiasLinear)) < 0.012);
+        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBiasLinear)) < 0.012);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanErrorLinear) < 0.013);
         LOG_DEBUG("piecewise mean bias = " << maths::CBasicStatistics::mean(meanBiasPiecewise)
                   << ", mean error " << maths::CBasicStatistics::mean(meanErrorPiecewise));
-        CPPUNIT_ASSERT(::fabs(maths::CBasicStatistics::mean(meanBiasPiecewise)) < 0.015);
+        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBiasPiecewise)) < 0.015);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanErrorPiecewise) < 0.015);
     }
 }
