@@ -243,7 +243,7 @@ void CModelTools::CProbabilityAggregator::add(const TAggregator &aggregator, dou
 void CModelTools::CProbabilityAggregator::add(double probability, double weight)
 {
     m_TotalWeight += weight;
-    for (auto &&aggregator : m_Aggregators)
+    for (auto &aggregator : m_Aggregators)
     {
         boost::apply_visitor(boost::bind<void>(
                 SAddProbability(), probability, weight, _1), aggregator.first);

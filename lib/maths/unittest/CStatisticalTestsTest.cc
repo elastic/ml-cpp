@@ -38,7 +38,7 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 void CStatisticalTestsTest::testCramerVonMises(void)
 {

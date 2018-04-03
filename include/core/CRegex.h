@@ -40,9 +40,9 @@ namespace core
 class CORE_EXPORT CRegex
 {
     public:
-        typedef std::vector<std::string>    TStrVec;
-        typedef TStrVec::iterator           TStrVecItr;
-        typedef TStrVec::const_iterator     TStrVecCItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecItr = TStrVec::iterator;
+        using TStrVecCItr = TStrVec::const_iterator;
 
     public:
         CRegex(void);

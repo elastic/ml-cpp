@@ -218,7 +218,7 @@ enum EFunction
     E_PeersTimeOfWeek = 414
 };
 
-typedef std::vector<EFunction> TFunctionVec;
+using TFunctionVec = std::vector<EFunction>;
 
 //! Is this function for use with the individual models?
 MODEL_EXPORT

@@ -598,7 +598,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SAddValue &m
     switch (m_Machine.state())
     {
     case PT_TEST:
-        for (auto &&window : m_Windows)
+        for (auto &window : m_Windows)
         {
             if (window)
             {
@@ -2043,7 +2043,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::prune(core_t::TTime
         {
             if (windowed.count(shift.first) > 0)
             {
-                for (auto &&component : s_Components)
+                for (auto &component : s_Components)
                 {
                     if (shift.first == component.time().window())
                     {
@@ -2055,7 +2055,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::prune(core_t::TTime
             else
             {
                 bool fallback = true;
-                for (auto &&component : s_Components)
+                for (auto &component : s_Components)
                 {
                     if (!component.time().windowed())
                     {
@@ -2068,7 +2068,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::prune(core_t::TTime
                 {
                     TTimeTimePrVec shifted;
                     shifted.reserve(s_Components.size());
-                    for (auto &&component : s_Components)
+                    for (auto &component : s_Components)
                     {
                         const CSeasonalTime &time_ = component.time();
                         if (std::find_if(shifted.begin(), shifted.end(),

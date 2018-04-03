@@ -29,13 +29,13 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::pair<double, TVector2> TDoubleVector2Pr;
-typedef std::vector<TVector2> TVector2Vec;
-typedef maths::CVectorNx1<double, 5> TVector5;
-typedef std::pair<double, TVector5> TDoubleVector5Pr;
-typedef std::vector<TVector5> TVector5Vec;
+using TDoubleVec = std::vector<double>;
+using TVector2 = maths::CVectorNx1<double, 2>;
+using TDoubleVector2Pr = std::pair<double, TVector2>;
+using TVector2Vec = std::vector<TVector2>;
+using TVector5 = maths::CVectorNx1<double, 5>;
+using TDoubleVector5Pr = std::pair<double, TVector5>;
+using TVector5Vec = std::vector<TVector5>;
 
 template<typename T>
 std::string print(const T &t)
@@ -127,10 +127,8 @@ void CKdTreeTest::testNearestNeighbour(void)
         }
         for (std::size_t j = 0u; j < tests.size(); ++j)
         {
-            typedef maths::CBasicStatistics::COrderStatisticsStack<
-                        TDoubleVector2Pr,
-                        1,
-                        maths::COrderings::SFirstLess> TMinAccumulator;
+            using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<
+                                        TDoubleVector2Pr, 1, maths::COrderings::SFirstLess>;
 
             TMinAccumulator expectedNearest;
             for (std::size_t k = 0u; k < points.size(); ++k)

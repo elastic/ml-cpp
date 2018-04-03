@@ -44,11 +44,11 @@ template<typename T>
 class CBucketQueue
 {
     public:
-        typedef boost::circular_buffer<T> TQueue;
-        typedef typename TQueue::value_type value_type;
-        typedef typename TQueue::iterator iterator;
-        typedef typename TQueue::const_iterator const_iterator;
-        typedef typename TQueue::const_reverse_iterator const_reverse_iterator;
+        using TQueue = boost::circular_buffer<T>;
+        using value_type = typename TQueue::value_type;
+        using iterator = typename TQueue::iterator;
+        using const_iterator = typename TQueue::const_iterator;
+        using const_reverse_iterator = typename TQueue::const_reverse_iterator;
 
     public:
         static const std::string BUCKET_TAG;

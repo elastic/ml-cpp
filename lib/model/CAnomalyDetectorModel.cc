@@ -66,7 +66,7 @@ bool checkRules(const SModelParams::TDetectionRuleVec &detectionRules,
                 core_t::TTime time)
 {
     bool isIgnored{false};
-    for (auto &&rule : detectionRules)
+    for (auto &rule : detectionRules)
     {
         isIgnored = isIgnored || rule.apply(action,
                                             model,
@@ -87,7 +87,7 @@ bool checkScheduledEvents(const SModelParams::TStrDetectionRulePrVec &scheduledE
                           core_t::TTime time)
 {
     bool isIgnored{false};
-    for (auto &&event : scheduledEvents)
+    for (auto &event : scheduledEvents)
     {
         isIgnored = isIgnored || event.second.apply(action,
                                                     model,
@@ -113,7 +113,7 @@ CAnomalyDetectorModel::CAnomalyDetectorModel(const SModelParams &params,
     {
         LOG_ABORT("Must provide a data gatherer");
     }
-    for (auto &&calculators : m_InfluenceCalculators)
+    for (auto &calculators : m_InfluenceCalculators)
     {
         std::sort(calculators.begin(), calculators.end(), maths::COrderings::SFirstLess());
     }

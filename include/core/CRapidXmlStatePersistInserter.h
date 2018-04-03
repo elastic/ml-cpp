@@ -44,8 +44,8 @@ namespace core
 class CORE_EXPORT CRapidXmlStatePersistInserter : public CStatePersistInserter
 {
     public:
-        typedef std::map<std::string, std::string> TStrStrMap;
-        typedef TStrStrMap::const_iterator         TStrStrMapCItr;
+        using TStrStrMap = std::map<std::string, std::string>;
+        using TStrStrMapCItr = TStrStrMap::const_iterator;
 
     public:
         //! Root node has no attributes
@@ -85,8 +85,8 @@ class CORE_EXPORT CRapidXmlStatePersistInserter : public CStatePersistInserter
         //! so just store each unique name once for efficiency
         CStringCache          m_NameCache;
 
-        typedef rapidxml::xml_document<char>  TCharRapidXmlDocument;
-        typedef rapidxml::xml_node<char>      TCharRapidXmlNode;
+        using TCharRapidXmlDocument = rapidxml::xml_document<char>;
+        using TCharRapidXmlNode = rapidxml::xml_node<char>;
 
         //! The RapidXml data structure
         TCharRapidXmlDocument m_Doc;

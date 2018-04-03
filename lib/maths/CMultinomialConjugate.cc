@@ -53,13 +53,13 @@ namespace maths
 
 namespace
 {
-typedef std::vector<double> TDoubleVec;
-typedef TDoubleVec::const_iterator TDoubleVecCItr;
-typedef core::CSmallVector<double, 7> TDouble7Vec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecCItr = TDoubleVec::const_iterator;
+using TDouble7Vec = core::CSmallVector<double, 7>;
 
 namespace detail
 {
-typedef std::pair<double, double> TDoubleDoublePr;
+using TDoubleDoublePr = std::pair<double, double>;
 
 //! Truncate \p to fit into a signed integer.
 int truncate(std::size_t x)
@@ -288,11 +288,11 @@ void generateBetaSamples(double a,
 
 } // detail::
 
-typedef std::map<double, double> TDoubleDoubleMap;
-typedef TDoubleDoubleMap::const_iterator TDoubleDoubleMapCItr;
-typedef boost::tuples::tuple<double, double, std::size_t> TDoubleDoubleSizeTr;
-typedef std::vector<TDoubleDoubleSizeTr> TDoubleDoubleSizeTrVec;
-typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TDoubleDoubleMap = std::map<double, double>;
+using TDoubleDoubleMapCItr = TDoubleDoubleMap::const_iterator;
+using TDoubleDoubleSizeTr = boost::tuples::tuple<double, double, std::size_t>;
+using TDoubleDoubleSizeTrVec = std::vector<TDoubleDoubleSizeTr>;
+using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 // We use short field names to reduce the state size
 const std::string NUMBER_AVAILABLE_CATEGORIES_TAG("a");
@@ -639,7 +639,7 @@ double CMultinomialConjugate::marginalLikelihoodMode(const TWeightStyleVec &/*we
 double CMultinomialConjugate::marginalLikelihoodVariance(const TWeightStyleVec &/*weightStyles*/,
                                                          const TDouble4Vec &/*weights*/) const
 {
-    typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     if (this->isNonInformative())
     {
@@ -1114,7 +1114,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
             // P(i in L). In this case we just fall back to using (3) which isn't
             // sharp.
 
-            typedef std::vector<std::size_t> TSizeVec;
+            using TSizeVec = std::vector<std::size_t>;
 
             tail = maths_t::E_MixedOrNeitherTail;
 

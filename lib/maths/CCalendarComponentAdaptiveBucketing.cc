@@ -162,7 +162,7 @@ void CCalendarComponentAdaptiveBucketing::propagateForwardsByTime(double time)
     {
         double factor{::exp(-this->CAdaptiveBucketing::decayRate() * time)};
         this->CAdaptiveBucketing::age(factor);
-        for (auto &&value : m_Values)
+        for (auto &value : m_Values)
         {
             value.age(factor);
         }

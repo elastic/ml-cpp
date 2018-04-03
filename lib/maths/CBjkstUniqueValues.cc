@@ -38,9 +38,9 @@ namespace
 namespace detail
 {
 
-typedef std::vector<uint8_t> TUInt8Vec;
-typedef TUInt8Vec::iterator TUInt8VecItr;
-typedef TUInt8Vec::const_iterator TUInt8VecCItr;
+using TUInt8Vec = std::vector<uint8_t>;
+using TUInt8VecItr = TUInt8Vec::iterator;
+using TUInt8VecCItr = TUInt8Vec::const_iterator;
 
 //! Convert the decomposition of the hash into two 8 bit integers
 //! bask into the original hash value.
@@ -53,7 +53,7 @@ inline uint16_t from8Bit(uint8_t leading, uint8_t trailing)
            );
 }
 
-typedef std::pair<uint8_t, uint8_t> TUInt8UInt8Pr;
+using TUInt8UInt8Pr = std::pair<uint8_t, uint8_t>;
 
 //! \brief Random access iterator wrapper for B set iterator.
 //!
@@ -69,7 +69,7 @@ typedef std::pair<uint8_t, uint8_t> TUInt8UInt8Pr;
 class CHashIterator : public std::iterator<std::random_access_iterator_tag, uint16_t>,
                       private boost::less_than_comparable<CHashIterator,
                               boost::addable<CHashIterator, ptrdiff_t,
-                              boost::subtractable<CHashIterator, ptrdiff_t> > >
+                              boost::subtractable<CHashIterator, ptrdiff_t>> >
 {
     public:
         //! The STL that comes with g++ requires a default constructor - this
@@ -231,7 +231,7 @@ void prune(TUInt8Vec &b, uint8_t z)
 
 } // detail::
 
-typedef boost::optional<std::size_t> TOptionalSize;
+using TOptionalSize = boost::optional<std::size_t>;
 
 const char DELIMITER(':');
 const char PAIR_DELIMITER(';');
@@ -784,7 +784,7 @@ void CBjkstUniqueValues::SSketch::remove(uint32_t value)
 
 uint32_t CBjkstUniqueValues::SSketch::number(void) const
 {
-    typedef std::vector<uint32_t> TUInt32Vec;
+    using TUInt32Vec = std::vector<uint32_t>;
 
     // This uses the median trick to reduce the error.
 

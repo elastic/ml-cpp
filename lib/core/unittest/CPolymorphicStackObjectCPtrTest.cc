@@ -59,8 +59,8 @@ class CDerived4 : public CBase
 
 void CPolymorphicStackObjectCPtrTest::testAll(void)
 {
-    typedef core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2> TStackPtr12;
-    typedef core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2, CDerived3, CDerived4> TStackPtr1234;
+    using TStackPtr12 = core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2>;
+    using TStackPtr1234 = core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2, CDerived3, CDerived4>;
 
     TStackPtr12 test1((CDerived1()));
     CPPUNIT_ASSERT_EQUAL(std::string("d1"), test1->iam());

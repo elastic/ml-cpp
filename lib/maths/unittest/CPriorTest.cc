@@ -38,7 +38,7 @@ using namespace handy_typedefs;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 class CX
 {
@@ -68,7 +68,7 @@ class CVariance
 class CMinusLogLikelihood
 {
     public:
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
+        using TDoubleVecVec = std::vector<TDoubleVec>;
 
     public:
         CMinusLogLikelihood(const maths::CPrior &prior) :
@@ -105,8 +105,8 @@ void CPriorTest::testExpectation(void)
     LOG_DEBUG("|  CPriorTest::testExpectation  |");
     LOG_DEBUG("+-------------------------------+");
 
-    typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-    typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate> CNormalMeanPrecConjugate;
+    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using CNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate>;
 
     test::CRandomNumbers rng;
 

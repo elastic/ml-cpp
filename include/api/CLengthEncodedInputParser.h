@@ -138,7 +138,7 @@ class API_EXPORT CLengthEncodedInputParser : public CInputParser
         //! Reference to the stream we're going to read from
         std::istream     &m_StrmIn;
 
-        typedef boost::scoped_array<char> TScopedCharArray;
+        using TScopedCharArray = boost::scoped_array<char>;
 
         //! The working buffer is also held as a member to avoid constantly
         //! reallocating it.  It is a raw character array rather than a string

@@ -28,12 +28,12 @@
 using namespace ml;
 using namespace model;
 
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::pair<TSizeSizePr, uint64_t> TSizeSizePrUInt64Pr;
-typedef std::vector<TSizeSizePrUInt64Pr> TSizeSizePrUInt64PrVec;
-typedef boost::unordered_map<TSizeSizePr, uint64_t> TSizeSizePrUInt64UMap;
-typedef model::CBucketQueue<TSizeSizePrUInt64UMap> TSizeSizePrUInt64UMapQueue;
-typedef TSizeSizePrUInt64UMapQueue::const_iterator TSizeSizePrUInt64UMapQueueCItr;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, uint64_t>;
+using TSizeSizePrUInt64PrVec = std::vector<TSizeSizePrUInt64Pr>;
+using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, uint64_t>;
+using TSizeSizePrUInt64UMapQueue = model::CBucketQueue<TSizeSizePrUInt64UMap>;
+using TSizeSizePrUInt64UMapQueueCItr = TSizeSizePrUInt64UMapQueue::const_iterator;
 
 void CBucketQueueTest::testConstructorFillsQueue(void)
 {
@@ -105,7 +105,7 @@ void CBucketQueueTest::testClear(void)
 
 void CBucketQueueTest::testIterators(void)
 {
-    typedef CBucketQueue<std::string>::iterator TStringQueueItr;
+    using TStringQueueItr = CBucketQueue<std::string>::iterator;
 
     CBucketQueue<std::string> queue(1, 5, 0);
     queue.push("a", 5);
@@ -124,7 +124,7 @@ void CBucketQueueTest::testIterators(void)
 
 void CBucketQueueTest::testReverseIterators(void)
 {
-    typedef CBucketQueue<std::string>::const_reverse_iterator TStringQueueCRItr;
+    using TStringQueueCRItr = CBucketQueue<std::string>::const_reverse_iterator;
 
     CBucketQueue<std::string> queue(1, 5, 0);
     queue.push("a", 5);

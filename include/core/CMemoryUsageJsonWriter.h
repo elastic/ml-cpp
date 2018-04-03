@@ -73,7 +73,7 @@ class CORE_EXPORT CMemoryUsageJsonWriter
         //! JSON writer ostream wrapper
         rapidjson::OStreamWrapper         m_WriteStream;
 
-        typedef CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
+        using TGenericLineWriter = CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
 
         //! JSON writer
         TGenericLineWriter                m_Writer;

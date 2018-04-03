@@ -29,8 +29,8 @@ namespace config
 {
 namespace
 {
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 
 //! \brief Wraps up a mixture model.
 //!
@@ -53,7 +53,7 @@ class CMixtureData
         //! Compute the scale for a mixture of \p m.
         double scale(std::size_t m)
         {
-            typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+            using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
             TSizeVec split;
             m_Classifier.naturalBreaks(m, 2, split);
@@ -119,8 +119,8 @@ class CMixtureData
         }
 
     private:
-        typedef std::vector<boost::math::normal_distribution<> > TNormalVec;
-        typedef maths::CMixtureDistribution<boost::math::normal_distribution<> > TGMM;
+        using TNormalVec = std::vector<boost::math::normal_distribution<>>;
+        using TGMM = maths::CMixtureDistribution<boost::math::normal_distribution<>>;
 
     private:
         void clear(void)
@@ -283,7 +283,7 @@ bool CDataSemantics::GMMGoodFit(void) const
     // The idea is to check the goodness-of-fit of a categorical model
     // to the data verses a normal mixture.
 
-    typedef TOrdinalSizeUMap::const_iterator TOrdinalSizeUMapCItr;
+    using TOrdinalSizeUMapCItr = TOrdinalSizeUMap::const_iterator;
 
     std::size_t N = m_EmpiricalDistribution.size();
     LOG_TRACE("N = " << N);

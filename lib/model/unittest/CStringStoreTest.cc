@@ -30,15 +30,15 @@ using namespace model;
 
 namespace
 {
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
-typedef boost::unordered_set<const std::string*> TStrCPtrUSet;
+using TSizeVec = std::vector<std::size_t>;
+using TStrVec = std::vector<std::string>;
+using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
+using TStrCPtrUSet = boost::unordered_set<const std::string*>;
 
 class CStringThread : public core::CThread
 {
     public:
-        typedef boost::shared_ptr<CppUnit::Exception> TCppUnitExceptionP;
+        using TCppUnitExceptionP = boost::shared_ptr<CppUnit::Exception>;
 
     public:
         CStringThread(std::size_t i, const TStrVec &strings)
@@ -158,8 +158,8 @@ void CStringStoreTest::testStringStore(void)
     {
         LOG_DEBUG("Testing multi-threaded");
 
-        typedef boost::shared_ptr<CStringThread> TThreadPtr;
-        typedef std::vector<TThreadPtr> TThreadVec;
+        using TThreadPtr = boost::shared_ptr<CStringThread>;
+        using TThreadVec = std::vector<TThreadPtr>;
         TThreadVec threads;
         for (std::size_t i = 0; i < 20; ++i)
         {
@@ -205,8 +205,8 @@ void CStringStoreTest::testStringStore(void)
             lotsOfStrings.push_back(core::CStringUtils::typeToString(i));
         }
 
-        typedef boost::shared_ptr<CStringThread> TThreadPtr;
-        typedef std::vector<TThreadPtr> TThreadVec;
+        using TThreadPtr = boost::shared_ptr<CStringThread>;
+        using TThreadVec = std::vector<TThreadPtr>;
         TThreadVec threads;
         for (std::size_t i = 0; i < 20; ++i)
         {

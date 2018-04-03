@@ -36,15 +36,15 @@ namespace test
 class TEST_EXPORT CTimeSeriesTestData
 {
     public:
-        typedef std::vector<double>                  TDoubleVec;
-        typedef TDoubleVec::iterator                 TDoubleVecItr;
-        typedef std::pair<core_t::TTime, double>     TTimeDoublePr;
-        typedef std::vector<TTimeDoublePr>           TTimeDoublePrVec;
-        typedef TTimeDoublePrVec::iterator           TTimeDoublePrVecItr;
-        typedef TTimeDoublePrVec::reverse_iterator   TTimeDoublePrVecRItr;
-        typedef TTimeDoublePrVec::const_iterator     TTimeDoublePrVecCItr;
-        typedef std::pair<core_t::TTime, TDoubleVec> TTimeDoubleVecPr;
-        typedef std::vector<TTimeDoubleVecPr>        TTimeDoubleVecPrVec;
+        using TDoubleVec = std::vector<double>;
+        using TDoubleVecItr = TDoubleVec::iterator;
+        using TTimeDoublePr = std::pair<core_t::TTime, double>;
+        using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
+        using TTimeDoublePrVecItr = TTimeDoublePrVec::iterator;
+        using TTimeDoublePrVecRItr = TTimeDoublePrVec::reverse_iterator;
+        using TTimeDoublePrVecCItr = TTimeDoublePrVec::const_iterator;
+        using TTimeDoubleVecPr = std::pair<core_t::TTime, TDoubleVec>;
+        using TTimeDoubleVecPrVec = std::vector<TTimeDoubleVecPr>;
 
     public:
         //! The default regular expression to extract the date

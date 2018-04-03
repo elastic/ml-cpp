@@ -65,8 +65,8 @@ template<typename STATISTIC>
 class CSampleQueue
 {
     private:
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef CMetricPartialStatistic<STATISTIC> TMetricPartialStatistic;
+        using TDouble1Vec = core::CSmallVector<double, 1>;
+        using TMetricPartialStatistic = CMetricPartialStatistic<STATISTIC>;
 
     private:
         //! A struct grouping together the data that form a sub-sample.
@@ -218,12 +218,12 @@ class CSampleQueue
         };
 
     public:
-        typedef boost::circular_buffer<SSubSample> TQueue;
-        typedef typename TQueue::iterator iterator;
-        typedef typename TQueue::reverse_iterator reverse_iterator;
-        typedef typename TQueue::const_reverse_iterator const_reverse_iterator;
-        typedef std::vector<CSample> TSampleVec;
-        typedef boost::optional<SSubSample> TOptionalSubSample;
+        using TQueue = boost::circular_buffer<SSubSample>;
+        using iterator = typename TQueue::iterator;
+        using reverse_iterator = typename TQueue::reverse_iterator;
+        using const_reverse_iterator = typename TQueue::const_reverse_iterator;
+        using TSampleVec = std::vector<CSample>;
+        using TOptionalSubSample = boost::optional<SSubSample>;
 
     public:
         static const std::string SUB_SAMPLE_TAG;

@@ -50,12 +50,12 @@ namespace maths
 class MATHS_EXPORT CAgglomerativeClusterer
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<TSizeVec> TSizeVecVec;
-        typedef std::pair<double, TSizeVec> TDoubleSizeVecPr;
-        typedef std::vector<TDoubleSizeVecPr> TDoubleSizeVecPrVec;
+        using TDoubleVec = std::vector<double>;
+        using TDoubleVecVec = std::vector<TDoubleVec>;
+        using TSizeVec = std::vector<std::size_t>;
+        using TSizeVecVec = std::vector<TSizeVec>;
+        using TDoubleSizeVecPr = std::pair<double, TSizeVec>;
+        using TDoubleSizeVecPrVec = std::vector<TDoubleSizeVecPr>;
 
         //! \brief A representation of a node in the tree of clusters.
         class MATHS_EXPORT CNode
@@ -106,7 +106,7 @@ class MATHS_EXPORT CAgglomerativeClusterer
                 double m_Height;
         };
 
-        typedef std::vector<CNode> TNodeVec;
+        using TNodeVec = std::vector<CNode>;
 
     public:
         //! Possible clustering objective functions supported.

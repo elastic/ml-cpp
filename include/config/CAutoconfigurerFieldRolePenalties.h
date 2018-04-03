@@ -63,7 +63,7 @@ class CONFIG_EXPORT CAutoconfigurerFieldRolePenalties : core::CNonCopyable
         const CPenalty &partitionPenalty(void) const;
 
     private:
-        typedef boost::shared_ptr<const CPenalty> TPenaltyCPtr;
+        using TPenaltyCPtr = boost::shared_ptr<const CPenalty>;
 
     private:
         //! The penalties.

@@ -115,7 +115,7 @@ void CJsonLogLayout::format(LogString &output,
                             const spi::LoggingEventPtr &event,
                             Pool &/*p*/) const
 {
-    typedef rapidjson::Writer<rapidjson::StringBuffer> TStringBufferWriter;
+    using TStringBufferWriter = rapidjson::Writer<rapidjson::StringBuffer>;
     rapidjson::StringBuffer buffer;
     TStringBufferWriter writer(buffer);
 

@@ -127,7 +127,7 @@ class CVisitor
 class CTimeCheckingVisitor
 {
     public:
-        typedef std::vector<ml::core_t::TTime> TTimeVec;
+        using TTimeVec = std::vector<ml::core_t::TTime>;
 
     public:
         CTimeCheckingVisitor(const std::string &timeField,

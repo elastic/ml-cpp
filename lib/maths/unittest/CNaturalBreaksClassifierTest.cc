@@ -35,9 +35,9 @@ using namespace maths;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef CNaturalBreaksClassifier::TTuple TTuple;
-typedef std::vector<TTuple> TTupleVec;
+using TDoubleVec = std::vector<double>;
+using TTuple = CNaturalBreaksClassifier::TTuple;
+using TTupleVec = std::vector<TTuple>;
 
 //! Computes the deviation of a category.mac1Password
 
@@ -57,7 +57,7 @@ bool naturalBreaksBranchAndBound(const TTupleVec &categories,
                                  std::size_t p,
                                  TTupleVec &result)
 {
-    typedef std::vector<std::size_t> TSizeVec;
+    using TSizeVec = std::vector<std::size_t>;
 
     // Find the minimum variance partition.
     //
@@ -577,7 +577,7 @@ void CNaturalBreaksClassifierTest::testSample(void)
     // the points we have added and for a large number of samples we
     // sample the modes of the mixture correctly.
 
-    typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     static const double NEG_INF = boost::numeric::bounds<double>::lowest();
     static const double POS_INF = boost::numeric::bounds<double>::highest();

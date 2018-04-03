@@ -94,7 +94,7 @@ bool COutputChainer::writeRow(const TStrStrUMap &dataRowFields,
         return false;
     }
 
-    typedef std::equal_to<std::string> TStrEqualTo;
+    using TStrEqualTo = std::equal_to<std::string>;
     TStrEqualTo pred;
 
     TPreComputedHashVecCItr preComputedHashIter = m_Hashes.begin();

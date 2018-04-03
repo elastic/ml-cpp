@@ -95,8 +95,9 @@ void CPolledDataPenalty::penaltyFromMe(CDetectorSpecification &spec) const
 CPolledDataPenalty::TOptionalTime
     CPolledDataPenalty::pollingInterval(const CDataCountStatistics &stats) const
 {
-    typedef maths::CBasicStatistics::COrderStatisticsStack<maths::CQuantileSketch::TFloatFloatPr,
-                                                           2, maths::COrderings::SSecondGreater> TMaxAccumulator;
+    using TMaxAccumulator =
+               maths::CBasicStatistics::COrderStatisticsStack<maths::CQuantileSketch::TFloatFloatPr,
+                                                              2, maths::COrderings::SSecondGreater>;
 
     const maths::CQuantileSketch &F = stats.arrivalTimeDistribution();
     const maths::CQuantileSketch::TFloatFloatPrVec &knots = F.knots();

@@ -63,36 +63,36 @@ using namespace model;
 namespace
 {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef std::pair<double, std::size_t> TDoubleSizePr;
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<TStrVec> TStrVecVec;
-typedef boost::optional<uint64_t> TOptionalUInt64;
-typedef boost::optional<double> TOptionalDouble;
-typedef std::vector<TOptionalDouble> TOptionalDoubleVec;
-typedef boost::optional<std::string> TOptionalStr;
-typedef std::pair<core_t::TTime, double> TTimeDoublePr;
-typedef boost::optional<TTimeDoublePr> TOptionalTimeDoublePr;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u> TMinAccumulator;
-typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double> > TMaxAccumulator;
-typedef boost::shared_ptr<maths::CModel> TMathsModelPtr;
-typedef boost::shared_ptr<maths::CPrior> TPriorPtr;
-typedef boost::shared_ptr<maths::CMultivariatePrior> TMultivariatePriorPtr;
-typedef std::pair<double, std::string> TDoubleStrPr;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 2> TDouble2Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
-typedef std::vector<std::string> TStrVec;
-typedef std::pair<core_t::TTime, TStrVec> TTimeStrVecPr;
-typedef std::vector<TTimeStrVecPr> TTimeStrVecPrVec;
+using TDoubleDoublePr = std::pair<double, double>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TDoubleSizePr = std::pair<double, std::size_t>;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TStrVec = std::vector<std::string>;
+using TStrVecVec = std::vector<TStrVec>;
+using TOptionalUInt64 = boost::optional<uint64_t>;
+using TOptionalDouble = boost::optional<double>;
+using TOptionalDoubleVec = std::vector<TOptionalDouble>;
+using TOptionalStr = boost::optional<std::string>;
+using TTimeDoublePr = std::pair<core_t::TTime, double>;
+using TOptionalTimeDoublePr = boost::optional<TTimeDoublePr>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+using TPriorPtr = boost::shared_ptr<maths::CPrior>;
+using TMultivariatePriorPtr = boost::shared_ptr<maths::CMultivariatePrior>;
+using TDoubleStrPr = std::pair<double, std::string>;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble2Vec = core::CSmallVector<double, 2>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
+using TStrVec = std::vector<std::string>;
+using TTimeStrVecPr = std::pair<core_t::TTime, TStrVec>;
+using TTimeStrVecPrVec = std::vector<TTimeStrVecPr>;
 
 const std::string EMPTY_STRING;
 
@@ -569,11 +569,11 @@ void CMetricModelTest::testMultivariateSample(void)
 {
     LOG_DEBUG("*** testMultivariateSample ***");
 
-    typedef std::vector<TDoubleVecVec> TDoubleVecVecVec;
-    typedef maths::CVectorNx1<double, 2> TVector2;
-    typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
-    typedef std::pair<core_t::TTime, boost::array<double, 2> > TTimeDouble2AryPr;
-    typedef std::vector<TTimeDouble2AryPr> TTimeDouble2AryPrVec;
+    using TDoubleVecVecVec = std::vector<TDoubleVecVec>;
+    using TVector2 = maths::CVectorNx1<double, 2>;
+    using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
+    using TTimeDouble2AryPr = std::pair<core_t::TTime, boost::array<double, 2>>;
+    using TTimeDouble2AryPrVec = std::vector<TTimeDouble2AryPr>;
 
     core_t::TTime startTime(45);
     core_t::TTime bucketLength(5);
@@ -759,7 +759,7 @@ void CMetricModelTest::testProbabilityCalculationForMetric(void)
 {
     LOG_DEBUG("*** testProbabilityCalculationForMetric ***");
 
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> TMinAccumulator;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -830,7 +830,7 @@ void CMetricModelTest::testProbabilityCalculationForMedian(void)
 {
     LOG_DEBUG("*** testProbabilityCalculationForMedian ***");
 
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> TMinAccumulator;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -1453,10 +1453,10 @@ void CMetricModelTest::testPrune(void)
 
     maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
-    typedef std::vector<CEventData> TEventDataVec;
-    typedef std::map<std::size_t, std::size_t> TSizeSizeMap;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecVec = std::vector<TSizeVec>;
+    using TEventDataVec = std::vector<CEventData>;
+    using TSizeSizeMap = std::map<std::size_t, std::size_t>;
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -2174,8 +2174,8 @@ void CMetricModelTest::testCorrelatePersist(void)
 {
     LOG_DEBUG("*** testCorrelatePersist ***");
 
-    typedef maths::CVectorNx1<double, 2> TVector2;
-    typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
+    using TVector2 = maths::CVectorNx1<double, 2>;
+    using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;

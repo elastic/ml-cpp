@@ -43,9 +43,9 @@ using namespace test;
 namespace
 {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::pair<double, bool> TDoubleBoolPr;
-typedef std::vector<double> TDoubleVec;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleBoolPr = std::pair<double, bool>;
+using TDoubleVec = std::vector<double>;
 
 namespace adapters
 {
@@ -303,7 +303,7 @@ template<typename DISTRIBUTION>
 class CPdf
 {
     public:
-        typedef double result_type;
+        using result_type = double;
 
     public:
         CPdf(const DISTRIBUTION &distribution) :
@@ -324,7 +324,7 @@ class CPdf
 class CIdentity
 {
     public:
-        typedef double result_type;
+        using result_type = double;
 
     public:
         bool operator()(double x, double &result) const
@@ -1025,7 +1025,7 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample(void)
     LOG_DEBUG("|  CToolsTest::testMixtureProbabilityOfLessLikelySample  |");
     LOG_DEBUG("+--------------------------------------------------------+");
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     test::CRandomNumbers rng;
 

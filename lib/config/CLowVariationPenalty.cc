@@ -33,12 +33,12 @@ namespace config
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator TMomentsAccumulator;
-typedef boost::unordered_map<std::size_t, TMomentsAccumulator> TSizeMomentsUMap;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TStrVec = std::vector<std::string>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMomentsAccumulator = maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator;
+using TSizeMomentsUMap = boost::unordered_map<std::size_t, TMomentsAccumulator>;
 
 const double MIN = 0.9 * constants::DETECTOR_SCORE_EPSILON / constants::MAXIMUM_DETECTOR_SCORE;
 const double INF = boost::numeric::bounds<double>::highest();

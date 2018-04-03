@@ -31,11 +31,11 @@
 using namespace ml;
 using namespace handy_typedefs;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 namespace
 {
@@ -1089,8 +1089,8 @@ void CMultivariateNormalConjugateTest::calibrationExperiment(void)
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::calibrationExperiment  |");
     LOG_DEBUG("+-----------------------------------------------------------+");
 
-    typedef maths::CVectorNx1<double, 10> TVector10;
-    typedef maths::CSymmetricMatrixNxN<double, 10> TMatrix10;
+    using TVector10 = maths::CVectorNx1<double, 10>;
+    using TMatrix10 = maths::CSymmetricMatrixNxN<double, 10>;
 
     double means[] = { 10.0, 10.0, 20.0, 20.0, 30.0, 20.0, 10.0, 40.0, 30.0, 20.0 };
     double covariances[] = { 10.0,

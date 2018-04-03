@@ -109,7 +109,7 @@ class CMessageBuffer
             protected:
                 void run(void)
                 {
-                    typedef std::vector<MESSAGE> TMessageVec;
+                    using TMessageVec = std::vector<MESSAGE>;
 
                     m_MessageBuffer.m_Mutex.lock();
 

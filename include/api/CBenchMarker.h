@@ -49,20 +49,20 @@ class API_EXPORT CBenchMarker
 {
     public:
         //! A count and and example string
-        typedef std::pair<size_t, std::string>             TSizeStrPr;
+        using TSizeStrPr = std::pair<size_t, std::string>;
 
         //! Used for mapping Ml type to count and example
-        typedef std::map<int, TSizeStrPr>                  TIntSizeStrPrMap;
-        typedef TIntSizeStrPrMap::iterator                 TIntSizeStrPrMapItr;
-        typedef TIntSizeStrPrMap::const_iterator           TIntSizeStrPrMapCItr;
+        using TIntSizeStrPrMap = std::map<int, TSizeStrPr>;
+        using TIntSizeStrPrMapItr = TIntSizeStrPrMap::iterator;
+        using TIntSizeStrPrMapCItr = TIntSizeStrPrMap::const_iterator;
 
         //! A regex and its corresponding type count map
-        typedef std::pair<core::CRegex, TIntSizeStrPrMap>  TRegexIntSizeStrPrMapPr;
+        using TRegexIntSizeStrPrMapPr = std::pair<core::CRegex, TIntSizeStrPrMap>;
 
         //! Vector of regexes with corresponding type count maps
-        typedef std::vector<TRegexIntSizeStrPrMapPr>       TRegexIntSizeStrPrMapPrVec;
-        typedef TRegexIntSizeStrPrMapPrVec::iterator       TRegexIntSizeStrPrMapPrVecItr;
-        typedef TRegexIntSizeStrPrMapPrVec::const_iterator TRegexIntSizeStrPrMapPrVecCItr;
+        using TRegexIntSizeStrPrMapPrVec = std::vector<TRegexIntSizeStrPrMapPr>;
+        using TRegexIntSizeStrPrMapPrVecItr = TRegexIntSizeStrPrMapPrVec::iterator;
+        using TRegexIntSizeStrPrMapPrVecCItr = TRegexIntSizeStrPrMapPrVec::const_iterator;
 
     public:
         CBenchMarker(void);

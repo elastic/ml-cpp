@@ -53,8 +53,8 @@ namespace core
 class CORE_EXPORT CStateDecompressor : public CDataSearcher
 {
     public:
-        typedef boost::iostreams::filtering_stream<boost::iostreams::input> TFilteredInput;
-        typedef boost::shared_ptr<TFilteredInput> TFilteredInputP;
+        using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
+        using TFilteredInputP = boost::shared_ptr<TFilteredInput>;
 
         static const std::string EMPTY_DATA;
 
@@ -62,7 +62,7 @@ class CORE_EXPORT CStateDecompressor : public CDataSearcher
         class CDechunkFilter
         {
             public:
-                typedef char char_type;
+                using char_type = char;
 
                 //! Inform the filtering_stream owning object what this is capable of
                 struct category :

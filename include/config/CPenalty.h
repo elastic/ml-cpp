@@ -73,13 +73,13 @@ class CNumericDataSummaryStatistics;
 class CONFIG_EXPORT CPenalty
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
-        typedef boost::shared_ptr<const CPenalty> TPenaltyCPtr;
-        typedef std::vector<TPenaltyCPtr> TPenaltyCPtrVec;
+        using TDoubleVec = std::vector<double>;
+        using TSizeVec = std::vector<std::size_t>;
+        using TTimeVec = std::vector<core_t::TTime>;
+        using TStrVec = std::vector<std::string>;
+        using TPenaltyPtr = boost::shared_ptr<CPenalty>;
+        using TPenaltyCPtr = boost::shared_ptr<const CPenalty>;
+        using TPenaltyCPtrVec = std::vector<TPenaltyCPtr>;
 
         //! \brief Represents the result of multiplying penalties.
         class CClosure
@@ -141,7 +141,7 @@ class CONFIG_EXPORT CPenalty
         static bool scoreIsZeroFor(double penalty);
 
     protected:
-        typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
+        using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
 
     protected:
         //! Get the parameters.

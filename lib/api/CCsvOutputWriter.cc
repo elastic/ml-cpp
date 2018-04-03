@@ -175,7 +175,7 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
     // all gets written to the stream
     m_WorkRecord.clear();
 
-    typedef std::equal_to<std::string> TStrEqualTo;
+    using TStrEqualTo = std::equal_to<std::string>;
     TStrEqualTo pred;
 
     TStrVecCItr fieldNameIter = m_FieldNames.begin();

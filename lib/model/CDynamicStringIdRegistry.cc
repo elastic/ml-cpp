@@ -220,7 +220,7 @@ CDynamicStringIdRegistry::TSizeVec &CDynamicStringIdRegistry::recycledIds(void)
 
 bool CDynamicStringIdRegistry::checkInvariants(void) const
 {
-    typedef boost::unordered_set<std::size_t> TSizeUSet;
+    using TSizeUSet = boost::unordered_set<std::size_t>;
 
     bool result = true;
     if (m_Uids.size() > m_Names.size())
@@ -258,8 +258,8 @@ void CDynamicStringIdRegistry::clear(void)
 
 uint64_t CDynamicStringIdRegistry::checksum(void) const
 {
-    typedef boost::reference_wrapper<const std::string> TStrCRef;
-    typedef std::vector<TStrCRef> TStrCRefVec;
+    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRefVec = std::vector<TStrCRef>;
 
     TStrCRefVec people;
     people.reserve(m_Names.size());

@@ -38,9 +38,9 @@ void CProbabilityCalibratorTest::testCalibration(void)
     LOG_DEBUG("|  CProbabilityCalibratorTest::testCalibration  |");
     LOG_DEBUG("+-----------------------------------------------+");
 
-    typedef std::vector<double> TDoubleVec;
-    typedef CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate> CLogNormalMeanPrecConjugate;
-    typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate> CNormalMeanPrecConjugate;
+    using TDoubleVec = std::vector<double>;
+    using CLogNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate>;
+    using CNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate>;
 
     // Test some things which we know will give poorly calibrated
     // probabilities, i.e. fitting a normal a log-normal and multi-

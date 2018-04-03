@@ -60,13 +60,13 @@ class CBackgroundPersister;
 class API_EXPORT COutputHandler : private core::CNonCopyable
 {
     public:
-        typedef std::vector<std::string>                       TStrVec;
-        typedef TStrVec::iterator                              TStrVecItr;
-        typedef TStrVec::const_iterator                        TStrVecCItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecItr = TStrVec::iterator;
+        using TStrVecCItr = TStrVec::const_iterator;
 
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::iterator                          TStrStrUMapItr;
-        typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
+        using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+        using TStrStrUMapItr = TStrStrUMap::iterator;
+        using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
     public:
         COutputHandler(void);
@@ -139,9 +139,9 @@ class API_EXPORT COutputHandler : private core::CNonCopyable
         //! Used when there are no field overrides
         static const TStrStrUMap EMPTY_FIELD_OVERRIDES;
 
-        typedef std::vector<CPreComputedHash>                  TPreComputedHashVec;
-        typedef TPreComputedHashVec::iterator                  TPreComputedHashVecItr;
-        typedef TPreComputedHashVec::const_iterator            TPreComputedHashVecCItr;
+        using TPreComputedHashVec = std::vector<CPreComputedHash>;
+        using TPreComputedHashVecItr = TPreComputedHashVec::iterator;
+        using TPreComputedHashVecCItr = TPreComputedHashVec::const_iterator;
 };
 
 

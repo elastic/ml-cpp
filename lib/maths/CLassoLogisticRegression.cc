@@ -34,7 +34,7 @@ namespace maths
 
 namespace
 {
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 //! An upper bound on the second derivative of minus the log of the
 //! logistic link function in a ball, i.e.
@@ -104,7 +104,7 @@ double logLikelihood(const MATRIX &x,
                      const TDoubleVec &lambda,
                      const TDoubleVec &beta)
 {
-    typedef typename MATRIX::iterator iterator;
+    using iterator = typename MATRIX::iterator;
 
     double result = 0.0;
     TDoubleVec f(y.size(), 0.0);
@@ -142,7 +142,7 @@ void CLG(std::size_t maxIterations,
          TDoubleVec &r,
          std::size_t &numberIterations)
 {
-    typedef typename MATRIX::iterator iterator;
+    using iterator = typename MATRIX::iterator;
 
     std::size_t d = x.columns();
     LOG_DEBUG("d = " << d << ", n = " << y.size());
@@ -501,11 +501,11 @@ namespace
 {
 
 using namespace lasso_logistic_regression_detail;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
-typedef std::vector<TSizeDoublePrVec> TSizeDoublePrVecVec;
-typedef boost::unordered_set<std::size_t> TSizeUSet;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
+using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
+using TSizeUSet = boost::unordered_set<std::size_t>;
 
 //! Set up the masked training data.
 //!
@@ -664,7 +664,7 @@ double element(const TSizeDoublePr &xij)
 template<typename STORAGE>
 double l22Norm(const STORAGE &x)
 {
-    typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     TMeanAccumulator result;
     for (std::size_t i = 0u; i < x.size(); ++i)
     {
@@ -697,7 +697,7 @@ template<typename MATRIX>
 class C2FoldCrossValidatedLogLikelihood
 {
     public:
-        typedef double result_type;
+        using result_type = double;
 
     public:
         C2FoldCrossValidatedLogLikelihood(std::size_t d) :
@@ -751,7 +751,7 @@ class C2FoldCrossValidatedLogLikelihood
         }
 
     private:
-        typedef std::vector<MATRIX> TMatrixVec;
+        using TMatrixVec = std::vector<MATRIX>;
 
     private:
         //! The feature vector dimension.
@@ -793,7 +793,7 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
         return;
     }
 
-    typedef std::vector<std::size_t> TSizeVec;
+    using TSizeVec = std::vector<std::size_t>;
 
     std::size_t n = m_X.size();
     LOG_DEBUG("d = " << m_D << ", n = " << n);

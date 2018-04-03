@@ -53,11 +53,11 @@ struct SModelParams;
 namespace model_t
 {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 2> TDouble2Vec;
-typedef core::CSmallVector<TDouble2Vec, 1> TDouble2Vec1Vec;
-typedef std::pair<TDouble1Vec, TDouble1Vec> TDouble1VecDouble1VecPr;
-typedef boost::shared_ptr<const model::CInfluenceCalculator> TInfluenceCalculatorCPtr;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble2Vec = core::CSmallVector<double, 2>;
+using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
+using TDouble1VecDouble1VecPr = std::pair<TDouble1Vec, TDouble1Vec>;
+using TInfluenceCalculatorCPtr = boost::shared_ptr<const model::CInfluenceCalculator>;
 
 //! The types of model available.
 //!
@@ -454,7 +454,7 @@ enum EFeature
     E_PeersMedianByPersonAndAttribute = 508
 };
 
-typedef std::vector<EFeature> TFeatureVec;
+using TFeatureVec = std::vector<EFeature>;
 
 //! Get the dimension of the feature \p feature.
 MODEL_EXPORT

@@ -34,7 +34,7 @@ namespace model
 class MODEL_EXPORT CSample
 {
     public:
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
+        using TDouble1Vec = core::CSmallVector<double, 1>;
 
         struct MODEL_EXPORT SToString
         {

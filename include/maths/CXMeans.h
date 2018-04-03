@@ -60,12 +60,12 @@ template<typename POINT, typename COST = CSphericalGaussianInfoCriterion<POINT, 
 class CXMeans
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
-        typedef boost::unordered_set<uint64_t> TUInt64USet;
-        typedef TUInt64USet::iterator TUInt64USetItr;
-        typedef typename CBasicStatistics::SSampleMean<POINT>::TAccumulator TMeanAccumulator;
+        using TDoubleVec = std::vector<double>;
+        using TPointVec = std::vector<POINT>;
+        using TPointVecVec = std::vector<TPointVec>;
+        using TUInt64USet = boost::unordered_set<uint64_t>;
+        using TUInt64USetItr = TUInt64USet::iterator;
+        using TMeanAccumulator = typename CBasicStatistics::SSampleMean<POINT>::TAccumulator;
 
         //! A cluster.
         //!
@@ -153,7 +153,7 @@ class CXMeans
                 uint64_t m_Checksum;
         };
 
-        typedef std::vector<CCluster> TClusterVec;
+        using TClusterVec = std::vector<CCluster>;
 
     public:
         CXMeans(std::size_t kmax) :
@@ -229,8 +229,8 @@ class CXMeans
         //! iterations of Lloyd's algorithm to use.
         void improveParams(std::size_t kmeansIterations)
         {
-            typedef const CCluster *TClusterCPtr;
-            typedef std::vector<TClusterCPtr> TClusterCPtrVec;
+            using TClusterCPtr = const CCluster*;
+            using TClusterCPtrVec = std::vector<TClusterCPtr>;
 
             std::size_t n = m_Clusters.size();
 

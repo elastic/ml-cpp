@@ -38,8 +38,8 @@ namespace config
 namespace
 {
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<double> TDoubleVec;
+using TSizeVec = std::vector<std::size_t>;
+using TDoubleVec = std::vector<double>;
 
 //! \brief Checks if the name of some statistics matches a specified value.
 class CNameEquals
@@ -475,10 +475,9 @@ std::string CDetectorSpecification::detectorConfig(void) const
         return "";
     }
 
-    typedef std::pair<double, core_t::TTime> TDoubleTimePr;
-    typedef maths::CBasicStatistics::COrderStatisticsStack<TDoubleTimePr,
-                                                           1,
-                                                           maths::COrderings::SFirstGreater> TMaxAccumulator;
+    using TDoubleTimePr = std::pair<double, core_t::TTime>;
+    using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<TDoubleTimePr, 1,
+                                                                           maths::COrderings::SFirstGreater>;
 
     const TTimeVec &candidates = this->params().candidateBucketLengths();
 

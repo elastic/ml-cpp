@@ -70,12 +70,12 @@ class CORE_EXPORT CMemoryUsage
             std::size_t s_Unused;
         };
 
-        typedef CMemoryUsage* TMemoryUsagePtr;
-        typedef std::list<TMemoryUsagePtr> TMemoryUsagePtrList;
-        typedef TMemoryUsagePtrList::const_iterator TMemoryUsagePtrListCItr;
-        typedef TMemoryUsagePtrList::iterator TMemoryUsagePtrListItr;
-        typedef std::vector<SMemoryUsage> TMemoryUsageVec;
-        typedef TMemoryUsageVec::const_iterator TMemoryUsageVecCitr;
+        using TMemoryUsagePtr = CMemoryUsage*;
+        using TMemoryUsagePtrList = std::list<TMemoryUsagePtr>;
+        using TMemoryUsagePtrListCItr = TMemoryUsagePtrList::const_iterator;
+        using TMemoryUsagePtrListItr = TMemoryUsagePtrList::iterator;
+        using TMemoryUsageVec = std::vector<SMemoryUsage>;
+        using TMemoryUsageVecCitr = TMemoryUsageVec::const_iterator;
 
     public:
         //! Constructor

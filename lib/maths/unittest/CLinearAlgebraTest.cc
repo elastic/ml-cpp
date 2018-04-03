@@ -28,8 +28,8 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 
 void CLinearAlgebraTest::testSymmetricMatrixNxN(void)
 {
@@ -1097,7 +1097,7 @@ void CLinearAlgebraTest::testSampleGaussian(void)
                 +  5.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e2 / e2.euclidean())
                 +  5.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e3 / e3.euclidean()));
 
-        std::vector<maths::CVectorNx1<double, 4> > samples;
+        std::vector<maths::CVectorNx1<double, 4>> samples;
         maths::sampleGaussian(100, mean, covariance, samples);
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(99), samples.size());
@@ -1148,7 +1148,7 @@ void CLinearAlgebraTest::testSampleGaussian(void)
                 +  5.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e3 / e3.euclidean())
                 +  2.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e4 / e4.euclidean()));
 
-        std::vector<maths::CVectorNx1<double, 4> > samples;
+        std::vector<maths::CVectorNx1<double, 4>> samples;
         maths::sampleGaussian(100, mean, covariance, samples);
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(100), samples.size());
@@ -1280,7 +1280,7 @@ void CLinearAlgebraTest::testProjected(void)
     LOG_DEBUG("|  CLinearAlgebraTest::testProjected  |");
     LOG_DEBUG("+-------------------------------------+");
 
-    typedef std::vector<std::size_t> TSizeVec;
+    using TSizeVec = std::vector<std::size_t>;
 
     const double m[][5] =
         {

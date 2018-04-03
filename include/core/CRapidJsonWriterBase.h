@@ -77,24 +77,24 @@ template<typename OUTPUT_STREAM,
 class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS>
 {
     public:
-        typedef std::vector<core_t::TTime>              TTimeVec;
-        typedef std::vector<std::string>                TStrVec;
-        typedef std::vector<double>                     TDoubleVec;
-        typedef std::pair<double, double>               TDoubleDoublePr;
-        typedef std::vector<TDoubleDoublePr>            TDoubleDoublePrVec;
-        typedef std::pair<double, TDoubleDoublePr>      TDoubleDoubleDoublePrPr;
-        typedef std::vector<TDoubleDoubleDoublePrPr>    TDoubleDoubleDoublePrPrVec;
-        typedef boost::unordered_set<std::string>       TStrUSet;
-        typedef rapidjson::Document                     TDocument;
-        typedef rapidjson::Value                        TValue;
-        typedef boost::weak_ptr<TDocument>              TDocumentWeakPtr;
-        typedef boost::shared_ptr<TValue>               TValuePtr;
+        using TTimeVec = std::vector<core_t::TTime>;
+        using TStrVec = std::vector<std::string>;
+        using TDoubleVec = std::vector<double>;
+        using TDoubleDoublePr = std::pair<double, double>;
+        using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+        using TDoubleDoubleDoublePrPr = std::pair<double, TDoubleDoublePr>;
+        using TDoubleDoubleDoublePrPrVec = std::vector<TDoubleDoubleDoublePrPr>;
+        using TStrUSet = boost::unordered_set<std::string>;
+        using TDocument = rapidjson::Document;
+        using TValue = rapidjson::Value;
+        using TDocumentWeakPtr = boost::weak_ptr<TDocument>;
+        using TValuePtr = boost::shared_ptr<TValue>;
 
-        typedef boost::shared_ptr<CRapidJsonPoolAllocator>              TPoolAllocatorPtr;
-        typedef std::stack< TPoolAllocatorPtr >                         TPoolAllocatorPtrStack;
-        typedef boost::unordered_map< std::string, TPoolAllocatorPtr>   TStrPoolAllocatorPtrMap;
-        typedef TStrPoolAllocatorPtrMap::iterator                       TStrPoolAllocatorPtrMapItr;
-        typedef std::pair<TStrPoolAllocatorPtrMapItr, bool>             TStrPoolAllocatorPtrMapItrBoolPr;
+        using TPoolAllocatorPtr = boost::shared_ptr<CRapidJsonPoolAllocator>;
+        using TPoolAllocatorPtrStack = std::stack< TPoolAllocatorPtr >;
+        using TStrPoolAllocatorPtrMap = boost::unordered_map< std::string, TPoolAllocatorPtr>;
+        using TStrPoolAllocatorPtrMapItr = TStrPoolAllocatorPtrMap::iterator;
+        using TStrPoolAllocatorPtrMapItrBoolPr = std::pair<TStrPoolAllocatorPtrMapItr, bool>;
 
 
     public:

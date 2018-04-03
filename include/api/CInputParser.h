@@ -47,27 +47,27 @@ namespace api
 class API_EXPORT CInputParser : private core::CNonCopyable
 {
     public:
-        typedef std::vector<std::string>                       TStrVec;
-        typedef TStrVec::iterator                              TStrVecItr;
-        typedef TStrVec::const_iterator                        TStrVecCItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecItr = TStrVec::iterator;
+        using TStrVecCItr = TStrVec::const_iterator;
 
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::iterator                          TStrStrUMapItr;
-        typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
+        using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+        using TStrStrUMapItr = TStrStrUMap::iterator;
+        using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
         //! For fast access to the field values without repeatedly computing the
         //! hash, we maintain references to the values in the hash map
-        typedef boost::reference_wrapper<std::string>          TStrRef;
-        typedef std::vector<TStrRef>                           TStrRefVec;
-        typedef TStrRefVec::iterator                           TStrRefVecItr;
-        typedef TStrRefVec::const_iterator                     TStrRefVecCItr;
+        using TStrRef = boost::reference_wrapper<std::string>;
+        using TStrRefVec = std::vector<TStrRef>;
+        using TStrRefVecItr = TStrRefVec::iterator;
+        using TStrRefVecCItr = TStrRefVec::const_iterator;
 
         //! Callback function prototype that gets called for each record
         //! read from the input stream.  Return false to exit reader loop.
         //! Arguments are:
         //! 1) Header row fields
         //! 2) Data row fields
-        typedef std::function<bool(const TStrStrUMap &)>       TReaderFunc;
+        using TReaderFunc = std::function<bool(const TStrStrUMap &)>;
 
     public:
         CInputParser(void);

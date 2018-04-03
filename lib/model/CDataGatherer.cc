@@ -847,7 +847,7 @@ void CDataGatherer::releaseMemory(core_t::TTime samplingCutoffTime)
 {
     if (this->isPopulation())
     {
-        for (auto &&gatherer : m_Gatherers)
+        for (auto &gatherer : m_Gatherers)
         {
             gatherer->releaseMemory(samplingCutoffTime);
         }

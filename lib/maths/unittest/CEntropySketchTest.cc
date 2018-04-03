@@ -36,16 +36,16 @@ void CEntropySketchTest::testAll(void)
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testPersist  |");
     LOG_DEBUG("+---------------------------------------+");
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef boost::unordered_map<std::size_t, double> TSizeDoubleUMap;
-    typedef TSizeDoubleUMap::const_iterator TSizeDoubleUMapCItr;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeDoubleUMap = boost::unordered_map<std::size_t, double>;
+    using TSizeDoubleUMapCItr = TSizeDoubleUMap::const_iterator;
 
     test::CRandomNumbers rng;
 
     TSizeVec numberCategories;
     rng.generateUniformSamples(500, 1001, 1000, numberCategories);
 
-    maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> > maxError[3];
+    maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>> maxError[3];
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanError[3];
 
     double K[] = { 20.0, 40.0, 60.0 };

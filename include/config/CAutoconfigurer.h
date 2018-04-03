@@ -73,7 +73,7 @@ class CONFIG_EXPORT CAutoconfigurer : public api::CDataProcessor
         virtual api::COutputHandler &outputHandler(void);
 
     private:
-        typedef boost::shared_ptr<CAutoconfigurerImpl> TImplPtr;
+        using TImplPtr = boost::shared_ptr<CAutoconfigurerImpl>;
 
     private:
         //! The pointer to the actual implementation.

@@ -66,25 +66,25 @@ struct SMessage
     std::string s_Person;
 };
 
-typedef std::vector<SMessage> TMessageVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
-typedef boost::shared_ptr<CDataGatherer> TEventRateDataGathererPtr;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::map<TSizeSizePr, uint64_t> TSizeSizePrUInt64Map;
-typedef TSizeSizePrUInt64Map::iterator TSizeSizePrUInt64MapCItr;
-typedef std::set<std::size_t> TSizeSet;
-typedef std::map<std::size_t, TSizeSet> TSizeSizeSetMap;
-typedef std::set<std::string> TStrSet;
-typedef std::map<std::size_t, TStrSet> TSizeStrSetMap;
-typedef std::map<std::size_t, TStrSet>::iterator TSizeStrSetMapItr;
-typedef SEventRateFeatureData TFeatureData;
-typedef std::pair<std::string, TFeatureData> TStrFeatureDataPr;
-typedef std::vector<TStrFeatureDataPr> TStrFeatureDataPrVec;
-typedef std::pair<TSizeSizePr, TFeatureData> TSizeSizePrFeatureDataPr;
-typedef std::vector<TSizeSizePrFeatureDataPr> TSizeSizePrFeatureDataPrVec;
-typedef std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec> TFeatureSizeSizePrFeatureDataPrVecPr;
-typedef std::vector<TFeatureSizeSizePrFeatureDataPrVecPr> TFeatureSizeSizePrFeatureDataPrVecPrVec;
+using TMessageVec = std::vector<SMessage>;
+using TSizeVec = std::vector<std::size_t>;
+using TStrVec = std::vector<std::string>;
+using TEventRateDataGathererPtr = boost::shared_ptr<CDataGatherer>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
+using TSizeSizePrUInt64MapCItr = TSizeSizePrUInt64Map::iterator;
+using TSizeSet = std::set<std::size_t>;
+using TSizeSizeSetMap = std::map<std::size_t, TSizeSet>;
+using TStrSet = std::set<std::string>;
+using TSizeStrSetMap = std::map<std::size_t, TStrSet>;
+using TSizeStrSetMapItr = std::map<std::size_t, TStrSet>::iterator;
+using TFeatureData = SEventRateFeatureData;
+using TStrFeatureDataPr = std::pair<std::string, TFeatureData>;
+using TStrFeatureDataPrVec = std::vector<TStrFeatureDataPr>;
+using TSizeSizePrFeatureDataPr = std::pair<TSizeSizePr, TFeatureData>;
+using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
+using TFeatureSizeSizePrFeatureDataPrVecPr = std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec>;
+using TFeatureSizeSizePrFeatureDataPrVecPrVec = std::vector<TFeatureSizeSizePrFeatureDataPrVecPr>;
 
 TStrVec allCategories(void)
 {
@@ -113,8 +113,8 @@ void generateTestMessages(test::CRandomNumbers &rng,
                           core_t::TTime bucketLength,
                           TMessageVec &messages)
 {
-    typedef std::vector<unsigned int> TUIntVec;
-    typedef std::vector<double> TDoubleVec;
+    using TUIntVec = std::vector<unsigned int>;
+    using TDoubleVec = std::vector<double>;
 
     LOG_DEBUG("bucket = [" << time << ", " << time + bucketLength << ")");
 
@@ -262,7 +262,7 @@ void CEventRatePopulationDataGathererTest::testAttributeCounts(void)
     // We check that we correctly sample the unique people per
     // attribute and (attribute, person) pair counts.
 
-    typedef std::map<std::string, std::size_t> TStrSizeMap;
+    using TStrSizeMap = std::map<std::string, std::size_t>;
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -658,9 +658,9 @@ void CEventRatePopulationDataGathererTest::testRemovePeople(void)
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testRemovePeople ***");
 
-    typedef std::map<std::string, std::size_t> TStrSizeMap;
-    typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-    typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
+    using TStrSizeMap = std::map<std::string, std::size_t>;
+    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+    using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;

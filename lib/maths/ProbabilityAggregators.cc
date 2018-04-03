@@ -37,8 +37,8 @@ namespace maths
 
 namespace
 {
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<double, double> TDoubleDoublePr;
+using TDoubleVec = std::vector<double>;
+using TDoubleDoublePr = std::pair<double, double>;
 
 //! Compute \f$x^2\f$.
 inline double square(double x)
@@ -247,7 +247,7 @@ double logOneMinusX(double x)
 class CNumericalLogProbabilityOfMFromNExtremeSamples
 {
     public:
-        typedef CBasicStatistics::COrderStatisticsHeap<double> TMinValueAccumulator;
+        using TMinValueAccumulator = CBasicStatistics::COrderStatisticsHeap<double>;
 
         //! A recursive integrand for the multi-variable integration.
         class CLogIntegrand
