@@ -74,7 +74,7 @@ void CConfigUpdaterTest::testUpdateGivenUnknownStanzas(void)
 
 void CConfigUpdaterTest::testUpdateGivenModelPlotConfig(void)
 {
-    typedef model::CAnomalyDetectorModelConfig::TStrSet TStrSet;
+    using TStrSet = model::CAnomalyDetectorModelConfig::TStrSet;
 
     CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();

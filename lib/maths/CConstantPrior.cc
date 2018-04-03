@@ -40,7 +40,7 @@ namespace maths
 
 namespace
 {
-typedef boost::optional<double> TOptionalDouble;
+using TOptionalDouble = boost::optional<double>;
 
 //! Set the constant, validating the input.
 void setConstant(double value, TOptionalDouble &result)

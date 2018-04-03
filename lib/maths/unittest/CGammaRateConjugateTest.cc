@@ -46,12 +46,12 @@ using namespace handy_typedefs;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef CPriorTestInterfaceMixin<maths::CGammaRateConjugate> CGammaRateConjugate;
+using TDoubleVec = std::vector<double>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using CGammaRateConjugate = CPriorTestInterfaceMixin<maths::CGammaRateConjugate>;
 
 CGammaRateConjugate makePrior(maths_t::EDataType dataType = maths_t::E_ContinuousData,
                               const double &offset = 0.0,
@@ -96,7 +96,7 @@ void CGammaRateConjugateTest::testMultipleUpdate(void)
         }
         filter2.addSamples(samples);
 
-        typedef maths::CEqualWithTolerance<double> TEqual;
+        using TEqual = maths::CEqualWithTolerance<double>;
         TEqual equal(maths::CToleranceTypes::E_RelativeTolerance, 1e-3);
         CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
     }
@@ -123,7 +123,7 @@ void CGammaRateConjugateTest::testMultipleUpdate(void)
                            scaledSamples,
                            TDouble4Vec1Vec(scaledSamples.size(), TDouble4Vec(1, 2.0)));
 
-        typedef maths::CEqualWithTolerance<double> TEqual;
+        using TEqual = maths::CEqualWithTolerance<double>;
         TEqual equal(maths::CToleranceTypes::E_RelativeTolerance, 0.03);
         CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
     }
@@ -146,7 +146,7 @@ void CGammaRateConjugateTest::testMultipleUpdate(void)
                            TDouble1Vec(1, x),
                            TDouble4Vec1Vec(1, TDouble4Vec(1, static_cast<double>(count))));
 
-        typedef maths::CEqualWithTolerance<double> TEqual;
+        using TEqual = maths::CEqualWithTolerance<double>;
         TEqual equal(maths::CToleranceTypes::E_RelativeTolerance, 0.01);
         CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
     }
@@ -220,7 +220,7 @@ void CGammaRateConjugateTest::testShapeEstimation(void)
             TDoubleVec samples;
             rng.generateGammaSamples(shape, scale, 5050, samples);
 
-            typedef std::vector<CGammaRateConjugate> TGammaRateConjugateVec;
+            using TGammaRateConjugateVec = std::vector<CGammaRateConjugate>;
 
             unsigned int nAggregate = 50u;
             TGammaRateConjugateVec filters(nAggregate, makePrior(maths_t::E_ContinuousData, 0.0, decayRates[i]));
@@ -1049,7 +1049,7 @@ void CGammaRateConjugateTest::testAnomalyScore(void)
     //   1) high probability of detecting the anomalies, and
     //   2) a very low rate of false positives.
 
-    typedef std::vector<unsigned int> TUIntVec;
+    using TUIntVec = std::vector<unsigned int>;
 
     const double decayRates[] = { 0.0, 0.001, 0.01 };
 
@@ -1244,7 +1244,7 @@ void CGammaRateConjugateTest::testOffset(void)
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(probability1, probability2, eps);
                 }
 
-                typedef maths::CEqualWithTolerance<double> TEqual;
+                using TEqual = maths::CEqualWithTolerance<double>;
                 TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, eps);
                 CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
             }
@@ -1293,7 +1293,7 @@ void CGammaRateConjugateTest::testIntegerData(void)
                 filter2.addSamples(sample);
             }
 
-            typedef maths::CEqualWithTolerance<double> TEqual;
+            using TEqual = maths::CEqualWithTolerance<double>;
             TEqual equal(maths::CToleranceTypes::E_RelativeTolerance, 0.02);
             CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
         }
@@ -1804,7 +1804,7 @@ void CGammaRateConjugateTest::testNegativeSample(void)
 
     CPPUNIT_ASSERT_EQUAL(filter1.numberSamples(), filter2.numberSamples());
 
-    typedef maths::CEqualWithTolerance<double> TEqual;
+    using TEqual = maths::CEqualWithTolerance<double>;
     TEqual equal(maths::CToleranceTypes::E_RelativeTolerance, 0.1);
     CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
 }

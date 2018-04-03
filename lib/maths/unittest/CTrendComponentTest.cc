@@ -344,7 +344,7 @@ void CTrendComponentTest::testForecast()
 
             TMeanAccumulator meanError;
             TMeanAccumulator meanErrorAt95;
-            for (auto &&errorbar : forecast)
+            for (auto &errorbar : forecast)
             {
                 core_t::TTime bucket{(time - start) / bucketLength};
                 meanError.add(  std::fabs((values[bucket] - errorbar[1])

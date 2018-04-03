@@ -116,7 +116,7 @@ class CORE_EXPORT CTimeUtils : private CNonInstantiatable
                 //! value of this variable has made its way into every thread).
                 static volatile CDateWordCache *ms_Instance;
 
-                typedef boost::unordered_set<std::string> TStrUSet;
+                using TStrUSet = boost::unordered_set<std::string>;
 
                 //! Our cache of date words
                 TStrUSet                       m_DateWords;

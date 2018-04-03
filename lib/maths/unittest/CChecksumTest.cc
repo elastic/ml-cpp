@@ -69,18 +69,18 @@ struct SBar
     uint64_t s_Key;
 };
 
-typedef std::vector<int> TIntVec;
-typedef std::map<std::size_t, EAnEnum> TSizeAnEnumMap;
-typedef std::set<std::string> TStrSet;
-typedef TStrSet::const_iterator TStrSetCItr;
-typedef boost::optional<double> TOptionalDouble;
-typedef std::vector<TOptionalDouble> TOptionalDoubleVec;
-typedef maths::CBasicStatistics::SSampleMeanVar<maths::CFloatStorage>::TAccumulator TMeanVarAccumulator;
-typedef boost::shared_ptr<TMeanVarAccumulator> TMeanVarAccumulatorPtr;
-typedef std::pair<double, TMeanVarAccumulator> TDoubleMeanVarAccumulatorPr;
-typedef std::list<TDoubleMeanVarAccumulatorPr> TDoubleMeanVarAccumulatorPrList;
-typedef std::deque<SFoo> TFooDeque;
-typedef std::vector<SBar> TBarVec;
+using TIntVec = std::vector<int>;
+using TSizeAnEnumMap = std::map<std::size_t, EAnEnum>;
+using TStrSet = std::set<std::string>;
+using TStrSetCItr = TStrSet::const_iterator;
+using TOptionalDouble = boost::optional<double>;
+using TOptionalDoubleVec = std::vector<TOptionalDouble>;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<maths::CFloatStorage>::TAccumulator;
+using TMeanVarAccumulatorPtr = boost::shared_ptr<TMeanVarAccumulator>;
+using TDoubleMeanVarAccumulatorPr = std::pair<double, TMeanVarAccumulator>;
+using TDoubleMeanVarAccumulatorPrList = std::list<TDoubleMeanVarAccumulatorPr>;
+using TFooDeque = std::deque<SFoo>;
+using TBarVec = std::vector<SBar>;
 
 }
 

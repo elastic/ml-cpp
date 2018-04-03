@@ -98,7 +98,7 @@ void zeroMean(TDoubleVec &samples)
     {
         mean.add(sample);
     }
-    for (auto &&sample : samples)
+    for (auto &sample : samples)
     {
         sample -= CBasicStatistics::mean(mean);
     }

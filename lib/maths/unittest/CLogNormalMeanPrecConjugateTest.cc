@@ -47,12 +47,12 @@ using namespace handy_typedefs;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate> CLogNormalMeanPrecConjugate;
+using TDoubleVec = std::vector<double>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using CLogNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate>;
 
 CLogNormalMeanPrecConjugate makePrior(maths_t::EDataType dataType = maths_t::E_ContinuousData,
                                       const double &offset = 0.0,
@@ -72,7 +72,7 @@ void CLogNormalMeanPrecConjugateTest::testMultipleUpdate(void)
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
-    typedef maths::CEqualWithTolerance<double> TEqual;
+    using TEqual = maths::CEqualWithTolerance<double>;
 
     const maths_t::EDataType dataTypes[] =
         {
@@ -1082,7 +1082,7 @@ void CLogNormalMeanPrecConjugateTest::testAnomalyScore(void)
     //   1) high probability of detecting the anomalies, and
     //   2) a very low rate of false positives.
 
-    typedef std::vector<unsigned int> TUIntVec;
+    using TUIntVec = std::vector<unsigned int>;
 
     const double decayRates[] = { 0.0, 0.001, 0.01 };
 
@@ -1277,7 +1277,7 @@ void CLogNormalMeanPrecConjugateTest::testOffset(void)
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(probability1, probability2, eps);
                 }
 
-                typedef maths::CEqualWithTolerance<double> TEqual;
+                using TEqual = maths::CEqualWithTolerance<double>;
                 TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, eps);
                 CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
             }
@@ -1326,7 +1326,7 @@ void CLogNormalMeanPrecConjugateTest::testIntegerData(void)
             filter2.addSamples(sample);
         }
 
-        typedef maths::CEqualWithTolerance<double> TEqual;
+        using TEqual = maths::CEqualWithTolerance<double>;
         TEqual equal(maths::CToleranceTypes::E_RelativeTolerance, 0.01);
         CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
 
@@ -1920,7 +1920,7 @@ void CLogNormalMeanPrecConjugateTest::testNegativeSample(void)
 
     CPPUNIT_ASSERT_EQUAL(filter1.numberSamples(), filter2.numberSamples());
 
-    typedef maths::CEqualWithTolerance<double> TEqual;
+    using TEqual = maths::CEqualWithTolerance<double>;
     TEqual equal(maths::CToleranceTypes::E_RelativeTolerance, 0.1);
     CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
 }

@@ -598,8 +598,8 @@ void CStringUtilsTest::testJoin(void)
     LOG_DEBUG("*** testJoin ***")
     using namespace ml;
     using namespace core;
-    typedef std::vector<std::string> TStrVec;
-    typedef std::set<std::string> TStrSet;
+    using TStrVec = std::vector<std::string>;
+    using TStrSet = std::set<std::string>;
 
     TStrVec strVec;
 

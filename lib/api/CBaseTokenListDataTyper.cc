@@ -309,7 +309,7 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
 
     // Determine the rarest tokens that we can afford within the available
     // length
-    typedef std::multimap<size_t, TSizeSizePr> TSizeSizeSizePrMMap;
+    using TSizeSizeSizePrMMap = std::multimap<size_t, TSizeSizePr>;
     TSizeSizeSizePrMMap rareIdsWithCost;
     size_t lowestCost(std::numeric_limits<size_t>::max());
     for (const auto &commonUniqueTokenId : commonUniqueTokenIds)
@@ -327,7 +327,7 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
         lowestCost = std::min(cost, lowestCost);
     }
 
-    typedef std::set<size_t>         TSizeSet;
+    using TSizeSet = std::set<size_t>;
     TSizeSet costedCommonUniqueTokenIds;
     size_t cheapestCost(std::numeric_limits<size_t>::max());
     auto cheapestIter = rareIdsWithCost.end();

@@ -132,7 +132,7 @@ class MODEL_EXPORT CCountingModelFactory : public CModelFactory
         virtual void features(const TFeatureVec &features);
 
         //! Set the bucket results delay
-        virtual void bucketResultsDelay(std::size_t bucketResultsDelay) ;
+        virtual void bucketResultsDelay(std::size_t bucketResultsDelay);
         //@}
 
     private:

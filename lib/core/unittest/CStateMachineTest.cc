@@ -34,9 +34,9 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::vector<std::string> TStrVec;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TStrVec = std::vector<std::string>;
 
 class CStateMachineClearer : core::CStateMachine
 {
@@ -70,12 +70,12 @@ struct SMachine
     }
 };
 
-typedef std::vector<SMachine> TMachineVec;
+using TMachineVec = std::vector<SMachine>;
 
 class CTestThread : public core::CThread
 {
     public:
-        typedef boost::shared_ptr<CppUnit::Exception> TCppUnitExceptionP;
+        using TCppUnitExceptionP = boost::shared_ptr<CppUnit::Exception>;
 
     public:
         CTestThread(const TMachineVec &machines) :
@@ -250,8 +250,8 @@ void CStateMachineTest::testMultithreaded(void)
     std::sort(machines.begin(), machines.end());
     machines.erase(std::unique(machines.begin(), machines.end()), machines.end());
 
-    typedef boost::shared_ptr<CTestThread> TThreadPtr;
-    typedef std::vector<TThreadPtr> TThreadVec;
+    using TThreadPtr = boost::shared_ptr<CTestThread>;
+    using TThreadVec = std::vector<TThreadPtr>;
     TThreadVec threads;
     for (std::size_t i = 0u; i < 20; ++i)
     {

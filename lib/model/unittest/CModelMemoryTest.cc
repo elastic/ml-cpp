@@ -37,7 +37,7 @@ using namespace model;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 std::size_t addPerson(const std::string &p,
                       const CModelFactory::TDataGathererPtr &gatherer)

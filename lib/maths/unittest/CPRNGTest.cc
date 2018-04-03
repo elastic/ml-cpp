@@ -41,7 +41,7 @@ void CPRNGTest::testSplitMix64(void)
 
     // Test min and max.
     maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> min;
-    maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t> > max;
+    maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t>> max;
     for (std::size_t i = 0u; i < 10000; ++i)
     {
         uint64_t x = rng1();
@@ -155,7 +155,7 @@ void CPRNGTest::testXorOShiro128Plus(void)
 
     // Test min and max.
     maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> min;
-    maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t> > max;
+    maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t>> max;
     for (std::size_t i = 0u; i < 10000; ++i)
     {
         uint64_t x = rng1();
@@ -287,7 +287,7 @@ void CPRNGTest::testXorShift1024Mult(void)
 
     // Test min and max.
     maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> min;
-    maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t> > max;
+    maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t>> max;
     for (std::size_t i = 0u; i < 10000; ++i)
     {
         uint64_t x = rng1();

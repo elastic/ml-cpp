@@ -49,7 +49,7 @@ CMemoryUsageEstimator::CMemoryUsageEstimator(void)
 CMemoryUsageEstimator::TOptionalSize
 CMemoryUsageEstimator::estimate(const TSizeArray &predictors)
 {
-    typedef boost::array<double, E_NumberPredictors> TDoubleArray;
+    using TDoubleArray = boost::array<double, E_NumberPredictors>;
 
     if (m_Values.size() < E_NumberPredictors)
     {

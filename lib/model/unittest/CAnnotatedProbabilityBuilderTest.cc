@@ -30,12 +30,12 @@ using namespace model;
 
 namespace
 {
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
-typedef core::CSmallVector<core::CStoredStringPtr, 1> TStoredStringPtr1Vec;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
+using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
 
 const std::string EMPTY_STRING;
 const core::CStoredStringPtr EMPTY_STRING_PTR(CStringStore::names().getEmpty());

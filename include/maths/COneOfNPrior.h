@@ -59,11 +59,11 @@ struct SDistributionRestoreParams;
 class MATHS_EXPORT COneOfNPrior : public CPrior
 {
     public:
-        typedef boost::shared_ptr<CPrior> TPriorPtr;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
-        typedef std::vector<const CPrior*> TPriorCPtrVec;
-        typedef std::pair<double, TPriorPtr> TDoublePriorPtrPr;
-        typedef std::vector<TDoublePriorPtrPr> TDoublePriorPtrPrVec;
+        using TPriorPtr = boost::shared_ptr<CPrior>;
+        using TPriorPtrVec = std::vector<TPriorPtr>;
+        using TPriorCPtrVec = std::vector<const CPrior*>;
+        using TDoublePriorPtrPr = std::pair<double, TPriorPtr>;
+        using TDoublePriorPtrPrVec = std::vector<TDoublePriorPtrPr>;
 
         //! Lift all overloads of the dataType into scope.
         using CPrior::dataType;
@@ -359,11 +359,11 @@ class MATHS_EXPORT COneOfNPrior : public CPrior
         //@}
 
     private:
-        typedef std::pair<double, std::size_t> TDoubleSizePr;
-        typedef core::CSmallVector<TDoubleSizePr, 5> TDoubleSizePr5Vec;
-        typedef std::pair<CModelWeight, TPriorPtr> TWeightPriorPtrPr;
-        typedef std::vector<TWeightPriorPtrPr> TWeightPriorPtrPrVec;
-        typedef CBasicStatistics::SMax<double>::TAccumulator TMaxAccumulator;
+        using TDoubleSizePr = std::pair<double, std::size_t>;
+        using TDoubleSizePr5Vec = core::CSmallVector<TDoubleSizePr, 5>;
+        using TWeightPriorPtrPr = std::pair<CModelWeight, TPriorPtr>;
+        using TWeightPriorPtrPrVec = std::vector<TWeightPriorPtrPr>;
+        using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
 
     private:
         //! Read parameters from \p traverser.

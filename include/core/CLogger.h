@@ -146,8 +146,8 @@ class CORE_EXPORT CLogger : private CNonCopyable
         //! 3) %P with the program's process ID
         void massageProperties(log4cxx::helpers::Properties &props) const;
 
-        typedef std::map<log4cxx::logchar, log4cxx::LogString> TLogCharLogStrMap;
-        typedef TLogCharLogStrMap::const_iterator              TLogCharLogStrMapCItr;
+        using TLogCharLogStrMap = std::map<log4cxx::logchar, log4cxx::LogString>;
+        using TLogCharLogStrMapCItr = TLogCharLogStrMap::const_iterator;
 
         //! Replace Ml specific mappings in a single string
         void massageString(const TLogCharLogStrMap &mappings,

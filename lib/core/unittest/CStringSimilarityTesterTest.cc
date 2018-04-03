@@ -193,7 +193,7 @@ void CStringSimilarityTesterTest::testLevensteinDistance2(void)
 {
     ml::core::CStringSimilarityTester sst;
 
-    typedef std::vector<std::string> TStrVec;
+    using TStrVec = std::vector<std::string>;
 
     TStrVec sourceShutDown1;
     sourceShutDown1.push_back("ml13");
@@ -270,7 +270,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent(void
 {
     ml::core::CStringSimilarityTester sst;
 
-    typedef std::vector<std::string> TStrVec;
+    using TStrVec = std::vector<std::string>;
 
     static const size_t TEST_SIZE(700);
     static const int    MAX_LEN(40);
@@ -316,7 +316,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar(void)
 {
     ml::core::CStringSimilarityTester sst;
 
-    typedef std::vector<std::string> TStrVec;
+    using TStrVec = std::vector<std::string>;
 
     static const size_t TEST_SIZE(700);
     static const int    EXTRA_CHARS(4);
@@ -397,8 +397,8 @@ void CStringSimilarityTesterTest::testWeightedEditDistance(void)
 {
     ml::core::CStringSimilarityTester sst;
 
-    typedef std::pair<std::string, size_t> TStrSizePr;
-    typedef std::vector<TStrSizePr>        TStrSizePrVec;
+    using TStrSizePr = std::pair<std::string, size_t>;
+    using TStrSizePrVec = std::vector<TStrSizePr>;
 
     // These tests give a weight of 3 to dictionary words and 1 to other tokens
 

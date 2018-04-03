@@ -31,7 +31,7 @@ void CIndividualModel::currentBucketPersonIds(core_t::TTime time,
                                               const T &featureData,
                                               TSizeVec &result) const
 {
-    typedef boost::unordered_set<std::size_t> TSizeUSet;
+    using TSizeUSet = boost::unordered_set<std::size_t>;
 
     result.clear();
 
@@ -104,7 +104,7 @@ void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
         this->CIndividualModel::sampleBucketStatistics(time, time + bucketLength, resourceMonitor);
 
         gatherer.featureData(time, bucketLength, featureData);
-        for (auto &&feature_ : featureData)
+        for (auto &feature_ : featureData)
         {
             T &data = feature_.second;
             LOG_TRACE(model_t::print(feature_.first) << " data = " << core::CContainerPrinter::print(data));

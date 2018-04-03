@@ -66,7 +66,7 @@ namespace api
 // We use short field names to reduce the state size
 namespace
 {
-typedef boost::reference_wrapper<const std::string> TStrCRef;
+using TStrCRef = boost::reference_wrapper<const std::string>;
 
 //! Convert a (string, key) pair to something readable.
 template<typename T>
@@ -620,7 +620,7 @@ bool CAnomalyJob::parseTimeRangeInControlMessage(const std::string &controlMessa
                                                       core_t::TTime &start,
                                                       core_t::TTime &end)
 {
-    typedef core::CStringUtils::TStrVec TStrVec;
+    using TStrVec = core::CStringUtils::TStrVec;
     TStrVec tokens;
     std::string remainder;
     core::CStringUtils::tokenise(" ", controlMessage.substr(1, std::string::npos), tokens, remainder);
@@ -665,8 +665,8 @@ void CAnomalyJob::doForecast(const std::string &controlMessage)
 
 void CAnomalyJob::outputResults(core_t::TTime bucketStartTime)
 {
-    typedef TKeyAnomalyDetectorPtrUMap::const_iterator TKeyAnomalyDetectorPtrUMapCItr;
-    typedef std::vector<TKeyAnomalyDetectorPtrUMapCItr> TKeyAnomalyDetectorPtrUMapCItrVec;
+    using TKeyAnomalyDetectorPtrUMapCItr = TKeyAnomalyDetectorPtrUMap::const_iterator;
+    using TKeyAnomalyDetectorPtrUMapCItrVec = std::vector<TKeyAnomalyDetectorPtrUMapCItr>;
 
     static uint64_t cumulativeTime = 0;
 
@@ -804,7 +804,7 @@ void CAnomalyJob::writeOutResults(bool interim, model::CHierarchicalResults &res
             results.root()->s_NormalizedAnomalyScore << ", count " << results.resultCount()
             << " at " << bucketTime);
 
-        typedef ml::core::CScopedRapidJsonPoolAllocator<CJsonOutputWriter> TScopedAllocator;
+        using TScopedAllocator = ml::core::CScopedRapidJsonPoolAllocator<CJsonOutputWriter>;
         static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
         TScopedAllocator scopedAllocator(ALLOCATOR_ID, m_JsonOutputWriter);
 

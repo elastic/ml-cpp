@@ -50,7 +50,7 @@ namespace maths
 class MATHS_EXPORT CSolvers
 {
     private:
-        typedef std::pair<double, double> TDoubleDoublePr;
+        using TDoubleDoublePr = std::pair<double, double>;
 
         //! \name Helpers
         //@{
@@ -930,8 +930,8 @@ class MATHS_EXPORT CSolvers
                                    double &x,
                                    double &fx)
         {
-            typedef std::pair<double, std::size_t> TDoubleSizePr;
-            typedef CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1> TMinAccumulator;
+            using TDoubleSizePr = std::pair<double, std::size_t>;
+            using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1>;
 
             std::size_t n = p.size();
 

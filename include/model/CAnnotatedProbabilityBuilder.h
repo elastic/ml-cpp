@@ -46,11 +46,11 @@ class CModel;
 class MODEL_EXPORT CAnnotatedProbabilityBuilder : private core::CNonCopyable
 {
     public:
-        typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef core::CSmallVector<std::size_t, 1> TSize1Vec;
-        typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
-        typedef core::CSmallVector<core::CStoredStringPtr, 1> TStoredStringPtr1Vec;
+        using TSizeDoublePr = std::pair<std::size_t, double>;
+        using TDouble1Vec = core::CSmallVector<double, 1>;
+        using TSize1Vec = core::CSmallVector<std::size_t, 1>;
+        using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
+        using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
 
     public:
         CAnnotatedProbabilityBuilder(SAnnotatedProbability &annotatedProbability);
@@ -82,7 +82,7 @@ class MODEL_EXPORT CAnnotatedProbabilityBuilder : private core::CNonCopyable
         void addDescriptiveData(void);
 
     private:
-        typedef maths::CBasicStatistics::COrderStatisticsHeap<SAttributeProbability> TMinAccumulator;
+        using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<SAttributeProbability>;
 
     private:
         SAnnotatedProbability              &m_Result;

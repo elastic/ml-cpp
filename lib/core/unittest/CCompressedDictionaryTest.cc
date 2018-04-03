@@ -29,9 +29,9 @@ using namespace test;
 
 void CCompressedDictionaryTest::testAll(void)
 {
-    typedef std::vector<std::string> TStrVec;
-    typedef CCompressedDictionary<2> TDictionary;
-    typedef TDictionary::TWordUSet TWordUSet;
+    using TStrVec = std::vector<std::string>;
+    using TDictionary = CCompressedDictionary<2>;
+    using TWordUSet = TDictionary::TWordUSet;
 
     // Don't set this too high as it slows down every build - it can be
     // temporarily set high in uncommitted code for a thorough soak test
@@ -66,10 +66,10 @@ void CCompressedDictionaryTest::testAll(void)
 
 void CCompressedDictionaryTest::testPersist(void)
 {
-    typedef CCompressedDictionary<1> TDictionary1;
-    typedef CCompressedDictionary<2> TDictionary2;
-    typedef CCompressedDictionary<3> TDictionary3;
-    typedef CCompressedDictionary<4> TDictionary4;
+    using TDictionary1 = CCompressedDictionary<1>;
+    using TDictionary2 = CCompressedDictionary<2>;
+    using TDictionary3 = CCompressedDictionary<3>;
+    using TDictionary4 = CCompressedDictionary<4>;
 
     {
         TDictionary1 dictionary;

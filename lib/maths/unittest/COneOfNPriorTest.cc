@@ -53,20 +53,20 @@ using namespace handy_typedefs;
 namespace
 {
 
-typedef std::vector<unsigned int> TUIntVec;
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef boost::shared_ptr<maths::CPrior> TPriorPtr;
-typedef std::vector<TPriorPtr> TPriorPtrVec;
-typedef boost::optional<double> TOptionalDouble;
-typedef CPriorTestInterfaceMixin<maths::CGammaRateConjugate> CGammaRateConjugate;
-typedef CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate> CLogNormalMeanPrecConjugate;
-typedef CPriorTestInterfaceMixin<maths::CMultimodalPrior> CMultimodalPrior;
-typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate> CNormalMeanPrecConjugate;
-typedef CPriorTestInterfaceMixin<maths::COneOfNPrior> COneOfNPrior;
-typedef CPriorTestInterfaceMixin<maths::CPoissonMeanConjugate> CPoissonMeanConjugate;
+using TUIntVec = std::vector<unsigned int>;
+using TDoubleVec = std::vector<double>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TPriorPtr = boost::shared_ptr<maths::CPrior>;
+using TPriorPtrVec = std::vector<TPriorPtr>;
+using TOptionalDouble = boost::optional<double>;
+using CGammaRateConjugate = CPriorTestInterfaceMixin<maths::CGammaRateConjugate>;
+using CLogNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate>;
+using CMultimodalPrior = CPriorTestInterfaceMixin<maths::CMultimodalPrior>;
+using CNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate>;
+using COneOfNPrior = CPriorTestInterfaceMixin<maths::COneOfNPrior>;
+using CPoissonMeanConjugate = CPriorTestInterfaceMixin<maths::CPoissonMeanConjugate>;
 
 COneOfNPrior::TPriorPtrVec clone(const TPriorPtrVec &models,
                                  const TOptionalDouble &decayRate = TOptionalDouble())
@@ -152,7 +152,7 @@ void COneOfNPriorTest::testMultipleUpdate(void)
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
-    typedef maths::CEqualWithTolerance<double> TEqual;
+    using TEqual = maths::CEqualWithTolerance<double>;
 
     TPriorPtrVec models;
     models.push_back(TPriorPtr(maths::CPoissonMeanConjugate::nonInformativePrior().clone()));
@@ -250,7 +250,7 @@ void COneOfNPriorTest::testWeights(void)
         models.push_back(TPriorPtr(CPoissonMeanConjugate::nonInformativePrior().clone()));
         models.push_back(TPriorPtr(CNormalMeanPrecConjugate::nonInformativePrior(E_ContinuousData).clone()));
 
-        typedef maths::CEqualWithTolerance<double> TEqual;
+        using TEqual = maths::CEqualWithTolerance<double>;
         TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-10);
         const double decayRates[] = { 0.0, 0.001, 0.01 };
 

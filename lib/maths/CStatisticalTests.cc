@@ -217,7 +217,7 @@ void CStatisticalTests::CCramerVonMises::acceptPersistInserter(core::CStatePersi
 
 void CStatisticalTests::CCramerVonMises::addF(double f)
 {
-    typedef std::vector<double> TDoubleVec;
+    using TDoubleVec = std::vector<double>;
 
     if (m_F.size() == m_Size)
     {

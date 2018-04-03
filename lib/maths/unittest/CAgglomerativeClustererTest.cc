@@ -34,12 +34,12 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::pair<double, TSizeVec> TDoubleSizeVecPr;
-typedef std::vector<TDoubleSizeVecPr> TDoubleSizeVecPrVec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TDoubleSizeVecPr = std::pair<double, TSizeVec>;
+using TDoubleSizeVecPrVec = std::vector<TDoubleSizeVecPr>;
 
 class CCluster
 {
@@ -89,7 +89,7 @@ class CCluster
         TSizeVec m_Points;
 };
 
-typedef std::vector<CCluster> TClusterVec;
+using TClusterVec = std::vector<CCluster>;
 
 class CSlinkObjective
 {

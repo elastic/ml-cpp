@@ -344,7 +344,7 @@ double CCountMinSketch::totalCount(void) const
 
 double CCountMinSketch::count(uint32_t category) const
 {
-    typedef CBasicStatistics::COrderStatisticsStack<double, 1> TMinAccumulator;
+    using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1>;
 
     const TUInt32FloatPrVec *counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
     if (counts)

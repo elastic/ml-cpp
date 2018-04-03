@@ -37,8 +37,8 @@ namespace maths
 class MATHS_EXPORT CGradientDescent
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef CVector<double> TVector;
+        using TDoubleVec = std::vector<double>;
+        using TVector = CVector<double>;
 
         //! \brief The interface for the function calculation.
         class MATHS_EXPORT CFunction

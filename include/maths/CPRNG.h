@@ -67,7 +67,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
         class MATHS_EXPORT CSplitMix64
         {
             public:
-                typedef uint64_t result_type;
+                using result_type = uint64_t;
 
             public:
                 CSplitMix64(void);
@@ -126,7 +126,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
         class MATHS_EXPORT CXorOShiro128Plus
         {
             public:
-                typedef uint64_t result_type;
+                using result_type = uint64_t;
 
             public:
                 CXorOShiro128Plus(void);
@@ -222,7 +222,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable
         class MATHS_EXPORT CXorShift1024Mult
         {
             public:
-                typedef uint64_t result_type;
+                using result_type = uint64_t;
 
             public:
                 CXorShift1024Mult(void);

@@ -41,11 +41,11 @@ namespace maths
 class MATHS_EXPORT CKMeansOnline1d : public CClusterer1d
 {
     public:
-        typedef TPointPreciseVec TDoubleVec;
-        typedef TPointPreciseDoublePrVec TDoubleDoublePrVec;
-        typedef std::vector<CNormalMeanPrecConjugate> TNormalVec;
-        typedef TNormalVec::iterator TNormalVecItr;
-        typedef TNormalVec::const_iterator TNormalVecCItr;
+        using TDoubleVec = TPointPreciseVec;
+        using TDoubleDoublePrVec = TPointPreciseDoublePrVec;
+        using TNormalVec = std::vector<CNormalMeanPrecConjugate>;
+        using TNormalVecItr = TNormalVec::iterator;
+        using TNormalVecCItr = TNormalVec::const_iterator;
 
     public:
         //! Construct a new clusterer.

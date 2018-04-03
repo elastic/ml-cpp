@@ -34,7 +34,7 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 template<typename T>
 std::string precisePrint(T x)
@@ -319,7 +319,7 @@ void COrdinalTest::testHash(void)
 
     // Test that hashing works over the full range of the distinct types.
 
-    typedef boost::unordered_set<std::size_t> TSizeUSet;
+    using TSizeUSet = boost::unordered_set<std::size_t>;
 
     test::CRandomNumbers rng;
 

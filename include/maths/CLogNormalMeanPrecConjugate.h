@@ -63,7 +63,7 @@ class MATHS_EXPORT CLogNormalMeanPrecConjugate : public CPrior
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero(void) { return true; }
 
-        typedef CEqualWithTolerance<double> TEqualWithTolerance;
+        using TEqualWithTolerance = CEqualWithTolerance<double>;
 
         //! Lift the overloads of addSamples into scope.
         using CPrior::addSamples;

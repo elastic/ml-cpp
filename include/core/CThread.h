@@ -46,11 +46,11 @@ class CORE_EXPORT CThread : private CNonCopyable
     public:
         //! Thread ID type
 #ifdef Windows
-        typedef DWORD         TThreadId;
-        typedef unsigned  int TThreadRet;
+        using TThreadId = DWORD;
+        using TThreadRet = unsigned int;
 #else
-        typedef pthread_t     TThreadId;
-        typedef void          *TThreadRet;
+        using TThreadId = pthread_t;
+        using TThreadRet = void*;
 #endif
 
     public:

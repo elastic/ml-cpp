@@ -27,9 +27,9 @@ namespace maths
 namespace multivariate_multimodal_prior_detail
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef CMultivariatePrior::TDouble10Vec TDouble10Vec;
-typedef CMultivariatePrior::TDouble10Vec4Vec TDouble10Vec4Vec;
+using TDoubleVec = std::vector<double>;
+using TDouble10Vec = CMultivariatePrior::TDouble10Vec;
+using TDouble10Vec4Vec = CMultivariatePrior::TDouble10Vec4Vec;
 
 namespace
 {
@@ -154,7 +154,7 @@ void sampleMarginalLikelihood(const TModeVec &modes,
         normalizedWeights.push_back(weight);
         Z += weight;
     }
-    for (auto &&weight : normalizedWeights)
+    for (auto &weight : normalizedWeights)
     {
         weight /= Z;
     }
@@ -209,7 +209,7 @@ void modeMergeCallback(std::size_t dimension,
     LOG_TRACE("Merging modes with indices "
               << leftMergeIndex << " " << rightMergeIndex);
 
-    typedef std::set<std::size_t> TSizeSet;
+    using TSizeSet = std::set<std::size_t>;
 
     // Create the new mode.
     TMode newMode(targetIndex, seedPrior);

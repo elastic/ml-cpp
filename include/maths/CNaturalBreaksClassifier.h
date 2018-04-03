@@ -109,15 +109,15 @@ struct SDistributionRestoreParams;
 class MATHS_EXPORT CNaturalBreaksClassifier
 {
     public:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<double> TDoubleVec;
-        typedef std::pair<double, double> TDoubleDoublePr;
-        typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TDoubleTuple;
-        typedef std::vector<TDoubleTuple> TDoubleTupleVec;
-        typedef CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator TTuple;
-        typedef std::vector<TTuple> TTupleVec;
-        typedef std::vector<CNaturalBreaksClassifier> TClassifierVec;
+        using TSizeVec = std::vector<std::size_t>;
+        using TDoubleVec = std::vector<double>;
+        using TDoubleDoublePr = std::pair<double, double>;
+        using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+        using TDoubleTuple = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+        using TDoubleTupleVec = std::vector<TDoubleTuple>;
+        using TTuple = CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator;
+        using TTupleVec = std::vector<TTuple>;
+        using TClassifierVec = std::vector<CNaturalBreaksClassifier>;
 
     public:
         //! The type of optimization object which it is possible
@@ -291,7 +291,7 @@ class MATHS_EXPORT CNaturalBreaksClassifier
                                   TSizeVec &result);
 
     private:
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
+        using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 
     private:
         //! Implementation called by naturalBreaks with explicit

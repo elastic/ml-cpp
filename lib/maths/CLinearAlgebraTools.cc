@@ -382,14 +382,14 @@ SAMPLE_GAUSSIAN(double, 5)
 void sampleGaussian(std::size_t d,
                     const CVector<CFloatStorage> &mean,
                     const CSymmetricMatrix<CFloatStorage> &covariance,
-                    std::vector<CVector<double> > &result)
+                    std::vector<CVector<double>> &result)
 {
     return CSampleGaussian<SDenseMatrix<CSymmetricMatrix<CFloatStorage>>::Type>::generate(d, mean, covariance, result);
 }
 void sampleGaussian(std::size_t d,
                     const CVector<double> &mean,
                     const CSymmetricMatrix<double> &covariance,
-                    std::vector<CVector<double> > &result)
+                    std::vector<CVector<double>> &result)
 {
     return CSampleGaussian<SDenseMatrix<CSymmetricMatrix<double>>::Type>::generate(d, mean, covariance, result);
 }

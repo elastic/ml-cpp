@@ -111,29 +111,29 @@ namespace api
 class API_EXPORT CJsonOutputWriter : public COutputHandler
 {
     public:
-        typedef boost::shared_ptr<rapidjson::Document>      TDocumentPtr;
-        typedef boost::weak_ptr<rapidjson::Document>        TDocumentWeakPtr;
-        typedef std::vector<TDocumentWeakPtr>               TDocumentWeakPtrVec;
-        typedef TDocumentWeakPtrVec::iterator               TDocumentWeakPtrVecItr;
-        typedef TDocumentWeakPtrVec::const_iterator         TDocumentWeakPtrVecCItr;
+        using TDocumentPtr = boost::shared_ptr<rapidjson::Document>;
+        using TDocumentWeakPtr = boost::weak_ptr<rapidjson::Document>;
+        using TDocumentWeakPtrVec = std::vector<TDocumentWeakPtr>;
+        using TDocumentWeakPtrVecItr = TDocumentWeakPtrVec::iterator;
+        using TDocumentWeakPtrVecCItr = TDocumentWeakPtrVec::const_iterator;
 
-        typedef std::pair<TDocumentWeakPtr, int>            TDocumentWeakPtrIntPr;
-        typedef std::vector<TDocumentWeakPtrIntPr>          TDocumentWeakPtrIntPrVec;
-        typedef TDocumentWeakPtrIntPrVec::iterator          TDocumentWeakPtrIntPrVecItr;
-        typedef std::map<std::string, TDocumentWeakPtrVec>  TStrDocumentPtrVecMap;
+        using TDocumentWeakPtrIntPr = std::pair<TDocumentWeakPtr, int>;
+        using TDocumentWeakPtrIntPrVec = std::vector<TDocumentWeakPtrIntPr>;
+        using TDocumentWeakPtrIntPrVecItr = TDocumentWeakPtrIntPrVec::iterator;
+        using TStrDocumentPtrVecMap = std::map<std::string, TDocumentWeakPtrVec>;
 
-        typedef std::vector<std::string>                    TStrVec;
-        typedef core::CSmallVector<std::string, 1>          TStr1Vec;
-        typedef std::vector<core_t::TTime>                  TTimeVec;
-        typedef std::vector<double>                         TDoubleVec;
-        typedef std::pair<double, double>                   TDoubleDoublePr;
-        typedef std::vector<TDoubleDoublePr>                TDoubleDoublePrVec;
-        typedef std::pair<double, TDoubleDoublePr>          TDoubleDoubleDoublePrPr;
-        typedef std::vector<TDoubleDoubleDoublePrPr>        TDoubleDoubleDoublePrPrVec;
-        typedef std::pair<std::string, double>              TStringDoublePr;
-        typedef std::vector<TStringDoublePr>                TStringDoublePrVec;
+        using TStrVec = std::vector<std::string>;
+        using TStr1Vec = core::CSmallVector<std::string, 1>;
+        using TTimeVec = std::vector<core_t::TTime>;
+        using TDoubleVec = std::vector<double>;
+        using TDoubleDoublePr = std::pair<double, double>;
+        using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+        using TDoubleDoubleDoublePrPr = std::pair<double, TDoubleDoublePr>;
+        using TDoubleDoubleDoublePrPrVec = std::vector<TDoubleDoubleDoublePrPr>;
+        using TStringDoublePr = std::pair<std::string, double>;
+        using TStringDoublePrVec = std::vector<TStringDoublePr>;
 
-        typedef boost::shared_ptr<rapidjson::Value>         TValuePtr;
+        using TValuePtr = boost::shared_ptr<rapidjson::Value>;
 
         //! Structure to buffer up information about each bucket that we have
         //! unwritten results for
@@ -184,13 +184,13 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
             TStr1Vec              s_ScheduledEventDescriptions;
         };
 
-        typedef std::map<core_t::TTime, SBucketData>   TTimeBucketDataMap;
-        typedef TTimeBucketDataMap::iterator           TTimeBucketDataMapItr;
-        typedef TTimeBucketDataMap::const_iterator     TTimeBucketDataMapCItr;
+        using TTimeBucketDataMap = std::map<core_t::TTime, SBucketData>;
+        using TTimeBucketDataMapItr = TTimeBucketDataMap::iterator;
+        using TTimeBucketDataMapCItr = TTimeBucketDataMap::const_iterator;
 
     private:
-        typedef CCategoryExamplesCollector::TStrSet TStrSet;
-        typedef TStrSet::const_iterator TStrSetCItr;
+        using TStrSet = CCategoryExamplesCollector::TStrSet;
+        using TStrSetCItr = TStrSet::const_iterator;
 
     public:
         //! Constructor that causes output to be written to the specified wrapped stream

@@ -51,9 +51,9 @@ class CDataGatherer;
 class MODEL_EXPORT CSampleCounts
 {
     public:
-        typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-        typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
-        typedef std::vector<std::size_t> TSizeVec;
+        using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+        using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+        using TSizeVec = std::vector<std::size_t>;
 
     public:
         explicit CSampleCounts(unsigned int sampleCountOverride = 0);
@@ -118,7 +118,7 @@ class MODEL_EXPORT CSampleCounts
         void clear(void);
 
     private:
-        typedef std::vector<unsigned int> TUIntVec;
+        using TUIntVec = std::vector<unsigned int>;
 
     private:
         //! Get the name of the entity identified by \p id.

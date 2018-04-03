@@ -222,7 +222,7 @@ void CAnomalyJobLimitTest::testAccuracy(void)
 
 void CAnomalyJobLimitTest::testLimit(void)
 {
-    typedef std::set<std::string> TStrSet;
+    using TStrSet = std::set<std::string>;
 
     std::stringstream outputStrm;
     {

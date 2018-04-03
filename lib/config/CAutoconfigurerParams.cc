@@ -38,7 +38,7 @@ namespace config
 {
 namespace
 {
-typedef std::vector<std::string> TStrVec;
+using TStrVec = std::vector<std::string>;
 
 //! \brief A constraint which applies to a value of type T.
 template<typename T>
@@ -72,7 +72,7 @@ template<typename T>
 class CConstraintConjunction : public CConstraint<T>
 {
     public:
-        typedef boost::shared_ptr<const CConstraint<T> > TConstraintCPtr;
+        using TConstraintCPtr = boost::shared_ptr<const CConstraint<T>>;
 
     public:
         CConstraintConjunction *addConstraint(const CConstraint<T> *constraint)
@@ -247,7 +247,7 @@ template<typename T>
 class CBuiltinParameter : public CParameter
 {
     public:
-        typedef boost::shared_ptr<const CConstraint<T> > TConstraintCPtr;
+        using TConstraintCPtr = boost::shared_ptr<const CConstraint<T>>;
 
     public:
         CBuiltinParameter(T &value) :
@@ -339,7 +339,7 @@ class CBuiltinVectorParameter : public CParameter
 
     private:
         std::vector<T> &m_Value;
-        boost::shared_ptr<const CConstraint<T> > m_Constraint;
+        boost::shared_ptr<const CConstraint<T>> m_Constraint;
 };
 
 //! \brief A parameter which is a vector of strings.
@@ -378,7 +378,7 @@ class COptionalStrVecParameter : public CParameter
 
     private:
         CAutoconfigurerParams::TOptionalStrVec &m_Value;
-        boost::shared_ptr<const CConstraint<std::string> > m_Constraint;
+        boost::shared_ptr<const CConstraint<std::string>> m_Constraint;
 };
 
 //! \brief The field data type parameter.
@@ -505,7 +505,7 @@ class CFunctionCategoryParameter : public CParameter
 
     private:
         CAutoconfigurerParams::TFunctionCategoryVec &m_Value;
-        boost::shared_ptr<const CConstraint<config_t::EFunctionCategory> > m_Constraint;
+        boost::shared_ptr<const CConstraint<config_t::EFunctionCategory>> m_Constraint;
 };
 
 //! boost::ini_parser doesn't like UTF-8 ini files that begin with
@@ -697,7 +697,7 @@ bool CAutoconfigurerParams::init(const std::string &file)
         return true;
     }
 
-    typedef boost::shared_ptr<CParameter> TParameterPtr;
+    using TParameterPtr = boost::shared_ptr<CParameter>;
 
     boost::property_tree::ptree propTree;
     try

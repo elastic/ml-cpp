@@ -40,8 +40,8 @@ namespace maths
 class MATHS_EXPORT CStatisticalTests
 {
     public:
-        typedef std::vector<uint16_t> TUInt16Vec;
-        typedef std::vector<double> TDoubleVec;
+        using TUInt16Vec = std::vector<uint16_t>;
+        using TDoubleVec = std::vector<double>;
 
     public:
         //! Get the significance of a left tail F-test for \p x when
@@ -135,7 +135,7 @@ class MATHS_EXPORT CStatisticalTests
                 static const double SCALE;
 
             private:
-                typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+                using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
             private:
                 //! The "count - 1" in the test statistic.

@@ -67,15 +67,15 @@ struct SDistributionRestoreParams;
 class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
 {
     public:
-        typedef core::CSmallVector<double, 3> TDouble3Vec;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
-        typedef std::pair<double, TPriorPtr> TDoublePriorPtrPr;
-        typedef std::vector<TDoublePriorPtrPr> TDoublePriorPtrPrVec;
-        typedef std::pair<CModelWeight, TPriorPtr> TWeightPriorPtrPr;
-        typedef std::vector<TWeightPriorPtrPr> TWeightPriorPtrPrVec;
-        typedef core::CSmallVector<const CMultivariatePrior*, 3> TPriorCPtr3Vec;
-        typedef CBasicStatistics::SMin<double>::TAccumulator TMinAccumulator;
-        typedef CBasicStatistics::SMax<double>::TAccumulator TMaxAccumulator;
+        using TDouble3Vec = core::CSmallVector<double, 3>;
+        using TPriorPtrVec = std::vector<TPriorPtr>;
+        using TDoublePriorPtrPr = std::pair<double, TPriorPtr>;
+        using TDoublePriorPtrPrVec = std::vector<TDoublePriorPtrPr>;
+        using TWeightPriorPtrPr = std::pair<CModelWeight, TPriorPtr>;
+        using TWeightPriorPtrPrVec = std::vector<TWeightPriorPtrPr>;
+        using TPriorCPtr3Vec = core::CSmallVector<const CMultivariatePrior*, 3>;
+        using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
+        using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
 
         // Lift all overloads of into scope.
         //{

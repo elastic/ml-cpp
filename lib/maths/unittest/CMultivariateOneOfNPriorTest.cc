@@ -43,11 +43,11 @@ using namespace handy_typedefs;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef maths::CMultivariateOneOfNPrior::TPriorPtr TPriorPtr;
-typedef maths::CMultivariateOneOfNPrior::TPriorPtrVec TPriorPtrVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TPriorPtr = maths::CMultivariateOneOfNPrior::TPriorPtr;
+using TPriorPtrVec = maths::CMultivariateOneOfNPrior::TPriorPtrVec;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 const maths_t::TWeightStyleVec COUNT_WEIGHT(1, maths_t::E_SampleCountWeight);
 const maths_t::TWeightStyleVec VARIANCE_WEIGHT(1, maths_t::E_SampleCountVarianceScaleWeight);
@@ -360,7 +360,7 @@ void CMultivariateOneOfNPriorTest::testWeightUpdate(void)
         TDouble10Vec1Vec samples;
         gaussianSamples(rng, boost::size(n), n, mean, covariance, samples);
 
-        typedef maths::CEqualWithTolerance<double> TEqual;
+        using TEqual = maths::CEqualWithTolerance<double>;
         TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-10);
         const double decayRates[] = { 0.0, 0.004, 0.04 };
 
@@ -491,7 +491,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood(void)
     //   3) E[(X - m)^2] w.r.t. the marginal likelihood is equal to the predictive
     //      distribution covariance matrix.
 
-    typedef std::vector<std::size_t> TSizeVec;
+    using TSizeVec = std::vector<std::size_t>;
 
     maths::CSampling::seed();
 
@@ -742,10 +742,10 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean(void)
     // Test that the marginal likelihood mean is close to the sample
     // mean for a variety of models.
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-    typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecVec = std::vector<TSizeVec>;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
 
     maths::CSampling::seed();
 

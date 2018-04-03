@@ -133,8 +133,8 @@ class CORE_EXPORT CStringCache
         //! strings
         bool m_HaveCopyOnWriteStrings;
 
-        typedef boost::unordered_set<std::string, CStrHash> TStrUSet;
-        typedef TStrUSet::const_iterator                    TStrUSetCItr;
+        using TStrUSet = boost::unordered_set<std::string, CStrHash>;
+        using TStrUSetCItr = TStrUSet::const_iterator;
 
         //! The cache of strings
         TStrUSet m_Cache;

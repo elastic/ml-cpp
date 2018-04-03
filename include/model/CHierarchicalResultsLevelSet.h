@@ -54,14 +54,14 @@ template<typename T>
 class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
 {
     protected:
-        typedef T Type;
-        typedef std::vector<Type *> TTypePtrVec;
-        typedef core::CCompressedDictionary<1> TDictionary;
-        typedef TDictionary::CWord TWord;
-        typedef std::pair<TWord, T> TWordTypePr;
-        typedef std::vector<TWordTypePr> TWordTypePrVec;
-        typedef typename TWordTypePrVec::iterator TWordTypePrVecItr;
-        typedef typename TWordTypePrVec::const_iterator TWordTypePrVecCItr;
+        using Type = T;
+        using TTypePtrVec = std::vector<Type *>;
+        using TDictionary = core::CCompressedDictionary<1>;
+        using TWord = TDictionary::CWord;
+        using TWordTypePr = std::pair<TWord, T>;
+        using TWordTypePrVec = std::vector<TWordTypePr>;
+        using TWordTypePrVecItr = typename TWordTypePrVec::iterator;
+        using TWordTypePrVecCItr = typename TWordTypePrVec::const_iterator;
 
     protected:
         explicit CHierarchicalResultsLevelSet(const T &bucketElement) :

@@ -225,9 +225,9 @@ bool CMetricPopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser
     }
     while (traverser.next());
 
-    for (auto &&feature : m_FeatureModels)
+    for (auto &feature : m_FeatureModels)
     {
-        for (auto &&model : feature.s_Models)
+        for (auto &model : feature.s_Models)
         {
             for (const auto &correlates : m_FeatureCorrelatesModels)
             {
@@ -326,7 +326,7 @@ void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime,
 
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(time, bucketLength, featureData);
-        for (auto &&featureData_ : featureData)
+        for (auto &featureData_ : featureData)
         {
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec &data = m_CurrentBucketStats.s_FeatureData[feature];
@@ -505,7 +505,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 }
             }
 
-            for (auto &&attribute : attributes)
+            for (auto &attribute : attributes)
             {
                 std::size_t cid = attribute.first;
                 core_t::TTime latest = boost::numeric::bounds<core_t::TTime>::lowest();
@@ -569,7 +569,7 @@ void CMetricPopulationModel::prune(std::size_t maximumAge)
     {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(m_CurrentBucketStats.s_StartTime, gatherer.bucketLength(), featureData);
-        for (auto &&feature : featureData)
+        for (auto &feature : featureData)
         {
             m_CurrentBucketStats.s_FeatureData[feature.first].swap(feature.second);
         }
@@ -902,7 +902,7 @@ void CMetricPopulationModel::createNewModels(std::size_t n, std::size_t m)
 {
     if (m > 0)
     {
-        for (auto &&feature : m_FeatureModels)
+        for (auto &feature : m_FeatureModels)
         {
             std::size_t newM = feature.s_Models.size() + m;
             core::CAllocationStrategy::reserve(feature.s_Models, newM);
@@ -927,7 +927,7 @@ void CMetricPopulationModel::updateRecycledModels(void)
     CDataGatherer &gatherer = this->dataGatherer();
     for (auto cid : gatherer.recycledAttributeIds())
     {
-        for (auto &&feature : m_FeatureModels)
+        for (auto &feature : m_FeatureModels)
         {
             feature.s_Models[cid].reset(feature.s_NewModel->clone(cid));
             for (const auto &correlates : m_FeatureCorrelatesModels)
@@ -950,7 +950,7 @@ void CMetricPopulationModel::refreshCorrelationModels(std::size_t resourceLimit,
     auto memoryUsage = boost::bind(&CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate, this, n, 0, _1);
     CTimeSeriesCorrelateModelAllocator allocator(resourceMonitor, memoryUsage, resourceLimit,
                                                  static_cast<std::size_t>(maxNumberCorrelations + 0.5));
-    for (auto &&feature : m_FeatureCorrelatesModels)
+    for (auto &feature : m_FeatureCorrelatesModels)
     {
         allocator.prototypePrior(feature.s_ModelPrior);
         feature.s_Models->refresh(allocator);
@@ -963,7 +963,7 @@ void CMetricPopulationModel::clearPrunedResources(const TSizeVec &/*people*/,
     CDataGatherer &gatherer = this->dataGatherer();
     for (auto cid : gatherer.recycledAttributeIds())
     {
-        for (auto &&feature : m_FeatureModels)
+        for (auto &feature : m_FeatureModels)
         {
             feature.s_Models[cid].reset(feature.s_NewModel->clone(cid));
             for (const auto &correlates : m_FeatureCorrelatesModels)
@@ -980,7 +980,7 @@ void CMetricPopulationModel::clearPrunedResources(const TSizeVec &/*people*/,
 void CMetricPopulationModel::doSkipSampling(core_t::TTime startTime, core_t::TTime endTime)
 {
     core_t::TTime gap = endTime - startTime;
-    for (auto &&feature : m_FeatureModels)
+    for (auto &feature : m_FeatureModels)
     {
         for (auto &model : feature.s_Models)
         {
