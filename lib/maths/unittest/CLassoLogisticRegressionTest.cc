@@ -25,11 +25,11 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::pair<TSizeSizePr, double> TSizeSizePrDoublePr;
-typedef std::vector<TSizeSizePrDoublePr> TSizeSizePrDoublePrVec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrDoublePr = std::pair<TSizeSizePr, double>;
+using TSizeSizePrDoublePrVec = std::vector<TSizeSizePrDoublePr>;
 
 template<typename ARRAY>
 void initializeMatrix(const ARRAY &x_, TDoubleVecVec &x)

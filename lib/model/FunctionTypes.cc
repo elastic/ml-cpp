@@ -21,7 +21,7 @@ namespace model
 namespace function_t
 {
 
-typedef model_t::TFeatureVec TFeatureVec;
+using TFeatureVec = model_t::TFeatureVec;
 
 bool isIndividual(EFunction function)
 {
@@ -543,9 +543,9 @@ bool isForecastSupported(EFunction function)
 namespace
 {
 
-typedef std::map<model_t::EFeature, TFunctionVec> TFeatureFunctionVecMap;
-typedef TFeatureFunctionVecMap::iterator TFeatureFunctionVecMapItr;
-typedef TFeatureFunctionVecMap::const_iterator TFeatureFunctionVecMapCItr;
+using TFeatureFunctionVecMap = std::map<model_t::EFeature, TFunctionVec>;
+using TFeatureFunctionVecMapItr = TFeatureFunctionVecMap::iterator;
+using TFeatureFunctionVecMapCItr = TFeatureFunctionVecMap::const_iterator;
 
 namespace detail
 {

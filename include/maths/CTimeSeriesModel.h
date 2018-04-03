@@ -289,7 +289,7 @@ class MATHS_EXPORT CTimeSeriesCorrelateModelAllocator
 class MATHS_EXPORT CTimeSeriesCorrelations
 {
     public:
-        using TTime1Vec = core::CSmallVector<core_t::TTime, 1> ;
+        using TTime1Vec = core::CSmallVector<core_t::TTime, 1>;
         using TDouble1Vec = core::CSmallVector<double, 1>;
         using TDouble2Vec = core::CSmallVector<double, 2>;
         using TDouble4Vec = core::CSmallVector<double, 4>;

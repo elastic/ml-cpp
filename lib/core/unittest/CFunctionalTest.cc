@@ -53,7 +53,7 @@ void CFunctionalTest::testDereference(void)
     CPPUNIT_ASSERT(!derefIsNull(notNull));
 
     std::less<double> less;
-    core::CFunctional::SDereference<std::less<double> > derefLess;
+    core::CFunctional::SDereference<std::less<double>> derefLess;
     const double *values[] = { &one, &two, &three };
     for (std::size_t i = 0u; i < boost::size(values); ++i)
     {

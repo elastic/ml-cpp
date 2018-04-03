@@ -179,8 +179,8 @@ void CMemoryUsage::summary(CMemoryUsageJsonWriter &writer) const
 
 void CMemoryUsage::compress(void)
 {
-    typedef std::map<std::string, std::size_t> TStrSizeMap;
-    typedef TStrSizeMap::const_iterator TStrSizeMapCItr;
+    using TStrSizeMap = std::map<std::string, std::size_t>;
+    using TStrSizeMapCItr = TStrSizeMap::const_iterator;
 
     if (!m_Children.empty())
     {

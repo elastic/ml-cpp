@@ -281,7 +281,7 @@ class CBlockingMessageQueue
         //! Using a circular buffer for the queue means that it will not do any
         //! memory allocations after construction (providing the message type
         //! does not allocate any heap memory in its constructor).
-        typedef boost::circular_buffer<MESSAGE> TMessageCircBuf;
+        using TMessageCircBuf = boost::circular_buffer<MESSAGE>;
 
         TMessageCircBuf     m_Queue;
 

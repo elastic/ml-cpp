@@ -25,8 +25,8 @@ namespace config
 namespace
 {
 
-typedef core::CFunctional::SDereference<maths::COrderings::SSecondLess> TDerefSecondLess;
-typedef core::CFunctional::SDereference<maths::COrderings::SSecondGreater> TDerefSecondGreater;
+using TDerefSecondLess = core::CFunctional::SDereference<maths::COrderings::SSecondLess>;
+using TDerefSecondGreater = core::CFunctional::SDereference<maths::COrderings::SSecondGreater>;
 
 std::size_t topNSize(std::size_t n)
 {
@@ -242,7 +242,7 @@ void CCategoricalDataSummaryStatistics::addNGrams(std::size_t n, const std::stri
 
 void CCategoricalDataSummaryStatistics::approximateIfCardinalityTooHigh(void)
 {
-    typedef TSizeUInt64UMap::const_iterator TSizeUInt64UMapCItr;
+    using TSizeUInt64UMapCItr = TSizeUInt64UMap::const_iterator;
 
     if (m_ValueCounts.size() >= m_ToApproximate)
     {
@@ -284,7 +284,7 @@ double CCategoricalDataSummaryStatistics::calibratedCount(std::size_t category) 
         return static_cast<double>(m_ValueCounts.find(category)->second);
     }
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     TMeanAccumulator error;
     if (m_CountSketch.sketched())
@@ -300,7 +300,7 @@ double CCategoricalDataSummaryStatistics::calibratedCount(std::size_t category) 
 
 void CCategoricalDataSummaryStatistics::findLowestTopN(void)
 {
-    typedef maths::CBasicStatistics::COrderStatisticsStack<TStrUInt64UMapItr, 1, TDerefSecondLess> TMinAccumulator;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<TStrUInt64UMapItr, 1, TDerefSecondLess>;
     TMinAccumulator lowest;
     for (TStrUInt64UMapItr i = m_TopN.begin(); i != m_TopN.end(); ++i)
     {
@@ -311,7 +311,7 @@ void CCategoricalDataSummaryStatistics::findLowestTopN(void)
 
 void CCategoricalDataSummaryStatistics::topN(TStrUInt64UMapCItrVec &result) const
 {
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TStrUInt64UMapCItr, TDerefSecondGreater> TMaxAccumulator;
+    using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TStrUInt64UMapCItr, TDerefSecondGreater>;
     TMaxAccumulator topN(m_N);
     for (TStrUInt64UMapCItr i = m_TopN.begin(); i != m_TopN.end(); ++i)
     {
@@ -397,9 +397,9 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec &result) con
         return true;
     }
 
-    typedef std::vector<double> TDoubleVec;
-    typedef std::vector<boost::math::normal_distribution<> > TNormalVec;
-    typedef maths::CMixtureDistribution<boost::math::normal_distribution<> > TGMM;
+    using TDoubleVec = std::vector<double>;
+    using TNormalVec = std::vector<boost::math::normal_distribution<>>;
+    using TGMM = maths::CMixtureDistribution<boost::math::normal_distribution<>>;
 
     const maths::CXMeansOnline1d::TClusterVec &clusters = m_Clusters.clusters();
     std::size_t n = clusters.size();

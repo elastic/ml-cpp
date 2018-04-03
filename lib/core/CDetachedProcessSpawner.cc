@@ -97,7 +97,7 @@ namespace detail
 class CTrackerThread : public CThread
 {
     public:
-        typedef std::set<CProcess::TPid> TPidSet;
+        using TPidSet = std::set<CProcess::TPid>;
 
     public:
         CTrackerThread(void)
@@ -308,7 +308,7 @@ bool CDetachedProcessSpawner::spawn(const std::string &processPath,
         return false;
     }
 
-    typedef std::vector<char *> TCharPVec;
+    using TCharPVec = std::vector<char *>;
     // Size of argv is two bigger than the number of arguments because:
     // 1) We add the program name at the beginning
     // 2) The list of arguments must be terminated by a NULL pointer

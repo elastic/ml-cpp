@@ -311,13 +311,13 @@ bool CFieldConfig::tokenise(const std::string &clause,
 {
     // Tokenise on spaces or commas. Double quotes are used
     // for quoting, and the escape character is a backslash.
-    typedef boost::escaped_list_separator<char> TCharEscapedListSeparator;
+    using TCharEscapedListSeparator = boost::escaped_list_separator<char>;
     TCharEscapedListSeparator els("\\",
                                   core::CStringUtils::WHITESPACE_CHARS + ',',
                                   "\"");
     try
     {
-        typedef boost::tokenizer<TCharEscapedListSeparator> TCharEscapedListSeparatorTokenizer;
+        using TCharEscapedListSeparatorTokenizer = boost::tokenizer<TCharEscapedListSeparator>;
         TCharEscapedListSeparatorTokenizer tokenizer(clause, els);
 
         for (TCharEscapedListSeparatorTokenizer::iterator iter = tokenizer.begin();
@@ -549,7 +549,7 @@ bool CFieldConfig::initFromClause(const TStrVec &tokens)
 
 bool CFieldConfig::addOptions(const CFieldOptions &options)
 {
-    typedef std::pair<TFieldOptionsMIndexItr, bool> TFieldOptionsMIndexItrBoolPr;
+    using TFieldOptionsMIndexItrBoolPr = std::pair<TFieldOptionsMIndexItr, bool>;
     TFieldOptionsMIndexItrBoolPr result(m_FieldOptions.insert(options));
     if (result.second == false)
     {
@@ -704,7 +704,7 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
             options.description(description);
         }
 
-        typedef std::pair<TFieldOptionsMIndexItr, bool> TFieldOptionsMIndexItrBoolPr;
+        using TFieldOptionsMIndexItrBoolPr = std::pair<TFieldOptionsMIndexItr, bool>;
         TFieldOptionsMIndexItrBoolPr result(optionsIndex.insert(options));
         if (result.second == false)
         {

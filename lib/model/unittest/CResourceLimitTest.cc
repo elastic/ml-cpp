@@ -33,17 +33,17 @@
 using namespace ml;
 using namespace model;
 
-typedef std::vector<std::string> TStrVec;
+using TStrVec = std::vector<std::string>;
 
 class CResultWriter : public ml::model::CHierarchicalResultsVisitor
 {
     public:
-        typedef boost::tuple<core_t::TTime,
-                             double /* probability */,
-                             std::string /* byFieldName*/,
-                             std::string /* overFieldName */,
-                             std::string /* partitionFieldName */> TResultsTp;
-        typedef std::vector<TResultsTp> TResultsVec;
+        using TResultsTp = boost::tuple<core_t::TTime,
+                                        double /* probability */,
+                                        std::string /* byFieldName*/,
+                                        std::string /* overFieldName */,
+                                        std::string /* partitionFieldName */>;
+        using TResultsVec = std::vector<TResultsTp>;
 
     public:
         CResultWriter(const CAnomalyDetectorModelConfig &modelConfig,
@@ -616,7 +616,7 @@ void CResourceLimitTest::importCsvDataWithLimiter(core_t::TTime firstTime,
                                                   CResourceMonitor &resourceMonitor)
 {
 
-    typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
+    using TifstreamPtr = boost::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
     CPPUNIT_ASSERT(ifs->is_open());
 

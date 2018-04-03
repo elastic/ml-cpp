@@ -37,7 +37,7 @@ namespace config
 namespace
 {
 
-typedef std::vector<bool> TBoolVec;
+using TBoolVec = std::vector<bool>;
 
 //! We sample a subset of short bucket lengths buckets for runtime.
 TBoolVec bucketSampleMask(core_t::TTime bucketLength)
@@ -50,7 +50,7 @@ TBoolVec bucketSampleMask(core_t::TTime bucketLength)
 
 //! Insert with the same semantics as boost::unordered_map/set::emplace.
 template<typename T>
-std::size_t emplace(const std::string *name, std::vector<std::pair<const std::string*, T> > &stats)
+std::size_t emplace(const std::string *name, std::vector<std::pair<const std::string*, T>> &stats)
 {
     std::size_t i = static_cast<std::size_t>(
                         std::lower_bound(stats.begin(), stats.end(),
@@ -160,8 +160,8 @@ void CBucketCountStatistics::add(const TSizeSizeSizeTr &partition,
 
 void CBucketCountStatistics::capture(void)
 {
-    typedef TSizeSizeSizeTrUInt64UMap::const_iterator TSizeSizeSizeTrUInt64UMapCItr;
-    typedef TSizeSizeSizeTrArgumentDataUMap::iterator TSizeSizeSizeTrArgumentDataUMapItr;
+    using TSizeSizeSizeTrUInt64UMapCItr = TSizeSizeSizeTrUInt64UMap::const_iterator;
+    using TSizeSizeSizeTrArgumentDataUMapItr = TSizeSizeSizeTrArgumentDataUMap::iterator;
 
     m_BucketPartitionCount += m_CurrentBucketPartitionCounts.size();
     for (TSizeSizeSizeTrUInt64UMapCItr i = m_CurrentBucketPartitionCounts.begin();
@@ -211,7 +211,7 @@ const CBucketCountStatistics::TSizeSizePrQuantileUMap &CBucketCountStatistics::c
 const CBucketCountStatistics::TSizeSizePrArgumentMomentsUMap &
     CBucketCountStatistics::argumentMomentsPerPartition(const std::string &name) const
 {
-    typedef TStrCPtrSizeSizePrArgumentMomentsUMapPrVec::const_iterator TStrCPtrPartitionArgumentMomentsUMapPrVecCItr;
+    using TStrCPtrPartitionArgumentMomentsUMapPrVecCItr = TStrCPtrSizeSizePrArgumentMomentsUMapPrVec::const_iterator;
     static const TSizeSizePrArgumentMomentsUMap EMPTY;
     TStrCPtrPartitionArgumentMomentsUMapPrVecCItr result =
             std::lower_bound(m_ArgumentMomentsPerPartition.begin(),
@@ -404,7 +404,7 @@ void CByOverAndPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecord
         return;
     }
 
-    typedef TSizeSizePrCBjkstUMap::iterator TSizeSizePrCBjkstUMapItr;
+    using TSizeSizePrCBjkstUMapItr = TSizeSizePrCBjkstUMap::iterator;
 
     this->CDataCountStatistics::add(beginRecords, endRecords);
 
@@ -433,9 +433,8 @@ CDataCountStatisticsDirectAddressTable::CDataCountStatisticsDirectAddressTable(c
 
 void CDataCountStatisticsDirectAddressTable::build(const TDetectorSpecificationVec &specs)
 {
-    typedef boost::unordered_map<CCountStatisticsKey,
-                                 std::size_t,
-                                 CCountStatisticsKeyHasher> TCountStatisticsKeySizeUMap;
+    using TCountStatisticsKeySizeUMap =
+              boost::unordered_map<CCountStatisticsKey, std::size_t, CCountStatisticsKeyHasher>;
 
     std::size_t size = 0u;
     for (std::size_t i = 0u; i < specs.size(); ++i)
@@ -468,7 +467,7 @@ void CDataCountStatisticsDirectAddressTable::build(const TDetectorSpecificationV
 
 void CDataCountStatisticsDirectAddressTable::pruneUnsed(const TDetectorSpecificationVec &specs)
 {
-    typedef boost::unordered_set<std::size_t> TSizeUSet;
+    using TSizeUSet = boost::unordered_set<std::size_t>;
 
     TSizeUSet used;
     for (std::size_t i = 0u; i < specs.size(); ++i)
@@ -515,7 +514,7 @@ const CDataCountStatistics &
 CDataCountStatisticsDirectAddressTable::TDataCountStatisticsPtr
     CDataCountStatisticsDirectAddressTable::stats(const CDetectorSpecification &spec) const
 {
-    typedef CDataCountStatistics *(*TStatistics)(const CAutoconfigurerParams &);
+    using TStatistics = CDataCountStatistics *(*)(const CAutoconfigurerParams &);
     static TStatistics STATISTICS[] =
         {
             &partitionCountStatistics,

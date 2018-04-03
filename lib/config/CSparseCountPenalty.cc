@@ -26,7 +26,7 @@ namespace config
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 //! Extract the \p n quantiles from \p quantiles.
 void extract(const maths::CQuantileSketch &quantiles, std::size_t n, TDoubleVec &result)
@@ -92,13 +92,13 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const
         return;
     }
 
-    typedef std::vector<TDoubleVec> TDoubleVecVec;
-    typedef CBucketCountStatistics::TSizeSizePrQuantileUMap TSizeSizePrQuantileUMap;
-    typedef TSizeSizePrQuantileUMap::const_iterator TSizeSizePrQuantileUMapCItr;
-    typedef std::vector<const TSizeSizePrQuantileUMap *> TSizeSizePrQuantileUMapCPtrVec;
-    typedef std::vector<const CBucketCountStatistics::TSizeSizePrMomentsUMap *> TSizeSizePrMomentsUMapCPtrVec;
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-    typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TSizeSizePrQuantileUMap = CBucketCountStatistics::TSizeSizePrQuantileUMap;
+    using TSizeSizePrQuantileUMapCItr = TSizeSizePrQuantileUMap::const_iterator;
+    using TSizeSizePrQuantileUMapCPtrVec = std::vector<const TSizeSizePrQuantileUMap *>;
+    using TSizeSizePrMomentsUMapCPtrVec = std::vector<const CBucketCountStatistics::TSizeSizePrMomentsUMap *>;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 
     if (const CDataCountStatistics *stats = spec.countStatistics())
     {

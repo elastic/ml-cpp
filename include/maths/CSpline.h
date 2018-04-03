@@ -31,8 +31,8 @@ namespace maths
 namespace spline_detail
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<CFloatStorage> TFloatVec;
+using TDoubleVec = std::vector<double>;
+using TFloatVec = std::vector<CFloatStorage>;
 
 //! Solves \f$Ax = y\f$ where \f$A\f$ is a tridiagonal matrix
 //! consisting of vectors \f$a\f$, \f$b\f$ and \f$c\f$.
@@ -75,8 +75,8 @@ bool MATHS_EXPORT solvePeturbedTridiagonal(const TDoubleVec &a,
 class MATHS_EXPORT CSplineTypes
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+        using TDoubleVec = std::vector<double>;
+        using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
         //! Types of spline interpolation that this will perform.
         //!
@@ -141,12 +141,12 @@ template<typename KNOTS = std::vector<CFloatStorage>,
 class CSpline : public CSplineTypes
 {
     public:
-        typedef typename boost::unwrap_reference<KNOTS>::type TKnots;
-        typedef typename boost::unwrap_reference<VALUES>::type TValues;
-        typedef typename boost::unwrap_reference<CURVATURES>::type TCurvatures;
-        typedef typename boost::remove_const<TKnots>::type TNonConstKnots;
-        typedef typename boost::remove_const<TValues>::type TNonConstValues;
-        typedef typename boost::remove_const<TCurvatures>::type TNonConstCurvatures;
+        using TKnots = typename boost::unwrap_reference<KNOTS>::type;
+        using TValues = typename boost::unwrap_reference<VALUES>::type;
+        using TCurvatures = typename boost::unwrap_reference<CURVATURES>::type;
+        using TNonConstKnots = typename boost::remove_const<TKnots>::type;
+        using TNonConstValues = typename boost::remove_const<TValues>::type;
+        using TNonConstCurvatures = typename boost::remove_const<TCurvatures>::type;
 
     public:
         CSpline(EType type) : m_Type(type) {}

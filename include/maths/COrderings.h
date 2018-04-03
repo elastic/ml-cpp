@@ -48,7 +48,7 @@ class COrderings : private core::CNonInstantiatable
         //! operator <.
         struct SOptionalLess
         {
-            typedef bool result_type;
+            using result_type = bool;
 
             //! \note U and V must be convertible to T or optional<T>
             //! for some type T and T must support operator <.
@@ -87,7 +87,7 @@ class COrderings : private core::CNonInstantiatable
         //! operator >.
         struct SOptionalGreater
         {
-            typedef bool result_type;
+            using result_type = bool;
 
             //! \note U and V must be convertible to T or optional<T>
             //! for some type T and T must support operator >.
@@ -126,7 +126,7 @@ class COrderings : private core::CNonInstantiatable
         //! operator <.
         struct SPtrLess
         {
-            typedef bool result_type;
+            using result_type = bool;
 
             template<typename T>
             inline bool operator()(const T *lhs, const T *rhs) const
@@ -150,7 +150,7 @@ class COrderings : private core::CNonInstantiatable
         //! the type operator >.
         struct SPtrGreater
         {
-            typedef bool result_type;
+            using result_type = bool;
 
             template<typename T>
             inline bool operator()(const T *lhs, const T *rhs) const
@@ -173,7 +173,7 @@ class COrderings : private core::CNonInstantiatable
         //! comparable with operator <.
         struct SReferenceLess
         {
-            typedef bool result_type;
+            using result_type = bool;
 
             template<typename U, typename V>
             inline bool operator()(const U &lhs, const V &rhs) const
@@ -192,7 +192,7 @@ class COrderings : private core::CNonInstantiatable
         //! comparable with operator >.
         struct SReferenceGreater
         {
-            typedef bool result_type;
+            using result_type = bool;
 
             template<typename U, typename V>
             inline bool operator()(const U &lhs, const V &rhs) const
@@ -302,7 +302,7 @@ class COrderings : private core::CNonInstantiatable
         //! \brief Wrapper around various less than comparisons.
         struct SLess
         {
-            typedef bool result_type;
+            using result_type = bool;
 
             template<typename T>
             bool operator()(const boost::optional<T> &lhs,
@@ -354,7 +354,7 @@ class COrderings : private core::CNonInstantiatable
         //! \brief Wrapper around various less than comparisons.
         struct SGreater
         {
-            typedef bool result_type;
+            using result_type = bool;
 
             template<typename T>
             bool operator()(const boost::optional<T> &lhs,
@@ -711,7 +711,7 @@ class COrderings : private core::CNonInstantiatable
                                {                                                  \
                                    return true;                                   \
                                }                                                  \
-                               typedef std::vector<std::size_t> TSizeVec;         \
+                               using TSizeVec = std::vector<std::size_t>;         \
                                TSizeVec ordering;                                 \
                                ordering.reserve(keys.size());                     \
                                for (std::size_t i = 0u; i < keys.size(); ++i)     \

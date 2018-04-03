@@ -22,7 +22,7 @@ namespace
 class CValueAdaptor
 {
     public:
-        typedef double result_type;
+        using result_type = double;
 
     public:
         CValueAdaptor(const maths::CRadialBasisFunction &function,

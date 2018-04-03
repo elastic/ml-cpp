@@ -23,7 +23,7 @@ class CHierarchicalResults;
 class MODEL_EXPORT CResultsQueue
 {
     public:
-        typedef CBucketQueue<CHierarchicalResults> THierarchicalResultsQueue;
+        using THierarchicalResultsQueue = CBucketQueue<CHierarchicalResults>;
 
     public:
         //! Constructor

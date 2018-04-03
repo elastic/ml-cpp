@@ -21,8 +21,8 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 
 void CSetToolsTest::testInplaceSetDifference(void)
 {

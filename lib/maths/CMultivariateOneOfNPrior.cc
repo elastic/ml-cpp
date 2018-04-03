@@ -39,16 +39,16 @@ namespace maths
 namespace
 {
 
-typedef core::CSmallVector<bool, 3> TBool3Vec;
-typedef CMultivariateOneOfNPrior::TDouble3Vec TDouble3Vec;
-typedef CMultivariateOneOfNPrior::TDouble10Vec TDouble10Vec;
-typedef CMultivariateOneOfNPrior::TDouble10VecDouble10VecPr TDouble10VecDouble10VecPr;
-typedef CMultivariateOneOfNPrior::TDouble10Vec1Vec TDouble10Vec1Vec;
-typedef CMultivariateOneOfNPrior::TDouble10Vec10Vec TDouble10Vec10Vec;
-typedef CMultivariateOneOfNPrior::TDouble10Vec4Vec1Vec TDouble10Vec4Vec1Vec;
-typedef CMultivariateOneOfNPrior::TPriorPtr TPriorPtr;
-typedef CMultivariateOneOfNPrior::TWeightPriorPtrPr TWeightPriorPtrPr;
-typedef CMultivariateOneOfNPrior::TWeightPriorPtrPrVec TWeightPriorPtrPrVec;
+using TBool3Vec = core::CSmallVector<bool, 3>;
+using TDouble3Vec = CMultivariateOneOfNPrior::TDouble3Vec;
+using TDouble10Vec = CMultivariateOneOfNPrior::TDouble10Vec;
+using TDouble10VecDouble10VecPr = CMultivariateOneOfNPrior::TDouble10VecDouble10VecPr;
+using TDouble10Vec1Vec = CMultivariateOneOfNPrior::TDouble10Vec1Vec;
+using TDouble10Vec10Vec = CMultivariateOneOfNPrior::TDouble10Vec10Vec;
+using TDouble10Vec4Vec1Vec = CMultivariateOneOfNPrior::TDouble10Vec4Vec1Vec;
+using TPriorPtr = CMultivariateOneOfNPrior::TPriorPtr;
+using TWeightPriorPtrPr = CMultivariateOneOfNPrior::TWeightPriorPtrPr;
+using TWeightPriorPtrPrVec = CMultivariateOneOfNPrior::TWeightPriorPtrPrVec;
 
 // We use short field names to reduce the state size
 const std::string MODEL_TAG("a");
@@ -313,7 +313,7 @@ std::size_t CMultivariateOneOfNPrior::dimension(void) const
 void CMultivariateOneOfNPrior::dataType(maths_t::EDataType value)
 {
     this->CMultivariatePrior::dataType(value);
-    for (auto &&model : m_Models)
+    for (auto &model : m_Models)
     {
         model.second->dataType(value);
     }
@@ -322,7 +322,7 @@ void CMultivariateOneOfNPrior::dataType(maths_t::EDataType value)
 void CMultivariateOneOfNPrior::decayRate(double value)
 {
     this->CMultivariatePrior::decayRate(value);
-    for (auto &&model : m_Models)
+    for (auto &model : m_Models)
     {
         model.second->decayRate(this->decayRate());
     }
@@ -330,7 +330,7 @@ void CMultivariateOneOfNPrior::decayRate(double value)
 
 void CMultivariateOneOfNPrior::setToNonInformative(double offset, double decayRate)
 {
-    for (auto &&model : m_Models)
+    for (auto &model : m_Models)
     {
         model.first.age(0.0);
         model.second->setToNonInformative(offset, decayRate);
@@ -343,7 +343,7 @@ void CMultivariateOneOfNPrior::adjustOffset(const TWeightStyleVec &weightStyles,
                                             const TDouble10Vec1Vec &samples,
                                             const TDouble10Vec4Vec1Vec &weights)
 {
-    for (auto &&model : m_Models)
+    for (auto &model : m_Models)
     {
         model.second->adjustOffset(weightStyles, samples, weights);
     }
@@ -381,7 +381,7 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec &weightStyles,
     TDouble3Vec logLikelihoods;
     TMaxAccumulator maxLogLikelihood;
     TBool3Vec used, uses;
-    for (auto &&model : m_Models)
+    for (auto &model : m_Models)
     {
         bool use = model.second->participatesInModelSelection();
 
@@ -485,7 +485,7 @@ void CMultivariateOneOfNPrior::propagateForwardsByTime(double time)
 
     double alpha = ::exp(-this->scaledDecayRate() * time);
 
-    for (auto &&model : m_Models)
+    for (auto &model : m_Models)
     {
         if (!this->isForForecasting())
         {
@@ -806,7 +806,7 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
         weights.push_back(model.first);
         Z += model.first;
     }
-    for (auto &&weight : weights)
+    for (auto &weight : weights)
     {
         weight /= Z;
     }
@@ -925,7 +925,7 @@ void CMultivariateOneOfNPrior::acceptPersistInserter(core::CStatePersistInserter
 CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::weights(void) const
 {
     TDouble3Vec result = this->logWeights();
-    for (auto &&weight : result)
+    for (auto &weight : result)
     {
         weight = ::exp(weight);
     }
@@ -943,7 +943,7 @@ CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::logWeights(void)
         Z += ::exp(result.back());
     }
     Z = ::log(Z);
-    for (auto &&weight : result)
+    for (auto &weight : result)
     {
         weight -= Z;
     }

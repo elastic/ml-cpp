@@ -23,26 +23,26 @@ using namespace ml;
 
 namespace
 {
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef std::vector<TVector2Vec> TVector2VecVec;
-typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
-typedef maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator TMeanVar2Accumulator;
-typedef maths::CVectorNx1<double, 5> TVector5;
-typedef std::vector<TVector5> TVector5Vec;
-typedef maths::CBasicStatistics::SSampleMeanVar<TVector5>::TAccumulator TMeanVar5Accumulator;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TVector2 = maths::CVectorNx1<double, 2>;
+using TVector2Vec = std::vector<TVector2>;
+using TVector2VecVec = std::vector<TVector2Vec>;
+using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
+using TMeanVar2Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator;
+using TVector5 = maths::CVectorNx1<double, 5>;
+using TVector5Vec = std::vector<TVector5>;
+using TMeanVar5Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector5>::TAccumulator;
 
 template<typename POINT>
 class CKMeansOnlineTestForTest : public maths::CKMeansOnline<POINT>
 {
     public:
-        typedef typename maths::CKMeansOnline<POINT>::TSphericalClusterVec TSphericalClusterVec;
-        typedef typename maths::CKMeansOnline<POINT>::TDoubleMeanVarAccumulator TDoubleMeanVarAccumulator;
-        typedef typename maths::CKMeansOnline<POINT>::TFloatMeanAccumulatorDoublePr TFloatMeanAccumulatorDoublePr;
+        using TSphericalClusterVec = typename maths::CKMeansOnline<POINT>::TSphericalClusterVec;
+        using TDoubleMeanVarAccumulator = typename maths::CKMeansOnline<POINT>::TDoubleMeanVarAccumulator;
+        using TFloatMeanAccumulatorDoublePr = typename maths::CKMeansOnline<POINT>::TFloatMeanAccumulatorDoublePr;
 
     public:
         CKMeansOnlineTestForTest(std::size_t k, double decayRate = 0.0) :
@@ -130,7 +130,7 @@ void CKMeansOnlineTest::testAdd(void)
     // Test that we correctly compute the mean and spherical
     // variance.
 
-    typedef std::pair<TMean2Accumulator, double> TMean2AccumulatorDoublePr;
+    using TMean2AccumulatorDoublePr = std::pair<TMean2Accumulator, double>;
 
     test::CRandomNumbers rng;
 
@@ -422,7 +422,7 @@ void CKMeansOnlineTest::testSplit(void)
     // Test that the clusters are divided amoung the clusterers
     // in the split as expected.
 
-    typedef std::vector<maths::CKMeansOnline<TVector2> > TKMeansOnline2Vec;
+    using TKMeansOnline2Vec = std::vector<maths::CKMeansOnline<TVector2>>;
 
     test::CRandomNumbers rng;
 
@@ -635,7 +635,7 @@ void CKMeansOnlineTest::testSample(void)
     // exactly the points we have added and for a large number
     // of samples we sample the modes of the mixture correctly.
 
-    typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
+    using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
 
     maths::CSampling::seed();
 

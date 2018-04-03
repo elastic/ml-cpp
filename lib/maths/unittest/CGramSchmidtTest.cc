@@ -21,10 +21,10 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef maths::CVectorNx1<double, 4> TVector4;
-typedef std::vector<TVector4> TVector4Vec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TVector4 = maths::CVectorNx1<double, 4>;
+using TVector4Vec = std::vector<TVector4>;
 
 namespace
 {

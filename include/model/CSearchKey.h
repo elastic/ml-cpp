@@ -75,19 +75,19 @@ namespace model
 class MODEL_EXPORT CSearchKey
 {
     public:
-        typedef std::vector<std::string> TStrVec;
-        typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
+        using TStrVec = std::vector<std::string>;
+        using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
 
         //! The type of a search key which mixes in the partition field
         //! value.
-        typedef std::pair<std::string, CSearchKey> TStrKeyPr;
+        using TStrKeyPr = std::pair<std::string, CSearchKey>;
 
         //! The type of a constant reference string search key pair.
         //!
         //! \note This is intended for map lookups when one doesn't want
         //! to copy the strings.
-        typedef std::pair<boost::reference_wrapper<const std::string>,
-                          boost::reference_wrapper<const CSearchKey> > TStrCRefKeyCRefPr;
+        using TStrCRefKeyCRefPr = std::pair<boost::reference_wrapper<const std::string>,
+                                            boost::reference_wrapper<const CSearchKey>>;
 
     public:
         //! If the "by" field name is "count" then the key represents

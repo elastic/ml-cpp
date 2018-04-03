@@ -40,8 +40,8 @@ enum EFeature
     E_IndividualHighCountsByBucketAndPerson
 };
 
-typedef std::vector<int> TIntVec;
-typedef std::vector<std::string> TStrVec;
+using TIntVec = std::vector<int>;
+using TStrVec = std::vector<std::string>;
 
 struct SPod
 {
@@ -93,7 +93,7 @@ struct SFooWrapper
 
 struct SBar
 {
-    typedef std::vector<SFoo> TFooVec;
+    using TFooVec = std::vector<SFoo>;
 
     explicit SBar(std::size_t key = 0) : s_Key(key), s_State() {}
     bool operator<(const SBar &rhs) const { return s_Key < rhs.s_Key; }
@@ -109,7 +109,7 @@ struct SBar
 
 struct SBarDebug
 {
-    typedef std::vector<SFoo> TFooVec;
+    using TFooVec = std::vector<SFoo>;
 
     explicit SBarDebug(std::size_t key = 0) : s_Key(key), s_State() {}
     bool operator<(const SBarDebug &rhs) const { return s_Key < rhs.s_Key; }
@@ -131,7 +131,7 @@ struct SBarDebug
 
 struct SBarVectorDebug
 {
-    typedef std::vector<SFooWithMemoryUsage> TFooVec;
+    using TFooVec = std::vector<SFooWithMemoryUsage>;
 
     explicit SBarVectorDebug(std::size_t key = 0) : s_Key(key), s_State() {}
     bool operator<(const SBarVectorDebug &rhs) const { return s_Key < rhs.s_Key; }
@@ -222,20 +222,20 @@ template<typename T>
 class CTrackingAllocator
 {
     public:
-        typedef T value_type;
-        typedef value_type *pointer;
-        typedef const value_type *const_pointer;
-        typedef value_type &reference;
-        typedef const value_type &const_reference;
-        typedef std::size_t size_type;
-        typedef std::ptrdiff_t difference_type;
+        using value_type = T;
+        using pointer = value_type*;
+        using const_pointer = const value_type*;
+        using reference = value_type&;
+        using const_reference = const value_type&;
+        using size_type = std::size_t;
+        using difference_type = std::ptrdiff_t;
 
     public:
         // convert an allocator<T> to allocator<U>
         template<typename U>
         struct rebind
         {
-            typedef CTrackingAllocator<U> other;
+            using other = CTrackingAllocator<U>;
         };
 
     public:
@@ -314,27 +314,27 @@ std::size_t CTrackingAllocator<T>::ms_Allocated = 0;
 
 void CMemoryUsageTest::testUsage(void)
 {
-    typedef std::vector<SFoo> TFooVec;
-    typedef std::vector<SFooWithMemoryUsage> TFooWithMemoryVec;
-    typedef std::list<SFoo> TFooList;
-    typedef std::list<SFooWithMemoryUsage> TFooWithMemoryList;
-    typedef std::deque<SFoo> TFooDeque;
-    typedef std::deque<SFooWithMemoryUsage> TFooWithMemoryDeque;
-    typedef boost::circular_buffer<SFoo> TFooCircBuf;
-    typedef boost::circular_buffer<SFooWithMemoryUsage> TFooWithMemoryCircBuf;
-    typedef std::map<SFoo, SFoo> TFooFooMap;
-    typedef std::map<SFooWithMemoryUsage, SFooWithMemoryUsage> TFooWithMemoryFooWithMemoryMap;
-    typedef boost::unordered_map<SFoo, SFoo, SHash> TFooFooUMap;
-    typedef boost::container::flat_set<SFoo> TFooFSet;
-    typedef boost::unordered_map<SFooWithMemoryUsage, SFooWithMemoryUsage, SHash> TFooWithMemoryFooWithMemoryUMap;
-    typedef std::vector<SBar> TBarVec;
-    typedef std::map<SBar, SBar> TBarBarMap;
-    typedef boost::unordered_map<SBar, SBar, SHash> TBarBarUMap;
-    typedef boost::container::flat_map<SBar, SBar> TBarBarFMap;
-    typedef boost::shared_ptr<SBar> TBarPtr;
-    typedef boost::shared_ptr<CBase> TBasePtr;
-    typedef std::vector<CDerived> TDerivedVec;
-    typedef std::vector<TBasePtr> TBasePtrVec;
+    using TFooVec = std::vector<SFoo>;
+    using TFooWithMemoryVec = std::vector<SFooWithMemoryUsage>;
+    using TFooList = std::list<SFoo>;
+    using TFooWithMemoryList = std::list<SFooWithMemoryUsage>;
+    using TFooDeque = std::deque<SFoo>;
+    using TFooWithMemoryDeque = std::deque<SFooWithMemoryUsage>;
+    using TFooCircBuf = boost::circular_buffer<SFoo>;
+    using TFooWithMemoryCircBuf = boost::circular_buffer<SFooWithMemoryUsage>;
+    using TFooFooMap = std::map<SFoo, SFoo>;
+    using TFooWithMemoryFooWithMemoryMap = std::map<SFooWithMemoryUsage, SFooWithMemoryUsage>;
+    using TFooFooUMap = boost::unordered_map<SFoo, SFoo, SHash>;
+    using TFooFSet = boost::container::flat_set<SFoo>;
+    using TFooWithMemoryFooWithMemoryUMap = boost::unordered_map<SFooWithMemoryUsage, SFooWithMemoryUsage, SHash>;
+    using TBarVec = std::vector<SBar>;
+    using TBarBarMap = std::map<SBar, SBar>;
+    using TBarBarUMap = boost::unordered_map<SBar, SBar, SHash>;
+    using TBarBarFMap = boost::container::flat_map<SBar, SBar>;
+    using TBarPtr = boost::shared_ptr<SBar>;
+    using TBasePtr = boost::shared_ptr<CBase>;
+    using TDerivedVec = std::vector<CDerived>;
+    using TBasePtrVec = std::vector<TBasePtr>;
 
     // We want various invariants to hold for dynamic size:
     //   1) The dynamic size is not affected by adding a memoryUsage
@@ -559,8 +559,8 @@ void CMemoryUsageTest::testUsage(void)
     {
         LOG_DEBUG("*** boost::any ***");
 
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<boost::any> TAnyVec;
+        using TDoubleVec = std::vector<double>;
+        using TAnyVec = std::vector<boost::any>;
 
         TDoubleVec a(10);
         TFooVec b(20);
@@ -717,8 +717,8 @@ void CMemoryUsageTest::testUsage(void)
 
 void CMemoryUsageTest::testDebug(void)
 {
-    typedef std::vector<SBar> TBarVec;
-    typedef boost::shared_ptr<TBarVec> TBarVecPtr;
+    using TBarVec = std::vector<SBar>;
+    using TBarVecPtr = boost::shared_ptr<TBarVec>;
 
     // Check that we can get debug info out of classes with vectors of varying size
     {
@@ -773,8 +773,8 @@ void CMemoryUsageTest::testDebug(void)
         CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(t), memoryUsage.usage());
     }
     {
-        typedef std::pair<EFeature, TBarVecPtr> TFeatureBarVecPtrPr;
-        typedef std::vector<TFeatureBarVecPtrPr> TFeatureBarVecPtrPrVec;
+        using TFeatureBarVecPtrPr = std::pair<EFeature, TBarVecPtr>;
+        using TFeatureBarVecPtrPrVec = std::vector<TFeatureBarVecPtrPr>;
         TFeatureBarVecPtrPrVec t;
 
         TBarVecPtr vec(new TBarVec());
@@ -828,23 +828,23 @@ void CMemoryUsageTest::testDynamicSizeAlwaysZero(void)
     CPPUNIT_ASSERT_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SPod>::value();
     CPPUNIT_ASSERT_EQUAL(haveStructPodCompilerSupport, test);
-    test = core::memory_detail::SDynamicSizeAlwaysZero<boost::optional<double> >::value();
+    test = core::memory_detail::SDynamicSizeAlwaysZero<boost::optional<double>>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);
-    test = core::memory_detail::SDynamicSizeAlwaysZero<boost::optional<SPod> >::value();
+    test = core::memory_detail::SDynamicSizeAlwaysZero<boost::optional<SPod>>::value();
     CPPUNIT_ASSERT_EQUAL(haveStructPodCompilerSupport, test);
-    test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<int, int> >::value();
+    test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<int, int>>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);
     test = boost::is_pod<SFoo>::value;
     CPPUNIT_ASSERT_EQUAL(false, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SFoo>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);
-    test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<boost::optional<double>, SFoo> >::value();
+    test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<boost::optional<double>, SFoo>>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<core::CHashing::CUniversalHash::CUInt32Hash>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<core::CHashing::CUniversalHash::CUInt32UnrestrictedHash>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);
-    test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<double, SFooWithMemoryUsage> >::value();
+    test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<double, SFooWithMemoryUsage>>::value();
     CPPUNIT_ASSERT_EQUAL(false, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SFooWithMemoryUsage>::value();
     CPPUNIT_ASSERT_EQUAL(false, test);
@@ -1058,7 +1058,7 @@ void CMemoryUsageTest::testStringBehaviour(void)
         LOG_INFO("On this platform clearing can reduce string capacity");
     }
 
-    typedef std::vector<size_t> TSizeVec;
+    using TSizeVec = std::vector<size_t>;
     std::string grower;
     TSizeVec capacities(1, grower.capacity());
     for (size_t count = 0; count < 50000; ++count)
@@ -1092,8 +1092,8 @@ void CMemoryUsageTest::testStringBehaviour(void)
 
 void CMemoryUsageTest::testStringMemory(void)
 {
-    typedef ::CTrackingAllocator<char> TAllocator;
-    typedef std::basic_string<char, std::char_traits<char>, TAllocator> TString;
+    using TAllocator = ::CTrackingAllocator<char>;
+    using TString = std::basic_string<char, std::char_traits<char>, TAllocator>;
 
     for (std::size_t i = 0; i < 1500; ++i)
     {
@@ -1113,8 +1113,8 @@ void CMemoryUsageTest::testStringMemory(void)
 
 void CMemoryUsageTest::testStringClear(void)
 {
-    typedef ::CTrackingAllocator<char> TAllocator;
-    typedef std::basic_string<char, std::char_traits<char>, TAllocator> TString;
+    using TAllocator = ::CTrackingAllocator<char>;
+    using TString = std::basic_string<char, std::char_traits<char>, TAllocator>;
 
     TString empty;
     TString something1("something");
@@ -1140,11 +1140,11 @@ void CMemoryUsageTest::testStringClear(void)
 void CMemoryUsageTest::testSharedPointer(void)
 {
     LOG_DEBUG("*** testSharedPointer ***");
-    typedef std::vector<int> TIntVec;
-    typedef boost::shared_ptr<TIntVec> TIntVecPtr;
-    typedef std::vector<TIntVecPtr> TIntVecPtrVec;
-    typedef boost::shared_ptr<std::string> TStrPtr;
-    typedef std::vector<TStrPtr> TStrPtrVec;
+    using TIntVec = std::vector<int>;
+    using TIntVecPtr = boost::shared_ptr<TIntVec>;
+    using TIntVecPtrVec = std::vector<TIntVecPtr>;
+    using TStrPtr = boost::shared_ptr<std::string>;
+    using TStrPtrVec = std::vector<TStrPtr>;
     TStrPtrVec strings;
 
     TIntVecPtrVec vec1;

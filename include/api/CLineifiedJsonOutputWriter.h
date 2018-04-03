@@ -40,7 +40,7 @@ namespace api
 class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler
 {
     public:
-        typedef std::set<std::string> TStrSet;
+        using TStrSet = std::set<std::string>;
 
     public:
         //! Constructor that causes output to be written to the internal string
@@ -102,7 +102,7 @@ class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler
         //! JSON writer ostream wrapper
         rapidjson::OStreamWrapper     m_WriteStream;
 
-        typedef core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
+        using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
 
         //! JSON writer
         TGenericLineWriter            m_Writer;

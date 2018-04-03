@@ -26,7 +26,7 @@ namespace core
 namespace
 {
 
-typedef core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
+using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
 
 static const std::string NAME_TYPE("name");
 static const std::string DESCRIPTION_TYPE("description");

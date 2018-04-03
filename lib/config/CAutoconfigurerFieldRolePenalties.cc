@@ -27,7 +27,7 @@ const std::size_t RARE_BY_INDEX              = 3u;
 const std::size_t OVER_INDEX                 = 4u;
 const std::size_t PARTITION_INDEX            = 5u;
 
-typedef std::size_t (CAutoconfigurerParams::*TCountThreshold)(void) const;
+using TCountThreshold = std::size_t (CAutoconfigurerParams::*)(void) const;
 
 const std::size_t PENALTY_INDICES[] =
     {

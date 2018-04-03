@@ -27,7 +27,7 @@ namespace core
 namespace
 {
 
-typedef boost::random::uniform_int_distribution<uint32_t> TUniform32;
+using TUniform32 = boost::random::uniform_int_distribution<uint32_t>;
 
 }
 
@@ -313,7 +313,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
                                               uint32_t m,
                                               TUInt32VecHashVec &result)
 {
-    typedef std::vector<TUInt32Vec> TUInt32VecVec;
+    using TUInt32VecVec = std::vector<TUInt32Vec>;
 
     TUInt32VecVec a;
     TUInt32Vec b;

@@ -318,7 +318,7 @@ class CMessageQueue
         CCondition          m_Condition;
         RECEIVER            &m_Receiver;
 
-        typedef std::queue<MESSAGE>              TMessageQueue;
+        using TMessageQueue = std::queue<MESSAGE>;
 
         TMessageQueue       m_Queue;
 
@@ -328,7 +328,7 @@ class CMessageQueue
         //! A stop watch for timing how long it takes to process messages
         CStopWatch          m_StopWatch;
 
-        typedef boost::circular_buffer<uint64_t> TUIntCircBuf;
+        using TUIntCircBuf = boost::circular_buffer<uint64_t>;
 
         //! Stop watch readings
         TUIntCircBuf        m_Readings;

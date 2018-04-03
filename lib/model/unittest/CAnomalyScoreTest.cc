@@ -36,15 +36,15 @@ using namespace ml;
 
 namespace
 {
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 }
 
 void CAnomalyScoreTest::testComputeScores(void)
 {
-    typedef model::CAnomalyScore TScores;
-    typedef maths::CJointProbabilityOfLessLikelySamples TJointProbabilityCalculator;
-    typedef maths::CLogProbabilityOfMFromNExtremeSamples TLogExtremeProbabilityCalculator;
+    using TScores = model::CAnomalyScore;
+    using TJointProbabilityCalculator = maths::CJointProbabilityOfLessLikelySamples;
+    using TLogExtremeProbabilityCalculator = maths::CLogProbabilityOfMFromNExtremeSamples;
 
     const double jointProbabilityWeight = 0.5;
     const double extremeProbabilityWeight = 0.5;
@@ -265,8 +265,8 @@ void CAnomalyScoreTest::testComputeScores(void)
 
 void CAnomalyScoreTest::testNormalizeScoresQuantiles(void)
 {
-    typedef std::multiset<double> TDoubleMSet;
-    typedef TDoubleMSet::iterator TDoubleMSetItr;
+    using TDoubleMSet = std::multiset<double>;
+    using TDoubleMSetItr = TDoubleMSet::iterator;
 
     test::CRandomNumbers rng;
 
@@ -322,8 +322,8 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles(void)
 
 void CAnomalyScoreTest::testNormalizeScoresNoisy(void)
 {
-    typedef std::multimap<double, std::size_t> TDoubleSizeMap;
-    typedef TDoubleSizeMap::const_iterator TDoubleSizeMapCItr;
+    using TDoubleSizeMap = std::multimap<double, std::size_t>;
+    using TDoubleSizeMapCItr = TDoubleSizeMap::const_iterator;
 
     test::CRandomNumbers rng;
 

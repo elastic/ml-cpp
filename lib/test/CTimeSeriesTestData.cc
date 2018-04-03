@@ -79,7 +79,7 @@ bool CTimeSeriesTestData::parseCounter(const std::string &fileName, TTimeDoubleP
 
     double last(0);
     bool   started(false);
-    for (auto &&result : results)
+    for (auto &result : results)
     {
         double value = result.second;
         if (started == false)
@@ -158,7 +158,7 @@ bool CTimeSeriesTestData::pad(const TTimeDoublePrVec &data,
     results.reserve(static_cast<size_t>(maxTime - minTime + 1));
 
     // Inefficient but easy and safe
-    typedef std::map<core_t::TTime, double> TTimeDoubleMap;
+    using TTimeDoubleMap = std::map<core_t::TTime, double>;
 
     TTimeDoubleMap dataMap;
 
@@ -206,7 +206,7 @@ template<typename T>
 bool CTimeSeriesTestData::parse(const std::string &fileName,
                                 const std::string &regex,
                                 const std::string &dateFormat,
-                                std::vector<std::pair<core_t::TTime, T> >  &results,
+                                std::vector<std::pair<core_t::TTime, T>>  &results,
                                 core_t::TTime &minTime,
                                 core_t::TTime &maxTime)
 {
@@ -255,7 +255,7 @@ template<typename T>
 bool CTimeSeriesTestData::parseLine(const core::CRegex &tokenRegex,
                                     const std::string &dateFormat,
                                     const std::string &line,
-                                    std::vector<std::pair<core_t::TTime, T> > &results)
+                                    std::vector<std::pair<core_t::TTime, T>> &results)
 {
     if (line.empty() ||
         line.find_first_not_of(core::CStringUtils::WHITESPACE_CHARS) == std::string::npos)

@@ -23,7 +23,7 @@ namespace config
 namespace
 {
 
-typedef const CDetectorSpecification::TOptionalStr &(CDetectorSpecification::*TField)(void) const;
+using TField = const CDetectorSpecification::TOptionalStr &(CDetectorSpecification::*)(void) const;
 const TField FIELDS[] =
     {
         &CDetectorSpecification::argumentField,
@@ -139,8 +139,8 @@ std::string CDetectorRecord::print(void) const
 
 void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec &specs)
 {
-    typedef boost::unordered_map<std::string, std::size_t> TStrSizeUMap;
-    typedef TStrSizeUMap::const_iterator TStrSizeUMapCItr;
+    using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
+    using TStrSizeUMapCItr = TStrSizeUMap::const_iterator;
 
     this->clear();
 
@@ -193,7 +193,7 @@ void CDetectorRecordDirectAddressTable::detectorRecords(core_t::TTime time,
         return;
     }
 
-    typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
+    using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
     std::size_t size = 0u;
     for (std::size_t i = 0u; i < specs.size(); ++i)

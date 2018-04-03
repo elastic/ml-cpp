@@ -46,7 +46,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
         class CORE_EXPORT CUniversalHash
         {
             public:
-                typedef std::vector<uint32_t> TUInt32Vec;
+                using TUInt32Vec = std::vector<uint32_t>;
 
             public:
                 //! A member of the universal (2-independent) hash family on
@@ -96,7 +96,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                         uint32_t m_M, m_A, m_B;
                 };
 
-                typedef std::vector<CUInt32Hash> TUInt32HashVec;
+                using TUInt32HashVec = std::vector<CUInt32Hash>;
 
                 //! A lightweight implementation universal (2-independent) on
                 //! 32-bit integers. This doesn't further restrict the range
@@ -136,7 +136,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                         uint32_t m_A, m_B;
                 };
 
-                typedef std::vector<CUInt32UnrestrictedHash> TUInt32UnrestrictedHashVec;
+                using TUInt32UnrestrictedHashVec = std::vector<CUInt32UnrestrictedHash>;
 
                 //! A member of the universal (2-independent) hash family on
                 //! vectors of integers (Carter and Wegman):
@@ -212,7 +212,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                         uint32_t m_B;
                 };
 
-                typedef std::vector<CUInt32VecHash> TUInt32VecHashVec;
+                using TUInt32VecHashVec = std::vector<CUInt32VecHash>;
 
                 //! Converts hash function objects to a string.
                 class CORE_EXPORT CToString
@@ -421,7 +421,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
             public:
                 //! See CMemory.
                 static bool dynamicSizeAlwaysZero(void) { return true; }
-                typedef boost::reference_wrapper<const std::string> TStrCRef;
+                using TStrCRef = boost::reference_wrapper<const std::string>;
 
             public:
                 CMurmurHash2String(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
@@ -454,7 +454,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
             public:
                 //! See CMemory.
                 static bool dynamicSizeAlwaysZero(void) { return true; }
-                typedef boost::reference_wrapper<const std::string> TStrCRef;
+                using TStrCRef = boost::reference_wrapper<const std::string>;
 
             public:
                 CSafeMurmurHash2String64(uint64_t seed = 0x5bd1e995) : m_Seed(seed) {}

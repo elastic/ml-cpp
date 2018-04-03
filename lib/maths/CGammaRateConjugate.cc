@@ -50,13 +50,13 @@ namespace
 namespace detail
 {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef maths_t::TWeightStyleVec TWeightStyleVec;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef CBasicStatistics::SSampleMean<CDoublePrecisionStorage>::TAccumulator TMeanAccumulator;
-typedef CBasicStatistics::SSampleMeanVar<CDoublePrecisionStorage>::TAccumulator TMeanVarAccumulator;
+using TDoubleDoublePr = std::pair<double, double>;
+using TWeightStyleVec = maths_t::TWeightStyleVec;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TMeanAccumulator = CBasicStatistics::SSampleMean<CDoublePrecisionStorage>::TAccumulator;
+using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<CDoublePrecisionStorage>::TAccumulator;
 
 const double NON_INFORMATIVE_COUNT = 3.5;
 
@@ -1597,7 +1597,7 @@ bool CGammaRateConjugate::minusLogJointCdf(const TWeightStyleVec &weightStyles,
                                            double &lowerBound,
                                            double &upperBound) const
 {
-    typedef detail::CEvaluateOnSamples<CTools::SMinusLogCdf> TMinusLogCdf;
+    using TMinusLogCdf = detail::CEvaluateOnSamples<CTools::SMinusLogCdf>;
 
     lowerBound = upperBound = 0.0;
 
@@ -1647,7 +1647,7 @@ bool CGammaRateConjugate::minusLogJointCdfComplement(const TWeightStyleVec &weig
                                                      double &lowerBound,
                                                      double &upperBound) const
 {
-    typedef detail::CEvaluateOnSamples<CTools::SMinusLogCdfComplement> TMinusLogCdfComplement;
+    using TMinusLogCdfComplement = detail::CEvaluateOnSamples<CTools::SMinusLogCdfComplement>;
 
     lowerBound = upperBound = 0.0;
 

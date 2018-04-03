@@ -54,13 +54,13 @@ namespace maths
 class MATHS_EXPORT CMultimodalPrior : public CPrior
 {
     public:
-        typedef boost::shared_ptr<CClusterer1d> TClustererPtr;
-        typedef boost::shared_ptr<CPrior> TPriorPtr;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
-        typedef TPriorPtrVec::iterator TPriorPtrVecItr;
-        typedef TPriorPtrVec::const_iterator TPriorPtrVecCItr;
-        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-        typedef std::vector<TMeanVarAccumulator> TMeanVarAccumulatorVec;
+        using TClustererPtr = boost::shared_ptr<CClusterer1d>;
+        using TPriorPtr = boost::shared_ptr<CPrior>;
+        using TPriorPtrVec = std::vector<TPriorPtr>;
+        using TPriorPtrVecItr = TPriorPtrVec::iterator;
+        using TPriorPtrVecCItr = TPriorPtrVec::const_iterator;
+        using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+        using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
 
         // Lift all overloads into scope.
         //{
@@ -326,8 +326,8 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         bool checkInvariants(const std::string &tag = std::string()) const;
 
     private:
-        typedef std::vector<TDouble1Vec> TDouble1VecVec;
-        typedef std::vector<TDouble4Vec1Vec> TDouble4Vec1VecVec;
+        using TDouble1VecVec = std::vector<TDouble1Vec>;
+        using TDouble4Vec1VecVec = std::vector<TDouble4Vec1Vec>;
 
         //! The callback invoked when a mode is split.
         class MATHS_EXPORT CModeSplitCallback
@@ -355,8 +355,8 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
                 CMultimodalPrior *m_Prior;
         };
 
-        typedef SMultimodalPriorMode<boost::shared_ptr<CPrior> > TMode;
-        typedef std::vector<TMode> TModeVec;
+        using TMode = SMultimodalPriorMode<boost::shared_ptr<CPrior> >;
+        using TModeVec = std::vector<TMode>;
 
     private:
         //! Read parameters from \p traverser.

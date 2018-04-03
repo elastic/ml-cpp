@@ -26,28 +26,28 @@ template<typename POINT>
 class CKMeansFastForTest : maths::CKMeansFast<POINT>
 {
     public:
-        typedef typename maths::CKMeansFast<POINT>::TBoundingBox TBoundingBox;
-        typedef typename maths::CKMeansFast<POINT>::CKdTreeNodeData TKdTreeNodeData;
-        typedef typename maths::CKMeansFast<POINT>::SDataPropagator TDataPropagator;
-        typedef typename maths::CKMeansFast<POINT>::CCentreFilter TCentreFilter;
-        typedef typename maths::CKMeansFast<POINT>::CCentroidComputer TCentroidComputer;
-        typedef typename maths::CKMeansFast<POINT>::CClosestPointsCollector TClosestPointsCollector;
+        using TBoundingBox = typename maths::CKMeansFast<POINT>::TBoundingBox;
+        using TKdTreeNodeData = typename maths::CKMeansFast<POINT>::CKdTreeNodeData;
+        using TDataPropagator = typename maths::CKMeansFast<POINT>::SDataPropagator;
+        using TCentreFilter = typename maths::CKMeansFast<POINT>::CCentreFilter;
+        using TCentroidComputer = typename maths::CKMeansFast<POINT>::CCentroidComputer;
+        using TClosestPointsCollector = typename maths::CKMeansFast<POINT>::CClosestPointsCollector;
 };
 
 }
 
-typedef std::vector<double> TDoubleVec;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef std::vector<TVector2Vec> TVector2VecVec;
-typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
-typedef std::vector<TMatrix2> TMatrix2Vec;
-typedef maths::CVectorNx1<double, 4> TVector4;
-typedef std::vector<TVector4> TVector4Vec;
-typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
-typedef std::vector<TMean2Accumulator> TMean2AccumulatorVec;
-typedef maths::CBasicStatistics::SSampleMean<TVector4>::TAccumulator TMean4Accumulator;
-typedef std::vector<TMean4Accumulator> TMean4AccumulatorVec;
+using TDoubleVec = std::vector<double>;
+using TVector2 = maths::CVectorNx1<double, 2>;
+using TVector2Vec = std::vector<TVector2>;
+using TVector2VecVec = std::vector<TVector2Vec>;
+using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
+using TMatrix2Vec = std::vector<TMatrix2>;
+using TVector4 = maths::CVectorNx1<double, 4>;
+using TVector4Vec = std::vector<TVector4>;
+using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
+using TMean2AccumulatorVec = std::vector<TMean2Accumulator>;
+using TMean4Accumulator = maths::CBasicStatistics::SSampleMean<TVector4>::TAccumulator;
+using TMean4AccumulatorVec = std::vector<TMean4Accumulator>;
 
 namespace
 {
@@ -55,9 +55,9 @@ namespace
 template<typename POINT>
 struct SKdTreeDataInvariantsChecker
 {
-    typedef typename CKMeansFastForTest<POINT>::TKdTreeNodeData TData;
-    typedef typename maths::CBasicStatistics::SSampleMean<POINT>::TAccumulator TMeanAccumulator;
-    typedef typename CKMeansFastForTest<POINT>::TBoundingBox TBoundingBox;
+    using TData = typename CKMeansFastForTest<POINT>::TKdTreeNodeData;
+    using TMeanAccumulator = typename maths::CBasicStatistics::SSampleMean<POINT>::TAccumulator;
+    using TBoundingBox = typename CKMeansFastForTest<POINT>::TBoundingBox;
 
     void operator()(const typename maths::CKdTree<POINT, TData>::SNode &node) const
     {
@@ -87,10 +87,10 @@ template<typename POINT>
 class CCentreFilterChecker
 {
     public:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<POINT> TPointVec;
-        typedef typename CKMeansFastForTest<POINT>::TKdTreeNodeData TData;
-        typedef typename CKMeansFastForTest<POINT>::TCentreFilter TCentreFilter;
+        using TSizeVec = std::vector<std::size_t>;
+        using TPointVec = std::vector<POINT>;
+        using TData = typename CKMeansFastForTest<POINT>::TKdTreeNodeData;
+        using TCentreFilter = typename CKMeansFastForTest<POINT>::TCentreFilter;
 
     public:
         CCentreFilterChecker(const TPointVec &centres,
@@ -102,7 +102,7 @@ class CCentreFilterChecker
 
         bool operator()(const typename maths::CKdTree<POINT, TData>::SNode &node) const
         {
-            typedef std::pair<double, std::size_t> TDoubleSizePr;
+            using TDoubleSizePr = std::pair<double, std::size_t>;
 
             m_CentreFilter.prune(node.boundingBox());
             const TSizeVec &filtered = m_CentreFilter.filter();
@@ -156,7 +156,7 @@ bool kmeans(const std::vector<POINT> &points,
             std::size_t iterations,
             std::vector<POINT> &centres)
 {
-    typedef typename maths::CBasicStatistics::SSampleMean<POINT>::TAccumulator TMeanAccumlator;
+    using TMeanAccumlator = typename maths::CBasicStatistics::SSampleMean<POINT>::TAccumulator;
 
     std::vector<TMeanAccumlator> centroids;
     for (std::size_t i = 0u; i < iterations; ++i)
@@ -422,8 +422,8 @@ void CKMeansFastTest::testClosestPoints(void)
     // Check the obvious invariant that the closest point to each
     // centre is closer to that centre than any other.
 
-    typedef std::vector<TVector2Vec> TVector2VecVec;
-    typedef std::vector<TVector4Vec> TVector4VecVec;
+    using TVector2VecVec = std::vector<TVector2Vec>;
+    using TVector4VecVec = std::vector<TVector4Vec>;
 
     test::CRandomNumbers rng;
 
@@ -560,9 +560,9 @@ void CKMeansFastTest::testRunWithSphericalClusters(void)
     // same result working with clusters of points or their
     // spherical cluster representation.
 
-    typedef maths::CSphericalCluster<TVector2>::Type TSphericalCluster2;
-    typedef std::vector<TSphericalCluster2> TSphericalCluster2Vec;
-    typedef maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator TMeanVar2Accumulator;
+    using TSphericalCluster2 = maths::CSphericalCluster<TVector2>::Type;
+    using TSphericalCluster2Vec = std::vector<TSphericalCluster2>;
+    using TMeanVar2Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator;
 
     double means[][2] =
         {
@@ -652,9 +652,9 @@ void CKMeansFastTest::testPlusPlus(void)
     // clusters present in the data and generally results in lower
     // square residuals of the points from the cluster centres.
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-    typedef TVector2Vec::const_iterator TVector2VecCItr;
+    using TSizeVec = std::vector<std::size_t>;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TVector2VecCItr = TVector2Vec::const_iterator;
 
     maths::CSampling::seed();
 

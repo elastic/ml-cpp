@@ -1024,7 +1024,7 @@ bool CXmlParser::stringLatin1ToUtf8(std::string &str)
     // The UTF-8 character corresponding to each Latin1 character will require
     // either 1 or 2 bytes of storage (but note that some UTF-8 characters can
     // require 3 bytes)
-    typedef boost::scoped_array<char> TCharArray;
+    using TCharArray = boost::scoped_array<char>;
     size_t bufferSize(1 + 2 * str.length());
     TCharArray buffer(new char[bufferSize]);
     ::memset(&buffer[0], 0, bufferSize);

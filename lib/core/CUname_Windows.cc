@@ -42,7 +42,7 @@ bool queryKernelVersion(uint16_t &major, uint16_t &minor, uint16_t &build)
         return false;
     }
 
-    typedef boost::scoped_array<char> TScopedCharArray;
+    using TScopedCharArray = boost::scoped_array<char>;
     TScopedCharArray buffer(new char[size]);
     if (GetFileVersionInfo(KERNEL32_DLL, handle, size, buffer.get()) == FALSE)
     {
@@ -99,7 +99,7 @@ std::string CUname::nodeName(void)
         return std::string();
     }
 
-    typedef std::vector<char> TCharVec;
+    using TCharVec = std::vector<char>;
     TCharVec buffer(size);
 
     res = GetComputerNameEx(ComputerNameDnsHostname,

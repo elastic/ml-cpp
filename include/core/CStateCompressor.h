@@ -48,15 +48,15 @@ class CORE_EXPORT CStateCompressor : public CDataAdder
         static const std::string END_OF_STREAM_ATTRIBUTE;
 
     public:
-        typedef boost::iostreams::filtering_stream<boost::iostreams::output> TFilteredOutput;
-        typedef boost::shared_ptr<TFilteredOutput> TFilteredOutputP;
-        typedef boost::shared_ptr<CCompressOStream> TCompressOStreamP;
+        using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
+        using TFilteredOutputP = boost::shared_ptr<TFilteredOutput>;
+        using TCompressOStreamP = boost::shared_ptr<CCompressOStream>;
 
         // Implements the boost::iostreams Sink template interface
         class CChunkFilter
         {
             public:
-                typedef char char_type;
+                using char_type = char;
 
                 //! Inform the filtering_stream owning object what this is capable of
                 struct category :

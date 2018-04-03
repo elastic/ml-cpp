@@ -21,13 +21,13 @@ namespace maths
 namespace
 {
 
-typedef std::vector<bool> TBoolVec;
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::vector<TSizeSizePr> TSizeSizePrVec;
+using TBoolVec = std::vector<bool>;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrVec = std::vector<TSizeSizePr>;
 
 const std::size_t UNMATCHED = boost::numeric::bounds<std::size_t>::highest();
 const double MAXIMUM_COST = boost::numeric::bounds<double>::highest();

@@ -31,7 +31,7 @@ void assertSize(const T &t)
 
 void CAllocationStrategyTest::test(void)
 {
-    typedef std::vector<int> TIntVec;
+    using TIntVec = std::vector<int>;
 
     {
         TIntVec v;

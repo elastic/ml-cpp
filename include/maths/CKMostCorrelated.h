@@ -60,15 +60,15 @@ class MATHS_EXPORT CKMostCorrelated
         static const std::size_t NUMBER_PROJECTIONS = 10u;
 
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef std::vector<TSizeSizePr> TSizeSizePrVec;
-        typedef CVectorNx1<maths::CFloatStorage, NUMBER_PROJECTIONS> TVector;
-        typedef std::vector<TVector> TVectorVec;
-        typedef boost::unordered_map<std::size_t, TVector> TSizeVectorUMap;
-        typedef std::pair<TVector, CPackedBitVector> TVectorPackedBitVectorPr;
-        typedef boost::unordered_map<std::size_t, TVectorPackedBitVectorPr> TSizeVectorPackedBitVectorPrUMap;
+        using TDoubleVec = std::vector<double>;
+        using TSizeVec = std::vector<std::size_t>;
+        using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+        using TSizeSizePrVec = std::vector<TSizeSizePr>;
+        using TVector = CVectorNx1<maths::CFloatStorage, NUMBER_PROJECTIONS>;
+        using TVectorVec = std::vector<TVector>;
+        using TSizeVectorUMap = boost::unordered_map<std::size_t, TVector>;
+        using TVectorPackedBitVectorPr = std::pair<TVector, CPackedBitVector>;
+        using TSizeVectorPackedBitVectorPrUMap = boost::unordered_map<std::size_t, TVectorPackedBitVectorPr>;
 
     public:
         CKMostCorrelated(std::size_t k, double decayRate, bool initialize = true);
@@ -127,11 +127,11 @@ class MATHS_EXPORT CKMostCorrelated
         static const double REPLACE_FRACTION;
 
     protected:
-        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-        typedef std::vector<TMeanVarAccumulator> TMeanVarAccumulatorVec;
-        typedef TSizeVectorUMap::const_iterator TSizeVectorUMapCItr;
-        typedef TSizeVectorPackedBitVectorPrUMap::iterator TSizeVectorPackedBitVectorPrUMapItr;
-        typedef TSizeVectorPackedBitVectorPrUMap::const_iterator TSizeVectorPackedBitVectorPrUMapCItr;
+        using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+        using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
+        using TSizeVectorUMapCItr = TSizeVectorUMap::const_iterator;
+        using TSizeVectorPackedBitVectorPrUMapItr = TSizeVectorPackedBitVectorPrUMap::iterator;
+        using TSizeVectorPackedBitVectorPrUMapCItr = TSizeVectorPackedBitVectorPrUMap::const_iterator;
 
         //! \brief A pair of variables and their correlation.
         //!
@@ -205,7 +205,7 @@ class MATHS_EXPORT CKMostCorrelated
                 std::size_t m_X;
         };
 
-        typedef std::vector<SCorrelation> TCorrelationVec;
+        using TCorrelationVec = std::vector<SCorrelation>;
 
     protected:
         //! Get the most correlated variables based on the current

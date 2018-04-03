@@ -26,10 +26,10 @@ namespace maths
 class MATHS_EXPORT CAssignment
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef std::vector<TSizeSizePr> TSizeSizePrVec;
+        using TDoubleVec = std::vector<double>;
+        using TDoubleVecVec = std::vector<TDoubleVec>;
+        using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+        using TSizeSizePrVec = std::vector<TSizeSizePr>;
 
     public:
         //! \brief The Kuhn-Munkres algorithm for solving the

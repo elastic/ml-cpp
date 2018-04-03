@@ -80,30 +80,30 @@ class CORE_EXPORT COsFileFuncs : private CNonInstantiatable
     public:
         //! Signed size type (to be used instead of ssize_t)
 #ifdef Windows
-        typedef int             TSignedSize;
+        using TSignedSize = int;
 #else
-        typedef ssize_t         TSignedSize;
+        using TSignedSize = ssize_t;
 #endif
 
         //! Offset type (to be used instead of off_t)
 #ifdef Windows
-        typedef __int64         TOffset;
+        using TOffset = __int64;
 #else
-        typedef off_t           TOffset;
+        using TOffset = off_t;
 #endif
 
         //! Mode type (to be used instead of mode_t)
 #ifdef Windows
-        typedef int             TMode;
+        using TMode = int;
 #else
-        typedef mode_t          TMode;
+        using TMode = mode_t;
 #endif
 
         //! Inode type (to be used instead of ino_t)
 #ifdef Windows
-        typedef uint64_t        TIno;
+        using TIno = uint64_t;
 #else
-        typedef ino_t           TIno;
+        using TIno = ino_t;
 #endif
 
         //! Stat buffer struct (to be used instead of struct stat)
@@ -126,9 +126,9 @@ class CORE_EXPORT COsFileFuncs : private CNonInstantiatable
             __time64_t     st_ctime;
         };
 
-        typedef SStat           TStat;
+        using TStat = SStat;
 #else
-        typedef struct stat     TStat;
+        using TStat = struct stat;
 #endif
 
     public:

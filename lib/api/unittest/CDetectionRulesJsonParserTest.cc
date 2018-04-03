@@ -17,7 +17,7 @@ using namespace api;
 
 namespace
 {
-typedef CDetectionRulesJsonParser::TStrPatternSetUMap TStrPatternSetUMap;
+using TStrPatternSetUMap = CDetectionRulesJsonParser::TStrPatternSetUMap;
 TStrPatternSetUMap EMPTY_VALUE_FILTER_MAP;
 }
 

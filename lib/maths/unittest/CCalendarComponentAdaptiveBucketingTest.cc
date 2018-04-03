@@ -24,11 +24,11 @@ using namespace ml;
 
 namespace
 {
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<maths::CFloatStorage> TFloatVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::SMin<double>::TAccumulator TMinAccumulator;
-typedef maths::CBasicStatistics::SMax<double>::TAccumulator TMaxAccumulator;
+using TDoubleVec = std::vector<double>;
+using TFloatVec = std::vector<maths::CFloatStorage>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMinAccumulator = maths::CBasicStatistics::SMin<double>::TAccumulator;
+using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
 }
 
 void CCalendarComponentAdaptiveBucketingTest::setUp(void)

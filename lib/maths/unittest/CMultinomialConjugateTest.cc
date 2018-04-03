@@ -33,12 +33,12 @@
 using namespace ml;
 using namespace handy_typedefs;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<unsigned int> TUIntVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef CPriorTestInterfaceMixin<maths::CMultinomialConjugate> CMultinomialConjugate;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TUIntVec = std::vector<unsigned int>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using CMultinomialConjugate = CPriorTestInterfaceMixin<maths::CMultinomialConjugate>;
 
 void CMultinomialConjugateTest::testMultipleUpdate(void)
 {
@@ -68,7 +68,7 @@ void CMultinomialConjugateTest::testMultipleUpdate(void)
     }
     filter2.addSamples(samples);
 
-    typedef maths::CEqualWithTolerance<double> TEqual;
+    using TEqual = maths::CEqualWithTolerance<double>;
     TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-5);
     CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
 }
@@ -110,7 +110,7 @@ void CMultinomialConjugateTest::testPropagation(void)
               << ", propagatedExpectedProbabilities = "
               << core::CContainerPrinter::print(propagatedExpectedProbabilities));
 
-    typedef maths::CEqualWithTolerance<double> TEqual;
+    using TEqual = maths::CEqualWithTolerance<double>;
     TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-12);
     CPPUNIT_ASSERT(std::equal(expectedProbabilities.begin(),
                               expectedProbabilities.end(),
@@ -518,8 +518,8 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void)
     LOG_DEBUG("|  CMultinomialConjugateTest::testProbabilityOfLessLikelySamples  |");
     LOG_DEBUG("+-----------------------------------------------------------------+");
 
-    typedef std::pair<double, std::size_t> TDoubleSizePr;
-    typedef std::vector<TDoubleSizePr> TDoubleSizePrVec;
+    using TDoubleSizePr = std::pair<double, std::size_t>;
+    using TDoubleSizePrVec = std::vector<TDoubleSizePr>;
 
     // We test the definition of the various sided calculations:
     //   - one sided below: P(R) = P(y <= x)
@@ -711,10 +711,10 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void)
             }
         }
         {
-            typedef std::map<double, TDoubleVec> TDoubleDoubleVecMap;
-            typedef TDoubleDoubleVecMap::const_iterator TDoubleDoubleVecMapCItr;
-            typedef std::map<TDoubleVec, double> TDoubleVecDoubleMap;
-            typedef TDoubleVecDoubleMap::const_iterator TDoubleVecDoubleMapCItr;
+            using TDoubleDoubleVecMap = std::map<double, TDoubleVec>;
+            using TDoubleDoubleVecMapCItr = TDoubleDoubleVecMap::const_iterator;
+            using TDoubleVecDoubleMap = std::map<TDoubleVec, double>;
+            using TDoubleVecDoubleMapCItr = TDoubleVecDoubleMap::const_iterator;
 
             double categoryProbabilities[] = { 0.10, 0.12, 0.29, 0.39, 0.04, 0.06 };
             TDoubleDoubleVecMap categoryPairProbabilities;

@@ -82,8 +82,8 @@ template<typename PRIOR>
 class CScopeCanonicalizeWeights : private core::CNonCopyable
 {
     public:
-        typedef std::pair<CModelWeight, PRIOR> TWeightPriorPr;
-        typedef std::vector<TWeightPriorPr> TWeightPriorPrVec;
+        using TWeightPriorPr = std::pair<CModelWeight, PRIOR>;
+        using TWeightPriorPrVec = std::vector<TWeightPriorPr>;
 
     public:
         CScopeCanonicalizeWeights(TWeightPriorPrVec &models) : m_Models(models) {}
@@ -95,7 +95,7 @@ class CScopeCanonicalizeWeights : private core::CNonCopyable
             {
                 logMaxWeight.add(model.first.logWeight());
             }
-            for (auto &&model : m_Models)
+            for (auto &model : m_Models)
             {
                 model.first.logWeight(model.first.logWeight() - logMaxWeight[0]);
             }

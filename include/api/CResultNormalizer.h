@@ -70,13 +70,13 @@ class API_EXPORT CResultNormalizer
         static const std::string ZERO;
 
     public:
-        typedef std::vector<std::string>                       TStrVec;
-        typedef TStrVec::iterator                              TStrVecItr;
-        typedef TStrVec::const_iterator                        TStrVecCItr;
+        using TStrVec = std::vector<std::string>;
+        using TStrVecItr = TStrVec::iterator;
+        using TStrVecCItr = TStrVec::const_iterator;
 
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::iterator                          TStrStrUMapItr;
-        typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
+        using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+        using TStrStrUMapItr = TStrStrUMap::iterator;
+        using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
     public:
         CResultNormalizer(const model::CAnomalyDetectorModelConfig &modelConfig,

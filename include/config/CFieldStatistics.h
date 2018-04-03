@@ -33,7 +33,7 @@ class CPenalty;
 class CONFIG_EXPORT CFieldStatistics
 {
     public:
-        typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
+        using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
 
     public:
         CFieldStatistics(const std::string &fieldName, const CAutoconfigurerParams &params);
@@ -67,11 +67,12 @@ class CONFIG_EXPORT CFieldStatistics
         double score(const CPenalty &penalty) const;
 
     private:
-        typedef std::pair<core_t::TTime, std::string> TTimeStrPr;
-        typedef std::vector<TTimeStrPr> TTimeStrPrVec;
-        typedef boost::variant<CDataSummaryStatistics,
-                               CCategoricalDataSummaryStatistics,
-                               CNumericDataSummaryStatistics> TDataSummaryStatistics;
+        using TTimeStrPr = std::pair<core_t::TTime, std::string>;
+        using TTimeStrPrVec = std::vector<TTimeStrPr>;
+        using TDataSummaryStatistics =
+                  boost::variant<CDataSummaryStatistics,
+                                 CCategoricalDataSummaryStatistics,
+                                 CNumericDataSummaryStatistics>;
 
     private:
         //! The auto-configuration parameters.

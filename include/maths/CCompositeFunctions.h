@@ -34,39 +34,39 @@ struct function_result_type
 template<typename R, typename A1>
 struct function_result_type<R (*)(A1)>
 {
-    typedef typename boost::remove_reference<R>::type type;
+    using type = typename boost::remove_reference<R>::type;
 };
 
 //! Vanilla function type 2: "result type" is the second argument type.
 template<typename R, typename A1, typename A2>
 struct function_result_type<R (*)(A1, A2)>
 {
-    typedef typename boost::remove_reference<A2>::type type;
+    using type = typename boost::remove_reference<A2>::type;
 };
 
-typedef boost::true_type true_;
-typedef boost::false_type false_;
+using true_ = boost::true_type;
+using false_ = boost::false_type;
 
 //! \brief Auxiliary type used by has_result_type to test for
 //! a nested typedef.
 template<typename T, typename R = void>
 struct enable_if_type
 {
-    typedef R type;
+    using type = R;
 };
 
 //! Checks for a nested typedef called result_type.
 template<typename T, typename ENABLE = void>
 struct has_result_type
 {
-    typedef false_ value;
+    using value = false_;
 };
 
 //! Has a nested typedef called result_type.
 template<typename T>
 struct has_result_type<T, typename enable_if_type<typename T::result_type>::type>
 {
-    typedef true_ value;
+    using value = true_;
 };
 
 //! Extracts the result type of a function (object) for composition.
@@ -82,14 +82,14 @@ struct result_type_impl
 template<typename F>
 struct result_type_impl<F, true_>
 {
-    typedef typename F::result_type type;
+    using type = typename F::result_type;
 };
 
 //! Deduce result type from function (object).
 template<typename F>
 struct result_type_impl<F, false_>
 {
-    typedef typename function_result_type<F>::type type;
+    using type = typename function_result_type<F>::type;
 };
 
 //! \brief Tries to deduce the result type of a function (object)
@@ -135,8 +135,8 @@ class MATHS_EXPORT CCompositeFunctions
         class CMinusConstant
         {
             public:
-                typedef typename boost::remove_reference<F_>::type F;
-                typedef T result_type;
+                using F = typename boost::remove_reference<F_>::type;
+                using result_type = T;
 
             public:
                 CMinusConstant(const F &f, double offset) :
@@ -173,8 +173,8 @@ class MATHS_EXPORT CCompositeFunctions
         class CMinus
         {
             public:
-                typedef typename boost::remove_reference<F_>::type F;
-                typedef T result_type;
+                using F = typename boost::remove_reference<F_>::type;
+                using result_type = T;
 
             public:
                 explicit CMinus(const F &f = F()) : m_F(f) {}
@@ -206,8 +206,8 @@ class MATHS_EXPORT CCompositeFunctions
         class CExp
         {
             public:
-                typedef typename boost::remove_reference<F_>::type F;
-                typedef T result_type;
+                using F = typename boost::remove_reference<F_>::type;
+                using result_type = T;
 
             public:
                 explicit CExp(const F &f = F()) : m_F(f) {}
@@ -246,9 +246,9 @@ class MATHS_EXPORT CCompositeFunctions
         class CProduct
         {
             public:
-                typedef typename boost::remove_reference<F_>::type F;
-                typedef typename boost::remove_reference<G_>::type G;
-                typedef U result_type;
+                using F = typename boost::remove_reference<F_>::type;
+                using G = typename boost::remove_reference<G_>::type;
+                using result_type = U;
 
             public:
                 explicit CProduct(const F &f = F(),

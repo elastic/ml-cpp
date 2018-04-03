@@ -48,7 +48,7 @@ class API_EXPORT CLineifiedInputParser : public CInputParser
         //! Line end character
         static const char LINE_END;
 
-        typedef std::pair<char *, size_t> TCharPSizePr;
+        using TCharPSizePr = std::pair<char*, size_t>;
 
     protected:
         //! Return a pointer to the start of the next line and its length,
@@ -71,7 +71,7 @@ class API_EXPORT CLineifiedInputParser : public CInputParser
         //! Reference to the stream we're going to read from
         std::istream     &m_StrmIn;
 
-        typedef boost::scoped_array<char> TScopedCharArray;
+        using TScopedCharArray = boost::scoped_array<char>;
 
         //! The working buffer is a raw character array rather than a string to
         //! facilitate the use of std::istream::read() to obtain input rather

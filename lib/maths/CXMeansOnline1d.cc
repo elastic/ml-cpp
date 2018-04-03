@@ -49,18 +49,18 @@ namespace maths
 namespace
 {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<std::size_t> TSizeVec;
-typedef CNaturalBreaksClassifier::TTuple TTuple;
-typedef CNaturalBreaksClassifier::TTupleVec TTupleVec;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TSizeVec = std::vector<std::size_t>;
+using TTuple = CNaturalBreaksClassifier::TTuple;
+using TTupleVec = CNaturalBreaksClassifier::TTupleVec;
 
 namespace detail
 {
 
-typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
+using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 //! \brief Orders two clusters by their centres.
 struct SClusterCentreLess
@@ -512,7 +512,7 @@ bool splitSearch(double minimumCount,
                  const TTupleVec &categories,
                  TSizeVec &result)
 {
-    typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
+    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 
     LOG_TRACE("begin split search");
 

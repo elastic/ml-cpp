@@ -28,15 +28,15 @@ namespace maths
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef boost::unordered_set<TSizeSizePr> TSizeSizePrUSet;
-typedef CVector<double> TPoint;
-typedef std::vector<TPoint> TPointVec;
-typedef std::vector<CPackedBitVector> TPackedBitVectorVec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrUSet = boost::unordered_set<TSizeSizePr>;
+using TPoint = CVector<double>;
+using TPointVec = std::vector<TPoint>;
+using TPackedBitVectorVec = std::vector<CPackedBitVector>;
 
 //! \brief Counts the (co-)occurrences of two variables.
 struct SCooccurrence
@@ -58,7 +58,7 @@ struct SCooccurrence
     std::size_t s_X, s_Y;
 };
 
-typedef CBasicStatistics::COrderStatisticsHeap<SCooccurrence> TMostSignificant;
+using TMostSignificant = CBasicStatistics::COrderStatisticsHeap<SCooccurrence>;
 
 //! Compute \p x * \p x.
 double pow2(double x)

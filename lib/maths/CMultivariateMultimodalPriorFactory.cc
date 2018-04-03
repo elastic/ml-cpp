@@ -37,7 +37,7 @@ class CFactory
                                                      double minimumCategoryCount,
                                                      const CMultivariatePrior &seedPrior)
         {
-            boost::scoped_ptr<CClusterer<CVectorNx1<CFloatStorage, N > > > clusterer(
+            boost::scoped_ptr<CClusterer<CVectorNx1<CFloatStorage, N >> > clusterer(
                     CXMeansOnlineFactory::make<CFloatStorage, N>(dataType,
                                                                  weightCalc,
                                                                  decayRate,

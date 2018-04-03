@@ -29,21 +29,21 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
+using TDoubleVec = std::vector<double>;
+using TVector2 = maths::CVectorNx1<double, 2>;
+using TVector2Vec = std::vector<TVector2>;
+using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 class CKMostCorrelatedForTest : public maths::CKMostCorrelated
 {
     public:
-        typedef maths::CKMostCorrelated::SCorrelation TCorrelation;
-        typedef maths::CKMostCorrelated::TCorrelationVec TCorrelationVec;
-        typedef maths::CKMostCorrelated::TSizeVectorPackedBitVectorPrUMap TSizeVectorPackedBitVectorPrUMap;
-        typedef maths::CKMostCorrelated::TSizeVectorPackedBitVectorPrUMapCItr TSizeVectorPackedBitVectorPrUMapCItr;
-        typedef maths::CKMostCorrelated::TMeanVarAccumulatorVec TMeanVarAccumulatorVec;
+        using TCorrelation = maths::CKMostCorrelated::SCorrelation;
+        using TCorrelationVec = maths::CKMostCorrelated::TCorrelationVec;
+        using TSizeVectorPackedBitVectorPrUMap = maths::CKMostCorrelated::TSizeVectorPackedBitVectorPrUMap;
+        using TSizeVectorPackedBitVectorPrUMapCItr = maths::CKMostCorrelated::TSizeVectorPackedBitVectorPrUMapCItr;
+        using TMeanVarAccumulatorVec = maths::CKMostCorrelated::TMeanVarAccumulatorVec;
         using maths::CKMostCorrelated::mostCorrelated;
         using maths::CKMostCorrelated::correlations;
 
@@ -125,9 +125,9 @@ void estimateCorrelation(const std::size_t trials,
                          const TMatrix2 &covariance,
                          TMeanVarAccumulator &correlationEstimate)
 {
-    typedef maths::CVectorNx1<maths::CFloatStorage, 10> TVector10;
-    typedef std::vector<TVector10> TVector10Vec;
-    typedef maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator TMeanVar2Accumulator;
+    using TVector10 = maths::CVectorNx1<maths::CFloatStorage, 10>;
+    using TVector10Vec = std::vector<TVector10>;
+    using TMeanVar2Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator;
 
     test::CRandomNumbers rng;
 
@@ -256,7 +256,7 @@ void CKMostCorrelatedTest::testNextProjection(void)
     // Test that aging happens correctly and that the projections
     // are have low mutual information.
 
-    typedef std::vector<TDoubleVec> TDoubleVecVec;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
 
     maths::CSampling::seed();
 
@@ -398,7 +398,7 @@ void CKMostCorrelatedTest::testMostCorrelated(void)
 
     // Check the variables with the highest estimated correlation emerge.
 
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<CKMostCorrelatedForTest::TCorrelation> TMaxCorrelationAccumulator;
+    using TMaxCorrelationAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<CKMostCorrelatedForTest::TCorrelation>;
 
     maths::CSampling::seed();
 
@@ -802,8 +802,8 @@ void CKMostCorrelatedTest::testScale(void)
     // Test runtime is approximately linear in the number of variables
     // if we look for O(number of variables) correlations.
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TDoubleVec> TDoubleVecVec;
+    using TSizeVec = std::vector<std::size_t>;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
 
     maths::CSampling::seed();
 
@@ -880,7 +880,7 @@ void CKMostCorrelatedTest::testScale(void)
 
         LOG_DEBUG("elapsed time = " << elapsed[s] << "ms");
 
-        //std::vector<std::pair<std::size_t, std::size_t> > pairs;
+        //std::vector<std::pair<std::size_t, std::size_t>> pairs;
         //mostCorrelated.mostCorrelated(n[s] / 2, pairs);
         //LOG_DEBUG("pairs = " << core::CContainerPrinter::print(pairs));
         //TDoubleVec correlations;

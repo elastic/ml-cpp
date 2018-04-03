@@ -22,8 +22,8 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 
 class CSplineFunctor
 {
@@ -581,10 +581,10 @@ void CSplineTest::testSplineReference(void)
     LOG_DEBUG("|  CSplineTest::testSplineReference  |");
     LOG_DEBUG("+------------------------------------+");
 
-    typedef std::vector<maths::CFloatStorage> TFloatVec;
-    typedef boost::reference_wrapper<TFloatVec> TFloatVecRef;
-    typedef boost::reference_wrapper<TDoubleVec> TDoubleVecRef;
-    typedef maths::CSpline<TFloatVecRef, TFloatVecRef, TDoubleVecRef> TSplineRef;
+    using TFloatVec = std::vector<maths::CFloatStorage>;
+    using TFloatVecRef = boost::reference_wrapper<TFloatVec>;
+    using TDoubleVecRef = boost::reference_wrapper<TDoubleVec>;
+    using TSplineRef = maths::CSpline<TFloatVecRef, TFloatVecRef, TDoubleVecRef>;
 
     double x_[] = { 0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0 };
     TDoubleVec x(boost::begin(x_), boost::end(x_));

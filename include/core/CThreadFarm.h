@@ -238,16 +238,16 @@ class CThreadFarm : private CNonCopyable
         //! Reference to the object that will handle the results
         HANDLER           &m_Handler;
 
-        typedef CThreadFarm<HANDLER, PROCESSOR, MESSAGE, RESULT>             TThreadFarm;
+        using TThreadFarm = CThreadFarm<HANDLER, PROCESSOR, MESSAGE, RESULT>;
 
-        typedef CThreadFarmReceiver<TThreadFarm, PROCESSOR, MESSAGE, RESULT> TReceiver;
-        typedef boost::shared_ptr<TReceiver>                                 TReceiverP;
-        typedef std::vector<TReceiverP>                                      TReceiverPVec;
-        typedef typename TReceiverPVec::iterator                             TReceiverPVecItr;
+        using TReceiver = CThreadFarmReceiver<TThreadFarm, PROCESSOR, MESSAGE, RESULT>;
+        using TReceiverP = boost::shared_ptr<TReceiver>;
+        using TReceiverPVec = std::vector<TReceiverP>;
+        using TReceiverPVecItr = typename TReceiverPVec::iterator;
 
-        typedef boost::shared_ptr< CMessageQueue<MESSAGE, TReceiver> >       TMessageQueueP;
-        typedef std::vector<TMessageQueueP>                                  TMessageQueuePVec;
-        typedef typename TMessageQueuePVec::iterator                         TMessageQueuePVecItr;
+        using TMessageQueueP = boost::shared_ptr< CMessageQueue<MESSAGE, TReceiver> >;
+        using TMessageQueuePVec = std::vector<TMessageQueueP>;
+        using TMessageQueuePVecItr = typename TMessageQueuePVec::iterator;
 
         TReceiverPVec     m_Receivers;
 

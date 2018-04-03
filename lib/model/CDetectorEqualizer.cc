@@ -141,7 +141,7 @@ void CDetectorEqualizer::clear(void)
 
 void CDetectorEqualizer::age(double factor)
 {
-    for (auto &&sketch : m_Sketches)
+    for (auto &sketch : m_Sketches)
     {
         sketch.second.age(factor);
     }

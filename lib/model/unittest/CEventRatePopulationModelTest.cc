@@ -51,21 +51,21 @@ using namespace model;
 namespace
 {
 
-typedef boost::optional<double> TOptionalDouble;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<unsigned int> TUIntVec;
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::pair<double, std::string> TDoubleStrPr;
-typedef std::vector<TDoubleStrPr> TDoubleStrPrVec;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
+using TOptionalDouble = boost::optional<double>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TStrVec = std::vector<std::string>;
+using TUIntVec = std::vector<unsigned int>;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TDoubleStrPr = std::pair<double, std::string>;
+using TDoubleStrPrVec = std::vector<TDoubleStrPr>;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
 
 const std::string EMPTY_STRING;
 
@@ -122,7 +122,7 @@ struct SAnomaly
     }
 };
 
-typedef std::vector<SMessage> TMessageVec;
+using TMessageVec = std::vector<SMessage>;
 
 void generateTestMessages(core_t::TTime startTime,
                           core_t::TTime bucketLength,
@@ -142,7 +142,7 @@ void generateTestMessages(core_t::TTime startTime,
     //
     // There are 100 buckets.
 
-    typedef boost::tuple<std::size_t, std::size_t, size_t> TSizeSizeSizeTr;
+    using TSizeSizeSizeTr = boost::tuple<std::size_t, std::size_t, size_t>;
 
     const std::size_t numberBuckets = 100u;
     const std::size_t numberAttributes = 5u;
@@ -246,12 +246,12 @@ void CEventRatePopulationModelTest::testBasicAccessors(void)
     // Check that the correct data is read retrieved by the
     // basic model accessors.
 
-    typedef boost::optional<uint64_t> TOptionalUInt64;
-    typedef std::map<std::string, uint64_t> TStrUInt64Map;
-    typedef TStrUInt64Map::const_iterator TStrUInt64MapCItr;
-    typedef std::pair<std::string, std::string> TStrStrPr;
-    typedef std::map<TStrStrPr, double> TStrStrPrDoubleMap;
-    typedef TStrStrPrDoubleMap::const_iterator TStrStrPrDoubleMapCItr;
+    using TOptionalUInt64 = boost::optional<uint64_t>;
+    using TStrUInt64Map = std::map<std::string, uint64_t>;
+    using TStrUInt64MapCItr = TStrUInt64Map::const_iterator;
+    using TStrStrPr = std::pair<std::string, std::string>;
+    using TStrStrPrDoubleMap = std::map<TStrStrPr, double>;
+    using TStrStrPrDoubleMapCItr = TStrStrPrDoubleMap::const_iterator;
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -364,22 +364,22 @@ void CEventRatePopulationModelTest::testFeatures(void)
     // We check that the correct data is read from the gatherer
     // into the model on sample.
 
-    typedef core::CSmallVector<double, 2> TDouble2Vec;
-    typedef std::vector<TDouble2Vec> TDouble2VecVec;
-    typedef core::CSmallVector<TDouble2Vec, 4> TDouble2Vec4Vec;
-    typedef std::vector<TDouble2Vec4Vec> TDouble2Vec4VecVec;
-    typedef std::set<std::size_t> TSizeSet;
-    typedef std::map<std::size_t, TSizeSet> TSizeSizeSetMap;
-    typedef std::pair<std::string, std::string> TStrStrPr;
-    typedef std::map<TStrStrPr, uint64_t> TStrStrPrUint64Map;
-    typedef SEventRateFeatureData TFeatureData;
-    typedef CEventRatePopulationModel::TSizeSizePrFeatureDataPr TSizeSizePrFeatureDataPr;
-    typedef std::vector<TSizeSizePrFeatureDataPr> TSizeSizePrFeatureDataPrVec;
-    typedef std::map<TSizeSizePr, uint64_t> TSizeSizePrUInt64Map;
-    typedef boost::shared_ptr<maths::CModel> TMathsModelPtr;
-    typedef std::map<std::size_t, TMathsModelPtr> TSizeMathsModelPtrMap;
-    typedef std::pair<TDouble2VecVec, TDouble2Vec4VecVec> TDouble2VecVecDouble2Vec4VecVecPr;
-    typedef std::map<std::size_t, TDouble2VecVecDouble2Vec4VecVecPr> TSizeDouble2VecVecDouble2Vec4VecVecPrMap;
+    using TDouble2Vec = core::CSmallVector<double, 2>;
+    using TDouble2VecVec = std::vector<TDouble2Vec>;
+    using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
+    using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
+    using TSizeSet = std::set<std::size_t>;
+    using TSizeSizeSetMap = std::map<std::size_t, TSizeSet>;
+    using TStrStrPr = std::pair<std::string, std::string>;
+    using TStrStrPrUint64Map = std::map<TStrStrPr, uint64_t>;
+    using TFeatureData = SEventRateFeatureData;
+    using TSizeSizePrFeatureDataPr = CEventRatePopulationModel::TSizeSizePrFeatureDataPr;
+    using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
+    using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
+    using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+    using TSizeMathsModelPtrMap = std::map<std::size_t, TMathsModelPtr>;
+    using TDouble2VecVecDouble2Vec4VecVecPr = std::pair<TDouble2VecVec, TDouble2Vec4VecVec>;
+    using TSizeDouble2VecVecDouble2Vec4VecVecPrMap = std::map<std::size_t, TDouble2VecVecDouble2Vec4VecVecPr>;
 
     static const maths_t::TWeightStyleVec WEIGHT_STYLES{maths_t::E_SampleCountWeight,
                                                         maths_t::E_SampleWinsorisationWeight};
@@ -526,10 +526,10 @@ void CEventRatePopulationModelTest::testComputeProbability(void)
 
     // Check that we get the probabilities we expect.
 
-    typedef std::vector<SAnomaly> TAnomalyVec;
-    typedef std::pair<double, SAnomaly> TDoubleAnomalyPr;
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleAnomalyPr,
-                                                          maths::COrderings::SFirstLess> TAnomalyAccumulator;
+    using TAnomalyVec = std::vector<SAnomaly>;
+    using TDoubleAnomalyPr = std::pair<double, SAnomaly>;
+    using TAnomalyAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<
+                                    TDoubleAnomalyPr, maths::COrderings::SFirstLess>;
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -622,9 +622,9 @@ void CEventRatePopulationModelTest::testPrune(void)
     // This test has four people and five attributes. We expect
     // person 2 and attributes 1, 2 and 5 to be deleted.
 
-    typedef std::pair<std::string, std::size_t> TStrSizePr;
-    typedef std::vector<TStrSizePr> TStrSizePrVec;
-    typedef std::vector<TStrSizePrVec> TStrSizePrVecVec;
+    using TStrSizePr = std::pair<std::string, std::size_t>;
+    using TStrSizePrVec = std::vector<TStrSizePr>;
+    using TStrSizePrVecVec = std::vector<TStrSizePrVec>;
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -880,7 +880,7 @@ void CEventRatePopulationModelTest::testFrequency(void)
 {
     LOG_DEBUG("*** CEventRatePopulationModelTest::testFrequency ***");
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     // Test we correctly compute frequencies for people and attributes.
 
@@ -1115,8 +1115,8 @@ void CEventRatePopulationModelTest::testPeriodicity(void)
     // Create a daily periodic population and check that the
     // periodicity is learned and compensated (approximately).
 
-    typedef std::map<std::string, double> TStrDoubleMap;
-    typedef TStrDoubleMap::const_iterator TStrDoubleMapCItr;
+    using TStrDoubleMap = std::map<std::string, double>;
+    using TStrDoubleMapCItr = TStrDoubleMap::const_iterator;
 
     static const core_t::TTime HOUR = 3600;
     static const core_t::TTime DAY = 86400;

@@ -50,7 +50,7 @@ void CMathsFuncsTest::testIsInf(void)
 
 void CMathsFuncsTest::testIsFinite(void)
 {
-    typedef std::vector<double> TDoubleVec;
+    using TDoubleVec = std::vector<double>;
 
     CPPUNIT_ASSERT(maths::CMathsFuncs::isFinite(0.0));
     CPPUNIT_ASSERT(maths::CMathsFuncs::isFinite(1.3e7));

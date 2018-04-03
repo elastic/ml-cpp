@@ -50,7 +50,7 @@ class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable< CPacke
                                               boost::partially_ordered< CPackedBitVector > >
 {
     public:
-        typedef std::vector<bool> TBoolVec;
+        using TBoolVec = std::vector<bool>;
 
         //! Operations which can be performed in the inner product.
         enum EOperation
@@ -125,7 +125,7 @@ class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable< CPacke
         std::size_t memoryUsage(void) const;
 
     private:
-        typedef std::vector<uint8_t> TUInt8Vec;
+        using TUInt8Vec = std::vector<uint8_t>;
 
     private:
         //! The maximum permitted run length. Longer runs are encoded

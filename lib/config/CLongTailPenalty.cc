@@ -124,9 +124,9 @@ void CLongTailPenalty::extractTailCounts(const MAP &counts,
                                          TSizeUInt64UMap &totals,
                                          TSizeUInt64UMap &tail) const
 {
-    typedef maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> TMinAccumulator;
-    typedef boost::unordered_map<std::size_t, TMinAccumulator> TSizeMinAccumulatorUMap;
-    typedef typename MAP::const_iterator TItr;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1>;
+    using TSizeMinAccumulatorUMap = boost::unordered_map<std::size_t, TMinAccumulator>;
+    using TItr = typename MAP::const_iterator;
 
     TSizeMinAccumulatorUMap mins;
 
@@ -154,8 +154,8 @@ void CLongTailPenalty::extractTailCounts(const MAP &counts,
 
 double CLongTailPenalty::penaltyFor(TSizeUInt64UMap &tail, TSizeUInt64UMap &totals) const
 {
-    typedef TSizeUInt64UMap::const_iterator TSizeUInt64UMapCItr;
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TSizeUInt64UMapCItr = TSizeUInt64UMap::const_iterator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     TMeanAccumulator result;
     for (TSizeUInt64UMapCItr i = tail.begin(); i != tail.end(); ++i)
     {

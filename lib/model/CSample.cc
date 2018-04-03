@@ -94,7 +94,7 @@ CSample::CSample(core_t::TTime time,
 
 CSample::TDouble1Vec CSample::value(std::size_t dimension) const
 {
-    typedef std::vector<std::size_t> TSizeVec;
+    using TSizeVec = std::vector<std::size_t>;
 
     TDouble1Vec result;
     const TSizeVec &indices = CFeatureDataIndexing::valueIndices(dimension);

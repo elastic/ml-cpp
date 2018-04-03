@@ -31,8 +31,8 @@ namespace model
 class MODEL_EXPORT CModelPlotData
 {
     public:
-        typedef std::pair<std::string, double> TStrDoublePr;
-        typedef std::vector<TStrDoublePr> TStrDoublePrVec;
+        using TStrDoublePr = std::pair<std::string, double>;
+        using TStrDoublePrVec = std::vector<TStrDoublePr>;
 
     public:
         struct MODEL_EXPORT SByFieldData
@@ -53,11 +53,11 @@ class MODEL_EXPORT CModelPlotData
         };
 
     public:
-        typedef boost::unordered_map<std::string, SByFieldData> TStrByFieldDataUMap;
-        typedef std::pair<model_t::EFeature, TStrByFieldDataUMap> TFeatureStrByFieldDataUMapPr;
-        typedef boost::unordered_map<model_t::EFeature, TStrByFieldDataUMap> TFeatureStrByFieldDataUMapUMap;
-        typedef boost::unordered_map<int, TStrByFieldDataUMap> TIntStrByFieldDataUMapUMap;
-        typedef TFeatureStrByFieldDataUMapUMap::const_iterator TFeatureStrByFieldDataUMapUMapCItr;
+        using TStrByFieldDataUMap = boost::unordered_map<std::string, SByFieldData>;
+        using TFeatureStrByFieldDataUMapPr = std::pair<model_t::EFeature, TStrByFieldDataUMap>;
+        using TFeatureStrByFieldDataUMapUMap = boost::unordered_map<model_t::EFeature, TStrByFieldDataUMap>;
+        using TIntStrByFieldDataUMapUMap = boost::unordered_map<int, TStrByFieldDataUMap>;
+        using TFeatureStrByFieldDataUMapUMapCItr = TFeatureStrByFieldDataUMapUMap::const_iterator;
 
     public:
         CModelPlotData(void);

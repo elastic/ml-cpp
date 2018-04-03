@@ -29,7 +29,7 @@ namespace detail
 class CTrackerThread : public CThread
 {
     public:
-        typedef std::map<CProcess::TPid, HANDLE> TPidHandleMap;
+        using TPidHandleMap = std::map<CProcess::TPid, HANDLE>;
 
     public:
         CTrackerThread(void)

@@ -289,7 +289,7 @@ class CSampleGatherer
         void startNewBucket(core_t::TTime time)
         {
             m_BucketStats.push(TMetricPartialStatistic(m_Dimension), time);
-            for (auto &&stats : m_InfluencerBucketStats)
+            for (auto &stats : m_InfluencerBucketStats)
             {
                 stats.push(TStoredStringPtrStatUMap(1), time);
             }
@@ -300,7 +300,7 @@ class CSampleGatherer
         void resetBucket(core_t::TTime bucketStart)
         {
             m_BucketStats.get(bucketStart) = TMetricPartialStatistic(m_Dimension);
-            for (auto &&stats : m_InfluencerBucketStats)
+            for (auto &stats : m_InfluencerBucketStats)
             {
                 stats.get(bucketStart) = TStoredStringPtrStatUMap(1);
             }

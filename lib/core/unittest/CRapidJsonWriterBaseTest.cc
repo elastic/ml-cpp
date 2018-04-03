@@ -53,8 +53,9 @@ void CRapidJsonWriterBaseTest::testAddFields(void)
 {
     std::ostringstream strm;
     rapidjson::OStreamWrapper writeStream(strm);
-    typedef ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,
-            rapidjson::CrtAllocator> TGenericLineWriter;
+    using TGenericLineWriter =
+         ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,
+                                        rapidjson::CrtAllocator>;
     TGenericLineWriter writer(writeStream);
 
     rapidjson::Document doc = writer.makeDoc();;
@@ -106,8 +107,9 @@ void CRapidJsonWriterBaseTest::testRemoveMemberIfPresent(void)
 {
     std::ostringstream strm;
     rapidjson::OStreamWrapper writeStream(strm);
-    typedef ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,
-            rapidjson::CrtAllocator> TGenericLineWriter;
+    using TGenericLineWriter =
+        ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,
+                                       rapidjson::CrtAllocator>;
     TGenericLineWriter writer(writeStream);
 
     rapidjson::Document doc = writer.makeDoc();;

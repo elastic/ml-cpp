@@ -45,7 +45,7 @@ namespace config
 class CONFIG_EXPORT CDataSemantics
 {
     public:
-        typedef boost::optional<config_t::EUserDataType> TOptionalUserDataType;
+        using TOptionalUserDataType = boost::optional<config_t::EUserDataType>;
 
     public:
         //! The proportion of values which must be numeric for the
@@ -83,10 +83,10 @@ class CONFIG_EXPORT CDataSemantics
                     return value.hash();
                 }
         };
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::unordered_map<maths::COrdinal, std::size_t, CHashOrdinal> TOrdinalSizeUMap;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1> TMinAccumulator;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1, std::greater<maths::COrdinal> > TMaxAccumulator;
+        using TStrVec = std::vector<std::string>;
+        using TOrdinalSizeUMap = boost::unordered_map<maths::COrdinal, std::size_t, CHashOrdinal>;
+        using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1>;
+        using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1, std::greater<maths::COrdinal> >;
 
     private:
         //! The maximum number of values we'll hold in the empirical

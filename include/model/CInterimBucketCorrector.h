@@ -44,9 +44,9 @@ namespace model
 class MODEL_EXPORT CInterimBucketCorrector
 {
     private:
-        typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef core::CSmallVector<double, 10> TDouble10Vec;
+        using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+        using TDouble1Vec = core::CSmallVector<double, 1>;
+        using TDouble10Vec = core::CSmallVector<double, 10>;
 
     public:
         //! Constructs an interim bucket corrector for buckets of length \p bucketLength

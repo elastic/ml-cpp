@@ -51,10 +51,10 @@ class MATHS_EXPORT CClustererTypes
         };
 
         // Callback function signature for when clusters are split.
-        typedef std::function<void(std::size_t, std::size_t, std::size_t)> TSplitFunc;
+        using TSplitFunc = std::function<void(std::size_t, std::size_t, std::size_t)>;
 
         // Callback function signature for when clusters are merged.
-        typedef std::function<void(std::size_t, std::size_t, std::size_t)> TMergeFunc;
+        using TMergeFunc = std::function<void(std::size_t, std::size_t, std::size_t)>;
 
         //! Generates unique cluster indices.
         class MATHS_EXPORT CIndexGenerator
@@ -88,8 +88,8 @@ class MATHS_EXPORT CClustererTypes
                 std::string print(void) const;
 
             private:
-                typedef std::vector<std::size_t> TSizeVec;
-                typedef boost::shared_ptr<TSizeVec> TSizeVecPtr;
+                using TSizeVec = std::vector<std::size_t>;
+                using TSizeVecPtr = boost::shared_ptr<TSizeVec>;
 
             private:
                 //! A heap of the next available unique indices.
@@ -137,14 +137,14 @@ template<typename POINT>
 class CClusterer : public CClustererTypes
 {
     public:
-        typedef boost::shared_ptr<CClusterer> TClustererPtr;
-        typedef std::vector<POINT> TPointVec;
-        typedef typename SPromoted<POINT>::Type TPointPrecise;
-        typedef std::vector<TPointPrecise> TPointPreciseVec;
-        typedef std::pair<TPointPrecise, double> TPointPreciseDoublePr;
-        typedef std::vector<TPointPreciseDoublePr> TPointPreciseDoublePrVec;
-        typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef core::CSmallVector<TSizeDoublePr, 2> TSizeDoublePr2Vec;
+        using TClustererPtr = boost::shared_ptr<CClusterer>;
+        using TPointVec = std::vector<POINT>;
+        using TPointPrecise = typename SPromoted<POINT>::Type;
+        using TPointPreciseVec = std::vector<TPointPrecise>;
+        using TPointPreciseDoublePr = std::pair<TPointPrecise, double>;
+        using TPointPreciseDoublePrVec = std::vector<TPointPreciseDoublePr>;
+        using TSizeDoublePr = std::pair<std::size_t, double>;
+        using TSizeDoublePr2Vec = core::CSmallVector<TSizeDoublePr, 2>;
 
     public:
         //! Create a new clusterer.
@@ -308,7 +308,7 @@ class CClusterer : public CClustererTypes
         TMergeFunc m_MergeFunc;
 };
 
-typedef CClusterer<double> CClusterer1d;
+using CClusterer1d = CClusterer<double>;
 
 }
 }

@@ -32,7 +32,7 @@ void CContainerPrinterTest::testAll(void)
     CPPUNIT_ASSERT_EQUAL(std::string("[1.1, 3.2]"),
                          CContainerPrinter::print(vec));
 
-    std::list<std::pair<int, int> > list;
+    std::list<std::pair<int, int>> list;
     list.push_back(std::make_pair(1, 2));
     list.push_back(std::make_pair(2, 2));
     list.push_back(std::make_pair(3, 2));
@@ -40,7 +40,7 @@ void CContainerPrinterTest::testAll(void)
     CPPUNIT_ASSERT_EQUAL(std::string("[(1, 2), (2, 2), (3, 2)]"),
                          CContainerPrinter::print(list));
 
-    std::list<boost::shared_ptr<double> > plist;
+    std::list<boost::shared_ptr<double>> plist;
     plist.push_back(boost::shared_ptr<double>());
     plist.push_back(boost::shared_ptr<double>(new double(3.0)));
     plist.push_back(boost::shared_ptr<double>(new double(1.1)));
@@ -68,14 +68,14 @@ void CContainerPrinterTest::testAll(void)
     CPPUNIT_ASSERT_EQUAL(std::string("[2, 3, 2]"),
                          CContainerPrinter::print(boost::begin(pints), boost::end(pints)));
 
-    std::vector<boost::optional<double> > ovec(2, boost::optional<double>());
+    std::vector<boost::optional<double>> ovec(2, boost::optional<double>());
     LOG_DEBUG("ovec = " << CContainerPrinter::print(ovec));
     CPPUNIT_ASSERT_EQUAL(std::string("[\"null\", \"null\"]"),
                          CContainerPrinter::print(ovec));
 
-    std::vector<std::pair<std::list<std::pair<int, int> >, double> > aggregate;
+    std::vector<std::pair<std::list<std::pair<int, int>>, double>> aggregate;
     aggregate.push_back(std::make_pair(list, 1.3));
-    aggregate.push_back(std::make_pair(std::list<std::pair<int, int> >(), 0.0));
+    aggregate.push_back(std::make_pair(std::list<std::pair<int, int>>(), 0.0));
     aggregate.push_back(std::make_pair(list, 5.1));
     LOG_DEBUG("aggregate = " << CContainerPrinter::print(aggregate));
     CPPUNIT_ASSERT_EQUAL(std::string("[([(1, 2), (2, 2), (3, 2)], 1.3), ([], 0), ([(1, 2), (2, 2), (3, 2)], 5.1)]"),

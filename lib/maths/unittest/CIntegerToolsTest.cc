@@ -24,7 +24,7 @@ using namespace ml;
 namespace
 {
 
-typedef std::vector<std::size_t> TSizeVec;
+using TSizeVec = std::vector<std::size_t>;
 
 std::string printBits(uint64_t x)
 {

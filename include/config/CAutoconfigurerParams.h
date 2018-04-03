@@ -49,14 +49,14 @@ namespace config
 class CONFIG_EXPORT CAutoconfigurerParams
 {
     public:
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::optional<TStrVec> TOptionalStrVec;
-        typedef std::pair<std::string, config_t::EUserDataType> TStrUserDataTypePr;
-        typedef std::vector<TStrUserDataTypePr> TStrUserDataTypePrVec;
-        typedef boost::optional<config_t::EUserDataType> TOptionalUserDataType;
-        typedef std::vector<config_t::EFunctionCategory> TFunctionCategoryVec;
+        using TTimeVec = std::vector<core_t::TTime>;
+        using TSizeVec = std::vector<std::size_t>;
+        using TStrVec = std::vector<std::string>;
+        using TOptionalStrVec = boost::optional<TStrVec>;
+        using TStrUserDataTypePr = std::pair<std::string, config_t::EUserDataType>;
+        using TStrUserDataTypePrVec = std::vector<TStrUserDataTypePr>;
+        using TOptionalUserDataType = boost::optional<config_t::EUserDataType>;
+        using TFunctionCategoryVec = std::vector<config_t::EFunctionCategory>;
 
     public:
         CAutoconfigurerParams(const std::string &timeFieldName,
@@ -269,8 +269,8 @@ class CONFIG_EXPORT CAutoconfigurerParams
         std::string print(void) const;
 
     private:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<TSizeVec> TSizeVecVec;
+        using TDoubleVec = std::vector<double>;
+        using TSizeVecVec = std::vector<TSizeVec>;
 
     private:
         //! Refresh the penalty indices.

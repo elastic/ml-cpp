@@ -208,7 +208,7 @@ void CJsonOutputWriterTest::testWriteNonAnomalousBucket(void)
     arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
 
     rapidjson::StringBuffer strbuf;
-    typedef rapidjson::PrettyWriter<rapidjson::StringBuffer> TStringBufferPrettyWriter;
+    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter prettyPrinter(strbuf);
     arrayDoc.Accept(prettyPrinter);
     LOG_DEBUG("Results:\n" << strbuf.GetString());
@@ -250,7 +250,7 @@ void CJsonOutputWriterTest::testFlush(void)
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
 
     rapidjson::StringBuffer strbuf;
-    typedef rapidjson::PrettyWriter<rapidjson::StringBuffer> TStringBufferPrettyWriter;
+    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter writer(strbuf);
     arrayDoc.Accept(writer);
     LOG_DEBUG("Flush:\n" << strbuf.GetString());
@@ -275,7 +275,7 @@ void CJsonOutputWriterTest::testWriteCategoryDefinition(void)
     std::string terms("foo bar");
     std::string regex(".*?foo.+?bar.*");
     std::size_t maxMatchingLength(132);
-    typedef std::set<std::string> TStrSet;
+    using TStrSet = std::set<std::string>;
     TStrSet examples;
     examples.insert("User foo failed to log in");
     examples.insert("User bar failed to log in");
@@ -296,7 +296,7 @@ void CJsonOutputWriterTest::testWriteCategoryDefinition(void)
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
 
     rapidjson::StringBuffer strbuf;
-    typedef rapidjson::PrettyWriter<rapidjson::StringBuffer> TStringBufferPrettyWriter;
+    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter writer(strbuf);
     arrayDoc.Accept(writer);
     LOG_DEBUG("CategoryDefinition:\n" << strbuf.GetString());
@@ -799,7 +799,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim)
     CPPUNIT_ASSERT(!arrayDoc.HasParseError());
 
     rapidjson::StringBuffer strbuf;
-    typedef rapidjson::PrettyWriter<rapidjson::StringBuffer> TStringBufferPrettyWriter;
+    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter writer(strbuf);
     arrayDoc.Accept(writer);
     LOG_DEBUG("Results:\n" << strbuf.GetString());
@@ -1633,7 +1633,7 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim)
     arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
 
     rapidjson::StringBuffer strbuf;
-    typedef rapidjson::PrettyWriter<rapidjson::StringBuffer> TStringBufferPrettyWriter;
+    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter writer(strbuf);
     arrayDoc.Accept(writer);
     LOG_DEBUG("Results:\n" << strbuf.GetString());
@@ -1851,7 +1851,7 @@ void CJsonOutputWriterTest::testWriteInfluencers(void)
 
     // Debug print record
     rapidjson::StringBuffer strbuf;
-    typedef rapidjson::PrettyWriter<rapidjson::StringBuffer> TStringBufferPrettyWriter;
+    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter writer(strbuf);
     doc.Accept(writer);
     LOG_DEBUG("influencers:\n" << strbuf.GetString());
@@ -1981,7 +1981,7 @@ void CJsonOutputWriterTest::testWriteInfluencersWithLimit(void)
 
 
     rapidjson::StringBuffer strbuf;
-    typedef rapidjson::PrettyWriter<rapidjson::StringBuffer> TStringBufferPrettyWriter;
+    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter writer(strbuf);
     doc.Accept(writer);
 
@@ -2138,7 +2138,7 @@ void CJsonOutputWriterTest::testWriteWithInfluences(void)
     // Debug print record
     {
         rapidjson::StringBuffer strbuf;
-        typedef rapidjson::PrettyWriter<rapidjson::StringBuffer> TStringBufferPrettyWriter;
+        using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
         TStringBufferPrettyWriter writer(strbuf);
         doc.Accept(writer);
         LOG_DEBUG("Results:\n" << strbuf.GetString());
@@ -2449,7 +2449,7 @@ void CJsonOutputWriterTest::testWriteScheduledEvent(void)
     // Debug print record
     {
         rapidjson::StringBuffer strbuf;
-        typedef rapidjson::PrettyWriter<rapidjson::StringBuffer> TStringBufferPrettyWriter;
+        using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
         TStringBufferPrettyWriter writer(strbuf);
         doc.Accept(writer);
         LOG_DEBUG("Results:\n" << strbuf.GetString());
@@ -2645,7 +2645,7 @@ void CJsonOutputWriterTest::testThroughputHelper(bool useScopedAllocator)
     {
         if (useScopedAllocator)
         {
-            typedef ml::core::CScopedRapidJsonPoolAllocator<ml::api::CJsonOutputWriter> TScopedAllocator;
+            using TScopedAllocator = ml::core::CScopedRapidJsonPoolAllocator<ml::api::CJsonOutputWriter>;
             static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
             TScopedAllocator scopedAllocator(ALLOCATOR_ID, writer);
 
