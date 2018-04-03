@@ -23,6 +23,7 @@
 #include <maths/CSphericalCluster.h>
 #include <maths/ImportExport.h>
 
+#include <cmath>
 #include <cstddef>
 #include <limits>
 #include <vector>

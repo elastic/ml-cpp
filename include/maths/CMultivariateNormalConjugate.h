@@ -44,6 +44,7 @@
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/optional.hpp>
 
+#include <cmath>
 #include <string>
 #include <utility>
 #include <vector>

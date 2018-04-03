@@ -46,6 +46,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <numeric>
 #include <string>

@@ -25,6 +25,7 @@
 #include <boost/bind.hpp>
 #include <boost/math/distributions/beta.hpp>
 
+#include <cmath>
 #include <string>
 
 namespace ml

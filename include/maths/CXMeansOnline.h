@@ -38,6 +38,7 @@
 
 #include <boost/iterator/counting_iterator.hpp>
 
+#include <cmath>
 #include <cstddef>
 #include <vector>
 

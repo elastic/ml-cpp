@@ -34,6 +34,7 @@
 #include <boost/ref.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <exception>
 #include <string>

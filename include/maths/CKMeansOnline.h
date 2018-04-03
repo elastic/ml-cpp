@@ -34,6 +34,7 @@
 #include <maths/CPRNG.h>
 #include <maths/CTypeConversions.h>
 
+#include <cmath>
 #include <cstddef>
 #include <numeric>
 #include <utility>

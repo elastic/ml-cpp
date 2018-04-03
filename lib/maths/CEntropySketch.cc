@@ -23,6 +23,8 @@
 
 #include <boost/math/constants/constants.hpp>
 
+#include <cmath>
+
 namespace ml
 {
 namespace maths

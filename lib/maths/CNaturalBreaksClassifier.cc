@@ -34,7 +34,7 @@
 #include <boost/math/distributions/normal.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 
-#include <iomanip>
+#include <cmath>
 #include <limits>
 #include <numeric>
 

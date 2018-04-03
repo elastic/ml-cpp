@@ -22,6 +22,8 @@
 #include <config/CDetectorSpecification.h>
 #include <config/Constants.h>
 
+#include <cmath>
+
 namespace ml
 {
 namespace config

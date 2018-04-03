@@ -42,6 +42,7 @@
 #include <boost/tuple/tuple_io.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 #include <string>
 #include <utility>

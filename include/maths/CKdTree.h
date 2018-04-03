@@ -24,6 +24,7 @@
 #include <maths/CTypeConversions.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <vector>
 

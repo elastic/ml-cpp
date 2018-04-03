@@ -25,6 +25,7 @@
 #include <config/CDetectorSpecification.h>
 #include <config/CTools.h>
 
+#include <cmath>
 #include <cstddef>
 
 namespace ml

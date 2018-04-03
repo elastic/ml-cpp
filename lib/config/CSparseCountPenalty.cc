@@ -26,6 +26,7 @@
 
 #include <boost/range.hpp>
 
+#include <cmath>
 #include <vector>
 
 namespace ml

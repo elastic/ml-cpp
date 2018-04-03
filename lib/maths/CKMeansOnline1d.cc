@@ -29,6 +29,7 @@
 #include <boost/bind.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <string>
 #include <utility>
 #include <vector>

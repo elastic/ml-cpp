@@ -24,6 +24,7 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <cmath>
 #include <vector>
 
 namespace ml

@@ -39,6 +39,7 @@
 #include <boost/range.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <cmath>
 #include <string>
 #include <vector>
 

@@ -17,8 +17,6 @@
 
 #include <core/CLogger.h>
 
-#include <cmath>
-
 namespace ml
 {
 namespace maths

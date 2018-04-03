@@ -28,6 +28,8 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <cmath>
+
 namespace ml
 {
 namespace config

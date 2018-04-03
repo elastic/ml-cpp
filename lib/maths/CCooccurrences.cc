@@ -27,6 +27,7 @@
 
 #include <boost/math/distributions/chi_squared.hpp>
 
+#include <cmath>
 #include <string>
 
 namespace ml

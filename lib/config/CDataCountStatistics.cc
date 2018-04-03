@@ -38,6 +38,7 @@
 #include <boost/unordered_set.hpp>
 
 #include <algorithm>
+#include <cmath>
 
 namespace ml
 {

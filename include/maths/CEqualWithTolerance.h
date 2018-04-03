@@ -20,7 +20,6 @@
 
 #include <maths/CLinearAlgebraFwd.h>
 
-#include <cmath>
 #include <functional>
 
 namespace ml

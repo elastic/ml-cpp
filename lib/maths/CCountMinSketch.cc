@@ -25,6 +25,7 @@
 
 #include <boost/math/constants/constants.hpp>
 
+#include <cmath>
 #include <iomanip>
 
 namespace ml

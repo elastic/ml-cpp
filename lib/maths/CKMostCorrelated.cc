@@ -35,6 +35,7 @@
 #include <boost/geometry/index/rtree.hpp>
 #include <boost/unordered_set.hpp>
 
+#include <cmath>
 #include <functional>
 
 namespace bg  = boost::geometry;

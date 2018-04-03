@@ -30,7 +30,6 @@
 #include <boost/bind.hpp>
 #include <boost/optional.hpp>
 
-#include <cmath>
 #include <iomanip>
 #include <ios>
 #include <limits>

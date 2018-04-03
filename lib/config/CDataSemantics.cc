@@ -23,6 +23,8 @@
 
 #include <boost/math/distributions/normal.hpp>
 
+#include <cmath>
+
 namespace ml
 {
 namespace config
