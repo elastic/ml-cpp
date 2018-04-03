@@ -431,7 +431,7 @@ const CJsonOutputWriter::TStrVec &CJsonOutputWriter::fieldNames(void) const
 bool CJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
                                  const TStrStrUMap &overrideDataRowFields)
 {
-    typedef core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter> TScopedAllocator;
+    using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter>;
 
     TScopedAllocator scopedAllocator("CJsonOutputWriter::writeRow", m_Writer);
 

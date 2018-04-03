@@ -83,7 +83,7 @@ const CLineifiedJsonOutputWriter::TStrVec &CLineifiedJsonOutputWriter::fieldName
 bool CLineifiedJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
                                           const TStrStrUMap &overrideDataRowFields)
 {
-    typedef core::CScopedRapidJsonPoolAllocator<TGenericLineWriter> TScopedAllocator;
+    using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<TGenericLineWriter>;
     TScopedAllocator scopedAllocator("CLineifiedJsonOutputWriter::writeRow", m_Writer);
 
     rapidjson::Document doc = m_Writer.makeDoc();

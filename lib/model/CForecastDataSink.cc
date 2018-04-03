@@ -65,7 +65,7 @@ const std::string CForecastDataSink::PROCESSING_TIME_MS("processing_time_ms");
 const std::string CForecastDataSink::PROGRESS("forecast_progress");
 const std::string CForecastDataSink::STATUS("forecast_status");
 
-typedef core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter> TScopedAllocator;
+using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter>;
 
 CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(model_t::EFeature feature,
                                                                 TMathsModelPtr &&forecastModel,
