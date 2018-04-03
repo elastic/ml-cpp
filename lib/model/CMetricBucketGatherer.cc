@@ -1653,7 +1653,7 @@ void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates)
                                    TUInt64Vec{0}).first->second[0] += CDataGatherer::extractData(count);
                 }
             }
-            double alpha = ::exp(-m_DataGatherer.params().s_DecayRate);
+            double alpha = std::exp(-m_DataGatherer.params().s_DecayRate);
 
             for (auto &count : counts)
             {

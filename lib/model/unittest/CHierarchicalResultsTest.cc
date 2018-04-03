@@ -438,12 +438,12 @@ class CProbabilityGatherer : public model::CHierarchicalResultsLevelSet<SNodePro
                         LOG_DEBUG(detectors[j] << " vs " << detectors[k]
                                   << ": significance = " << significance);
                         CPPUNIT_ASSERT(significance > minimumSignificance);
-                        meanSignificance.add(::log(significance));
+                        meanSignificance.add(std::log(significance));
                     }
                 }
             }
 
-            return ::exp(maths::CBasicStatistics::mean(meanSignificance));
+            return std::exp(maths::CBasicStatistics::mean(meanSignificance));
         }
 };
 
@@ -1784,7 +1784,7 @@ void CHierarchicalResultsTest::testDetectorEqualizing(void)
                 int detector = boost::lexical_cast<int>(fields[j][0]);
                 TDoubleVec p;
                 rng.generateGammaSamples(1.0, scales[detector], 1, p);
-                p[0] = ::exp(-p[0]);
+                p[0] = std::exp(-p[0]);
                 addResult(detector,
                           fields[j][1] == TRUE_STR,
                           FUNC,
@@ -1810,7 +1810,7 @@ void CHierarchicalResultsTest::testDetectorEqualizing(void)
                 int detector = boost::lexical_cast<int>(fields[j][0]);
                 TDoubleVec p;
                 rng.generateGammaSamples(1.0, scales[detector], 1, p);
-                p[0] = ::exp(-p[0]);
+                p[0] = std::exp(-p[0]);
                 addResult(detector,
                           fields[j][1] == TRUE_STR,
                           FUNC,
@@ -1885,7 +1885,7 @@ void CHierarchicalResultsTest::testDetectorEqualizing(void)
                 int detector = boost::lexical_cast<int>(fields[j][0]);
                 TDoubleVec p;
                 rng.generateGammaSamples(1.0, scales[detector], 1, p);
-                p[0] = ::exp(-p[0]);
+                p[0] = std::exp(-p[0]);
                 addResult(detector,
                           fields[j][1] == TRUE_STR,
                           FUNC,
@@ -1914,7 +1914,7 @@ void CHierarchicalResultsTest::testDetectorEqualizing(void)
                 int detector = boost::lexical_cast<int>(fields[j][0]);
                 TDoubleVec p;
                 rng.generateGammaSamples(1.0, scales[detector], 1, p);
-                p[0] = detector == 0 && i == 70 ? 2.1e-5 : ::exp(-p[0]);
+                p[0] = detector == 0 && i == 70 ? 2.1e-5 : std::exp(-p[0]);
                 addResult(detector,
                           fields[j][1] == TRUE_STR,
                           FUNC,

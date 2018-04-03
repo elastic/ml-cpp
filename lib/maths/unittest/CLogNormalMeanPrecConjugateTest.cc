@@ -26,11 +26,10 @@
 #include <boost/range.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <iterator>
-
-#include <math.h>
 
 using namespace ml;
 using namespace handy_typedefs;
@@ -71,7 +70,7 @@ void CLogNormalMeanPrecConjugateTest::testMultipleUpdate(void)
             maths_t::E_ContinuousData
         };
 
-    const double location = ::log(10.0);
+    const double location = std::log(10.0);
     const double squareScale = 3.0;
 
     test::CRandomNumbers rng;
@@ -96,14 +95,14 @@ void CLogNormalMeanPrecConjugateTest::testMultipleUpdate(void)
 
     // Test with variance scale.
 
-    double mean = ::exp(location + squareScale / 2.0);
-    double variance = mean * mean * (::exp(squareScale) - 1.0);
+    double mean = std::exp(location + squareScale / 2.0);
+    double variance = mean * mean * (std::exp(squareScale) - 1.0);
     LOG_DEBUG("mean = " << mean << " variance = " << variance);
 
-    double scaledSquareScale = ::log(1.0 + 2.0 * variance / mean / mean);
-    double scaledLocation = ::log(mean) - scaledSquareScale / 2.0;
-    double scaledMean = ::exp(scaledLocation + scaledSquareScale / 2.0);
-    double scaledVariance = scaledMean * scaledMean * (::exp(scaledSquareScale) - 1.0);
+    double scaledSquareScale = std::log(1.0 + 2.0 * variance / mean / mean);
+    double scaledLocation = std::log(mean) - scaledSquareScale / 2.0;
+    double scaledMean = std::exp(scaledLocation + scaledSquareScale / 2.0);
+    double scaledVariance = scaledMean * scaledMean * (std::exp(scaledSquareScale) - 1.0);
     LOG_DEBUG("scaled mean = " << scaledMean << " scaled variance = " << scaledVariance);
 
     TDoubleVec scaledSamples;
@@ -223,7 +222,7 @@ void CLogNormalMeanPrecConjugateTest::testMeanEstimation(void)
 
         for (unsigned int test = 0; test < nTests; ++test)
         {
-            double location = ::log(0.5 * (test + 1));
+            double location = std::log(0.5 * (test + 1));
             double squareScale = 4.0;
 
             TDoubleVec samples;
@@ -435,7 +434,7 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood(void)
 
             for (size_t k = 0; k < boost::size(deltas); ++k)
             {
-                double x = ::exp(location + deltas[k] * ::sqrt(squareScale));
+                double x = std::exp(location + deltas[k] * std::sqrt(squareScale));
                 TDouble1Vec sample(1, x);
 
                 LOG_DEBUG("number = " << numberSamples[i]
@@ -444,21 +443,21 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood(void)
                 double logLikelihood = 0.0;
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                      filter.jointLogMarginalLikelihood(sample, logLikelihood));
-                double pdf = ::exp(logLikelihood);
+                double pdf = std::exp(logLikelihood);
 
                 double lowerBound = 0.0, upperBound = 0.0;
                 sample[0] -= eps;
                 CPPUNIT_ASSERT(filter.minusLogJointCdf(sample, lowerBound, upperBound));
                 CPPUNIT_ASSERT_EQUAL(lowerBound, upperBound);
                 double minusLogCdf = (lowerBound + upperBound) / 2.0;
-                double cdfAtMinusEps = ::exp(-minusLogCdf);
+                double cdfAtMinusEps = std::exp(-minusLogCdf);
                 CPPUNIT_ASSERT(minusLogCdf >= 0.0);
 
                 sample[0] += 2.0 * eps;
                 CPPUNIT_ASSERT(filter.minusLogJointCdf(sample, lowerBound, upperBound));
                 CPPUNIT_ASSERT_EQUAL(lowerBound, upperBound);
                 minusLogCdf = (lowerBound + upperBound) / 2.0;
-                double cdfAtPlusEps = ::exp(-minusLogCdf);
+                double cdfAtPlusEps = std::exp(-minusLogCdf);
                 CPPUNIT_ASSERT(minusLogCdf >= 0.0);
 
                 double dcdfdx = (cdfAtPlusEps - cdfAtMinusEps) / 2.0 / eps;
@@ -476,7 +475,7 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood(void)
         // law of large numbers), which is just the differential entropy
         // of a log-normal R.V.
 
-        boost::math::lognormal_distribution<> logNormal(location, ::sqrt(squareScale));
+        boost::math::lognormal_distribution<> logNormal(location, std::sqrt(squareScale));
         double expectedDifferentialEntropy = maths::CTools::differentialEntropy(logNormal);
 
         CLogNormalMeanPrecConjugate filter(makePrior());
@@ -515,7 +514,7 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood(void)
                 1.2, 1.5, 2.0, 2.5, 3.0,
                 4.0, 5.0
             };
-        boost::math::lognormal_distribution<> logNormal(location, ::sqrt(squareScale));
+        boost::math::lognormal_distribution<> logNormal(location, std::sqrt(squareScale));
 
         CLogNormalMeanPrecConjugate filter(makePrior());
         TDoubleVec samples;
@@ -542,8 +541,8 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood(void)
                           << ", interval = " << core::CContainerPrinter::print(interval));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(q1, interval.first, 1e-3);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(q2, interval.second, 1e-3);
-                error.add(::fabs(interval.first - q1));
-                error.add(::fabs(interval.second - q2));
+                error.add(std::fabs(interval.first - q1));
+                error.add(std::fabs(interval.second - q2));
             }
             LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 1e-3);
@@ -554,11 +553,11 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood(void)
             {
                 TMeanAccumulator error;
                 double vs = varianceScales[i];
-                double shift = ::log(1.0 + vs * (::exp(squareScale) - 1.0)) - squareScale;
+                double shift = std::log(1.0 + vs * (std::exp(squareScale) - 1.0)) - squareScale;
                 double shiftedLocation = location - 0.5 * shift;
                 double shiftedSquareScale = squareScale + shift;
                 boost::math::lognormal_distribution<> scaledLogNormal(shiftedLocation,
-                                                                      ::sqrt(shiftedSquareScale));
+                                                                      std::sqrt(shiftedSquareScale));
                 LOG_DEBUG("*** vs = " <<   boost::math::variance(scaledLogNormal)
                                          / boost::math::variance(logNormal) << " ***");
                 for (std::size_t j = 0u; j < boost::size(percentages); ++j)
@@ -573,8 +572,8 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood(void)
                               << ", interval = " << core::CContainerPrinter::print(interval));
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(q1, interval.first, std::max(0.5, 0.2 * q1));
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(q2, interval.second, 0.1 * q2);
-                    error.add(::fabs(interval.first - q1) / q1);
-                    error.add(::fabs(interval.second - q2) / q2);
+                    error.add(std::fabs(interval.first - q1) / q1);
+                    error.add(std::fabs(interval.second - q2) / q2);
                 }
                 LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
                 CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.07);
@@ -635,7 +634,7 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMean(void)
                                              filter.marginalLikelihoodMean(),
                                              0.35 * expectedMean);
 
-                relativeError.add(::fabs(filter.marginalLikelihoodMean() - expectedMean)
+                relativeError.add(std::fabs(filter.marginalLikelihoodMean() - expectedMean)
                                   / expectedMean);
             }
 
@@ -671,7 +670,7 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode(void)
                       << ", squareScale = " << squareScales[j] << " ***");
 
             boost::math::lognormal_distribution<> logNormal(locations[i],
-                                                            ::sqrt(squareScales[j]));
+                                                            std::sqrt(squareScales[j]));
 
             CLogNormalMeanPrecConjugate filter(makePrior());
             TDoubleVec samples;
@@ -685,11 +684,11 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode(void)
             {
                 double vs = varianceScales[k];
                 weight[0] = vs;
-                double shift = ::log(1.0 + vs * (::exp(squareScales[j]) - 1.0)) - squareScales[j];
+                double shift = std::log(1.0 + vs * (std::exp(squareScales[j]) - 1.0)) - squareScales[j];
                 double shiftedLocation = locations[i] - 0.5 * shift;
                 double shiftedSquareScale = squareScales[j] + shift;
                 boost::math::lognormal_distribution<> scaledLogNormal(shiftedLocation,
-                                                                      ::sqrt(shiftedSquareScale));
+                                                                      std::sqrt(shiftedSquareScale));
                 double expectedMode = boost::math::mode(scaledLogNormal);
                 LOG_DEBUG("dm = " <<   boost::math::mean(scaledLogNormal)
                                      - boost::math::mean(logNormal)
@@ -700,7 +699,7 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode(void)
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode,
                                              filter.marginalLikelihoodMode(weightStyle, weight),
                                              1.0);
-                error.add(::fabs(filter.marginalLikelihoodMode(weightStyle, weight) - expectedMode));
+                error.add(std::fabs(filter.marginalLikelihoodMode(weightStyle, weight) - expectedMode));
             }
             LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.26);
@@ -754,7 +753,7 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance(void)
                               << ", expectedVariance = " << expectedVariance);
                 }
 
-                relativeError.add(::fabs(filter.marginalLikelihoodVariance() - expectedVariance)
+                relativeError.add(std::fabs(filter.marginalLikelihoodVariance() - expectedVariance)
                                   / expectedVariance);
             }
 
@@ -828,7 +827,7 @@ void CLogNormalMeanPrecConjugateTest::testSampleMarginalLikelihood(void)
             CPPUNIT_ASSERT_DOUBLES_EQUAL(filter.marginalLikelihoodMean(),
                                          maths::CBasicStatistics::mean(sampledMoments),
                                          0.8);
-            meanMeanError.add(::fabs(  filter.marginalLikelihoodMean()
+            meanMeanError.add(std::fabs(  filter.marginalLikelihoodMean()
                                      - maths::CBasicStatistics::mean(sampledMoments)));
         }
 
@@ -891,8 +890,8 @@ void CLogNormalMeanPrecConjugateTest::testCdf(void)
         double fComplement = (lowerBound + upperBound) / 2.0;
         LOG_DEBUG("log(F(x)) = " << -f
                   << ", log(1 - F(x)) = " << fComplement);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(std::numeric_limits<double>::min()), -f, 1e-10);
-        CPPUNIT_ASSERT_EQUAL(1.0, ::exp(-fComplement));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(std::log(std::numeric_limits<double>::min()), -f, 1e-10);
+        CPPUNIT_ASSERT_EQUAL(1.0, std::exp(-fComplement));
 
         for (std::size_t j = 1u; j < 500; ++j)
         {
@@ -904,7 +903,7 @@ void CLogNormalMeanPrecConjugateTest::testCdf(void)
             fComplement = (lowerBound + upperBound) / 2.0;
             LOG_DEBUG("log(F(x)) = " << (f == 0.0 ? f : -f)
                       << ", log(1 - F(x)) = " << (fComplement == 0.0 ? fComplement : -fComplement));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, ::exp(-f) + ::exp(-fComplement), 1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, std::exp(-f) + std::exp(-fComplement), 1e-10);
         }
     }
 }
@@ -935,7 +934,7 @@ void CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples(void)
         for (size_t j = 0; j < boost::size(squareScales); ++j)
         {
             LOG_DEBUG("means = " << means[i]
-                      << ", scale = " << ::sqrt(squareScales[j]));
+                      << ", scale = " << std::sqrt(squareScales[j]));
 
             TDoubleVec samples;
             rng.generateLogNormalSamples(means[i], squareScales[j], 1000, samples);
@@ -944,7 +943,7 @@ void CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples(void)
             filter.addSamples(samples);
 
             double location = filter.normalMean();
-            double scale    = ::sqrt(1.0 / filter.normalPrecision());
+            double scale    = std::sqrt(1.0 / filter.normalPrecision());
 
             TDoubleVec likelihoods;
             for (std::size_t k = 0u; k < samples.size(); ++k)
@@ -972,7 +971,7 @@ void CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples(void)
                 double lb, ub;
                 filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, sample, lb, ub);
 
-                double ssd = ::sqrt(px * (1.0 - px) / static_cast<double>(samples.size()));
+                double ssd = std::sqrt(px * (1.0 - px) / static_cast<double>(samples.size()));
 
                 LOG_DEBUG("expected P(x) = " << px
                           << ", actual P(x) = " << (lb + ub) / 2.0
@@ -980,7 +979,7 @@ void CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples(void)
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(px, (lb + ub) / 2.0, 3.0 * ssd);
 
-                meanError.add(::fabs(px - (lb + ub) / 2.0));
+                meanError.add(std::fabs(px - (lb + ub) / 2.0));
             }
 
             maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountVarianceScaleWeight);
@@ -1099,9 +1098,9 @@ void CLogNormalMeanPrecConjugateTest::testAnomalyScore(void)
     {
         for (size_t j = 0; j < boost::size(squareScales); ++j)
         {
-            LOG_DEBUG("mean = " << means[i] << ", scale = " << ::sqrt(squareScales[j]));
+            LOG_DEBUG("mean = " << means[i] << ", scale = " << std::sqrt(squareScales[j]));
 
-            boost::math::lognormal_distribution<> logNormal(means[i], ::sqrt(squareScales[j]));
+            boost::math::lognormal_distribution<> logNormal(means[i], std::sqrt(squareScales[j]));
 
             TDoubleVec samples;
             rng.generateLogNormalSamples(means[i], squareScales[j], 500, samples);
@@ -1308,7 +1307,7 @@ void CLogNormalMeanPrecConjugateTest::testIntegerData(void)
 
         for (std::size_t k = 0; k < nSamples; ++k)
         {
-            double x = ::floor(samples[k]);
+            double x = std::floor(samples[k]);
 
             TDouble1Vec sample(1, x);
             filter1.addSamples(sample);
@@ -1325,7 +1324,7 @@ void CLogNormalMeanPrecConjugateTest::testIntegerData(void)
         TMeanAccumulator meanLogLikelihood2;
         for (std::size_t k = 0u; k < nSamples; ++k)
         {
-            double x = ::floor(samples[k]);
+            double x = std::floor(samples[k]);
 
             TDouble1Vec sample(1, x);
             double logLikelihood1;
@@ -1374,7 +1373,7 @@ void CLogNormalMeanPrecConjugateTest::testIntegerData(void)
 
             for (std::size_t k = 0; k < nSamples; ++k)
             {
-                double x = ::floor(samples[k]);
+                double x = std::floor(samples[k]);
 
                 TDouble1Vec sample(1, x);
 
@@ -1451,7 +1450,7 @@ void CLogNormalMeanPrecConjugateTest::testPersist(void)
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testPersist  |");
     LOG_DEBUG("+------------------------------------------------+");
 
-    const double location = ::log(10.0);
+    const double location = std::log(10.0);
     const double squareScale = 3.0;
 
     test::CRandomNumbers rng;
@@ -1539,7 +1538,7 @@ void CLogNormalMeanPrecConjugateTest::testVarianceScale(void)
         const double location = 2.0;
         const double squareScale = 1.5;
         {
-            boost::math::lognormal_distribution<> logNormal(location, ::sqrt(squareScale));
+            boost::math::lognormal_distribution<> logNormal(location, std::sqrt(squareScale));
             LOG_DEBUG("mean = " << boost::math::mean(logNormal)
                       << ", variance = " << boost::math::variance(logNormal));
         }
@@ -1607,7 +1606,7 @@ void CLogNormalMeanPrecConjugateTest::testVarianceScale(void)
                 {
                     std::size_t index = static_cast<std::size_t>(
                             static_cast<double>(nScaledSamples) * percentiles[j]/100.0);
-                    double error = ::fabs(probabilities[index] - percentiles[j]/100.0);
+                    double error = std::fabs(probabilities[index] - percentiles[j]/100.0);
                     unscaledPercentileErrors.push_back(error);
                     unscaledMeanPercentileError += error;
                 }
@@ -1618,10 +1617,10 @@ void CLogNormalMeanPrecConjugateTest::testVarianceScale(void)
             {
                 LOG_DEBUG("**** variance scale = " << varianceScales[j] << " ****");
 
-                double ss = ::log(1.0 + varianceScales[j] * (::exp(squareScale) - 1.0));
+                double ss = std::log(1.0 + varianceScales[j] * (std::exp(squareScale) - 1.0));
                 double shiftedLocation = location + (squareScale - ss) / 2.0;
                 {
-                    boost::math::lognormal_distribution<> logNormal(shiftedLocation, ::sqrt(ss));
+                    boost::math::lognormal_distribution<> logNormal(shiftedLocation, std::sqrt(ss));
                     LOG_DEBUG("mean = " << boost::math::mean(logNormal)
                               << ", variance = " << boost::math::variance(logNormal));
                 }
@@ -1654,7 +1653,7 @@ void CLogNormalMeanPrecConjugateTest::testVarianceScale(void)
                 {
                     std::size_t index = static_cast<std::size_t>(
                             static_cast<double>(nScaledSamples) * percentiles[k]/100.0);
-                    double error = ::fabs(probabilities[index] - percentiles[k]/100.0);
+                    double error = std::fabs(probabilities[index] - percentiles[k]/100.0);
                     meanPercentileError += error;
                     double threshold = percentileErrorTolerance + unscaledPercentileErrors[k];
 
@@ -1699,9 +1698,9 @@ void CLogNormalMeanPrecConjugateTest::testVarianceScale(void)
         {
             LOG_DEBUG("**** variance scale = " << varianceScales[i] << " ****");
 
-            double ss = ::log(1.0 + varianceScales[i] * (::exp(squareScale) - 1.0));
+            double ss = std::log(1.0 + varianceScales[i] * (std::exp(squareScale) - 1.0));
             double shiftedLocation = location + (squareScale - ss) / 2.0;
-            boost::math::lognormal_distribution<> logNormal(shiftedLocation, ::sqrt(ss));
+            boost::math::lognormal_distribution<> logNormal(shiftedLocation, std::sqrt(ss));
             {
                 LOG_DEBUG("mean = " << boost::math::mean(logNormal)
                           << ", variance = " << boost::math::variance(logNormal));
@@ -1784,16 +1783,16 @@ void CLogNormalMeanPrecConjugateTest::testVarianceScale(void)
                     }
 
                     // We purposely don't estimate true variance in this case.
-                    if (::sqrt(variance) < mean * maths::MINIMUM_COEFFICIENT_OF_VARIATION)
+                    if (std::sqrt(variance) < mean * maths::MINIMUM_COEFFICIENT_OF_VARIATION)
                     {
                         continue;
                     }
 
-                    double squareScale = ::log(1.0 + variance / (mean * mean));
-                    double location = ::log(mean) - squareScale / 2.0;
+                    double squareScale = std::log(1.0 + variance / (mean * mean));
+                    double location = std::log(mean) - squareScale / 2.0;
                     double precision = 1.0 / squareScale;
                     {
-                        boost::math::lognormal_distribution<> logNormal(location, ::sqrt(squareScale));
+                        boost::math::lognormal_distribution<> logNormal(location, std::sqrt(squareScale));
                         LOG_DEBUG("");
                         LOG_DEBUG("****** mean = " << boost::math::mean(logNormal)
                                   << ", variance = " << boost::math::variance(logNormal) << " ******");
@@ -1810,11 +1809,11 @@ void CLogNormalMeanPrecConjugateTest::testVarianceScale(void)
                         }
                         LOG_DEBUG("*** scale = " << scale << " ***");
 
-                        double scaledSquareScale = ::log(1.0 + variance * scale / (mean * mean));
-                        double scaledLocation = ::log(mean) - scaledSquareScale / 2.0;
+                        double scaledSquareScale = std::log(1.0 + variance * scale / (mean * mean));
+                        double scaledLocation = std::log(mean) - scaledSquareScale / 2.0;
                         double scaledPrecision = 1.0 / scaledSquareScale;
                         {
-                            boost::math::lognormal_distribution<> logNormal(scaledLocation, ::sqrt(scaledSquareScale));
+                            boost::math::lognormal_distribution<> logNormal(scaledLocation, std::sqrt(scaledSquareScale));
                             LOG_DEBUG("scaled mean = " << boost::math::mean(logNormal)
                                       << ", scaled variance = " << boost::math::variance(logNormal));
                             LOG_DEBUG("scaled location = " << scaledLocation
@@ -1837,12 +1836,12 @@ void CLogNormalMeanPrecConjugateTest::testVarianceScale(void)
                             filter.addSamples(weightStyle, samples, weights);
 
                             boost::math::lognormal_distribution<> logNormal(filter.normalMean(),
-                                                                            ::sqrt(1.0 / filter.normalPrecision()));
+                                                                            std::sqrt(1.0 / filter.normalPrecision()));
                             double dm = (dataTypes[t] == maths_t::E_IntegerData ? 0.5 : 0.0);
                             double dv = (dataTypes[t] == maths_t::E_IntegerData ? 1.0 / 12.0 : 0.0);
-                            double trialMeanError = ::fabs(boost::math::mean(logNormal) - (mean + dm))
+                            double trialMeanError = std::fabs(boost::math::mean(logNormal) - (mean + dm))
                                                     / std::max(1.0, mean);
-                            double trialVarianceError = ::fabs(boost::math::variance(logNormal) - (variance + dv))
+                            double trialVarianceError = std::fabs(boost::math::variance(logNormal) - (variance + dv))
                                                         / std::max(1.0, variance);
 
                             LOG_DEBUG("trial mean error = " << trialMeanError);
@@ -1889,7 +1888,7 @@ void CLogNormalMeanPrecConjugateTest::testNegativeSample(void)
     // offset and the other which will adjust and check that we get broadly
     // similar distributions at the end.
 
-    const double location = ::log(2.0);
+    const double location = std::log(2.0);
     const double squareScale = 1.0;
 
     test::CRandomNumbers rng;

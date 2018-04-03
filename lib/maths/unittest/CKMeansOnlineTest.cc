@@ -336,8 +336,8 @@ void CKMeansOnlineTest::testClustering(void)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(costOnline),
                                      maths::CBasicStatistics::mean(cost),
                                      1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(::sqrt(maths::CBasicStatistics::variance(costOnline)),
-                                     ::sqrt(maths::CBasicStatistics::variance(cost)),
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(std::sqrt(maths::CBasicStatistics::variance(costOnline)),
+                                     std::sqrt(maths::CBasicStatistics::variance(cost)),
                                      1e-10);
     }
 
@@ -408,8 +408,8 @@ void CKMeansOnlineTest::testClustering(void)
 
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(costOnline)
                                <= 1.01 * maths::CBasicStatistics::mean(cost));
-        CPPUNIT_ASSERT(::sqrt(maths::CBasicStatistics::variance(costOnline))
-                               <= 26.0 * ::sqrt(maths::CBasicStatistics::variance(cost)));
+        CPPUNIT_ASSERT(std::sqrt(maths::CBasicStatistics::variance(costOnline))
+                               <= 26.0 * std::sqrt(maths::CBasicStatistics::variance(cost)));
     }
 }
 

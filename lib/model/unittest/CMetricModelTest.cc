@@ -2412,7 +2412,7 @@ void CMetricModelTest::testDecayRateControl(void)
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
-            double value = 10.0 * (1.0 + ::sin(  boost::math::double_constants::two_pi
+            double value = 10.0 * (1.0 + std::sin(  boost::math::double_constants::two_pi
                                                * static_cast<double>(t)
                                                / static_cast<double>(core::constants::DAY)))
                                 * (t < 5 * core::constants::WEEK ? 1.0 : 2.0);
@@ -2468,10 +2468,10 @@ void CMetricModelTest::testDecayRateControl(void)
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
-            double value = 10.0 * (1.0 + ::sin(  boost::math::double_constants::two_pi
+            double value = 10.0 * (1.0 + std::sin(  boost::math::double_constants::two_pi
                                                * static_cast<double>(t)
                                                / static_cast<double>(core::constants::DAY)))
-                                * (1.0 + ::sin(  boost::math::double_constants::two_pi
+                                * (1.0 + std::sin(  boost::math::double_constants::two_pi
                                                * static_cast<double>(t)
                                                / 10.0 / static_cast<double>(core::constants::WEEK)));
             TDoubleVec noise;

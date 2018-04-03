@@ -139,7 +139,7 @@ void CTrendTestsTest::testRandomizedPeriodicity(void)
             LOG_DEBUG("time to detect moments = " << timeToDetectionMoments[i]);
             LOG_DEBUG("maximum time to detect = " << timeToDetectionMax[i][0]);
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(timeToDetectionMoments[i]) < 1.5 * DAY);
-            CPPUNIT_ASSERT(::sqrt(maths::CBasicStatistics::variance(timeToDetectionMoments[i])) < 5 * DAY);
+            CPPUNIT_ASSERT(std::sqrt(maths::CBasicStatistics::variance(timeToDetectionMoments[i])) < 5 * DAY);
             CPPUNIT_ASSERT(timeToDetectionMax[i][0] <= 27 * WEEK);
         }
     }

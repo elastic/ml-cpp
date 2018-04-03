@@ -171,7 +171,7 @@ void CRandomProjectionClustererTest::testGenerateProjections(void)
                                      maths::CBasicStatistics::variance(moments),
                                      0.2 / static_cast<double>(t));
 
-        error.add(static_cast<double>(t) * ::fabs(maths::CBasicStatistics::variance(moments) - 1.0 / static_cast<double>(t)));
+        error.add(static_cast<double>(t) * std::fabs(maths::CBasicStatistics::variance(moments) - 1.0 / static_cast<double>(t)));
     }
 
     LOG_DEBUG("Relative error = " << 100.0 * maths::CBasicStatistics::mean(error) << "%");

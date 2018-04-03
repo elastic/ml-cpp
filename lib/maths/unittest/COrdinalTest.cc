@@ -58,20 +58,20 @@ void COrdinalTest::testEqual(void)
         CPPUNIT_ASSERT_EQUAL(true, equal);
         if (sample[0] >= 0.0)
         {
-            equal = maths::COrdinal(static_cast<int64_t>(sample[0])) == maths::COrdinal(::floor(sample[0]));
+            equal = maths::COrdinal(static_cast<int64_t>(sample[0])) == maths::COrdinal(std::floor(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
-            equal = maths::COrdinal(::floor(sample[0])) == maths::COrdinal(static_cast<int64_t>(sample[0]));
+            equal = maths::COrdinal(std::floor(sample[0])) == maths::COrdinal(static_cast<int64_t>(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
-            equal = maths::COrdinal(static_cast<uint64_t>(sample[0])) == maths::COrdinal(::floor(sample[0]));
+            equal = maths::COrdinal(static_cast<uint64_t>(sample[0])) == maths::COrdinal(std::floor(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
-            equal = maths::COrdinal(::floor(sample[0])) == maths::COrdinal(static_cast<uint64_t>(sample[0]));
+            equal = maths::COrdinal(std::floor(sample[0])) == maths::COrdinal(static_cast<uint64_t>(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
         }
         else
         {
-            equal = maths::COrdinal(static_cast<int64_t>(sample[0])) == maths::COrdinal(::ceil(sample[0]));
+            equal = maths::COrdinal(static_cast<int64_t>(sample[0])) == maths::COrdinal(std::ceil(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
-            equal = maths::COrdinal(::ceil(sample[0])) == maths::COrdinal(static_cast<int64_t>(sample[0]));
+            equal = maths::COrdinal(std::ceil(sample[0])) == maths::COrdinal(static_cast<int64_t>(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
         }
     }
@@ -272,11 +272,11 @@ void COrdinalTest::testAsDouble(void)
         TDoubleVec sample;
         rng.generateUniformSamples(-20000.0, 0.0, 1, sample);
         maths::COrdinal signedOrdinal(static_cast<int64_t>(sample[0]));
-        CPPUNIT_ASSERT_EQUAL(::ceil(sample[0]), signedOrdinal.asDouble());
+        CPPUNIT_ASSERT_EQUAL(std::ceil(sample[0]), signedOrdinal.asDouble());
 
         rng.generateUniformSamples(0.0, 20000.0, 1, sample);
         maths::COrdinal unsignedOrdinal(static_cast<uint64_t>(sample[0]));
-        CPPUNIT_ASSERT_EQUAL(::floor(sample[0]), unsignedOrdinal.asDouble());
+        CPPUNIT_ASSERT_EQUAL(std::floor(sample[0]), unsignedOrdinal.asDouble());
 
         rng.generateUniformSamples(-1.0, 1.0, 1, sample);
         maths::COrdinal doubleOrdinal(sample[0]);

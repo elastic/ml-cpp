@@ -12,15 +12,14 @@
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CPersistUtils.h>
 
-#include <map>
-#include <set>
-#include <vector>
-
 #include <boost/circular_buffer.hpp>
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 
-#include <math.h>
+#include <cmath>
+#include <map>
+#include <set>
+#include <vector>
 
 using namespace ml;
 
@@ -83,7 +82,7 @@ struct SEqual
 {
     bool operator()(double lhs, double rhs) const
     {
-        return ::fabs(lhs - rhs) <= 1e-5 * std::max(::fabs(lhs), ::fabs(rhs));
+        return std::fabs(lhs - rhs) <= 1e-5 * std::max(std::fabs(lhs), std::fabs(rhs));
     }
 
     template<typename T>

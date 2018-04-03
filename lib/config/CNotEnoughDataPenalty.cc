@@ -18,6 +18,7 @@
 
 #include <boost/range.hpp>
 
+#include <cmath>
 #include <cstddef>
 
 namespace ml
@@ -161,7 +162,7 @@ void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec &bucketCounts,
                     }
                 }
 
-                double penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
+                double penalty = std::min(std::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
                 std::size_t index = this->params().penaltyIndexFor(bid, IGNORE_EMPTY[i]);
                 indices.push_back(index);
                 penalties.push_back(penalty);

@@ -68,7 +68,7 @@ const CGramSchmidt::TVector &CGramSchmidt::divide(TVector &x, double s)
 
 double CGramSchmidt::norm(const TDoubleVec &x)
 {
-    return ::sqrt(inner(x, x));
+    return std::sqrt(inner(x, x));
 }
 
 double CGramSchmidt::norm(const TVector &x)

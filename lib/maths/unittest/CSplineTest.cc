@@ -82,12 +82,12 @@ void CSplineTest::testNatural(void)
             CPPUNIT_ASSERT_EQUAL(y[i], yy);
 
             double ym = spline.value(x[i] - 1e-3);
-            CPPUNIT_ASSERT(::fabs(yy - ym) < 1e-2);
+            CPPUNIT_ASSERT(std::fabs(yy - ym) < 1e-2);
             LOG_DEBUG("f(x[" << i << " - eps]) = " << ym);
 
             double yp = spline.value(x[i] + 1e-3);
             LOG_DEBUG("f(x[" << i << " + eps]) = " << yp);
-            CPPUNIT_ASSERT(::fabs(yp - yy) < 1e-2);
+            CPPUNIT_ASSERT(std::fabs(yp - yy) < 1e-2);
         }
 
         const TDoubleVec &curvatures = spline.curvatures();
@@ -107,7 +107,7 @@ void CSplineTest::testNatural(void)
         for (std::size_t i = 0u; i < x.size(); ++i)
         {
             x[i] *= boost::math::double_constants::two_pi;
-            y.push_back(::sin(x[i]));
+            y.push_back(std::sin(x[i]));
         }
 
         maths::CSpline<> spline(maths::CSplineTypes::E_Cubic);
@@ -119,8 +119,8 @@ void CSplineTest::testNatural(void)
                         * static_cast<double>(i) / 20.0;
             double yy = spline.value(xx);
             LOG_DEBUG("spline(" << xx << ") = " << yy
-                      << ", f(" << xx << ") = " << ::sin(xx));
-            CPPUNIT_ASSERT(::fabs(::sin(xx) - yy) < 0.02);
+                      << ", f(" << xx << ") = " << std::sin(xx));
+            CPPUNIT_ASSERT(std::fabs(std::sin(xx) - yy) < 0.02);
         }
 
         const TDoubleVec &curvatures = spline.curvatures();
@@ -155,12 +155,12 @@ void CSplineTest::testParabolicRunout(void)
             CPPUNIT_ASSERT_EQUAL(y[i], yy);
 
             double ym = spline.value(x[i] - 1e-3);
-            CPPUNIT_ASSERT(::fabs(yy - ym) < 1e-2);
+            CPPUNIT_ASSERT(std::fabs(yy - ym) < 1e-2);
             LOG_DEBUG("f(x[" << i << " - eps]) = " << ym);
 
             double yp = spline.value(x[i] + 1e-3);
             LOG_DEBUG("f(x[" << i << " + eps]) = " << yp);
-            CPPUNIT_ASSERT(::fabs(yp - yy) < 1e-2);
+            CPPUNIT_ASSERT(std::fabs(yp - yy) < 1e-2);
         }
 
         const TDoubleVec &curvatures = spline.curvatures();
@@ -184,7 +184,7 @@ void CSplineTest::testParabolicRunout(void)
         for (std::size_t i = 0u; i < x.size(); ++i)
         {
             x[i] *= boost::math::double_constants::two_pi;
-            y.push_back(::sin(x[i]));
+            y.push_back(std::sin(x[i]));
         }
 
 
@@ -197,8 +197,8 @@ void CSplineTest::testParabolicRunout(void)
                         * static_cast<double>(i) / 20.0;
             double yy = spline.value(xx);
             LOG_DEBUG("spline(" << xx << ") = " << yy
-                      << ", f(" << xx << ") = " << ::sin(xx));
-            CPPUNIT_ASSERT(::fabs(::sin(xx) - yy) < 0.04);
+                      << ", f(" << xx << ") = " << std::sin(xx));
+            CPPUNIT_ASSERT(std::fabs(std::sin(xx) - yy) < 0.04);
         }
 
         const TDoubleVec &curvatures = spline.curvatures();
@@ -229,7 +229,7 @@ void CSplineTest::testPeriodic(void)
         for (std::size_t i = 0u; i < x.size(); ++i)
         {
             x[i] *= boost::math::double_constants::two_pi;
-            y.push_back(::cos(x[i]));
+            y.push_back(std::cos(x[i]));
         }
 
         maths::CSpline<> spline(maths::CSplineTypes::E_Cubic);
@@ -241,8 +241,8 @@ void CSplineTest::testPeriodic(void)
                         * static_cast<double>(i) / 20.0;
             double yy = spline.value(xx);
             LOG_DEBUG("spline(" << xx << ") = " << yy
-                      << ", f(" << xx << ") = " << ::cos(xx));
-            CPPUNIT_ASSERT(::fabs(::cos(xx) - yy) < 0.02);
+                      << ", f(" << xx << ") = " << std::cos(xx));
+            CPPUNIT_ASSERT(std::fabs(std::cos(xx) - yy) < 0.02);
         }
     }
 
@@ -379,7 +379,7 @@ void CSplineTest::testMean(void)
         for (std::size_t i = 0u; i < 21; ++i)
         {
             x.push_back(static_cast<double>(20 * i));
-            y.push_back(::cos(boost::math::double_constants::two_pi
+            y.push_back(std::cos(boost::math::double_constants::two_pi
                               * static_cast<double>(i) / 10.0));
         }
 
@@ -430,7 +430,7 @@ void CSplineTest::testIllposed(void)
                   << core::CContainerPrinter::print(curvatures));
         for (std::size_t i = 0u; i < curvatures.size(); ++i)
         {
-            CPPUNIT_ASSERT(::fabs(curvatures[i]) < 2e-7);
+            CPPUNIT_ASSERT(std::fabs(curvatures[i]) < 2e-7);
         }
 
         for (std::size_t i = 0u; i <= 30; ++i)
@@ -534,7 +534,7 @@ void CSplineTest::testSlope(void)
                     }
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(numericalSlope,
                                                  slope,
-                                                 1e-3 * ::fabs(numericalSlope));
+                                                 1e-3 * std::fabs(numericalSlope));
                 }
             }
         }
@@ -546,7 +546,7 @@ void CSplineTest::testSlope(void)
         for (std::size_t i = 0u; i < 21; ++i)
         {
             x.push_back(static_cast<double>(20 * i));
-            y.push_back(::cos(boost::math::double_constants::two_pi
+            y.push_back(std::cos(boost::math::double_constants::two_pi
                               * static_cast<double>(i) / 10.0));
         }
         double range = x[x.size()-1] - x[0];
@@ -594,7 +594,7 @@ void CSplineTest::testSplineReference(void)
     for (std::size_t i = 0u; i < x.size(); ++i)
     {
         x[i] *= boost::math::double_constants::two_pi;
-        y.push_back(::sin(x[i]));
+        y.push_back(std::sin(x[i]));
     }
 
     maths::CSpline<> spline(maths::CSplineTypes::E_Cubic);

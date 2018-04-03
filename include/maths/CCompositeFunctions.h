@@ -12,9 +12,8 @@
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 
+#include <cmath>
 #include <limits>
-
-#include <math.h>
 
 namespace ml
 {
@@ -216,19 +215,19 @@ class MATHS_EXPORT CCompositeFunctions
                 inline T operator()(double x) const
                 {
                     static const double LOG_MIN_DOUBLE =
-                            ::log(std::numeric_limits<double>::min());
+                            std::log(std::numeric_limits<double>::min());
                     double fx = m_F(x);
-                    return fx < LOG_MIN_DOUBLE ? 0.0 : ::exp(fx);
+                    return fx < LOG_MIN_DOUBLE ? 0.0 : std::exp(fx);
                 }
 
                 //! For function return success/fail and taking result as argument.
                 inline bool operator()(double x, T &result) const
                 {
                     static const double LOG_MIN_DOUBLE =
-                            ::log(std::numeric_limits<double>::min());
+                            std::log(std::numeric_limits<double>::min());
                     if (m_F(x, result))
                     {
-                        result = result < LOG_MIN_DOUBLE ? 0.0 : ::exp(result);
+                        result = result < LOG_MIN_DOUBLE ? 0.0 : std::exp(result);
                         return true;
                     }
                     return false;

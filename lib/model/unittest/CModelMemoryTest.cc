@@ -139,7 +139,7 @@ void CModelMemoryTest::testOnlineMetricModel(void)
     double mean = 5.0;
     double variance = 2.0;
     std::size_t anomalousBucket = 12u;
-    double anomaly = 5 * ::sqrt(variance);
+    double anomaly = 5 * std::sqrt(variance);
 
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);

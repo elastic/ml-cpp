@@ -45,7 +45,7 @@ void fill(const double (&costs)[N][M], TDoubleVecVec &result)
 
 void fill(const TDoubleVec &costs, TDoubleVecVec &result)
 {
-    std::size_t n = static_cast<std::size_t>(::sqrt(static_cast<double>(costs.size())));
+    std::size_t n = static_cast<std::size_t>(std::sqrt(static_cast<double>(costs.size())));
     result.reserve(n);
     for (std::size_t i = 0u; i < n; ++i)
     {

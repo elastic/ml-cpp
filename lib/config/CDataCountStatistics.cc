@@ -29,6 +29,7 @@
 #include <boost/unordered_set.hpp>
 
 #include <algorithm>
+#include <cmath>
 
 namespace ml
 {
@@ -42,8 +43,8 @@ using TBoolVec = std::vector<bool>;
 //! We sample a subset of short bucket lengths buckets for runtime.
 TBoolVec bucketSampleMask(core_t::TTime bucketLength)
 {
-    double n = ::ceil(std::max(3600.0 / static_cast<double>(bucketLength), 1.0));
-    TBoolVec result(static_cast<std::size_t>(::sqrt(n)), true);
+    double n = std::ceil(std::max(3600.0 / static_cast<double>(bucketLength), 1.0));
+    TBoolVec result(static_cast<std::size_t>(std::sqrt(n)), true);
     result.resize(static_cast<std::size_t>(n), false);
     return result;
 }
@@ -343,7 +344,7 @@ bool CDataCountStatistics::samplePartition(std::size_t partition) const
     }
     maths::CPRNG::CXorOShiro128Plus rng(partition);
     double n = static_cast<double>(m_Partitions.size());
-    double p = 1.0 - 0.99 * std::min(::floor(0.1 * n) / 1000.0, 1.0);
+    double p = 1.0 - 0.99 * std::min(std::floor(0.1 * n) / 1000.0, 1.0);
     return maths::CSampling::uniformSample(rng, 0.0, 1.0) < p;
 }
 

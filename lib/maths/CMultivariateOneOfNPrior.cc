@@ -27,10 +27,9 @@
 #include <boost/ref.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <iomanip>
 #include <iterator>
-
-#include <math.h>
 
 namespace ml
 {
@@ -200,7 +199,7 @@ void modelAcceptPersistInserter(const CModelWeight &weight,
 const double DERATE = 0.99999;
 const double MINUS_INF = DERATE * boost::numeric::bounds<double>::lowest();
 const double INF = DERATE * boost::numeric::bounds<double>::highest();
-const double LOG_INITIAL_WEIGHT = ::log(1e-6);
+const double LOG_INITIAL_WEIGHT = std::log(1e-6);
 const double MINIMUM_SIGNIFICANT_WEIGHT = 0.01;
 
 }
@@ -483,7 +482,7 @@ void CMultivariateOneOfNPrior::propagateForwardsByTime(double time)
 
     CScopeCanonicalizeWeights<TPriorPtr> canonicalize(m_Models);
 
-    double alpha = ::exp(-this->scaledDecayRate() * time);
+    double alpha = std::exp(-this->scaledDecayRate() * time);
 
     for (auto &model : m_Models)
     {
@@ -520,13 +519,13 @@ CMultivariateOneOfNPrior::univariate(const TSize10Vec &marginalize,
             models.emplace_back(1.0, prior.first);
             weights.push_back(prior.second + model.first.logWeight());
             maxWeight.add(weights.back());
-            Z += ::exp(model.first.logWeight());
+            Z += std::exp(model.first.logWeight());
         }
     }
 
     for (std::size_t i = 0u; i < weights.size(); ++i)
     {
-        models[i].first *= ::exp(weights[i] - maxWeight[0]) / Z;
+        models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
     return std::make_pair(TUnivariatePriorPtr(new COneOfNPrior(models, this->dataType(), this->decayRate())),
@@ -559,13 +558,13 @@ CMultivariateOneOfNPrior::bivariate(const TSize10Vec &marginalize,
             models.emplace_back(1.0, prior.first);
             weights.push_back(prior.second + model.first.logWeight());
             maxWeight.add(weights.back());
-            Z += ::exp(model.first.logWeight());
+            Z += std::exp(model.first.logWeight());
         }
     }
 
     for (std::size_t i = 0u; i < weights.size(); ++i)
     {
-        models[i].first *= ::exp(weights[i] - maxWeight[0]) / Z;
+        models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
     return std::make_pair(TPriorPtr(new CMultivariateOneOfNPrior(2, models, this->dataType(), this->decayRate())),
@@ -702,7 +701,7 @@ TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodMode(const TWeightStyle
             sample[0] = model.second->marginalLikelihoodMode(weightStyles, weights);
             double logLikelihood;
             model.second->jointLogMarginalLikelihood(weightStyles, sample, sampleWeights, logLikelihood);
-            updateMean(sample[0], model.first * ::exp(logLikelihood), result, w);
+            updateMean(sample[0], model.first * std::exp(logLikelihood), result, w);
         }
     }
 
@@ -753,7 +752,7 @@ CMultivariateOneOfNPrior::jointLogMarginalLikelihood(const TWeightStyleVec &weig
                 logLikelihoods.push_back(logLikelihood);
                 maxLogLikelihood.add(logLikelihood);
             }
-            Z += ::exp(model.first.logWeight());
+            Z += std::exp(model.first.logWeight());
         }
     }
 
@@ -765,7 +764,7 @@ CMultivariateOneOfNPrior::jointLogMarginalLikelihood(const TWeightStyleVec &weig
 
     for (auto logLikelihood : logLikelihoods)
     {
-        result += ::exp(logLikelihood - maxLogLikelihood[0]);
+        result += std::exp(logLikelihood - maxLogLikelihood[0]);
     }
 
     result = maxLogLikelihood[0] + CTools::fastLog(result / Z);
@@ -927,7 +926,7 @@ CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::weights(void) co
     TDouble3Vec result = this->logWeights();
     for (auto &weight : result)
     {
-        weight = ::exp(weight);
+        weight = std::exp(weight);
     }
     return result;
 }
@@ -940,9 +939,9 @@ CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::logWeights(void)
     for (const auto &model : m_Models)
     {
         result.push_back(model.first.logWeight());
-        Z += ::exp(result.back());
+        Z += std::exp(result.back());
     }
-    Z = ::log(Z);
+    Z = std::log(Z);
     for (auto &weight : result)
     {
         weight -= Z;
@@ -990,7 +989,7 @@ std::string CMultivariateOneOfNPrior::debugWeights(void) const
 }
 
 const double CMultivariateOneOfNPrior::MAXIMUM_RELATIVE_ERROR = 1e-3;
-const double CMultivariateOneOfNPrior::LOG_MAXIMUM_RELATIVE_ERROR = ::log(MAXIMUM_RELATIVE_ERROR);
+const double CMultivariateOneOfNPrior::LOG_MAXIMUM_RELATIVE_ERROR = std::log(MAXIMUM_RELATIVE_ERROR);
 
 }
 }

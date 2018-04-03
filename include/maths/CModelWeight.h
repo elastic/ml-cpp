@@ -14,9 +14,7 @@
 
 #include <boost/numeric/conversion/bounds.hpp>
 
-#include <math.h>
-#include <stdint.h>
-
+#include <cstdint>
 
 namespace ml
 {

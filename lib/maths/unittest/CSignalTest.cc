@@ -42,7 +42,7 @@ void bruteForceDft(maths::CSignal::TComplexVec &f, double sign)
         {
             double t = -sign * boost::math::double_constants::two_pi * static_cast<double>(k * n)
                                                                      / static_cast<double>(f.size());
-            result[k] += maths::CSignal::TComplex(::cos(t), ::sin(t)) * f[n];
+            result[k] += maths::CSignal::TComplex(std::cos(t), std::sin(t)) * f[n];
         }
         if (sign < 0.0)
         {

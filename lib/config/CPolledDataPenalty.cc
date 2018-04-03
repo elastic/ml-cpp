@@ -18,8 +18,8 @@
 #include <config/CTools.h>
 
 #include <algorithm>
+#include <cmath>
 #include <vector>
-#include <math.h>
 
 namespace ml
 {
@@ -67,7 +67,7 @@ void CPolledDataPenalty::penaltyFromMe(CDetectorSpecification &spec) const
                     indices.insert(indices.end(), indices_.begin(), indices_.end());
                     std::fill_n(std::back_inserter(penalties),
                                 indices_.size(),
-                                ::pow(0.1,  static_cast<double>(stats->timeRange())
+                                std::pow(0.1,  static_cast<double>(stats->timeRange())
                                           / static_cast<double>(*interval)
                                           / LOG_TENTH_NUMBER_POLLING_INTERVALS));
                     std::fill_n(std::back_inserter(descriptions),

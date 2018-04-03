@@ -97,8 +97,8 @@ void CProbabilityCalibratorTest::testCalibration(void)
                     trueProbability = (lowerBound + upperBound) / 2.0;
                 }
 
-                double raw = ::fabs(::log(rawProbability) - ::log(trueProbability));
-                double calibrated = ::fabs(::log(calibratedProbability) - ::log(trueProbability));
+                double raw = std::fabs(std::log(rawProbability) - std::log(trueProbability));
+                double calibrated = std::fabs(std::log(calibratedProbability) - std::log(trueProbability));
 
                 rawError += raw;
                 calibratedError += calibrated;
@@ -177,8 +177,8 @@ void CProbabilityCalibratorTest::testCalibration(void)
                     trueProbability = (lowerBound + upperBound) / 2.0;
                 }
 
-                double raw = ::fabs(::log(rawProbability) - ::log(trueProbability));
-                double calibrated = ::fabs(::log(calibratedProbability) - ::log(trueProbability));
+                double raw = std::fabs(std::log(rawProbability) - std::log(trueProbability));
+                double calibrated = std::fabs(std::log(calibratedProbability) - std::log(trueProbability));
 
                 rawError += raw;
                 calibratedError += calibrated;

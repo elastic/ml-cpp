@@ -33,13 +33,12 @@
 #include <boost/math/special_functions/gamma.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 #include <string>
 #include <sstream>
 #include <utility>
 #include <vector>
-
-#include <math.h>
 
 namespace ml
 {
@@ -119,7 +118,7 @@ logLikelihoodFromCluster(double point,
         return status;
     }
 
-    result = likelihood + ::log(probability);
+    result = likelihood + std::log(probability);
     return status;
 }
 
@@ -283,14 +282,14 @@ void BICGain(maths_t::EDataType dataType,
     double n = CBasicStatistics::count(mv);
     double m = mean(dataType, mv);
     double v = variance(dataType, mv);
-    if (v <= MINIMUM_COEFFICIENT_OF_VARIATION * ::fabs(m))
+    if (v <= MINIMUM_COEFFICIENT_OF_VARIATION * std::fabs(m))
     {
         return;
     }
 
     // Log-normal (method of moments)
-    double s = ::log(1.0 + v / pow2(m + logNormalOffset));
-    double l = ::log(m + logNormalOffset) - s / 2.0;
+    double s = std::log(1.0 + v / pow2(m + logNormalOffset));
+    double l = std::log(m + logNormalOffset) - s / 2.0;
     // Gamma (method of moments)
     double a = pow2(m + gammaOffset) / v;
     double b = (m + gammaOffset) / v;
@@ -309,25 +308,25 @@ void BICGain(maths_t::EDataType dataType,
     try
     {
         // Mixture of log-normals (method of moments)
-        double sl = ::log(1.0 + vl / pow2(ml + logNormalOffset));
-        double ll = ::log(ml + logNormalOffset) - sl / 2.0;
-        double sr = ::log(1.0 + vr / pow2(mr + logNormalOffset));
-        double lr = ::log(mr + logNormalOffset) - sr / 2.0;
+        double sl = std::log(1.0 + vl / pow2(ml + logNormalOffset));
+        double ll = std::log(ml + logNormalOffset) - sl / 2.0;
+        double sr = std::log(1.0 + vr / pow2(mr + logNormalOffset));
+        double lr = std::log(mr + logNormalOffset) - sr / 2.0;
         // Mixture of gammas (method of moments)
         double al = pow2(ml + gammaOffset) / vl;
         double bl = (ml + gammaOffset) / vl;
         double ar = pow2(mr + gammaOffset) / vr;
         double br = (mr + gammaOffset) / vr;
 
-        double log2piv  = ::log(boost::math::double_constants::two_pi * v);
-        double log2pis  = ::log(boost::math::double_constants::two_pi * s);
-        double loggn    = boost::math::lgamma(a) - a * ::log(b);
-        double log2pivl = ::log(boost::math::double_constants::two_pi * vl / pow2(wl));
-        double log2pivr = ::log(boost::math::double_constants::two_pi * vr / pow2(wr));
-        double log2pisl = ::log(boost::math::double_constants::two_pi * sl / pow2(wl));
-        double log2pisr = ::log(boost::math::double_constants::two_pi * sr / pow2(wr));
-        double loggnl   = boost::math::lgamma(al) - al * ::log(bl) - ::log(wl);
-        double loggnr   = boost::math::lgamma(ar) - ar * ::log(br) - ::log(wr);
+        double log2piv  = std::log(boost::math::double_constants::two_pi * v);
+        double log2pis  = std::log(boost::math::double_constants::two_pi * s);
+        double loggn    = boost::math::lgamma(a) - a * std::log(b);
+        double log2pivl = std::log(boost::math::double_constants::two_pi * vl / pow2(wl));
+        double log2pivr = std::log(boost::math::double_constants::two_pi * vr / pow2(wr));
+        double log2pisl = std::log(boost::math::double_constants::two_pi * sl / pow2(wl));
+        double log2pisr = std::log(boost::math::double_constants::two_pi * sr / pow2(wr));
+        double loggnl   = boost::math::lgamma(al) - al * std::log(bl) - std::log(wl);
+        double loggnr   = boost::math::lgamma(ar) - ar * std::log(br) - std::log(wr);
 
         for (std::size_t i = start; i < split; ++i)
         {
@@ -337,7 +336,7 @@ void BICGain(maths_t::EDataType dataType,
 
             if (vi == 0.0)
             {
-                double li = ::log(mi + logNormalOffset);
+                double li = std::log(mi + logNormalOffset);
                 ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
                 ll1l  += ni * (pow2(li - l) / s + 2.0 * li + log2pis);
                 ll1g  += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
@@ -347,8 +346,8 @@ void BICGain(maths_t::EDataType dataType,
             }
             else
             {
-                double si = ::log(1.0 + vi / pow2(mi + logNormalOffset));
-                double li = ::log(mi + logNormalOffset) - si / 2.0;
+                double si = std::log(1.0 + vi / pow2(mi + logNormalOffset));
+                double li = std::log(mi + logNormalOffset) - si / 2.0;
                 ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
                 ll1l  += ni * ((si + pow2(li - l)) / s + 2.0 * li + log2pis);
                 ll1g  += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
@@ -366,7 +365,7 @@ void BICGain(maths_t::EDataType dataType,
 
             if (vi == 0.0)
             {
-                double li = ::log(mi + logNormalOffset);
+                double li = std::log(mi + logNormalOffset);
                 ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
                 ll1l  += ni * (pow2(li - l) / s + 2.0 * li + log2pis);
                 ll1g  += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
@@ -376,8 +375,8 @@ void BICGain(maths_t::EDataType dataType,
             }
             else
             {
-                double si = ::log(1.0 + vi / pow2(mi + logNormalOffset));
-                double li = ::log(mi + logNormalOffset) - si / 2.0;
+                double si = std::log(1.0 + vi / pow2(mi + logNormalOffset));
+                double li = std::log(mi + logNormalOffset) - si / 2.0;
                 ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
                 ll1l  += ni * ((si + pow2(li - l)) / s + 2.0 * li + log2pis);
                 ll1g  += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
@@ -396,7 +395,7 @@ void BICGain(maths_t::EDataType dataType,
         return;
     }
 
-    double logn = ::log(n);
+    double logn = std::log(n);
     double ll1  =  min(distributions.haveNormal()    ? ll1n : boost::numeric::bounds<double>::highest(),
                        distributions.haveLogNormal() ? ll1l : boost::numeric::bounds<double>::highest(),
                        distributions.haveGamma()     ? ll1g : boost::numeric::bounds<double>::highest())
@@ -436,7 +435,7 @@ void winsorise(const TDoubleDoublePr &interval, TTuple &category)
     double a = interval.first;
     double b = interval.second;
     double m = CBasicStatistics::mean(category);
-    double sigma = ::sqrt(CBasicStatistics::maximumLikelihoodVariance(category));
+    double sigma = std::sqrt(CBasicStatistics::maximumLikelihoodVariance(category));
     double t = 3.0 * sigma;
 
     double xa = m - a;
@@ -456,8 +455,8 @@ void winsorise(const TDoubleDoublePr &interval, TTuple &category)
         xa /= sigma;
         xb /= sigma;
 
-        double ea = xa > t ? 0.0 : ::exp(-xa*xa / 2.0);
-        double eb = xb > t ? 0.0 : ::exp(-xb*xb / 2.0);
+        double ea = xa > t ? 0.0 : std::exp(-xa*xa / 2.0);
+        double eb = xb > t ? 0.0 : std::exp(-xb*xb / 2.0);
 
         double km = sigma
                     / boost::math::double_constants::root_two_pi
@@ -947,8 +946,8 @@ void CXMeansOnline1d::cluster(const double &point,
         double likelihoodRight = rightCluster->logLikelihoodFromCluster(m_WeightCalc, point);
 
         double renormalizer = std::max(likelihoodLeft, likelihoodRight);
-        double pLeft  = ::exp(likelihoodLeft - renormalizer);
-        double pRight = ::exp(likelihoodRight - renormalizer);
+        double pLeft  = std::exp(likelihoodLeft - renormalizer);
+        double pRight = std::exp(likelihoodRight - renormalizer);
         double normalizer = pLeft + pRight;
         pLeft  /= normalizer;
         pRight /= normalizer;
@@ -1034,8 +1033,8 @@ void CXMeansOnline1d::add(const double &point,
 
         // Normalize the likelihood values.
         double renormalizer = std::max(likelihoodLeft, likelihoodRight);
-        double pLeft  = ::exp(likelihoodLeft - renormalizer);
-        double pRight = ::exp(likelihoodRight - renormalizer);
+        double pLeft  = std::exp(likelihoodLeft - renormalizer);
+        double pRight = std::exp(likelihoodRight - renormalizer);
         double normalizer = pLeft + pRight;
         pLeft  /= normalizer;
         pRight /= normalizer;
@@ -1110,7 +1109,7 @@ void CXMeansOnline1d::propagateForwardsByTime(double time)
         LOG_ERROR("Can't propagate backwards in time");
         return;
     }
-    m_HistoryLength *= ::exp(-m_DecayRate * time);
+    m_HistoryLength *= std::exp(-m_DecayRate * time);
     for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
     {
         m_Clusters[i].propagateForwardsByTime(time);
@@ -1244,7 +1243,7 @@ std::string CXMeansOnline1d::printClusters(void) const
             {
                 likelihood += m_Clusters[j].weight(m_WeightCalc)
                               / weightSum
-                              * ::exp(logLikelihood);
+                              * std::exp(logLikelihood);
             }
         }
         coordinatesStr << x[0] << " ";
@@ -1318,7 +1317,7 @@ double CXMeansOnline1d::minimumSplitCount(void) const
         {
             count += m_Clusters[i].count();
         }
-        double scale = std::max(m_HistoryLength * (1.0 - ::exp(-m_InitialDecayRate)), 1.0);
+        double scale = std::max(m_HistoryLength * (1.0 - std::exp(-m_InitialDecayRate)), 1.0);
         count *= m_MinimumClusterFraction / scale;
         result = std::max(result, count);
     }
@@ -1553,7 +1552,7 @@ double CXMeansOnline1d::CCluster::centre(void) const
 
 double CXMeansOnline1d::CCluster::spread(void) const
 {
-    return ::sqrt(m_Prior.marginalLikelihoodVariance());
+    return std::sqrt(m_Prior.marginalLikelihoodVariance());
 }
 
 double CXMeansOnline1d::CCluster::percentile(double p) const

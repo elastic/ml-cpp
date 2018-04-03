@@ -198,7 +198,7 @@ void CGramSchmidtTest::testNormalisation(void)
             if (t % 10 == 0) debug(x);
             for (std::size_t i = 0u; i < x.size(); ++i)
             {
-                double normxi = ::sqrt(inner(x[i], x[i]));
+                double normxi = std::sqrt(inner(x[i], x[i]));
                 if (t % 10 == 0)
                 {
                     LOG_DEBUG("|| x(i) || = " << normxi);
@@ -274,7 +274,7 @@ void CGramSchmidtTest::testSpan(void)
                 }
 
                 subtract(r, x[i]);
-                double normr = ::sqrt(inner(r, r));
+                double normr = std::sqrt(inner(r, r));
 
                 if (t % 10 == 0)
                 {

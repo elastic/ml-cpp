@@ -439,7 +439,7 @@ void doComputeInfluences(model_t::EFeature feature,
         LOG_TRACE("log(p) = " << logp
                   << ", tail = " << core::CContainerPrinter::print(tail)
                   << ", v(i) = " << core::CContainerPrinter::print(influencedValue)
-                  << ", log(p(i)) = " << ::log(pi)
+                  << ", log(p(i)) = " << std::log(pi)
                   << ", weight = " << core::CContainerPrinter::print(params.weights())
                   << ", influence = " << influence
                   << ", influencer field value = " << i->first.get());
@@ -516,7 +516,7 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
     TTail2Vec tail;
     TSize1Vec mostAnomalousCorrelate;
 
-    double logp = ::log(probability);
+    double logp = std::log(probability);
     TDouble2Vec4Vec1Vec weights(params.weights());
     for (const auto &influence_ : influencerValues)
     {
@@ -540,11 +540,11 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
         pi = maths::CTools::truncate(pi, maths::CTools::smallestProbability(), 1.0);
         pi = model_t::adjustProbability(feature, elapsedTime, pi);
 
-        double influence = computeInfluence(logp, ::log(pi));
+        double influence = computeInfluence(logp, std::log(pi));
 
         LOG_TRACE("log(p) = " << logp
                   << ", v(i) = " << core::CContainerPrinter::print(influencedValue)
-                  << ", log(p(i)) = " << ::log(pi)
+                  << ", log(p(i)) = " << std::log(pi)
                   << ", weight(i) = " << core::CContainerPrinter::print(params.weights())
                   << ", influence = " << influence
                   << ", influencer field value = " << influence_.first.get());
@@ -789,7 +789,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string &influe
         }
     }
 
-    double logp = ::log(std::max(params.s_Probability, maths::CTools::smallestProbability()));
+    double logp = std::log(std::max(params.s_Probability, maths::CTools::smallestProbability()));
 
     params.s_InfluencerName   = canonical(influencerName);
     params.s_InfluencerValues = influencerValues;
@@ -834,7 +834,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string &influe
         }
     }
 
-    double logp = ::log(std::max(params.s_Probability, maths::CTools::smallestProbability()));
+    double logp = std::log(std::max(params.s_Probability, maths::CTools::smallestProbability()));
 
     params.s_InfluencerName   = canonical(influencerName);
     params.s_InfluencerValues = influencerValues[params.s_MostAnomalousCorrelate[0]];
@@ -866,7 +866,7 @@ bool CProbabilityAndInfluenceCalculator::calculate(double &probability,
 
     LOG_TRACE("probability = " << probability);
 
-    double logp = ::log(probability);
+    double logp = std::log(probability);
 
     influences.reserve(m_InfluencerProbabilities.size());
     for (const auto &aggregator : m_InfluencerProbabilities)
@@ -878,7 +878,7 @@ bool CProbabilityAndInfluenceCalculator::calculate(double &probability,
                       << core::CContainerPrinter::print(aggregator.first));
         }
         LOG_TRACE("influence probability = " << probability_);
-        double influence = CInfluenceCalculator::intersectionInfluence(logp, ::log(probability_));
+        double influence = CInfluenceCalculator::intersectionInfluence(logp, std::log(probability_));
         if (influence >= m_Cutoff)
         {
             influences.emplace_back(aggregator.first, influence);
@@ -902,7 +902,7 @@ void CProbabilityAndInfluenceCalculator::commitInfluences(model_t::EFeature feat
                                                   m_ProbabilityTemplate).first->second;
         if (!model_t::isConstant(feature))
         {
-            double probability = ::exp(influence.second * logp);
+            double probability = std::exp(influence.second * logp);
             LOG_TRACE("Adding = " << influence.first.second.get() << " " << probability);
             aggregator.add(probability, weight);
         }

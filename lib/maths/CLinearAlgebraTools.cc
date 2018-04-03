@@ -100,7 +100,7 @@ class CGaussianLogLikelihood
                 }
                 result = -0.5 * (  residual(0) * residual(0) / covariance_(0, 0)
                                  + core::constants::LOG_TWO_PI
-                                 + ::log(covariance_(0, 0)));
+                                 + std::log(covariance_(0, 0)));
                 return maths_t::E_FpNoErrors;
 
             default:
@@ -126,7 +126,7 @@ class CGaussianLogLikelihood
                 double logDeterminant = 0.0;
                 for (std::size_t i = 0u; i < rank; ++i)
                 {
-                    logDeterminant += ::log(covariance.singularValues()(i));
+                    logDeterminant += std::log(covariance.singularValues()(i));
                 }
                 result = -0.5 * (  residual.inner(y)
                                  + static_cast<double>(rank) * core::constants::LOG_TWO_PI
@@ -179,7 +179,7 @@ class CSampleGaussian
             {
                 LOG_TRACE("# intervals = " << numberIntervals);
                 result.reserve(rank * numberIntervals);
-                double scale = ::sqrt(static_cast<double>(rank));
+                double scale = std::sqrt(static_cast<double>(rank));
                 LOG_TRACE("scale = " << scale)
 
                 for (std::size_t i = 0u; i < rank; ++i)
@@ -188,7 +188,7 @@ class CSampleGaussian
                     try
                     {
                         double variance = covariance.singularValues()(i);
-                        boost::math::normal_distribution<> normal(0.0, ::sqrt(variance));
+                        boost::math::normal_distribution<> normal(0.0, std::sqrt(variance));
                         LOG_TRACE("[U]_{.i} = " << covariance.matrixU().col(i).transpose())
                         LOG_TRACE("variance = " << variance);
                         LOG_TRACE("u = " << u);
@@ -242,7 +242,7 @@ class CLogDeterminant
                 {
                     return maths_t::E_FpOverflowed;
                 }
-                result = ::log(m_(0, 0));
+                result = std::log(m_(0, 0));
                 return maths_t::E_FpNoErrors;
 
             default:
@@ -255,13 +255,13 @@ class CLogDeterminant
                 std::size_t rank = static_cast<std::size_t>(svd.rank());
                 if (!ignoreSingularSubspace && rank < d)
                 {
-                    result = static_cast<double>(d - rank) * ::log(svd.threshold() * svd.singularValues()(0));
+                    result = static_cast<double>(d - rank) * std::log(svd.threshold() * svd.singularValues()(0));
                     return maths_t::E_FpOverflowed;
                 }
                 result = 0.0;
                 for (std::size_t i = 0u; i < rank; ++i)
                 {
-                    result += ::log(svd.singularValues()(i));
+                    result += std::log(svd.singularValues()(i));
                 }
                 return maths_t::E_FpNoErrors;
             }

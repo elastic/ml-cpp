@@ -90,7 +90,7 @@ void CXMeansOnline1dTest::testCluster(void)
 
     double expectedCount  = maths::CBasicStatistics::count(moments);
     double expectedCentre = maths::CBasicStatistics::mean(moments);
-    double expectedSpread = ::sqrt(maths::CBasicStatistics::variance(moments));
+    double expectedSpread = std::sqrt(maths::CBasicStatistics::variance(moments));
     LOG_DEBUG("expected count  = " << expectedCount);
     LOG_DEBUG("expected centre = " << expectedCentre);
     LOG_DEBUG("expected spread = " << expectedSpread);
@@ -119,7 +119,7 @@ void CXMeansOnline1dTest::testCluster(void)
         double expectedPercentile = values[static_cast<std::size_t>(p / 100.0 * static_cast<double>(values.size()) + 0.5)];
         LOG_DEBUG(p << " percentile = " << cluster.percentile(p));
         LOG_DEBUG(p << " expected percentile = " << expectedPercentile);
-        double error = ::fabs(cluster.percentile(p) - expectedPercentile);
+        double error = std::fabs(cluster.percentile(p) - expectedPercentile);
         CPPUNIT_ASSERT(error < 0.5);
         percentileError.add(error / expectedPercentile);
     }
@@ -136,13 +136,13 @@ void CXMeansOnline1dTest::testCluster(void)
         sampleMoments.add(samples[i]);
     }
     double sampleCentre = maths::CBasicStatistics::mean(sampleMoments);
-    double sampleSpread = ::sqrt(maths::CBasicStatistics::variance(sampleMoments));
+    double sampleSpread = std::sqrt(maths::CBasicStatistics::variance(sampleMoments));
     LOG_DEBUG("sample centre = " << sampleCentre);
     LOG_DEBUG("sample spread = " << sampleSpread);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(cluster.centre(), sampleCentre, 0.02);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(cluster.spread(), sampleSpread, 0.2);
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(cluster.count()),
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(std::log(cluster.count()),
                                  - cluster.logLikelihoodFromCluster(maths_t::E_ClustersEqualWeight, 1.5)
                                  + cluster.logLikelihoodFromCluster(maths_t::E_ClustersFractionWeight, 1.5),
                                  1e-10);
@@ -288,13 +288,13 @@ void CXMeansOnline1dTest::testMixtureOfGaussians(void)
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(expectedClusters[j]),
                                              clusters[j].centre(),
                                              0.1);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                                              clusters[j].spread(),
                                              0.4);
-                meanError += ::fabs(clusters[j].centre()
+                meanError += std::fabs(clusters[j].centre()
                                     - maths::CBasicStatistics::mean(expectedClusters[j]));
-                spreadError += ::fabs(clusters[j].spread()
-                                      - ::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])));
+                spreadError += std::fabs(clusters[j].spread()
+                                      - std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])));
             }
         }
 
@@ -353,7 +353,7 @@ void CXMeansOnline1dTest::testMixtureOfGaussians(void)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(expectedClusters),
                                      clusters[0].centre(),
                                      0.05);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(::sqrt(maths::CBasicStatistics::variance(expectedClusters)),
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(std::sqrt(maths::CBasicStatistics::variance(expectedClusters)),
                                      clusters[0].spread(),
                                      0.3);
     }
@@ -418,13 +418,13 @@ void CXMeansOnline1dTest::testMixtureOfGaussians(void)
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(expectedClusters[j]),
                                              clusters[j].centre(),
                                              0.4);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                                              clusters[j].spread(),
                                              0.3);
-                meanError += ::fabs(clusters[j].centre()
+                meanError += std::fabs(clusters[j].centre()
                                     - maths::CBasicStatistics::mean(expectedClusters[j]));
-                spreadError += ::fabs(clusters[j].spread()
-                                      - ::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])));
+                spreadError += std::fabs(clusters[j].spread()
+                                      - std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])));
             }
         }
 
@@ -503,13 +503,13 @@ void CXMeansOnline1dTest::testMixtureOfUniforms(void)
             CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(expectedClusters[j]),
                                          clusters[j].centre(),
                                          0.01);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                                          clusters[j].spread(),
                                          0.02);
-            meanError += ::fabs(clusters[j].centre()
+            meanError += std::fabs(clusters[j].centre()
                                 - maths::CBasicStatistics::mean(expectedClusters[j]));
-            spreadError += ::fabs(clusters[j].spread()
-                                  - ::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])));
+            spreadError += std::fabs(clusters[j].spread()
+                                  - std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])));
         }
     }
 
@@ -606,14 +606,14 @@ void CXMeansOnline1dTest::testMixtureOfLogNormals(void)
                                          clusters[j].centre(),
                                          0.03 * std::max(maths::CBasicStatistics::mean(expectedClusters[j]),
                                                          clusters[j].centre()));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                                          clusters[j].spread(),
-                                         0.5 * std::max(::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
+                                         0.5 * std::max(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                                                         clusters[j].spread()));
-            meanError += ::fabs(clusters[j].centre()
+            meanError += std::fabs(clusters[j].centre()
                                 - maths::CBasicStatistics::mean(expectedClusters[j]));
-            spreadError += ::fabs(clusters[j].spread()
-                                  - ::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])));
+            spreadError += std::fabs(clusters[j].spread()
+                                  - std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])));
         }
     }
 
@@ -698,14 +698,14 @@ void CXMeansOnline1dTest::testOutliers(void)
                                          clusters[j].centre(),
                                          0.01 * std::max(maths::CBasicStatistics::mean(expectedClusters[j]),
                                                          clusters[j].centre()));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                                          clusters[j].spread(),
-                                         0.03 * std::max(::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
+                                         0.03 * std::max(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                                                         clusters[j].spread()));
-            meanError += ::fabs(clusters[j].centre()
+            meanError += std::fabs(clusters[j].centre()
                                 - maths::CBasicStatistics::mean(expectedClusters[j]));
-            spreadError += ::fabs(clusters[j].spread()
-                                  - ::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])));
+            spreadError += std::fabs(clusters[j].spread()
+                                  - std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])));
         }
     }
 

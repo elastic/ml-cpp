@@ -104,16 +104,16 @@ double mutualInformation(const TDoubleVec &p1,
             if (f12[i][j] > 0.0)
             {
                 I +=    f12[i][j] / static_cast<double>(n)
-                     * ::log(f12[i][j] * static_cast<double>(n) / f1[i] / f2[j]);
+                     * std::log(f12[i][j] * static_cast<double>(n) / f1[i] / f2[j]);
             }
         }
         if (f1[i] > 0.0)
         {
-            H1 -= f1[i] / static_cast<double>(n) * ::log(f1[i] / static_cast<double>(n));
+            H1 -= f1[i] / static_cast<double>(n) * std::log(f1[i] / static_cast<double>(n));
         }
         if (f2[i] > 0.0)
         {
-            H2 -= f2[i] / static_cast<double>(n) * ::log(f2[i] / static_cast<double>(n));
+            H2 -= f2[i] / static_cast<double>(n) * std::log(f2[i] / static_cast<double>(n));
         }
     }
 
@@ -168,9 +168,9 @@ void estimateCorrelation(const std::size_t trials,
             if (maths::CBasicStatistics::count(sampleMoments) > 1.0)
             {
                 px += projections[i] * (samples[i](0) - maths::CBasicStatistics::mean(sampleMoments)(0))
-                                     / ::sqrt(maths::CBasicStatistics::variance(sampleMoments)(0));
+                                     / std::sqrt(maths::CBasicStatistics::variance(sampleMoments)(0));
                 py += projections[i] * (samples[i](1) - maths::CBasicStatistics::mean(sampleMoments)(1))
-                                     / ::sqrt(maths::CBasicStatistics::variance(sampleMoments)(1));
+                                     / std::sqrt(maths::CBasicStatistics::variance(sampleMoments)(1));
             }
         }
         maths::CPackedBitVector ix(50, true);
@@ -209,7 +209,7 @@ void CKMostCorrelatedTest::testCorrelation(void)
         estimateCorrelation(100, mean, covariance, correlationEstimate);
         LOG_DEBUG("correlationEstimate = " << correlationEstimate);
 
-        double sd = ::sqrt(maths::CBasicStatistics::variance(correlationEstimate));
+        double sd = std::sqrt(maths::CBasicStatistics::variance(correlationEstimate));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.2, maths::CBasicStatistics::mean(correlationEstimate), 3.0 * sd / 10.0);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, sd, 0.5);
     }
@@ -225,7 +225,7 @@ void CKMostCorrelatedTest::testCorrelation(void)
         estimateCorrelation(100, mean, covariance, correlationEstimate);
         LOG_DEBUG("correlation = " << correlationEstimate);
 
-        double sd = ::sqrt(maths::CBasicStatistics::variance(correlationEstimate));
+        double sd = std::sqrt(maths::CBasicStatistics::variance(correlationEstimate));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5, maths::CBasicStatistics::mean(correlationEstimate), 3.0 * sd / 10.0);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, sd, 0.42);
     }
@@ -241,7 +241,7 @@ void CKMostCorrelatedTest::testCorrelation(void)
         estimateCorrelation(100, mean, covariance, correlationEstimate);
         LOG_DEBUG("correlation = " << correlationEstimate);
 
-        double sd = ::sqrt(maths::CBasicStatistics::variance(correlationEstimate));
+        double sd = std::sqrt(maths::CBasicStatistics::variance(correlationEstimate));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.9, maths::CBasicStatistics::mean(correlationEstimate), 3.0 * sd / 10.0);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, sd, 0.2);
     }
@@ -896,9 +896,9 @@ void CKMostCorrelatedTest::testScale(void)
     {
         slope.add(static_cast<double>(elapsed[i]) / static_cast<double>(elapsed[i-1]));
     }
-    double exponent = ::log(maths::CBasicStatistics::mean(slope)) / ::log(2.0);
+    double exponent = std::log(maths::CBasicStatistics::mean(slope)) / std::log(2.0);
     LOG_DEBUG("exponent = " << exponent);
-    double sdRatio = ::sqrt(maths::CBasicStatistics::variance(slope))
+    double sdRatio = std::sqrt(maths::CBasicStatistics::variance(slope))
                    / maths::CBasicStatistics::mean(slope);
     LOG_DEBUG("sdRatio = " << sdRatio);
     if (core::CUname::nodeName().compare(0, 3, "vm-") == 0)

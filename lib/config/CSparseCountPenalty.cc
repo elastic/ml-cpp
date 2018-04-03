@@ -17,6 +17,7 @@
 
 #include <boost/range.hpp>
 
+#include <cmath>
 #include <vector>
 
 namespace ml
@@ -194,7 +195,7 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const
                             double scale = static_cast<double>(longest) / static_cast<double>(candidates[bid]);
                             for (std::size_t j = 0u; j < xq[bid].size(); ++j)
                             {
-                                xq[bid][j] = scale * means[bid] + ::sqrt(scale) * (xq[bid][j] - means[bid]);
+                                xq[bid][j] = scale * means[bid] + std::sqrt(scale) * (xq[bid][j] - means[bid]);
                             }
                         }
                     }
@@ -217,7 +218,7 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const
                 {
                     std::size_t index = this->params().penaltyIndexFor(bid, IGNORE_EMPTY[iid]);
                     indices.push_back(index);
-                    double penalty = ::exp(maths::CBasicStatistics::mean(penalties_[bid]));
+                    double penalty = std::exp(maths::CBasicStatistics::mean(penalties_[bid]));
                     std::string description;
                     if (penalty < 1.0)
                     {

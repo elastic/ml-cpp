@@ -248,7 +248,7 @@ void CPopulationModel::sample(core_t::TTime startTime,
         }
     }
 
-    double alpha = ::exp(-this->params().s_DecayRate * 1.0);
+    double alpha = std::exp(-this->params().s_DecayRate * 1.0);
     for (std::size_t cid = 0u; cid < m_PersonAttributeBucketCounts.size(); ++cid)
     {
         m_PersonAttributeBucketCounts[cid].age(alpha);
