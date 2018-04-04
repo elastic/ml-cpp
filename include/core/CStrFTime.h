@@ -20,12 +20,8 @@
 
 #include <time.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Format the date/time struct into a string in the buffer buf, according to
@@ -44,18 +40,11 @@ namespace core
 //! whereas Unix formats it as a numeric offset.  We want the numeric offset on
 //! all platforms.
 //!
-class CORE_EXPORT CStrFTime : private CNonInstantiatable
-{
-    public:
-        static size_t strFTime(char *buf,
-                               size_t maxSize,
-                               const char *format,
-                               struct tm *tm);
+class CORE_EXPORT CStrFTime : private CNonInstantiatable {
+public:
+    static size_t strFTime(char* buf, size_t maxSize, const char* format, struct tm* tm);
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CStrFTime_h
-

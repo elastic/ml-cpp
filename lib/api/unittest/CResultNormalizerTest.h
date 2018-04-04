@@ -17,14 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CResultNormalizerTest : public CppUnit::TestFixture {
+public:
+    void testInitNormalizer();
 
-class CResultNormalizerTest : public CppUnit::TestFixture
-{
-    public:
-        void testInitNormalizer();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CResultNormalizerTest_h
-

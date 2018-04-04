@@ -30,8 +30,7 @@
 using namespace ml;
 using namespace handy_typedefs;
 
-void CDecayRateControllerTest::testLowCov()
-{
+void CDecayRateControllerTest::testLowCov() {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  CDecayRateControllerTest::testLowCov  |");
     LOG_DEBUG("+----------------------------------------+");
@@ -44,16 +43,14 @@ void CDecayRateControllerTest::testLowCov()
     maths::CDecayRateController controller(maths::CDecayRateController::E_PredictionBias, 1);
 
     double decayRate{0.0005};
-    for (std::size_t i = 0u; i < 1000; ++i)
-    {
+    for (std::size_t i = 0u; i < 1000; ++i) {
         double multiplier{controller.multiplier({10000.0}, {{1.0}}, 3600, 1.0, 0.0005)};
         decayRate *= multiplier;
     }
     LOG_DEBUG("Controlled decay = " << decayRate);
     CPPUNIT_ASSERT(decayRate > 0.0005);
 
-    for (std::size_t i = 0u; i < 1000; ++i)
-    {
+    for (std::size_t i = 0u; i < 1000; ++i) {
         double multiplier{controller.multiplier({10000.0}, {{0.0}}, 3600, 1.0, 0.0005)};
         decayRate *= multiplier;
     }
@@ -61,8 +58,7 @@ void CDecayRateControllerTest::testLowCov()
     CPPUNIT_ASSERT(decayRate < 0.0005);
 }
 
-void CDecayRateControllerTest::testOrderedErrors()
-{
+void CDecayRateControllerTest::testOrderedErrors() {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CDecayRateControllerTest::testOrderedErrors  |");
     LOG_DEBUG("+-----------------------------------------------+");
@@ -77,10 +73,8 @@ void CDecayRateControllerTest::testOrderedErrors()
 
     double decayRate{0.0005};
     TDouble1VecVec predictionErrors;
-    for (std::size_t i = 0u; i < 500; ++i)
-    {
-        for (int j = 0; j < 100; ++j)
-        {
+    for (std::size_t i = 0u; i < 500; ++i) {
+        for (int j = 0; j < 100; ++j) {
             predictionErrors.push_back({static_cast<double>(j - 50)});
         }
         double multiplier{controller.multiplier({100.0}, predictionErrors, 3600, 1.0, 0.0005)};
@@ -88,11 +82,9 @@ void CDecayRateControllerTest::testOrderedErrors()
     }
     LOG_DEBUG("Controlled decay = " << decayRate);
     CPPUNIT_ASSERT(decayRate <= 0.0005);
-
 }
 
-void CDecayRateControllerTest::testPersist()
-{
+void CDecayRateControllerTest::testPersist() {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CDecayRateControllerTest::testPersist  |");
     LOG_DEBUG("+-----------------------------------------+");
@@ -108,8 +100,7 @@ void CDecayRateControllerTest::testPersist()
     rng.generateUniformSamples(-2.0, 6.0, 1000, errors);
 
     maths::CDecayRateController origController(maths::CDecayRateController::E_PredictionBias, 1);
-    for (std::size_t i = 0u; i < values.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < values.size(); ++i) {
         origController.multiplier({values[i]}, {{errors[i]}}, 3600, 1.0, 0.0005);
     }
 
@@ -128,30 +119,23 @@ void CDecayRateControllerTest::testPersist()
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CDecayRateController restoredController;
-        CPPUNIT_ASSERT_EQUAL(true, traverser.traverseSubLevel(
-                                       boost::bind(&maths::CDecayRateController::acceptRestoreTraverser,
-                                                   &restoredController, _1)));
+        CPPUNIT_ASSERT_EQUAL(
+            true, traverser.traverseSubLevel(boost::bind(&maths::CDecayRateController::acceptRestoreTraverser, &restoredController, _1)));
 
-        LOG_DEBUG("orig checksum = " << origController.checksum()
-                  << ", new checksum = " << restoredController.checksum());
-        CPPUNIT_ASSERT_EQUAL(origController.checksum(),
-                             restoredController.checksum());
+        LOG_DEBUG("orig checksum = " << origController.checksum() << ", new checksum = " << restoredController.checksum());
+        CPPUNIT_ASSERT_EQUAL(origController.checksum(), restoredController.checksum());
     }
 }
 
-CppUnit::Test *CDecayRateControllerTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDecayRateControllerTest");
+CppUnit::Test* CDecayRateControllerTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDecayRateControllerTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CDecayRateControllerTest>(
-                                   "CDecayRateControllerTest::testLowCov",
-                                   &CDecayRateControllerTest::testLowCov) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CDecayRateControllerTest>(
-                                   "CDecayRateControllerTest::testOrderedErrors",
-                                   &CDecayRateControllerTest::testOrderedErrors) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CDecayRateControllerTest>(
-                                   "CDecayRateControllerTest::testPersist",
-                                   &CDecayRateControllerTest::testPersist) );
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDecayRateControllerTest>("CDecayRateControllerTest::testLowCov", &CDecayRateControllerTest::testLowCov));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDecayRateControllerTest>("CDecayRateControllerTest::testOrderedErrors",
+                                                                            &CDecayRateControllerTest::testOrderedErrors));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDecayRateControllerTest>("CDecayRateControllerTest::testPersist", &CDecayRateControllerTest::testPersist));
 
     return suiteOfTests;
 }

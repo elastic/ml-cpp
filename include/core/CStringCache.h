@@ -21,12 +21,8 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! A cache of strings that can be reused
@@ -68,84 +64,77 @@ namespace core
 //! a non-zero hash, which would be hard to reproduce for a
 //! range of characters, hence we use our own hash algorithm.
 //!
-class CORE_EXPORT CStringCache
-{
+class CORE_EXPORT CStringCache {
+public:
+    //! Constructor detects whether copy-on-write strings are in use
+    CStringCache();
+
+    //! Does the current platform use copy-on-write strings?  If it
+    //! doesn't, it's probably best not to use any further functionality
+    //! of this class.
+    bool haveCopyOnWriteStrings() const;
+
+    //! Look up a char pointer when the length is not known
+    const std::string& stringFor(const char* str);
+
+    //! If the length is already known the hash calculation can be more
+    //! efficient
+    const std::string& stringFor(const char* str, size_t length);
+
+private:
+    //! String hash that uses the same formula as CCharPHash below.
+    //! Boost's hash function applied to an empty string returns a non-zero
+    //! hash, which would be hard to reproduce for a range of characters,
+    //! hence using a hand coded hash functor.
+    class CStrHash : public std::unary_function<std::string, size_t> {
     public:
-        //! Constructor detects whether copy-on-write strings are in use
-        CStringCache();
+        size_t operator()(const std::string& str) const;
+    };
 
-        //! Does the current platform use copy-on-write strings?  If it
-        //! doesn't, it's probably best not to use any further functionality
-        //! of this class.
-        bool haveCopyOnWriteStrings() const;
+    //! Class to hash a range of characters on construction to save
+    //! calculating the length in operator().  Does NOT construct a
+    //! temporary string object to create the hash.
+    class CCharPHash : public std::unary_function<const char*, size_t> {
+    public:
+        //! Store the given hash
+        CCharPHash(const char* str, const char* end);
 
-        //! Look up a char pointer when the length is not known
-        const std::string &stringFor(const char *str);
-
-        //! If the length is already known the hash calculation can be more
-        //! efficient
-        const std::string &stringFor(const char *str, size_t length);
-
-    private:
-        //! String hash that uses the same formula as CCharPHash below.
-        //! Boost's hash function applied to an empty string returns a non-zero
-        //! hash, which would be hard to reproduce for a range of characters,
-        //! hence using a hand coded hash functor.
-        class CStrHash : public std::unary_function<std::string, size_t>
-        {
-            public:
-                size_t operator()(const std::string &str) const;
-        };
-
-        //! Class to hash a range of characters on construction to save
-        //! calculating the length in operator().  Does NOT construct a
-        //! temporary string object to create the hash.
-        class CCharPHash : public std::unary_function<const char *, size_t>
-        {
-            public:
-                //! Store the given hash
-                CCharPHash(const char *str, const char *end);
-
-                //! Return the hash computed in the constructor regardless of
-                //! what argument is passed.
-                size_t operator()(const char *) const;
-
-            private:
-                size_t m_Hash;
-        };
-
-        //! Check for equality between a char pointer and a string without
-        //! constructing a temporary string
-        class CCharPStrEqual : public std::binary_function<const char *, std::string, bool>
-        {
-            public:
-                //! Cache the char pointer length to speed comparisons
-                CCharPStrEqual(size_t length);
-
-                bool operator()(const char *lhs, const std::string &rhs) const;
-
-            private:
-                size_t m_Length;
-        };
+        //! Return the hash computed in the constructor regardless of
+        //! what argument is passed.
+        size_t operator()(const char*) const;
 
     private:
-        //! Flag to record whether the current platform has copy-on-write
-        //! strings
-        bool m_HaveCopyOnWriteStrings;
+        size_t m_Hash;
+    };
 
-        using TStrUSet = boost::unordered_set<std::string, CStrHash>;
-        using TStrUSetCItr = TStrUSet::const_iterator;
+    //! Check for equality between a char pointer and a string without
+    //! constructing a temporary string
+    class CCharPStrEqual : public std::binary_function<const char*, std::string, bool> {
+    public:
+        //! Cache the char pointer length to speed comparisons
+        CCharPStrEqual(size_t length);
 
-        //! The cache of strings
-        TStrUSet m_Cache;
+        bool operator()(const char* lhs, const std::string& rhs) const;
 
-        //! String to return when passed a NULL pointer
-        static const std::string EMPTY_STRING;
+    private:
+        size_t m_Length;
+    };
+
+private:
+    //! Flag to record whether the current platform has copy-on-write
+    //! strings
+    bool m_HaveCopyOnWriteStrings;
+
+    using TStrUSet = boost::unordered_set<std::string, CStrHash>;
+    using TStrUSetCItr = TStrUSet::const_iterator;
+
+    //! The cache of strings
+    TStrUSet m_Cache;
+
+    //! String to return when passed a NULL pointer
+    static const std::string EMPTY_STRING;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CStringCache_h
-

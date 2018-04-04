@@ -20,12 +20,8 @@
 
 #include <time.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Portable wrapper for the ctime_r() function.
@@ -38,15 +34,11 @@ namespace core
 //! ctime_s() function with slightly different semantics to Unix's
 //! ctime_r().
 //!
-class CORE_EXPORT CCTimeR : private CNonInstantiatable
-{
-    public:
-        static char *cTimeR(const time_t *clock, char *result);
+class CORE_EXPORT CCTimeR : private CNonInstantiatable {
+public:
+    static char* cTimeR(const time_t* clock, char* result);
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CCTimeR_h
-

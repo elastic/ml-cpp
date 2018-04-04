@@ -18,12 +18,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSmallVectorTest : public CppUnit::TestFixture
-{
-    public:
-        void testNonStandard();
+class CSmallVectorTest : public CppUnit::TestFixture {
+public:
+    void testNonStandard();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CSmallVectorTest_h

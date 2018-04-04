@@ -17,25 +17,22 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CMultiFileDataAdderTest : public CppUnit::TestFixture {
+public:
+    void testSimpleWrite();
+    void testDetectorPersistBy();
+    void testDetectorPersistOver();
+    void testDetectorPersistPartition();
+    void testDetectorPersistDc();
+    void testDetectorPersistCount();
 
-class CMultiFileDataAdderTest : public CppUnit::TestFixture
-{
-    public:
-        void testSimpleWrite();
-        void testDetectorPersistBy();
-        void testDetectorPersistOver();
-        void testDetectorPersistPartition();
-        void testDetectorPersistDc();
-        void testDetectorPersistCount();
+    static CppUnit::Test* suite();
 
-        static CppUnit::Test *suite();
-
-    private:
-        void detectorPersistHelper(const std::string &configFileName,
-                                   const std::string &inputFilename,
-                                   int latencyBuckets,
-                                   const std::string &timeFormat = std::string());
+private:
+    void detectorPersistHelper(const std::string& configFileName,
+                               const std::string& inputFilename,
+                               int latencyBuckets,
+                               const std::string& timeFormat = std::string());
 };
 
 #endif // INCLUDED_CMultiFileDataAdderTest_h
-

@@ -17,75 +17,48 @@
 
 #include <ostream>
 
-namespace ml
-{
-namespace config_t
-{
-namespace
-{
+namespace ml {
+namespace config_t {
+namespace {
 
-const std::string USER_DATA_TYPE_NAMES[] =
-    {
-        std::string("categorical"),
-        std::string("numeric")
-    };
+const std::string USER_DATA_TYPE_NAMES[] = {std::string("categorical"), std::string("numeric")};
 
-const std::string DATA_TYPE_NAMES[] =
-    {
-        std::string("<undetermined>"),
-        std::string("binary"),
-        std::string("categorical"),
-        std::string("positive integer"),
-        std::string("integer"),
-        std::string("positive real"),
-        std::string("real")
-    };
+const std::string DATA_TYPE_NAMES[] = {std::string("<undetermined>"),
+                                       std::string("binary"),
+                                       std::string("categorical"),
+                                       std::string("positive integer"),
+                                       std::string("integer"),
+                                       std::string("positive real"),
+                                       std::string("real")};
 
-const std::string FUNCTION_CATEGORY_NAMES[] =
-    {
-        std::string("count"),
-        std::string("rare"),
-        std::string("distinct_count"),
-        std::string("info_content"),
-        std::string("mean"),
-        std::string("min"),
-        std::string("max"),
-        std::string("sum"),
-        std::string("varp"),
-        std::string("median")
-    };
+const std::string FUNCTION_CATEGORY_NAMES[] = {std::string("count"),
+                                               std::string("rare"),
+                                               std::string("distinct_count"),
+                                               std::string("info_content"),
+                                               std::string("mean"),
+                                               std::string("min"),
+                                               std::string("max"),
+                                               std::string("sum"),
+                                               std::string("varp"),
+                                               std::string("median")};
 
-const std::string IGNORE_EMPTY_VERSION_NAMES[][2] =
-    {
-        { std::string("n/a"),   std::string("n/a")            },
-        { std::string("count"), std::string("non_zero_count") },
-        { std::string("sum"),   std::string("non_null_sum")   }
-    };
+const std::string IGNORE_EMPTY_VERSION_NAMES[][2] = {{std::string("n/a"), std::string("n/a")},
+                                                     {std::string("count"), std::string("non_zero_count")},
+                                                     {std::string("sum"), std::string("non_null_sum")}};
 
-const std::string SIDE_NAME[] =
-    {
-        std::string("high"),
-        std::string("low"),
-        std::string("both"),
-        std::string("<unknown>")
-    };
-
+const std::string SIDE_NAME[] = {std::string("high"), std::string("low"), std::string("both"), std::string("<unknown>")};
 }
 
-const std::string &print(EUserDataType type)
-{
+const std::string& print(EUserDataType type) {
     return USER_DATA_TYPE_NAMES[type];
 }
 
-std::ostream &operator<<(std::ostream &o, EUserDataType type)
-{
+std::ostream& operator<<(std::ostream& o, EUserDataType type) {
     return o << USER_DATA_TYPE_NAMES[type];
 }
 
-bool isCategorical(EDataType type)
-{
-    switch (type)
-    {
+bool isCategorical(EDataType type) {
+    switch (type) {
     case E_Binary:
     case E_Categorical:
         return true;
@@ -99,10 +72,8 @@ bool isCategorical(EDataType type)
     return false;
 }
 
-bool isNumeric(EDataType type)
-{
-    switch (type)
-    {
+bool isNumeric(EDataType type) {
+    switch (type) {
     case E_PositiveInteger:
     case E_Integer:
     case E_PositiveReal:
@@ -116,10 +87,8 @@ bool isNumeric(EDataType type)
     return false;
 }
 
-bool isInteger(EDataType type)
-{
-    switch (type)
-    {
+bool isInteger(EDataType type) {
+    switch (type) {
     case E_PositiveInteger:
     case E_Integer:
         return true;
@@ -133,20 +102,16 @@ bool isInteger(EDataType type)
     return false;
 }
 
-const std::string &print(EDataType type)
-{
+const std::string& print(EDataType type) {
     return DATA_TYPE_NAMES[type];
 }
 
-std::ostream &operator<<(std::ostream &o, EDataType type)
-{
+std::ostream& operator<<(std::ostream& o, EDataType type) {
     return o << DATA_TYPE_NAMES[type];
 }
 
-bool hasArgument(EFunctionCategory function)
-{
-    switch (function)
-    {
+bool hasArgument(EFunctionCategory function) {
+    switch (function) {
     case E_Count:
     case E_Rare:
         return false;
@@ -163,10 +128,8 @@ bool hasArgument(EFunctionCategory function)
     return true;
 }
 
-bool isCount(EFunctionCategory function)
-{
-    switch (function)
-    {
+bool isCount(EFunctionCategory function) {
+    switch (function) {
     case E_Rare:
     case E_DistinctCount:
     case E_InfoContent:
@@ -183,10 +146,8 @@ bool isCount(EFunctionCategory function)
     return true;
 }
 
-bool isRare(EFunctionCategory function)
-{
-    switch (function)
-    {
+bool isRare(EFunctionCategory function) {
+    switch (function) {
     case E_Count:
     case E_DistinctCount:
     case E_InfoContent:
@@ -203,10 +164,8 @@ bool isRare(EFunctionCategory function)
     return true;
 }
 
-bool isInfoContent(EFunctionCategory function)
-{
-    switch (function)
-    {
+bool isInfoContent(EFunctionCategory function) {
+    switch (function) {
     case E_Count:
     case E_Rare:
     case E_DistinctCount:
@@ -223,10 +182,8 @@ bool isInfoContent(EFunctionCategory function)
     return true;
 }
 
-bool isMetric(EFunctionCategory function)
-{
-    switch (function)
-    {
+bool isMetric(EFunctionCategory function) {
+    switch (function) {
     case E_Count:
     case E_Rare:
     case E_DistinctCount:
@@ -243,10 +200,8 @@ bool isMetric(EFunctionCategory function)
     return true;
 }
 
-bool hasSidedCalculation(EFunctionCategory function)
-{
-    switch (function)
-    {
+bool hasSidedCalculation(EFunctionCategory function) {
+    switch (function) {
     case E_Rare:
         return false;
     case E_Count:
@@ -263,10 +218,8 @@ bool hasSidedCalculation(EFunctionCategory function)
     return true;
 }
 
-bool hasDoAndDontIgnoreEmptyVersions(EFunctionCategory function)
-{
-    switch (function)
-    {
+bool hasDoAndDontIgnoreEmptyVersions(EFunctionCategory function) {
+    switch (function) {
     case E_Rare:
     case E_DistinctCount:
     case E_InfoContent:
@@ -283,17 +236,15 @@ bool hasDoAndDontIgnoreEmptyVersions(EFunctionCategory function)
     return true;
 }
 
-const std::string &ignoreEmptyVersionName(EFunctionCategory function,
-                                          bool ignoreEmpty,
-                                          bool isPopulation)
-{
+const std::string& ignoreEmptyVersionName(EFunctionCategory function, bool ignoreEmpty, bool isPopulation) {
     std::size_t index = 0u;
-    switch (function)
-    {
+    switch (function) {
     case E_Count:
-        index = 1u; break;
+        index = 1u;
+        break;
     case E_Sum:
-        index = 2u; break;
+        index = 2u;
+        break;
     case E_Rare:
     case E_DistinctCount:
     case E_InfoContent:
@@ -307,25 +258,20 @@ const std::string &ignoreEmptyVersionName(EFunctionCategory function,
     return IGNORE_EMPTY_VERSION_NAMES[index][ignoreEmpty && !isPopulation];
 }
 
-const std::string &print(EFunctionCategory function)
-{
+const std::string& print(EFunctionCategory function) {
     return FUNCTION_CATEGORY_NAMES[function];
 }
 
-std::ostream &operator<<(std::ostream &o, EFunctionCategory function)
-{
+std::ostream& operator<<(std::ostream& o, EFunctionCategory function) {
     return o << FUNCTION_CATEGORY_NAMES[function];
 }
 
-const std::string &print(ESide side)
-{
+const std::string& print(ESide side) {
     return SIDE_NAME[side];
 }
 
-std::ostream &operator<<(std::ostream &o, ESide side)
-{
+std::ostream& operator<<(std::ostream& o, ESide side) {
     return o << SIDE_NAME[side];
 }
-
 }
 }

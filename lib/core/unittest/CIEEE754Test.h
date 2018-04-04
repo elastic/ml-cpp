@@ -18,12 +18,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CIEEE754Test : public CppUnit::TestFixture
-{
-    public:
-        void testRound();
+class CIEEE754Test : public CppUnit::TestFixture {
+public:
+    void testRound();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CIEEE754Test_h

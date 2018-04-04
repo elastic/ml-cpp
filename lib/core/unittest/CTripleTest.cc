@@ -21,22 +21,15 @@
 
 #include <string>
 
+CppUnit::Test* CTripleTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTripleTest");
 
-CppUnit::Test *CTripleTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTripleTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CTripleTest>(
-                                   "CTripleTest::testOperators",
-                                   &CTripleTest::testOperators) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CTripleTest>(
-                                   "CTripleTest::testBoostHashReady",
-                                   &CTripleTest::testBoostHashReady) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTripleTest>("CTripleTest::testOperators", &CTripleTest::testOperators));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTripleTest>("CTripleTest::testBoostHashReady", &CTripleTest::testBoostHashReady));
     return suiteOfTests;
 }
 
-void CTripleTest::testOperators()
-{
+void CTripleTest::testOperators() {
     {
         // Assignment
         ml::core::CTriple<std::string, std::size_t, std::size_t> triple1("foo", 10, 8);
@@ -73,8 +66,7 @@ void CTripleTest::testOperators()
     }
 }
 
-void CTripleTest::testBoostHashReady()
-{
+void CTripleTest::testBoostHashReady() {
     using TStringSizeShortTriple = ml::core::CTriple<std::string, std::size_t, short>;
     using TStringSizeShortTripleSizeMap = boost::unordered_map<TStringSizeShortTriple, std::size_t>;
 
@@ -86,4 +78,3 @@ void CTripleTest::testBoostHashReady()
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), map[ml::core::make_triple(std::string("bar"), std::size_t(20), short(4))]);
     CPPUNIT_ASSERT(map.find(ml::core::make_triple(std::string("bar"), std::size_t(20), short(8))) == map.end());
 }
-

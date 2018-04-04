@@ -18,35 +18,26 @@
 
 #include <boost/threadpool.hpp>
 
+CppUnit::Test* CThreadPoolTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CThreadPoolTest");
 
-CppUnit::Test *CThreadPoolTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CThreadPoolTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CThreadPoolTest>(
-                                   "CThreadPoolTest::testPool",
-                                   &CThreadPoolTest::testPool) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadPoolTest>("CThreadPoolTest::testPool", &CThreadPoolTest::testPool));
 
     return suiteOfTests;
 }
 
-namespace
-{
+namespace {
 
-void first_task()
-{
-   LOG_DEBUG("first task is running");
+void first_task() {
+    LOG_DEBUG("first task is running");
 }
 
-void second_task()
-{
-   LOG_DEBUG("second task is running");
+void second_task() {
+    LOG_DEBUG("second task is running");
+}
 }
 
-}
-
-void CThreadPoolTest::testPool()
-{
+void CThreadPoolTest::testPool() {
     // Create fifo thread pool container with two threads.
     boost::threadpool::pool tp(2);
 
@@ -57,4 +48,3 @@ void CThreadPoolTest::testPool()
     // Wait until all tasks are finished.
     tp.wait();
 }
-

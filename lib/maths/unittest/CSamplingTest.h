@@ -18,13 +18,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSamplingTest : public CppUnit::TestFixture
-{
-    public:
-        void testMultinomialSample();
-        void testMultivariateNormalSample();
+class CSamplingTest : public CppUnit::TestFixture {
+public:
+    void testMultinomialSample();
+    void testMultivariateNormalSample();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CSamplingTest_h

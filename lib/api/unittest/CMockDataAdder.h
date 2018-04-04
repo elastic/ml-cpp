@@ -21,7 +21,6 @@
 #include <string>
 #include <vector>
 
-
 //! \brief
 //! Mock data adder for unit testing.
 //!
@@ -31,47 +30,43 @@
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //!
-class CMockDataAdder : public ml::core::CDataAdder
-{
-    public:
-        using TStrVec = std::vector<std::string>;
-        using TStrStrVecMap = std::map<std::string, TStrVec>;
-        using TStrStrVecMapCItr = TStrStrVecMap::const_iterator;
-        using TStrOStreamPMap = std::map<std::string, TOStreamP>;
-        using TStrOStreamPMapCItr = TStrOStreamPMap::const_iterator;
-        using TStrOStreamPMapItr = TStrOStreamPMap::iterator;
+class CMockDataAdder : public ml::core::CDataAdder {
+public:
+    using TStrVec = std::vector<std::string>;
+    using TStrStrVecMap = std::map<std::string, TStrVec>;
+    using TStrStrVecMapCItr = TStrStrVecMap::const_iterator;
+    using TStrOStreamPMap = std::map<std::string, TOStreamP>;
+    using TStrOStreamPMapCItr = TStrOStreamPMap::const_iterator;
+    using TStrOStreamPMapItr = TStrOStreamPMap::iterator;
 
-    public:
-        CMockDataAdder();
+public:
+    CMockDataAdder();
 
-        //! Add streamed data - return of NULL stream indicates failure.
-        //! Since the data to be written isn't known at the time this function
-        //! returns it is not possible to detect all error conditions
-        //! immediately.  If the stream goes bad whilst being written to then
-        //! this also indicates failure.
-        virtual TOStreamP addStreamed(const std::string &index,
-                                      const std::string &id);
+    //! Add streamed data - return of NULL stream indicates failure.
+    //! Since the data to be written isn't known at the time this function
+    //! returns it is not possible to detect all error conditions
+    //! immediately.  If the stream goes bad whilst being written to then
+    //! this also indicates failure.
+    virtual TOStreamP addStreamed(const std::string& index, const std::string& id);
 
-        //! Clients that get a stream using addStreamed() must call this
-        //! method one they've finished sending data to the stream.
-        //! They should set force to true when the very last stream is
-        //! complete, in case the persister needs to close off some
-        //! sort of cached data structure.
-        virtual bool streamComplete(TOStreamP &strm,
-                                    bool force);
+    //! Clients that get a stream using addStreamed() must call this
+    //! method one they've finished sending data to the stream.
+    //! They should set force to true when the very last stream is
+    //! complete, in case the persister needs to close off some
+    //! sort of cached data structure.
+    virtual bool streamComplete(TOStreamP& strm, bool force);
 
-        //! Access persisted events
-        const TStrStrVecMap &events() const;
+    //! Access persisted events
+    const TStrStrVecMap& events() const;
 
-        //! Wipe the contents of the data store
-        void clear();
+    //! Wipe the contents of the data store
+    void clear();
 
-    private:
-        //! Persisted events
-        TStrStrVecMap   m_Events;
+private:
+    //! Persisted events
+    TStrStrVecMap m_Events;
 
-        TStrOStreamPMap m_Streams;
+    TStrOStreamPMap m_Streams;
 };
 
 #endif // INCLUDED_CMockDataAdder_h
-

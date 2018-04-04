@@ -16,32 +16,21 @@
 
 #include <core/WindowsSafe.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 // Default processing delay is 100 milliseconds
 const uint32_t CSleep::DEFAULT_PROCESSING_DELAY(100);
 
-
-void CSleep::sleep(uint32_t milliseconds)
-{
-    if (milliseconds > 0)
-    {
+void CSleep::sleep(uint32_t milliseconds) {
+    if (milliseconds > 0) {
         Sleep(milliseconds);
     }
 }
 
-void CSleep::delayProcessing()
-{
+void CSleep::delayProcessing() {
     // 0.1 seconds is a good length of time to delay processing.
     CSleep::sleep(DEFAULT_PROCESSING_DELAY);
 }
-
-
 }
 }
-

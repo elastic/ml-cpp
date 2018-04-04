@@ -17,14 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CBuildInfoTest : public CppUnit::TestFixture {
+public:
+    void testFullInfo(void);
 
-class CBuildInfoTest : public CppUnit::TestFixture
-{
-    public:
-        void testFullInfo(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CBuildInfoTest_h
-

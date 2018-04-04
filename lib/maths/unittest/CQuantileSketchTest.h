@@ -18,19 +18,18 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CQuantileSketchTest : public CppUnit::TestFixture
-{
-    public:
-        void testAdd();
-        void testReduce();
-        void testMerge();
-        void testMedian();
-        void testPropagateForwardByTime();
-        void testQuantileAccuracy();
-        void testCdf();
-        void testPersist();
+class CQuantileSketchTest : public CppUnit::TestFixture {
+public:
+    void testAdd();
+    void testReduce();
+    void testMerge();
+    void testMedian();
+    void testPropagateForwardByTime();
+    void testQuantileAccuracy();
+    void testCdf();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CQuantileSketchTest_h

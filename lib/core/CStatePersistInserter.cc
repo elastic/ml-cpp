@@ -14,35 +14,22 @@
  */
 #include <core/CStatePersistInserter.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-CStatePersistInserter::~CStatePersistInserter()
-{
+CStatePersistInserter::~CStatePersistInserter() {
 }
 
-void CStatePersistInserter::insertValue(const std::string &name,
-                                        double value,
-                                        CIEEE754::EPrecision precision)
-{
+void CStatePersistInserter::insertValue(const std::string& name, double value, CIEEE754::EPrecision precision) {
     this->insertValue(name, CStringUtils::typeToStringPrecise(value, precision));
 }
 
-CStatePersistInserter::CAutoLevel::CAutoLevel(const std::string &name,
-                                              CStatePersistInserter &inserter)
-    : m_Inserter(inserter)
-{
+CStatePersistInserter::CAutoLevel::CAutoLevel(const std::string& name, CStatePersistInserter& inserter) : m_Inserter(inserter) {
     m_Inserter.newLevel(name);
 }
 
-CStatePersistInserter::CAutoLevel::~CAutoLevel()
-{
+CStatePersistInserter::CAutoLevel::~CAutoLevel() {
     m_Inserter.endLevel();
 }
-
 }
 }
-

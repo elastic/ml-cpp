@@ -16,18 +16,15 @@
 
 #include <core/CLogger.h>
 
-namespace ml
-{
-namespace domain_name_entropy
-{
+namespace ml {
+namespace domain_name_entropy {
 
-
-CIpAddressTest::CIpAddressTest(void)
-{
+CIpAddressTest::CIpAddressTest(void) {
     // https://gist.github.com/syzdek/6086792
 
     const std::string ipv4ReStr = "((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])";
 
+    // clang-format off
     std::string ipv6ReStr = "([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|"; // # TEST: 1:2:3:4:5:6:7:8
     ipv6ReStr += "([0-9a-fA-F]{1,4}:){1,7}:|";                           // # TEST: 1::                              1:2:3:4:5:6:7::
     ipv6ReStr += "([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|";           // # TEST: 1::8             1:2:3:4:5:6::8  1:2:3:4:5:6::8
@@ -40,33 +37,27 @@ CIpAddressTest::CIpAddressTest(void)
     ipv6ReStr += "fe08:(:[0-9a-fA-F]{1,4}){2,2}%[0-9a-zA-Z]{1,}|";       // # TEST: fe08::7:8%eth0      fe08::7:8%1                                      (link-local IPv6 addresses with zone index)
     ipv6ReStr +="::(ffff(:0{1,4}){0,1}:){0,1}" + ipv4ReStr + "|";        // # TEST: ::255.255.255.255   ::ffff:255.255.255.255  ::ffff:0:255.255.255.255 (IPv4-mapped IPv6 addresses and IPv4-translated addresses)
     ipv6ReStr +="([0-9a-fA-F]{1,4}:){1,4}:" + ipv4ReStr;                 // # TEST: 2001:db8:3:4::192.0.2.33  64:ff9b::192.0.2.33                        (IPv4-Embedded IPv6 Address)
+    // clang-format on
 
-    if (m_Ipv4Regex.init(ipv4ReStr) == false)
-    {
+    if (m_Ipv4Regex.init(ipv4ReStr) == false) {
         LOG_ERROR("Can not init regex :" << ipv4ReStr);
     }
 
-    if (m_Ipv6Regex.init(ipv6ReStr) == false)
-    {
+    if (m_Ipv6Regex.init(ipv6ReStr) == false) {
         LOG_ERROR("Can not init regex :" << ipv6ReStr);
     }
 }
 
-bool CIpAddressTest::isIpAddress(const std::string &str) const
-{
-    if (m_Ipv4Regex.matches(str))
-    {
+bool CIpAddressTest::isIpAddress(const std::string& str) const {
+    if (m_Ipv4Regex.matches(str)) {
         return true;
     }
 
-    if (m_Ipv6Regex.matches(str))
-    {
+    if (m_Ipv6Regex.matches(str)) {
         return true;
     }
 
     return false;
 }
-
-
 }
 }

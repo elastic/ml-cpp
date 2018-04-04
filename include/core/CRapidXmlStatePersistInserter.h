@@ -23,12 +23,8 @@
 
 #include <map>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! For persisting state in XML format.
@@ -41,67 +37,61 @@ namespace core
 //! Directly uses RapidXml to avoid the inefficiency of an
 //! intermediate node hierarchy.
 //!
-class CORE_EXPORT CRapidXmlStatePersistInserter : public CStatePersistInserter
-{
-    public:
-        using TStrStrMap = std::map<std::string, std::string>;
-        using TStrStrMapCItr = TStrStrMap::const_iterator;
+class CORE_EXPORT CRapidXmlStatePersistInserter : public CStatePersistInserter {
+public:
+    using TStrStrMap = std::map<std::string, std::string>;
+    using TStrStrMapCItr = TStrStrMap::const_iterator;
 
-    public:
-        //! Root node has no attributes
-        CRapidXmlStatePersistInserter(const std::string &rootName);
+public:
+    //! Root node has no attributes
+    CRapidXmlStatePersistInserter(const std::string& rootName);
 
-        //! Root node has attributes
-        CRapidXmlStatePersistInserter(const std::string &rootName,
-                                      const TStrStrMap &rootAttributes);
+    //! Root node has attributes
+    CRapidXmlStatePersistInserter(const std::string& rootName, const TStrStrMap& rootAttributes);
 
-        //! Store a name/value
-        virtual void insertValue(const std::string &name,
-                                 const std::string &value);
+    //! Store a name/value
+    virtual void insertValue(const std::string& name, const std::string& value);
 
-        // Bring extra base class overloads into scope
-        using CStatePersistInserter::insertValue;
+    // Bring extra base class overloads into scope
+    using CStatePersistInserter::insertValue;
 
-        //! Convert to UTF-8 XML representation
-        void toXml(std::string &xml) const;
+    //! Convert to UTF-8 XML representation
+    void toXml(std::string& xml) const;
 
-        //! Convert to UTF-8 XML representation, optionally without indentation
-        void toXml(bool indent, std::string &xml) const;
+    //! Convert to UTF-8 XML representation, optionally without indentation
+    void toXml(bool indent, std::string& xml) const;
 
-    protected:
-        //! Start a new level with the given name
-        virtual void newLevel(const std::string &name);
+protected:
+    //! Start a new level with the given name
+    virtual void newLevel(const std::string& name);
 
-        //! End the current level
-        virtual void endLevel();
+    //! End the current level
+    virtual void endLevel();
 
-    private:
-        //! Get a const char * version of a string that will last at least as
-        //! long as the RapidXml document
-        const char *nameFromCache(const std::string &name);
+private:
+    //! Get a const char * version of a string that will last at least as
+    //! long as the RapidXml document
+    const char* nameFromCache(const std::string& name);
 
-    private:
-        //! XML documents are likely to contain the same node names many times,
-        //! so just store each unique name once for efficiency
-        CStringCache          m_NameCache;
+private:
+    //! XML documents are likely to contain the same node names many times,
+    //! so just store each unique name once for efficiency
+    CStringCache m_NameCache;
 
-        using TCharRapidXmlDocument = rapidxml::xml_document<char>;
-        using TCharRapidXmlNode = rapidxml::xml_node<char>;
+    using TCharRapidXmlDocument = rapidxml::xml_document<char>;
+    using TCharRapidXmlNode = rapidxml::xml_node<char>;
 
-        //! The RapidXml data structure
-        TCharRapidXmlDocument m_Doc;
+    //! The RapidXml data structure
+    TCharRapidXmlDocument m_Doc;
 
-        //! Parent of the level we're currently inserting to
-        TCharRapidXmlNode     *m_LevelParent;
+    //! Parent of the level we're currently inserting to
+    TCharRapidXmlNode* m_LevelParent;
 
-        //! Approximate size of final string - used to reserve memory to
-        //! minimise reallocations during conversion to string representation
-        size_t                m_ApproxLen;
+    //! Approximate size of final string - used to reserve memory to
+    //! minimise reallocations during conversion to string representation
+    size_t m_ApproxLen;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CRapidXmlStatePersistInserter_h
-

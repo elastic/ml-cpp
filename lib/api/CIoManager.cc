@@ -20,62 +20,47 @@
 #include <ios>
 #include <iostream>
 
+namespace ml {
+namespace api {
 
-namespace ml
-{
-namespace api
-{
+namespace {
 
-namespace
-{
-
-bool setUpIStream(const std::string &fileName,
-                  bool isFileNamedPipe,
-                  core::CNamedPipeFactory::TIStreamP &stream)
-{
-    if (fileName.empty())
-    {
+bool setUpIStream(const std::string& fileName, bool isFileNamedPipe, core::CNamedPipeFactory::TIStreamP& stream) {
+    if (fileName.empty()) {
         stream.reset();
         return true;
     }
-    if (isFileNamedPipe)
-    {
+    if (isFileNamedPipe) {
         stream = core::CNamedPipeFactory::openPipeStreamRead(fileName);
         return stream != 0 && !stream->bad();
     }
-    std::ifstream *fileStream(0);
+    std::ifstream* fileStream(0);
     stream.reset(fileStream = new std::ifstream(fileName.c_str()));
     return fileStream->is_open();
 }
 
-bool setUpOStream(const std::string &fileName,
-                  bool isFileNamedPipe,
-                  core::CNamedPipeFactory::TOStreamP &stream)
-{
-    if (fileName.empty())
-    {
+bool setUpOStream(const std::string& fileName, bool isFileNamedPipe, core::CNamedPipeFactory::TOStreamP& stream) {
+    if (fileName.empty()) {
         stream.reset();
         return true;
     }
-    if (isFileNamedPipe)
-    {
+    if (isFileNamedPipe) {
         stream = core::CNamedPipeFactory::openPipeStreamWrite(fileName);
         return stream != 0 && !stream->bad();
     }
-    std::ofstream *fileStream(0);
+    std::ofstream* fileStream(0);
     stream.reset(fileStream = new std::ofstream(fileName.c_str()));
     return fileStream->is_open();
 }
-
 }
 
-CIoManager::CIoManager(const std::string &inputFileName,
+CIoManager::CIoManager(const std::string& inputFileName,
                        bool isInputFileNamedPipe,
-                       const std::string &outputFileName,
+                       const std::string& outputFileName,
                        bool isOutputFileNamedPipe,
-                       const std::string &restoreFileName,
+                       const std::string& restoreFileName,
                        bool isRestoreFileNamedPipe,
-                       const std::string &persistFileName,
+                       const std::string& persistFileName,
                        bool isPersistFileNamedPipe)
     : m_IoInitialised(false),
       m_InputFileName(inputFileName),
@@ -85,13 +70,11 @@ CIoManager::CIoManager(const std::string &inputFileName,
       m_RestoreFileName(restoreFileName),
       m_IsRestoreFileNamedPipe(isRestoreFileNamedPipe && !restoreFileName.empty()),
       m_PersistFileName(persistFileName),
-      m_IsPersistFileNamedPipe(isPersistFileNamedPipe && !persistFileName.empty())
-{
+      m_IsPersistFileNamedPipe(isPersistFileNamedPipe && !persistFileName.empty()) {
     // On some platforms input/output can be considerably faster if C and C++ IO
     // functionality is NOT synchronised.
     bool wasSynchronised(std::ios::sync_with_stdio(false));
-    if (wasSynchronised)
-    {
+    if (wasSynchronised) {
         LOG_TRACE("C++ streams no longer synchronised with C stdio");
     }
 
@@ -102,12 +85,10 @@ CIoManager::CIoManager(const std::string &inputFileName,
     std::cerr.tie(0);
 }
 
-CIoManager::~CIoManager()
-{
+CIoManager::~CIoManager() {
 }
 
-bool CIoManager::initIo()
-{
+bool CIoManager::initIo() {
     m_IoInitialised = setUpIStream(m_InputFileName, m_IsInputFileNamedPipe, m_InputStream) &&
                       setUpOStream(m_OutputFileName, m_IsOutputFileNamedPipe, m_OutputStream) &&
                       setUpIStream(m_RestoreFileName, m_IsRestoreFileNamedPipe, m_RestoreStream) &&
@@ -115,57 +96,44 @@ bool CIoManager::initIo()
     return m_IoInitialised;
 }
 
-std::istream &CIoManager::inputStream()
-{
-    if (m_InputStream != 0)
-    {
+std::istream& CIoManager::inputStream() {
+    if (m_InputStream != 0) {
         return *m_InputStream;
     }
 
-    if (!m_IoInitialised)
-    {
+    if (!m_IoInitialised) {
         LOG_ERROR("Accessing input stream before IO is initialised");
     }
 
     return std::cin;
 }
 
-std::ostream &CIoManager::outputStream()
-{
-    if (m_OutputStream != 0)
-    {
+std::ostream& CIoManager::outputStream() {
+    if (m_OutputStream != 0) {
         return *m_OutputStream;
     }
 
-    if (!m_IoInitialised)
-    {
+    if (!m_IoInitialised) {
         LOG_ERROR("Accessing output stream before IO is initialised");
     }
 
     return std::cout;
 }
 
-core::CNamedPipeFactory::TIStreamP CIoManager::restoreStream()
-{
-    if (!m_IoInitialised)
-    {
+core::CNamedPipeFactory::TIStreamP CIoManager::restoreStream() {
+    if (!m_IoInitialised) {
         LOG_ERROR("Accessing restore stream before IO is initialised");
     }
 
     return m_RestoreStream;
 }
 
-core::CNamedPipeFactory::TOStreamP CIoManager::persistStream()
-{
-    if (!m_IoInitialised)
-    {
+core::CNamedPipeFactory::TOStreamP CIoManager::persistStream() {
+    if (!m_IoInitialised) {
         LOG_ERROR("Accessing persist stream before IO is initialised");
     }
 
     return m_PersistStream;
 }
-
-
 }
 }
-

@@ -17,8 +17,8 @@
 #define INCLUDED_ml_maths_CExpandingWindow_h
 
 #include <core/CFloatStorage.h>
-#include <core/CoreTypes.h>
 #include <core/CVectorRange.h>
+#include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/ImportExport.h>
@@ -27,16 +27,13 @@
 #include <functional>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 
-namespace maths
-{
+namespace maths {
 
 //! \brief Implements a fixed memory expanding time window.
 //!
@@ -48,87 +45,82 @@ namespace maths
 //! constructor. At the point it overflows, i.e. time since the
 //! beginning of the window exceeds "size" x "maximum bucket length",
 //! it will re-initialize the bucketing and update the start time.
-class MATHS_EXPORT CExpandingWindow
-{
-    public:
-        using TDoubleVec = std::vector<double>;
-        using TTimeVec = std::vector<core_t::TTime>;
-        using TTimeCRng = core::CVectorRange<const TTimeVec>;
-        using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
-        using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
-        using TPredictor = std::function<double (core_t::TTime)>;
+class MATHS_EXPORT CExpandingWindow {
+public:
+    using TDoubleVec = std::vector<double>;
+    using TTimeVec = std::vector<core_t::TTime>;
+    using TTimeCRng = core::CVectorRange<const TTimeVec>;
+    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+    using TPredictor = std::function<double(core_t::TTime)>;
 
-    public:
-        CExpandingWindow(core_t::TTime bucketLength,
-                         TTimeCRng bucketLengths,
-                         std::size_t size,
-                         double decayRate = 0.0);
+public:
+    CExpandingWindow(core_t::TTime bucketLength, TTimeCRng bucketLengths, std::size_t size, double decayRate = 0.0);
 
-        //! Initialize by reading state from \p traverser.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    //! Initialize by reading state from \p traverser.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-        //! Persist state by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    //! Persist state by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-        //! Get the start time of the sketch.
-        core_t::TTime startTime() const;
+    //! Get the start time of the sketch.
+    core_t::TTime startTime() const;
 
-        //! Get the end time of the sketch.
-        core_t::TTime endTime() const;
+    //! Get the end time of the sketch.
+    core_t::TTime endTime() const;
 
-        //! Get the current bucket length.
-        core_t::TTime bucketLength() const;
+    //! Get the current bucket length.
+    core_t::TTime bucketLength() const;
 
-        //! Get the bucket values.
-        const TFloatMeanAccumulatorVec &values() const;
+    //! Get the bucket values.
+    const TFloatMeanAccumulatorVec& values() const;
 
-        //! Get the bucket values minus the values from \p trend.
-        TFloatMeanAccumulatorVec valuesMinusPrediction(const TPredictor &predictor) const;
+    //! Get the bucket values minus the values from \p trend.
+    TFloatMeanAccumulatorVec valuesMinusPrediction(const TPredictor& predictor) const;
 
-        //! Set the start time to \p time.
-        void initialize(core_t::TTime time);
+    //! Set the start time to \p time.
+    void initialize(core_t::TTime time);
 
-        //! Age the bucket values to account for \p time elapsed time.
-        void propagateForwardsByTime(double time);
+    //! Age the bucket values to account for \p time elapsed time.
+    void propagateForwardsByTime(double time);
 
-        //! Add \p value at \p time.
-        void add(core_t::TTime time, double value, double weight = 1.0);
+    //! Add \p value at \p time.
+    void add(core_t::TTime time, double value, double weight = 1.0);
 
-        //! Check if we need to compress by increasing the bucket span.
-        bool needToCompress(core_t::TTime time) const;
+    //! Check if we need to compress by increasing the bucket span.
+    bool needToCompress(core_t::TTime time) const;
 
-        //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed = 0) const;
+    //! Get a checksum for this object.
+    uint64_t checksum(uint64_t seed = 0) const;
 
-        //! Debug the memory used by this object.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    //! Debug the memory used by this object.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
-        //! Get the memory used by this object.
-        std::size_t memoryUsage() const;
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
 
-    private:
-        //! The rate at which the bucket values are aged.
-        double m_DecayRate;
+private:
+    //! The rate at which the bucket values are aged.
+    double m_DecayRate;
 
-        //! The data bucketing length.
-        core_t::TTime m_BucketLength;
+    //! The data bucketing length.
+    core_t::TTime m_BucketLength;
 
-        //! The bucket lengths to test.
-        TTimeCRng m_BucketLengths;
+    //! The bucket lengths to test.
+    TTimeCRng m_BucketLengths;
 
-        //! The index in m_BucketLengths of the current bucketing interval.
-        std::size_t m_BucketLengthIndex;
+    //! The index in m_BucketLengths of the current bucketing interval.
+    std::size_t m_BucketLengthIndex;
 
-        //! The time of the first data point.
-        core_t::TTime m_StartTime;
+    //! The time of the first data point.
+    core_t::TTime m_StartTime;
 
-        //! The bucket values.
-        TFloatMeanAccumulatorVec m_BucketValues;
+    //! The bucket values.
+    TFloatMeanAccumulatorVec m_BucketValues;
 
-        //! The mean value time modulo the data bucketing length.
-        TFloatMeanAccumulator m_MeanOffset;
+    //! The mean value time modulo the data bucketing length.
+    TFloatMeanAccumulator m_MeanOffset;
 };
-
 }
 }
 

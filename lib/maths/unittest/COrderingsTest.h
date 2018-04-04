@@ -18,21 +18,20 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class COrderingsTest : public CppUnit::TestFixture
-{
-    public:
-        void testOptionalOrdering();
-        void testPtrOrdering();
-        void testLess();
-        void testFirstLess();
-        void testFirstGreater();
-        void testSecondLess();
-        void testSecondGreater();
-        void testDereference();
-        void testLexicographicalCompare();
-        void testSimultaneousSort();
+class COrderingsTest : public CppUnit::TestFixture {
+public:
+    void testOptionalOrdering();
+    void testPtrOrdering();
+    void testLess();
+    void testFirstLess();
+    void testFirstGreater();
+    void testSecondLess();
+    void testSecondGreater();
+    void testDereference();
+    void testLexicographicalCompare();
+    void testSimultaneousSort();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_COrderingsTest_h

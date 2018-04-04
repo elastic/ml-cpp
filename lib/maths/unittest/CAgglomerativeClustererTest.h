@@ -18,15 +18,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAgglomerativeClustererTest : public CppUnit::TestFixture
-{
-    public:
-        void testNode();
-        void testSimplePermutations();
-        void testDegenerate();
-        void testRandom();
+class CAgglomerativeClustererTest : public CppUnit::TestFixture {
+public:
+    void testNode();
+    void testSimplePermutations();
+    void testDegenerate();
+    void testRandom();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CAgglomerativeClustererTest_h

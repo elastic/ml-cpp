@@ -24,10 +24,8 @@
 
 #include <string>
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Write model snapshots in JSON format
@@ -35,45 +33,40 @@ namespace api
 //! DESCRIPTION:\n
 //! Outputs the model snapshot documents that accompany each state persist.
 //!
-class API_EXPORT CModelSnapshotJsonWriter
-{
-    public:
-        //! Structure to store the model snapshot metadata
-        struct SModelSnapshotReport
-        {
-            core_t::TTime                     s_SnapshotTimestamp;
-            std::string                       s_Description;
-            std::string                       s_SnapshotId;
-            size_t                            s_NumDocs;
-            model::CResourceMonitor::SResults s_ModelSizeStats;
-            std::string                       s_NormalizerState;
-            core_t::TTime                     s_LatestRecordTime;
-            core_t::TTime                     s_LatestFinalResultTime;
-        };
+class API_EXPORT CModelSnapshotJsonWriter {
+public:
+    //! Structure to store the model snapshot metadata
+    struct SModelSnapshotReport {
+        core_t::TTime s_SnapshotTimestamp;
+        std::string s_Description;
+        std::string s_SnapshotId;
+        size_t s_NumDocs;
+        model::CResourceMonitor::SResults s_ModelSizeStats;
+        std::string s_NormalizerState;
+        core_t::TTime s_LatestRecordTime;
+        core_t::TTime s_LatestFinalResultTime;
+    };
 
-    public:
-        //! Constructor that causes output to be written to the specified wrapped stream
-        CModelSnapshotJsonWriter(const std::string &jobId,
-                                 core::CJsonOutputStreamWrapper &strmOut);
+public:
+    //! Constructor that causes output to be written to the specified wrapped stream
+    CModelSnapshotJsonWriter(const std::string& jobId, core::CJsonOutputStreamWrapper& strmOut);
 
-        //! Writes the given model snapshot in JSON format.
-        void write(const SModelSnapshotReport &report);
+    //! Writes the given model snapshot in JSON format.
+    void write(const SModelSnapshotReport& report);
 
-        //! Write the quantile's state
-        static void writeQuantileState(const std::string &jobId,
-                                       const std::string &state,
-                                       core_t::TTime timestamp,
-                                       core::CRapidJsonConcurrentLineWriter &writer);
+    //! Write the quantile's state
+    static void writeQuantileState(const std::string& jobId,
+                                   const std::string& state,
+                                   core_t::TTime timestamp,
+                                   core::CRapidJsonConcurrentLineWriter& writer);
 
-    private:
-        //! The job ID
-        std::string                          m_JobId;
+private:
+    //! The job ID
+    std::string m_JobId;
 
-        //! JSON line writer
-        core::CRapidJsonConcurrentLineWriter m_Writer;
+    //! JSON line writer
+    core::CRapidJsonConcurrentLineWriter m_Writer;
 };
-
-
 }
 }
 

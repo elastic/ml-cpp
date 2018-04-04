@@ -20,13 +20,10 @@
 
 #include <zlib.h>
 
-
 #include <core/CNonCopyable.h>
 
-namespace ml
-{
-namespace domain_name_entropy
-{
+namespace ml {
+namespace domain_name_entropy {
 
 //! \brief
 //! Shrink wrap zlib calls.
@@ -36,54 +33,46 @@ namespace domain_name_entropy
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Implementation based on http://www.zlib.net/zpipe.c
-//! 
+//!
 //! Data can be added incrementally and this 'finished' to
 //! complete compression.
 //!
 //! This object retains in memory the entire compressed state
 //! so it not good for file read/write.
 //!
-class CCompressUtils : private core::CNonCopyable
-{
-    public:
-        CCompressUtils(void);
-        ~CCompressUtils(void);
+class CCompressUtils : private core::CNonCopyable {
+public:
+    CCompressUtils(void);
+    ~CCompressUtils(void);
 
-        // --
-        // COMPRESS INTERFACE
-        // --
-        //! Add string. If finish==true, the compressed state is
-        //! completely calculated and no further state can be added.
-        bool compressString(bool finish, const std::string &buffer);
+    // --
+    // COMPRESS INTERFACE
+    // --
+    //! Add string. If finish==true, the compressed state is
+    //! completely calculated and no further state can be added.
+    bool compressString(bool finish, const std::string& buffer);
 
-        //! Get compressed representation
-        //! NOTE: the compressed representation is a u_char array
-        //! NOT a string.
-        //! If finish==false retrieve partial compressed state
-        bool compressedString(bool finish, std::string &buffer);
+    //! Get compressed representation
+    //! NOTE: the compressed representation is a u_char array
+    //! NOT a string.
+    //! If finish==false retrieve partial compressed state
+    bool compressedString(bool finish, std::string& buffer);
 
-        //! Get compressed string length
-        //! If finish==false retrieve partial compressed state
-        bool compressedStringLength(bool finish, size_t &length);
+    //! Get compressed string length
+    //! If finish==false retrieve partial compressed state
+    bool compressedStringLength(bool finish, size_t& length);
 
-    private:
-        enum EState
-        {
-            E_Uninitialized,
-            E_Compressing,
-            E_Uncompressing,
-            E_IsFinished
-        };
+private:
+    enum EState { E_Uninitialized, E_Compressing, E_Uncompressing, E_IsFinished };
 
-        EState m_State;
+    EState m_State;
 
-        typedef std::vector<Bytef> TByteVec;
+    typedef std::vector<Bytef> TByteVec;
 
-        TByteVec m_Buffer;
+    TByteVec m_Buffer;
 
-        z_stream m_ZlibStrm;
+    z_stream m_ZlibStrm;
 };
-
 }
 }
 

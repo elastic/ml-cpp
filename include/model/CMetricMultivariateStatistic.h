@@ -29,10 +29,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief Wraps up one of our basic statistic objects for vector valued
 //! quantities.
@@ -51,166 +49,130 @@ namespace model
 //!   -# Supported by core::CMemory::dynamicSize
 //!   -# Have overload of operator<<
 template<class STATISTIC>
-class CMetricMultivariateStatistic
-{
-    public:
-        using TDouble1Vec = core::CSmallVector<double, 1>;
+class CMetricMultivariateStatistic {
+public:
+    using TDouble1Vec = core::CSmallVector<double, 1>;
 
-    public:
-        static const std::string VALUE_TAG;
+public:
+    static const std::string VALUE_TAG;
 
-    public:
-        CMetricMultivariateStatistic(std::size_t n) : m_Values(n) {}
+public:
+    CMetricMultivariateStatistic(std::size_t n) : m_Values(n) {}
 
-        //! Persist to a state document.
-        void persist(core::CStatePersistInserter &inserter) const
-        {
-            for (std::size_t i = 0u; i < m_Values.size(); ++i)
-            {
-                CMetricStatisticWrappers::persist(m_Values[i], VALUE_TAG, inserter);
-            }
+    //! Persist to a state document.
+    void persist(core::CStatePersistInserter& inserter) const {
+        for (std::size_t i = 0u; i < m_Values.size(); ++i) {
+            CMetricStatisticWrappers::persist(m_Values[i], VALUE_TAG, inserter);
         }
+    }
 
-        //! Restore from the supplied state document traverser.
-        bool restore(core::CStateRestoreTraverser &traverser)
-        {
-            std::size_t i = 0u;
-            do
-            {
-                const std::string &name = traverser.name();
-                if (name == VALUE_TAG)
-                {
-                    if (CMetricStatisticWrappers::restore(traverser, m_Values[i++]) == false)
-                    {
-                        LOG_ERROR("Invalid statistic in " << traverser.value());
-                        return false;
-                    }
+    //! Restore from the supplied state document traverser.
+    bool restore(core::CStateRestoreTraverser& traverser) {
+        std::size_t i = 0u;
+        do {
+            const std::string& name = traverser.name();
+            if (name == VALUE_TAG) {
+                if (CMetricStatisticWrappers::restore(traverser, m_Values[i++]) == false) {
+                    LOG_ERROR("Invalid statistic in " << traverser.value());
+                    return false;
                 }
             }
-            while (traverser.next());
-            return true;
-        }
+        } while (traverser.next());
+        return true;
+    }
 
-        //! Add a new measurement.
-        //!
-        //! \param[in] value The value of the statistic.
-        //! \param[in] count The number of measurements in the statistic.
-        void add(const TDouble1Vec &value, unsigned int count)
-        {
-            if (value.size() != m_Values.size())
-            {
-                LOG_ERROR("Inconsistent input data:"
-                          << " # values = " << value.size()
-                          << ", expected " << m_Values.size());
-                return;
+    //! Add a new measurement.
+    //!
+    //! \param[in] value The value of the statistic.
+    //! \param[in] count The number of measurements in the statistic.
+    void add(const TDouble1Vec& value, unsigned int count) {
+        if (value.size() != m_Values.size()) {
+            LOG_ERROR("Inconsistent input data:"
+                      << " # values = " << value.size() << ", expected " << m_Values.size());
+            return;
+        }
+        for (std::size_t i = 0u; i < value.size(); ++i) {
+            m_Values[i].add(value[i], count);
+        }
+    }
+
+    //! Returns the aggregated value of all the measurements.
+    TDouble1Vec value() const {
+        std::size_t dimension = m_Values.size();
+        TDouble1Vec result(dimension);
+        for (std::size_t i = 0u; i < dimension; ++i) {
+            TDouble1Vec vi = CMetricStatisticWrappers::value(m_Values[i]);
+            if (vi.size() > 1) {
+                result.resize(vi.size() * dimension);
             }
-            for (std::size_t i = 0u; i < value.size(); ++i)
-            {
-                m_Values[i].add(value[i], count);
+            for (std::size_t j = 0u; j < vi.size(); ++j) {
+                result[i + j * dimension] = vi[j];
             }
         }
+        return result;
+    }
 
-        //! Returns the aggregated value of all the measurements.
-        TDouble1Vec value() const
-        {
-            std::size_t dimension = m_Values.size();
-            TDouble1Vec result(dimension);
-            for (std::size_t i = 0u; i < dimension; ++i)
-            {
-                TDouble1Vec vi = CMetricStatisticWrappers::value(m_Values[i]);
-                if (vi.size() > 1)
-                {
-                    result.resize(vi.size() * dimension);
-                }
-                for (std::size_t j = 0u; j < vi.size(); ++j)
-                {
-                    result[i + j * dimension] = vi[j];
-                }
+    //! Returns the aggregated value of all the measurements suitable
+    //! for computing influence.
+    TDouble1Vec influencerValue() const {
+        std::size_t dimension = m_Values.size();
+        TDouble1Vec result(dimension);
+        for (std::size_t i = 0u; i < dimension; ++i) {
+            TDouble1Vec vi = CMetricStatisticWrappers::influencerValue(m_Values[i]);
+            if (vi.size() > 1) {
+                result.resize(vi.size() * dimension);
             }
-            return result;
-        }
-
-        //! Returns the aggregated value of all the measurements suitable
-        //! for computing influence.
-        TDouble1Vec influencerValue() const
-        {
-            std::size_t dimension = m_Values.size();
-            TDouble1Vec result(dimension);
-            for (std::size_t i = 0u; i < dimension; ++i)
-            {
-                TDouble1Vec vi = CMetricStatisticWrappers::influencerValue(m_Values[i]);
-                if (vi.size() > 1)
-                {
-                    result.resize(vi.size() * dimension);
-                }
-                for (std::size_t j = 0u; j < vi.size(); ++j)
-                {
-                    result[i + j * dimension] = vi[j];
-                }
+            for (std::size_t j = 0u; j < vi.size(); ++j) {
+                result[i + j * dimension] = vi[j];
             }
-            return result;
         }
+        return result;
+    }
 
-        //! Returns the count of all the measurements.
-        double count() const
-        {
-            return CMetricStatisticWrappers::count(m_Values[0]);
+    //! Returns the count of all the measurements.
+    double count() const { return CMetricStatisticWrappers::count(m_Values[0]); }
+
+    //! Combine two partial statistics.
+    const CMetricMultivariateStatistic& operator+=(const CMetricMultivariateStatistic& rhs) {
+        for (std::size_t i = 0u; i < m_Values.size(); ++i) {
+            m_Values[i] += rhs.m_Values[i];
         }
+        return *this;
+    }
 
-        //! Combine two partial statistics.
-        const CMetricMultivariateStatistic &operator+=(const CMetricMultivariateStatistic &rhs)
-        {
-            for (std::size_t i = 0u; i < m_Values.size(); ++i)
-            {
-                m_Values[i] += rhs.m_Values[i];
-            }
-            return *this;
-        }
+    //! Get the checksum of the partial statistic
+    uint64_t checksum(uint64_t seed) const { return maths::CChecksum::calculate(seed, m_Values); }
 
-        //! Get the checksum of the partial statistic
-        uint64_t checksum(uint64_t seed) const
-        {
-            return maths::CChecksum::calculate(seed, m_Values);
-        }
+    //! Debug the memory used by the statistic.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+        mem->setName("CMetricPartialStatistic", sizeof(*this));
+        core::CMemoryDebug::dynamicSize("m_Value", m_Values, mem);
+    }
 
-        //! Debug the memory used by the statistic.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
-        {
-            mem->setName("CMetricPartialStatistic", sizeof(*this));
-            core::CMemoryDebug::dynamicSize("m_Value", m_Values, mem);
-        }
+    //! Get the memory used by the statistic.
+    std::size_t memoryUsage() const { return sizeof(*this) + core::CMemory::dynamicSize(m_Values); }
 
-        //! Get the memory used by the statistic.
-        std::size_t memoryUsage() const
-        {
-            return sizeof(*this) + core::CMemory::dynamicSize(m_Values);
-        }
+    //! Print partial statistic
+    std::string print() const {
+        std::ostringstream result;
+        result << core::CContainerPrinter::print(m_Values);
+        return result.str();
+    }
 
-        //! Print partial statistic
-        std::string print() const
-        {
-            std::ostringstream result;
-            result << core::CContainerPrinter::print(m_Values);
-            return result.str();
-        }
+private:
+    using TStatistic2Vec = core::CSmallVector<STATISTIC, 2>;
 
-    private:
-        using TStatistic2Vec = core::CSmallVector<STATISTIC, 2>;
-
-    private:
-        TStatistic2Vec m_Values;
+private:
+    TStatistic2Vec m_Values;
 };
 
 template<class STATISTIC>
 const std::string CMetricMultivariateStatistic<STATISTIC>::VALUE_TAG("a");
 
 template<class STATISTIC>
-std::ostream &operator<<(std::ostream &o,
-                         const CMetricMultivariateStatistic<STATISTIC> &statistic)
-{
+std::ostream& operator<<(std::ostream& o, const CMetricMultivariateStatistic<STATISTIC>& statistic) {
     return o << statistic.print();
 }
-
 }
 }
 

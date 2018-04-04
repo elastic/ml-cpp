@@ -23,57 +23,50 @@
 
 #include <iostream>
 
+namespace ml {
+namespace autodetect {
 
-namespace ml
-{
-namespace autodetect
-{
-
-
-const std::string CCmdLineParser::DESCRIPTION =
-"Usage: autodetect [options] [<fieldname>+ [by <fieldname>]]\n"
-"Options:";
-
+const std::string CCmdLineParser::DESCRIPTION = "Usage: autodetect [options] [<fieldname>+ [by <fieldname>]]\n"
+                                                "Options:";
 
 bool CCmdLineParser::parse(int argc,
-                           const char * const *argv,
-                           std::string &limitConfigFile,
-                           std::string &modelConfigFile,
-                           std::string &fieldConfigFile,
-                           std::string &modelPlotConfigFile,
-                           std::string &jobId,
-                           std::string &logProperties,
-                           std::string &logPipe,
-                           core_t::TTime &bucketSpan,
-                           core_t::TTime &latency,
-                           std::string &summaryCountFieldName,
-                           char &delimiter,
-                           bool &lengthEncodedInput,
-                           std::string &timeField,
-                           std::string &timeFormat,
-                           std::string &quantilesState,
-                           bool &deleteStateFiles,
-                           core_t::TTime &persistInterval,
-                           core_t::TTime &maxQuantileInterval,
-                           std::string &inputFileName,
-                           bool &isInputFileNamedPipe,
-                           std::string &outputFileName,
-                           bool &isOutputFileNamedPipe,
-                           std::string &restoreFileName,
-                           bool &isRestoreFileNamedPipe,
-                           std::string &persistFileName,
-                           bool &isPersistFileNamedPipe,
-                           size_t &maxAnomalyRecords,
-                           bool &memoryUsage,
-                           std::size_t &bucketResultsDelay,
-                           bool &multivariateByFields,
-                           std::string &multipleBucketspans,
-                           bool &perPartitionNormalization,
-                           TStrVec &clauseTokens)
-{
-    try
-    {
+                           const char* const* argv,
+                           std::string& limitConfigFile,
+                           std::string& modelConfigFile,
+                           std::string& fieldConfigFile,
+                           std::string& modelPlotConfigFile,
+                           std::string& jobId,
+                           std::string& logProperties,
+                           std::string& logPipe,
+                           core_t::TTime& bucketSpan,
+                           core_t::TTime& latency,
+                           std::string& summaryCountFieldName,
+                           char& delimiter,
+                           bool& lengthEncodedInput,
+                           std::string& timeField,
+                           std::string& timeFormat,
+                           std::string& quantilesState,
+                           bool& deleteStateFiles,
+                           core_t::TTime& persistInterval,
+                           core_t::TTime& maxQuantileInterval,
+                           std::string& inputFileName,
+                           bool& isInputFileNamedPipe,
+                           std::string& outputFileName,
+                           bool& isOutputFileNamedPipe,
+                           std::string& restoreFileName,
+                           bool& isRestoreFileNamedPipe,
+                           std::string& persistFileName,
+                           bool& isPersistFileNamedPipe,
+                           size_t& maxAnomalyRecords,
+                           bool& memoryUsage,
+                           std::size_t& bucketResultsDelay,
+                           bool& multivariateByFields,
+                           std::string& multipleBucketspans,
+                           bool& perPartitionNormalization,
+                           TStrVec& clauseTokens) {
+    try {
         boost::program_options::options_description desc(DESCRIPTION);
+        // clang-format off
         desc.add_options()
             ("help", "Display this information and exit")
             ("version", "Display version information and exit")
@@ -138,165 +131,127 @@ bool CCmdLineParser::parse(int argc,
             ("perPartitionNormalization",
                         "Optional flag to enable per partition normalization")
         ;
+        // clang-format on
 
         boost::program_options::variables_map vm;
         boost::program_options::parsed_options parsed =
-                boost::program_options::command_line_parser(argc, argv).options(desc).allow_unregistered().run();
+            boost::program_options::command_line_parser(argc, argv).options(desc).allow_unregistered().run();
         boost::program_options::store(parsed, vm);
 
-        if (vm.count("help") > 0)
-        {
+        if (vm.count("help") > 0) {
             std::cerr << desc << std::endl;
             return false;
         }
-        if (vm.count("version") > 0)
-        {
+        if (vm.count("version") > 0) {
             std::cerr << "Model State Version " << model::CAnomalyDetector::STATE_VERSION << std::endl
                       << "Quantile State Version " << model::CAnomalyScore::CURRENT_FORMAT_VERSION << std::endl
                       << ver::CBuildInfo::fullInfo() << std::endl;
             return false;
         }
-        if (vm.count("limitconfig") > 0)
-        {
+        if (vm.count("limitconfig") > 0) {
             limitConfigFile = vm["limitconfig"].as<std::string>();
         }
-        if (vm.count("modelconfig") > 0)
-        {
+        if (vm.count("modelconfig") > 0) {
             modelConfigFile = vm["modelconfig"].as<std::string>();
         }
-        if (vm.count("fieldconfig") > 0)
-        {
+        if (vm.count("fieldconfig") > 0) {
             fieldConfigFile = vm["fieldconfig"].as<std::string>();
         }
-        if (vm.count("modelplotconfig") > 0)
-        {
+        if (vm.count("modelplotconfig") > 0) {
             modelPlotConfigFile = vm["modelplotconfig"].as<std::string>();
         }
-        if (vm.count("jobid") > 0)
-        {
+        if (vm.count("jobid") > 0) {
             jobId = vm["jobid"].as<std::string>();
         }
-        if (vm.count("logProperties") > 0)
-        {
+        if (vm.count("logProperties") > 0) {
             logProperties = vm["logProperties"].as<std::string>();
         }
-        if (vm.count("logPipe") > 0)
-        {
+        if (vm.count("logPipe") > 0) {
             logPipe = vm["logPipe"].as<std::string>();
         }
-        if (vm.count("bucketspan") > 0)
-        {
+        if (vm.count("bucketspan") > 0) {
             bucketSpan = vm["bucketspan"].as<core_t::TTime>();
         }
-        if (vm.count("latency") > 0)
-        {
+        if (vm.count("latency") > 0) {
             latency = vm["latency"].as<core_t::TTime>();
         }
-        if (vm.count("summarycountfield") > 0)
-        {
+        if (vm.count("summarycountfield") > 0) {
             summaryCountFieldName = vm["summarycountfield"].as<std::string>();
         }
-        if (vm.count("delimiter") > 0)
-        {
+        if (vm.count("delimiter") > 0) {
             delimiter = vm["delimiter"].as<char>();
         }
-        if (vm.count("lengthEncodedInput") > 0)
-        {
+        if (vm.count("lengthEncodedInput") > 0) {
             lengthEncodedInput = true;
         }
-        if (vm.count("timefield") > 0)
-        {
+        if (vm.count("timefield") > 0) {
             timeField = vm["timefield"].as<std::string>();
         }
-        if (vm.count("timeformat") > 0)
-        {
+        if (vm.count("timeformat") > 0) {
             timeFormat = vm["timeformat"].as<std::string>();
         }
-        if (vm.count("quantilesState") > 0)
-        {
+        if (vm.count("quantilesState") > 0) {
             quantilesState = vm["quantilesState"].as<std::string>();
         }
-        if (vm.count("deleteStateFiles") > 0)
-        {
+        if (vm.count("deleteStateFiles") > 0) {
             deleteStateFiles = true;
         }
-        if (vm.count("persistInterval") > 0)
-        {
+        if (vm.count("persistInterval") > 0) {
             persistInterval = vm["persistInterval"].as<core_t::TTime>();
         }
-        if (vm.count("maxQuantileInterval") > 0)
-        {
+        if (vm.count("maxQuantileInterval") > 0) {
             maxQuantileInterval = vm["maxQuantileInterval"].as<core_t::TTime>();
         }
-        if (vm.count("input") > 0)
-        {
+        if (vm.count("input") > 0) {
             inputFileName = vm["input"].as<std::string>();
         }
-        if (vm.count("inputIsPipe") > 0)
-        {
+        if (vm.count("inputIsPipe") > 0) {
             isInputFileNamedPipe = true;
         }
-        if (vm.count("output") > 0)
-        {
+        if (vm.count("output") > 0) {
             outputFileName = vm["output"].as<std::string>();
         }
-        if (vm.count("outputIsPipe") > 0)
-        {
+        if (vm.count("outputIsPipe") > 0) {
             isOutputFileNamedPipe = true;
         }
-        if (vm.count("restore") > 0)
-        {
+        if (vm.count("restore") > 0) {
             restoreFileName = vm["restore"].as<std::string>();
         }
-        if (vm.count("restoreIsPipe") > 0)
-        {
+        if (vm.count("restoreIsPipe") > 0) {
             isRestoreFileNamedPipe = true;
         }
-        if (vm.count("persist") > 0)
-        {
+        if (vm.count("persist") > 0) {
             persistFileName = vm["persist"].as<std::string>();
         }
-        if (vm.count("persistIsPipe") > 0)
-        {
+        if (vm.count("persistIsPipe") > 0) {
             isPersistFileNamedPipe = true;
         }
-        if (vm.count("maxAnomalyRecords") > 0)
-        {
+        if (vm.count("maxAnomalyRecords") > 0) {
             maxAnomalyRecords = vm["maxAnomalyRecords"].as<size_t>();
         }
-        if (vm.count("memoryUsage") > 0)
-        {
+        if (vm.count("memoryUsage") > 0) {
             memoryUsage = true;
         }
-        if (vm.count("resultFinalizationWindow") > 0)
-        {
+        if (vm.count("resultFinalizationWindow") > 0) {
             bucketResultsDelay = vm["resultFinalizationWindow"].as<std::size_t>();
         }
-        if (vm.count("multivariateByFields") > 0)
-        {
+        if (vm.count("multivariateByFields") > 0) {
             multivariateByFields = true;
         }
-        if (vm.count("multipleBucketspans") > 0)
-        {
+        if (vm.count("multipleBucketspans") > 0) {
             multipleBucketspans = vm["multipleBucketspans"].as<std::string>();
         }
-        if (vm.count("perPartitionNormalization") > 0)
-        {
+        if (vm.count("perPartitionNormalization") > 0) {
             perPartitionNormalization = true;
         }
 
-        boost::program_options::collect_unrecognized(parsed.options,
-                                                     boost::program_options::include_positional).swap(clauseTokens);
-    }
-    catch (std::exception &e)
-    {
+        boost::program_options::collect_unrecognized(parsed.options, boost::program_options::include_positional).swap(clauseTokens);
+    } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
     }
 
     return true;
 }
-
-
 }
 }

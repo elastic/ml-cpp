@@ -18,8 +18,8 @@
 
 #include <core/CoreTypes.h>
 
-#include <config/ConfigTypes.h>
 #include <config/CPenalty.h>
+#include <config/ConfigTypes.h>
 #include <config/ImportExport.h>
 
 #include <boost/shared_ptr.hpp>
@@ -27,10 +27,8 @@
 #include <cstddef>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CCategoricalDataSummaryStatistics;
 class CNumericDataSummaryStatistics;
 
@@ -42,22 +40,19 @@ class CNumericDataSummaryStatistics;
 //! share a single field for a given role then objects of this hierarchy
 //! are penalty functions which are constant on the set of detectors for
 //! which a given field and its role are fixed.
-class CONFIG_EXPORT CCantBeNumeric : public CPenalty
-{
-    public:
-        CCantBeNumeric(const CAutoconfigurerParams &params);
+class CONFIG_EXPORT CCantBeNumeric : public CPenalty {
+public:
+    CCantBeNumeric(const CAutoconfigurerParams& params);
 
-        //! Create a copy on the heap.
-        virtual CCantBeNumeric *clone() const;
+    //! Create a copy on the heap.
+    virtual CCantBeNumeric* clone() const;
 
-        //! Get the name of this penalty.
-        virtual std::string name() const;
+    //! Get the name of this penalty.
+    virtual std::string name() const;
 
-    private:
-        //! Sets \p penalty to 0.0 for numerics and a no-op otherwise.
-        virtual void penaltyFromMe(const CFieldStatistics &stats,
-                                   double &penalty,
-                                   std::string &description) const;
+private:
+    //! Sets \p penalty to 0.0 for numerics and a no-op otherwise.
+    virtual void penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const;
 };
 
 //! \brief Encapsulates the fact that categorical fields can't be used
@@ -68,22 +63,19 @@ class CONFIG_EXPORT CCantBeNumeric : public CPenalty
 //! share a single field for a given role then objects of this hierarchy
 //! are penalty functions which are constant on the set of detectors for
 //! which a given field and its role are fixed.
-class CONFIG_EXPORT CCantBeCategorical : public CPenalty
-{
-    public:
-        CCantBeCategorical(const CAutoconfigurerParams &params);
+class CONFIG_EXPORT CCantBeCategorical : public CPenalty {
+public:
+    CCantBeCategorical(const CAutoconfigurerParams& params);
 
-        //! Create a copy on the heap.
-        virtual CCantBeCategorical *clone() const;
+    //! Create a copy on the heap.
+    virtual CCantBeCategorical* clone() const;
 
-        //! Get the name of this penalty.
-        virtual std::string name() const;
+    //! Get the name of this penalty.
+    virtual std::string name() const;
 
-    private:
-        //! Sets \p penalty to 0.0 for categorical and a no-op otherwise.
-        virtual void penaltyFromMe(const CFieldStatistics &stats,
-                                   double &penalty,
-                                   std::string &description) const;
+private:
+    //! Sets \p penalty to 0.0 for categorical and a no-op otherwise.
+    virtual void penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const;
 };
 
 //! \brief A penalty which stops unary categorical fields being used
@@ -94,23 +86,20 @@ class CONFIG_EXPORT CCantBeCategorical : public CPenalty
 //! share a single field for a given role then objects of this hierarchy
 //! are penalty functions which are constant on the set of detectors for
 //! which a given field and its role are fixed.
-class CONFIG_EXPORT CDontUseUnaryField : public CPenalty
-{
-    public:
-        CDontUseUnaryField(const CAutoconfigurerParams &params);
+class CONFIG_EXPORT CDontUseUnaryField : public CPenalty {
+public:
+    CDontUseUnaryField(const CAutoconfigurerParams& params);
 
-        //! Create a copy on the heap.
-        virtual CDontUseUnaryField *clone() const;
+    //! Create a copy on the heap.
+    virtual CDontUseUnaryField* clone() const;
 
-        //! Get the name of this penalty.
-        virtual std::string name() const;
+    //! Get the name of this penalty.
+    virtual std::string name() const;
 
-    private:
-        //! Sets \p penalty to 0.0 for categorical with a single category
-        //! and a no-op otherwise.
-        virtual void penaltyFromMe(const CFieldStatistics &stats,
-                                   double &penalty,
-                                   std::string &description) const;
+private:
+    //! Sets \p penalty to 0.0 for categorical with a single category
+    //! and a no-op otherwise.
+    virtual void penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const;
 };
 
 //! \brief A penalty based on the a specified range of penalized distinct
@@ -121,34 +110,30 @@ class CONFIG_EXPORT CDontUseUnaryField : public CPenalty
 //! share a single field for a given role then objects of this hierarchy
 //! are penalty functions which are constant on the set of detectors for
 //! which a given field and its role are fixed.
-class CONFIG_EXPORT CDistinctCountThresholdPenalty : public CPenalty
-{
-    public:
-        CDistinctCountThresholdPenalty(const CAutoconfigurerParams &params,
-                                       std::size_t distinctCountForPenaltyOfOne,
-                                       std::size_t distinctCountForPenaltyOfZero);
+class CONFIG_EXPORT CDistinctCountThresholdPenalty : public CPenalty {
+public:
+    CDistinctCountThresholdPenalty(const CAutoconfigurerParams& params,
+                                   std::size_t distinctCountForPenaltyOfOne,
+                                   std::size_t distinctCountForPenaltyOfZero);
 
-        //! Create a copy on the heap.
-        virtual CDistinctCountThresholdPenalty *clone() const;
+    //! Create a copy on the heap.
+    virtual CDistinctCountThresholdPenalty* clone() const;
 
-        //! Get the name of this penalty.
-        virtual std::string name() const;
+    //! Get the name of this penalty.
+    virtual std::string name() const;
 
-    private:
-        //! The penalty is a piecewise continuous linear function which
-        //! is constant outside interval \f$[dc_0, dc_1]\f$ and linear
-        //! decreasing from 1 at \f$dc_1\f$ to 0 at \f$dc_0\f$.
-        virtual void penaltyFromMe(const CFieldStatistics &stats,
-                                   double &penalty,
-                                   std::string &description) const;
+private:
+    //! The penalty is a piecewise continuous linear function which
+    //! is constant outside interval \f$[dc_0, dc_1]\f$ and linear
+    //! decreasing from 1 at \f$dc_1\f$ to 0 at \f$dc_0\f$.
+    virtual void penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const;
 
-    private:
-        //! The distinct count for which the penalty is one.
-        double m_DistinctCountForPenaltyOfOne;
-        //! The distinct count for which the penalty is zero.
-        double m_DistinctCountForPenaltyOfZero;
+private:
+    //! The distinct count for which the penalty is one.
+    double m_DistinctCountForPenaltyOfOne;
+    //! The distinct count for which the penalty is zero.
+    double m_DistinctCountForPenaltyOfZero;
 };
-
 }
 }
 

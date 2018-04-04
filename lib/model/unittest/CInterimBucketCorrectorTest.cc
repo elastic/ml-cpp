@@ -29,42 +29,36 @@
 using namespace ml;
 using namespace model;
 
-namespace
-{
+namespace {
 using TDouble1Vec = core::CSmallVector<double, 1>;
 using TDouble10Vec = core::CSmallVector<double, 10>;
 const double EPSILON = 1e-10;
 }
 
-CppUnit::Test *CInterimBucketCorrectorTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CInterimBucketCorrectorTest");
+CppUnit::Test* CInterimBucketCorrectorTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CInterimBucketCorrectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
-           "CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue",
-           &CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
-           "CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline",
-           &CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
-           "CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode",
-           &CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
-           "CInterimBucketCorrectorTest::testPersist",
-           &CInterimBucketCorrectorTest::testPersist));
+        "CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue", &CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CInterimBucketCorrectorTest>("CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline",
+                                                             &CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CInterimBucketCorrectorTest>("CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode",
+                                                             &CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>("CInterimBucketCorrectorTest::testPersist",
+                                                                               &CInterimBucketCorrectorTest::testPersist));
 
     return suiteOfTests;
 }
 
-void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue()
-{
+void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue() {
     core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);
 
     core_t::TTime now = 3600;
     core_t::TTime end = now + 24 * bucketLength;
-    while (now < end)
-    {
+    while (now < end) {
         corrector.update(now, 100);
         now += bucketLength;
     }
@@ -127,8 +121,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue()
     }
 }
 
-void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline()
-{
+void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline() {
     core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);
 
@@ -138,15 +131,13 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, correction, EPSILON);
 }
 
-void CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode()
-{
+void CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode() {
     core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);
 
     core_t::TTime now = 3600;
     core_t::TTime end = now + 24 * bucketLength;
-    while (now < end)
-    {
+    while (now < end) {
         corrector.update(now, 100);
         now += bucketLength;
     }
@@ -189,15 +180,13 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, correction[9], EPSILON);
 }
 
-void CInterimBucketCorrectorTest::testPersist()
-{
+void CInterimBucketCorrectorTest::testPersist() {
     core_t::TTime bucketLength(300);
     CInterimBucketCorrector corrector(bucketLength);
 
     core_t::TTime now = 300;
     core_t::TTime end = now + 24 * bucketLength;
-    while (now < end)
-    {
+    while (now < end) {
         corrector.update(now, 100);
         now += bucketLength;
     }
@@ -218,9 +207,7 @@ void CInterimBucketCorrectorTest::testPersist()
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     CInterimBucketCorrector restoredCorrector(bucketLength);
-    traverser.traverseSubLevel(boost::bind(&CInterimBucketCorrector::acceptRestoreTraverser,
-                                           &restoredCorrector,
-                                           _1));
+    traverser.traverseSubLevel(boost::bind(&CInterimBucketCorrector::acceptRestoreTraverser, &restoredCorrector, _1));
 
     correction = restoredCorrector.corrections(now, 50, 1000, value);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(500.0, correction, EPSILON);

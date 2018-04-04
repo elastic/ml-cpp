@@ -21,33 +21,29 @@
 
 #include <iostream>
 
-namespace ml
-{
-namespace autoconfig
-{
+namespace ml {
+namespace autoconfig {
 
-const std::string CCmdLineParser::DESCRIPTION =
-"Usage: autoconfig [options]\n"
-"Options";
+const std::string CCmdLineParser::DESCRIPTION = "Usage: autoconfig [options]\n"
+                                                "Options";
 
 bool CCmdLineParser::parse(int argc,
-                           const char * const *argv,
-                           std::string &logProperties,
-                           std::string &logPipe,
-                           char &delimiter,
-                           bool &lengthEncodedInput,
-                           std::string &timeField,
-                           std::string &timeFormat,
-                           std::string &configFile,
-                           std::string &inputFileName,
-                           bool &isInputFileNamedPipe,
-                           std::string &outputFileName,
-                           bool &isOutputFileNamedPipe,
-                           bool &verbose,
-                           bool &writeDetectorConfigs)
-{
-    try
-    {
+                           const char* const* argv,
+                           std::string& logProperties,
+                           std::string& logPipe,
+                           char& delimiter,
+                           bool& lengthEncodedInput,
+                           std::string& timeField,
+                           std::string& timeFormat,
+                           std::string& configFile,
+                           std::string& inputFileName,
+                           bool& isInputFileNamedPipe,
+                           std::string& outputFileName,
+                           bool& isOutputFileNamedPipe,
+                           bool& verbose,
+                           bool& writeDetectorConfigs) {
+    try {
+        // clang-format off
         boost::program_options::options_description desc(DESCRIPTION);
         desc.add_options()
             ("help", "Display this information and exit")
@@ -76,82 +72,65 @@ bool CCmdLineParser::parse(int argc,
             ("writeDetectorConfigs",
                         "Output the detector configurations in JSON format")
         ;
+        // clang-format on
 
         boost::program_options::variables_map vm;
         boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
         boost::program_options::notify(vm);
 
-        if (vm.count("help") > 0)
-        {
+        if (vm.count("help") > 0) {
             std::cerr << desc << std::endl;
             return false;
         }
-        if (vm.count("version") > 0)
-        {
+        if (vm.count("version") > 0) {
             std::cerr << ver::CBuildInfo::fullInfo() << std::endl;
             return false;
         }
-        if (vm.count("logProperties") > 0)
-        {
+        if (vm.count("logProperties") > 0) {
             logProperties = vm["logProperties"].as<std::string>();
         }
-        if (vm.count("logPipe") > 0)
-        {
+        if (vm.count("logPipe") > 0) {
             logPipe = vm["logPipe"].as<std::string>();
         }
-        if (vm.count("delimiter") > 0)
-        {
+        if (vm.count("delimiter") > 0) {
             delimiter = vm["delimiter"].as<char>();
         }
-        if (vm.count("lengthEncodedInput") > 0)
-        {
+        if (vm.count("lengthEncodedInput") > 0) {
             lengthEncodedInput = true;
         }
-        if (vm.count("timefield") > 0)
-        {
+        if (vm.count("timefield") > 0) {
             timeField = vm["timefield"].as<std::string>();
         }
-        if (vm.count("timeformat") > 0)
-        {
+        if (vm.count("timeformat") > 0) {
             timeFormat = vm["timeformat"].as<std::string>();
         }
-        if (vm.count("config") > 0)
-        {
+        if (vm.count("config") > 0) {
             configFile = vm["config"].as<std::string>();
         }
-        if (vm.count("input") > 0)
-        {
+        if (vm.count("input") > 0) {
             inputFileName = vm["input"].as<std::string>();
         }
-        if (vm.count("inputIsPipe") > 0)
-        {
+        if (vm.count("inputIsPipe") > 0) {
             isInputFileNamedPipe = true;
         }
-        if (vm.count("output") > 0)
-        {
+        if (vm.count("output") > 0) {
             outputFileName = vm["output"].as<std::string>();
         }
-        if (vm.count("outputIsPipe") > 0)
-        {
+        if (vm.count("outputIsPipe") > 0) {
             isOutputFileNamedPipe = true;
         }
-        if (vm.count("verbose") > 0)
-        {
+        if (vm.count("verbose") > 0) {
             verbose = true;
         }
-        if (vm.count("writeDetectorConfigs") > 0)
-        {
+        if (vm.count("writeDetectorConfigs") > 0) {
             writeDetectorConfigs = true;
         }
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
     }
 
     return true;
 }
-
 }
 }

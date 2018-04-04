@@ -17,15 +17,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CIpAddressTestTest : public CppUnit::TestFixture {
+public:
+    void testIpv4(void);
+    void testIpv6(void);
 
-class CIpAddressTestTest : public CppUnit::TestFixture
-{
-    public:
-        void testIpv4(void);
-        void testIpv6(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CIpAddressTestTest_h
-

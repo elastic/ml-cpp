@@ -18,16 +18,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CRadialBasisFunctionTest : public CppUnit::TestFixture {
+public:
+    void testDerivative();
+    void testMean();
+    void testMeanSquareDerivative();
+    void testProduct();
 
-class CRadialBasisFunctionTest : public CppUnit::TestFixture
-{
-    public:
-        void testDerivative();
-        void testMean();
-        void testMeanSquareDerivative();
-        void testProduct();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CRadialBasisFunctionTest_h

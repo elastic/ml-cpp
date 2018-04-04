@@ -20,37 +20,26 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/bind.hpp>
 
-
-namespace ml
-{
-namespace domain_name_entropy
-{
+namespace ml {
+namespace domain_name_entropy {
 
 const std::string CTopLevelDomainDb::PUNY_CODE = "xn--";
 const std::string CTopLevelDomainDb::PERIOD = ".";
 
-
-CTopLevelDomainDb::CTopLevelDomainDb(const std::string &effectiveTldNamesFileName) :
-                                        m_EffectiveTldNamesFileName(effectiveTldNamesFileName)
-{
+CTopLevelDomainDb::CTopLevelDomainDb(const std::string& effectiveTldNamesFileName)
+    : m_EffectiveTldNamesFileName(effectiveTldNamesFileName) {
 }
 
-bool CTopLevelDomainDb::init(void)
-{
+bool CTopLevelDomainDb::init(void) {
     core::CTextFileWatcher watcher;
 
-    if (watcher.init(m_EffectiveTldNamesFileName,
-                     "\r?\n",
-                     core::CTextFileWatcher::E_Start) == false)
-    {
+    if (watcher.init(m_EffectiveTldNamesFileName, "\r?\n", core::CTextFileWatcher::E_Start) == false) {
         LOG_ERROR("Can not open " << m_EffectiveTldNamesFileName);
         return false;
     }
 
     std::string remainder;
-    if (watcher.readAllLines(boost::bind(&CTopLevelDomainDb::readLine, this, _1), 
-                             remainder) == false)
-    {
+    if (watcher.readAllLines(boost::bind(&CTopLevelDomainDb::readLine, this, _1), remainder) == false) {
         LOG_ERROR("Error reading " << m_EffectiveTldNamesFileName);
         return false;
     }
@@ -59,9 +48,8 @@ bool CTopLevelDomainDb::init(void)
     return this->readLine(remainder);
 }
 
-bool CTopLevelDomainDb::readLine(const std::string &line)
-{
-/*
+bool CTopLevelDomainDb::readLine(const std::string& line) {
+    /*
 https://publicsuffix.org/list/#list-format
 
 Definitions
@@ -74,14 +62,12 @@ A domain is said to match a rule if, when the domain and rule are both split, an
 */
     std::string trimmedLine = boost::algorithm::trim_copy(line);
 
-    if (trimmedLine.empty())
-    {
+    if (trimmedLine.empty()) {
         return true;
     }
 
     // Is it a comment?
-    if (trimmedLine.substr(0,2) == "//")
-    {
+    if (trimmedLine.substr(0, 2) == "//") {
         return true;
     }
 
@@ -89,17 +75,14 @@ A domain is said to match a rule if, when the domain and rule are both split, an
     boost::algorithm::to_lower(trimmedLine);
 
     // Is it an exception?
-    if (trimmedLine.front() == '!')
-    {
-        if (trimmedLine.size() < 2)
-        {
+    if (trimmedLine.front() == '!') {
+        if (trimmedLine.size() < 2) {
             LOG_WARN(trimmedLine << " not valid - ignoring.");
             return true;
         }
 
         // Hash without first '!' character
-        if (m_EffectiveTldNamesExceptions.insert(trimmedLine.substr(1, std::string::npos)).second == false)
-        {
+        if (m_EffectiveTldNamesExceptions.insert(trimmedLine.substr(1, std::string::npos)).second == false) {
             // Benign warning
             LOG_WARN("Inconsistency in " << m_EffectiveTldNamesFileName << " duplicate " << trimmedLine);
         }
@@ -107,27 +90,22 @@ A domain is said to match a rule if, when the domain and rule are both split, an
     }
 
     // Is it a wildcard?
-    if (trimmedLine.front() == '*')
-    {
-        if (trimmedLine.size() < 2)
-        {
+    if (trimmedLine.front() == '*') {
+        if (trimmedLine.size() < 2) {
             LOG_WARN(trimmedLine << " not valid - ignoring.");
             return true;
         }
 
         // Hash without first '*.' character
-        if (m_EffectiveTldNamesWildcards.insert(trimmedLine.substr(2, std::string::npos)).second == false)
-        {
+        if (m_EffectiveTldNamesWildcards.insert(trimmedLine.substr(2, std::string::npos)).second == false) {
             // Benign warning
             LOG_WARN("Inconsistency in " << m_EffectiveTldNamesFileName << " duplicate " << trimmedLine);
         }
         return true;
     }
 
-    
     // Normal insert
-    if (m_EffectiveTldNames.insert(trimmedLine).second == false)
-    {
+    if (m_EffectiveTldNames.insert(trimmedLine).second == false) {
         // Benign warning
         LOG_WARN("Inconsistency in " << m_EffectiveTldNamesFileName << " duplicate " << trimmedLine);
     }
@@ -135,9 +113,7 @@ A domain is said to match a rule if, when the domain and rule are both split, an
     return true;
 }
 
-bool CTopLevelDomainDb::registeredDomainName(const std::string &host,
-                                             std::string &registeredHostName) const
-{
+bool CTopLevelDomainDb::registeredDomainName(const std::string& host, std::string& registeredHostName) const {
     std::string subDomain;
     std::string domain;
     std::string suffix;
@@ -148,8 +124,7 @@ bool CTopLevelDomainDb::registeredDomainName(const std::string &host,
     // Be strict here to comply with rules.
     // The caller can choose to use the host name instead of the domain
     // name if need be.
-    if (!suffix.empty() && !domain.empty())
-    {
+    if (!suffix.empty() && !domain.empty()) {
         registeredHostName = domain + PERIOD + suffix;
         return true;
     }
@@ -157,20 +132,14 @@ bool CTopLevelDomainDb::registeredDomainName(const std::string &host,
     return false;
 }
 
-void CTopLevelDomainDb::splitHostName(const std::string &host,
-                                        std::string &subDomain,
-                                        std::string &domain,
-                                        std::string &suffix) const
-{
-    if (m_EffectiveTldNames.empty())
-    {
+void CTopLevelDomainDb::splitHostName(const std::string& host, std::string& subDomain, std::string& domain, std::string& suffix) const {
+    if (m_EffectiveTldNames.empty()) {
         LOG_ERROR("No rules. Call ::init to initialize object.");
     }
 
     bool isPunyCode = false;
 
-    if (host.find(PUNY_CODE) != std::string::npos)
-    {
+    if (host.find(PUNY_CODE) != std::string::npos) {
         isPunyCode = true;
 
         // Translate puny_code to idna as lookup file is in idna
@@ -183,18 +152,13 @@ void CTopLevelDomainDb::splitHostName(const std::string &host,
     this->extract(lowerHost, subDomain, domain, suffix);
 
     // Trasnlate back to ascii
-    if (isPunyCode)
-    {
+    if (isPunyCode) {
         LOG_FATAL("NOT HANDLED YET");
     }
 }
 
-void CTopLevelDomainDb::extract(const std::string &str,
-                                std::string &subDomain,
-                                std::string &domain,
-                                std::string &suffix) const
-{
-/*
+void CTopLevelDomainDb::extract(const std::string& str, std::string& subDomain, std::string& domain, std::string& suffix) const {
+    /*
 https://publicsuffix.org/list/#list-format
 
 Algorithm
@@ -214,48 +178,40 @@ Some examples:
 
     std::string::size_type pos(0);
 
-    for (;;)
-    {
+    for (;;) {
         std::string maybeSuffix = str.substr(pos, std::string::npos);
 
-        switch (this->isSuffixTld(maybeSuffix))
-        {
-            case E_Rule:
-            {
-                CTopLevelDomainDb::ruleDomains(str, periods, subDomain, domain, suffix);
-                return;
+        switch (this->isSuffixTld(maybeSuffix)) {
+        case E_Rule: {
+            CTopLevelDomainDb::ruleDomains(str, periods, subDomain, domain, suffix);
+            return;
+        }
+        case E_WildcardRule: {
+            CTopLevelDomainDb::wildcardDomains(str, periods, subDomain, domain, suffix);
+            return;
+        }
+        case E_ExceptionRule: {
+            // Force an extra interation
+            pos = str.find(PERIOD, pos);
+            if (pos == std::string::npos) {
+                LOG_WARN("Unexpected domain for exception rule: '" << str);
             }
-            case E_WildcardRule:
-            {
-                CTopLevelDomainDb::wildcardDomains(str, periods, subDomain, domain, suffix);
-                return;
-            }
-            case E_ExceptionRule:
-            {
-                // Force an extra interation
-                pos = str.find(PERIOD, pos);
-                if (pos == std::string::npos)
-                {
-                    LOG_WARN("Unexpected domain for exception rule: '" << str);
-                }
 
-                pos = pos + PERIOD.size();
+            pos = pos + PERIOD.size();
 
-                periods.push_back(pos);
+            periods.push_back(pos);
 
-                CTopLevelDomainDb::exceptionDomains(str, periods, subDomain, domain, suffix);
-                return;
-            }
-            case E_NoMatch:
-            {
-                // fall through
-                break;  
-            }
+            CTopLevelDomainDb::exceptionDomains(str, periods, subDomain, domain, suffix);
+            return;
+        }
+        case E_NoMatch: {
+            // fall through
+            break;
+        }
         }
 
         pos = str.find(PERIOD, pos);
-        if (pos == std::string::npos)
-        {
+        if (pos == std::string::npos) {
             break;
         }
 
@@ -269,57 +225,47 @@ Some examples:
 }
 
 // Some helpers
-namespace
-{
+namespace {
 
 typedef std::vector<std::string::size_type> TSizeTypeVec;
 
-std::string::size_type _last(const TSizeTypeVec &v)
-{
-    if (v.empty())
-    {
+std::string::size_type _last(const TSizeTypeVec& v) {
+    if (v.empty()) {
         return 0;
     }
 
-    return v[v.size()-1];
+    return v[v.size() - 1];
 }
 
-std::string::size_type _penultimate(const TSizeTypeVec &v)
-{
-    if (v.size() < 2)
-    {
+std::string::size_type _penultimate(const TSizeTypeVec& v) {
+    if (v.size() < 2) {
         return 0;
     }
 
-    return v[v.size()-2];
+    return v[v.size() - 2];
 }
 
-std::string::size_type _antepenultimate(const TSizeTypeVec &v)
-{
-    if (v.size() < 3)
-    {
+std::string::size_type _antepenultimate(const TSizeTypeVec& v) {
+    if (v.size() < 3) {
         return 0;
     }
 
-    return v[v.size()-3];
+    return v[v.size() - 3];
+}
 }
 
-}
+void CTopLevelDomainDb::ruleDomains(const std::string& str,
+                                    const TSizeTypeVec& periods,
+                                    std::string& subDomain,
+                                    std::string& domain,
+                                    std::string& suffix)
 
-void CTopLevelDomainDb::ruleDomains(const std::string &str, 
-                                    const TSizeTypeVec &periods, 
-                                    std::string &subDomain,
-                                    std::string &domain,
-                                    std::string &suffix)
-                                        
 {
     std::string::size_type last = _last(periods);
     std::string::size_type penultimate = _penultimate(periods);
 
-    if (last > 0)
-    {
-        if (penultimate > 0)
-        {
+    if (last > 0) {
+        if (penultimate > 0) {
             subDomain = str.substr(0, penultimate - PERIOD.size());
         }
         domain = str.substr(penultimate, last - penultimate - PERIOD.size());
@@ -327,20 +273,18 @@ void CTopLevelDomainDb::ruleDomains(const std::string &str,
     suffix = str.substr(last, std::string::npos);
 }
 
-void CTopLevelDomainDb::wildcardDomains(const std::string &str, 
-                                       const TSizeTypeVec &periods, 
-                                       std::string &subDomain,
-                                       std::string &domain,
-                                       std::string &suffix)
-                                        
+void CTopLevelDomainDb::wildcardDomains(const std::string& str,
+                                        const TSizeTypeVec& periods,
+                                        std::string& subDomain,
+                                        std::string& domain,
+                                        std::string& suffix)
+
 {
     std::string::size_type last = _penultimate(periods);
     std::string::size_type penultimate = _antepenultimate(periods);
 
-    if (last > 0)
-    {
-        if (penultimate > 0)
-        {
+    if (last > 0) {
+        if (penultimate > 0) {
             subDomain = str.substr(0, penultimate - PERIOD.size());
         }
         domain = str.substr(penultimate, last - penultimate - PERIOD.size());
@@ -348,39 +292,31 @@ void CTopLevelDomainDb::wildcardDomains(const std::string &str,
     suffix = str.substr(last, std::string::npos);
 }
 
-
-void CTopLevelDomainDb::exceptionDomains(const std::string &str, 
-                                         const TSizeTypeVec &periods, 
-                                         std::string &subDomain,
-                                         std::string &domain,
-                                         std::string &suffix)
-{
+void CTopLevelDomainDb::exceptionDomains(const std::string& str,
+                                         const TSizeTypeVec& periods,
+                                         std::string& subDomain,
+                                         std::string& domain,
+                                         std::string& suffix) {
     CTopLevelDomainDb::ruleDomains(str, periods, subDomain, domain, suffix);
 }
 
-CTopLevelDomainDb::ERuleType CTopLevelDomainDb::isSuffixTld(const std::string &suffix) const
-{
+CTopLevelDomainDb::ERuleType CTopLevelDomainDb::isSuffixTld(const std::string& suffix) const {
     // If more than one rule matches, the prevailing rule is the one which is an exception rule.
     // - check exception rules first
     // If the prevailing rule is a exception rule, modify it by removing the leftmost label.
-    if (m_EffectiveTldNamesExceptions.find(suffix) != m_EffectiveTldNamesExceptions.end())
-    {
+    if (m_EffectiveTldNamesExceptions.find(suffix) != m_EffectiveTldNamesExceptions.end()) {
         return E_ExceptionRule;
     }
     // If there is no matching exception rule, the prevailing rule is the one with the most labels.
-    if (m_EffectiveTldNames.find(suffix) != m_EffectiveTldNames.end())
-    {
+    if (m_EffectiveTldNames.find(suffix) != m_EffectiveTldNames.end()) {
         return E_Rule;
     }
     // If there is no matching exception rule, the prevailing rule is the one with the most labels.
-    if (m_EffectiveTldNamesWildcards.find(suffix) != m_EffectiveTldNamesWildcards.end())
-    {
+    if (m_EffectiveTldNamesWildcards.find(suffix) != m_EffectiveTldNamesWildcards.end()) {
         return E_WildcardRule;
     }
     // If no rules match, the prevailing rule is "*".
     return E_NoMatch;
 }
-    
-
 }
 }

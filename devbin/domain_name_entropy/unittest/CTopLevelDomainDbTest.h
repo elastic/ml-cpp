@@ -17,15 +17,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CTopLevelDomainDbTest : public CppUnit::TestFixture {
+public:
+    void testMozillaTestCases(void);
+    void testSimpleTestCases(void);
 
-class CTopLevelDomainDbTest : public CppUnit::TestFixture
-{
-    public:
-        void testMozillaTestCases(void);
-        void testSimpleTestCases(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CTopLevelDomainDbTest_h
-

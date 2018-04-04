@@ -15,13 +15,13 @@
 #include <core/CLogger.h>
 
 #include <core/CCrashHandler.h>
-#include <core/CoreTypes.h>
 #include <core/COsFileFuncs.h>
 #include <core/CProcess.h>
 #include <core/CProgName.h>
 #include <core/CResourceLocator.h>
 #include <core/CTimezone.h>
 #include <core/CUname.h>
+#include <core/CoreTypes.h>
 
 #include <log4cxx/appender.h>
 #include <log4cxx/helpers/exception.h>
@@ -33,8 +33,8 @@
 #include <log4cxx/writerappender.h>
 
 #include <iostream>
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 
 #include <errno.h>
 #include <stdlib.h>
@@ -44,59 +44,41 @@
 #ifdef Windows
 __declspec(dllimport)
 #endif
-extern char **environ;
+    extern char** environ;
 
-
-namespace
-{
+namespace {
 // To ensure the singleton is constructed before multiple threads may require it
 // call instance() during the static initialisation phase of the program.  Of
 // course, the instance may already be constructed before this if another static
 // object has used it.
-const ml::core::CLogger &DO_NOT_USE_THIS_VARIABLE =
-                                             ml::core::CLogger::instance();
+const ml::core::CLogger& DO_NOT_USE_THIS_VARIABLE = ml::core::CLogger::instance();
 }
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-CLogger::CLogger()
-    : m_Logger(0),
-      m_Reconfigured(false),
-      m_ProgramName(CProgName::progName()),
-      m_OrigStderrFd(-1)
-{
+CLogger::CLogger() : m_Logger(0), m_Reconfigured(false), m_ProgramName(CProgName::progName()), m_OrigStderrFd(-1) {
     CCrashHandler::installCrashHandler();
     this->reset();
 }
 
-CLogger::~CLogger()
-{
+CLogger::~CLogger() {
     log4cxx::LogManager::shutdown();
     m_Logger = 0;
 
-    if (m_PipeFile != 0)
-    {
+    if (m_PipeFile != 0) {
         // Revert the stderr file descriptor.
-        if (m_OrigStderrFd != -1)
-        {
+        if (m_OrigStderrFd != -1) {
             COsFileFuncs::dup2(m_OrigStderrFd, ::fileno(stderr));
         }
         m_PipeFile.reset();
     }
 }
 
-void CLogger::reset()
-{
-    if (m_PipeFile != 0)
-    {
+void CLogger::reset() {
+    if (m_PipeFile != 0) {
         // Revert the stderr file descriptor.
-        if (m_OrigStderrFd != -1)
-        {
+        if (m_OrigStderrFd != -1) {
             COsFileFuncs::dup2(m_OrigStderrFd, ::fileno(stderr));
         }
         m_PipeFile.reset();
@@ -105,8 +87,7 @@ void CLogger::reset()
     m_Reconfigured = false;
 
     // Configure the logger
-    try
-    {
+    try {
         // This info can come from an XML file or other source.
         // When the logger first starts up, configure it by setting properties
         // equivalent to this properties file:
@@ -128,14 +109,10 @@ void CLogger::reset()
         // using a real properties file.
 
         log4cxx::helpers::Properties props;
-        props.put(LOG4CXX_STR("log4j.rootLogger"),
-                  LOG4CXX_STR("DEBUG, A1"));
-        props.put(LOG4CXX_STR("log4j.appender.A1"),
-                  LOG4CXX_STR("org.apache.log4j.ConsoleAppender"));
-        props.put(LOG4CXX_STR("log4j.appender.A1.Target"),
-                  LOG4CXX_STR("System.err"));
-        props.put(LOG4CXX_STR("log4j.appender.A1.layout"),
-                  LOG4CXX_STR("org.apache.log4j.PatternLayout"));
+        props.put(LOG4CXX_STR("log4j.rootLogger"), LOG4CXX_STR("DEBUG, A1"));
+        props.put(LOG4CXX_STR("log4j.appender.A1"), LOG4CXX_STR("org.apache.log4j.ConsoleAppender"));
+        props.put(LOG4CXX_STR("log4j.appender.A1.Target"), LOG4CXX_STR("System.err"));
+        props.put(LOG4CXX_STR("log4j.appender.A1.layout"), LOG4CXX_STR("org.apache.log4j.PatternLayout"));
 
         // The pattern includes the process ID to make it easier to see if a
         // process dies and restarts
@@ -143,8 +120,7 @@ void CLogger::reset()
         strm << "%d %d{%Z} [" << CProcess::instance().id() << "] %-5p %F@%L %m%n";
         log4cxx::LogString logPattern;
         log4cxx::helpers::Transcoder::decode(strm.str(), logPattern);
-        props.put(LOG4CXX_STR("log4j.appender.A1.layout.ConversionPattern"),
-                  logPattern);
+        props.put(LOG4CXX_STR("log4j.appender.A1.layout.ConversionPattern"), logPattern);
 
         // Make sure the timezone names have been frigged on Windows before
         // configuring the properties
@@ -153,48 +129,34 @@ void CLogger::reset()
         log4cxx::PropertyConfigurator::configure(props);
 
         m_Logger = log4cxx::Logger::getRootLogger();
-    }
-    catch (log4cxx::helpers::Exception &e)
-    {
-        if (m_Logger != 0)
-        {
+    } catch (log4cxx::helpers::Exception& e) {
+        if (m_Logger != 0) {
             // (Can't use the Ml LOG_ERROR macro here, as the object
             // it references is only part constructed.)
-            LOG4CXX_ERROR(m_Logger,
-                          "Could not initialise logger: " << e.what());
-        }
-        else
-        {
+            LOG4CXX_ERROR(m_Logger, "Could not initialise logger: " << e.what());
+        } else {
             // We can't use the log macros if the pointer to the logger is NULL
-            std::cerr << "Could not initialise logger: " << e.what()
-                      << std::endl;
+            std::cerr << "Could not initialise logger: " << e.what() << std::endl;
         }
     }
 }
 
-CLogger &CLogger::instance()
-{
+CLogger& CLogger::instance() {
     static CLogger instance;
     return instance;
 }
 
-bool CLogger::hasBeenReconfigured() const
-{
+bool CLogger::hasBeenReconfigured() const {
     return m_Reconfigured;
 }
 
-void CLogger::logEnvironment() const
-{
+void CLogger::logEnvironment() const {
     std::string env("Environment variables:");
     // environ is a global variable from the C runtime library
-    if (environ == 0)
-    {
+    if (environ == 0) {
         env += " (None found)";
-    }
-    else
-    {
-        for (char **envPtr = environ; *envPtr != 0; ++envPtr)
-        {
+    } else {
+        for (char** envPtr = environ; *envPtr != 0; ++envPtr) {
             env += core_t::LINE_ENDING;
             env += *envPtr;
         }
@@ -202,45 +164,40 @@ void CLogger::logEnvironment() const
     LOG_INFO(env);
 }
 
-log4cxx::LoggerPtr CLogger::logger()
-{
+log4cxx::LoggerPtr CLogger::logger() {
     return m_Logger;
 }
 
-void CLogger::fatal()
-{
+void CLogger::fatal() {
     throw std::runtime_error("Ml Fatal Exception");
 }
 
-bool CLogger::setLoggingLevel(ELevel level)
-{
+bool CLogger::setLoggingLevel(ELevel level) {
     log4cxx::LevelPtr levelToSet(0);
 
-    switch (level)
-    {
-        case E_Fatal:
-            levelToSet = log4cxx::Level::getFatal();
-            break;
-        case E_Error:
-            levelToSet = log4cxx::Level::getError();
-            break;
-        case E_Warn:
-            levelToSet = log4cxx::Level::getWarn();
-            break;
-        case E_Info:
-            levelToSet = log4cxx::Level::getInfo();
-            break;
-        case E_Debug:
-            levelToSet = log4cxx::Level::getDebug();
-            break;
-        case E_Trace:
-            levelToSet = log4cxx::Level::getTrace();
-            break;
+    switch (level) {
+    case E_Fatal:
+        levelToSet = log4cxx::Level::getFatal();
+        break;
+    case E_Error:
+        levelToSet = log4cxx::Level::getError();
+        break;
+    case E_Warn:
+        levelToSet = log4cxx::Level::getWarn();
+        break;
+    case E_Info:
+        levelToSet = log4cxx::Level::getInfo();
+        break;
+    case E_Debug:
+        levelToSet = log4cxx::Level::getDebug();
+        break;
+    case E_Trace:
+        levelToSet = log4cxx::Level::getTrace();
+        break;
     }
 
     // Defend against corrupt argument
-    if (levelToSet == 0)
-    {
+    if (levelToSet == 0) {
         return false;
     }
 
@@ -248,8 +205,7 @@ bool CLogger::setLoggingLevel(ELevel level)
     // active logger when we call its setLevel() method, but because it's a
     // smart pointer, at least it will still exist
     log4cxx::LoggerPtr loggerToChange(m_Logger);
-    if (loggerToChange == 0)
-    {
+    if (loggerToChange == 0) {
         return false;
     }
 
@@ -260,17 +216,13 @@ bool CLogger::setLoggingLevel(ELevel level)
     // change will have no effect.  Therefore, we adjust all appender thresholds
     // here as well for appenders that write to a file or the console.
     log4cxx::AppenderList appendersToChange(loggerToChange->getAllAppenders());
-    for (log4cxx::AppenderList::iterator iter = appendersToChange.begin();
-         iter != appendersToChange.end();
-         ++iter)
-    {
-        log4cxx::Appender *appenderToChange(*iter);
+    for (log4cxx::AppenderList::iterator iter = appendersToChange.begin(); iter != appendersToChange.end(); ++iter) {
+        log4cxx::Appender* appenderToChange(*iter);
 
         // Unfortunately, thresholds are a concept lower down the inheritance
         // hierarchy than the Appender base class, so we have to downcast.
-        log4cxx::WriterAppender *writerToChange(dynamic_cast<log4cxx::WriterAppender *>(appenderToChange));
-        if (writerToChange != 0)
-        {
+        log4cxx::WriterAppender* writerToChange(dynamic_cast<log4cxx::WriterAppender*>(appenderToChange));
+        if (writerToChange != 0) {
             writerToChange->setThreshold(levelToSet);
         }
     }
@@ -278,13 +230,9 @@ bool CLogger::setLoggingLevel(ELevel level)
     return true;
 }
 
-bool CLogger::reconfigure(const std::string &pipeName,
-                          const std::string &propertiesFile)
-{
-    if (pipeName.empty())
-    {
-        if (propertiesFile.empty())
-        {
+bool CLogger::reconfigure(const std::string& pipeName, const std::string& propertiesFile) {
+    if (pipeName.empty()) {
+        if (propertiesFile.empty()) {
             // Both empty is OK - it just means we keep logging to stderr
             return true;
         }
@@ -293,19 +241,15 @@ bool CLogger::reconfigure(const std::string &pipeName,
     return this->reconfigureLogToNamedPipe(pipeName);
 }
 
-bool CLogger::reconfigureLogToNamedPipe(const std::string &pipeName)
-{
-    if (m_Reconfigured)
-    {
+bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
+    if (m_Reconfigured) {
         LOG_ERROR("Cannot log to a named pipe after logger reconfiguration");
         return false;
     }
 
     m_PipeFile = CNamedPipeFactory::openPipeFileWrite(pipeName);
-    if (m_PipeFile == 0)
-    {
-        LOG_ERROR("Cannot log to named pipe " << pipeName <<
-                  " as it could not be opened for writing");
+    if (m_PipeFile == 0) {
+        LOG_ERROR("Cannot log to named pipe " << pipeName << " as it could not be opened for writing");
         return false;
     }
 
@@ -314,8 +258,7 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string &pipeName)
     m_OrigStderrFd = COsFileFuncs::dup(::fileno(stderr));
     COsFileFuncs::dup2(::fileno(m_PipeFile.get()), ::fileno(stderr));
 
-    if (this->reconfigureLogJson() == false)
-    {
+    if (this->reconfigureLogJson() == false) {
         return false;
     }
 
@@ -324,30 +267,22 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string &pipeName)
     return true;
 }
 
-bool CLogger::reconfigureLogJson()
-{
+bool CLogger::reconfigureLogJson() {
     log4cxx::helpers::Properties props;
     log4cxx::LogString logStr;
     log4cxx::helpers::Transcoder::decode(m_ProgramName, logStr);
-    props.put(LOG4CXX_STR("log4j.logger.") + logStr,
-              LOG4CXX_STR("DEBUG, A2"));
-    props.put(LOG4CXX_STR("log4j.appender.A2"),
-              LOG4CXX_STR("org.apache.log4j.ConsoleAppender"));
-    props.put(LOG4CXX_STR("log4j.appender.A2.Target"),
-              LOG4CXX_STR("System.err"));
-    props.put(LOG4CXX_STR("log4j.appender.A2.layout"),
-              LOG4CXX_STR("org.apache.log4j.CJsonLogLayout"));
+    props.put(LOG4CXX_STR("log4j.logger.") + logStr, LOG4CXX_STR("DEBUG, A2"));
+    props.put(LOG4CXX_STR("log4j.appender.A2"), LOG4CXX_STR("org.apache.log4j.ConsoleAppender"));
+    props.put(LOG4CXX_STR("log4j.appender.A2.Target"), LOG4CXX_STR("System.err"));
+    props.put(LOG4CXX_STR("log4j.appender.A2.layout"), LOG4CXX_STR("org.apache.log4j.CJsonLogLayout"));
 
     return this->reconfigureFromProps(props);
 }
 
-bool CLogger::reconfigureFromFile(const std::string &propertiesFile)
-{
+bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
     COsFileFuncs::TStat statBuf;
-    if (COsFileFuncs::stat(propertiesFile.c_str(), &statBuf) != 0)
-    {
-        LOG_ERROR("Unable to access properties file " << propertiesFile <<
-                  " for logger re-initialisation: " << ::strerror(errno));
+    if (COsFileFuncs::stat(propertiesFile.c_str(), &statBuf) != 0) {
+        LOG_ERROR("Unable to access properties file " << propertiesFile << " for logger re-initialisation: " << ::strerror(errno));
         return false;
     }
 
@@ -355,24 +290,19 @@ bool CLogger::reconfigureFromFile(const std::string &propertiesFile)
     // we get the chance to massage the properties to include the name of the
     // current application, before log4cxx uses them.
     log4cxx::helpers::Properties props;
-    try
-    {
+    try {
         // InputStreamPtr is a smart pointer
         log4cxx::helpers::InputStreamPtr inputStream(new log4cxx::helpers::FileInputStream(propertiesFile));
         props.load(inputStream);
-    }
-    catch (const log4cxx::helpers::Exception &e)
-    {
-        LOG_ERROR("Unable to read from properties file " << propertiesFile <<
-                  " for logger re-initialisation: " << e.what());
+    } catch (const log4cxx::helpers::Exception& e) {
+        LOG_ERROR("Unable to read from properties file " << propertiesFile << " for logger re-initialisation: " << e.what());
         return false;
     }
 
     // Massage the properties with our extensions
     this->massageProperties(props);
 
-    if (this->reconfigureFromProps(props) == false)
-    {
+    if (this->reconfigureFromProps(props) == false) {
         return false;
     }
 
@@ -381,11 +311,9 @@ bool CLogger::reconfigureFromFile(const std::string &propertiesFile)
     return true;
 }
 
-bool CLogger::reconfigureFromProps(log4cxx::helpers::Properties &props)
-{
+bool CLogger::reconfigureFromProps(log4cxx::helpers::Properties& props) {
     // Now attempt the reconfiguration using the new properties
-    try
-    {
+    try {
         log4cxx::LogManager::resetConfiguration();
         log4cxx::PropertyConfigurator::configure(props);
 
@@ -396,25 +324,17 @@ bool CLogger::reconfigureFromProps(log4cxx::helpers::Properties &props)
         // TCP server can be identified as having come from this process.
         m_Logger = log4cxx::Logger::getLogger(m_ProgramName);
 
-        if (m_Logger == 0)
-        {
+        if (m_Logger == 0) {
             // We can't use the log macros if the pointer to the logger is NULL
-            std::cerr << "Failed to reinitialise logger for "
-                      << m_ProgramName << std::endl;
+            std::cerr << "Failed to reinitialise logger for " << m_ProgramName << std::endl;
             return false;
         }
-    }
-    catch (log4cxx::helpers::Exception &e)
-    {
-        if (m_Logger != 0)
-        {
+    } catch (log4cxx::helpers::Exception& e) {
+        if (m_Logger != 0) {
             LOG_ERROR("Failed to reinitialise logger: " << e.what());
-        }
-        else
-        {
+        } else {
             // We can't use the log macros if the pointer to the logger is NULL
-            std::cerr << "Failed to reinitialise logger: " << e.what()
-                      << std::endl;
+            std::cerr << "Failed to reinitialise logger: " << e.what() << std::endl;
         }
 
         return false;
@@ -429,8 +349,7 @@ bool CLogger::reconfigureFromProps(log4cxx::helpers::Properties &props)
     return true;
 }
 
-void CLogger::massageProperties(log4cxx::helpers::Properties &props) const
-{
+void CLogger::massageProperties(log4cxx::helpers::Properties& props) const {
     // Get the process ID as a string
     std::ostringstream pidStrm;
     pidStrm << CProcess::instance().id();
@@ -455,10 +374,7 @@ void CLogger::massageProperties(log4cxx::helpers::Properties &props) const
     using TLogStringVecCItr = TLogStringVec::const_iterator;
 
     TLogStringVec propNames(props.propertyNames());
-    for (TLogStringVecCItr iter = propNames.begin();
-         iter != propNames.end();
-         ++iter)
-    {
+    for (TLogStringVecCItr iter = propNames.begin(); iter != propNames.end(); ++iter) {
         log4cxx::LogString oldKey(*iter);
         log4cxx::LogString newKey;
         newKey.reserve(oldKey.length());
@@ -469,53 +385,36 @@ void CLogger::massageProperties(log4cxx::helpers::Properties &props) const
         newValue.reserve(oldValue.length());
         this->massageString(mappings, oldValue, newValue);
 
-        if (newValue != oldValue || newKey != oldKey)
-        {
+        if (newValue != oldValue || newKey != oldKey) {
             props.put(newKey, newValue);
         }
     }
 }
 
-void CLogger::massageString(const TLogCharLogStrMap &mappings,
-                            const log4cxx::LogString &oldStr,
-                            log4cxx::LogString &newStr) const
-{
+void CLogger::massageString(const TLogCharLogStrMap& mappings, const log4cxx::LogString& oldStr, log4cxx::LogString& newStr) const {
     newStr.clear();
 
-    for (log4cxx::LogString::const_iterator iter = oldStr.begin();
-         iter != oldStr.end();
-         ++iter)
-    {
+    for (log4cxx::LogString::const_iterator iter = oldStr.begin(); iter != oldStr.end(); ++iter) {
         // We ONLY want to replace the patterns in our map - other patterns are
         // left for log4cxx itself
-        if (*iter == static_cast<log4cxx::logchar>('%'))
-        {
+        if (*iter == static_cast<log4cxx::logchar>('%')) {
             ++iter;
-            if (iter == oldStr.end())
-            {
+            if (iter == oldStr.end()) {
                 newStr += static_cast<log4cxx::logchar>('%');
                 break;
             }
 
             TLogCharLogStrMapCItr mapping = mappings.find(*iter);
-            if (mapping == mappings.end())
-            {
+            if (mapping == mappings.end()) {
                 newStr += static_cast<log4cxx::logchar>('%');
                 newStr += *iter;
-            }
-            else
-            {
+            } else {
                 newStr += mapping->second;
             }
-        }
-        else
-        {
+        } else {
             newStr += *iter;
         }
     }
 }
-
-
 }
 }
-

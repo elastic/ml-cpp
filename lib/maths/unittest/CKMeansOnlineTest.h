@@ -18,20 +18,19 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CKMeansOnlineTest : public CppUnit::TestFixture
-{
-    public:
-        void testVariance();
-        void testAdd();
-        void testReduce();
-        void testClustering();
-        void testSplit();
-        void testMerge();
-        void testPropagateForwardsByTime();
-        void testSample();
-        void testPersist();
+class CKMeansOnlineTest : public CppUnit::TestFixture {
+public:
+    void testVariance();
+    void testAdd();
+    void testReduce();
+    void testClustering();
+    void testSplit();
+    void testMerge();
+    void testPropagateForwardsByTime();
+    void testSample();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CKMeansOnlineTest_h

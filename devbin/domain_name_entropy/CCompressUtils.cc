@@ -18,82 +18,66 @@
 
 #include <iostream>
 
+namespace ml {
+namespace domain_name_entropy {
 
-namespace ml
-{
-namespace domain_name_entropy
-{
-
-
-CCompressUtils::CCompressUtils(void) : m_State(E_Uninitialized)
-{
+CCompressUtils::CCompressUtils(void) : m_State(E_Uninitialized) {
 }
 
-CCompressUtils::~CCompressUtils(void)
-{
+CCompressUtils::~CCompressUtils(void) {
     ::deflateEnd(&m_ZlibStrm);
 }
 
 // --
 // COMPRESS INTERFACE
 // --
-bool CCompressUtils::compressString(bool finish, const std::string &str)
-{
+bool CCompressUtils::compressString(bool finish, const std::string& str) {
     int level = Z_DEFAULT_COMPRESSION;
 
-    switch (m_State)
-    {
-        case E_Compressing:
-        {
-            // fall through
-            break;
-        }
-        case E_Uninitialized:
-        {
-            // allocate deflate state
-            m_ZlibStrm.zalloc = Z_NULL;
-            m_ZlibStrm.zfree = Z_NULL;
-            m_ZlibStrm.opaque = Z_NULL;
-            int ret = ::deflateInit(&m_ZlibStrm, level);
-            if (ret != Z_OK)
-            {
-                LOG_ERROR("Error initializing Z stream: " << ::zError(ret));
-                return false;
-            }
-            m_State = E_Compressing;
-            break;
-        }
-        case E_Uncompressing:
-        {
-            LOG_ERROR("Can not compress uncompressed stream");
+    switch (m_State) {
+    case E_Compressing: {
+        // fall through
+        break;
+    }
+    case E_Uninitialized: {
+        // allocate deflate state
+        m_ZlibStrm.zalloc = Z_NULL;
+        m_ZlibStrm.zfree = Z_NULL;
+        m_ZlibStrm.opaque = Z_NULL;
+        int ret = ::deflateInit(&m_ZlibStrm, level);
+        if (ret != Z_OK) {
+            LOG_ERROR("Error initializing Z stream: " << ::zError(ret));
             return false;
         }
-        case E_IsFinished:
-        {
-            LOG_ERROR("Can not compress finished stream");
-            return false;
-        }
+        m_State = E_Compressing;
+        break;
+    }
+    case E_Uncompressing: {
+        LOG_ERROR("Can not compress uncompressed stream");
+        return false;
+    }
+    case E_IsFinished: {
+        LOG_ERROR("Can not compress finished stream");
+        return false;
+    }
     }
 
-    m_ZlibStrm.next_in = reinterpret_cast<Bytef *>(const_cast<char *>(str.data()));
+    m_ZlibStrm.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(str.data()));
     m_ZlibStrm.avail_in = static_cast<uInt>(str.size());
 
     static const size_t CHUNK = 16384;
     unsigned char out[CHUNK];
-    
 
     int flush = Z_NO_FLUSH;
-    if (finish == true)
-    {
+    if (finish == true) {
         flush = Z_FINISH;
     }
 
     do {
         m_ZlibStrm.next_out = out;
         m_ZlibStrm.avail_out = CHUNK;
-        int ret = ::deflate(&m_ZlibStrm, flush);    // no bad return value 
-        if (ret == Z_STREAM_ERROR)
-        {
+        int ret = ::deflate(&m_ZlibStrm, flush); // no bad return value
+        if (ret == Z_STREAM_ERROR) {
             LOG_ERROR("Error writing Z stream: " << ::zError(ret));
             return false;
         }
@@ -103,8 +87,7 @@ bool CCompressUtils::compressString(bool finish, const std::string &str)
 
     } while (m_ZlibStrm.avail_out == 0);
 
-    if (finish == true)
-    {
+    if (finish == true) {
         (void)::deflateEnd(&m_ZlibStrm);
         m_State = E_IsFinished;
     }
@@ -112,39 +95,27 @@ bool CCompressUtils::compressString(bool finish, const std::string &str)
     return true;
 }
 
-bool CCompressUtils::compressedString(bool finish, std::string &buffer)
-{
-    if ( 
-        (finish == true && m_State == E_IsFinished) ||
-        (finish == false && m_State == E_Compressing)
-       )
-    {
-        buffer.insert(0, reinterpret_cast<const char *>(&m_Buffer[0]), m_Buffer.size());
+bool CCompressUtils::compressedString(bool finish, std::string& buffer) {
+    if ((finish == true && m_State == E_IsFinished) || (finish == false && m_State == E_Compressing)) {
+        buffer.insert(0, reinterpret_cast<const char*>(&m_Buffer[0]), m_Buffer.size());
         return true;
     }
 
-    if (this->compressString(finish, std::string()) == false)
-    {
+    if (this->compressString(finish, std::string()) == false) {
         return false;
     }
 
-    buffer.insert(0, reinterpret_cast<const char *>(&m_Buffer[0]), m_Buffer.size());
+    buffer.insert(0, reinterpret_cast<const char*>(&m_Buffer[0]), m_Buffer.size());
     return true;
 }
 
-bool CCompressUtils::compressedStringLength(bool finish, size_t &length)
-{
-    if ( 
-        (finish == true && m_State == E_IsFinished) ||
-        (finish == false && m_State == E_Compressing)
-       )
-    {
+bool CCompressUtils::compressedStringLength(bool finish, size_t& length) {
+    if ((finish == true && m_State == E_IsFinished) || (finish == false && m_State == E_Compressing)) {
         length = m_Buffer.size();
         return true;
     }
 
-    if (this->compressString(finish, std::string()) == false)
-    {
+    if (this->compressString(finish, std::string()) == false) {
         return false;
     }
 
@@ -247,7 +218,5 @@ bool CCompressUtils::uncompressedStringLength(bool finish, size_t &length)
 {
 }
 */
-
-
 }
 }

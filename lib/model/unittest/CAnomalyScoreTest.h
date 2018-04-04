@@ -20,24 +20,21 @@
 #include <string>
 #include <vector>
 
+class CAnomalyScoreTest : public CppUnit::TestFixture {
+public:
+    typedef std::vector<double> TDoubleVec;
 
-class CAnomalyScoreTest : public CppUnit::TestFixture
-{
-    public:
-        typedef std::vector<double> TDoubleVec;
+public:
+    void testComputeScores();
+    void testNormalizeScoresQuantiles();
+    void testNormalizeScoresNoisy();
+    void testNormalizeScoresLargeScore();
+    void testNormalizeScoresNearZero();
+    void testNormalizeScoresOrdering();
+    void testJsonConversion();
+    void testPersistEmpty();
 
-    public:
-        void testComputeScores();
-        void testNormalizeScoresQuantiles();
-        void testNormalizeScoresNoisy();
-        void testNormalizeScoresLargeScore();
-        void testNormalizeScoresNearZero();
-        void testNormalizeScoresOrdering();
-        void testJsonConversion();
-        void testPersistEmpty();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CAnomalyScoreCalculatorTest_h
-

@@ -18,12 +18,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CModelTypesTest : public CppUnit::TestFixture
-{
-    public:
-        void testAll();
+class CModelTypesTest : public CppUnit::TestFixture {
+public:
+    void testAll();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CModelTypesTest_h

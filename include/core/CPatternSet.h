@@ -22,10 +22,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief A set that allows efficient lookups of strings.
 //!
@@ -46,42 +44,41 @@ namespace core
 //!   - its end matched a suffix pattern
 //!   - it matches fully against a full pattern
 //!   - the start of any of its substrings ending at its end matches a contains pattern
-class CORE_EXPORT CPatternSet
-{
-    public:
-        using TStrVec = std::vector<std::string>;
-        using TStrVecCItr = TStrVec::const_iterator;
-        using TStrCItr = std::string::const_iterator;
+class CORE_EXPORT CPatternSet {
+public:
+    using TStrVec = std::vector<std::string>;
+    using TStrVecCItr = TStrVec::const_iterator;
+    using TStrCItr = std::string::const_iterator;
 
-    public:
-        //! Default constructor.
-        CPatternSet();
+public:
+    //! Default constructor.
+    CPatternSet();
 
-        //! Initialise the set from JSON that is an array of strings.
-        bool initFromJson(const std::string &json);
+    //! Initialise the set from JSON that is an array of strings.
+    bool initFromJson(const std::string& json);
 
-        //! Check if the set contains the given key.
-        bool contains(const std::string &key) const;
+    //! Check if the set contains the given key.
+    bool contains(const std::string& key) const;
 
-        //! Clears the set.
-        void clear();
+    //! Clears the set.
+    void clear();
 
-    private:
-        void sortAndPruneDuplicates(TStrVec &keys);
+private:
+    void sortAndPruneDuplicates(TStrVec& keys);
 
-    private:
-        //! The prefix tree containing full patterns (no wildcard).
-        CFlatPrefixTree m_FullMatchPatterns;
+private:
+    //! The prefix tree containing full patterns (no wildcard).
+    CFlatPrefixTree m_FullMatchPatterns;
 
-        //! The prefix tree containing prefix patterns.
-        CFlatPrefixTree m_PrefixPatterns;
+    //! The prefix tree containing prefix patterns.
+    CFlatPrefixTree m_PrefixPatterns;
 
-        //! The prefix tree containing suffix patterns
-        //! (note that the suffixes are stored reverted).
-        CFlatPrefixTree m_SuffixPatterns;
+    //! The prefix tree containing suffix patterns
+    //! (note that the suffixes are stored reverted).
+    CFlatPrefixTree m_SuffixPatterns;
 
-        //! The prefix tree containing the contains patterns.
-        CFlatPrefixTree m_ContainsPatterns;
+    //! The prefix tree containing the contains patterns.
+    CFlatPrefixTree m_ContainsPatterns;
 };
 }
 }

@@ -20,33 +20,20 @@
 #include <stdio.h>
 #include <string.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-CFileDeleter::CFileDeleter(const std::string &fileName)
-    : m_FileName(fileName)
-{
+CFileDeleter::CFileDeleter(const std::string& fileName) : m_FileName(fileName) {
 }
 
-CFileDeleter::~CFileDeleter()
-{
-    if (m_FileName.empty())
-    {
+CFileDeleter::~CFileDeleter() {
+    if (m_FileName.empty()) {
         return;
     }
 
-    if (::remove(m_FileName.c_str()) == -1)
-    {
-        LOG_WARN("Failed to remove file " << m_FileName <<
-                 " : " << ::strerror(errno));
+    if (::remove(m_FileName.c_str()) == -1) {
+        LOG_WARN("Failed to remove file " << m_FileName << " : " << ::strerror(errno));
     }
 }
-
-
 }
 }
-

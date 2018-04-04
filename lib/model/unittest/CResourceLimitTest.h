@@ -19,10 +19,8 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CAnomalyDetector;
 class CResourceMonitor;
 }
@@ -30,24 +28,22 @@ class CResourceMonitor;
 
 class CResultWriter;
 
-class CResourceLimitTest : public CppUnit::TestFixture
-{
-    public:
-        void testLimitBy();
-        void testLimitByOver();
-        void testLargeAllocations();
+class CResourceLimitTest : public CppUnit::TestFixture {
+public:
+    void testLimitBy();
+    void testLimitByOver();
+    void testLargeAllocations();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
-    private:
-        void importCsvDataWithLimiter(ml::core_t::TTime firstTime,
-                                      ml::core_t::TTime bucketLength,
-                                      CResultWriter &outputResults,
-                                      const std::string &fileName,
-                                      ml::model::CAnomalyDetector &detector,
-                                      std::size_t limitCutoff,
-                                      ml::model::CResourceMonitor &resourceMonitor);
+private:
+    void importCsvDataWithLimiter(ml::core_t::TTime firstTime,
+                                  ml::core_t::TTime bucketLength,
+                                  CResultWriter& outputResults,
+                                  const std::string& fileName,
+                                  ml::model::CAnomalyDetector& detector,
+                                  std::size_t limitCutoff,
+                                  ml::model::CResourceMonitor& resourceMonitor);
 };
 
 #endif // INCLUDED_CResourceLimitTest_h
-

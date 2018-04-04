@@ -15,12 +15,9 @@
 
 #include <core/CContainerPrinter.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 // Template defined in the header file.
-
 }
 }

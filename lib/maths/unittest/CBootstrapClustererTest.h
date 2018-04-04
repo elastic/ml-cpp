@@ -18,18 +18,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CBootstrapClustererTest : public CppUnit::TestFixture
-{
-    public:
-        void testFacade();
-        void testBuildClusterGraph();
-        void testCutSearch();
-        void testSeparate();
-        void testThickets();
-        void testNonConvexClustering();
-        void testClusteringStability();
+class CBootstrapClustererTest : public CppUnit::TestFixture {
+public:
+    void testFacade();
+    void testBuildClusterGraph();
+    void testCutSearch();
+    void testSeparate();
+    void testThickets();
+    void testNonConvexClustering();
+    void testClusteringStability();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CBootstrapClustererTest_h

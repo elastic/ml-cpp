@@ -18,17 +18,16 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSignalTest : public CppUnit::TestFixture
-{
-    public:
-        void testFFTVersusOctave();
-        void testIFFTVersusOctave();
-        void testFFTRandomized();
-        void testIFFTRandomized();
-        void testFFTIFFTIdempotency();
-        void testAutocorrelations();
+class CSignalTest : public CppUnit::TestFixture {
+public:
+    void testFFTVersusOctave();
+    void testIFFTVersusOctave();
+    void testFFTRandomized();
+    void testIFFTRandomized();
+    void testFFTIFFTIdempotency();
+    void testAutocorrelations();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CSignalTest_h

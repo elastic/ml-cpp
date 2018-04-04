@@ -19,13 +19,11 @@
 #include <maths/ImportExport.h>
 
 #include <cstddef>
-#include <vector>
 #include <stdint.h>
+#include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief A sketch data structure for computing the Shannon entropy of a data
 //! stream under the turnstile model.
@@ -38,33 +36,31 @@ namespace maths
 //! is \f$\frac{1}{\epsilon^2} \log(T) \log(\frac{T}{\epsilon}\f$.
 //!
 //! See http://www.jmlr.org/proceedings/papers/v31/clifford13a.pdf for details.
-class MATHS_EXPORT CEntropySketch
-{
-    public:
-        CEntropySketch(std::size_t k);
+class MATHS_EXPORT CEntropySketch {
+public:
+    CEntropySketch(std::size_t k);
 
-        //! Add \p category with count of \p count.
-        void add(std::size_t category, uint64_t count = 1);
+    //! Add \p category with count of \p count.
+    void add(std::size_t category, uint64_t count = 1);
 
-        //! Compute the entropy based on the values added so far.
-        double calculate() const;
+    //! Compute the entropy based on the values added so far.
+    double calculate() const;
 
-    private:
-        using TDoubleVec = std::vector<double>;
-        using TUInt64Vec = std::vector<uint64_t>;
+private:
+    using TDoubleVec = std::vector<double>;
+    using TUInt64Vec = std::vector<uint64_t>;
 
-    private:
-        //! Generate the projection of the category counts.
-        void generateProjection(std::size_t category, TDoubleVec &projection);
+private:
+    //! Generate the projection of the category counts.
+    void generateProjection(std::size_t category, TDoubleVec& projection);
 
-    private:
-        //! The overall count.
-        uint64_t m_Y;
+private:
+    //! The overall count.
+    uint64_t m_Y;
 
-        //! The sketch count.
-        TDoubleVec m_Yi;
+    //! The sketch count.
+    TDoubleVec m_Yi;
 };
-
 }
 }
 

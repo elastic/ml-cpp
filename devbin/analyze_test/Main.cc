@@ -16,31 +16,22 @@
 #include <iostream>
 #include <vector>
 
-template <typename T>
-struct STemplated
-{
-    void printFirst(void)
-    {
-        std::cout << s_First << std::endl;
-    }
+template<typename T>
+struct STemplated {
+    void printFirst(void) { std::cout << s_First << std::endl; }
 
-    T              s_First;
+    T s_First;
     std::vector<T> s_Second;
 };
 
-struct SSimple
-{
-    void printFirst(void)
-    {
-        std::cout << s_First << std::endl;
-    }
+struct SSimple {
+    void printFirst(void) { std::cout << s_First << std::endl; }
 
-    int              s_First;
+    int s_First;
     std::vector<int> s_Second;
 };
 
-int main(int, char **)
-{
+int main(int, char**) {
     {
         SSimple obj;
         obj.printFirst();
@@ -53,4 +44,3 @@ int main(int, char **)
 
     return 0;
 }
-

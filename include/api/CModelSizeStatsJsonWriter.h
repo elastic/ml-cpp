@@ -24,22 +24,17 @@
 
 #include <string>
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! A static utility for writing the model_size_stats document in JSON.
-class API_EXPORT CModelSizeStatsJsonWriter : private core::CNonInstantiatable
-{
-    public:
-        //! Writes the model size stats in the \p results in JSON format.
-        static void write(const std::string &jobId,
-                          const model::CResourceMonitor::SResults &results,
-                          core::CRapidJsonConcurrentLineWriter &writer);
+class API_EXPORT CModelSizeStatsJsonWriter : private core::CNonInstantiatable {
+public:
+    //! Writes the model size stats in the \p results in JSON format.
+    static void
+    write(const std::string& jobId, const model::CResourceMonitor::SResults& results, core::CRapidJsonConcurrentLineWriter& writer);
 };
-
 }
 }
 

@@ -28,14 +28,10 @@
 #include <string>
 #include <typeinfo>
 
+namespace ml {
+namespace maths {
 
-namespace ml
-{
-namespace maths
-{
-
-namespace
-{
+namespace {
 
 // We use short field names to reduce the state size
 // There needs to be one constant here per sub-class
@@ -45,41 +41,27 @@ const std::string TIME_SERIES_DECOMPOSITION_TAG("a");
 const std::string TIME_SERIES_DECOMPOSITION_STUB_TAG("b");
 
 const std::string EMPTY_STRING;
-
 }
 
-bool CTimeSeriesDecompositionStateSerialiser::operator()(const STimeSeriesDecompositionRestoreParams &params,
-                                                         TDecompositionPtr &result,
-                                                         core::CStateRestoreTraverser &traverser) const
-{
+bool CTimeSeriesDecompositionStateSerialiser::
+operator()(const STimeSeriesDecompositionRestoreParams& params, TDecompositionPtr& result, core::CStateRestoreTraverser& traverser) const {
     std::size_t numResults = 0;
 
-    do
-    {
-        const std::string &name = traverser.name();
-        if (name == TIME_SERIES_DECOMPOSITION_TAG)
-        {
-            result.reset(new CTimeSeriesDecomposition(params.s_DecayRate,
-                                                      params.s_MinimumBucketLength,
-                                                      params.s_ComponentSize,
-                                                      traverser));
+    do {
+        const std::string& name = traverser.name();
+        if (name == TIME_SERIES_DECOMPOSITION_TAG) {
+            result.reset(new CTimeSeriesDecomposition(params.s_DecayRate, params.s_MinimumBucketLength, params.s_ComponentSize, traverser));
             ++numResults;
-        }
-        else if (name == TIME_SERIES_DECOMPOSITION_STUB_TAG)
-        {
+        } else if (name == TIME_SERIES_DECOMPOSITION_STUB_TAG) {
             result.reset(new CTimeSeriesDecompositionStub());
             ++numResults;
-        }
-        else
-        {
+        } else {
             LOG_ERROR("No decomposition corresponds to name " << traverser.name());
             return false;
         }
-    }
-    while (traverser.next());
+    } while (traverser.next());
 
-    if (numResults != 1)
-    {
+    if (numResults != 1) {
         LOG_ERROR("Expected 1 (got " << numResults << ") decomposition tags");
         result.reset();
         return false;
@@ -88,26 +70,18 @@ bool CTimeSeriesDecompositionStateSerialiser::operator()(const STimeSeriesDecomp
     return true;
 }
 
-void CTimeSeriesDecompositionStateSerialiser::operator()(const CTimeSeriesDecompositionInterface &decomposition,
-                                                         core::CStatePersistInserter &inserter) const
-{
-    if (dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition) != 0)
-    {
+void CTimeSeriesDecompositionStateSerialiser::operator()(const CTimeSeriesDecompositionInterface& decomposition,
+                                                         core::CStatePersistInserter& inserter) const {
+    if (dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition) != 0) {
         inserter.insertLevel(TIME_SERIES_DECOMPOSITION_TAG,
                              boost::bind(&CTimeSeriesDecomposition::acceptPersistInserter,
-                                         dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition), _1));
-    }
-    else if (dynamic_cast<const CTimeSeriesDecompositionStub*>(&decomposition) != 0)
-    {
+                                         dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition),
+                                         _1));
+    } else if (dynamic_cast<const CTimeSeriesDecompositionStub*>(&decomposition) != 0) {
         inserter.insertValue(TIME_SERIES_DECOMPOSITION_STUB_TAG, "");
-    }
-    else
-    {
-        LOG_ERROR("Decomposition with type '" << typeid(decomposition).name()
-                  << "' has no defined name");
+    } else {
+        LOG_ERROR("Decomposition with type '" << typeid(decomposition).name() << "' has no defined name");
     }
 }
-
 }
 }
-
