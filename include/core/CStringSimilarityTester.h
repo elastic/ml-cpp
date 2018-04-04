@@ -78,7 +78,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
         using TScopedIntPArray = boost::scoped_array<int *>;
 
     public:
-        CStringSimilarityTester(void);
+        CStringSimilarityTester();
 
         //! Calculate how similar two strings are
         bool similarity(const std::string &first,

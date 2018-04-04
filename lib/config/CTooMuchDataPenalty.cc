@@ -62,12 +62,12 @@ CTooMuchDataPenalty::CTooMuchDataPenalty(const CAutoconfigurerParams &params) :
         CPenalty(params)
 {}
 
-CTooMuchDataPenalty *CTooMuchDataPenalty::clone(void) const
+CTooMuchDataPenalty *CTooMuchDataPenalty::clone() const
 {
     return new CTooMuchDataPenalty(*this);
 }
 
-std::string CTooMuchDataPenalty::name(void) const
+std::string CTooMuchDataPenalty::name() const
 {
     return "too much data";
 }

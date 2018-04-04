@@ -98,17 +98,17 @@ class CORE_EXPORT CMemoryUsage
         void setName(const std::string &name);
 
         //! Get the memory used by this node and all child nodes
-        std::size_t usage(void) const;
+        std::size_t usage() const;
 
         //! Get the unused memory wasted by this node and all child nodes
-        std::size_t unusage(void) const;
+        std::size_t unusage() const;
 
         //! Format the memory used by this node and all child nodes
         //! into a JSON stream
         void print(std::ostream &outStream) const;
 
         //! Aggregate big collections of child items together
-        void compress(void);
+        void compress();
 
     private:
         //! Give out data to the JSON writer to format, recursively

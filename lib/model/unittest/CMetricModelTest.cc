@@ -307,7 +307,7 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 
 }
 
-void CMetricModelTest::testSample(void)
+void CMetricModelTest::testSample()
 {
     LOG_DEBUG("*** testSample ***");
 
@@ -556,7 +556,7 @@ void CMetricModelTest::testSample(void)
     }
 }
 
-void CMetricModelTest::testMultivariateSample(void)
+void CMetricModelTest::testMultivariateSample()
 {
     LOG_DEBUG("*** testMultivariateSample ***");
 
@@ -746,7 +746,7 @@ void CMetricModelTest::testMultivariateSample(void)
     }
 }
 
-void CMetricModelTest::testProbabilityCalculationForMetric(void)
+void CMetricModelTest::testProbabilityCalculationForMetric()
 {
     LOG_DEBUG("*** testProbabilityCalculationForMetric ***");
 
@@ -817,7 +817,7 @@ void CMetricModelTest::testProbabilityCalculationForMetric(void)
     CPPUNIT_ASSERT(minProbabilities[0].first / minProbabilities[1].first < 0.05);
 }
 
-void CMetricModelTest::testProbabilityCalculationForMedian(void)
+void CMetricModelTest::testProbabilityCalculationForMedian()
 {
     LOG_DEBUG("*** testProbabilityCalculationForMedian ***");
 
@@ -907,7 +907,7 @@ void CMetricModelTest::testProbabilityCalculationForMedian(void)
     CPPUNIT_ASSERT_EQUAL(fd->s_BucketValue->value().size(), std::size_t(1));
 }
 
-void CMetricModelTest::testProbabilityCalculationForLowMean(void)
+void CMetricModelTest::testProbabilityCalculationForLowMean()
 {
     LOG_DEBUG("*** testProbabilityCalculationForLowMean ***");
 
@@ -974,7 +974,7 @@ void CMetricModelTest::testProbabilityCalculationForLowMean(void)
     CPPUNIT_ASSERT(probabilities[highMeanBucket] > 0.1);
 }
 
-void CMetricModelTest::testProbabilityCalculationForHighMean(void)
+void CMetricModelTest::testProbabilityCalculationForHighMean()
 {
     LOG_DEBUG("*** testProbabilityCalculationForHighMean ***");
 
@@ -1040,7 +1040,7 @@ void CMetricModelTest::testProbabilityCalculationForHighMean(void)
     CPPUNIT_ASSERT(probabilities[highMeanBucket] < 0.01);
 }
 
-void CMetricModelTest::testProbabilityCalculationForLowSum(void)
+void CMetricModelTest::testProbabilityCalculationForLowSum()
 {
     LOG_DEBUG("*** testProbabilityCalculationForLowSum ***");
 
@@ -1105,7 +1105,7 @@ void CMetricModelTest::testProbabilityCalculationForLowSum(void)
     CPPUNIT_ASSERT(probabilities[highSumBucket] > 0.1);
 }
 
-void CMetricModelTest::testProbabilityCalculationForHighSum(void)
+void CMetricModelTest::testProbabilityCalculationForHighSum()
 {
     LOG_DEBUG("*** testProbabilityCalculationForLowSum ***");
 
@@ -1170,14 +1170,14 @@ void CMetricModelTest::testProbabilityCalculationForHighSum(void)
     CPPUNIT_ASSERT(probabilities[highSumBucket] < 0.01);
 }
 
-void CMetricModelTest::testProbabilityCalculationForLatLong(void)
+void CMetricModelTest::testProbabilityCalculationForLatLong()
 {
     LOG_DEBUG("*** testProbabilityCalculationForLatLong ***");
 
     // TODO
 }
 
-void CMetricModelTest::testInfluence(void)
+void CMetricModelTest::testInfluence()
 {
     LOG_DEBUG("*** testInfluence ***");
 
@@ -1431,14 +1431,14 @@ void CMetricModelTest::testInfluence(void)
     }
 }
 
-void CMetricModelTest::testLatLongInfluence(void)
+void CMetricModelTest::testLatLongInfluence()
 {
     LOG_DEBUG("*** testLatLongInfluence ***");
 
     // TODO
 }
 
-void CMetricModelTest::testPrune(void)
+void CMetricModelTest::testPrune()
 {
     LOG_DEBUG("*** testPrune ***");
 
@@ -1632,7 +1632,7 @@ void CMetricModelTest::testPrune(void)
     CPPUNIT_ASSERT_EQUAL(numberOfPeopleBeforePrune, clonedModelHolder->dataGatherer().numberActivePeople());
 }
 
-void CMetricModelTest::testKey(void)
+void CMetricModelTest::testKey()
 {
     function_t::EFunction countFunctions[] =
         {
@@ -1677,7 +1677,7 @@ void CMetricModelTest::testKey(void)
     }
 }
 
-void CMetricModelTest::testSkipSampling(void)
+void CMetricModelTest::testSkipSampling()
 {
     LOG_DEBUG("*** testSkipSampling ***");
 
@@ -1763,7 +1763,7 @@ void CMetricModelTest::testSkipSampling(void)
                 modelWithGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum());
 }
 
-void CMetricModelTest::testExplicitNulls(void)
+void CMetricModelTest::testExplicitNulls()
 {
     LOG_DEBUG("*** testExplicitNulls ***");
 
@@ -1838,7 +1838,7 @@ void CMetricModelTest::testExplicitNulls(void)
                 modelExNullGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum());
 }
 
-void CMetricModelTest::testVarp(void)
+void CMetricModelTest::testVarp()
 {
     LOG_DEBUG("*** testVarp ***");
 
@@ -1956,7 +1956,7 @@ void CMetricModelTest::testVarp(void)
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.5);
 }
 
-void CMetricModelTest::testInterimCorrections(void)
+void CMetricModelTest::testInterimCorrections()
 {
     LOG_DEBUG("*** testInterimCorrections ***");
 
@@ -2055,7 +2055,7 @@ void CMetricModelTest::testInterimCorrections(void)
     CPPUNIT_ASSERT(p3Baseline[0] > 59.0 && p3Baseline[0] < 61.0);
 }
 
-void CMetricModelTest::testInterimCorrectionsWithCorrelations(void)
+void CMetricModelTest::testInterimCorrectionsWithCorrelations()
 {
     LOG_DEBUG("*** testInterimCorrectionsWithCorrelations ***");
 
@@ -2161,7 +2161,7 @@ void CMetricModelTest::testInterimCorrectionsWithCorrelations(void)
     CPPUNIT_ASSERT(p3Baseline[0] > 7.4 && p3Baseline[0] < 7.6);
 }
 
-void CMetricModelTest::testCorrelatePersist(void)
+void CMetricModelTest::testCorrelatePersist()
 {
     LOG_DEBUG("*** testCorrelatePersist ***");
 
@@ -2243,7 +2243,7 @@ void CMetricModelTest::testCorrelatePersist(void)
     }
 }
 
-void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored(void)
+void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored()
 {
     LOG_DEBUG("*** testSummaryCountZeroRecordsAreIgnored ***");
 
@@ -2314,7 +2314,7 @@ void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored(void)
     CPPUNIT_ASSERT_EQUAL(modelWithZeros.checksum(), modelNoZeros.checksum());
 }
 
-void CMetricModelTest::testDecayRateControl(void)
+void CMetricModelTest::testDecayRateControl()
 {
     LOG_DEBUG("*** testDecayRateControl ***");
 
@@ -2496,7 +2496,7 @@ void CMetricModelTest::testDecayRateControl(void)
     }
 }
 
-void CMetricModelTest::testProbabilityCalculationForLowMedian(void)
+void CMetricModelTest::testProbabilityCalculationForLowMedian()
 {
     LOG_DEBUG("*** testProbabilityCalculationForLowMedian ***");
 
@@ -2563,7 +2563,7 @@ void CMetricModelTest::testProbabilityCalculationForLowMedian(void)
     CPPUNIT_ASSERT(probabilities[highMedianBucket] > 0.1);
 }
 
-void CMetricModelTest::testProbabilityCalculationForHighMedian(void)
+void CMetricModelTest::testProbabilityCalculationForHighMedian()
 {
     LOG_DEBUG("*** testProbabilityCalculationForHighMedian ***");
 
@@ -2629,7 +2629,7 @@ void CMetricModelTest::testProbabilityCalculationForHighMedian(void)
     CPPUNIT_ASSERT(probabilities[highMedianBucket] < 0.01);
 }
 
-void CMetricModelTest::testIgnoreSamplingGivenDetectionRules(void)
+void CMetricModelTest::testIgnoreSamplingGivenDetectionRules()
 {
     LOG_DEBUG("*** testIgnoreSamplingGivenDetectionRules ***");
 
@@ -2748,7 +2748,7 @@ void CMetricModelTest::testIgnoreSamplingGivenDetectionRules(void)
 }
 
 
-CppUnit::Test *CMetricModelTest::suite(void)
+CppUnit::Test *CMetricModelTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMetricModelTest");
 

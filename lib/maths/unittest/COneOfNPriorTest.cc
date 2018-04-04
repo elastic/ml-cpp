@@ -93,7 +93,7 @@ using maths_t::E_IntegerData;
 
 }
 
-void COneOfNPriorTest::testFilter(void)
+void COneOfNPriorTest::testFilter()
 {
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testFilter  |");
@@ -134,7 +134,7 @@ void COneOfNPriorTest::testFilter(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, std::accumulate(weights.begin(), weights.end(), 0.0), 1e-6);
 }
 
-void COneOfNPriorTest::testMultipleUpdate(void)
+void COneOfNPriorTest::testMultipleUpdate()
 {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testMultipleUpdate  |");
@@ -228,7 +228,7 @@ void COneOfNPriorTest::testMultipleUpdate(void)
     CPPUNIT_ASSERT_EQUAL(filter1.checksum(), filter2.checksum());
 }
 
-void COneOfNPriorTest::testWeights(void)
+void COneOfNPriorTest::testWeights()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testWeights  |");
@@ -311,7 +311,7 @@ void COneOfNPriorTest::testWeights(void)
     }
 }
 
-void COneOfNPriorTest::testModels(void)
+void COneOfNPriorTest::testModels()
 {
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testModels  |");
@@ -406,7 +406,7 @@ void COneOfNPriorTest::testModels(void)
     }
 }
 
-void COneOfNPriorTest::testModelSelection(void)
+void COneOfNPriorTest::testModelSelection()
 {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testModelSelection  |");
@@ -562,7 +562,7 @@ void COneOfNPriorTest::testModelSelection(void)
   }
 }
 
-void COneOfNPriorTest::testMarginalLikelihood(void)
+void COneOfNPriorTest::testMarginalLikelihood()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testMarginalLikelihood  |");
@@ -675,7 +675,7 @@ void COneOfNPriorTest::testMarginalLikelihood(void)
     }
 }
 
-void COneOfNPriorTest::testMarginalLikelihoodMean(void)
+void COneOfNPriorTest::testMarginalLikelihoodMean()
 {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testMarginalLikelihoodMean  |");
@@ -788,7 +788,7 @@ void COneOfNPriorTest::testMarginalLikelihoodMean(void)
     }
 }
 
-void COneOfNPriorTest::testMarginalLikelihoodMode(void)
+void COneOfNPriorTest::testMarginalLikelihoodMode()
 {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testMarginalLikelihoodMode  |");
@@ -884,7 +884,7 @@ void COneOfNPriorTest::testMarginalLikelihoodMode(void)
     }
 }
 
-void COneOfNPriorTest::testMarginalLikelihoodVariance(void)
+void COneOfNPriorTest::testMarginalLikelihoodVariance()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testMarginalLikelihoodVariance  |");
@@ -1007,7 +1007,7 @@ void COneOfNPriorTest::testMarginalLikelihoodVariance(void)
     }
 }
 
-void COneOfNPriorTest::testSampleMarginalLikelihood(void)
+void COneOfNPriorTest::testSampleMarginalLikelihood()
 {
     LOG_DEBUG("+--------------------------------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testSampleMarginalLikelihood  |");
@@ -1087,7 +1087,7 @@ void COneOfNPriorTest::testSampleMarginalLikelihood(void)
                          core::CContainerPrinter::print(sampled));
 }
 
-void COneOfNPriorTest::testCdf(void)
+void COneOfNPriorTest::testCdf()
 {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testCdf  |");
@@ -1137,7 +1137,7 @@ void COneOfNPriorTest::testCdf(void)
     }
 }
 
-void COneOfNPriorTest::testProbabilityOfLessLikelySamples(void)
+void COneOfNPriorTest::testProbabilityOfLessLikelySamples()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testProbabilityOfLessLikelySamples  |");
@@ -1269,7 +1269,7 @@ void COneOfNPriorTest::testProbabilityOfLessLikelySamples(void)
     }
 }
 
-void COneOfNPriorTest::testPersist(void)
+void COneOfNPriorTest::testPersist()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  COneOfNPriorTest::testPersist  |");
@@ -1339,7 +1339,7 @@ void COneOfNPriorTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *COneOfNPriorTest::suite(void)
+CppUnit::Test *COneOfNPriorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("COneOfNPriorTest");
 

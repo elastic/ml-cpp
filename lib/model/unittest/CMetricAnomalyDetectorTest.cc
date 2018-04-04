@@ -131,22 +131,22 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor
             return true;
         }
 
-        const TTimeTimePrVec &highAnomalyTimes(void) const
+        const TTimeTimePrVec &highAnomalyTimes() const
         {
             return m_HighAnomalyTimes;
         }
 
-        const TDoubleVec &highAnomalyFactors(void) const
+        const TDoubleVec &highAnomalyFactors() const
         {
             return m_HighAnomalyFactors;
         }
 
-        const TDoubleVec &anomalyFactors(void) const
+        const TDoubleVec &anomalyFactors() const
         {
             return m_AnomalyFactors;
         }
 
-        const TDoubleVec &anomalyRates(void) const
+        const TDoubleVec &anomalyRates() const
         {
             return m_AnomalyRates;
         }
@@ -261,7 +261,7 @@ const std::string EMPTY_STRING;
 
 }
 
-void CMetricAnomalyDetectorTest::testAnomalies(void)
+void CMetricAnomalyDetectorTest::testAnomalies()
 {
     // The test data has one genuine anomaly in the interval
     // [1360617335, 1360617481]. The rest of the samples are
@@ -399,7 +399,7 @@ void CMetricAnomalyDetectorTest::testAnomalies(void)
     CPPUNIT_ASSERT(std::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.2);
 }
 
-void CMetricAnomalyDetectorTest::testPersist(void)
+void CMetricAnomalyDetectorTest::testPersist()
 {
     static const core_t::TTime FIRST_TIME(1360540800);
     static const core_t::TTime LAST_TIME(FIRST_TIME + 86400);
@@ -463,7 +463,7 @@ void CMetricAnomalyDetectorTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CMetricAnomalyDetectorTest::testExcludeFrequent(void)
+void CMetricAnomalyDetectorTest::testExcludeFrequent()
 {
     static const core_t::TTime FIRST_TIME(1406916000);
     static const core_t::TTime BUCKET_LENGTH(3600);
@@ -536,7 +536,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void)
     }
 }
 
-CppUnit::Test *CMetricAnomalyDetectorTest::suite(void)
+CppUnit::Test *CMetricAnomalyDetectorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMetricAnomalyDetectorTest");
 

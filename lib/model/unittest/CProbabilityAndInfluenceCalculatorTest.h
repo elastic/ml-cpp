@@ -12,14 +12,14 @@
 class CProbabilityAndInfluenceCalculatorTest : public CppUnit::TestFixture
 {
     public:
-        void testInfluenceUnavailableCalculator(void);
-        void testLogProbabilityComplementInfluenceCalculator(void);
-        void testMeanInfluenceCalculator(void);
-        void testLogProbabilityInfluenceCalculator(void);
-        void testIndicatorInfluenceCalculator(void);
-        void testProbabilityAndInfluenceCalculator(void);
+        void testInfluenceUnavailableCalculator();
+        void testLogProbabilityComplementInfluenceCalculator();
+        void testMeanInfluenceCalculator();
+        void testLogProbabilityInfluenceCalculator();
+        void testIndicatorInfluenceCalculator();
+        void testProbabilityAndInfluenceCalculator();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CProbabilityAndInfluenceCalculatorTest_h

@@ -11,11 +11,11 @@
 class CCommandProcessorTest : public CppUnit::TestFixture
 {
     public:
-        void testStartPermitted(void);
-        void testStartNonPermitted(void);
-        void testStartNonExistent(void);
-        void testKillDisallowed(void);
-        void testInvalidVerb(void);
+        void testStartPermitted();
+        void testStartNonPermitted();
+        void testStartNonExistent();
+        void testKillDisallowed();
+        void testInvalidVerb();
 
         static CppUnit::Test *suite();
 };

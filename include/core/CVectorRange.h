@@ -135,7 +135,7 @@ class CVectorRange
         }
 
         //! Get the underlying vector allocator.
-        allocator_type get_allocator(void) const
+        allocator_type get_allocator() const
         {
             return m_Vector->get_allocator;
         }
@@ -165,35 +165,35 @@ class CVectorRange
         }
 
         //! Get writable first element.
-        reference front(void) { return this->operator[](0); }
+        reference front() { return this->operator[](0); }
         //! Get read-only first element.
-        const_reference front(void) const { return this->operator[](0); }
+        const_reference front() const { return this->operator[](0); }
 
         //! Get writable last element.
-        reference back(void) { return this->operator[](m_B - m_A - 1); }
+        reference back() { return this->operator[](m_B - m_A - 1); }
         //! Get read-only last element.
-        const_reference back(void) const { return this->operator[](m_B - m_A - 1); }
+        const_reference back() const { return this->operator[](m_B - m_A - 1); }
 
         //! Input iterator to start of range.
-        iterator begin(void) { return m_Vector->begin() + m_A; }
+        iterator begin() { return m_Vector->begin() + m_A; }
         //! Output iterator to start of range.
-        const_iterator begin(void) const { return m_Vector->begin() + m_A; }
+        const_iterator begin() const { return m_Vector->begin() + m_A; }
         //! Output iterator to start of range.
-        const_iterator cbegin(void) const { return m_Vector->begin() + m_A; }
+        const_iterator cbegin() const { return m_Vector->begin() + m_A; }
 
         //! Input iterator to end of range.
-        iterator end(void) { return m_Vector->begin() + m_B; }
+        iterator end() { return m_Vector->begin() + m_B; }
         //! Output iterator to end of range.
-        const_iterator end(void) const { return m_Vector->begin() + m_B; }
+        const_iterator end() const { return m_Vector->begin() + m_B; }
         //! Output iterator to end of range.
-        const_iterator cend(void) const { return m_Vector->begin() + m_B; }
+        const_iterator cend() const { return m_Vector->begin() + m_B; }
 
         //! Check if the range is empty.
-        bool empty(void) const { return m_B == m_A; }
+        bool empty() const { return m_B == m_A; }
         //! Size of range.
-        size_type size(void) const { return m_B - m_A; }
+        size_type size() const { return m_B - m_A; }
         //! Get the maximum permitted size.
-        size_type max_size(void) const { return m_Vector->max_size(); }
+        size_type max_size() const { return m_Vector->max_size(); }
         //! Reserve space for \p size elements.
         void reserve(size_type size)
         {
@@ -201,13 +201,13 @@ class CVectorRange
         }
         //! Get the number of elements which can be held in the currently
         //! allocated storage.
-        size_type capacity(void) const
+        size_type capacity() const
         {
             return (m_Vector->capacity() - m_Vector->size()) + this->size();
         }
 
         //! Clear the contents.
-        void clear(void)
+        void clear()
         {
             this->erase(this->begin(), this->end());
             m_B = m_A;
@@ -256,7 +256,7 @@ class CVectorRange
         //! Remove an element from the end of the range.
         //!
         //! \warning This is not O(1).
-        void pop_back(void)
+        void pop_back()
         {
             this->erase(this->end() - 1);
         }
@@ -289,13 +289,13 @@ class CVectorRange
         }
 
         //! Get the base vector.
-        VECTOR *base(void) const { return m_Vector; }
+        VECTOR *base() const { return m_Vector; }
 
         //! Get the start of the range.
-        size_type a(void) const { return m_A; }
+        size_type a() const { return m_A; }
 
         //! Get the end of the range.
-        size_type b(void) const { return m_B; }
+        size_type b() const { return m_B; }
 
     private:
         //! Check if \p pos is in range.

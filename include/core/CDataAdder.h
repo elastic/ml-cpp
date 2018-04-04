@@ -46,7 +46,7 @@ class CORE_EXPORT CDataAdder : private CNonCopyable
         using TPersistFunc = std::function<bool(CDataAdder &)>;
 
     public:
-        virtual ~CDataAdder(void);
+        virtual ~CDataAdder();
 
         //! Add streamed data - return of NULL stream indicates failure.
         //! Since the data to be written isn't known at the time this function
@@ -66,11 +66,11 @@ class CORE_EXPORT CDataAdder : private CNonCopyable
 
         //! The max number of documents that can go in a single
         //! batch save
-        virtual std::size_t maxDocumentsPerBatchSave(void) const;
+        virtual std::size_t maxDocumentsPerBatchSave() const;
 
         //! The max size of a document - to be determined by the
         //! underlying storage medium
-        virtual std::size_t maxDocumentSize(void) const;
+        virtual std::size_t maxDocumentSize() const;
 
         //! Get the current document ID given a base ID and current document
         //! document number.  The ID is of the form baseId#currentDocNum if

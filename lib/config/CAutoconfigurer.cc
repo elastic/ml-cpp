@@ -70,13 +70,13 @@ class CONFIG_EXPORT CAutoconfigurerImpl : public core::CNonCopyable
         bool handleRecord(const TStrStrUMap &fieldValues);
 
         //! Generate the report.
-        void finalise(void);
+        void finalise();
 
         //! Get the report writer.
-        CReportWriter &reportWriter(void);
+        CReportWriter &reportWriter();
 
         //! How many records did we handle?
-        uint64_t numRecordsHandled(void) const;
+        uint64_t numRecordsHandled() const;
 
     private:
         using TTimeStrStrUMapPr = std::pair<core_t::TTime, TStrStrUMap>;
@@ -105,10 +105,10 @@ class CONFIG_EXPORT CAutoconfigurerImpl : public core::CNonCopyable
         void computeScores(bool final);
 
         //! Generate the candidate detectors to evaluate.
-        void generateCandidateDetectorsOnce(void);
+        void generateCandidateDetectorsOnce();
 
         //! Run the records in the buffer through the detector scorers.
-        void replayBuffer(void);
+        void replayBuffer();
 
     private:
         //! The parameters.
@@ -163,7 +163,7 @@ CAutoconfigurer::CAutoconfigurer(const CAutoconfigurerParams &params,
 {
 }
 
-void CAutoconfigurer::newOutputStream(void)
+void CAutoconfigurer::newOutputStream()
 {
     m_Impl->reportWriter().newOutputStream();
 }
@@ -173,7 +173,7 @@ bool CAutoconfigurer::handleRecord(const TStrStrUMap &fieldValues)
     return m_Impl->handleRecord(fieldValues);
 }
 
-void CAutoconfigurer::finalise(void)
+void CAutoconfigurer::finalise()
 {
     m_Impl->finalise();
 }
@@ -189,12 +189,12 @@ bool CAutoconfigurer::persistState(core::CDataAdder &/*persister*/)
     return true;
 }
 
-uint64_t CAutoconfigurer::numRecordsHandled(void) const
+uint64_t CAutoconfigurer::numRecordsHandled() const
 {
     return m_Impl->numRecordsHandled();
 }
 
-api::COutputHandler &CAutoconfigurer::outputHandler(void)
+api::COutputHandler &CAutoconfigurer::outputHandler()
 {
     return m_Impl->reportWriter();
 }
@@ -238,7 +238,7 @@ bool CAutoconfigurerImpl::handleRecord(const TStrStrUMap &fieldValues)
     return true;
 }
 
-void CAutoconfigurerImpl::finalise(void)
+void CAutoconfigurerImpl::finalise()
 {
     LOG_TRACE("CAutoconfigurerImpl::finalise...");
 
@@ -275,12 +275,12 @@ void CAutoconfigurerImpl::finalise(void)
     LOG_TRACE("CAutoconfigurerImpl::finalise done");
 }
 
-CReportWriter &CAutoconfigurerImpl::reportWriter(void)
+CReportWriter &CAutoconfigurerImpl::reportWriter()
 {
     return m_ReportWriter;
 }
 
-uint64_t CAutoconfigurerImpl::numRecordsHandled(void) const
+uint64_t CAutoconfigurerImpl::numRecordsHandled() const
 {
     return m_NumberRecords;
 }
@@ -410,7 +410,7 @@ void CAutoconfigurerImpl::computeScores(bool final)
     LOG_TRACE("CAutoconfigurerImpl::computeScores done");
 }
 
-void CAutoconfigurerImpl::generateCandidateDetectorsOnce(void)
+void CAutoconfigurerImpl::generateCandidateDetectorsOnce()
 {
     if (m_GeneratedCandidateFieldNames)
     {
@@ -495,7 +495,7 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce(void)
     m_GeneratedCandidateFieldNames = true;
 }
 
-void CAutoconfigurerImpl::replayBuffer(void)
+void CAutoconfigurerImpl::replayBuffer()
 {
     for (std::size_t i = 0u; i < m_Buffer.size(); ++i)
     {

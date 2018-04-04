@@ -128,7 +128,7 @@ bool CStringStoreTest::influencerExists(const std::string &string)
                       ::SLookup()) != names.end();
 }
 
-void CStringStoreTest::testPersonStringPruning(void)
+void CStringStoreTest::testPersonStringPruning()
 {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
@@ -330,7 +330,7 @@ void CStringStoreTest::testPersonStringPruning(void)
 }
 
 
-void CStringStoreTest::testAttributeStringPruning(void)
+void CStringStoreTest::testAttributeStringPruning()
 {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
@@ -534,7 +534,7 @@ void CStringStoreTest::testAttributeStringPruning(void)
 }
 
 
-void CStringStoreTest::testInfluencerStringPruning(void)
+void CStringStoreTest::testInfluencerStringPruning()
 {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;

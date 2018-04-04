@@ -97,7 +97,7 @@ class MODEL_EXPORT CResultType
         };
 
     public:
-        CResultType(void) : m_Type(0) {}
+        CResultType() : m_Type(0) {}
         CResultType(EInterimOrFinal type) : m_Type(type) {}
         CResultType(EConditionalOrUnconditional type) : m_Type(type) {}
         explicit CResultType(unsigned int type) : m_Type(type) {}
@@ -117,31 +117,31 @@ class MODEL_EXPORT CResultType
         }
 
         //! Check if this is interim.
-        bool isInterim(void) const
+        bool isInterim() const
         {
             return (m_Type & static_cast<unsigned int>(E_Interim)) != 0;
         }
 
         //! Get as interim or final enumeration.
-        EInterimOrFinal asInterimOrFinal(void) const
+        EInterimOrFinal asInterimOrFinal() const
         {
             return this->isInterim() ? E_Interim : E_Final;
         }
 
         //! Check if this is unconditional.
-        bool isUnconditional(void) const
+        bool isUnconditional() const
         {
             return (m_Type & static_cast<unsigned int>(E_Unconditional)) != 0;
         }
 
         //! Get as conditional or unconditional enumeration.
-        EConditionalOrUnconditional asConditionalOrUnconditional(void) const
+        EConditionalOrUnconditional asConditionalOrUnconditional() const
         {
             return this->isUnconditional() ? E_Unconditional : E_Conditional;
         }
 
         //! Get as an unsigned integer.
-        unsigned int asUint(void) const { return m_Type; }
+        unsigned int asUint() const { return m_Type; }
 
     private:
         //! Encodes the result type.

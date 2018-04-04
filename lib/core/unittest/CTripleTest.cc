@@ -26,7 +26,7 @@ CppUnit::Test *CTripleTest::suite()
     return suiteOfTests;
 }
 
-void CTripleTest::testOperators(void)
+void CTripleTest::testOperators()
 {
     {
         // Assignment
@@ -64,7 +64,7 @@ void CTripleTest::testOperators(void)
     }
 }
 
-void CTripleTest::testBoostHashReady(void)
+void CTripleTest::testBoostHashReady()
 {
     using TStringSizeShortTriple = ml::core::CTriple<std::string, std::size_t, short>;
     using TStringSizeShortTripleSizeMap = boost::unordered_map<TStringSizeShortTriple, std::size_t>;

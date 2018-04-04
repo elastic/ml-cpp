@@ -31,7 +31,7 @@ const double THRESHOLD = std::log(0.05);
 
 }
 
-void CDetectorEqualizerTest::testCorrect(void)
+void CDetectorEqualizerTest::testCorrect()
 {
     LOG_DEBUG("*** CDetectorEqualizerTest::testCorrect ***");
 
@@ -92,7 +92,7 @@ void CDetectorEqualizerTest::testCorrect(void)
     CPPUNIT_ASSERT(std::exp(maths::CBasicStatistics::mean(similarityIncrease)) > 40.0);
 }
 
-void CDetectorEqualizerTest::testAge(void)
+void CDetectorEqualizerTest::testAge()
 {
     LOG_DEBUG("*** CDetectorEqualizerTest::testAge ***");
 
@@ -144,7 +144,7 @@ void CDetectorEqualizerTest::testAge(void)
     }
 }
 
-void CDetectorEqualizerTest::testPersist(void)
+void CDetectorEqualizerTest::testPersist()
 {
     LOG_DEBUG("*** CDetectorEqualizerTest::testPersist ***");
 
@@ -202,7 +202,7 @@ void CDetectorEqualizerTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CDetectorEqualizerTest::suite(void)
+CppUnit::Test *CDetectorEqualizerTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDetectorEqualizerTest");
 

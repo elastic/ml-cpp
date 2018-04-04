@@ -16,7 +16,7 @@
 using namespace ml;
 using namespace core;
 
-void CIEEE754Test::testRound(void)
+void CIEEE754Test::testRound()
 {
     {
         // Check it matches float precision.
@@ -80,7 +80,7 @@ void CIEEE754Test::testRound(void)
     }
 }
 
-CppUnit::Test *CIEEE754Test::suite(void)
+CppUnit::Test *CIEEE754Test::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CIEEE754Test");
 

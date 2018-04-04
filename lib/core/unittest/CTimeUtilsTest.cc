@@ -43,7 +43,7 @@ CppUnit::Test *CTimeUtilsTest::suite()
     return suiteOfTests;
 }
 
-void CTimeUtilsTest::testNow(void)
+void CTimeUtilsTest::testNow()
 {
     ml::core_t::TTime t1(ml::core::CTimeUtils::now());
     ml::core::CSleep::sleep(1001);
@@ -52,7 +52,7 @@ void CTimeUtilsTest::testNow(void)
     CPPUNIT_ASSERT(t2 > t1);
 }
 
-void CTimeUtilsTest::testToIso8601(void)
+void CTimeUtilsTest::testToIso8601()
 {
     // These tests assume UK time.  In case they're ever run outside the UK,
     // we'll explicitly set the timezone for the purpose of these tests.
@@ -76,7 +76,7 @@ void CTimeUtilsTest::testToIso8601(void)
     }
 }
 
-void CTimeUtilsTest::testToLocal(void)
+void CTimeUtilsTest::testToLocal()
 {
     // These tests assume UK time.  In case they're ever run outside the UK,
     // we'll explicitly set the timezone for the purpose of these tests.
@@ -116,7 +116,7 @@ void CTimeUtilsTest::testToLocal(void)
     }
 }
 
-void CTimeUtilsTest::testToEpochMs(void)
+void CTimeUtilsTest::testToEpochMs()
 {
     CPPUNIT_ASSERT_EQUAL(int64_t(1000), ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1)));
     CPPUNIT_ASSERT_EQUAL(int64_t(-1000), ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1)));
@@ -124,7 +124,7 @@ void CTimeUtilsTest::testToEpochMs(void)
     CPPUNIT_ASSERT_EQUAL(int64_t(-1521035866000), ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1521035866)));
 }
 
-void CTimeUtilsTest::testStrptime(void)
+void CTimeUtilsTest::testStrptime()
 {
     // These tests assume UK time.  In case they're ever run outside the UK,
     // we'll explicitly set the timezone for the purpose of these tests.
@@ -291,7 +291,7 @@ void CTimeUtilsTest::testStrptime(void)
 
 }
 
-void CTimeUtilsTest::testTimezone(void)
+void CTimeUtilsTest::testTimezone()
 {
     static const ml::core_t::TTime SECONDS_PER_HOUR = 3600;
 
@@ -411,7 +411,7 @@ void CTimeUtilsTest::testTimezone(void)
     CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone(""));
 }
 
-void CTimeUtilsTest::testDateWords(void)
+void CTimeUtilsTest::testDateWords()
 {
     // These tests assume they're being run in an English speaking country
 

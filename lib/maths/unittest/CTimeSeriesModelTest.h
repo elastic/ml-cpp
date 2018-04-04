@@ -12,21 +12,21 @@
 class CTimeSeriesModelTest : public CppUnit::TestFixture
 {
     public:
-        void testClone(void);
-        void testMode(void);
-        void testAddBucketValue(void);
-        void testAddSamples(void);
-        void testPredict(void);
-        void testProbability(void);
-        void testWeights(void);
-        void testMemoryUsage(void);
-        void testPersist(void);
-        void testUpgrade(void);
-        void testAddSamplesWithCorrelations(void);
-        void testProbabilityWithCorrelations(void);
-        void testAnomalyModel(void);
+        void testClone();
+        void testMode();
+        void testAddBucketValue();
+        void testAddSamples();
+        void testPredict();
+        void testProbability();
+        void testWeights();
+        void testMemoryUsage();
+        void testPersist();
+        void testUpgrade();
+        void testAddSamplesWithCorrelations();
+        void testProbabilityWithCorrelations();
+        void testAnomalyModel();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CTimeSeriesModelTest_h

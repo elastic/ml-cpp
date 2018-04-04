@@ -31,7 +31,7 @@ using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-void CDataSummaryStatisticsTest::testRate(void)
+void CDataSummaryStatisticsTest::testRate()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+----------------------------------------+");
@@ -63,7 +63,7 @@ void CDataSummaryStatisticsTest::testRate(void)
     }
 }
 
-void CDataSummaryStatisticsTest::testCategoricalDistinctCount(void)
+void CDataSummaryStatisticsTest::testCategoricalDistinctCount()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+------------------------------------------------------------+");
@@ -110,7 +110,7 @@ void CDataSummaryStatisticsTest::testCategoricalDistinctCount(void)
     }
 }
 
-void CDataSummaryStatisticsTest::testCategoricalTopN(void)
+void CDataSummaryStatisticsTest::testCategoricalTopN()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+---------------------------------------------------+");
@@ -183,7 +183,7 @@ void CDataSummaryStatisticsTest::testCategoricalTopN(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.005);
 }
 
-void CDataSummaryStatisticsTest::testNumericBasicStatistics(void)
+void CDataSummaryStatisticsTest::testNumericBasicStatistics()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+----------------------------------------------------------+");
@@ -265,7 +265,7 @@ void CDataSummaryStatisticsTest::testNumericBasicStatistics(void)
     }
 }
 
-void CDataSummaryStatisticsTest::testNumericDistribution(void)
+void CDataSummaryStatisticsTest::testNumericDistribution()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+-------------------------------------------------------+");
@@ -367,7 +367,7 @@ void CDataSummaryStatisticsTest::testNumericDistribution(void)
     }
 }
 
-CppUnit::Test *CDataSummaryStatisticsTest::suite(void)
+CppUnit::Test *CDataSummaryStatisticsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDataSummaryStatisticsTest");
 

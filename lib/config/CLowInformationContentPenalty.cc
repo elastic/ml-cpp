@@ -27,12 +27,12 @@ CLowInformationContentPenalty::CLowInformationContentPenalty(const CAutoconfigur
         CPenalty(params)
 {}
 
-CLowInformationContentPenalty *CLowInformationContentPenalty::clone(void) const
+CLowInformationContentPenalty *CLowInformationContentPenalty::clone() const
 {
     return new CLowInformationContentPenalty(*this);
 }
 
-std::string CLowInformationContentPenalty::name(void) const
+std::string CLowInformationContentPenalty::name() const
 {
     return "low information content";
 }

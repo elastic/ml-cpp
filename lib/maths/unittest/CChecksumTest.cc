@@ -43,7 +43,7 @@ enum EAnEnum
 struct SFoo
 {
     SFoo(uint64_t key) : s_Key(key) {}
-    uint64_t checksum(void) const
+    uint64_t checksum() const
     {
         return s_Key;
     }
@@ -75,7 +75,7 @@ using TBarVec = std::vector<SBar>;
 
 }
 
-void CChecksumTest::testMemberChecksum(void)
+void CChecksumTest::testMemberChecksum()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CChecksumTest::testMemberChecksum  |");
@@ -97,7 +97,7 @@ void CChecksumTest::testMemberChecksum(void)
                          bar.checksum(seed));
 }
 
-void CChecksumTest::testContainers(void)
+void CChecksumTest::testContainers()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CChecksumTest::testContainers  |");
@@ -219,7 +219,7 @@ void CChecksumTest::testContainers(void)
     }
 }
 
-void CChecksumTest::testNullable(void)
+void CChecksumTest::testNullable()
 {
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CChecksumTest::testNullable  |");
@@ -257,7 +257,7 @@ void CChecksumTest::testNullable(void)
     }
 }
 
-void CChecksumTest::testAccumulators(void)
+void CChecksumTest::testAccumulators()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CChecksumTest::testAccumulators  |");
@@ -278,7 +278,7 @@ void CChecksumTest::testAccumulators(void)
     }
 }
 
-void CChecksumTest::testPair(void)
+void CChecksumTest::testPair()
 {
     LOG_DEBUG("+---------------------------+");
     LOG_DEBUG("|  CChecksumTest::testPair  |");
@@ -319,7 +319,7 @@ void CChecksumTest::testPair(void)
     }
 }
 
-void CChecksumTest::testArray(void)
+void CChecksumTest::testArray()
 {
     LOG_DEBUG("+----------------------------+");
     LOG_DEBUG("|  CChecksumTest::testArray  |");
@@ -342,7 +342,7 @@ void CChecksumTest::testArray(void)
                        != maths::CChecksum::calculate(seed, b));
 }
 
-void CChecksumTest::testCombinations(void)
+void CChecksumTest::testCombinations()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CChecksumTest::testCombinations  |");
@@ -430,7 +430,7 @@ void CChecksumTest::testCombinations(void)
     }
 }
 
-CppUnit::Test *CChecksumTest::suite(void)
+CppUnit::Test *CChecksumTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CChecksumTest");
 

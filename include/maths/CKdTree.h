@@ -134,7 +134,7 @@ class CKdTree
             }
 
             //! Get the coordinate the points are split on.
-            std::size_t depth(void) const
+            std::size_t depth() const
             {
                 std::size_t depth = 0u;
                 for (const SNode *ancestor = s_Parent;
@@ -182,7 +182,7 @@ class CKdTree
         }
 
         //! Get the number of points in the tree.
-        std::size_t size(void) const
+        std::size_t size() const
         {
             return m_Nodes.size();
         }
@@ -262,7 +262,7 @@ class CKdTree
         }
 
         //! Check the tree invariants.
-        bool checkInvariants(void) const
+        bool checkInvariants() const
         {
             for (std::size_t i = 0u; i < m_Nodes.size(); ++i)
             {

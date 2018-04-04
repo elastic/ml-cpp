@@ -17,7 +17,7 @@ namespace api
 {
 
 
-CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(void)
+CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter()
     : m_OutStream(m_StringOutputBuf),
       m_WriteStream(m_OutStream),
       m_Writer(m_WriteStream)
@@ -47,7 +47,7 @@ CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(const TStrSet &numericFie
 {
 }
 
-CLineifiedJsonOutputWriter::~CLineifiedJsonOutputWriter(void)
+CLineifiedJsonOutputWriter::~CLineifiedJsonOutputWriter()
 {
     // Since we didn't flush the stream whilst working, we flush it on
     // destruction
@@ -65,7 +65,7 @@ bool CLineifiedJsonOutputWriter::fieldNames(const TStrVec &/*fieldNames*/,
     return true;
 }
 
-const CLineifiedJsonOutputWriter::TStrVec &CLineifiedJsonOutputWriter::fieldNames(void) const
+const CLineifiedJsonOutputWriter::TStrVec &CLineifiedJsonOutputWriter::fieldNames() const
 {
     return EMPTY_FIELD_NAMES;
 }
@@ -105,7 +105,7 @@ bool CLineifiedJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
     return true;
 }
 
-std::string CLineifiedJsonOutputWriter::internalString(void) const
+std::string CLineifiedJsonOutputWriter::internalString() const
 {
     const_cast<rapidjson::OStreamWrapper &>(m_WriteStream).Flush();
 

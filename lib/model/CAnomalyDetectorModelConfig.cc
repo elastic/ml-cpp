@@ -171,7 +171,7 @@ double CAnomalyDetectorModelConfig::trendDecayRate(double modelDecayRate, core_t
                          / std::max(scale, 1.0), 0.1);
 }
 
-CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig(void) :
+CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig() :
         m_BucketLength(STANDARD_BUCKET_LENGTH),
         m_BucketResultsDelay(DEFAULT_BUCKET_RESULTS_DELAY),
         m_MultivariateByFields(false),
@@ -760,32 +760,32 @@ void CAnomalyDetectorModelConfig::decayRate(double value)
     }
 }
 
-double CAnomalyDetectorModelConfig::decayRate(void) const
+double CAnomalyDetectorModelConfig::decayRate() const
 {
     return m_Factories.begin()->second->modelParams().s_DecayRate;
 }
 
-core_t::TTime CAnomalyDetectorModelConfig::bucketLength(void) const
+core_t::TTime CAnomalyDetectorModelConfig::bucketLength() const
 {
     return m_BucketLength;
 }
 
-core_t::TTime CAnomalyDetectorModelConfig::latency(void) const
+core_t::TTime CAnomalyDetectorModelConfig::latency() const
 {
     return m_BucketLength * m_Factories.begin()->second->modelParams().s_LatencyBuckets;
 }
 
-std::size_t CAnomalyDetectorModelConfig::latencyBuckets(void) const
+std::size_t CAnomalyDetectorModelConfig::latencyBuckets() const
 {
     return m_Factories.begin()->second->modelParams().s_LatencyBuckets;
 }
 
-std::size_t CAnomalyDetectorModelConfig::bucketResultsDelay(void) const
+std::size_t CAnomalyDetectorModelConfig::bucketResultsDelay() const
 {
     return m_BucketResultsDelay;
 }
 
-bool CAnomalyDetectorModelConfig::multivariateByFields(void) const
+bool CAnomalyDetectorModelConfig::multivariateByFields() const
 {
     return m_MultivariateByFields;
 }
@@ -800,7 +800,7 @@ void CAnomalyDetectorModelConfig::modelPlotBoundsPercentile(double percentile)
     m_ModelPlotBoundsPercentile = percentile;
 }
 
-double CAnomalyDetectorModelConfig::modelPlotBoundsPercentile(void) const
+double CAnomalyDetectorModelConfig::modelPlotBoundsPercentile() const
 {
     return m_ModelPlotBoundsPercentile;
 }
@@ -810,7 +810,7 @@ void CAnomalyDetectorModelConfig::modelPlotTerms(TStrSet terms)
     m_ModelPlotTerms.swap(terms);
 }
 
-const CAnomalyDetectorModelConfig::TStrSet &CAnomalyDetectorModelConfig::modelPlotTerms(void) const
+const CAnomalyDetectorModelConfig::TStrSet &CAnomalyDetectorModelConfig::modelPlotTerms() const
 {
     return m_ModelPlotTerms;
 }
@@ -821,28 +821,28 @@ double CAnomalyDetectorModelConfig::aggregationStyleParam(model_t::EAggregationS
     return m_AggregationStyleParams[style][param];
 }
 
-double CAnomalyDetectorModelConfig::maximumAnomalousProbability(void) const
+double CAnomalyDetectorModelConfig::maximumAnomalousProbability() const
 {
     return m_MaximumAnomalousProbability;
 }
 
-double CAnomalyDetectorModelConfig::noisePercentile(void) const
+double CAnomalyDetectorModelConfig::noisePercentile() const
 {
     return m_NoisePercentile;
 }
 
-double CAnomalyDetectorModelConfig::noiseMultiplier(void) const
+double CAnomalyDetectorModelConfig::noiseMultiplier() const
 {
     return m_NoiseMultiplier;
 }
 
 const CAnomalyDetectorModelConfig::TDoubleDoublePrVec &
-CAnomalyDetectorModelConfig::normalizedScoreKnotPoints(void) const
+CAnomalyDetectorModelConfig::normalizedScoreKnotPoints() const
 {
     return m_NormalizedScoreKnotPoints;
 }
 
-bool CAnomalyDetectorModelConfig::perPartitionNormalization(void) const
+bool CAnomalyDetectorModelConfig::perPartitionNormalization() const
 {
     return m_PerPartitionNormalisation;
 }
@@ -862,7 +862,7 @@ void CAnomalyDetectorModelConfig::scheduledEvents(TStrDetectionRulePrVecCRef sch
     m_ScheduledEvents = scheduledEvents;
 }
 
-core_t::TTime CAnomalyDetectorModelConfig::samplingAgeCutoff(void) const
+core_t::TTime CAnomalyDetectorModelConfig::samplingAgeCutoff() const
 {
     return m_Factories.begin()->second->modelParams().s_SamplingAgeCutoff;
 }
@@ -1224,7 +1224,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
     return result;
 }
 
-double CAnomalyDetectorModelConfig::bucketNormalizationFactor(void) const
+double CAnomalyDetectorModelConfig::bucketNormalizationFactor() const
 {
     return bucketNormalizationFactor(m_BucketLength);
 }

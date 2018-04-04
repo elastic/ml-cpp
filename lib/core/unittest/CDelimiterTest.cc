@@ -37,7 +37,7 @@ CppUnit::Test *CDelimiterTest::suite()
     return suiteOfTests;
 }
 
-void CDelimiterTest::testSimpleTokenise(void)
+void CDelimiterTest::testSimpleTokenise()
 {
     std::string testData(
         "Oct 12, 2008 8:38:51 AM org.apache.tomcat.util.http.Parameters processParameters\n"
@@ -82,7 +82,7 @@ void CDelimiterTest::testSimpleTokenise(void)
     CPPUNIT_ASSERT_EQUAL(size_t(0), remainder.size());
 }
 
-void CDelimiterTest::testRegexTokenise(void)
+void CDelimiterTest::testRegexTokenise()
 {
     // Some of the lines here are Windows text format, and others Unix text
     std::string testData(
@@ -129,7 +129,7 @@ void CDelimiterTest::testRegexTokenise(void)
     CPPUNIT_ASSERT_EQUAL(size_t(0), remainder.size());
 }
 
-void CDelimiterTest::testQuotedTokenise(void)
+void CDelimiterTest::testQuotedTokenise()
 {
     // NB: The backslashes here escape the quotes for the benefit of the C++ compiler
     std::string testData(
@@ -156,7 +156,7 @@ void CDelimiterTest::testQuotedTokenise(void)
     CPPUNIT_ASSERT_EQUAL(size_t(40), delimited.size());
 }
 
-void CDelimiterTest::testQuotedEscapedTokenise(void)
+void CDelimiterTest::testQuotedEscapedTokenise()
 {
     // Similar to previous test, but there are four values with escaped quotes in AFTER
     // pre-processing by the C++ compiler
@@ -184,7 +184,7 @@ void CDelimiterTest::testQuotedEscapedTokenise(void)
     CPPUNIT_ASSERT_EQUAL(size_t(40), delimited.size());
 }
 
-void CDelimiterTest::testInvalidQuotedTokenise(void)
+void CDelimiterTest::testInvalidQuotedTokenise()
 {
     // Invalid quoting (e.g. mismatched) mustn't cause the tokeniser to go into
     // an infinite loop
@@ -206,7 +206,7 @@ void CDelimiterTest::testInvalidQuotedTokenise(void)
     CPPUNIT_ASSERT_EQUAL(std::string("/some_action.do?param1=foo&param2=Sljahfej+kfejhafef/3931nfV"), remainder);
 }
 
-void CDelimiterTest::testQuoteEqualsEscapeTokenise(void)
+void CDelimiterTest::testQuoteEqualsEscapeTokenise()
 {
     // In this example, double quotes are used for quoting, but they are escaped
     // by doubling them up, so the escape character is the same as the quote

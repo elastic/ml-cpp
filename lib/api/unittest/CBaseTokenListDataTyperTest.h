@@ -12,8 +12,8 @@
 class CBaseTokenListDataTyperTest : public CppUnit::TestFixture
 {
     public:
-        void testMinMatchingWeights(void);
-        void testMaxMatchingWeights(void);
+        void testMinMatchingWeights();
+        void testMaxMatchingWeights();
 
         static CppUnit::Test *suite();
 };

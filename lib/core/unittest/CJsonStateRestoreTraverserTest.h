@@ -12,13 +12,13 @@
 class CJsonStateRestoreTraverserTest : public CppUnit::TestFixture
 {
     public:
-        void testRestore1(void);
-        void testRestore2(void);
-        void testRestore3(void);
-        void testRestore4(void);
-        void testParsingBooleanFields(void);
-        void testRestore1IgnoreArrays(void);
-        void testRestore1IgnoreArraysNested(void);
+        void testRestore1();
+        void testRestore2();
+        void testRestore3();
+        void testRestore4();
+        void testParsingBooleanFields();
+        void testRestore1IgnoreArrays();
+        void testRestore1IgnoreArraysNested();
 
         static CppUnit::Test *suite();
 };

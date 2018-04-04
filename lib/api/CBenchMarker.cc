@@ -21,7 +21,7 @@ namespace api
 {
 
 
-CBenchMarker::CBenchMarker(void)
+CBenchMarker::CBenchMarker()
     : m_TotalMessages(0),
       m_ScoredMessages(0)
 {
@@ -98,7 +98,7 @@ void CBenchMarker::addResult(const std::string &message,
     }
 }
 
-void CBenchMarker::dumpResults(void) const
+void CBenchMarker::dumpResults() const
 {
     // Sort the results in descending order of actual type occurrence
     using TSizeRegexIntSizeStrPrMapPrVecCItrPr = std::pair<size_t, TRegexIntSizeStrPrMapPrVecCItr>;

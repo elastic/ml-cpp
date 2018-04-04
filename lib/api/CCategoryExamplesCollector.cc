@@ -172,7 +172,7 @@ bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser &t
     return true;
 }
 
-void CCategoryExamplesCollector::clear(void)
+void CCategoryExamplesCollector::clear()
 {
     m_ExamplesByCategory.clear();
 }

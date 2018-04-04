@@ -66,7 +66,7 @@ CFlatPrefixTree::SDistinctChar::SDistinctChar(char c,
 {
 }
 
-CFlatPrefixTree::CFlatPrefixTree(void)
+CFlatPrefixTree::CFlatPrefixTree()
     : m_FlatTree()
 {
 }
@@ -241,12 +241,12 @@ bool CFlatPrefixTree::matches(ITR start, ITR end, bool requireFullMatch) const
     return false;
 }
 
-void CFlatPrefixTree::clear(void)
+void CFlatPrefixTree::clear()
 {
     m_FlatTree.clear();
 }
 
-std::string CFlatPrefixTree::print(void) const
+std::string CFlatPrefixTree::print() const
 {
     std::string result;
     result += "[";

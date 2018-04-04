@@ -121,17 +121,17 @@ struct SInfluencerSumSerializer
 
 } // unnamed::
 
-CGathererTools::CArrivalTimeGatherer::CArrivalTimeGatherer(void) : m_LastTime(FIRST_TIME)
+CGathererTools::CArrivalTimeGatherer::CArrivalTimeGatherer() : m_LastTime(FIRST_TIME)
 {
 }
 
-CGathererTools::TOptionalDouble CGathererTools::CArrivalTimeGatherer::featureData(void) const
+CGathererTools::TOptionalDouble CGathererTools::CArrivalTimeGatherer::featureData() const
 {
     return maths::CBasicStatistics::count(m_Value) > 0.0 ?
            TOptionalDouble(maths::CBasicStatistics::mean(m_Value)) : TOptionalDouble();
 }
 
-void CGathererTools::CArrivalTimeGatherer::startNewBucket(void)
+void CGathererTools::CArrivalTimeGatherer::startNewBucket()
 {
     m_Value = TAccumulator();
 }
@@ -163,12 +163,12 @@ bool CGathererTools::CArrivalTimeGatherer::acceptRestoreTraverser(core::CStateRe
     return true;
 }
 
-uint64_t CGathererTools::CArrivalTimeGatherer::checksum(void) const
+uint64_t CGathererTools::CArrivalTimeGatherer::checksum() const
 {
     return maths::CChecksum::calculate(static_cast<uint64_t>(m_LastTime), m_Value);
 }
 
-std::string CGathererTools::CArrivalTimeGatherer::print(void) const
+std::string CGathererTools::CArrivalTimeGatherer::print() const
 {
     std::ostringstream o;
     if (maths::CBasicStatistics::count(m_Value) > 0.0)
@@ -201,7 +201,7 @@ CGathererTools::CSumGatherer::CSumGatherer(const SModelParams &params,
 {
 }
 
-std::size_t CGathererTools::CSumGatherer::dimension(void) const
+std::size_t CGathererTools::CSumGatherer::dimension() const
 {
     return 1;
 }
@@ -342,7 +342,7 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
     return true;
 }
 
-uint64_t CGathererTools::CSumGatherer::checksum(void) const
+uint64_t CGathererTools::CSumGatherer::checksum() const
 {
     uint64_t seed = static_cast<uint64_t>(m_Classifier.isInteger());
     seed = maths::CChecksum::calculate(seed, m_Classifier.isNonNegative());
@@ -357,13 +357,13 @@ void CGathererTools::CSumGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryU
     core::CMemoryDebug::dynamicSize("m_InfluencerBucketSums", m_InfluencerBucketSums, mem);
 }
 
-std::size_t CGathererTools::CSumGatherer::memoryUsage(void) const
+std::size_t CGathererTools::CSumGatherer::memoryUsage() const
 {
     return  core::CMemory::dynamicSize(m_BucketSums)
           + core::CMemory::dynamicSize(m_InfluencerBucketSums);
 }
 
-std::string CGathererTools::CSumGatherer::print(void) const
+std::string CGathererTools::CSumGatherer::print() const
 {
     std::ostringstream result;
     result << m_Classifier.isInteger()

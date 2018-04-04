@@ -20,7 +20,7 @@ CScopedFastLock::CScopedFastLock(CFastMutex &mutex)
     m_Mutex.lock();
 }
 
-CScopedFastLock::~CScopedFastLock(void)
+CScopedFastLock::~CScopedFastLock()
 {
     m_Mutex.unlock();
 }

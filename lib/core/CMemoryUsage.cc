@@ -117,7 +117,7 @@ void CMemoryUsage::setName(const std::string &name)
     this->setName(item);
 }
 
-std::size_t CMemoryUsage::usage(void) const
+std::size_t CMemoryUsage::usage() const
 {
     std::size_t mem = m_Description.s_Memory;
     for (TMemoryUsageVecCitr i = m_Items.begin(); i != m_Items.end(); ++i)
@@ -132,7 +132,7 @@ std::size_t CMemoryUsage::usage(void) const
     return mem;
 }
 
-std::size_t CMemoryUsage::unusage(void) const
+std::size_t CMemoryUsage::unusage() const
 {
     std::size_t mem = m_Description.s_Unused;
     for (TMemoryUsageVecCitr i = m_Items.begin(); i != m_Items.end(); ++i)
@@ -177,7 +177,7 @@ void CMemoryUsage::summary(CMemoryUsageJsonWriter &writer) const
     writer.endObject();
 }
 
-void CMemoryUsage::compress(void)
+void CMemoryUsage::compress()
 {
     using TStrSizeMap = std::map<std::string, std::size_t>;
     using TStrSizeMapCItr = TStrSizeMap::const_iterator;

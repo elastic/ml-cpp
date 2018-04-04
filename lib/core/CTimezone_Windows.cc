@@ -36,7 +36,7 @@ namespace ml
 namespace core
 {
 
-CTimezone::CTimezone(void)
+CTimezone::CTimezone()
 {
     CScopedFastLock lock(m_Mutex);
 
@@ -99,17 +99,17 @@ CTimezone::CTimezone(void)
     }
 }
 
-CTimezone::~CTimezone(void)
+CTimezone::~CTimezone()
 {
 }
 
-CTimezone &CTimezone::instance(void)
+CTimezone &CTimezone::instance()
 {
     static CTimezone instance;
     return instance;
 }
 
-const std::string &CTimezone::timezoneName(void) const
+const std::string &CTimezone::timezoneName() const
 {
     CScopedFastLock lock(m_Mutex);
 
@@ -147,7 +147,7 @@ bool CTimezone::setTimezone(const std::string &timezone)
     return CTimezone::instance().timezoneName(timezone);
 }
 
-std::string CTimezone::stdAbbrev(void) const
+std::string CTimezone::stdAbbrev() const
 {
     CScopedFastLock lock(m_Mutex);
 
@@ -159,7 +159,7 @@ std::string CTimezone::stdAbbrev(void) const
     return m_Timezone->std_zone_abbrev();
 }
 
-std::string CTimezone::dstAbbrev(void) const
+std::string CTimezone::dstAbbrev() const
 {
     CScopedFastLock lock(m_Mutex);
 

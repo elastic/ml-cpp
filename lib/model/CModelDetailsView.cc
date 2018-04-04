@@ -46,7 +46,7 @@ bool CModelDetailsView::categoryId(const std::string &attribute,
     return this->base().dataGatherer().attributeId(attribute, result);
 }
 
-const CModelDetailsView::TFeatureVec &CModelDetailsView::features(void) const
+const CModelDetailsView::TFeatureVec &CModelDetailsView::features() const
 {
     return this->base().dataGatherer().features();
 }
@@ -202,7 +202,7 @@ bool CModelDetailsView::hasByField() const
             this->base().dataGatherer().personFieldName()).empty();
 }
 
-std::size_t CModelDetailsView::maxByFieldId(void) const
+std::size_t CModelDetailsView::maxByFieldId() const
 {
     return this->base().isPopulation() ?
            this->base().dataGatherer().numberAttributes() :
@@ -249,7 +249,7 @@ const maths::CModel *CEventRateModelDetailsView::model(model_t::EFeature feature
     return m_Model->model(feature, byFieldId);
 }
 
-const CAnomalyDetectorModel &CEventRateModelDetailsView::base(void) const
+const CAnomalyDetectorModel &CEventRateModelDetailsView::base() const
 {
     return *m_Model;
 }
@@ -274,7 +274,7 @@ const maths::CModel *CEventRatePopulationModelDetailsView::model(model_t::EFeatu
     return m_Model->model(feature, byFieldId);
 }
 
-const CAnomalyDetectorModel &CEventRatePopulationModelDetailsView::base(void) const
+const CAnomalyDetectorModel &CEventRatePopulationModelDetailsView::base() const
 {
     return *m_Model;
 }
@@ -298,7 +298,7 @@ const maths::CModel *CMetricModelDetailsView::model(model_t::EFeature feature,
     return m_Model->model(feature, byFieldId);
 }
 
-const CAnomalyDetectorModel &CMetricModelDetailsView::base(void) const
+const CAnomalyDetectorModel &CMetricModelDetailsView::base() const
 {
     return *m_Model;
 }
@@ -330,7 +330,7 @@ const maths::CModel *CMetricPopulationModelDetailsView::model(model_t::EFeature 
     return m_Model->model(feature, byFieldId);
 }
 
-const CAnomalyDetectorModel &CMetricPopulationModelDetailsView::base(void) const
+const CAnomalyDetectorModel &CMetricPopulationModelDetailsView::base() const
 {
     return *m_Model;
 }

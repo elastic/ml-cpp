@@ -202,17 +202,17 @@ void CCountMinSketch::acceptPersistInserter(core::CStatePersistInserter &inserte
     }
 }
 
-std::size_t CCountMinSketch::rows(void) const
+std::size_t CCountMinSketch::rows() const
 {
     return m_Rows;
 }
 
-std::size_t CCountMinSketch::columns(void) const
+std::size_t CCountMinSketch::columns() const
 {
     return m_Columns;
 }
 
-double CCountMinSketch::delta(void) const
+double CCountMinSketch::delta() const
 {
     const SSketch *sketch = boost::get<SSketch>(&m_Sketch);
     if (!sketch)
@@ -222,7 +222,7 @@ double CCountMinSketch::delta(void) const
     return std::exp(-static_cast<double>(m_Rows));
 }
 
-double CCountMinSketch::oneMinusDeltaError(void) const
+double CCountMinSketch::oneMinusDeltaError() const
 {
     const SSketch *sketch = boost::get<SSketch>(&m_Sketch);
     if (!sketch)
@@ -329,7 +329,7 @@ void CCountMinSketch::age(double alpha)
     }
 }
 
-double CCountMinSketch::totalCount(void) const
+double CCountMinSketch::totalCount() const
 {
     return m_TotalCount;
 }
@@ -375,7 +375,7 @@ double CCountMinSketch::fraction(uint32_t category) const
     return this->count(category) / m_TotalCount;
 }
 
-bool CCountMinSketch::sketched(void) const
+bool CCountMinSketch::sketched() const
 {
     return boost::get<SSketch>(&m_Sketch) != 0;
 }
@@ -428,7 +428,7 @@ void CCountMinSketch::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
     }
 }
 
-std::size_t CCountMinSketch::memoryUsage(void) const
+std::size_t CCountMinSketch::memoryUsage() const
 {
     std::size_t mem = 0;
     const TUInt32FloatPrVec *counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
@@ -453,7 +453,7 @@ std::size_t CCountMinSketch::memoryUsage(void) const
     return mem;
 }
 
-void CCountMinSketch::sketch(void)
+void CCountMinSketch::sketch()
 {
     static const std::size_t FLOAT_SIZE  = sizeof(CFloatStorage);
     static const std::size_t HASH_SIZE   = sizeof(core::CHashing::CUniversalHash::CUInt32UnrestrictedHash);

@@ -56,7 +56,7 @@ class MODEL_EXPORT CMemoryUsageEstimator
 
     public:
         //! Constructor
-        CMemoryUsageEstimator(void);
+        CMemoryUsageEstimator();
 
         //! Get an estimate of the memory usage based on the given number
         //! of different factors which contribute.
@@ -74,7 +74,7 @@ class MODEL_EXPORT CMemoryUsageEstimator
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         //! Persist this component.
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;

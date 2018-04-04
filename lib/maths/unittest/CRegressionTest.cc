@@ -64,7 +64,7 @@ using TDoubleArray4 = boost::array<double, 4>;
 
 }
 
-void CRegressionTest::testInvariants(void)
+void CRegressionTest::testInvariants()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testInvariants |");
@@ -133,7 +133,7 @@ void CRegressionTest::testInvariants(void)
     }
 }
 
-void CRegressionTest::testFit(void)
+void CRegressionTest::testFit()
 {
     LOG_DEBUG("+----------------------------+");
     LOG_DEBUG("|  CRegressionTest::testFit  |");
@@ -221,7 +221,7 @@ void CRegressionTest::testFit(void)
     }
 }
 
-void CRegressionTest::testShiftAbscissa(void)
+void CRegressionTest::testShiftAbscissa()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testShiftAbscissa  |");
@@ -304,7 +304,7 @@ void CRegressionTest::testShiftAbscissa(void)
     }
 }
 
-void CRegressionTest::testShiftOrdinate(void)
+void CRegressionTest::testShiftOrdinate()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testShiftOrdinate  |");
@@ -337,7 +337,7 @@ void CRegressionTest::testShiftOrdinate(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(         params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
 }
 
-void CRegressionTest::testShiftGradient(void)
+void CRegressionTest::testShiftGradient()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testShiftGradient  |");
@@ -370,7 +370,7 @@ void CRegressionTest::testShiftGradient(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(       params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
 }
 
-void CRegressionTest::testAge(void)
+void CRegressionTest::testAge()
 {
     LOG_DEBUG("+----------------------------+");
     LOG_DEBUG("|  CRegressionTest::testAge  |");
@@ -495,7 +495,7 @@ void CRegressionTest::testAge(void)
     }
 }
 
-void CRegressionTest::testPrediction(void)
+void CRegressionTest::testPrediction()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testPrediction  |");
@@ -584,7 +584,7 @@ void CRegressionTest::testPrediction(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e4) < 0.025 * maths::CBasicStatistics::mean(em));
 }
 
-void CRegressionTest::testCombination(void)
+void CRegressionTest::testCombination()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testCombination  |");
@@ -646,7 +646,7 @@ void CRegressionTest::testCombination(void)
     }
 }
 
-void CRegressionTest::testSingular(void)
+void CRegressionTest::testSingular()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testSingular  |");
@@ -769,7 +769,7 @@ void CRegressionTest::testSingular(void)
     }
 }
 
-void CRegressionTest::testScale(void)
+void CRegressionTest::testScale()
 {
     LOG_DEBUG("+------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testScale  |");
@@ -828,7 +828,7 @@ class CRegressionPrediction
         maths::CRegression::CLeastSquaresOnline<N, double> m_Regression;
 };
 
-void CRegressionTest::testMean(void)
+void CRegressionTest::testMean()
 {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CRegressionTest::testMean  |");
@@ -880,7 +880,7 @@ void CRegressionTest::testMean(void)
     }
 }
 
-void CRegressionTest::testCovariances(void)
+void CRegressionTest::testCovariances()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testCovariances  |");
@@ -966,7 +966,7 @@ void CRegressionTest::testCovariances(void)
     }
 }
 
-void CRegressionTest::testParameters(void)
+void CRegressionTest::testParameters()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testParameters  |");
@@ -996,7 +996,7 @@ void CRegressionTest::testParameters(void)
     }
 }
 
-void CRegressionTest::testPersist(void)
+void CRegressionTest::testPersist()
 {
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testPersist  |");
@@ -1043,7 +1043,7 @@ void CRegressionTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, restoredXml);
 }
 
-void CRegressionTest::testParameterProcess(void)
+void CRegressionTest::testParameterProcess()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testParameterProcess  |");
@@ -1159,7 +1159,7 @@ void CRegressionTest::testParameterProcess(void)
     CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(error)) < 0.08);
 }
 
-CppUnit::Test *CRegressionTest::suite(void)
+CppUnit::Test *CRegressionTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRegressionTest");
 

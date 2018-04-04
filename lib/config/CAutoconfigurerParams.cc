@@ -36,10 +36,10 @@ template<typename T>
 class CConstraint
 {
     public:
-        virtual ~CConstraint(void) {}
+        virtual ~CConstraint() {}
         virtual bool operator()(const T &/*value*/) const { return true; }
         virtual bool operator()(const std::vector<T> &/*value*/) const { return true; }
-        virtual std::string print(void) const = 0;
+        virtual std::string print() const = 0;
 };
 
 //! \brief Represents the fact that T is unconstrained.
@@ -51,7 +51,7 @@ class CUnconstrained : public CConstraint<T>
         {
             return true;
         }
-        std::string print(void) const
+        std::string print() const
         {
             return "unconstrained";
         }
@@ -79,7 +79,7 @@ class CConstraintConjunction : public CConstraint<T>
         {
             return this->evaluate(value);
         }
-        std::string print(void) const
+        std::string print() const
         {
             std::string result;
             if (m_Constraints.size() > 0)
@@ -115,25 +115,25 @@ class CConstraintConjunction : public CConstraint<T>
 template<typename T> class CLess : public std::less<T>
 {
     public:
-        std::string print(void) const { return "<"; }
+        std::string print() const { return "<"; }
 };
 //! \brief Less than or equal to.
 template<typename T> class CLessEqual : public std::less_equal<T>
 {
     public:
-        std::string print(void) const { return "<="; }
+        std::string print() const { return "<="; }
 };
 //! \brief Greater than.
 template<typename T> class CGreater : public std::greater<T>
 {
     public:
-        std::string print(void) const { return ">"; }
+        std::string print() const { return ">"; }
 };
 //! \brief Greater than or equal to.
 template<typename T> class CGreaterEqual : public std::greater_equal<T>
 {
     public:
-        std::string print(void) const { return ">="; }
+        std::string print() const { return ">="; }
 };
 //! \brief The constraint that a value of type T is greater than another.
 template<typename T, template<typename> class PREDICATE>
@@ -145,7 +145,7 @@ class CValueIs : public CConstraint<T>
         {
             return m_Pred(lhs, *m_Rhs);
         }
-        std::string print(void) const
+        std::string print() const
         {
             return m_Pred.print() + core::CStringUtils::typeToString(*m_Rhs);
         }
@@ -172,7 +172,7 @@ class CVectorValueIs : public CConstraint<T>
             }
             return true;
         }
-        std::string print(void) const
+        std::string print() const
         {
             return m_Pred.print() + core::CContainerPrinter::print(*m_Rhs);
         }
@@ -191,7 +191,7 @@ class CNotEmpty : public CConstraint<T>
         {
             return !value.empty();
         }
-        std::string print(void) const
+        std::string print() const
         {
             return "not empty";
         }
@@ -207,7 +207,7 @@ class CSizeIs : public CConstraint<T>
         {
             return value.size() == m_Size;
         }
-        std::string print(void) const
+        std::string print() const
         {
             return "size is " + core::CStringUtils::typeToString(m_Size);
         }
@@ -221,7 +221,7 @@ class CSizeIs : public CConstraint<T>
 class CParameter : private core::CNonCopyable
 {
     public:
-        virtual ~CParameter(void) {}
+        virtual ~CParameter() {}
         bool fromString(std::string value)
         {
             core::CStringUtils::trimWhitespace(value);
@@ -909,27 +909,27 @@ bool CAutoconfigurerParams::init(const std::string &file)
     return result;
 }
 
-const std::string &CAutoconfigurerParams::timeFieldName(void) const
+const std::string &CAutoconfigurerParams::timeFieldName() const
 {
     return m_TimeFieldName;
 }
 
-const std::string &CAutoconfigurerParams::timeFieldFormat(void) const
+const std::string &CAutoconfigurerParams::timeFieldFormat() const
 {
     return m_TimeFieldFormat;
 }
 
-bool CAutoconfigurerParams::verbose(void) const
+bool CAutoconfigurerParams::verbose() const
 {
     return m_Verbose;
 }
 
-bool CAutoconfigurerParams::writeDetectorConfigs(void) const
+bool CAutoconfigurerParams::writeDetectorConfigs() const
 {
     return m_WriteDetectorConfigs;
 }
 
-const std::string &CAutoconfigurerParams::detectorConfigLineEnding(void) const
+const std::string &CAutoconfigurerParams::detectorConfigLineEnding() const
 {
     return m_DetectorConfigLineEnding;
 }
@@ -963,7 +963,7 @@ bool CAutoconfigurerParams::canUseForPartitionField(const std::string &partition
     return canUse(m_FieldsToUseInAutoconfigureByRole[constants::PARTITION_INDEX], m_FieldsOfInterest, partition);
 }
 
-const CAutoconfigurerParams::TFunctionCategoryVec &CAutoconfigurerParams::functionsCategoriesToConfigure(void) const
+const CAutoconfigurerParams::TFunctionCategoryVec &CAutoconfigurerParams::functionsCategoriesToConfigure() const
 {
     return m_FunctionCategoriesToConfigure;
 }
@@ -978,82 +978,82 @@ CAutoconfigurerParams::TOptionalUserDataType CAutoconfigurerParams::dataType(con
            TOptionalUserDataType(result->second) : TOptionalUserDataType();
 }
 
-uint64_t CAutoconfigurerParams::minimumExamplesToClassify(void) const
+uint64_t CAutoconfigurerParams::minimumExamplesToClassify() const
 {
     return m_MinimumExamplesToClassify;
 }
 
-std::size_t CAutoconfigurerParams::numberOfMostFrequentFieldsCounts(void) const
+std::size_t CAutoconfigurerParams::numberOfMostFrequentFieldsCounts() const
 {
     return m_NumberOfMostFrequentFieldsCounts;
 }
 
-uint64_t CAutoconfigurerParams::minimumRecordsToAttemptConfig(void) const
+uint64_t CAutoconfigurerParams::minimumRecordsToAttemptConfig() const
 {
     return m_MinimumRecordsToAttemptConfig;
 }
 
-double CAutoconfigurerParams::minimumDetectorScore(void) const
+double CAutoconfigurerParams::minimumDetectorScore() const
 {
     return m_MinimumDetectorScore;
 }
 
-std::size_t CAutoconfigurerParams::highNumberByFieldValues(void) const
+std::size_t CAutoconfigurerParams::highNumberByFieldValues() const
 {
     return m_HighNumberByFieldValues;
 }
 
-std::size_t CAutoconfigurerParams::maximumNumberByFieldValues(void) const
+std::size_t CAutoconfigurerParams::maximumNumberByFieldValues() const
 {
     return m_MaximumNumberByFieldValues;
 }
 
-std::size_t CAutoconfigurerParams::highNumberRareByFieldValues(void) const
+std::size_t CAutoconfigurerParams::highNumberRareByFieldValues() const
 {
     return m_HighNumberRareByFieldValues;
 }
 
-std::size_t CAutoconfigurerParams::maximumNumberRareByFieldValues(void) const
+std::size_t CAutoconfigurerParams::maximumNumberRareByFieldValues() const
 {
     return m_MaximumNumberRareByFieldValues;
 }
 
-std::size_t CAutoconfigurerParams::highNumberPartitionFieldValues(void) const
+std::size_t CAutoconfigurerParams::highNumberPartitionFieldValues() const
 {
     return m_HighNumberPartitionFieldValues;
 }
 
-std::size_t CAutoconfigurerParams::maximumNumberPartitionFieldValues(void) const
+std::size_t CAutoconfigurerParams::maximumNumberPartitionFieldValues() const
 {
     return m_MaximumNumberPartitionFieldValues;
 }
 
-std::size_t CAutoconfigurerParams::lowNumberOverFieldValues(void) const
+std::size_t CAutoconfigurerParams::lowNumberOverFieldValues() const
 {
     return m_LowNumberOverFieldValues;
 }
 
-std::size_t CAutoconfigurerParams::minimumNumberOverFieldValues(void) const
+std::size_t CAutoconfigurerParams::minimumNumberOverFieldValues() const
 {
     return m_MinimumNumberOverFieldValues;
 }
 
-double CAutoconfigurerParams::highCardinalityInTailFactor(void) const
+double CAutoconfigurerParams::highCardinalityInTailFactor() const
 {
     return m_HighCardinalityInTailFactor;
 }
 
-uint64_t CAutoconfigurerParams::highCardinalityInTailIncrement(void) const
+uint64_t CAutoconfigurerParams::highCardinalityInTailIncrement() const
 {
     return m_HighCardinalityInTailIncrement;
 }
 
-double CAutoconfigurerParams::highCardinalityHighTailFraction(void) const
+double CAutoconfigurerParams::highCardinalityHighTailFraction() const
 {
     return m_HighCardinalityHighTailFraction;
 }
 
-double CAutoconfigurerParams::highCardinalityMaximumTailFraction(void) const
+double CAutoconfigurerParams::highCardinalityMaximumTailFraction() const
 {
     return m_HighCardinalityMaximumTailFraction;
 }
@@ -1078,77 +1078,77 @@ double CAutoconfigurerParams::maximumPopulatedBucketFraction(config_t::EFunction
     return m_MaximumPopulatedBucketFractions[config_t::hasDoAndDontIgnoreEmptyVersions(function) && ignoreEmpty];
 }
 
-const CAutoconfigurerParams::TTimeVec &CAutoconfigurerParams::candidateBucketLengths(void) const
+const CAutoconfigurerParams::TTimeVec &CAutoconfigurerParams::candidateBucketLengths() const
 {
     return m_CandidateBucketLengths;
 }
 
-double CAutoconfigurerParams::lowNumberOfBucketsForConfig(void) const
+double CAutoconfigurerParams::lowNumberOfBucketsForConfig() const
 {
     return m_LowNumberOfBucketsForConfig;
 }
 
-double CAutoconfigurerParams::minimumNumberOfBucketsForConfig(void) const
+double CAutoconfigurerParams::minimumNumberOfBucketsForConfig() const
 {
     return m_MinimumNumberOfBucketsForConfig;
 }
 
-double CAutoconfigurerParams::polledDataMinimumMassAtInterval(void) const
+double CAutoconfigurerParams::polledDataMinimumMassAtInterval() const
 {
     return m_PolledDataMinimumMassAtInterval;
 }
 
-double CAutoconfigurerParams::polledDataJitter(void) const
+double CAutoconfigurerParams::polledDataJitter() const
 {
     return m_PolledDataJitter;
 }
 
-double CAutoconfigurerParams::lowCoefficientOfVariation(void) const
+double CAutoconfigurerParams::lowCoefficientOfVariation() const
 {
     return m_LowCoefficientOfVariation;
 }
 
-double CAutoconfigurerParams::minimumCoefficientOfVariation(void) const
+double CAutoconfigurerParams::minimumCoefficientOfVariation() const
 {
     return m_MinimumCoefficientOfVariation;
 }
 
-double CAutoconfigurerParams::lowLengthRangeForInfoContent(void) const
+double CAutoconfigurerParams::lowLengthRangeForInfoContent() const
 {
     return m_LowLengthRangeForInfoContent;
 }
 
-double CAutoconfigurerParams::minimumLengthRangeForInfoContent(void) const
+double CAutoconfigurerParams::minimumLengthRangeForInfoContent() const
 {
     return m_MinimumLengthRangeForInfoContent;
 }
 
-double CAutoconfigurerParams::lowMaximumLengthForInfoContent(void) const
+double CAutoconfigurerParams::lowMaximumLengthForInfoContent() const
 {
     return m_LowMaximumLengthForInfoContent;
 }
 
-double CAutoconfigurerParams::minimumMaximumLengthForInfoContent(void) const
+double CAutoconfigurerParams::minimumMaximumLengthForInfoContent() const
 {
     return m_MinimumMaximumLengthForInfoContent;
 }
 
-double CAutoconfigurerParams::lowEntropyForInfoContent(void) const
+double CAutoconfigurerParams::lowEntropyForInfoContent() const
 {
     return m_LowEntropyForInfoContent;
 }
 
-double CAutoconfigurerParams::minimumEntropyForInfoContent(void) const
+double CAutoconfigurerParams::minimumEntropyForInfoContent() const
 {
     return m_MinimumEntropyForInfoContent;
 }
 
-double CAutoconfigurerParams::lowDistinctCountForInfoContent(void) const
+double CAutoconfigurerParams::lowDistinctCountForInfoContent() const
 {
     return m_LowDistinctCountForInfoContent;
 }
 
-double CAutoconfigurerParams::minimumDistinctCountForInfoContent(void) const
+double CAutoconfigurerParams::minimumDistinctCountForInfoContent() const
 {
     return m_MinimumDistinctCountForInfoContent;
 }
@@ -1172,7 +1172,7 @@ std::size_t CAutoconfigurerParams::penaltyIndexFor(std::size_t bid, bool ignoreE
     return result[0];
 }
 
-std::string CAutoconfigurerParams::print(void) const
+std::string CAutoconfigurerParams::print() const
 {
 #define PRINT_STRING(field) result += "  "#field" = " + m_##field + "\n"
 #define PRINT_VALUE(field) result += "  "#field" = " + core::CStringUtils::typeToString(m_##field) + "\n"
@@ -1244,7 +1244,7 @@ std::string CAutoconfigurerParams::print(void) const
     return result;
 }
 
-void CAutoconfigurerParams::refreshPenaltyIndices(void)
+void CAutoconfigurerParams::refreshPenaltyIndices()
 {
     m_BucketLengthPenaltyIndices.resize(m_CandidateBucketLengths.size(), TSizeVec(2));
     m_IgnoreEmptyPenaltyIndices.resize(2, TSizeVec(m_CandidateBucketLengths.size()));

@@ -61,7 +61,7 @@ class CThreadFarm : private CNonCopyable
         {
         }
 
-        virtual ~CThreadFarm(void)
+        virtual ~CThreadFarm()
         {
             // Shared_ptr cleans up
         }
@@ -128,7 +128,7 @@ class CThreadFarm : private CNonCopyable
         }
 
         //! Initialise - create the receiving threads
-        bool start(void)
+        bool start()
         {
             if (m_Started == true)
             {
@@ -158,7 +158,7 @@ class CThreadFarm : private CNonCopyable
         }
 
         //! Shutdown - kill threads
-        bool stop(void)
+        bool stop()
         {
             if (m_Started == false)
             {

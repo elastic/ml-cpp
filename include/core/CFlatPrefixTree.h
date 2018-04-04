@@ -59,7 +59,7 @@ class CORE_EXPORT CFlatPrefixTree
         struct SNode
         {
             //! See CMemory.
-            static bool dynamicSizeAlwaysZero(void)
+            static bool dynamicSizeAlwaysZero()
             {
                 return true;
             }
@@ -89,7 +89,7 @@ class CORE_EXPORT CFlatPrefixTree
 
     public:
         //! Default constructor.
-        CFlatPrefixTree(void);
+        CFlatPrefixTree();
 
         //! Builds the tree from a list of \p prefixes. The \p prefixes
         //! vector is required to be lexicographically sorted.
@@ -119,10 +119,10 @@ class CORE_EXPORT CFlatPrefixTree
         bool matchesFully(TStrCRItr start, TStrCRItr end) const;
 
         //! Clears the tree.
-        void clear(void);
+        void clear();
 
         //! Pretty-prints the tree.
-        std::string print(void) const;
+        std::string print() const;
     private:
         //! The recursive building helper.
         void buildRecursively(const TStrVec &prefixes,

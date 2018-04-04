@@ -38,7 +38,7 @@ class MATHS_EXPORT CEntropySketch
         void add(std::size_t category, uint64_t count = 1);
 
         //! Compute the entropy based on the values added so far.
-        double calculate(void) const;
+        double calculate() const;
 
     private:
         using TDoubleVec = std::vector<double>;

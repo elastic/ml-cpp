@@ -130,7 +130,7 @@ CAnomalyDetectorModel::CAnomalyDetectorModel(bool isForPersistence, const CAnoma
     }
 }
 
-std::string CAnomalyDetectorModel::description(void) const
+std::string CAnomalyDetectorModel::description() const
 {
     return m_DataGatherer->description();
 }
@@ -171,7 +171,7 @@ std::string CAnomalyDetectorModel::printPeople(const TSizeVec &pids, std::size_t
     return result;
 }
 
-std::size_t CAnomalyDetectorModel::numberOfPeople(void) const
+std::size_t CAnomalyDetectorModel::numberOfPeople() const
 {
     return m_DataGatherer->numberActivePeople();
 }
@@ -343,7 +343,7 @@ bool CAnomalyDetectorModel::addResults(int detector,
     return true;
 }
 
-std::size_t CAnomalyDetectorModel::defaultPruneWindow(void) const
+std::size_t CAnomalyDetectorModel::defaultPruneWindow() const
 {
     // The longest we'll consider keeping priors for is 1M buckets.
     double decayRate{this->params().s_DecayRate};
@@ -353,7 +353,7 @@ std::size_t CAnomalyDetectorModel::defaultPruneWindow(void) const
            std::min(static_cast<std::size_t>(factor / decayRate), MAXIMUM_PERMITTED_AGE);
 }
 
-std::size_t CAnomalyDetectorModel::minimumPruneWindow(void) const
+std::size_t CAnomalyDetectorModel::minimumPruneWindow() const
 {
     double decayRate{this->params().s_DecayRate};
     double factor{this->params().s_PruneWindowScaleMinimum};
@@ -362,7 +362,7 @@ std::size_t CAnomalyDetectorModel::minimumPruneWindow(void) const
            std::min(static_cast<std::size_t>(factor / decayRate), MAXIMUM_PERMITTED_AGE);
 }
 
-void CAnomalyDetectorModel::prune(void)
+void CAnomalyDetectorModel::prune()
 {
     this->prune(this->defaultPruneWindow());
 }
@@ -397,7 +397,7 @@ void CAnomalyDetectorModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr
     core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector", m_InterimBucketCorrector, mem);
 }
 
-std::size_t CAnomalyDetectorModel::memoryUsage(void) const
+std::size_t CAnomalyDetectorModel::memoryUsage() const
 {
     std::size_t mem{core::CMemory::dynamicSize(m_Params)};
     mem += core::CMemory::dynamicSize(m_DataGatherer);
@@ -439,17 +439,17 @@ std::size_t CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate(std::si
     return computed;
 }
 
-const CDataGatherer &CAnomalyDetectorModel::dataGatherer(void) const
+const CDataGatherer &CAnomalyDetectorModel::dataGatherer() const
 {
     return *m_DataGatherer;
 }
 
-CDataGatherer &CAnomalyDetectorModel::dataGatherer(void)
+CDataGatherer &CAnomalyDetectorModel::dataGatherer()
 {
     return *m_DataGatherer;
 }
 
-core_t::TTime CAnomalyDetectorModel::bucketLength(void) const
+core_t::TTime CAnomalyDetectorModel::bucketLength() const
 {
     return m_DataGatherer->bucketLength();
 }
@@ -464,17 +464,17 @@ bool CAnomalyDetectorModel::isTimeUnset(core_t::TTime time)
     return time == TIME_UNSET;
 }
 
-CPersonFrequencyGreaterThan CAnomalyDetectorModel::personFilter(void) const
+CPersonFrequencyGreaterThan CAnomalyDetectorModel::personFilter() const
 {
     return CPersonFrequencyGreaterThan(*this, m_Params.get().s_ExcludePersonFrequency);
 }
 
-CAttributeFrequencyGreaterThan CAnomalyDetectorModel::attributeFilter(void) const
+CAttributeFrequencyGreaterThan CAnomalyDetectorModel::attributeFilter() const
 {
     return CAttributeFrequencyGreaterThan(*this, m_Params.get().s_ExcludeAttributeFrequency);
 }
 
-const SModelParams &CAnomalyDetectorModel::params(void) const
+const SModelParams &CAnomalyDetectorModel::params() const
 {
     return m_Params;
 }
@@ -500,12 +500,12 @@ const CInfluenceCalculator *CAnomalyDetectorModel::influenceCalculator(model_t::
     return result != calculators.end() && result->first == feature ? result->second.get() : 0;
 }
 
-const CAnomalyDetectorModel::TDoubleVec &CAnomalyDetectorModel::personBucketCounts(void) const
+const CAnomalyDetectorModel::TDoubleVec &CAnomalyDetectorModel::personBucketCounts() const
 {
     return m_PersonBucketCounts;
 }
 
-CAnomalyDetectorModel::TDoubleVec &CAnomalyDetectorModel::personBucketCounts(void)
+CAnomalyDetectorModel::TDoubleVec &CAnomalyDetectorModel::personBucketCounts()
 {
     return m_PersonBucketCounts;
 }
@@ -515,7 +515,7 @@ void CAnomalyDetectorModel::windowBucketCount(double windowBucketCount)
     m_BucketCount = windowBucketCount;
 }
 
-double CAnomalyDetectorModel::windowBucketCount(void) const
+double CAnomalyDetectorModel::windowBucketCount() const
 {
     return m_BucketCount;
 }
@@ -529,7 +529,7 @@ void CAnomalyDetectorModel::createNewModels(std::size_t n, std::size_t /*m*/)
     }
 }
 
-void CAnomalyDetectorModel::updateRecycledModels(void)
+void CAnomalyDetectorModel::updateRecycledModels()
 {
     TSizeVec &people{m_DataGatherer->recycledPersonIds()};
     for (auto pid : people)
@@ -539,7 +539,7 @@ void CAnomalyDetectorModel::updateRecycledModels(void)
     people.clear();
 }
 
-const CInterimBucketCorrector &CAnomalyDetectorModel::interimValueCorrector(void) const
+const CInterimBucketCorrector &CAnomalyDetectorModel::interimValueCorrector() const
 {
     return *m_InterimBucketCorrector;
 }
@@ -595,7 +595,7 @@ const CAnomalyDetectorModel::TStr1Vec &CAnomalyDetectorModel::scheduledEventDesc
     return EMPTY_STRING_LIST;
 }
 
-maths::CModel *CAnomalyDetectorModel::tinyModel(void)
+maths::CModel *CAnomalyDetectorModel::tinyModel()
 {
     return new maths::CModelStub;
 }
@@ -653,7 +653,7 @@ void CAnomalyDetectorModel::SFeatureModels::debugMemoryUsage(core::CMemoryUsage:
     core::CMemoryDebug::dynamicSize("s_Models", s_Models, mem);
 }
 
-std::size_t CAnomalyDetectorModel::SFeatureModels::memoryUsage(void) const
+std::size_t CAnomalyDetectorModel::SFeatureModels::memoryUsage() const
 {
     return core::CMemory::dynamicSize(s_NewModel) + core::CMemory::dynamicSize(s_Models);
 }
@@ -702,7 +702,7 @@ void CAnomalyDetectorModel::SFeatureCorrelateModels::debugMemoryUsage(core::CMem
     core::CMemoryDebug::dynamicSize("s_Models", s_Models, mem);
 }
 
-std::size_t CAnomalyDetectorModel::SFeatureCorrelateModels::memoryUsage(void) const
+std::size_t CAnomalyDetectorModel::SFeatureCorrelateModels::memoryUsage() const
 {
     return core::CMemory::dynamicSize(s_ModelPrior) + core::CMemory::dynamicSize(s_Models);
 }
@@ -719,7 +719,7 @@ CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::CTimeSeriesCorrelateM
         m_MaxNumberCorrelations(maxNumberCorrelations)
 {}
 
-bool CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::areAllocationsAllowed(void) const
+bool CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::areAllocationsAllowed() const
 {
     return m_ResourceMonitor->areAllocationsAllowed();
 }
@@ -730,18 +730,18 @@ bool CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::exceedsLimit(std
           && m_MemoryUsage(correlations) >= m_ResourceLimit;
 }
 
-std::size_t CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::maxNumberCorrelations(void) const
+std::size_t CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::maxNumberCorrelations() const
 {
     return m_MaxNumberCorrelations;
 }
 
-std::size_t CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::chunkSize(void) const
+std::size_t CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::chunkSize() const
 {
     return 500;
 }
 
 CAnomalyDetectorModel::TMultivariatePriorPtr
-CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::newPrior(void) const
+CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::newPrior() const
 {
     return TMultivariatePriorPtr(m_PrototypePrior->clone());
 }

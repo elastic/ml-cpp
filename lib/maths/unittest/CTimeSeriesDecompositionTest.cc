@@ -57,7 +57,7 @@ const core_t::TTime YEAR      = core::constants::YEAR;
 
 }
 
-void CTimeSeriesDecompositionTest::testSuperpositionOfSines(void)
+void CTimeSeriesDecompositionTest::testSuperpositionOfSines()
 {
     LOG_DEBUG("+----------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testSuperpositionOfSines  |");
@@ -164,7 +164,7 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines(void)
     CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
 }
 
-void CTimeSeriesDecompositionTest::testDistortedPeriodic(void)
+void CTimeSeriesDecompositionTest::testDistortedPeriodic()
 {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testDistortedPeriodic  |");
@@ -336,7 +336,7 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic(void)
     CPPUNIT_ASSERT(totalPercentileError < 0.03 * totalSumValue);
 }
 
-void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void)
+void CTimeSeriesDecompositionTest::testMinimizeLongComponents()
 {
     LOG_DEBUG("+------------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testMinimizeLongComponents  |");
@@ -465,7 +465,7 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void)
     CPPUNIT_ASSERT(meanSlope < 0.0015);
 }
 
-void CTimeSeriesDecompositionTest::testWeekend(void)
+void CTimeSeriesDecompositionTest::testWeekend()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testWeekend  |");
@@ -575,7 +575,7 @@ void CTimeSeriesDecompositionTest::testWeekend(void)
     CPPUNIT_ASSERT(totalPercentileError < 0.012 * totalSumValue);
 }
 
-void CTimeSeriesDecompositionTest::testSinglePeriodicity(void)
+void CTimeSeriesDecompositionTest::testSinglePeriodicity()
 {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testSinglePeriodicity  |");
@@ -697,7 +697,7 @@ void CTimeSeriesDecompositionTest::testSinglePeriodicity(void)
     //file << "plot(t(1:length(r)), r, 'k');\n";
 }
 
-void CTimeSeriesDecompositionTest::testSeasonalOnset(void)
+void CTimeSeriesDecompositionTest::testSeasonalOnset()
 {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testSeasonalOnset  |");
@@ -831,7 +831,7 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset(void)
     CPPUNIT_ASSERT(totalPercentileError < 0.03 * totalSumValue);
 }
 
-void CTimeSeriesDecompositionTest::testVarianceScale(void)
+void CTimeSeriesDecompositionTest::testVarianceScale()
 {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testVarianceScale  |");
@@ -992,7 +992,7 @@ void CTimeSeriesDecompositionTest::testVarianceScale(void)
     }
 }
 
-void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void)
+void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase()
 {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testSpikeyDataProblemCase  |");
@@ -1150,7 +1150,7 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void)
     CPPUNIT_ASSERT(pMinScaled > 1e11 * pMinUnscaled);
 }
 
-void CTimeSeriesDecompositionTest::testDiurnalProblemCase(void)
+void CTimeSeriesDecompositionTest::testDiurnalProblemCase()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testDiurnalProblemCase  |");
@@ -1275,7 +1275,7 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, maths::CBasicStatistics::mean(scale), 0.07);
 }
 
-void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase(void)
+void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase()
 {
     LOG_DEBUG("+---------------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase  |");
@@ -1390,7 +1390,7 @@ void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase(void)
     //file << "plot(t(1:length(r)), r, 'k');\n";
 }
 
-void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues(void)
+void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues()
 {
     LOG_DEBUG("+-------------------------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues  |");
@@ -1507,7 +1507,7 @@ void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues(void)
     }
 }
 
-void CTimeSeriesDecompositionTest::testLongTermTrend(void)
+void CTimeSeriesDecompositionTest::testLongTermTrend()
 {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testLongTermTrend  |");
@@ -1693,7 +1693,7 @@ void CTimeSeriesDecompositionTest::testLongTermTrend(void)
     }
 }
 
-void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity(void)
+void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity()
 {
     LOG_DEBUG("+-----------------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity  |");
@@ -1793,7 +1793,7 @@ void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity(void)
     CPPUNIT_ASSERT(totalMaxResidual / totalMaxValue < 0.05);
 }
 
-void CTimeSeriesDecompositionTest::testNonDiurnal(void)
+void CTimeSeriesDecompositionTest::testNonDiurnal()
 {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testNonDiurnal  |");
@@ -1990,7 +1990,7 @@ void CTimeSeriesDecompositionTest::testNonDiurnal(void)
     }
 }
 
-void CTimeSeriesDecompositionTest::testYearly(void)
+void CTimeSeriesDecompositionTest::testYearly()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testYearly  |");
@@ -2065,7 +2065,7 @@ void CTimeSeriesDecompositionTest::testYearly(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.02);
 }
 
-void CTimeSeriesDecompositionTest::testCalendar(void)
+void CTimeSeriesDecompositionTest::testCalendar()
 {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testCalendar  |");
@@ -2153,7 +2153,7 @@ void CTimeSeriesDecompositionTest::testCalendar(void)
     //file << "plot(t, fe);\n";
 }
 
-void CTimeSeriesDecompositionTest::testConditionOfTrend(void)
+void CTimeSeriesDecompositionTest::testConditionOfTrend()
 {
     LOG_DEBUG("+------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testConditionOfTrend  |");
@@ -2181,7 +2181,7 @@ void CTimeSeriesDecompositionTest::testConditionOfTrend(void)
     }
 }
 
-void CTimeSeriesDecompositionTest::testSwap(void)
+void CTimeSeriesDecompositionTest::testSwap()
 {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testSwap  |");
@@ -2227,7 +2227,7 @@ void CTimeSeriesDecompositionTest::testSwap(void)
     CPPUNIT_ASSERT_EQUAL(checksum2, decomposition1.checksum());
 }
 
-void CTimeSeriesDecompositionTest::testPersist(void)
+void CTimeSeriesDecompositionTest::testPersist()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testPersist  |");
@@ -2287,7 +2287,7 @@ void CTimeSeriesDecompositionTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CTimeSeriesDecompositionTest::testUpgrade(void)
+void CTimeSeriesDecompositionTest::testUpgrade()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testUpgrade  |");
@@ -2462,7 +2462,7 @@ void CTimeSeriesDecompositionTest::testUpgrade(void)
 }
 
 
-CppUnit::Test *CTimeSeriesDecompositionTest::suite(void)
+CppUnit::Test *CTimeSeriesDecompositionTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTimeSeriesDecompositionTest");
 

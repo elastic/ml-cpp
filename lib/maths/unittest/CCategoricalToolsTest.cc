@@ -23,7 +23,7 @@ using TSizeVec = std::vector<std::size_t>;
 
 using namespace ml;
 
-void CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample(void)
+void CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample()
 {
     LOG_DEBUG("+-----------------------------------------------------------------------+");
     LOG_DEBUG("|  CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample  |");
@@ -31,7 +31,7 @@ void CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample(void)
 
 }
 
-void CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount(void)
+void CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount()
 {
     LOG_DEBUG("+-------------------------------------------------------------------+");
     LOG_DEBUG("|  CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount  |");
@@ -39,7 +39,7 @@ void CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount(void)
 
 }
 
-void CCategoricalToolsTest::testExpectedDistinctCategories(void)
+void CCategoricalToolsTest::testExpectedDistinctCategories()
 {
     LOG_DEBUG("+---------------------------------------------------------+");
     LOG_DEBUG("|  CCategoricalToolsTest::testExpectedDistinctCategories  |");
@@ -393,7 +393,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
     }
 }
 
-void CCategoricalToolsTest::testLogBinomialProbability(void)
+void CCategoricalToolsTest::testLogBinomialProbability()
 {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CCategoricalToolsTest::testLogBinomialProbability  |");
@@ -446,7 +446,7 @@ void CCategoricalToolsTest::testLogBinomialProbability(void)
     }
 }
 
-void CCategoricalToolsTest::testLogMultinomialProbability(void)
+void CCategoricalToolsTest::testLogMultinomialProbability()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CCategoricalToolsTest::testLogMultinomialProbability  |");
@@ -542,7 +542,7 @@ void CCategoricalToolsTest::testLogMultinomialProbability(void)
     }
 }
 
-CppUnit::Test *CCategoricalToolsTest::suite(void)
+CppUnit::Test *CCategoricalToolsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCategoricalToolsTest");
 

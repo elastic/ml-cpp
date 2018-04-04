@@ -55,7 +55,7 @@ CSampleCounts::CSampleCounts(bool isForPersistence,
     }
 }
 
-CSampleCounts *CSampleCounts::cloneForPersistence(void) const
+CSampleCounts *CSampleCounts::cloneForPersistence() const
 {
     return new CSampleCounts(true, *this);
 }
@@ -305,7 +305,7 @@ void CSampleCounts::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) co
                                     m_EffectiveSampleVariances, mem);
 }
 
-std::size_t CSampleCounts::memoryUsage(void) const
+std::size_t CSampleCounts::memoryUsage() const
 {
     std::size_t mem = core::CMemory::dynamicSize(m_SampleCounts);
     mem += core::CMemory::dynamicSize(m_MeanNonZeroBucketCounts);
@@ -313,7 +313,7 @@ std::size_t CSampleCounts::memoryUsage(void) const
     return mem;
 }
 
-void CSampleCounts::clear(void)
+void CSampleCounts::clear()
 {
     m_SampleCounts.clear();
     m_MeanNonZeroBucketCounts.clear();

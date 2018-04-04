@@ -72,7 +72,7 @@ using TStr1Vec = core::CSmallVector<std::string, 1>;
 //!   -# and so on.
 struct MODEL_EXPORT SResultSpec
 {
-    SResultSpec(void);
+    SResultSpec();
 
     //! Persist the result specification by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
@@ -81,7 +81,7 @@ struct MODEL_EXPORT SResultSpec
     bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
     //! Print of the specification for debugging.
-    std::string print(void) const;
+    std::string print() const;
 
     //! A unique identifier for the search's detector.
     int s_Detector;
@@ -142,17 +142,17 @@ struct MODEL_EXPORT SNode
     using TNodePtrSizeUMap = boost::unordered_map<TNodeCPtr, std::size_t>;
     using TSizeNodePtrUMap = boost::unordered_map<std::size_t, TNodeCPtr>;
 
-    SNode(void);
+    SNode();
     SNode(const SResultSpec &simpleSearch, SAnnotatedProbability &annotatedProbability);
 
     //! Returns the aggregate probability for the node
-    double probability(void) const;
+    double probability() const;
 
     //! Propagate consistent field names and values from the nodes children.
-    void propagateFields(void);
+    void propagateFields();
 
     //! Print of the node for debugging.
-    std::string print(void) const;
+    std::string print() const;
 
     //! Efficient swap
     void swap(SNode &other);
@@ -271,7 +271,7 @@ class MODEL_EXPORT CHierarchicalResults
         using TStoredStringPtrNodeMap = std::map<TStoredStringPtr, TNode, maths::COrderings::SLess>;
 
     public:
-        CHierarchicalResults(void);
+        CHierarchicalResults();
 
         //! Add a dummy result for a simple count detector.
         void addSimpleCountResult(SAnnotatedProbability &annotatedProbability,
@@ -339,13 +339,13 @@ class MODEL_EXPORT CHierarchicalResults
         //!      name and value: this is the by field name and value if no
         //!      over field is specified otherwise it is the over field name
         //!      name and value.
-        void buildHierarchy(void);
+        void buildHierarchy();
 
         //! Creates the pivot nodes for influencing field values.
-        void createPivots(void);
+        void createPivots();
 
         //! Get the root node of the hierarchy.
-        const TNode *root(void) const;
+        const TNode *root() const;
 
         //! Get the influencer identified by \p influencerName and
         //! \p influencerValue if one exists.
@@ -369,17 +369,17 @@ class MODEL_EXPORT CHierarchicalResults
 
         //! Check if there are no results at all including the simple
         //! count result.
-        bool empty(void) const;
+        bool empty() const;
 
         //! Get the count of leaf (search) results, i.e. excluding the
         //! simple count result.
-        std::size_t resultCount(void) const;
+        std::size_t resultCount() const;
 
         //! Sets the result to be interm
-        void setInterim(void);
+        void setInterim();
 
         //! Get type of result
-        model_t::CResultType resultType(void) const;
+        model_t::CResultType resultType() const;
 
         //! Persist the results by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
@@ -388,11 +388,11 @@ class MODEL_EXPORT CHierarchicalResults
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
         //! Print the results for debug.
-        std::string print(void) const;
+        std::string print() const;
 
     private:
         //! Create a new node.
-        TNode &newNode(void);
+        TNode &newNode();
 
         //! Create a new leaf node for the simple search \p simpleSearch.
         TNode &newLeaf(const TResultSpec &simpleSearch, SAnnotatedProbability &annotatedProbability);
@@ -429,7 +429,7 @@ class MODEL_EXPORT CHierarchicalResultsVisitor
         using TNode = CHierarchicalResults::TNode;
 
     public:
-        virtual ~CHierarchicalResultsVisitor(void);
+        virtual ~CHierarchicalResultsVisitor();
 
         //! Visit a node.
         virtual void visit(const CHierarchicalResults &results,

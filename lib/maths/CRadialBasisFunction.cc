@@ -119,11 +119,11 @@ double inverseQuadraticProduct(double x,
 
 }
 
-CRadialBasisFunction::~CRadialBasisFunction(void)
+CRadialBasisFunction::~CRadialBasisFunction()
 {
 }
 
-CGaussianBasisFunction *CGaussianBasisFunction::clone(void) const
+CGaussianBasisFunction *CGaussianBasisFunction::clone() const
 {
     return new CGaussianBasisFunction();
 }
@@ -278,7 +278,7 @@ double CGaussianBasisFunction::product(double a,
 
 
 CInverseQuadraticBasisFunction *
-CInverseQuadraticBasisFunction::clone(void) const
+CInverseQuadraticBasisFunction::clone() const
 {
     return new CInverseQuadraticBasisFunction();
 }

@@ -480,17 +480,17 @@ bool CAgglomerativeClusterer::CNode::addChild(CNode &child)
     return false;
 }
 
-std::size_t CAgglomerativeClusterer::CNode::index(void) const
+std::size_t CAgglomerativeClusterer::CNode::index() const
 {
     return m_Index;
 }
 
-double CAgglomerativeClusterer::CNode::height(void) const
+double CAgglomerativeClusterer::CNode::height() const
 {
     return m_Height;
 }
 
-TNode &CAgglomerativeClusterer::CNode::root(void)
+TNode &CAgglomerativeClusterer::CNode::root()
 {
     CNode *result = this;
     for (CNode *parent = m_Parent; parent; parent = parent->m_Parent)

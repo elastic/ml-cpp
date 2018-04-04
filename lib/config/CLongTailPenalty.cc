@@ -47,12 +47,12 @@ CLongTailPenalty::CLongTailPenalty(const CAutoconfigurerParams &params) :
 {
 }
 
-CLongTailPenalty *CLongTailPenalty::clone(void) const
+CLongTailPenalty *CLongTailPenalty::clone() const
 {
     return new CLongTailPenalty(*this);
 }
 
-std::string CLongTailPenalty::name(void) const
+std::string CLongTailPenalty::name() const
 {
     return "long tail";
 }

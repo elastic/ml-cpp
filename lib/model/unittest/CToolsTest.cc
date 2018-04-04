@@ -16,12 +16,12 @@
 using namespace ml;
 using namespace model;
 
-void CToolsTest::testDataGatherers(void)
+void CToolsTest::testDataGatherers()
 {
     // TODO
 }
 
-void CToolsTest::testProbabilityAggregator(void)
+void CToolsTest::testProbabilityAggregator()
 {
     LOG_DEBUG("****** CToolsTest::testProbabilityAggregator ******");
 
@@ -153,7 +153,7 @@ void CToolsTest::testProbabilityAggregator(void)
     }
 }
 
-CppUnit::Test *CToolsTest::suite(void)
+CppUnit::Test *CToolsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CToolsTest");
 

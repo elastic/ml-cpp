@@ -23,7 +23,7 @@ CFileDeleter::CFileDeleter(const std::string &fileName)
 {
 }
 
-CFileDeleter::~CFileDeleter(void)
+CFileDeleter::~CFileDeleter()
 {
     if (m_FileName.empty())
     {

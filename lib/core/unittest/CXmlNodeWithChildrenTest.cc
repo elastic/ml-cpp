@@ -32,7 +32,7 @@ CppUnit::Test *CXmlNodeWithChildrenTest::suite()
     return suiteOfTests;
 }
 
-void CXmlNodeWithChildrenTest::testNodeHierarchyToXml(void)
+void CXmlNodeWithChildrenTest::testNodeHierarchyToXml()
 {
     ml::core::CXmlParser parser;
 
@@ -108,7 +108,7 @@ void CXmlNodeWithChildrenTest::testNodeHierarchyToXml(void)
     CPPUNIT_ASSERT(xml.find("twoDeepC") < xml.find("twoDeepB"));
 }
 
-void CXmlNodeWithChildrenTest::testParserToNodeHierarchy(void)
+void CXmlNodeWithChildrenTest::testParserToNodeHierarchy()
 {
     ml::core::CXmlParser parser;
 
@@ -152,7 +152,7 @@ void CXmlNodeWithChildrenTest::testParserToNodeHierarchy(void)
     CPPUNIT_ASSERT(xml.find("value5") != std::string::npos);
 }
 
-void CXmlNodeWithChildrenTest::testPerformanceNoPool(void)
+void CXmlNodeWithChildrenTest::testPerformanceNoPool()
 {
     ml::core::CXmlParser parser;
 
@@ -178,7 +178,7 @@ void CXmlNodeWithChildrenTest::testPerformanceNoPool(void)
              " with no pool took " << (end - start) << " seconds");
 }
 
-void CXmlNodeWithChildrenTest::testPerformanceWithPool(void)
+void CXmlNodeWithChildrenTest::testPerformanceWithPool()
 {
     ml::core::CXmlParser parser;
 

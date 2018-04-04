@@ -253,13 +253,13 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         //! Create a copy of the prior.
         //!
         //! \warning Caller owns returned object.
-        virtual CMultivariatePrior *clone(void) const
+        virtual CMultivariatePrior *clone() const
         {
             return new CMultivariateMultimodalPrior(*this);
         }
 
         //! Get the dimension of the prior.
-        virtual std::size_t dimension(void) const { return N; }
+        virtual std::size_t dimension() const { return N; }
 
         //! Set the data type.
         virtual void dataType(maths_t::EDataType value)
@@ -583,7 +583,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         }
 
         //! Get the support for the marginal likelihood function.
-        virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const
+        virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const
         {
             if (m_Modes.size() == 0)
             {
@@ -611,7 +611,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         }
 
         //! Get the mean of the marginal likelihood function.
-        virtual TDouble10Vec marginalLikelihoodMean(void) const
+        virtual TDouble10Vec marginalLikelihoodMean() const
         {
             if (m_Modes.size() == 0)
             {
@@ -728,7 +728,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         }
 
         //! Get the covariance matrix for the marginal likelihood.
-        virtual TDouble10Vec10Vec marginalLikelihoodCovariance(void) const
+        virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const
         {
             if (m_Modes.size() == 0)
             {
@@ -742,7 +742,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         }
 
         //! Get the diagonal of the covariance matrix for the marginal likelihood.
-        virtual TDouble10Vec marginalLikelihoodVariances(void) const
+        virtual TDouble10Vec marginalLikelihoodVariances() const
         {
             if (m_Modes.size() == 0)
             {
@@ -911,7 +911,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         }
 
         //! Check if this is a non-informative prior.
-        virtual bool isNonInformative(void) const
+        virtual bool isNonInformative() const
         {
             return m_Modes.empty() || (   m_Modes.size() == 1
                                        && m_Modes[0].s_Prior->isNonInformative());
@@ -954,7 +954,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         }
 
         //! Get the memory used by this component
-        virtual std::size_t memoryUsage(void) const
+        virtual std::size_t memoryUsage() const
         {
             std::size_t mem = core::CMemory::dynamicSize(m_Clusterer);
             mem += core::CMemory::dynamicSize(m_SeedPrior);
@@ -963,13 +963,13 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         }
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const
+        virtual std::size_t staticSize() const
         {
             return sizeof(*this);
         }
 
         //! Get the tag name for this prior.
-        virtual std::string persistenceTag(void) const
+        virtual std::string persistenceTag() const
         {
             return MULTIMODAL_TAG + core::CStringUtils::typeToString(N);
         }
@@ -995,13 +995,13 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         //@}
 
         //! Get the current number of modes.
-        std::size_t numberModes(void) const
+        std::size_t numberModes() const
         {
             return m_Modes.size();
         }
 
         //! Get the expected mean of the marginal likelihood.
-        TPoint mean(void) const
+        TPoint mean() const
         {
             // By linearity we have that:
             //   Integral{ x * Sum_i{ w(i) * f(x | i) } }
@@ -1023,7 +1023,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
 
     protected:
         //! Get the modes.
-        const TModeVec &modes(void) const
+        const TModeVec &modes() const
         {
             return m_Modes;
         }
@@ -1221,7 +1221,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         }
 
         //! We should only use this prior when it has multiple modes.
-        virtual bool participatesInModelSelection(void) const
+        virtual bool participatesInModelSelection() const
         {
             return m_Modes.size() > 1;
         }
@@ -1229,13 +1229,13 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         //! Get the number of nuisance parameters in the marginal likelihood.
         //!
         //! This is just number modes - 1 due to the normalization constraint.
-        virtual double unmarginalizedParameters(void) const
+        virtual double unmarginalizedParameters() const
         {
             return std::max(static_cast<double>(m_Modes.size()), 1.0) - 1.0;
         }
 
         //! Get the convariance matrix for the marginal likelihood.
-        TMatrix covarianceMatrix(void) const
+        TMatrix covarianceMatrix() const
         {
             // By linearity we have that:
             //   Integral{ (x - m)' * (x - m) * Sum_i{ w(i) * f(x | i) } }
@@ -1259,7 +1259,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         }
 
         //! Full debug dump of the mode weights.
-        std::string debugWeights(void) const
+        std::string debugWeights() const
         {
             return multivariate_multimodal_prior_detail::debugWeights(m_Modes);
         }

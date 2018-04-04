@@ -24,7 +24,7 @@ CppUnit::Test *CMonotonicTimeTest::suite()
     return suiteOfTests;
 }
 
-void CMonotonicTimeTest::testMilliseconds(void)
+void CMonotonicTimeTest::testMilliseconds()
 {
     ml::core::CMonotonicTime monoTime;
 
@@ -43,7 +43,7 @@ void CMonotonicTimeTest::testMilliseconds(void)
     CPPUNIT_ASSERT(diff < 1100);
 }
 
-void CMonotonicTimeTest::testNanoseconds(void)
+void CMonotonicTimeTest::testNanoseconds()
 {
     ml::core::CMonotonicTime monoTime;
 

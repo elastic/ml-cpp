@@ -66,22 +66,22 @@ CppUnit::Test *CBackgroundPersisterTest::suite()
     return suiteOfTests;
 }
 
-void CBackgroundPersisterTest::testDetectorPersistBy(void)
+void CBackgroundPersisterTest::testDetectorPersistBy()
 {
     this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields.conf");
 }
 
-void CBackgroundPersisterTest::testDetectorPersistOver(void)
+void CBackgroundPersisterTest::testDetectorPersistOver()
 {
     this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields_over.conf");
 }
 
-void CBackgroundPersisterTest::testDetectorPersistPartition(void)
+void CBackgroundPersisterTest::testDetectorPersistPartition()
 {
     this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields_partition.conf");
 }
 
-void CBackgroundPersisterTest::testCategorizationOnlyPersist(void)
+void CBackgroundPersisterTest::testCategorizationOnlyPersist()
 {
     // Start by creating a categorizer with non-trivial state
 

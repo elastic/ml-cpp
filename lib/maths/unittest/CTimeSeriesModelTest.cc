@@ -70,7 +70,7 @@ class CTimeSeriesCorrelateModelAllocator : public maths::CTimeSeriesCorrelateMod
 {
     public:
         //! Check if we can still allocate any correlations.
-        virtual bool areAllocationsAllowed(void) const
+        virtual bool areAllocationsAllowed() const
         {
             return true;
         }
@@ -82,19 +82,19 @@ class CTimeSeriesCorrelateModelAllocator : public maths::CTimeSeriesCorrelateMod
         }
 
         //! Get the maximum number of correlations we should model.
-        virtual std::size_t maxNumberCorrelations(void) const
+        virtual std::size_t maxNumberCorrelations() const
         {
             return 5000;
         }
 
         //! Get the chunk size in which to allocate correlations.
-        virtual std::size_t chunkSize(void) const
+        virtual std::size_t chunkSize() const
         {
             return 500;
         }
 
         //! Create a new prior for a correlation model.
-        virtual TMultivariatePriorPtr newPrior(void) const
+        virtual TMultivariatePriorPtr newPrior() const
         {
             return TMultivariatePriorPtr(
                        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData,
@@ -111,17 +111,17 @@ maths::CModelParams params(core_t::TTime bucketLength)
     return maths::CModelParams{bucketLength, learnRates[bucketLength], DECAY_RATE, minimumSeasonalVarianceScale};
 }
 
-maths::CNormalMeanPrecConjugate univariateNormal(void)
+maths::CNormalMeanPrecConjugate univariateNormal()
 {
     return maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
 }
 
-maths::CLogNormalMeanPrecConjugate univariateLogNormal(void)
+maths::CLogNormalMeanPrecConjugate univariateLogNormal()
 {
     return maths::CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.0, DECAY_RATE);
 }
 
-maths::CMultimodalPrior univariateMultimodal(void)
+maths::CMultimodalPrior univariateMultimodal()
 {
     maths::CXMeansOnline1d clusterer{maths_t::E_ContinuousData,
                                      maths::CAvailableModeDistributions::ALL,
@@ -130,12 +130,12 @@ maths::CMultimodalPrior univariateMultimodal(void)
     return maths::CMultimodalPrior{maths_t::E_ContinuousData, clusterer, univariateNormal(), DECAY_RATE};
 }
 
-maths::CMultivariateNormalConjugate<3> multivariateNormal(void)
+maths::CMultivariateNormalConjugate<3> multivariateNormal()
 {
     return maths::CMultivariateNormalConjugate<3>::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
 }
 
-maths::CMultivariateMultimodalPrior<3> multivariateMultimodal(void)
+maths::CMultivariateMultimodalPrior<3> multivariateMultimodal()
 {
     maths::CXMeansOnline<maths::CFloatStorage, 3> clusterer(maths_t::E_ContinuousData,
                                                             maths_t::E_ClustersFractionWeight,
@@ -189,7 +189,7 @@ void reinitializePrior(double learnRate,
 }
 }
 
-void CTimeSeriesModelTest::testClone(void)
+void CTimeSeriesModelTest::testClone()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testClone  |");
@@ -270,7 +270,7 @@ void CTimeSeriesModelTest::testClone(void)
     }
 }
 
-void CTimeSeriesModelTest::testMode(void)
+void CTimeSeriesModelTest::testMode()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testMode  |");
@@ -519,7 +519,7 @@ void CTimeSeriesModelTest::testMode(void)
     }
 }
 
-void CTimeSeriesModelTest::testAddBucketValue(void)
+void CTimeSeriesModelTest::testAddBucketValue()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testAddBucketValue  |");
@@ -561,7 +561,7 @@ void CTimeSeriesModelTest::testAddBucketValue(void)
     CPPUNIT_ASSERT_EQUAL(prior.checksum(), model.prior().checksum());
 }
 
-void CTimeSeriesModelTest::testAddSamples(void)
+void CTimeSeriesModelTest::testAddSamples()
 {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testAddSamples  |");
@@ -925,7 +925,7 @@ void CTimeSeriesModelTest::testAddSamples(void)
     }
 }
 
-void CTimeSeriesModelTest::testPredict(void)
+void CTimeSeriesModelTest::testPredict()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testPredict  |");
@@ -1182,7 +1182,7 @@ void CTimeSeriesModelTest::testPredict(void)
     }
 }
 
-void CTimeSeriesModelTest::testProbability(void)
+void CTimeSeriesModelTest::testProbability()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testProbability  |");
@@ -1500,7 +1500,7 @@ void CTimeSeriesModelTest::testProbability(void)
     }
 }
 
-void CTimeSeriesModelTest::testWeights(void)
+void CTimeSeriesModelTest::testWeights()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testWeights  |");
@@ -1668,7 +1668,7 @@ void CTimeSeriesModelTest::testWeights(void)
     }
 }
 
-void CTimeSeriesModelTest::testMemoryUsage(void)
+void CTimeSeriesModelTest::testMemoryUsage()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testMemoryUsage  |");
@@ -1765,7 +1765,7 @@ void CTimeSeriesModelTest::testMemoryUsage(void)
     // TODO LOG_DEBUG("Correlates");
 }
 
-void CTimeSeriesModelTest::testPersist(void)
+void CTimeSeriesModelTest::testPersist()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testPersist  |");
@@ -1880,7 +1880,7 @@ void CTimeSeriesModelTest::testPersist(void)
     // TODO LOG_DEBUG("Correlates");
 }
 
-void CTimeSeriesModelTest::testUpgrade(void)
+void CTimeSeriesModelTest::testUpgrade()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testUpgrade  |");
@@ -2008,7 +2008,7 @@ void CTimeSeriesModelTest::testUpgrade(void)
     }
 }
 
-void CTimeSeriesModelTest::testAddSamplesWithCorrelations(void)
+void CTimeSeriesModelTest::testAddSamplesWithCorrelations()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testAddSamplesWithCorrelations  |");
@@ -2057,14 +2057,14 @@ void CTimeSeriesModelTest::testAddSamplesWithCorrelations(void)
     // TODO LOG_DEBUG("Correlations with tags (for population)");
 }
 
-void CTimeSeriesModelTest::testProbabilityWithCorrelations(void)
+void CTimeSeriesModelTest::testProbabilityWithCorrelations()
 {
     LOG_DEBUG("+---------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testProbabilityWithCorrelations  |");
     LOG_DEBUG("+---------------------------------------------------------+");
 }
 
-void CTimeSeriesModelTest::testAnomalyModel(void)
+void CTimeSeriesModelTest::testAnomalyModel()
 {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testAnomalyModel  |");
@@ -2268,7 +2268,7 @@ void CTimeSeriesModelTest::testAnomalyModel(void)
     }
 }
 
-CppUnit::Test *CTimeSeriesModelTest::suite(void)
+CppUnit::Test *CTimeSeriesModelTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTimeSeriesModelTest");
 

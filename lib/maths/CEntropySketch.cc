@@ -36,7 +36,7 @@ void CEntropySketch::add(std::size_t category, uint64_t count)
     }
 }
 
-double CEntropySketch::calculate(void) const
+double CEntropySketch::calculate() const
 {
     double h = 0.0;
     for (std::size_t i = 0u; i < m_Yi.size(); ++i)

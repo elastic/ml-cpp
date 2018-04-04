@@ -69,8 +69,8 @@ class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf
         using TStrStrMapCItr = TStrStrMap::const_iterator;
 
     public:
-        CRapidXmlParser(void);
-        virtual ~CRapidXmlParser(void);
+        CRapidXmlParser();
+        virtual ~CRapidXmlParser();
 
         //! Parse XML stored in a string
         virtual bool parseString(const std::string &xml);
@@ -86,13 +86,13 @@ class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf
         bool parseStringIgnoreCdata(const std::string &xml);
 
         //! Return the root element name (empty string if not parsed yet)
-        virtual std::string rootElementName(void) const;
+        virtual std::string rootElementName() const;
 
         //! Get the root element attributes (returns false if not parsed yet)
         bool rootElementAttributes(TStrStrMap &rootAttributes) const;
 
         //! Dump the document to string
-        virtual std::string dumpToString(void) const;
+        virtual std::string dumpToString() const;
 
         //! Convert the entire XML document into a hierarchy of node objects.
         //! This is much more efficient than making repeated calls to
@@ -116,10 +116,10 @@ class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf
 
         //! Functions for navigating an XML document without converting it to a
         //! node hierarchy
-        virtual bool navigateRoot(void);
-        virtual bool navigateFirstChild(void);
-        virtual bool navigateNext(void);
-        virtual bool navigateParent(void);
+        virtual bool navigateRoot();
+        virtual bool navigateFirstChild();
+        virtual bool navigateNext();
+        virtual bool navigateParent();
         virtual bool currentNodeName(std::string &name);
         virtual bool currentNodeValue(std::string &value);
 

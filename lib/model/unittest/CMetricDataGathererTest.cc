@@ -173,7 +173,7 @@ const std::string EMPTY_STRING;
 
 }
 
-void CMetricDataGathererTest::singleSeriesTests(void)
+void CMetricDataGathererTest::singleSeriesTests()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::singleSeriesTests ***");
 
@@ -425,7 +425,7 @@ void CMetricDataGathererTest::singleSeriesTests(void)
     }
 }
 
-void CMetricDataGathererTest::multipleSeriesTests(void)
+void CMetricDataGathererTest::multipleSeriesTests()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::multipleSeriesTests ***");
 
@@ -686,7 +686,7 @@ void CMetricDataGathererTest::multipleSeriesTests(void)
                          core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
 }
 
-void CMetricDataGathererTest::testSampleCount(void)
+void CMetricDataGathererTest::testSampleCount()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testSampleCount ***");
 
@@ -754,7 +754,7 @@ void CMetricDataGathererTest::testSampleCount(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, gatherer.effectiveSampleCount(pid1), 0.5);
 }
 
-void CMetricDataGathererTest::testRemovePeople(void)
+void CMetricDataGathererTest::testRemovePeople()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testRemovePeople ***");
 
@@ -910,7 +910,7 @@ void CMetricDataGathererTest::testRemovePeople(void)
                          core::CContainerPrinter::print(gatherer.recycledPersonIds()));
 }
 
-void CMetricDataGathererTest::testSum(void)
+void CMetricDataGathererTest::testSum()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testSum ***");
 
@@ -1002,7 +1002,7 @@ void CMetricDataGathererTest::testSum(void)
     }
 }
 
-void CMetricDataGathererTest::singleSeriesOutOfOrderTests(void)
+void CMetricDataGathererTest::singleSeriesOutOfOrderTests()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::singleSeriesOutOfOrderTests ***");
 
@@ -1185,7 +1185,7 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests(void)
     }
 }
 
-void CMetricDataGathererTest::testResetBucketGivenSingleSeries(void)
+void CMetricDataGathererTest::testResetBucketGivenSingleSeries()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testResetBucketGivenSingleSeries ***");
 
@@ -1296,7 +1296,7 @@ void CMetricDataGathererTest::testResetBucketGivenSingleSeries(void)
                              core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
 }
 
-void CMetricDataGathererTest::testResetBucketGivenMultipleSeries(void)
+void CMetricDataGathererTest::testResetBucketGivenMultipleSeries()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testResetBucketGivenMultipleSeries ***");
 
@@ -1508,7 +1508,7 @@ void CMetricDataGathererTest::testResetBucketGivenMultipleSeries(void)
                          core::CContainerPrinter::print(featureData[3].second[2].second.s_Samples));
 }
 
-void CMetricDataGathererTest::testInfluenceStatistics(void)
+void CMetricDataGathererTest::testInfluenceStatistics()
 {
     LOG_DEBUG("*** CMetricDataGathererTest::testInfluenceStatistics ***");
 
@@ -1655,7 +1655,7 @@ void CMetricDataGathererTest::testInfluenceStatistics(void)
     }
 }
 
-void CMetricDataGathererTest::testMultivariate(void)
+void CMetricDataGathererTest::testMultivariate()
 {
     using TTimeDoubleDoubleTuple = boost::tuple<core_t::TTime, double, double>;
     using TTimeDoubleDoubleTupleVec = std::vector<TTimeDoubleDoubleTuple>;
@@ -1883,7 +1883,7 @@ void CMetricDataGathererTest::testMultivariate(void)
     }
 }
 
-void CMetricDataGathererTest::testStatisticsPersist(void)
+void CMetricDataGathererTest::testStatisticsPersist()
 {
     CGathererTools::TMeanGatherer::TMetricPartialStatistic stat(1);
     stat.add(TDoubleVec(1, 44.4), 1299196740, 1);
@@ -1920,7 +1920,7 @@ void CMetricDataGathererTest::testStatisticsPersist(void)
     CPPUNIT_ASSERT_EQUAL(origTime, restoredTime);
 }
 
-void CMetricDataGathererTest::testVarp(void)
+void CMetricDataGathererTest::testVarp()
 {
     core_t::TTime startTime = 100000;
     const core_t::TTime bucketLength = 1000;
@@ -2113,7 +2113,7 @@ void CMetricDataGathererTest::testVarp(void)
 }
 
 
-CppUnit::Test *CMetricDataGathererTest::suite(void)
+CppUnit::Test *CMetricDataGathererTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMetricDataGathererTest");
 

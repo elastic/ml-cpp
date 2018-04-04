@@ -174,7 +174,7 @@ class CKMeansOnline
         }
 
         //! Get the total number of clusters.
-        std::size_t size(void) const
+        std::size_t size() const
         {
             return std::min(m_Clusters.size() + m_PointsBuffer.size(), m_K);
         }
@@ -402,7 +402,7 @@ class CKMeansOnline
         }
 
         //! Get the current points buffer.
-        bool buffering(void) const
+        bool buffering() const
         {
             return m_PointsBuffer.size() > 0;
         }
@@ -517,7 +517,7 @@ class CKMeansOnline
         }
 
         //! Print this classifier for debug.
-        std::string print(void) const
+        std::string print() const
         {
             return core::CContainerPrinter::print(m_Clusters);
         }
@@ -540,7 +540,7 @@ class CKMeansOnline
         }
 
         //! Get the memory used by this component
-        std::size_t memoryUsage(void) const
+        std::size_t memoryUsage() const
         {
             std::size_t mem = core::CMemory::dynamicSize(m_Clusters);
             mem += core::CMemory::dynamicSize(m_PointsBuffer);
@@ -591,7 +591,7 @@ class CKMeansOnline
         }
 
         //! Reduce the number of clusters to m_K by k-means clustering.
-        void reduce(void)
+        void reduce()
         {
             // Add all the points as new spherical clusters and reduce.
             for (std::size_t i = 0u; i < m_PointsBuffer.size(); ++i)

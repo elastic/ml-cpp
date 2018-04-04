@@ -36,7 +36,7 @@ class CThreadFarmReceiver
         {
         }
 
-        virtual ~CThreadFarmReceiver(void)
+        virtual ~CThreadFarmReceiver()
         {
         }
 

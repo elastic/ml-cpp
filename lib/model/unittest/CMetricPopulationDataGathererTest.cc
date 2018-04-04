@@ -147,7 +147,7 @@ const std::string EMPTY_STRING;
 
 } // unnamed::
 
-void CMetricPopulationDataGathererTest::testMean(void)
+void CMetricPopulationDataGathererTest::testMean()
 {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testMean ***");
 
@@ -220,7 +220,7 @@ void CMetricPopulationDataGathererTest::testMean(void)
     }
 }
 
-void CMetricPopulationDataGathererTest::testMin(void)
+void CMetricPopulationDataGathererTest::testMin()
 {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testMin ***");
 
@@ -292,7 +292,7 @@ void CMetricPopulationDataGathererTest::testMin(void)
     }
 }
 
-void CMetricPopulationDataGathererTest::testMax(void)
+void CMetricPopulationDataGathererTest::testMax()
 {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testMax ***");
 
@@ -364,7 +364,7 @@ void CMetricPopulationDataGathererTest::testMax(void)
     }
 }
 
-void CMetricPopulationDataGathererTest::testSum(void)
+void CMetricPopulationDataGathererTest::testSum()
 {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testSum ***");
 
@@ -425,7 +425,7 @@ void CMetricPopulationDataGathererTest::testSum(void)
 }
 
 
-void CMetricPopulationDataGathererTest::testSampleCount(void)
+void CMetricPopulationDataGathererTest::testSampleCount()
 {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testSampleCount ***");
 
@@ -504,7 +504,7 @@ void CMetricPopulationDataGathererTest::testSampleCount(void)
                                  tolerance);
 }
 
-void CMetricPopulationDataGathererTest::testFeatureData(void)
+void CMetricPopulationDataGathererTest::testFeatureData()
 {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testFeatureData ***");
 
@@ -706,7 +706,7 @@ void CMetricPopulationDataGathererTest::testFeatureData(void)
     }
 }
 
-void CMetricPopulationDataGathererTest::testRemovePeople(void)
+void CMetricPopulationDataGathererTest::testRemovePeople()
 {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testRemovePeople ***");
 
@@ -868,7 +868,7 @@ void CMetricPopulationDataGathererTest::testRemovePeople(void)
                          core::CContainerPrinter::print(actualFeatureData));
 }
 
-void CMetricPopulationDataGathererTest::testRemoveAttributes(void)
+void CMetricPopulationDataGathererTest::testRemoveAttributes()
 {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testRemoveAttributes ***");
 
@@ -1008,7 +1008,7 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes(void)
     CPPUNIT_ASSERT_EQUAL(expectedFeatureData, actualFeatureData);
 }
 
-void CMetricPopulationDataGathererTest::testInfluenceStatistics(void)
+void CMetricPopulationDataGathererTest::testInfluenceStatistics()
 {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testInfluenceStatistics ***");
 
@@ -1136,7 +1136,7 @@ void CMetricPopulationDataGathererTest::testInfluenceStatistics(void)
     }
 }
 
-void CMetricPopulationDataGathererTest::testPersistence(void)
+void CMetricPopulationDataGathererTest::testPersistence()
 {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testPersistence ***");
 
@@ -1209,7 +1209,7 @@ void CMetricPopulationDataGathererTest::testPersistence(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CMetricPopulationDataGathererTest::testReleaseMemory(void)
+void CMetricPopulationDataGathererTest::testReleaseMemory()
 {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testReleaseMemory ***");
 
@@ -1269,7 +1269,7 @@ void CMetricPopulationDataGathererTest::testReleaseMemory(void)
     CPPUNIT_ASSERT(gatherer.memoryUsage() < mem - 1000);
 }
 
-CppUnit::Test *CMetricPopulationDataGathererTest::suite(void)
+CppUnit::Test *CMetricPopulationDataGathererTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMetricPopulationDataGathererTest");
 

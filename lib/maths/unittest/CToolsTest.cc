@@ -398,7 +398,7 @@ class CLogPdf
 
 }
 
-void CToolsTest::testProbabilityOfLessLikelySample(void)
+void CToolsTest::testProbabilityOfLessLikelySample()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CToolsTest::testProbabilityOfLessLikelySample  |");
@@ -920,7 +920,7 @@ void CToolsTest::testProbabilityOfLessLikelySample(void)
     }
 }
 
-void CToolsTest::testIntervalExpectation(void)
+void CToolsTest::testIntervalExpectation()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CToolsTest::testIntervalExpectation  |");
@@ -1009,7 +1009,7 @@ void CToolsTest::testIntervalExpectation(void)
     }
 }
 
-void CToolsTest::testMixtureProbabilityOfLessLikelySample(void)
+void CToolsTest::testMixtureProbabilityOfLessLikelySample()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CToolsTest::testMixtureProbabilityOfLessLikelySample  |");
@@ -1130,7 +1130,7 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample(void)
     }
 }
 
-void CToolsTest::testDeviation(void)
+void CToolsTest::testDeviation()
 {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CToolsTest::testDeviation  |");
@@ -1147,7 +1147,7 @@ void CToolsTest::testDeviation(void)
     }
 }
 
-void CToolsTest::testSpread(void)
+void CToolsTest::testSpread()
 {
     LOG_DEBUG("+--------------------------+");
     LOG_DEBUG("|  CToolsTest::testSpread  |");
@@ -1216,7 +1216,7 @@ void CToolsTest::testSpread(void)
     }
 }
 
-void CToolsTest::testFastLog(void)
+void CToolsTest::testFastLog()
 {
     LOG_DEBUG("+---------------------------+");
     LOG_DEBUG("|  CToolsTest::testFastLog  |");
@@ -1277,7 +1277,7 @@ void CToolsTest::testFastLog(void)
     }
 }
 
-void CToolsTest::testMiscellaneous(void)
+void CToolsTest::testMiscellaneous()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CToolsTest::testMiscellaneous  |");
@@ -1314,7 +1314,7 @@ void CToolsTest::testMiscellaneous(void)
     }
 }
 
-CppUnit::Test *CToolsTest::suite(void)
+CppUnit::Test *CToolsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CToolsTest");
 

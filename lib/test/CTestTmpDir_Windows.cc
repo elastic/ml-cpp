@@ -16,7 +16,7 @@ namespace test
 {
 
 
-std::string CTestTmpDir::tmpDir(void)
+std::string CTestTmpDir::tmpDir()
 {
     const char *temp(::getenv("TEMP"));
     if (temp == 0)

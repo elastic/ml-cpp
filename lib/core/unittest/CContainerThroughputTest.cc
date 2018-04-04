@@ -47,13 +47,13 @@ CppUnit::Test *CContainerThroughputTest::suite()
     return suiteOfTests;
 }
 
-void CContainerThroughputTest::setUp(void)
+void CContainerThroughputTest::setUp()
 {
     CPPUNIT_ASSERT(FILL_SIZE > 0);
     CPPUNIT_ASSERT(TEST_SIZE > FILL_SIZE);
 }
 
-void CContainerThroughputTest::testVector(void)
+void CContainerThroughputTest::testVector()
 {
     using TContentVec = std::vector<SContent>;
     TContentVec testVec;
@@ -88,7 +88,7 @@ void CContainerThroughputTest::testVector(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testList(void)
+void CContainerThroughputTest::testList()
 {
     using TContentList = std::list<SContent>;
     TContentList testList;
@@ -122,7 +122,7 @@ void CContainerThroughputTest::testList(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testDeque(void)
+void CContainerThroughputTest::testDeque()
 {
     using TContentDeque = std::deque<SContent>;
     TContentDeque testDeque;
@@ -156,7 +156,7 @@ void CContainerThroughputTest::testDeque(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testMap(void)
+void CContainerThroughputTest::testMap()
 {
     using TSizeContentMap = std::map<size_t, SContent>;
     TSizeContentMap testMap;
@@ -190,7 +190,7 @@ void CContainerThroughputTest::testMap(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testCircBuf(void)
+void CContainerThroughputTest::testCircBuf()
 {
     using TContentCircBuf = boost::circular_buffer<SContent>;
     TContentCircBuf testCircBuf(FILL_SIZE);
@@ -224,7 +224,7 @@ void CContainerThroughputTest::testCircBuf(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testMultiIndex(void)
+void CContainerThroughputTest::testMultiIndex()
 {
     using TContentMIndex = boost::multi_index::multi_index_container<
         SContent,

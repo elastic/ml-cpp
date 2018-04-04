@@ -299,12 +299,12 @@ void CMultivariateOneOfNPrior::swap(CMultivariateOneOfNPrior &other)
     m_Models.swap(other.m_Models);
 }
 
-CMultivariateOneOfNPrior *CMultivariateOneOfNPrior::clone(void) const
+CMultivariateOneOfNPrior *CMultivariateOneOfNPrior::clone() const
 {
     return new CMultivariateOneOfNPrior(*this);
 }
 
-std::size_t CMultivariateOneOfNPrior::dimension(void) const
+std::size_t CMultivariateOneOfNPrior::dimension() const
 {
     return m_Dimension;
 }
@@ -572,7 +572,7 @@ CMultivariateOneOfNPrior::bivariate(const TSize10Vec &marginalize,
 }
 
 TDouble10VecDouble10VecPr
-CMultivariateOneOfNPrior::marginalLikelihoodSupport(void) const
+CMultivariateOneOfNPrior::marginalLikelihoodSupport() const
 {
     // We define this is as the intersection of the component model
     // supports.
@@ -593,7 +593,7 @@ CMultivariateOneOfNPrior::marginalLikelihoodSupport(void) const
     return result;
 }
 
-TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodMean(void) const
+TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodMean() const
 {
     // This is E_{P(i)}[ E[X | P(i)] ] and the conditional expectation
     // is just the individual model expectation. Note we exclude models
@@ -631,7 +631,7 @@ TDouble10Vec CMultivariateOneOfNPrior::nearestMarginalLikelihoodMean(const TDoub
     return result;
 }
 
-TDouble10Vec10Vec CMultivariateOneOfNPrior::marginalLikelihoodCovariance(void) const
+TDouble10Vec10Vec CMultivariateOneOfNPrior::marginalLikelihoodCovariance() const
 {
     TDouble10Vec10Vec result(m_Dimension, TDouble10Vec(m_Dimension, 0.0));
     if (this->isNonInformative())
@@ -661,7 +661,7 @@ TDouble10Vec10Vec CMultivariateOneOfNPrior::marginalLikelihoodCovariance(void) c
     return result;
 }
 
-TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodVariances(void) const
+TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodVariances() const
 {
     if (this->isNonInformative())
     {
@@ -842,7 +842,7 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
     LOG_TRACE("samples = "<< core::CContainerPrinter::print(samples));
 }
 
-bool CMultivariateOneOfNPrior::isNonInformative(void) const
+bool CMultivariateOneOfNPrior::isNonInformative() const
 {
     for (const auto &model : m_Models)
     {
@@ -894,17 +894,17 @@ void CMultivariateOneOfNPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsage
     core::CMemoryDebug::dynamicSize("m_Models", m_Models, mem);
 }
 
-std::size_t CMultivariateOneOfNPrior::memoryUsage(void) const
+std::size_t CMultivariateOneOfNPrior::memoryUsage() const
 {
     return core::CMemory::dynamicSize(m_Models);
 }
 
-std::size_t CMultivariateOneOfNPrior::staticSize(void) const
+std::size_t CMultivariateOneOfNPrior::staticSize() const
 {
     return sizeof(*this);
 }
 
-std::string CMultivariateOneOfNPrior::persistenceTag(void) const
+std::string CMultivariateOneOfNPrior::persistenceTag() const
 {
     return ONE_OF_N_TAG + core::CStringUtils::typeToString(m_Dimension);
 }
@@ -921,7 +921,7 @@ void CMultivariateOneOfNPrior::acceptPersistInserter(core::CStatePersistInserter
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
 }
 
-CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::weights(void) const
+CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::weights() const
 {
     TDouble3Vec result = this->logWeights();
     for (auto &weight : result)
@@ -931,7 +931,7 @@ CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::weights(void) co
     return result;
 }
 
-CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::logWeights(void) const
+CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::logWeights() const
 {
     TDouble3Vec result;
 
@@ -950,7 +950,7 @@ CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::logWeights(void)
     return result;
 }
 
-CMultivariateOneOfNPrior::TPriorCPtr3Vec CMultivariateOneOfNPrior::models(void) const
+CMultivariateOneOfNPrior::TPriorCPtr3Vec CMultivariateOneOfNPrior::models() const
 {
     TPriorCPtr3Vec result;
     for (const auto &model : m_Models)
@@ -960,7 +960,7 @@ CMultivariateOneOfNPrior::TPriorCPtr3Vec CMultivariateOneOfNPrior::models(void) 
     return result;
 }
 
-bool CMultivariateOneOfNPrior::badWeights(void) const
+bool CMultivariateOneOfNPrior::badWeights() const
 {
     for (const auto &model : m_Models)
     {
@@ -972,7 +972,7 @@ bool CMultivariateOneOfNPrior::badWeights(void) const
     return false;
 }
 
-std::string CMultivariateOneOfNPrior::debugWeights(void) const
+std::string CMultivariateOneOfNPrior::debugWeights() const
 {
     if (m_Models.empty())
     {

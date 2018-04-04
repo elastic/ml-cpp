@@ -147,7 +147,7 @@ void registerMemoryCallbacks(VISITOR &visitor)
 }
 
 //! Register the callbacks for computing the size of feature data gatherers.
-void registerMemoryCallbacks(void)
+void registerMemoryCallbacks()
 {
     // TODO switch to std::atomic_flag when Windows compiler is upgraded
     static bool once = true;
@@ -1183,47 +1183,47 @@ bool CMetricBucketGatherer::acceptRestoreTraverserInternal(core::CStateRestoreTr
     return true;
 }
 
-CBucketGatherer *CMetricBucketGatherer::cloneForPersistence(void) const
+CBucketGatherer *CMetricBucketGatherer::cloneForPersistence() const
 {
     return new CMetricBucketGatherer(true, *this);
 }
 
-const std::string &CMetricBucketGatherer::persistenceTag(void) const
+const std::string &CMetricBucketGatherer::persistenceTag() const
 {
     return CBucketGatherer::METRIC_BUCKET_GATHERER_TAG;
 }
 
-const std::string &CMetricBucketGatherer::personFieldName(void) const
+const std::string &CMetricBucketGatherer::personFieldName() const
 {
     return m_FieldNames[0];
 }
 
-const std::string &CMetricBucketGatherer::attributeFieldName(void) const
+const std::string &CMetricBucketGatherer::attributeFieldName() const
 {
     return m_DataGatherer.isPopulation() ? m_FieldNames[1] : EMPTY_STRING;
 }
 
-const std::string &CMetricBucketGatherer::valueFieldName(void) const
+const std::string &CMetricBucketGatherer::valueFieldName() const
 {
     return m_ValueFieldName;
 }
 
-CMetricBucketGatherer::TStrVecCItr CMetricBucketGatherer::beginInfluencers(void) const
+CMetricBucketGatherer::TStrVecCItr CMetricBucketGatherer::beginInfluencers() const
 {
     return m_FieldNames.begin() + m_BeginInfluencingFields;
 }
 
-CMetricBucketGatherer::TStrVecCItr CMetricBucketGatherer::endInfluencers(void) const
+CMetricBucketGatherer::TStrVecCItr CMetricBucketGatherer::endInfluencers() const
 {
     return m_FieldNames.begin() + m_BeginValueFields;
 }
 
-const TStrVec &CMetricBucketGatherer::fieldsOfInterest(void) const
+const TStrVec &CMetricBucketGatherer::fieldsOfInterest() const
 {
     return m_FieldNames;
 }
 
-std::string CMetricBucketGatherer::description(void) const
+std::string CMetricBucketGatherer::description() const
 {
     return function_t::name(function_t::function(m_DataGatherer.features()))
            + (m_ValueFieldName.empty() ? "" : " ") + m_ValueFieldName +
@@ -1468,7 +1468,7 @@ void CMetricBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
 }
 
-uint64_t CMetricBucketGatherer::checksum(void) const
+uint64_t CMetricBucketGatherer::checksum() const
 {
     uint64_t seed = this->CBucketGatherer::checksum();
     seed = maths::CChecksum::calculate(seed, m_DataGatherer.params().s_DecayRate);
@@ -1492,7 +1492,7 @@ void CMetricBucketGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr
     core::CMemoryDebug::dynamicSize("m_FeatureData", m_FeatureData, mem);
 }
 
-std::size_t CMetricBucketGatherer::memoryUsage(void) const
+std::size_t CMetricBucketGatherer::memoryUsage() const
 {
     registerMemoryCallbacks();
     std::size_t mem = this->CBucketGatherer::memoryUsage();
@@ -1503,12 +1503,12 @@ std::size_t CMetricBucketGatherer::memoryUsage(void) const
     return mem;
 }
 
-std::size_t CMetricBucketGatherer::staticSize(void) const
+std::size_t CMetricBucketGatherer::staticSize() const
 {
     return sizeof(*this);
 }
 
-void CMetricBucketGatherer::clear(void)
+void CMetricBucketGatherer::clear()
 {
     this->CBucketGatherer::clear();
     m_FeatureData.clear();
@@ -1720,7 +1720,7 @@ void CMetricBucketGatherer::initializeFieldNamesPart2(const std::string &valueFi
     };
 }
 
-void CMetricBucketGatherer::initializeFeatureData(void)
+void CMetricBucketGatherer::initializeFeatureData()
 {
     for (std::size_t i = 0u, n = m_DataGatherer.numberFeatures(); i < n; ++i)
     {

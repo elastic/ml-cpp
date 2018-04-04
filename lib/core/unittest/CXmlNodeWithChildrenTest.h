@@ -11,10 +11,10 @@
 class CXmlNodeWithChildrenTest : public CppUnit::TestFixture
 {
     public:
-        void testNodeHierarchyToXml(void);
-        void testParserToNodeHierarchy(void);
-        void testPerformanceNoPool(void);
-        void testPerformanceWithPool(void);
+        void testNodeHierarchyToXml();
+        void testParserToNodeHierarchy();
+        void testPerformanceNoPool();
+        void testPerformanceWithPool();
 
         static CppUnit::Test *suite();
 };

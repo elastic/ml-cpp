@@ -13,21 +13,21 @@
 class CPoissonMeanConjugateTest : public CppUnit::TestFixture
 {
     public:
-        void testMultipleUpdate(void);
-        void testPropagation(void);
-        void testMeanEstimation(void);
-        void testMarginalLikelihood(void);
-        void testMarginalLikelihoodMode(void);
-        void testMarginalLikelihoodVariance(void);
-        void testSampleMarginalLikelihood(void);
-        void testCdf(void);
-        void testProbabilityOfLessLikelySamples(void);
-        void testAnomalyScore(void);
-        void testOffset(void);
-        void testPersist(void);
-        void testNegativeSample(void);
+        void testMultipleUpdate();
+        void testPropagation();
+        void testMeanEstimation();
+        void testMarginalLikelihood();
+        void testMarginalLikelihoodMode();
+        void testMarginalLikelihoodVariance();
+        void testSampleMarginalLikelihood();
+        void testCdf();
+        void testProbabilityOfLessLikelySamples();
+        void testAnomalyScore();
+        void testOffset();
+        void testPersist();
+        void testNegativeSample();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CPoissonMeanConjugateTest_h

@@ -33,7 +33,7 @@ class CMockDataAdder : public ml::core::CDataAdder
         using TStrOStreamPMapItr = TStrOStreamPMap::iterator;
 
     public:
-        CMockDataAdder(void);
+        CMockDataAdder();
 
         //! Add streamed data - return of NULL stream indicates failure.
         //! Since the data to be written isn't known at the time this function
@@ -52,10 +52,10 @@ class CMockDataAdder : public ml::core::CDataAdder
                                     bool force);
 
         //! Access persisted events
-        const TStrStrVecMap &events(void) const;
+        const TStrStrVecMap &events() const;
 
         //! Wipe the contents of the data store
-        void clear(void);
+        void clear();
 
     private:
         //! Persisted events

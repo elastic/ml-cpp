@@ -68,23 +68,23 @@ class CONFIG_EXPORT CAutoconfigurerParams
         bool init(const std::string &file);
 
         //! Get the name of field holding the time.
-        const std::string &timeFieldName(void) const;
+        const std::string &timeFieldName() const;
 
         //! Get the time field format. Blank means seconds since the epoch, i.e.
         //! the time field can be converted to a time_t by simply converting the
         //! string to a number. Otherwise, it is assumed to be suitable for passing
         //! to strptime.
-        const std::string &timeFieldFormat(void) const;
+        const std::string &timeFieldFormat() const;
 
         //! Check if we should be outputting all detectors including those that
         //! have been discarded.
-        bool verbose(void) const;
+        bool verbose() const;
 
         //! Check if we should output the top detectors in JSON format.
-        bool writeDetectorConfigs(void) const;
+        bool writeDetectorConfigs() const;
 
         //! Get the line ending to use when writing detectors in JSON format.
-        const std::string &detectorConfigLineEnding(void) const;
+        const std::string &detectorConfigLineEnding() const;
 
         //! \name Scoping
         //@{
@@ -105,7 +105,7 @@ class CONFIG_EXPORT CAutoconfigurerParams
         bool canUseForPartitionField(const std::string &partition) const;
 
         //! Get the function categories to configure.
-        const TFunctionCategoryVec &functionsCategoriesToConfigure(void) const;
+        const TFunctionCategoryVec &functionsCategoriesToConfigure() const;
         //@}
 
         //! \name Statistics
@@ -114,64 +114,64 @@ class CONFIG_EXPORT CAutoconfigurerParams
         TOptionalUserDataType dataType(const std::string &field) const;
 
         //! The minimum number of records to classify a field.
-        uint64_t minimumExamplesToClassify(void) const;
+        uint64_t minimumExamplesToClassify() const;
 
         //! The minimum number of records to classify a field.
-        std::size_t numberOfMostFrequentFieldsCounts(void) const;
+        std::size_t numberOfMostFrequentFieldsCounts() const;
         //@}
 
         //! \name General Configuration
         //@{
         //! The minimum number of records to classify a field.
-        uint64_t minimumRecordsToAttemptConfig(void) const;
+        uint64_t minimumRecordsToAttemptConfig() const;
 
         //! The minimum permitted detector score.
-        double minimumDetectorScore(void) const;
+        double minimumDetectorScore() const;
         //@}
 
         //! A number of by field values which is considered high so
         //! larger numbers will be penalized.
-        std::size_t highNumberByFieldValues(void) const;
+        std::size_t highNumberByFieldValues() const;
 
         //! The highest permitted number of by field values.
-        std::size_t maximumNumberByFieldValues(void) const;
+        std::size_t maximumNumberByFieldValues() const;
 
         //! A number of by field values for rare commands which is considered
         //! high so larger numbers will be penalized.
-        std::size_t highNumberRareByFieldValues(void) const;
+        std::size_t highNumberRareByFieldValues() const;
 
         //! The highest permitted number of by field values for rare commands.
-        std::size_t maximumNumberRareByFieldValues(void) const;
+        std::size_t maximumNumberRareByFieldValues() const;
 
         //! A number of partition field values which is considered high
         //! so larger numbers will be penalized.
-        std::size_t highNumberPartitionFieldValues(void) const;
+        std::size_t highNumberPartitionFieldValues() const;
 
         //! The highest permitted number of partition field values.
-        std::size_t maximumNumberPartitionFieldValues(void) const;
+        std::size_t maximumNumberPartitionFieldValues() const;
 
         //! A number of over field values which is considered small so
         //! that smaller numbers will be penalized.
-        std::size_t lowNumberOverFieldValues(void) const;
+        std::size_t lowNumberOverFieldValues() const;
 
         //! The lowest permitted number of over field values.
-        std::size_t minimumNumberOverFieldValues(void) const;
+        std::size_t minimumNumberOverFieldValues() const;
 
         //! The factor, as a multiple of the lowest field value count, which is
         //! an upper bound for a field value being in the low frequency tail.
-        double highCardinalityInTailFactor(void) const;
+        double highCardinalityInTailFactor() const;
 
         //! The margin, as an increment on the lowest field value count, which
         //! is an upper bound for a field value being in the low frequency tail.
-        uint64_t highCardinalityInTailIncrement(void) const;
+        uint64_t highCardinalityInTailIncrement() const;
 
         //! A proportion of records in the low frequency tail for rare analysis
         //! which is considered large so that larger proportions will be penalized.
-        double highCardinalityHighTailFraction(void) const;
+        double highCardinalityHighTailFraction() const;
 
         //! The highest permitted proportion of records in the low frequency
         //! tail for rare analysis.
-        double highCardinalityMaximumTailFraction(void) const;
+        double highCardinalityMaximumTailFraction() const;
 
         //! A fraction of populated buckets that is considered small for \p function
         //! and \p ignoreEmpty so that smaller proportions will be penalized.
@@ -190,68 +190,68 @@ class CONFIG_EXPORT CAutoconfigurerParams
         double maximumPopulatedBucketFraction(config_t::EFunctionCategory function, bool ignoreEmpty) const;
 
         //! Get the candidate bucket lengths to test for each detector.
-        const TTimeVec &candidateBucketLengths(void) const;
+        const TTimeVec &candidateBucketLengths() const;
 
         //! Get a number of buckets considered small to configure a detector.
-        double lowNumberOfBucketsForConfig(void) const;
+        double lowNumberOfBucketsForConfig() const;
 
         //! Get the lowest permitted number of buckets we'll use to configure
         //! a detector.
-        double minimumNumberOfBucketsForConfig(void) const;
+        double minimumNumberOfBucketsForConfig() const;
 
         //! Get the minimum possible proportion of values in the jitter interval
         //! surrounding the polling interval to classify data as polled.
-        double polledDataMinimumMassAtInterval(void) const;
+        double polledDataMinimumMassAtInterval() const;
 
         //! Get the maximum amount that polled data times can jitter about the
         //! polling interval.
-        double polledDataJitter(void) const;
+        double polledDataJitter() const;
 
         //! Get a coefficient of variation for a bucketed statistic which is
         //! considered low such that lower values are penalized.
-        double lowCoefficientOfVariation(void) const;
+        double lowCoefficientOfVariation() const;
 
         //! Get the minimum coefficient of variation for a bucketed statistic
         //! to be worthwhile modeling.
-        double minimumCoefficientOfVariation(void) const;
+        double minimumCoefficientOfVariation() const;
 
         //! Get a low range for the category lengths to be a suitable argument
         //! for information content such that lower values are penalized.
-        double lowLengthRangeForInfoContent(void) const;
+        double lowLengthRangeForInfoContent() const;
 
         //! Get the minimum range for the category lengths to be a suitable
         //! argument for information content.
-        double minimumLengthRangeForInfoContent(void) const;
+        double minimumLengthRangeForInfoContent() const;
 
         //! Get a low maximum category length for it to be a suitable argument
         //! for information content such that lower values are penalized.
-        double lowMaximumLengthForInfoContent(void) const;
+        double lowMaximumLengthForInfoContent() const;
 
         //! Get the minimum category length for it to be a suitable argument
         //! for information content.
-        double minimumMaximumLengthForInfoContent(void) const;
+        double minimumMaximumLengthForInfoContent() const;
 
         //! Get a low empirical entropy for a field to be a suitable argument
         //! for information content such that lower values will be penalized.
         //!
         //! \note This is as a portion of the maximum possible entropy based
         //! on the distinct count.
-        double lowEntropyForInfoContent(void) const;
+        double lowEntropyForInfoContent() const;
 
         //! Get the minimum empirical entropy for a field to be a suitable
         //! argument for information content.
         //!
         //! \note This is as a portion of the maximum possible entropy based
         //! on the distinct count.
-        double minimumEntropyForInfoContent(void) const;
+        double minimumEntropyForInfoContent() const;
 
         //! Get a low distinct count for a field to be a suitable argument
         //! for information content such that lower values will be penalized.
-        double lowDistinctCountForInfoContent(void) const;
+        double lowDistinctCountForInfoContent() const;
 
         //! Get the minimum distinct count for a field to be a suitable
         //! argument for information content.
-        double minimumDistinctCountForInfoContent(void) const;
+        double minimumDistinctCountForInfoContent() const;
 
         //! Get the penalty indices for the candidate bucket length identified
         //! by \p bid.
@@ -266,7 +266,7 @@ class CONFIG_EXPORT CAutoconfigurerParams
         std::size_t penaltyIndexFor(std::size_t bid, bool ignoreEmpty) const;
 
         //! Get a string describing all the parameters.
-        std::string print(void) const;
+        std::string print() const;
 
     private:
         using TDoubleVec = std::vector<double>;
@@ -274,7 +274,7 @@ class CONFIG_EXPORT CAutoconfigurerParams
 
     private:
         //! Refresh the penalty indices.
-        void refreshPenaltyIndices(void);
+        void refreshPenaltyIndices();
 
     private:
         //! The name of field holding the time.

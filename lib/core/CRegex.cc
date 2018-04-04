@@ -83,7 +83,7 @@ namespace core
 {
 
 
-CRegex::CRegex(void)
+CRegex::CRegex()
     : m_Initialised(false)
 {
 }
@@ -300,7 +300,7 @@ bool CRegex::search(const std::string &str,
     return this->search(0, str, position, length);
 }
 
-std::string CRegex::str(void) const
+std::string CRegex::str() const
 {
     if (!m_Initialised)
     {
@@ -311,7 +311,7 @@ std::string CRegex::str(void) const
     return m_Regex.str();
 }
 
-size_t CRegex::literalCount(void) const
+size_t CRegex::literalCount() const
 {
     if (!m_Initialised)
     {

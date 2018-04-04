@@ -54,7 +54,7 @@ class CORE_EXPORT CWordExtractor
 
     private:
         //! Don't allow objects to be instantiated
-        CWordExtractor(void);
+        CWordExtractor();
         CWordExtractor(const CWordExtractor &);
 
     private:

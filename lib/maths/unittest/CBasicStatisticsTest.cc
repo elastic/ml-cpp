@@ -60,7 +60,7 @@ struct SRestore
 }
 
 
-CppUnit::Test *CBasicStatisticsTest::suite(void)
+CppUnit::Test *CBasicStatisticsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBasicStatisticsTest");
 
@@ -92,7 +92,7 @@ CppUnit::Test *CBasicStatisticsTest::suite(void)
     return suiteOfTests;
 }
 
-void CBasicStatisticsTest::testMean(void)
+void CBasicStatisticsTest::testMean()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testMean |");
@@ -108,7 +108,7 @@ void CBasicStatisticsTest::testMean(void)
     CPPUNIT_ASSERT_EQUAL(56.47875, mean);
 }
 
-void CBasicStatisticsTest::testCentralMoments(void)
+void CBasicStatisticsTest::testCentralMoments()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testCentralMoments  |");
@@ -753,7 +753,7 @@ void CBasicStatisticsTest::testCentralMoments(void)
     CPPUNIT_ASSERT_EQUAL(true, ml::core::memory_detail::SDynamicSizeAlwaysZero<TMeanVarSkewAccumulator>::value());
 }
 
-void CBasicStatisticsTest::testVectorCentralMoments(void)
+void CBasicStatisticsTest::testVectorCentralMoments()
 {
     LOG_DEBUG("+--------------------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testVectorCentralMoments  |");
@@ -826,7 +826,7 @@ void CBasicStatisticsTest::testVectorCentralMoments(void)
     }
 }
 
-void CBasicStatisticsTest::testCovariances(void)
+void CBasicStatisticsTest::testCovariances()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testCovariances  |");
@@ -1006,7 +1006,7 @@ void CBasicStatisticsTest::testCovariances(void)
     }
 }
 
-void CBasicStatisticsTest::testCovariancesLedoitWolf(void)
+void CBasicStatisticsTest::testCovariancesLedoitWolf()
 {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testCovariancesLedoitWolf  |");
@@ -1098,7 +1098,7 @@ void CBasicStatisticsTest::testCovariancesLedoitWolf(void)
                    < 0.9 * ml::maths::CBasicStatistics::mean(error));
 }
 
-void CBasicStatisticsTest::testMedian(void)
+void CBasicStatisticsTest::testMedian()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testMedian  |");
@@ -1158,7 +1158,7 @@ void CBasicStatisticsTest::testMedian(void)
     }
 }
 
-void CBasicStatisticsTest::testOrderStatistics(void)
+void CBasicStatisticsTest::testOrderStatistics()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testOrderStatistics  |");
@@ -1356,7 +1356,7 @@ void CBasicStatisticsTest::testOrderStatistics(void)
     }
 }
 
-void CBasicStatisticsTest::testMinMax(void)
+void CBasicStatisticsTest::testMinMax()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testMinMax  |");

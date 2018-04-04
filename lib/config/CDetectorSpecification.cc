@@ -250,7 +250,7 @@ void CDetectorSpecification::setPenalty(const TPenaltyPtr &penalty)
     m_Penalty = penalty;
 }
 
-double CDetectorSpecification::score(void) const
+double CDetectorSpecification::score() const
 {
     TSizeVecCPtrAry indicesInUse = this->penaltyIndicesInUse();
     double penalty = 0.0;
@@ -320,7 +320,7 @@ void CDetectorSpecification::applyPenalties(const TSizeVec &indices,
     LOG_TRACE("cumulative = " << core::CContainerPrinter::print(m_Penalties));
 }
 
-void CDetectorSpecification::refreshScores(void)
+void CDetectorSpecification::refreshScores()
 {
     LOG_TRACE("*** Refreshing scores ***");
     this->initializePenalties();
@@ -328,32 +328,32 @@ void CDetectorSpecification::refreshScores(void)
     this->refreshIgnoreEmpty();
 }
 
-config_t::EFunctionCategory CDetectorSpecification::function(void) const
+config_t::EFunctionCategory CDetectorSpecification::function() const
 {
     return m_Function;
 }
 
-const CDetectorSpecification::TOptionalStr &CDetectorSpecification::argumentField(void) const
+const CDetectorSpecification::TOptionalStr &CDetectorSpecification::argumentField() const
 {
     return m_FunctionFields[constants::ARGUMENT_INDEX];
 }
 
-const CDetectorSpecification::TOptionalStr &CDetectorSpecification::byField(void) const
+const CDetectorSpecification::TOptionalStr &CDetectorSpecification::byField() const
 {
     return m_FunctionFields[constants::BY_INDEX];
 }
 
-const CDetectorSpecification::TOptionalStr &CDetectorSpecification::overField(void) const
+const CDetectorSpecification::TOptionalStr &CDetectorSpecification::overField() const
 {
     return m_FunctionFields[constants::OVER_INDEX];
 }
 
-const CDetectorSpecification::TOptionalStr &CDetectorSpecification::partitionField(void) const
+const CDetectorSpecification::TOptionalStr &CDetectorSpecification::partitionField() const
 {
     return m_FunctionFields[constants::PARTITION_INDEX];
 }
 
-const CDetectorSpecification::TStrVec &CDetectorSpecification::influences(void) const
+const CDetectorSpecification::TStrVec &CDetectorSpecification::influences() const
 {
     return m_Influencers;
 }
@@ -371,7 +371,7 @@ void CDetectorSpecification::candidateBucketLengths(TTimeVec &result) const
     }
 }
 
-bool CDetectorSpecification::isPopulation(void) const
+bool CDetectorSpecification::isPopulation() const
 {
     return static_cast<bool>(this->overField());
 }
@@ -424,7 +424,7 @@ bool CDetectorSpecification::operator==(const CDetectorSpecification &rhs) const
           && m_Influencers == rhs.m_Influencers;
 }
 
-std::size_t CDetectorSpecification::id(void) const
+std::size_t CDetectorSpecification::id() const
 {
     return m_Id;
 }
@@ -434,32 +434,32 @@ void CDetectorSpecification::id(std::size_t id)
     m_Id = id;
 }
 
-const CFieldStatistics *CDetectorSpecification::argumentFieldStatistics(void) const
+const CFieldStatistics *CDetectorSpecification::argumentFieldStatistics() const
 {
     return m_FieldStatistics[constants::ARGUMENT_INDEX];
 }
 
-const CFieldStatistics *CDetectorSpecification::byFieldStatistics(void) const
+const CFieldStatistics *CDetectorSpecification::byFieldStatistics() const
 {
     return m_FieldStatistics[constants::BY_INDEX];
 }
 
-const CFieldStatistics *CDetectorSpecification::overFieldStatistics(void) const
+const CFieldStatistics *CDetectorSpecification::overFieldStatistics() const
 {
     return m_FieldStatistics[constants::OVER_INDEX];
 }
 
-const CFieldStatistics *CDetectorSpecification::partitionFieldStatistics(void) const
+const CFieldStatistics *CDetectorSpecification::partitionFieldStatistics() const
 {
     return m_FieldStatistics[constants::PARTITION_INDEX];
 }
 
-const CDataCountStatistics *CDetectorSpecification::countStatistics(void) const
+const CDataCountStatistics *CDetectorSpecification::countStatistics() const
 {
     return m_CountStatistics;
 }
 
-std::string CDetectorSpecification::detectorConfig(void) const
+std::string CDetectorSpecification::detectorConfig() const
 {
     if (!this->params().writeDetectorConfigs())
     {
@@ -514,7 +514,7 @@ std::string CDetectorSpecification::detectorConfig(void) const
     return result.str();
 }
 
-std::string CDetectorSpecification::description(void) const
+std::string CDetectorSpecification::description() const
 {
     std::ostringstream result;
     result << fullFunctionName(m_Side, m_IgnoreEmpty, this->isPopulation(), m_Function)
@@ -525,12 +525,12 @@ std::string CDetectorSpecification::description(void) const
     return result.str();
 }
 
-const CAutoconfigurerParams &CDetectorSpecification::params(void) const
+const CAutoconfigurerParams &CDetectorSpecification::params() const
 {
     return m_Params;
 }
 
-int CDetectorSpecification::highestFieldIndex(void) const
+int CDetectorSpecification::highestFieldIndex() const
 {
     int result = -1;
     for (std::size_t i = 0u; i < boost::size(m_FunctionFields); ++i)
@@ -543,7 +543,7 @@ int CDetectorSpecification::highestFieldIndex(void) const
     return result;
 }
 
-CDetectorSpecification::TSizeVecCPtrAry CDetectorSpecification::penaltyIndicesInUse(void) const
+CDetectorSpecification::TSizeVecCPtrAry CDetectorSpecification::penaltyIndicesInUse() const
 {
     static const TSizeVec EMPTY;
     TSizeVecCPtrAry result;
@@ -565,7 +565,7 @@ CDetectorSpecification::TSizeVecCPtrAry CDetectorSpecification::penaltyIndicesIn
     return result;
 }
 
-void CDetectorSpecification::initializePenalties(void)
+void CDetectorSpecification::initializePenalties()
 {
     std::fill_n(m_Penalties.begin(), m_Penalties.size(), 0.0);
     TSizeVecCPtrAry indicesInUse = this->penaltyIndicesInUse();
@@ -576,7 +576,7 @@ void CDetectorSpecification::initializePenalties(void)
     std::fill_n(m_PenaltyDescriptions.begin(), m_PenaltyDescriptions.size(), TStrVec());
 }
 
-void CDetectorSpecification::refreshIgnoreEmpty(void)
+void CDetectorSpecification::refreshIgnoreEmpty()
 {
     if (!config_t::hasDoAndDontIgnoreEmptyVersions(m_Function) || this->isPopulation())
     {

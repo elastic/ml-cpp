@@ -113,13 +113,13 @@ class MATHS_EXPORT COneOfNPrior : public CPrior
         //! \name Prior Contract
         //@{
         //! Get the type of this prior.
-        virtual EPrior type(void) const;
+        virtual EPrior type() const;
 
         //! Create a copy of the prior.
         //!
         //! \return A pointer to a newly allocated clone of this model.
         //! \warning The caller owns the object returned.
-        virtual COneOfNPrior *clone(void) const;
+        virtual COneOfNPrior *clone() const;
 
         //! Set the data type.
         virtual void dataType(maths_t::EDataType value);
@@ -134,7 +134,7 @@ class MATHS_EXPORT COneOfNPrior : public CPrior
         virtual void removeModels(CModelFilter &filter);
 
         //! Check if any of the models needs an offset to be applied.
-        virtual bool needsOffset(void) const;
+        virtual bool needsOffset() const;
 
         //! Forward the offset to the model priors.
         //!
@@ -144,7 +144,7 @@ class MATHS_EXPORT COneOfNPrior : public CPrior
                                     const TDouble4Vec1Vec &weights);
 
         //! Get the maximum model offset.
-        virtual double offset(void) const;
+        virtual double offset() const;
 
         //! Update the model weights using the marginal likelihoods for
         //! the data. The component prior parameters are then updated.
@@ -169,10 +169,10 @@ class MATHS_EXPORT COneOfNPrior : public CPrior
         virtual void propagateForwardsByTime(double time);
 
         //! Get the support for the marginal likelihood function.
-        virtual TDoubleDoublePr marginalLikelihoodSupport(void) const;
+        virtual TDoubleDoublePr marginalLikelihoodSupport() const;
 
         //! Get the mean of the marginal likelihood function.
-        virtual double marginalLikelihoodMean(void) const;
+        virtual double marginalLikelihoodMean() const;
 
         //! Get the weighted mean of the model nearest means.
         virtual double nearestMarginalLikelihoodMean(double value) const;
@@ -308,7 +308,7 @@ class MATHS_EXPORT COneOfNPrior : public CPrior
                                                     maths_t::ETail &tail) const;
 
         //! Check if this is a non-informative prior.
-        virtual bool isNonInformative(void) const;
+        virtual bool isNonInformative() const;
 
         //! Get a human readable description of the prior.
         //!
@@ -319,7 +319,7 @@ class MATHS_EXPORT COneOfNPrior : public CPrior
         //! Print the prior density function in a specified format.
         //!
         //! \see CPrior::printJointDensityFunction for details.
-        virtual std::string printJointDensityFunction(void) const;
+        virtual std::string printJointDensityFunction() const;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed = 0) const;
@@ -328,10 +328,10 @@ class MATHS_EXPORT COneOfNPrior : public CPrior
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component.
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
 
         //! Persist state by passing information to the supplied inserter
         virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
@@ -340,13 +340,13 @@ class MATHS_EXPORT COneOfNPrior : public CPrior
         //! \name Test Functions
         //@{
         //! Get the current values for the model weights.
-        TDoubleVec weights(void) const;
+        TDoubleVec weights() const;
 
         //! Get the current values for the log model weights.
-        TDoubleVec logWeights(void) const;
+        TDoubleVec logWeights() const;
 
         //! Get the current constituent models.
-        TPriorCPtrVec models(void) const;
+        TPriorCPtrVec models() const;
         //@}
 
     private:
@@ -366,16 +366,16 @@ class MATHS_EXPORT COneOfNPrior : public CPrior
                                          core::CStateRestoreTraverser &traverser);
 
         //! Get the normalized model weights.
-        TDoubleSizePr5Vec normalizedLogWeights(void) const;
+        TDoubleSizePr5Vec normalizedLogWeights() const;
 
         //! Get the median of the model means.
-        double medianModelMean(void) const;
+        double medianModelMean() const;
 
         //! Check that the model weights are valid.
-        bool badWeights(void) const;
+        bool badWeights() const;
 
         //! Full debug dump of the model weights.
-        std::string debugWeights(void) const;
+        std::string debugWeights() const;
 
     private:
         //! A collection of component models and their probabilities.

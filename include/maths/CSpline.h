@@ -171,14 +171,14 @@ class CSpline : public CSplineTypes
         }
 
         //! Check if the spline has been initialized.
-        bool initialized(void) const
+        bool initialized() const
         {
             return this->knots().size() > 0;
         }
 
         //! Clear the contents of this spline and recover any
         //! allocated memory.
-        void clear(void)
+        void clear()
         {
             TNonConstKnots noKnots;
             this->knotsRef().swap(noKnots);
@@ -238,7 +238,7 @@ class CSpline : public CSplineTypes
         }
 
         //! Get the mean value of the spline.
-        double mean(void) const
+        double mean() const
         {
             if (this->knots().empty())
             {
@@ -324,7 +324,7 @@ class CSpline : public CSplineTypes
         //! <pre class="fragment">
         //!   \f$\frac{1}{|b-a|}\int_{[a,b]}{\left|\frac{df(s)}{ds}\right|}ds\f$
         //! </pre>
-        double absSlope(void) const
+        double absSlope() const
         {
             double result = 0.0;
 
@@ -678,7 +678,7 @@ class CSpline : public CSplineTypes
         }
 
         //! Get the memory used by this component
-        std::size_t memoryUsage(void) const
+        std::size_t memoryUsage() const
         {
             std::size_t mem = core::CMemory::dynamicSize(m_Knots);
             mem += core::CMemory::dynamicSize(m_Values);
@@ -687,38 +687,38 @@ class CSpline : public CSplineTypes
         }
 
         //! Get the knot points of the spline.
-        inline const TNonConstKnots &knots(void) const
+        inline const TNonConstKnots &knots() const
         {
             return boost::unwrap_ref(m_Knots);
         }
 
         //! Get the values at the knot points of the spline.
-        inline const TNonConstValues &values(void) const
+        inline const TNonConstValues &values() const
         {
             return boost::unwrap_ref(m_Values);
         }
 
         //! Get the curvatures at the knot points of the spline.
-        inline const TNonConstCurvatures &curvatures(void) const
+        inline const TNonConstCurvatures &curvatures() const
         {
             return boost::unwrap_ref(m_Curvatures);
         }
 
     private:
         //! Get the knot points of the spline.
-        inline TKnots &knotsRef(void)
+        inline TKnots &knotsRef()
         {
             return boost::unwrap_ref(m_Knots);
         }
 
         //! Get the values at the knot points of the spline.
-        inline TNonConstValues &valuesRef(void)
+        inline TNonConstValues &valuesRef()
         {
             return boost::unwrap_ref(m_Values);
         }
 
         //! Get the curvatures at the knot points of the spline.
-        inline TCurvatures &curvaturesRef(void)
+        inline TCurvatures &curvaturesRef()
         {
             return boost::unwrap_ref(m_Curvatures);
         }

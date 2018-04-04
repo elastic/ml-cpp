@@ -869,7 +869,7 @@ void registerMemoryCallbacks(VISITOR &visitor)
 }
 
 //! Register the callbacks for computing the size of feature data gatherers.
-void registerMemoryCallbacks(void)
+void registerMemoryCallbacks()
 {
     // TODO switch to std::atomic_flag when Windows compiler is upgraded
     static bool once = true;
@@ -966,48 +966,48 @@ void CEventRateBucketGatherer::acceptPersistInserter(core::CStatePersistInserter
     persistFeatureData(m_FeatureData, inserter);
 }
 
-CBucketGatherer *CEventRateBucketGatherer::cloneForPersistence(void) const
+CBucketGatherer *CEventRateBucketGatherer::cloneForPersistence() const
 {
     return new CEventRateBucketGatherer(true, *this);
 }
 
-const std::string &CEventRateBucketGatherer::persistenceTag(void) const
+const std::string &CEventRateBucketGatherer::persistenceTag() const
 {
     return CBucketGatherer::EVENTRATE_BUCKET_GATHERER_TAG;
 }
 
-const std::string &CEventRateBucketGatherer::personFieldName(void) const
+const std::string &CEventRateBucketGatherer::personFieldName() const
 {
     return m_FieldNames[0];
 }
 
-const std::string &CEventRateBucketGatherer::attributeFieldName(void) const
+const std::string &CEventRateBucketGatherer::attributeFieldName() const
 {
     return m_DataGatherer.isPopulation() ? m_FieldNames[1] : EMPTY_STRING;
 }
 
-const std::string &CEventRateBucketGatherer::valueFieldName(void) const
+const std::string &CEventRateBucketGatherer::valueFieldName() const
 {
     return m_BeginValueField != m_BeginSummaryFields ?
            m_FieldNames[m_BeginValueField] : EMPTY_STRING;
 }
 
-CEventRateBucketGatherer::TStrVecCItr CEventRateBucketGatherer::beginInfluencers(void) const
+CEventRateBucketGatherer::TStrVecCItr CEventRateBucketGatherer::beginInfluencers() const
 {
     return m_FieldNames.begin() + m_BeginInfluencingFields;
 }
 
-CEventRateBucketGatherer::TStrVecCItr CEventRateBucketGatherer::endInfluencers(void) const
+CEventRateBucketGatherer::TStrVecCItr CEventRateBucketGatherer::endInfluencers() const
 {
     return m_FieldNames.begin() + m_BeginValueField;
 }
 
-const CEventRateBucketGatherer::TStrVec &CEventRateBucketGatherer::fieldsOfInterest(void) const
+const CEventRateBucketGatherer::TStrVec &CEventRateBucketGatherer::fieldsOfInterest() const
 {
     return m_FieldNames;
 }
 
-std::string CEventRateBucketGatherer::description(void) const
+std::string CEventRateBucketGatherer::description() const
 {
     return function_t::name(function_t::function(m_DataGatherer.features()))
            + (m_BeginValueField == m_BeginSummaryFields ? "" : (" " + m_FieldNames[m_BeginValueField]))
@@ -1216,7 +1216,7 @@ void CEventRateBucketGatherer::removeAttributes(std::size_t lowestAttributeToRem
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
 }
 
-uint64_t CEventRateBucketGatherer::checksum(void) const
+uint64_t CEventRateBucketGatherer::checksum() const
 {
     uint64_t seed = this->CBucketGatherer::checksum();
 
@@ -1240,7 +1240,7 @@ void CEventRateBucketGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsage
     core::CMemoryDebug::dynamicSize("m_FeatureData", m_FeatureData, mem);
 }
 
-std::size_t CEventRateBucketGatherer::memoryUsage(void) const
+std::size_t CEventRateBucketGatherer::memoryUsage() const
 {
     registerMemoryCallbacks();
     std::size_t mem = CBucketGatherer::memoryUsage();
@@ -1249,12 +1249,12 @@ std::size_t CEventRateBucketGatherer::memoryUsage(void) const
     return mem;
 }
 
-std::size_t CEventRateBucketGatherer::staticSize(void) const
+std::size_t CEventRateBucketGatherer::staticSize() const
 {
     return sizeof(*this);
 }
 
-void CEventRateBucketGatherer::clear(void)
+void CEventRateBucketGatherer::clear()
 {
     this->CBucketGatherer::clear();
     m_FeatureData.clear();
@@ -1865,7 +1865,7 @@ void CEventRateBucketGatherer::initializeFieldNames(const std::string &personFie
     TStrVec(m_FieldNames).swap(m_FieldNames);
 }
 
-void CEventRateBucketGatherer::initializeFeatureData(void)
+void CEventRateBucketGatherer::initializeFeatureData()
 {
     for (std::size_t i = 0u, n = m_DataGatherer.numberFeatures(); i < n; ++i)
     {
@@ -2175,7 +2175,7 @@ bool CUniqueStringFeatureData::acceptRestoreTraverser(core::CStateRestoreTravers
     return true;
 }
 
-uint64_t CUniqueStringFeatureData::checksum(void) const
+uint64_t CUniqueStringFeatureData::checksum() const
 {
     uint64_t seed = maths::CChecksum::calculate(0, m_UniqueStrings);
     return maths::CChecksum::calculate(seed, m_InfluencerUniqueStrings);
@@ -2188,7 +2188,7 @@ void CUniqueStringFeatureData::debugMemoryUsage(core::CMemoryUsage::TMemoryUsage
     core::CMemoryDebug::dynamicSize("s_InfluenceUniqueStrings", m_InfluencerUniqueStrings, mem);
 }
 
-std::size_t CUniqueStringFeatureData::memoryUsage(void) const
+std::size_t CUniqueStringFeatureData::memoryUsage() const
 {
     std::size_t mem = sizeof(*this);
     mem += core::CMemory::dynamicSize(m_UniqueStrings);
@@ -2196,7 +2196,7 @@ std::size_t CUniqueStringFeatureData::memoryUsage(void) const
     return mem;
 }
 
-std::string CUniqueStringFeatureData::print(void) const
+std::string CUniqueStringFeatureData::print() const
 {
     return "(" + core::CContainerPrinter::print(m_UniqueStrings) + ", " +
                  core::CContainerPrinter::print(m_InfluencerUniqueStrings) + ")";

@@ -48,7 +48,7 @@ namespace
 class CSetupVisitor
 {
     public:
-        CSetupVisitor(void)
+        CSetupVisitor()
             : m_RecordsPerBlock(0)
         {
         }
@@ -101,7 +101,7 @@ class CSetupVisitor
             return str;
         }
 
-        size_t recordsPerBlock(void) const
+        size_t recordsPerBlock() const
         {
             return m_RecordsPerBlock;
         }
@@ -123,7 +123,7 @@ class CSetupVisitor
 class CVisitor
 {
     public:
-        CVisitor(void)
+        CVisitor()
             : m_Fast(true),
               m_RecordCount(0)
         {
@@ -175,7 +175,7 @@ class CVisitor
             return true;
         }
 
-        size_t recordCount(void) const
+        size_t recordCount() const
         {
             return m_RecordCount;
         }
@@ -190,7 +190,7 @@ class CVisitor
 
 }
 
-void CLengthEncodedInputParserTest::testCsvEquivalence(void)
+void CLengthEncodedInputParserTest::testCsvEquivalence()
 {
     std::ifstream ifs("testfiles/simple.txt");
     CPPUNIT_ASSERT(ifs.is_open());
@@ -242,7 +242,7 @@ void CLengthEncodedInputParserTest::testCsvEquivalence(void)
     CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
 }
 
-void CLengthEncodedInputParserTest::testThroughput(void)
+void CLengthEncodedInputParserTest::testThroughput()
 {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
@@ -284,7 +284,7 @@ void CLengthEncodedInputParserTest::testThroughput(void)
              " records took " << (end - start) << " seconds");
 }
 
-void CLengthEncodedInputParserTest::testCorruptStreamDetection(void)
+void CLengthEncodedInputParserTest::testCorruptStreamDetection()
 {
     uint32_t numFields(1);
     uint32_t numFieldsNet(htonl(numFields));

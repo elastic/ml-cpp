@@ -46,59 +46,59 @@ class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser
 
         //! Navigate to the next element at the current level, or return false
         //! if there isn't one
-        virtual bool next(void);
+        virtual bool next();
 
         //! Go to the start of the next object
         //! Stops at the first '}' character so this will not
         //! work with nested objects
-        bool nextObject(void);
+        bool nextObject();
 
         //! Does the current element have a sub-level?
-        virtual bool hasSubLevel(void) const;
+        virtual bool hasSubLevel() const;
 
         //! Get the name of the current element - the returned reference is only
         //! valid for as long as the traverser is pointing at the same element
-        virtual const std::string &name(void) const;
+        virtual const std::string &name() const;
 
         //! Get the value of the current element - the returned reference is
         //! only valid for as long as the traverser is pointing at the same
         //! element
-        virtual const std::string &value(void) const;
+        virtual const std::string &value() const;
 
         //! Is the traverser at the end of the inputstream?
-        virtual bool isEof(void) const;
+        virtual bool isEof() const;
 
     protected:
         //! Navigate to the start of the sub-level of the current element, or
         //! return false if there isn't one
-        virtual bool descend(void);
+        virtual bool descend();
 
         //! Navigate to the element of the level above from which descend() was
         //! called, or return false if there isn't a level above
-        virtual bool ascend(void);
+        virtual bool ascend();
 
         //! Print debug
-        void debug(void) const;
+        void debug() const;
 
     private:
         //! Accessors for alternating state variables
-        size_t currentLevel(void) const;
-        bool currentIsEndOfLevel(void) const;
-        const std::string &currentName(void) const;
-        const std::string &currentValue(void) const;
-        size_t nextLevel(void) const;
-        bool nextIsEndOfLevel(void) const;
-        const std::string &nextName(void) const;
-        const std::string &nextValue(void) const;
+        size_t currentLevel() const;
+        bool currentIsEndOfLevel() const;
+        const std::string &currentName() const;
+        const std::string &currentValue() const;
+        size_t nextLevel() const;
+        bool nextIsEndOfLevel() const;
+        const std::string &nextName() const;
+        const std::string &nextValue() const;
 
         //! Start off the parsing process
-        bool start(void);
+        bool start();
 
         //! Get the next token
         bool advance();
 
         //! Log an error that the JSON parser has detected
-        void logError(void);
+        void logError();
 
         //! Continue parsing the JSON structure
         bool parseNext(bool remember);

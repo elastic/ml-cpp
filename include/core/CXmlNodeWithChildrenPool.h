@@ -45,7 +45,7 @@ class CORE_EXPORT CXmlNodeWithChildrenPool
 {
     public:
         //! Construct a pool that will accept as many nodes as a vector will hold
-        CXmlNodeWithChildrenPool(void);
+        CXmlNodeWithChildrenPool();
 
         //! Construct a pool that will never contain more than the specified
         //! number of recycled nodes - any nodes that are recycled once the
@@ -55,7 +55,7 @@ class CORE_EXPORT CXmlNodeWithChildrenPool
         //! Allocate a new XML node - callers MUST set the name and value of the
         //! returned node, as recycled nodes will still have their old name and
         //! value
-        CXmlNodeWithChildren::TXmlNodeWithChildrenP newNode(void);
+        CXmlNodeWithChildren::TXmlNodeWithChildrenP newNode();
 
         //! Allocate a new XML node with the provided name and value
         CXmlNodeWithChildren::TXmlNodeWithChildrenP newNode(std::string name,

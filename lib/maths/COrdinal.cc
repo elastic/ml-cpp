@@ -18,7 +18,7 @@ namespace ml
 namespace maths
 {
 
-COrdinal::COrdinal(void) : m_Type(E_Nan)
+COrdinal::COrdinal() : m_Type(E_Nan)
 {
     m_Value.integer = 0;
 }
@@ -115,12 +115,12 @@ bool COrdinal::operator<(COrdinal rhs) const
     return false;
 }
 
-bool COrdinal::isNan(void) const
+bool COrdinal::isNan() const
 {
     return m_Type == E_Nan;
 }
 
-double COrdinal::asDouble(void) const
+double COrdinal::asDouble() const
 {
     switch (m_Type)
     {
@@ -132,7 +132,7 @@ double COrdinal::asDouble(void) const
     return std::numeric_limits<double>::quiet_NaN();
 }
 
-uint64_t COrdinal::hash(void)
+uint64_t COrdinal::hash()
 {
     return m_Value.positiveInteger;
 }

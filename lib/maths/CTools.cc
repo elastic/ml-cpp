@@ -1759,7 +1759,7 @@ double CTools::SIntervalExpectation::operator()(const gamma &gamma_,
 
 //////// smallestProbability Implementation ////////
 
-double CTools::smallestProbability(void)
+double CTools::smallestProbability()
 {
     return MIN_DOUBLE;
 }

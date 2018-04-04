@@ -50,25 +50,25 @@ const CStringStore &DO_NOT_USE_THIS_VARIABLE_EITHER = CStringStore::influencers(
 
 }
 
-void CStringStore::tidyUpNotThreadSafe(void)
+void CStringStore::tidyUpNotThreadSafe()
 {
     names().pruneRemovedNotThreadSafe();
     influencers().pruneNotThreadSafe();
 }
 
-CStringStore &CStringStore::names(void)
+CStringStore &CStringStore::names()
 {
     static CStringStore namesInstance;
     return namesInstance;
 }
 
-CStringStore &CStringStore::influencers(void)
+CStringStore &CStringStore::influencers()
 {
     static CStringStore influencersInstance;
     return influencersInstance;
 }
 
-const core::CStoredStringPtr &CStringStore::getEmpty(void) const
+const core::CStoredStringPtr &CStringStore::getEmpty() const
 {
     return m_EmptyString;
 }
@@ -151,7 +151,7 @@ void CStringStore::remove(const std::string &value)
     m_Removed.push_back(value);
 }
 
-void CStringStore::pruneRemovedNotThreadSafe(void)
+void CStringStore::pruneRemovedNotThreadSafe()
 {
     core::CScopedFastLock lock(m_Mutex);
     for (const auto &removed : m_Removed)
@@ -166,7 +166,7 @@ void CStringStore::pruneRemovedNotThreadSafe(void)
     m_Removed.clear();
 }
 
-void CStringStore::pruneNotThreadSafe(void)
+void CStringStore::pruneNotThreadSafe()
 {
     core::CScopedFastLock lock(m_Mutex);
     for (auto i = m_Strings.begin(); i != m_Strings.end(); /**/)
@@ -197,7 +197,7 @@ void CStringStore::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) con
     mem->addItem("stored string ptr memory", m_StoredStringsMemUse);
 }
 
-std::size_t CStringStore::memoryUsage(void) const
+std::size_t CStringStore::memoryUsage() const
 {
     std::size_t mem = m_EmptyString.actualMemoryUsage();
     core::CScopedFastLock lock(m_Mutex);
@@ -215,7 +215,7 @@ std::size_t CStringStore::memoryUsage(void) const
     return mem;
 }
 
-CStringStore::CStringStore(void)
+CStringStore::CStringStore()
     : m_Reading(0),
       m_Writing(0),
       m_EmptyString(core::CStoredStringPtr::makeStoredString(std::string())),
@@ -223,7 +223,7 @@ CStringStore::CStringStore(void)
 {
 }
 
-void CStringStore::clearEverythingTestOnly(void)
+void CStringStore::clearEverythingTestOnly()
 {
     // For tests that assert on memory usage it's important that these
     // containers get returned to the state of a default constructed container

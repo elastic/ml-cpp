@@ -12,12 +12,12 @@
 class CCsvInputParserTest : public CppUnit::TestFixture
 {
     public:
-        void testSimpleDelims(void);
-        void testComplexDelims(void);
-        void testThroughput(void);
-        void testDateParse(void);
-        void testQuoteParsing(void);
-        void testLineParser(void);
+        void testSimpleDelims();
+        void testComplexDelims();
+        void testThroughput();
+        void testDateParse();
+        void testQuoteParsing();
+        void testLineParser();
 
         static CppUnit::Test *suite();
 };

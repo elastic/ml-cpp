@@ -214,12 +214,12 @@ void CMultimodalPrior::swap(CMultimodalPrior &other)
     m_Modes.swap(other.m_Modes);
 }
 
-CMultimodalPrior::EPrior CMultimodalPrior::type(void) const
+CMultimodalPrior::EPrior CMultimodalPrior::type() const
 {
     return E_Multimodal;
 }
 
-CMultimodalPrior *CMultimodalPrior::clone(void) const
+CMultimodalPrior *CMultimodalPrior::clone() const
 {
     return new CMultimodalPrior(*this);
 }
@@ -253,7 +253,7 @@ void CMultimodalPrior::setToNonInformative(double /*offset*/, double decayRate)
     this->numberSamples(0.0);
 }
 
-bool CMultimodalPrior::needsOffset(void) const
+bool CMultimodalPrior::needsOffset() const
 {
     for (const auto &mode : m_Modes)
     {
@@ -294,7 +294,7 @@ double CMultimodalPrior::adjustOffset(const TWeightStyleVec &weightStyles,
     return result;
 }
 
-double CMultimodalPrior::offset(void) const
+double CMultimodalPrior::offset() const
 {
     double offset = 0.0;
     for (const auto &mode : m_Modes)
@@ -463,12 +463,12 @@ void CMultimodalPrior::propagateForwardsByTime(double time)
     LOG_TRACE("numberSamples = " << this->numberSamples());
 }
 
-TDoubleDoublePr CMultimodalPrior::marginalLikelihoodSupport(void) const
+TDoubleDoublePr CMultimodalPrior::marginalLikelihoodSupport() const
 {
     return CMultimodalPriorUtils::marginalLikelihoodSupport(m_Modes);
 }
 
-double CMultimodalPrior::marginalLikelihoodMean(void) const
+double CMultimodalPrior::marginalLikelihoodMean() const
 {
     return CMultimodalPriorUtils::marginalLikelihoodMean(m_Modes);
 }
@@ -623,7 +623,7 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
                                                                  lowerBound, upperBound, tail);
 }
 
-bool CMultimodalPrior::isNonInformative(void) const
+bool CMultimodalPrior::isNonInformative() const
 {
     return CMultimodalPriorUtils::isNonInformative(m_Modes);
 }
@@ -633,7 +633,7 @@ void CMultimodalPrior::print(const std::string &indent, std::string &result) con
     CMultimodalPriorUtils::print(m_Modes, indent, result);
 }
 
-std::string CMultimodalPrior::printJointDensityFunction(void) const
+std::string CMultimodalPrior::printJointDensityFunction() const
 {
     return "Not supported";
 }
@@ -654,7 +654,7 @@ void CMultimodalPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
     core::CMemoryDebug::dynamicSize("m_Modes", m_Modes, mem);
 }
 
-std::size_t CMultimodalPrior::memoryUsage(void) const
+std::size_t CMultimodalPrior::memoryUsage() const
 {
     std::size_t mem = core::CMemory::dynamicSize(m_Clusterer);
     mem += core::CMemory::dynamicSize(m_SeedPrior);
@@ -662,7 +662,7 @@ std::size_t CMultimodalPrior::memoryUsage(void) const
     return mem;
 }
 
-std::size_t CMultimodalPrior::staticSize(void) const
+std::size_t CMultimodalPrior::staticSize() const
 {
     return sizeof(*this);
 }
@@ -684,7 +684,7 @@ void CMultimodalPrior::acceptPersistInserter(core::CStatePersistInserter &insert
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
 }
 
-std::size_t CMultimodalPrior::numberModes(void) const
+std::size_t CMultimodalPrior::numberModes() const
 {
     return m_Modes.size();
 }
@@ -725,17 +725,17 @@ bool CMultimodalPrior::checkInvariants(const std::string &tag) const
     return result;
 }
 
-bool CMultimodalPrior::participatesInModelSelection(void) const
+bool CMultimodalPrior::participatesInModelSelection() const
 {
     return m_Modes.size() > 1;
 }
 
-double CMultimodalPrior::unmarginalizedParameters(void) const
+double CMultimodalPrior::unmarginalizedParameters() const
 {
     return std::max(static_cast<double>(m_Modes.size()), 1.0) - 1.0;
 }
 
-std::string CMultimodalPrior::debugWeights(void) const
+std::string CMultimodalPrior::debugWeights() const
 {
     return TMode::debugWeights(m_Modes);
 }

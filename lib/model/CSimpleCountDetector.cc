@@ -43,12 +43,12 @@ CSimpleCountDetector::CSimpleCountDetector(bool isForPersistence,
 {
 }
 
-bool CSimpleCountDetector::isSimpleCount(void) const
+bool CSimpleCountDetector::isSimpleCount() const
 {
     return true;
 }
 
-void CSimpleCountDetector::pruneModels(void)
+void CSimpleCountDetector::pruneModels()
 {
     return;
 }

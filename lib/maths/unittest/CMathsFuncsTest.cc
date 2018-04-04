@@ -16,10 +16,10 @@ using namespace ml;
 
 namespace
 {
-double zero(void) { return 0.0; }
+double zero() { return 0.0; }
 }
 
-void CMathsFuncsTest::testIsNan(void)
+void CMathsFuncsTest::testIsNan()
 {
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isNan(0.0));
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isNan(1e7));
@@ -32,7 +32,7 @@ void CMathsFuncsTest::testIsNan(void)
     CPPUNIT_ASSERT(maths::CMathsFuncs::isNan(1.0 / zero() - 2.0 / zero()));
 }
 
-void CMathsFuncsTest::testIsInf(void)
+void CMathsFuncsTest::testIsInf()
 {
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isInf(0.0));
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isInf(1.8738e7));
@@ -47,7 +47,7 @@ void CMathsFuncsTest::testIsInf(void)
     CPPUNIT_ASSERT(maths::CMathsFuncs::isInf(std::exp(1.0 / zero())));
 }
 
-void CMathsFuncsTest::testIsFinite(void)
+void CMathsFuncsTest::testIsFinite()
 {
     using TDoubleVec = std::vector<double>;
 
@@ -95,7 +95,7 @@ void CMathsFuncsTest::testIsFinite(void)
                    == maths::CMathsFuncs::endFinite(test4));
 }
 
-void CMathsFuncsTest::testFpStatus(void)
+void CMathsFuncsTest::testFpStatus()
 {
     CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                          maths::CMathsFuncs::fpStatus(3.8));
@@ -105,7 +105,7 @@ void CMathsFuncsTest::testFpStatus(void)
                          maths::CMathsFuncs::fpStatus(zero() / zero()));
 }
 
-CppUnit::Test *CMathsFuncsTest::suite(void)
+CppUnit::Test *CMathsFuncsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMathsFuncsTest");
 

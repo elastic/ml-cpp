@@ -36,14 +36,14 @@ struct SMultimodalPriorMode
     static const std::string INDEX_TAG;
     static const std::string PRIOR_TAG;
 
-    SMultimodalPriorMode(void) : s_Index(0), s_Prior() {}
+    SMultimodalPriorMode() : s_Index(0), s_Prior() {}
     SMultimodalPriorMode(std::size_t index, const PRIOR_PTR &prior) :
             s_Index(index),
             s_Prior(prior->clone())
     {}
 
     //! Get the weight of this sample.
-    double weight(void) const
+    double weight() const
     {
         return s_Prior->numberSamples();
     }
@@ -63,7 +63,7 @@ struct SMultimodalPriorMode
     }
 
     //! Get the memory used by this component
-    std::size_t memoryUsage(void) const
+    std::size_t memoryUsage() const
     {
         return core::CMemory::dynamicSize(s_Prior);
     }

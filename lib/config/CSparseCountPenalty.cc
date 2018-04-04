@@ -76,12 +76,12 @@ const bool IGNORE_EMPTY[] = { false, true };
 
 CSparseCountPenalty::CSparseCountPenalty(const CAutoconfigurerParams &params) : CPenalty(params) {}
 
-CSparseCountPenalty *CSparseCountPenalty::clone(void) const
+CSparseCountPenalty *CSparseCountPenalty::clone() const
 {
     return new CSparseCountPenalty(*this);
 }
 
-std::string CSparseCountPenalty::name(void) const
+std::string CSparseCountPenalty::name() const
 {
     return "sparse count penalty";
 }

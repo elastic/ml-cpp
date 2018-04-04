@@ -59,18 +59,18 @@ class MODEL_EXPORT CResourceMonitor
 
     public:
         //! Default constructor
-        CResourceMonitor(void);
+        CResourceMonitor();
 
         //! Query the resource monitor to find out if the models are
         //! taking up too much memory and further allocations should be banned
-        bool areAllocationsAllowed(void) const;
+        bool areAllocationsAllowed() const;
 
         //! Query the resource monitor to found out if it's Ok to
         //! create structures of a certain size
         bool areAllocationsAllowed(std::size_t size) const;
 
         //! Return the amount of remaining space for allocations
-        std::size_t allocationLimit(void) const;
+        std::size_t allocationLimit() const;
 
         //! Tell this resource monitor about a CAnomalyDetector class -
         //! these classes contain all the model memory and are used
@@ -113,23 +113,23 @@ class MODEL_EXPORT CResourceMonitor
         //! We are being told that aggressive pruning has taken place
         //! to avoid hitting the resource limit, and we should report this
         //! to the user when we can
-        void acceptPruningResult(void);
+        void acceptPruningResult();
 
         //! Accessor for no limit flag
-        bool haveNoLimit(void) const;
+        bool haveNoLimit() const;
 
         //! Prune models where necessary
         bool pruneIfRequired(core_t::TTime endTime);
 
         //! Accounts for any extra memory to the one
         //! reported by the components.
-        //! Used in conjunction  with clearExtraMemory(void)
+        //! Used in conjunction  with clearExtraMemory()
         //! in order to ensure enough memory remains
         //! for model's parts that have not been fully allocated yet.
         void addExtraMemory(std::size_t reserved);
 
         //! Clears all extra memory
-        void clearExtraMemory(void);
+        void clearExtraMemory();
     private:
 
         //! Updates the memory limit fields and the prune threshold
@@ -141,14 +141,14 @@ class MODEL_EXPORT CResourceMonitor
 
         //! Determine if we need to send a usage report, based on
         //! increased usage, or increased errors
-        bool needToSendReport(void);
+        bool needToSendReport();
 
         //! After a change in memory usage, check whether allocations
         //! shoule be allowed or not
-        void updateAllowAllocations(void);
+        void updateAllowAllocations();
 
         //! Returns the sum of used memory plus any extra memory
-        std::size_t totalMemory(void) const;
+        std::size_t totalMemory() const;
 
     private:
         //! The registered collection of components

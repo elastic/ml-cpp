@@ -20,7 +20,7 @@ CppUnit::Test *CUnameTest::suite()
     return suiteOfTests;
 }
 
-void CUnameTest::testUname(void)
+void CUnameTest::testUname()
 {
     LOG_DEBUG(ml::core::CUname::sysName());
     LOG_DEBUG(ml::core::CUname::nodeName());

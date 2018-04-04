@@ -35,7 +35,7 @@ class API_EXPORT CTokenListReverseSearchCreator : public CTokenListReverseSearch
         //! What's the maximum cost of tokens we can include in the reverse
         //! search?  This cost is loosely based on the maximum length of an
         //! Internet Explorer URL.
-        virtual size_t availableCost(void) const;
+        virtual size_t availableCost() const;
 
         //! What would be the cost of adding the specified token occurring the
         //! specified number of times to the reverse search?

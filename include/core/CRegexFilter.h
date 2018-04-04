@@ -36,7 +36,7 @@ class CORE_EXPORT CRegexFilter
         using TStrVec = std::vector<std::string>;
 
     public:
-        CRegexFilter(void);
+        CRegexFilter();
 
         //! Configures the filter for the given \p regularExpressions.
         bool configure(const TStrVec &regularExpressions);
@@ -45,7 +45,7 @@ class CORE_EXPORT CRegexFilter
         std::string apply(const std::string &target) const;
 
         //! Returns true if the filter is empty.
-        bool empty(void) const;
+        bool empty() const;
     private:
         //! The regular expressions comprising the filter.
         TRegexVec m_Regex;

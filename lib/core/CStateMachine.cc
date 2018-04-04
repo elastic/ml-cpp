@@ -118,7 +118,7 @@ void CStateMachine::acceptPersistInserter(core::CStatePersistInserter &inserter)
     inserter.insertValue(STATE_TAG, m_State);
 }
 
-bool CStateMachine::bad(void) const
+bool CStateMachine::bad() const
 {
     return m_Machine == BAD_MACHINE;
 }
@@ -142,7 +142,7 @@ bool CStateMachine::apply(std::size_t symbol)
     return true;
 }
 
-std::size_t CStateMachine::state(void) const
+std::size_t CStateMachine::state() const
 {
     return m_State;
 }
@@ -165,19 +165,19 @@ std::string CStateMachine::printSymbol(std::size_t symbol) const
     return ms_Machines[m_Machine].s_Alphabet[symbol];
 }
 
-uint64_t CStateMachine::checksum(void) const
+uint64_t CStateMachine::checksum() const
 {
     return CHashing::hashCombine(static_cast<uint64_t>(m_Machine),
                                  static_cast<uint64_t>(m_State));
 }
 
-std::size_t CStateMachine::numberMachines(void)
+std::size_t CStateMachine::numberMachines()
 {
     CScopedFastLock lock(mutex);
     return ms_Machines.size();
 }
 
-void CStateMachine::clear(void)
+void CStateMachine::clear()
 {
     CScopedFastLock lock(mutex);
     ms_Machines.clear();
@@ -197,7 +197,7 @@ std::size_t CStateMachine::find(std::size_t begin,
     return end;
 }
 
-CStateMachine::CStateMachine(void) :
+CStateMachine::CStateMachine() :
         m_Machine(BAD_MACHINE),
         m_State(0)
 {}
@@ -231,7 +231,7 @@ bool CStateMachine::SLookupMachine::operator==(const SMachine &rhs) const
           && boost::unwrap_ref(s_States) == rhs.s_States;
 }
 
-CStateMachine::CMachineDeque::CMachineDeque(void) :
+CStateMachine::CMachineDeque::CMachineDeque() :
         m_Capacity(DEFAULT_CAPACITY),
         m_NumberMachines(0)
 {
@@ -257,7 +257,7 @@ const CStateMachine::SMachine &CStateMachine::CMachineDeque::operator[](std::siz
     LOG_ABORT("Invalid index '" << pos << "'");
 }
 
-std::size_t CStateMachine::CMachineDeque::size(void) const
+std::size_t CStateMachine::CMachineDeque::size() const
 {
     return m_NumberMachines.load(atomic_t::memory_order_acquire);
 }
@@ -273,7 +273,7 @@ void CStateMachine::CMachineDeque::push_back(const SMachine &machine)
     m_NumberMachines.store(this->size() + 1, atomic_t::memory_order_release);
 }
 
-void CStateMachine::CMachineDeque::clear(void)
+void CStateMachine::CMachineDeque::clear()
 {
     m_NumberMachines.store(0);
     m_Machines.clear();

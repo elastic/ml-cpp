@@ -49,7 +49,7 @@ class CRandomProjectionClustererForTest : public maths::CRandomProjectionCluster
                 maths::CRandomProjectionClustererBatch<N>(compression)
         {}
 
-        const TVectorArrayVec &projections(void) const
+        const TVectorArrayVec &projections() const
         {
             return this->maths::CRandomProjectionClustererBatch<N>::projections();
         }
@@ -92,7 +92,7 @@ class CRandomProjectionClustererForTest : public maths::CRandomProjectionCluster
 
 }
 
-void CRandomProjectionClustererTest::testGenerateProjections(void)
+void CRandomProjectionClustererTest::testGenerateProjections()
 {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CRandomProjectionClustererTest::testGenerateProjections  |");
@@ -178,7 +178,7 @@ void CRandomProjectionClustererTest::testGenerateProjections(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.06);
 }
 
-void CRandomProjectionClustererTest::testClusterProjections(void)
+void CRandomProjectionClustererTest::testClusterProjections()
 {
     LOG_DEBUG("+----------------------------------------------------------+");
     LOG_DEBUG("|  CRandomProjectionClustererTest::testClusterProjections  |");
@@ -289,7 +289,7 @@ void CRandomProjectionClustererTest::testClusterProjections(void)
                          core::CContainerPrinter::print(means));
 }
 
-void CRandomProjectionClustererTest::testNeighbourhoods(void)
+void CRandomProjectionClustererTest::testNeighbourhoods()
 {
     LOG_DEBUG("+------------------------------------------------------+");
     LOG_DEBUG("|  CRandomProjectionClustererTest::testNeighbourhoods  |");
@@ -396,7 +396,7 @@ void CRandomProjectionClustererTest::testNeighbourhoods(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanJaccard) > 0.35);
 }
 
-void CRandomProjectionClustererTest::testSimilarities(void)
+void CRandomProjectionClustererTest::testSimilarities()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CRandomProjectionClustererTest::testSimilarities  |");
@@ -497,7 +497,7 @@ void CRandomProjectionClustererTest::testSimilarities(void)
     }
 }
 
-void CRandomProjectionClustererTest::testClusterNeighbourhoods(void)
+void CRandomProjectionClustererTest::testClusterNeighbourhoods()
 {
     LOG_DEBUG("+-------------------------------------------------------------+");
     LOG_DEBUG("|  CRandomProjectionClustererTest::testClusterNeighbourhoods  |");
@@ -591,14 +591,14 @@ void CRandomProjectionClustererTest::testClusterNeighbourhoods(void)
     }
 }
 
-void CRandomProjectionClustererTest::testAccuracy(void)
+void CRandomProjectionClustererTest::testAccuracy()
 {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  CRandomProjectionClustererTest::testAccuracy  |");
     LOG_DEBUG("+------------------------------------------------+");
 }
 
-CppUnit::Test *CRandomProjectionClustererTest::suite(void)
+CppUnit::Test *CRandomProjectionClustererTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRandomProjectionClustererTest");
 

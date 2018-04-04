@@ -49,17 +49,17 @@ class MATHS_EXPORT CAvailableModeDistributions
         const CAvailableModeDistributions &operator+(const CAvailableModeDistributions &rhs);
 
         //! Get the number of parameters used to model a mode.
-        double parameters(void) const;
+        double parameters() const;
 
         //! Check if the normal distribution is available.
-        bool haveNormal(void) const;
+        bool haveNormal() const;
         //! Check if the gamma distribution is available.
-        bool haveGamma(void) const;
+        bool haveGamma() const;
         //! Check if the log-normal distribution is available.
-        bool haveLogNormal(void) const;
+        bool haveLogNormal() const;
 
         //! Conversion to a string.
-        std::string toString(void) const;
+        std::string toString() const;
         //! Set from a string.
         bool fromString(const std::string &value);
 
@@ -145,19 +145,19 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
                 void propagateForwardsByTime(double time);
 
                 //! Get the unique index of this cluster.
-                std::size_t index(void) const;
+                std::size_t index() const;
 
                 //! Get the "centroid" of the cluster. This is the mean of the prior.
-                double centre(void) const;
+                double centre() const;
 
                 //! Get the "spread" of the cluster. This is variance of the prior.
-                double spread(void) const;
+                double spread() const;
 
                 //! Get the count \p p percentile position within the cluster.
                 double percentile(double p) const;
 
                 //! Get the total count of values added to the cluster.
-                double count(void) const;
+                double count() const;
 
                 //! Get the weight of the cluster.
                 double weight(maths_t::EClusterWeightCalc calc) const;
@@ -205,7 +205,7 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
                 CCluster merge(CCluster &other, CIndexGenerator &indexGenerator);
 
                 //! Get the prior describing this object.
-                const CNormalMeanPrecConjugate &prior(void) const;
+                const CNormalMeanPrecConjugate &prior() const;
 
                 //! Get a checksum for this object.
                 uint64_t checksum(uint64_t seed) const;
@@ -214,7 +214,7 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
                 void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
                 //! Get the memory used by this cluster.
-                std::size_t memoryUsage(void) const;
+                std::size_t memoryUsage() const;
 
             private:
                 CCluster(std::size_t index,
@@ -293,7 +293,7 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
         //! \name Clusterer Contract
         //@{
         //! Get the tag name for this clusterer.
-        virtual std::string persistenceTag(void) const;
+        virtual std::string persistenceTag() const;
 
         //! Persist state by passing information to the supplied inserter.
         virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
@@ -301,13 +301,13 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
         //! Creates a copy of the clusterer.
         //!
         //! \warning Caller owns returned object.
-        virtual CXMeansOnline1d *clone(void) const;
+        virtual CXMeansOnline1d *clone() const;
 
         //! Clear the current clusterer state.
-        virtual void clear(void);
+        virtual void clear();
 
         //! Get the number of clusters.
-        virtual std::size_t numberClusters(void) const;
+        virtual std::size_t numberClusters() const;
 
         //! Set the type of data being clustered.
         virtual void dataType(maths_t::EDataType dataType);
@@ -369,26 +369,26 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed = 0) const;
         //@}
 
         //! The total count of points.
-        double count(void) const;
+        double count() const;
 
         //! Get the clusters.
-        const TClusterVec &clusters(void) const;
+        const TClusterVec &clusters() const;
 
         //! Print a representation of the clusters that can be plotted in octave.
-        std::string printClusters(void) const;
+        std::string printClusters() const;
 
         //! Get the index generator.
-        CIndexGenerator &indexGenerator(void);
+        CIndexGenerator &indexGenerator();
 
     private:
         using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1>;
@@ -423,7 +423,7 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
         const CCluster *cluster(std::size_t index) const;
 
         //! Compute the minimum split count.
-        double minimumSplitCount(void) const;
+        double minimumSplitCount() const;
 
         //! Split \p cluster if we find a good split.
         bool maybeSplit(TClusterVecItr cluster);
@@ -432,10 +432,10 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
         bool maybeMerge(TClusterVecItr cluster, TClusterVecItr adjacentCluster);
 
         //! Remove any clusters which are effectively dead.
-        bool prune(void);
+        bool prune();
 
         //! Get the Winsorisation interval.
-        TDoubleDoublePr winsorisationInterval(void) const;
+        TDoubleDoublePr winsorisationInterval() const;
 
     private:
         //! The type of data being clustered.

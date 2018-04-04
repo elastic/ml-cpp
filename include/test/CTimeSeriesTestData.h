@@ -124,7 +124,7 @@ class TEST_EXPORT CTimeSeriesTestData
                               std::vector<std::pair<core_t::TTime, T> > &results);
 
         //! Prevent construction of this static class
-        CTimeSeriesTestData(void);
+        CTimeSeriesTestData();
         CTimeSeriesTestData(const CTimeSeriesTestData &);
 };
 

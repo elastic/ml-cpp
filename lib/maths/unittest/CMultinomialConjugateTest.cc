@@ -40,7 +40,7 @@ using TDoubleDoublePr = std::pair<double, double>;
 using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 using CMultinomialConjugate = CPriorTestInterfaceMixin<maths::CMultinomialConjugate>;
 
-void CMultinomialConjugateTest::testMultipleUpdate(void)
+void CMultinomialConjugateTest::testMultipleUpdate()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CMultinomialConjugateTest::testMultipleUpdate  |");
@@ -73,7 +73,7 @@ void CMultinomialConjugateTest::testMultipleUpdate(void)
     CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
 }
 
-void CMultinomialConjugateTest::testPropagation(void)
+void CMultinomialConjugateTest::testPropagation()
 {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CMultinomialConjugateTest::testPropagation  |");
@@ -117,7 +117,7 @@ void CMultinomialConjugateTest::testPropagation(void)
                               propagatedExpectedProbabilities.begin(), equal));
 }
 
-void CMultinomialConjugateTest::testProbabilityEstimation(void)
+void CMultinomialConjugateTest::testProbabilityEstimation()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CMultinomialConjugateTest::testProbabilityEstimation  |");
@@ -222,7 +222,7 @@ void CMultinomialConjugateTest::testProbabilityEstimation(void)
     }
 }
 
-void CMultinomialConjugateTest::testMarginalLikelihood(void)
+void CMultinomialConjugateTest::testMarginalLikelihood()
 {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CMultinomialConjugateTest::testMarginalLikelihood  |");
@@ -422,7 +422,7 @@ void CMultinomialConjugateTest::testMarginalLikelihood(void)
     }
 }
 
-void CMultinomialConjugateTest::testSampleMarginalLikelihood(void)
+void CMultinomialConjugateTest::testSampleMarginalLikelihood()
 {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CMultinomialConjugateTest::testSampleMarginalLikelihood  |");
@@ -512,7 +512,7 @@ void CMultinomialConjugateTest::testSampleMarginalLikelihood(void)
     }
 }
 
-void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void)
+void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples()
 {
     LOG_DEBUG("+-----------------------------------------------------------------+");
     LOG_DEBUG("|  CMultinomialConjugateTest::testProbabilityOfLessLikelySamples  |");
@@ -932,11 +932,11 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void)
     }
 }
 
-void CMultinomialConjugateTest::testAnomalyScore(void)
+void CMultinomialConjugateTest::testAnomalyScore()
 {
 }
 
-void CMultinomialConjugateTest::testRemoveCategories(void)
+void CMultinomialConjugateTest::testRemoveCategories()
 {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CMultinomialConjugateTest::testRemoveCategories  |");
@@ -1013,7 +1013,7 @@ void CMultinomialConjugateTest::testRemoveCategories(void)
     }
 }
 
-void CMultinomialConjugateTest::testPersist(void)
+void CMultinomialConjugateTest::testPersist()
 {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CMultinomialConjugateTest::testPersist  |");
@@ -1076,11 +1076,11 @@ void CMultinomialConjugateTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CMultinomialConjugateTest::testOverflow(void)
+void CMultinomialConjugateTest::testOverflow()
 {
 }
 
-void CMultinomialConjugateTest::testConcentration(void)
+void CMultinomialConjugateTest::testConcentration()
 {
     CMultinomialConjugate filter(CMultinomialConjugate::nonInformativePrior(5u));
     for (std::size_t i = 1u; i <= 5u; ++i)

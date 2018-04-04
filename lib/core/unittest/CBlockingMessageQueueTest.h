@@ -12,7 +12,7 @@
 class CBlockingMessageQueueTest : public CppUnit::TestFixture
 {
     public:
-        void testSendReceive(void);
+        void testSendReceive();
 
         static CppUnit::Test *suite();
 };

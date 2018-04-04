@@ -27,7 +27,7 @@ CppUnit::Test *CResourceLocatorTest::suite()
     return suiteOfTests;
 }
 
-void CResourceLocatorTest::testResourceDir(void)
+void CResourceLocatorTest::testResourceDir()
 {
     std::string resourceDir(ml::core::CResourceLocator::resourceDir());
     LOG_DEBUG("Resource directory is " << resourceDir);
@@ -37,7 +37,7 @@ void CResourceLocatorTest::testResourceDir(void)
     CPPUNIT_ASSERT_EQUAL(0, ml::core::COsFileFuncs::stat((resourceDir + "/ml-en.dict").c_str(), &buf));
 }
 
-void CResourceLocatorTest::testLogDir(void)
+void CResourceLocatorTest::testLogDir()
 {
     std::string logDir(ml::core::CResourceLocator::logDir());
     LOG_DEBUG("Log directory is " << logDir);
@@ -46,7 +46,7 @@ void CResourceLocatorTest::testLogDir(void)
     // we're an Elasticsearch plugin
 }
 
-void CResourceLocatorTest::testSrcRootDir(void)
+void CResourceLocatorTest::testSrcRootDir()
 {
     std::string cppRootDir(ml::core::CResourceLocator::cppRootDir());
     LOG_DEBUG("C++ root directory is " << cppRootDir);

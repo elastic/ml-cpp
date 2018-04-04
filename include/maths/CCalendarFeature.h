@@ -31,7 +31,7 @@ class MATHS_EXPORT CCalendarFeature : boost::less_than_comparable< CCalendarFeat
 {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
+        static bool dynamicSizeAlwaysZero() { return true; }
 
         static const uint16_t DAYS_SINCE_START_OF_MONTH = 1;
         static const uint16_t DAYS_BEFORE_END_OF_MONTH = 2;
@@ -43,7 +43,7 @@ class MATHS_EXPORT CCalendarFeature : boost::less_than_comparable< CCalendarFeat
         using TCalendarFeature4Ary = boost::array<CCalendarFeature, 4>;
 
     public:
-        CCalendarFeature(void);
+        CCalendarFeature();
         CCalendarFeature(uint16_t feature, core_t::TTime time);
 
         //! Get all the features for \p time.
@@ -60,7 +60,7 @@ class MATHS_EXPORT CCalendarFeature : boost::less_than_comparable< CCalendarFeat
         bool fromDelimited(const std::string &value);
 
         //! Convert to a delimited string.
-        std::string toDelimited(void) const;
+        std::string toDelimited() const;
 
         //! Check this and \p other for equality.
         bool operator==(CCalendarFeature rhs) const;
@@ -79,13 +79,13 @@ class MATHS_EXPORT CCalendarFeature : boost::less_than_comparable< CCalendarFeat
         //@}
 
         //! Get this feature's window.
-        core_t::TTime window(void) const;
+        core_t::TTime window() const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
 
         //! Get a debug description of the feature.
-        std::string print(void) const;
+        std::string print() const;
 
     private:
         //! An invalid feature value.

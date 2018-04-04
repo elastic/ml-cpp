@@ -58,7 +58,7 @@ class CUnprotectedAdder : public ml::core::CThread
         }
 
     protected:
-        void run(void)
+        void run()
         {
             for (uint32_t count = 0; count < m_Iterations; ++count)
             {
@@ -67,7 +67,7 @@ class CUnprotectedAdder : public ml::core::CThread
             }
         }
 
-        void shutdown(void)
+        void shutdown()
         {
             // Always just wait for run() to complete
         }
@@ -94,7 +94,7 @@ class CAtomicAdder : public ml::core::CThread
         }
 
     protected:
-        void run(void)
+        void run()
         {
             for (uint32_t count = 0; count < m_Iterations; ++count)
             {
@@ -103,7 +103,7 @@ class CAtomicAdder : public ml::core::CThread
             }
         }
 
-        void shutdown(void)
+        void shutdown()
         {
             // Always just wait for run() to complete
         }
@@ -132,7 +132,7 @@ class CFastMutexProtectedAdder : public ml::core::CThread
         }
 
     protected:
-        void run(void)
+        void run()
         {
             for (uint32_t count = 0; count < m_Iterations; ++count)
             {
@@ -143,7 +143,7 @@ class CFastMutexProtectedAdder : public ml::core::CThread
             }
         }
 
-        void shutdown(void)
+        void shutdown()
         {
             // Always just wait for run() to complete
         }
@@ -173,7 +173,7 @@ class CMutexProtectedAdder : public ml::core::CThread
         }
 
     protected:
-        void run(void)
+        void run()
         {
             for (uint32_t count = 0; count < m_Iterations; ++count)
             {
@@ -184,7 +184,7 @@ class CMutexProtectedAdder : public ml::core::CThread
             }
         }
 
-        void shutdown(void)
+        void shutdown()
         {
             // Always just wait for run() to complete
         }
@@ -214,7 +214,7 @@ class CWriteLockProtectedAdder : public ml::core::CThread
         }
 
     protected:
-        void run(void)
+        void run()
         {
             for (uint32_t count = 0; count < m_Iterations; ++count)
             {
@@ -225,7 +225,7 @@ class CWriteLockProtectedAdder : public ml::core::CThread
             }
         }
 
-        void shutdown(void)
+        void shutdown()
         {
             // Always just wait for run() to complete
         }
@@ -253,13 +253,13 @@ class CReadLockProtectedReader : public ml::core::CThread
         {
         }
 
-        uint32_t lastRead(void) const
+        uint32_t lastRead() const
         {
             return m_LastRead;
         }
 
     protected:
-        void run(void)
+        void run()
         {
             for (uint32_t count = 0; count < m_Iterations; ++count)
             {
@@ -270,7 +270,7 @@ class CReadLockProtectedReader : public ml::core::CThread
             }
         }
 
-        void shutdown(void)
+        void shutdown()
         {
             // Always just wait for run() to complete
         }
@@ -287,7 +287,7 @@ class CReadLockProtectedReader : public ml::core::CThread
 }
 
 
-void CReadWriteLockTest::testReadLock(void)
+void CReadWriteLockTest::testReadLock()
 {
     uint32_t testVariable(0);
     ml::core::CReadWriteLock readWriteLock;
@@ -327,7 +327,7 @@ void CReadWriteLockTest::testReadLock(void)
     CPPUNIT_ASSERT_EQUAL(testVariable, reader3.lastRead());
 }
 
-void CReadWriteLockTest::testWriteLock(void)
+void CReadWriteLockTest::testWriteLock()
 {
     static const uint32_t TEST_SIZE(50000);
 
@@ -352,7 +352,7 @@ void CReadWriteLockTest::testWriteLock(void)
     CPPUNIT_ASSERT_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
 }
 
-void CReadWriteLockTest::testPerformanceVersusMutex(void)
+void CReadWriteLockTest::testPerformanceVersusMutex()
 {
     static const uint32_t TEST_SIZE(1000000);
 

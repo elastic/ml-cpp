@@ -90,7 +90,7 @@ struct SMessage
 
 struct SAnomaly
 {
-    SAnomaly(void) : s_Bucket(0u), s_Person(), s_Attributes() {}
+    SAnomaly() : s_Bucket(0u), s_Person(), s_Attributes() {}
     SAnomaly(std::size_t bucket,
              const std::string &person,
              const TDoubleStrPrVec &attributes) :
@@ -106,7 +106,7 @@ struct SAnomaly
         return s_Bucket < other.s_Bucket;
     }
 
-    std::string print(void) const
+    std::string print() const
     {
         std::ostringstream result;
         result << "[" << s_Bucket << ", " + s_Person << ",";
@@ -239,7 +239,7 @@ void addArrival(const SMessage &message,
 const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
-void CEventRatePopulationModelTest::testBasicAccessors(void)
+void CEventRatePopulationModelTest::testBasicAccessors()
 {
     LOG_DEBUG("*** testBasicAccessors ***");
 
@@ -357,7 +357,7 @@ void CEventRatePopulationModelTest::testBasicAccessors(void)
     }
 }
 
-void CEventRatePopulationModelTest::testFeatures(void)
+void CEventRatePopulationModelTest::testFeatures()
 {
     LOG_DEBUG("*** testFeatures ***");
 
@@ -520,7 +520,7 @@ void CEventRatePopulationModelTest::testFeatures(void)
     }
 }
 
-void CEventRatePopulationModelTest::testComputeProbability(void)
+void CEventRatePopulationModelTest::testComputeProbability()
 {
     LOG_DEBUG("*** testComputeProbability ***");
 
@@ -615,7 +615,7 @@ void CEventRatePopulationModelTest::testComputeProbability(void)
     }
 }
 
-void CEventRatePopulationModelTest::testPrune(void)
+void CEventRatePopulationModelTest::testPrune()
 {
     LOG_DEBUG("*** testPrune ***");
 
@@ -824,7 +824,7 @@ void CEventRatePopulationModelTest::testPrune(void)
     CPPUNIT_ASSERT_EQUAL(numberOfPeopleBeforePrune, clonedModelHolder->dataGatherer().numberActivePeople());
 }
 
-void CEventRatePopulationModelTest::testKey(void)
+void CEventRatePopulationModelTest::testKey()
 {
     LOG_DEBUG("*** testKey ***");
 
@@ -876,7 +876,7 @@ void CEventRatePopulationModelTest::testKey(void)
     }
 }
 
-void CEventRatePopulationModelTest::testFrequency(void)
+void CEventRatePopulationModelTest::testFrequency()
 {
     LOG_DEBUG("*** CEventRatePopulationModelTest::testFrequency ***");
 
@@ -975,7 +975,7 @@ void CEventRatePopulationModelTest::testFrequency(void)
     }
 }
 
-void CEventRatePopulationModelTest::testSampleRateWeight(void)
+void CEventRatePopulationModelTest::testSampleRateWeight()
 {
     LOG_DEBUG("*** CEventRatePopulationModelTest::testSampleRateWeight ***");
 
@@ -1108,7 +1108,7 @@ void CEventRatePopulationModelTest::testSampleRateWeight(void)
     }
 }
 
-void CEventRatePopulationModelTest::testPeriodicity(void)
+void CEventRatePopulationModelTest::testPeriodicity()
 {
     LOG_DEBUG("*** testPeriodicity ***");
 
@@ -1323,7 +1323,7 @@ void CEventRatePopulationModelTest::testSkipSampling()
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), gathererWithGap->numberActiveAttributes());
 }
 
-void CEventRatePopulationModelTest::testInterimCorrections(void)
+void CEventRatePopulationModelTest::testInterimCorrections()
 {
     LOG_DEBUG("*** testInterimCorrections ***");
 
@@ -1413,7 +1413,7 @@ void CEventRatePopulationModelTest::testInterimCorrections(void)
     CPPUNIT_ASSERT(p3a2Baseline[0] > 59.0 && p3a2Baseline[0] < 61.0);
 }
 
-void CEventRatePopulationModelTest::testPersistence(void)
+void CEventRatePopulationModelTest::testPersistence()
 {
     LOG_DEBUG("*** testPersistence ***");
 
@@ -1485,7 +1485,7 @@ void CEventRatePopulationModelTest::testPersistence(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules(void)
+void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules()
 {
     LOG_DEBUG("*** testIgnoreSamplingGivenDetectionRules ***");
 
@@ -1612,7 +1612,7 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules(void)
     CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
 }
 
-CppUnit::Test *CEventRatePopulationModelTest::suite(void)
+CppUnit::Test *CEventRatePopulationModelTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRatePopulationModelTest");
 

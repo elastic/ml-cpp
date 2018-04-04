@@ -47,7 +47,7 @@ std::string toBitString(const TBoolVec &v)
 
 }
 
-void CPackedBitVectorTest::testCreation(void)
+void CPackedBitVectorTest::testCreation()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testCreation  |");
@@ -130,7 +130,7 @@ void CPackedBitVectorTest::testCreation(void)
     }
 }
 
-void CPackedBitVectorTest::testExtend(void)
+void CPackedBitVectorTest::testExtend()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testExtend  |");
@@ -200,7 +200,7 @@ void CPackedBitVectorTest::testExtend(void)
     }
 }
 
-void CPackedBitVectorTest::testContract(void)
+void CPackedBitVectorTest::testContract()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testContract  |");
@@ -253,7 +253,7 @@ void CPackedBitVectorTest::testContract(void)
     }
 }
 
-void CPackedBitVectorTest::testOperators(void)
+void CPackedBitVectorTest::testOperators()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testOperators  |");
@@ -280,7 +280,7 @@ void CPackedBitVectorTest::testOperators(void)
     }
 }
 
-void CPackedBitVectorTest::testInner(void)
+void CPackedBitVectorTest::testInner()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testInner  |");
@@ -356,7 +356,7 @@ void CPackedBitVectorTest::testInner(void)
     }
 }
 
-void CPackedBitVectorTest::testBitwiseOr(void)
+void CPackedBitVectorTest::testBitwiseOr()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testBitwiseOr  |");
@@ -415,7 +415,7 @@ void CPackedBitVectorTest::testBitwiseOr(void)
     }
 }
 
-void CPackedBitVectorTest::testPersist(void)
+void CPackedBitVectorTest::testPersist()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testPersist  |");
@@ -441,7 +441,7 @@ void CPackedBitVectorTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CPackedBitVectorTest::suite(void)
+CppUnit::Test *CPackedBitVectorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPackedBitVectorTest");
 

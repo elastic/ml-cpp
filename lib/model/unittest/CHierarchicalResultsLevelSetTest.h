@@ -11,9 +11,9 @@
 class CHierarchicalResultsLevelSetTest : public CppUnit::TestFixture
 {
     public:
-        void testElementsWithPerPartitionNormalisation(void);
+        void testElementsWithPerPartitionNormalisation();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CHierarchicalResultsLevelSetTest_h

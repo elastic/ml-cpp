@@ -61,17 +61,17 @@ class API_EXPORT CInputParser : private core::CNonCopyable
         using TReaderFunc = std::function<bool(const TStrStrUMap &)>;
 
     public:
-        CInputParser(void);
-        virtual ~CInputParser(void);
+        CInputParser();
+        virtual ~CInputParser();
 
         //! Did we find the input field names?
-        bool gotFieldNames(void) const;
+        bool gotFieldNames() const;
 
         //! Did we find any data in the input?
-        bool gotData(void) const;
+        bool gotData() const;
 
         //! Get field names
-        const TStrVec &fieldNames(void) const;
+        const TStrVec &fieldNames() const;
 
         //! Read records from the stream.  The supplied settings function is
         //! called only once.  The supplied reader function is called once per
@@ -89,7 +89,7 @@ class API_EXPORT CInputParser : private core::CNonCopyable
         void gotData(bool gotData);
 
         //! Writable access to the field names for derived classes only
-        TStrVec &fieldNames(void);
+        TStrVec &fieldNames();
 
     private:
         //! Have we got the field names?

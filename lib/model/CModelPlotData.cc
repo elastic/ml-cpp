@@ -32,7 +32,7 @@ const std::string VALUES_PER_OVERFIELD_TAG("d");
 
 }
 
-CModelPlotData::CModelPlotData(void) : m_Time(0)
+CModelPlotData::CModelPlotData() : m_Time(0)
 {
 }
 
@@ -53,7 +53,7 @@ CModelPlotData::CModelPlotData(core_t::TTime time,
 {
 }
 
-CModelPlotData::SByFieldData::SByFieldData(void)
+CModelPlotData::SByFieldData::SByFieldData()
     : s_LowerBound(0.0),
       s_UpperBound(0.0),
       s_Median(0.0),
@@ -188,37 +188,37 @@ bool CModelPlotData::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
     return true;
 }
 
-const std::string &CModelPlotData::partitionFieldName(void) const
+const std::string &CModelPlotData::partitionFieldName() const
 {
     return m_PartitionFieldName;
 }
 
-const std::string &CModelPlotData::partitionFieldValue(void) const
+const std::string &CModelPlotData::partitionFieldValue() const
 {
     return m_PartitionFieldValue;
 }
 
-const std::string &CModelPlotData::overFieldName(void) const
+const std::string &CModelPlotData::overFieldName() const
 {
     return m_OverFieldName;
 }
 
-const std::string &CModelPlotData::byFieldName(void) const
+const std::string &CModelPlotData::byFieldName() const
 {
     return m_ByFieldName;
 }
 
-core_t::TTime CModelPlotData::time(void) const
+core_t::TTime CModelPlotData::time() const
 {
     return m_Time;
 }
 
-core_t::TTime CModelPlotData::bucketSpan(void) const
+core_t::TTime CModelPlotData::bucketSpan() const
 {
     return m_BucketSpan;
 }
 
-int CModelPlotData::detectorIndex(void) const
+int CModelPlotData::detectorIndex() const
 {
     return m_DetectorIndex;
 }
@@ -228,12 +228,12 @@ void CModelPlotData::SByFieldData::addValue(const std::string &personName, doubl
     s_ValuesPerOverField.emplace_back(personName, value);
 }
 
-CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr CModelPlotData::begin(void) const
+CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr CModelPlotData::begin() const
 {
     return m_DataPerFeature.begin();
 }
 
-CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr CModelPlotData::end(void) const
+CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr CModelPlotData::end() const
 {
     return m_DataPerFeature.end();
 }
@@ -246,7 +246,7 @@ CModelPlotData::get(const model_t::EFeature &feature, const std::string &byField
     return m_DataPerFeature[feature][byFieldValue];
 }
 
-std::string CModelPlotData::print(void) const
+std::string CModelPlotData::print() const
 {
     return "nothing";
 }

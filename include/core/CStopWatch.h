@@ -40,18 +40,18 @@ class CORE_EXPORT CStopWatch
         CStopWatch(bool startRunning = false);
 
         //! Start the stop watch
-        void     start(void);
+        void     start();
 
         //! Stop the stop watch and retrieve the accumulated reading
-        uint64_t stop(void);
+        uint64_t stop();
 
         //! Retrieve the accumulated reading from the stop watch without
         //! stopping it.  (Not const because it may trigger a reset if the
         //! system clock has been adjusted.)
-        uint64_t lap(void);
+        uint64_t lap();
 
         //! Is the stop watch running?
-        bool     isRunning(void) const;
+        bool     isRunning() const;
 
         //! Reset the stop watch, optionally starting it immediately
         void     reset(bool startRunning = false);
@@ -60,7 +60,7 @@ class CORE_EXPORT CStopWatch
         //! Calculate the difference between two monotonic times, with sanity
         //! checking just in case the timer does go backwards somehow, and
         //! return the answer in milliseconds
-        uint64_t calcDuration(void);
+        uint64_t calcDuration();
 
     private:
         //! Is the stop watch currently running?

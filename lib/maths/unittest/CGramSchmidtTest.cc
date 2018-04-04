@@ -109,7 +109,7 @@ const TDoubleVec &subtract(TDoubleVec &x, const TDoubleVec &y)
 
 }
 
-void CGramSchmidtTest::testOrthogonality(void)
+void CGramSchmidtTest::testOrthogonality()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CGramSchmidtTest::testOrthogonality  |");
@@ -173,7 +173,7 @@ void CGramSchmidtTest::testOrthogonality(void)
     }
 }
 
-void CGramSchmidtTest::testNormalisation(void)
+void CGramSchmidtTest::testNormalisation()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CGramSchmidtTest::testNormalisation  |");
@@ -234,7 +234,7 @@ void CGramSchmidtTest::testNormalisation(void)
     }
 }
 
-void CGramSchmidtTest::testSpan(void)
+void CGramSchmidtTest::testSpan()
 {
     LOG_DEBUG("+------------------------------+");
     LOG_DEBUG("|  CGramSchmidtTest::testSpan  |");
@@ -326,7 +326,7 @@ void CGramSchmidtTest::testSpan(void)
     }
 }
 
-void CGramSchmidtTest::testEdgeCases(void)
+void CGramSchmidtTest::testEdgeCases()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CGramSchmidtTest::testEdgeCases  |");
@@ -395,7 +395,7 @@ void CGramSchmidtTest::testEdgeCases(void)
     }
 }
 
-CppUnit::Test *CGramSchmidtTest::suite(void)
+CppUnit::Test *CGramSchmidtTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CGramSchmidtTest");
 

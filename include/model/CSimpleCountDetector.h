@@ -55,10 +55,10 @@ class MODEL_EXPORT CSimpleCountDetector : public CAnomalyDetector
                              const CAnomalyDetector &other);
 
         //! Returns true.
-        virtual bool isSimpleCount(void) const;
+        virtual bool isSimpleCount() const;
 
         //! Don't prune the simple count detector!
-        virtual void pruneModels(void);
+        virtual void pruneModels();
 
     private:
         //! This function is called before adding a record allowing

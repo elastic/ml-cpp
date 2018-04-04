@@ -12,10 +12,10 @@
 class CInterimBucketCorrectorTest : public CppUnit::TestFixture
 {
     public:
-        void testCorrectionsGivenSingleValue(void);
-        void testCorrectionsGivenSingleValueAndNoBaseline(void);
-        void testCorrectionsGivenMultiValueAndMultiMode(void);
-        void testPersist(void);
+        void testCorrectionsGivenSingleValue();
+        void testCorrectionsGivenSingleValueAndNoBaseline();
+        void testCorrectionsGivenMultiValueAndMultiMode();
+        void testPersist();
 
         static CppUnit::Test *suite();
 };

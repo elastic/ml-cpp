@@ -50,7 +50,7 @@ class MODEL_EXPORT CDetectorEqualizer
         double correct(int detector, double probability);
 
         //! Clear all sketches.
-        void clear(void);
+        void clear();
 
         //! Age the sketches by reducing the count.
         void age(double factor);
@@ -62,10 +62,10 @@ class MODEL_EXPORT CDetectorEqualizer
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
         //! Get a checksum for the equalizer.
-        uint64_t checksum(void) const;
+        uint64_t checksum() const;
 
         //! Get the largest probability that will be corrected.
-        static double largestProbabilityToCorrect(void);
+        static double largestProbabilityToCorrect();
 
     private:
         //! Get the sketch for \p detector.

@@ -12,12 +12,12 @@
 class CAgglomerativeClustererTest : public CppUnit::TestFixture
 {
     public:
-        void testNode(void);
-        void testSimplePermutations(void);
-        void testDegenerate(void);
-        void testRandom(void);
+        void testNode();
+        void testSimplePermutations();
+        void testDegenerate();
+        void testRandom();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CAgglomerativeClustererTest_h

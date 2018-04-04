@@ -30,7 +30,7 @@ using TDoubleVec = std::vector<double>;
 using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
 using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
 
-void CQDigestTest::testAdd(void)
+void CQDigestTest::testAdd()
 {
     LOG_DEBUG("+-------------------------+");
     LOG_DEBUG("|  CQDigestTest::testAdd  |");
@@ -151,12 +151,12 @@ void CQDigestTest::testAdd(void)
     }
 }
 
-void CQDigestTest::testMerge(void)
+void CQDigestTest::testMerge()
 {
     // TODO
 }
 
-void CQDigestTest::testCdf(void)
+void CQDigestTest::testCdf()
 {
     LOG_DEBUG("+-------------------------+");
     LOG_DEBUG("|  CQDigestTest::testCdf  |");
@@ -232,7 +232,7 @@ void CQDigestTest::testCdf(void)
     }
 }
 
-void CQDigestTest::testSummary(void)
+void CQDigestTest::testSummary()
 {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CQDigestTest::testSummary  |");
@@ -303,7 +303,7 @@ void CQDigestTest::testSummary(void)
     }
 }
 
-void CQDigestTest::testPropagateForwardByTime(void)
+void CQDigestTest::testPropagateForwardByTime()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CQDigestTest::testPropagateForwardByTime  |");
@@ -459,7 +459,7 @@ void CQDigestTest::testPropagateForwardByTime(void)
     }
 }
 
-void CQDigestTest::testScale(void)
+void CQDigestTest::testScale()
 {
     LOG_DEBUG("+---------------------------+");
     LOG_DEBUG("|  CQDigestTest::testScale  |");
@@ -581,7 +581,7 @@ void CQDigestTest::testScale(void)
     }
 }
 
-void CQDigestTest::testPersist(void)
+void CQDigestTest::testPersist()
 {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CQDigestTest::testPersist  |");
@@ -635,7 +635,7 @@ void CQDigestTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CQDigestTest::suite(void)
+CppUnit::Test *CQDigestTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CQDigestTest");
 
