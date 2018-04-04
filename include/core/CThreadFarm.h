@@ -16,8 +16,8 @@
 #define INCLUDED_ml_core_CThreadFarm_h
 
 #include <core/CLogger.h>
-#include <core/CMutex.h>
 #include <core/CMessageQueue.h>
+#include <core/CMutex.h>
 #include <core/CNonCopyable.h>
 #include <core/CScopedLock.h>
 #include <core/CThread.h>
@@ -25,17 +25,13 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <stdint.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! A means to have multiple threads work on some input
@@ -57,236 +53,184 @@ namespace core
 //! The result type must have both a default constructor and a copy constructor.
 //!
 template<typename HANDLER, typename PROCESSOR, typename MESSAGE, typename RESULT>
-class CThreadFarm : private CNonCopyable
-{
-    public:
-        CThreadFarm(HANDLER &handler, const std::string &name)
-            : m_Handler(handler),
-              m_Pending(0),
-              m_LastPrint(0),
-              m_MessagesAdded(0),
-              m_Started(false),
-              m_Name(name)
-        {
+class CThreadFarm : private CNonCopyable {
+public:
+    CThreadFarm(HANDLER& handler, const std::string& name)
+        : m_Handler(handler), m_Pending(0), m_LastPrint(0), m_MessagesAdded(0), m_Started(false), m_Name(name) {}
+
+    virtual ~CThreadFarm() {
+        // Shared_ptr cleans up
+    }
+
+    //! Add a processor
+    bool addProcessor(PROCESSOR& processor) {
+        if (m_Started == true) {
+            LOG_ERROR("Can't add receiver to running " << m_Name << " thread farm");
+            return false;
         }
 
-        virtual ~CThreadFarm()
-        {
-            // Shared_ptr cleans up
+        TReceiverP receiver(new TReceiver(processor, *this));
+
+        TMessageQueueP mq(new CMessageQueue<MESSAGE, TReceiver>(*receiver));
+
+        m_MessageQueues.push_back(mq);
+        m_Receivers.push_back(receiver);
+
+        return true;
+    }
+
+    //! Add some work, and find out how many results are pending
+    //! following the addition
+    bool addMessage(const MESSAGE& msg, size_t& pending) {
+        CScopedLock lock(m_Mutex);
+
+        if (m_Started == false) {
+            LOG_ERROR("Can't add message to the " << m_Name << " thread farm because it's not running.  Call 'start'");
+            return false;
         }
 
-        //! Add a processor
-        bool addProcessor(PROCESSOR &processor)
-        {
-            if (m_Started == true)
-            {
-                LOG_ERROR("Can't add receiver to running " << m_Name <<
-                          " thread farm");
+        for (TMessageQueuePVecItr itr = m_MessageQueues.begin(); itr != m_MessageQueues.end(); ++itr) {
+            (*itr)->dispatchMsg(msg);
+            ++m_Pending;
+        }
+
+        ++m_MessagesAdded;
+        if (m_MessagesAdded % 1000 == 0) {
+            LOG_INFO("Added message " << m_MessagesAdded << " to the " << m_Name << " thread farm; pending count now " << m_Pending);
+        }
+
+        pending = m_Pending;
+
+        return true;
+    }
+
+    //! Add some work
+    bool addMessage(const MESSAGE& msg) {
+        size_t dummy = 0;
+        return this->addMessage(msg, dummy);
+    }
+
+    //! Initialise - create the receiving threads
+    bool start() {
+        if (m_Started == true) {
+            LOG_ERROR("Can't start the " << m_Name << " thread farm because it's already running.");
+            return false;
+        }
+
+        size_t count(1);
+        for (TMessageQueuePVecItr itr = m_MessageQueues.begin(); itr != m_MessageQueues.end(); ++itr) {
+            if ((*itr)->start() == false) {
+                LOG_ERROR("Unable to start message queue " << count << " for the " << m_Name << " thread farm");
                 return false;
             }
 
-            TReceiverP receiver(new TReceiver(processor, *this));
-
-            TMessageQueueP  mq(new CMessageQueue<MESSAGE, TReceiver>(*receiver));
-
-            m_MessageQueues.push_back(mq);
-            m_Receivers.push_back(receiver);
-
-            return true;
+            ++count;
         }
 
-        //! Add some work, and find out how many results are pending
-        //! following the addition
-        bool addMessage(const MESSAGE &msg, size_t &pending)
-        {
-            CScopedLock lock(m_Mutex);
+        m_Started = true;
 
-            if (m_Started == false)
-            {
-                LOG_ERROR("Can't add message to the " << m_Name <<
-                          " thread farm because it's not running.  Call 'start'");
+        return true;
+    }
+
+    //! Shutdown - kill threads
+    bool stop() {
+        if (m_Started == false) {
+            LOG_ERROR("Can't stop the " << m_Name << " thread farm because it's not running.");
+            return false;
+        }
+
+        size_t count(1);
+        for (TMessageQueuePVecItr itr = m_MessageQueues.begin(); itr != m_MessageQueues.end(); ++itr) {
+            if ((*itr)->stop() == false) {
+                LOG_ERROR("Unable to stop message queue " << count << " for the " << m_Name << " thread farm");
                 return false;
             }
 
-            for (TMessageQueuePVecItr itr = m_MessageQueues.begin();
-                 itr != m_MessageQueues.end();
-                 ++itr)
-            {
-                (*itr)->dispatchMsg(msg);
-                ++m_Pending;
-            }
-
-            ++m_MessagesAdded;
-            if (m_MessagesAdded % 1000 == 0)
-            {
-                LOG_INFO("Added message " << m_MessagesAdded << " to the " <<
-                         m_Name << " thread farm; pending count now " <<
-                         m_Pending);
-            }
-
-            pending = m_Pending;
-
-            return true;
+            LOG_DEBUG("Stopped message queue " << count << " for the " << m_Name << " thread farm");
+            ++count;
         }
 
-        //! Add some work
-        bool addMessage(const MESSAGE &msg)
-        {
-            size_t dummy = 0;
-            return this->addMessage(msg, dummy);
+        m_Started = false;
+
+        // Reset counters in case of restart
+        m_MessagesAdded = 0;
+        m_LastPrint = 0;
+
+        if (m_Pending != 0) {
+            LOG_ERROR("Inconsistency - " << m_Pending << " pending messages after stopping the " << m_Name << " thread farm");
+            m_Pending = 0;
         }
 
-        //! Initialise - create the receiving threads
-        bool start()
-        {
-            if (m_Started == true)
-            {
-                LOG_ERROR("Can't start the " << m_Name <<
-                          " thread farm because it's already running.");
-                return false;
-            }
+        return true;
+    }
 
-            size_t count(1);
-            for (TMessageQueuePVecItr itr = m_MessageQueues.begin();
-                 itr != m_MessageQueues.end();
-                 ++itr)
-            {
-                if ((*itr)->start() == false)
-                {
-                    LOG_ERROR("Unable to start message queue " << count <<
-                              " for the " << m_Name << " thread farm");
-                    return false;
-                }
+private:
+    //! This should only be called by our friend the CThreadFarmReceiver
+    //! otherwise the pending count will get messed up
+    void addResult(const RESULT& result) {
+        CScopedLock lock(m_Mutex);
 
-                ++count;
-            }
-
-            m_Started = true;
-
-            return true;
+        if (m_Pending <= 0) {
+            LOG_ERROR("Inconsistency - result added with " << m_Pending << " pending messages in the " << m_Name << " thread farm");
+            return;
         }
 
-        //! Shutdown - kill threads
-        bool stop()
-        {
-            if (m_Started == false)
-            {
-                LOG_ERROR("Can't stop the " << m_Name <<
-                          " thread farm because it's not running.");
-                return false;
-            }
+        m_Handler.processResult(result);
 
-            size_t count(1);
-            for (TMessageQueuePVecItr itr = m_MessageQueues.begin();
-                 itr != m_MessageQueues.end();
-                 ++itr)
-            {
-                if ((*itr)->stop() == false)
-                {
-                    LOG_ERROR("Unable to stop message queue " << count <<
-                              " for the " << m_Name << " thread farm");
-                    return false;
-                }
+        --m_Pending;
 
-                LOG_DEBUG("Stopped message queue " << count <<
-                          " for the " << m_Name << " thread farm");
-                ++count;
-            }
-
-            m_Started = false;
-
-            // Reset counters in case of restart
-            m_MessagesAdded = 0;
-            m_LastPrint = 0;
-
-            if (m_Pending != 0)
-            {
-                LOG_ERROR("Inconsistency - " << m_Pending <<
-                          " pending messages after stopping the " << m_Name <<
-                          " thread farm");
-                m_Pending = 0;
-            }
-
-            return true;
+        // Log how much work is outstanding every so often
+        if ((m_Pending % 10000) == 0 && m_Pending != m_LastPrint) {
+            LOG_INFO("Pending count now " << m_Pending << " for the " << m_Name << " thread farm");
+            m_LastPrint = m_Pending;
         }
 
-    private:
-        //! This should only be called by our friend the CThreadFarmReceiver
-        //! otherwise the pending count will get messed up
-        void addResult(const RESULT &result)
-        {
-            CScopedLock lock(m_Mutex);
-
-            if (m_Pending <= 0)
-            {
-                LOG_ERROR("Inconsistency - result added with " << m_Pending <<
-                          " pending messages in the " << m_Name <<
-                          " thread farm");
-                return;
-            }
-
-            m_Handler.processResult(result);
-
-            --m_Pending;
-
-            // Log how much work is outstanding every so often
-            if ((m_Pending % 10000) == 0 && m_Pending != m_LastPrint)
-            {
-                LOG_INFO("Pending count now " << m_Pending << " for the " <<
-                         m_Name << " thread farm");
-                m_LastPrint = m_Pending;
-            }
-
-            if (m_Pending == 0)
-            {
-                //m_Handler.allComplete();
-            }
+        if (m_Pending == 0) {
+            //m_Handler.allComplete();
         }
+    }
 
-    private:
-        //! Reference to the object that will handle the results
-        HANDLER           &m_Handler;
+private:
+    //! Reference to the object that will handle the results
+    HANDLER& m_Handler;
 
-        using TThreadFarm = CThreadFarm<HANDLER, PROCESSOR, MESSAGE, RESULT>;
+    using TThreadFarm = CThreadFarm<HANDLER, PROCESSOR, MESSAGE, RESULT>;
 
-        using TReceiver = CThreadFarmReceiver<TThreadFarm, PROCESSOR, MESSAGE, RESULT>;
-        using TReceiverP = boost::shared_ptr<TReceiver>;
-        using TReceiverPVec = std::vector<TReceiverP>;
-        using TReceiverPVecItr = typename TReceiverPVec::iterator;
+    using TReceiver = CThreadFarmReceiver<TThreadFarm, PROCESSOR, MESSAGE, RESULT>;
+    using TReceiverP = boost::shared_ptr<TReceiver>;
+    using TReceiverPVec = std::vector<TReceiverP>;
+    using TReceiverPVecItr = typename TReceiverPVec::iterator;
 
-        using TMessageQueueP = boost::shared_ptr< CMessageQueue<MESSAGE, TReceiver> >;
-        using TMessageQueuePVec = std::vector<TMessageQueueP>;
-        using TMessageQueuePVecItr = typename TMessageQueuePVec::iterator;
+    using TMessageQueueP = boost::shared_ptr<CMessageQueue<MESSAGE, TReceiver>>;
+    using TMessageQueuePVec = std::vector<TMessageQueueP>;
+    using TMessageQueuePVecItr = typename TMessageQueuePVec::iterator;
 
-        TReceiverPVec     m_Receivers;
+    TReceiverPVec m_Receivers;
 
-        //! We want the message queues destroyed before the receivers
-        TMessageQueuePVec m_MessageQueues;
+    //! We want the message queues destroyed before the receivers
+    TMessageQueuePVec m_MessageQueues;
 
-        //! How many results are pending?
-        size_t            m_Pending;
+    //! How many results are pending?
+    size_t m_Pending;
 
-        //! What was the pending value when we last printed it?
-        uint64_t          m_LastPrint;
+    //! What was the pending value when we last printed it?
+    uint64_t m_LastPrint;
 
-        //! How many messages have been added to the farm?
-        uint64_t          m_MessagesAdded;
+    //! How many messages have been added to the farm?
+    uint64_t m_MessagesAdded;
 
-        //! Is the farm started?
-        bool              m_Started;
+    //! Is the farm started?
+    bool m_Started;
 
-        //! Protect members from multi-threaded access
-        CMutex            m_Mutex;
+    //! Protect members from multi-threaded access
+    CMutex m_Mutex;
 
-        //! Purely for better logging messages
-        std::string       m_Name;
+    //! Purely for better logging messages
+    std::string m_Name;
 
     friend class CThreadFarmReceiver<TThreadFarm, PROCESSOR, MESSAGE, RESULT>;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CThreadFarm_h
-

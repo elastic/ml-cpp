@@ -19,63 +19,62 @@
 
 #include "../../../include/model/CSampleQueue.h"
 
-class CSampleQueueTest : public CppUnit::TestFixture
-{
-    public:
-        void testSampleToString();
-        void testSampleFromString();
+class CSampleQueueTest : public CppUnit::TestFixture {
+public:
+    void testSampleToString();
+    void testSampleFromString();
 
-        void testAddGivenQueueIsEmptyShouldCreateNewSubSample();
-        void testAddGivenQueueIsFullShouldResize();
-        void testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample();
-        void testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSampleButDifferentBucket();
-        void testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample();
-        void testAddGivenTimeIsInOrderAndFarFromLatestSubSample();
-        void testAddGivenTimeIsWithinFullLatestSubSample();
+    void testAddGivenQueueIsEmptyShouldCreateNewSubSample();
+    void testAddGivenQueueIsFullShouldResize();
+    void testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample();
+    void testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSampleButDifferentBucket();
+    void testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample();
+    void testAddGivenTimeIsInOrderAndFarFromLatestSubSample();
+    void testAddGivenTimeIsWithinFullLatestSubSample();
 
-        void testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample();
-        void testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSubSample();
-        void testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSample();
-        void testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSampleButDifferentBucket();
-        void testAddGivenTimeIsHistoricalAndWithinSomeSubSample();
-        void testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatest();
-        void testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatestButDifferentBucket();
-        void testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSubSamples();
-        void testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSamples();
-        void testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubSamples();
-        void testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSamples();
-        void testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleButOnlyNextHasSpace();
-        void testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOnlyPreviousHasSpace();
-        void testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap();
-        void testAddGivenTimeIsHistoricalAndFallsInTooSmallGap();
+    void testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample();
+    void testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSubSample();
+    void testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSample();
+    void testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSampleButDifferentBucket();
+    void testAddGivenTimeIsHistoricalAndWithinSomeSubSample();
+    void testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatest();
+    void testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatestButDifferentBucket();
+    void testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSubSamples();
+    void testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSamples();
+    void testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubSamples();
+    void testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSamples();
+    void testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleButOnlyNextHasSpace();
+    void testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOnlyPreviousHasSpace();
+    void testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap();
+    void testAddGivenTimeIsHistoricalAndFallsInTooSmallGap();
 
-        void testCanSampleGivenEmptyQueue();
-        void testCanSample();
+    void testCanSampleGivenEmptyQueue();
+    void testCanSample();
 
-        void testSampleGivenExactlyOneSampleOfExactCountToBeCreated();
-        void testSampleGivenExactlyOneSampleOfOverCountToBeCreated();
-        void testSampleGivenOneSampleToBeCreatedAndRemainder();
-        void testSampleGivenTwoSamplesToBeCreatedAndRemainder();
-        void testSampleGivenNoSampleToBeCreated();
-        void testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess();
+    void testSampleGivenExactlyOneSampleOfExactCountToBeCreated();
+    void testSampleGivenExactlyOneSampleOfOverCountToBeCreated();
+    void testSampleGivenOneSampleToBeCreatedAndRemainder();
+    void testSampleGivenTwoSamplesToBeCreatedAndRemainder();
+    void testSampleGivenNoSampleToBeCreated();
+    void testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess();
 
-        void testResetBucketGivenEmptyQueue();
-        void testResetBucketGivenBucketBeforeEarliestSubSample();
-        void testResetBucketGivenBucketAtEarliestSubSample();
-        void testResetBucketGivenBucketInBetweenWithoutAnySubSamples();
-        void testResetBucketGivenBucketAtInBetweenSubSample();
-        void testResetBucketGivenBucketAtLatestSubSample();
-        void testResetBucketGivenBucketAfterLatestSubSample();
+    void testResetBucketGivenEmptyQueue();
+    void testResetBucketGivenBucketBeforeEarliestSubSample();
+    void testResetBucketGivenBucketAtEarliestSubSample();
+    void testResetBucketGivenBucketInBetweenWithoutAnySubSamples();
+    void testResetBucketGivenBucketAtInBetweenSubSample();
+    void testResetBucketGivenBucketAtLatestSubSample();
+    void testResetBucketGivenBucketAfterLatestSubSample();
 
-        void testSubSamplesNeverSpanOverDifferentBuckets();
+    void testSubSamplesNeverSpanOverDifferentBuckets();
 
-        void testPersistence();
+    void testPersistence();
 
-        void testQualityOfSamplesGivenConstantRate();
-        void testQualityOfSamplesGivenVariableRate();
-        void testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder();
+    void testQualityOfSamplesGivenConstantRate();
+    void testQualityOfSamplesGivenVariableRate();
+    void testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CSampleQueueTest_h

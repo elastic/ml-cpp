@@ -17,17 +17,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CInterimBucketCorrectorTest : public CppUnit::TestFixture {
+public:
+    void testCorrectionsGivenSingleValue();
+    void testCorrectionsGivenSingleValueAndNoBaseline();
+    void testCorrectionsGivenMultiValueAndMultiMode();
+    void testPersist();
 
-class CInterimBucketCorrectorTest : public CppUnit::TestFixture
-{
-    public:
-        void testCorrectionsGivenSingleValue();
-        void testCorrectionsGivenSingleValueAndNoBaseline();
-        void testCorrectionsGivenMultiValueAndMultiMode();
-        void testPersist();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CInterimBucketCorrectorTest_h
-

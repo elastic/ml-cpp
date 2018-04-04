@@ -32,35 +32,29 @@ using namespace ml;
 
 using TDoubleVec = std::vector<double>;
 
-namespace
-{
+namespace {
 
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 const double THRESHOLD = std::log(0.05);
-
 }
 
-void CDetectorEqualizerTest::testCorrect()
-{
+void CDetectorEqualizerTest::testCorrect() {
     LOG_DEBUG("*** CDetectorEqualizerTest::testCorrect ***");
 
     // Test that the distribution of scores are more similar after correcting.
 
-    double scales[] = { 1.0, 2.1, 3.2 };
+    double scales[] = {1.0, 2.1, 3.2};
 
     model::CDetectorEqualizer equalizer;
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(scales); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j)
-        {
-            if (-logp[j] <= THRESHOLD)
-            {
+        for (std::size_t j = 0u; j < logp.size(); ++j) {
+            if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 equalizer.add(static_cast<int>(i), p);
             }
@@ -69,15 +63,12 @@ void CDetectorEqualizerTest::testCorrect()
 
     TDoubleVec raw[3];
     TDoubleVec corrected[3];
-    for (std::size_t i = 0u; i < boost::size(scales); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j)
-        {
-            if (-logp[j] <= THRESHOLD)
-            {
+        for (std::size_t j = 0u; j < logp.size(); ++j) {
+            if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 raw[i].push_back(p);
                 corrected[i].push_back(equalizer.correct(static_cast<int>(i), p));
@@ -86,12 +77,10 @@ void CDetectorEqualizerTest::testCorrect()
     }
 
     TMeanAccumulator similarityIncrease;
-    for (std::size_t i = 1u, k = 0u; i < 3; ++i)
-    {
-        for (std::size_t j = 0u; j < i; ++j, ++k)
-        {
-            double increase =  maths::CStatisticalTests::twoSampleKS(corrected[i], corrected[j])
-                             / maths::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
+    for (std::size_t i = 1u, k = 0u; i < 3; ++i) {
+        for (std::size_t j = 0u; j < i; ++j, ++k) {
+            double increase =
+                maths::CStatisticalTests::twoSampleKS(corrected[i], corrected[j]) / maths::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
             similarityIncrease.add(std::log(increase));
             LOG_DEBUG("similarity increase = " << increase);
             CPPUNIT_ASSERT(increase > 3.0);
@@ -101,28 +90,24 @@ void CDetectorEqualizerTest::testCorrect()
     CPPUNIT_ASSERT(std::exp(maths::CBasicStatistics::mean(similarityIncrease)) > 40.0);
 }
 
-void CDetectorEqualizerTest::testAge()
-{
+void CDetectorEqualizerTest::testAge() {
     LOG_DEBUG("*** CDetectorEqualizerTest::testAge ***");
 
     // Test that propagation doesn't introduce a bias into the corrections.
 
-    double scales[] = { 1.0, 2.1, 3.2 };
+    double scales[] = {1.0, 2.1, 3.2};
 
     model::CDetectorEqualizer equalizer;
     model::CDetectorEqualizer equalizerAged;
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(scales); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j)
-        {
-            if (-logp[j] <= THRESHOLD)
-            {
+        for (std::size_t j = 0u; j < logp.size(); ++j) {
+            if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 equalizer.add(static_cast<int>(i), p);
                 equalizerAged.add(static_cast<int>(i), p);
@@ -131,15 +116,13 @@ void CDetectorEqualizerTest::testAge()
         }
     }
 
-    for (int i = 0; i < 3; ++i)
-    {
+    for (int i = 0; i < 3; ++i) {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
         double logp = THRESHOLD;
-        for (std::size_t j = 0u; j < 150; ++j, logp += std::log(0.9))
-        {
+        for (std::size_t j = 0u; j < 150; ++j, logp += std::log(0.9)) {
             double p = std::exp(logp);
-            double pc  = equalizer.correct(i, p);
+            double pc = equalizer.correct(i, p);
             double pca = equalizerAged.correct(i, p);
             double error = std::fabs((std::log(pca) - std::log(pc)) / std::log(pc));
             meanError.add(error);
@@ -153,11 +136,10 @@ void CDetectorEqualizerTest::testAge()
     }
 }
 
-void CDetectorEqualizerTest::testPersist()
-{
+void CDetectorEqualizerTest::testPersist() {
     LOG_DEBUG("*** CDetectorEqualizerTest::testPersist ***");
 
-    double scales[] = { 1.0, 2.1, 3.2 };
+    double scales[] = {1.0, 2.1, 3.2};
 
     model::CDetectorEqualizer origEqualizer;
 
@@ -166,14 +148,11 @@ void CDetectorEqualizerTest::testPersist()
     TDoubleVec logp;
     rng.generateGammaSamples(1.0, 3.1, 1000, logp);
 
-    for (std::size_t i = 0u; i < boost::size(scales); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j)
-        {
-            if (-logp[j] <= THRESHOLD)
-            {
+        for (std::size_t j = 0u; j < logp.size(); ++j) {
+            if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 origEqualizer.add(static_cast<int>(i), p);
             }
@@ -194,8 +173,7 @@ void CDetectorEqualizerTest::testPersist()
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(&model::CDetectorEqualizer::acceptRestoreTraverser,
-                                                              &restoredEqualizer, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(&model::CDetectorEqualizer::acceptRestoreTraverser, &restoredEqualizer, _1)));
     }
 
     // Checksums should agree.
@@ -211,19 +189,15 @@ void CDetectorEqualizerTest::testPersist()
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CDetectorEqualizerTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDetectorEqualizerTest");
+CppUnit::Test* CDetectorEqualizerTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectorEqualizerTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CDetectorEqualizerTest>(
-                                   "CDetectorEqualizerTest::testCorrect",
-                                   &CDetectorEqualizerTest::testCorrect) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CDetectorEqualizerTest>(
-                                   "CDetectorEqualizerTest::testAge",
-                                   &CDetectorEqualizerTest::testAge) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CDetectorEqualizerTest>(
-                                   "CDetectorEqualizerTest::testPersist",
-                                   &CDetectorEqualizerTest::testPersist) );
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDetectorEqualizerTest>("CDetectorEqualizerTest::testCorrect", &CDetectorEqualizerTest::testCorrect));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDetectorEqualizerTest>("CDetectorEqualizerTest::testAge", &CDetectorEqualizerTest::testAge));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDetectorEqualizerTest>("CDetectorEqualizerTest::testPersist", &CDetectorEqualizerTest::testPersist));
 
     return suiteOfTests;
 }

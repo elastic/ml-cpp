@@ -18,15 +18,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CGramSchmidtTest : public CppUnit::TestFixture
-{
-    public:
-        void testOrthogonality();
-        void testNormalisation();
-        void testSpan();
-        void testEdgeCases();
+class CGramSchmidtTest : public CppUnit::TestFixture {
+public:
+    void testOrthogonality();
+    void testNormalisation();
+    void testSpan();
+    void testEdgeCases();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CGramSchmidtTest_h

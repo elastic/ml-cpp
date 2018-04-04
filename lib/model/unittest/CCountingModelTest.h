@@ -20,15 +20,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCountingModelTest : public CppUnit::TestFixture
-{
-    public:
-        void testSkipSampling();
-        void testCheckScheduledEvents();
-        static CppUnit::Test *suite();
-    private:
-        ml::model::CResourceMonitor m_ResourceMonitor;
+class CCountingModelTest : public CppUnit::TestFixture {
+public:
+    void testSkipSampling();
+    void testCheckScheduledEvents();
+    static CppUnit::Test* suite();
+
+private:
+    ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
 #endif // INCLUDED_CCountingModelTest_h
-

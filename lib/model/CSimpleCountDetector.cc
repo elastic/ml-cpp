@@ -18,27 +18,18 @@
 
 #include <model/CAnomalyDetectorModelConfig.h>
 
-
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 CSimpleCountDetector::CSimpleCountDetector(int detectorIndex,
                                            model_t::ESummaryMode summaryMode,
-                                           const CAnomalyDetectorModelConfig &modelConfig,
-                                           CLimits &limits,
-                                           const std::string &partitionFieldValue,
+                                           const CAnomalyDetectorModelConfig& modelConfig,
+                                           CLimits& limits,
+                                           const std::string& partitionFieldValue,
                                            core_t::TTime firstTime,
-                                           const TModelFactoryCPtr &modelFactory)
-    : CAnomalyDetector(detectorIndex,
-                       limits,
-                       modelConfig,
-                       partitionFieldValue,
-                       firstTime,
-                       modelFactory),
-      m_FieldValues(summaryMode == model_t::E_None ? 1 : 2)
-{
+                                           const TModelFactoryCPtr& modelFactory)
+    : CAnomalyDetector(detectorIndex, limits, modelConfig, partitionFieldValue, firstTime, modelFactory),
+      m_FieldValues(summaryMode == model_t::E_None ? 1 : 2) {
     // We use a single event rate detector to maintain the counts, and for the
     // special case of the simple count detector, we'll create it before we've
     // seen any events, so that in the extreme case of no events in a search
@@ -46,36 +37,26 @@ CSimpleCountDetector::CSimpleCountDetector(int detectorIndex,
     this->initSimpleCounting();
 }
 
-CSimpleCountDetector::CSimpleCountDetector(bool isForPersistence,
-                                           const CAnomalyDetector &other)
-    : CAnomalyDetector(isForPersistence, other)
-{
+CSimpleCountDetector::CSimpleCountDetector(bool isForPersistence, const CAnomalyDetector& other)
+    : CAnomalyDetector(isForPersistence, other) {
 }
 
-bool CSimpleCountDetector::isSimpleCount() const
-{
+bool CSimpleCountDetector::isSimpleCount() const {
     return true;
 }
 
-void CSimpleCountDetector::pruneModels()
-{
+void CSimpleCountDetector::pruneModels() {
     return;
 }
 
-const CAnomalyDetector::TStrCPtrVec &
-CSimpleCountDetector::preprocessFieldValues(const TStrCPtrVec &fieldValues)
-{
+const CAnomalyDetector::TStrCPtrVec& CSimpleCountDetector::preprocessFieldValues(const TStrCPtrVec& fieldValues) {
     // The first field value is always the magic word "count", but for
     // summarised input we need to pass on the true value of the second field
-    if (m_FieldValues.size() > 1)
-    {
+    if (m_FieldValues.size() > 1) {
         m_FieldValues[1] = (fieldValues.size() > 1) ? fieldValues[1] : &EMPTY_STRING;
     }
 
     return m_FieldValues;
 }
-
-
 }
 }
-

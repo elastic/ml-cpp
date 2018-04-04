@@ -20,16 +20,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CQDigest;
 
 //! \brief Calibrates a collection of probabilities.
@@ -39,57 +35,50 @@ class CQDigest;
 //! to the historical empirical distribution of probabilities,
 // i.e. we expect to see a probability of \f$p <= f\f$ approximately
 //! \f$f * n\f$ given \f$n\f$ historical probabilities.
-class MATHS_EXPORT CProbabilityCalibrator
-{
-    public:
-        //! The type of calibration to perform:
-        //!   -# Partial - only increase probabilities using the
-        //!      historical fractions less the cutoff. Don't use
-        //!      the fractions smaller than the cutoff instead
-        //!      scale probabilities so the transform is continuous.
-        //!   -# Full - perform a full calibration to historical
-        //!      fractions.
-        enum EStyle
-        {
-            E_PartialCalibration = 0,
-            E_FullCalibration = 1
-        };
+class MATHS_EXPORT CProbabilityCalibrator {
+public:
+    //! The type of calibration to perform:
+    //!   -# Partial - only increase probabilities using the
+    //!      historical fractions less the cutoff. Don't use
+    //!      the fractions smaller than the cutoff instead
+    //!      scale probabilities so the transform is continuous.
+    //!   -# Full - perform a full calibration to historical
+    //!      fractions.
+    enum EStyle { E_PartialCalibration = 0, E_FullCalibration = 1 };
 
-    public:
-        CProbabilityCalibrator(EStyle style, double cutoffProbability);
+public:
+    CProbabilityCalibrator(EStyle style, double cutoffProbability);
 
-        //! \name Serialization
-        //@{
-        //! Persist state by passing information to the supplied inserter
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    //! \name Serialization
+    //@{
+    //! Persist state by passing information to the supplied inserter
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-        //! Create from an XML node tree.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
-        //@}
+    //! Create from an XML node tree.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    //@}
 
-        //! Add \p probability.
-        void add(double probability);
+    //! Add \p probability.
+    void add(double probability);
 
-        //! Calibrate \p probability to the historic empirical
-        //! distribution of probabilities.
-        double calibrate(double probability) const;
+    //! Calibrate \p probability to the historic empirical
+    //! distribution of probabilities.
+    double calibrate(double probability) const;
 
-    private:
-        using TQDigestPtr = boost::shared_ptr<CQDigest>;
+private:
+    using TQDigestPtr = boost::shared_ptr<CQDigest>;
 
-    private:
-        //! The type of calibration to perform.
-        EStyle m_Style;
+private:
+    //! The type of calibration to perform.
+    EStyle m_Style;
 
-        //! The smallest probability where we enforce a match
-        //! with the historical fraction.
-        double m_CutoffProbability;
+    //! The smallest probability where we enforce a match
+    //! with the historical fraction.
+    double m_CutoffProbability;
 
-        //! A summary of the historical probability quantiles.
-        TQDigestPtr m_DiscreteProbabilityQuantiles;
+    //! A summary of the historical probability quantiles.
+    TQDigestPtr m_DiscreteProbabilityQuantiles;
 };
-
-
 }
 }
 

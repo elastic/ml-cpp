@@ -18,31 +18,30 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CTimeSeriesDecompositionTest : public CppUnit::TestFixture
-{
-    public:
-        void testSuperpositionOfSines();
-        void testDistortedPeriodic();
-        void testMinimizeLongComponents();
-        void testWeekend();
-        void testSinglePeriodicity();
-        void testSeasonalOnset();
-        void testVarianceScale();
-        void testSpikeyDataProblemCase();
-        void testDiurnalProblemCase();
-        void testComplexDiurnalProblemCase();
-        void testDiurnalPeriodicityWithMissingValues();
-        void testLongTermTrend();
-        void testLongTermTrendAndPeriodicity();
-        void testNonDiurnal();
-        void testYearly();
-        void testCalendar();
-        void testConditionOfTrend();
-        void testSwap();
-        void testPersist();
-        void testUpgrade();
+class CTimeSeriesDecompositionTest : public CppUnit::TestFixture {
+public:
+    void testSuperpositionOfSines();
+    void testDistortedPeriodic();
+    void testMinimizeLongComponents();
+    void testWeekend();
+    void testSinglePeriodicity();
+    void testSeasonalOnset();
+    void testVarianceScale();
+    void testSpikeyDataProblemCase();
+    void testDiurnalProblemCase();
+    void testComplexDiurnalProblemCase();
+    void testDiurnalPeriodicityWithMissingValues();
+    void testLongTermTrend();
+    void testLongTermTrendAndPeriodicity();
+    void testNonDiurnal();
+    void testYearly();
+    void testCalendar();
+    void testConditionOfTrend();
+    void testSwap();
+    void testPersist();
+    void testUpgrade();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CTimeSeriesDecompositionTest_h

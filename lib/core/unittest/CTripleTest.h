@@ -17,15 +17,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CTripleTest : public CppUnit::TestFixture {
+public:
+    void testOperators();
+    void testBoostHashReady();
 
-class CTripleTest : public CppUnit::TestFixture
-{
-    public:
-        void testOperators();
-        void testBoostHashReady();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CTripleTest_h
-

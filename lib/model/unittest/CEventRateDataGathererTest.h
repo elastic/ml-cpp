@@ -20,28 +20,27 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CEventRateDataGathererTest : public CppUnit::TestFixture
-{
-    public:
-        void singleSeriesTests();
-        void multipleSeriesTests();
-        void testRemovePeople();
-        void singleSeriesOutOfOrderFinalResultTests();
-        void singleSeriesOutOfOrderInterimResultTests();
-        void multipleSeriesOutOfOrderFinalResultTests();
-        void testArrivalBeforeLatencyWindowIsIgnored();
-        void testResetBucketGivenSingleSeries();
-        void testResetBucketGivenMultipleSeries();
-        void testResetBucketGivenBucketNotAvailable();
-        void testInfluencerBucketStatistics();
-        void testDistinctStrings();
-        void testLatencyPersist();
-        void testDiurnalFeatures();
+class CEventRateDataGathererTest : public CppUnit::TestFixture {
+public:
+    void singleSeriesTests();
+    void multipleSeriesTests();
+    void testRemovePeople();
+    void singleSeriesOutOfOrderFinalResultTests();
+    void singleSeriesOutOfOrderInterimResultTests();
+    void multipleSeriesOutOfOrderFinalResultTests();
+    void testArrivalBeforeLatencyWindowIsIgnored();
+    void testResetBucketGivenSingleSeries();
+    void testResetBucketGivenMultipleSeries();
+    void testResetBucketGivenBucketNotAvailable();
+    void testInfluencerBucketStatistics();
+    void testDistinctStrings();
+    void testLatencyPersist();
+    void testDiurnalFeatures();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
-    private:
-        ml::model::CResourceMonitor m_ResourceMonitor;
+private:
+    ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
 #endif // INCLUDED_CEventRateDataGathererTest_h

@@ -17,16 +17,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAnomalyJobLimitTest : public CppUnit::TestFixture
-{
-    public:
-        void testLimit();
-        void testAccuracy();
+class CAnomalyJobLimitTest : public CppUnit::TestFixture {
+public:
+    void testLimit();
+    void testAccuracy();
 
-        static CppUnit::Test *suite();
-
-
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CAnomalyJobLimitTest_h
-

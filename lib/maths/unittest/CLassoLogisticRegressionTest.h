@@ -18,16 +18,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CLassoLogisticRegressionTest : public CppUnit::TestFixture
-{
-    public:
-        void testCyclicCoordinateDescent();
-        void testCyclicCoordinateDescentLargeSparse();
-        void testCyclicCoordinateDescentIncremental();
-        void testNormBasedLambda();
-        void testCrossValidatedLambda();
+class CLassoLogisticRegressionTest : public CppUnit::TestFixture {
+public:
+    void testCyclicCoordinateDescent();
+    void testCyclicCoordinateDescentLargeSparse();
+    void testCyclicCoordinateDescentIncremental();
+    void testNormBasedLambda();
+    void testCrossValidatedLambda();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CLassoLogisticRegressionTest_h

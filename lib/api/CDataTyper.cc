@@ -14,50 +14,32 @@
  */
 #include <api/CDataTyper.h>
 
-
-namespace ml
-{
-namespace api
-{
-
+namespace ml {
+namespace api {
 
 // Initialise statics
 const CDataTyper::TStrStrUMap CDataTyper::EMPTY_FIELDS;
 
-
-CDataTyper::CDataTyper(const std::string &fieldName)
-    : m_FieldName(fieldName),
-      m_LastPersistTime(0)
-{
+CDataTyper::CDataTyper(const std::string& fieldName) : m_FieldName(fieldName), m_LastPersistTime(0) {
 }
 
-CDataTyper::~CDataTyper()
-{
+CDataTyper::~CDataTyper() {
 }
 
-int CDataTyper::computeType(bool isDryRun,
-                            const std::string &str,
-                            size_t rawStringLen)
-{
+int CDataTyper::computeType(bool isDryRun, const std::string& str, size_t rawStringLen) {
     return this->computeType(isDryRun, EMPTY_FIELDS, str, rawStringLen);
 }
 
-const std::string &CDataTyper::fieldName() const
-{
+const std::string& CDataTyper::fieldName() const {
     return m_FieldName;
 }
 
-core_t::TTime CDataTyper::lastPersistTime() const
-{
+core_t::TTime CDataTyper::lastPersistTime() const {
     return m_LastPersistTime;
 }
 
-void CDataTyper::lastPersistTime(core_t::TTime lastPersistTime)
-{
+void CDataTyper::lastPersistTime(core_t::TTime lastPersistTime) {
     m_LastPersistTime = lastPersistTime;
 }
-
-
 }
 }
-

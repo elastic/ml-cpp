@@ -20,29 +20,22 @@
 #include <core/CXmlNodeWithChildrenPool.h>
 #include <core/CXmlParser.h>
 
+CppUnit::Test* CXmlNodeWithChildrenTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXmlNodeWithChildrenTest");
 
-CppUnit::Test *CXmlNodeWithChildrenTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CXmlNodeWithChildrenTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-                                   "CXmlNodeWithChildrenTest::testNodeHierarchyToXml",
-                                   &CXmlNodeWithChildrenTest::testNodeHierarchyToXml) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-                                   "CXmlNodeWithChildrenTest::testParserToNodeHierarchy",
-                                   &CXmlNodeWithChildrenTest::testParserToNodeHierarchy) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-                                   "CXmlNodeWithChildrenTest::testPerformanceNoPool",
-                                   &CXmlNodeWithChildrenTest::testPerformanceNoPool) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-                                   "CXmlNodeWithChildrenTest::testPerformanceWithPool",
-                                   &CXmlNodeWithChildrenTest::testPerformanceWithPool) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>("CXmlNodeWithChildrenTest::testNodeHierarchyToXml",
+                                                                            &CXmlNodeWithChildrenTest::testNodeHierarchyToXml));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>("CXmlNodeWithChildrenTest::testParserToNodeHierarchy",
+                                                                            &CXmlNodeWithChildrenTest::testParserToNodeHierarchy));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>("CXmlNodeWithChildrenTest::testPerformanceNoPool",
+                                                                            &CXmlNodeWithChildrenTest::testPerformanceNoPool));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>("CXmlNodeWithChildrenTest::testPerformanceWithPool",
+                                                                            &CXmlNodeWithChildrenTest::testPerformanceWithPool));
 
     return suiteOfTests;
 }
 
-void CXmlNodeWithChildrenTest::testNodeHierarchyToXml()
-{
+void CXmlNodeWithChildrenTest::testNodeHierarchyToXml() {
     ml::core::CXmlParser parser;
 
     ml::core::CXmlNodeWithChildren twoDeepA("twoDeepA", "Element A");
@@ -117,8 +110,7 @@ void CXmlNodeWithChildrenTest::testNodeHierarchyToXml()
     CPPUNIT_ASSERT(xml.find("twoDeepC") < xml.find("twoDeepB"));
 }
 
-void CXmlNodeWithChildrenTest::testParserToNodeHierarchy()
-{
+void CXmlNodeWithChildrenTest::testParserToNodeHierarchy() {
     ml::core::CXmlParser parser;
 
     std::string xml = "\
@@ -161,47 +153,39 @@ void CXmlNodeWithChildrenTest::testParserToNodeHierarchy()
     CPPUNIT_ASSERT(xml.find("value5") != std::string::npos);
 }
 
-void CXmlNodeWithChildrenTest::testPerformanceNoPool()
-{
+void CXmlNodeWithChildrenTest::testPerformanceNoPool() {
     ml::core::CXmlParser parser;
 
     CPPUNIT_ASSERT(parser.parseFile("testfiles/p2psmon.xml"));
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting node hierarchy performance test with no pool at " <<
-             ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO("Starting node hierarchy performance test with no pool at " << ml::core::CTimeUtils::toTimeString(start));
 
     static const size_t TEST_SIZE(20000);
-    for (size_t count = 0; count < TEST_SIZE; ++count)
-    {
+    for (size_t count = 0; count < TEST_SIZE; ++count) {
         ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
         CPPUNIT_ASSERT(parser.toNodeHierarchy(rootNodePtr));
         CPPUNIT_ASSERT(rootNodePtr != 0);
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished node hierarchy performance test with no pool at " <<
-             ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO("Finished node hierarchy performance test with no pool at " << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Node hierarchy performance test of size " << TEST_SIZE <<
-             " with no pool took " << (end - start) << " seconds");
+    LOG_INFO("Node hierarchy performance test of size " << TEST_SIZE << " with no pool took " << (end - start) << " seconds");
 }
 
-void CXmlNodeWithChildrenTest::testPerformanceWithPool()
-{
+void CXmlNodeWithChildrenTest::testPerformanceWithPool() {
     ml::core::CXmlParser parser;
 
     CPPUNIT_ASSERT(parser.parseFile("testfiles/p2psmon.xml"));
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting node hierarchy performance test with pool at " <<
-             ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO("Starting node hierarchy performance test with pool at " << ml::core::CTimeUtils::toTimeString(start));
 
     ml::core::CXmlNodeWithChildrenPool pool;
 
     static const size_t TEST_SIZE(20000);
-    for (size_t count = 0; count < TEST_SIZE; ++count)
-    {
+    for (size_t count = 0; count < TEST_SIZE; ++count) {
         ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
         CPPUNIT_ASSERT(parser.toNodeHierarchy(pool, rootNodePtr));
         CPPUNIT_ASSERT(rootNodePtr != 0);
@@ -209,10 +193,7 @@ void CXmlNodeWithChildrenTest::testPerformanceWithPool()
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished node hierarchy performance test with pool at " <<
-             ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO("Finished node hierarchy performance test with pool at " << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Node hierarchy performance test of size " << TEST_SIZE <<
-             " with pool took " << (end - start) << " seconds");
+    LOG_INFO("Node hierarchy performance test of size " << TEST_SIZE << " with pool took " << (end - start) << " seconds");
 }
-

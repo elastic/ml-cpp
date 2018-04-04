@@ -44,40 +44,37 @@
 #include "CTokenListDataTyperTest.h"
 #include "CTokenListReverseSearchCreatorTest.h"
 
-
-int main(int argc, const char **argv)
-{
+int main(int argc, const char** argv) {
     ml::test::CTestRunner runner(argc, argv);
 
-    runner.addTest( CAnomalyJobLimitTest::suite() );
-    runner.addTest( CAnomalyJobTest::suite() );
-    runner.addTest( CBackgroundPersisterTest::suite() );
-    runner.addTest( CBaseTokenListDataTyperTest::suite() );
-    runner.addTest( CCategoryExamplesCollectorTest::suite() );
-    runner.addTest( CConfigUpdaterTest::suite() );
-    runner.addTest( CCsvInputParserTest::suite() );
-    runner.addTest( CCsvOutputWriterTest::suite() );
-    runner.addTest( CDetectionRulesJsonParserTest::suite() );
-    runner.addTest( CFieldConfigTest::suite() );
-    runner.addTest( CFieldDataTyperTest::suite() );
-    runner.addTest( CForecastRunnerTest::suite() );
-    runner.addTest( CIoManagerTest::suite() );
-    runner.addTest( CJsonOutputWriterTest::suite() );
-    runner.addTest( CLengthEncodedInputParserTest::suite() );
-    runner.addTest( CLineifiedJsonInputParserTest::suite() );
-    runner.addTest( CLineifiedJsonOutputWriterTest::suite() );
-    runner.addTest( CLineifiedXmlInputParserTest::suite() );
-    runner.addTest( CModelPlotDataJsonWriterTest::suite() );
-    runner.addTest( CModelSnapshotJsonWriterTest::suite() );
-    runner.addTest( CMultiFileDataAdderTest::suite() );
-    runner.addTest( COutputChainerTest::suite() );
-    runner.addTest( CRestorePreviousStateTest::suite() );
-    runner.addTest( CResultNormalizerTest::suite() );
-    runner.addTest( CSingleStreamDataAdderTest::suite() );
-    runner.addTest( CStringStoreTest::suite() );
-    runner.addTest( CTokenListDataTyperTest::suite() );
-    runner.addTest( CTokenListReverseSearchCreatorTest::suite() );
+    runner.addTest(CAnomalyJobLimitTest::suite());
+    runner.addTest(CAnomalyJobTest::suite());
+    runner.addTest(CBackgroundPersisterTest::suite());
+    runner.addTest(CBaseTokenListDataTyperTest::suite());
+    runner.addTest(CCategoryExamplesCollectorTest::suite());
+    runner.addTest(CConfigUpdaterTest::suite());
+    runner.addTest(CCsvInputParserTest::suite());
+    runner.addTest(CCsvOutputWriterTest::suite());
+    runner.addTest(CDetectionRulesJsonParserTest::suite());
+    runner.addTest(CFieldConfigTest::suite());
+    runner.addTest(CFieldDataTyperTest::suite());
+    runner.addTest(CForecastRunnerTest::suite());
+    runner.addTest(CIoManagerTest::suite());
+    runner.addTest(CJsonOutputWriterTest::suite());
+    runner.addTest(CLengthEncodedInputParserTest::suite());
+    runner.addTest(CLineifiedJsonInputParserTest::suite());
+    runner.addTest(CLineifiedJsonOutputWriterTest::suite());
+    runner.addTest(CLineifiedXmlInputParserTest::suite());
+    runner.addTest(CModelPlotDataJsonWriterTest::suite());
+    runner.addTest(CModelSnapshotJsonWriterTest::suite());
+    runner.addTest(CMultiFileDataAdderTest::suite());
+    runner.addTest(COutputChainerTest::suite());
+    runner.addTest(CRestorePreviousStateTest::suite());
+    runner.addTest(CResultNormalizerTest::suite());
+    runner.addTest(CSingleStreamDataAdderTest::suite());
+    runner.addTest(CStringStoreTest::suite());
+    runner.addTest(CTokenListDataTyperTest::suite());
+    runner.addTest(CTokenListReverseSearchCreatorTest::suite());
 
     return !runner.runTests();
 }
-

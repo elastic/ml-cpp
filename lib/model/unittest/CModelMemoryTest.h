@@ -18,14 +18,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CModelMemoryTest : public CppUnit::TestFixture
-{
-    public:
-        void testOnlineEventRateModel();
-        void testOnlineMetricModel();
-    
-        static CppUnit::Test *suite();
-};
+class CModelMemoryTest : public CppUnit::TestFixture {
+public:
+    void testOnlineEventRateModel();
+    void testOnlineMetricModel();
 
+    static CppUnit::Test* suite();
+};
 
 #endif // INCLUDED_CModelMemoryTest_h

@@ -17,14 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CRapidXmlStatePersistInserterTest : public CppUnit::TestFixture {
+public:
+    void testPersist();
 
-class CRapidXmlStatePersistInserterTest : public CppUnit::TestFixture
-{
-    public:
-        void testPersist();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CRapidXmlStatePersistInserterTest_h
-

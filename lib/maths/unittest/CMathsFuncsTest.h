@@ -18,15 +18,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMathsFuncsTest : public CppUnit::TestFixture
-{
-    public:
-        void testIsNan();
-        void testIsInf();
-        void testIsFinite();
-        void testFpStatus();
+class CMathsFuncsTest : public CppUnit::TestFixture {
+public:
+    void testIsNan();
+    void testIsInf();
+    void testIsFinite();
+    void testFpStatus();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CMathsFuncsTest_h

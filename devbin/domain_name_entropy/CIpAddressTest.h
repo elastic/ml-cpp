@@ -19,37 +19,29 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace domain_name_entropy
-{
-
+namespace ml {
+namespace domain_name_entropy {
 
 //! \brief
-//! Test if a string is a valid ipv4 or ipv6 address 
+//! Test if a string is a valid ipv4 or ipv6 address
 //!
 //! DESCRIPTION:\n
-//! Test if a string is a valid ipv4 or ipv6 address 
+//! Test if a string is a valid ipv4 or ipv6 address
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Uses regexes. Lexing and parsing would probably be faster.
 //!
-class CIpAddressTest
-{
-    public:
-        CIpAddressTest(void);
+class CIpAddressTest {
+public:
+    CIpAddressTest(void);
 
-        bool isIpAddress(const std::string &) const;
+    bool isIpAddress(const std::string&) const;
 
-    private:
-        core::CRegex m_Ipv4Regex;
-        core::CRegex m_Ipv6Regex;
+private:
+    core::CRegex m_Ipv4Regex;
+    core::CRegex m_Ipv6Regex;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_domain_name_entropy_CIpAddressTest_h
-

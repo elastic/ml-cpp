@@ -19,12 +19,8 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Class to extract "words" from a string.
@@ -46,36 +42,29 @@ namespace core
 //! Words are returned in a single string.  In future it might be worth
 //! adding the option to return them in a vector.
 //!
-class CORE_EXPORT CWordExtractor
-{
-    public:
-        //! Extract words from a message, and return them in a space separated
-        //! string
-        static void extractWordsFromMessage(const std::string &message,
-                                            std::string &messageWords);
+class CORE_EXPORT CWordExtractor {
+public:
+    //! Extract words from a message, and return them in a space separated
+    //! string
+    static void extractWordsFromMessage(const std::string& message, std::string& messageWords);
 
-        //! Extract words from a message, and return them in a space separated
-        //! string BUT only include words that occur in groups of a specified
-        //! size
-        static void extractWordsFromMessage(size_t minConsecutive,
-                                            const std::string &message,
-                                            std::string &messageWords);
+    //! Extract words from a message, and return them in a space separated
+    //! string BUT only include words that occur in groups of a specified
+    //! size
+    static void extractWordsFromMessage(size_t minConsecutive, const std::string& message, std::string& messageWords);
 
-    private:
-        //! Don't allow objects to be instantiated
-        CWordExtractor();
-        CWordExtractor(const CWordExtractor &);
+private:
+    //! Don't allow objects to be instantiated
+    CWordExtractor();
+    CWordExtractor(const CWordExtractor&);
 
-    private:
-        //! The ::ispunct() function's definition of punctuation is too
-        //! permissive (basically anything that's not a letter, number or
-        //! space), so we have our own definition of punctuation
-        static const std::string PUNCT_CHARS;
+private:
+    //! The ::ispunct() function's definition of punctuation is too
+    //! permissive (basically anything that's not a letter, number or
+    //! space), so we have our own definition of punctuation
+    static const std::string PUNCT_CHARS;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CWordExtractor_h
-

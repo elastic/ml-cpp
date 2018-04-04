@@ -17,35 +17,32 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CJsonOutputWriterTest : public CppUnit::TestFixture {
+public:
+    void testSimpleWrite();
+    void testWriteNonAnomalousBucket();
+    void testBucketWrite();
+    void testBucketWriteInterim();
+    void testLimitedRecordsWrite();
+    void testLimitedRecordsWriteInterim();
+    void testFlush();
+    void testWriteCategoryDefinition();
+    void testWriteWithInfluences();
+    void testWriteInfluencers();
+    void testWriteInfluencersWithLimit();
+    void testPersistNormalizer();
+    void testPartitionScores();
+    void testReportMemoryUsage();
+    void testWriteScheduledEvent();
+    void testThroughputWithScopedAllocator();
+    void testThroughputWithoutScopedAllocator();
 
-class CJsonOutputWriterTest : public CppUnit::TestFixture
-{
-    public:
-        void testSimpleWrite();
-        void testWriteNonAnomalousBucket();
-        void testBucketWrite();
-        void testBucketWriteInterim();
-        void testLimitedRecordsWrite();
-        void testLimitedRecordsWriteInterim();
-        void testFlush();
-        void testWriteCategoryDefinition();
-        void testWriteWithInfluences();
-        void testWriteInfluencers();
-        void testWriteInfluencersWithLimit();
-        void testPersistNormalizer();
-        void testPartitionScores();
-        void testReportMemoryUsage();
-        void testWriteScheduledEvent();
-        void testThroughputWithScopedAllocator();
-        void testThroughputWithoutScopedAllocator();
+    static CppUnit::Test* suite();
 
-        static CppUnit::Test *suite();
-
-    private:
-        void testBucketWriteHelper(bool isInterim);
-        void testLimitedRecordsWriteHelper(bool isInterim);
-        void testThroughputHelper(bool useScopedAllocator);
+private:
+    void testBucketWriteHelper(bool isInterim);
+    void testLimitedRecordsWriteHelper(bool isInterim);
+    void testThroughputHelper(bool useScopedAllocator);
 };
 
 #endif // INCLUDED_CJsonOutputWriterTest_h
-

@@ -19,23 +19,20 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAnomalyJobTest : public CppUnit::TestFixture
-{
-    public:
-        void testLicense();
-        void testBadTimes();
-        void testOutOfSequence();
-        void testControlMessages();
-        void testSkipTimeControlMessage();
-        void testOutOfPhase();
-        void testBucketSelection();
-        void testModelPlot();
-        void testInterimResultEdgeCases();
-        void testRestoreFailsWithEmptyStream();
+class CAnomalyJobTest : public CppUnit::TestFixture {
+public:
+    void testLicense();
+    void testBadTimes();
+    void testOutOfSequence();
+    void testControlMessages();
+    void testSkipTimeControlMessage();
+    void testOutOfPhase();
+    void testBucketSelection();
+    void testModelPlot();
+    void testInterimResultEdgeCases();
+    void testRestoreFailsWithEmptyStream();
 
-        static CppUnit::Test *suite();
-
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CAnomalyJobTest_h
-

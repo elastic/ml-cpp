@@ -14,23 +14,15 @@
  */
 #include <core/CSetMode.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-int CSetMode::setMode(int /* fd */, int /* mode */)
-{
+int CSetMode::setMode(int /* fd */, int /* mode */) {
     return 0;
 }
 
-int CSetMode::setBinaryMode(int /* fd */)
-{
+int CSetMode::setBinaryMode(int /* fd */) {
     return 0;
 }
-
 }
 }
-

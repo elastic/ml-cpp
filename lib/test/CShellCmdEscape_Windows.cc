@@ -16,15 +16,10 @@
 
 #include <core/CStringUtils.h>
 
+namespace ml {
+namespace test {
 
-namespace ml
-{
-namespace test
-{
-
-
-void CShellCmdEscape::escapeCmd(std::string &cmd)
-{
+void CShellCmdEscape::escapeCmd(std::string& cmd) {
     // Special characters are ^ < > & |
     // Escape character is ^ on Windows
 
@@ -34,8 +29,5 @@ void CShellCmdEscape::escapeCmd(std::string &cmd)
     core::CStringUtils::replace("&", "^&", cmd);
     core::CStringUtils::replace("|", "^|", cmd);
 }
-
-
 }
 }
-

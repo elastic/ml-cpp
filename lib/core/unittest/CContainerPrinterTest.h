@@ -18,12 +18,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CContainerPrinterTest : public CppUnit::TestFixture
-{
-    public:
-        void testAll();
+class CContainerPrinterTest : public CppUnit::TestFixture {
+public:
+    void testAll();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CContainerPrinterTest_h

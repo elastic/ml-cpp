@@ -17,13 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CMemoryUsageJsonWriterTest : public CppUnit::TestFixture {
+public:
+    void test();
 
-class CMemoryUsageJsonWriterTest : public CppUnit::TestFixture
-{
-    public:
-        void test();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CMemoryUsageJsonWriterTest_h

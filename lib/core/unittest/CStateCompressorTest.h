@@ -17,16 +17,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CStateCompressorTest : public CppUnit::TestFixture {
+public:
+    void testForApiNoKey();
+    void testStreaming();
+    void testChunking();
+    void testFile();
 
-class CStateCompressorTest : public CppUnit::TestFixture
-{
-    public:
-        void testForApiNoKey();
-        void testStreaming();
-        void testChunking();
-        void testFile();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CStateCompressorTest_h

@@ -21,12 +21,9 @@
 #include <cmath>
 #include <limits>
 
-namespace ml
-{
-namespace core
-{
-namespace constants
-{
+namespace ml {
+namespace core {
+namespace constants {
 
 //! An hour in seconds.
 const core_t::TTime HOUR = 3600;
@@ -66,7 +63,6 @@ const char PATH_SEPARATOR = '\\';
 #else
 const char PATH_SEPARATOR = '/';
 #endif
-
 }
 }
 }

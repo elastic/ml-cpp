@@ -17,15 +17,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCalendarFeatureTest : public CppUnit::TestFixture
-{
-    public:
-        void testInitialize();
-        void testComparison();
-        void testOffset();
-        void testPersist();
+class CCalendarFeatureTest : public CppUnit::TestFixture {
+public:
+    void testInitialize();
+    void testComparison();
+    void testOffset();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CCalendarFeatureTest_h

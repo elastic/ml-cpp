@@ -18,13 +18,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CFunctionalTest : public CppUnit::TestFixture
-{
-    public:
-        void testIsNull();
-        void testDereference();
+class CFunctionalTest : public CppUnit::TestFixture {
+public:
+    void testIsNull();
+    void testDereference();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CFunctionalTest_h

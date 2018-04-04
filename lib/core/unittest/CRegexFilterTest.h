@@ -17,16 +17,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CRegexFilterTest : public CppUnit::TestFixture
-{
-    public:
-        void testConfigure_GivenInvalidRegex();
-        void testApply_GivenEmptyFilter();
-        void testApply_GivenSingleMatchAllRegex();
-        void testApply_GivenSingleRegex();
-        void testApply_GivenMultipleRegex();
+class CRegexFilterTest : public CppUnit::TestFixture {
+public:
+    void testConfigure_GivenInvalidRegex();
+    void testApply_GivenEmptyFilter();
+    void testApply_GivenSingleMatchAllRegex();
+    void testApply_GivenSingleRegex();
+    void testApply_GivenMultipleRegex();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CRegexFilterTest_h

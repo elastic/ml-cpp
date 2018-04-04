@@ -18,14 +18,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDetectorEqualizerTest : public CppUnit::TestFixture
-{
-    public:
-        void testCorrect();
-        void testAge();
-        void testPersist();
+class CDetectorEqualizerTest : public CppUnit::TestFixture {
+public:
+    void testCorrect();
+    void testAge();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CDetectorEqualizerTest_h

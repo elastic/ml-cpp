@@ -22,20 +22,15 @@
 #include <stdlib.h>
 #include <time.h>
 
+CppUnit::Test* CHexUtilsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHexUtilsTest");
 
-CppUnit::Test *CHexUtilsTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CHexUtilsTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CHexUtilsTest>(
-                                   "CHexUtilsTest::testHexOutput",
-                                   &CHexUtilsTest::testHexOutput) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CHexUtilsTest>("CHexUtilsTest::testHexOutput", &CHexUtilsTest::testHexOutput));
 
     return suiteOfTests;
 }
 
-void CHexUtilsTest::testHexOutput()
-{
+void CHexUtilsTest::testHexOutput() {
     // Seed the random number generator
     ::srand(static_cast<unsigned int>(::clock()));
 
@@ -81,8 +76,7 @@ void CHexUtilsTest::testHexOutput()
         ml::core::CHexUtils::TDataVec randomData;
         randomData.reserve(100);
 
-        for (size_t count = 0; count < 100; ++count)
-        {
+        for (size_t count = 0; count < 100; ++count) {
             randomData.push_back(static_cast<uint8_t>(::rand()));
         }
 
@@ -115,8 +109,7 @@ void CHexUtilsTest::testHexOutput()
         // selected
         CPPUNIT_ASSERT(strm2.str() != strm3.str());
         CPPUNIT_ASSERT(strm5.str() != strm6.str());
-    
+
         LOG_DEBUG("Random test output is:\n" << strm1.str());
     }
 }
-

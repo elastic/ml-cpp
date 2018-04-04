@@ -23,16 +23,11 @@
 #include <string>
 #include <vector>
 
-
-namespace ml
-{
-namespace core
-{
-namespace detail
-{
+namespace ml {
+namespace core {
+namespace detail {
 class CTrackerThread;
 }
-
 
 //! \brief
 //! Spawn detached processes.
@@ -75,57 +70,51 @@ class CTrackerThread;
 //! entires in the lookup, and this could represent a security risk
 //! given how operating systems recycle process IDs.)
 //!
-class CORE_EXPORT CDetachedProcessSpawner
-{
-    public:
-        using TStrVec = std::vector<std::string>;
+class CORE_EXPORT CDetachedProcessSpawner {
+public:
+    using TStrVec = std::vector<std::string>;
 
-        using TTrackerThreadP = boost::shared_ptr<detail::CTrackerThread>;
+    using TTrackerThreadP = boost::shared_ptr<detail::CTrackerThread>;
 
-    public:
-        //! Permitted paths may be relative or absolute, but each process must
-        //! be invoked using the exact path supplied.  For example, if
-        //! /usr/bin/grep is permitted then you cannot invoke it as ./grep
-        //! while the current working directory is /usr/bin.  On Windows,
-        //! the supplied names should NOT have the .exe extension.
-        CDetachedProcessSpawner(const TStrVec &permittedProcessPaths);
+public:
+    //! Permitted paths may be relative or absolute, but each process must
+    //! be invoked using the exact path supplied.  For example, if
+    //! /usr/bin/grep is permitted then you cannot invoke it as ./grep
+    //! while the current working directory is /usr/bin.  On Windows,
+    //! the supplied names should NOT have the .exe extension.
+    CDetachedProcessSpawner(const TStrVec& permittedProcessPaths);
 
-        ~CDetachedProcessSpawner();
+    ~CDetachedProcessSpawner();
 
-        //! Spawn a process.  Returns true on success or false on error,
-        //! however, it is important to realise that if the spawned process
-        //! itself crashes this will not be detected as a failure by this
-        //! method.  On Windows, the supplied process path should NOT have the
-        //! .exe extension.
-        bool spawn(const std::string &processPath, const TStrVec &args);
+    //! Spawn a process.  Returns true on success or false on error,
+    //! however, it is important to realise that if the spawned process
+    //! itself crashes this will not be detected as a failure by this
+    //! method.  On Windows, the supplied process path should NOT have the
+    //! .exe extension.
+    bool spawn(const std::string& processPath, const TStrVec& args);
 
-        //! As above, but, on success, returns the PID of the process that was
-        //! started.
-        bool spawn(const std::string &processPath,
-                   const TStrVec &args,
-                   CProcess::TPid &childPid);
+    //! As above, but, on success, returns the PID of the process that was
+    //! started.
+    bool spawn(const std::string& processPath, const TStrVec& args, CProcess::TPid& childPid);
 
-        //! Kill the child process with the specified PID.  If there is a
-        //! process running with the specified PID that was not spawned by this
-        //! object then it will NOT be killed.
-        bool terminateChild(CProcess::TPid pid);
+    //! Kill the child process with the specified PID.  If there is a
+    //! process running with the specified PID that was not spawned by this
+    //! object then it will NOT be killed.
+    bool terminateChild(CProcess::TPid pid);
 
-        //! Returns true if this object spawned a process with the given PID
-        //! that is still running.
-        bool hasChild(CProcess::TPid pid) const;
+    //! Returns true if this object spawned a process with the given PID
+    //! that is still running.
+    bool hasChild(CProcess::TPid pid) const;
 
-    private:
-        //! Paths to processes that may be spawned.
-        TStrVec         m_PermittedProcessPaths;
+private:
+    //! Paths to processes that may be spawned.
+    TStrVec m_PermittedProcessPaths;
 
-        //! Thread to track which processes that have been created are still
-        //! alive.
-        TTrackerThreadP m_TrackerThread;
+    //! Thread to track which processes that have been created are still
+    //! alive.
+    TTrackerThreadP m_TrackerThread;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CDetachedProcessSpawner_h
-

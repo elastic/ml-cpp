@@ -17,15 +17,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CThreadFarmTest : public CppUnit::TestFixture {
+public:
+    void testNumCpus();
+    void testSendReceive();
 
-class CThreadFarmTest : public CppUnit::TestFixture
-{
-    public:
-        void testNumCpus();
-        void testSendReceive();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CThreadFarmTest_h
-

@@ -23,12 +23,9 @@
 #include <cstddef>
 #include <string>
 
-namespace ml
-{
-namespace config
-{
-namespace constants
-{
+namespace ml {
+namespace config {
+namespace constants {
 
 //! The initial score to apply to a detector. This is reduced to a minimum
 //! of zero, at which point the detector is discarded, based on a set of
@@ -61,19 +58,17 @@ const std::size_t PARTITION_INDEX = 3u;
 const std::size_t NUMBER_FIELD_INDICES = 4u;
 
 //! \brief Useful collections of field indices.
-class CONFIG_EXPORT CFieldIndices
-{
-    public:
-        //! The detector partitioning fields, i.e. by, over and partition.
-        static const std::size_t PARTITIONING[3];
+class CONFIG_EXPORT CFieldIndices {
+public:
+    //! The detector partitioning fields, i.e. by, over and partition.
+    static const std::size_t PARTITIONING[3];
 
-        //! All detector fields.
-        static const std::size_t ALL[4];
+    //! All detector fields.
+    static const std::size_t ALL[4];
 };
 
 //! The field name for \p index.
-CONFIG_EXPORT const std::string &name(std::size_t index);
-
+CONFIG_EXPORT const std::string& name(std::size_t index);
 }
 }
 }

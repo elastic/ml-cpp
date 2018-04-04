@@ -18,29 +18,28 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CGammaRateConjugateTest : public CppUnit::TestFixture
-{
-    public:
-        void testMultipleUpdate();
-        void testPropagation();
-        void testShapeEstimation();
-        void testRateEstimation();
-        void testMarginalLikelihood();
-        void testMarginalLikelihoodMean();
-        void testMarginalLikelihoodMode();
-        void testMarginalLikelihoodVariance();
-        void testSampleMarginalLikelihood();
-        void testCdf();
-        void testProbabilityOfLessLikelySamples();
-        void testAnomalyScore();
-        void testOffset();
-        void testIntegerData();
-        void testLowVariationData();
-        void testPersist();
-        void testVarianceScale();
-        void testNegativeSample();
+class CGammaRateConjugateTest : public CppUnit::TestFixture {
+public:
+    void testMultipleUpdate();
+    void testPropagation();
+    void testShapeEstimation();
+    void testRateEstimation();
+    void testMarginalLikelihood();
+    void testMarginalLikelihoodMean();
+    void testMarginalLikelihoodMode();
+    void testMarginalLikelihoodVariance();
+    void testSampleMarginalLikelihood();
+    void testCdf();
+    void testProbabilityOfLessLikelySamples();
+    void testAnomalyScore();
+    void testOffset();
+    void testIntegerData();
+    void testLowVariationData();
+    void testPersist();
+    void testVarianceScale();
+    void testNegativeSample();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CGammaRateConjugateTest_h

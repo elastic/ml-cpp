@@ -17,28 +17,27 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDetectionRulesJsonParserTest : public CppUnit::TestFixture
-{
-    public:
-        void testParseRulesGivenEmptyString();
-        void testParseRulesGivenEmptyArray();
-        void testParseRulesGivenArrayContainsStrings();
-        void testParseRulesGivenMissingRuleAction();
-        void testParseRulesGivenRuleActionIsNotArray();
-        void testParseRulesGivenInvalidRuleAction();
-        void testParseRulesGivenMissingConditionsConnective();
-        void testParseRulesGivenInvalidConditionsConnective();
-        void testParseRulesGivenMissingRuleConditions();
-        void testParseRulesGivenRuleConditionsIsNotArray();
-        void testParseRulesGivenMissingConditionOperator();
-        void testParseRulesGivenInvalidConditionOperator();
-        void testParseRulesGivenNumericalActualRuleWithConnectiveOr();
-        void testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd();
-        void testParseRulesGivenMultipleRules();
-        void testParseRulesGivenCategoricalRule();
-        void testParseRulesGivenTimeRule();
-        void testParseRulesGivenDifferentActions();
-        static CppUnit::Test *suite();
+class CDetectionRulesJsonParserTest : public CppUnit::TestFixture {
+public:
+    void testParseRulesGivenEmptyString();
+    void testParseRulesGivenEmptyArray();
+    void testParseRulesGivenArrayContainsStrings();
+    void testParseRulesGivenMissingRuleAction();
+    void testParseRulesGivenRuleActionIsNotArray();
+    void testParseRulesGivenInvalidRuleAction();
+    void testParseRulesGivenMissingConditionsConnective();
+    void testParseRulesGivenInvalidConditionsConnective();
+    void testParseRulesGivenMissingRuleConditions();
+    void testParseRulesGivenRuleConditionsIsNotArray();
+    void testParseRulesGivenMissingConditionOperator();
+    void testParseRulesGivenInvalidConditionOperator();
+    void testParseRulesGivenNumericalActualRuleWithConnectiveOr();
+    void testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd();
+    void testParseRulesGivenMultipleRules();
+    void testParseRulesGivenCategoricalRule();
+    void testParseRulesGivenTimeRule();
+    void testParseRulesGivenDifferentActions();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CDetectionRulesJsonParserTest_h

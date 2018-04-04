@@ -23,10 +23,8 @@
 
 #include <boost/optional.hpp>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CDataCountStatistics;
 
@@ -38,28 +36,26 @@ class CDataCountStatistics;
 //! having bucket lengths less than the arrival interval. This tests this
 //! condition and applies a decreasing penalty based on the number of intervals
 //! for which this behavior has been observed.
-class CONFIG_EXPORT CPolledDataPenalty : public CPenalty
-{
-    public:
-        CPolledDataPenalty(const CAutoconfigurerParams &params);
+class CONFIG_EXPORT CPolledDataPenalty : public CPenalty {
+public:
+    CPolledDataPenalty(const CAutoconfigurerParams& params);
 
-        //! Create a copy on the heap.
-        virtual CPolledDataPenalty *clone() const;
+    //! Create a copy on the heap.
+    virtual CPolledDataPenalty* clone() const;
 
-        //! Get the name of this penalty.
-        virtual std::string name() const;
+    //! Get the name of this penalty.
+    virtual std::string name() const;
 
-    private:
-        using TOptionalTime = boost::optional<core_t::TTime>;
+private:
+    using TOptionalTime = boost::optional<core_t::TTime>;
 
-    private:
-        //! Compute a penalty for rare detectors.
-        virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+private:
+    //! Compute a penalty for rare detectors.
+    virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 
-        //! Get the interval at which the data are polled if there is one.
-        TOptionalTime pollingInterval(const CDataCountStatistics &stats) const;
+    //! Get the interval at which the data are polled if there is one.
+    TOptionalTime pollingInterval(const CDataCountStatistics& stats) const;
 };
-
 }
 }
 

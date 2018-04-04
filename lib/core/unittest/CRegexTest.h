@@ -17,18 +17,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CRegexTest : public CppUnit::TestFixture
-{
-    public:
-        void    testInit();
-        void    testSearch();
-        void    testSplit();
-        void    testTokenise1();
-        void    testTokenise2();
-        void    testEscape();
-        void    testLiteralCount();
+class CRegexTest : public CppUnit::TestFixture {
+public:
+    void testInit();
+    void testSearch();
+    void testSplit();
+    void testTokenise1();
+    void testTokenise2();
+    void testEscape();
+    void testLiteralCount();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CRegexTest_h

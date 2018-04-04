@@ -17,14 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CGathererToolsTest : public CppUnit::TestFixture {
+public:
+    void testSumGathererIsRedundant();
 
-class CGathererToolsTest : public CppUnit::TestFixture
-{
-    public:
-        void testSumGathererIsRedundant();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CGathererToolsTest_h
-

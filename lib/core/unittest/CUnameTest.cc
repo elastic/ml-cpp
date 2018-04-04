@@ -17,20 +17,15 @@
 #include <core/CLogger.h>
 #include <core/CUname.h>
 
+CppUnit::Test* CUnameTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CUnameTest");
 
-CppUnit::Test *CUnameTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CUnameTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CUnameTest>(
-                                   "CUnameTest::testUname",
-                                   &CUnameTest::testUname) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CUnameTest>("CUnameTest::testUname", &CUnameTest::testUname));
 
     return suiteOfTests;
 }
 
-void CUnameTest::testUname()
-{
+void CUnameTest::testUname() {
     LOG_DEBUG(ml::core::CUname::sysName());
     LOG_DEBUG(ml::core::CUname::nodeName());
     LOG_DEBUG(ml::core::CUname::release());
@@ -40,4 +35,3 @@ void CUnameTest::testUname()
     LOG_DEBUG(ml::core::CUname::mlPlatform());
     LOG_DEBUG(ml::core::CUname::mlOsVer());
 }
-

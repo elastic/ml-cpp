@@ -26,12 +26,8 @@
 
 #include <time.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Portability wrapper to set the current time zone
@@ -67,80 +63,76 @@ namespace core
 //! As a result, our implementation is imperfect for parsing historical data
 //! on Windows.  Problems resulting from this are likely to be rare though.
 //!
-class CORE_EXPORT CTimezone : private CNonCopyable
-{
-    public:
-        //! Get the singleton instance
-        static CTimezone &instance();
+class CORE_EXPORT CTimezone : private CNonCopyable {
+public:
+    //! Get the singleton instance
+    static CTimezone& instance();
 
-        //! Get the name of the current timezone.  This will be a POSIX name,
-        //! e.g. Europe/London or America/New_York, or, if the timezone has not
-        //! been changed from the system default, an empty string.
-        const std::string &timezoneName() const;
+    //! Get the name of the current timezone.  This will be a POSIX name,
+    //! e.g. Europe/London or America/New_York, or, if the timezone has not
+    //! been changed from the system default, an empty string.
+    const std::string& timezoneName() const;
 
-        //! Set the name of the timezone used by the C library functions (or our
-        //! replacements for them)
-        //! Example input: America/New_York
-        //!                Europe/London
-        //! A blank string will cause the timezone of the machine
-        //! we're running on to be used (which the C library will determine
-        //! in an OS dependent manner).
-        bool timezoneName(const std::string &name);
+    //! Set the name of the timezone used by the C library functions (or our
+    //! replacements for them)
+    //! Example input: America/New_York
+    //!                Europe/London
+    //! A blank string will cause the timezone of the machine
+    //! we're running on to be used (which the C library will determine
+    //! in an OS dependent manner).
+    bool timezoneName(const std::string& name);
 
-        //! Convenience wrapper around the setter for timezone name
-        static bool setTimezone(const std::string &timezone);
+    //! Convenience wrapper around the setter for timezone name
+    static bool setTimezone(const std::string& timezone);
 
-        //! Abbreviation for standard time in the current timezone
-        std::string stdAbbrev() const;
+    //! Abbreviation for standard time in the current timezone
+    std::string stdAbbrev() const;
 
-        //! Abbreviation for daylight saving time in the current timezone
-        std::string dstAbbrev() const;
+    //! Abbreviation for daylight saving time in the current timezone
+    std::string dstAbbrev() const;
 
-        //! Normalise a local time structure and also return the corresponding
-        //! epoch time (i.e. seconds since midnight on 1/1/1970 UTC).  This
-        //! is a replacement for mktime() that switches to using Boost on
-        //! Windows when the program's timezone is different to the operating
-        //! system's timezone.
-        core_t::TTime localToUtc(struct tm &localTime) const;
+    //! Normalise a local time structure and also return the corresponding
+    //! epoch time (i.e. seconds since midnight on 1/1/1970 UTC).  This
+    //! is a replacement for mktime() that switches to using Boost on
+    //! Windows when the program's timezone is different to the operating
+    //! system's timezone.
+    core_t::TTime localToUtc(struct tm& localTime) const;
 
-        //! Convert a UTC time to local time in the current timezone.
-        bool utcToLocal(core_t::TTime utcTime, struct tm &localTime) const;
+    //! Convert a UTC time to local time in the current timezone.
+    bool utcToLocal(core_t::TTime utcTime, struct tm& localTime) const;
 
-        //! Get the date fields.
-        bool dateFields(core_t::TTime utcTime,
-                        int &daysSinceSunday,
-                        int &dayOfMonth,
-                        int &daysSinceJanuary1st,
-                        int &monthsSinceJanuary,
-                        int &yearsSince1900,
-                        int &secondsSinceMidnight) const;
+    //! Get the date fields.
+    bool dateFields(core_t::TTime utcTime,
+                    int& daysSinceSunday,
+                    int& dayOfMonth,
+                    int& daysSinceJanuary1st,
+                    int& monthsSinceJanuary,
+                    int& yearsSince1900,
+                    int& secondsSinceMidnight) const;
 
-    private:
-        //! Constructor for a singleton is private.
-        CTimezone();
-        ~CTimezone();
+private:
+    //! Constructor for a singleton is private.
+    CTimezone();
+    ~CTimezone();
 
-    private:
-        //! Since there is one timezone for the whole program, access to it is
-        //! protected by this mutex
-        mutable CFastMutex               m_Mutex;
+private:
+    //! Since there is one timezone for the whole program, access to it is
+    //! protected by this mutex
+    mutable CFastMutex m_Mutex;
 
-        //! Name of the current timezone in use within this program, or blank to
-        //! use the current operating system settings
-        std::string                      m_Name;
+    //! Name of the current timezone in use within this program, or blank to
+    //! use the current operating system settings
+    std::string m_Name;
 
 #ifdef Windows
-        //! Boost timezone database
-        boost::local_time::tz_database   m_TimezoneDb;
+    //! Boost timezone database
+    boost::local_time::tz_database m_TimezoneDb;
 
-        //! Boost timezone database
-        boost::local_time::time_zone_ptr m_Timezone;
+    //! Boost timezone database
+    boost::local_time::time_zone_ptr m_Timezone;
 #endif
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CTimezone_h
-

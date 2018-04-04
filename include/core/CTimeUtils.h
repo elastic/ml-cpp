@@ -24,12 +24,8 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! A holder of time utility methods.
@@ -42,90 +38,79 @@ namespace core
 //! Class consoidates time methods used throughout the Ml
 //! codebase.
 //!
-class CORE_EXPORT CTimeUtils : private CNonInstantiatable
-{
+class CORE_EXPORT CTimeUtils : private CNonInstantiatable {
+public:
+    //! Maximum tolerable clock discrepancy between machines at the same
+    //! customer site
+    static const core_t::TTime MAX_CLOCK_DISCREPANCY;
+
+public:
+    //! Current time
+    static core_t::TTime now();
+
+    //! Date and time to string according to http://www.w3.org/TR/NOTE-datetime
+    //! E.g. 1997-07-16T19:20:30+01:00
+    static std::string toIso8601(core_t::TTime t);
+
+    //! Date and time to string according to local convention
+    static std::string toLocalString(core_t::TTime t);
+
+    //! Time only to string
+    //! E.g. 19:20:30
+    static std::string toTimeString(core_t::TTime t);
+
+    //! Converts an epoch seconds timestamp to epoch millis
+    static int64_t toEpochMs(core_t::TTime t);
+    //! strptime interface
+    //! NOTE: the time returned here is a UTC value
+    static bool strptime(const std::string& format, const std::string& dateTime, core_t::TTime& preTime);
+
+    //! Same strptime interface as above, but doesn't print any error messages
+    static bool strptimeSilent(const std::string& format, const std::string& dateTime, core_t::TTime& preTime);
+
+    //! Is a given word a day of the week name, month name, or timezone
+    //! abbreviation in the current locale?  Input should be trimmed of
+    //! whitespace before calling this function.
+    static bool isDateWord(const std::string& word);
+
+private:
+    //! Factor out common code from the three string conversion methods
+    static void toStringCommon(core_t::TTime t, const std::string& format, std::string& result);
+
+private:
+    //! Class to cache date words so that we don't have to repeatedly use
+    //! strptime() to check for them
+    class CDateWordCache {
     public:
-        //! Maximum tolerable clock discrepancy between machines at the same
-        //! customer site
-        static const core_t::TTime MAX_CLOCK_DISCREPANCY;
+        //! Get the singleton instance
+        static const CDateWordCache& instance();
 
-    public:
-        //! Current time
-        static core_t::TTime  now();
-
-        //! Date and time to string according to http://www.w3.org/TR/NOTE-datetime
-        //! E.g. 1997-07-16T19:20:30+01:00
-        static std::string    toIso8601(core_t::TTime t);
-
-        //! Date and time to string according to local convention
-        static std::string    toLocalString(core_t::TTime t);
-
-        //! Time only to string
-        //! E.g. 19:20:30
-        static std::string    toTimeString(core_t::TTime t);
-
-        //! Converts an epoch seconds timestamp to epoch millis
-        static int64_t toEpochMs(core_t::TTime t);
-        //! strptime interface
-        //! NOTE: the time returned here is a UTC value
-        static bool strptime(const std::string &format,
-                             const std::string &dateTime,
-                             core_t::TTime &preTime);
-
-        //! Same strptime interface as above, but doesn't print any error messages
-        static bool strptimeSilent(const std::string &format,
-                                   const std::string &dateTime,
-                                   core_t::TTime &preTime);
-
-        //! Is a given word a day of the week name, month name, or timezone
-        //! abbreviation in the current locale?  Input should be trimmed of
-        //! whitespace before calling this function.
-        static bool isDateWord(const std::string &word);
+        //! Check if a word is a date word
+        bool isDateWord(const std::string& word) const;
 
     private:
-        //! Factor out common code from the three string conversion methods
-        static void toStringCommon(core_t::TTime t,
-                                   const std::string &format,
-                                   std::string &result);
+        //! Constructor for a singleton is private
+        CDateWordCache();
+        ~CDateWordCache();
 
     private:
-        //! Class to cache date words so that we don't have to repeatedly use
-        //! strptime() to check for them
-        class CDateWordCache
-        {
-            public:
-                //! Get the singleton instance
-                static const CDateWordCache &instance();
+        //! Protect the singleton's initialisation, preventing it from
+        //! being constructed simultaneously in different threads.
+        static CFastMutex ms_InitMutex;
 
-                //! Check if a word is a date word
-                bool isDateWord(const std::string &word) const;
+        //! This pointer is set after the singleton object has been
+        //! constructed, and avoids the need to lock the mutex on
+        //! subsequent calls of the instance() method (once the updated
+        //! value of this variable has made its way into every thread).
+        static volatile CDateWordCache* ms_Instance;
 
-            private:
-                //! Constructor for a singleton is private
-                CDateWordCache();
-                ~CDateWordCache();
+        using TStrUSet = boost::unordered_set<std::string>;
 
-            private:
-                //! Protect the singleton's initialisation, preventing it from
-                //! being constructed simultaneously in different threads.
-                static CFastMutex              ms_InitMutex;
-
-                //! This pointer is set after the singleton object has been
-                //! constructed, and avoids the need to lock the mutex on
-                //! subsequent calls of the instance() method (once the updated
-                //! value of this variable has made its way into every thread).
-                static volatile CDateWordCache *ms_Instance;
-
-                using TStrUSet = boost::unordered_set<std::string>;
-
-                //! Our cache of date words
-                TStrUSet                       m_DateWords;
-        };
+        //! Our cache of date words
+        TStrUSet m_DateWords;
+    };
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CTimeUtils_h
-

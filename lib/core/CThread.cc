@@ -21,9 +21,7 @@
 #include <signal.h>
 #include <string.h>
 
-
-namespace
-{
+namespace {
 
 //! Handler for signals that does nothing but will, unlike ignoring a signal,
 //! cause calls to be interrupted with EINTR.  The idea is that an open() or
@@ -32,8 +30,7 @@ namespace
 //! return a failure code and set errno to EINTR.  This gives the code
 //! surrounding the blocking call a chance to not call it again but instead
 //! do something different.
-void noOpHandler(int /*sig*/)
-{
+void noOpHandler(int /*sig*/) {
 }
 
 //! Use SIGIO for waking up blocking calls.  The same handler will be used in
@@ -43,8 +40,7 @@ void noOpHandler(int /*sig*/)
 //! handling then we could change the signal we use in this class to another
 //! (maybe SIGURG).  However, it's bad practice for reusable libraries to
 //! unconditionally install signal handlers, so unlikely to be a problem.
-bool installNoOpSigIoHandler()
-{
+bool installNoOpSigIoHandler() {
     struct sigaction sa;
     sigemptyset(&sa.sa_mask);
     sa.sa_handler = &noOpHandler;
@@ -53,51 +49,39 @@ bool installNoOpSigIoHandler()
 }
 
 const bool SIGIO_HANDLER_INSTALLED(installNoOpSigIoHandler());
-
 }
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
-
-CThread::CThread()
-    : m_ThreadId(0)
-{
+CThread::CThread() : m_ThreadId(0) {
 }
 
-CThread::~CThread()
-{
+CThread::~CThread() {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadId != 0)
-    {
+    if (m_ThreadId != 0) {
         LOG_ERROR("Trying to destroy a running thread. Call 'stop' before destroying");
     }
 }
 
-bool CThread::start()
-{
+bool CThread::start() {
     TThreadId dummy(0);
 
     return this->start(dummy);
 }
 
-bool CThread::start(TThreadId &threadId)
-{
+bool CThread::start(TThreadId& threadId) {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadId != 0)
-    {
+    if (m_ThreadId != 0) {
         LOG_ERROR("Thread already running");
         threadId = m_ThreadId;
         return false;
     }
 
     int ret = pthread_create(&m_ThreadId, 0, &CThread::threadFunc, this);
-    if (ret != 0)
-    {
+    if (ret != 0) {
         LOG_ERROR("Cannot create thread: " << ::strerror(ret));
         threadId = 0;
         return false;
@@ -108,18 +92,15 @@ bool CThread::start(TThreadId &threadId)
     return true;
 }
 
-bool CThread::stop()
-{
+bool CThread::stop() {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadId == 0)
-    {
+    if (m_ThreadId == 0) {
         LOG_ERROR("Thread not running");
         return false;
     }
 
-    if (pthread_self() == m_ThreadId)
-    {
+    if (pthread_self() == m_ThreadId) {
         LOG_ERROR("Can't stop own thread");
         return false;
     }
@@ -128,8 +109,7 @@ bool CThread::stop()
     this->shutdown();
 
     int ret = pthread_join(m_ThreadId, 0);
-    if (ret != 0)
-    {
+    if (ret != 0) {
         LOG_ERROR("Error joining thread: " << ::strerror(ret));
     }
 
@@ -138,25 +118,21 @@ bool CThread::stop()
     return true;
 }
 
-bool CThread::waitForFinish()
-{
+bool CThread::waitForFinish() {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadId == 0)
-    {
+    if (m_ThreadId == 0) {
         LOG_ERROR("Thread not running");
         return false;
     }
 
-    if (pthread_self() == m_ThreadId)
-    {
+    if (pthread_self() == m_ThreadId) {
         LOG_ERROR("Can't stop own thread");
         return false;
     }
 
     int ret = pthread_join(m_ThreadId, 0);
-    if (ret != 0)
-    {
+    if (ret != 0) {
         LOG_ERROR("Error joining thread: " << ::strerror(ret));
     }
 
@@ -165,25 +141,21 @@ bool CThread::waitForFinish()
     return true;
 }
 
-bool CThread::isStarted() const
-{
+bool CThread::isStarted() const {
     CScopedLock lock(m_IdMutex);
 
     return (m_ThreadId != 0);
 }
 
-bool CThread::cancelBlockedIo()
-{
+bool CThread::cancelBlockedIo() {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadId == 0)
-    {
+    if (m_ThreadId == 0) {
         LOG_ERROR("Thread not running");
         return false;
     }
 
-    if (pthread_self() == m_ThreadId)
-    {
+    if (pthread_self() == m_ThreadId) {
         LOG_ERROR("Can't cancel blocked IO in own thread");
         return false;
     }
@@ -191,13 +163,10 @@ bool CThread::cancelBlockedIo()
     // Deliver the signal using pthread_kill() rather than raise() to ensure it
     // is delivered to the correct thread.
     int ret = pthread_kill(m_ThreadId, SIGIO);
-    if (ret != 0)
-    {
+    if (ret != 0) {
         // Don't report an error if the thread has already exited
-        if (ret != ESRCH)
-        {
-            LOG_ERROR("Error cancelling blocked IO in thread: " <<
-                      ::strerror(ret));
+        if (ret != ESRCH) {
+            LOG_ERROR("Error cancelling blocked IO in thread: " << ::strerror(ret));
             return false;
         }
     }
@@ -205,10 +174,8 @@ bool CThread::cancelBlockedIo()
     return true;
 }
 
-bool CThread::cancelBlockedIo(TThreadId threadId)
-{
-    if (pthread_self() == threadId)
-    {
+bool CThread::cancelBlockedIo(TThreadId threadId) {
+    if (pthread_self() == threadId) {
         LOG_ERROR("Can't cancel blocked IO in own thread");
         return false;
     }
@@ -216,13 +183,10 @@ bool CThread::cancelBlockedIo(TThreadId threadId)
     // Deliver the signal using pthread_kill() rather than raise() to ensure it
     // is delivered to the correct thread.
     int ret = pthread_kill(threadId, SIGIO);
-    if (ret != 0)
-    {
+    if (ret != 0) {
         // Don't report an error if the thread has already exited
-        if (ret != ESRCH)
-        {
-            LOG_ERROR("Error cancelling blocked IO in thread " <<
-                      threadId << ": " << ::strerror(ret));
+        if (ret != ESRCH) {
+            LOG_ERROR("Error cancelling blocked IO in thread " << threadId << ": " << ::strerror(ret));
             return false;
         }
     }
@@ -230,21 +194,16 @@ bool CThread::cancelBlockedIo(TThreadId threadId)
     return true;
 }
 
-CThread::TThreadId CThread::currentThreadId()
-{
+CThread::TThreadId CThread::currentThreadId() {
     return pthread_self();
 }
 
-CThread::TThreadRet STDCALL CThread::threadFunc(void *obj)
-{
-    CThread *instance = static_cast<CThread *>(obj);
+CThread::TThreadRet STDCALL CThread::threadFunc(void* obj) {
+    CThread* instance = static_cast<CThread*>(obj);
 
     instance->run();
 
     return 0;
 }
-
-
 }
 }
-

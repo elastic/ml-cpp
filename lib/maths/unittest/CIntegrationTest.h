@@ -18,15 +18,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CIntegrationTest : public CppUnit::TestFixture
-{
-    public:
-        void testAllSingleVariate();
-        void testAdaptive();
-        void testSparseGrid();
-        void testMultivariateSmooth();
+class CIntegrationTest : public CppUnit::TestFixture {
+public:
+    void testAllSingleVariate();
+    void testAdaptive();
+    void testSparseGrid();
+    void testMultivariateSmooth();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CIntegration_h

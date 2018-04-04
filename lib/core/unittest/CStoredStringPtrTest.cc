@@ -22,42 +22,31 @@
 #include <string>
 #include <utility>
 
+CppUnit::Test* CStoredStringPtrTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStoredStringPtrTest");
 
-CppUnit::Test *CStoredStringPtrTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStoredStringPtrTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CStoredStringPtrTest>(
-                                   "CStoredStringPtrTest::testPointerSemantics",
-                                   &CStoredStringPtrTest::testPointerSemantics) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CStoredStringPtrTest>(
-                                   "CStoredStringPtrTest::testMemoryUsage",
-                                   &CStoredStringPtrTest::testMemoryUsage) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CStoredStringPtrTest>(
-                                   "CStoredStringPtrTest::testHash",
-                                   &CStoredStringPtrTest::testHash) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testPointerSemantics",
+                                                                        &CStoredStringPtrTest::testPointerSemantics));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testMemoryUsage", &CStoredStringPtrTest::testMemoryUsage));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testHash", &CStoredStringPtrTest::testHash));
 
     return suiteOfTests;
 }
 
-void CStoredStringPtrTest::testPointerSemantics()
-{
+void CStoredStringPtrTest::testPointerSemantics() {
     {
         ml::core::CStoredStringPtr null;
 
-        if (null)
-        {
+        if (null) {
             CPPUNIT_FAIL("Should not return true in boolean context");
         }
 
-        if (!null)
-        {
+        if (!null) {
             CPPUNIT_ASSERT(null != ml::core::CStoredStringPtr::makeStoredString("not null"));
             CPPUNIT_ASSERT(null == nullptr);
             CPPUNIT_ASSERT(null.get() == nullptr);
-        }
-        else
-        {
+        } else {
             CPPUNIT_FAIL("Should not return false in negated boolean context");
         }
     }
@@ -66,23 +55,17 @@ void CStoredStringPtrTest::testPointerSemantics()
 
         ml::core::CStoredStringPtr ptr1 = ml::core::CStoredStringPtr::makeStoredString(str1);
 
-        if (ptr1)
-        {
+        if (ptr1) {
             CPPUNIT_ASSERT(ptr1 == ptr1);
             CPPUNIT_ASSERT(ptr1 != nullptr);
             CPPUNIT_ASSERT(ptr1.get() != nullptr);
-        }
-        else
-        {
+        } else {
             CPPUNIT_FAIL("Should not return false in boolean context");
         }
 
-        if (!ptr1)
-        {
+        if (!ptr1) {
             CPPUNIT_FAIL("Should not return true in negated boolean context");
-        }
-        else
-        {
+        } else {
             CPPUNIT_ASSERT_EQUAL(0, ptr1->compare(str1));
         }
     }
@@ -93,23 +76,17 @@ void CStoredStringPtrTest::testPointerSemantics()
 
         ml::core::CStoredStringPtr ptr2 = ml::core::CStoredStringPtr::makeStoredString(std::move(str2));
 
-        if (ptr2)
-        {
+        if (ptr2) {
             CPPUNIT_ASSERT(ptr2 == ptr2);
             CPPUNIT_ASSERT(ptr2 != nullptr);
             CPPUNIT_ASSERT(ptr2.get() != nullptr);
-        }
-        else
-        {
+        } else {
             CPPUNIT_FAIL("Should not return false in boolean context");
         }
 
-        if (!ptr2)
-        {
+        if (!ptr2) {
             CPPUNIT_FAIL("Should not return true in negated boolean context");
-        }
-        else
-        {
+        } else {
             // str2 should no longer contain its original value, as it should
             // have been moved to the stored string
             CPPUNIT_ASSERT(ptr2->compare(str2) != 0);
@@ -117,8 +94,7 @@ void CStoredStringPtrTest::testPointerSemantics()
     }
 }
 
-void CStoredStringPtrTest::testMemoryUsage()
-{
+void CStoredStringPtrTest::testMemoryUsage() {
     {
         ml::core::CStoredStringPtr null;
 
@@ -143,8 +119,7 @@ void CStoredStringPtrTest::testMemoryUsage()
     }
 }
 
-void CStoredStringPtrTest::testHash()
-{
+void CStoredStringPtrTest::testHash() {
     using TStoredStringPtrUSet = boost::unordered_set<ml::core::CStoredStringPtr>;
 
     ml::core::CStoredStringPtr key = ml::core::CStoredStringPtr::makeStoredString("key");
@@ -154,4 +129,3 @@ void CStoredStringPtrTest::testHash()
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), s.count(key));
 }
-

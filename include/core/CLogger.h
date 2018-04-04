@@ -28,11 +28,8 @@
 
 class CLoggerTest;
 
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Core logging class in Ml
@@ -74,119 +71,105 @@ namespace core
 //! product, but can be useful when a unit test needs to log more
 //! detailed information.
 //!
-class CORE_EXPORT CLogger : private CNonCopyable
-{
-    public:
-        //! Used to set the level we should log at
-        enum ELevel
-        {
-            E_Fatal,
-            E_Error,
-            E_Warn,
-            E_Info,
-            E_Debug,
-            E_Trace
-        };
+class CORE_EXPORT CLogger : private CNonCopyable {
+public:
+    //! Used to set the level we should log at
+    enum ELevel { E_Fatal, E_Error, E_Warn, E_Info, E_Debug, E_Trace };
 
-    public:
-        //! Access to singleton - use MACROS to get to this when logging
-        //! messages
-        static CLogger     &instance();
+public:
+    //! Access to singleton - use MACROS to get to this when logging
+    //! messages
+    static CLogger& instance();
 
-        //! Reconfigure to either a named pipe or a properties file.
-        //! If both are supplied the named pipe takes precedence.
-        bool               reconfigure(const std::string &pipeName,
-                                       const std::string &propertiesFile);
+    //! Reconfigure to either a named pipe or a properties file.
+    //! If both are supplied the named pipe takes precedence.
+    bool reconfigure(const std::string& pipeName, const std::string& propertiesFile);
 
-        //! Tell the logger to log to a named pipe rather than a file.
-        bool               reconfigureLogToNamedPipe(const std::string &pipeName);
+    //! Tell the logger to log to a named pipe rather than a file.
+    bool reconfigureLogToNamedPipe(const std::string& pipeName);
 
-        //! Tell the logger to reconfigure itself by reading a specified
-        //! properties file, if the file exists.
-        bool               reconfigureFromFile(const std::string &propertiesFile);
+    //! Tell the logger to reconfigure itself by reading a specified
+    //! properties file, if the file exists.
+    bool reconfigureFromFile(const std::string& propertiesFile);
 
-        //! Tell the logger to reconfigure itself to log JSON.
-        bool               reconfigureLogJson();
+    //! Tell the logger to reconfigure itself to log JSON.
+    bool reconfigureLogJson();
 
-        //! Set the logging level on the fly - useful when unit tests need to
-        //! log at a lower level than the shipped programs
-        bool               setLoggingLevel(ELevel level);
+    //! Set the logging level on the fly - useful when unit tests need to
+    //! log at a lower level than the shipped programs
+    bool setLoggingLevel(ELevel level);
 
-        //! Has the logger been reconfigured?  Callers should note that there
-        //! is nothing to stop the logger being reconfigured between a call to
-        //! this method and them using the result.
-        bool               hasBeenReconfigured() const;
+    //! Has the logger been reconfigured?  Callers should note that there
+    //! is nothing to stop the logger being reconfigured between a call to
+    //! this method and them using the result.
+    bool hasBeenReconfigured() const;
 
-        //! Log all environment variables.  Callers are responsible for ensuring
-        //! that this method is not called at the same time as a putenv() or
-        //! setenv() call in another thread.
-        void               logEnvironment() const;
+    //! Log all environment variables.  Callers are responsible for ensuring
+    //! that this method is not called at the same time as a putenv() or
+    //! setenv() call in another thread.
+    void logEnvironment() const;
 
-        //! Access to underlying logger (must only be called from macros)
-        log4cxx::LoggerPtr logger();
+    //! Access to underlying logger (must only be called from macros)
+    log4cxx::LoggerPtr logger();
 
 #ifdef Windows
-        //! Throw a fatal exception
-        __declspec(noreturn) static void fatal();
+    //! Throw a fatal exception
+    __declspec(noreturn) static void fatal();
 #else
-        //! Throw a fatal exception
-        __attribute__ ((noreturn)) static void fatal();
+    //! Throw a fatal exception
+    __attribute__((noreturn)) static void fatal();
 #endif
 
-    private:
-        //! Constructor for a singleton is private.
-        CLogger();
-        ~CLogger();
+private:
+    //! Constructor for a singleton is private.
+    CLogger();
+    ~CLogger();
 
-        //! Replace Ml specific patterns in log4cxx properties.  In
-        //! addition to the patterns usually supported by log4cxx, Ml will
-        //! substitute:
-        //! 1) %D with the path to the Ml base log directory
-        //! 2) %N with the program's name
-        //! 3) %P with the program's process ID
-        void massageProperties(log4cxx::helpers::Properties &props) const;
+    //! Replace Ml specific patterns in log4cxx properties.  In
+    //! addition to the patterns usually supported by log4cxx, Ml will
+    //! substitute:
+    //! 1) %D with the path to the Ml base log directory
+    //! 2) %N with the program's name
+    //! 3) %P with the program's process ID
+    void massageProperties(log4cxx::helpers::Properties& props) const;
 
-        using TLogCharLogStrMap = std::map<log4cxx::logchar, log4cxx::LogString>;
-        using TLogCharLogStrMapCItr = TLogCharLogStrMap::const_iterator;
+    using TLogCharLogStrMap = std::map<log4cxx::logchar, log4cxx::LogString>;
+    using TLogCharLogStrMapCItr = TLogCharLogStrMap::const_iterator;
 
-        //! Replace Ml specific mappings in a single string
-        void massageString(const TLogCharLogStrMap &mappings,
-                           const log4cxx::LogString &oldStr,
-                           log4cxx::LogString &newStr) const;
+    //! Replace Ml specific mappings in a single string
+    void massageString(const TLogCharLogStrMap& mappings, const log4cxx::LogString& oldStr, log4cxx::LogString& newStr) const;
 
-        //! Helper for other reconfiguration methods
-        bool reconfigureFromProps(log4cxx::helpers::Properties &props);
+    //! Helper for other reconfiguration methods
+    bool reconfigureFromProps(log4cxx::helpers::Properties& props);
 
-        //! Reset the logger, this is a helper for unit testing as
-        //! CLogger is a singleton, so we can not just create new instances
-        void reset();
-    private:
-        log4cxx::LoggerPtr        m_Logger;
+    //! Reset the logger, this is a helper for unit testing as
+    //! CLogger is a singleton, so we can not just create new instances
+    void reset();
 
-        //! Has the logger ever been reconfigured?  This is not protected by a
-        //! lock despite the fact that it may be accessed from different
-        //! threads.  It is declared volatile to prevent the compiler optimising
-        //! away reads of it.
-        volatile bool             m_Reconfigured;
+private:
+    log4cxx::LoggerPtr m_Logger;
 
-        //! Cache the program name
-        std::string               m_ProgramName;
+    //! Has the logger ever been reconfigured?  This is not protected by a
+    //! lock despite the fact that it may be accessed from different
+    //! threads.  It is declared volatile to prevent the compiler optimising
+    //! away reads of it.
+    volatile bool m_Reconfigured;
 
-        //! When logging to a named pipe this stores the C FILE pointer to
-        //! access the pipe.  Should be NULL otherwise.
-        CNamedPipeFactory::TFileP m_PipeFile;
+    //! Cache the program name
+    std::string m_ProgramName;
 
-        //! When logging to a pipe, the file descriptor that stderr was
-        //! originally associated with.
-        int                       m_OrigStderrFd;
+    //! When logging to a named pipe this stores the C FILE pointer to
+    //! access the pipe.  Should be NULL otherwise.
+    CNamedPipeFactory::TFileP m_PipeFile;
 
-        //! friend class for testing
-        friend class ::CLoggerTest;
+    //! When logging to a pipe, the file descriptor that stderr was
+    //! originally associated with.
+    int m_OrigStderrFd;
+
+    //! friend class for testing
+    friend class ::CLoggerTest;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CLogger_h
-

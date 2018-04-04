@@ -16,24 +16,15 @@
 
 #include <strings.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-int CStrCaseCmp::strCaseCmp(const char *s1, const char *s2)
-{
+int CStrCaseCmp::strCaseCmp(const char* s1, const char* s2) {
     return ::strcasecmp(s1, s2);
 }
 
-int CStrCaseCmp::strNCaseCmp(const char *s1, const char *s2, size_t n)
-{
+int CStrCaseCmp::strNCaseCmp(const char* s1, const char* s2, size_t n) {
     return ::strncasecmp(s1, s2, n);
 }
-
-
 }
 }
-

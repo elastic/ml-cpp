@@ -17,15 +17,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class COsFileFuncsTest : public CppUnit::TestFixture {
+public:
+    void testInode();
+    void testLStat();
 
-class COsFileFuncsTest : public CppUnit::TestFixture
-{
-    public:
-        void testInode();
-        void testLStat();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_COsFileFuncsTest_h
-

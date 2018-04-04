@@ -18,15 +18,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSolversTest : public CppUnit::TestFixture
-{
-    public:
-        void testBracket();
-        void testBisection();
-        void testBrent();
-        void testSublevelSet();
+class CSolversTest : public CppUnit::TestFixture {
+public:
+    void testBracket();
+    void testBisection();
+    void testBrent();
+    void testSublevelSet();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CSolversTest_h

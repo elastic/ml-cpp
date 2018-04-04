@@ -21,11 +21,8 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Persists data to a single C++ stream.
@@ -46,44 +43,38 @@ namespace api
 //!
 //! The single stream must be already open when passed to the constructor.
 //!
-class API_EXPORT CSingleStreamDataAdder : public core::CDataAdder
-{
-    public:
-        //! The \p stream must already be open when the constructor is
-        //! called.
-        CSingleStreamDataAdder(const TOStreamP &stream);
+class API_EXPORT CSingleStreamDataAdder : public core::CDataAdder {
+public:
+    //! The \p stream must already be open when the constructor is
+    //! called.
+    CSingleStreamDataAdder(const TOStreamP& stream);
 
-        //! Returns a stream that can be used to persist data to a C++
-        //! stream, or NULL if this is not possible.  Many errors cannot
-        //! be detected by this method, so the stream will go into the
-        //! "bad" state if an error occurs during upload.  The caller
-        //! must check for this.
-        //! \param index Index to add to metadata document
-        //! \param id ID to add to metadata document
-        virtual TOStreamP addStreamed(const std::string &index,
-                                      const std::string &id);
+    //! Returns a stream that can be used to persist data to a C++
+    //! stream, or NULL if this is not possible.  Many errors cannot
+    //! be detected by this method, so the stream will go into the
+    //! "bad" state if an error occurs during upload.  The caller
+    //! must check for this.
+    //! \param index Index to add to metadata document
+    //! \param id ID to add to metadata document
+    virtual TOStreamP addStreamed(const std::string& index, const std::string& id);
 
-        //! Clients that get a stream using addStreamed() must call this
-        //! method one they've finished sending data to the stream.
-        //! \param stream The completed data stream
-        //! \param force If true the stream is flushed
-        virtual bool streamComplete(TOStreamP &stream,
-                                    bool force);
+    //! Clients that get a stream using addStreamed() must call this
+    //! method one they've finished sending data to the stream.
+    //! \param stream The completed data stream
+    //! \param force If true the stream is flushed
+    virtual bool streamComplete(TOStreamP& stream, bool force);
 
-        virtual std::size_t maxDocumentSize() const;
+    virtual std::size_t maxDocumentSize() const;
 
-    private:
-        //! Recommended maximum Elasticsearch document size
-        static const size_t MAX_DOCUMENT_SIZE;
+private:
+    //! Recommended maximum Elasticsearch document size
+    static const size_t MAX_DOCUMENT_SIZE;
 
-    private:
-        //! The stream we're writing to.
-        TOStreamP m_Stream;
+private:
+    //! The stream we're writing to.
+    TOStreamP m_Stream;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_api_CSingleStreamDataAdder_h
-

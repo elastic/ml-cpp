@@ -21,39 +21,28 @@
 #include <string.h>
 #include <sys/time.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-CCondition::CCondition(CMutex &mutex)
-    : m_Mutex(mutex)
-{
+CCondition::CCondition(CMutex& mutex) : m_Mutex(mutex) {
     int ret(::pthread_cond_init(&m_Condition, 0));
-    if (ret != 0)
-    {
+    if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
 }
 
-CCondition::~CCondition()
-{
+CCondition::~CCondition() {
     int ret(::pthread_cond_destroy(&m_Condition));
-    if (ret != 0)
-    {
+    if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
 }
 
-bool CCondition::wait()
-{
+bool CCondition::wait() {
     // Note: pthread_cond_wait() returns 0 if interrupted by a signal, so the
     // caller must check a condition that will detect spurious wakeups
     int ret(::pthread_cond_wait(&m_Condition, &m_Mutex.m_Mutex));
-    if (ret != 0)
-    {
+    if (ret != 0) {
         LOG_WARN(::strerror(errno));
         return false;
     }
@@ -61,22 +50,18 @@ bool CCondition::wait()
     return true;
 }
 
-bool CCondition::wait(uint32_t t)
-{
+bool CCondition::wait(uint32_t t) {
     timespec tm;
 
-    if (CCondition::convert(t, tm) == false)
-    {
+    if (CCondition::convert(t, tm) == false) {
         return false;
     }
 
     // Note: pthread_cond_timedwait() returns 0 if interrupted by a signal, so
     // the caller must check a condition that will detect spurious wakeups
     int ret(::pthread_cond_timedwait(&m_Condition, &m_Mutex.m_Mutex, &tm));
-    if (ret != 0)
-    {
-        if (ret != ETIMEDOUT)
-        {
+    if (ret != 0) {
+        if (ret != ETIMEDOUT) {
             LOG_WARN(t << ' ' << ::strerror(errno));
             return false;
         }
@@ -85,29 +70,23 @@ bool CCondition::wait(uint32_t t)
     return true;
 }
 
-void CCondition::signal()
-{
+void CCondition::signal() {
     int ret(::pthread_cond_signal(&m_Condition));
-    if (ret != 0)
-    {
+    if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
 }
 
-void CCondition::broadcast()
-{
+void CCondition::broadcast() {
     int ret(::pthread_cond_broadcast(&m_Condition));
-    if (ret != 0)
-    {
+    if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
 }
 
-bool CCondition::convert(uint32_t t, timespec &tm)
-{
+bool CCondition::convert(uint32_t t, timespec& tm) {
     timeval now;
-    if (::gettimeofday(&now, 0) < 0)
-    {
+    if (::gettimeofday(&now, 0) < 0) {
         LOG_WARN(::strerror(errno));
         return false;
     }
@@ -117,12 +96,9 @@ bool CCondition::convert(uint32_t t, timespec &tm)
     tm.tv_sec = now.tv_sec + (t / 1000);
 
     uint32_t remainder(static_cast<uint32_t>(t % 1000));
-    if (remainder == 0)
-    {
+    if (remainder == 0) {
         tm.tv_nsec = now.tv_usec * 1000;
-    }
-    else
-    {
+    } else {
         // s is in microseconds
         uint32_t s((remainder * 1000U) + static_cast<uint32_t>(now.tv_usec));
 
@@ -132,8 +108,5 @@ bool CCondition::convert(uint32_t t, timespec &tm)
 
     return true;
 }
-
-
 }
 }
-
