@@ -17,6 +17,7 @@ class CRegressionTest : public CppUnit::TestFixture
         void testShiftAbscissa(void);
         void testShiftOrdinate(void);
         void testShiftGradient(void);
+        void testLinearScale(void);
         void testAge(void);
         void testPrediction(void);
         void testCombination(void);

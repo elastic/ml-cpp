@@ -362,7 +362,7 @@ void CMetricAnomalyDetectorTest::testAnomalies(void)
             double noise = std::accumulate(anomalyFactors.begin(),
                                            anomalyFactors.end(), 0.0);
             LOG_DEBUG("S/N = " << (signal / noise));
-            CPPUNIT_ASSERT(signal / noise > 100.0);
+            CPPUNIT_ASSERT(signal / noise > 90.0);
         }
 
         // Find the high/low rate partition point.
@@ -499,7 +499,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void)
 
         // expect there to be 2 anomalies
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), highAnomalyTimes.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(92.0, highAnomalyFactors[1], 0.5);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(99.0, highAnomalyFactors[1], 0.5);
     }
     {
         model::CAnomalyDetectorModelConfig modelConfig =
@@ -532,7 +532,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void)
 
         // expect there to be 1 anomaly
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), highAnomalyTimes.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(23.0, highAnomalyFactors[0], 0.4);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(24.0, highAnomalyFactors[0], 0.5);
     }
 }
 

@@ -26,7 +26,8 @@ class CTimeSeriesModelTest : public CppUnit::TestFixture
         void testProbabilityWithCorrelations(void);
         void testAnomalyModel(void);
         void testStepChangeDiscontinuities(void);
-        void daylightSaving(void);
+        void testLinearScaling(void);
+        void testDaylightSaving(void);
 
         static CppUnit::Test *suite(void);
 };

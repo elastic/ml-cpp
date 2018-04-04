@@ -460,8 +460,42 @@ bool hasCountVarianceScale(const TWeightStyleVec &weightStyles,
     return false;
 }
 
+void setWeight(ESampleWeightStyle style,
+               double weight,
+               TWeightStyleVec &weightStyles,
+               TDouble4Vec &weights)
+{
+    std::ptrdiff_t i{std::find(weightStyles.begin(),
+                               weightStyles.end(), style) - weightStyles.begin()};
+    if (static_cast<std::size_t>(i) < weightStyles.size())
+    {
+        weights[i] = weight;
+    }
+    else
+    {
+        weightStyles.push_back(style);
+        weights.push_back(weight);
+    }
+}
+
+void setWeight(ESampleWeightStyle style,
+               double weight,
+               std::size_t dimension,
+               TWeightStyleVec &weightStyles,
+               TDouble10Vec4Vec &weights)
+{
+    std::ptrdiff_t i{std::find(weightStyles.begin(),
+                               weightStyles.end(), style) - weightStyles.begin()};
+    if (static_cast<std::size_t>(i) < weightStyles.size())
+    {
+        weights[i].assign(dimension, weight);
+    }
+    else
+    {
+        weightStyles.push_back(style);
+        weights.push_back(TDouble10Vec(dimension, weight));
+    }
+}
+
 }
 }
-
-
-

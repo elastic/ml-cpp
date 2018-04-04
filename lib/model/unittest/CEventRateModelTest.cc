@@ -585,7 +585,7 @@ void CEventRateModelTest::testOnlineRare(void)
 
     LOG_TRACE("origXml = " << origXml);
     LOG_DEBUG("size = " << origXml.size());
-    CPPUNIT_ASSERT(origXml.size() < 21000);
+    CPPUNIT_ASSERT(origXml.size() < 22000);
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;
@@ -2876,10 +2876,11 @@ void CEventRateModelTest::testDecayRateControl(void)
                                      0.05);
     }
 
-    LOG_DEBUG("*** Test step change ***");
+    LOG_DEBUG("*** Test linear scaling ***");
     {
-        // Test a step change in a stable signal is detected and we get a
-        // significant reduction in the prediction error.
+        // This change point is amongst those we explicitly detect so
+        // check we get similar detection performance with and without
+        // decay rate control.
 
         params.s_ControlDecayRate = true;
         params.s_DecayRate = 0.001;
@@ -2929,8 +2930,9 @@ void CEventRateModelTest::testDecayRateControl(void)
         }
         LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
-        CPPUNIT_ASSERT(         maths::CBasicStatistics::mean(meanPredictionError)
-                       < 0.94 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(meanReferencePredictionError),
+                                     maths::CBasicStatistics::mean(meanPredictionError),
+                                     0.05);
     }
 
     LOG_DEBUG("*** Test unmodelled cyclic component ***");
@@ -2938,7 +2940,8 @@ void CEventRateModelTest::testDecayRateControl(void)
         // This modulates the event rate using a sine with period 10 weeks
         // effectively there are significant "manoeuvres" in the event rate
         // every 5 weeks at the function turning points. We check we get a
-        // significant reduction in the prediction error.
+        // significant reduction in the prediction error with decay rate
+        // control.
 
         params.s_ControlDecayRate = true;
         params.s_DecayRate = 0.001;

@@ -94,6 +94,9 @@ class MATHS_EXPORT CTrendComponent
         //! This updates the model for the probability of a level shift.
         void dontShiftLevel(core_t::TTime time, double value);
 
+        //! Apply a linear scale by \p scale.
+        void linearScale(double scale);
+
         //! Adds a value \f$(t, f(t))\f$ to this component.
         //!
         //! \param[in] time The time of the point.

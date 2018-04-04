@@ -74,7 +74,7 @@ class MATHS_EXPORT CModelParams
         bool testForChange(core_t::TTime changeInterval) const;
 
         //! Get the minimum time to detect a change point in the model.
-        core_t::TTime minimumTimeToDetectChange(core_t::TTime timeSinceLastChangePoint) const;
+        core_t::TTime minimumTimeToDetectChange(void) const;
 
         //! Get the maximum time to test for a change point in the model.
         core_t::TTime maximumTimeToTestForChange(void) const;

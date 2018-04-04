@@ -71,6 +71,9 @@ class MATHS_EXPORT CCalendarComponentAdaptiveBucketing : private CAdaptiveBucket
         //! allocated memory.
         void clear(void);
 
+        //! Linearly scale the bucket values by \p scale.
+        void linearScale(double scale);
+
         //! Add the function value at \p time.
         //!
         //! \param[in] time The time of \p value.

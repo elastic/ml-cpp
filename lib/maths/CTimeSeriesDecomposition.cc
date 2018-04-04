@@ -252,7 +252,7 @@ bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
 {
     CComponents::CScopeNotifyOnStateChange result{m_Components};
 
-    time -= m_TimeShift;
+    time += m_TimeShift;
 
     core_t::TTime lastTime{std::max(m_LastValueTime, m_LastPropagationTime)};
 
@@ -276,21 +276,27 @@ bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     return result.changed();
 }
 
-void CTimeSeriesDecomposition::applyChange(core_t::TTime time,
+bool CTimeSeriesDecomposition::applyChange(core_t::TTime time,
                                            double value,
                                            const SChangeDescription &change)
 {
+    bool result{m_Components.usingTrendForPrediction() == false};
+    m_Components.useTrendForPrediction();
+
     switch (change.s_Description)
     {
     case SChangeDescription::E_LevelShift:
-    {
         m_Components.shiftLevel(time, value, change.s_Value[0]);
         break;
-    }
+    case SChangeDescription::E_LinearScale:
+        m_Components.linearScale(time, change.s_Value[0]);
+        break;
     case SChangeDescription::E_TimeShift:
         m_TimeShift += static_cast<core_t::TTime>(change.s_Value[0]);
         break;
     }
+
+    return result;
 }
 
 void CTimeSeriesDecomposition::propagateForwardsTo(core_t::TTime time)
@@ -357,7 +363,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
         baseline += vector2x1(this->smooth(
                 boost::bind(&CTimeSeriesDecomposition::value,
                             this, _1, confidence, components & E_Seasonal, false),
-                time, components));
+                time - m_TimeShift, components));
     }
 
     return pair(baseline);
@@ -435,7 +441,6 @@ double CTimeSeriesDecomposition::detrend(core_t::TTime time,
     {
         return value;
     }
-    time += m_TimeShift;
     TDoubleDoublePr interval{this->value(time, confidence, components)};
     return std::min(value - interval.first, 0.0) + std::max(value - interval.second, 0.0);
 }
@@ -544,6 +549,11 @@ std::size_t CTimeSeriesDecomposition::memoryUsage(void) const
 std::size_t CTimeSeriesDecomposition::staticSize(void) const
 {
     return sizeof(*this);
+}
+
+core_t::TTime CTimeSeriesDecomposition::timeShift(void) const
+{
+    return m_TimeShift;
 }
 
 const maths_t::TSeasonalComponentVec &CTimeSeriesDecomposition::seasonalComponents(void) const

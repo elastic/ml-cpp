@@ -61,9 +61,10 @@ using TTime1Vec = core::CSmallVector<core_t::TTime, 1>;
 using TSize10Vec = core::CSmallVector<std::size_t, 10>;
 using TSizeDoublePr10Vec = core::CSmallVector<TSizeDoublePr, 10>;
 using TTail10Vec = core::CSmallVector<maths_t::ETail, 10>;
-using TMultivariatePriorCPtrSizePr1Vec = CTimeSeriesCorrelations::TMultivariatePriorCPtrSizePr1Vec;
 using TOptionalSize = boost::optional<std::size_t>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TChangeDetectorPtr = boost::shared_ptr<CUnivariateTimeSeriesChangeDetector>;
+using TMultivariatePriorCPtrSizePr1Vec = CTimeSeriesCorrelations::TMultivariatePriorCPtrSizePr1Vec;
 
 //! The decay rate controllers we maintain.
 enum EDecayRateController
@@ -80,17 +81,165 @@ const TSize10Vec NOTHING_TO_MARGINALIZE;
 const TSizeDoublePr10Vec NOTHING_TO_CONDITION;
 const double WINSORISED_FRACTION{1e-2};
 const double MINIMUM_WINSORISATION_WEIGHT_FRACTION{1e-10};
-const double MINIMUM_WINSORISATION_WEIGHT{0.01};
+const double MINIMUM_TAIL_WINSORISATION_WEIGHT{1e-2};
+const double MINIMUM_CHANGE_WINSORISATION_WEIGHT{1e-1};
 const double LOG_WINSORISED_FRACTION{std::log(WINSORISED_FRACTION)};
 const double LOG_MINIMUM_WEIGHT_FRACTION{std::log(MINIMUM_WINSORISATION_WEIGHT_FRACTION)};
+const double LOG_MINIMUM_TAIL_WINSORISATION_WEIGHT{std::log(MINIMUM_TAIL_WINSORISATION_WEIGHT)};
 const double MINUS_LOG_TOLERANCE{-std::log(1.0 - 100.0 * std::numeric_limits<double>::epsilon())};
 
-//! Computes the Winsorisation weight for \p value.
-double computeWinsorisationWeight(const CPrior &prior, double derate, double scale, double value)
+//! Derate the minimum Winsorisation weight.
+double deratedMinimumWinsorisationWeight(double derate)
 {
-    double deratedMinimumWeight =  MINIMUM_WINSORISATION_WEIGHT
-                                 +  (0.5 - MINIMUM_WINSORISATION_WEIGHT)
-                                   * CTools::truncate(derate, 0.0, 1.0);
+    derate = CTools::truncate(derate, 0.0, 1.0);
+    return MINIMUM_TAIL_WINSORISATION_WEIGHT + (0.5 - MINIMUM_TAIL_WINSORISATION_WEIGHT) * derate;
+}
+
+//! Get the one tail p-value from a specified Winsorisation weight.
+double pValueFromTailWinsorisationWeight(double weight)
+{
+    if (weight >= 1.0)
+    {
+        return 1.0;
+    }
+
+    double logw{std::log(std::max(weight, MINIMUM_TAIL_WINSORISATION_WEIGHT))};
+    return std::exp(0.5 * (  LOG_WINSORISED_FRACTION
+                           - std::sqrt(  CTools::pow2(LOG_WINSORISED_FRACTION)
+                                       + 4.0 * logw / LOG_MINIMUM_TAIL_WINSORISATION_WEIGHT
+                                             *  LOG_MINIMUM_WEIGHT_FRACTION
+                                             * (LOG_MINIMUM_WEIGHT_FRACTION - LOG_WINSORISED_FRACTION))));
+}
+
+//! Optionally randomly sample from \p indices.
+TOptionalSize randomlySample(CPRNG::CXorOShiro128Plus &rng,
+                             const CModelAddSamplesParams &params,
+                             core_t::TTime bucketLength,
+                             const TSizeVec &indices)
+{
+    using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
+
+    double weight{1.0};
+    {
+        auto i = std::find(params.weightStyles().begin(),
+                           params.weightStyles().end(),
+                           maths_t::E_SampleWinsorisationWeight);
+        if (i != params.weightStyles().end())
+        {
+            std::ptrdiff_t index{i - params.weightStyles().begin()};
+            auto addWeight = [index](TMeanAccumulator mean, const TDouble2Vec4Vec &weight_)
+                {
+                    mean.add(weight_[index]);
+                    return mean;
+                };
+            TMeanAccumulator mean{std::accumulate(params.trendWeights().begin(),
+                                                  params.trendWeights().end(),
+                                                  TMeanAccumulator{}, addWeight)};
+            weight = CBasicStatistics::mean(mean);
+        }
+    }
+
+    double p{SLIDING_WINDOW_SIZE * static_cast<double>(bucketLength)
+                                 / static_cast<double>(core::constants::DAY)
+                                 * weight};
+    if (p >= 1.0 || CSampling::uniformSample(rng, 0.0, 1.0) < p)
+    {
+        std::size_t i{CSampling::uniformSample(rng, 0, indices.size())};
+        return indices[i];
+    }
+
+    return TOptionalSize{};
+}
+
+//! Computes a Winsorisation weight based on the chance that the
+//! time series is currently undergoing a change.
+double changeWinsorisationWeight(const TChangeDetectorPtr &detector)
+{
+    if (detector != nullptr)
+    {
+        std::size_t dummy;
+        return std::max(CTools::logisticFunction(
+                            detector->decisionFunction(dummy), 0.1, 1.0, -1.0),
+                        MINIMUM_CHANGE_WINSORISATION_WEIGHT);
+    }
+    return 1.0;
+}
+
+//! Convert \p value to comma separated string.
+std::string toDelimited(const TTimeDoublePr &value)
+{
+    return  core::CStringUtils::typeToString(value.first) + ','
+          + core::CStringUtils::typeToStringPrecise(
+                value.second, core::CIEEE754::E_SinglePrecision);
+}
+
+//! Extract \p value from comma separated string.
+bool fromDelimited(const std::string &str, TTimeDoublePr &value)
+{
+    std::size_t pos{str.find(',')};
+    return   pos != std::string::npos
+          && core::CStringUtils::stringToType(str.substr(0, pos),  value.first)
+          && core::CStringUtils::stringToType(str.substr(pos + 1), value.second);
+}
+
+// Models
+// Version 6.3
+const std::string VERSION_6_3_TAG("6.3");
+const std::string ID_6_3_TAG{"a"};
+const std::string IS_NON_NEGATIVE_6_3_TAG{"b"};
+const std::string IS_FORECASTABLE_6_3_TAG{"c"};
+const std::string RNG_6_3_TAG{"d"};
+const std::string CONTROLLER_6_3_TAG{"e"};
+const std::string TREND_MODEL_6_3_TAG{"f"};
+const std::string RESIDUAL_MODEL_6_3_TAG{"g"};
+const std::string ANOMALY_MODEL_6_3_TAG{"h"};
+const std::string SLIDING_WINDOW_6_3_TAG{"i"};
+const std::string CANDIDATE_CHANGE_POINT_6_3_TAG{"j"};
+const std::string CURRENT_CHANGE_INTERVAL_6_3_TAG{"k"};
+const std::string CHANGE_DETECTOR_6_3_TAG{"l"};
+// Version < 6.3
+const std::string ID_OLD_TAG{"a"};
+const std::string CONTROLLER_OLD_TAG{"b"};
+const std::string TREND_OLD_TAG{"c"};
+const std::string PRIOR_OLD_TAG{"d"};
+const std::string ANOMALY_MODEL_OLD_TAG{"e"};
+const std::string IS_NON_NEGATIVE_OLD_TAG{"g"};
+const std::string IS_FORECASTABLE_OLD_TAG{"h"};
+
+// Anomaly model
+const std::string MEAN_ERROR_TAG{"a"};
+const std::string ANOMALIES_TAG{"b"};
+const std::string ANOMALY_FEATURE_MODEL_TAG{"d"};
+// Anomaly model nested
+const std::string TAG_TAG{"a"};
+const std::string OPEN_TIME_TAG{"b"};
+const std::string SIGN_TAG{"c"};
+const std::string MEAN_ERROR_NORM_TAG{"d"};
+
+// Correlations
+const std::string K_MOST_CORRELATED_TAG{"a"};
+const std::string CORRELATED_LOOKUP_TAG{"b"};
+const std::string CORRELATION_MODELS_TAG{"c"};
+// Correlations nested
+const std::string FIRST_CORRELATE_ID_TAG{"a"};
+const std::string SECOND_CORRELATE_ID_TAG{"b"};
+const std::string CORRELATION_MODEL_TAG{"c"};
+const std::string CORRELATION_TAG{"d"};
+
+namespace forecast
+{
+const std::string INFO_INSUFFICIENT_HISTORY("Insufficient history to forecast");
+const std::string ERROR_MULTIVARIATE("Forecast not supported for multivariate features");
+}
+
+}
+
+double tailWinsorisationWeight(const CPrior &prior,
+                               double derate,
+                               double scale,
+                               double value)
+{
+    double deratedMinimumWeight{deratedMinimumWinsorisationWeight(derate)};
 
     double lowerBound;
     double upperBound;
@@ -139,12 +288,11 @@ double computeWinsorisationWeight(const CPrior &prior, double derate, double sca
     return result;
 }
 
-//! Computes the Winsorisation weight for \p value.
-double computeWinsorisationWeight(const CMultivariatePrior &prior,
-                                  std::size_t dimension,
-                                  double derate,
-                                  double scale,
-                                  const TDouble10Vec &value)
+double tailWinsorisationWeight(const CMultivariatePrior &prior,
+                               std::size_t dimension,
+                               double derate,
+                               double scale,
+                               const core::CSmallVector<double, 10> &value)
 {
     std::size_t dimensions = prior.dimension();
     TSizeDoublePr10Vec condition(dimensions - 1);
@@ -157,116 +305,7 @@ double computeWinsorisationWeight(const CMultivariatePrior &prior,
     }
     boost::shared_ptr<CPrior> conditional(
             prior.univariate(NOTHING_TO_MARGINALIZE, condition).first);
-    return computeWinsorisationWeight(*conditional, derate, scale, value[dimension]);
-}
-
-//! Optionally randomly sample from \p indices.
-TOptionalSize randomlySample(CPRNG::CXorOShiro128Plus &rng,
-                             const CModelAddSamplesParams &params,
-                             core_t::TTime bucketLength,
-                             const TSizeVec &indices)
-{
-    using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
-
-    double weight{1.0};
-    {
-        auto i = std::find(params.weightStyles().begin(),
-                           params.weightStyles().end(),
-                           maths_t::E_SampleWinsorisationWeight);
-        if (i != params.weightStyles().end())
-        {
-            std::ptrdiff_t index{i - params.weightStyles().begin()};
-            auto addWeight = [index](TMeanAccumulator mean, const TDouble2Vec4Vec &weight_)
-                {
-                    mean.add(weight_[index]);
-                    return mean;
-                };
-            TMeanAccumulator mean{std::accumulate(params.trendWeights().begin(),
-                                                  params.trendWeights().end(),
-                                                  TMeanAccumulator{}, addWeight)};
-            weight = CBasicStatistics::mean(mean);
-        }
-    }
-
-    double p{SLIDING_WINDOW_SIZE * static_cast<double>(bucketLength)
-                                 / static_cast<double>(core::constants::DAY)
-                                 * weight};
-    if (p >= 1.0 || CSampling::uniformSample(rng, 0.0, 1.0) < p)
-    {
-        std::size_t i{CSampling::uniformSample(rng, 0, indices.size())};
-        return indices[i];
-    }
-
-    return TOptionalSize{};
-}
-
-//! Convert \p value to comma separated string.
-std::string toDelimited(const TTimeDoublePr &value)
-{
-    return  core::CStringUtils::typeToString(value.first) + ','
-          + core::CStringUtils::typeToStringPrecise(
-                value.second, core::CIEEE754::E_SinglePrecision);
-}
-
-//! Extract \p value from comma separated string.
-bool fromDelimited(const std::string &str, TTimeDoublePr &value)
-{
-    std::size_t pos{str.find(',')};
-    return   pos != std::string::npos
-          && core::CStringUtils::stringToType(str.substr(0, pos),  value.first)
-          && core::CStringUtils::stringToType(str.substr(pos + 1), value.second);
-}
-
-// Models
-// Version 6.3
-const std::string VERSION_6_3_TAG("6.3");
-const std::string ID_6_3_TAG{"a"};
-const std::string IS_NON_NEGATIVE_6_3_TAG{"b"};
-const std::string IS_FORECASTABLE_6_3_TAG{"c"};
-const std::string RNG_6_3_TAG{"d"};
-const std::string CONTROLLER_6_3_TAG{"e"};
-const std::string TREND_MODEL_6_3_TAG{"f"};
-const std::string RESIDUAL_MODEL_6_3_TAG{"g"};
-const std::string ANOMALY_MODEL_6_3_TAG{"h"};
-const std::string SLIDING_WINDOW_6_3_TAG{"i"};
-const std::string CANDIDATE_CHANGE_POINT_6_3_TAG{"j"};
-const std::string CURRENT_CHANGE_INTERVAL_6_3_TAG{"k"};
-const std::string TIME_OF_LAST_CHANGE_POINT_6_3_TAG{"l"};
-const std::string CHANGE_DETECTOR_6_3_TAG{"m"};
-// Version < 6.3
-const std::string ID_OLD_TAG{"a"};
-const std::string CONTROLLER_OLD_TAG{"b"};
-const std::string TREND_OLD_TAG{"c"};
-const std::string PRIOR_OLD_TAG{"d"};
-const std::string ANOMALY_MODEL_OLD_TAG{"e"};
-const std::string IS_NON_NEGATIVE_OLD_TAG{"g"};
-const std::string IS_FORECASTABLE_OLD_TAG{"h"};
-
-// Anomaly model
-const std::string MEAN_ERROR_TAG{"a"};
-const std::string ANOMALIES_TAG{"b"};
-const std::string ANOMALY_FEATURE_MODEL_TAG{"d"};
-// Anomaly model nested
-const std::string TAG_TAG{"a"};
-const std::string OPEN_TIME_TAG{"b"};
-const std::string SIGN_TAG{"c"};
-const std::string MEAN_ERROR_NORM_TAG{"d"};
-
-// Correlations
-const std::string K_MOST_CORRELATED_TAG{"a"};
-const std::string CORRELATED_LOOKUP_TAG{"b"};
-const std::string CORRELATION_MODELS_TAG{"c"};
-// Correlations nested
-const std::string FIRST_CORRELATE_ID_TAG{"a"};
-const std::string SECOND_CORRELATE_ID_TAG{"b"};
-const std::string CORRELATION_MODEL_TAG{"c"};
-const std::string CORRELATION_TAG{"d"};
-
-namespace forecast
-{
-const std::string INFO_INSUFFICIENT_HISTORY("Insufficient history to forecast");
-const std::string ERROR_MULTIVARIATE("Forecast not supported for multivariate features");
-}
+    return tailWinsorisationWeight(*conditional, derate, scale, value[dimension]);
 }
 
 //! \brief A model of anomalous sections of a time series.
@@ -649,7 +688,6 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CModelParams &param
                                                                    params.decayRate()) :
                        TAnomalyModelPtr()),
         m_CurrentChangeInterval(0),
-        m_TimeOfLastChangePoint(0),
         m_SlidingWindow(SLIDING_WINDOW_SIZE),
         m_Correlations(0)
 {
@@ -772,6 +810,10 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
 
     m_IsNonNegative = params.isNonNegative();
 
+    maths_t::EDataType type{params.type()};
+    m_ResidualModel->dataType(type);
+    m_TrendModel->dataType(type);
+
     result = CModel::combine(result, this->updateTrend(params.weightStyles(),
                                                        samples, params.trendWeights()));
 
@@ -785,9 +827,6 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
                      {
                          return samples[lhs].second < samples[rhs].second;
                      });
-
-    maths_t::EDataType type{params.type()};
-    m_ResidualModel->dataType(type);
 
     TDouble1Vec samples_;
     TDouble4Vec1Vec weights_;
@@ -1243,7 +1282,8 @@ CUnivariateTimeSeriesModel::winsorisationWeight(double derate,
 {
     double scale{this->seasonalWeight(0.0, time)[0]};
     double sample{m_TrendModel->detrend(time, value[0], 0.0)};
-    return {computeWinsorisationWeight(*m_ResidualModel, derate, scale, sample)};
+    return {  tailWinsorisationWeight(*m_ResidualModel, derate, scale, sample)
+            * changeWinsorisationWeight(m_ChangeDetector)};
 }
 
 CUnivariateTimeSeriesModel::TDouble2Vec
@@ -1261,7 +1301,6 @@ uint64_t CUnivariateTimeSeriesModel::checksum(uint64_t seed) const
     seed = CChecksum::calculate(seed, m_ResidualModel);
     seed = CChecksum::calculate(seed, m_CandidateChangePoint);
     seed = CChecksum::calculate(seed, m_CurrentChangeInterval);
-    seed = CChecksum::calculate(seed, m_TimeOfLastChangePoint);
     seed = CChecksum::calculate(seed, m_ChangeDetector);
     seed = CChecksum::calculate(seed, m_AnomalyModel);
     seed = CChecksum::calculate(seed, m_SlidingWindow);
@@ -1320,7 +1359,6 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
                                    /**/)
             RESTORE(CANDIDATE_CHANGE_POINT_6_3_TAG, fromDelimited(traverser.value(), m_CandidateChangePoint))
             RESTORE_BUILT_IN(CURRENT_CHANGE_INTERVAL_6_3_TAG, m_CurrentChangeInterval)
-            RESTORE_BUILT_IN(TIME_OF_LAST_CHANGE_POINT_6_3_TAG, m_TimeOfLastChangePoint)
             RESTORE_SETUP_TEARDOWN(CHANGE_DETECTOR_6_3_TAG,
                                    m_ChangeDetector = boost::make_shared<CUnivariateTimeSeriesChangeDetector>(
                                            m_TrendModel, m_ResidualModel),
@@ -1383,7 +1421,6 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
                                                                    boost::cref(*m_ResidualModel), _1));
     inserter.insertValue(CANDIDATE_CHANGE_POINT_6_3_TAG, toDelimited(m_CandidateChangePoint));
     inserter.insertValue(CURRENT_CHANGE_INTERVAL_6_3_TAG, m_CurrentChangeInterval);
-    inserter.insertValue(TIME_OF_LAST_CHANGE_POINT_6_3_TAG, m_TimeOfLastChangePoint);
     if (m_ChangeDetector != nullptr)
     {
         inserter.insertLevel(CHANGE_DETECTOR_6_3_TAG, boost::bind(
@@ -1462,7 +1499,6 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
                        TAnomalyModelPtr()),
         m_CandidateChangePoint(other.m_CandidateChangePoint),
         m_CurrentChangeInterval(other.m_CurrentChangeInterval),
-        m_TimeOfLastChangePoint(other.m_TimeOfLastChangePoint),
         m_ChangeDetector(!isForForecast && other.m_ChangeDetector ?
                          boost::make_shared<CUnivariateTimeSeriesChangeDetector>(*other.m_ChangeDetector) :
                          TChangeDetectorPtr()),
@@ -1486,15 +1522,18 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams &par
 
     if (m_ChangeDetector == nullptr)
     {
-        if (maths_t::winsorisationWeight(params.weightStyles(), {weights}) < 1.0)
+        core_t::TTime minimumTimeToDetect{this->params().minimumTimeToDetectChange()};
+        core_t::TTime maximumTimeToTest{this->params().maximumTimeToTestForChange()};
+        double weight{maths_t::winsorisationWeight(params.weightStyles(), {weights})};
+        if (   minimumTimeToDetect < maximumTimeToTest
+            && pValueFromTailWinsorisationWeight(weight) <= 1e-5)
         {
             m_CurrentChangeInterval += this->params().bucketLength();
             if (this->params().testForChange(m_CurrentChangeInterval))
             {
                 m_ChangeDetector = boost::make_shared<CUnivariateTimeSeriesChangeDetector>(
                                        m_TrendModel, m_ResidualModel,
-                                       this->params().minimumTimeToDetectChange(time - m_TimeOfLastChangePoint),
-                                       this->params().maximumTimeToTestForChange());
+                                       minimumTimeToDetect, maximumTimeToTest);
                 m_CurrentChangeInterval = 0;
             }
         }
@@ -1518,7 +1557,6 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams &par
         {
             LOG_DEBUG("Detected " << change->print() << " at " << values[median].first);
             m_ChangeDetector.reset();
-            m_TimeOfLastChangePoint = time;
             return this->applyChange(*change);
         }
     }
@@ -1536,15 +1574,25 @@ CUnivariateTimeSeriesModel::applyChange(const SChangeDescription &change)
         case SChangeDescription::E_LevelShift:
             value.second += change.s_Value[0];
             break;
+        case SChangeDescription::E_LinearScale:
+            value.second *= change.s_Value[0];
+            break;
         case SChangeDescription::E_TimeShift:
             value.first  += static_cast<core_t::TTime>(change.s_Value[0]);
             break;
         }
     }
 
-    m_TrendModel->applyChange(m_CandidateChangePoint.first, m_CandidateChangePoint.second, change);
-    change.s_ResidualModel->decayRate(m_ResidualModel->decayRate());
-    m_ResidualModel = change.s_ResidualModel;
+    if (m_TrendModel->applyChange(m_CandidateChangePoint.first,
+                                  m_CandidateChangePoint.second, change))
+    {
+        this->reinitializeStateGivenNewComponent();
+    }
+    else
+    {
+        change.s_ResidualModel->decayRate(m_ResidualModel->decayRate());
+        m_ResidualModel = change.s_ResidualModel;
+    }
 
     return E_Success;
 }
@@ -2270,6 +2318,13 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
 
     m_IsNonNegative = params.isNonNegative();
 
+    maths_t::EDataType type{params.type()};
+    m_ResidualModel->dataType(type);
+    for (auto &trendModel : m_TrendModel)
+    {
+        trendModel->dataType(type);
+    }
+
     std::size_t dimension{this->dimension()};
 
     EUpdateResult result{this->updateTrend(params.weightStyles(), samples, params.trendWeights())};
@@ -2294,9 +2349,6 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
                      {
                          return samples[lhs].second < samples[rhs].second;
                      });
-
-    maths_t::EDataType type{params.type()};
-    m_ResidualModel->dataType(type);
 
     TDouble10Vec1Vec samples_;
     TDouble10Vec4Vec1Vec weights_;
@@ -2650,7 +2702,7 @@ CMultivariateTimeSeriesModel::winsorisationWeight(double derate,
 
     for (std::size_t d = 0u; d < dimension; ++d)
     {
-        result[d] = computeWinsorisationWeight(*m_ResidualModel, d, derate, scale[d], sample);
+        result[d] = tailWinsorisationWeight(*m_ResidualModel, d, derate, scale[d], sample);
     }
 
     return result;

@@ -179,6 +179,21 @@ MATHS_EXPORT
 bool hasCountVarianceScale(const TWeightStyleVec &weightStyles,
                            const TDouble10Vec4Vec1Vec &weights);
 
+//! Set \p style to weight or append if it isn't in \p weightStyles.
+MATHS_EXPORT
+void setWeight(ESampleWeightStyle style,
+               double weight,
+               TWeightStyleVec &weightStyles,
+               TDouble4Vec &weights);
+
+//! Set \p style to weight or append if it isn't in \p weightStyles.
+MATHS_EXPORT
+void setWeight(ESampleWeightStyle style,
+               double weight,
+               std::size_t dimension,
+               TWeightStyleVec &weightStyles,
+               TDouble10Vec4Vec &weights);
+
 //! Enumerates the possible probability of less likely sample calculations.
 //!
 //! The possible calculations are:

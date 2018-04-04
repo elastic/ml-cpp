@@ -244,15 +244,7 @@ void CTrendComponent::shiftLevel(core_t::TTime time, double value, double shift)
         double dt{static_cast<double>(time - m_TimeOfLastLevelChange)};
         m_ProbabilityOfLevelChangeModel.addTrainingDataPoint(LEVEL_CHANGE_LABEL, {{dt}, {value}});
     }
-    // The magic 1.2 is due to the fact that the trend is updated
-    // with new values during change detection. As a result, we
-    // purposely reduce the step size since the shift applied after
-    // change detection is biased and otherwise too large. For the
-    // purpose of modeling step changes we want an unbiased estimate
-    // of the step size, including any adaption in the trend during
-    // the detection period. This is an empirical estimate of the
-    // degree of bias across a range of step changes.
-    m_MagnitudeOfLevelChangeModel.addSamples({maths_t::E_SampleCountWeight}, {1.2 * shift}, {{1.0}});
+    m_MagnitudeOfLevelChangeModel.addSamples({maths_t::E_SampleCountWeight}, {shift}, {{1.0}});
     m_TimeOfLastLevelChange = time;
 }
 
@@ -262,6 +254,14 @@ void CTrendComponent::dontShiftLevel(core_t::TTime time, double value)
     {
         double dt{static_cast<double>(time - m_TimeOfLastLevelChange)};
         m_ProbabilityOfLevelChangeModel.addTrainingDataPoint(NO_CHANGE_LABEL, {{dt}, {value}});
+    }
+}
+
+void CTrendComponent::linearScale(double scale)
+{
+    for (auto &model : m_TrendModels)
+    {
+        model.s_Regression.linearScale(scale);
     }
 }
 
@@ -310,6 +310,7 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight)
 void CTrendComponent::dataType(maths_t::EDataType dataType)
 {
     m_ProbabilityOfLevelChangeModel.dataType(dataType);
+    m_MagnitudeOfLevelChangeModel.dataType(dataType);
 }
 
 double CTrendComponent::defaultDecayRate() const

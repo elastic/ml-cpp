@@ -37,8 +37,7 @@ void CModelTest::testAll(void)
         CPPUNIT_ASSERT_EQUAL(0.0, params.probabilityBucketEmpty());
         params.probabilityBucketEmpty(0.2);
         CPPUNIT_ASSERT_EQUAL(0.2, params.probabilityBucketEmpty());
-        CPPUNIT_ASSERT_EQUAL(6 * core::constants::HOUR,
-                             params.minimumTimeToDetectChange(2 * core::constants::DAY));
+        CPPUNIT_ASSERT_EQUAL(6 * core::constants::HOUR, params.minimumTimeToDetectChange());
         CPPUNIT_ASSERT_EQUAL(core::constants::DAY, params.maximumTimeToTestForChange());
     }
     {

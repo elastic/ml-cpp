@@ -46,8 +46,8 @@ class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositio
                               const maths_t::TWeightStyleVec &weightStyles = TWeights::COUNT,
                               const maths_t::TDouble4Vec &weights = TWeights::UNIT);
 
-        //! No-op.
-        virtual void applyChange(core_t::TTime time, double value,
+        //! No-op returning false.
+        virtual bool applyChange(core_t::TTime time, double value,
                                  const SChangeDescription &change);
 
         //! No-op.
@@ -100,7 +100,10 @@ class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositio
         //! Get the static size of this object.
         virtual std::size_t staticSize(void) const;
 
-        //! Get the seasonal components.
+        //! Returns zero.
+        virtual core_t::TTime timeShift(void) const;
+
+        //! Returns an empty vector.
         virtual const maths_t::TSeasonalComponentVec &seasonalComponents(void) const;
 
         //! Returns 0.

@@ -154,6 +154,12 @@ void CSeasonalComponent::shiftSlope(double shift)
     m_Bucketing.shiftSlope(shift);
 }
 
+void CSeasonalComponent::linearScale(core_t::TTime time, double scale)
+{
+    m_Bucketing.linearScale(scale);
+    this->interpolate(time, false);
+}
+
 void CSeasonalComponent::add(core_t::TTime time, double value, double weight)
 {
     double predicted{CBasicStatistics::mean(this->value(this->jitter(time), 0.0))};

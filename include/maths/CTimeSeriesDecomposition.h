@@ -120,11 +120,12 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         //! \param[in] value The value immediately before the change
         //! point.
         //! \param[in] change A description of the change to apply.
-        virtual void applyChange(core_t::TTime time, double value,
+        //! \return True if a new component was detected.
+        virtual bool applyChange(core_t::TTime time, double value,
                                  const SChangeDescription &change);
 
         //! Propagate the decomposition forwards to \p time.
-        void propagateForwardsTo(core_t::TTime time);
+        virtual void propagateForwardsTo(core_t::TTime time);
 
         //! Get the mean value of the time series in the vicinity of \p time.
         virtual double meanValue(core_t::TTime time) const;
@@ -192,10 +193,14 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         //! Get the static size of this object.
         virtual std::size_t staticSize(void) const;
 
+        //! Get the time shift which is being applied.
+        virtual core_t::TTime timeShift(void) const;
+
         //! Get the seasonal components.
         virtual const maths_t::TSeasonalComponentVec &seasonalComponents(void) const;
 
-        //! This is the latest time of any point added to this object or the time skipped to.
+        //! This is the latest time of any point added to this object or
+        //! the time skipped to.
         virtual core_t::TTime lastValueTime(void) const;
 
     private:

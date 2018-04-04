@@ -114,6 +114,14 @@ void CCalendarComponentAdaptiveBucketing::clear(void)
     clearAndShrink(m_Values);
 }
 
+void CCalendarComponentAdaptiveBucketing::linearScale(double scale)
+{
+    for (auto &value : m_Values)
+    {
+        CBasicStatistics::moment<0>(value) *= scale;
+    }
+}
+
 void CCalendarComponentAdaptiveBucketing::add(core_t::TTime time, double value, double weight)
 {
     std::size_t bucket{0};
@@ -153,7 +161,7 @@ void CCalendarComponentAdaptiveBucketing::propagateForwardsByTime(double time)
     {
         double factor{::exp(-this->CAdaptiveBucketing::decayRate() * time)};
         this->CAdaptiveBucketing::age(factor);
-        for (auto &&value : m_Values)
+        for (auto &value : m_Values)
         {
             value.age(factor);
         }
