@@ -100,6 +100,18 @@ class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, 
     public:
         using TRapidJsonWriterBase = JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS>;
 
+        // Instances of this class may very well be long lived, potentially for the lifetime of the application.
+        // Over the course of that lifetimme resources will accumulate in the underlying rapidjson memory
+        // allocator. To prevent excessive memory expansion these resources will need to be cleaned regularly.
+        //
+        // In preference to clients of this class explicitly clearing the allocator a helper/wrapper class -
+        // CScopedRapidJsonPoolAllocator - is provided. This helper has an RAII style interface that clears the
+        // allocator when it goes out of scope which requires that the writer provides the push/popAllocator
+        // functions.  The intent of this approach is to make it possible to use one or two separate allocators
+        // for the writer at nested scope.
+        //
+        // Note that allocators are not destroyed by the pop operation, they persist for the lifetime of the
+        // writer in a cache for swift retrieval.
         CRapidJsonWriterBase(OUTPUT_STREAM &os) : TRapidJsonWriterBase(os)
         {
             // push a default rapidjson allocator onto our stack
@@ -112,11 +124,9 @@ class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, 
             m_JsonPoolAllocators.push(boost::make_shared<CRapidJsonPoolAllocator>());
         }
 
-        virtual ~CRapidJsonWriterBase()
-        {
-            // clean up resources
-            m_JsonPoolAllocators.pop();
-        }
+        // No need for an explicit destructor here as the allocators clear themselves
+        // on destruction.
+        virtual ~CRapidJsonWriterBase() = default;
 
         //! Push a named allocator on to the stack
         //! Look in the cache for the allocator - creating it if not present
