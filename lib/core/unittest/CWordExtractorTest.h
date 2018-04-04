@@ -12,8 +12,8 @@
 class CWordExtractorTest : public CppUnit::TestFixture
 {
     public:
-        void testWordExtract(void);
-        void testMinConsecutive(void);
+        void testWordExtract();
+        void testMinConsecutive();
 
         static CppUnit::Test *suite();
 };

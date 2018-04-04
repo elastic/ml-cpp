@@ -12,11 +12,11 @@
 class CCsvOutputWriterTest : public CppUnit::TestFixture
 {
     public:
-        void testAdd(void);
-        void testOverwrite(void);
-        void testThroughput(void);
-        void testExcelQuoting(void);
-        void testNonExcelQuoting(void);
+        void testAdd();
+        void testOverwrite();
+        void testThroughput();
+        void testExcelQuoting();
+        void testNonExcelQuoting();
 
         static CppUnit::Test *suite();
 };

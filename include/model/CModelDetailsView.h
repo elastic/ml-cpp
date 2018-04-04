@@ -42,7 +42,7 @@ class MODEL_EXPORT CModelDetailsView
         using TStrSet = std::set<std::string>;
 
     public:
-        virtual ~CModelDetailsView(void) = default;
+        virtual ~CModelDetailsView() = default;
 
         //! Get the identifier of the person called \p name if they exist.
         bool personId(const std::string &person, std::size_t &result) const;
@@ -51,7 +51,7 @@ class MODEL_EXPORT CModelDetailsView
         bool categoryId(const std::string &attribute, std::size_t &result) const;
 
         //! Get the collection of features for which data is being gathered.
-        const TFeatureVec &features(void) const;
+        const TFeatureVec &features() const;
 
         //! Get data for creating a model plot error bar at \p time for the
         //! confidence interval \p boundsPercentile and the by fields identified
@@ -82,7 +82,7 @@ class MODEL_EXPORT CModelDetailsView
                                  CModelPlotData &modelPlotData) const;
 
         //! Get the underlying model.
-        virtual const CAnomalyDetectorModel &base(void) const = 0;
+        virtual const CAnomalyDetectorModel &base() const = 0;
 
         //! Get the count variance scale.
         virtual double countVarianceScale(model_t::EFeature feature,
@@ -93,9 +93,9 @@ class MODEL_EXPORT CModelDetailsView
         static bool contains(const TStrSet &terms, const std::string &key);
 
         //! Check if the model has a by field.
-        bool hasByField(void) const;
+        bool hasByField() const;
         //! Get the maximum by field identifier.
-        std::size_t maxByFieldId(void) const;
+        std::size_t maxByFieldId() const;
         //! Try to get the by field identifier corresponding to \p byFieldValue.
         bool byFieldId(const std::string &byFieldValue, std::size_t &result) const;
         //! Get the by field value corresponding to \p byFieldId.
@@ -119,7 +119,7 @@ class MODEL_EXPORT CEventRateModelDetailsView : public CModelDetailsView
                                            std::size_t byFieldId) const;
 
     private:
-        virtual const CAnomalyDetectorModel &base(void) const;
+        virtual const CAnomalyDetectorModel &base() const;
         virtual double countVarianceScale(model_t::EFeature feature,
                                           std::size_t byFieldId,
                                           core_t::TTime time) const;
@@ -142,7 +142,7 @@ class MODEL_EXPORT CEventRatePopulationModelDetailsView : public CModelDetailsVi
                                            std::size_t byFieldId) const;
 
     private:
-        virtual const CAnomalyDetectorModel &base(void) const;
+        virtual const CAnomalyDetectorModel &base() const;
         virtual double countVarianceScale(model_t::EFeature feature,
                                           std::size_t byFieldId,
                                           core_t::TTime time) const;
@@ -165,7 +165,7 @@ class MODEL_EXPORT CMetricModelDetailsView : public CModelDetailsView
                                            std::size_t byFieldId) const;
 
     private:
-        virtual const CAnomalyDetectorModel &base(void) const;
+        virtual const CAnomalyDetectorModel &base() const;
         virtual double countVarianceScale(model_t::EFeature feature,
                                           std::size_t byFieldId,
                                           core_t::TTime time) const;
@@ -188,7 +188,7 @@ class MODEL_EXPORT CMetricPopulationModelDetailsView : public CModelDetailsView
                                            std::size_t byFieldId) const;
 
     private:
-        virtual const CAnomalyDetectorModel &base(void) const;
+        virtual const CAnomalyDetectorModel &base() const;
         virtual double countVarianceScale(model_t::EFeature feature,
                                           std::size_t byFieldId,
                                           core_t::TTime time) const;

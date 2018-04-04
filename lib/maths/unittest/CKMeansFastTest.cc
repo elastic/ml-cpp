@@ -212,7 +212,7 @@ double sumSquareResiduals(const TVector2VecVec &points)
 
 }
 
-void CKMeansFastTest::testDataPropagation(void)
+void CKMeansFastTest::testDataPropagation()
 {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  CKMeansFastTest::testDataPropagation  |");
@@ -250,7 +250,7 @@ void CKMeansFastTest::testDataPropagation(void)
     }
 }
 
-void CKMeansFastTest::testFilter(void)
+void CKMeansFastTest::testFilter()
 {
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CKMeansFastTest::testFilter  |");
@@ -328,7 +328,7 @@ void CKMeansFastTest::testFilter(void)
     }
 }
 
-void CKMeansFastTest::testCentroids(void)
+void CKMeansFastTest::testCentroids()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CKMeansFastTest::testCentroids  |");
@@ -413,7 +413,7 @@ void CKMeansFastTest::testCentroids(void)
     }
 }
 
-void CKMeansFastTest::testClosestPoints(void)
+void CKMeansFastTest::testClosestPoints()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CKMeansFastTest::testClosestPoints  |");
@@ -498,7 +498,7 @@ void CKMeansFastTest::testClosestPoints(void)
     }
 }
 
-void CKMeansFastTest::testRun(void)
+void CKMeansFastTest::testRun()
 {
     LOG_DEBUG("+----------------------------+");
     LOG_DEBUG("|  CKMeansFastTest::testRun  |");
@@ -550,7 +550,7 @@ void CKMeansFastTest::testRun(void)
     }
 }
 
-void CKMeansFastTest::testRunWithSphericalClusters(void)
+void CKMeansFastTest::testRunWithSphericalClusters()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CKMeansFastTest::testRunWithSphericalClusters  |");
@@ -642,7 +642,7 @@ void CKMeansFastTest::testRunWithSphericalClusters(void)
     }
 }
 
-void CKMeansFastTest::testPlusPlus(void)
+void CKMeansFastTest::testPlusPlus()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CKMeansFastTest::testPlusPlus  |");
@@ -765,7 +765,7 @@ void CKMeansFastTest::testPlusPlus(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0, maths::CBasicStatistics::mean(numberClustersSampled), 0.3);
 }
 
-CppUnit::Test *CKMeansFastTest::suite(void)
+CppUnit::Test *CKMeansFastTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CKMeansFastTest");
 

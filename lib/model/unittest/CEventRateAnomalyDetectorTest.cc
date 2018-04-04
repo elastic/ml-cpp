@@ -111,22 +111,22 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor
             return true;
         }
 
-        size_t calls(void) const
+        size_t calls() const
         {
             return m_Calls;
         }
 
-        size_t numDistinctTimes(void) const
+        size_t numDistinctTimes() const
         {
             return m_AllAnomalies.size();
         }
 
-        const TTimeDoubleMap &anomalyScores(void) const
+        const TTimeDoubleMap &anomalyScores() const
         {
             return m_AnomalyScores;
         }
 
-        const TTimeStrPrSet &allAnomalies(void) const
+        const TTimeStrPrSet &allAnomalies() const
         {
             return m_AllAnomalies;
         }
@@ -218,7 +218,7 @@ void importData(ml::core_t::TTime firstTime,
 
 }
 
-void CEventRateAnomalyDetectorTest::testAnomalies(void)
+void CEventRateAnomalyDetectorTest::testAnomalies()
 {
     static const size_t            EXPECTED_ANOMALOUS_HOURS(12);
     static const ml::core_t::TTime FIRST_TIME(1346713620);
@@ -284,7 +284,7 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(10), detectedMySQL);
 }
 
-void CEventRateAnomalyDetectorTest::testPersist(void)
+void CEventRateAnomalyDetectorTest::testPersist()
 {
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);
@@ -349,7 +349,7 @@ void CEventRateAnomalyDetectorTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CEventRateAnomalyDetectorTest::suite(void)
+CppUnit::Test *CEventRateAnomalyDetectorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRateAnomalyDetectorTest");
 

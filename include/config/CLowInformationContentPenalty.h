@@ -32,10 +32,10 @@ class CONFIG_EXPORT CLowInformationContentPenalty : public CPenalty
         CLowInformationContentPenalty(const CAutoconfigurerParams &params);
 
         //! Create a copy on the heap.
-        virtual CLowInformationContentPenalty *clone(void) const;
+        virtual CLowInformationContentPenalty *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
     private:
         //! Compute a penalty for rare detectors.

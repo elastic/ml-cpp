@@ -20,7 +20,7 @@ CppUnit::Test *CShellArgQuoterTest::suite()
     return suiteOfTests;
 }
 
-void CShellArgQuoterTest::testQuote(void)
+void CShellArgQuoterTest::testQuote()
 {
     LOG_DEBUG("\n"
               "echo " << ml::core::CShellArgQuoter::quote("") << "\n"

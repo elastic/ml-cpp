@@ -34,12 +34,12 @@ CPolledDataPenalty::CPolledDataPenalty(const CAutoconfigurerParams &params) :
         CPenalty(params)
 {}
 
-CPolledDataPenalty *CPolledDataPenalty::clone(void) const
+CPolledDataPenalty *CPolledDataPenalty::clone() const
 {
     return new CPolledDataPenalty(*this);
 }
 
-std::string CPolledDataPenalty::name(void) const
+std::string CPolledDataPenalty::name() const
 {
     return "polled data penalty";
 }

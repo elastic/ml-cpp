@@ -58,7 +58,7 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior
 {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
+        static bool dynamicSizeAlwaysZero() { return true; }
 
         using TEqualWithTolerance = CEqualWithTolerance<double>;
 
@@ -110,13 +110,13 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior
         //! \name Prior Contract
         //@{
         //! Get the type of this prior.
-        virtual EPrior type(void) const;
+        virtual EPrior type() const;
 
         //! Create a copy of the prior.
         //!
         //! \return A pointer to a newly allocated clone of this prior.
         //! \warning The caller owns the object returned.
-        virtual CGammaRateConjugate *clone(void) const;
+        virtual CGammaRateConjugate *clone() const;
 
         //! Reset the prior to non-informative.
         virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
@@ -124,10 +124,10 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior
         //! Get the margin between the smallest value and the support left
         //! end. Priors with non-negative support, automatically adjust the
         //! offset if a value is seen which is smaller than offset + margin.
-        virtual double offsetMargin(void) const;
+        virtual double offsetMargin() const;
 
         //! Returns true.
-        virtual bool needsOffset(void) const;
+        virtual bool needsOffset() const;
 
         //! Reset m_Offset so the smallest sample is not within some minimum
         //! offset of the support left end. Note that translating the mean of
@@ -148,7 +148,7 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior
                                     const TDouble4Vec1Vec &weights);
 
         //! Get the current offset.
-        virtual double offset(void) const;
+        virtual double offset() const;
 
         //! Update the prior with a collection of independent samples from the
         //! gamma variable.
@@ -173,10 +173,10 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior
         virtual void propagateForwardsByTime(double time);
 
         //! Get the support for the marginal likelihood function.
-        virtual TDoubleDoublePr marginalLikelihoodSupport(void) const;
+        virtual TDoubleDoublePr marginalLikelihoodSupport() const;
 
         //! Get the mean of the marginal likelihood function.
-        virtual double marginalLikelihoodMean(void) const;
+        virtual double marginalLikelihoodMean() const;
 
         //! Get the mode of the marginal likelihood function.
         virtual double marginalLikelihoodMode(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
@@ -310,7 +310,7 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior
                                                     maths_t::ETail &tail) const;
 
         //! Check if this is a non-informative prior.
-        virtual bool isNonInformative(void) const;
+        virtual bool isNonInformative() const;
 
         //! Get a human readable description of the prior.
         //!
@@ -321,7 +321,7 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior
         //! Print the prior density function in a specified format.
         //!
         //! \see CPrior::printJointDensityFunction for details.
-        virtual std::string printJointDensityFunction(void) const;
+        virtual std::string printJointDensityFunction() const;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed = 0) const;
@@ -330,20 +330,20 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
 
         //! Persist state by passing information to the supplied inserter
         virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
         //@}
 
         //! Get the current estimate of the likelihood shape.
-        double likelihoodShape(void) const;
+        double likelihoodShape() const;
 
         //! The current expected rate for the variable.
-        double likelihoodRate(void) const;
+        double likelihoodRate() const;
 
         //! \name Test Functions
         //@{
@@ -365,21 +365,21 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
         //! Get the of the marginal likelihood.
-        double mean(void) const;
+        double mean() const;
 
         //! Get the current posterior value of the shape parameter of the
         //! prior gamma distribution.
-        double priorShape(void) const;
+        double priorShape() const;
 
         //! Get the current posterior value of the rate parameter of the
         //! prior gamma distribution.
-        double priorRate(void) const;
+        double priorRate() const;
 
         //! Check that the state is valid.
-        bool isBad(void) const;
+        bool isBad() const;
 
         //! Full debug dump of the state of this prior.
-        virtual std::string debug(void) const;
+        virtual std::string debug() const;
 
     private:
         //! The shape parameter of a non-informative prior.

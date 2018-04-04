@@ -133,7 +133,7 @@ class CSmallVector : public boost::container::small_vector<T, N>
         }
 
         // Extend to convert implicitly to a vector.
-        inline operator std::vector<T> (void) const
+        inline operator std::vector<T> () const
         {
             return std::vector<T>(this->begin(), this->end());
         }

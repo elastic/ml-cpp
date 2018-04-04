@@ -14,19 +14,19 @@ namespace core
 {
 
 
-CDataAdder::~CDataAdder(void)
+CDataAdder::~CDataAdder()
 {
     // Most compilers put the vtable in the object file containing the
     // definition of the first non-inlined virtual function, so DON'T move this
     // empty definition to the header file!
 }
 
-std::size_t CDataAdder::maxDocumentsPerBatchSave(void) const
+std::size_t CDataAdder::maxDocumentsPerBatchSave() const
 {
     return std::numeric_limits<std::size_t>::max();
 }
 
-std::size_t CDataAdder::maxDocumentSize(void) const
+std::size_t CDataAdder::maxDocumentSize() const
 {
     return std::numeric_limits<std::size_t>::max();
 }

@@ -143,7 +143,7 @@ double frobenius(const TDoubleVecVec &m)
 
 }
 
-void CSamplingTest::testMultinomialSample(void)
+void CSamplingTest::testMultinomialSample()
 {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  CSamplingTest::testMultinomialSample  |");
@@ -193,7 +193,7 @@ void CSamplingTest::testMultinomialSample(void)
     CPPUNIT_ASSERT(error < 0.02 * pTotal);
 }
 
-void CSamplingTest::testMultivariateNormalSample(void)
+void CSamplingTest::testMultivariateNormalSample()
 {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CSamplingTest::testMultivariateNormalSample  |");
@@ -265,7 +265,7 @@ void CSamplingTest::testMultivariateNormalSample(void)
     }
 }
 
-CppUnit::Test *CSamplingTest::suite(void)
+CppUnit::Test *CSamplingTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSamplingTest");
 

@@ -222,7 +222,7 @@ class MODEL_EXPORT CDataGatherer
         //! a general purpose copy constructor.
         CDataGatherer(bool isForPersistence, const CDataGatherer &other);
 
-        ~CDataGatherer(void);
+        ~CDataGatherer();
         //@}
 
         //! \name Persistence
@@ -236,57 +236,57 @@ class MODEL_EXPORT CDataGatherer
         //! other purpose.
         //!
         //! \warning The caller owns the object returned.
-        CDataGatherer *cloneForPersistence(void) const;
+        CDataGatherer *cloneForPersistence() const;
         //@}
 
         //! Check if the data being gathered are already summarized by an
         //! external aggregation process.
-        model_t::ESummaryMode summaryMode(void) const;
+        model_t::ESummaryMode summaryMode() const;
 
         //! Get the function.
-        model::function_t::EFunction function(void) const;
+        model::function_t::EFunction function() const;
 
         //! Get a description of the component searches.
-        std::string description(void) const;
+        std::string description() const;
 
         //! Is this a population data gatherer?
-        bool isPopulation(void) const;
+        bool isPopulation() const;
 
         //! Get the maximum size of all the member containers.
-        std::size_t maxDimension(void) const;
+        std::size_t maxDimension() const;
 
         //! \name Fields
         //@{
         //! Get the partition field name.
         //!
         //! The name of the partitioning field.
-        const std::string &partitionFieldName(void) const;
+        const std::string &partitionFieldName() const;
 
         //! Get the partition field value.
         //!
         //! The value of the partitioning field.
-        const std::string &partitionFieldValue(void) const;
+        const std::string &partitionFieldValue() const;
 
         //! This is the common field in all searches "along" which the
         //! probabilities are aggregated, i.e. the "by" field name for
         //! individual models and the "over" field name for population
         //! models.
-        const std::string &personFieldName(void) const;
+        const std::string &personFieldName() const;
 
         //! Get the attribute field name if one exists.
-        const std::string &attributeFieldName(void) const;
+        const std::string &attributeFieldName() const;
 
         //! Get the name of the field containing the metric value.
-        const std::string &valueFieldName(void) const;
+        const std::string &valueFieldName() const;
 
         //! Get an iterator at the beginning the influencing field names.
-        TStrVecCItr beginInfluencers(void) const;
+        TStrVecCItr beginInfluencers() const;
 
         //! Get an iterator at the end of the influencing field names.
-        TStrVecCItr endInfluencers(void) const;
+        TStrVecCItr endInfluencers() const;
 
         //! Return the search key for which this is gathering data.
-        const CSearchKey &searchKey(void) const;
+        const CSearchKey &searchKey() const;
 
         //! Get the fields for which to gather data.
         //!
@@ -294,19 +294,19 @@ class MODEL_EXPORT CDataGatherer
         //! the fields which define the categories whose counts are being
         //! analyzed, the fields containing metric series names and values
         //! and the fields defining a population.
-        const TStrVec &fieldsOfInterest(void) const;
+        const TStrVec &fieldsOfInterest() const;
 
         //! Get the number of by field values.  For a population model this will
         //! be equal to numberActiveAttributes(); for an individual model
         //! numberActivePeople().
-        std::size_t numberByFieldValues(void) const;
+        std::size_t numberByFieldValues() const;
 
         //! Get the number of over field values.  For a population model this
         //! will be equal to numberActivePeople(); for an individual model 0.
-        std::size_t numberOverFieldValues(void) const;
+        std::size_t numberOverFieldValues() const;
 
         //! Have we been configured to use NULL values?
-        bool useNull(void) const;
+        bool useNull() const;
         //@}
 
         //! \name Update
@@ -335,7 +335,7 @@ class MODEL_EXPORT CDataGatherer
         //! \name Features
         //@{
         //! Get the number of features on which this is gathering data.
-        std::size_t numberFeatures(void) const;
+        std::size_t numberFeatures() const;
 
         //! Check if this is gathering data on \p feature.
         bool hasFeature(model_t::EFeature feature) const;
@@ -347,7 +347,7 @@ class MODEL_EXPORT CDataGatherer
         model_t::EFeature feature(std::size_t i) const;
 
         //! Get the collection of features for which data is being gathered.
-        const TFeatureVec &features(void) const;
+        const TFeatureVec &features() const;
 
         //! Get the data for all features for the bucketing time interval
         //! containing \p time.
@@ -400,11 +400,11 @@ class MODEL_EXPORT CDataGatherer
         //! \name Person
         //@{
         //! Get the number of active people (not pruned).
-        std::size_t numberActivePeople(void) const;
+        std::size_t numberActivePeople() const;
 
         //! Get the maximum person identifier seen so far
         //! (some of which might have been pruned).
-        std::size_t numberPeople(void) const;
+        std::size_t numberPeople() const;
 
         //! Get the unique identifier of a person if it exists.
         //!
@@ -463,7 +463,7 @@ class MODEL_EXPORT CDataGatherer
         void removePeople(std::size_t lowestPersonToRemove);
 
         //! Get unique identifiers of any people that have been recycled.
-        TSizeVec &recycledPersonIds(void);
+        TSizeVec &recycledPersonIds();
 
         //! Check that the person is no longer being modeled.
         bool isPersonActive(std::size_t pid) const;
@@ -477,11 +477,11 @@ class MODEL_EXPORT CDataGatherer
         //! \name Attribute
         //@{
         //! Get the number of active attributes (not pruned).
-        std::size_t numberActiveAttributes(void) const;
+        std::size_t numberActiveAttributes() const;
 
         //! Get the maximum attribute identifier seen so far
         //! (some of which might have been pruned).
-        std::size_t numberAttributes(void) const;
+        std::size_t numberAttributes() const;
 
         //! Get the unique identifier of an attribute if it exists.
         //!
@@ -518,7 +518,7 @@ class MODEL_EXPORT CDataGatherer
         void removeAttributes(std::size_t lowestAttributeToRemove);
 
         //! Get unique identifiers of any attributes that have been recycled.
-        TSizeVec &recycledAttributeIds(void);
+        TSizeVec &recycledAttributeIds();
 
         //! Check that the person is no longer being modeled.
         bool isAttributeActive(std::size_t cid) const;
@@ -551,19 +551,19 @@ class MODEL_EXPORT CDataGatherer
         void resetSampleCount(std::size_t id);
 
         //! Get the sample counts.
-        TSampleCountsPtr sampleCounts(void) const;
+        TSampleCountsPtr sampleCounts() const;
         //@}
 
         //! \name Time
         //@{
         //! Get the start of the current bucketing time interval.
-        core_t::TTime currentBucketStartTime(void) const;
+        core_t::TTime currentBucketStartTime() const;
 
         //! Reset the current bucketing interval start time.
         void currentBucketStartTime(core_t::TTime bucketStart);
 
         //! Get the length of the bucketing time interval.
-        core_t::TTime bucketLength(void) const;
+        core_t::TTime bucketLength() const;
 
         //! Check if data is available at \p time.
         bool dataAvailable(core_t::TTime time) const;
@@ -603,16 +603,16 @@ class MODEL_EXPORT CDataGatherer
         //@}
 
         //! Get the checksum of this gatherer.
-        uint64_t checksum(void) const;
+        uint64_t checksum() const;
 
         //! Debug the memory used by this component.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         //! Clear this data gatherer.
-        void clear(void);
+        void clear();
 
         //! Reset bucket and return true if bucket was successfully
         //! reset or false otherwise.
@@ -625,7 +625,7 @@ class MODEL_EXPORT CDataGatherer
         void releaseMemory(core_t::TTime samplingCutoffTime);
 
         //! Get the global configuration parameters.
-        const SModelParams &params(void) const;
+        const SModelParams &params() const;
 
         // \name Tuple
         //@{
@@ -715,10 +715,10 @@ class MODEL_EXPORT CDataGatherer
 
         //! Returns the startTime of the earliest bucket for which data are still
         //! accepted.
-        core_t::TTime earliestBucketStartTime(void) const;
+        core_t::TTime earliestBucketStartTime() const;
 
         //! Check the class invariants.
-        bool checkInvariants(void) const;
+        bool checkInvariants() const;
 
     private:
         //! The summary count field value to indicate that the record should

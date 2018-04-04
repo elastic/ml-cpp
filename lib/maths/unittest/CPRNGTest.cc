@@ -19,7 +19,7 @@
 
 using namespace ml;
 
-void CPRNGTest::testSplitMix64(void)
+void CPRNGTest::testSplitMix64()
 {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CPRNGTest::testSplitMix64  |");
@@ -133,7 +133,7 @@ void CPRNGTest::testSplitMix64(void)
     }
 }
 
-void CPRNGTest::testXorOShiro128Plus(void)
+void CPRNGTest::testXorOShiro128Plus()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CPRNGTest::testXorOShiro128Plus  |");
@@ -265,7 +265,7 @@ void CPRNGTest::testXorOShiro128Plus(void)
     }
 }
 
-void CPRNGTest::testXorShift1024Mult(void)
+void CPRNGTest::testXorShift1024Mult()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CPRNGTest::testXorShift1024Mult  |");
@@ -398,7 +398,7 @@ void CPRNGTest::testXorShift1024Mult(void)
     }
 }
 
-CppUnit::Test *CPRNGTest::suite(void)
+CppUnit::Test *CPRNGTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPRNGTest");
 

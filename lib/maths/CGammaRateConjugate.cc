@@ -655,7 +655,7 @@ class CProbabilityOfLessLikelySamples : core::CNonCopyable
             return true;
         }
 
-        maths_t::ETail tail(void) const
+        maths_t::ETail tail() const
         {
             return static_cast<maths_t::ETail>(m_Tail);
         }
@@ -772,14 +772,14 @@ class CLogMarginalLikelihood : core::CNonCopyable
         }
 
         //! Retrieve the error status for the integration.
-        maths_t::EFloatingPointErrorStatus errorStatus(void) const
+        maths_t::EFloatingPointErrorStatus errorStatus() const
         {
             return m_ErrorStatus;
         }
 
     private:
         //! Compute all the constants in the integrand.
-        void precompute(void)
+        void precompute()
         {
             m_NumberSamples = 0.0;
             double logVarianceScaleSum = 0.0;
@@ -929,12 +929,12 @@ CGammaRateConjugate CGammaRateConjugate::nonInformativePrior(maths_t::EDataType 
                                decayRate, offsetMargin);
 }
 
-CGammaRateConjugate::EPrior CGammaRateConjugate::type(void) const
+CGammaRateConjugate::EPrior CGammaRateConjugate::type() const
 {
     return E_Gamma;
 }
 
-CGammaRateConjugate *CGammaRateConjugate::clone(void) const
+CGammaRateConjugate *CGammaRateConjugate::clone() const
 {
     return new CGammaRateConjugate(*this);
 }
@@ -947,12 +947,12 @@ void CGammaRateConjugate::setToNonInformative(double offset,
                                 decayRate, this->offsetMargin());
 }
 
-double CGammaRateConjugate::offsetMargin(void) const
+double CGammaRateConjugate::offsetMargin() const
 {
     return m_OffsetMargin;
 }
 
-bool CGammaRateConjugate::needsOffset(void) const
+bool CGammaRateConjugate::needsOffset() const
 {
     return true;
 }
@@ -966,7 +966,7 @@ double CGammaRateConjugate::adjustOffset(const TWeightStyleVec &weightStyles,
     return this->adjustOffsetWithCost(weightStyles, samples, weights, cost, apply);
 }
 
-double CGammaRateConjugate::offset(void) const
+double CGammaRateConjugate::offset() const
 {
     return m_Offset;
 }
@@ -1197,12 +1197,12 @@ void CGammaRateConjugate::propagateForwardsByTime(double time)
               << ", numberSamples = " << this->numberSamples());
 }
 
-CGammaRateConjugate::TDoubleDoublePr CGammaRateConjugate::marginalLikelihoodSupport(void) const
+CGammaRateConjugate::TDoubleDoublePr CGammaRateConjugate::marginalLikelihoodSupport() const
 {
     return std::make_pair(-m_Offset, boost::numeric::bounds<double>::highest());
 }
 
-double CGammaRateConjugate::marginalLikelihoodMean(void) const
+double CGammaRateConjugate::marginalLikelihoodMean() const
 {
     return this->isInteger() ? this->mean() - 0.5 : this->mean();
 }
@@ -1744,7 +1744,7 @@ bool CGammaRateConjugate::probabilityOfLessLikelySamples(maths_t::EProbabilityCa
     return true;
 }
 
-bool CGammaRateConjugate::isNonInformative(void) const
+bool CGammaRateConjugate::isNonInformative() const
 {
     return    CBasicStatistics::count(m_SampleMoments) < detail::NON_INFORMATIVE_COUNT
            || this->priorRate() == NON_INFORMATIVE_RATE;
@@ -1785,7 +1785,7 @@ void CGammaRateConjugate::print(const std::string &indent, std::string &result) 
              + " sd = " + core::CStringUtils::typeToStringPretty(deviation);
 }
 
-std::string CGammaRateConjugate::printJointDensityFunction(void) const
+std::string CGammaRateConjugate::printJointDensityFunction() const
 {
     if (this->isNonInformative())
     {
@@ -1842,12 +1842,12 @@ void CGammaRateConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr m
     mem->setName("CGammaRateConjugate");
 }
 
-std::size_t CGammaRateConjugate::memoryUsage(void) const
+std::size_t CGammaRateConjugate::memoryUsage() const
 {
     return 0;
 }
 
-std::size_t CGammaRateConjugate::staticSize(void) const
+std::size_t CGammaRateConjugate::staticSize() const
 {
     return sizeof(*this);
 }
@@ -1864,12 +1864,12 @@ void CGammaRateConjugate::acceptPersistInserter(core::CStatePersistInserter &ins
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
 }
 
-double CGammaRateConjugate::likelihoodShape(void) const
+double CGammaRateConjugate::likelihoodShape() const
 {
     return m_LikelihoodShape;
 }
 
-double CGammaRateConjugate::likelihoodRate(void) const
+double CGammaRateConjugate::likelihoodRate() const
 {
     if (this->isNonInformative())
     {
@@ -1935,7 +1935,7 @@ bool CGammaRateConjugate::equalTolerance(const CGammaRateConjugate &rhs,
            && equal(this->priorRate(), rhs.priorRate());
 }
 
-double CGammaRateConjugate::mean(void) const
+double CGammaRateConjugate::mean() const
 {
     if (this->isNonInformative())
     {
@@ -1957,7 +1957,7 @@ double CGammaRateConjugate::mean(void) const
     return m_LikelihoodShape * b / (a - 1.0) - m_Offset;
 }
 
-double CGammaRateConjugate::priorShape(void) const
+double CGammaRateConjugate::priorShape() const
 {
     return m_PriorShape
            + RATE_VARIANCE_SCALE
@@ -1965,7 +1965,7 @@ double CGammaRateConjugate::priorShape(void) const
              * m_LikelihoodShape;
 }
 
-double CGammaRateConjugate::priorRate(void) const
+double CGammaRateConjugate::priorRate() const
 {
     return m_PriorRate
            + RATE_VARIANCE_SCALE
@@ -1973,7 +1973,7 @@ double CGammaRateConjugate::priorRate(void) const
              * CBasicStatistics::mean(m_SampleMoments);
 }
 
-bool CGammaRateConjugate::isBad(void) const
+bool CGammaRateConjugate::isBad() const
 {
     return    !CMathsFuncs::isFinite(m_Offset)
            || !CMathsFuncs::isFinite(m_LikelihoodShape)
@@ -1986,7 +1986,7 @@ bool CGammaRateConjugate::isBad(void) const
            || !CMathsFuncs::isFinite(m_PriorRate);
 }
 
-std::string CGammaRateConjugate::debug(void) const
+std::string CGammaRateConjugate::debug() const
 {
     std::ostringstream result;
     result << std::scientific << std::setprecision(15)

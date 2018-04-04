@@ -17,7 +17,7 @@
 
 using namespace ml;
 
-void CClustererTest::testIndexGenerator(void)
+void CClustererTest::testIndexGenerator()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CClustererTest::testIndexGenerator  |");
@@ -83,7 +83,7 @@ void CClustererTest::testIndexGenerator(void)
     }
 }
 
-CppUnit::Test *CClustererTest::suite(void)
+CppUnit::Test *CClustererTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CClustererTest");
 

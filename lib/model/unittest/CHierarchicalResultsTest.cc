@@ -63,7 +63,7 @@ class CBreadthFirstCheck : public model::CHierarchicalResultsVisitor
         using TNodeCPtrSetVec = std::vector<TNodeCPtrSet>;
 
     public:
-        CBreadthFirstCheck(void) :
+        CBreadthFirstCheck() :
                 m_Layer(0),
                 m_Layers(1, TNodeCPtrSet())
         {}
@@ -208,7 +208,7 @@ class CPrinter : public model::CHierarchicalResultsVisitor
             }
         }
 
-        const std::string &result(void) const
+        const std::string &result() const
         {
             return m_Result;
         }
@@ -259,19 +259,19 @@ class CNodeExtractor : public model::CHierarchicalResultsVisitor
             }
         }
 
-        const TNodeCPtrVec &partitionedNodes(void) const
+        const TNodeCPtrVec &partitionedNodes() const
         {
             return m_PartitionedNodes;
         }
-        const TNodeCPtrVec &partitionNodes(void) const
+        const TNodeCPtrVec &partitionNodes() const
         {
             return m_PartitionNodes;
         }
-        const TNodeCPtrVec &personNodes(void) const
+        const TNodeCPtrVec &personNodes() const
         {
             return m_PersonNodes;
         }
-        const TNodeCPtrVec &leafNodes(void) const
+        const TNodeCPtrVec &leafNodes() const
         {
             return m_LeafNodes;
         }
@@ -391,7 +391,7 @@ class CProbabilityGatherer : public model::CHierarchicalResultsLevelSet<SNodePro
         };
 
     public:
-        CProbabilityGatherer(void) : TBase(SNodeProbabilities("bucket")) {}
+        CProbabilityGatherer() : TBase(SNodeProbabilities("bucket")) {}
 
         virtual void visit(const model::CHierarchicalResults &/*results*/, const TNode &node, bool pivot)
         {
@@ -517,7 +517,7 @@ void addResult(int detector,
 
 } // unnamed::
 
-void CHierarchicalResultsTest::testBreadthFirstVisit(void)
+void CHierarchicalResultsTest::testBreadthFirstVisit()
 {
     LOG_DEBUG("*** testBreadthFirstVisit ***");
 
@@ -583,7 +583,7 @@ void CHierarchicalResultsTest::testBreadthFirstVisit(void)
     bfc.check(5/*expected layers*/);
 }
 
-void CHierarchicalResultsTest::testDepthFirstVisit(void)
+void CHierarchicalResultsTest::testDepthFirstVisit()
 {
     LOG_DEBUG("*** testDepthFirstVisit ***");
 
@@ -691,7 +691,7 @@ const std::string p35("p35");
 
 } // unnamed::
 
-void CHierarchicalResultsTest::testBuildHierarchy(void)
+void CHierarchicalResultsTest::testBuildHierarchy()
 {
     LOG_DEBUG("*** testBuildHierarchy ***");
 
@@ -807,7 +807,7 @@ void CHierarchicalResultsTest::testBuildHierarchy(void)
     }
 }
 
-void CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue(void)
+void CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue()
 {
     LOG_DEBUG("*** testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue ***");
 
@@ -863,7 +863,7 @@ void CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePerson
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.personNodes()[1]->s_Children.size());
 }
 
-void CHierarchicalResultsTest::testBasicVisitor(void)
+void CHierarchicalResultsTest::testBasicVisitor()
 {
     LOG_DEBUG("*** testBasicVisitor ***");
 
@@ -1043,7 +1043,7 @@ void CHierarchicalResultsTest::testBasicVisitor(void)
     }
 }
 
-void CHierarchicalResultsTest::testAggregator(void)
+void CHierarchicalResultsTest::testAggregator()
 {
     LOG_DEBUG("*** testAggregator ***");
 
@@ -1195,7 +1195,7 @@ void CHierarchicalResultsTest::testAggregator(void)
     }
 }
 
-void CHierarchicalResultsTest::testInfluence(void)
+void CHierarchicalResultsTest::testInfluence()
 {
     LOG_DEBUG("*** testInfluence ***");
 
@@ -1337,7 +1337,7 @@ void CHierarchicalResultsTest::testInfluence(void)
     }
 }
 
-void CHierarchicalResultsTest::testScores(void)
+void CHierarchicalResultsTest::testScores()
 {
     LOG_DEBUG("*** testScores ***");
 
@@ -1446,7 +1446,7 @@ void CHierarchicalResultsTest::testScores(void)
     }
 }
 
-void CHierarchicalResultsTest::testWriter(void)
+void CHierarchicalResultsTest::testWriter()
 {
     LOG_DEBUG("*** testWriter ***");
 
@@ -1518,7 +1518,7 @@ void CHierarchicalResultsTest::testWriter(void)
     }
 }
 
-void CHierarchicalResultsTest::testNormalizer(void)
+void CHierarchicalResultsTest::testNormalizer()
 {
     LOG_DEBUG("*** testNormalizer ***");
 
@@ -1744,7 +1744,7 @@ void CHierarchicalResultsTest::testNormalizer(void)
     CPPUNIT_ASSERT_EQUAL(newJson, origJson);
 }
 
-void CHierarchicalResultsTest::testDetectorEqualizing(void)
+void CHierarchicalResultsTest::testDetectorEqualizing()
 {
     LOG_DEBUG("*** testDetectorEqualizing ***");
 
@@ -1992,7 +1992,7 @@ void CHierarchicalResultsTest::testShouldWritePartition()
                                 results, *extract.partitionNodes()[1], false));
 }
 
-CppUnit::Test *CHierarchicalResultsTest::suite(void)
+CppUnit::Test *CHierarchicalResultsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsTest");
 

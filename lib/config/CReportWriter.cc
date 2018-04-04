@@ -169,7 +169,7 @@ bool CReportWriter::fieldNames(const TStrVec &/*fieldNames*/,
     return true;
 }
 
-const CReportWriter::TStrVec &CReportWriter::fieldNames(void) const
+const CReportWriter::TStrVec &CReportWriter::fieldNames() const
 {
     return NO_STRINGS;
 }
@@ -263,7 +263,7 @@ void CReportWriter::addDetector(const CDetectorSpecification &spec)
     m_Detectors[n][DETECTOR_CONFIG].push_back(TStrVec(1, spec.detectorConfig()));
 }
 
-void CReportWriter::write(void) const
+void CReportWriter::write() const
 {
     m_WriteStream << "============\n";
     m_WriteStream << "DATA SUMMARY\n";

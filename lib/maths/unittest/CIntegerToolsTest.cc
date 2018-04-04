@@ -41,7 +41,7 @@ std::string printBits(uint64_t x)
 
 }
 
-void CIntegerToolsTest::testNextPow2(void)
+void CIntegerToolsTest::testNextPow2()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testNextPow2  |");
@@ -70,7 +70,7 @@ void CIntegerToolsTest::testNextPow2(void)
     }
 }
 
-void CIntegerToolsTest::testReverseBits(void)
+void CIntegerToolsTest::testReverseBits()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testReverseBits  |");
@@ -98,7 +98,7 @@ void CIntegerToolsTest::testReverseBits(void)
     }
 }
 
-void CIntegerToolsTest::testGcd(void)
+void CIntegerToolsTest::testGcd()
 {
     LOG_DEBUG("+------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testGcd  |");
@@ -214,7 +214,7 @@ void CIntegerToolsTest::testGcd(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(19), maths::CIntegerTools::gcd(n));
 }
 
-void CIntegerToolsTest::testBinomial(void)
+void CIntegerToolsTest::testBinomial()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testBinomial  |");
@@ -237,7 +237,7 @@ void CIntegerToolsTest::testBinomial(void)
     }
 }
 
-CppUnit::Test *CIntegerToolsTest::suite(void)
+CppUnit::Test *CIntegerToolsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CIntegerToolsTest");
 

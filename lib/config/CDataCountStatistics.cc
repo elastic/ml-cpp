@@ -80,7 +80,7 @@ class CCountStatisticsKey
             m_Fields[2] = spec.partitionField();
         }
 
-        std::size_t hash(void) const
+        std::size_t hash() const
         {
             std::size_t result =        m_Fields[0] ? HASHER(*m_Fields[0]) : 1;
             boost::hash_combine(result, m_Fields[1] ? HASHER(*m_Fields[1]) : 1);
@@ -159,7 +159,7 @@ void CBucketCountStatistics::add(const TSizeSizeSizeTr &partition,
     }
 }
 
-void CBucketCountStatistics::capture(void)
+void CBucketCountStatistics::capture()
 {
     using TSizeSizeSizeTrUInt64UMapCItr = TSizeSizeSizeTrUInt64UMap::const_iterator;
     using TSizeSizeSizeTrArgumentDataUMapItr = TSizeSizeSizeTrArgumentDataUMap::iterator;
@@ -194,17 +194,17 @@ void CBucketCountStatistics::capture(void)
     }
 }
 
-uint64_t CBucketCountStatistics::bucketPartitionCount(void) const
+uint64_t CBucketCountStatistics::bucketPartitionCount() const
 {
     return m_BucketPartitionCount;
 }
 
-const CBucketCountStatistics::TSizeSizePrMomentsUMap &CBucketCountStatistics::countMomentsPerPartition(void) const
+const CBucketCountStatistics::TSizeSizePrMomentsUMap &CBucketCountStatistics::countMomentsPerPartition() const
 {
     return m_CountMomentsPerPartition;
 }
 
-const CBucketCountStatistics::TSizeSizePrQuantileUMap &CBucketCountStatistics::countQuantilesPerPartition(void) const
+const CBucketCountStatistics::TSizeSizePrQuantileUMap &CBucketCountStatistics::countQuantilesPerPartition() const
 {
     return m_CountQuantiles;
 }
@@ -241,7 +241,7 @@ CDataCountStatistics::CDataCountStatistics(const CAutoconfigurerParams &params) 
     }
 }
 
-CDataCountStatistics::~CDataCountStatistics(void) {}
+CDataCountStatistics::~CDataCountStatistics() {}
 
 void CDataCountStatistics::add(TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords)
 {
@@ -301,37 +301,37 @@ void CDataCountStatistics::add(TDetectorRecordCItr beginRecords, TDetectorRecord
     }
 }
 
-uint64_t CDataCountStatistics::recordCount(void) const
+uint64_t CDataCountStatistics::recordCount() const
 {
     return m_RecordCount;
 }
 
-const CDataCountStatistics::TUInt64Vec &CDataCountStatistics::bucketCounts(void) const
+const CDataCountStatistics::TUInt64Vec &CDataCountStatistics::bucketCounts() const
 {
     return m_BucketCounts;
 }
 
-const maths::CQuantileSketch &CDataCountStatistics::arrivalTimeDistribution(void) const
+const maths::CQuantileSketch &CDataCountStatistics::arrivalTimeDistribution() const
 {
     return m_ArrivalTimeDistribution;
 }
 
-core_t::TTime CDataCountStatistics::timeRange(void) const
+core_t::TTime CDataCountStatistics::timeRange() const
 {
     return m_Latest[0] - m_Earliest[0];
 }
 
-std::size_t CDataCountStatistics::numberSampledTimeSeries(void) const
+std::size_t CDataCountStatistics::numberSampledTimeSeries() const
 {
     return m_SampledTimeSeries.size();
 }
 
-const CDataCountStatistics::TBucketStatisticsVec &CDataCountStatistics::bucketStatistics(void) const
+const CDataCountStatistics::TBucketStatisticsVec &CDataCountStatistics::bucketStatistics() const
 {
     return m_BucketStatistics;
 }
 
-const CAutoconfigurerParams &CDataCountStatistics::params(void) const
+const CAutoconfigurerParams &CDataCountStatistics::params() const
 {
     return m_Params;
 }
@@ -420,7 +420,7 @@ void CByOverAndPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecord
 }
 
 const CByOverAndPartitionDataCountStatistics::TSizeSizePrCBjkstUMap &
-    CByOverAndPartitionDataCountStatistics::sampledByAndPartitionDistinctOverCounts(void) const
+    CByOverAndPartitionDataCountStatistics::sampledByAndPartitionDistinctOverCounts() const
 {
     return m_DistinctOverValues;
 }

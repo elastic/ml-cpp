@@ -11,8 +11,8 @@
 class CRapidJsonWriterBaseTest : public CppUnit::TestFixture
 {
     public:
-        void testAddFields(void);
-        void testRemoveMemberIfPresent(void);
+        void testAddFields();
+        void testRemoveMemberIfPresent();
 
         static CppUnit::Test *suite();
 };

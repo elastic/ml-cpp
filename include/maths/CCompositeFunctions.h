@@ -275,10 +275,10 @@ class MATHS_EXPORT CCompositeFunctions
                 }
 
                 //! Retrieve the component function f.
-                const F &f(void) const { return m_F; }
+                const F &f() const { return m_F; }
 
                 //! Retrieve the component function g.
-                const G &g(void) const { return m_G; }
+                const G &g() const { return m_G; }
 
             private:
                 F_ m_F;

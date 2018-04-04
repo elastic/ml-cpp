@@ -84,11 +84,11 @@ bool CGradientDescent::run(std::size_t n,
     return true;
 }
 
-CGradientDescent::CFunction::~CFunction(void)
+CGradientDescent::CFunction::~CFunction()
 {
 }
 
-CGradientDescent::CGradient::~CGradient(void)
+CGradientDescent::CGradient::~CGradient()
 {
 }
 

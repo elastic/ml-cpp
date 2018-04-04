@@ -81,7 +81,7 @@ class CORE_EXPORT CDetachedProcessSpawner
         //! the supplied names should NOT have the .exe extension.
         CDetachedProcessSpawner(const TStrVec &permittedProcessPaths);
 
-        ~CDetachedProcessSpawner(void);
+        ~CDetachedProcessSpawner();
 
         //! Spawn a process.  Returns true on success or false on error,
         //! however, it is important to realise that if the spawned process

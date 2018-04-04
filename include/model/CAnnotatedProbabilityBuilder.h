@@ -63,14 +63,14 @@ class MODEL_EXPORT CAnnotatedProbabilityBuilder : private core::CNonCopyable
                                      model_t::EFeature feature,
                                      const TStoredStringPtr1Vec &correlatedAttributes,
                                      const TSizeDoublePr1Vec &correlated);
-        void build(void);
+        void build();
 
     private:
         void addAttributeDescriptiveData(std::size_t cid,
                                          double pAttribute,
                                          SAttributeProbability &attributeProbability);
 
-        void addDescriptiveData(void);
+        void addDescriptiveData();
 
     private:
         using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<SAttributeProbability>;

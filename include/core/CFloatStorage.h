@@ -70,11 +70,11 @@ class CORE_EXPORT CFloatStorage
 {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
+        static bool dynamicSizeAlwaysZero() { return true; }
 
     public:
         //! Default construction of the floating point value.
-        CFloatStorage(void) : m_Value() {}
+        CFloatStorage() : m_Value() {}
 
         //! Integer promotion. So one can write things like CFloatStorage(1).
         CFloatStorage(int value) : m_Value(float(value))
@@ -110,7 +110,7 @@ class CORE_EXPORT CFloatStorage
         }
 
         //! Convert to a string.
-        std::string toString(void) const
+        std::string toString() const
         {
             return CStringUtils::typeToStringPrecise(static_cast<double>(m_Value),
                                                      CIEEE754::E_SinglePrecision);
@@ -151,7 +151,7 @@ class CORE_EXPORT CFloatStorage
         //@}
 
         //! Implicit conversion to a double.
-        operator double (void) const
+        operator double () const
         {
             return static_cast<double>(m_Value);
         }

@@ -171,7 +171,7 @@ bool naturalBreaksBranchAndBound(const TTupleVec &categories,
 
 }
 
-void CNaturalBreaksClassifierTest::testCategories(void)
+void CNaturalBreaksClassifierTest::testCategories()
 {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  CNaturalBreaksClassifierTest::testCategories  |");
@@ -512,7 +512,7 @@ void CNaturalBreaksClassifierTest::testCategories(void)
     }
 }
 
-void CNaturalBreaksClassifierTest::testPropagateForwardsByTime(void)
+void CNaturalBreaksClassifierTest::testPropagateForwardsByTime()
 {
     LOG_DEBUG("+-------------------------------------------------------------+");
     LOG_DEBUG("|  CNaturalBreaksClassifierTest::testPropagateForwardsByTime  |");
@@ -558,7 +558,7 @@ void CNaturalBreaksClassifierTest::testPropagateForwardsByTime(void)
     }
 }
 
-void CNaturalBreaksClassifierTest::testSample(void)
+void CNaturalBreaksClassifierTest::testSample()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CNaturalBreaksClassifierTest::testSample  |");
@@ -656,7 +656,7 @@ void CNaturalBreaksClassifierTest::testSample(void)
                                  0.1);
 }
 
-void CNaturalBreaksClassifierTest::testPersist(void)
+void CNaturalBreaksClassifierTest::testPersist()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CNaturalBreaksClassifierTest::testSample  |");
@@ -720,7 +720,7 @@ void CNaturalBreaksClassifierTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CNaturalBreaksClassifierTest::suite(void)
+CppUnit::Test *CNaturalBreaksClassifierTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CNaturalBreaksClassifierTest");
 

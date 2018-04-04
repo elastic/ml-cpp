@@ -100,7 +100,7 @@ class CMixtureData
         }
 
         //! Get the number of parameters in the mixture.
-        double parameters(void) const
+        double parameters() const
         {
             return 3.0 * static_cast<double>(m_Categories.size()) - 1.0;
         }
@@ -116,7 +116,7 @@ class CMixtureData
         using TGMM = maths::CMixtureDistribution<boost::math::normal_distribution<>>;
 
     private:
-        void clear(void)
+        void clear()
         {
             m_Categories.clear();
             m_Gmm.weights().clear();
@@ -196,7 +196,7 @@ void CDataSemantics::add(const std::string &example)
     }
 }
 
-void CDataSemantics::computeType(void)
+void CDataSemantics::computeType()
 {
     if (m_Override)
     {
@@ -235,38 +235,38 @@ void CDataSemantics::computeType(void)
     m_Type = this->isInteger() ? this->integerType() : this->realType();
 }
 
-config_t::EDataType CDataSemantics::type(void) const
+config_t::EDataType CDataSemantics::type() const
 {
     return m_Type;
 }
 
-config_t::EDataType CDataSemantics::categoricalType(void) const
+config_t::EDataType CDataSemantics::categoricalType() const
 {
     return m_DistinctValues.size() == 2 ? config_t::E_Binary : config_t::E_Categorical;
 }
 
-config_t::EDataType CDataSemantics::realType(void) const
+config_t::EDataType CDataSemantics::realType() const
 {
     return m_Smallest[0] < maths::COrdinal(0.0) ? config_t::E_Real : config_t::E_PositiveReal;
 }
 
-config_t::EDataType CDataSemantics::integerType(void) const
+config_t::EDataType CDataSemantics::integerType() const
 {
     return m_Smallest[0] < maths::COrdinal(uint64_t(0)) ? config_t::E_Integer : config_t::E_PositiveInteger;
 }
 
-bool CDataSemantics::isNumeric(void) const
+bool CDataSemantics::isNumeric() const
 {
     return    m_NumericProportion >= NUMERIC_PROPORTION_FOR_METRIC_STRICT
           || (m_NonNumericValues.size() < 2 && m_NumericProportion >= NUMERIC_PROPORTION_FOR_METRIC_WITH_SUSPECTED_MISSING_VALUES);
 }
 
-bool CDataSemantics::isInteger(void) const
+bool CDataSemantics::isInteger() const
 {
     return m_IntegerProportion / m_NumericProportion >= INTEGER_PRORORTION_FOR_INTEGER;
 }
 
-bool CDataSemantics::GMMGoodFit(void) const
+bool CDataSemantics::GMMGoodFit() const
 {
     if (m_EmpiricalDistributionOverflowed)
     {

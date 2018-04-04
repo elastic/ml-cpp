@@ -14,7 +14,7 @@ namespace ml
 namespace model
 {
 
-CDetectionRule::CDetectionRule(void)
+CDetectionRule::CDetectionRule()
     : m_Action(E_FilterResults),
       m_Conditions(),
       m_ConditionsConnective(E_Or),
@@ -127,7 +127,7 @@ bool CDetectionRule::isInScope(const CAnomalyDetectorModel &model,
     return false;
 }
 
-std::string CDetectionRule::print(void) const
+std::string CDetectionRule::print() const
 {
     std::string result = this->printAction();
     if (m_TargetFieldName.empty() == false)
@@ -153,7 +153,7 @@ std::string CDetectionRule::print(void) const
     return result;
 }
 
-std::string CDetectionRule::printAction(void) const
+std::string CDetectionRule::printAction() const
 {
     std::string result;
     if (E_FilterResults & m_Action)
@@ -171,7 +171,7 @@ std::string CDetectionRule::printAction(void) const
     return result;
 }
 
-std::string CDetectionRule::printConditionsConnective(void) const
+std::string CDetectionRule::printConditionsConnective() const
 {
     switch (m_ConditionsConnective)
     {

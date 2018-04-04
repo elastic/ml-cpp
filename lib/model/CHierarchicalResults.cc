@@ -281,7 +281,7 @@ class CCommonInfluencePropagator : public CHierarchicalResultsVisitor
 } // unnamed::
 
 
-SResultSpec::SResultSpec(void) :
+SResultSpec::SResultSpec() :
         s_Detector(0),
         s_IsSimpleCount(false),
         s_IsPopulation(false),
@@ -297,7 +297,7 @@ SResultSpec::SResultSpec(void) :
 {
 }
 
-std::string SResultSpec::print(void) const
+std::string SResultSpec::print() const
 {
     return   '\'' + core::CStringUtils::typeToStringPretty(s_IsSimpleCount)
             + '/' + core::CStringUtils::typeToStringPretty(s_IsPopulation)
@@ -379,7 +379,7 @@ bool SResultSpec::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser
 }
 
 
-SNode::SNode(void) :
+SNode::SNode() :
         s_Parent(0),
         s_AnnotatedProbability(1.0),
         s_Detector(-3),
@@ -409,12 +409,12 @@ SNode::SNode(const SResultSpec &simpleSearch, SAnnotatedProbability &annotatedPr
     s_AnnotatedProbability.swap(annotatedProbability);
 }
 
-double SNode::probability(void) const
+double SNode::probability() const
 {
     return s_AnnotatedProbability.s_Probability;
 }
 
-void SNode::propagateFields(void)
+void SNode::propagateFields()
 {
     if (s_Children.empty())
     {
@@ -460,7 +460,7 @@ void SNode::propagateFields(void)
     }
 }
 
-std::string SNode::print(void) const
+std::string SNode::print() const
 {
     return s_Spec.print()
            + ": " + core::CStringUtils::typeToStringPretty(this->probability())
@@ -607,7 +607,7 @@ void swap(SNode &node1, SNode &node2)
 using namespace hierarchical_results_detail;
 
 
-CHierarchicalResults::CHierarchicalResults(void) :
+CHierarchicalResults::CHierarchicalResults() :
         m_ResultType(model_t::CResultType::E_Final)
 {}
 
@@ -671,7 +671,7 @@ void CHierarchicalResults::addInfluencer(const std::string &name)
     this->newPivotRoot(CStringStore::influencers().get(name));
 }
 
-void CHierarchicalResults::buildHierarchy(void)
+void CHierarchicalResults::buildHierarchy()
 {
     using TNodePtrVec = std::vector<SNode*>;
 
@@ -758,7 +758,7 @@ void CHierarchicalResults::buildHierarchy(void)
     this->bottomUpBreadthFirst(influencePropagator);
 }
 
-void CHierarchicalResults::createPivots(void)
+void CHierarchicalResults::createPivots()
 {
     LOG_TRACE("Creating pivots");
 
@@ -786,7 +786,7 @@ void CHierarchicalResults::createPivots(void)
     }
 }
 
-const CHierarchicalResults::TNode *CHierarchicalResults::root(void) const
+const CHierarchicalResults::TNode *CHierarchicalResults::root() const
 {
     if (m_Nodes.empty())
     {
@@ -859,12 +859,12 @@ void CHierarchicalResults::pivotsTopDownBreadthFirst(CHierarchicalResultsVisitor
     }
 }
 
-bool CHierarchicalResults::empty(void) const
+bool CHierarchicalResults::empty() const
 {
     return m_Nodes.empty();
 }
 
-std::size_t CHierarchicalResults::resultCount(void) const
+std::size_t CHierarchicalResults::resultCount() const
 {
     std::size_t result = 0u;
     for (const auto &node : m_Nodes)
@@ -877,12 +877,12 @@ std::size_t CHierarchicalResults::resultCount(void) const
     return result;
 }
 
-void CHierarchicalResults::setInterim(void)
+void CHierarchicalResults::setInterim()
 {
     m_ResultType.set(model_t::CResultType::E_Interim);
 }
 
-model_t::CResultType CHierarchicalResults::resultType(void) const
+model_t::CResultType CHierarchicalResults::resultType() const
 {
     return m_ResultType;
 }
@@ -1076,7 +1076,7 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser &
     return true;
 }
 
-std::string CHierarchicalResults::print(void) const
+std::string CHierarchicalResults::print() const
 {
     std::ostringstream ss;
     for (const auto &node : m_Nodes)
@@ -1086,7 +1086,7 @@ std::string CHierarchicalResults::print(void) const
     return ss.str();
 }
 
-CHierarchicalResults::TNode &CHierarchicalResults::newNode(void)
+CHierarchicalResults::TNode &CHierarchicalResults::newNode()
 {
     m_Nodes.push_back(TNode());
     return m_Nodes.back();
@@ -1126,7 +1126,7 @@ void CHierarchicalResults::postorderDepthFirst(const TNode *node,
     visitor.visit(*this, *node, /*pivot =*/false);
 }
 
-CHierarchicalResultsVisitor::~CHierarchicalResultsVisitor(void)
+CHierarchicalResultsVisitor::~CHierarchicalResultsVisitor()
 {
 }
 

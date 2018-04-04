@@ -11,8 +11,8 @@
 class CStatisticsTest : public CppUnit::TestFixture
 {
 public:
-    void testStatistics(void);
-    void testPersist(void);
+    void testStatistics();
+    void testPersist();
 
     void threadRunner(int i);
 

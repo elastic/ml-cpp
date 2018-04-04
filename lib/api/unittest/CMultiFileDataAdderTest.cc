@@ -78,7 +78,7 @@ CppUnit::Test *CMultiFileDataAdderTest::suite()
     return suiteOfTests;
 }
 
-void CMultiFileDataAdderTest::testSimpleWrite(void)
+void CMultiFileDataAdderTest::testSimpleWrite()
 {
     static const std::string EVENT("Hello Event");
     static const std::string SUMMARY_EVENT("Hello Summary Event");
@@ -139,7 +139,7 @@ void CMultiFileDataAdderTest::testSimpleWrite(void)
     CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(workDir));
 }
 
-void CMultiFileDataAdderTest::testDetectorPersistBy(void)
+void CMultiFileDataAdderTest::testDetectorPersistBy()
 {
     this->detectorPersistHelper("testfiles/new_mlfields.conf",
                                 "testfiles/big_ascending.txt",
@@ -147,7 +147,7 @@ void CMultiFileDataAdderTest::testDetectorPersistBy(void)
                                 "%d/%b/%Y:%T %z");
 }
 
-void CMultiFileDataAdderTest::testDetectorPersistOver(void)
+void CMultiFileDataAdderTest::testDetectorPersistOver()
 {
     this->detectorPersistHelper("testfiles/new_mlfields_over.conf",
                                 "testfiles/big_ascending.txt",
@@ -155,7 +155,7 @@ void CMultiFileDataAdderTest::testDetectorPersistOver(void)
                                 "%d/%b/%Y:%T %z");
 }
 
-void CMultiFileDataAdderTest::testDetectorPersistPartition(void)
+void CMultiFileDataAdderTest::testDetectorPersistPartition()
 {
     this->detectorPersistHelper("testfiles/new_mlfields_partition.conf",
                                 "testfiles/big_ascending.txt",
@@ -163,14 +163,14 @@ void CMultiFileDataAdderTest::testDetectorPersistPartition(void)
                                 "%d/%b/%Y:%T %z");
 }
 
-void CMultiFileDataAdderTest::testDetectorPersistDc(void)
+void CMultiFileDataAdderTest::testDetectorPersistDc()
 {
     this->detectorPersistHelper("testfiles/new_persist_dc.conf",
                                 "testfiles/files_users_programs.csv",
                                 5);
 }
 
-void CMultiFileDataAdderTest::testDetectorPersistCount(void)
+void CMultiFileDataAdderTest::testDetectorPersistCount()
 {
     this->detectorPersistHelper("testfiles/new_persist_count.conf",
                                 "testfiles/files_users_programs.csv",

@@ -453,7 +453,7 @@ class MATHS_EXPORT CIntegration
                 using TVectorVec = std::vector<TVector>;
 
             public:
-                static const CSparseGaussLegendreQuadrature &instance(void)
+                static const CSparseGaussLegendreQuadrature &instance()
                 {
                     const CSparseGaussLegendreQuadrature *tmp = ms_Instance.load(std::memory_order_acquire);
                     if (!tmp)
@@ -470,13 +470,13 @@ class MATHS_EXPORT CIntegration
                 }
 
                 //! The sparse grid point weights.
-                const TDoubleVec &weights(void) const
+                const TDoubleVec &weights() const
                 {
                     return m_Weights;
                 }
 
                 //! The sparse grid point points.
-                const TVectorVec &points(void) const
+                const TVectorVec &points() const
                 {
                     return m_Points;
                 }
@@ -515,7 +515,7 @@ class MATHS_EXPORT CIntegration
                     return false;
                 }
 
-                CSparseGaussLegendreQuadrature(void)
+                CSparseGaussLegendreQuadrature()
                 {
                     // Generate the weights. We don't exploit the weight and
                     // abscissa symmetries to reduce the static storage since

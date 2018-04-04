@@ -74,16 +74,16 @@ class MODEL_EXPORT CStringStore : private core::CNonCopyable
 
     public:
         //! Call this to tidy up any strings no longer needed.
-        static void tidyUpNotThreadSafe(void);
+        static void tidyUpNotThreadSafe();
 
         //! Singleton pattern for person/attribute names.
-        static CStringStore &names(void);
+        static CStringStore &names();
 
         //! Singleton pattern for influencer names.
-        static CStringStore &influencers(void);
+        static CStringStore &influencers();
 
         //! Fast method to get the pointer for an empty string.
-        const core::CStoredStringPtr &getEmpty(void) const;
+        const core::CStoredStringPtr &getEmpty() const;
 
         //! (Possibly) add \p value to the store and get back a pointer to it.
         core::CStoredStringPtr get(const std::string &value);
@@ -92,16 +92,16 @@ class MODEL_EXPORT CStringStore : private core::CNonCopyable
         void remove(const std::string &value);
 
         //! Prune strings which have been removed.
-        void pruneRemovedNotThreadSafe(void);
+        void pruneRemovedNotThreadSafe();
 
         //! Iterate over the string store and remove unused entries.
-        void pruneNotThreadSafe(void);
+        void pruneNotThreadSafe();
 
         //! Get the memory used by this string store
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this string store
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         using TStoredStringPtrUSet = boost::unordered_set<core::CStoredStringPtr,
@@ -111,10 +111,10 @@ class MODEL_EXPORT CStringStore : private core::CNonCopyable
 
     private:
         //! Constructor of a Singleton is private.
-        CStringStore(void);
+        CStringStore();
 
         //! Bludgeoning device to delete all objects in store.
-        void clearEverythingTestOnly(void);
+        void clearEverythingTestOnly();
 
     private:
         //! Fence for reading operations (in which case we "leak" a string

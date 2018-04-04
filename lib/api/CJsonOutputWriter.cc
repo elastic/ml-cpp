@@ -174,12 +174,12 @@ CJsonOutputWriter::CJsonOutputWriter(const std::string &jobId, core::CJsonOutput
     // the moment, the output stream might be redirected after construction
 }
 
-CJsonOutputWriter::~CJsonOutputWriter(void)
+CJsonOutputWriter::~CJsonOutputWriter()
 {
     finalise();
 }
 
-void CJsonOutputWriter::finalise(void)
+void CJsonOutputWriter::finalise()
 {
     if (m_Finalised)
     {
@@ -413,7 +413,7 @@ bool CJsonOutputWriter::fieldNames(const TStrVec &/*fieldNames*/,
     return true;
 }
 
-const CJsonOutputWriter::TStrVec &CJsonOutputWriter::fieldNames(void) const
+const CJsonOutputWriter::TStrVec &CJsonOutputWriter::fieldNames() const
 {
     return EMPTY_FIELD_NAMES;
 }
@@ -925,7 +925,7 @@ void CJsonOutputWriter::limitNumberRecords(size_t count)
     m_RecordOutputLimit = count;
 }
 
-size_t CJsonOutputWriter::limitNumberRecords(void) const
+size_t CJsonOutputWriter::limitNumberRecords() const
 {
     return m_RecordOutputLimit;
 }
@@ -1016,7 +1016,7 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
     m_Writer.EndObject();
 }
 
-CJsonOutputWriter::SBucketData::SBucketData(void)
+CJsonOutputWriter::SBucketData::SBucketData()
     : s_MaxBucketInfluencerNormalizedAnomalyScore(0.0),
       s_InputEventCount(0),
       s_RecordCount(0),

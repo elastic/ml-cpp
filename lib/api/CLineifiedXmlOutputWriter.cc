@@ -36,7 +36,7 @@ CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string &rootName
 {
 }
 
-CLineifiedXmlOutputWriter::~CLineifiedXmlOutputWriter(void)
+CLineifiedXmlOutputWriter::~CLineifiedXmlOutputWriter()
 {
     // Since we didn't flush the stream whilst working, we flush it on
     // destruction
@@ -54,7 +54,7 @@ bool CLineifiedXmlOutputWriter::fieldNames(const TStrVec &/*fieldNames*/,
     return true;
 }
 
-const CLineifiedXmlOutputWriter::TStrVec &CLineifiedXmlOutputWriter::fieldNames(void) const
+const CLineifiedXmlOutputWriter::TStrVec &CLineifiedXmlOutputWriter::fieldNames() const
 {
     return EMPTY_FIELD_NAMES;
 }
@@ -95,7 +95,7 @@ bool CLineifiedXmlOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
     return true;
 }
 
-std::string CLineifiedXmlOutputWriter::internalString(void) const
+std::string CLineifiedXmlOutputWriter::internalString() const
 {
     const_cast<std::ostream &>(m_OutStream).flush();
 

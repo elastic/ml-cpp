@@ -68,10 +68,10 @@ class CONFIG_EXPORT CDataSemantics
         void add(const std::string &example);
 
         //! Compute the type of the data based on the examples added so far.
-        void computeType(void);
+        void computeType();
 
         //! Get the last inferred data type set by computeType.
-        config_t::EDataType type(void) const;
+        config_t::EDataType type() const;
 
     private:
         //! \brief Hashes an ordinal type.
@@ -95,23 +95,23 @@ class CONFIG_EXPORT CDataSemantics
 
     private:
         //! Get the categorical type.
-        config_t::EDataType categoricalType(void) const;
+        config_t::EDataType categoricalType() const;
 
         //! Get the real type.
-        config_t::EDataType realType(void) const;
+        config_t::EDataType realType() const;
 
         //! Get the integer type.
-        config_t::EDataType integerType(void) const;
+        config_t::EDataType integerType() const;
 
         //! Check if the field is numeric.
-        bool isNumeric(void) const;
+        bool isNumeric() const;
 
         //! Check if the field is integer.
-        bool isInteger(void) const;
+        bool isInteger() const;
 
         //! Check how well the data is approximated by a Gaussian
         //! mixture model.
-        bool GMMGoodFit(void) const;
+        bool GMMGoodFit() const;
 
         //! Add an integer value.
         template<typename INT> maths::COrdinal addInteger(INT value);

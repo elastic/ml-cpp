@@ -22,7 +22,7 @@
 using namespace ml;
 using namespace core;
 
-void CHashingTest::testUniversalHash(void)
+void CHashingTest::testUniversalHash()
 {
     // We test the definition:
     //   "for all (x,y) in U and x != y P(h(x) = h(y)) <= 1/m"
@@ -223,7 +223,7 @@ void CHashingTest::testUniversalHash(void)
     }
 }
 
-void CHashingTest::testMurmurHash(void)
+void CHashingTest::testMurmurHash()
 {
     {
         std::string key("This is the voice of the Mysterons!");
@@ -359,7 +359,7 @@ void CHashingTest::testMurmurHash(void)
     CPPUNIT_ASSERT(maxCollisions < 7);
 }
 
-void CHashingTest::testHashCombine(void)
+void CHashingTest::testHashCombine()
 {
     // Check we get about the same number of collisions using hashCombine
     // verses full hash of string.
@@ -402,7 +402,7 @@ void CHashingTest::testHashCombine(void)
     }
 }
 
-void CHashingTest::testConstructors(void)
+void CHashingTest::testConstructors()
 {
     {
         CHashing::CUniversalHash::CUInt32Hash hash(1, 2, 3);
@@ -473,7 +473,7 @@ void CHashingTest::testConstructors(void)
 }
 
 
-CppUnit::Test *CHashingTest::suite(void)
+CppUnit::Test *CHashingTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CHashingTest");
 

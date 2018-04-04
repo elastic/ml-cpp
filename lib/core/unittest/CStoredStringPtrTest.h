@@ -11,9 +11,9 @@
 class CStoredStringPtrTest : public CppUnit::TestFixture
 {
     public:
-        void testPointerSemantics(void);
-        void testMemoryUsage(void);
-        void testHash(void);
+        void testPointerSemantics();
+        void testMemoryUsage();
+        void testHash();
 
         static CppUnit::Test *suite();
 };

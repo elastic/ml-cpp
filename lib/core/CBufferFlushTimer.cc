@@ -16,7 +16,7 @@ namespace core
 {
 
 
-CBufferFlushTimer::CBufferFlushTimer(void)
+CBufferFlushTimer::CBufferFlushTimer()
     : m_LastMaxTime(0),
       m_LastFlushTime(0)
 {

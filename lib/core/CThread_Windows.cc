@@ -20,13 +20,13 @@ namespace core
 {
 
 
-CThread::CThread(void)
+CThread::CThread()
     : m_ThreadId(0),
       m_ThreadHandle(INVALID_HANDLE_VALUE)
 {
 }
 
-CThread::~CThread(void)
+CThread::~CThread()
 {
     CScopedLock lock(m_IdMutex);
 
@@ -36,7 +36,7 @@ CThread::~CThread(void)
     }
 }
 
-bool CThread::start(void)
+bool CThread::start()
 {
     TThreadId dummy(0);
 
@@ -84,7 +84,7 @@ bool CThread::start(TThreadId &threadId)
     return true;
 }
 
-bool CThread::stop(void)
+bool CThread::stop()
 {
     CScopedLock lock(m_IdMutex);
 
@@ -122,7 +122,7 @@ bool CThread::stop(void)
     return true;
 }
 
-bool CThread::waitForFinish(void)
+bool CThread::waitForFinish()
 {
     CScopedLock lock(m_IdMutex);
 
@@ -157,14 +157,14 @@ bool CThread::waitForFinish(void)
     return true;
 }
 
-bool CThread::isStarted(void) const
+bool CThread::isStarted() const
 {
     CScopedLock lock(m_IdMutex);
 
     return (m_ThreadHandle != INVALID_HANDLE_VALUE);
 }
 
-bool CThread::cancelBlockedIo(void)
+bool CThread::cancelBlockedIo()
 {
     CScopedLock lock(m_IdMutex);
 
@@ -235,7 +235,7 @@ bool CThread::cancelBlockedIo(TThreadId threadId)
     return true;
 }
 
-CThread::TThreadId CThread::currentThreadId(void)
+CThread::TThreadId CThread::currentThreadId()
 {
     return GetCurrentThreadId();
 }

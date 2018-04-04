@@ -52,10 +52,10 @@ class TEST_EXPORT CTestTimer : public CppUnit::TestListener
         uint64_t timeForTest(const std::string &testName) const;
 
         //! Get the total time taken for all tests
-        uint64_t totalTime(void) const;
+        uint64_t totalTime() const;
 
         //! Get the average time taken for the tests
-        uint64_t averageTime(void) const;
+        uint64_t averageTime() const;
 
     private:
         //! Used to time each test

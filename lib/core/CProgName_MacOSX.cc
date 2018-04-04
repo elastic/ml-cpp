@@ -18,7 +18,7 @@ namespace core
 {
 
 
-std::string CProgName::progName(void)
+std::string CProgName::progName()
 {
     const char *progName(::getprogname());
     if (progName == 0)
@@ -29,7 +29,7 @@ std::string CProgName::progName(void)
     return progName;
 }
 
-std::string CProgName::progDir(void)
+std::string CProgName::progDir()
 {
     uint32_t bufferSize(2048);
     std::string path(bufferSize, '\0');

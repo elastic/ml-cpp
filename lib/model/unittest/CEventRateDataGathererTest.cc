@@ -308,7 +308,7 @@ void importCsvData(CDataGatherer &gatherer,
 
 } // namespace
 
-void CEventRateDataGathererTest::testLatencyPersist(void)
+void CEventRateDataGathererTest::testLatencyPersist()
 {
     LOG_DEBUG("*** testLatencyPersist ***");
 
@@ -389,7 +389,7 @@ void CEventRateDataGathererTest::testLatencyPersist(void)
 }
 
 
-void CEventRateDataGathererTest::singleSeriesTests(void)
+void CEventRateDataGathererTest::singleSeriesTests()
 {
     LOG_DEBUG("*** singleSeriesTests ***");
 
@@ -584,7 +584,7 @@ void CEventRateDataGathererTest::singleSeriesTests(void)
     }
 }
 
-void CEventRateDataGathererTest::multipleSeriesTests(void)
+void CEventRateDataGathererTest::multipleSeriesTests()
 {
     LOG_DEBUG("*** multipleSeriesTests ***");
 
@@ -755,7 +755,7 @@ void CEventRateDataGathererTest::multipleSeriesTests(void)
     }
 }
 
-void CEventRateDataGathererTest::testRemovePeople(void)
+void CEventRateDataGathererTest::testRemovePeople()
 {
     LOG_DEBUG("*** testRemovePeople ***");
 
@@ -879,7 +879,7 @@ void CEventRateDataGathererTest::testRemovePeople(void)
                          core::CContainerPrinter::print(gatherer.recycledPersonIds()));
 }
 
-void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests(void)
+void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests()
 {
     LOG_DEBUG("*** singleSeriesOutOfOrderFinalResultTests ***");
 
@@ -1048,7 +1048,7 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests(void)
     }
 }
 
-void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests(void)
+void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests()
 {
     LOG_DEBUG("*** singleSeriesOutOfOrderInterimResultTests ***");
 
@@ -1175,7 +1175,7 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests(void)
                          core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void)
+void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests()
 {
     LOG_DEBUG("*** multipleSeriesOutOfOrderFinalResultTests ***");
 
@@ -1346,7 +1346,7 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void)
     }
 }
 
-void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored(void)
+void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored()
 {
     LOG_DEBUG("*** testArrivalBeforeLatencyWindowIsIgnored ***");
 
@@ -1391,7 +1391,7 @@ void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored(void)
                          core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::testResetBucketGivenSingleSeries(void)
+void CEventRateDataGathererTest::testResetBucketGivenSingleSeries()
 {
     LOG_DEBUG("*** testResetBucketGivenSingleSeries ***");
 
@@ -1450,7 +1450,7 @@ void CEventRateDataGathererTest::testResetBucketGivenSingleSeries(void)
                          core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries(void)
+void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries()
 {
     LOG_DEBUG("*** testResetBucketGivenMultipleSeries ***");
 
@@ -1513,7 +1513,7 @@ void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries(void)
                          core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable(void)
+void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable()
 {
     LOG_DEBUG("*** testResetBucketGivenBucketNotAvailable ***");
 
@@ -1539,7 +1539,7 @@ void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable(void)
     CPPUNIT_ASSERT(gatherer.resetBucket(1800) == false);
 }
 
-void CEventRateDataGathererTest::testInfluencerBucketStatistics(void)
+void CEventRateDataGathererTest::testInfluencerBucketStatistics()
 {
     core_t::TTime data[] =
         {
@@ -1618,7 +1618,7 @@ void CEventRateDataGathererTest::testInfluencerBucketStatistics(void)
                              dataVec, influencers, expectedInfoContentVec, "value", m_ResourceMonitor);
 }
 
-void CEventRateDataGathererTest::testDistinctStrings(void)
+void CEventRateDataGathererTest::testDistinctStrings()
 {
     using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
     TSizeSizePr pair(0, 0);
@@ -1916,7 +1916,7 @@ void CEventRateDataGathererTest::testDistinctStrings(void)
     }
 }
 
-void CEventRateDataGathererTest::testDiurnalFeatures(void)
+void CEventRateDataGathererTest::testDiurnalFeatures()
 {
     LOG_DEBUG("*** testDiurnalFeatures ***");
     const std::string person("p");
@@ -2391,7 +2391,7 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void)
 
 }
 
-CppUnit::Test *CEventRateDataGathererTest::suite(void)
+CppUnit::Test *CEventRateDataGathererTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRateDataGathererTest");
 

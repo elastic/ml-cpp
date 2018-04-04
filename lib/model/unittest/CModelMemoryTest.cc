@@ -73,7 +73,7 @@ const std::string EMPTY_STRING;
 
 }
 
-void CModelMemoryTest::testOnlineEventRateModel(void)
+void CModelMemoryTest::testOnlineEventRateModel()
 {
     // Tests to check that the memory usage of the model goes up
     // as data is fed in and that memoryUsage and debugMemory are
@@ -123,7 +123,7 @@ void CModelMemoryTest::testOnlineEventRateModel(void)
     CPPUNIT_ASSERT_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 
-void CModelMemoryTest::testOnlineMetricModel(void)
+void CModelMemoryTest::testOnlineMetricModel()
 {
     // Tests to check that the memory usage of the model goes up
     // as data is fed in and that memoryUsage and debugMemory are
@@ -189,7 +189,7 @@ void CModelMemoryTest::testOnlineMetricModel(void)
 }
 
 
-CppUnit::Test *CModelMemoryTest::suite(void)
+CppUnit::Test *CModelMemoryTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelMemoryTest");
 

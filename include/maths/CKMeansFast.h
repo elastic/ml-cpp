@@ -101,7 +101,7 @@ class CKMeansFast
         class CCluster
         {
             public:
-                CCluster(void) : m_Checksum(0) {}
+                CCluster() : m_Checksum(0) {}
 
                 //! Check for equality using checksum and then points if the
                 //! checksum is ambiguous.
@@ -120,7 +120,7 @@ class CKMeansFast
                 }
 
                 //! Get the number of points in the cluster.
-                std::size_t size(void) const
+                std::size_t size() const
                 {
                     return m_Points.size();
                 }
@@ -131,7 +131,7 @@ class CKMeansFast
                     m_Centre = centre;
                 }
                 //! Get the cluster centre.
-                const POINT &centre(void) const
+                const POINT &centre() const
                 {
                     return m_Centre;
                 }
@@ -144,13 +144,13 @@ class CKMeansFast
                     m_Checksum = CChecksum::calculate(0, m_Points);
                 }
                 //! Get the cluster points.
-                const TPointVec &points(void) const
+                const TPointVec &points() const
                 {
                     return m_Points;
                 }
 
                 //! Get the cluster checksum.
-                uint64_t checksum(void) const
+                uint64_t checksum() const
                 {
                     return m_Checksum;
                 }
@@ -185,7 +185,7 @@ class CKMeansFast
         class CKdTreeNodeData
         {
             public:
-                CKdTreeNodeData(void) {}
+                CKdTreeNodeData() {}
                 explicit CKdTreeNodeData(const POINT &x) :
                         m_BoundingBox(x),
                         m_Centroid()
@@ -194,13 +194,13 @@ class CKMeansFast
                 }
 
                 //! Get the bounding box.
-                const TBoundingBox &boundingBox(void) const
+                const TBoundingBox &boundingBox() const
                 {
                     return m_BoundingBox;
                 }
 
                 //! Get the centroid.
-                const TMeanAccumulator &centroid(void) const
+                const TMeanAccumulator &centroid() const
                 {
                     return m_Centroid;
                 }
@@ -220,7 +220,7 @@ class CKMeansFast
                 }
 
                 //! Clear the bounding box and centroid.
-                void clear(void) const
+                void clear() const
                 {
                     m_BoundingBox.clear();
                     m_Centroid = TMeanAccumulator();
@@ -310,13 +310,13 @@ class CKMeansFast
                 {}
 
                 //! Get the centres.
-                const TPointVec &centres(void) const
+                const TPointVec &centres() const
                 {
                     return *m_Centres;
                 }
 
                 //! Get the filter.
-                const TSizeVec &filter(void) const
+                const TSizeVec &filter() const
                 {
                     return m_Filter;
                 }
@@ -541,14 +541,14 @@ class CKMeansFast
         }
 
         //! Get the cluster centres.
-        const TPointVec &centres(void) const
+        const TPointVec &centres() const
         {
             return m_Centres;
         }
 
     private:
         //! Single iteration of Lloyd's algorithm to update \p centres.
-        bool updateCentres(void)
+        bool updateCentres()
         {
             using TCoordinate = typename SCoordinate<POINT>::Type;
             static const TCoordinate PRECISION =  TCoordinate(5)

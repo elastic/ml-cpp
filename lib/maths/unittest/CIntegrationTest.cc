@@ -120,7 +120,7 @@ class CMultivariatePolynomialFunction
             std::copy(powers, powers + DIMENSION, m_Terms.back().s_Powers);
         }
 
-        void finalize(void)
+        void finalize()
         {
             std::sort(m_Terms.begin(), m_Terms.end());
         }
@@ -144,7 +144,7 @@ class CMultivariatePolynomialFunction
             return true;
         }
 
-        const TMonomialVec &terms(void) const { return m_Terms; }
+        const TMonomialVec &terms() const { return m_Terms; }
 
     private:
         TMonomialVec m_Terms;
@@ -302,7 +302,7 @@ class CNormal
 
 }
 
-void CIntegrationTest::testAllSingleVariate(void)
+void CIntegrationTest::testAllSingleVariate()
 {
     LOG_DEBUG("+-------------------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testAllSingleVariate  |");
@@ -870,7 +870,7 @@ void CIntegrationTest::testAllSingleVariate(void)
 
 
 
-void CIntegrationTest::testAdaptive(void)
+void CIntegrationTest::testAdaptive()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testAdaptive  |");
@@ -1003,7 +1003,7 @@ void CIntegrationTest::testAdaptive(void)
     }
 }
 
-void CIntegrationTest::testSparseGrid(void)
+void CIntegrationTest::testSparseGrid()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testSparseGrid  |");
@@ -1253,7 +1253,7 @@ void CIntegrationTest::testSparseGrid(void)
     }
 }
 
-void CIntegrationTest::testMultivariateSmooth(void)
+void CIntegrationTest::testMultivariateSmooth()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testMultivariateSmooth  |");
@@ -1432,7 +1432,7 @@ void CIntegrationTest::testMultivariateSmooth(void)
     }
 }
 
-CppUnit::Test *CIntegrationTest::suite(void)
+CppUnit::Test *CIntegrationTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CIntegrationTest");
 

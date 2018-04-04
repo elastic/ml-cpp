@@ -38,11 +38,11 @@ class CMockDataProcessor : public ml::api::CDataProcessor
         CMockDataProcessor(ml::api::COutputHandler &outputHandler);
 
         //! We're going to be writing to a new output stream
-        virtual void newOutputStream(void);
+        virtual void newOutputStream();
 
         virtual bool handleRecord(const TStrStrUMap &dataRowFields);
 
-        virtual void finalise(void);
+        virtual void finalise();
 
         //! Restore previously saved state
         virtual bool restoreState(ml::core::CDataSearcher &restoreSearcher,
@@ -52,10 +52,10 @@ class CMockDataProcessor : public ml::api::CDataProcessor
         virtual bool persistState(ml::core::CDataAdder &persister);
 
         //! How many records did we handle?
-        virtual uint64_t numRecordsHandled(void) const;
+        virtual uint64_t numRecordsHandled() const;
 
         //! Access the output handler
-        virtual ml::api::COutputHandler &outputHandler(void);
+        virtual ml::api::COutputHandler &outputHandler();
 
     private:
         ml::api::COutputHandler &m_OutputHandler;

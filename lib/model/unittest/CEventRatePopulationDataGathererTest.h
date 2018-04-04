@@ -15,15 +15,15 @@
 class CEventRatePopulationDataGathererTest : public CppUnit::TestFixture
 {
     public:
-        void testAttributeCounts(void);
-        void testAttributeIndicator(void);
-        void testUniqueValueCounts(void);
-        void testCompressedLength(void);
-        void testRemovePeople(void);
-        void testRemoveAttributes(void);
-        void testPersistence(void);
+        void testAttributeCounts();
+        void testAttributeIndicator();
+        void testUniqueValueCounts();
+        void testCompressedLength();
+        void testRemovePeople();
+        void testRemoveAttributes();
+        void testPersistence();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 
     private:
         ml::model::CResourceMonitor m_ResourceMonitor;

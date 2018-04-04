@@ -37,22 +37,22 @@ namespace config
 class CONFIG_EXPORT CDataSummaryStatistics
 {
     public:
-        CDataSummaryStatistics(void);
+        CDataSummaryStatistics();
 
         //! Add an example arriving at \p time.
         void add(core_t::TTime time);
 
         //! Get the total count of examples.
-        uint64_t count(void) const;
+        uint64_t count() const;
 
         //! Get the earliest time of any example.
-        core_t::TTime earliest(void) const;
+        core_t::TTime earliest() const;
 
         //! Get the latest time of any example.
-        core_t::TTime latest(void) const;
+        core_t::TTime latest() const;
 
         //! The mean rate of examples in the data set.
-        double meanRate(void) const;
+        double meanRate() const;
 
     protected:
         using TMinTimeAccumulator = maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1>;
@@ -97,22 +97,22 @@ class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStati
         void add(core_t::TTime time, const std::string &example);
 
         //! Get the distinct count of categories.
-        std::size_t distinctCount(void) const;
+        std::size_t distinctCount() const;
 
         //! Get the minimum length of any category.
-        std::size_t minimumLength(void) const;
+        std::size_t minimumLength() const;
 
         //! Get the maximum length of any category.
-        std::size_t maximumLength(void) const;
+        std::size_t maximumLength() const;
 
         //! Get the estimated empirical entropy of the categories.
-        double entropy(void) const;
+        double entropy() const;
 
         //! Get the top-n most frequent categories and their counts.
         void topN(TStrSizePrVec &result) const;
 
         //! Get the mean count in the remaining categories.
-        double meanCountInRemainders(void) const;
+        double meanCountInRemainders() const;
 
     private:
         //! The number of n-grams on which we maintain statistics.
@@ -136,7 +136,7 @@ class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStati
         void addNGrams(std::size_t n, const std::string &example);
 
         //! If the cardinality is too high approximate the statistics.
-        void approximateIfCardinalityTooHigh(void);
+        void approximateIfCardinalityTooHigh();
 
         //! Update the counts of the calibrators.
         void updateCalibrators(std::size_t category);
@@ -145,7 +145,7 @@ class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStati
         double calibratedCount(std::size_t category) const;
 
         //! Fill in the lowest top-n vector.
-        void findLowestTopN(void);
+        void findLowestTopN();
 
         //! Get the top-n most frequent categories.
         void topN(TStrUInt64UMapCItrVec &result) const;
@@ -224,13 +224,13 @@ class CONFIG_EXPORT CNumericDataSummaryStatistics : public CDataSummaryStatistic
         void add(core_t::TTime time, const std::string &example);
 
         //! Get the minimum value.
-        double minimum(void) const;
+        double minimum() const;
 
         //! Get the approximate median of the values.
-        double median(void) const;
+        double median() const;
 
         //! Get the maximum value.
-        double maximum(void) const;
+        double maximum() const;
 
         //! Get a chart of the density function we have estimated.
         bool densityChart(TDoubleDoublePrVec &result) const;

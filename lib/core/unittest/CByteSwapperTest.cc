@@ -22,7 +22,7 @@ CppUnit::Test *CByteSwapperTest::suite()
     return suiteOfTests;
 }
 
-void CByteSwapperTest::testByteSwaps(void)
+void CByteSwapperTest::testByteSwaps()
 {
     uint8_t type1(0x12);
     CPPUNIT_ASSERT(ml::core::CByteSwapper::swapBytes(type1) == 0x12);

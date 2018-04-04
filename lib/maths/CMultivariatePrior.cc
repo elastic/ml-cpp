@@ -42,7 +42,7 @@ void setDecayRate(double value, double fallback, double &result)
 
 }
 
-CMultivariatePrior::CMultivariatePrior(void) :
+CMultivariatePrior::CMultivariatePrior() :
         m_Forecasting(false),
         m_DataType(maths_t::E_DiscreteData),
         m_DecayRate(0.0),
@@ -66,33 +66,33 @@ void CMultivariatePrior::swap(CMultivariatePrior &other)
     std::swap(m_NumberSamples, other.m_NumberSamples);
 }
 
-void CMultivariatePrior::forForecasting(void)
+void CMultivariatePrior::forForecasting()
 {
     m_Forecasting = true;
 }
 
-bool CMultivariatePrior::isForForecasting(void) const
+bool CMultivariatePrior::isForForecasting() const
 {
     return m_Forecasting;
 }
 
-bool CMultivariatePrior::isDiscrete(void) const
+bool CMultivariatePrior::isDiscrete() const
 {
     return    m_DataType == maths_t::E_DiscreteData
            || m_DataType == maths_t::E_IntegerData;
 }
 
-bool CMultivariatePrior::isInteger(void) const
+bool CMultivariatePrior::isInteger() const
 {
     return m_DataType == maths_t::E_IntegerData;
 }
 
-maths_t::EDataType CMultivariatePrior::dataType(void) const
+maths_t::EDataType CMultivariatePrior::dataType() const
 {
     return m_DataType;
 }
 
-double CMultivariatePrior::decayRate(void) const
+double CMultivariatePrior::decayRate() const
 {
     return m_DecayRate;
 }
@@ -436,19 +436,19 @@ uint64_t CMultivariatePrior::checksum(uint64_t seed) const
     return CChecksum::calculate(seed, m_NumberSamples);
 }
 
-std::string CMultivariatePrior::print(void) const
+std::string CMultivariatePrior::print() const
 {
     std::string result;
     this->print("--", result);
     return result;
 }
 
-double CMultivariatePrior::offsetMargin(void) const
+double CMultivariatePrior::offsetMargin() const
 {
     return 0.2;
 }
 
-double CMultivariatePrior::numberSamples(void) const
+double CMultivariatePrior::numberSamples() const
 {
     return m_NumberSamples;
 }
@@ -458,17 +458,17 @@ void CMultivariatePrior::numberSamples(double numberSamples)
     m_NumberSamples = numberSamples;
 }
 
-bool CMultivariatePrior::participatesInModelSelection(void) const
+bool CMultivariatePrior::participatesInModelSelection() const
 {
     return true;
 }
 
-double CMultivariatePrior::unmarginalizedParameters(void) const
+double CMultivariatePrior::unmarginalizedParameters() const
 {
     return 0.0;
 }
 
-double CMultivariatePrior::scaledDecayRate(void) const
+double CMultivariatePrior::scaledDecayRate() const
 {
     return std::pow(0.5, static_cast<double>(this->dimension())) * this->decayRate();
 }

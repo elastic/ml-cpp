@@ -247,22 +247,22 @@ bool CEventRatePopulationModel::acceptRestoreTraverser(core::CStateRestoreTraver
     return true;
 }
 
-CAnomalyDetectorModel *CEventRatePopulationModel::cloneForPersistence(void) const
+CAnomalyDetectorModel *CEventRatePopulationModel::cloneForPersistence() const
 {
     return new CEventRatePopulationModel(true, *this);
 }
 
-model_t::EModelType CEventRatePopulationModel::category(void) const
+model_t::EModelType CEventRatePopulationModel::category() const
 {
     return model_t::E_EventRateOnline;
 }
 
-bool CEventRatePopulationModel::isEventRate(void) const
+bool CEventRatePopulationModel::isEventRate() const
 {
     return true;
 }
 
-bool CEventRatePopulationModel::isMetric(void) const
+bool CEventRatePopulationModel::isMetric() const
 {
     return false;
 }
@@ -900,7 +900,7 @@ void CEventRatePopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsag
     core::CMemoryDebug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
 }
 
-std::size_t CEventRatePopulationModel::memoryUsage(void) const
+std::size_t CEventRatePopulationModel::memoryUsage() const
 {
     const CDataGatherer &gatherer = this->dataGatherer();
     TOptionalSize estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
@@ -909,7 +909,7 @@ std::size_t CEventRatePopulationModel::memoryUsage(void) const
     return estimate ? estimate.get() : this->computeMemoryUsage();
 }
 
-std::size_t CEventRatePopulationModel::computeMemoryUsage(void) const
+std::size_t CEventRatePopulationModel::computeMemoryUsage() const
 {
     std::size_t mem = this->CPopulationModel::memoryUsage();
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
@@ -924,17 +924,17 @@ std::size_t CEventRatePopulationModel::computeMemoryUsage(void) const
     return mem;
 }
 
-CMemoryUsageEstimator *CEventRatePopulationModel::memoryUsageEstimator(void) const
+CMemoryUsageEstimator *CEventRatePopulationModel::memoryUsageEstimator() const
 {
     return &m_MemoryEstimator;
 }
 
-std::size_t CEventRatePopulationModel::staticSize(void) const
+std::size_t CEventRatePopulationModel::staticSize() const
 {
     return sizeof(*this);
 }
 
-CEventRatePopulationModel::CModelDetailsViewPtr CEventRatePopulationModel::details(void) const
+CEventRatePopulationModel::CModelDetailsViewPtr CEventRatePopulationModel::details() const
 {
     return CModelDetailsViewPtr(new CEventRatePopulationModelDetailsView(*this));
 }
@@ -954,7 +954,7 @@ const CEventRatePopulationModel::TSizeSizePrFeatureDataPrVec &
     return result == m_CurrentBucketStats.s_FeatureData.end() ? EMPTY : result->second;
 }
 
-core_t::TTime CEventRatePopulationModel::currentBucketStartTime(void) const
+core_t::TTime CEventRatePopulationModel::currentBucketStartTime() const
 {
     return m_CurrentBucketStats.s_StartTime;
 }
@@ -969,18 +969,18 @@ void CEventRatePopulationModel::currentBucketTotalCount(uint64_t totalCount)
     m_CurrentBucketStats.s_TotalCount = totalCount;
 }
 
-uint64_t CEventRatePopulationModel::currentBucketTotalCount(void) const
+uint64_t CEventRatePopulationModel::currentBucketTotalCount() const
 {
     return m_CurrentBucketStats.s_TotalCount;
 }
 
-const CEventRatePopulationModel::TSizeUInt64PrVec &CEventRatePopulationModel::personCounts(void) const
+const CEventRatePopulationModel::TSizeUInt64PrVec &CEventRatePopulationModel::personCounts() const
 {
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
 CEventRatePopulationModel::TCorrectionKeyDouble1VecUMap &
-    CEventRatePopulationModel::currentBucketInterimCorrections(void) const
+    CEventRatePopulationModel::currentBucketInterimCorrections() const
 {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
@@ -1009,7 +1009,7 @@ void CEventRatePopulationModel::createNewModels(std::size_t n, std::size_t m)
     this->CPopulationModel::createNewModels(n, m);
 }
 
-void CEventRatePopulationModel::updateRecycledModels(void)
+void CEventRatePopulationModel::updateRecycledModels()
 {
     CDataGatherer &gatherer = this->dataGatherer();
     for (auto cid : gatherer.recycledAttributeIds())

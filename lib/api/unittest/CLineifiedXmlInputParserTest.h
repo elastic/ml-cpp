@@ -12,10 +12,10 @@
 class CLineifiedXmlInputParserTest : public CppUnit::TestFixture
 {
     public:
-        void testThroughputArbitraryConformant(void);
-        void testThroughputCommonConformant(void);
-        void testThroughputArbitraryRapid(void);
-        void testThroughputCommonRapid(void);
+        void testThroughputArbitraryConformant();
+        void testThroughputCommonConformant();
+        void testThroughputArbitraryRapid();
+        void testThroughputCommonRapid();
 
         static CppUnit::Test *suite();
 

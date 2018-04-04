@@ -117,7 +117,7 @@ class CORE_EXPORT CStatistics : private CNonCopyable
 {
     public:
         //! Singleton pattern
-        static CStatistics &instance(void);
+        static CStatistics &instance();
 
         //! Provide access to the relevant stat from the collection
         static CStat &stat(int index);
@@ -136,7 +136,7 @@ class CORE_EXPORT CStatistics : private CNonCopyable
 
     private:
         //! Constructor of a Singleton is private
-        CStatistics(void);
+        CStatistics();
 
         //! The unique instance.
         static CStatistics ms_Instance;

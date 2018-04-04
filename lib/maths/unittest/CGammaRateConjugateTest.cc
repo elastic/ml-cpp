@@ -52,7 +52,7 @@ CGammaRateConjugate makePrior(maths_t::EDataType dataType = maths_t::E_Continuou
 
 }
 
-void CGammaRateConjugateTest::testMultipleUpdate(void)
+void CGammaRateConjugateTest::testMultipleUpdate()
 {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testMultipleUpdate  |");
@@ -142,7 +142,7 @@ void CGammaRateConjugateTest::testMultipleUpdate(void)
     }
 }
 
-void CGammaRateConjugateTest::testPropagation(void)
+void CGammaRateConjugateTest::testPropagation()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testPropagation  |");
@@ -182,7 +182,7 @@ void CGammaRateConjugateTest::testPropagation(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(rate, propagatedRate, eps);
 }
 
-void CGammaRateConjugateTest::testShapeEstimation(void)
+void CGammaRateConjugateTest::testShapeEstimation()
 {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testShapeEstimation  |");
@@ -255,7 +255,7 @@ void CGammaRateConjugateTest::testShapeEstimation(void)
    }
 }
 
-void CGammaRateConjugateTest::testRateEstimation(void)
+void CGammaRateConjugateTest::testRateEstimation()
 {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testRateEstimation  |");
@@ -320,7 +320,7 @@ void CGammaRateConjugateTest::testRateEstimation(void)
     }
 }
 
-void CGammaRateConjugateTest::testMarginalLikelihood(void)
+void CGammaRateConjugateTest::testMarginalLikelihood()
 {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testMarginalLikelihood  |");
@@ -552,7 +552,7 @@ void CGammaRateConjugateTest::testMarginalLikelihood(void)
     }
 }
 
-void CGammaRateConjugateTest::testMarginalLikelihoodMean(void)
+void CGammaRateConjugateTest::testMarginalLikelihoodMean()
 {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testMarginalLikelihoodMean  |");
@@ -605,7 +605,7 @@ void CGammaRateConjugateTest::testMarginalLikelihoodMean(void)
     }
 }
 
-void CGammaRateConjugateTest::testMarginalLikelihoodMode(void)
+void CGammaRateConjugateTest::testMarginalLikelihoodMode()
 {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testMarginalLikelihoodMode  |");
@@ -658,7 +658,7 @@ void CGammaRateConjugateTest::testMarginalLikelihoodMode(void)
     }
 }
 
-void CGammaRateConjugateTest::testMarginalLikelihoodVariance(void)
+void CGammaRateConjugateTest::testMarginalLikelihoodVariance()
 {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testMarginalLikelihoodVariance  |");
@@ -720,7 +720,7 @@ void CGammaRateConjugateTest::testMarginalLikelihoodVariance(void)
     }
 }
 
-void CGammaRateConjugateTest::testSampleMarginalLikelihood(void)
+void CGammaRateConjugateTest::testSampleMarginalLikelihood()
 {
     LOG_DEBUG("+---------------------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testSampleMarginalLikelihood  |");
@@ -821,7 +821,7 @@ void CGammaRateConjugateTest::testSampleMarginalLikelihood(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanVarError) < 0.025);
 }
 
-void CGammaRateConjugateTest::testCdf(void)
+void CGammaRateConjugateTest::testCdf()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testCdf  |");
@@ -876,7 +876,7 @@ void CGammaRateConjugateTest::testCdf(void)
     }
 }
 
-void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples(void)
+void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples()
 {
     LOG_DEBUG("+---------------------------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testProbabilityOfLessLikelySamples  |");
@@ -1026,7 +1026,7 @@ void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.01);
 }
 
-void CGammaRateConjugateTest::testAnomalyScore(void)
+void CGammaRateConjugateTest::testAnomalyScore()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testAnomalyScore  |");
@@ -1162,7 +1162,7 @@ void CGammaRateConjugateTest::testAnomalyScore(void)
     CPPUNIT_ASSERT(totalFalsePositiveRate < 0.0011);
 }
 
-void CGammaRateConjugateTest::testOffset(void)
+void CGammaRateConjugateTest::testOffset()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testOffset  |");
@@ -1242,7 +1242,7 @@ void CGammaRateConjugateTest::testOffset(void)
     }
 }
 
-void CGammaRateConjugateTest::testIntegerData(void)
+void CGammaRateConjugateTest::testIntegerData()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testIntegerData  |");
@@ -1350,7 +1350,7 @@ void CGammaRateConjugateTest::testIntegerData(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.016);
 }
 
-void CGammaRateConjugateTest::testLowVariationData(void)
+void CGammaRateConjugateTest::testLowVariationData()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testLowVariationData  |");
@@ -1387,7 +1387,7 @@ void CGammaRateConjugateTest::testLowVariationData(void)
     }
 }
 
-void CGammaRateConjugateTest::testPersist(void)
+void CGammaRateConjugateTest::testPersist()
 {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testPersist  |");
@@ -1443,7 +1443,7 @@ void CGammaRateConjugateTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CGammaRateConjugateTest::testVarianceScale(void)
+void CGammaRateConjugateTest::testVarianceScale()
 {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testVarianceScale  |");
@@ -1760,7 +1760,7 @@ void CGammaRateConjugateTest::testVarianceScale(void)
     }
 }
 
-void CGammaRateConjugateTest::testNegativeSample(void)
+void CGammaRateConjugateTest::testNegativeSample()
 {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CGammaRateConjugateTest::testNegativeSample  |");
@@ -1799,7 +1799,7 @@ void CGammaRateConjugateTest::testNegativeSample(void)
     CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
 }
 
-CppUnit::Test* CGammaRateConjugateTest::suite(void)
+CppUnit::Test* CGammaRateConjugateTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CGammaRateConjugateTest");
 

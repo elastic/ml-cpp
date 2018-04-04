@@ -11,7 +11,7 @@
 class CBlockingCallCancellerThreadTest : public CppUnit::TestFixture
 {
     public:
-        void testCancelBlock(void);
+        void testCancelBlock();
 
         static CppUnit::Test *suite();
 };

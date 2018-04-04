@@ -150,7 +150,7 @@ class MATHS_EXPORT CNaturalBreaksClassifier
         double percentile(double p) const;
 
         //! Get the total number of categories in the classifier.
-        std::size_t size(void) const;
+        std::size_t size() const;
 
         //! Split this classifier into the n-categories identified by
         //! the categories function.
@@ -225,7 +225,7 @@ class MATHS_EXPORT CNaturalBreaksClassifier
         void propagateForwardsByTime(double time);
 
         //! Check if we are currently buffering points.
-        bool buffering(void) const;
+        bool buffering() const;
 
         //! Get \p n samples of the distribution corresponding to the
         //! categories we are maintaining.
@@ -240,7 +240,7 @@ class MATHS_EXPORT CNaturalBreaksClassifier
                     TDoubleVec &result) const;
 
         //! Print this classifier for debug.
-        std::string print(void) const;
+        std::string print() const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -249,7 +249,7 @@ class MATHS_EXPORT CNaturalBreaksClassifier
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         //! Get the minimum within class total deviation partition
         //! of the categories \p categories with size at most \p n
@@ -310,10 +310,10 @@ class MATHS_EXPORT CNaturalBreaksClassifier
                                  TTupleVec &categories);
 
         //! Reduce the number of tuples until we satisfy the space constraint.
-        void reduce(void);
+        void reduce();
 
         //! Get the indices of the closest categories.
-        TSizeSizePr closestPair(void) const;
+        TSizeSizePr closestPair() const;
 
         //! Get the total deviation of the specified class.
         static double deviation(const TTuple &category);

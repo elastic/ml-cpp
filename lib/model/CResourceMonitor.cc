@@ -28,7 +28,7 @@ const core_t::TTime CResourceMonitor::MINIMUM_PRUNE_FREQUENCY(60 * 60);
 
 const std::size_t CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB(4096);
 
-CResourceMonitor::CResourceMonitor(void) : m_AllowAllocations(true),
+CResourceMonitor::CResourceMonitor() : m_AllowAllocations(true),
     m_ByteLimitHigh(0), m_ByteLimitLow(0), m_CurrentAnomalyDetectorMemory(0),
     m_ExtraMemory(0), m_PreviousTotal(this->totalMemory()), m_Peak(m_PreviousTotal),
     m_LastAllocationFailureReport(0), m_MemoryStatus(model_t::E_MemoryStatusOk),
@@ -131,7 +131,7 @@ void CResourceMonitor::forceRefresh(CAnomalyDetector &detector)
     this->updateAllowAllocations();
 }
 
-void CResourceMonitor::updateAllowAllocations(void)
+void CResourceMonitor::updateAllowAllocations()
 {
     std::size_t total{this->totalMemory()};
     if (m_AllowAllocations)
@@ -234,7 +234,7 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime)
     return aboveThreshold;
 }
 
-bool CResourceMonitor::areAllocationsAllowed(void) const
+bool CResourceMonitor::areAllocationsAllowed() const
 {
     return m_AllowAllocations;
 }
@@ -248,7 +248,7 @@ bool CResourceMonitor::areAllocationsAllowed(std::size_t size) const
     return false;
 }
 
-std::size_t CResourceMonitor::allocationLimit(void) const
+std::size_t CResourceMonitor::allocationLimit() const
 {
     return m_ByteLimitHigh - std::min(m_ByteLimitHigh, this->totalMemory());
 }
@@ -275,7 +275,7 @@ void CResourceMonitor::sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime
     }
 }
 
-bool CResourceMonitor::needToSendReport(void)
+bool CResourceMonitor::needToSendReport()
 {
     // Has the usage changed by more than 1% ?
     std::size_t total{this->totalMemory()};
@@ -336,7 +336,7 @@ void CResourceMonitor::acceptAllocationFailureResult(core_t::TTime time)
     ++m_AllocationFailures[time];
 }
 
-void CResourceMonitor::acceptPruningResult(void)
+void CResourceMonitor::acceptPruningResult()
 {
     if (m_MemoryStatus == model_t::E_MemoryStatusOk)
     {
@@ -344,7 +344,7 @@ void CResourceMonitor::acceptPruningResult(void)
     }
 }
 
-bool CResourceMonitor::haveNoLimit(void) const
+bool CResourceMonitor::haveNoLimit() const
 {
     return m_NoLimit;
 }
@@ -355,7 +355,7 @@ void CResourceMonitor::addExtraMemory(std::size_t mem)
     this->updateAllowAllocations();
 }
 
-void CResourceMonitor::clearExtraMemory(void)
+void CResourceMonitor::clearExtraMemory()
 {
     if (m_ExtraMemory != 0)
     {
@@ -364,7 +364,7 @@ void CResourceMonitor::clearExtraMemory(void)
     }
 }
 
-std::size_t CResourceMonitor::totalMemory(void) const
+std::size_t CResourceMonitor::totalMemory() const
 {
     return m_CurrentAnomalyDetectorMemory + m_ExtraMemory +
            CStringStore::names().memoryUsage() +

@@ -19,7 +19,7 @@ CppUnit::Test *CJsonLogLayoutTest::suite()
     return suiteOfTests;
 }
 
-void CJsonLogLayoutTest::testPathCropping(void)
+void CJsonLogLayoutTest::testPathCropping()
 {
 	LOG_DEBUG("CJsonLogLayoutTest::testPathCropping");
 #ifdef Windows

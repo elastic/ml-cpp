@@ -32,7 +32,7 @@ class CDoublePrecisionStorage
         {}
 
         //! Implicit conversion to a double.
-        operator double (void) const
+        operator double () const
         {
             return m_Value;
         }

@@ -37,7 +37,7 @@ template<typename T, size_t QUEUE_CAPACITY, size_t NOTIFY_CAPACITY = QUEUE_CAPAC
 class CConcurrentQueue final: private CNonCopyable
 {
     public:
-        CConcurrentQueue(void)
+        CConcurrentQueue()
             : m_Queue(QUEUE_CAPACITY)
         {
             static_assert(NOTIFY_CAPACITY > 0, "NOTIFY_CAPACITY must be positive");
@@ -117,7 +117,7 @@ class CConcurrentQueue final: private CNonCopyable
         }
 
         //! Get the memory used by this component.
-        std::size_t memoryUsage(void) const
+        std::size_t memoryUsage() const
         {
             return CMemory::dynamicSize(m_Queue);
         }

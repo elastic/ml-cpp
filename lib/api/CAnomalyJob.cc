@@ -140,12 +140,12 @@ CAnomalyJob::~CAnomalyJob()
     m_ForecastRunner.finishForecasts();
 }
 
-void CAnomalyJob::newOutputStream(void)
+void CAnomalyJob::newOutputStream()
 {
     m_JsonOutputWriter.newOutputStream();
 }
 
-COutputHandler &CAnomalyJob::outputHandler(void)
+COutputHandler &CAnomalyJob::outputHandler()
 {
     return m_JsonOutputWriter;
 }
@@ -249,7 +249,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap &dataRowFields)
     return true;
 }
 
-void CAnomalyJob::finalise(void)
+void CAnomalyJob::finalise()
 {
     // Persist final state of normalizer
     m_JsonOutputWriter.persistNormalizer(m_Normalizer, m_LastNormalizerPersistTime);
@@ -274,12 +274,12 @@ bool CAnomalyJob::initNormalizer(const std::string &quantilesStateFile)
     return m_Normalizer.fromJsonStream(inputStream) == model::CHierarchicalResultsNormalizer::E_Ok;
 }
 
-uint64_t CAnomalyJob::numRecordsHandled(void) const
+uint64_t CAnomalyJob::numRecordsHandled() const
 {
     return m_NumRecordsHandled;
 }
 
-void CAnomalyJob::description(void) const
+void CAnomalyJob::description() const
 {
     if (m_Detectors.empty())
     {
@@ -306,7 +306,7 @@ void CAnomalyJob::description(void) const
     }
 }
 
-void CAnomalyJob::descriptionAndDebugMemoryUsage(void) const
+void CAnomalyJob::descriptionAndDebugMemoryUsage() const
 {
     if (m_Detectors.empty())
     {
@@ -580,7 +580,7 @@ void CAnomalyJob::timeNow(core_t::TTime time)
     }
 }
 
-core_t::TTime CAnomalyJob::effectiveBucketLength(void) const
+core_t::TTime CAnomalyJob::effectiveBucketLength() const
 {
     return m_ModelConfig.bucketResultsDelay() ? m_ModelConfig.bucketLength() / 2 :
                                                 m_ModelConfig.bucketLength();
@@ -1549,7 +1549,7 @@ void CAnomalyJob::writeOutModelPlot(core_t::TTime resultsTime,
     }
 }
 
-void CAnomalyJob::refreshMemoryAndReport(void)
+void CAnomalyJob::refreshMemoryAndReport()
 {
     // Make sure model size stats are up to date and then send a final memory
     // usage report
@@ -1662,7 +1662,7 @@ CAnomalyJob::detectorForKey(bool isRestoring,
     return itr->second;
 }
 
-void CAnomalyJob::pruneAllModels(void)
+void CAnomalyJob::pruneAllModels()
 {
     LOG_INFO("Pruning all models");
 

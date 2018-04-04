@@ -85,7 +85,7 @@ class CBootstrapClustererForTest : public maths::CBootstrapClusterer<POINT>
             return this->maths::CBootstrapClusterer<POINT>::cutSearch(u, v, graph, threshold, cost, parities);
         }
 
-        TSizeVec &offsets(void)
+        TSizeVec &offsets()
         {
             return this->maths::CBootstrapClusterer<POINT>::offsets();
         }
@@ -119,7 +119,7 @@ void connect(const TSizeVec &U, const TSizeVec &V, TGraph &graph)
 
 }
 
-void CBootstrapClustererTest::testFacade(void)
+void CBootstrapClustererTest::testFacade()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testFacade  |");
@@ -202,7 +202,7 @@ void CBootstrapClustererTest::testFacade(void)
     }
 }
 
-void CBootstrapClustererTest::testBuildClusterGraph(void)
+void CBootstrapClustererTest::testBuildClusterGraph()
 {
     LOG_DEBUG("+--------------------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testBuildClusterGraph  |");
@@ -322,7 +322,7 @@ void CBootstrapClustererTest::testBuildClusterGraph(void)
     }
 }
 
-void CBootstrapClustererTest::testCutSearch(void)
+void CBootstrapClustererTest::testCutSearch()
 {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testCutSearch  |");
@@ -379,7 +379,7 @@ void CBootstrapClustererTest::testCutSearch(void)
     CPPUNIT_ASSERT(1.0 - maths::CBasicStatistics::mean(quality) > 0.98);
 }
 
-void CBootstrapClustererTest::testSeparate(void)
+void CBootstrapClustererTest::testSeparate()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testSeparate  |");
@@ -470,7 +470,7 @@ void CBootstrapClustererTest::testSeparate(void)
     CPPUNIT_ASSERT(1.0 - maths::CBasicStatistics::mean(quality) > 0.99);
 }
 
-void CBootstrapClustererTest::testThickets(void)
+void CBootstrapClustererTest::testThickets()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testThickets  |");
@@ -557,7 +557,7 @@ void CBootstrapClustererTest::testThickets(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanJaccard) > 0.99);
 }
 
-void CBootstrapClustererTest::testNonConvexClustering(void)
+void CBootstrapClustererTest::testNonConvexClustering()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testNonConvexClustering  |");
@@ -800,7 +800,7 @@ void CBootstrapClustererTest::testNonConvexClustering(void)
                    > maths::CBasicStatistics::mean(jaccardVanillaToPerfect));
 }
 
-void CBootstrapClustererTest::testClusteringStability(void)
+void CBootstrapClustererTest::testClusteringStability()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testClusteringStability  |");
@@ -932,7 +932,7 @@ void CBootstrapClustererTest::testClusteringStability(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanConsistency) > 0.95);
 }
 
-CppUnit::Test *CBootstrapClustererTest::suite(void)
+CppUnit::Test *CBootstrapClustererTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBootstrapClustererTest");
 

@@ -93,7 +93,7 @@ class CORE_EXPORT CNamedPipeFactory : private CNonInstantiatable
         static bool isNamedPipe(const std::string &fileName);
 
         //! Default path for named pipes.
-        static std::string defaultPath(void);
+        static std::string defaultPath();
 
     private:
 #ifdef Windows

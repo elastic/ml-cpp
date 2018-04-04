@@ -184,7 +184,7 @@ double CNaturalBreaksClassifier::percentile(double p) const
     return (p <= 0.5 ? -1.0 : 1.0) * boost::numeric::bounds<double>::highest();
 }
 
-std::size_t CNaturalBreaksClassifier::size(void) const
+std::size_t CNaturalBreaksClassifier::size() const
 {
     return std::min(m_Categories.size() + m_PointsBuffer.size(), m_Space);
 }
@@ -474,7 +474,7 @@ void CNaturalBreaksClassifier::propagateForwardsByTime(double time)
     LOG_TRACE("categories = " << core::CContainerPrinter::print(m_Categories));
 }
 
-bool CNaturalBreaksClassifier::buffering(void) const
+bool CNaturalBreaksClassifier::buffering() const
 {
     return m_PointsBuffer.size() > 0;
 }
@@ -575,7 +575,7 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
     LOG_TRACE("samples = " << core::CContainerPrinter::print(result));
 }
 
-std::string CNaturalBreaksClassifier::print(void) const
+std::string CNaturalBreaksClassifier::print() const
 {
     return core::CContainerPrinter::print(m_Categories);
 }
@@ -595,7 +595,7 @@ void CNaturalBreaksClassifier::debugMemoryUsage(core::CMemoryUsage::TMemoryUsage
     core::CMemoryDebug::dynamicSize("m_PointsBuffer", m_PointsBuffer, mem);
 }
 
-std::size_t CNaturalBreaksClassifier::memoryUsage(void) const
+std::size_t CNaturalBreaksClassifier::memoryUsage() const
 {
     std::size_t mem = core::CMemory::dynamicSize(m_Categories);
     mem += core::CMemory::dynamicSize(m_PointsBuffer);
@@ -766,7 +766,7 @@ CNaturalBreaksClassifier::CNaturalBreaksClassifier(std::size_t space,
     m_PointsBuffer.reserve(MAXIMUM_BUFFER_SIZE);
 }
 
-void CNaturalBreaksClassifier::reduce(void)
+void CNaturalBreaksClassifier::reduce()
 {
     LOG_TRACE("Reduce");
 
@@ -800,7 +800,7 @@ void CNaturalBreaksClassifier::reduce(void)
 }
 
 CNaturalBreaksClassifier::TSizeSizePr
-CNaturalBreaksClassifier::closestPair(void) const
+CNaturalBreaksClassifier::closestPair() const
 {
     LOG_TRACE("Closest pair");
 

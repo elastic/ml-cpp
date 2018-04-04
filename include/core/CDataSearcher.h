@@ -48,7 +48,7 @@ class CORE_EXPORT CDataSearcher : private CNonCopyable
 
     public:
         CDataSearcher();
-        virtual ~CDataSearcher(void);
+        virtual ~CDataSearcher();
 
         //! Do a search that results in an input stream.
         //! A return value of NULL indicates a technical problem with the

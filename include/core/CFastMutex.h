@@ -66,11 +66,11 @@ namespace core
 class CORE_EXPORT CFastMutex : private CNonCopyable
 {
     public:
-        CFastMutex(void);
-        ~CFastMutex(void);
+        CFastMutex();
+        ~CFastMutex();
 
-        void lock(void);
-        void unlock(void);
+        void lock();
+        void unlock();
 
     private:
 #ifdef Windows

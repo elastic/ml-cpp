@@ -12,12 +12,12 @@
 class CSolversTest : public CppUnit::TestFixture
 {
     public:
-        void testBracket(void);
-        void testBisection(void);
-        void testBrent(void);
-        void testSublevelSet(void);
+        void testBracket();
+        void testBisection();
+        void testBrent();
+        void testSublevelSet();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CSolversTest_h

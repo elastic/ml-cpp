@@ -12,18 +12,18 @@
 class CMemoryUsageTest : public CppUnit::TestFixture
 {
     public:
-        void testUsage(void);
-        void testDebug(void);
-        void testDynamicSizeAlwaysZero(void);
-        void testCompress(void);
-        void testStringBehaviour(void);
-        void testStringMemory(void);
-        void testStringClear(void);
-        void testSharedPointer(void);
-        void testRawPointer(void);
-        void testSmallVector(void);
+        void testUsage();
+        void testDebug();
+        void testDynamicSizeAlwaysZero();
+        void testCompress();
+        void testStringBehaviour();
+        void testStringMemory();
+        void testStringClear();
+        void testSharedPointer();
+        void testRawPointer();
+        void testSmallVector();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CMemoryUsageTest_h

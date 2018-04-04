@@ -299,7 +299,7 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
 
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator(void)
+void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator()
 {
     LOG_DEBUG("*** testInfluenceUnavailableCalculator ***");
 
@@ -373,7 +373,7 @@ void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator(
     }*/
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator(void)
+void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator()
 {
     LOG_DEBUG("*** testLogProbabilityComplementInfluenceCalculator ***");
 
@@ -698,7 +698,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
     }*/
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
+void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator()
 {
     LOG_DEBUG("*** testMeanInfluenceCalculator ***");
 
@@ -1045,7 +1045,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
     }*/
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator(void)
+void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator()
 {
     LOG_DEBUG("*** testLogProbabilityInfluenceCalculator ***");
 
@@ -1379,7 +1379,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
 //    }
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator(void)
+void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator()
 {
     LOG_DEBUG("*** testIndicatorInfluenceCalculator ***");
 
@@ -1437,7 +1437,7 @@ void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator(vo
     }*/
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator(void)
+void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator()
 {
     LOG_DEBUG("*** testProbabilityAndInfluenceCalculator ***");
 
@@ -1693,7 +1693,7 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
     }
 }
 
-CppUnit::Test *CProbabilityAndInfluenceCalculatorTest::suite(void)
+CppUnit::Test *CProbabilityAndInfluenceCalculatorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProbabilityAndInfluenceCalculatorTest");
 

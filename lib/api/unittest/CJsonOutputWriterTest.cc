@@ -93,7 +93,7 @@ CppUnit::Test *CJsonOutputWriterTest::suite()
     return suiteOfTests;
 }
 
-void CJsonOutputWriterTest::testSimpleWrite(void)
+void CJsonOutputWriterTest::testSimpleWrite()
 {
     // Data isn't grouped by bucket/detector record it
     // is written straight through and everything is a string
@@ -161,7 +161,7 @@ void CJsonOutputWriterTest::testSimpleWrite(void)
     CPPUNIT_ASSERT_EQUAL(std::string("responsetime"), std::string(object2["field_name"].GetString()));
 }
 
-void CJsonOutputWriterTest::testWriteNonAnomalousBucket(void)
+void CJsonOutputWriterTest::testWriteNonAnomalousBucket()
 {
     std::ostringstream sstream;
 
@@ -230,7 +230,7 @@ void CJsonOutputWriterTest::testWriteNonAnomalousBucket(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, bucket["anomaly_score"].GetDouble(), 0.00001);
 }
 
-void CJsonOutputWriterTest::testFlush(void)
+void CJsonOutputWriterTest::testFlush()
 {
     std::string testId("testflush");
     ml::core_t::TTime lastFinalizedBucketEnd(123456789);
@@ -269,7 +269,7 @@ void CJsonOutputWriterTest::testFlush(void)
             static_cast<ml::core_t::TTime>(flush["last_finalized_bucket_end"].GetInt64()));
 }
 
-void CJsonOutputWriterTest::testWriteCategoryDefinition(void)
+void CJsonOutputWriterTest::testWriteCategoryDefinition()
 {
     int categoryId(42);
     std::string terms("foo bar");
@@ -328,22 +328,22 @@ void CJsonOutputWriterTest::testWriteCategoryDefinition(void)
     CPPUNIT_ASSERT(writtenExamplesSet == examples);
 }
 
-void CJsonOutputWriterTest::testBucketWrite(void)
+void CJsonOutputWriterTest::testBucketWrite()
 {
     this->testBucketWriteHelper(false);
 }
 
-void CJsonOutputWriterTest::testBucketWriteInterim(void)
+void CJsonOutputWriterTest::testBucketWriteInterim()
 {
     this->testBucketWriteHelper(true);
 }
 
-void CJsonOutputWriterTest::testLimitedRecordsWrite(void)
+void CJsonOutputWriterTest::testLimitedRecordsWrite()
 {
     this->testLimitedRecordsWriteHelper(false);
 }
 
-void CJsonOutputWriterTest::testLimitedRecordsWriteInterim(void)
+void CJsonOutputWriterTest::testLimitedRecordsWriteInterim()
 {
     this->testLimitedRecordsWriteHelper(true);
 }
@@ -1823,7 +1823,7 @@ ml::model::CHierarchicalResults::TNode createBucketInfluencerNode(
     return node;
 }
 
-void CJsonOutputWriterTest::testWriteInfluencers(void)
+void CJsonOutputWriterTest::testWriteInfluencers()
 {
     std::ostringstream sstream;
 
@@ -1890,7 +1890,7 @@ void CJsonOutputWriterTest::testWriteInfluencers(void)
     CPPUNIT_ASSERT(bucket.HasMember("influencers") == false);
 }
 
-void CJsonOutputWriterTest::testWriteInfluencersWithLimit(void)
+void CJsonOutputWriterTest::testWriteInfluencersWithLimit()
 {
     std::ostringstream sstream;
 
@@ -2041,7 +2041,7 @@ void CJsonOutputWriterTest::testWriteInfluencersWithLimit(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, binf3["raw_anomaly_score"].GetDouble(), 0.001);
 }
 
-void CJsonOutputWriterTest::testWriteWithInfluences(void)
+void CJsonOutputWriterTest::testWriteWithInfluences()
 {
     std::ostringstream sstream;
 
@@ -2193,7 +2193,7 @@ void CJsonOutputWriterTest::testWriteWithInfluences(void)
     }
 }
 
-void CJsonOutputWriterTest::testPersistNormalizer(void)
+void CJsonOutputWriterTest::testPersistNormalizer()
 {
     ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig();
 
@@ -2226,7 +2226,7 @@ void CJsonOutputWriterTest::testPersistNormalizer(void)
     CPPUNIT_ASSERT(quantileState.HasMember("timestamp"));
 }
 
-void CJsonOutputWriterTest::testPartitionScores(void)
+void CJsonOutputWriterTest::testPartitionScores()
 {
     ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig();
 
@@ -2316,7 +2316,7 @@ void CJsonOutputWriterTest::testPartitionScores(void)
     }
 }
 
-void CJsonOutputWriterTest::testReportMemoryUsage(void)
+void CJsonOutputWriterTest::testReportMemoryUsage()
 {
     std::ostringstream sstream;
     {
@@ -2367,7 +2367,7 @@ void CJsonOutputWriterTest::testReportMemoryUsage(void)
     CPPUNIT_ASSERT(nowMs + 1000ll >= sizeStats["log_time"].GetInt64());
 }
 
-void CJsonOutputWriterTest::testWriteScheduledEvent(void)
+void CJsonOutputWriterTest::testWriteScheduledEvent()
 {
     std::ostringstream sstream;
 
@@ -2472,12 +2472,12 @@ void CJsonOutputWriterTest::testWriteScheduledEvent(void)
                 std::string(events[rapidjson::SizeType(1)].GetString()));
 }
 
-void CJsonOutputWriterTest::testThroughputWithScopedAllocator(void)
+void CJsonOutputWriterTest::testThroughputWithScopedAllocator()
 {
     this->testThroughputHelper(true);
 }
 
-void CJsonOutputWriterTest::testThroughputWithoutScopedAllocator(void)
+void CJsonOutputWriterTest::testThroughputWithoutScopedAllocator()
 {
     this->testThroughputHelper(false);
 }

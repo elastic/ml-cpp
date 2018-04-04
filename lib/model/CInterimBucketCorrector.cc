@@ -122,7 +122,7 @@ void CInterimBucketCorrector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsageP
     core::CMemoryDebug::dynamicSize("m_CountTrend", m_CountTrend, mem);
 }
 
-std::size_t CInterimBucketCorrector::memoryUsage(void) const
+std::size_t CInterimBucketCorrector::memoryUsage() const
 {
     return core::CMemory::dynamicSize(m_CountTrend);
 }

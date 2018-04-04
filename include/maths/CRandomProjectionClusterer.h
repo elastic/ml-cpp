@@ -65,7 +65,7 @@ class CRandomProjectionClusterer
         using TSizeVec = std::vector<std::size_t>;
 
     public:
-        virtual ~CRandomProjectionClusterer(void) = default;
+        virtual ~CRandomProjectionClusterer() = default;
 
         //! Set up the projections.
         virtual bool initialise(std::size_t numberProjections,
@@ -88,13 +88,13 @@ class CRandomProjectionClusterer
 
     protected:
         //! Get the random number generator.
-        CPRNG::CXorShift1024Mult &rng(void) const
+        CPRNG::CXorShift1024Mult &rng() const
         {
             return m_Rng;
         }
 
         //! Get the projections.
-        const TVectorArrayVec &projections(void) const
+        const TVectorArrayVec &projections() const
         {
             return m_Projections;
         }
@@ -254,7 +254,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                 m_Compression(compression)
         {}
 
-        virtual ~CRandomProjectionClustererBatch(void) = default;
+        virtual ~CRandomProjectionClustererBatch() = default;
 
         //! Create the \p numberProjections random projections.
         //!
@@ -689,7 +689,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
         }
 
         //! Get the projected data points.
-        const TVectorNx1VecVec &projectedData(void) const
+        const TVectorNx1VecVec &projectedData() const
         {
             return m_ProjectedData;
         }
@@ -748,7 +748,7 @@ class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>
         }
 
         //! Cluster the points.
-        void run(void)
+        void run()
         {
             m_Xmeans.run(m_ImproveParamsKmeansIterations,
                          m_ImproveStructureClusterSeeds,
@@ -756,7 +756,7 @@ class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>
         }
 
         //! Get the clusters (should only be called after run).
-        const TClusterVec &clusters(void) const
+        const TClusterVec &clusters() const
         {
             return m_Xmeans.clusters();
         }
@@ -820,13 +820,13 @@ class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
         }
 
         //! Cluster the points.
-        void run(void)
+        void run()
         {
             m_Kmeans.run(m_MaxIterations);
         }
 
         //! Get the clusters (should only be called after run).
-        const TClusterVec &clusters(void) const
+        const TClusterVec &clusters() const
         {
             m_Kmeans.clusters(m_Clusters);
             return m_Clusters;

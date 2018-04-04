@@ -40,7 +40,7 @@ using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 }
 
-void CAnomalyScoreTest::testComputeScores(void)
+void CAnomalyScoreTest::testComputeScores()
 {
     using TScores = model::CAnomalyScore;
     using TJointProbabilityCalculator = maths::CJointProbabilityOfLessLikelySamples;
@@ -263,7 +263,7 @@ void CAnomalyScoreTest::testComputeScores(void)
     }
 }
 
-void CAnomalyScoreTest::testNormalizeScoresQuantiles(void)
+void CAnomalyScoreTest::testNormalizeScoresQuantiles()
 {
     using TDoubleMSet = std::multiset<double>;
     using TDoubleMSetItr = TDoubleMSet::iterator;
@@ -320,7 +320,7 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles(void)
     CPPUNIT_ASSERT(totalError / numberSamples < 0.0043);
 }
 
-void CAnomalyScoreTest::testNormalizeScoresNoisy(void)
+void CAnomalyScoreTest::testNormalizeScoresNoisy()
 {
     using TDoubleSizeMap = std::multimap<double, std::size_t>;
     using TDoubleSizeMapCItr = TDoubleSizeMap::const_iterator;
@@ -414,7 +414,7 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy(void)
                          core::CContainerPrinter::print(times));
 }
 
-void CAnomalyScoreTest::testNormalizeScoresLargeScore(void)
+void CAnomalyScoreTest::testNormalizeScoresLargeScore()
 {
     // Test a large score isn't too dominant.
 
@@ -459,7 +459,7 @@ void CAnomalyScoreTest::testNormalizeScoresLargeScore(void)
     }
 }
 
-void CAnomalyScoreTest::testNormalizeScoresNearZero(void)
+void CAnomalyScoreTest::testNormalizeScoresNearZero()
 {
     // Test the behaviour for scores near zero.
 
@@ -519,7 +519,7 @@ void CAnomalyScoreTest::testNormalizeScoresNearZero(void)
     }
 }
 
-void CAnomalyScoreTest::testNormalizeScoresOrdering(void)
+void CAnomalyScoreTest::testNormalizeScoresOrdering()
 {
     // Test that the normalized scores ordering matches the
     // -log(probability) ordering.
@@ -562,7 +562,7 @@ void CAnomalyScoreTest::testNormalizeScoresOrdering(void)
     }
 }
 
-void CAnomalyScoreTest::testJsonConversion(void)
+void CAnomalyScoreTest::testJsonConversion()
 {
     test::CRandomNumbers rng;
 
@@ -661,7 +661,7 @@ void CAnomalyScoreTest::testJsonConversion(void)
     CPPUNIT_ASSERT_EQUAL(toJson, restoredJson);
 }
 
-void CAnomalyScoreTest::testPersistEmpty(void)
+void CAnomalyScoreTest::testPersistEmpty()
 {
     // This tests what happens when we persist and restore quantiles that have
     // never had any data added - see bug 761 in Bugzilla
@@ -698,7 +698,7 @@ void CAnomalyScoreTest::testPersistEmpty(void)
     CPPUNIT_ASSERT_EQUAL(origJson, newJson);
 }
 
-CppUnit::Test *CAnomalyScoreTest::suite(void)
+CppUnit::Test *CAnomalyScoreTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAnomalyScoreTest");
 

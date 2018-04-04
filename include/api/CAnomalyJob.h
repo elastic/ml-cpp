@@ -171,20 +171,20 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
                          const std::string &timeFieldFormat = EMPTY_STRING,
                          size_t maxAnomalyRecords = 0u);
 
-        virtual ~CAnomalyJob(void);
+        virtual ~CAnomalyJob();
 
         //! We're going to be writing to a new output stream
-        virtual void newOutputStream(void);
+        virtual void newOutputStream();
 
         //! Access the output handler
-        virtual COutputHandler &outputHandler(void);
+        virtual COutputHandler &outputHandler();
 
         //! Receive a single record to be processed, and produce output
         //! with any required modifications
         virtual bool handleRecord(const TStrStrUMap &dataRowFields);
 
         //! Perform any final processing once all input data has been seen.
-        virtual void finalise(void);
+        virtual void finalise();
 
         //! Restore previously saved state
         virtual bool restoreState(core::CDataSearcher &restoreSearcher,
@@ -197,13 +197,13 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
         virtual bool initNormalizer(const std::string &quantilesStateFile);
 
         //! How many records did we handle?
-        virtual uint64_t numRecordsHandled(void) const;
+        virtual uint64_t numRecordsHandled() const;
 
         //! Log a list of the detectors and keys
-        void description(void) const;
+        void description() const;
 
         //! Log a list of the detectors, keys and their memory usage
-        void descriptionAndDebugMemoryUsage(void) const;
+        void descriptionAndDebugMemoryUsage() const;
 
         //! Extra information on the success/failure of restoring the model state.
         //! In certain situations such as no data being loaded from the restorer
@@ -311,7 +311,7 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
 
         //! Get the bucketLength, or half the bucketLength if
         //! out-of-phase buckets are active
-        core_t::TTime effectiveBucketLength(void) const;
+        core_t::TTime effectiveBucketLength() const;
 
         //! Update configuration
         void updateConfig(const std::string &config);
@@ -363,7 +363,7 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
 
         //! Iterate over the models, refresh their memory status, and send a report
         //! to the API
-        void refreshMemoryAndReport(void);
+        void refreshMemoryAndReport();
 
         //! Update configuration
         void doForecast(const std::string &controlMessage);
@@ -409,7 +409,7 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
                                                   model::CResourceMonitor &resourceMonitor);
 
         //! Prune all the models
-        void pruneAllModels(void);
+        void pruneAllModels();
 
     private:
         //! The job ID

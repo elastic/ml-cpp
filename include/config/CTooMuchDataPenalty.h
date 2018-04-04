@@ -38,10 +38,10 @@ class CONFIG_EXPORT CTooMuchDataPenalty : public CPenalty
         CTooMuchDataPenalty(const CAutoconfigurerParams &params);
 
         //! Create a copy on the heap.
-        virtual CTooMuchDataPenalty *clone(void) const;
+        virtual CTooMuchDataPenalty *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
     private:
         using TUInt64Vec = std::vector<uint64_t>;

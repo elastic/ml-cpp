@@ -14,7 +14,7 @@
 
 using namespace ml;
 
-void CFunctionalTest::testIsNull(void)
+void CFunctionalTest::testIsNull()
 {
     core::CFunctional::SIsNull isNull;
 
@@ -39,7 +39,7 @@ void CFunctionalTest::testIsNull(void)
     }
 }
 
-void CFunctionalTest::testDereference(void)
+void CFunctionalTest::testDereference()
 {
     double one(1.0);
     double two(2.0);
@@ -64,7 +64,7 @@ void CFunctionalTest::testDereference(void)
     }
 }
 
-CppUnit::Test *CFunctionalTest::suite(void)
+CppUnit::Test *CFunctionalTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CFunctionalTest");
 

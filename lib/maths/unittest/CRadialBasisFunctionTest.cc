@@ -73,7 +73,7 @@ class CSquareDerivativeAdaptor
 
 }
 
-void CRadialBasisFunctionTest::testDerivative(void)
+void CRadialBasisFunctionTest::testDerivative()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CRadialBasisFunctionTest::testDerivative  |");
@@ -136,7 +136,7 @@ void CRadialBasisFunctionTest::testDerivative(void)
 
 }
 
-void CRadialBasisFunctionTest::testMean(void)
+void CRadialBasisFunctionTest::testMean()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CRadialBasisFunctionTest::testMean  |");
@@ -206,7 +206,7 @@ void CRadialBasisFunctionTest::testMean(void)
     }
 }
 
-void CRadialBasisFunctionTest::testMeanSquareDerivative(void)
+void CRadialBasisFunctionTest::testMeanSquareDerivative()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CRadialBasisFunctionTest::testMean  |");
@@ -276,7 +276,7 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative(void)
     }
 }
 
-void CRadialBasisFunctionTest::testProduct(void)
+void CRadialBasisFunctionTest::testProduct()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CRadialBasisFunctionTest::testProduct  |");
@@ -378,7 +378,7 @@ void CRadialBasisFunctionTest::testProduct(void)
     }
 }
 
-CppUnit::Test *CRadialBasisFunctionTest::suite(void)
+CppUnit::Test *CRadialBasisFunctionTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRadialBasisFunctionTest");
 

@@ -44,7 +44,7 @@ CppUnit::Test *CRuleConditionTest::suite()
     return suiteOfTests;
 }
 
-void CRuleConditionTest::testTimeContition(void)
+void CRuleConditionTest::testTimeContition()
 {
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;

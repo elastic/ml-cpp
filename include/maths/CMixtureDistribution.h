@@ -157,7 +157,7 @@ class CMixtureDistribution
         using TModeVec = std::vector<T>;
 
     public:
-        CMixtureDistribution(void) {}
+        CMixtureDistribution() {}
 
         //! \note The length of \p weights should match \p modes.
         CMixtureDistribution(const TDoubleVec &weights, const TModeVec &modes) :
@@ -194,25 +194,25 @@ class CMixtureDistribution
             m_Modes.swap(other.m_Modes);
         }
 
-        inline const TDoubleVec &weights(void) const
+        inline const TDoubleVec &weights() const
         {
             return m_Weights;
         }
-        inline TDoubleVec &weights(void)
+        inline TDoubleVec &weights()
         {
             return m_Weights;
         }
 
-        inline const TModeVec &modes(void) const
+        inline const TModeVec &modes() const
         {
             return m_Modes;
         }
-        inline TModeVec &modes(void)
+        inline TModeVec &modes()
         {
             return m_Modes;
         }
 
-        std::string print(void) const
+        std::string print() const
         {
             std::string result;
             for (std::size_t i = 0u; i < m_Weights.size(); ++i)

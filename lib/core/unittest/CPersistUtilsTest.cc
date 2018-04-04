@@ -203,7 +203,7 @@ void testPersistRestore(const T &collection, const T &initial = T())
 
 }
 
-void CPersistUtilsTest::testPersistContainers(void)
+void CPersistUtilsTest::testPersistContainers()
 {
     // 1) Check that persistence and restoration is idempotent.
     // 2) Check some edge cases.
@@ -474,7 +474,7 @@ void CPersistUtilsTest::testPersistContainers(void)
     }
 }
 
-void CPersistUtilsTest::testPersistIterators(void)
+void CPersistUtilsTest::testPersistIterators()
 {
     // Persist only a sub set of a collection
     {
@@ -521,7 +521,7 @@ void CPersistUtilsTest::testPersistIterators(void)
     }
 }
 
-void CPersistUtilsTest::testAppend(void)
+void CPersistUtilsTest::testAppend()
 {
     // Persist only a sub set of a collection
     {
@@ -620,7 +620,7 @@ void CPersistUtilsTest::testAppend(void)
     }
 }
 
-CppUnit::Test *CPersistUtilsTest::suite(void)
+CppUnit::Test *CPersistUtilsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPersistUtilsTest");
 

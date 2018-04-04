@@ -652,29 +652,29 @@ CAvailableModeDistributions::operator+(const CAvailableModeDistributions &rhs)
     return *this;
 }
 
-double CAvailableModeDistributions::parameters(void) const
+double CAvailableModeDistributions::parameters() const
 {
     return  (this->haveNormal()    ? 2.0 : 0.0)
           + (this->haveGamma()     ? 2.0 : 0.0)
           + (this->haveLogNormal() ? 2.0 : 0.0);
 }
 
-bool CAvailableModeDistributions::haveNormal(void) const
+bool CAvailableModeDistributions::haveNormal() const
 {
     return (m_Value & NORMAL) != 0;
 }
 
-bool CAvailableModeDistributions::haveGamma(void) const
+bool CAvailableModeDistributions::haveGamma() const
 {
     return (m_Value & GAMMA) != 0;
 }
 
-bool CAvailableModeDistributions::haveLogNormal(void) const
+bool CAvailableModeDistributions::haveLogNormal() const
 {
     return (m_Value & LOG_NORMAL) != 0;
 }
 
-std::string CAvailableModeDistributions::toString(void) const
+std::string CAvailableModeDistributions::toString() const
 {
     return core::CStringUtils::typeToString(m_Value);
 }
@@ -795,7 +795,7 @@ void CXMeansOnline1d::swap(CXMeansOnline1d &other)
     m_Clusters.swap(other.m_Clusters);
 }
 
-std::string CXMeansOnline1d::persistenceTag(void) const
+std::string CXMeansOnline1d::persistenceTag() const
 {
     return X_MEANS_ONLINE_1D_TAG;
 }
@@ -821,12 +821,12 @@ void CXMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter &inserte
                                      &m_ClusterIndexGenerator, _1));
 }
 
-CXMeansOnline1d *CXMeansOnline1d::clone(void) const
+CXMeansOnline1d *CXMeansOnline1d::clone() const
 {
     return new CXMeansOnline1d(*this);
 }
 
-void CXMeansOnline1d::clear(void)
+void CXMeansOnline1d::clear()
 {
     *this = CXMeansOnline1d(m_DataType,
                             m_AvailableDistributions,
@@ -840,7 +840,7 @@ void CXMeansOnline1d::clear(void)
                             this->mergeFunc());
 }
 
-std::size_t CXMeansOnline1d::numberClusters(void) const
+std::size_t CXMeansOnline1d::numberClusters() const
 {
     return m_Clusters.size();
 }
@@ -1153,14 +1153,14 @@ void CXMeansOnline1d::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
     core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
 }
 
-std::size_t CXMeansOnline1d::memoryUsage(void) const
+std::size_t CXMeansOnline1d::memoryUsage() const
 {
     std::size_t mem = core::CMemory::dynamicSize(m_ClusterIndexGenerator);
     mem += core::CMemory::dynamicSize(m_Clusters);
     return mem;
 }
 
-std::size_t CXMeansOnline1d::staticSize(void) const
+std::size_t CXMeansOnline1d::staticSize() const
 {
     return sizeof(*this);
 }
@@ -1174,7 +1174,7 @@ uint64_t CXMeansOnline1d::checksum(uint64_t seed) const
     return CChecksum::calculate(seed, m_Clusters);
 }
 
-double CXMeansOnline1d::count(void) const
+double CXMeansOnline1d::count() const
 {
     double result = 0.0;
     for (std::size_t i = 0; i < m_Clusters.size(); ++i)
@@ -1184,12 +1184,12 @@ double CXMeansOnline1d::count(void) const
     return result;
 }
 
-const CXMeansOnline1d::TClusterVec &CXMeansOnline1d::clusters(void) const
+const CXMeansOnline1d::TClusterVec &CXMeansOnline1d::clusters() const
 {
     return m_Clusters;
 }
 
-std::string CXMeansOnline1d::printClusters(void) const
+std::string CXMeansOnline1d::printClusters() const
 {
     if (m_Clusters.empty())
     {
@@ -1255,7 +1255,7 @@ std::string CXMeansOnline1d::printClusters(void) const
     return coordinatesStr.str() + likelihoodStr.str();
 }
 
-CXMeansOnline1d::CIndexGenerator &CXMeansOnline1d::indexGenerator(void)
+CXMeansOnline1d::CIndexGenerator &CXMeansOnline1d::indexGenerator()
 {
     return m_ClusterIndexGenerator;
 }
@@ -1307,7 +1307,7 @@ const CXMeansOnline1d::CCluster *CXMeansOnline1d::cluster(std::size_t index) con
     return 0;
 }
 
-double CXMeansOnline1d::minimumSplitCount(void) const
+double CXMeansOnline1d::minimumSplitCount() const
 {
     double result = m_MinimumClusterCount;
     if (m_MinimumClusterFraction > 0.0)
@@ -1377,7 +1377,7 @@ bool CXMeansOnline1d::maybeMerge(TClusterVecItr cluster1,
     return false;
 }
 
-bool CXMeansOnline1d::prune(void)
+bool CXMeansOnline1d::prune()
 {
     if (m_Clusters.size() <= 1)
     {
@@ -1414,7 +1414,7 @@ bool CXMeansOnline1d::prune(void)
     return result;
 }
 
-TDoubleDoublePr CXMeansOnline1d::winsorisationInterval(void) const
+TDoubleDoublePr CXMeansOnline1d::winsorisationInterval() const
 {
     double f = (1.0 - m_WinsorisationConfidenceInterval) / 2.0;
 
@@ -1540,17 +1540,17 @@ void CXMeansOnline1d::CCluster::propagateForwardsByTime(double time)
     m_Structure.propagateForwardsByTime(time);
 }
 
-std::size_t CXMeansOnline1d::CCluster::index(void) const
+std::size_t CXMeansOnline1d::CCluster::index() const
 {
     return m_Index;
 }
 
-double CXMeansOnline1d::CCluster::centre(void) const
+double CXMeansOnline1d::CCluster::centre() const
 {
     return m_Prior.marginalLikelihoodMean();
 }
 
-double CXMeansOnline1d::CCluster::spread(void) const
+double CXMeansOnline1d::CCluster::spread() const
 {
     return std::sqrt(m_Prior.marginalLikelihoodVariance());
 }
@@ -1560,7 +1560,7 @@ double CXMeansOnline1d::CCluster::percentile(double p) const
     return m_Structure.percentile(p);
 }
 
-double CXMeansOnline1d::CCluster::count(void) const
+double CXMeansOnline1d::CCluster::count() const
 {
     return m_Prior.numberSamples();
 }
@@ -1746,7 +1746,7 @@ CXMeansOnline1d::CCluster::merge(CCluster &other, CIndexGenerator &indexGenerato
     return result;
 }
 
-const CNormalMeanPrecConjugate &CXMeansOnline1d::CCluster::prior(void) const
+const CNormalMeanPrecConjugate &CXMeansOnline1d::CCluster::prior() const
 {
     return m_Prior;
 }
@@ -1765,7 +1765,7 @@ void CXMeansOnline1d::CCluster::debugMemoryUsage(core::CMemoryUsage::TMemoryUsag
     core::CMemoryDebug::dynamicSize("m_Structure", m_Structure, mem);
 }
 
-std::size_t CXMeansOnline1d::CCluster::memoryUsage(void) const
+std::size_t CXMeansOnline1d::CCluster::memoryUsage() const
 {
     std::size_t mem = core::CMemory::dynamicSize(m_Prior);
     mem += core::CMemory::dynamicSize(m_Structure);

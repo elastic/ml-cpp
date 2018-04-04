@@ -12,9 +12,9 @@
 class CRuleConditionTest : public CppUnit::TestFixture
 {
     public:
-        void testTimeContition(void);
+        void testTimeContition();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CRuleConditionTest_h

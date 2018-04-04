@@ -153,7 +153,7 @@ class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable
         void writeFinalMessage(const std::string &message);
 
         //! get the number of forecast records written
-        uint64_t numRecordsWritten(void) const;
+        uint64_t numRecordsWritten() const;
 
     private:
         void writeCommonStatsFields(rapidjson::Value &doc);

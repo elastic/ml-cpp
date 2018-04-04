@@ -37,7 +37,7 @@ std::string precisePrint(T x)
 
 }
 
-void COrdinalTest::testEqual(void)
+void COrdinalTest::testEqual()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+---------------------------+");
@@ -117,7 +117,7 @@ void COrdinalTest::testEqual(void)
     CPPUNIT_ASSERT(s2[1] != s1[0]);
 }
 
-void COrdinalTest::testLess(void)
+void COrdinalTest::testLess()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+--------------------------+");
@@ -210,7 +210,7 @@ void COrdinalTest::testLess(void)
     CPPUNIT_ASSERT(!(s2[3] < s1[0]));
 }
 
-void COrdinalTest::testIsNan(void)
+void COrdinalTest::testIsNan()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+---------------------------+");
@@ -256,7 +256,7 @@ void COrdinalTest::testIsNan(void)
     }
 }
 
-void COrdinalTest::testAsDouble(void)
+void COrdinalTest::testAsDouble()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+------------------------------+");
@@ -301,7 +301,7 @@ void COrdinalTest::testAsDouble(void)
     }
 }
 
-void COrdinalTest::testHash(void)
+void COrdinalTest::testHash()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+--------------------------+");
@@ -342,7 +342,7 @@ void COrdinalTest::testHash(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(100), doubleHashes.size());
 }
 
-CppUnit::Test *COrdinalTest::suite(void)
+CppUnit::Test *COrdinalTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("COrdinalTest");
 

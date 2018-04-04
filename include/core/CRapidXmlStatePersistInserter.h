@@ -64,7 +64,7 @@ class CORE_EXPORT CRapidXmlStatePersistInserter : public CStatePersistInserter
         virtual void newLevel(const std::string &name);
 
         //! End the current level
-        virtual void endLevel(void);
+        virtual void endLevel();
 
     private:
         //! Get a const char * version of a string that will last at least as

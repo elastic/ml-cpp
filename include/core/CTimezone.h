@@ -62,12 +62,12 @@ class CORE_EXPORT CTimezone : private CNonCopyable
 {
     public:
         //! Get the singleton instance
-        static CTimezone &instance(void);
+        static CTimezone &instance();
 
         //! Get the name of the current timezone.  This will be a POSIX name,
         //! e.g. Europe/London or America/New_York, or, if the timezone has not
         //! been changed from the system default, an empty string.
-        const std::string &timezoneName(void) const;
+        const std::string &timezoneName() const;
 
         //! Set the name of the timezone used by the C library functions (or our
         //! replacements for them)
@@ -82,10 +82,10 @@ class CORE_EXPORT CTimezone : private CNonCopyable
         static bool setTimezone(const std::string &timezone);
 
         //! Abbreviation for standard time in the current timezone
-        std::string stdAbbrev(void) const;
+        std::string stdAbbrev() const;
 
         //! Abbreviation for daylight saving time in the current timezone
-        std::string dstAbbrev(void) const;
+        std::string dstAbbrev() const;
 
         //! Normalise a local time structure and also return the corresponding
         //! epoch time (i.e. seconds since midnight on 1/1/1970 UTC).  This
@@ -108,8 +108,8 @@ class CORE_EXPORT CTimezone : private CNonCopyable
 
     private:
         //! Constructor for a singleton is private.
-        CTimezone(void);
-        ~CTimezone(void);
+        CTimezone();
+        ~CTimezone();
 
     private:
         //! Since there is one timezone for the whole program, access to it is

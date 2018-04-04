@@ -148,7 +148,7 @@ bool traverse1stLevel4(ml::core::CStateRestoreTraverser &traverser)
 
 }
 
-void CJsonStateRestoreTraverserTest::testRestore1(void)
+void CJsonStateRestoreTraverserTest::testRestore1()
 {
     std::string json("{\"_source\":{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}}");
     std::istringstream strm(json);
@@ -161,7 +161,7 @@ void CJsonStateRestoreTraverserTest::testRestore1(void)
     CPPUNIT_ASSERT(!traverser.next());
 }
 
-void CJsonStateRestoreTraverserTest::testRestore2(void)
+void CJsonStateRestoreTraverserTest::testRestore2()
 {
     std::string json("{\"_source\":{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"},\"level1D\":\"afterAscending\"}}");
     std::istringstream strm(json);
@@ -174,7 +174,7 @@ void CJsonStateRestoreTraverserTest::testRestore2(void)
     CPPUNIT_ASSERT(!traverser.next());
 }
 
-void CJsonStateRestoreTraverserTest::testRestore3(void)
+void CJsonStateRestoreTraverserTest::testRestore3()
 {
     std::string json("{\"_source\":{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{},\"level1D\":\"afterAscending\"}}");
     std::istringstream strm(json);
@@ -187,7 +187,7 @@ void CJsonStateRestoreTraverserTest::testRestore3(void)
     CPPUNIT_ASSERT(!traverser.next());
 }
 
-void CJsonStateRestoreTraverserTest::testRestore4(void)
+void CJsonStateRestoreTraverserTest::testRestore4()
 {
     std::string json("{\"_source\":{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}}");
     std::istringstream strm(json);
@@ -200,7 +200,7 @@ void CJsonStateRestoreTraverserTest::testRestore4(void)
     CPPUNIT_ASSERT(!traverser.next());
 }
 
-void CJsonStateRestoreTraverserTest::testParsingBooleanFields(void)
+void CJsonStateRestoreTraverserTest::testParsingBooleanFields()
 {
     // Even though the parser doesn't handle boolean fields it should not hiccup over them
     std::string json = std::string("{\"_index\" : \"categorization-test\", \"_type\" : \"categorizerState\",") +
@@ -230,7 +230,7 @@ void CJsonStateRestoreTraverserTest::testParsingBooleanFields(void)
     CPPUNIT_ASSERT(traverser.hasSubLevel());
 }
 
-void CJsonStateRestoreTraverserTest::testRestore1IgnoreArrays(void)
+void CJsonStateRestoreTraverserTest::testRestore1IgnoreArrays()
 {
     std::string json("{\"_source\":{\"level1A\":\"a\",\"someArray\":[42],\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}}");
     std::istringstream strm(json);
@@ -243,7 +243,7 @@ void CJsonStateRestoreTraverserTest::testRestore1IgnoreArrays(void)
     CPPUNIT_ASSERT(!traverser.next());
 }
 
-void CJsonStateRestoreTraverserTest::testRestore1IgnoreArraysNested(void)
+void CJsonStateRestoreTraverserTest::testRestore1IgnoreArraysNested()
 {
     std::string json("{\"_source\":{\"level1A\":\"a\",\"someArray\":[{\"nestedArray\":[42]}],\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}}");
     std::istringstream strm(json);

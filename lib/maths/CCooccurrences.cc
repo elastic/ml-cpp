@@ -42,7 +42,7 @@ using TPackedBitVectorVec = std::vector<CPackedBitVector>;
 //! \brief Counts the (co-)occurrences of two variables.
 struct SCooccurrence
 {
-    SCooccurrence(void) :
+    SCooccurrence() :
         s_Nxy(0.0), s_Nx(0.0), s_Ny(0.0), s_X(0), s_Y(0)
     {}
     SCooccurrence(double nxy, double nx, double ny, std::size_t x, std::size_t y) :
@@ -550,7 +550,7 @@ void CCooccurrences::add(std::size_t X)
     m_CurrentIndicators.insert(X);
 }
 
-void CCooccurrences::capture(void)
+void CCooccurrences::capture()
 {
     if (++m_Offset < m_IndicatorWidth)
     {
@@ -589,7 +589,7 @@ void CCooccurrences::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) c
     core::CMemoryDebug::dynamicSize("m_Indicators", m_Indicators, mem);
 }
 
-std::size_t CCooccurrences::memoryUsage(void) const
+std::size_t CCooccurrences::memoryUsage() const
 {
     std::size_t mem = core::CMemory::dynamicSize(m_CurrentIndicators);
     mem += core::CMemory::dynamicSize(m_Indicators);

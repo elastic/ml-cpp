@@ -13,7 +13,7 @@
 
 using namespace ml;
 
-void CEqualWithToleranceTest::testScalar(void)
+void CEqualWithToleranceTest::testScalar()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CEqualWithToleranceTest::testScalar  |");
@@ -82,7 +82,7 @@ void CEqualWithToleranceTest::testScalar(void)
     }
 }
 
-void CEqualWithToleranceTest::testVector(void)
+void CEqualWithToleranceTest::testVector()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CEqualWithToleranceTest::testVector  |");
@@ -149,7 +149,7 @@ void CEqualWithToleranceTest::testVector(void)
     }
 }
 
-void CEqualWithToleranceTest::testMatrix(void)
+void CEqualWithToleranceTest::testMatrix()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CEqualWithToleranceTest::testMatrix  |");
@@ -216,7 +216,7 @@ void CEqualWithToleranceTest::testMatrix(void)
     }
 }
 
-CppUnit::Test *CEqualWithToleranceTest::suite(void)
+CppUnit::Test *CEqualWithToleranceTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEqualWithToleranceTest");
 

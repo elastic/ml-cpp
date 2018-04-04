@@ -86,10 +86,10 @@ class MODEL_EXPORT CGathererTools
                 static const core_t::TTime FIRST_TIME;
 
             public:
-                CArrivalTimeGatherer(void);
+                CArrivalTimeGatherer();
 
                 //! Get the mean arrival time in this bucketing interval.
-                TOptionalDouble featureData(void) const;
+                TOptionalDouble featureData() const;
 
                 //! Update the state with a new measurement.
                 //!
@@ -118,7 +118,7 @@ class MODEL_EXPORT CGathererTools
                 }
 
                 //! Update the state to represent the start of a new bucket.
-                void startNewBucket(void);
+                void startNewBucket();
 
                 //! \name Persistence
                 //@{
@@ -130,10 +130,10 @@ class MODEL_EXPORT CGathererTools
                 //@}
 
                 //! Get the checksum of this gatherer.
-                uint64_t checksum(void) const;
+                uint64_t checksum() const;
 
                 //! Print this gatherer for debug.
-                std::string print(void) const;
+                std::string print() const;
 
             private:
                 //! The last time a message was added.
@@ -251,7 +251,7 @@ class MODEL_EXPORT CGathererTools
                              TStrVecCItr endInfluencers);
 
                 //! Get the dimension of the underlying statistic.
-                std::size_t dimension(void) const;
+                std::size_t dimension() const;
 
                 //! Get the feature data for the current bucketing interval.
                 SMetricFeatureData featureData(core_t::TTime time, core_t::TTime bucketLength,
@@ -308,16 +308,16 @@ class MODEL_EXPORT CGathererTools
                 //@}
 
                 //! Get the checksum of this gatherer.
-                uint64_t checksum(void) const;
+                uint64_t checksum() const;
 
                 //! Debug the memory used by this gatherer.
                 void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
                 //! Get the memory used by this gatherer.
-                std::size_t memoryUsage(void) const;
+                std::size_t memoryUsage() const;
 
                 //! Print this gatherer for debug.
-                std::string print(void) const;
+                std::string print() const;
 
                 //! Is the gatherer holding redundant data?
                 bool isRedundant(core_t::TTime samplingCutoffTime) const;

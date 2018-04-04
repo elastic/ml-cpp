@@ -12,12 +12,12 @@
 class CStringStoreTest : public CppUnit::TestFixture
 {
     public:
-        void setUp(void);
+        void setUp();
 
-        void testStringStore(void);
-        void testMemUsage(void);
+        void testStringStore();
+        void testMemUsage();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CStringStoreTest_h

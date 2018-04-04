@@ -33,7 +33,7 @@ CppUnit::Test *COutputChainerTest::suite()
     return suiteOfTests;
 }
 
-void COutputChainerTest::testChaining(void)
+void COutputChainerTest::testChaining()
 {
     static const ml::core_t::TTime BUCKET_SIZE(3600);
 

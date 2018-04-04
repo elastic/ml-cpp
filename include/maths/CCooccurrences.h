@@ -74,7 +74,7 @@ class MATHS_EXPORT CCooccurrences
         void add(std::size_t X);
 
         //! Capture the indicator values of missing events.
-        void capture(void);
+        void capture();
 
         //! Get the checksum of this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -83,7 +83,7 @@ class MATHS_EXPORT CCooccurrences
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         using TSizeUSet = boost::unordered_set<std::size_t>;

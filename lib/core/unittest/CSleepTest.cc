@@ -22,7 +22,7 @@ CppUnit::Test *CSleepTest::suite()
     return suiteOfTests;
 }
 
-void CSleepTest::testSleep(void)
+void CSleepTest::testSleep()
 {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
 

@@ -12,11 +12,11 @@
 class CStateMachineTest : public CppUnit::TestFixture
 {
     public:
-        void testBasics(void);
-        void testPersist(void);
-        void testMultithreaded(void);
+        void testBasics();
+        void testPersist();
+        void testMultithreaded();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CStateMachineTest_h

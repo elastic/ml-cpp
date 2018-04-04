@@ -38,43 +38,43 @@ class MODEL_EXPORT CSample
         };
 
     public:
-        CSample(void);
+        CSample();
         CSample(core_t::TTime time, const TDouble1Vec &value, double varianceScale, double count);
 
         //! Get the time.
-        core_t::TTime time(void) const { return m_Time; }
+        core_t::TTime time() const { return m_Time; }
 
         //! Get the variance scale.
-        double varianceScale(void) const { return m_VarianceScale; }
+        double varianceScale() const { return m_VarianceScale; }
 
         //! Get the count.
-        double count(void) const { return m_Count; }
+        double count() const { return m_Count; }
 
         //! Get a writable count.
-        double &count(void) { return m_Count; }
+        double &count() { return m_Count; }
 
         //! Get the value and any ancillary statistics needed to calculate
         //! influence.
-        const TDouble1Vec &value(void) const { return m_Value; }
+        const TDouble1Vec &value() const { return m_Value; }
 
         //! Get a writable value and any ancillary statistics needed to
         //! calculate influence.
-        TDouble1Vec &value(void) { return m_Value; }
+        TDouble1Vec &value() { return m_Value; }
 
         //! Get the value of the feature.
         TDouble1Vec value(std::size_t dimension) const;
 
         //! Get a checksum.
-        uint64_t checksum(void) const;
+        uint64_t checksum() const;
 
         //! Print the sample for debug.
-        std::string print(void) const;
+        std::string print() const;
 
         //! Debug the memory used by this object.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         core_t::TTime m_Time;

@@ -21,11 +21,11 @@ class CAnomalyDetector;
 class CResourceMonitorTest : public CppUnit::TestFixture
 {
     public:
-        void setUp(void);
+        void setUp();
 
-        void testMonitor(void);
-        void testPruning(void);
-        void testExtraMemory(void);
+        void testMonitor();
+        void testPruning();
+        void testExtraMemory();
 
         static CppUnit::Test *suite();
 

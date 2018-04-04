@@ -25,7 +25,7 @@ CppUnit::Test *CMemoryUsageJsonWriterTest::suite()
 }
 
 
-void CMemoryUsageJsonWriterTest::test(void)
+void CMemoryUsageJsonWriterTest::test()
 {
     {
         // Check that adding nothing produces nothing

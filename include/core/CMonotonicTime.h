@@ -57,13 +57,13 @@ class CORE_EXPORT CMonotonicTime
 {
     public:
         //! Initialise any required scaling factors
-        CMonotonicTime(void);
+        CMonotonicTime();
 
         //! Get the number of milliseconds since some fixed point in the past
-        uint64_t milliseconds(void) const;
+        uint64_t milliseconds() const;
 
         //! Get the number of nanoseconds since some fixed point in the past
-        uint64_t nanoseconds(void) const;
+        uint64_t nanoseconds() const;
 
     private:
         //! Operating system specific scaling factors

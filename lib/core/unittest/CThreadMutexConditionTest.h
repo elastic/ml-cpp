@@ -11,8 +11,8 @@
 class CThreadMutexConditionTest : public CppUnit::TestFixture
 {
     public:
-        void    testThread(void);
-        void    testThreadCondition(void);
+        void    testThread();
+        void    testThreadCondition();
 
         static CppUnit::Test *suite();
 };

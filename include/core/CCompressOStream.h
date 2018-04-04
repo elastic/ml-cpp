@@ -37,10 +37,10 @@ class CORE_EXPORT CCompressOStream : public std::ostream
         CCompressOStream(CStateCompressor::CChunkFilter &filter);
 
         //! Destructor will close the stream
-        virtual ~CCompressOStream(void);
+        virtual ~CCompressOStream();
 
         //! Close the stream
-        void close(void);
+        void close();
 
     private:
         class CCompressThread : public CThread
@@ -52,8 +52,8 @@ class CORE_EXPORT CCompressOStream : public std::ostream
 
             protected:
                 //! Implementation of inherited interface
-                virtual void run(void);
-                virtual void shutdown(void);
+                virtual void run();
+                virtual void shutdown();
 
             public:
                 //! Reference to the owning stream

@@ -24,7 +24,7 @@ using TDoubleVec = std::vector<double>;
 using TDoubleVecItr = TDoubleVec::iterator;
 using TDoubleVecCItr = TDoubleVec::const_iterator;
 
-void CLogTDistributionTest::testMode(void)
+void CLogTDistributionTest::testMode()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testMode  |");
@@ -74,7 +74,7 @@ void CLogTDistributionTest::testMode(void)
     }
 }
 
-void CLogTDistributionTest::testPdf(void)
+void CLogTDistributionTest::testPdf()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testPdf  |");
@@ -115,7 +115,7 @@ void CLogTDistributionTest::testPdf(void)
     }
 }
 
-void CLogTDistributionTest::testCdf(void)
+void CLogTDistributionTest::testCdf()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testCdf  |");
@@ -169,7 +169,7 @@ void CLogTDistributionTest::testCdf(void)
     }
 }
 
-void CLogTDistributionTest::testQuantile(void)
+void CLogTDistributionTest::testQuantile()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testQuantile  |");
@@ -201,7 +201,7 @@ void CLogTDistributionTest::testQuantile(void)
     }
 }
 
-CppUnit::Test *CLogTDistributionTest::suite(void)
+CppUnit::Test *CLogTDistributionTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLogTDistributionTest");
 

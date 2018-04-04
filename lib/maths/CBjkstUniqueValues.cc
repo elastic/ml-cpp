@@ -66,7 +66,7 @@ class CHashIterator : public std::iterator<std::random_access_iterator_tag, uint
         //! The STL that comes with g++ requires a default constructor - this
         //! will create an object that's suitable only to be assigned to, which
         //! is hopefully all g++'s STL does with it!
-        CHashIterator(void) : m_Itr()
+        CHashIterator() : m_Itr()
         {
         }
 
@@ -74,7 +74,7 @@ class CHashIterator : public std::iterator<std::random_access_iterator_tag, uint
         {
         }
 
-        TUInt8VecItr base(void) const
+        TUInt8VecItr base() const
         {
             return m_Itr;
         }
@@ -92,11 +92,11 @@ class CHashIterator : public std::iterator<std::random_access_iterator_tag, uint
             return m_Itr < other.m_Itr;
         }
 
-        uint16_t operator*(void) const
+        uint16_t operator*() const
         {
             return from8Bit(*m_Itr, *(m_Itr+1));
         }
-        const CHashIterator &operator++(void)
+        const CHashIterator &operator++()
         {
             m_Itr += 3;
             return *this;
@@ -107,7 +107,7 @@ class CHashIterator : public std::iterator<std::random_access_iterator_tag, uint
             m_Itr += 3;
             return result;
         }
-        const CHashIterator &operator--(void)
+        const CHashIterator &operator--()
         {
             m_Itr -= 3;
             return *this;
@@ -483,7 +483,7 @@ void CBjkstUniqueValues::remove(uint32_t value)
     }
 }
 
-uint32_t CBjkstUniqueValues::number(void) const
+uint32_t CBjkstUniqueValues::number() const
 {
     const TUInt32Vec *values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values == 0)
@@ -550,7 +550,7 @@ void CBjkstUniqueValues::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr me
     }
 }
 
-std::size_t CBjkstUniqueValues::memoryUsage(void) const
+std::size_t CBjkstUniqueValues::memoryUsage() const
 {
     std::size_t mem = 0;
     const TUInt32Vec *values = boost::get<TUInt32Vec>(&m_Sketch);
@@ -577,7 +577,7 @@ std::size_t CBjkstUniqueValues::memoryUsage(void) const
     return mem;
 }
 
-void CBjkstUniqueValues::sketch(void)
+void CBjkstUniqueValues::sketch()
 {
     static const std::size_t UINT8_SIZE  = sizeof(uint8_t);
     static const std::size_t UINT32_SIZE = sizeof(uint32_t);
@@ -620,7 +620,7 @@ void CBjkstUniqueValues::sketch(void)
     }
 }
 
-CBjkstUniqueValues::SSketch::SSketch(void)
+CBjkstUniqueValues::SSketch::SSketch()
 {
 }
 
@@ -773,7 +773,7 @@ void CBjkstUniqueValues::SSketch::remove(uint32_t value)
     }
 }
 
-uint32_t CBjkstUniqueValues::SSketch::number(void) const
+uint32_t CBjkstUniqueValues::SSketch::number() const
 {
     using TUInt32Vec = std::vector<uint32_t>;
 

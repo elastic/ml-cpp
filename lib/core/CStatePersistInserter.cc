@@ -11,7 +11,7 @@ namespace ml
 namespace core
 {
 
-CStatePersistInserter::~CStatePersistInserter(void)
+CStatePersistInserter::~CStatePersistInserter()
 {
 }
 
@@ -29,7 +29,7 @@ CStatePersistInserter::CAutoLevel::CAutoLevel(const std::string &name,
     m_Inserter.newLevel(name);
 }
 
-CStatePersistInserter::CAutoLevel::~CAutoLevel(void)
+CStatePersistInserter::CAutoLevel::~CAutoLevel()
 {
     m_Inserter.endLevel();
 }

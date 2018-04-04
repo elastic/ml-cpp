@@ -61,7 +61,7 @@ class MATHS_EXPORT CClustererTypes
         {
             public:
                 //! Create a new  generator.
-                CIndexGenerator(void);
+                CIndexGenerator();
 
                 //! Restore by traversing a state document
                 bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
@@ -70,10 +70,10 @@ class MATHS_EXPORT CClustererTypes
                 void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
 
                 //! Deep copy this index generator.
-                CIndexGenerator deepCopy(void) const;
+                CIndexGenerator deepCopy() const;
 
                 //! Get the next available unique cluster index.
-                std::size_t next(void) const;
+                std::size_t next() const;
 
                 //! Recycle the specified cluster index.
                 void recycle(std::size_t index);
@@ -82,10 +82,10 @@ class MATHS_EXPORT CClustererTypes
                 void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
                 //! Get the memory used by this component
-                std::size_t memoryUsage(void) const;
+                std::size_t memoryUsage() const;
 
                 //! Print the state of the heap for debug.
-                std::string print(void) const;
+                std::string print() const;
 
             private:
                 using TSizeVec = std::vector<std::size_t>;
@@ -158,12 +158,12 @@ class CClusterer : public CClustererTypes
         {
         }
 
-        virtual ~CClusterer(void) {}
+        virtual ~CClusterer() {}
 
         //! \name Clusterer Contract
         //@{
         //! Get the tag name for this clusterer.
-        virtual std::string persistenceTag(void) const = 0;
+        virtual std::string persistenceTag() const = 0;
 
         //! Creates a copy of the clusterer.
         //!
@@ -171,13 +171,13 @@ class CClusterer : public CClustererTypes
         virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const = 0;
 
         //! \warning Caller owns returned object.
-        virtual CClusterer *clone(void) const = 0;
+        virtual CClusterer *clone() const = 0;
 
         //! Clear the current clusterer state.
-        virtual void clear(void) = 0;
+        virtual void clear() = 0;
 
         //! Get the number of clusters.
-        virtual std::size_t numberClusters(void) const = 0;
+        virtual std::size_t numberClusters() const = 0;
 
         //! Set the type of data being clustered.
         virtual void dataType(maths_t::EDataType dataType) = 0;
@@ -262,14 +262,14 @@ class CClusterer : public CClustererTypes
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
 
         //! Get the memory used by this component
-        virtual std::size_t memoryUsage(void) const = 0;
+        virtual std::size_t memoryUsage() const = 0;
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const = 0;
+        virtual std::size_t staticSize() const = 0;
         //@}
 
         //! Get the callback function to invoke when a cluster is split.
-        const TSplitFunc &splitFunc(void) const
+        const TSplitFunc &splitFunc() const
         {
             return m_SplitFunc;
         }
@@ -281,7 +281,7 @@ class CClusterer : public CClustererTypes
         }
 
         //! Get the callback function to invoke when two clusters are merged.
-        const TMergeFunc &mergeFunc(void) const
+        const TMergeFunc &mergeFunc() const
         {
             return m_MergeFunc;
         }

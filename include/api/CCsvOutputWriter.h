@@ -72,7 +72,7 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler
                          char separator = COMMA);
 
         //! Destructor flushes the stream
-        virtual ~CCsvOutputWriter(void);
+        virtual ~CCsvOutputWriter();
 
         //! Set field names, adding extra field names if they're not already
         //! present - this is only allowed once
@@ -80,7 +80,7 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler
                                 const TStrVec &extraFieldNames);
 
         //! Get field names
-        virtual const TStrVec &fieldNames(void) const;
+        virtual const TStrVec &fieldNames() const;
 
         // Bring the other overload of fieldNames() into scope
         using COutputHandler::fieldNames;
@@ -97,11 +97,11 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler
 
         //! Get the contents of the internal string stream - for use with the
         //! zero argument constructor
-        std::string internalString(void) const;
+        std::string internalString() const;
 
     protected:
         //! Output stream accessor
-        std::ostream &outputStream(void);
+        std::ostream &outputStream();
 
     private:
         //! Append a field to the work record, quoting it if required, and

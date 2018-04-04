@@ -62,13 +62,13 @@ class MODEL_EXPORT CEventData
 
     public:
         //! Create uninitialized event data.
-        CEventData(void);
+        CEventData();
 
         //! Efficiently swap the contents with \p other.
         void swap(CEventData &other);
 
         //! Reset to uninitialized state.
-        void clear(void);
+        void clear();
 
         //! Set the time.
         void time(core_t::TTime time);
@@ -97,34 +97,34 @@ class MODEL_EXPORT CEventData
         void addStatistics(const TDouble1VecArraySizePr &statistics);
 
         //! Get the event time.
-        core_t::TTime time(void) const;
+        core_t::TTime time() const;
 
         //! Get the event person identifier.
-        TOptionalSize personId(void) const;
+        TOptionalSize personId() const;
 
         //! Get the unique attribute identifier.
-        TOptionalSize attributeId(void) const;
+        TOptionalSize attributeId() const;
 
         //! Get the function argument metric statistic value(s).
-        const TDouble1VecArray &values(void) const;
+        const TDouble1VecArray &values() const;
 
         //! Get the function argument string value.
-        const TOptionalStr &stringValue(void) const;
+        const TOptionalStr &stringValue() const;
 
         //! Get the influencing field values.
-        const TOptionalStrVec &influences(void) const;
+        const TOptionalStrVec &influences() const;
 
         //! Sets the data to be explicit null
-        void setExplicitNull(void);
+        void setExplicitNull();
 
         //! Is explicit null?
-        bool isExplicitNull(void) const;
+        bool isExplicitNull() const;
 
         //! Get the unique count of measurements comprising the statistic.
-        TOptionalSize count(void) const;
+        TOptionalSize count() const;
 
         //! Get a description of the event data for debug.
-        std::string print(void) const;
+        std::string print() const;
 
     private:
         //! Read the \p i'th attribute identifier.

@@ -79,14 +79,14 @@ class MODEL_EXPORT CLimits
         bool init(const std::string &configFile);
 
         //! Access to settings
-        size_t autoConfigEvents(void) const;
-        size_t anomalyMaxTimeBuckets(void) const;
-        size_t maxExamples(void) const;
-        double unusualProbabilityThreshold(void) const;
-        size_t memoryLimitMB(void) const;
+        size_t autoConfigEvents() const;
+        size_t anomalyMaxTimeBuckets() const;
+        size_t maxExamples() const;
+        double unusualProbabilityThreshold() const;
+        size_t memoryLimitMB() const;
 
         //! Access to the resource monitor
-        CResourceMonitor &resourceMonitor(void);
+        CResourceMonitor &resourceMonitor();
 
         //! boost::ini_parser doesn't like UTF-8 ini files that begin with byte
         //! order markers.  This function advances the seek pointer of the

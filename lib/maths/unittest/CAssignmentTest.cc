@@ -104,7 +104,7 @@ double match(const TDoubleVecVec &costs,
 
 }
 
-void CAssignmentTest::testKuhnMunkres(void)
+void CAssignmentTest::testKuhnMunkres()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CAssignmentTest::testKuhnMunkres |");
@@ -312,7 +312,7 @@ void CAssignmentTest::testKuhnMunkres(void)
     }
 }
 
-CppUnit::Test *CAssignmentTest::suite(void)
+CppUnit::Test *CAssignmentTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAssignmentTest");
 

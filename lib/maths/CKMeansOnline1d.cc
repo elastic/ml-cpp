@@ -124,7 +124,7 @@ bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams &p
     return true;
 }
 
-std::string CKMeansOnline1d::persistenceTag(void) const
+std::string CKMeansOnline1d::persistenceTag() const
 {
     return K_MEANS_ONLINE_1D_TAG;
 }
@@ -138,17 +138,17 @@ void CKMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter &inserte
     }
 }
 
-CKMeansOnline1d *CKMeansOnline1d::clone(void) const
+CKMeansOnline1d *CKMeansOnline1d::clone() const
 {
     return new CKMeansOnline1d(*this);
 }
 
-void CKMeansOnline1d::clear(void)
+void CKMeansOnline1d::clear()
 {
     m_Clusters.clear();
 }
 
-std::size_t CKMeansOnline1d::numberClusters(void) const
+std::size_t CKMeansOnline1d::numberClusters() const
 {
     return m_Clusters.size();
 }
@@ -328,12 +328,12 @@ void CKMeansOnline1d::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
     core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
 }
 
-std::size_t CKMeansOnline1d::memoryUsage(void) const
+std::size_t CKMeansOnline1d::memoryUsage() const
 {
     return core::CMemory::dynamicSize(m_Clusters);
 }
 
-std::size_t CKMeansOnline1d::staticSize(void) const
+std::size_t CKMeansOnline1d::staticSize() const
 {
     return sizeof(*this);
 }

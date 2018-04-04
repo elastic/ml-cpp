@@ -35,7 +35,7 @@ const std::string ANOMALY_TYPE_TAG("m");
 const std::string CORRELATED_ATTRIBUTE_TAG("n");
 }
 
-SAttributeProbability::SAttributeProbability(void) :
+SAttributeProbability::SAttributeProbability() :
         s_Cid(0),
         s_Probability(1.0),
         s_Type(model_t::CResultType::E_Unconditional),
@@ -171,7 +171,7 @@ void SAttributeProbability::addDescriptiveData(annotated_probability::EDescripti
     s_DescriptiveData.emplace_back(key, value);
 }
 
-SAnnotatedProbability::SAnnotatedProbability(void) :
+SAnnotatedProbability::SAnnotatedProbability() :
         s_Probability(1.0),
         s_ResultType(model_t::CResultType::E_Final)
 {}
@@ -219,7 +219,7 @@ void SAnnotatedProbability::acceptPersistInserter(core::CStatePersistInserter &i
     }
 }
 
-bool SAnnotatedProbability::isInterim(void) const
+bool SAnnotatedProbability::isInterim() const
 {
     return s_ResultType.isInterim();
 }

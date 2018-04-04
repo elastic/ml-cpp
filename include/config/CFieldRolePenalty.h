@@ -39,10 +39,10 @@ class CONFIG_EXPORT CCantBeNumeric : public CPenalty
         CCantBeNumeric(const CAutoconfigurerParams &params);
 
         //! Create a copy on the heap.
-        virtual CCantBeNumeric *clone(void) const;
+        virtual CCantBeNumeric *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
     private:
         //! Sets \p penalty to 0.0 for numerics and a no-op otherwise.
@@ -65,10 +65,10 @@ class CONFIG_EXPORT CCantBeCategorical : public CPenalty
         CCantBeCategorical(const CAutoconfigurerParams &params);
 
         //! Create a copy on the heap.
-        virtual CCantBeCategorical *clone(void) const;
+        virtual CCantBeCategorical *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
     private:
         //! Sets \p penalty to 0.0 for categorical and a no-op otherwise.
@@ -91,10 +91,10 @@ class CONFIG_EXPORT CDontUseUnaryField : public CPenalty
         CDontUseUnaryField(const CAutoconfigurerParams &params);
 
         //! Create a copy on the heap.
-        virtual CDontUseUnaryField *clone(void) const;
+        virtual CDontUseUnaryField *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
     private:
         //! Sets \p penalty to 0.0 for categorical with a single category
@@ -120,10 +120,10 @@ class CONFIG_EXPORT CDistinctCountThresholdPenalty : public CPenalty
                                        std::size_t distinctCountForPenaltyOfZero);
 
         //! Create a copy on the heap.
-        virtual CDistinctCountThresholdPenalty *clone(void) const;
+        virtual CDistinctCountThresholdPenalty *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
     private:
         //! The penalty is a piecewise continuous linear function which

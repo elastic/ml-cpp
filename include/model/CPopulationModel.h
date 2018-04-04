@@ -96,7 +96,7 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
         //@}
 
         //! Returns true.
-        virtual bool isPopulation(void) const;
+        virtual bool isPopulation() const;
 
         //! \name Bucket Statistics
         //@{
@@ -171,13 +171,13 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
 
         //! Get the memory used by this model.
-        virtual std::size_t memoryUsage(void) const = 0;
+        virtual std::size_t memoryUsage() const = 0;
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const = 0;
+        virtual std::size_t staticSize() const = 0;
 
         //! Get the non-estimated value of the the memory used by this model.
-        virtual std::size_t computeMemoryUsage(void) const = 0;
+        virtual std::size_t computeMemoryUsage() const = 0;
 
         //! Get the frequency of the attribute identified by \p cid.
         virtual double attributeFrequency(std::size_t cid) const;
@@ -196,7 +196,7 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
                                std::size_t cid,
                                std::size_t correlated = 0);
                 bool operator==(const CCorrectionKey &rhs) const;
-                std::size_t hash(void) const;
+                std::size_t hash() const;
 
             private:
                 model_t::EFeature m_Feature;
@@ -224,7 +224,7 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
         bool doAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
         //! Get the current bucket person counts.
-        virtual const TSizeUInt64PrVec &personCounts(void) const = 0;
+        virtual const TSizeUInt64PrVec &personCounts() const = 0;
 
         //! Check if bucket statistics are available for the specified time.
         virtual bool bucketStatsAvailable(core_t::TTime time) const = 0;
@@ -238,7 +238,7 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
 
         //! Initialize the time series models for recycled attributes
         //! and/or people.
-        virtual void updateRecycledModels(void) = 0;
+        virtual void updateRecycledModels() = 0;
 
         //! Update the correlation models.
         virtual void refreshCorrelationModels(std::size_t resourceLimit,
@@ -269,9 +269,9 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
                           T &data) const;
 
         //! Get the first time each attribute was seen.
-        const TTimeVec &attributeFirstBucketTimes(void) const;
+        const TTimeVec &attributeFirstBucketTimes() const;
         //! Get the last time each attribute was seen.
-        const TTimeVec &attributeLastBucketTimes(void) const;
+        const TTimeVec &attributeLastBucketTimes() const;
 
         //! Get the people and attributes to remove if any.
         void peopleAndAttributesToRemove(core_t::TTime time,

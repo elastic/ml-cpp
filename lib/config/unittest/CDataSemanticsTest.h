@@ -12,13 +12,13 @@
 class CDataSemanticsTest : public CppUnit::TestFixture
 {
     public:
-        void testBinary(void);
-        void testNonNumericCategorical(void);
-        void testNumericCategorical(void);
-        void testInteger(void);
-        void testReal(void);
+        void testBinary();
+        void testNonNumericCategorical();
+        void testNumericCategorical();
+        void testInteger();
+        void testReal();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CDataSemanticsTest_h

@@ -41,7 +41,7 @@ CEventRateModelFactory::CEventRateModelFactory(const SModelParams &params,
         m_BucketResultsDelay(0)
 {}
 
-CEventRateModelFactory *CEventRateModelFactory::clone(void) const
+CEventRateModelFactory *CEventRateModelFactory::clone() const
 {
     return new CEventRateModelFactory(*this);
 }
@@ -244,7 +244,7 @@ CEventRateModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
     return this->multivariateOneOfNPrior(2, params, priors);
 }
 
-const CSearchKey &CEventRateModelFactory::searchKey(void) const
+const CSearchKey &CEventRateModelFactory::searchKey() const
 {
     if (!m_SearchKeyCache)
     {
@@ -261,17 +261,17 @@ const CSearchKey &CEventRateModelFactory::searchKey(void) const
     return *m_SearchKeyCache;
 }
 
-bool CEventRateModelFactory::isSimpleCount(void) const
+bool CEventRateModelFactory::isSimpleCount() const
 {
     return CSearchKey::isSimpleCount(function_t::function(m_Features), m_PersonFieldName);
 }
 
-model_t::ESummaryMode CEventRateModelFactory::summaryMode(void) const
+model_t::ESummaryMode CEventRateModelFactory::summaryMode() const
 {
     return m_SummaryMode;
 }
 
-maths_t::EDataType CEventRateModelFactory::dataType(void) const
+maths_t::EDataType CEventRateModelFactory::dataType() const
 {
     return maths_t::E_IntegerData;
 }
@@ -312,7 +312,7 @@ void CEventRateModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay)
     m_BucketResultsDelay = bucketResultsDelay;
 }
 
-CEventRateModelFactory::TStrCRefVec CEventRateModelFactory::partitioningFields(void) const
+CEventRateModelFactory::TStrCRefVec CEventRateModelFactory::partitioningFields() const
 {
     TStrCRefVec result;
     result.reserve(2);

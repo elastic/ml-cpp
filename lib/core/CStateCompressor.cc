@@ -45,7 +45,7 @@ bool CStateCompressor::streamComplete(CDataAdder::TOStreamP &/*strm*/,
     return m_FilterSink.allWritesSuccessful();
 }
 
-size_t CStateCompressor::numCompressedDocs(void) const
+size_t CStateCompressor::numCompressedDocs() const
 {
     return m_FilterSink.numCompressedDocs();
 }
@@ -114,7 +114,7 @@ std::streamsize CStateCompressor::CChunkFilter::write(const char *s, std::stream
     return written;
 }
 
-void CStateCompressor::CChunkFilter::close(void)
+void CStateCompressor::CChunkFilter::close()
 {
     this->closeStream(true);
 }
@@ -161,12 +161,12 @@ void CStateCompressor::CChunkFilter::writeInternal(const char *s,
     m_BytesDone += bytesToWrite + 2;
 }
 
-bool CStateCompressor::CChunkFilter::allWritesSuccessful(void)
+bool CStateCompressor::CChunkFilter::allWritesSuccessful()
 {
     return m_WritesSuccessful;
 }
 
-size_t CStateCompressor::CChunkFilter::numCompressedDocs(void) const
+size_t CStateCompressor::CChunkFilter::numCompressedDocs() const
 {
     return m_CurrentDocNum - 1;
 }

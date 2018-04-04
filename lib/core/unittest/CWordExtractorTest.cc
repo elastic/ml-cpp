@@ -23,7 +23,7 @@ CppUnit::Test *CWordExtractorTest::suite()
     return suiteOfTests;
 }
 
-void CWordExtractorTest::testWordExtract(void)
+void CWordExtractorTest::testWordExtract()
 {
     {
         std::string message("2017-01-25 02:10:03,551 ERROR [co.elastic.tradefeedtracker.MessageLoggerService] Failed to Rollback");
@@ -60,7 +60,7 @@ void CWordExtractorTest::testWordExtract(void)
     }
 }
 
-void CWordExtractorTest::testMinConsecutive(void)
+void CWordExtractorTest::testMinConsecutive()
 {
     {
         std::string message("2017-01-25 02:10:03,551 ERROR [co.elastic.tradefeedtracker.MessageLoggerService] Failed to Rollback");

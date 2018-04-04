@@ -40,19 +40,19 @@ class MATHS_EXPORT CDenseMatrix
         using TDoubleVecVec = std::vector<TDoubleVec>;
 
     public:
-        CDenseMatrix(void);
+        CDenseMatrix();
         CDenseMatrix(TDoubleVecVec &elements);
 
         //! Efficiently swap the contents of two matrices.
         void swap(CDenseMatrix &other);
 
         //! Get the number of rows.
-        std::size_t rows(void) const
+        std::size_t rows() const
         {
             return m_Elements.empty() ? 0 : m_Elements[0].size();
         }
         //! Get the number of columns.
-        std::size_t columns(void) const
+        std::size_t columns() const
         {
             return m_Elements.size();
         }
@@ -92,7 +92,7 @@ class MATHS_EXPORT CSparseMatrix
         using iterator = TSizeSizePrDoublePrVec::const_iterator;
 
     public:
-        CSparseMatrix(void);
+        CSparseMatrix();
         CSparseMatrix(std::size_t rows,
                       std::size_t columns,
                       TSizeSizePrDoublePrVec &elements);
@@ -101,12 +101,12 @@ class MATHS_EXPORT CSparseMatrix
         void swap(CSparseMatrix &other);
 
         //! Get the number of rows.
-        std::size_t rows(void) const
+        std::size_t rows() const
         {
             return m_Rows;
         }
         //! Get the number of columns.
-        std::size_t columns(void) const
+        std::size_t columns() const
         {
             return m_Columns;
         }
@@ -293,7 +293,7 @@ class MATHS_EXPORT CLogisticRegressionModel
         using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
 
     public:
-        CLogisticRegressionModel(void);
+        CLogisticRegressionModel();
         CLogisticRegressionModel(double beta0,
                                  TSizeDoublePrVec &beta);
 
@@ -350,7 +350,7 @@ class MATHS_EXPORT CLassoLogisticRegression
         using EHyperparametersStyle = lasso_logistic_regression_detail::EHyperparametersStyle;
 
     protected:
-        CLassoLogisticRegression(void);
+        CLassoLogisticRegression();
 
         //! Learn the value of precision of the Laplace prior.
         template<typename MATRIX>
@@ -366,22 +366,22 @@ class MATHS_EXPORT CLassoLogisticRegression
         //! It is only possible to learn a model if the training
         //! data contains a mixture of both positive and negative
         //! examples.
-        bool sanityChecks(void) const;
+        bool sanityChecks() const;
 
         //! Get the training feature vectors.
-        inline const STORAGE &x(void) const { return m_X; }
+        inline const STORAGE &x() const { return m_X; }
         //! Get the training feature vectors.
-        inline STORAGE &x(void) { return m_X; }
+        inline STORAGE &x() { return m_X; }
 
         //! Get the feature vector dimension.
-        inline std::size_t d(void) const { return m_D; }
+        inline std::size_t d() const { return m_D; }
         //! Get the feature vector dimension.
-        inline std::size_t &d(void) { return m_D; }
+        inline std::size_t &d() { return m_D; }
 
         //! Get the training feature vectors.
-        inline const TDoubleVec &y(void) const { return m_Y; }
+        inline const TDoubleVec &y() const { return m_Y; }
         //! Get the training feature vectors.
-        inline TDoubleVec &y(void) { return m_Y; }
+        inline TDoubleVec &y() { return m_Y; }
 
     private:
         //! The feature vectors.

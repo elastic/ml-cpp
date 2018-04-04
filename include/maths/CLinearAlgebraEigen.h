@@ -165,12 +165,12 @@ class CSparseVectorIndexIterator : public std::iterator<std::input_iterator_tag,
             return !(*this == rhs);
         }
 
-        std::ptrdiff_t operator*(void) const
+        std::ptrdiff_t operator*() const
         {
             return std::max(m_Base.row(), m_Base.col());
         }
 
-        CSparseVectorIndexIterator &operator++(void)
+        CSparseVectorIndexIterator &operator++()
         {
             ++m_Base;
             return *this;
@@ -337,7 +337,7 @@ class CDenseMatrixInitializer
     public:
         explicit CDenseMatrixInitializer(const MATRIX &type) : m_Type(&type) {}
 
-        std::size_t rows(void) const
+        std::size_t rows() const
         {
             return m_Type->rows();
         }
@@ -373,7 +373,7 @@ class CDenseVectorInitializer
     public:
         explicit CDenseVectorInitializer(const VECTOR &type) : m_Type(&type) {}
 
-        std::size_t dimension(void) const
+        std::size_t dimension() const
         {
             return m_Type->size();
         }

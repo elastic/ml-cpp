@@ -102,7 +102,7 @@ void CSeasonalComponent::acceptPersistInserter(core::CStatePersistInserter &inse
                              &CSeasonalComponentAdaptiveBucketing::acceptPersistInserter, &m_Bucketing, _1));
 }
 
-bool CSeasonalComponent::initialized(void) const
+bool CSeasonalComponent::initialized() const
 {
     return this->CDecompositionComponent::initialized();
 }
@@ -124,12 +124,12 @@ bool CSeasonalComponent::initialize(core_t::TTime startTime,
     return true;
 }
 
-std::size_t CSeasonalComponent::size(void) const
+std::size_t CSeasonalComponent::size() const
 {
     return m_Bucketing.size();
 }
 
-void CSeasonalComponent::clear(void)
+void CSeasonalComponent::clear()
 {
     this->CDecompositionComponent::clear();
     if (m_Bucketing.initialized())
@@ -176,7 +176,7 @@ void CSeasonalComponent::interpolate(core_t::TTime time, bool refine)
     }
 }
 
-double CSeasonalComponent::decayRate(void) const
+double CSeasonalComponent::decayRate() const
 {
     return m_Bucketing.decayRate();
 }
@@ -191,7 +191,7 @@ void CSeasonalComponent::propagateForwardsByTime(double time, bool meanRevert)
     m_Bucketing.propagateForwardsByTime(time, meanRevert);
 }
 
-const CSeasonalTime &CSeasonalComponent::time(void) const
+const CSeasonalTime &CSeasonalComponent::time() const
 {
     return m_Bucketing.time();
 }
@@ -203,7 +203,7 @@ TDoubleDoublePr CSeasonalComponent::value(core_t::TTime time, double confidence)
     return this->CDecompositionComponent::value(offset, n, confidence);
 }
 
-double CSeasonalComponent::meanValue(void) const
+double CSeasonalComponent::meanValue() const
 {
     return this->CDecompositionComponent::meanValue();
 }
@@ -275,12 +275,12 @@ TDoubleDoublePr CSeasonalComponent::variance(core_t::TTime time, double confiden
     return this->CDecompositionComponent::variance(offset, n, confidence);
 }
 
-double CSeasonalComponent::meanVariance(void) const
+double CSeasonalComponent::meanVariance() const
 {
     return this->CDecompositionComponent::meanVariance();
 }
 
-double CSeasonalComponent::heteroscedasticity(void) const
+double CSeasonalComponent::heteroscedasticity() const
 {
     return this->CDecompositionComponent::heteroscedasticity();
 }
@@ -303,12 +303,12 @@ bool CSeasonalComponent::covariances(core_t::TTime time, TMatrix &result) const
     return false;
 }
 
-CSeasonalComponent::TSplineCRef CSeasonalComponent::valueSpline(void) const
+CSeasonalComponent::TSplineCRef CSeasonalComponent::valueSpline() const
 {
     return this->CDecompositionComponent::valueSpline();
 }
 
-double CSeasonalComponent::slope(void) const
+double CSeasonalComponent::slope() const
 {
     return m_Bucketing.slope();
 }
@@ -331,7 +331,7 @@ void CSeasonalComponent::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr me
     core::CMemoryDebug::dynamicSize("m_Splines", this->splines(), mem);
 }
 
-std::size_t CSeasonalComponent::memoryUsage(void) const
+std::size_t CSeasonalComponent::memoryUsage() const
 {
     return core::CMemory::dynamicSize(m_Bucketing) + core::CMemory::dynamicSize(this->splines());
 }

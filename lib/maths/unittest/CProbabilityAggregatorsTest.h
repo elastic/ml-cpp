@@ -12,12 +12,12 @@
 class CProbabilityAggregatorsTest : public CppUnit::TestFixture
 {
     public:
-        void testJointProbabilityOfLessLikelySamples(void);
-        void testLogJointProbabilityOfLessLikelySamples(void);
-        void testProbabilityOfExtremeSample(void);
-        void testProbabilityOfMFromNExtremeSamples(void);
+        void testJointProbabilityOfLessLikelySamples();
+        void testLogJointProbabilityOfLessLikelySamples();
+        void testProbabilityOfExtremeSample();
+        void testProbabilityOfMFromNExtremeSamples();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CProbabilityAggregatorsTest_h

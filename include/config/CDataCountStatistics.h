@@ -70,16 +70,16 @@ class CONFIG_EXPORT CBucketCountStatistics
                  TDetectorRecordCItr endRecords);
 
         //! Capture the current bucket statistics.
-        void capture(void);
+        void capture();
 
         //! Get the total count of distinct partitions and buckets seen to date.
-        uint64_t bucketPartitionCount(void) const;
+        uint64_t bucketPartitionCount() const;
 
         //! Get the moments of the count distribution per partition.
-        const TSizeSizePrMomentsUMap &countMomentsPerPartition(void) const;
+        const TSizeSizePrMomentsUMap &countMomentsPerPartition() const;
 
         //! Get the quantile summary for the count distribution per partition.
-        const TSizeSizePrQuantileUMap &countQuantilesPerPartition(void) const;
+        const TSizeSizePrQuantileUMap &countQuantilesPerPartition() const;
 
         //! Get the moments of the distribution of the distinct count of argument
         //! field values for \p name.
@@ -149,29 +149,29 @@ class CONFIG_EXPORT CDataCountStatistics
 
     public:
         CDataCountStatistics(const CAutoconfigurerParams &params);
-        virtual ~CDataCountStatistics(void);
+        virtual ~CDataCountStatistics();
 
         //! Update the statistics with [\p beginRecords, \p endRecords).
         virtual void add(TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords) = 0;
 
         //! Get the total count of records added.
-        uint64_t recordCount(void) const;
+        uint64_t recordCount() const;
 
         //! Get the total count of each bucket length.
-        const TUInt64Vec &bucketCounts(void) const;
+        const TUInt64Vec &bucketCounts() const;
 
         //! Get the arrival time distribution
-        const maths::CQuantileSketch &arrivalTimeDistribution(void) const;
+        const maths::CQuantileSketch &arrivalTimeDistribution() const;
 
         //! Get the total time range.
-        core_t::TTime timeRange(void) const;
+        core_t::TTime timeRange() const;
 
         //! Get the number of time series.
-        std::size_t numberSampledTimeSeries(void) const;
+        std::size_t numberSampledTimeSeries() const;
 
         //! Get the counts of distinct (bucket, by, partition) triples
         //! per bucket length seen to date.
-        const TBucketStatisticsVec &bucketStatistics(void) const;
+        const TBucketStatisticsVec &bucketStatistics() const;
 
         //! Extract the by field value.
         template<typename T>
@@ -193,7 +193,7 @@ class CONFIG_EXPORT CDataCountStatistics
 
     protected:
         //! Get the parameters.
-        const CAutoconfigurerParams &params(void) const;
+        const CAutoconfigurerParams &params() const;
 
         //! Check if we should sample the partition.
         bool samplePartition(std::size_t partition) const;
@@ -302,7 +302,7 @@ class CONFIG_EXPORT CByOverAndPartitionDataCountStatistics : public CDataCountSt
         virtual void add(TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords);
 
         //! Get the distinct count of over field values per (by, partition) pair.
-        const TSizeSizePrCBjkstUMap &sampledByAndPartitionDistinctOverCounts(void) const;
+        const TSizeSizePrCBjkstUMap &sampledByAndPartitionDistinctOverCounts() const;
 
     private:
         //! The distinct count of over values per (by, partition) pair.

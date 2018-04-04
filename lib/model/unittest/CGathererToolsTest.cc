@@ -28,7 +28,7 @@ CppUnit::Test *CGathererToolsTest::suite()
     return suiteOfTests;
 }
 
-void CGathererToolsTest::testSumGathererIsRedundant(void)
+void CGathererToolsTest::testSumGathererIsRedundant()
 {
     using TDouble1Vec = CGathererTools::CSumGatherer::TDouble1Vec;
 

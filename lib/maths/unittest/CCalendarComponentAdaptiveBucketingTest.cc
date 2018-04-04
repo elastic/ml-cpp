@@ -31,18 +31,18 @@ using TMinAccumulator = maths::CBasicStatistics::SMin<double>::TAccumulator;
 using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
 }
 
-void CCalendarComponentAdaptiveBucketingTest::setUp(void)
+void CCalendarComponentAdaptiveBucketingTest::setUp()
 {
     m_Timezone = core::CTimezone::instance().timezoneName();
     core::CTimezone::instance().setTimezone("GMT");
 }
 
-void CCalendarComponentAdaptiveBucketingTest::tearDown(void)
+void CCalendarComponentAdaptiveBucketingTest::tearDown()
 {
     core::CTimezone::instance().setTimezone(m_Timezone);
 }
 
-void CCalendarComponentAdaptiveBucketingTest::testInitialize(void)
+void CCalendarComponentAdaptiveBucketingTest::testInitialize()
 {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CCalendarComponentAdaptiveBucketingTest::testInitialize  |");
@@ -73,7 +73,7 @@ void CCalendarComponentAdaptiveBucketingTest::testInitialize(void)
     CPPUNIT_ASSERT_EQUAL(expectedValues, core::CContainerPrinter::print(values));
 }
 
-void CCalendarComponentAdaptiveBucketingTest::testSwap(void)
+void CCalendarComponentAdaptiveBucketingTest::testSwap()
 {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CCalendarComponentAdaptiveBucketingTest::testSwap  |");
@@ -123,7 +123,7 @@ void CCalendarComponentAdaptiveBucketingTest::testSwap(void)
     CPPUNIT_ASSERT_EQUAL(checksum2, bucketing1.checksum());
 }
 
-void CCalendarComponentAdaptiveBucketingTest::testRefine(void)
+void CCalendarComponentAdaptiveBucketingTest::testRefine()
 {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CCalendarComponentAdaptiveBucketingTest::testRefine  |");
@@ -221,7 +221,7 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine(void)
     CPPUNIT_ASSERT(maxError2[0] < 0.65 * maxError1[0]);
 }
 
-void CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime(void)
+void CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime()
 {
     LOG_DEBUG("+------------------------------------------------------------------------+");
     LOG_DEBUG("|  CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime  |");
@@ -258,7 +258,7 @@ void CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime(void)
     }
 }
 
-void CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength(void)
+void CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength()
 {
     LOG_DEBUG("+--------------------------------------------------------------------+");
     LOG_DEBUG("|  CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength  |");
@@ -328,7 +328,7 @@ void CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength(void)
     }
 }
 
-void CCalendarComponentAdaptiveBucketingTest::testUnintialized(void)
+void CCalendarComponentAdaptiveBucketingTest::testUnintialized()
 {
     LOG_DEBUG("+-------------------------------------------------------------+");
     LOG_DEBUG("|  CCalendarComponentAdaptiveBucketingTest::testUnintialized  |");
@@ -377,7 +377,7 @@ void CCalendarComponentAdaptiveBucketingTest::testUnintialized(void)
     CPPUNIT_ASSERT(bucketing.variances().empty());
 }
 
-void CCalendarComponentAdaptiveBucketingTest::testKnots(void)
+void CCalendarComponentAdaptiveBucketingTest::testKnots()
 {
     LOG_DEBUG("+------------------------------------------------------+");
     LOG_DEBUG("|  CCalendarComponentAdaptiveBucketingTest::testKnots  |");
@@ -480,7 +480,7 @@ void CCalendarComponentAdaptiveBucketingTest::testKnots(void)
     }
 }
 
-void CCalendarComponentAdaptiveBucketingTest::testPersist(void)
+void CCalendarComponentAdaptiveBucketingTest::testPersist()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CCalendarComponentAdaptiveBucketingTest::testPersist  |");
@@ -545,7 +545,7 @@ void CCalendarComponentAdaptiveBucketingTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CCalendarComponentAdaptiveBucketingTest::suite(void)
+CppUnit::Test *CCalendarComponentAdaptiveBucketingTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCalendarComponentAdaptiveBucketingTest");
 
