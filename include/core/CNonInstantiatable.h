@@ -8,12 +8,8 @@
 
 #include <core/ImportExport.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Similar idea to boost::noncopyable, but for instantiation.
@@ -27,17 +23,13 @@ namespace core
 //! The class is (seemingly pointlessly) exported from the DLL to
 //! prevent Visual C++ warning C4275.
 //!
-class CORE_EXPORT CNonInstantiatable
-{
-    private:
-        //! Prevent instantiation
-        CNonInstantiatable();
-        CNonInstantiatable(const CNonInstantiatable &);
+class CORE_EXPORT CNonInstantiatable {
+private:
+    //! Prevent instantiation
+    CNonInstantiatable();
+    CNonInstantiatable(const CNonInstantiatable&);
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CNonInstantiatable_h
-

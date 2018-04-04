@@ -11,10 +11,8 @@
 #include <algorithm>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Container allocation strategy
@@ -31,50 +29,42 @@ namespace core
 //! IMPLEMENTATION DECISIONS:\n
 //! Template class to work with different containers
 //!
-class CORE_EXPORT CAllocationStrategy
-{
-    public:
-        //! Reserve a container working around implementation-specific silliness
-        template<typename T>
-        static void reserve(T &t, std::size_t n)
-        {
-            t.reserve(n);
-        }
+class CORE_EXPORT CAllocationStrategy {
+public:
+    //! Reserve a container working around implementation-specific silliness
+    template<typename T>
+    static void reserve(T& t, std::size_t n) {
+        t.reserve(n);
+    }
 
-        //! Resize a container using a 10% capacity increase
-        template<typename T>
-        static void resize(T &t, std::size_t n)
-        {
-            if (n > t.capacity())
-            {
-                CAllocationStrategy::reserve(t, n * 11 / 10);
-            }
-            t.resize(n);
+    //! Resize a container using a 10% capacity increase
+    template<typename T>
+    static void resize(T& t, std::size_t n) {
+        if (n > t.capacity()) {
+            CAllocationStrategy::reserve(t, n * 11 / 10);
         }
+        t.resize(n);
+    }
 
-        //! Resize a container using a 10% capacity increase, with default value type
-        template<typename T>
-        static void resize(T &t, std::size_t n, const typename T::value_type &v)
-        {
-            if (n > t.capacity())
-            {
-                CAllocationStrategy::reserve(t, n * 11 / 10);
-            }
-            t.resize(n, v);
+    //! Resize a container using a 10% capacity increase, with default value type
+    template<typename T>
+    static void resize(T& t, std::size_t n, const typename T::value_type& v) {
+        if (n > t.capacity()) {
+            CAllocationStrategy::reserve(t, n * 11 / 10);
         }
+        t.resize(n, v);
+    }
 
-        //! push_back an item to a container using a 10% capacity
-        //! increase
-        template<typename T>
-        static void push_back(std::vector<T> &v, const T &t)
-        {
-            std::size_t capacity = v.capacity();
-            if (v.size() == capacity)
-            {
-                CAllocationStrategy::reserve(v, (capacity * 11 / 10) + 1);
-            }
-            v.push_back(t);
+    //! push_back an item to a container using a 10% capacity
+    //! increase
+    template<typename T>
+    static void push_back(std::vector<T>& v, const T& t) {
+        std::size_t capacity = v.capacity();
+        if (v.size() == capacity) {
+            CAllocationStrategy::reserve(v, (capacity * 11 / 10) + 1);
         }
+        v.push_back(t);
+    }
 };
 
 } // core

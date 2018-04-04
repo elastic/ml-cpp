@@ -22,19 +22,18 @@ class CMockDataAdder;
 //! appear to be for the searched index.  The actual search string is NOT
 //! properly applied.  This is OK for the current scope of the unit testing.
 //!
-class CMockSearcher : public ml::core::CDataSearcher
-{
-    public:
-        CMockSearcher(const CMockDataAdder &mockDataAdder);
+class CMockSearcher : public ml::core::CDataSearcher {
+public:
+    CMockSearcher(const CMockDataAdder& mockDataAdder);
 
-        //! Do a search that results in an input stream.
-        //! A return value of NULL indicates a technical problem with the
-        //! creation of the stream.  Other errors may be indicated by the
-        //! returned stream going into the "bad" state.
-        virtual TIStreamP search(size_t currentDocNum, size_t limit);
+    //! Do a search that results in an input stream.
+    //! A return value of NULL indicates a technical problem with the
+    //! creation of the stream.  Other errors may be indicated by the
+    //! returned stream going into the "bad" state.
+    virtual TIStreamP search(size_t currentDocNum, size_t limit);
 
-    private:
-        const CMockDataAdder &m_MockDataAdder;
+private:
+    const CMockDataAdder& m_MockDataAdder;
 };
 
 #endif // INCLUDED_CMockSearcher_h

@@ -32,15 +32,13 @@ using TSampleVec = std::vector<CSample>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TTestSampleQueue = CSampleQueue<TMeanAccumulator>;
 
-void CSampleQueueTest::testSampleToString()
-{
+void CSampleQueueTest::testSampleToString() {
     CSample sample(10, {3.0}, 0.8, 1.0);
 
     CPPUNIT_ASSERT_EQUAL(std::string("10;8e-1;1;3"), CSample::SToString()(sample));
 }
 
-void CSampleQueueTest::testSampleFromString()
-{
+void CSampleQueueTest::testSampleFromString() {
     CSample sample;
 
     CPPUNIT_ASSERT(CSample::SFromString()("15;7e-1;3;2.0", sample));
@@ -51,8 +49,7 @@ void CSampleQueueTest::testSampleFromString()
     CPPUNIT_ASSERT_EQUAL(3.0, sample.count());
 }
 
-void CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample()
-{
+void CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -70,8 +67,7 @@ void CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample()
     CPPUNIT_ASSERT_EQUAL(1.0, queue[0].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenQueueIsFullShouldResize()
-{
+void CSampleQueueTest::testAddGivenQueueIsFullShouldResize() {
     std::size_t sampleCountFactor(1);
     std::size_t latencyBuckets(1);
     double growthFactor(0.5);
@@ -108,8 +104,7 @@ void CSampleQueueTest::testAddGivenQueueIsFullShouldResize()
     CPPUNIT_ASSERT_EQUAL(std::size_t(9), queue.capacity());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample()
-{
+void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -128,8 +123,7 @@ void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample
     CPPUNIT_ASSERT_EQUAL(3.0, queue[0].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSampleButDifferentBucket()
-{
+void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSampleButDifferentBucket() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -158,8 +152,7 @@ void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample
     CPPUNIT_ASSERT_EQUAL(core_t::TTime(10), queue.latestEnd());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample()
-{
+void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -185,8 +178,7 @@ void CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample()
     CPPUNIT_ASSERT_EQUAL(5.0, queue[1].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsInOrderAndFarFromLatestSubSample()
-{
+void CSampleQueueTest::testAddGivenTimeIsInOrderAndFarFromLatestSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -212,8 +204,7 @@ void CSampleQueueTest::testAddGivenTimeIsInOrderAndFarFromLatestSubSample()
     CPPUNIT_ASSERT_EQUAL(1.0, queue[1].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample()
-{
+void CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -234,8 +225,7 @@ void CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample()
     CPPUNIT_ASSERT_EQUAL(6.0, queue[0].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -256,8 +246,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample
     CPPUNIT_ASSERT_EQUAL(1.0, queue[2].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSubSample()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -278,8 +267,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSub
     CPPUNIT_ASSERT_EQUAL(1.0, queue[2].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSample()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -300,8 +288,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliest
     CPPUNIT_ASSERT_EQUAL(5.0, queue[1].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSampleButDifferentBucket()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSampleButDifferentBucket() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -327,8 +314,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliest
     CPPUNIT_ASSERT_EQUAL(1.0, queue[1].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndWithinSomeSubSample()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndWithinSomeSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -352,8 +338,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndWithinSomeSubSample()
     CPPUNIT_ASSERT_EQUAL(3.0, queue[1].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatest()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatest() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -377,8 +362,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLat
     CPPUNIT_ASSERT_EQUAL(2.0, queue[1].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatestButDifferentBucket()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatestButDifferentBucket() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -395,8 +379,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLat
     CPPUNIT_ASSERT_EQUAL(std::size_t(4), queue.size());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSubSamples()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSubSamples() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -419,8 +402,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullS
     CPPUNIT_ASSERT_EQUAL(2.0, queue[2].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSamples()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSamples() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -443,8 +425,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSa
     CPPUNIT_ASSERT_EQUAL(2.0, queue[1].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubSamples()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubSamples() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -467,8 +448,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubS
     CPPUNIT_ASSERT_EQUAL(6.0, queue[2].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSamples()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSamples() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -491,8 +471,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSampl
     CPPUNIT_ASSERT_EQUAL(6.0, queue[1].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleButOnlyNextHasSpace()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleButOnlyNextHasSpace() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -515,8 +494,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleB
     CPPUNIT_ASSERT_EQUAL(2.0, queue[1].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOnlyPreviousHasSpace()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOnlyPreviousHasSpace() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -539,8 +517,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOn
     CPPUNIT_ASSERT_EQUAL(2.0, queue[2].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -562,8 +539,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap()
     CPPUNIT_ASSERT_EQUAL(1.0, queue[1].s_Statistic.count());
 }
 
-void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInTooSmallGap()
-{
+void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInTooSmallGap() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(5);
     double growthFactor(0.1);
@@ -586,8 +562,7 @@ void CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInTooSmallGap()
     CPPUNIT_ASSERT_EQUAL(3.0, queue[1].s_Statistic.count());
 }
 
-void CSampleQueueTest::testCanSampleGivenEmptyQueue()
-{
+void CSampleQueueTest::testCanSampleGivenEmptyQueue() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -597,8 +572,7 @@ void CSampleQueueTest::testCanSampleGivenEmptyQueue()
     CPPUNIT_ASSERT(queue.canSample(42) == false);
 }
 
-void CSampleQueueTest::testCanSample()
-{
+void CSampleQueueTest::testCanSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -616,8 +590,7 @@ void CSampleQueueTest::testCanSample()
     CPPUNIT_ASSERT(queue.canSample(40));
 }
 
-void CSampleQueueTest::testSampleGivenExactlyOneSampleOfExactCountToBeCreated()
-{
+void CSampleQueueTest::testSampleGivenExactlyOneSampleOfExactCountToBeCreated() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -645,8 +618,7 @@ void CSampleQueueTest::testSampleGivenExactlyOneSampleOfExactCountToBeCreated()
     CPPUNIT_ASSERT_EQUAL(1.0, queue[0].s_Statistic.count());
 }
 
-void CSampleQueueTest::testSampleGivenExactlyOneSampleOfOverCountToBeCreated()
-{
+void CSampleQueueTest::testSampleGivenExactlyOneSampleOfOverCountToBeCreated() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -675,8 +647,7 @@ void CSampleQueueTest::testSampleGivenExactlyOneSampleOfOverCountToBeCreated()
     CPPUNIT_ASSERT_EQUAL(1.0, queue[0].s_Statistic.count());
 }
 
-void CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder()
-{
+void CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -713,8 +684,7 @@ void CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder()
     CPPUNIT_ASSERT_EQUAL(1.0, queue[0].s_Statistic.count());
 }
 
-void CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder()
-{
+void CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -757,8 +727,7 @@ void CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder()
     CPPUNIT_ASSERT_EQUAL(1.0, queue[0].s_Statistic.count());
 }
 
-void CSampleQueueTest::testSampleGivenNoSampleToBeCreated()
-{
+void CSampleQueueTest::testSampleGivenNoSampleToBeCreated() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -777,8 +746,7 @@ void CSampleQueueTest::testSampleGivenNoSampleToBeCreated()
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), queue.size());
 }
 
-void CSampleQueueTest::testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess()
-{
+void CSampleQueueTest::testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -800,8 +768,7 @@ void CSampleQueueTest::testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUs
     CPPUNIT_ASSERT_EQUAL(1.25, samples[0].varianceScale());
 }
 
-void CSampleQueueTest::testResetBucketGivenEmptyQueue()
-{
+void CSampleQueueTest::testResetBucketGivenEmptyQueue() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -813,8 +780,7 @@ void CSampleQueueTest::testResetBucketGivenEmptyQueue()
     CPPUNIT_ASSERT(queue.empty());
 }
 
-void CSampleQueueTest::testResetBucketGivenBucketBeforeEarliestSubSample()
-{
+void CSampleQueueTest::testResetBucketGivenBucketBeforeEarliestSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -834,8 +800,7 @@ void CSampleQueueTest::testResetBucketGivenBucketBeforeEarliestSubSample()
     CPPUNIT_ASSERT_EQUAL(std::size_t(6), queue.size());
 }
 
-void CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample()
-{
+void CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -860,8 +825,7 @@ void CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample()
     CPPUNIT_ASSERT_EQUAL(core_t::TTime(20), queue[3].s_Start);
 }
 
-void CSampleQueueTest::testResetBucketGivenBucketInBetweenWithoutAnySubSamples()
-{
+void CSampleQueueTest::testResetBucketGivenBucketInBetweenWithoutAnySubSamples() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -878,8 +842,7 @@ void CSampleQueueTest::testResetBucketGivenBucketInBetweenWithoutAnySubSamples()
     CPPUNIT_ASSERT_EQUAL(std::size_t(3), queue.size());
 }
 
-void CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample()
-{
+void CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -902,8 +865,7 @@ void CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample()
     CPPUNIT_ASSERT_EQUAL(core_t::TTime(10), queue[2].s_Start);
 }
 
-void CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample()
-{
+void CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -928,8 +890,7 @@ void CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample()
     CPPUNIT_ASSERT_EQUAL(core_t::TTime(10), queue[4].s_Start);
 }
 
-void CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample()
-{
+void CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -949,8 +910,7 @@ void CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample()
     CPPUNIT_ASSERT_EQUAL(std::size_t(6), queue.size());
 }
 
-void CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets()
-{
+void CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets() {
     std::size_t sampleCountFactor(10);
     std::size_t latencyBuckets(3);
     double growthFactor(0.1);
@@ -964,28 +924,23 @@ void CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets()
 
     core_t::TTime latestTime = bucketLength * (latencyBuckets + 1);
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
-    for (std::size_t measurementId = 0; measurementId < numberOfMeasurements; ++measurementId)
-    {
+    for (std::size_t measurementId = 0; measurementId < numberOfMeasurements; ++measurementId) {
         TDoubleVec testData;
-        rng.generateUniformSamples(static_cast<double>(latestTime - latency),
-                                   static_cast<double>(latestTime), 1, testData);
-        latestTime += 60 + static_cast<core_t::TTime>(40.0 * std::sin(
-                               boost::math::constants::two_pi<double>()
-                             * static_cast<double>(latestTime % 86400) / 86400.0));
+        rng.generateUniformSamples(static_cast<double>(latestTime - latency), static_cast<double>(latestTime), 1, testData);
+        latestTime += 60 + static_cast<core_t::TTime>(40.0 * std::sin(boost::math::constants::two_pi<double>() *
+                                                                      static_cast<double>(latestTime % 86400) / 86400.0));
         core_t::TTime measurementTime = static_cast<core_t::TTime>(testData[0]);
         queue.add(measurementTime, {1.0}, 1u, sampleCount);
     }
 
-    for (std::size_t i = 0; i < queue.size(); ++i)
-    {
+    for (std::size_t i = 0; i < queue.size(); ++i) {
         core_t::TTime startBucket = maths::CIntegerTools::floor(queue[i].s_Start, bucketLength);
         core_t::TTime endBucket = maths::CIntegerTools::floor(queue[i].s_End, bucketLength);
         CPPUNIT_ASSERT_EQUAL(startBucket, endBucket);
     }
 }
 
-void CSampleQueueTest::testPersistence()
-{
+void CSampleQueueTest::testPersistence() {
     std::size_t sampleCountFactor(2);
     std::size_t latencyBuckets(2);
     double growthFactor(0.1);
@@ -1009,9 +964,7 @@ void CSampleQueueTest::testPersistence()
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     TTestSampleQueue restoredQueue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
-    traverser.traverseSubLevel(boost::bind(&TTestSampleQueue::acceptRestoreTraverser,
-                                           &restoredQueue,
-                                           _1));
+    traverser.traverseSubLevel(boost::bind(&TTestSampleQueue::acceptRestoreTraverser, &restoredQueue, _1));
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), restoredQueue.size());
 
@@ -1028,8 +981,7 @@ void CSampleQueueTest::testPersistence()
     CPPUNIT_ASSERT_EQUAL(1.0, restoredQueue[0].s_Statistic.count());
 }
 
-void CSampleQueueTest::testQualityOfSamplesGivenConstantRate()
-{
+void CSampleQueueTest::testQualityOfSamplesGivenConstantRate() {
     std::size_t sampleCountFactor(5);
     std::size_t latencyBuckets(3);
     double growthFactor(0.1);
@@ -1046,16 +998,13 @@ void CSampleQueueTest::testQualityOfSamplesGivenConstantRate()
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanMinVariance;
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanMaxVariance;
 
-    for (std::size_t runId = 0; runId < numberOfRuns; ++ runId)
-    {
+    for (std::size_t runId = 0; runId < numberOfRuns; ++runId) {
         TSampleVec samples;
         core_t::TTime latestTime = bucketLength * (latencyBuckets + 1);
         TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
-        for (std::size_t measurementId = 0; measurementId < numberOfMeasurements; ++measurementId)
-        {
+        for (std::size_t measurementId = 0; measurementId < numberOfMeasurements; ++measurementId) {
             TDoubleVec testData;
-            rng.generateUniformSamples(static_cast<double>(latestTime - latency),
-                                       static_cast<double>(latestTime), 1, testData);
+            rng.generateUniformSamples(static_cast<double>(latestTime - latency), static_cast<double>(latestTime), 1, testData);
             latestTime += 60;
             core_t::TTime measurementTime = static_cast<core_t::TTime>(testData[0]);
             queue.add(measurementTime, {1.0}, 1u, sampleCount);
@@ -1066,8 +1015,7 @@ void CSampleQueueTest::testQualityOfSamplesGivenConstantRate()
         maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
         maths::CBasicStatistics::COrderStatisticsStack<double, 5u> varianceMin;
         maths::CBasicStatistics::COrderStatisticsStack<double, 5u, std::greater<double>> varianceMax;
-        for (std::size_t i = 0; i < samples.size(); ++i)
-        {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             varianceStat.add(samples[i].varianceScale());
             varianceMin.add(samples[i].varianceScale());
             varianceMax.add(samples[i].varianceScale());
@@ -1095,8 +1043,7 @@ void CSampleQueueTest::testQualityOfSamplesGivenConstantRate()
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMaxVariance) < 1.1);
 }
 
-void CSampleQueueTest::testQualityOfSamplesGivenVariableRate()
-{
+void CSampleQueueTest::testQualityOfSamplesGivenVariableRate() {
     std::size_t sampleCountFactor(5);
     std::size_t latencyBuckets(3);
     double growthFactor(0.1);
@@ -1113,19 +1060,15 @@ void CSampleQueueTest::testQualityOfSamplesGivenVariableRate()
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanMinVariance;
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanMaxVariance;
 
-    for (std::size_t runId = 0; runId < numberOfRuns; ++ runId)
-    {
+    for (std::size_t runId = 0; runId < numberOfRuns; ++runId) {
         TSampleVec samples;
         core_t::TTime latestTime = bucketLength * (latencyBuckets + 1);
         TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
-        for (std::size_t measurementId = 0; measurementId < numberOfMeasurements; ++measurementId)
-        {
+        for (std::size_t measurementId = 0; measurementId < numberOfMeasurements; ++measurementId) {
             TDoubleVec testData;
-            rng.generateUniformSamples(static_cast<double>(latestTime - latency),
-				       static_cast<double>(latestTime), 1, testData);
-            latestTime += 60 + static_cast<core_t::TTime>(40.0 * std::sin(
-				   boost::math::constants::two_pi<double>()
-				 * static_cast<double>(latestTime % 86400) / 86400.0));
+            rng.generateUniformSamples(static_cast<double>(latestTime - latency), static_cast<double>(latestTime), 1, testData);
+            latestTime += 60 + static_cast<core_t::TTime>(40.0 * std::sin(boost::math::constants::two_pi<double>() *
+                                                                          static_cast<double>(latestTime % 86400) / 86400.0));
             core_t::TTime measurementTime = static_cast<core_t::TTime>(testData[0]);
             queue.add(measurementTime, {1.0}, 1u, sampleCount);
         }
@@ -1135,8 +1078,7 @@ void CSampleQueueTest::testQualityOfSamplesGivenVariableRate()
         maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
         maths::CBasicStatistics::COrderStatisticsStack<double, 5u> varianceMin;
         maths::CBasicStatistics::COrderStatisticsStack<double, 5u, std::greater<double>> varianceMax;
-        for (std::size_t i = 0; i < samples.size(); ++i)
-        {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             varianceStat.add(samples[i].varianceScale());
             varianceMin.add(samples[i].varianceScale());
             varianceMax.add(samples[i].varianceScale());
@@ -1164,8 +1106,7 @@ void CSampleQueueTest::testQualityOfSamplesGivenVariableRate()
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMaxVariance) < 1.16);
 }
 
-void CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder()
-{
+void CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder() {
     std::size_t sampleCountFactor(5);
     std::size_t latencyBuckets(500);
     double growthFactor(0.1);
@@ -1180,8 +1121,7 @@ void CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder
     core_t::TTime latestTime = 60 * numberOfMeasurements;
     core_t::TTime time = latestTime;
     TTestSampleQueue queue(1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
-    for (std::size_t measurementId = 0; measurementId < numberOfMeasurements; ++measurementId)
-    {
+    for (std::size_t measurementId = 0; measurementId < numberOfMeasurements; ++measurementId) {
         queue.add(time, {1.0}, 1u, sampleCount);
         time -= 60;
     }
@@ -1191,8 +1131,7 @@ void CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder
     maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
     maths::CBasicStatistics::COrderStatisticsStack<double, 1u> varianceMin;
     maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>> varianceMax;
-    for (std::size_t i = 0; i < samples.size(); ++i)
-    {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         varianceStat.add(samples[i].varianceScale());
         varianceMin.add(samples[i].varianceScale());
         varianceMax.add(samples[i].varianceScale());
@@ -1209,150 +1148,124 @@ void CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder
     CPPUNIT_ASSERT(varianceMax[0] <= 1.0);
 }
 
-CppUnit::Test *CSampleQueueTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSampleQueueTest");
+CppUnit::Test* CSampleQueueTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSampleQueueTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-               "CSampleQueueTest::testSampleToString",
-               &CSampleQueueTest::testSampleToString));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-               "CSampleQueueTest::testSampleFromString",
-               &CSampleQueueTest::testSampleFromString));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testSampleToString", &CSampleQueueTest::testSampleToString));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testSampleFromString", &CSampleQueueTest::testSampleFromString));
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample",
-           &CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenQueueIsFullShouldResize",
-           &CSampleQueueTest::testAddGivenQueueIsFullShouldResize));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample",
-           &CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSampleButDifferentBucket",
-           &CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSampleButDifferentBucket));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample",
-           &CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsInOrderAndFarFromLatestSubSample",
-           &CSampleQueueTest::testAddGivenTimeIsInOrderAndFarFromLatestSubSample));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample",
-           &CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample",
+                                                                    &CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenQueueIsFullShouldResize",
+                                                                    &CSampleQueueTest::testAddGivenQueueIsFullShouldResize));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample",
+                                                  &CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
+        "CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSampleButDifferentBucket",
+        &CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSampleButDifferentBucket));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample",
+                                                  &CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsInOrderAndFarFromLatestSubSample",
+                                                                    &CSampleQueueTest::testAddGivenTimeIsInOrderAndFarFromLatestSubSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample",
+                                                                    &CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample));
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSubSample",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSubSample));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSample",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSample));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSampleButDifferentBucket",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSampleButDifferentBucket));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndWithinSomeSubSample",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndWithinSomeSubSample));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatest",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatest));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatestButDifferentBucket",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatestButDifferentBucket));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSubSamples",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSubSamples));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSamples",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSamples));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubSamples",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubSamples));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSamples",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSamples));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleButOnlyNextHasSpace",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleButOnlyNextHasSpace));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOnlyPreviousHasSpace",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOnlyPreviousHasSpace));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInTooSmallGap",
-           &CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInTooSmallGap));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample",
+                                                  &CSampleQueueTest::testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSubSample",
+                                                  &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSubSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSample",
+                                                  &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
+        "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSampleButDifferentBucket",
+        &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSampleButDifferentBucket));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsHistoricalAndWithinSomeSubSample",
+                                                                    &CSampleQueueTest::testAddGivenTimeIsHistoricalAndWithinSomeSubSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatest",
+                                                  &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatest));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
+        "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatestButDifferentBucket",
+        &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatestButDifferentBucket));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSubSamples",
+                                                  &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSubSamples));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSamples",
+                                                  &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSamples));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubSamples",
+                                                  &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubSamples));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSamples",
+                                                  &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSamples));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
+        "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleButOnlyNextHasSpace",
+        &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleButOnlyNextHasSpace));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
+        "CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOnlyPreviousHasSpace",
+        &CSampleQueueTest::testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOnlyPreviousHasSpace));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap",
+                                                                    &CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInTooSmallGap",
+                                                                    &CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInTooSmallGap));
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testCanSampleGivenEmptyQueue",
-           &CSampleQueueTest::testCanSampleGivenEmptyQueue));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testCanSample",
-           &CSampleQueueTest::testCanSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testCanSampleGivenEmptyQueue",
+                                                                    &CSampleQueueTest::testCanSampleGivenEmptyQueue));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testCanSample", &CSampleQueueTest::testCanSample));
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testSampleGivenExactlyOneSampleOfExactCountToBeCreated",
-           &CSampleQueueTest::testSampleGivenExactlyOneSampleOfExactCountToBeCreated));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testSampleGivenExactlyOneSampleOfOverCountToBeCreated",
-           &CSampleQueueTest::testSampleGivenExactlyOneSampleOfOverCountToBeCreated));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder",
-           &CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder",
-           &CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testSampleGivenNoSampleToBeCreated",
-           &CSampleQueueTest::testSampleGivenNoSampleToBeCreated));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess",
-           &CSampleQueueTest::testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testSampleGivenExactlyOneSampleOfExactCountToBeCreated",
+                                                  &CSampleQueueTest::testSampleGivenExactlyOneSampleOfExactCountToBeCreated));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testSampleGivenExactlyOneSampleOfOverCountToBeCreated",
+                                                  &CSampleQueueTest::testSampleGivenExactlyOneSampleOfOverCountToBeCreated));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder",
+                                                                    &CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder",
+                                                                    &CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testSampleGivenNoSampleToBeCreated",
+                                                                    &CSampleQueueTest::testSampleGivenNoSampleToBeCreated));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess",
+                                                  &CSampleQueueTest::testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess));
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testResetBucketGivenEmptyQueue",
-           &CSampleQueueTest::testResetBucketGivenEmptyQueue));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testResetBucketGivenBucketBeforeEarliestSubSample",
-           &CSampleQueueTest::testResetBucketGivenBucketBeforeEarliestSubSample));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample",
-           &CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testResetBucketGivenBucketInBetweenWithoutAnySubSamples",
-           &CSampleQueueTest::testResetBucketGivenBucketInBetweenWithoutAnySubSamples));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample",
-           &CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample",
-           &CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample",
-           &CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenEmptyQueue",
+                                                                    &CSampleQueueTest::testResetBucketGivenEmptyQueue));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenBucketBeforeEarliestSubSample",
+                                                                    &CSampleQueueTest::testResetBucketGivenBucketBeforeEarliestSubSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample",
+                                                                    &CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenBucketInBetweenWithoutAnySubSamples",
+                                                  &CSampleQueueTest::testResetBucketGivenBucketInBetweenWithoutAnySubSamples));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample",
+                                                                    &CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample",
+                                                                    &CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample",
+                                                                    &CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample));
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets",
-           &CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets",
+                                                                    &CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets));
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testPersistence",
-           &CSampleQueueTest::testPersistence));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testPersistence", &CSampleQueueTest::testPersistence));
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testQualityOfSamplesGivenConstantRate",
-           &CSampleQueueTest::testQualityOfSamplesGivenConstantRate));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testQualityOfSamplesGivenVariableRate",
-           &CSampleQueueTest::testQualityOfSamplesGivenVariableRate));
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSampleQueueTest>(
-           "CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder",
-           &CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testQualityOfSamplesGivenConstantRate",
+                                                                    &CSampleQueueTest::testQualityOfSamplesGivenConstantRate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testQualityOfSamplesGivenVariableRate",
+                                                                    &CSampleQueueTest::testQualityOfSamplesGivenVariableRate));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder",
+                                                  &CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder));
 
     return suiteOfTests;
 }

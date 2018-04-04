@@ -9,15 +9,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CTrendComponentTest : public CppUnit::TestFixture
-{
-    public:
-        void testValueAndVariance();
-        void testDecayRate();
-        void testForecast();
-        void testPersist();
+class CTrendComponentTest : public CppUnit::TestFixture {
+public:
+    void testValueAndVariance();
+    void testDecayRate();
+    void testForecast();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CTrendComponentTest_h

@@ -12,8 +12,7 @@
 
 using namespace ml;
 
-void CAutoconfigurerParamsTest::testDefaults()
-{
+void CAutoconfigurerParamsTest::testDefaults() {
     LOG_DEBUG("");
     LOG_DEBUG("+-------------------------------------------+");
     LOG_DEBUG("|  CAutoconfigurerParamsTest::testDefaults  |");
@@ -21,55 +20,55 @@ void CAutoconfigurerParamsTest::testDefaults()
 
     config::CAutoconfigurerParams params("time", "", false, false);
     std::string actual = params.print();
-    std::string expected = "  TimeFieldName = time\n"
-                           "  TimeFieldFormat = \n"
-                           "  FieldsOfInterest = \"null\"\n"
-                           "  FieldsToUseInAutoconfigureByRole[constants::ARGUMENT_INDEX] = \"null\"\n"
-                           "  FieldsToUseInAutoconfigureByRole[constants::BY_INDEX] = \"null\"\n"
-                           "  FieldsToUseInAutoconfigureByRole[constants::OVER_INDEX] = \"null\"\n"
-                           "  FieldsToUseInAutoconfigureByRole[constants::PARTITION_INDEX] = \"null\"\n"
-                           "  FunctionCategoriesToConfigure = [count, rare, distinct_count, info_content, mean, min, max, sum, varp, median]\n"
-                           "  FieldDataType = []\n"
-                           "  MinimumExamplesToClassify = 1000\n"
-                           "  NumberOfMostFrequentFieldsCounts = 10\n"
-                           "  MinimumRecordsToAttemptConfig = 10000\n"
-                           "  HighNumberByFieldValues = 500\n"
-                           "  MaximumNumberByFieldValues = 1000\n"
-                           "  HighNumberRareByFieldValues = 50000\n"
-                           "  MaximumNumberRareByFieldValues = 500000\n"
-                           "  HighNumberPartitionFieldValues = 500000\n"
-                           "  MaximumNumberPartitionFieldValues = 5000000\n"
-                           "  LowNumberOverFieldValues = 50\n"
-                           "  MinimumNumberOverFieldValues = 5\n"
-                           "  HighCardinalityInTailFactor = 1.100000\n"
-                           "  HighCardinalityInTailIncrement = 10\n"
-                           "  HighCardinalityHighTailFraction = 0.005000\n"
-                           "  HighCardinalityMaximumTailFraction = 0.050000\n"
-                           "  LowPopulatedBucketFractions = [0.3333333, 0.02]\n"
-                           "  MinimumPopulatedBucketFractions = [0.02, 0.002]\n"
-                           "  HighPopulatedBucketFractions[1] = 0.100000\n"
-                           "  MaximumPopulatedBucketFractions[1] = 0.500000\n"
-                           "  CandidateBucketLengths = [60, 300, 600, 1800, 3600, 7200, 14400, 86400]\n"
-                           "  LowNumberOfBucketsForConfig = 500.000000\n"
-                           "  MinimumNumberOfBucketsForConfig = 50.000000\n"
-                           "  PolledDataMinimumMassAtInterval = 0.990000\n"
-                           "  PolledDataJitter = 0.010000\n"
-                           "  LowCoefficientOfVariation = 0.001000\n"
-                           "  MinimumCoefficientOfVariation = 0.000001\n"
-                           "  LowLengthRangeForInfoContent = 10.000000\n"
-                           "  MinimumLengthRangeForInfoContent = 1.000000\n"
-                           "  LowMaximumLengthForInfoContent = 25.000000\n"
-                           "  MinimumMaximumLengthForInfoContent = 5.000000\n"
-                           "  LowEntropyForInfoContent = 0.010000\n"
-                           "  MinimumEntropyForInfoContent = 0.000001\n"
-                           "  LowDistinctCountForInfoContent = 500000.000000\n"
-                           "  MinimumDistinctCountForInfoContent = 5000.000000\n";
+    std::string expected =
+        "  TimeFieldName = time\n"
+        "  TimeFieldFormat = \n"
+        "  FieldsOfInterest = \"null\"\n"
+        "  FieldsToUseInAutoconfigureByRole[constants::ARGUMENT_INDEX] = \"null\"\n"
+        "  FieldsToUseInAutoconfigureByRole[constants::BY_INDEX] = \"null\"\n"
+        "  FieldsToUseInAutoconfigureByRole[constants::OVER_INDEX] = \"null\"\n"
+        "  FieldsToUseInAutoconfigureByRole[constants::PARTITION_INDEX] = \"null\"\n"
+        "  FunctionCategoriesToConfigure = [count, rare, distinct_count, info_content, mean, min, max, sum, varp, median]\n"
+        "  FieldDataType = []\n"
+        "  MinimumExamplesToClassify = 1000\n"
+        "  NumberOfMostFrequentFieldsCounts = 10\n"
+        "  MinimumRecordsToAttemptConfig = 10000\n"
+        "  HighNumberByFieldValues = 500\n"
+        "  MaximumNumberByFieldValues = 1000\n"
+        "  HighNumberRareByFieldValues = 50000\n"
+        "  MaximumNumberRareByFieldValues = 500000\n"
+        "  HighNumberPartitionFieldValues = 500000\n"
+        "  MaximumNumberPartitionFieldValues = 5000000\n"
+        "  LowNumberOverFieldValues = 50\n"
+        "  MinimumNumberOverFieldValues = 5\n"
+        "  HighCardinalityInTailFactor = 1.100000\n"
+        "  HighCardinalityInTailIncrement = 10\n"
+        "  HighCardinalityHighTailFraction = 0.005000\n"
+        "  HighCardinalityMaximumTailFraction = 0.050000\n"
+        "  LowPopulatedBucketFractions = [0.3333333, 0.02]\n"
+        "  MinimumPopulatedBucketFractions = [0.02, 0.002]\n"
+        "  HighPopulatedBucketFractions[1] = 0.100000\n"
+        "  MaximumPopulatedBucketFractions[1] = 0.500000\n"
+        "  CandidateBucketLengths = [60, 300, 600, 1800, 3600, 7200, 14400, 86400]\n"
+        "  LowNumberOfBucketsForConfig = 500.000000\n"
+        "  MinimumNumberOfBucketsForConfig = 50.000000\n"
+        "  PolledDataMinimumMassAtInterval = 0.990000\n"
+        "  PolledDataJitter = 0.010000\n"
+        "  LowCoefficientOfVariation = 0.001000\n"
+        "  MinimumCoefficientOfVariation = 0.000001\n"
+        "  LowLengthRangeForInfoContent = 10.000000\n"
+        "  MinimumLengthRangeForInfoContent = 1.000000\n"
+        "  LowMaximumLengthForInfoContent = 25.000000\n"
+        "  MinimumMaximumLengthForInfoContent = 5.000000\n"
+        "  LowEntropyForInfoContent = 0.010000\n"
+        "  MinimumEntropyForInfoContent = 0.000001\n"
+        "  LowDistinctCountForInfoContent = 500000.000000\n"
+        "  MinimumDistinctCountForInfoContent = 5000.000000\n";
     LOG_DEBUG("parameters =\n" << actual);
     CPPUNIT_ASSERT_EQUAL(expected, actual);
 }
 
-void CAutoconfigurerParamsTest::testInit()
-{
+void CAutoconfigurerParamsTest::testInit() {
     LOG_DEBUG("");
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CAutoconfigurerParamsTest::testInit  |");
@@ -131,16 +130,13 @@ void CAutoconfigurerParamsTest::testInit()
     CPPUNIT_ASSERT_EQUAL(expected, actual);
 }
 
-CppUnit::Test *CAutoconfigurerParamsTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAutoconfigurerParamsTest");
+CppUnit::Test* CAutoconfigurerParamsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAutoconfigurerParamsTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CAutoconfigurerParamsTest>(
-                                   "CAutoconfigurerParamsTest::testDefaults",
-                                   &CAutoconfigurerParamsTest::testDefaults) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CAutoconfigurerParamsTest>(
-                                   "CAutoconfigurerParamsTest::testInit",
-                                   &CAutoconfigurerParamsTest::testInit) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAutoconfigurerParamsTest>("CAutoconfigurerParamsTest::testDefaults",
+                                                                             &CAutoconfigurerParamsTest::testDefaults));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CAutoconfigurerParamsTest>("CAutoconfigurerParamsTest::testInit", &CAutoconfigurerParamsTest::testInit));
 
     return suiteOfTests;
 }

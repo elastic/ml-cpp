@@ -8,19 +8,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStringSimilarityTesterTest : public CppUnit::TestFixture
-{
-    public:
-        void testStringSimilarity();
-        void testLevensteinDistance();
-        void testLevensteinDistance2();
-        void testLevensteinDistanceThroughputDifferent();
-        void testLevensteinDistanceThroughputSimilar();
-        void testLevensteinDistanceAlgorithmEquivalence();
-        void testWeightedEditDistance();
+class CStringSimilarityTesterTest : public CppUnit::TestFixture {
+public:
+    void testStringSimilarity();
+    void testLevensteinDistance();
+    void testLevensteinDistance2();
+    void testLevensteinDistanceThroughputDifferent();
+    void testLevensteinDistanceThroughputSimilar();
+    void testLevensteinDistanceAlgorithmEquivalence();
+    void testWeightedEditDistance();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CStringSimilarityTesterTest_h
-

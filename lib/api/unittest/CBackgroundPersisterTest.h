@@ -10,20 +10,17 @@
 
 #include <string>
 
+class CBackgroundPersisterTest : public CppUnit::TestFixture {
+public:
+    void testDetectorPersistBy();
+    void testDetectorPersistOver();
+    void testDetectorPersistPartition();
+    void testCategorizationOnlyPersist();
 
-class CBackgroundPersisterTest : public CppUnit::TestFixture
-{
-    public:
-        void testDetectorPersistBy();
-        void testDetectorPersistOver();
-        void testDetectorPersistPartition();
-        void testCategorizationOnlyPersist();
+    static CppUnit::Test* suite();
 
-        static CppUnit::Test *suite();
-
-    private:
-        void foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string &configFileName);
+private:
+    void foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string& configFileName);
 };
 
 #endif // INCLUDED_CBackgroundPersisterTest_h
-

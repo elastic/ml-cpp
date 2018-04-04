@@ -9,21 +9,20 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMemoryUsageTest : public CppUnit::TestFixture
-{
-    public:
-        void testUsage();
-        void testDebug();
-        void testDynamicSizeAlwaysZero();
-        void testCompress();
-        void testStringBehaviour();
-        void testStringMemory();
-        void testStringClear();
-        void testSharedPointer();
-        void testRawPointer();
-        void testSmallVector();
+class CMemoryUsageTest : public CppUnit::TestFixture {
+public:
+    void testUsage();
+    void testDebug();
+    void testDynamicSizeAlwaysZero();
+    void testCompress();
+    void testStringBehaviour();
+    void testStringMemory();
+    void testStringClear();
+    void testSharedPointer();
+    void testRawPointer();
+    void testSmallVector();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CMemoryUsageTest_h

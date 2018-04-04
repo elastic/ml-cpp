@@ -9,14 +9,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStateMachineTest : public CppUnit::TestFixture
-{
-    public:
-        void testBasics();
-        void testPersist();
-        void testMultithreaded();
+class CStateMachineTest : public CppUnit::TestFixture {
+public:
+    void testBasics();
+    void testPersist();
+    void testMultithreaded();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CStateMachineTest_h

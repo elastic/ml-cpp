@@ -9,30 +9,28 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CLogNormalMeanPrecConjugateTest : public CppUnit::TestFixture {
+public:
+    void testMultipleUpdate();
+    void testPropagation();
+    void testMeanEstimation();
+    void testPrecisionEstimation();
+    void testMarginalLikelihood();
+    void testMarginalLikelihoodMean();
+    void testMarginalLikelihoodMode();
+    void testMarginalLikelihoodVariance();
+    void testSampleMarginalLikelihood();
+    void testCdf();
+    void testProbabilityOfLessLikelySamples();
+    void testAnomalyScore();
+    void testOffset();
+    void testIntegerData();
+    void testLowVariationData();
+    void testPersist();
+    void testVarianceScale();
+    void testNegativeSample();
 
-class CLogNormalMeanPrecConjugateTest : public CppUnit::TestFixture
-{
-    public:
-        void testMultipleUpdate();
-        void testPropagation();
-        void testMeanEstimation();
-        void testPrecisionEstimation();
-        void testMarginalLikelihood();
-        void testMarginalLikelihoodMean();
-        void testMarginalLikelihoodMode();
-        void testMarginalLikelihoodVariance();
-        void testSampleMarginalLikelihood();
-        void testCdf();
-        void testProbabilityOfLessLikelySamples();
-        void testAnomalyScore();
-        void testOffset();
-        void testIntegerData();
-        void testLowVariationData();
-        void testPersist();
-        void testVarianceScale();
-        void testNegativeSample();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CLogNormalMeanVarConjugateTest_h

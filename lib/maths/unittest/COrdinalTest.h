@@ -9,16 +9,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class COrdinalTest : public CppUnit::TestFixture
-{
-    public:
-        void testEqual();
-        void testLess();
-        void testIsNan();
-        void testAsDouble();
-        void testHash();
+class COrdinalTest : public CppUnit::TestFixture {
+public:
+    void testEqual();
+    void testLess();
+    void testIsNan();
+    void testAsDouble();
+    void testHash();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_COrderingsTest_h

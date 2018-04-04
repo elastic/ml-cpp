@@ -8,24 +8,22 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CIoManagerTest : public CppUnit::TestFixture
-{
-    public:
-        void testStdinStdout();
-        void testFileIoGood();
-        void testFileIoBad();
-        void testNamedPipeIoGood();
-        void testNamedPipeIoBad();
+class CIoManagerTest : public CppUnit::TestFixture {
+public:
+    void testStdinStdout();
+    void testFileIoGood();
+    void testFileIoBad();
+    void testNamedPipeIoGood();
+    void testNamedPipeIoBad();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
-    private:
-        void testCommon(const std::string &inputFileName,
-                        bool isInputFileNamedPipe,
-                        const std::string &outputFileName,
-                        bool isOutputFileNamedPipe,
-                        bool isGood);
+private:
+    void testCommon(const std::string& inputFileName,
+                    bool isInputFileNamedPipe,
+                    const std::string& outputFileName,
+                    bool isOutputFileNamedPipe,
+                    bool isGood);
 };
 
 #endif // INCLUDED_CIoManagerTest_h
-

@@ -8,8 +8,8 @@
 #define INCLUDED_ml_model_t_ModelTypes_h
 
 #include <core/CMemory.h>
-#include <core/CoreTypes.h>
 #include <core/CSmallVector.h>
+#include <core/CoreTypes.h>
 
 #include <maths/MathsTypes.h>
 
@@ -21,28 +21,22 @@
 
 #include <stdint.h>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CMultivariatePrior;
 class CPrior;
 class CTimeSeriesDecompositionInterface;
 }
-namespace model
-{
+namespace model {
 class CInfluenceCalculator;
 struct SModelParams;
 }
 
-namespace model_t
-{
+namespace model_t {
 
 using TDouble1Vec = core::CSmallVector<double, 1>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
@@ -56,12 +50,7 @@ using TInfluenceCalculatorCPtr = boost::shared_ptr<const model::CInfluenceCalcul
 //! associated values, i.e. log messages, etc. Metric models
 //! are used for data categories that have an associated value,
 //! i.e. CPU utilization, etc.
-enum EModelType
-{
-    E_Counting,
-    E_EventRateOnline,
-    E_MetricOnline
-};
+enum EModelType { E_Counting, E_EventRateOnline, E_MetricOnline };
 
 //! Get a string description of a model type.
 MODEL_EXPORT
@@ -81,71 +70,48 @@ std::string print(EModelType type);
 //! IMPLEMENTATION:\n
 //! Uses 1-of-n bitwise encoding of the different result binary descriptors
 //! so the size is just that of an unsigned int.
-class MODEL_EXPORT CResultType
-{
-    public:
-        enum EInterimOrFinal
-        {
-            E_Interim = 1,
-            E_Final   = 2
-        };
+class MODEL_EXPORT CResultType {
+public:
+    enum EInterimOrFinal { E_Interim = 1, E_Final = 2 };
 
-        enum EConditionalOrUnconditional
-        {
-            E_Unconditional = 4,
-            E_Conditional   = 8
-        };
+    enum EConditionalOrUnconditional { E_Unconditional = 4, E_Conditional = 8 };
 
-    public:
-        CResultType() : m_Type(0) {}
-        CResultType(EInterimOrFinal type) : m_Type(type) {}
-        CResultType(EConditionalOrUnconditional type) : m_Type(type) {}
-        explicit CResultType(unsigned int type) : m_Type(type) {}
+public:
+    CResultType() : m_Type(0) {}
+    CResultType(EInterimOrFinal type) : m_Type(type) {}
+    CResultType(EConditionalOrUnconditional type) : m_Type(type) {}
+    explicit CResultType(unsigned int type) : m_Type(type) {}
 
-        //! Set whether or not this is interim.
-        void set(EInterimOrFinal type)
-        {
-            m_Type = m_Type & (E_Unconditional | E_Conditional);
-            m_Type = m_Type | type;
-        }
+    //! Set whether or not this is interim.
+    void set(EInterimOrFinal type) {
+        m_Type = m_Type & (E_Unconditional | E_Conditional);
+        m_Type = m_Type | type;
+    }
 
-        //! Set whether or not this is conditional.
-        void set(EConditionalOrUnconditional type)
-        {
-            m_Type = m_Type & (E_Interim | E_Final);
-            m_Type = m_Type | type;
-        }
+    //! Set whether or not this is conditional.
+    void set(EConditionalOrUnconditional type) {
+        m_Type = m_Type & (E_Interim | E_Final);
+        m_Type = m_Type | type;
+    }
 
-        //! Check if this is interim.
-        bool isInterim() const
-        {
-            return (m_Type & static_cast<unsigned int>(E_Interim)) != 0;
-        }
+    //! Check if this is interim.
+    bool isInterim() const { return (m_Type & static_cast<unsigned int>(E_Interim)) != 0; }
 
-        //! Get as interim or final enumeration.
-        EInterimOrFinal asInterimOrFinal() const
-        {
-            return this->isInterim() ? E_Interim : E_Final;
-        }
+    //! Get as interim or final enumeration.
+    EInterimOrFinal asInterimOrFinal() const { return this->isInterim() ? E_Interim : E_Final; }
 
-        //! Check if this is unconditional.
-        bool isUnconditional() const
-        {
-            return (m_Type & static_cast<unsigned int>(E_Unconditional)) != 0;
-        }
+    //! Check if this is unconditional.
+    bool isUnconditional() const { return (m_Type & static_cast<unsigned int>(E_Unconditional)) != 0; }
 
-        //! Get as conditional or unconditional enumeration.
-        EConditionalOrUnconditional asConditionalOrUnconditional() const
-        {
-            return this->isUnconditional() ? E_Unconditional : E_Conditional;
-        }
+    //! Get as conditional or unconditional enumeration.
+    EConditionalOrUnconditional asConditionalOrUnconditional() const { return this->isUnconditional() ? E_Unconditional : E_Conditional; }
 
-        //! Get as an unsigned integer.
-        unsigned int asUint() const { return m_Type; }
+    //! Get as an unsigned integer.
+    unsigned int asUint() const { return m_Type; }
 
-    private:
-        //! Encodes the result type.
-        unsigned int m_Type;
+private:
+    //! Encodes the result type.
+    unsigned int m_Type;
 };
 
 //! The feature naming is systematic and all subsequent feature
@@ -328,8 +294,7 @@ class MODEL_EXPORT CResultType
 //!   -# PopulationHighInfoContentByBucketAndPerson: is for detecting
 //!      unusualy high information content (or compressibility) of values
 //!      for each person and attribute in a bucketing interval.
-enum EFeature
-{
+enum EFeature {
     // IMPORTANT: The integer values associated with these enum values are
     // stored in persisted state.  DO NOT CHANGE EXISTING NUMBERS, as this
     // will invalidate persisted state.  Any new enum values that are added
@@ -454,8 +419,7 @@ std::size_t dimension(EFeature feature);
 //! For features which have extra statistics in order to compute
 //! influence remove those extra statistics.
 MODEL_EXPORT
-TDouble2Vec1Vec stripExtraStatistics(EFeature feature,
-                                     const TDouble2Vec1Vec &values);
+TDouble2Vec1Vec stripExtraStatistics(EFeature feature, const TDouble2Vec1Vec& values);
 
 //! Check if \p feature is categorical, i.e. we should create
 //! a distribution over the distinct values observed for the
@@ -522,7 +486,7 @@ double offsetCountToZero(EFeature feature, double count);
 
 //! Offset count features so that their range starts at zero.
 MODEL_EXPORT
-void offsetCountToZero(EFeature feature, TDouble1Vec &count);
+void offsetCountToZero(EFeature feature, TDouble1Vec& count);
 
 //! The inverse of offsetCountToZero.
 MODEL_EXPORT
@@ -530,7 +494,7 @@ double inverseOffsetCountToZero(EFeature feature, double count);
 
 //! The inverse of offsetCountToZero.
 MODEL_EXPORT
-void inverseOffsetCountToZero(EFeature feature, TDouble1Vec &count);
+void inverseOffsetCountToZero(EFeature feature, TDouble1Vec& count);
 
 //! Check if the feature counts empty buckets.
 MODEL_EXPORT
@@ -544,7 +508,7 @@ double emptyBucketCountWeight(EFeature feature, double frequency, double cutoff)
 
 //! Get the rate at which \p feature learns.
 MODEL_EXPORT
-double learnRate(EFeature feature, const model::SModelParams &params);
+double learnRate(EFeature feature, const model::SModelParams& params);
 
 //! Get the type of probability calculation to use for \p feature.
 MODEL_EXPORT
@@ -556,10 +520,7 @@ maths_t::EProbabilityCalculation probabilityCalculation(EFeature feature);
 //! some metric features the time is deduced in which case \p time
 //! is used.
 MODEL_EXPORT
-core_t::TTime sampleTime(EFeature feature,
-                         core_t::TTime bucketStartTime,
-                         core_t::TTime bucketLength,
-                         core_t::TTime time = 0);
+core_t::TTime sampleTime(EFeature feature, core_t::TTime bucketStartTime, core_t::TTime bucketLength, core_t::TTime time = 0);
 
 //! Get the support for \p feature.
 MODEL_EXPORT
@@ -567,9 +528,7 @@ TDouble1VecDouble1VecPr support(EFeature feature);
 
 //! Get the adjusted probability for \p feature.
 MODEL_EXPORT
-double adjustProbability(model_t::EFeature feature,
-                         core_t::TTime elapsedTime,
-                         double probability);
+double adjustProbability(model_t::EFeature feature, core_t::TTime elapsedTime, double probability);
 
 //! Get the influence calculator for \p feature.
 MODEL_EXPORT
@@ -583,7 +542,7 @@ bool requiresInterimResultAdjustment(EFeature feature);
 //! Maps internal feature names to human readable output function
 //! names that can be included in the results.
 MODEL_EXPORT
-const std::string &outputFunctionName(EFeature feature);
+const std::string& outputFunctionName(EFeature feature);
 
 //! Get a string description of \p feature.
 MODEL_EXPORT
@@ -599,118 +558,123 @@ std::string print(EFeature feature);
 //! generally a bad idea so don't take this as a precedent for
 //! crazy macro magic (see item 1.14 of our coding standards for
 //! guidelines).
-#define CASE_INDIVIDUAL_COUNT case model_t::E_IndividualCountByBucketAndPerson:            \
-                              case model_t::E_IndividualNonZeroCountByBucketAndPerson:     \
-                              case model_t::E_IndividualTotalBucketCountByPerson:          \
-                              case model_t::E_IndividualIndicatorOfBucketPerson:           \
-                              case model_t::E_IndividualLowCountsByBucketAndPerson:        \
-                              case model_t::E_IndividualHighCountsByBucketAndPerson:       \
-                              case model_t::E_IndividualArrivalTimesByPerson:              \
-                              case model_t::E_IndividualLongArrivalTimesByPerson:          \
-                              case model_t::E_IndividualShortArrivalTimesByPerson:         \
-                              case model_t::E_IndividualLowNonZeroCountByBucketAndPerson:  \
-                              case model_t::E_IndividualHighNonZeroCountByBucketAndPerson: \
-                              case model_t::E_IndividualUniqueCountByBucketAndPerson:      \
-                              case model_t::E_IndividualLowUniqueCountByBucketAndPerson:   \
-                              case model_t::E_IndividualHighUniqueCountByBucketAndPerson:  \
-                              case model_t::E_IndividualInfoContentByBucketAndPerson:      \
-                              case model_t::E_IndividualHighInfoContentByBucketAndPerson:  \
-                              case model_t::E_IndividualLowInfoContentByBucketAndPerson:   \
-                              case model_t::E_IndividualTimeOfDayByBucketAndPerson:        \
-                              case model_t::E_IndividualTimeOfWeekByBucketAndPerson
+#define CASE_INDIVIDUAL_COUNT                                                                                                              \
+    case model_t::E_IndividualCountByBucketAndPerson:                                                                                      \
+    case model_t::E_IndividualNonZeroCountByBucketAndPerson:                                                                               \
+    case model_t::E_IndividualTotalBucketCountByPerson:                                                                                    \
+    case model_t::E_IndividualIndicatorOfBucketPerson:                                                                                     \
+    case model_t::E_IndividualLowCountsByBucketAndPerson:                                                                                  \
+    case model_t::E_IndividualHighCountsByBucketAndPerson:                                                                                 \
+    case model_t::E_IndividualArrivalTimesByPerson:                                                                                        \
+    case model_t::E_IndividualLongArrivalTimesByPerson:                                                                                    \
+    case model_t::E_IndividualShortArrivalTimesByPerson:                                                                                   \
+    case model_t::E_IndividualLowNonZeroCountByBucketAndPerson:                                                                            \
+    case model_t::E_IndividualHighNonZeroCountByBucketAndPerson:                                                                           \
+    case model_t::E_IndividualUniqueCountByBucketAndPerson:                                                                                \
+    case model_t::E_IndividualLowUniqueCountByBucketAndPerson:                                                                             \
+    case model_t::E_IndividualHighUniqueCountByBucketAndPerson:                                                                            \
+    case model_t::E_IndividualInfoContentByBucketAndPerson:                                                                                \
+    case model_t::E_IndividualHighInfoContentByBucketAndPerson:                                                                            \
+    case model_t::E_IndividualLowInfoContentByBucketAndPerson:                                                                             \
+    case model_t::E_IndividualTimeOfDayByBucketAndPerson:                                                                                  \
+    case model_t::E_IndividualTimeOfWeekByBucketAndPerson
 
 //! Individual metric feature case statement block.
-#define CASE_INDIVIDUAL_METRIC case model_t::E_IndividualMeanByPerson:                    \
-                               case model_t::E_IndividualMedianByPerson:                  \
-                               case model_t::E_IndividualMinByPerson:                     \
-                               case model_t::E_IndividualMaxByPerson:                     \
-                               case model_t::E_IndividualSumByBucketAndPerson:            \
-                               case model_t::E_IndividualLowMeanByPerson:                 \
-                               case model_t::E_IndividualHighMeanByPerson:                \
-                               case model_t::E_IndividualLowSumByBucketAndPerson:         \
-                               case model_t::E_IndividualHighSumByBucketAndPerson:        \
-                               case model_t::E_IndividualNonNullSumByBucketAndPerson:     \
-                               case model_t::E_IndividualLowNonNullSumByBucketAndPerson:  \
-                               case model_t::E_IndividualHighNonNullSumByBucketAndPerson: \
-                               case model_t::E_IndividualMeanLatLongByPerson:             \
-                               case model_t::E_IndividualMaxVelocityByPerson:             \
-                               case model_t::E_IndividualMinVelocityByPerson:             \
-                               case model_t::E_IndividualMeanVelocityByPerson:            \
-                               case model_t::E_IndividualSumVelocityByPerson:             \
-                               case model_t::E_IndividualVarianceByPerson:                \
-                               case model_t::E_IndividualLowVarianceByPerson:             \
-                               case model_t::E_IndividualHighVarianceByPerson:            \
-                               case model_t::E_IndividualLowMedianByPerson:               \
-                               case model_t::E_IndividualHighMedianByPerson
+#define CASE_INDIVIDUAL_METRIC                                                                                                             \
+    case model_t::E_IndividualMeanByPerson:                                                                                                \
+    case model_t::E_IndividualMedianByPerson:                                                                                              \
+    case model_t::E_IndividualMinByPerson:                                                                                                 \
+    case model_t::E_IndividualMaxByPerson:                                                                                                 \
+    case model_t::E_IndividualSumByBucketAndPerson:                                                                                        \
+    case model_t::E_IndividualLowMeanByPerson:                                                                                             \
+    case model_t::E_IndividualHighMeanByPerson:                                                                                            \
+    case model_t::E_IndividualLowSumByBucketAndPerson:                                                                                     \
+    case model_t::E_IndividualHighSumByBucketAndPerson:                                                                                    \
+    case model_t::E_IndividualNonNullSumByBucketAndPerson:                                                                                 \
+    case model_t::E_IndividualLowNonNullSumByBucketAndPerson:                                                                              \
+    case model_t::E_IndividualHighNonNullSumByBucketAndPerson:                                                                             \
+    case model_t::E_IndividualMeanLatLongByPerson:                                                                                         \
+    case model_t::E_IndividualMaxVelocityByPerson:                                                                                         \
+    case model_t::E_IndividualMinVelocityByPerson:                                                                                         \
+    case model_t::E_IndividualMeanVelocityByPerson:                                                                                        \
+    case model_t::E_IndividualSumVelocityByPerson:                                                                                         \
+    case model_t::E_IndividualVarianceByPerson:                                                                                            \
+    case model_t::E_IndividualLowVarianceByPerson:                                                                                         \
+    case model_t::E_IndividualHighVarianceByPerson:                                                                                        \
+    case model_t::E_IndividualLowMedianByPerson:                                                                                           \
+    case model_t::E_IndividualHighMedianByPerson
 
 //! Population count feature case statement block.
-#define CASE_POPULATION_COUNT case model_t::E_PopulationAttributeTotalCountByPerson:               \
-                              case model_t::E_PopulationCountByBucketPersonAndAttribute:           \
-                              case model_t::E_PopulationIndicatorOfBucketPersonAndAttribute:       \
-                              case model_t::E_PopulationUniqueCountByBucketPersonAndAttribute:     \
-                              case model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute:  \
-                              case model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute: \
-                              case model_t::E_PopulationUniquePersonCountByAttribute:              \
-                              case model_t::E_PopulationLowCountsByBucketPersonAndAttribute:       \
-                              case model_t::E_PopulationHighCountsByBucketPersonAndAttribute:      \
-                              case model_t::E_PopulationInfoContentByBucketPersonAndAttribute:     \
-                              case model_t::E_PopulationLowInfoContentByBucketPersonAndAttribute:  \
-                              case model_t::E_PopulationHighInfoContentByBucketPersonAndAttribute: \
-                              case model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute:       \
-                              case model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute
+#define CASE_POPULATION_COUNT                                                                                                              \
+    case model_t::E_PopulationAttributeTotalCountByPerson:                                                                                 \
+    case model_t::E_PopulationCountByBucketPersonAndAttribute:                                                                             \
+    case model_t::E_PopulationIndicatorOfBucketPersonAndAttribute:                                                                         \
+    case model_t::E_PopulationUniqueCountByBucketPersonAndAttribute:                                                                       \
+    case model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute:                                                                    \
+    case model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute:                                                                   \
+    case model_t::E_PopulationUniquePersonCountByAttribute:                                                                                \
+    case model_t::E_PopulationLowCountsByBucketPersonAndAttribute:                                                                         \
+    case model_t::E_PopulationHighCountsByBucketPersonAndAttribute:                                                                        \
+    case model_t::E_PopulationInfoContentByBucketPersonAndAttribute:                                                                       \
+    case model_t::E_PopulationLowInfoContentByBucketPersonAndAttribute:                                                                    \
+    case model_t::E_PopulationHighInfoContentByBucketPersonAndAttribute:                                                                   \
+    case model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute:                                                                         \
+    case model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute
 
 //! Population metric feature case statement block.
-#define CASE_POPULATION_METRIC case model_t::E_PopulationMeanByPersonAndAttribute:          \
-                               case model_t::E_PopulationMedianByPersonAndAttribute:        \
-                               case model_t::E_PopulationMinByPersonAndAttribute:           \
-                               case model_t::E_PopulationMaxByPersonAndAttribute:           \
-                               case model_t::E_PopulationSumByBucketPersonAndAttribute:     \
-                               case model_t::E_PopulationLowMeanByPersonAndAttribute:       \
-                               case model_t::E_PopulationHighMeanByPersonAndAttribute:      \
-                               case model_t::E_PopulationLowSumByBucketPersonAndAttribute:  \
-                               case model_t::E_PopulationHighSumByBucketPersonAndAttribute: \
-                               case model_t::E_PopulationMeanLatLongByPersonAndAttribute:   \
-                               case model_t::E_PopulationMaxVelocityByPersonAndAttribute:   \
-                               case model_t::E_PopulationMinVelocityByPersonAndAttribute:   \
-                               case model_t::E_PopulationMeanVelocityByPersonAndAttribute:  \
-                               case model_t::E_PopulationSumVelocityByPersonAndAttribute:   \
-                               case model_t::E_PopulationVarianceByPersonAndAttribute:      \
-                               case model_t::E_PopulationLowVarianceByPersonAndAttribute:   \
-                               case model_t::E_PopulationHighVarianceByPersonAndAttribute:  \
-                               case model_t::E_PopulationLowMedianByPersonAndAttribute:     \
-                               case model_t::E_PopulationHighMedianByPersonAndAttribute
+#define CASE_POPULATION_METRIC                                                                                                             \
+    case model_t::E_PopulationMeanByPersonAndAttribute:                                                                                    \
+    case model_t::E_PopulationMedianByPersonAndAttribute:                                                                                  \
+    case model_t::E_PopulationMinByPersonAndAttribute:                                                                                     \
+    case model_t::E_PopulationMaxByPersonAndAttribute:                                                                                     \
+    case model_t::E_PopulationSumByBucketPersonAndAttribute:                                                                               \
+    case model_t::E_PopulationLowMeanByPersonAndAttribute:                                                                                 \
+    case model_t::E_PopulationHighMeanByPersonAndAttribute:                                                                                \
+    case model_t::E_PopulationLowSumByBucketPersonAndAttribute:                                                                            \
+    case model_t::E_PopulationHighSumByBucketPersonAndAttribute:                                                                           \
+    case model_t::E_PopulationMeanLatLongByPersonAndAttribute:                                                                             \
+    case model_t::E_PopulationMaxVelocityByPersonAndAttribute:                                                                             \
+    case model_t::E_PopulationMinVelocityByPersonAndAttribute:                                                                             \
+    case model_t::E_PopulationMeanVelocityByPersonAndAttribute:                                                                            \
+    case model_t::E_PopulationSumVelocityByPersonAndAttribute:                                                                             \
+    case model_t::E_PopulationVarianceByPersonAndAttribute:                                                                                \
+    case model_t::E_PopulationLowVarianceByPersonAndAttribute:                                                                             \
+    case model_t::E_PopulationHighVarianceByPersonAndAttribute:                                                                            \
+    case model_t::E_PopulationLowMedianByPersonAndAttribute:                                                                               \
+    case model_t::E_PopulationHighMedianByPersonAndAttribute
 
 //! Peers count feature case statement block.
-#define CASE_PEERS_COUNT case model_t::E_PeersAttributeTotalCountByPerson:               \
-                         case model_t::E_PeersCountByBucketPersonAndAttribute:           \
-                         case model_t::E_PeersUniqueCountByBucketPersonAndAttribute:     \
-                         case model_t::E_PeersLowCountsByBucketPersonAndAttribute:       \
-                         case model_t::E_PeersHighCountsByBucketPersonAndAttribute:      \
-                         case model_t::E_PeersInfoContentByBucketPersonAndAttribute:     \
-                         case model_t::E_PeersLowInfoContentByBucketPersonAndAttribute:  \
-                         case model_t::E_PeersHighInfoContentByBucketPersonAndAttribute: \
-                         case model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute:  \
-                         case model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute: \
-                         case model_t::E_PeersTimeOfDayByBucketPersonAndAttribute:       \
-                         case model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute
+#define CASE_PEERS_COUNT                                                                                                                   \
+    case model_t::E_PeersAttributeTotalCountByPerson:                                                                                      \
+    case model_t::E_PeersCountByBucketPersonAndAttribute:                                                                                  \
+    case model_t::E_PeersUniqueCountByBucketPersonAndAttribute:                                                                            \
+    case model_t::E_PeersLowCountsByBucketPersonAndAttribute:                                                                              \
+    case model_t::E_PeersHighCountsByBucketPersonAndAttribute:                                                                             \
+    case model_t::E_PeersInfoContentByBucketPersonAndAttribute:                                                                            \
+    case model_t::E_PeersLowInfoContentByBucketPersonAndAttribute:                                                                         \
+    case model_t::E_PeersHighInfoContentByBucketPersonAndAttribute:                                                                        \
+    case model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute:                                                                         \
+    case model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute:                                                                        \
+    case model_t::E_PeersTimeOfDayByBucketPersonAndAttribute:                                                                              \
+    case model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute
 
 // Peers metric features case statement block.
-#define CASE_PEERS_METRIC case model_t::E_PeersMeanByPersonAndAttribute:         \
-                          case model_t::E_PeersMedianByPersonAndAttribute:       \
-                          case model_t::E_PeersMinByPersonAndAttribute:          \
-                          case model_t::E_PeersMaxByPersonAndAttribute:          \
-                          case model_t::E_PeersSumByBucketPersonAndAttribute:    \
-                          case model_t::E_PeersLowMeanByPersonAndAttribute:      \
-                          case model_t::E_PeersHighMeanByPersonAndAttribute:     \
-                          case model_t::E_PeersLowSumByBucketPersonAndAttribute: \
-                          case model_t::E_PeersHighSumByBucketPersonAndAttribute
+#define CASE_PEERS_METRIC                                                                                                                  \
+    case model_t::E_PeersMeanByPersonAndAttribute:                                                                                         \
+    case model_t::E_PeersMedianByPersonAndAttribute:                                                                                       \
+    case model_t::E_PeersMinByPersonAndAttribute:                                                                                          \
+    case model_t::E_PeersMaxByPersonAndAttribute:                                                                                          \
+    case model_t::E_PeersSumByBucketPersonAndAttribute:                                                                                    \
+    case model_t::E_PeersLowMeanByPersonAndAttribute:                                                                                      \
+    case model_t::E_PeersHighMeanByPersonAndAttribute:                                                                                     \
+    case model_t::E_PeersLowSumByBucketPersonAndAttribute:                                                                                 \
+    case model_t::E_PeersHighSumByBucketPersonAndAttribute
 
 //! The categories of metric feature.
 //!
 //! These enumerate the distinct types of metric statistic
 //! which we gather.
-enum EMetricCategory
-{
+enum EMetricCategory {
     E_Mean,
     E_Min,
     E_Max,
@@ -730,7 +694,7 @@ static const size_t NUM_METRIC_CATEGORIES = 9;
 //! Get the metric feature data corresponding to \p feature
 //! if there is one.
 MODEL_EXPORT
-bool metricCategory(EFeature feature, EMetricCategory &result);
+bool metricCategory(EFeature feature, EMetricCategory& result);
 
 //! Get a string description of \p category.
 MODEL_EXPORT
@@ -740,13 +704,7 @@ std::string print(EMetricCategory category);
 //!
 //! The enumerate the distinct type of event rate statistics
 //! which we gather.
-enum EEventRateCategory
-{
-    E_MeanArrivalTimes,
-    E_AttributePeople,
-    E_UniqueValues,
-    E_DiurnalTimes
-};
+enum EEventRateCategory { E_MeanArrivalTimes, E_AttributePeople, E_UniqueValues, E_DiurnalTimes };
 
 //! Get a string description of \p category.
 MODEL_EXPORT
@@ -763,15 +721,7 @@ std::string print(EEventRateCategory category);
 //!      peer groups.
 //!   -# Population metric: analysis of message values in
 //!      peer groups.
-enum EAnalysisCategory
-{
-    E_EventRate,
-    E_Metric,
-    E_PopulationEventRate,
-    E_PopulationMetric,
-    E_PeersEventRate,
-    E_PeersMetric
-};
+enum EAnalysisCategory { E_EventRate, E_Metric, E_PopulationEventRate, E_PopulationMetric, E_PeersEventRate, E_PeersMetric };
 
 //! Get the category of analysis to which \p feature belongs.
 MODEL_EXPORT
@@ -783,8 +733,7 @@ std::string print(EAnalysisCategory category);
 
 //! The different ways we might be told the fields for receiving pre-summarised
 //! data.
-enum ESummaryMode
-{
+enum ESummaryMode {
     E_None,  //!< No pre-summarisation of input
     E_Manual //!< Config defines the field names for pre-summarised input
 };
@@ -795,20 +744,13 @@ enum ESummaryMode
 //!   -# E_XF_By: remove popular "attributes" from populations
 //!   -# E_XF_Over: remove popular "people" from populations
 //!   -# E_XF_Both: remove popular "people" and "attributes" from populations
-enum EExcludeFrequent
-{
-    E_XF_None = 0,
-    E_XF_By = 1,
-    E_XF_Over = 2,
-    E_XF_Both = 3
-};
+enum EExcludeFrequent { E_XF_None = 0, E_XF_By = 1, E_XF_Over = 2, E_XF_Both = 3 };
 
 //! An enumeration of the ResourceMonitor memory status -
 //! Start in the OK state. Moves into soft limit if aggressive pruning
 //! has taken place to avoid hitting the memory limit,
 //! and goes to hard limit if samples have been dropped
-enum EMemoryStatus
-{
+enum EMemoryStatus {
     E_MemoryStatusOk = 0,        //!< Memory usage normal
     E_MemoryStatusSoftLimit = 1, //!< Pruning has taken place to reduce usage
     E_MemoryStatusHardLimit = 2  //!< Samples have been dropped
@@ -825,12 +767,7 @@ std::string print(EMemoryStatus memoryStatus);
 //!      values of the by field.
 //!   -# AggregateDetectors: the style used to aggregate distinct detector
 //!      results.
-enum EAggregationStyle
-{
-    E_AggregatePeople     = 0,
-    E_AggregateAttributes = 1,
-    E_AggregateDetectors  = 2
-};
+enum EAggregationStyle { E_AggregatePeople = 0, E_AggregateAttributes = 1, E_AggregateDetectors = 2 };
 const std::size_t NUMBER_AGGREGATION_STYLES = E_AggregateDetectors + 1;
 
 //! Controllable aggregation parameters:
@@ -842,18 +779,11 @@ const std::size_t NUMBER_AGGREGATION_STYLES = E_AggregateDetectors + 1;
 //!      m from n probability calculation.
 //!   -# MaxExtremeSamples: the maximum number m of samples to consider in the
 //!      m from n probability calculation.
-enum EAggregationParam
-{
-    E_JointProbabilityWeight   = 0,
-    E_ExtremeProbabilityWeight = 1,
-    E_MinExtremeSamples        = 2,
-    E_MaxExtremeSamples        = 3
-};
+enum EAggregationParam { E_JointProbabilityWeight = 0, E_ExtremeProbabilityWeight = 1, E_MinExtremeSamples = 2, E_MaxExtremeSamples = 3 };
 const std::size_t NUMBER_AGGREGATION_PARAMS = E_MaxExtremeSamples + 1;
 
 //! The dummy attribute identifier used for modeling individual features.
 const std::size_t INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID = 0u;
-
 }
 }
 

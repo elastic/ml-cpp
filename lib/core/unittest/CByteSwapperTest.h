@@ -8,13 +8,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CByteSwapperTest : public CppUnit::TestFixture
-{
-    public:
-        void testByteSwaps();
+class CByteSwapperTest : public CppUnit::TestFixture {
+public:
+    void testByteSwaps();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CByteSwapperTest_h
-

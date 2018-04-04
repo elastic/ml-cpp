@@ -9,26 +9,20 @@
 #include <core/COsFileFuncs.h>
 #include <core/CResourceLocator.h>
 
+CppUnit::Test* CResourceLocatorTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceLocatorTest");
 
-CppUnit::Test *CResourceLocatorTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CResourceLocatorTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CResourceLocatorTest>(
-                                   "CResourceLocatorTest::testResourceDir",
-                                   &CResourceLocatorTest::testResourceDir) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CResourceLocatorTest>(
-                                   "CResourceLocatorTest::testLogDir",
-                                   &CResourceLocatorTest::testLogDir) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CResourceLocatorTest>(
-                                   "CResourceLocatorTest::testSrcRootDir",
-                                   &CResourceLocatorTest::testSrcRootDir) );
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResourceLocatorTest>("CResourceLocatorTest::testResourceDir", &CResourceLocatorTest::testResourceDir));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResourceLocatorTest>("CResourceLocatorTest::testLogDir", &CResourceLocatorTest::testLogDir));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResourceLocatorTest>("CResourceLocatorTest::testSrcRootDir", &CResourceLocatorTest::testSrcRootDir));
 
     return suiteOfTests;
 }
 
-void CResourceLocatorTest::testResourceDir()
-{
+void CResourceLocatorTest::testResourceDir() {
     std::string resourceDir(ml::core::CResourceLocator::resourceDir());
     LOG_DEBUG("Resource directory is " << resourceDir);
 
@@ -37,8 +31,7 @@ void CResourceLocatorTest::testResourceDir()
     CPPUNIT_ASSERT_EQUAL(0, ml::core::COsFileFuncs::stat((resourceDir + "/ml-en.dict").c_str(), &buf));
 }
 
-void CResourceLocatorTest::testLogDir()
-{
+void CResourceLocatorTest::testLogDir() {
     std::string logDir(ml::core::CResourceLocator::logDir());
     LOG_DEBUG("Log directory is " << logDir);
 
@@ -46,8 +39,7 @@ void CResourceLocatorTest::testLogDir()
     // we're an Elasticsearch plugin
 }
 
-void CResourceLocatorTest::testSrcRootDir()
-{
+void CResourceLocatorTest::testSrcRootDir() {
     std::string cppRootDir(ml::core::CResourceLocator::cppRootDir());
     LOG_DEBUG("C++ root directory is " << cppRootDir);
 
@@ -55,4 +47,3 @@ void CResourceLocatorTest::testSrcRootDir()
     ml::core::COsFileFuncs::TStat buf;
     CPPUNIT_ASSERT_EQUAL(0, ml::core::COsFileFuncs::stat((cppRootDir + "/set_env.sh").c_str(), &buf));
 }
-

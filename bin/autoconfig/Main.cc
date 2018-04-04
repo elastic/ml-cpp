@@ -14,8 +14,8 @@
 //! Standalone program.
 //!
 #include <core/CLogger.h>
-#include <core/CoreTypes.h>
 #include <core/CProcessPriority.h>
+#include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
 
@@ -37,23 +37,21 @@
 
 #include <stdlib.h>
 
-
-int main(int argc, char **argv)
-{
+int main(int argc, char** argv) {
     // Read command line options
     std::string logProperties;
     std::string logPipe;
-    char        delimiter(',');
-    bool        lengthEncodedInput(false);
+    char delimiter(',');
+    bool lengthEncodedInput(false);
     std::string timeField("time");
     std::string timeFormat;
     std::string configFile;
     std::string inputFileName;
-    bool        isInputFileNamedPipe(false);
+    bool isInputFileNamedPipe(false);
     std::string outputFileName;
-    bool        isOutputFileNamedPipe(false);
-    bool        verbose(false);
-    bool        writeDetectorConfigs(false);
+    bool isOutputFileNamedPipe(false);
+    bool verbose(false);
+    bool writeDetectorConfigs(false);
     if (ml::autoconfig::CCmdLineParser::parse(argc,
                                               argv,
                                               logProperties,
@@ -68,20 +66,15 @@ int main(int argc, char **argv)
                                               outputFileName,
                                               isOutputFileNamedPipe,
                                               verbose,
-                                              writeDetectorConfigs) == false)
-    {
+                                              writeDetectorConfigs) == false) {
         return EXIT_FAILURE;
     }
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName,
-                              isInputFileNamedPipe,
-                              outputFileName,
-                              isOutputFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe);
 
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false)
-    {
+    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL("Could not reconfigure logging");
         return EXIT_FAILURE;
     }
@@ -93,20 +86,16 @@ int main(int argc, char **argv)
 
     ml::core::CProcessPriority::reducePriority();
 
-    if (ioMgr.initIo() == false)
-    {
+    if (ioMgr.initIo() == false) {
         LOG_FATAL("Failed to initialise IO");
         return EXIT_FAILURE;
     }
 
     typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
     TScopedInputParserP inputParser;
-    if (lengthEncodedInput)
-    {
+    if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    }
-    else
-    {
+    } else {
         inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(), delimiter));
     }
 
@@ -125,8 +114,7 @@ int main(int argc, char **argv)
                                    0, // no persistence at present
                                    *inputParser,
                                    configurer);
-    if (skeleton.ioLoop() == false)
-    {
+    if (skeleton.ioLoop() == false) {
         LOG_FATAL("Ml autoconfig failed");
         return EXIT_FAILURE;
     }

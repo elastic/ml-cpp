@@ -8,14 +8,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CSleepTest : public CppUnit::TestFixture {
+public:
+    void testSleep();
 
-class CSleepTest : public CppUnit::TestFixture
-{
-    public:
-        void testSleep();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CSleepTest_h
-

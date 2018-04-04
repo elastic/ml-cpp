@@ -5,15 +5,10 @@
  */
 #include <core/CCTimeR.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-char *CCTimeR::cTimeR(const time_t *clock, char *result)
-{
+char* CCTimeR::cTimeR(const time_t* clock, char* result) {
     // This is effectively bypassing the security feature of the Windows
     // ctime_s() call, but the wrapper function has the arguments of the
     // vulnerable Unix ctime_r() function, so we don't know the real buffer
@@ -24,8 +19,5 @@ char *CCTimeR::cTimeR(const time_t *clock, char *result)
 
     return result;
 }
-
-
 }
 }
-

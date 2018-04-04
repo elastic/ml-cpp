@@ -36,11 +36,11 @@
 #ifdef LOG_INFO
 #undef LOG_INFO
 #endif
-#define LOG_INFO(message)  LOG4CXX_INFO(ml::core::CLogger::instance().logger(), message)
+#define LOG_INFO(message) LOG4CXX_INFO(ml::core::CLogger::instance().logger(), message)
 #ifdef LOG_WARN
 #undef LOG_WARN
 #endif
-#define LOG_WARN(message)  LOG4CXX_WARN(ml::core::CLogger::instance().logger(), message)
+#define LOG_WARN(message) LOG4CXX_WARN(ml::core::CLogger::instance().logger(), message)
 #ifdef LOG_ERROR
 #undef LOG_ERROR
 #endif
@@ -52,8 +52,9 @@
 #ifdef LOG_ABORT
 #undef LOG_ABORT
 #endif
-#define LOG_ABORT(message) LOG4CXX_FATAL(ml::core::CLogger::instance().logger(), message); \
-                           ml::core::CLogger::fatal()
+#define LOG_ABORT(message)                                                                                                                 \
+    LOG4CXX_FATAL(ml::core::CLogger::instance().logger(), message);                                                                        \
+    ml::core::CLogger::fatal()
 
 // Log at a level specified at runtime as a string, for example
 // LOG_AT_LEVEL("WARN", "Stay away from here " << username)
@@ -62,4 +63,3 @@
 #undef LOG_AT_LEVEL
 #endif
 #define LOG_AT_LEVEL(level, message) LOG4CXX_LOGLS(ml::core::CLogger::instance().logger(), log4cxx::Level::toLevel(level), message)
-

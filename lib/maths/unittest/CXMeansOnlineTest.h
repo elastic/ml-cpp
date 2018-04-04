@@ -9,19 +9,18 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CXMeansOnlineTest : public CppUnit::TestFixture
-{
-    public:
-        void testCluster();
-        void testClusteringVanilla();
-        void testClusteringWithOutliers();
-        void testManyClusters();
-        void testAdaption();
-        void testLargeHistory();
-        void testLatLongData();
-        void testPersist();
+class CXMeansOnlineTest : public CppUnit::TestFixture {
+public:
+    void testCluster();
+    void testClusteringVanilla();
+    void testClusteringWithOutliers();
+    void testManyClusters();
+    void testAdaption();
+    void testLargeHistory();
+    void testLatLongData();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CXMeansOnlineTest_h

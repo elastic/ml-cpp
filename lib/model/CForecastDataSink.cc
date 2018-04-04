@@ -10,13 +10,10 @@
 
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
-namespace
-{
+namespace {
 using TStrVec = std::vector<std::string>;
 
 // static strings
@@ -55,46 +52,35 @@ const std::string CForecastDataSink::PROGRESS("forecast_progress");
 const std::string CForecastDataSink::STATUS("forecast_status");
 
 CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(model_t::EFeature feature,
-                                                                TMathsModelPtr &&forecastModel,
-                                                                const std::string &byFieldValue)
-    :s_Feature(feature),
-     s_ForecastModel(std::move(forecastModel)),
-     s_ByFieldValue(byFieldValue)
-{
+                                                                TMathsModelPtr&& forecastModel,
+                                                                const std::string& byFieldValue)
+    : s_Feature(feature), s_ForecastModel(std::move(forecastModel)), s_ByFieldValue(byFieldValue) {
 }
 
-CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(SForecastModelWrapper &&other)
-    :s_Feature(other.s_Feature),
-     s_ForecastModel(std::move(other.s_ForecastModel)),
-     s_ByFieldValue(std::move(other.s_ByFieldValue))
-{
+CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(SForecastModelWrapper&& other)
+    : s_Feature(other.s_Feature), s_ForecastModel(std::move(other.s_ForecastModel)), s_ByFieldValue(std::move(other.s_ByFieldValue)) {
 }
 
 CForecastDataSink::SForecastResultSeries::SForecastResultSeries()
-    :s_DetectorIndex(),
-     s_ToForecast(),
-     s_PartitionFieldValue(),
-     s_ByFieldName()
-{
+    : s_DetectorIndex(), s_ToForecast(), s_PartitionFieldValue(), s_ByFieldName() {
 }
 
-CForecastDataSink::SForecastResultSeries::SForecastResultSeries(SForecastResultSeries &&other)
-    :s_DetectorIndex(other.s_DetectorIndex),
-     s_ToForecast(std::move(other.s_ToForecast)),
-     s_PartitionFieldName(std::move(other.s_PartitionFieldName)),
-     s_PartitionFieldValue(std::move(other.s_PartitionFieldValue)),
-     s_ByFieldName(std::move(other.s_ByFieldName))
-{
+CForecastDataSink::SForecastResultSeries::SForecastResultSeries(SForecastResultSeries&& other)
+    : s_DetectorIndex(other.s_DetectorIndex),
+      s_ToForecast(std::move(other.s_ToForecast)),
+      s_PartitionFieldName(std::move(other.s_PartitionFieldName)),
+      s_PartitionFieldValue(std::move(other.s_PartitionFieldValue)),
+      s_ByFieldName(std::move(other.s_ByFieldName)) {
 }
 
-CForecastDataSink::CForecastDataSink(const std::string &jobId,
-                                     const std::string &forecastId,
+CForecastDataSink::CForecastDataSink(const std::string& jobId,
+                                     const std::string& forecastId,
                                      core_t::TTime createTime,
                                      core_t::TTime startTime,
                                      core_t::TTime endTime,
                                      core_t::TTime expiryTime,
                                      size_t memoryUsage,
-                                     core::CJsonOutputStreamWrapper &outStream)
+                                     core::CJsonOutputStreamWrapper& outStream)
     : m_JobId(jobId),
       m_ForecastId(forecastId),
       m_Writer(outStream),
@@ -103,12 +89,10 @@ CForecastDataSink::CForecastDataSink(const std::string &jobId,
       m_StartTime(startTime),
       m_EndTime(endTime),
       m_ExpiryTime(expiryTime),
-      m_MemoryUsage(memoryUsage)
-{
+      m_MemoryUsage(memoryUsage) {
 }
 
-void CForecastDataSink::writeStats(const double progress, uint64_t runtime, const TStrUMap &messages, bool successful)
-{
+void CForecastDataSink::writeStats(const double progress, uint64_t runtime, const TStrUMap& messages, bool successful) {
     rapidjson::Document doc = m_Writer.makeDoc();
 
     this->writeCommonStatsFields(doc);
@@ -119,18 +103,12 @@ void CForecastDataSink::writeStats(const double progress, uint64_t runtime, cons
     m_Writer.addUIntFieldToObj(PROCESSING_TIME_MS, runtime, doc);
 
     m_Writer.addStringArrayFieldToObj(MESSAGES, messages, doc);
-    if (progress < 1.0)
-    {
+    if (progress < 1.0) {
         m_Writer.addStringFieldReferenceToObj(STATUS, STATUS_STARTED, doc);
-    }
-    else
-    {
-        if (successful)
-        {
+    } else {
+        if (successful) {
             m_Writer.addStringFieldReferenceToObj(STATUS, STATUS_FINISHED, doc);
-        }
-        else
-        {
+        } else {
             m_Writer.addStringFieldReferenceToObj(STATUS, STATUS_FAILED, doc);
         }
     }
@@ -139,36 +117,32 @@ void CForecastDataSink::writeStats(const double progress, uint64_t runtime, cons
     this->push(progress == 1.0, doc);
 }
 
-void CForecastDataSink::writeScheduledMessage()
-{
+void CForecastDataSink::writeScheduledMessage() {
     rapidjson::Value doc(rapidjson::kObjectType);
     this->writeCommonStatsFields(doc);
     m_Writer.addStringFieldReferenceToObj(STATUS, STATUS_SCHEDULED, doc);
-    this->push(true/*important, therefore flush*/, doc);
+    this->push(true /*important, therefore flush*/, doc);
 }
 
-void CForecastDataSink::writeErrorMessage(const std::string &message)
-{
+void CForecastDataSink::writeErrorMessage(const std::string& message) {
     rapidjson::Document doc = m_Writer.makeDoc();
     this->writeCommonStatsFields(doc);
     TStrVec messages{message};
     m_Writer.addStringArrayFieldToObj(MESSAGES, messages, doc);
     m_Writer.addStringFieldReferenceToObj(STATUS, STATUS_FAILED, doc);
-    this->push(true/*important, therefore flush*/, doc);
+    this->push(true /*important, therefore flush*/, doc);
 }
 
-void CForecastDataSink::writeFinalMessage(const std::string &message)
-{
+void CForecastDataSink::writeFinalMessage(const std::string& message) {
     rapidjson::Document doc = m_Writer.makeDoc();
     this->writeCommonStatsFields(doc);
     TStrVec messages{message};
     m_Writer.addStringArrayFieldToObj(MESSAGES, messages, doc);
     m_Writer.addStringFieldReferenceToObj(STATUS, STATUS_FINISHED, doc);
-    this->push(true/*important, therefore flush*/, doc);
+    this->push(true /*important, therefore flush*/, doc);
 }
 
-void CForecastDataSink::writeCommonStatsFields(rapidjson::Value &doc)
-{
+void CForecastDataSink::writeCommonStatsFields(rapidjson::Value& doc) {
     m_Writer.addStringFieldReferenceToObj(JOB_ID, m_JobId, doc);
     m_Writer.addStringFieldReferenceToObj(FORECAST_ID, m_ForecastId, doc);
     m_Writer.addTimeFieldToObj(CREATE_TIME, m_CreateTime, doc);
@@ -176,39 +150,33 @@ void CForecastDataSink::writeCommonStatsFields(rapidjson::Value &doc)
     m_Writer.addTimeFieldToObj(START_TIME, m_StartTime, doc);
     m_Writer.addTimeFieldToObj(END_TIME, m_EndTime, doc);
 
-    if (m_ExpiryTime != m_CreateTime)
-    {
+    if (m_ExpiryTime != m_CreateTime) {
         m_Writer.addTimeFieldToObj(EXPIRY_TIME, m_ExpiryTime, doc);
     }
 }
 
-void CForecastDataSink::push(bool flush, rapidjson::Value &doc)
-{
+void CForecastDataSink::push(bool flush, rapidjson::Value& doc) {
     rapidjson::Document wrapper = m_Writer.makeDoc();
 
     m_Writer.addMember(MODEL_FORECAST_STATS, doc, wrapper);
     m_Writer.write(wrapper);
 
-    if (flush)
-    {
+    if (flush) {
         m_Writer.flush();
     }
-
 }
 
-uint64_t CForecastDataSink::numRecordsWritten() const
-{
+uint64_t CForecastDataSink::numRecordsWritten() const {
     return m_NumRecordsWritten;
 }
 
 void CForecastDataSink::push(const maths::SErrorBar errorBar,
-                             const std::string &feature,
-                             const std::string &partitionFieldName,
-                             const std::string &partitionFieldValue,
-                             const std::string &byFieldName,
-                             const std::string &byFieldValue,
-                             int detectorIndex)
-{
+                             const std::string& feature,
+                             const std::string& partitionFieldName,
+                             const std::string& partitionFieldValue,
+                             const std::string& byFieldName,
+                             const std::string& byFieldValue,
+                             int detectorIndex) {
     ++m_NumRecordsWritten;
     rapidjson::Document doc = m_Writer.makeDoc();
 
@@ -220,13 +188,11 @@ void CForecastDataSink::push(const maths::SErrorBar errorBar,
     // time is in Java format - milliseconds since the epoch
     m_Writer.addTimeFieldToObj(TIMESTAMP, errorBar.s_Time, doc);
     m_Writer.addIntFieldToObj(BUCKET_SPAN, errorBar.s_BucketLength, doc);
-    if (!partitionFieldName.empty())
-    {
+    if (!partitionFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME, partitionFieldName, doc);
         m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE, partitionFieldValue, doc, true);
     }
-    if (!byFieldName.empty())
-    {
+    if (!byFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(BY_FIELD_NAME, byFieldName, doc);
         m_Writer.addStringFieldCopyToObj(BY_FIELD_VALUE, byFieldValue, doc, true);
     }
@@ -238,7 +204,6 @@ void CForecastDataSink::push(const maths::SErrorBar errorBar,
     rapidjson::Document wrapper = m_Writer.makeDoc();
     m_Writer.addMember(MODEL_FORECAST, doc, wrapper);
     m_Writer.write(wrapper);
-
 }
 
 } /* namespace model  */

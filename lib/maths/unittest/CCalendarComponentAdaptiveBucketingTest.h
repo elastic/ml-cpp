@@ -8,25 +8,24 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCalendarComponentAdaptiveBucketingTest : public CppUnit::TestFixture
-{
-    public:
-        void setUp();
-        void tearDown();
+class CCalendarComponentAdaptiveBucketingTest : public CppUnit::TestFixture {
+public:
+    void setUp();
+    void tearDown();
 
-        void testInitialize();
-        void testSwap();
-        void testRefine();
-        void testPropagateForwardsByTime();
-        void testMinimumBucketLength();
-        void testUnintialized();
-        void testKnots();
-        void testPersist();
+    void testInitialize();
+    void testSwap();
+    void testRefine();
+    void testPropagateForwardsByTime();
+    void testMinimumBucketLength();
+    void testUnintialized();
+    void testKnots();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
-    private:
-        std::string m_Timezone;
+private:
+    std::string m_Timezone;
 };
 
 #endif // INCLUDED_CCalendarComponentAdaptiveBucketingTest_h

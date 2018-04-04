@@ -29,4 +29,3 @@
 #endif
 
 #endif // INCLUDED_ml_core_AtomicTypes_h
-

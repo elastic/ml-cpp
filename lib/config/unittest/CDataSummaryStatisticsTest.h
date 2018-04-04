@@ -9,16 +9,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDataSummaryStatisticsTest : public CppUnit::TestFixture
-{
-    public:
-        void testRate();
-        void testCategoricalDistinctCount();
-        void testCategoricalTopN();
-        void testNumericBasicStatistics();
-        void testNumericDistribution();
+class CDataSummaryStatisticsTest : public CppUnit::TestFixture {
+public:
+    void testRate();
+    void testCategoricalDistinctCount();
+    void testCategoricalTopN();
+    void testNumericBasicStatistics();
+    void testNumericDistribution();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CDataSummaryStatisticsTest_h

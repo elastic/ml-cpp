@@ -8,13 +8,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CThreadMutexConditionTest : public CppUnit::TestFixture
-{
-    public:
-        void    testThread();
-        void    testThreadCondition();
+class CThreadMutexConditionTest : public CppUnit::TestFixture {
+public:
+    void testThread();
+    void testThreadCondition();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CThreadMutexConditionTest_h

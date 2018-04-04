@@ -9,17 +9,16 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CVectorRangeTest : public CppUnit::TestFixture
-{
-    public:
-        void testCreation();
-        void testAccessors();
-        void testIterators();
-        void testSizing();
-        void testModifiers();
-        void testComparisons();
+class CVectorRangeTest : public CppUnit::TestFixture {
+public:
+    void testCreation();
+    void testAccessors();
+    void testIterators();
+    void testSizing();
+    void testModifiers();
+    void testComparisons();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CTrendTestsTest_h

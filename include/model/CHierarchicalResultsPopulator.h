@@ -10,30 +10,25 @@
 #include <model/CHierarchicalResults.h>
 #include <model/ImportExport.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CLimits;
 
 //! \brief FIXME
 //!
 //! DESCRIPTION:\n
 //! FIXME
-class MODEL_EXPORT CHierarchicalResultsPopulator : public CHierarchicalResultsVisitor
-{
-    public:
-        //! Constructor
-        CHierarchicalResultsPopulator(const CLimits &limits);
+class MODEL_EXPORT CHierarchicalResultsPopulator : public CHierarchicalResultsVisitor {
+public:
+    //! Constructor
+    CHierarchicalResultsPopulator(const CLimits& limits);
 
-        //! Visit \p node.
-        virtual void visit(const CHierarchicalResults &results, const TNode &node, bool pivot);
+    //! Visit \p node.
+    virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot);
 
-    private:
-        const CLimits &m_Limits;
-
+private:
+    const CLimits& m_Limits;
 };
-
 }
 }
 

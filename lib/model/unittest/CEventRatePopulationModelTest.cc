@@ -48,8 +48,7 @@
 using namespace ml;
 using namespace model;
 
-namespace
-{
+namespace {
 
 using TOptionalDouble = boost::optional<double>;
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
@@ -69,18 +68,12 @@ using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
 
 const std::string EMPTY_STRING;
 
-struct SMessage
-{
-    SMessage(core_t::TTime time,
-             const std::string &person,
-             const std::string &attribute) :
-            s_Time(time), s_Person(person), s_Attribute(attribute)
-    {}
+struct SMessage {
+    SMessage(core_t::TTime time, const std::string& person, const std::string& attribute)
+        : s_Time(time), s_Person(person), s_Attribute(attribute) {}
 
-    bool operator<(const SMessage &other) const
-    {
-        return maths::COrderings::lexicographical_compare(s_Time, s_Person, s_Attribute,
-                                                          other.s_Time, other.s_Person, other.s_Attribute);
+    bool operator<(const SMessage& other) const {
+        return maths::COrderings::lexicographical_compare(s_Time, s_Person, s_Attribute, other.s_Time, other.s_Person, other.s_Attribute);
     }
 
     core_t::TTime s_Time;
@@ -88,32 +81,22 @@ struct SMessage
     std::string s_Attribute;
 };
 
-struct SAnomaly
-{
+struct SAnomaly {
     SAnomaly() : s_Bucket(0u), s_Person(), s_Attributes() {}
-    SAnomaly(std::size_t bucket,
-             const std::string &person,
-             const TDoubleStrPrVec &attributes) :
-            s_Bucket(bucket), s_Person(person), s_Attributes(attributes)
-    {}
+    SAnomaly(std::size_t bucket, const std::string& person, const TDoubleStrPrVec& attributes)
+        : s_Bucket(bucket), s_Person(person), s_Attributes(attributes) {}
 
     std::size_t s_Bucket;
     std::string s_Person;
     TDoubleStrPrVec s_Attributes;
 
-    bool operator<(const SAnomaly &other) const
-    {
-        return s_Bucket < other.s_Bucket;
-    }
+    bool operator<(const SAnomaly& other) const { return s_Bucket < other.s_Bucket; }
 
-    std::string print() const
-    {
+    std::string print() const {
         std::ostringstream result;
         result << "[" << s_Bucket << ", " + s_Person << ",";
-        for (std::size_t i = 0u; i < s_Attributes.size(); ++i)
-        {
-            if (s_Attributes[i].first < 0.01)
-            {
+        for (std::size_t i = 0u; i < s_Attributes.size(); ++i) {
+            if (s_Attributes[i].first < 0.01) {
                 result << " " << s_Attributes[i].second;
             }
         }
@@ -124,10 +107,7 @@ struct SAnomaly
 
 using TMessageVec = std::vector<SMessage>;
 
-void generateTestMessages(core_t::TTime startTime,
-                          core_t::TTime bucketLength,
-                          TMessageVec &messages)
-{
+void generateTestMessages(core_t::TTime startTime, core_t::TTime bucketLength, TMessageVec& messages) {
     // The test case is as follows:
     //
     //   attribute   |    0    |    1    |    2    |    3    |   4
@@ -149,22 +129,20 @@ void generateTestMessages(core_t::TTime startTime,
     const std::size_t numberPeople = 20u;
 
     TStrVec attributes;
-    for (std::size_t i = 0u; i < numberAttributes; ++i)
-    {
+    for (std::size_t i = 0u; i < numberAttributes; ++i) {
         attributes.push_back("c" + boost::lexical_cast<std::string>(i));
     }
 
     TStrVec people;
-    for (std::size_t i = 0u; i < numberPeople; ++i)
-    {
+    for (std::size_t i = 0u; i < numberPeople; ++i) {
         people.push_back("p" + boost::lexical_cast<std::string>(i));
     }
 
-    std::size_t c0People[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
-    std::size_t c1People[] = { 0, 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
-    std::size_t c2People[] = { 0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
-    std::size_t c3People[] = { 3, 4 };
-    std::size_t c4People[] = { 3 };
+    std::size_t c0People[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+    std::size_t c1People[] = {0, 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+    std::size_t c2People[] = {0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+    std::size_t c3People[] = {3, 4};
+    std::size_t c4People[] = {3};
 
     TSizeVecVec attributePeople;
     attributePeople.push_back(TSizeVec(boost::begin(c0People), boost::end(c0People)));
@@ -173,36 +151,27 @@ void generateTestMessages(core_t::TTime startTime,
     attributePeople.push_back(TSizeVec(boost::begin(c3People), boost::end(c3People)));
     attributePeople.push_back(TSizeVec(boost::begin(c4People), boost::end(c4People)));
 
-    double attributeRates[] = { 10.0, 0.02, 15.0, 2.0, 1.0 };
+    double attributeRates[] = {10.0, 0.02, 15.0, 2.0, 1.0};
 
-    TSizeSizeSizeTr anomaliesAttributePerson[] =
-       {
-           TSizeSizeSizeTr(10u, 0u, 1u),
-           TSizeSizeSizeTr(15u, 0u, 11u),
-           TSizeSizeSizeTr(30u, 2u, 4u),
-           TSizeSizeSizeTr(35u, 2u, 5u),
-           TSizeSizeSizeTr(50u, 0u, 11u),
-           TSizeSizeSizeTr(75u, 2u, 5u)
-       };
+    TSizeSizeSizeTr anomaliesAttributePerson[] = {TSizeSizeSizeTr(10u, 0u, 1u),
+                                                  TSizeSizeSizeTr(15u, 0u, 11u),
+                                                  TSizeSizeSizeTr(30u, 2u, 4u),
+                                                  TSizeSizeSizeTr(35u, 2u, 5u),
+                                                  TSizeSizeSizeTr(50u, 0u, 11u),
+                                                  TSizeSizeSizeTr(75u, 2u, 5u)};
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u;
-         i < numberBuckets;
-         ++i, startTime += bucketLength)
-    {
-        for (std::size_t j = 0u; j < numberAttributes; ++j)
-        {
+    for (std::size_t i = 0u; i < numberBuckets; ++i, startTime += bucketLength) {
+        for (std::size_t j = 0u; j < numberAttributes; ++j) {
             TUIntVec samples;
             rng.generatePoissonSamples(attributeRates[j], attributePeople[j].size(), samples);
 
-            for (std::size_t k = 0u; k < samples.size(); ++k)
-            {
+            for (std::size_t k = 0u; k < samples.size(); ++k) {
                 unsigned int n = samples[k];
                 if (std::binary_search(boost::begin(anomaliesAttributePerson),
                                        boost::end(anomaliesAttributePerson),
-                                       TSizeSizeSizeTr(i, j, attributePeople[j][k])))
-                {
+                                       TSizeSizeSizeTr(i, j, attributePeople[j][k]))) {
                     n += static_cast<unsigned int>(2.5 * attributeRates[j]);
                     LOG_DEBUG(i << " " << attributes[j] << " generating anomaly " << n);
                 }
@@ -210,12 +179,9 @@ void generateTestMessages(core_t::TTime startTime,
                 TDoubleVec times;
                 rng.generateUniformSamples(0.0, static_cast<double>(bucketLength - 1), n, times);
 
-                for (std::size_t l = 0u; l < times.size(); ++l)
-                {
+                for (std::size_t l = 0u; l < times.size(); ++l) {
                     core_t::TTime time = startTime + static_cast<core_t::TTime>(times[l]);
-                    messages.push_back(SMessage(time,
-                                                people[attributePeople[j][k]],
-                                                attributes[j]));
+                    messages.push_back(SMessage(time, people[attributePeople[j][k]], attributes[j]));
                 }
             }
         }
@@ -224,10 +190,7 @@ void generateTestMessages(core_t::TTime startTime,
     std::sort(messages.begin(), messages.end());
 }
 
-void addArrival(const SMessage &message,
-                const CModelFactory::TDataGathererPtr &gatherer,
-                CResourceMonitor &resourceMonitor)
-{
+void addArrival(const SMessage& message, const CModelFactory::TDataGathererPtr& gatherer, CResourceMonitor& resourceMonitor) {
     CDataGatherer::TStrCPtrVec fields;
     fields.push_back(&message.s_Person);
     fields.push_back(&message.s_Attribute);
@@ -239,8 +202,7 @@ void addArrival(const SMessage &message,
 const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
-void CEventRatePopulationModelTest::testBasicAccessors()
-{
+void CEventRatePopulationModelTest::testBasicAccessors() {
     LOG_DEBUG("*** testBasicAccessors ***");
 
     // Check that the correct data is read retrieved by the
@@ -267,8 +229,7 @@ void CEventRatePopulationModelTest::testBasicAccessors()
     features.push_back(model_t::E_PopulationCountByBucketPersonAndAttribute);
     factory.features(features);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(dynamic_cast<CDataGatherer*>(
-                                                 factory.makeDataGatherer(gathererInitData)));
+    CModelFactory::TDataGathererPtr gatherer(dynamic_cast<CDataGatherer*>(factory.makeDataGatherer(gathererInitData)));
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
 
@@ -277,26 +238,21 @@ void CEventRatePopulationModelTest::testBasicAccessors()
     TStrUInt64Map expectedBucketPersonCounts;
     TStrStrPrDoubleMap expectedBucketPersonAttributeCounts;
 
-    for (std::size_t i = 0u; i < messages.size(); ++i)
-    {
-        if (messages[i].s_Time >= startTime + bucketLength)
-        {
+    for (std::size_t i = 0u; i < messages.size(); ++i) {
+        if (messages[i].s_Time >= startTime + bucketLength) {
             model->sample(startTime, startTime + bucketLength, m_ResourceMonitor);
 
-            LOG_DEBUG("Testing bucket = [" << startTime
-                      << "," << startTime + bucketLength << ")");
+            LOG_DEBUG("Testing bucket = [" << startTime << "," << startTime + bucketLength << ")");
 
             // Test the person and attribute invariants.
-            for (std::size_t j = 0u; j < gatherer->numberActivePeople(); ++j)
-            {
-                const std::string &name = model->personName(j);
+            for (std::size_t j = 0u; j < gatherer->numberActivePeople(); ++j) {
+                const std::string& name = model->personName(j);
                 std::size_t pid;
                 CPPUNIT_ASSERT(gatherer->personId(name, pid));
                 CPPUNIT_ASSERT_EQUAL(j, pid);
             }
-            for (std::size_t j = 0u; j < gatherer->numberActiveAttributes(); ++j)
-            {
-                const std::string &name = model->attributeName(j);
+            for (std::size_t j = 0u; j < gatherer->numberActiveAttributes(); ++j) {
+                const std::string& name = model->attributeName(j);
                 std::size_t cid;
                 CPPUNIT_ASSERT(gatherer->attributeId(name, cid));
                 CPPUNIT_ASSERT_EQUAL(j, cid);
@@ -305,10 +261,7 @@ void CEventRatePopulationModelTest::testBasicAccessors()
             TSizeVec expectedCurrentBucketPersonIds;
 
             // Test the person counts.
-            for (TStrUInt64MapCItr j = expectedBucketPersonCounts.begin();
-                 j != expectedBucketPersonCounts.end();
-                 ++j)
-            {
+            for (TStrUInt64MapCItr j = expectedBucketPersonCounts.begin(); j != expectedBucketPersonCounts.end(); ++j) {
                 std::size_t pid;
                 CPPUNIT_ASSERT(gatherer->personId(j->first, pid));
 
@@ -320,26 +273,20 @@ void CEventRatePopulationModelTest::testBasicAccessors()
             }
 
             // Test the person attribute counts.
-            for (TStrStrPrDoubleMapCItr j = expectedBucketPersonAttributeCounts.begin();
-                 j != expectedBucketPersonAttributeCounts.end();
-                 ++j)
-            {
+            for (TStrStrPrDoubleMapCItr j = expectedBucketPersonAttributeCounts.begin(); j != expectedBucketPersonAttributeCounts.end();
+                 ++j) {
                 std::size_t pid;
                 CPPUNIT_ASSERT(gatherer->personId(j->first.first, pid));
                 std::size_t cid;
                 CPPUNIT_ASSERT(gatherer->attributeId(j->first.second, cid));
 
-                TDouble1Vec count = model->currentBucketValue(
-                                        model_t::E_PopulationCountByBucketPersonAndAttribute,
-                                        pid, cid,
-                                        startTime);
+                TDouble1Vec count = model->currentBucketValue(model_t::E_PopulationCountByBucketPersonAndAttribute, pid, cid, startTime);
                 CPPUNIT_ASSERT(!count.empty());
                 CPPUNIT_ASSERT_EQUAL(j->second, count[0]);
             }
 
             // Test the current bucket people.
-            std::sort(expectedCurrentBucketPersonIds.begin(),
-                      expectedCurrentBucketPersonIds.end());
+            std::sort(expectedCurrentBucketPersonIds.begin(), expectedCurrentBucketPersonIds.end());
             TSizeVec bucketPersonIds;
             model->currentBucketPersonIds(startTime, bucketPersonIds);
             CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedCurrentBucketPersonIds),
@@ -350,15 +297,14 @@ void CEventRatePopulationModelTest::testBasicAccessors()
             startTime += bucketLength;
         }
 
-        const SMessage &m = messages[i];
+        const SMessage& m = messages[i];
         addArrival(m, gatherer, m_ResourceMonitor);
         ++expectedBucketPersonCounts[m.s_Person];
         expectedBucketPersonAttributeCounts[TStrStrPr(m.s_Person, m.s_Attribute)] += 1.0;
     }
 }
 
-void CEventRatePopulationModelTest::testFeatures()
-{
+void CEventRatePopulationModelTest::testFeatures() {
     LOG_DEBUG("*** testFeatures ***");
 
     // We check that the correct data is read from the gatherer
@@ -381,8 +327,7 @@ void CEventRatePopulationModelTest::testFeatures()
     using TDouble2VecVecDouble2Vec4VecVecPr = std::pair<TDouble2VecVec, TDouble2Vec4VecVec>;
     using TSizeDouble2VecVecDouble2Vec4VecVecPrMap = std::map<std::size_t, TDouble2VecVecDouble2Vec4VecVecPr>;
 
-    static const maths_t::TWeightStyleVec WEIGHT_STYLES{maths_t::E_SampleCountWeight,
-                                                        maths_t::E_SampleWinsorisationWeight};
+    static const maths_t::TWeightStyleVec WEIGHT_STYLES{maths_t::E_SampleCountWeight, maths_t::E_SampleWinsorisationWeight};
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -403,8 +348,7 @@ void CEventRatePopulationModelTest::testFeatures()
         CModelFactory::TDataGathererPtr gatherer(dynamic_cast<CDataGatherer*>(factory.makeDataGatherer(gathererInitData)));
         CModelFactory::SModelInitializationData modelInitData(gatherer);
         CAnomalyDetectorModel::TModelPtr modelHolder(factory.makeModel(modelInitData));
-        CEventRatePopulationModel *model =
-                dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
+        CEventRatePopulationModel* model = dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
 
         model::CModelFactory::TFeatureMathsModelPtrPrVec models{factory.defaultFeatureModels(features, bucketLength, 1.0, false)};
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), models.size());
@@ -417,15 +361,12 @@ void CEventRatePopulationModelTest::testFeatures()
 
         TSizeMathsModelPtrMap expectedPopulationModels;
 
-        for (const auto &message : messages)
-        {
-            if (message.s_Time >= startTime + bucketLength)
-            {
+        for (const auto& message : messages) {
+            if (message.s_Time >= startTime + bucketLength) {
                 model->sample(startTime, startTime + bucketLength, m_ResourceMonitor);
                 TSizeSizePrUInt64Map expectedNonZeroCounts;
 
-                for (const auto &count : expectedCounts)
-                {
+                for (const auto& count : expectedCounts) {
                     std::size_t pid, cid;
                     CPPUNIT_ASSERT(gatherer->personId(count.first.first, pid));
                     CPPUNIT_ASSERT(gatherer->attributeId(count.first.second, cid));
@@ -437,77 +378,65 @@ void CEventRatePopulationModelTest::testFeatures()
                 }
 
                 TSizeDouble2VecVecDouble2Vec4VecVecPrMap populationSamples;
-                for (const auto &count_ : expectedNonZeroCounts)
-                {
+                for (const auto& count_ : expectedNonZeroCounts) {
                     std::size_t pid = count_.first.first;
                     std::size_t cid = count_.first.second;
                     core_t::TTime time = startTime + bucketLength / 2;
-                    double count = model_t::offsetCountToZero(
-                                         model_t::E_PopulationCountByBucketPersonAndAttribute,
-                                         static_cast<double>(count_.second));
-                    TMathsModelPtr &model_ = expectedPopulationModels[cid];
-                    if (model_ == 0)
-                    {
+                    double count = model_t::offsetCountToZero(model_t::E_PopulationCountByBucketPersonAndAttribute,
+                                                              static_cast<double>(count_.second));
+                    TMathsModelPtr& model_ = expectedPopulationModels[cid];
+                    if (model_ == 0) {
                         model_.reset(models[0].second->clone(cid));
                     }
 
                     TDoubleVec sample(1, count);
-                    TDouble2Vec4Vec weight{{model->sampleRateWeight(pid, cid)},
-                                           model_->winsorisationWeight(1.0, time, sample)};
+                    TDouble2Vec4Vec weight{{model->sampleRateWeight(pid, cid)}, model_->winsorisationWeight(1.0, time, sample)};
                     populationSamples[cid].first.push_back({sample[0]});
                     populationSamples[cid].second.push_back(weight);
                 }
-                for (auto &samples_ : populationSamples)
-                {
+                for (auto& samples_ : populationSamples) {
                     std::size_t cid = samples_.first;
-                    TDouble2Vec4VecVec &weights = samples_.second.second;
+                    TDouble2Vec4VecVec& weights = samples_.second.second;
                     maths::COrderings::simultaneousSort(samples_.second.first, weights);
                     maths::CModel::TTimeDouble2VecSizeTrVec samples;
-                    for (const auto &sample : samples_.second.first)
-                    {
+                    for (const auto& sample : samples_.second.first) {
                         samples.emplace_back(startTime + bucketLength / 2, sample, 0);
                     }
                     maths::CModelAddSamplesParams params_;
                     params_.integer(true)
-                           .nonNegative(true)
-                           .propagationInterval(1.0)
-                           .weightStyles(WEIGHT_STYLES)
-                           .trendWeights(weights)
-                           .priorWeights(weights);
+                        .nonNegative(true)
+                        .propagationInterval(1.0)
+                        .weightStyles(WEIGHT_STYLES)
+                        .trendWeights(weights)
+                        .priorWeights(weights);
                     expectedPopulationModels[cid]->addSamples(params_, samples);
                 }
 
                 TSizeSizePrFeatureDataPrVec expectedPeoplePerAttribute;
                 expectedPeoplePerAttribute.reserve(numberAttributes);
-                for (std::size_t j = 0u; j < numberAttributes; ++j)
-                {
-                    expectedPeoplePerAttribute.emplace_back(std::make_pair(size_t(0), j),
-                                                            TFeatureData(j));
+                for (std::size_t j = 0u; j < numberAttributes; ++j) {
+                    expectedPeoplePerAttribute.emplace_back(std::make_pair(size_t(0), j), TFeatureData(j));
                 }
-                for (const auto &attribute : attributePeople)
-                {
+                for (const auto& attribute : attributePeople) {
                     expectedPeoplePerAttribute[attribute.first].second = attribute.second.size();
                 }
 
                 // Check the number of people per attribute.
-                const TSizeSizePrFeatureDataPrVec &peoplePerAttribute =
-                        model->featureData(model_t::E_PopulationUniquePersonCountByAttribute, startTime);
+                const TSizeSizePrFeatureDataPrVec& peoplePerAttribute =
+                    model->featureData(model_t::E_PopulationUniquePersonCountByAttribute, startTime);
                 CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedPeoplePerAttribute),
                                      core::CContainerPrinter::print(peoplePerAttribute));
 
                 // Check the non-zero (person, attribute) counts.
-                const TSizeSizePrFeatureDataPrVec &nonZeroCounts =
-                        model->featureData(model_t::E_PopulationCountByBucketPersonAndAttribute, startTime);
-                CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNonZeroCounts),
-                                     core::CContainerPrinter::print(nonZeroCounts));
+                const TSizeSizePrFeatureDataPrVec& nonZeroCounts =
+                    model->featureData(model_t::E_PopulationCountByBucketPersonAndAttribute, startTime);
+                CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNonZeroCounts), core::CContainerPrinter::print(nonZeroCounts));
 
-                for (std::size_t cid = 0u; cid < numberAttributes; ++cid)
-                {
-                    const maths::CModel *populationModel =
-                            model->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, cid);
+                for (std::size_t cid = 0u; cid < numberAttributes; ++cid) {
+                    const maths::CModel* populationModel =
+                        model->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, cid);
                     CPPUNIT_ASSERT(populationModel);
-                    CPPUNIT_ASSERT_EQUAL(expectedPopulationModels[cid]->checksum(),
-                                         populationModel->checksum());
+                    CPPUNIT_ASSERT_EQUAL(expectedPopulationModels[cid]->checksum(), populationModel->checksum());
                 }
 
                 startTime += bucketLength;
@@ -520,16 +449,14 @@ void CEventRatePopulationModelTest::testFeatures()
     }
 }
 
-void CEventRatePopulationModelTest::testComputeProbability()
-{
+void CEventRatePopulationModelTest::testComputeProbability() {
     LOG_DEBUG("*** testComputeProbability ***");
 
     // Check that we get the probabilities we expect.
 
     using TAnomalyVec = std::vector<SAnomaly>;
     using TDoubleAnomalyPr = std::pair<double, SAnomaly>;
-    using TAnomalyAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<
-                                    TDoubleAnomalyPr, maths::COrderings::SFirstLess>;
+    using TAnomalyAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleAnomalyPr, maths::COrderings::SFirstLess>;
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -548,30 +475,24 @@ void CEventRatePopulationModelTest::testComputeProbability()
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr modelHolder(factory.makeModel(modelInitData));
-    CEventRatePopulationModel *model = dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
+    CEventRatePopulationModel* model = dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
 
     TAnomalyAccumulator anomalies(6u);
 
-    for (std::size_t i = 0u, bucket = 0u; i < messages.size(); ++i)
-    {
-        if (messages[i].s_Time >= startTime + bucketLength)
-        {
-            LOG_DEBUG("Updating and testing bucket = [" << startTime
-                      << "," << startTime + bucketLength << ")");
+    for (std::size_t i = 0u, bucket = 0u; i < messages.size(); ++i) {
+        if (messages[i].s_Time >= startTime + bucketLength) {
+            LOG_DEBUG("Updating and testing bucket = [" << startTime << "," << startTime + bucketLength << ")");
 
             model->sample(startTime, startTime + bucketLength, m_ResourceMonitor);
 
             SAnnotatedProbability annotatedProbability;
-            for (std::size_t pid = 0u; pid < gatherer->numberActivePeople(); ++pid)
-            {
+            for (std::size_t pid = 0u; pid < gatherer->numberActivePeople(); ++pid) {
                 CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
-                model->computeProbability(pid, startTime, startTime + bucketLength,
-                                          partitioningFields, 2, annotatedProbability);
+                model->computeProbability(pid, startTime, startTime + bucketLength, partitioningFields, 2, annotatedProbability);
 
                 std::string person = model->personName(pid);
                 TDoubleStrPrVec attributes;
-                for (std::size_t j = 0u; j < annotatedProbability.s_AttributeProbabilities.size(); ++j)
-                {
+                for (std::size_t j = 0u; j < annotatedProbability.s_AttributeProbabilities.size(); ++j) {
                     attributes.emplace_back(annotatedProbability.s_AttributeProbabilities[j].s_Probability,
                                             *annotatedProbability.s_AttributeProbabilities[j].s_Attribute);
                 }
@@ -589,8 +510,7 @@ void CEventRatePopulationModelTest::testComputeProbability()
     LOG_DEBUG("Anomalies = " << anomalies.print());
 
     TAnomalyVec orderedAnomalies;
-    for (std::size_t i = 0u; i < anomalies.count(); ++i)
-    {
+    for (std::size_t i = 0u; i < anomalies.count(); ++i) {
         orderedAnomalies.push_back(anomalies[i].second);
     }
 
@@ -598,25 +518,20 @@ void CEventRatePopulationModelTest::testComputeProbability()
 
     LOG_DEBUG("orderedAnomalies = " << core::CContainerPrinter::print(orderedAnomalies));
 
-    std::string expectedAnomalies[] =
-    {
-            std::string("[10, p1, c0]"),
-            std::string("[15, p11, c0]"),
-            std::string("[30, p4, c2]"),
-            std::string("[35, p5, c2]"),
-            std::string("[50, p11, c0]"),
-            std::string("[75, p5, c2]")
-    };
+    std::string expectedAnomalies[] = {std::string("[10, p1, c0]"),
+                                       std::string("[15, p11, c0]"),
+                                       std::string("[30, p4, c2]"),
+                                       std::string("[35, p5, c2]"),
+                                       std::string("[50, p11, c0]"),
+                                       std::string("[75, p5, c2]")};
 
     CPPUNIT_ASSERT_EQUAL(boost::size(expectedAnomalies), orderedAnomalies.size());
-    for (std::size_t i = 0u; i < orderedAnomalies.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < orderedAnomalies.size(); ++i) {
         CPPUNIT_ASSERT_EQUAL(expectedAnomalies[i], orderedAnomalies[i].print());
     }
 }
 
-void CEventRatePopulationModelTest::testPrune()
-{
+void CEventRatePopulationModelTest::testPrune() {
     LOG_DEBUG("*** testPrune ***");
 
     // This test has four people and five attributes. We expect
@@ -630,29 +545,10 @@ void CEventRatePopulationModelTest::testPrune()
     const core_t::TTime bucketLength = 3600;
     const std::size_t numberBuckets = 1000u;
 
-    std::string people[] =
-        {
-            std::string("p1"),
-            std::string("p2"),
-            std::string("p3"),
-            std::string("p4")
-        };
-    std::string attributes[] =
-        {
-            std::string("c1"),
-            std::string("c2"),
-            std::string("c3"),
-            std::string("c4"),
-            std::string("c5")
-        };
+    std::string people[] = {std::string("p1"), std::string("p2"), std::string("p3"), std::string("p4")};
+    std::string attributes[] = {std::string("c1"), std::string("c2"), std::string("c3"), std::string("c4"), std::string("c5")};
 
-    TStrSizePrVecVec eventCounts[] =
-        {
-            TStrSizePrVecVec(),
-            TStrSizePrVecVec(),
-            TStrSizePrVecVec(),
-            TStrSizePrVecVec()
-        };
+    TStrSizePrVecVec eventCounts[] = {TStrSizePrVecVec(), TStrSizePrVecVec(), TStrSizePrVecVec(), TStrSizePrVecVec()};
     {
         TStrSizePrVec attributeCounts;
         attributeCounts.push_back(TStrSizePr(attributes[0], 0));
@@ -699,8 +595,8 @@ void CEventRatePopulationModelTest::testPrune()
         eventCounts[3][70][0].second = 4; // p4, bucket 70, c2
     }
 
-    const std::string expectedPeople[] = { people[0], people[2], people[3] };
-    const std::string expectedAttributes[] = { attributes[2], attributes[3] };
+    const std::string expectedPeople[] = {people[0], people[2], people[3]};
+    const std::string expectedAttributes[] = {attributes[2], attributes[3]};
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.01;
@@ -720,26 +616,19 @@ void CEventRatePopulationModelTest::testPrune()
     CPPUNIT_ASSERT(expectedModel);
 
     TMessageVec messages;
-    for (std::size_t i = 0u; i < boost::size(people); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(people); ++i) {
         core_t::TTime bucketStart = startTime;
-        for (std::size_t j = 0u; j < numberBuckets; ++j, bucketStart += bucketLength)
-        {
-            const TStrSizePrVec &attributeEventCounts = eventCounts[i][j];
-            for (std::size_t k = 0u; k < attributeEventCounts.size(); ++k)
-            {
-                if (attributeEventCounts[k].second == 0)
-                {
+        for (std::size_t j = 0u; j < numberBuckets; ++j, bucketStart += bucketLength) {
+            const TStrSizePrVec& attributeEventCounts = eventCounts[i][j];
+            for (std::size_t k = 0u; k < attributeEventCounts.size(); ++k) {
+                if (attributeEventCounts[k].second == 0) {
                     continue;
                 }
                 std::size_t n = attributeEventCounts[k].second;
                 core_t::TTime time = bucketStart;
                 core_t::TTime dt = bucketLength / static_cast<core_t::TTime>(n);
-                for (std::size_t l = 0u; l < n; ++l, time += dt)
-                {
-                    messages.push_back(SMessage(time,
-                                                people[i],
-                                                attributeEventCounts[k].first));
+                for (std::size_t l = 0u; l < n; ++l, time += dt) {
+                    messages.push_back(SMessage(time, people[i], attributeEventCounts[k].first));
                 }
             }
         }
@@ -748,24 +637,16 @@ void CEventRatePopulationModelTest::testPrune()
 
     TMessageVec expectedMessages;
     expectedMessages.reserve(messages.size());
-    for (std::size_t i = 0u; i < messages.size(); ++i)
-    {
-        if (   std::binary_search(boost::begin(expectedPeople),
-                                  boost::end(expectedPeople),
-                                  messages[i].s_Person)
-            && std::binary_search(boost::begin(expectedAttributes),
-                                  boost::end(expectedAttributes),
-                                  messages[i].s_Attribute))
-        {
+    for (std::size_t i = 0u; i < messages.size(); ++i) {
+        if (std::binary_search(boost::begin(expectedPeople), boost::end(expectedPeople), messages[i].s_Person) &&
+            std::binary_search(boost::begin(expectedAttributes), boost::end(expectedAttributes), messages[i].s_Attribute)) {
             expectedMessages.push_back(messages[i]);
         }
     }
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < messages.size(); ++i)
-    {
-        if (messages[i].s_Time >= bucketStart + bucketLength)
-        {
+    for (std::size_t i = 0u; i < messages.size(); ++i) {
+        if (messages[i].s_Time >= bucketStart + bucketLength) {
             model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
             bucketStart += bucketLength;
         }
@@ -778,10 +659,8 @@ void CEventRatePopulationModelTest::testPrune()
     CPPUNIT_ASSERT_EQUAL(maxDimensionBeforePrune, maxDimensionAfterPrune);
 
     bucketStart = startTime;
-    for (std::size_t i = 0u; i < expectedMessages.size(); ++i)
-    {
-        if (expectedMessages[i].s_Time >= bucketStart + bucketLength)
-        {
+    for (std::size_t i = 0u; i < expectedMessages.size(); ++i) {
+        if (expectedMessages[i].s_Time >= bucketStart + bucketLength) {
             expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
             bucketStart += bucketLength;
         }
@@ -797,15 +676,10 @@ void CEventRatePopulationModelTest::testPrune()
 
     bucketStart = gatherer->currentBucketStartTime() + bucketLength;
 
-    SMessage newMessages[] =
-        {
-            SMessage(bucketStart + 10, "p1", "c2"),
-            SMessage(bucketStart + 200, "p5", "c6"),
-            SMessage(bucketStart + 2100, "p5", "c6")
-        };
+    SMessage newMessages[] = {
+        SMessage(bucketStart + 10, "p1", "c2"), SMessage(bucketStart + 200, "p5", "c6"), SMessage(bucketStart + 2100, "p5", "c6")};
 
-    for (std::size_t i = 0u; i < boost::size(newMessages); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(newMessages); ++i) {
         addArrival(newMessages[i], gatherer, m_ResourceMonitor);
         addArrival(newMessages[i], expectedGatherer, m_ResourceMonitor);
     }
@@ -824,45 +698,31 @@ void CEventRatePopulationModelTest::testPrune()
     CPPUNIT_ASSERT_EQUAL(numberOfPeopleBeforePrune, clonedModelHolder->dataGatherer().numberActivePeople());
 }
 
-void CEventRatePopulationModelTest::testKey()
-{
+void CEventRatePopulationModelTest::testKey() {
     LOG_DEBUG("*** testKey ***");
 
-    function_t::EFunction countFunctions[] =
-        {
-            function_t::E_PopulationCount,
-            function_t::E_PopulationDistinctCount,
-            function_t::E_PopulationRare,
-            function_t::E_PopulationRareCount,
-            function_t::E_PopulationFreqRare,
-            function_t::E_PopulationFreqRareCount,
-            function_t::E_PopulationLowCounts,
-            function_t::E_PopulationHighCounts
-        };
-    bool useNull[] = { true, false };
-    std::string byField[] = { "", "by" };
-    std::string partitionField[] = { "", "partition" };
+    function_t::EFunction countFunctions[] = {function_t::E_PopulationCount,
+                                              function_t::E_PopulationDistinctCount,
+                                              function_t::E_PopulationRare,
+                                              function_t::E_PopulationRareCount,
+                                              function_t::E_PopulationFreqRare,
+                                              function_t::E_PopulationFreqRareCount,
+                                              function_t::E_PopulationLowCounts,
+                                              function_t::E_PopulationHighCounts};
+    bool useNull[] = {true, false};
+    std::string byField[] = {"", "by"};
+    std::string partitionField[] = {"", "partition"};
 
     {
         CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
 
         int identifier = 0;
-        for (std::size_t i = 0u; i < boost::size(countFunctions); ++i)
-        {
-            for (std::size_t j = 0u; j < boost::size(useNull); ++j)
-            {
-                for (std::size_t k = 0u; k < boost::size(byField); ++k)
-                {
-                    for (std::size_t l = 0u; l < boost::size(partitionField); ++l)
-                    {
-                        CSearchKey key(++identifier,
-                                       countFunctions[i],
-                                       useNull[j],
-                                       model_t::E_XF_None,
-                                       "",
-                                       byField[k],
-                                       "over",
-                                       partitionField[l]);
+        for (std::size_t i = 0u; i < boost::size(countFunctions); ++i) {
+            for (std::size_t j = 0u; j < boost::size(useNull); ++j) {
+                for (std::size_t k = 0u; k < boost::size(byField); ++k) {
+                    for (std::size_t l = 0u; l < boost::size(partitionField); ++l) {
+                        CSearchKey key(
+                            ++identifier, countFunctions[i], useNull[j], model_t::E_XF_None, "", byField[k], "over", partitionField[l]);
 
                         CAnomalyDetectorModelConfig::TModelFactoryCPtr factory = config.factory(key);
 
@@ -876,8 +736,7 @@ void CEventRatePopulationModelTest::testKey()
     }
 }
 
-void CEventRatePopulationModelTest::testFrequency()
-{
+void CEventRatePopulationModelTest::testFrequency() {
     LOG_DEBUG("*** CEventRatePopulationModelTest::testFrequency ***");
 
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -885,27 +744,19 @@ void CEventRatePopulationModelTest::testFrequency()
     // Test we correctly compute frequencies for people and attributes.
 
     const core_t::TTime bucketLength = 600;
-    const std::string attributes[] = { "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10" };
-    const std::string people[] = { "p1",  "p2",  "p3",  "p4",  "p5",  "p6",  "p7",  "p8",  "p9", "p10" };
-    std::size_t period[] = { 1u, 1u, 10u, 3u, 4u, 5u, 2u, 1u, 3u, 7u };
+    const std::string attributes[] = {"a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10"};
+    const std::string people[] = {"p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"};
+    std::size_t period[] = {1u, 1u, 10u, 3u, 4u, 5u, 2u, 1u, 3u, 7u};
 
     core_t::TTime startTime = 0;
 
     TMessageVec messages;
     std::size_t bucket = 0u;
-    for (core_t::TTime bucketStart = startTime;
-         bucketStart < 100 * bucketLength;
-         bucketStart += bucketLength, ++bucket)
-    {
-        for (std::size_t i = 0u; i < boost::size(people); ++i)
-        {
-            if (bucket % period[i] == 0)
-            {
-                for (std::size_t j = 0u; j < i+1; ++j)
-                {
-                    messages.push_back(SMessage(bucketStart + bucketLength / 2,
-                                                people[i],
-                                                attributes[j]));
+    for (core_t::TTime bucketStart = startTime; bucketStart < 100 * bucketLength; bucketStart += bucketLength, ++bucket) {
+        for (std::size_t i = 0u; i < boost::size(people); ++i) {
+            if (bucket % period[i] == 0) {
+                for (std::size_t j = 0u; j < i + 1; ++j) {
+                    messages.push_back(SMessage(bucketStart + bucketLength / 2, people[i], attributes[j]));
                 }
             }
         }
@@ -923,20 +774,17 @@ void CEventRatePopulationModelTest::testFrequency()
     factory.features(features);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
-    const model::CDataGatherer &populationGatherer(dynamic_cast<const model::CDataGatherer&>(*gatherer));
+    const model::CDataGatherer& populationGatherer(dynamic_cast<const model::CDataGatherer&>(*gatherer));
 
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
 
-    CEventRatePopulationModel *populationModel =
-            dynamic_cast<CEventRatePopulationModel*>(model.get());
+    CEventRatePopulationModel* populationModel = dynamic_cast<CEventRatePopulationModel*>(model.get());
     CPPUNIT_ASSERT(populationModel != 0);
 
     core_t::TTime time = startTime;
-    for (const auto &message : messages)
-    {
-        if (message.s_Time >= time + bucketLength)
-        {
+    for (const auto& message : messages) {
+        if (message.s_Time >= time + bucketLength) {
             populationModel->sample(time, time + bucketLength, m_ResourceMonitor);
             time += bucketLength;
         }
@@ -945,38 +793,32 @@ void CEventRatePopulationModelTest::testFrequency()
 
     {
         TMeanAccumulator meanError;
-        for (std::size_t i = 0u; i < boost::size(people); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(people); ++i) {
             LOG_DEBUG("*** person = " << people[i] << " ***");
             std::size_t pid;
             CPPUNIT_ASSERT(gatherer->personId(people[i], pid));
             LOG_DEBUG("frequency = " << populationModel->personFrequency(pid));
             LOG_DEBUG("expected frequency = " << 1.0 / static_cast<double>(period[i]));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0 / static_cast<double>(period[i]),
-                                         populationModel->personFrequency(pid),
-                                         0.1 / static_cast<double>(period[i]));
-            meanError.add(std::fabs(  populationModel->personFrequency(pid)
-                                 - 1.0 / static_cast<double>(period[i])));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                1.0 / static_cast<double>(period[i]), populationModel->personFrequency(pid), 0.1 / static_cast<double>(period[i]));
+            meanError.add(std::fabs(populationModel->personFrequency(pid) - 1.0 / static_cast<double>(period[i])));
         }
         LOG_DEBUG("error = " << maths::CBasicStatistics::mean(meanError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.002);
     }
     {
-        for (std::size_t i = 0u; i < boost::size(attributes); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(attributes); ++i) {
             LOG_DEBUG("*** attribute = " << attributes[i] << " ***");
             std::size_t cid;
             CPPUNIT_ASSERT(populationGatherer.attributeId(attributes[i], cid));
             LOG_DEBUG("frequency = " << populationModel->attributeFrequency(cid));
             LOG_DEBUG("expected frequency = " << (10.0 - static_cast<double>(i)) / 10.0);
-            CPPUNIT_ASSERT_EQUAL((10.0 - static_cast<double>(i)) / 10.0,
-                                 populationModel->attributeFrequency(cid));
+            CPPUNIT_ASSERT_EQUAL((10.0 - static_cast<double>(i)) / 10.0, populationModel->attributeFrequency(cid));
         }
     }
 }
 
-void CEventRatePopulationModelTest::testSampleRateWeight()
-{
+void CEventRatePopulationModelTest::testSampleRateWeight() {
     LOG_DEBUG("*** CEventRatePopulationModelTest::testSampleRateWeight ***");
 
     // Test that we correctly compensate for heavy hitters.
@@ -988,11 +830,11 @@ void CEventRatePopulationModelTest::testSampleRateWeight()
     // one message per attribute per 10 buckets.
 
     const core_t::TTime bucketLength = 600;
-    const std::string attributes[] = { "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10" };
-    const std::string people[] = {  "p1",  "p2",  "p3",  "p4",  "p5",  "p6",  "p7",  "p8",  "p9", "p10",
-                                   "p11", "p12", "p13", "p14", "p15", "p16", "p17", "p18", "p19", "p20" };
-    std::size_t heavyHitters[] = { 0u, 4u };
-    std::size_t normal[] = { 1u, 2u, 3u, 5u, 6u, 7u, 8u, 9u, 10u, 11u, 12u, 13u, 14u, 15u, 16u, 17u, 18u, 19u };
+    const std::string attributes[] = {"a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10"};
+    const std::string people[] = {"p1",  "p2",  "p3",  "p4",  "p5",  "p6",  "p7",  "p8",  "p9",  "p10",
+                                  "p11", "p12", "p13", "p14", "p15", "p16", "p17", "p18", "p19", "p20"};
+    std::size_t heavyHitters[] = {0u, 4u};
+    std::size_t normal[] = {1u, 2u, 3u, 5u, 6u, 7u, 8u, 9u, 10u, 11u, 12u, 13u, 14u, 15u, 16u, 17u, 18u, 19u};
 
     std::size_t messagesPerBucket = boost::size(heavyHitters) * boost::size(attributes) + boost::size(normal);
 
@@ -1001,36 +843,22 @@ void CEventRatePopulationModelTest::testSampleRateWeight()
     core_t::TTime startTime = 0;
 
     TMessageVec messages;
-    for (core_t::TTime bucketStart = startTime;
-         bucketStart < 100 * bucketLength;
-         bucketStart += bucketLength)
-    {
+    for (core_t::TTime bucketStart = startTime; bucketStart < 100 * bucketLength; bucketStart += bucketLength) {
         TSizeVec times;
-        rng.generateUniformSamples(static_cast<std::size_t>(bucketStart),
-                                   static_cast<std::size_t>(bucketStart + bucketLength),
-                                   messagesPerBucket,
-                                   times);
+        rng.generateUniformSamples(
+            static_cast<std::size_t>(bucketStart), static_cast<std::size_t>(bucketStart + bucketLength), messagesPerBucket, times);
 
         std::size_t m = 0u;
-        for (std::size_t i = 0u; i < boost::size(attributes); ++i)
-        {
-            for (std::size_t j = 0u; j < boost::size(heavyHitters); ++j)
-            {
-                messages.push_back(SMessage(static_cast<core_t::TTime>(times[m++]),
-                                            people[heavyHitters[j]],
-                                            attributes[i]));
+        for (std::size_t i = 0u; i < boost::size(attributes); ++i) {
+            for (std::size_t j = 0u; j < boost::size(heavyHitters); ++j) {
+                messages.push_back(SMessage(static_cast<core_t::TTime>(times[m++]), people[heavyHitters[j]], attributes[i]));
             }
         }
 
         TSizeVec attributeIndexes;
-        rng.generateUniformSamples(0, boost::size(attributes),
-                                   boost::size(normal),
-                                   attributeIndexes);
-        for (std::size_t i = 0u; i < boost::size(normal); ++i)
-        {
-            messages.push_back(SMessage(static_cast<core_t::TTime>(times[m++]),
-                                        people[normal[i]],
-                                        attributes[attributeIndexes[i]]));
+        rng.generateUniformSamples(0, boost::size(attributes), boost::size(normal), attributeIndexes);
+        for (std::size_t i = 0u; i < boost::size(normal); ++i) {
+            messages.push_back(SMessage(static_cast<core_t::TTime>(times[m++]), people[normal[i]], attributes[attributeIndexes[i]]));
         }
     }
 
@@ -1049,15 +877,12 @@ void CEventRatePopulationModelTest::testSampleRateWeight()
 
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
-    CEventRatePopulationModel *populationModel =
-            dynamic_cast<CEventRatePopulationModel*>(model.get());
+    CEventRatePopulationModel* populationModel = dynamic_cast<CEventRatePopulationModel*>(model.get());
     CPPUNIT_ASSERT(populationModel != 0);
 
     core_t::TTime time = startTime;
-    for (const auto &message : messages)
-    {
-        if (message.s_Time >= time + bucketLength)
-        {
+    for (const auto& message : messages) {
+        if (message.s_Time >= time + bucketLength) {
             populationModel->sample(time, time + bucketLength, m_ResourceMonitor);
             time += bucketLength;
         }
@@ -1071,45 +896,35 @@ void CEventRatePopulationModelTest::testSampleRateWeight()
     //      + ("# heavy hitters"))
     //   / "# people"
 
-    double expectedRateWeight =   (  static_cast<double>(boost::size(normal))
-                                   / static_cast<double>(boost::size(attributes))
-                                   + static_cast<double>(boost::size(heavyHitters)))
-                                / static_cast<double>(boost::size(people));
+    double expectedRateWeight = (static_cast<double>(boost::size(normal)) / static_cast<double>(boost::size(attributes)) +
+                                 static_cast<double>(boost::size(heavyHitters))) /
+                                static_cast<double>(boost::size(people));
     LOG_DEBUG("expectedRateWeight = " << expectedRateWeight);
 
-    for (std::size_t i = 0u; i < boost::size(heavyHitters); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(heavyHitters); ++i) {
         LOG_DEBUG("*** person = " << people[heavyHitters[i]] << " ***");
         std::size_t pid;
         CPPUNIT_ASSERT(gatherer->personId(people[heavyHitters[i]], pid));
-        for (std::size_t cid = 0u; cid < boost::size(attributes); ++cid)
-        {
+        for (std::size_t cid = 0u; cid < boost::size(attributes); ++cid) {
             double sampleRateWeight = populationModel->sampleRateWeight(pid, cid);
-            LOG_DEBUG("attribute = " << populationModel->attributeName(cid)
-                      << ", sampleRateWeight = " << sampleRateWeight);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedRateWeight,
-                                         sampleRateWeight,
-                                         0.15 * expectedRateWeight);
+            LOG_DEBUG("attribute = " << populationModel->attributeName(cid) << ", sampleRateWeight = " << sampleRateWeight);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedRateWeight, sampleRateWeight, 0.15 * expectedRateWeight);
         }
     }
 
-    for (std::size_t i = 0u; i < boost::size(normal); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(normal); ++i) {
         LOG_DEBUG("*** person = " << people[normal[i]] << " ***");
         std::size_t pid;
         CPPUNIT_ASSERT(gatherer->personId(people[normal[i]], pid));
-        for (std::size_t cid = 0u; cid < boost::size(attributes); ++cid)
-        {
+        for (std::size_t cid = 0u; cid < boost::size(attributes); ++cid) {
             double sampleRateWeight = populationModel->sampleRateWeight(pid, cid);
-            LOG_DEBUG("attribute = " << populationModel->attributeName(cid)
-                      << ", sampleRateWeight = " << sampleRateWeight);
+            LOG_DEBUG("attribute = " << populationModel->attributeName(cid) << ", sampleRateWeight = " << sampleRateWeight);
             CPPUNIT_ASSERT_EQUAL(1.0, sampleRateWeight);
         }
     }
 }
 
-void CEventRatePopulationModelTest::testPeriodicity()
-{
+void CEventRatePopulationModelTest::testPeriodicity() {
     LOG_DEBUG("*** testPeriodicity ***");
 
     // Create a daily periodic population and check that the
@@ -1122,15 +937,10 @@ void CEventRatePopulationModelTest::testPeriodicity()
     static const core_t::TTime DAY = 86400;
 
     const core_t::TTime bucketLength = 3600;
-    double rate[] =
-        {
-             1,  1,  2,  2,  3,  5,  6,  6,
-            20, 21,  4,  3,  4,  4,  8, 25,
-             7,  6,  5,  1,  1,  4,  1,  1
-        };
-    const std::string attributes[] = { "a1", "a2" };
-    double scales[] = { 1.0, 1.5 };
-    const std::string people[] = {  "p1",  "p2",  "p3",  "p4",  "p5",  "p6",  "p7",  "p8",  "p9", "p10" };
+    double rate[] = {1, 1, 2, 2, 3, 5, 6, 6, 20, 21, 4, 3, 4, 4, 8, 25, 7, 6, 5, 1, 1, 4, 1, 1};
+    const std::string attributes[] = {"a1", "a2"};
+    double scales[] = {1.0, 1.5};
+    const std::string people[] = {"p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"};
 
     test::CRandomNumbers rng;
 
@@ -1138,24 +948,14 @@ void CEventRatePopulationModelTest::testPeriodicity()
     core_t::TTime endTime = 604800;
 
     TMessageVec messages;
-    for (core_t::TTime time = startTime;
-         time < endTime;
-         time += bucketLength)
-    {
-        for (std::size_t i = 0u; i < boost::size(attributes); ++i)
-        {
+    for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
+        for (std::size_t i = 0u; i < boost::size(attributes); ++i) {
             TUIntVec rates;
-            rng.generatePoissonSamples(scales[i] * rate[(time % DAY) / HOUR],
-                                       boost::size(people),
-                                       rates);
+            rng.generatePoissonSamples(scales[i] * rate[(time % DAY) / HOUR], boost::size(people), rates);
 
-            for (std::size_t j = 0u; j < rates.size(); ++j)
-            {
-                for (unsigned int t = 0; t < rates[j]; ++t)
-                {
-                    messages.push_back(SMessage(time + (t * bucketLength) / (rates[j] + 1),
-                                                people[j],
-                                                attributes[i]));
+            for (std::size_t j = 0u; j < rates.size(); ++j) {
+                for (unsigned int t = 0; t < rates[j]; ++t) {
+                    messages.push_back(SMessage(time + (t * bucketLength) / (rates[j] + 1), people[j], attributes[i]));
                 }
             }
         }
@@ -1176,48 +976,37 @@ void CEventRatePopulationModelTest::testPeriodicity()
 
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
-    CEventRatePopulationModel *populationModel =
-            dynamic_cast<CEventRatePopulationModel*>(model.get());
+    CEventRatePopulationModel* populationModel = dynamic_cast<CEventRatePopulationModel*>(model.get());
     CPPUNIT_ASSERT(populationModel != 0);
 
     TStrDoubleMap personProbabilitiesWithoutPeriodicity;
     TStrDoubleMap personProbabilitiesWithPeriodicity;
 
     core_t::TTime time = startTime;
-    for (const auto &message : messages)
-    {
-        if (message.s_Time >= time + bucketLength)
-        {
+    for (const auto& message : messages) {
+        if (message.s_Time >= time + bucketLength) {
             populationModel->sample(time, time + bucketLength, m_ResourceMonitor);
 
-            for (std::size_t j = 0u; j < boost::size(people); ++j)
-            {
+            for (std::size_t j = 0u; j < boost::size(people); ++j) {
                 std::size_t pid;
-                if (!gatherer->personId(people[j], pid))
-                {
+                if (!gatherer->personId(people[j], pid)) {
                     continue;
                 }
 
                 CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
                 SAnnotatedProbability annotatedProbability;
-                if (populationModel->computeProbability(pid, time, time + bucketLength,
-                                                        partitioningFields, 1, annotatedProbability) == false)
-                {
+                if (populationModel->computeProbability(pid, time, time + bucketLength, partitioningFields, 1, annotatedProbability) ==
+                    false) {
                     continue;
                 }
 
-                if (time < startTime + 3 * DAY)
-                {
-                    double &minimumProbability =
-                            personProbabilitiesWithoutPeriodicity.insert(
-                                    TStrDoubleMap::value_type(people[j], 1.0)).first->second;
+                if (time < startTime + 3 * DAY) {
+                    double& minimumProbability =
+                        personProbabilitiesWithoutPeriodicity.insert(TStrDoubleMap::value_type(people[j], 1.0)).first->second;
                     minimumProbability = std::min(minimumProbability, annotatedProbability.s_Probability);
-                }
-                else if (time > startTime + 5 * DAY)
-                {
-                    double &minimumProbability =
-                            personProbabilitiesWithPeriodicity.insert(
-                                    TStrDoubleMap::value_type(people[j], 1.0)).first->second;
+                } else if (time > startTime + 5 * DAY) {
+                    double& minimumProbability =
+                        personProbabilitiesWithPeriodicity.insert(TStrDoubleMap::value_type(people[j], 1.0)).first->second;
                     minimumProbability = std::min(minimumProbability, annotatedProbability.s_Probability);
                 }
             }
@@ -1227,18 +1016,17 @@ void CEventRatePopulationModelTest::testPeriodicity()
         addArrival(message, gatherer, m_ResourceMonitor);
     }
 
-    double totalw  = 0.0;
+    double totalw = 0.0;
     double totalwo = 0.0;
 
-    for (std::size_t i = 0u; i < boost::size(people); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(people); ++i) {
         TStrDoubleMapCItr wo = personProbabilitiesWithoutPeriodicity.find(people[i]);
-        TStrDoubleMapCItr w  = personProbabilitiesWithPeriodicity.find(people[i]);
+        TStrDoubleMapCItr w = personProbabilitiesWithPeriodicity.find(people[i]);
         LOG_DEBUG("person = " << people[i]);
         LOG_DEBUG("minimum probability with periodicity    = " << w->second);
         LOG_DEBUG("minimum probability without periodicity = " << wo->second);
         totalwo += wo->second;
-        totalw  += w->second;
+        totalw += w->second;
     }
 
     LOG_DEBUG("total minimum probability with periodicity    = " << totalw);
@@ -1246,8 +1034,7 @@ void CEventRatePopulationModelTest::testPeriodicity()
     CPPUNIT_ASSERT(totalw > 3.0 * totalwo);
 }
 
-void CEventRatePopulationModelTest::testSkipSampling()
-{
+void CEventRatePopulationModelTest::testSkipSampling() {
     LOG_DEBUG("*** testSkipSampling ***");
 
     core_t::TTime startTime(100);
@@ -1263,7 +1050,7 @@ void CEventRatePopulationModelTest::testSkipSampling()
     CModelFactory::TDataGathererPtr gathererNoGap(factory.makeDataGatherer(gathererNoGapInitData));
     CModelFactory::SModelInitializationData modelNoGapInitData(gathererNoGap);
     CAnomalyDetectorModel::TModelPtr modelNoGapHolder(factory.makeModel(modelNoGapInitData));
-    CEventRatePopulationModel *modelNoGap = dynamic_cast<CEventRatePopulationModel*>(modelNoGapHolder.get());
+    CEventRatePopulationModel* modelNoGap = dynamic_cast<CEventRatePopulationModel*>(modelNoGapHolder.get());
 
     addArrival(SMessage(100, "p1", "a1"), gathererNoGap, m_ResourceMonitor);
     addArrival(SMessage(100, "p1", "a2"), gathererNoGap, m_ResourceMonitor);
@@ -1278,7 +1065,7 @@ void CEventRatePopulationModelTest::testSkipSampling()
     CModelFactory::TDataGathererPtr gathererWithGap(factory.makeDataGatherer(gathererWithGapInitData));
     CModelFactory::SModelInitializationData modelWithGapInitData(gathererWithGap);
     CAnomalyDetectorModel::TModelPtr modelWithGapHolder(factory.makeModel(modelWithGapInitData));
-    CEventRatePopulationModel *modelWithGap = dynamic_cast<CEventRatePopulationModel*>(modelWithGapHolder.get());
+    CEventRatePopulationModel* modelWithGap = dynamic_cast<CEventRatePopulationModel*>(modelWithGapHolder.get());
 
     addArrival(SMessage(100, "p1", "a1"), gathererWithGap, m_ResourceMonitor);
     addArrival(SMessage(100, "p1", "a2"), gathererWithGap, m_ResourceMonitor);
@@ -1300,16 +1087,22 @@ void CEventRatePopulationModelTest::testSkipSampling()
     modelWithGap->sample(1100, 1200, m_ResourceMonitor);
 
     // Check priors are the same
-    CPPUNIT_ASSERT_EQUAL(
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))->prior().checksum(),
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))->prior().checksum());
-    CPPUNIT_ASSERT_EQUAL(
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))->prior().checksum(),
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))->prior().checksum());
+    CPPUNIT_ASSERT_EQUAL(static_cast<const maths::CUnivariateTimeSeriesModel*>(
+                             modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))
+                             ->prior()
+                             .checksum(),
+                         static_cast<const maths::CUnivariateTimeSeriesModel*>(
+                             modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))
+                             ->prior()
+                             .checksum());
+    CPPUNIT_ASSERT_EQUAL(static_cast<const maths::CUnivariateTimeSeriesModel*>(
+                             modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))
+                             ->prior()
+                             .checksum(),
+                         static_cast<const maths::CUnivariateTimeSeriesModel*>(
+                             modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))
+                             ->prior()
+                             .checksum());
 
     // Confirm last seen times are only updated by gap duration by forcing p2 and a2 to be pruned
     modelWithGap->sample(1200, 1500, m_ResourceMonitor);
@@ -1323,8 +1116,7 @@ void CEventRatePopulationModelTest::testSkipSampling()
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), gathererWithGap->numberActiveAttributes());
 }
 
-void CEventRatePopulationModelTest::testInterimCorrections()
-{
+void CEventRatePopulationModelTest::testInterimCorrections() {
     LOG_DEBUG("*** testInterimCorrections ***");
 
     core_t::TTime startTime(3600);
@@ -1338,40 +1130,33 @@ void CEventRatePopulationModelTest::testInterimCorrections()
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr modelHolder(factory.makeModel(modelInitData));
-    CEventRatePopulationModel *model = dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
+    CEventRatePopulationModel* model = dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
 
     test::CRandomNumbers rng;
     core_t::TTime now = startTime;
     core_t::TTime endTime = now + 2 * 24 * bucketLength;
     TDoubleVec samples(3, 0.0);
-    while (now < endTime)
-    {
+    while (now < endTime) {
         rng.generateUniformSamples(50.0, 70.0, std::size_t(3), samples);
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
             addArrival(SMessage(now, "p1", "a1"), gatherer, m_ResourceMonitor);
         }
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[1] + 0.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[1] + 0.5); ++i) {
             addArrival(SMessage(now, "p2", "a1"), gatherer, m_ResourceMonitor);
         }
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[2] + 0.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[2] + 0.5); ++i) {
             addArrival(SMessage(now, "p3", "a2"), gatherer, m_ResourceMonitor);
         }
         model->sample(now, now + bucketLength, m_ResourceMonitor);
         now += bucketLength;
     }
-    for (std::size_t i = 0; i < 35; ++i)
-    {
+    for (std::size_t i = 0; i < 35; ++i) {
         addArrival(SMessage(now, "p1", "a1"), gatherer, m_ResourceMonitor);
     }
-    for (std::size_t i = 0; i < 1; ++i)
-    {
+    for (std::size_t i = 0; i < 1; ++i) {
         addArrival(SMessage(now, "p2", "a1"), gatherer, m_ResourceMonitor);
     }
-    for (std::size_t i = 0; i < 100; ++i)
-    {
+    for (std::size_t i = 0; i < 100; ++i) {
         addArrival(SMessage(now, "p3", "a2"), gatherer, m_ResourceMonitor);
     }
     model->sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
@@ -1379,24 +1164,21 @@ void CEventRatePopulationModelTest::testInterimCorrections()
     CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
     SAnnotatedProbability annotatedProbability1;
     annotatedProbability1.s_ResultType.set(model_t::CResultType::E_Interim);
-    CPPUNIT_ASSERT(model->computeProbability(0/*pid*/, now, now + bucketLength,
-                                             partitioningFields, 1, annotatedProbability1));
+    CPPUNIT_ASSERT(model->computeProbability(0 /*pid*/, now, now + bucketLength, partitioningFields, 1, annotatedProbability1));
     SAnnotatedProbability annotatedProbability2;
     annotatedProbability2.s_ResultType.set(model_t::CResultType::E_Interim);
-    CPPUNIT_ASSERT(model->computeProbability(1/*pid*/, now, now + bucketLength,
-                                             partitioningFields, 1, annotatedProbability2));
+    CPPUNIT_ASSERT(model->computeProbability(1 /*pid*/, now, now + bucketLength, partitioningFields, 1, annotatedProbability2));
     SAnnotatedProbability annotatedProbability3;
     annotatedProbability3.s_ResultType.set(model_t::CResultType::E_Interim);
-    CPPUNIT_ASSERT(model->computeProbability(2/*pid*/, now, now + bucketLength,
-                                             partitioningFields, 1, annotatedProbability3));
+    CPPUNIT_ASSERT(model->computeProbability(2 /*pid*/, now, now + bucketLength, partitioningFields, 1, annotatedProbability3));
 
     model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
-    TDouble1Vec p1a1Baseline = model->baselineBucketMean(model_t::E_PopulationCountByBucketPersonAndAttribute,
-                                                         0, 0, type, NO_CORRELATES, now);
-    TDouble1Vec p2a1Baseline = model->baselineBucketMean(model_t::E_PopulationCountByBucketPersonAndAttribute,
-                                                         0, 0, type, NO_CORRELATES, now);
-    TDouble1Vec p3a2Baseline = model->baselineBucketMean(model_t::E_PopulationCountByBucketPersonAndAttribute,
-                                                         2, 1, type, NO_CORRELATES, now);
+    TDouble1Vec p1a1Baseline =
+        model->baselineBucketMean(model_t::E_PopulationCountByBucketPersonAndAttribute, 0, 0, type, NO_CORRELATES, now);
+    TDouble1Vec p2a1Baseline =
+        model->baselineBucketMean(model_t::E_PopulationCountByBucketPersonAndAttribute, 0, 0, type, NO_CORRELATES, now);
+    TDouble1Vec p3a2Baseline =
+        model->baselineBucketMean(model_t::E_PopulationCountByBucketPersonAndAttribute, 2, 1, type, NO_CORRELATES, now);
 
     LOG_DEBUG("p1 probability = " << annotatedProbability1.s_Probability);
     LOG_DEBUG("p2 probability = " << annotatedProbability2.s_Probability);
@@ -1413,8 +1195,7 @@ void CEventRatePopulationModelTest::testInterimCorrections()
     CPPUNIT_ASSERT(p3a2Baseline[0] > 59.0 && p3a2Baseline[0] < 61.0);
 }
 
-void CEventRatePopulationModelTest::testPersistence()
-{
+void CEventRatePopulationModelTest::testPersistence() {
     LOG_DEBUG("*** testPersistence ***");
 
     core_t::TTime startTime = 1367280000;
@@ -1436,14 +1217,11 @@ void CEventRatePopulationModelTest::testPersistence()
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr origModel(factory.makeModel(modelInitData));
 
-    CEventRatePopulationModel *populationModel =
-            dynamic_cast<CEventRatePopulationModel*>(origModel.get());
+    CEventRatePopulationModel* populationModel = dynamic_cast<CEventRatePopulationModel*>(origModel.get());
     CPPUNIT_ASSERT(populationModel != 0);
 
-    for (const auto &message : messages)
-    {
-        if (message.s_Time >= startTime + bucketLength)
-        {
+    for (const auto& message : messages) {
+        if (message.s_Time >= startTime + bucketLength) {
             origModel->sample(startTime, startTime + bucketLength, m_ResourceMonitor);
             startTime += bucketLength;
         }
@@ -1485,8 +1263,7 @@ void CEventRatePopulationModelTest::testPersistence()
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules()
-{
+void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
     LOG_DEBUG("*** testIgnoreSamplingGivenDetectionRules ***");
 
     // Create 2 models, one of which has a skip sampling rule.
@@ -1497,7 +1274,6 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules()
 
     core_t::TTime startTime(100);
     std::size_t bucketLength(100);
-
 
     // Create a categorical rule to filter out attribute a3
     std::string filterJson("[\"a3\"]");
@@ -1544,7 +1320,6 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules()
 
     CPPUNIT_ASSERT_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
-
     addArrival(SMessage(200, "p1", "a1"), gathererNoSkip, m_ResourceMonitor);
     addArrival(SMessage(200, "p1", "a1"), gathererWithSkip, m_ResourceMonitor);
     addArrival(SMessage(200, "p1", "a2"), gathererNoSkip, m_ResourceMonitor);
@@ -1561,7 +1336,6 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules()
     addArrival(SMessage(200, "p1", "a4"), gathererWithSkip, m_ResourceMonitor);
     addArrival(SMessage(200, "p2", "a4"), gathererNoSkip, m_ResourceMonitor);
     addArrival(SMessage(200, "p2", "a4"), gathererWithSkip, m_ResourceMonitor);
-
 
     modelNoSkip->sample(200, 300, m_ResourceMonitor);
     modelWithSkip->sample(200, 300, m_ResourceMonitor);
@@ -1587,71 +1361,64 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules()
     noSkipChecksum = modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2)->checksum();
     CPPUNIT_ASSERT_EQUAL(withSkipChecksum, noSkipChecksum);
 
-
     // Check the last value times of all the underlying models are the same
-    const maths::CUnivariateTimeSeriesModel *timeSeriesModel =
-        dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
+    const maths::CUnivariateTimeSeriesModel* timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+        modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
     CPPUNIT_ASSERT(timeSeriesModel != 0);
 
     core_t::TTime time = timeSeriesModel->trend().lastValueTime();
     CPPUNIT_ASSERT_EQUAL(model_t::sampleTime(model_t::E_PopulationCountByBucketPersonAndAttribute, 200, bucketLength), time);
 
     // The last times of the underlying time series models should all be the same
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
+    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+        modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
     CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
+    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+        modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
     CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
 
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
+    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+        modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
     CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
+    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+        modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
     CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
+    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+        modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
     CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 3));
+    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+        modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 3));
     CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
 }
 
-CppUnit::Test *CEventRatePopulationModelTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRatePopulationModelTest");
+CppUnit::Test* CEventRatePopulationModelTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRatePopulationModelTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-                                   "CEventRatePopulationModelTest::testBasicAccessors",
-                                   &CEventRatePopulationModelTest::testBasicAccessors) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-                                   "CEventRatePopulationModelTest::testFeatures",
-                                   &CEventRatePopulationModelTest::testFeatures) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-                                   "CEventRatePopulationModelTest::testComputeProbability",
-                                   &CEventRatePopulationModelTest::testComputeProbability) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-                                   "CEventRatePopulationModelTest::testPrune",
-                                   &CEventRatePopulationModelTest::testPrune) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-                                   "CEventRatePopulationModelTest::testKey",
-                                   &CEventRatePopulationModelTest::testKey) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-                                   "CEventRatePopulationModelTest::testFrequency",
-                                   &CEventRatePopulationModelTest::testFrequency) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-                                   "CEventRatePopulationModelTest::testSampleRateWeight",
-                                   &CEventRatePopulationModelTest::testSampleRateWeight) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-                                   "CEventRatePopulationModelTest::testSkipSampling",
-                                   &CEventRatePopulationModelTest::testSkipSampling) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-                                   "CEventRatePopulationModelTest::testInterimCorrections",
-                                   &CEventRatePopulationModelTest::testInterimCorrections) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-                                   "CEventRatePopulationModelTest::testPeriodicity",
-                                   &CEventRatePopulationModelTest::testPeriodicity) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-                                   "CEventRatePopulationModelTest::testPersistence",
-                                   &CEventRatePopulationModelTest::testPersistence) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-                                   "CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules",
-                                   &CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>("CEventRatePopulationModelTest::testBasicAccessors",
+                                                                                 &CEventRatePopulationModelTest::testBasicAccessors));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>("CEventRatePopulationModelTest::testFeatures",
+                                                                                 &CEventRatePopulationModelTest::testFeatures));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>("CEventRatePopulationModelTest::testComputeProbability",
+                                                                                 &CEventRatePopulationModelTest::testComputeProbability));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>("CEventRatePopulationModelTest::testPrune",
+                                                                                 &CEventRatePopulationModelTest::testPrune));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>("CEventRatePopulationModelTest::testKey",
+                                                                                 &CEventRatePopulationModelTest::testKey));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>("CEventRatePopulationModelTest::testFrequency",
+                                                                                 &CEventRatePopulationModelTest::testFrequency));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>("CEventRatePopulationModelTest::testSampleRateWeight",
+                                                                                 &CEventRatePopulationModelTest::testSampleRateWeight));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>("CEventRatePopulationModelTest::testSkipSampling",
+                                                                                 &CEventRatePopulationModelTest::testSkipSampling));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>("CEventRatePopulationModelTest::testInterimCorrections",
+                                                                                 &CEventRatePopulationModelTest::testInterimCorrections));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>("CEventRatePopulationModelTest::testPeriodicity",
+                                                                                 &CEventRatePopulationModelTest::testPeriodicity));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>("CEventRatePopulationModelTest::testPersistence",
+                                                                                 &CEventRatePopulationModelTest::testPersistence));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CEventRatePopulationModelTest>("CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules",
+                                                               &CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules));
 
     return suiteOfTests;
 }

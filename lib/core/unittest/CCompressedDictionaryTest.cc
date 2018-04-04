@@ -18,8 +18,7 @@ using namespace ml;
 using namespace core;
 using namespace test;
 
-void CCompressedDictionaryTest::testAll()
-{
+void CCompressedDictionaryTest::testAll() {
     using TStrVec = std::vector<std::string>;
     using TDictionary = CCompressedDictionary<2>;
     using TWordUSet = TDictionary::TWordUSet;
@@ -37,8 +36,7 @@ void CCompressedDictionaryTest::testAll()
     std::string word2("word2");
     std::string word3("word3");
 
-    for (std::size_t i = 0u; i < numberTests; ++i)
-    {
+    for (std::size_t i = 0u; i < numberTests; ++i) {
         LOG_DEBUG("Collision test = " << i);
 
         rng.generateWords(wordLength, numberWords, words);
@@ -46,8 +44,7 @@ void CCompressedDictionaryTest::testAll()
         TDictionary dictionary;
 
         TWordUSet uniqueWords;
-        for (std::size_t j = 0u; j < words.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < words.size(); ++j) {
             CPPUNIT_ASSERT(uniqueWords.insert(dictionary.word(words[j])).second);
             CPPUNIT_ASSERT(uniqueWords.insert(dictionary.word(words[j], word2)).second);
             CPPUNIT_ASSERT(uniqueWords.insert(dictionary.word(words[j], word2, word3)).second);
@@ -55,8 +52,7 @@ void CCompressedDictionaryTest::testAll()
     }
 }
 
-void CCompressedDictionaryTest::testPersist()
-{
+void CCompressedDictionaryTest::testPersist() {
     using TDictionary1 = CCompressedDictionary<1>;
     using TDictionary2 = CCompressedDictionary<2>;
     using TDictionary3 = CCompressedDictionary<3>;
@@ -100,15 +96,12 @@ void CCompressedDictionaryTest::testPersist()
     }
 }
 
-CppUnit::Test *CCompressedDictionaryTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCompressedDictionaryTest");
+CppUnit::Test* CCompressedDictionaryTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCompressedDictionaryTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCompressedDictionaryTest>(
-                                   "CCompressedDictionaryTest::testAll",
-                                   &CCompressedDictionaryTest::testAll) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCompressedDictionaryTest>(
-                                   "CCompressedDictionaryTest::testPersist",
-                                   &CCompressedDictionaryTest::testPersist) );
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCompressedDictionaryTest>("CCompressedDictionaryTest::testAll", &CCompressedDictionaryTest::testAll));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressedDictionaryTest>("CCompressedDictionaryTest::testPersist",
+                                                                             &CCompressedDictionaryTest::testPersist));
     return suiteOfTests;
 }

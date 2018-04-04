@@ -8,13 +8,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAllocationStrategyTest : public CppUnit::TestFixture
-{
-    public:
-        void test();
+class CAllocationStrategyTest : public CppUnit::TestFixture {
+public:
+    void test();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CAllocationStrategyTest_h
-

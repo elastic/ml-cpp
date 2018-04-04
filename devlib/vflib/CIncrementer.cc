@@ -5,28 +5,18 @@
  */
 #include <vflib/CIncrementer.h>
 
+namespace ml {
+namespace vflib {
 
-namespace ml
-{
-namespace vflib
-{
-
-
-CIncrementer::~CIncrementer(void)
-{
+CIncrementer::~CIncrementer(void) {
 }
 
-size_t CIncrementer::nonVirtualIncrement(size_t val)
-{
+size_t CIncrementer::nonVirtualIncrement(size_t val) {
     return val + 1;
 }
 
-size_t CIncrementer::virtualIncrement(size_t val)
-{
+size_t CIncrementer::virtualIncrement(size_t val) {
     return val + 1;
 }
-
-
 }
 }
-
