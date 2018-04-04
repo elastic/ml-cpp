@@ -1517,7 +1517,7 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams &par
                                                const TTimeDouble2VecSizeTrVec &values)
 {
     std::size_t median{order[order.size() / 2]};
-    TDouble4Vec weights{unpack(params.priorWeights()[median])};
+    TDouble4Vec weights(unpack(params.priorWeights()[median]));
     core_t::TTime time{values[median].first};
 
     if (m_ChangeDetector == nullptr)
