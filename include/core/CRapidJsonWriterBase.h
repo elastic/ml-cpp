@@ -101,7 +101,7 @@ class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, 
         using TRapidJsonWriterBase = JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS>;
 
         // Instances of this class may very well be long lived, potentially for the lifetime of the application.
-        // Over the course of that lifetimme resources will accumulate in the underlying rapidjson memory
+        // Over the course of that lifetime resources will accumulate in the underlying rapidjson memory
         // allocator. To prevent excessive memory expansion these resources will need to be cleaned regularly.
         //
         // In preference to clients of this class explicitly clearing the allocator a helper/wrapper class -
