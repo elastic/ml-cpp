@@ -8,14 +8,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CProcessTest : public CppUnit::TestFixture {
+public:
+    void testPids();
 
-class CProcessTest : public CppUnit::TestFixture
-{
-    public:
-        void testPids();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CProcessTest_h
-

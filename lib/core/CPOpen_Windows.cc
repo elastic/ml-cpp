@@ -7,18 +7,11 @@
 
 #include <string>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-FILE *CPOpen::pOpen(const char *command,
-                    const char *mode)
-{
-    if (command == 0)
-    {
+FILE* CPOpen::pOpen(const char* command, const char* mode) {
+    if (command == 0) {
         return 0;
     }
 
@@ -46,12 +39,8 @@ FILE *CPOpen::pOpen(const char *command,
     return ::_popen(quoted.c_str(), mode);
 }
 
-int CPOpen::pClose(FILE *stream)
-{
+int CPOpen::pClose(FILE* stream) {
     return ::_pclose(stream);
 }
-
-
 }
 }
-

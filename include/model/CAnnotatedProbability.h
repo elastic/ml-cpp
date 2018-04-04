@@ -18,24 +18,19 @@
 #include <boost/ref.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <vector>
 #include <utility>
+#include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 
-namespace model
-{
+namespace model {
 
-namespace annotated_probability
-{
-enum EDescriptiveData
-{
+namespace annotated_probability {
+enum EDescriptiveData {
     E_PERSON_PERIOD = 0,
     E_PERSON_NEVER_SEEN_BEFORE = 1,
     E_PERSON_COUNT = 2,
@@ -49,8 +44,7 @@ enum EDescriptiveData
 }
 
 //! \brief A collection of data describing an attribute's probability.
-struct MODEL_EXPORT SAttributeProbability
-{
+struct MODEL_EXPORT SAttributeProbability {
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
@@ -60,22 +54,22 @@ struct MODEL_EXPORT SAttributeProbability
 
     SAttributeProbability();
     SAttributeProbability(std::size_t cid,
-                          const core::CStoredStringPtr &attribute,
+                          const core::CStoredStringPtr& attribute,
                           double probability,
                           model_t::CResultType type,
                           model_t::EFeature feature,
-                          const TStoredStringPtr1Vec &correlatedAttributes,
-                          const TSizeDoublePr1Vec &correlated);
+                          const TStoredStringPtr1Vec& correlatedAttributes,
+                          const TSizeDoublePr1Vec& correlated);
 
     //! Total ordering of attribute probabilities by probability
     //! breaking ties using the attribute and finally the feature.
-    bool operator<(const SAttributeProbability &other) const;
+    bool operator<(const SAttributeProbability& other) const;
 
     //! Persist the probability passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore the probability reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Add the descriptive data \p value for \p key.
     void addDescriptiveData(annotated_probability::EDescriptiveData key, double value);
@@ -109,8 +103,7 @@ struct MODEL_EXPORT SAttributeProbability
 //! This includes all associated data such as a set of the smallest
 //! attribute probabilities, the influences, extra descriptive data
 //! and so on.
-struct MODEL_EXPORT SAnnotatedProbability
-{
+struct MODEL_EXPORT SAnnotatedProbability {
     using TAttributeProbability1Vec = core::CSmallVector<SAttributeProbability, 1>;
     using TStoredStringPtrStoredStringPtrPr = std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
     using TStoredStringPtrStoredStringPtrPrDoublePr = std::pair<TStoredStringPtrStoredStringPtrPr, double>;
@@ -127,16 +120,16 @@ struct MODEL_EXPORT SAnnotatedProbability
     void addDescriptiveData(annotated_probability::EDescriptiveData key, double value);
 
     //! Efficiently swap the contents of this and \p other.
-    void swap(SAnnotatedProbability &other);
+    void swap(SAnnotatedProbability& other);
 
     //! Is the result type interim?
     bool isInterim() const;
 
     //! Persist the probability passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore the probability reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! The probability of seeing the series' sample in a time interval.
     double s_Probability;
@@ -163,7 +156,6 @@ struct MODEL_EXPORT SAnnotatedProbability
     //! The baseline bucket count for this probability (cached from the model).
     TOptionalDouble s_BaselineBucketCount;
 };
-
 }
 }
 

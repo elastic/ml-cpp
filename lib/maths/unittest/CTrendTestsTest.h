@@ -9,14 +9,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CTrendTestsTest : public CppUnit::TestFixture
-{
-    public:
-        void testRandomizedPeriodicity();
-        void testCalendarCyclic();
-        void testPersist();
+class CTrendTestsTest : public CppUnit::TestFixture {
+public:
+    void testRandomizedPeriodicity();
+    void testCalendarCyclic();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CTrendTestsTest_h

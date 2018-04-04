@@ -15,11 +15,8 @@
 #include <string>
 #include <utility>
 
-
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Write output data in CSV format
@@ -44,117 +41,108 @@ namespace api
 //! It is not acceptable to have the separator character be the same as the
 //! escape character, the quote character or the record end character.
 //!
-class API_EXPORT CCsvOutputWriter : public COutputHandler
-{
-    public:
-        //! CSV separator
-        static const char COMMA;
+class API_EXPORT CCsvOutputWriter : public COutputHandler {
+public:
+    //! CSV separator
+    static const char COMMA;
 
-        //! CSV quote character
-        static const char QUOTE;
+    //! CSV quote character
+    static const char QUOTE;
 
-        //! CSV record end character
-        static const char RECORD_END;
+    //! CSV record end character
+    static const char RECORD_END;
 
-    public:
-        //! Constructor that causes output to be written to the internal string
-        //! stream
-        CCsvOutputWriter(bool outputMessages = false,
-                         bool outputHeader = true,
-                         char escape = QUOTE,
-                         char separator = COMMA);
+public:
+    //! Constructor that causes output to be written to the internal string
+    //! stream
+    CCsvOutputWriter(bool outputMessages = false, bool outputHeader = true, char escape = QUOTE, char separator = COMMA);
 
-        //! Constructor that causes output to be written to the specified stream
-        CCsvOutputWriter(std::ostream &strmOut,
-                         bool outputMessages = false,
-                         bool outputHeader = true,
-                         char escape = QUOTE,
-                         char separator = COMMA);
+    //! Constructor that causes output to be written to the specified stream
+    CCsvOutputWriter(std::ostream& strmOut,
+                     bool outputMessages = false,
+                     bool outputHeader = true,
+                     char escape = QUOTE,
+                     char separator = COMMA);
 
-        //! Destructor flushes the stream
-        virtual ~CCsvOutputWriter();
+    //! Destructor flushes the stream
+    virtual ~CCsvOutputWriter();
 
-        //! Set field names, adding extra field names if they're not already
-        //! present - this is only allowed once
-        virtual bool fieldNames(const TStrVec &fieldNames,
-                                const TStrVec &extraFieldNames);
+    //! Set field names, adding extra field names if they're not already
+    //! present - this is only allowed once
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
-        //! Get field names
-        virtual const TStrVec &fieldNames() const;
+    //! Get field names
+    virtual const TStrVec& fieldNames() const;
 
-        // Bring the other overload of fieldNames() into scope
-        using COutputHandler::fieldNames;
+    // Bring the other overload of fieldNames() into scope
+    using COutputHandler::fieldNames;
 
-        //! Write a row to the stream, optionally overriding some of the
-        //! original field values.  Where the same field is present in both
-        //! overrideDataRowFields and dataRowFields, the value in
-        //! overrideDataRowFields will be written.
-        virtual bool writeRow(const TStrStrUMap &dataRowFields,
-                              const TStrStrUMap &overrideDataRowFields);
+    //! Write a row to the stream, optionally overriding some of the
+    //! original field values.  Where the same field is present in both
+    //! overrideDataRowFields and dataRowFields, the value in
+    //! overrideDataRowFields will be written.
+    virtual bool writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields);
 
-        // Bring the other overload of writeRow() into scope
-        using COutputHandler::writeRow;
+    // Bring the other overload of writeRow() into scope
+    using COutputHandler::writeRow;
 
-        //! Get the contents of the internal string stream - for use with the
-        //! zero argument constructor
-        std::string internalString() const;
+    //! Get the contents of the internal string stream - for use with the
+    //! zero argument constructor
+    std::string internalString() const;
 
-    protected:
-        //! Output stream accessor
-        std::ostream &outputStream();
+protected:
+    //! Output stream accessor
+    std::ostream& outputStream();
 
-    private:
-        //! Append a field to the work record, quoting it if required, and
-        //! escaping embedded quotes
-        void appendField(const std::string &field);
+private:
+    //! Append a field to the work record, quoting it if required, and
+    //! escaping embedded quotes
+    void appendField(const std::string& field);
 
-    private:
-        //! If we've been initialised without a specific stream, output is
-        //! written to this string stream
-        std::ostringstream  m_StringOutputBuf;
+private:
+    //! If we've been initialised without a specific stream, output is
+    //! written to this string stream
+    std::ostringstream m_StringOutputBuf;
 
-        //! Reference to the stream we're going to write to
-        std::ostream        &m_StrmOut;
+    //! Reference to the stream we're going to write to
+    std::ostream& m_StrmOut;
 
-        //! Should we output a messages section before the CSV?
-        bool                m_OutputMessages;
+    //! Should we output a messages section before the CSV?
+    bool m_OutputMessages;
 
-        //! Should we output a row containing the CSV column names?
-        bool                m_OutputHeader;
+    //! Should we output a row containing the CSV column names?
+    bool m_OutputHeader;
 
-        //! CSV field names in the order they are to be written to the output
-        TStrVec             m_FieldNames;
+    //! CSV field names in the order they are to be written to the output
+    TStrVec m_FieldNames;
 
-        //! Pre-computed hashes for each field name.  The pre-computed hashes
-        //! are at the same index in this vector as the corresponding field name
-        //! in the m_FieldNames vector.
-        TPreComputedHashVec m_Hashes;
+    //! Pre-computed hashes for each field name.  The pre-computed hashes
+    //! are at the same index in this vector as the corresponding field name
+    //! in the m_FieldNames vector.
+    TPreComputedHashVec m_Hashes;
 
-        //! Used to build up output records before writing them to the output
-        //! stream, so that invalid write requests can have no effect on the
-        //! output stream.  Held as a member so that the capacity adjusts to
-        //! an appropriate level, avoiding regular memory allocations.
-        std::string         m_WorkRecord;
+    //! Used to build up output records before writing them to the output
+    //! stream, so that invalid write requests can have no effect on the
+    //! output stream.  Held as a member so that the capacity adjusts to
+    //! an appropriate level, avoiding regular memory allocations.
+    std::string m_WorkRecord;
 
-        using TStrStrPr = std::pair<std::string, std::string>;
-        using TStrStrPrSet = std::set<TStrStrPr>;
-        using TStrStrPrSetCItr = TStrStrPrSet::const_iterator;
+    using TStrStrPr = std::pair<std::string, std::string>;
+    using TStrStrPrSet = std::set<TStrStrPr>;
+    using TStrStrPrSetCItr = TStrStrPrSet::const_iterator;
 
-        //! Messages to be printed before the next lot of output
-        TStrStrPrSet        m_Messages;
+    //! Messages to be printed before the next lot of output
+    TStrStrPrSet m_Messages;
 
-        //! Character to use for escaping quotes (const to allow compiler
-        //! optimisations, since the value can't be changed after construction)
-        const char          m_Escape;
+    //! Character to use for escaping quotes (const to allow compiler
+    //! optimisations, since the value can't be changed after construction)
+    const char m_Escape;
 
-        //! Output field separator by default this is ',' but can be
-        //! overridden in the constructor
-        const char          m_Separator;
+    //! Output field separator by default this is ',' but can be
+    //! overridden in the constructor
+    const char m_Separator;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_api_CCsvOutputWriter_h
-

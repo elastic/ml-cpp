@@ -9,14 +9,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CCompressedDictionaryTest : public CppUnit::TestFixture {
+public:
+    void testAll();
+    void testPersist();
 
-class CCompressedDictionaryTest : public CppUnit::TestFixture
-{
-    public:
-        void testAll();
-        void testPersist();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CCompressedDictionaryTest_h

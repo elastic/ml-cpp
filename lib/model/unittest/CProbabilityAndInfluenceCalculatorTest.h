@@ -9,17 +9,16 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CProbabilityAndInfluenceCalculatorTest : public CppUnit::TestFixture
-{
-    public:
-        void testInfluenceUnavailableCalculator();
-        void testLogProbabilityComplementInfluenceCalculator();
-        void testMeanInfluenceCalculator();
-        void testLogProbabilityInfluenceCalculator();
-        void testIndicatorInfluenceCalculator();
-        void testProbabilityAndInfluenceCalculator();
+class CProbabilityAndInfluenceCalculatorTest : public CppUnit::TestFixture {
+public:
+    void testInfluenceUnavailableCalculator();
+    void testLogProbabilityComplementInfluenceCalculator();
+    void testMeanInfluenceCalculator();
+    void testLogProbabilityInfluenceCalculator();
+    void testIndicatorInfluenceCalculator();
+    void testProbabilityAndInfluenceCalculator();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CProbabilityAndInfluenceCalculatorTest_h

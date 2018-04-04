@@ -9,22 +9,21 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMultivariateOneOfNPriorTest : public CppUnit::TestFixture
-{
-    public:
-        void testMultipleUpdate();
-        void testPropagation();
-        void testWeightUpdate();
-        void testModelUpdate();
-        void testModelSelection();
-        void testMarginalLikelihood();
-        void testMarginalLikelihoodMean();
-        void testMarginalLikelihoodMode();
-        void testSampleMarginalLikelihood();
-        void testProbabilityOfLessLikelySamples();
-        void testPersist();
+class CMultivariateOneOfNPriorTest : public CppUnit::TestFixture {
+public:
+    void testMultipleUpdate();
+    void testPropagation();
+    void testWeightUpdate();
+    void testModelUpdate();
+    void testModelSelection();
+    void testMarginalLikelihood();
+    void testMarginalLikelihoodMean();
+    void testMarginalLikelihoodMode();
+    void testSampleMarginalLikelihood();
+    void testProbabilityOfLessLikelySamples();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CMultivariateOneOfNPriorTest_h

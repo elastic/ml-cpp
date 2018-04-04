@@ -7,20 +7,15 @@
 
 #include <core/CMutex.h>
 
+CppUnit::Test* CMutexTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMutexTest");
 
-CppUnit::Test *CMutexTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMutexTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CMutexTest>(
-                                   "CMutexTest::testRecursive",
-                                   &CMutexTest::testRecursive) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMutexTest>("CMutexTest::testRecursive", &CMutexTest::testRecursive));
 
     return suiteOfTests;
 }
 
-void CMutexTest::testRecursive()
-{
+void CMutexTest::testRecursive() {
     ml::core::CMutex mutex;
 
     mutex.lock();
@@ -31,4 +26,3 @@ void CMutexTest::testRecursive()
     mutex.unlock();
     mutex.unlock();
 }
-

@@ -9,18 +9,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPackedBitVectorTest : public CppUnit::TestFixture
-{
-    public:
-        void testCreation();
-        void testExtend();
-        void testContract();
-        void testOperators();
-        void testInner();
-        void testBitwiseOr();
-        void testPersist();
+class CPackedBitVectorTest : public CppUnit::TestFixture {
+public:
+    void testCreation();
+    void testExtend();
+    void testContract();
+    void testOperators();
+    void testInner();
+    void testBitwiseOr();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CPackedBitVectorTest_h

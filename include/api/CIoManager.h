@@ -14,11 +14,8 @@
 #include <iosfwd>
 #include <string>
 
-
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Manages the various IO streams of an API command.
@@ -46,91 +43,87 @@ namespace api
 //! always required.  Persist/restore streams are returned as pointers
 //! because some processes may not require both.
 //!
-class API_EXPORT CIoManager : private core::CNonCopyable
-{
-    public:
-        //! Leave \p inputFileName/\p outputFileName empty to indicate
-        //! STDIN/STDOUT.  Leave \p restoreFileName/\p persistFileName empty to
-        //! indicate no state restore or persist.
-        CIoManager(const std::string &inputFileName,
-                   bool isInputFileNamedPipe,
-                   const std::string &outputFileName,
-                   bool isOutputFileNamedPipe,
-                   const std::string &restoreFileName = std::string(),
-                   bool isRestoreFileNamedPipe = true,
-                   const std::string &persistFileName = std::string(),
-                   bool isPersistFileNamedPipe = true);
+class API_EXPORT CIoManager : private core::CNonCopyable {
+public:
+    //! Leave \p inputFileName/\p outputFileName empty to indicate
+    //! STDIN/STDOUT.  Leave \p restoreFileName/\p persistFileName empty to
+    //! indicate no state restore or persist.
+    CIoManager(const std::string& inputFileName,
+               bool isInputFileNamedPipe,
+               const std::string& outputFileName,
+               bool isOutputFileNamedPipe,
+               const std::string& restoreFileName = std::string(),
+               bool isRestoreFileNamedPipe = true,
+               const std::string& persistFileName = std::string(),
+               bool isPersistFileNamedPipe = true);
 
-        //! This will close any streams and unlink named pipes.  All
-        //! input/output/restore/persist operations must be complete at the time
-        //! this object is destroyed.
-        ~CIoManager();
+    //! This will close any streams and unlink named pipes.  All
+    //! input/output/restore/persist operations must be complete at the time
+    //! this object is destroyed.
+    ~CIoManager();
 
-        //! Set up the necessary streams given the constructor arguments.
-        bool initIo();
+    //! Set up the necessary streams given the constructor arguments.
+    bool initIo();
 
-        //! Get the stream to get input data from.
-        std::istream &inputStream();
+    //! Get the stream to get input data from.
+    std::istream& inputStream();
 
-        //! Get the stream to write output to.
-        std::ostream &outputStream();
+    //! Get the stream to write output to.
+    std::ostream& outputStream();
 
-        //! Get the stream to restore state from.  If NULL then don't restore state.
-        core::CNamedPipeFactory::TIStreamP restoreStream();
+    //! Get the stream to restore state from.  If NULL then don't restore state.
+    core::CNamedPipeFactory::TIStreamP restoreStream();
 
-        //! Get the stream to persist state to.  If NULL then don't persist state.
-        core::CNamedPipeFactory::TOStreamP persistStream();
+    //! Get the stream to persist state to.  If NULL then don't persist state.
+    core::CNamedPipeFactory::TOStreamP persistStream();
 
-    private:
-        //! Have the streams been successfully initialised?
-        bool                               m_IoInitialised;
+private:
+    //! Have the streams been successfully initialised?
+    bool m_IoInitialised;
 
-        //! Name of file/pipe to get input from.  Empty implies STDIN.
-        std::string                        m_InputFileName;
+    //! Name of file/pipe to get input from.  Empty implies STDIN.
+    std::string m_InputFileName;
 
-        //! Is the input file a named pipe?
-        bool                               m_IsInputFileNamedPipe;
+    //! Is the input file a named pipe?
+    bool m_IsInputFileNamedPipe;
 
-        //! If this object owns the input stream then a pointer to it.  If
-        //! std::cin is being used then this will be NULL.
-        core::CNamedPipeFactory::TIStreamP m_InputStream;
+    //! If this object owns the input stream then a pointer to it.  If
+    //! std::cin is being used then this will be NULL.
+    core::CNamedPipeFactory::TIStreamP m_InputStream;
 
-        //! Name of file/pipe to write output to.  Empty implies STDOUT.
-        std::string                        m_OutputFileName;
+    //! Name of file/pipe to write output to.  Empty implies STDOUT.
+    std::string m_OutputFileName;
 
-        //! Is the input file a named pipe?
-        bool                               m_IsOutputFileNamedPipe;
+    //! Is the input file a named pipe?
+    bool m_IsOutputFileNamedPipe;
 
-        //! If this object owns the output stream then a pointer to it.  If
-        //! std::cout is being used then this will be NULL.
-        core::CNamedPipeFactory::TOStreamP m_OutputStream;
+    //! If this object owns the output stream then a pointer to it.  If
+    //! std::cout is being used then this will be NULL.
+    core::CNamedPipeFactory::TOStreamP m_OutputStream;
 
-        //! Name of file/pipe to restore state from.  Empty implies don't
-        //! restore state.
-        std::string                        m_RestoreFileName;
+    //! Name of file/pipe to restore state from.  Empty implies don't
+    //! restore state.
+    std::string m_RestoreFileName;
 
-        //! Is the restore file a named pipe?
-        bool                               m_IsRestoreFileNamedPipe;
+    //! Is the restore file a named pipe?
+    bool m_IsRestoreFileNamedPipe;
 
-        //! If this object owns the restore stream then a pointer to it.  A
-        //! NULL pointer implies state is not being restored.
-        core::CNamedPipeFactory::TIStreamP m_RestoreStream;
+    //! If this object owns the restore stream then a pointer to it.  A
+    //! NULL pointer implies state is not being restored.
+    core::CNamedPipeFactory::TIStreamP m_RestoreStream;
 
-        //! Name of file/pipe to persist state to.  Empty implies don't persist
-        //! state.
-        std::string                        m_PersistFileName;
+    //! Name of file/pipe to persist state to.  Empty implies don't persist
+    //! state.
+    std::string m_PersistFileName;
 
-        //! Is the persist file a named pipe?
-        bool                               m_IsPersistFileNamedPipe;
+    //! Is the persist file a named pipe?
+    bool m_IsPersistFileNamedPipe;
 
-        //! If this object owns the persist stream then a pointer to it.  A
-        //! NULL pointer implies state is not being persisted.
-        core::CNamedPipeFactory::TOStreamP m_PersistStream;
+    //! If this object owns the persist stream then a pointer to it.  A
+    //! NULL pointer implies state is not being persisted.
+    core::CNamedPipeFactory::TOStreamP m_PersistStream;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_api_CIoManager_h
-

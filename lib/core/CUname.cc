@@ -12,55 +12,45 @@
 
 #include <string.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-std::string CUname::sysName()
-{
+std::string CUname::sysName() {
     struct utsname name;
     ::uname(&name);
 
     return name.sysname;
 }
 
-std::string CUname::nodeName()
-{
+std::string CUname::nodeName() {
     struct utsname name;
     ::uname(&name);
 
     return name.nodename;
 }
 
-std::string CUname::release()
-{
+std::string CUname::release() {
     struct utsname name;
     ::uname(&name);
 
     return name.release;
 }
 
-std::string CUname::version()
-{
+std::string CUname::version() {
     struct utsname name;
     ::uname(&name);
 
     return name.version;
 }
 
-std::string CUname::machine()
-{
+std::string CUname::machine() {
     struct utsname name;
     ::uname(&name);
 
     return name.machine;
 }
 
-std::string CUname::all()
-{
+std::string CUname::all() {
     struct utsname name;
     ::uname(&name);
 
@@ -78,8 +68,7 @@ std::string CUname::all()
     return all;
 }
 
-std::string CUname::mlPlatform()
-{
+std::string CUname::mlPlatform() {
     struct utsname name;
     ::uname(&name);
 
@@ -98,40 +87,31 @@ std::string CUname::mlPlatform()
 
     std::string os(CStringUtils::toLower(name.sysname));
 #ifdef _CS_GNU_LIBC_VERSION
-    if (os == "linux")
-    {
-        char buffer[128] = { '\0' };
+    if (os == "linux") {
+        char buffer[128] = {'\0'};
         // This isn't great because it's assuming that any C runtime library
         // that doesn't identify itself as glibc is musl, but it's hard to do
         // better as musl goes out of its way to be hard to detect
-        if (::confstr(_CS_GNU_LIBC_VERSION, buffer, sizeof(buffer)) == 0 ||
-            ::strstr(buffer, "glibc") == 0)
-        {
+        if (::confstr(_CS_GNU_LIBC_VERSION, buffer, sizeof(buffer)) == 0 || ::strstr(buffer, "glibc") == 0) {
             os += "-musl";
         }
     }
 #endif
 
-    const std::string &machine = CStringUtils::toLower(name.machine);
-    if (machine.length() == 4 && machine[0] == 'i' && machine[2] == '8' && machine[3] == '6')
-    {
+    const std::string& machine = CStringUtils::toLower(name.machine);
+    if (machine.length() == 4 && machine[0] == 'i' && machine[2] == '8' && machine[3] == '6') {
         return os + "-x86";
     }
 
-    if (machine == "amd64" || machine == "i86pc")
-    {
+    if (machine == "amd64" || machine == "i86pc") {
         return os + "-x86_64";
     }
 
     return os + '-' + machine;
 }
 
-std::string CUname::mlOsVer()
-{
+std::string CUname::mlOsVer() {
     return CUname::release();
 }
-
-
 }
 }
-

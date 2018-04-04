@@ -11,22 +11,19 @@
 #include <iterator>
 #include <string>
 
+class CDelimiterTest : public CppUnit::TestFixture {
+public:
+    void testSimpleTokenise();
+    void testRegexTokenise();
+    void testQuotedTokenise();
+    void testQuotedEscapedTokenise();
+    void testInvalidQuotedTokenise();
+    void testQuoteEqualsEscapeTokenise();
 
-class CDelimiterTest : public CppUnit::TestFixture
-{
-    public:
-        void testSimpleTokenise();
-        void testRegexTokenise();
-        void testQuotedTokenise();
-        void testQuotedEscapedTokenise();
-        void testInvalidQuotedTokenise();
-        void testQuoteEqualsEscapeTokenise();
+    static CppUnit::Test* suite();
 
-        static CppUnit::Test *suite();
-
-    private:
-        typedef std::ostream_iterator<std::string> TStrOStreamItr;
+private:
+    typedef std::ostream_iterator<std::string> TStrOStreamItr;
 };
 
 #endif // INCLUDED_CDelimiterTest_h
-

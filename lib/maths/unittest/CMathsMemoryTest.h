@@ -9,15 +9,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMathsMemoryTest : public CppUnit::TestFixture
-{
+class CMathsMemoryTest : public CppUnit::TestFixture {
 public:
     void testPriors();
     void testBjkstVec();
     void testTimeSeriesDecompositions();
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
-
 
 #endif // INCLUDED_CMathsMemoryTest_h

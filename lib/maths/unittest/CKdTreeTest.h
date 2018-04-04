@@ -7,16 +7,14 @@
 #ifndef INCLUDED_CKdTreeTest_h
 #define INCLUDED_CKdTreeTest_h
 
-
 #include <cppunit/extensions/HelperMacros.h>
 
-class CKdTreeTest : public CppUnit::TestFixture
-{
-    public:
-        void testBuild();
-        void testNearestNeighbour();
+class CKdTreeTest : public CppUnit::TestFixture {
+public:
+    void testBuild();
+    void testNearestNeighbour();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CKdTreeTest_h

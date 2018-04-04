@@ -8,14 +8,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CJsonOutputStreamWrapperTest : public CppUnit::TestFixture
-{
-    public:
-        void testConcurrentWrites();
-        void testShrink();
+class CJsonOutputStreamWrapperTest : public CppUnit::TestFixture {
+public:
+    void testConcurrentWrites();
+    void testShrink();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CJsonOutputStreamWrapperTest_h
-

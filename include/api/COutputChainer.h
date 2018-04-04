@@ -13,16 +13,12 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CDataAdder;
 class CDataSearcher;
 }
-namespace api
-{
+namespace api {
 class CBackgroundPersister;
 class CDataProcessor;
 
@@ -40,87 +36,80 @@ class CDataProcessor;
 //! The function to be called for each output record is encapsulated
 //! in a std::function to reduce coupling.
 //!
-class API_EXPORT COutputChainer : public COutputHandler
-{
-    public:
-        //! Construct with a reference to the next data processor in the chain
-        COutputChainer(CDataProcessor &dataProcessor);
+class API_EXPORT COutputChainer : public COutputHandler {
+public:
+    //! Construct with a reference to the next data processor in the chain
+    COutputChainer(CDataProcessor& dataProcessor);
 
-        //! We're going to be writing to a new output stream
-        virtual void newOutputStream();
+    //! We're going to be writing to a new output stream
+    virtual void newOutputStream();
 
-        //! Set field names, adding extra field names if they're not already
-        //! present - this is only allowed once
-        virtual bool fieldNames(const TStrVec &fieldNames,
-                                const TStrVec &extraFieldNames);
+    //! Set field names, adding extra field names if they're not already
+    //! present - this is only allowed once
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
-        //! Get field names
-        virtual const TStrVec &fieldNames() const;
+    //! Get field names
+    virtual const TStrVec& fieldNames() const;
 
-        // Bring the other overload of fieldNames() into scope
-        using COutputHandler::fieldNames;
+    // Bring the other overload of fieldNames() into scope
+    using COutputHandler::fieldNames;
 
-        //! Call the next data processor's input function with some output
-        //! values, optionally overriding some of the original field values.
-        //! Where the same field is present in both overrideDataRowFields and
-        //! dataRowFields, the value in overrideDataRowFields will be written.
-        virtual bool writeRow(const TStrStrUMap &dataRowFields,
-                              const TStrStrUMap &overrideDataRowFields);
+    //! Call the next data processor's input function with some output
+    //! values, optionally overriding some of the original field values.
+    //! Where the same field is present in both overrideDataRowFields and
+    //! dataRowFields, the value in overrideDataRowFields will be written.
+    virtual bool writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields);
 
-        // Bring the other overload of writeRow() into scope
-        using COutputHandler::writeRow;
+    // Bring the other overload of writeRow() into scope
+    using COutputHandler::writeRow;
 
-        //! Perform any final processing once all data for the current search
-        //! has been seen.  Chained classes should NOT rely on this method being
-        //! called - they should do the best they can on the assumption that
-        //! this method will not be called, but may be able to improve their
-        //! output if this method is called.
-        virtual void finalise();
+    //! Perform any final processing once all data for the current search
+    //! has been seen.  Chained classes should NOT rely on this method being
+    //! called - they should do the best they can on the assumption that
+    //! this method will not be called, but may be able to improve their
+    //! output if this method is called.
+    virtual void finalise();
 
-        //! Restore previously saved state
-        virtual bool restoreState(core::CDataSearcher &restoreSearcher,
-                                  core_t::TTime &completeToTime);
+    //! Restore previously saved state
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
 
-        //! Persist current state
-        virtual bool persistState(core::CDataAdder &persister);
+    //! Persist current state
+    virtual bool persistState(core::CDataAdder& persister);
 
-        //! Persist current state due to the periodic persistence being triggered.
-        virtual bool periodicPersistState(CBackgroundPersister &persister);
+    //! Persist current state due to the periodic persistence being triggered.
+    virtual bool periodicPersistState(CBackgroundPersister& persister);
 
-        //! The chainer does consume control messages, because it passes them on
-        //! to whatever processor it's chained to.
-        virtual bool consumesControlMessages();
+    //! The chainer does consume control messages, because it passes them on
+    //! to whatever processor it's chained to.
+    virtual bool consumesControlMessages();
 
-    private:
-        //! The function that will be called for every record output via this
-        //! object
-        CDataProcessor      &m_DataProcessor;
+private:
+    //! The function that will be called for every record output via this
+    //! object
+    CDataProcessor& m_DataProcessor;
 
-        //! Field names in the order they are to be written to the output
-        TStrVec             m_FieldNames;
+    //! Field names in the order they are to be written to the output
+    TStrVec m_FieldNames;
 
-        //! Pre-computed hashes for each field name.  The pre-computed hashes
-        //! are at the same index in this vector as the corresponding field name
-        //! in the m_FieldNames vector.
-        TPreComputedHashVec m_Hashes;
+    //! Pre-computed hashes for each field name.  The pre-computed hashes
+    //! are at the same index in this vector as the corresponding field name
+    //! in the m_FieldNames vector.
+    TPreComputedHashVec m_Hashes;
 
-        //! Used to build up the full set of fields to pass on to the next data
-        //! processor
-        TStrStrUMap         m_WorkRecordFields;
+    //! Used to build up the full set of fields to pass on to the next data
+    //! processor
+    TStrStrUMap m_WorkRecordFields;
 
-        using TStrRef = boost::reference_wrapper<std::string>;
-        using TStrRefVec = std::vector<TStrRef>;
-        using TStrRefVecCItr = TStrRefVec::const_iterator;
+    using TStrRef = boost::reference_wrapper<std::string>;
+    using TStrRefVec = std::vector<TStrRef>;
+    using TStrRefVecCItr = TStrRefVec::const_iterator;
 
-        //! References to the strings within m_WorkRecordFields in the same
-        //! order as the field names in m_FieldNames.  This avoids the need to
-        //! do hash lookups when populating m_WorkRecordFields.
-        TStrRefVec          m_WorkRecordFieldRefs;
+    //! References to the strings within m_WorkRecordFields in the same
+    //! order as the field names in m_FieldNames.  This avoids the need to
+    //! do hash lookups when populating m_WorkRecordFields.
+    TStrRefVec m_WorkRecordFieldRefs;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_api_COutputChainer_h
-

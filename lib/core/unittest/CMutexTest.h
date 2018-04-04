@@ -8,12 +8,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMutexTest : public CppUnit::TestFixture
-{
-    public:
-        void    testRecursive();
+class CMutexTest : public CppUnit::TestFixture {
+public:
+    void testRecursive();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CMutexTest_h

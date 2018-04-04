@@ -8,15 +8,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CWordExtractorTest : public CppUnit::TestFixture {
+public:
+    void testWordExtract();
+    void testMinConsecutive();
 
-class CWordExtractorTest : public CppUnit::TestFixture
-{
-    public:
-        void testWordExtract();
-        void testMinConsecutive();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CWordExtractorTest_h
-

@@ -11,33 +11,21 @@
 
 #include <ostream>
 
+namespace ml {
+namespace api {
 
-namespace ml
-{
-namespace api
-{
-
-namespace
-{
+namespace {
 const std::string EMPTY_STRING;
 }
 
-
-CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string &rootName)
-    : m_RootName(rootName),
-      m_OutStream(m_StringOutputBuf)
-{
+CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string& rootName) : m_RootName(rootName), m_OutStream(m_StringOutputBuf) {
 }
 
-CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string &rootName,
-                                                     std::ostream &strmOut)
-    : m_RootName(rootName),
-      m_OutStream(strmOut)
-{
+CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string& rootName, std::ostream& strmOut)
+    : m_RootName(rootName), m_OutStream(strmOut) {
 }
 
-CLineifiedXmlOutputWriter::~CLineifiedXmlOutputWriter()
-{
+CLineifiedXmlOutputWriter::~CLineifiedXmlOutputWriter() {
     // Since we didn't flush the stream whilst working, we flush it on
     // destruction
     m_OutStream.flush();
@@ -48,41 +36,32 @@ CLineifiedXmlOutputWriter::~CLineifiedXmlOutputWriter()
     core::CSleep::sleep(20);
 }
 
-bool CLineifiedXmlOutputWriter::fieldNames(const TStrVec &/*fieldNames*/,
-                                           const TStrVec &/*extraFieldNames*/)
-{
+bool CLineifiedXmlOutputWriter::fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*extraFieldNames*/) {
     return true;
 }
 
-const CLineifiedXmlOutputWriter::TStrVec &CLineifiedXmlOutputWriter::fieldNames() const
-{
+const CLineifiedXmlOutputWriter::TStrVec& CLineifiedXmlOutputWriter::fieldNames() const {
     return EMPTY_FIELD_NAMES;
 }
 
-bool CLineifiedXmlOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
-                                         const TStrStrUMap &overrideDataRowFields)
-{
-    core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(m_Pool.newNode(m_RootName,
-                                                                          EMPTY_STRING));
+bool CLineifiedXmlOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) {
+    core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(m_Pool.newNode(m_RootName, EMPTY_STRING));
 
     TStrStrUMapCItr fieldValueIter = dataRowFields.begin();
-    for (; fieldValueIter != dataRowFields.end(); ++fieldValueIter)
-    {
-        const std::string &name = fieldValueIter->first;
-        const std::string &value = fieldValueIter->second;
+    for (; fieldValueIter != dataRowFields.end(); ++fieldValueIter) {
+        const std::string& name = fieldValueIter->first;
+        const std::string& value = fieldValueIter->second;
 
         // Only output fields that aren't overridden
-        if (overrideDataRowFields.find(name) == overrideDataRowFields.end())
-        {
+        if (overrideDataRowFields.find(name) == overrideDataRowFields.end()) {
             root->addChildP(m_Pool.newNode(name, value));
         }
     }
 
     fieldValueIter = overrideDataRowFields.begin();
-    for (; fieldValueIter != overrideDataRowFields.end(); ++fieldValueIter)
-    {
-        const std::string &name = fieldValueIter->first;
-        const std::string &value = fieldValueIter->second;
+    for (; fieldValueIter != overrideDataRowFields.end(); ++fieldValueIter) {
+        const std::string& name = fieldValueIter->first;
+        const std::string& value = fieldValueIter->second;
 
         root->addChildP(m_Pool.newNode(name, value));
     }
@@ -95,16 +74,12 @@ bool CLineifiedXmlOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
     return true;
 }
 
-std::string CLineifiedXmlOutputWriter::internalString() const
-{
-    const_cast<std::ostream &>(m_OutStream).flush();
+std::string CLineifiedXmlOutputWriter::internalString() const {
+    const_cast<std::ostream&>(m_OutStream).flush();
 
     // This is only of any value if the first constructor was used - it's up to
     // the caller to know this
     return m_StringOutputBuf.str();
 }
-
-
 }
 }
-

@@ -8,14 +8,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CRapidJsonWriterBaseTest : public CppUnit::TestFixture
-{
-    public:
-        void testAddFields();
-        void testRemoveMemberIfPresent();
+class CRapidJsonWriterBaseTest : public CppUnit::TestFixture {
+public:
+    void testAddFields();
+    void testRemoveMemberIfPresent();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CRapidJsonWriterBaseTest_h
-

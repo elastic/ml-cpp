@@ -11,12 +11,8 @@
 
 #include <stdint.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Can be used for timing within a program
@@ -33,54 +29,50 @@ namespace core
 //! 2^32 milliseconds is less than 50 days, and, in production, our
 //! processes should be able to run for longer than this.
 //!
-class CORE_EXPORT CStopWatch
-{
-    public:
-        //! Construct a stop watch, optionally starting it immediately
-        CStopWatch(bool startRunning = false);
+class CORE_EXPORT CStopWatch {
+public:
+    //! Construct a stop watch, optionally starting it immediately
+    CStopWatch(bool startRunning = false);
 
-        //! Start the stop watch
-        void     start();
+    //! Start the stop watch
+    void start();
 
-        //! Stop the stop watch and retrieve the accumulated reading
-        uint64_t stop();
+    //! Stop the stop watch and retrieve the accumulated reading
+    uint64_t stop();
 
-        //! Retrieve the accumulated reading from the stop watch without
-        //! stopping it.  (Not const because it may trigger a reset if the
-        //! system clock has been adjusted.)
-        uint64_t lap();
+    //! Retrieve the accumulated reading from the stop watch without
+    //! stopping it.  (Not const because it may trigger a reset if the
+    //! system clock has been adjusted.)
+    uint64_t lap();
 
-        //! Is the stop watch running?
-        bool     isRunning() const;
+    //! Is the stop watch running?
+    bool isRunning() const;
 
-        //! Reset the stop watch, optionally starting it immediately
-        void     reset(bool startRunning = false);
+    //! Reset the stop watch, optionally starting it immediately
+    void reset(bool startRunning = false);
 
-    private:
-        //! Calculate the difference between two monotonic times, with sanity
-        //! checking just in case the timer does go backwards somehow, and
-        //! return the answer in milliseconds
-        uint64_t calcDuration();
+private:
+    //! Calculate the difference between two monotonic times, with sanity
+    //! checking just in case the timer does go backwards somehow, and
+    //! return the answer in milliseconds
+    uint64_t calcDuration();
 
-    private:
-        //! Is the stop watch currently running?
-        bool           m_IsRunning;
+private:
+    //! Is the stop watch currently running?
+    bool m_IsRunning;
 
-        //! Monotonic timer - should not go backwards if the user sets the clock
-        CMonotonicTime m_MonotonicTime;
+    //! Monotonic timer - should not go backwards if the user sets the clock
+    CMonotonicTime m_MonotonicTime;
 
-        //! Monotonic time (in milliseconds since some arbitrary time in the
-        //! past) when the stop watch was last started
-        uint64_t       m_Start;
+    //! Monotonic time (in milliseconds since some arbitrary time in the
+    //! past) when the stop watch was last started
+    uint64_t m_Start;
 
-        //! Time (in milliseconds) accumulated over previous runs of the stop
-        //! watch since the last reset
-        uint64_t       m_AccumulatedTime;
+    //! Time (in milliseconds) accumulated over previous runs of the stop
+    //! watch since the last reset
+    uint64_t m_AccumulatedTime;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CStopWatch_h
-

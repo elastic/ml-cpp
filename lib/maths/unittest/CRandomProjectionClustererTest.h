@@ -9,17 +9,16 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CRandomProjectionClustererTest : public CppUnit::TestFixture
-{
-    public:
-        void testGenerateProjections();
-        void testClusterProjections();
-        void testNeighbourhoods();
-        void testSimilarities();
-        void testClusterNeighbourhoods();
-        void testAccuracy();
+class CRandomProjectionClustererTest : public CppUnit::TestFixture {
+public:
+    void testGenerateProjections();
+    void testClusterProjections();
+    void testNeighbourhoods();
+    void testSimilarities();
+    void testClusterNeighbourhoods();
+    void testAccuracy();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CRandomProjectionClustererTest_h

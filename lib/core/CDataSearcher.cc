@@ -5,37 +5,25 @@
  */
 #include <core/CDataSearcher.h>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 const std::string CDataSearcher::EMPTY_STRING;
 
-
-CDataSearcher::CDataSearcher()
-    : m_SearchTerms(2)
-{
+CDataSearcher::CDataSearcher() : m_SearchTerms(2) {
 }
 
-CDataSearcher::~CDataSearcher()
-{
+CDataSearcher::~CDataSearcher() {
 }
 
-void CDataSearcher::setStateRestoreSearch(const std::string &index)
-{
+void CDataSearcher::setStateRestoreSearch(const std::string& index) {
     m_SearchTerms[0] = index;
     m_SearchTerms[1].clear();
 }
 
-void CDataSearcher::setStateRestoreSearch(const std::string &index,
-                                          const std::string &id)
-{
+void CDataSearcher::setStateRestoreSearch(const std::string& index, const std::string& id) {
     m_SearchTerms[0] = index;
     m_SearchTerms[1] = id;
 }
-
-
 }
 }

@@ -8,13 +8,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CRuleConditionTest : public CppUnit::TestFixture {
+public:
+    void testTimeContition();
 
-class CRuleConditionTest : public CppUnit::TestFixture
-{
-    public:
-        void testTimeContition();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CRuleConditionTest_h

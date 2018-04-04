@@ -11,26 +11,25 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CEventRatePopulationModelTest : public CppUnit::TestFixture {
+public:
+    void testBasicAccessors();
+    void testFeatures();
+    void testComputeProbability();
+    void testPrune();
+    void testKey();
+    void testFrequency();
+    void testSampleRateWeight();
+    void testSkipSampling();
+    void testInterimCorrections();
+    void testPeriodicity();
+    void testPersistence();
+    void testIgnoreSamplingGivenDetectionRules();
 
-class CEventRatePopulationModelTest : public CppUnit::TestFixture
-{
-    public:
-        void testBasicAccessors();
-        void testFeatures();
-        void testComputeProbability();
-        void testPrune();
-        void testKey();
-        void testFrequency();
-        void testSampleRateWeight();
-        void testSkipSampling();
-        void testInterimCorrections();
-        void testPeriodicity();
-        void testPersistence();
-        void testIgnoreSamplingGivenDetectionRules();
+    static CppUnit::Test* suite();
 
-        static CppUnit::Test *suite();
-    private:
-        ml::model::CResourceMonitor m_ResourceMonitor;
+private:
+    ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
 #endif // INCLUDED_CEventRatePopulationModelTest_h

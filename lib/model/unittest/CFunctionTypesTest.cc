@@ -6,16 +6,15 @@
 
 #include "CFunctionTypesTest.h"
 
-#include <core/CLogger.h>
 #include <core/CContainerPrinter.h>
+#include <core/CLogger.h>
 
 #include <model/FunctionTypes.h>
 
 using namespace ml;
 using namespace model;
 
-void CFunctionTypesTest::testFeaturesToFunction()
-{
+void CFunctionTypesTest::testFeaturesToFunction() {
     model_t::TFeatureVec features;
 
     {
@@ -235,13 +234,11 @@ void CFunctionTypesTest::testFeaturesToFunction()
     }
 }
 
-CppUnit::Test* CFunctionTypesTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CFunctionTypesTest");
+CppUnit::Test* CFunctionTypesTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFunctionTypesTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CFunctionTypesTest>(
-                                   "CFunctionTypesTest::testFeaturesToFunction",
-                                   &CFunctionTypesTest::testFeaturesToFunction) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFunctionTypesTest>("CFunctionTypesTest::testFeaturesToFunction",
+                                                                      &CFunctionTypesTest::testFeaturesToFunction));
 
     return suiteOfTests;
 }

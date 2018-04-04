@@ -9,15 +9,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CHashingTest : public CppUnit::TestFixture
-{
-    public:
-        void testUniversalHash();
-        void testMurmurHash();
-        void testHashCombine();
-        void testConstructors();
+class CHashingTest : public CppUnit::TestFixture {
+public:
+    void testUniversalHash();
+    void testMurmurHash();
+    void testHashCombine();
+    void testConstructors();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CHashingTest_h

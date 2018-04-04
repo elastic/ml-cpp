@@ -8,20 +8,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CConfigUpdaterTest : public CppUnit::TestFixture {
+public:
+    void testUpdateGivenUpdateCannotBeParsed();
+    void testUpdateGivenUnknownStanzas();
+    void testUpdateGivenModelPlotConfig();
+    void testUpdateGivenDetectorRules();
+    void testUpdateGivenRulesWithInvalidDetectorIndex();
+    void testUpdateGivenFilters();
+    void testUpdateGivenScheduledEvents();
 
-class CConfigUpdaterTest : public CppUnit::TestFixture
-{
-    public:
-        void testUpdateGivenUpdateCannotBeParsed();
-        void testUpdateGivenUnknownStanzas();
-        void testUpdateGivenModelPlotConfig();
-        void testUpdateGivenDetectorRules();
-        void testUpdateGivenRulesWithInvalidDetectorIndex();
-        void testUpdateGivenFilters();
-        void testUpdateGivenScheduledEvents();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CConfigUpdaterTest_h
-

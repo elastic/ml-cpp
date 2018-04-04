@@ -8,38 +8,34 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CStringUtilsTest : public CppUnit::TestFixture {
+public:
+    void testNumMatches();
+    void testReplace();
+    void testReplaceFirst();
+    void testTypeToString();
+    void testTypeToStringPrecise();
+    void testTypeToStringPretty();
+    void testStringToType();
+    void testTokeniser();
+    void testTrim();
+    void testJoin();
+    void testLower();
+    void testUpper();
+    void testNarrowWiden();
+    void testEscape();
+    void testUnEscape();
+    void testLongestSubstr();
+    void testLongestSubseq();
+    void testNormaliseWhitespace();
+    void testPerformance();
+    void testUtf8ByteType();
+    void testRoundtripMaxDouble();
 
-class CStringUtilsTest : public CppUnit::TestFixture
-{
-    public:
-        void testNumMatches();
-        void testReplace();
-        void testReplaceFirst();
-        void testTypeToString();
-        void testTypeToStringPrecise();
-        void testTypeToStringPretty();
-        void testStringToType();
-        void testTokeniser();
-        void testTrim();
-        void testJoin();
-        void testLower();
-        void testUpper();
-        void testNarrowWiden();
-        void testEscape();
-        void testUnEscape();
-        void testLongestSubstr();
-        void testLongestSubseq();
-        void testNormaliseWhitespace();
-        void testPerformance();
-        void testUtf8ByteType();
-        void testRoundtripMaxDouble();
+    static CppUnit::Test* suite();
 
-        static CppUnit::Test *suite();
-
-    private:
-        void testTokeniser(const std::string &delim,
-                           const std::string &str);
+private:
+    void testTokeniser(const std::string& delim, const std::string& str);
 };
 
 #endif // INCLUDED_CStringUtilsTest_h
-

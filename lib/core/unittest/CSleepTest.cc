@@ -6,24 +6,19 @@
 #include "CSleepTest.h"
 
 #include <core/CLogger.h>
-#include <core/CoreTypes.h>
 #include <core/CSleep.h>
 #include <core/CTimeUtils.h>
+#include <core/CoreTypes.h>
 
+CppUnit::Test* CSleepTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSleepTest");
 
-CppUnit::Test *CSleepTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSleepTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CSleepTest>(
-                                   "CSleepTest::testSleep",
-                                   &CSleepTest::testSleep) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSleepTest>("CSleepTest::testSleep", &CSleepTest::testSleep));
 
     return suiteOfTests;
 }
 
-void CSleepTest::testSleep()
-{
+void CSleepTest::testSleep() {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
 
     ml::core::CSleep::sleep(7500);
@@ -31,11 +26,9 @@ void CSleepTest::testSleep()
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
 
     ml::core_t::TTime diff(end - start);
-    LOG_DEBUG("During 7.5 second wait, the clock advanced by " <<
-              diff << " seconds");
+    LOG_DEBUG("During 7.5 second wait, the clock advanced by " << diff << " seconds");
 
     // Clock time should be 7 or 8 seconds further ahead
     CPPUNIT_ASSERT(diff >= 7);
     CPPUNIT_ASSERT(diff <= 8);
 }
-

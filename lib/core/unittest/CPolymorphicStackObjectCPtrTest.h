@@ -9,12 +9,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPolymorphicStackObjectCPtrTest : public CppUnit::TestFixture
-{
-    public:
-        void testAll();
+class CPolymorphicStackObjectCPtrTest : public CppUnit::TestFixture {
+public:
+    void testAll();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CPolymorphicStackObjectCPtrTest_h

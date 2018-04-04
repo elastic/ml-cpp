@@ -28,20 +28,16 @@
 
 class CHierarchicalResultsTest;
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CAnomalyDetectorModel;
 class CLimits;
 
-namespace hierarchical_results_detail
-{
+namespace hierarchical_results_detail {
 
 using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
 using TStoredStringPtrStoredStringPtrPr = std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
@@ -70,15 +66,14 @@ using TStr1Vec = core::CSmallVector<std::string, 1>;
 //!   -# autodetect sum(bytes) over host
 //!   -# autodetect rare by uri_path over clientip
 //!   -# and so on.
-struct MODEL_EXPORT SResultSpec
-{
+struct MODEL_EXPORT SResultSpec {
     SResultSpec();
 
     //! Persist the result specification by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore the result specification reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Print of the specification for debugging.
     std::string print() const;
@@ -134,8 +129,7 @@ struct MODEL_EXPORT SResultSpec
 //! aggregation process.
 //!
 //! \see buildHierarchicalResults for more details.
-struct MODEL_EXPORT SNode
-{
+struct MODEL_EXPORT SNode {
     using TAttributeProbabilityVec = std::vector<SAttributeProbability>;
     using TNodeCPtr = const SNode*;
     using TNodeCPtrVec = std::vector<TNodeCPtr>;
@@ -143,7 +137,7 @@ struct MODEL_EXPORT SNode
     using TSizeNodePtrUMap = boost::unordered_map<std::size_t, TNodeCPtr>;
 
     SNode();
-    SNode(const SResultSpec &simpleSearch, SAnnotatedProbability &annotatedProbability);
+    SNode(const SResultSpec& simpleSearch, SAnnotatedProbability& annotatedProbability);
 
     //! Returns the aggregate probability for the node
     double probability() const;
@@ -155,21 +149,17 @@ struct MODEL_EXPORT SNode
     std::string print() const;
 
     //! Efficient swap
-    void swap(SNode &other);
+    void swap(SNode& other);
 
     //! Persist the node state by passing information to \p inserter.
-    void acceptPersistInserter1(core::CStatePersistInserter &inserter,
-                                TNodePtrSizeUMap &nodePointers) const;
+    void acceptPersistInserter1(core::CStatePersistInserter& inserter, TNodePtrSizeUMap& nodePointers) const;
     //! Persist the node connectivity by passing information to \p inserter.
-    void acceptPersistInserter2(core::CStatePersistInserter &inserter,
-                                const TNodePtrSizeUMap &nodePointers) const;
+    void acceptPersistInserter2(core::CStatePersistInserter& inserter, const TNodePtrSizeUMap& nodePointers) const;
 
     //! Restore the node state reading state from \p traverser.
-    bool acceptRestoreTraverser1(core::CStateRestoreTraverser &traverser,
-                                 TSizeNodePtrUMap &nodePointers);
+    bool acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser, TSizeNodePtrUMap& nodePointers);
     //! Restore the node connectivity reading state from \p traverser.
-    bool acceptRestoreTraverser2(core::CStateRestoreTraverser &traverser,
-                                 const TSizeNodePtrUMap &nodePointers);
+    bool acceptRestoreTraverser2(core::CStateRestoreTraverser& traverser, const TSizeNodePtrUMap& nodePointers);
 
     //! \name Connectivity
     //@{
@@ -208,19 +198,19 @@ struct MODEL_EXPORT SNode
     //! \name Extra State for Results Output
     //@{
     //! The model which generated the result.
-    const CAnomalyDetectorModel *s_Model;
+    const CAnomalyDetectorModel* s_Model;
 
     //! The start time of the bucket generating the anomaly.
     core_t::TTime s_BucketStartTime;
 
-     //! The length of the bucket for this result.
+    //! The length of the bucket for this result.
     core_t::TTime s_BucketLength;
     //@}
 };
 
 //! Non-member node swap to work with standard algorithms
 MODEL_EXPORT
-void swap(SNode &node1, SNode &node2);
+void swap(SNode& node1, SNode& node2);
 
 } // hierarchical_results_detail::
 
@@ -252,231 +242,222 @@ class CHierarchicalResultsVisitor;
 //! invalid if it is kept longer than to output a single result. This is
 //! to minimize the amount of state that needs to be copied when outputting
 //! results (to minimize both runtime and transient memory usage).
-class MODEL_EXPORT CHierarchicalResults
-{
-    public:
-        using TDoubleVec = std::vector<double>;
-        using TAttributeProbabilityVec = std::vector<SAttributeProbability>;
-        using TResultSpec = hierarchical_results_detail::SResultSpec;
-        using TStoredStringPtr = core::CStoredStringPtr;
-        using TStoredStringPtrStoredStringPtrPr = hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr;
-        using TStoredStringPtrStoredStringPtrPrDoublePr = hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr;
-        using TStoredStringPtrStoredStringPtrPrDoublePrVec = hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec;
-        using TNode = hierarchical_results_detail::SNode;
-        using TNodePtrSizeUMap = hierarchical_results_detail::SNode::TNodePtrSizeUMap;
-        using TSizeNodePtrUMap = hierarchical_results_detail::SNode::TSizeNodePtrUMap;
-        using TNodeDeque = std::deque<TNode>;
-        using TStoredStringPtrStoredStringPtrPrNodeMap =
-                  std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::COrderings::SLexicographicalCompare>;
-        using TStoredStringPtrNodeMap = std::map<TStoredStringPtr, TNode, maths::COrderings::SLess>;
+class MODEL_EXPORT CHierarchicalResults {
+public:
+    using TDoubleVec = std::vector<double>;
+    using TAttributeProbabilityVec = std::vector<SAttributeProbability>;
+    using TResultSpec = hierarchical_results_detail::SResultSpec;
+    using TStoredStringPtr = core::CStoredStringPtr;
+    using TStoredStringPtrStoredStringPtrPr = hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr;
+    using TStoredStringPtrStoredStringPtrPrDoublePr = hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr;
+    using TStoredStringPtrStoredStringPtrPrDoublePrVec = hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+    using TNode = hierarchical_results_detail::SNode;
+    using TNodePtrSizeUMap = hierarchical_results_detail::SNode::TNodePtrSizeUMap;
+    using TSizeNodePtrUMap = hierarchical_results_detail::SNode::TSizeNodePtrUMap;
+    using TNodeDeque = std::deque<TNode>;
+    using TStoredStringPtrStoredStringPtrPrNodeMap =
+        std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::COrderings::SLexicographicalCompare>;
+    using TStoredStringPtrNodeMap = std::map<TStoredStringPtr, TNode, maths::COrderings::SLess>;
 
-    public:
-        CHierarchicalResults();
+public:
+    CHierarchicalResults();
 
-        //! Add a dummy result for a simple count detector.
-        void addSimpleCountResult(SAnnotatedProbability &annotatedProbability,
-                                  const CAnomalyDetectorModel *model = 0,
-                                  core_t::TTime bucketStartTime = 0);
+    //! Add a dummy result for a simple count detector.
+    void addSimpleCountResult(SAnnotatedProbability& annotatedProbability,
+                              const CAnomalyDetectorModel* model = 0,
+                              core_t::TTime bucketStartTime = 0);
 
-        //! Add a simple search result.
-        //!
-        //! The general syntax for a simple search is
-        //! <pre>
-        //!   [partitionfield = w] function[(x)] [by y] [over z]
-        //! </pre>
-        //!
-        //! Examples include:
-        //!   -# count
-        //!   -# rare by x
-        //!   -# partitionfield = x mean(y)
-        //!   -# min(x) over z
-        //!   -# partitionfield = x dc(y) over z
-        //!   -# partitionfield = w max(x) by y over z
-        //!
-        //! If a given search doesn't have a field pass the empty string.
-        //!
-        //! \param[in] detector An identifier of the detector generating this
-        //! result.
-        //! \param[in] isPopulation True if this is a population result and
-        //! false otherwise.
-        //! \param[in] functionName The name of the function of the model's search.
-        //! \param[in] function The function of the model's search.
-        //! \param[in] partitionFieldName The partition field name or empty.
-        //! \param[in] partitionFieldValue The partition field value or empty.
-        //! \param[in] personFieldName The over field name or empty.
-        //! \param[in] personFieldValue The over field value or empty.
-        //! \param[in] valueFieldName The name of the field containing the
-        //! metric value.
-        //! \param[out] annotatedProbability A struct containing the probability,
-        //! the smallest attribute probabilities, the influencers,
-        //! and any extra descriptive data
-        //! \param[in] model The model which generated the result.
-        //! \note Values which are passed by non-constant reference are swapped
-        //! in to place.
-        void addModelResult(int detector,
-                            bool isPopulation,
-                            const std::string &functionName,
-                            function_t::EFunction function,
-                            const std::string &partitionFieldName,
-                            const std::string &partitionFieldValue,
-                            const std::string &personFieldName,
-                            const std::string &personFieldValue,
-                            const std::string &valueFieldName,
-                            SAnnotatedProbability &annotatedProbability,
-                            const CAnomalyDetectorModel *model = 0,
-                            core_t::TTime bucketStartTime = 0);
+    //! Add a simple search result.
+    //!
+    //! The general syntax for a simple search is
+    //! <pre>
+    //!   [partitionfield = w] function[(x)] [by y] [over z]
+    //! </pre>
+    //!
+    //! Examples include:
+    //!   -# count
+    //!   -# rare by x
+    //!   -# partitionfield = x mean(y)
+    //!   -# min(x) over z
+    //!   -# partitionfield = x dc(y) over z
+    //!   -# partitionfield = w max(x) by y over z
+    //!
+    //! If a given search doesn't have a field pass the empty string.
+    //!
+    //! \param[in] detector An identifier of the detector generating this
+    //! result.
+    //! \param[in] isPopulation True if this is a population result and
+    //! false otherwise.
+    //! \param[in] functionName The name of the function of the model's search.
+    //! \param[in] function The function of the model's search.
+    //! \param[in] partitionFieldName The partition field name or empty.
+    //! \param[in] partitionFieldValue The partition field value or empty.
+    //! \param[in] personFieldName The over field name or empty.
+    //! \param[in] personFieldValue The over field value or empty.
+    //! \param[in] valueFieldName The name of the field containing the
+    //! metric value.
+    //! \param[out] annotatedProbability A struct containing the probability,
+    //! the smallest attribute probabilities, the influencers,
+    //! and any extra descriptive data
+    //! \param[in] model The model which generated the result.
+    //! \note Values which are passed by non-constant reference are swapped
+    //! in to place.
+    void addModelResult(int detector,
+                        bool isPopulation,
+                        const std::string& functionName,
+                        function_t::EFunction function,
+                        const std::string& partitionFieldName,
+                        const std::string& partitionFieldValue,
+                        const std::string& personFieldName,
+                        const std::string& personFieldValue,
+                        const std::string& valueFieldName,
+                        SAnnotatedProbability& annotatedProbability,
+                        const CAnomalyDetectorModel* model = 0,
+                        core_t::TTime bucketStartTime = 0);
 
-        //! Add the influencer called \p name.
-        void addInfluencer(const std::string &name);
+    //! Add the influencer called \p name.
+    void addInfluencer(const std::string& name);
 
-        //! Build a hierarchy from the current flat node list using the
-        //! default aggregation rules.
-        //!
-        //! The aggregation rules in priority order are:
-        //!   -# Only aggregate searches with the same partition field name
-        //!      and value.
-        //!   -# Subject to 1, aggregate searches with the same person field
-        //!      name and value: this is the by field name and value if no
-        //!      over field is specified otherwise it is the over field name
-        //!      name and value.
-        void buildHierarchy();
+    //! Build a hierarchy from the current flat node list using the
+    //! default aggregation rules.
+    //!
+    //! The aggregation rules in priority order are:
+    //!   -# Only aggregate searches with the same partition field name
+    //!      and value.
+    //!   -# Subject to 1, aggregate searches with the same person field
+    //!      name and value: this is the by field name and value if no
+    //!      over field is specified otherwise it is the over field name
+    //!      name and value.
+    void buildHierarchy();
 
-        //! Creates the pivot nodes for influencing field values.
-        void createPivots();
+    //! Creates the pivot nodes for influencing field values.
+    void createPivots();
 
-        //! Get the root node of the hierarchy.
-        const TNode *root() const;
+    //! Get the root node of the hierarchy.
+    const TNode* root() const;
 
-        //! Get the influencer identified by \p influencerName and
-        //! \p influencerValue if one exists.
-        const TNode *influencer(const TStoredStringPtr &influencerName,
-                                const TStoredStringPtr &influencerValue) const;
+    //! Get the influencer identified by \p influencerName and
+    //! \p influencerValue if one exists.
+    const TNode* influencer(const TStoredStringPtr& influencerName, const TStoredStringPtr& influencerValue) const;
 
-        //! Bottom up first visit the tree.
-        void bottomUpBreadthFirst(CHierarchicalResultsVisitor &visitor) const;
+    //! Bottom up first visit the tree.
+    void bottomUpBreadthFirst(CHierarchicalResultsVisitor& visitor) const;
 
-        //! Top down first visit the tree.
-        void topDownBreadthFirst(CHierarchicalResultsVisitor &visitor) const;
+    //! Top down first visit the tree.
+    void topDownBreadthFirst(CHierarchicalResultsVisitor& visitor) const;
 
-        //! Post-order depth first visit the tree.
-        void postorderDepthFirst(CHierarchicalResultsVisitor &visitor) const;
+    //! Post-order depth first visit the tree.
+    void postorderDepthFirst(CHierarchicalResultsVisitor& visitor) const;
 
-        //! Visit all the pivot nodes bottom up first.
-        void pivotsBottomUpBreadthFirst(CHierarchicalResultsVisitor &visitor) const;
+    //! Visit all the pivot nodes bottom up first.
+    void pivotsBottomUpBreadthFirst(CHierarchicalResultsVisitor& visitor) const;
 
-        //! Visit all the pivot nodes top down first.
-        void pivotsTopDownBreadthFirst(CHierarchicalResultsVisitor &visitor) const;
+    //! Visit all the pivot nodes top down first.
+    void pivotsTopDownBreadthFirst(CHierarchicalResultsVisitor& visitor) const;
 
-        //! Check if there are no results at all including the simple
-        //! count result.
-        bool empty() const;
+    //! Check if there are no results at all including the simple
+    //! count result.
+    bool empty() const;
 
-        //! Get the count of leaf (search) results, i.e. excluding the
-        //! simple count result.
-        std::size_t resultCount() const;
+    //! Get the count of leaf (search) results, i.e. excluding the
+    //! simple count result.
+    std::size_t resultCount() const;
 
-        //! Sets the result to be interm
-        void setInterim();
+    //! Sets the result to be interm
+    void setInterim();
 
-        //! Get type of result
-        model_t::CResultType resultType() const;
+    //! Get type of result
+    model_t::CResultType resultType() const;
 
-        //! Persist the results by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    //! Persist the results by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-        //! Restore the results reading state from \p traverser.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    //! Restore the results reading state from \p traverser.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-        //! Print the results for debug.
-        std::string print() const;
+    //! Print the results for debug.
+    std::string print() const;
 
-    private:
-        //! Create a new node.
-        TNode &newNode();
+private:
+    //! Create a new node.
+    TNode& newNode();
 
-        //! Create a new leaf node for the simple search \p simpleSearch.
-        TNode &newLeaf(const TResultSpec &simpleSearch, SAnnotatedProbability &annotatedProbability);
+    //! Create a new leaf node for the simple search \p simpleSearch.
+    TNode& newLeaf(const TResultSpec& simpleSearch, SAnnotatedProbability& annotatedProbability);
 
-        //! Create or retrieve a pivot node for the \p key.
-        TNode &newPivot(TStoredStringPtrStoredStringPtrPr key);
+    //! Create or retrieve a pivot node for the \p key.
+    TNode& newPivot(TStoredStringPtrStoredStringPtrPr key);
 
-        //! Create or retrieve a pivot root node for the \p key.
-        TNode &newPivotRoot(const TStoredStringPtr &key);
+    //! Create or retrieve a pivot root node for the \p key.
+    TNode& newPivotRoot(const TStoredStringPtr& key);
 
-        //! Post-order depth first visit the tree.
-        void postorderDepthFirst(const TNode *node, CHierarchicalResultsVisitor &visitor) const;
+    //! Post-order depth first visit the tree.
+    void postorderDepthFirst(const TNode* node, CHierarchicalResultsVisitor& visitor) const;
 
-    private:
-        //! Storage for the nodes.
-        TNodeDeque m_Nodes;
+private:
+    //! Storage for the nodes.
+    TNodeDeque m_Nodes;
 
-        //! Storage for the pivot nodes.
-        TStoredStringPtrStoredStringPtrPrNodeMap m_PivotNodes;
+    //! Storage for the pivot nodes.
+    TStoredStringPtrStoredStringPtrPrNodeMap m_PivotNodes;
 
-        //! Pivot root nodes.
-        TStoredStringPtrNodeMap m_PivotRootNodes;
+    //! Pivot root nodes.
+    TStoredStringPtrNodeMap m_PivotRootNodes;
 
-        //! Is the result final or interim?
-        //! This field is transient - does not get persisted because interim results
-        //! never get persisted.
-        model_t::CResultType m_ResultType;
+    //! Is the result final or interim?
+    //! This field is transient - does not get persisted because interim results
+    //! never get persisted.
+    model_t::CResultType m_ResultType;
 };
 
 //! \brief Interface for visiting the results.
-class MODEL_EXPORT CHierarchicalResultsVisitor
-{
-    public:
-        using TNode = CHierarchicalResults::TNode;
+class MODEL_EXPORT CHierarchicalResultsVisitor {
+public:
+    using TNode = CHierarchicalResults::TNode;
 
-    public:
-        virtual ~CHierarchicalResultsVisitor();
+public:
+    virtual ~CHierarchicalResultsVisitor();
 
-        //! Visit a node.
-        virtual void visit(const CHierarchicalResults &results,
-                           const TNode &node,
-                           bool pivot) = 0;
+    //! Visit a node.
+    virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) = 0;
 
-    protected:
-        //! Check if this node is the root node.
-        static bool isRoot(const TNode &node);
+protected:
+    //! Check if this node is the root node.
+    static bool isRoot(const TNode& node);
 
-        //! Check if the node is a leaf.
-        static bool isLeaf(const TNode &node);
+    //! Check if the node is a leaf.
+    static bool isLeaf(const TNode& node);
 
-        //! Check if the node is partition, i.e. if its children are
-        //! one or more partitions.
-        static bool isPartitioned(const TNode &node);
+    //! Check if the node is partition, i.e. if its children are
+    //! one or more partitions.
+    static bool isPartitioned(const TNode& node);
 
-        //! Check if this is a named partition.
-        static bool isPartition(const TNode &node);
+    //! Check if this is a named partition.
+    static bool isPartition(const TNode& node);
 
-        //! Check if the node is a named person.
-        static bool isPerson(const TNode &node);
+    //! Check if the node is a named person.
+    static bool isPerson(const TNode& node);
 
-        //! Check if the node is an attribute of a person.
-        static bool isAttribute(const TNode &node);
+    //! Check if the node is an attribute of a person.
+    static bool isAttribute(const TNode& node);
 
-        //! Check if the node is simple counting result.
-        static bool isSimpleCount(const TNode &node);
+    //! Check if the node is simple counting result.
+    static bool isSimpleCount(const TNode& node);
 
-        //! Check if the node is a population result.
-        static bool isPopulation(const TNode &node);
+    //! Check if the node is a population result.
+    static bool isPopulation(const TNode& node);
 
-        //! Check if we can ever write a result for the node.
-        static bool isTypeForWhichWeWriteResults(const TNode &node, bool pivot);
+    //! Check if we can ever write a result for the node.
+    static bool isTypeForWhichWeWriteResults(const TNode& node, bool pivot);
 
-        //! Get the nearest ancestor of the node for which we write results.
-        static const TNode *nearestAncestorForWhichWeWriteResults(const TNode &node);
+    //! Get the nearest ancestor of the node for which we write results.
+    static const TNode* nearestAncestorForWhichWeWriteResults(const TNode& node);
 
-        //! Check if we'll write a result for the node.
-        static bool shouldWriteResult(const CLimits &limits,
-                                      const CHierarchicalResults &results,
-                                      const TNode &node,
-                                      bool pivot);
+    //! Check if we'll write a result for the node.
+    static bool shouldWriteResult(const CLimits& limits, const CHierarchicalResults& results, const TNode& node, bool pivot);
 
     friend class ::CHierarchicalResultsTest;
 };
-
 }
 }
 

@@ -9,13 +9,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CProbabilityCalibratorTest : public CppUnit::TestFixture {
+public:
+    void testCalibration();
 
-class CProbabilityCalibratorTest : public CppUnit::TestFixture
-{
-    public:
-        void testCalibration();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CProbabilityCalibratorTest_h

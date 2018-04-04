@@ -9,18 +9,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CKMeansFastTest : public CppUnit::TestFixture
-{
-    public:
-        void testDataPropagation();
-        void testFilter();
-        void testCentroids();
-        void testClosestPoints();
-        void testRun();
-        void testRunWithSphericalClusters();
-        void testPlusPlus();
+class CKMeansFastTest : public CppUnit::TestFixture {
+public:
+    void testDataPropagation();
+    void testFilter();
+    void testCentroids();
+    void testClosestPoints();
+    void testRun();
+    void testRunWithSphericalClusters();
+    void testPlusPlus();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CKMeansFastTest_h
