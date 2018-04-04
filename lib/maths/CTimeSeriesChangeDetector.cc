@@ -218,6 +218,13 @@ double CUnivariateTimeSeriesChangeDetector::decisionFunction(std::size_t &change
 
     change = candidates[0].second - m_ChangeModels.begin();
 
+    // Note 0.03125 = 0.5^5. This is chosen so that this function
+    // is equal to one when each of the decision criteria are at
+    // the centre of the sigmoid functions and the time range is
+    // equal to "minimum time to detect". This means we'll (just)
+    // accept the change if all of the individual hard decision
+    // criteria are satisfied.
+
     return p / 0.03125;
 }
 
@@ -430,7 +437,7 @@ TOptionalChangeDescription CUnivariateNoChangeModel::change() const
     return TOptionalChangeDescription();
 }
 
-void CUnivariateNoChangeModel::addSamples(std::size_t count,
+void CUnivariateNoChangeModel::addSamples(const std::size_t count,
                                           TWeightStyleVec weightStyles,
                                           const TTimeDoublePr1Vec &samples_,
                                           TDouble4Vec1Vec weights)
@@ -510,12 +517,12 @@ void CUnivariateLevelShiftModel::acceptPersistInserter(core::CStatePersistInsert
 
 double CUnivariateLevelShiftModel::bic() const
 {
-    return -2.0 * this->logLikelihood() + std::log(m_SampleCount);
+    return -2.0 * this->logLikelihood() + CTools::fastLog(m_SampleCount);
 }
 
 double CUnivariateLevelShiftModel::expectedBic() const
 {
-    return -2.0 * this->expectedLogLikelihood() + std::log(m_SampleCount);
+    return -2.0 * this->expectedLogLikelihood() + CTools::fastLog(m_SampleCount);
 }
 
 TOptionalChangeDescription CUnivariateLevelShiftModel::change() const
@@ -525,7 +532,7 @@ TOptionalChangeDescription CUnivariateLevelShiftModel::change() const
                               this->residualModelPtr()};
 }
 
-void CUnivariateLevelShiftModel::addSamples(std::size_t count,
+void CUnivariateLevelShiftModel::addSamples(const std::size_t count,
                                             TWeightStyleVec weightStyles,
                                             const TTimeDoublePr1Vec &samples_,
                                             TDouble4Vec1Vec weights)
@@ -626,12 +633,12 @@ void CUnivariateLinearScaleModel::acceptPersistInserter(core::CStatePersistInser
 
 double CUnivariateLinearScaleModel::bic() const
 {
-    return -2.0 * this->logLikelihood() + std::log(m_SampleCount);
+    return -2.0 * this->logLikelihood() + CTools::fastLog(m_SampleCount);
 }
 
 double CUnivariateLinearScaleModel::expectedBic() const
 {
-    return -2.0 * this->expectedLogLikelihood() + std::log(m_SampleCount);
+    return -2.0 * this->expectedLogLikelihood() + CTools::fastLog(m_SampleCount);
 }
 
 CUnivariateLinearScaleModel::TOptionalChangeDescription CUnivariateLinearScaleModel::change() const
@@ -641,7 +648,7 @@ CUnivariateLinearScaleModel::TOptionalChangeDescription CUnivariateLinearScaleMo
                               this->residualModelPtr()};
 }
 
-void CUnivariateLinearScaleModel::addSamples(std::size_t count,
+void CUnivariateLinearScaleModel::addSamples(const std::size_t count,
                                              TWeightStyleVec weightStyles,
                                              const TTimeDoublePr1Vec &samples_,
                                              TDouble4Vec1Vec weights)
@@ -756,7 +763,7 @@ TOptionalChangeDescription CUnivariateTimeShiftModel::change() const
                               this->residualModelPtr()};
 }
 
-void CUnivariateTimeShiftModel::addSamples(std::size_t count,
+void CUnivariateTimeShiftModel::addSamples(const std::size_t count,
                                            TWeightStyleVec weightStyles,
                                            const TTimeDoublePr1Vec &samples_,
                                            TDouble4Vec1Vec weights)

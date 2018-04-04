@@ -207,7 +207,7 @@ class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
         virtual TOptionalChangeDescription change() const = 0;
 
         //! Update the change model with \p samples.
-        virtual void addSamples(std::size_t count,
+        virtual void addSamples(const std::size_t count,
                                 TWeightStyleVec weightStyles,
                                 const TTimeDoublePr1Vec &samples,
                                 TDouble4Vec1Vec weights) = 0;
@@ -292,7 +292,7 @@ class MATHS_EXPORT CUnivariateNoChangeModel final : public CUnivariateChangeMode
         virtual TOptionalChangeDescription change() const;
 
         //! Get the log likelihood of \p samples.
-        virtual void addSamples(std::size_t count,
+        virtual void addSamples(const std::size_t count,
                                 TWeightStyleVec weightStyles,
                                 const TTimeDoublePr1Vec &samples,
                                 TDouble4Vec1Vec weights);
@@ -329,7 +329,7 @@ class MATHS_EXPORT CUnivariateLevelShiftModel final : public CUnivariateChangeMo
         virtual TOptionalChangeDescription change() const;
 
         //! Update with \p samples.
-        virtual void addSamples(std::size_t count,
+        virtual void addSamples(const std::size_t count,
                                 TWeightStyleVec weightStyles,
                                 const TTimeDoublePr1Vec &samples,
                                 TDouble4Vec1Vec weights);
@@ -379,7 +379,7 @@ class MATHS_EXPORT CUnivariateLinearScaleModel final : public CUnivariateChangeM
         virtual TOptionalChangeDescription change() const;
 
         //! Update with \p samples.
-        virtual void addSamples(std::size_t count,
+        virtual void addSamples(const std::size_t count,
                                 TWeightStyleVec weightStyles,
                                 const TTimeDoublePr1Vec &samples,
                                 TDouble4Vec1Vec weights);
@@ -430,7 +430,7 @@ class MATHS_EXPORT CUnivariateTimeShiftModel final : public CUnivariateChangeMod
         virtual TOptionalChangeDescription change() const;
 
         //! Update with \p samples.
-        virtual void addSamples(std::size_t count,
+        virtual void addSamples(const std::size_t count,
                                 TWeightStyleVec weightStyles,
                                 const TTimeDoublePr1Vec &samples,
                                 TDouble4Vec1Vec weights);
