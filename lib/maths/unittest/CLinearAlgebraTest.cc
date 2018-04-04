@@ -1330,7 +1330,8 @@ void CLinearAlgebraTest::testPersist(void)
     LOG_DEBUG("|  CLinearAlgebraTest::testPersist  |");
     LOG_DEBUG("+-----------------------------------+");
 
-    // Check conversion to and from delimited is idempotent.
+    // Check conversion to and from delimited is idempotent and parsing
+    // bad input produces an error.
 
     {
         double matrix_[][4] =

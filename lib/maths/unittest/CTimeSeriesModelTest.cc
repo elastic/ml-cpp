@@ -18,6 +18,7 @@
 #include <maths/CMultivariateMultimodalPrior.h>
 #include <maths/CNormalMeanPrecConjugate.h>
 #include <maths/COneOfNPrior.h>
+#include <maths/Constants.h>
 #include <maths/CTimeSeriesDecomposition.h>
 #include <maths/CTimeSeriesDecompositionStub.h>
 #include <maths/CTimeSeriesModel.h>
@@ -112,7 +113,7 @@ maths::CModelParams modelParams(core_t::TTime bucketLength)
 }
 
 maths::CModelAddSamplesParams addSampleParams(double interval,
-                                              maths_t::TWeightStyleVec weightStyles,
+                                              const maths_t::TWeightStyleVec &weightStyles,
                                               const TDouble2Vec4VecVec &weights)
 {
     maths::CModelAddSamplesParams params;
