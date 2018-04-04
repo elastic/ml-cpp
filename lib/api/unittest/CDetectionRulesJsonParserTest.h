@@ -38,6 +38,7 @@ public:
     void testParseRulesGivenCategoricalComplementRule();
     void testParseRulesGivenTimeRule();
     void testParseRulesGivenDifferentActions();
+    void testParseRulesGivenOldStyleCategoricalRule();
     static CppUnit::Test* suite();
 };
 

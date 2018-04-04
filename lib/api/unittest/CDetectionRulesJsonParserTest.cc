@@ -86,6 +86,9 @@ CppUnit::Test* CDetectionRulesJsonParserTest::suite() {
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CDetectionRulesJsonParserTest>("CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions",
                                                                &CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDetectionRulesJsonParserTest>("CDetectionRulesJsonParserTest::testParseRulesGivenOldStyleCategoricalRule",
+                                                               &CDetectionRulesJsonParserTest::testParseRulesGivenOldStyleCategoricalRule));
     return suiteOfTests;
 }
 
@@ -385,8 +388,36 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalMatchRule() {
     CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF (foo) IN FILTER"), rules[0].print());
 }
 
+void CDetectionRulesJsonParserTest::testParseRulesGivenOldStyleCategoricalRule() {
+    LOG_DEBUG("*** testParseRulesGivenOldStyleCategoricalRule ***");
+
+    // Tests that the rule type can be parsed as categorical_match
+    // when the type is categorical
+
+    TStrPatternSetUMap filtersById;
+    core::CPatternSet filter;
+    filter.initFromJson("[\"b\", \"a\"]");
+    filtersById["filter1"] = filter;
+
+    CDetectionRulesJsonParser parser(filtersById);
+    CDetectionRulesJsonParser::TDetectionRuleVec rules;
+    std::string rulesJson = "[";
+    rulesJson += "{";
+    rulesJson += "  \"actions\":[\"filter_results\"],";
+    rulesJson += "  \"conditions_connective\":\"or\",";
+    rulesJson += "  \"conditions\": [";
+    rulesJson += "    {\"type\":\"categorical\", \"field_name\":\"foo\", \"filter_id\":\"filter1\"}";
+    rulesJson += "  ]";
+    rulesJson += "}";
+    rulesJson += "]";
+
+    CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
+    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF (foo) IN FILTER"), rules[0].print());
+}
+
 void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalComplementRule() {
-{
     LOG_DEBUG("*** testParseRulesGivenCategoricalComplementRule ***");
 
     TStrPatternSetUMap filtersById;
