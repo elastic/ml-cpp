@@ -358,7 +358,7 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 
 } // unnamed::
 
-void CEventRateModelTest::testOnlineCountSample(void)
+void CEventRateModelTest::testOnlineCountSample()
 {
     LOG_DEBUG("*** testOnlineCountSample ***");
 
@@ -462,7 +462,7 @@ void CEventRateModelTest::testOnlineCountSample(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CEventRateModelTest::testOnlineNonZeroCountSample(void)
+void CEventRateModelTest::testOnlineNonZeroCountSample()
 {
     LOG_DEBUG("*** testOnlineNonZeroCountSample ***");
 
@@ -539,7 +539,7 @@ void CEventRateModelTest::testOnlineNonZeroCountSample(void)
     }
 }
 
-void CEventRateModelTest::testOnlineRare(void)
+void CEventRateModelTest::testOnlineRare()
 {
     LOG_DEBUG("*** testOnlineRare ***");
 
@@ -626,7 +626,7 @@ void CEventRateModelTest::testOnlineRare(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CEventRateModelTest::testOnlineProbabilityCalculation(void)
+void CEventRateModelTest::testOnlineProbabilityCalculation()
 {
     LOG_DEBUG("*** testOnlineProbabilityCalculation ***");
 
@@ -690,7 +690,7 @@ void CEventRateModelTest::testOnlineProbabilityCalculation(void)
     CPPUNIT_ASSERT(minProbabilities[0].first / minProbabilities[1].first < 0.1);
 }
 
-void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount(void)
+void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount()
 {
     LOG_DEBUG("*** testOnlineProbabilityCalculationForLowNonZeroCount ***");
 
@@ -745,7 +745,7 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount(voi
     CPPUNIT_ASSERT(probabilities[highNonZeroCountBucket] > 0.9);
 }
 
-void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount(void)
+void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount()
 {
     LOG_DEBUG("*** testOnlineProbabilityCalculationForHighNonZeroCount ***");
 
@@ -800,7 +800,7 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount(vo
     CPPUNIT_ASSERT(probabilities[highNonZeroCountBucket] > 0.9);
 }
 
-void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
+void CEventRateModelTest::testOnlineCorrelatedNoTrend()
 {
     LOG_DEBUG("*** testOnlineCorrelatedNoTrend ***");
 
@@ -1052,7 +1052,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
     }
 }
 
-void CEventRateModelTest::testOnlineCorrelatedTrend(void)
+void CEventRateModelTest::testOnlineCorrelatedTrend()
 {
     LOG_DEBUG("*** testOnlineCorrelatedTrend ***");
 
@@ -1200,7 +1200,7 @@ void CEventRateModelTest::testOnlineCorrelatedTrend(void)
     }
 }
 
-void CEventRateModelTest::testPrune(void)
+void CEventRateModelTest::testPrune()
 {
     LOG_DEBUG("*** testPrune ***");
 
@@ -1358,7 +1358,7 @@ void CEventRateModelTest::testPrune(void)
     CPPUNIT_ASSERT_EQUAL(numberOfPeopleBeforePrune, clonedModel->dataGatherer().numberActivePeople());
 }
 
-void CEventRateModelTest::testKey(void)
+void CEventRateModelTest::testKey()
 {
     function_t::EFunction countFunctions[] =
         {
@@ -1405,7 +1405,7 @@ void CEventRateModelTest::testKey(void)
     }
 }
 
-void CEventRateModelTest::testModelsWithValueFields(void)
+void CEventRateModelTest::testModelsWithValueFields()
 {
     // Check that attributeConditional features are correctly
     // marked as such:
@@ -1544,7 +1544,7 @@ void CEventRateModelTest::testModelsWithValueFields(void)
     }
 }
 
-void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
+void CEventRateModelTest::testCountProbabilityCalculationWithInfluence()
 {
     LOG_DEBUG("*** testCountProbabilityCalculationWithInfluence ***");
 
@@ -1895,7 +1895,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
     }
 }
 
-void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(void)
+void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
 {
     LOG_DEBUG("*** testCountProbabilityCalculationWithInfluence ***");
 
@@ -2228,7 +2228,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
     }
 }
 
-void CEventRateModelTest::testOnlineRareWithInfluence(void)
+void CEventRateModelTest::testOnlineRareWithInfluence()
 {
     LOG_DEBUG("*** testOnlineRareWithInfluence ***");
 
@@ -2327,7 +2327,7 @@ void CEventRateModelTest::testOnlineRareWithInfluence(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CEventRateModelTest::testSkipSampling(void)
+void CEventRateModelTest::testSkipSampling()
 {
     LOG_DEBUG("*** testSkipSampling ***");
 
@@ -2406,7 +2406,7 @@ void CEventRateModelTest::testSkipSampling(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), gathererWithGap->numberActivePeople());
 }
 
-void CEventRateModelTest::testExplicitNulls(void)
+void CEventRateModelTest::testExplicitNulls()
 {
     LOG_DEBUG("*** testExplicitNulls ***");
 
@@ -2480,7 +2480,7 @@ void CEventRateModelTest::testExplicitNulls(void)
                 modelSkipGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum());
 }
 
-void CEventRateModelTest::testInterimCorrections(void)
+void CEventRateModelTest::testInterimCorrections()
 {
     LOG_DEBUG("*** testInterimCorrections ***");
 
@@ -2611,7 +2611,7 @@ void CEventRateModelTest::testInterimCorrections(void)
     CPPUNIT_ASSERT(p3Baseline[0] > 58.0 && p3Baseline[0] < 62.0);
 }
 
-void CEventRateModelTest::testInterimCorrectionsWithCorrelations(void)
+void CEventRateModelTest::testInterimCorrectionsWithCorrelations()
 {
     LOG_DEBUG("*** testInterimCorrectionsWithCorrelations ***");
 
@@ -2706,7 +2706,7 @@ void CEventRateModelTest::testInterimCorrectionsWithCorrelations(void)
     CPPUNIT_ASSERT(p3Baseline[0] > 7.4 && p3Baseline[0] < 7.6);
 }
 
-void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored(void)
+void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored()
 {
     LOG_DEBUG("*** testSummaryCountZeroRecordsAreIgnored ***");
 
@@ -2770,7 +2770,7 @@ void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored(void)
     CPPUNIT_ASSERT_EQUAL(modelWithZeros.checksum(), modelNoZeros.checksum());
 }
 
-void CEventRateModelTest::testComputeProbabilityGivenDetectionRule(void)
+void CEventRateModelTest::testComputeProbabilityGivenDetectionRule()
 {
     LOG_DEBUG("*** testComputeProbabilityGivenDetectionRule ***");
 
@@ -2822,7 +2822,7 @@ void CEventRateModelTest::testComputeProbabilityGivenDetectionRule(void)
                                              partitioningFields, 1, annotatedProbability) == false);
 }
 
-void CEventRateModelTest::testDecayRateControl(void)
+void CEventRateModelTest::testDecayRateControl()
 {
     LOG_DEBUG("*** testDecayRateControl ***");
 
@@ -3013,7 +3013,7 @@ void CEventRateModelTest::testDecayRateControl(void)
     }
 }
 
-void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
+void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules()
 {
     LOG_DEBUG("*** testIgnoreSamplingGivenDetectionRules ***");
 
@@ -3131,7 +3131,7 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
     CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
 }
 
-CppUnit::Test *CEventRateModelTest::suite(void)
+CppUnit::Test *CEventRateModelTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRateModelTest");
 

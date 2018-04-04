@@ -46,16 +46,16 @@ class MATHS_EXPORT CModelWeight
 {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
+        static bool dynamicSizeAlwaysZero() { return true; }
 
     public:
         explicit CModelWeight(double weight);
 
         //! Implicit conversion to read only double weight (m_Weight).
-        operator double(void) const;
+        operator double() const;
 
         //! Get the log of the current weight.
-        double logWeight(void) const;
+        double logWeight() const;
 
         //! Reset the log weight.
         void logWeight(double logWeight);
@@ -95,7 +95,7 @@ class CScopeCanonicalizeWeights : private core::CNonCopyable
     public:
         CScopeCanonicalizeWeights(TWeightPriorPrVec &models) : m_Models(models) {}
 
-        ~CScopeCanonicalizeWeights(void)
+        ~CScopeCanonicalizeWeights()
         {
             CBasicStatistics::SMax<double>::TAccumulator logMaxWeight;
             for (const auto &model : m_Models)

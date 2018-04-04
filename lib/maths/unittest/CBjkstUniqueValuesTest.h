@@ -21,14 +21,14 @@
 class CBjkstUniqueValuesTest : public CppUnit::TestFixture
 {
     public:
-        void testTrailingZeros(void);
-        void testNumber(void);
-        void testRemove(void);
-        void testSwap(void);
-        void testSmall(void);
-        void testPersist(void);
+        void testTrailingZeros();
+        void testNumber();
+        void testRemove();
+        void testSwap();
+        void testSmall();
+        void testPersist();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CBjkstUniqueValuesTest_h

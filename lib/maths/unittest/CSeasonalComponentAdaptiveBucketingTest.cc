@@ -45,7 +45,7 @@ using TMinAccumulator = maths::CBasicStatistics::SMin<double>::TAccumulator;
 using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
 }
 
-void CSeasonalComponentAdaptiveBucketingTest::testInitialize(void)
+void CSeasonalComponentAdaptiveBucketingTest::testInitialize()
 {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testInitialize  |");
@@ -77,7 +77,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testInitialize(void)
     CPPUNIT_ASSERT_EQUAL(expectedValues, core::CContainerPrinter::print(values));
 }
 
-void CSeasonalComponentAdaptiveBucketingTest::testSwap(void)
+void CSeasonalComponentAdaptiveBucketingTest::testSwap()
 {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testSwap  |");
@@ -120,7 +120,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testSwap(void)
     CPPUNIT_ASSERT_EQUAL(checksum2, bucketing1.checksum());
 }
 
-void CSeasonalComponentAdaptiveBucketingTest::testRefine(void)
+void CSeasonalComponentAdaptiveBucketingTest::testRefine()
 {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testRefine  |");
@@ -331,7 +331,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine(void)
     }
 }
 
-void CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime(void)
+void CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime()
 {
     LOG_DEBUG("+------------------------------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime  |");
@@ -372,7 +372,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime(void)
     }
 }
 
-void CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength(void)
+void CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength()
 {
     LOG_DEBUG("+--------------------------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength  |");
@@ -444,7 +444,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength(void)
     }
 }
 
-void CSeasonalComponentAdaptiveBucketingTest::testUnintialized(void)
+void CSeasonalComponentAdaptiveBucketingTest::testUnintialized()
 {
     LOG_DEBUG("+-------------------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testUnintialized  |");
@@ -495,7 +495,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testUnintialized(void)
 }
 
 
-void CSeasonalComponentAdaptiveBucketingTest::testKnots(void)
+void CSeasonalComponentAdaptiveBucketingTest::testKnots()
 {
     LOG_DEBUG("+------------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testKnots  |");
@@ -607,7 +607,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testKnots(void)
     }
 }
 
-void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots(void)
+void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots()
 {
     LOG_DEBUG("+-------------------------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots  |");
@@ -673,7 +673,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots(void)
     }
 }
 
-void CSeasonalComponentAdaptiveBucketingTest::testShiftValue(void)
+void CSeasonalComponentAdaptiveBucketingTest::testShiftValue()
 {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testShiftValue  |");
@@ -724,7 +724,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testShiftValue(void)
     }
 }
 
-void CSeasonalComponentAdaptiveBucketingTest::testSlope(void)
+void CSeasonalComponentAdaptiveBucketingTest::testSlope()
 {
     LOG_DEBUG("+------------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testSlope  |");
@@ -765,7 +765,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testSlope(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(slopeBefore + 10.0, slopeAfter, 1e-4);
 }
 
-void CSeasonalComponentAdaptiveBucketingTest::testPersist(void)
+void CSeasonalComponentAdaptiveBucketingTest::testPersist()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testPersist  |");
@@ -827,7 +827,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CSeasonalComponentAdaptiveBucketingTest::testUpgrade(void)
+void CSeasonalComponentAdaptiveBucketingTest::testUpgrade()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testUpgrade  |");
@@ -903,7 +903,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testUpgrade(void)
                          core::CContainerPrinter::print(restoredVariances));
 }
 
-CppUnit::Test *CSeasonalComponentAdaptiveBucketingTest::suite(void)
+CppUnit::Test *CSeasonalComponentAdaptiveBucketingTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSeasonalComponentAdaptiveBucketingTest");
 

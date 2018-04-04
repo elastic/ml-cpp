@@ -69,7 +69,7 @@ bool SSymmetricMatrix<STORAGE>::fromDelimited(const std::string &str)
 }
 
 template<typename STORAGE>
-std::string SSymmetricMatrix<STORAGE>::toDelimited(void) const
+std::string SSymmetricMatrix<STORAGE>::toDelimited() const
 {
     return core::CPersistUtils::toString(m_LowerTriangle,
                                          SToString(),
@@ -83,7 +83,7 @@ bool SVector<STORAGE>::fromDelimited(const std::string &str)
 }
 
 template<typename STORAGE>
-std::string SVector<STORAGE>::toDelimited(void) const
+std::string SVector<STORAGE>::toDelimited() const
 {
     return core::CPersistUtils::toString(m_X, SToString(), CLinearAlgebra::DELIMITER);
 }

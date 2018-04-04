@@ -117,7 +117,7 @@ class MATHS_EXPORT CStatisticalTests
 
                 //! Get the mean test p-value for the observations
                 //! to date.
-                double pValue(void) const;
+                double pValue() const;
 
                 //! Age out old p-values of the test.
                 void age(double factor);

@@ -114,7 +114,7 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
                                 const std::string &fieldName);
 
         //! Dump stats
-        virtual void dumpStats(void) const;
+        virtual void dumpStats() const;
 
         //! Compute a type from a string.  The raw string length may be longer
         //! than the length of the passed string, because the passed string may
@@ -139,7 +139,7 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
                                          bool &wasCached);
 
         //! Has the data typer's state changed?
-        virtual bool hasChanged(void) const;
+        virtual bool hasChanged() const;
 
         //! Populate the object from part of a state document
         virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
@@ -148,7 +148,7 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
         virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
 
         //! Make a function that can be called later to persist state
-        virtual TPersistFunc makePersistFunc(void) const;
+        virtual TPersistFunc makePersistFunc() const;
 
     protected:
         //! Split the string into a list of tokens.  The result of the
@@ -211,13 +211,13 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
                                size_t index);
 
                 //! Accessors
-                const std::string &str(void) const;
-                size_t            index(void) const;
-                size_t            typeCount(void) const;
+                const std::string &str() const;
+                size_t            index() const;
+                size_t            typeCount() const;
                 void              typeCount(size_t typeCount);
 
                 //! Increment the type count
-                void              incTypeCount(void);
+                void              incTypeCount();
 
             private:
                 //! String value of the token

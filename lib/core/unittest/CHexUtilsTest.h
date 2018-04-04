@@ -20,7 +20,7 @@
 class CHexUtilsTest : public CppUnit::TestFixture
 {
     public:
-        void testHexOutput(void);
+        void testHexOutput();
 
         static CppUnit::Test *suite();
 };

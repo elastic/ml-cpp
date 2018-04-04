@@ -66,10 +66,10 @@ class API_EXPORT CDataTyper
         CDataTyper(const std::string &fieldName);
 
         //! Virtual destructor for an abstract base class
-        virtual ~CDataTyper(void);
+        virtual ~CDataTyper();
 
         //! Dump stats
-        virtual void dumpStats(void) const = 0;
+        virtual void dumpStats() const = 0;
 
         //! Compute a type from a string.  The raw string length may be longer
         //! than the length of the passed string, because the passed string may
@@ -96,7 +96,7 @@ class API_EXPORT CDataTyper
                                          bool &wasCached) = 0;
 
         //! Has the data typer's state changed?
-        virtual bool hasChanged(void) const = 0;
+        virtual bool hasChanged() const = 0;
 
         //! Populate the object from part of a state document
         virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) = 0;
@@ -105,13 +105,13 @@ class API_EXPORT CDataTyper
         virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const = 0;
 
         //! Make a function that can be called later to persist state
-        virtual TPersistFunc makePersistFunc(void) const = 0;
+        virtual TPersistFunc makePersistFunc() const = 0;
 
         //! Access to the field name
-        const std::string &fieldName(void) const;
+        const std::string &fieldName() const;
 
         //! Access to last persistence time
-        core_t::TTime lastPersistTime(void) const;
+        core_t::TTime lastPersistTime() const;
 
         //! Set last persistence time
         void lastPersistTime(core_t::TTime lastPersistTime);

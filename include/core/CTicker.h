@@ -54,7 +54,7 @@ class CTicker : public CThread
         }
 
         //! Destructor will stop the ticker thread if it's already running
-        ~CTicker(void)
+        ~CTicker()
         {
             if (this->isStarted())
             {
@@ -63,7 +63,7 @@ class CTicker : public CThread
         }
 
     protected:
-        void run(void)
+        void run()
         {
             CScopedLock lock(m_Mutex);
 
@@ -79,7 +79,7 @@ class CTicker : public CThread
             m_Quit = false;
         }
 
-        void shutdown(void)
+        void shutdown()
         {
             CScopedLock lock(m_Mutex);
 

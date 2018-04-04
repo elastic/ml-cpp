@@ -42,7 +42,7 @@ void CSleep::sleep(uint32_t milliseconds)
     }
 }
 
-void CSleep::delayProcessing(void)
+void CSleep::delayProcessing()
 {
     // 0.1 seconds is a good length of time to delay processing.
     CSleep::sleep(DEFAULT_PROCESSING_DELAY);

@@ -86,7 +86,7 @@ using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
 using TFeatureSizeSizePrFeatureDataPrVecPr = std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec>;
 using TFeatureSizeSizePrFeatureDataPrVecPrVec = std::vector<TFeatureSizeSizePrFeatureDataPrVecPr>;
 
-TStrVec allCategories(void)
+TStrVec allCategories()
 {
     const std::size_t numberCategories = 30u;
     TStrVec categories;
@@ -97,7 +97,7 @@ TStrVec allCategories(void)
     return categories;
 }
 
-TStrVec allPeople(void)
+TStrVec allPeople()
 {
     const std::size_t numberPeople = 5u;
     TStrVec people;
@@ -255,7 +255,7 @@ const std::string EMPTY_STRING;
 
 }
 
-void CEventRatePopulationDataGathererTest::testAttributeCounts(void)
+void CEventRatePopulationDataGathererTest::testAttributeCounts()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testAttributeCounts ***");
 
@@ -391,7 +391,7 @@ void CEventRatePopulationDataGathererTest::testAttributeCounts(void)
     LOG_DEBUG("expected people ids = " << core::CContainerPrinter::print(expectedPeopleOrder));
 }
 
-void CEventRatePopulationDataGathererTest::testAttributeIndicator(void)
+void CEventRatePopulationDataGathererTest::testAttributeIndicator()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testAttributeIndicator ***");
 
@@ -465,7 +465,7 @@ void CEventRatePopulationDataGathererTest::testAttributeIndicator(void)
     }
 }
 
-void CEventRatePopulationDataGathererTest::testUniqueValueCounts(void)
+void CEventRatePopulationDataGathererTest::testUniqueValueCounts()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testUniqueAttributeCounts ***");
 
@@ -548,7 +548,7 @@ void CEventRatePopulationDataGathererTest::testUniqueValueCounts(void)
     }
 }
 
-void CEventRatePopulationDataGathererTest::testCompressedLength(void)
+void CEventRatePopulationDataGathererTest::testCompressedLength()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testCompressedLength ***");
 
@@ -654,7 +654,7 @@ void CEventRatePopulationDataGathererTest::testCompressedLength(void)
     }
 }
 
-void CEventRatePopulationDataGathererTest::testRemovePeople(void)
+void CEventRatePopulationDataGathererTest::testRemovePeople()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testRemovePeople ***");
 
@@ -814,7 +814,7 @@ void CEventRatePopulationDataGathererTest::testRemovePeople(void)
 
 }
 
-void CEventRatePopulationDataGathererTest::testRemoveAttributes(void)
+void CEventRatePopulationDataGathererTest::testRemoveAttributes()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testRemoveAttributes ***");
 
@@ -946,7 +946,7 @@ bool isSpace(const char x)
 }
 }
 
-void CEventRatePopulationDataGathererTest::testPersistence(void)
+void CEventRatePopulationDataGathererTest::testPersistence()
 {
     LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testPersistence ***");
 
@@ -1104,7 +1104,7 @@ void CEventRatePopulationDataGathererTest::testPersistence(void)
 
 }
 
-CppUnit::Test *CEventRatePopulationDataGathererTest::suite(void)
+CppUnit::Test *CEventRatePopulationDataGathererTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRatePopulationDataGathererTest");
 

@@ -72,13 +72,13 @@ const std::size_t MIN_DEQUE_PAGE_SIZE = 512;
 const std::size_t MIN_DEQUE_PAGE_VEC_ENTRIES = 8;
 #endif
 
-template<typename T, std::size_t (T::*)(void) const, typename R = void>
+template<typename T, std::size_t (T::*)() const, typename R = void>
 struct enable_if_member_function
 {
     using type = R;
 };
 
-template<bool (*)(void), typename R = void>
+template<bool (*)(), typename R = void>
 struct enable_if_function
 {
     using type = R;
@@ -91,7 +91,7 @@ struct SMemoryDynamicSize
     static std::size_t dispatch(const T &) { return 0; }
 };
 
-//! \brief Template specialisation where T has member function "memoryUsage(void)"
+//! \brief Template specialisation where T has member function "memoryUsage()"
 template<typename T>
 struct SMemoryDynamicSize<T, typename enable_if_member_function<T, &T::memoryUsage>::type>
 {
@@ -123,7 +123,7 @@ struct SMemoryStaticSize<T, typename enable_if_member_function<T, &T::staticSize
 template<typename T, typename ENABLE = void>
 struct SDynamicSizeAlwaysZero
 {
-    static inline bool value(void)
+    static inline bool value()
     {
         return boost::is_pod<T>::value;
     }
@@ -133,7 +133,7 @@ struct SDynamicSizeAlwaysZero
 template<typename U, typename V>
 struct SDynamicSizeAlwaysZero<std::pair<U, V>>
 {
-    static inline bool value(void)
+    static inline bool value()
     {
         return SDynamicSizeAlwaysZero<U>::value() && SDynamicSizeAlwaysZero<V>::value();
     }
@@ -143,28 +143,28 @@ struct SDynamicSizeAlwaysZero<std::pair<U, V>>
 template<typename T>
 struct SDynamicSizeAlwaysZero<std::less<T>>
 {
-    static inline bool value(void) { return true; }
+    static inline bool value() { return true; }
 };
 
 //! \brief Specialisation for std::greater always true.
 template<typename T>
 struct SDynamicSizeAlwaysZero<std::greater<T>>
 {
-    static inline bool value(void) { return true; }
+    static inline bool value() { return true; }
 };
 
 //! \brief Checks type in optional.
 template<typename T>
 struct SDynamicSizeAlwaysZero<boost::optional<T>>
 {
-    static inline bool value(void) { return SDynamicSizeAlwaysZero<T>::value(); }
+    static inline bool value() { return SDynamicSizeAlwaysZero<T>::value(); }
 };
 
 //! \brief Check for member dynamicSizeAlwaysZero function.
 template<typename T>
 struct SDynamicSizeAlwaysZero<T, typename enable_if_function<&T::dynamicSizeAlwaysZero>::type>
 {
-    static inline bool value(void) { return T::dynamicSizeAlwaysZero(); }
+    static inline bool value() { return T::dynamicSizeAlwaysZero(); }
 };
 
 //! \brief Total ordering of type_info objects.
@@ -214,7 +214,7 @@ static bool inplace(const CSmallVector<T, N> &t)
 //! the memory used by different ml classes and standard containers.
 //!
 //! ML classes can declare a public member function:
-//!     std::size_t memoryUsage(void) const;
+//!     std::size_t memoryUsage() const;
 //!
 //! which should call CMemory::dynamicSize(t); on all its dynamic members.
 //!
@@ -222,7 +222,7 @@ static bool inplace(const CSmallVector<T, N> &t)
 //! of derived classes from the base pointer, so wherever the afore-
 //! mentioned memoryUsage() function is virtual, an associated function
 //!
-//!     std::size_t staticSize(void) const;
+//!     std::size_t staticSize() const;
 //!
 //! should be declared, returning sizeof(*this).
 //!
@@ -266,7 +266,7 @@ class CORE_EXPORT CMemory : private CNonInstantiatable
                 //! Insert a callback to compute the size of the type T
                 //! if it is stored in boost::any.
                 template<typename T>
-                bool registerCallback(void)
+                bool registerCallback()
                 {
                     auto i = std::lower_bound(m_Callbacks.begin(),
                                               m_Callbacks.end(),
@@ -655,7 +655,7 @@ class CORE_EXPORT CMemory : private CNonInstantiatable
         }
 
         //! Get the any visitor singleton.
-        static CAnyVisitor &anyVisitor(void)
+        static CAnyVisitor &anyVisitor()
         {
             return ms_AnyVisitor;
         }
@@ -746,7 +746,7 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable
                 //! Insert a callback to compute the size of the type T
                 //! if it is stored in boost::any.
                 template<typename T>
-                bool registerCallback(void)
+                bool registerCallback()
                 {
                     auto i = std::lower_bound(m_Callbacks.begin(),
                                               m_Callbacks.end(),
@@ -1247,7 +1247,7 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable
         }
 
         //! Get the any visitor singleton.
-        static CAnyVisitor &anyVisitor(void)
+        static CAnyVisitor &anyVisitor()
         {
             return ms_AnyVisitor;
         }

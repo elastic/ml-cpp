@@ -21,7 +21,7 @@
 class CShellArgQuoterTest : public CppUnit::TestFixture
 {
     public:
-        void testQuote(void);
+        void testQuote();
 
         static CppUnit::Test *suite();
 };

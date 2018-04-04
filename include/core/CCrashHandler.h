@@ -46,7 +46,7 @@ namespace core
 class CORE_EXPORT CCrashHandler : private CNonInstantiatable
 {
     public:
-        static void installCrashHandler(void);
+        static void installCrashHandler();
 };
 
 }

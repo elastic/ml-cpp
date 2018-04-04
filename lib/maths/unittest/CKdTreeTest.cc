@@ -45,7 +45,7 @@ std::string print(const T &t)
     return o.str();
 }
 
-void CKdTreeTest::testBuild(void)
+void CKdTreeTest::testBuild()
 {
     LOG_DEBUG("+--------------------------+");
     LOG_DEBUG("|  CKdTreeTest::testBuild  |");
@@ -88,7 +88,7 @@ void CKdTreeTest::testBuild(void)
     }
 }
 
-void CKdTreeTest::testNearestNeighbour(void)
+void CKdTreeTest::testNearestNeighbour()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CKdTreeTest::testNearestNeighbour  |");
@@ -152,7 +152,7 @@ void CKdTreeTest::testNearestNeighbour(void)
     }
 }
 
-CppUnit::Test *CKdTreeTest::suite(void)
+CppUnit::Test *CKdTreeTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CKdTreeTest");
 

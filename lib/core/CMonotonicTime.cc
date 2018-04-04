@@ -25,7 +25,7 @@ namespace core
 {
 
 
-CMonotonicTime::CMonotonicTime(void)
+CMonotonicTime::CMonotonicTime()
     // Scaling factors never vary for clock_gettime()
     : m_ScalingFactor1(0),
       m_ScalingFactor2(0),
@@ -33,7 +33,7 @@ CMonotonicTime::CMonotonicTime(void)
 {
 }
 
-uint64_t CMonotonicTime::milliseconds(void) const
+uint64_t CMonotonicTime::milliseconds() const
 {
     struct timespec ts;
 
@@ -67,7 +67,7 @@ uint64_t CMonotonicTime::milliseconds(void) const
     return result;
 }
 
-uint64_t CMonotonicTime::nanoseconds(void) const
+uint64_t CMonotonicTime::nanoseconds() const
 {
     struct timespec ts;
 

@@ -56,49 +56,49 @@ class CONFIG_EXPORT CDetectorRecord
                         const TSizeAry &hashedFieldValues);
 
         //! Get the record time.
-        core_t::TTime time(void) const;
+        core_t::TTime time() const;
 
         //! Get the function of the record detector.
-        config_t::EFunctionCategory function(void) const;
+        config_t::EFunctionCategory function() const;
 
         //! Get the name of the argument field.
-        const std::string *argumentFieldName(void) const;
+        const std::string *argumentFieldName() const;
 
         //! Get the name of the by field.
-        const std::string *byFieldName(void) const;
+        const std::string *byFieldName() const;
 
         //! Get the name of the over field.
-        const std::string *overFieldName(void) const;
+        const std::string *overFieldName() const;
 
         //! Get the name of the partition field.
-        const std::string *partitionFieldName(void) const;
+        const std::string *partitionFieldName() const;
 
         //! Get the argument field value if there is one or null.
-        const std::string *argumentFieldValue(void) const;
+        const std::string *argumentFieldValue() const;
 
         //! Get the by field value if there is one or null.
-        const std::string *byFieldValue(void) const;
+        const std::string *byFieldValue() const;
 
         //! Get the over field value if there is one or null.
-        const std::string *overFieldValue(void) const;
+        const std::string *overFieldValue() const;
 
         //! Get the partition field value if there is one or null.
-        const std::string *partitionFieldValue(void) const;
+        const std::string *partitionFieldValue() const;
 
         //! Get the argument field value hash.
-        std::size_t argumentFieldValueHash(void) const;
+        std::size_t argumentFieldValueHash() const;
 
         //! Get the by field value hash.
-        std::size_t byFieldValueHash(void) const;
+        std::size_t byFieldValueHash() const;
 
         //! Get the over field value hash.
-        std::size_t overFieldValueHash(void) const;
+        std::size_t overFieldValueHash() const;
 
         //! Get the partition field value hash.
-        std::size_t partitionFieldValueHash(void) const;
+        std::size_t partitionFieldValueHash() const;
 
         //! Print a description of this record for debug.
-        std::string print(void) const;
+        std::string print() const;
 
     private:
         //! The record time.
@@ -145,7 +145,7 @@ class CONFIG_EXPORT CDetectorRecordDirectAddressTable
 
     private:
         //! Clear the state (as a precursor to build).
-        void clear(void);
+        void clear();
 
     private:
         using TSizeVec = std::vector<std::size_t>;

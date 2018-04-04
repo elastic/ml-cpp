@@ -38,7 +38,7 @@ CRapidXmlStateRestoreTraverser::CRapidXmlStateRestoreTraverser(const CRapidXmlPa
     }
 }
 
-bool CRapidXmlStateRestoreTraverser::next(void)
+bool CRapidXmlStateRestoreTraverser::next()
 {
     CRapidXmlParser::TCharRapidXmlNode *next(this->nextNodeElement());
     if (next == 0)
@@ -54,12 +54,12 @@ bool CRapidXmlStateRestoreTraverser::next(void)
     return true;
 }
 
-bool CRapidXmlStateRestoreTraverser::hasSubLevel(void) const
+bool CRapidXmlStateRestoreTraverser::hasSubLevel() const
 {
     return this->firstChildNodeElement() != 0;
 }
 
-const std::string &CRapidXmlStateRestoreTraverser::name(void) const
+const std::string &CRapidXmlStateRestoreTraverser::name() const
 {
     if (!m_IsNameCacheValid)
     {
@@ -78,7 +78,7 @@ const std::string &CRapidXmlStateRestoreTraverser::name(void) const
     return m_CachedName;
 }
 
-const std::string &CRapidXmlStateRestoreTraverser::value(void) const
+const std::string &CRapidXmlStateRestoreTraverser::value() const
 {
     if (!m_IsValueCacheValid)
     {
@@ -98,7 +98,7 @@ const std::string &CRapidXmlStateRestoreTraverser::value(void) const
     return m_CachedValue;
 }
 
-bool CRapidXmlStateRestoreTraverser::descend(void)
+bool CRapidXmlStateRestoreTraverser::descend()
 {
     CRapidXmlParser::TCharRapidXmlNode *child(this->firstChildNodeElement());
     if (child == 0)
@@ -114,7 +114,7 @@ bool CRapidXmlStateRestoreTraverser::descend(void)
     return true;
 }
 
-bool CRapidXmlStateRestoreTraverser::ascend(void)
+bool CRapidXmlStateRestoreTraverser::ascend()
 {
     if (m_CurrentNode == 0)
     {
@@ -135,7 +135,7 @@ bool CRapidXmlStateRestoreTraverser::ascend(void)
     return true;
 }
 
-CRapidXmlParser::TCharRapidXmlNode *CRapidXmlStateRestoreTraverser::nextNodeElement(void) const
+CRapidXmlParser::TCharRapidXmlNode *CRapidXmlStateRestoreTraverser::nextNodeElement() const
 {
     if (m_CurrentNode == 0)
     {
@@ -157,7 +157,7 @@ CRapidXmlParser::TCharRapidXmlNode *CRapidXmlStateRestoreTraverser::nextNodeElem
     return 0;
 }
 
-CRapidXmlParser::TCharRapidXmlNode *CRapidXmlStateRestoreTraverser::firstChildNodeElement(void) const
+CRapidXmlParser::TCharRapidXmlNode *CRapidXmlStateRestoreTraverser::firstChildNodeElement() const
 {
     if (m_CurrentNode == 0)
     {
@@ -179,7 +179,7 @@ CRapidXmlParser::TCharRapidXmlNode *CRapidXmlStateRestoreTraverser::firstChildNo
     return 0;
 }
 
-bool CRapidXmlStateRestoreTraverser::isEof(void) const
+bool CRapidXmlStateRestoreTraverser::isEof() const
 {
     return false;
 }

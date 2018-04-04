@@ -21,11 +21,11 @@
 class CDetectorEqualizerTest : public CppUnit::TestFixture
 {
     public:
-        void testCorrect(void);
-        void testAge(void);
-        void testPersist(void);
+        void testCorrect();
+        void testAge();
+        void testPersist();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CDetectorEqualizerTest_h

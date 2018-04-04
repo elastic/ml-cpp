@@ -244,7 +244,7 @@ void CRandomNumbers::generateWords(std::size_t length,
     }
 }
 
-CRandomNumbers::CUniform0nGenerator CRandomNumbers::uniformGenerator(void)
+CRandomNumbers::CUniform0nGenerator CRandomNumbers::uniformGenerator()
 {
     return CUniform0nGenerator(m_Generator);
 }

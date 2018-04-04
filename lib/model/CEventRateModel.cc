@@ -154,22 +154,22 @@ bool CEventRateModel::acceptRestoreTraverser(core::CStateRestoreTraverser &trave
     return true;
 }
 
-CAnomalyDetectorModel *CEventRateModel::cloneForPersistence(void) const
+CAnomalyDetectorModel *CEventRateModel::cloneForPersistence() const
 {
     return new CEventRateModel(true, *this);
 }
 
-model_t::EModelType CEventRateModel::category(void) const
+model_t::EModelType CEventRateModel::category() const
 {
     return model_t::E_EventRateOnline;
 }
 
-bool CEventRateModel::isEventRate(void) const
+bool CEventRateModel::isEventRate() const
 {
     return true;
 }
 
-bool CEventRateModel::isMetric(void) const
+bool CEventRateModel::isMetric() const
 {
     return false;
 }
@@ -539,17 +539,17 @@ void CEventRateModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
     core::CMemoryDebug::dynamicSize("m_ProbabilityPrior", m_ProbabilityPrior, mem);
 }
 
-std::size_t CEventRateModel::memoryUsage(void) const
+std::size_t CEventRateModel::memoryUsage() const
 {
     return this->CIndividualModel::memoryUsage();
 }
 
-std::size_t CEventRateModel::staticSize(void) const
+std::size_t CEventRateModel::staticSize() const
 {
     return sizeof(*this);
 }
 
-std::size_t CEventRateModel::computeMemoryUsage(void) const
+std::size_t CEventRateModel::computeMemoryUsage() const
 {
     std::size_t mem = this->CIndividualModel::computeMemoryUsage();
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
@@ -560,7 +560,7 @@ std::size_t CEventRateModel::computeMemoryUsage(void) const
     return mem;
 }
 
-CEventRateModel::CModelDetailsViewPtr CEventRateModel::details(void) const
+CEventRateModel::CModelDetailsViewPtr CEventRateModel::details() const
 {
     return CModelDetailsViewPtr(new CEventRateModelDetailsView(*this));
 }
@@ -572,7 +572,7 @@ const CEventRateModel::TFeatureData *CEventRateModel::featureData(model_t::EFeat
     return this->CIndividualModel::featureData(feature, pid, time, m_CurrentBucketStats.s_FeatureData);
 }
 
-core_t::TTime CEventRateModel::currentBucketStartTime(void) const
+core_t::TTime CEventRateModel::currentBucketStartTime() const
 {
     return m_CurrentBucketStats.s_StartTime;
 }
@@ -582,12 +582,12 @@ void CEventRateModel::currentBucketStartTime(core_t::TTime time)
     m_CurrentBucketStats.s_StartTime = time;
 }
 
-const CEventRateModel::TSizeUInt64PrVec &CEventRateModel::currentBucketPersonCounts(void) const
+const CEventRateModel::TSizeUInt64PrVec &CEventRateModel::currentBucketPersonCounts() const
 {
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
-CEventRateModel::TSizeUInt64PrVec &CEventRateModel::currentBucketPersonCounts(void)
+CEventRateModel::TSizeUInt64PrVec &CEventRateModel::currentBucketPersonCounts()
 {
     return m_CurrentBucketStats.s_PersonCounts;
 }
@@ -597,13 +597,13 @@ void CEventRateModel::currentBucketTotalCount(uint64_t totalCount)
     m_CurrentBucketStats.s_TotalCount = totalCount;
 }
 
-uint64_t CEventRateModel::currentBucketTotalCount(void) const
+uint64_t CEventRateModel::currentBucketTotalCount() const
 {
     return m_CurrentBucketStats.s_TotalCount;
 }
 
 CIndividualModel::TFeatureSizeSizeTripleDouble1VecUMap &
-    CEventRateModel::currentBucketInterimCorrections(void) const
+    CEventRateModel::currentBucketInterimCorrections() const
 {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
@@ -613,7 +613,7 @@ void CEventRateModel::createNewModels(std::size_t n, std::size_t m)
     this->CIndividualModel::createNewModels(n, m);
 }
 
-void CEventRateModel::updateRecycledModels(void)
+void CEventRateModel::updateRecycledModels()
 {
     this->CIndividualModel::updateRecycledModels();
 }

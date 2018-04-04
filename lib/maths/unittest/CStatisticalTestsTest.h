@@ -21,10 +21,10 @@
 class CStatisticalTestsTest : public CppUnit::TestFixture
 {
     public:
-        void testCramerVonMises(void);
-        void testPersist(void);
+        void testCramerVonMises();
+        void testPersist();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CStatisticalTestsTest_h

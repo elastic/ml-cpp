@@ -31,7 +31,7 @@ CDataTyper::CDataTyper(const std::string &fieldName)
 {
 }
 
-CDataTyper::~CDataTyper(void)
+CDataTyper::~CDataTyper()
 {
 }
 
@@ -42,12 +42,12 @@ int CDataTyper::computeType(bool isDryRun,
     return this->computeType(isDryRun, EMPTY_FIELDS, str, rawStringLen);
 }
 
-const std::string &CDataTyper::fieldName(void) const
+const std::string &CDataTyper::fieldName() const
 {
     return m_FieldName;
 }
 
-core_t::TTime CDataTyper::lastPersistTime(void) const
+core_t::TTime CDataTyper::lastPersistTime() const
 {
     return m_LastPersistTime;
 }

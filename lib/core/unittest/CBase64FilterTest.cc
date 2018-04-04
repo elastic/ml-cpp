@@ -63,7 +63,7 @@ class CMockSource
             return toCopy;
         }
 
-        void close(void)
+        void close()
         {
         }
 
@@ -94,10 +94,10 @@ class CMockSink
             return n;
         }
 
-        void close(void)
+        void close()
         {}
 
-        const std::string getData(void) const
+        const std::string getData() const
         {
             return m_Data;
         }
@@ -133,7 +133,7 @@ void testEncodeDecode(const std::string &input)
 }
 
 
-void CBase64FilterTest::testEncode(void)
+void CBase64FilterTest::testEncode()
 {
     {
         // Test encode ability, with known test data
@@ -178,7 +178,7 @@ void CBase64FilterTest::testEncode(void)
 }
 
 
-void CBase64FilterTest::testDecode(void)
+void CBase64FilterTest::testDecode()
 {
     {
         // Test decoding
@@ -214,7 +214,7 @@ void CBase64FilterTest::testDecode(void)
 }
 
 
-void CBase64FilterTest::testBoth(void)
+void CBase64FilterTest::testBoth()
 {
     {
         ::testEncodeDecode("a");

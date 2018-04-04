@@ -20,7 +20,7 @@
 class CTickerTest : public CppUnit::TestFixture
 {
     public:
-        void    testTicker(void);
+        void    testTicker();
 
         static CppUnit::Test *suite();
 };

@@ -129,7 +129,7 @@ class API_EXPORT CLengthEncodedInputParser : public CInputParser
                                    std::string &str);
 
         //! Refill the working buffer from the stream
-        size_t refillBuffer(void);
+        size_t refillBuffer();
 
     private:
         //! Allocate this much memory for the working buffer

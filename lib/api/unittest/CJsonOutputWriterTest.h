@@ -21,23 +21,23 @@
 class CJsonOutputWriterTest : public CppUnit::TestFixture
 {
     public:
-        void testSimpleWrite(void);
-        void testWriteNonAnomalousBucket(void);
-        void testBucketWrite(void);
-        void testBucketWriteInterim(void);
-        void testLimitedRecordsWrite(void);
-        void testLimitedRecordsWriteInterim(void);
-        void testFlush(void);
-        void testWriteCategoryDefinition(void);
-        void testWriteWithInfluences(void);
-        void testWriteInfluencers(void);
-        void testWriteInfluencersWithLimit(void);
-        void testPersistNormalizer(void);
-        void testPartitionScores(void);
-        void testReportMemoryUsage(void);
-        void testWriteScheduledEvent(void);
-        void testThroughputWithScopedAllocator(void);
-        void testThroughputWithoutScopedAllocator(void);
+        void testSimpleWrite();
+        void testWriteNonAnomalousBucket();
+        void testBucketWrite();
+        void testBucketWriteInterim();
+        void testLimitedRecordsWrite();
+        void testLimitedRecordsWriteInterim();
+        void testFlush();
+        void testWriteCategoryDefinition();
+        void testWriteWithInfluences();
+        void testWriteInfluencers();
+        void testWriteInfluencersWithLimit();
+        void testPersistNormalizer();
+        void testPartitionScores();
+        void testReportMemoryUsage();
+        void testWriteScheduledEvent();
+        void testThroughputWithScopedAllocator();
+        void testThroughputWithoutScopedAllocator();
 
         static CppUnit::Test *suite();
 

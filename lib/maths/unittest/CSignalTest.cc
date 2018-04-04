@@ -63,7 +63,7 @@ void bruteForceDft(maths::CSignal::TComplexVec &f, double sign)
 
 }
 
-void CSignalTest::testFFTVersusOctave(void)
+void CSignalTest::testFFTVersusOctave()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CSignalTest::testFFTVersusOctave  |");
@@ -193,7 +193,7 @@ void CSignalTest::testFFTVersusOctave(void)
     }
 }
 
-void CSignalTest::testIFFTVersusOctave(void)
+void CSignalTest::testIFFTVersusOctave()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CSignalTest::testIFFTVersusOctave  |");
@@ -284,7 +284,7 @@ void CSignalTest::testIFFTVersusOctave(void)
     }
 }
 
-void CSignalTest::testFFTRandomized(void)
+void CSignalTest::testFFTRandomized()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CSignalTest::testFFTRandomized  |");
@@ -329,7 +329,7 @@ void CSignalTest::testFFTRandomized(void)
     }
 }
 
-void CSignalTest::testIFFTRandomized(void)
+void CSignalTest::testIFFTRandomized()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CSignalTest::testIFFTRandomized  |");
@@ -374,7 +374,7 @@ void CSignalTest::testIFFTRandomized(void)
     }
 }
 
-void CSignalTest::testFFTIFFTIdempotency(void)
+void CSignalTest::testFFTIFFTIdempotency()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CSignalTest::testFFTIFFTIdempotency  |");
@@ -419,7 +419,7 @@ void CSignalTest::testFFTIFFTIdempotency(void)
     }
 }
 
-void CSignalTest::testAutocorrelations(void)
+void CSignalTest::testAutocorrelations()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CSignalTest::testAutocorrelations  |");
@@ -460,7 +460,7 @@ void CSignalTest::testAutocorrelations(void)
     }
 }
 
-CppUnit::Test *CSignalTest::suite(void)
+CppUnit::Test *CSignalTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSignalTest");
 

@@ -65,7 +65,7 @@ class API_EXPORT CBenchMarker
         using TRegexIntSizeStrPrMapPrVecCItr = TRegexIntSizeStrPrMapPrVec::const_iterator;
 
     public:
-        CBenchMarker(void);
+        CBenchMarker();
 
         //! Initialise from a file
         bool init(const std::string &regexFilename);
@@ -74,7 +74,7 @@ class API_EXPORT CBenchMarker
         void addResult(const std::string &message,
                        int type);
 
-        void dumpResults(void) const;
+        void dumpResults() const;
 
     private:
         //! Number of messages passed to the benchmarker

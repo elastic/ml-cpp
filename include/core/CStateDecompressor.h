@@ -78,12 +78,12 @@ class CORE_EXPORT CStateDecompressor : public CDataSearcher
                 std::streamsize read(char *s, std::streamsize n);
 
                 //! Interface method: close the downstream stream
-                void close(void);
+                void close();
 
             private:
                 //! Find the JSON header
                 //! Read until the array field CStateCompressor::COMPRESSED is found
-                bool readHeader(void);
+                bool readHeader();
 
                 //! Manage the reading of bytes from the stream
                 void handleRead(char *s, std::streamsize n, std::streamsize &bytesDone);

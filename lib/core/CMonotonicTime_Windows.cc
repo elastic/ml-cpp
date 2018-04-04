@@ -24,7 +24,7 @@ namespace core
 {
 
 
-CMonotonicTime::CMonotonicTime(void)
+CMonotonicTime::CMonotonicTime()
     : m_ScalingFactor1(0),
       // Only one variable scaling factor is needed on Windows
       m_ScalingFactor2(0),
@@ -42,13 +42,13 @@ CMonotonicTime::CMonotonicTime(void)
     }
 }
 
-uint64_t CMonotonicTime::milliseconds(void) const
+uint64_t CMonotonicTime::milliseconds() const
 {
     // This is only accurate to about 15 milliseconds
     return GetTickCount64();
 }
 
-uint64_t CMonotonicTime::nanoseconds(void) const
+uint64_t CMonotonicTime::nanoseconds() const
 {
     if (m_ScalingFactor1 == 0)
     {

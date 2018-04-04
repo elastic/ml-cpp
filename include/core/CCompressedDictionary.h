@@ -89,13 +89,13 @@ class CCompressedDictionary
         {
             public:
                 //! See CMemory.
-                static bool dynamicSizeAlwaysZero(void) { return true; }
+                static bool dynamicSizeAlwaysZero() { return true; }
 
                 //! Used for converting to and from a delimited string.
                 static const char DELIMITER;
 
             public:
-                CWord(void)
+                CWord()
                 {
                     std::fill(m_Hash.begin(), m_Hash.end(), 0);
                 }
@@ -129,7 +129,7 @@ class CCompressedDictionary
                     return n == N;
                 }
 
-                std::string toDelimited(void) const
+                std::string toDelimited() const
                 {
                     std::string result = CStringUtils::typeToString(m_Hash[0]);
                     for (std::size_t i = 1; i < N; ++i)
@@ -140,17 +140,17 @@ class CCompressedDictionary
                     return result;
                 }
 
-                std::size_t hash(void) const
+                std::size_t hash() const
                 {
                     return static_cast<std::size_t>(m_Hash[0]);
                 }
 
-                uint64_t hash64(void) const
+                uint64_t hash64() const
                 {
                     return m_Hash[0];
                 }
 
-                std::string print(void) const
+                std::string print() const
                 {
                     return CContainerPrinter::print(m_Hash);
                 }
@@ -194,7 +194,7 @@ class CCompressedDictionary
         };
 
     public:
-        CCompressedDictionary(void)
+        CCompressedDictionary()
         {
             // 472882027 and 982451653 are prime numbers, so repeatedly
             // multiplying them will give many distinct seeds modulo 2 ^ 64.

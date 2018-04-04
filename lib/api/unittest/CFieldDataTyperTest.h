@@ -22,11 +22,11 @@
 class CFieldDataTyperTest : public CppUnit::TestFixture
 {
     public:
-        void testAll(void);
-        void testNodeReverseSearch(void);
-        void testPassOnControlMessages(void);
-        void testHandleControlMessages(void);
-        void testRestoreStateFailsWithEmptyState(void);
+        void testAll();
+        void testNodeReverseSearch();
+        void testPassOnControlMessages();
+        void testHandleControlMessages();
+        void testRestoreStateFailsWithEmptyState();
 
         static CppUnit::Test *suite();
 

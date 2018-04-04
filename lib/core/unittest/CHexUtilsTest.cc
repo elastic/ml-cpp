@@ -34,7 +34,7 @@ CppUnit::Test *CHexUtilsTest::suite()
     return suiteOfTests;
 }
 
-void CHexUtilsTest::testHexOutput(void)
+void CHexUtilsTest::testHexOutput()
 {
     // Seed the random number generator
     ::srand(static_cast<unsigned int>(::clock()));

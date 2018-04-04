@@ -84,7 +84,7 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
 
 }
 
-void CQuantileSketchTest::testAdd(void)
+void CQuantileSketchTest::testAdd()
 {
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  CQuantileSketchTest::testAdd  |");
@@ -111,7 +111,7 @@ void CQuantileSketchTest::testAdd(void)
                          core::CContainerPrinter::print(sketch.knots()));
 }
 
-void CQuantileSketchTest::testReduce(void)
+void CQuantileSketchTest::testReduce()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CQuantileSketchTest::testReduce  |");
@@ -304,7 +304,7 @@ void CQuantileSketchTest::testReduce(void)
     }
 }
 
-void CQuantileSketchTest::testMerge(void)
+void CQuantileSketchTest::testMerge()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CQuantileSketchTest::testMerge  |");
@@ -374,7 +374,7 @@ void CQuantileSketchTest::testMerge(void)
     }
 }
 
-void CQuantileSketchTest::testMedian(void)
+void CQuantileSketchTest::testMedian()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CQuantileSketchTest::testMedian  |");
@@ -439,7 +439,7 @@ void CQuantileSketchTest::testMedian(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 1.6);
 }
 
-void CQuantileSketchTest::testPropagateForwardByTime(void)
+void CQuantileSketchTest::testPropagateForwardByTime()
 {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CQuantileSketchTest::testPropagateForwardByTime  |");
@@ -460,7 +460,7 @@ void CQuantileSketchTest::testPropagateForwardByTime(void)
     CPPUNIT_ASSERT(sketch.checkInvariants());
 }
 
-void CQuantileSketchTest::testQuantileAccuracy(void)
+void CQuantileSketchTest::testQuantileAccuracy()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CQuantileSketchTest::testQuantileAccuracy  |");
@@ -565,7 +565,7 @@ void CQuantileSketchTest::testQuantileAccuracy(void)
     }
 }
 
-void CQuantileSketchTest::testCdf(void)
+void CQuantileSketchTest::testCdf()
 {
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  CQuantileSketchTest::testCdf  |");
@@ -649,7 +649,7 @@ void CQuantileSketchTest::testCdf(void)
     }
 }
 
-void CQuantileSketchTest::testPersist(void)
+void CQuantileSketchTest::testPersist()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CQuantileSketchTest::testPersist  |");
@@ -697,7 +697,7 @@ void CQuantileSketchTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test* CQuantileSketchTest::suite(void)
+CppUnit::Test* CQuantileSketchTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CQuantileSketchTest");
 

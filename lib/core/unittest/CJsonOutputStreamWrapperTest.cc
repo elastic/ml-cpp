@@ -65,7 +65,7 @@ void task(ml::core::CJsonOutputStreamWrapper &wrapper, int id, int documents)
 
 }
 
-void CJsonOutputStreamWrapperTest::testConcurrentWrites(void)
+void CJsonOutputStreamWrapperTest::testConcurrentWrites()
 {
     std::ostringstream stringStream;
 
@@ -93,7 +93,7 @@ void CJsonOutputStreamWrapperTest::testConcurrentWrites(void)
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(WRITERS * DOCUMENTS_PER_WRITER), allRecords.Size());
 }
 
-void CJsonOutputStreamWrapperTest::testShrink(void)
+void CJsonOutputStreamWrapperTest::testShrink()
 {
     std::ostringstream stringStream;
     ml::core::CJsonOutputStreamWrapper wrapper(stringStream);

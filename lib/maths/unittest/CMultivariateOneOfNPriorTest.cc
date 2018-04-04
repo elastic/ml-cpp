@@ -146,7 +146,7 @@ std::string print(maths_t::EDataType dataType)
 
 }
 
-void CMultivariateOneOfNPriorTest::testMultipleUpdate(void)
+void CMultivariateOneOfNPriorTest::testMultipleUpdate()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testMultipleUpdate  |");
@@ -252,7 +252,7 @@ void CMultivariateOneOfNPriorTest::testMultipleUpdate(void)
     }
 }
 
-void CMultivariateOneOfNPriorTest::testPropagation(void)
+void CMultivariateOneOfNPriorTest::testPropagation()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testPropagation  |");
@@ -339,7 +339,7 @@ void CMultivariateOneOfNPriorTest::testPropagation(void)
     CPPUNIT_ASSERT(propagatedLogWeightRatio < logWeightRatio);
 }
 
-void CMultivariateOneOfNPriorTest::testWeightUpdate(void)
+void CMultivariateOneOfNPriorTest::testWeightUpdate()
 {
     LOG_DEBUG("+--------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testWeightUpdate  |");
@@ -421,7 +421,7 @@ void CMultivariateOneOfNPriorTest::testWeightUpdate(void)
     }
 }
 
-void CMultivariateOneOfNPriorTest::testModelUpdate(void)
+void CMultivariateOneOfNPriorTest::testModelUpdate()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testModelUpdate  |");
@@ -469,7 +469,7 @@ void CMultivariateOneOfNPriorTest::testModelUpdate(void)
     }
 }
 
-void CMultivariateOneOfNPriorTest::testModelSelection(void)
+void CMultivariateOneOfNPriorTest::testModelSelection()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testModelSelection  |");
@@ -478,7 +478,7 @@ void CMultivariateOneOfNPriorTest::testModelSelection(void)
     // TODO When copula models are available.
 }
 
-void CMultivariateOneOfNPriorTest::testMarginalLikelihood(void)
+void CMultivariateOneOfNPriorTest::testMarginalLikelihood()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testMarginalLikelihood  |");
@@ -732,7 +732,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood(void)
     }
 }
 
-void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean(void)
+void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean()
 {
     LOG_DEBUG("+------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean  |");
@@ -806,7 +806,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean(void)
     }
 }
 
-void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode(void)
+void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testMultipleUpdate  |");
@@ -927,7 +927,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode(void)
     }
 }
 
-void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood(void)
+void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood()
 {
     LOG_DEBUG("+--------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood  |");
@@ -994,7 +994,7 @@ void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood(void)
     }
 }
 
-void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples(void)
+void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples()
 {
     LOG_DEBUG("+--------------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples  |");
@@ -1079,7 +1079,7 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.01);
 }
 
-void CMultivariateOneOfNPriorTest::testPersist(void)
+void CMultivariateOneOfNPriorTest::testPersist()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CMultivariateOneOfNPriorTest::testPersist  |");
@@ -1141,7 +1141,7 @@ void CMultivariateOneOfNPriorTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CMultivariateOneOfNPriorTest::suite(void)
+CppUnit::Test *CMultivariateOneOfNPriorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMultivariateOneOfNPriorTest");
 

@@ -36,7 +36,7 @@ const function_t::EFunction POPULATION_COUNT  = function_t::E_PopulationCount;
 const function_t::EFunction POPULATION_METRIC = function_t::E_PopulationMetric;
 }
 
-void CAnomalyDetectorModelConfigTest::testNormal(void)
+void CAnomalyDetectorModelConfigTest::testNormal()
 {
     {
         CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig(1800);
@@ -113,7 +113,7 @@ void CAnomalyDetectorModelConfigTest::testNormal(void)
     }
 }
 
-void CAnomalyDetectorModelConfigTest::testErrors(void)
+void CAnomalyDetectorModelConfigTest::testErrors()
 {
     {
         CAnomalyDetectorModelConfig config1 = CAnomalyDetectorModelConfig::defaultConfig(1800);
@@ -211,7 +211,7 @@ void CAnomalyDetectorModelConfigTest::testErrors(void)
     }
 }
 
-CppUnit::Test *CAnomalyDetectorModelConfigTest::suite(void)
+CppUnit::Test *CAnomalyDetectorModelConfigTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAnomalyDetectorModelConfigTest");
 

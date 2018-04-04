@@ -21,14 +21,14 @@
 class CFlatPrefixTreeTest : public CppUnit::TestFixture
 {
     public:
-        void testBuildGivenUnsortedInput(void);
-        void testBuildGivenSortedInputWithDuplicates(void);
-        void testEmptyString(void);
-        void testSimple(void);
-        void testLeafAndBranch(void);
-        void testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix(void);
-        void testMatchesFullyGivenStringThatIsSubstringOfPrefix(void);
-        void testRandom(void);
+        void testBuildGivenUnsortedInput();
+        void testBuildGivenSortedInputWithDuplicates();
+        void testEmptyString();
+        void testSimple();
+        void testLeafAndBranch();
+        void testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix();
+        void testMatchesFullyGivenStringThatIsSubstringOfPrefix();
+        void testRandom();
 
         static CppUnit::Test *suite();
 };

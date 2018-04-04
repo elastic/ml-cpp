@@ -198,7 +198,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 }
 
                 //! Get the unique index of this cluster.
-                std::size_t index(void) const
+                std::size_t index() const
                 {
                     return m_Index;
                 }
@@ -206,7 +206,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 //! Get the centre of the cluster.
                 //!
                 //! This is defined as the sample mean.
-                const TPointPrecise &centre(void) const
+                const TPointPrecise &centre() const
                 {
                     return CBasicStatistics::mean(m_Covariances);
                 }
@@ -214,20 +214,20 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 //! Get the spread of the cluster.
                 //!
                 //! This is defined as the trace of the sample covariance matrix.
-                double spread(void) const
+                double spread() const
                 {
                     return std::sqrt(  CBasicStatistics::maximumLikelihoodCovariances(m_Covariances).trace()
                                   / static_cast<double>(N));
                 }
 
                 //! Get the sample covariance matrix this cluster.
-                const TCovariances &covariances(void) const
+                const TCovariances &covariances() const
                 {
                     return m_Covariances;
                 }
 
                 //! Get the total count of values added to the cluster.
-                double count(void) const
+                double count() const
                 {
                     return CBasicStatistics::count(m_Covariances);
                 }
@@ -380,7 +380,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 }
 
                 //! Get the memory used by this component.
-                std::size_t memoryUsage(void) const
+                std::size_t memoryUsage() const
                 {
                     return core::CMemory::dynamicSize(m_Structure);
                 }
@@ -615,7 +615,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
 
             private:
                 //! Get the scaled decay rate for use by propagateForwardsByTime.
-                double scaledDecayRate(void) const
+                double scaledDecayRate() const
                 {
                     return std::pow(0.5, static_cast<double>(N)) * m_DecayRate;
                 }
@@ -743,7 +743,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         }
         //@}
 
-        virtual ~CXMeansOnline(void) {}
+        virtual ~CXMeansOnline() {}
 
         //! Efficiently swap the contents of two k-means objects.
         void swap(CXMeansOnline &other)
@@ -765,7 +765,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         //! \name Clusterer Contract
         //@{
         //! Get the tag name for this clusterer.
-        virtual std::string persistenceTag(void) const
+        virtual std::string persistenceTag() const
         {
             return CClustererTypes::X_MEANS_ONLINE_TAG;
         }
@@ -792,13 +792,13 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         //! Creates a copy of the clusterer.
         //!
         //! \warning Caller owns returned object.
-        virtual CXMeansOnline *clone(void) const
+        virtual CXMeansOnline *clone() const
         {
             return new CXMeansOnline(*this);
         }
 
         //! Clear the current clusterer state.
-        virtual void clear(void)
+        virtual void clear()
         {
             *this = CXMeansOnline(m_DataType, m_WeightCalc,
                                   m_InitialDecayRate,
@@ -809,7 +809,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         }
 
         //! Get the number of clusters.
-        virtual std::size_t numberClusters(void) const
+        virtual std::size_t numberClusters() const
         {
             return m_Clusters.size();
         }
@@ -1096,7 +1096,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         }
 
         //! Get the memory used by the object.
-        virtual std::size_t memoryUsage(void) const
+        virtual std::size_t memoryUsage() const
         {
             std::size_t mem = core::CMemory::dynamicSize(m_ClusterIndexGenerator);
             mem += core::CMemory::dynamicSize(m_Clusters);
@@ -1104,7 +1104,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         }
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const
+        virtual std::size_t staticSize() const
         {
             return sizeof(*this);
         }
@@ -1121,7 +1121,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         //@}
 
         //! The total count of points.
-        double count(void) const
+        double count() const
         {
             double result = 0.0;
             for (std::size_t i = 0; i < m_Clusters.size(); ++i)
@@ -1132,7 +1132,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         }
 
         //! Print a representation of the clusters that can be plotted in octave.
-        std::string printClusters(void) const
+        std::string printClusters() const
         {
             if (m_Clusters.empty())
             {
@@ -1148,7 +1148,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         }
 
         //! Get the index generator.
-        CClustererTypes::CIndexGenerator &indexGenerator(void)
+        CClustererTypes::CIndexGenerator &indexGenerator()
         {
             return m_ClusterIndexGenerator;
         }
@@ -1201,7 +1201,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         }
 
         //! Compute the minimum split count.
-        double minimumSplitCount(void) const
+        double minimumSplitCount() const
         {
             double result = m_MinimumClusterCount;
             if (m_MinimumClusterFraction > 0.0)
@@ -1271,7 +1271,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         }
 
         //! Remove any clusters which are effectively dead.
-        bool prune(void)
+        bool prune()
         {
             if (m_Clusters.size() <= 1)
             {
@@ -1357,7 +1357,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         }
 
         //! Get the clusters.
-        const TClusterVec &clusters(void) const
+        const TClusterVec &clusters() const
         {
             return m_Clusters;
         }

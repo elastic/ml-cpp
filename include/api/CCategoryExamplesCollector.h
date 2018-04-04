@@ -70,7 +70,7 @@ class API_EXPORT CCategoryExamplesCollector
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
         //! Clear all examples
-        void clear(void);
+        void clear();
 
     private:
         using TSizeStrSetUMap = boost::unordered_map<std::size_t, TStrSet>;

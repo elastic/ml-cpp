@@ -116,7 +116,7 @@ void CRapidXmlStatePersistInserter::newLevel(const std::string &name)
     m_LevelParent = child;
 }
 
-void CRapidXmlStatePersistInserter::endLevel(void)
+void CRapidXmlStatePersistInserter::endLevel()
 {
     TCharRapidXmlNode *levelGrandParent(m_LevelParent->parent());
     if (levelGrandParent == 0)

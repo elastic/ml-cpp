@@ -54,7 +54,7 @@ class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler
     public:
         //! Constructor that causes output to be written to the internal string
         //! stream
-        CLineifiedJsonOutputWriter(void);
+        CLineifiedJsonOutputWriter();
 
         //! Constructor that causes output to be written to the internal string
         //! stream, with some numeric fields
@@ -67,7 +67,7 @@ class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler
         CLineifiedJsonOutputWriter(const TStrSet &numericFields, std::ostream &strmOut);
 
         //! Destructor flushes the stream
-        virtual ~CLineifiedJsonOutputWriter(void);
+        virtual ~CLineifiedJsonOutputWriter();
 
         //! Set field names - this function has no affect it always
         //! returns true
@@ -75,7 +75,7 @@ class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler
                                 const TStrVec &extraFieldNames);
 
         //! Returns an empty vector
-        virtual const TStrVec &fieldNames(void) const;
+        virtual const TStrVec &fieldNames() const;
 
         // Bring the other overload of fieldNames() into scope
         using COutputHandler::fieldNames;
@@ -89,7 +89,7 @@ class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler
 
         //! Get the contents of the internal string stream - for use with the
         //! zero argument constructor
-        std::string internalString(void) const;
+        std::string internalString() const;
 
     private:
         //! Write a single field to the document

@@ -21,7 +21,7 @@ namespace core
 {
 
 
-void CProcessPriority::reducePriority(void)
+void CProcessPriority::reducePriority()
 {
     // Default is to do nothing - see platform-specific implementation files for
     // platforms where we do more

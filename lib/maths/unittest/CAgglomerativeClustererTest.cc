@@ -76,13 +76,13 @@ class CCluster
             result.push_back(TDoubleSizeVecPr(m_Height, m_Points));
         }
 
-        const TSizeVec &points(void) const
+        const TSizeVec &points() const
         {
             return m_Points;
         }
 
     private:
-        explicit CCluster(void) : m_Height(0.0) {}
+        explicit CCluster() : m_Height(0.0) {}
 
     private:
         double m_Height;
@@ -224,7 +224,7 @@ std::string print(maths::CAgglomerativeClusterer::EObjective o)
 
 }
 
-void CAgglomerativeClustererTest::testNode(void)
+void CAgglomerativeClustererTest::testNode()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CAgglomerativeClustererTest::testNode  |");
@@ -312,7 +312,7 @@ void CAgglomerativeClustererTest::testNode(void)
     }
 }
 
-void CAgglomerativeClustererTest::testSimplePermutations(void)
+void CAgglomerativeClustererTest::testSimplePermutations()
 {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CAgglomerativeClustererTest::testSimplePermutations  |");
@@ -381,7 +381,7 @@ void CAgglomerativeClustererTest::testSimplePermutations(void)
     }
 }
 
-void CAgglomerativeClustererTest::testDegenerate(void)
+void CAgglomerativeClustererTest::testDegenerate()
 {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CAgglomerativeClustererTest::testDegenerate  |");
@@ -473,7 +473,7 @@ void CAgglomerativeClustererTest::testDegenerate(void)
     }
 }
 
-void CAgglomerativeClustererTest::testRandom(void)
+void CAgglomerativeClustererTest::testRandom()
 {
     LOG_DEBUG("+-------------------------------------------+");
     LOG_DEBUG("|  CAgglomerativeClustererTest::testRandom  |");
@@ -557,7 +557,7 @@ void CAgglomerativeClustererTest::testRandom(void)
     }
 }
 
-CppUnit::Test *CAgglomerativeClustererTest::suite(void)
+CppUnit::Test *CAgglomerativeClustererTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAgglomerativeClustererTest");
 

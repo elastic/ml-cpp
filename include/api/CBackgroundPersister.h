@@ -90,14 +90,14 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
                              const TFirstProcessorPeriodicPersistFunc &firstProcessorPeriodicPersistFunc,
                              core::CDataAdder &dataAdder);
 
-        ~CBackgroundPersister(void);
+        ~CBackgroundPersister();
 
         //! Is background persistence currently in progress?
-        bool isBusy(void) const;
+        bool isBusy() const;
 
         //! Wait for any background persistence currently in progress to
         //! complete
-        bool waitForIdle(void);
+        bool waitForIdle();
 
         //! Add a function to be called when the background persist is started.
         //! This will be rejected if a background persistence is currently in
@@ -117,13 +117,13 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
         //! Start a background persist is one is not running.
         //! Calls the first processor periodic persist function first.
         //! Concurrent calls to this method are not threadsafe.
-        bool startBackgroundPersist(void);
+        bool startBackgroundPersist();
 
         //! If the periodic persist interval has passed since the last persist
         //! then it is appropriate to persist now.  Start it by calling the
         //! first processor periodic persist function.
         //! Concurrent calls to this method are not threadsafe.
-        bool startBackgroundPersistIfAppropriate(void);
+        bool startBackgroundPersistIfAppropriate();
 
     private:
         //! Implementation of the background thread
@@ -134,8 +134,8 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
 
             protected:
                 //! Inherited virtual interface
-                virtual void run(void);
-                virtual void shutdown(void);
+                virtual void run();
+                virtual void shutdown();
 
             private:
                 //! Reference to the owning background persister
@@ -149,13 +149,13 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
 
         //! When this function is called a background persistence will be
         //! triggered unless there is already one in progress.
-        bool startPersist(void);
+        bool startPersist();
 
         //! Clear any persistence functions that have been added but not yet
         //! invoked.  This will be rejected if a background persistence is
         //! currently in progress.
         //! \return true if the list of functions is clear; false if not.
-        bool clear(void);
+        bool clear();
 
     private:
         //! How frequently should background persistence be attempted?

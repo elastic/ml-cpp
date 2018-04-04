@@ -21,16 +21,16 @@
 class CMultivariateConstantPriorTest : public CppUnit::TestFixture
 {
     public:
-        void testAddSamples(void);
-        void testMarginalLikelihood(void);
-        void testMarginalLikelihoodMean(void);
-        void testMarginalLikelihoodMode(void);
-        void testMarginalLikelihoodCovariance(void);
-        void testSampleMarginalLikelihood(void);
-        void testProbabilityOfLessLikelySamples(void);
-        void testPersist(void);
+        void testAddSamples();
+        void testMarginalLikelihood();
+        void testMarginalLikelihoodMean();
+        void testMarginalLikelihoodMode();
+        void testMarginalLikelihoodCovariance();
+        void testSampleMarginalLikelihood();
+        void testProbabilityOfLessLikelySamples();
+        void testPersist();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CMultivariateConstantPriorTest_h

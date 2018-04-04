@@ -1229,7 +1229,7 @@ std::wstring CStringUtils::narrowToWide(const std::string &narrowStr)
     return wideStr;
 }
 
-const std::locale &CStringUtils::locale(void)
+const std::locale &CStringUtils::locale()
 {
     static std::locale loc;
     return loc;

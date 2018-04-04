@@ -87,18 +87,18 @@ class API_EXPORT CTokenListType
                        double similarity);
 
         //! Accessors
-        const std::string    &baseString(void) const;
-        const TSizeSizePrVec &baseTokenIds(void) const;
-        size_t               baseWeight(void) const;
-        const TSizeSizePrVec &commonUniqueTokenIds(void) const;
-        size_t               commonUniqueTokenWeight(void) const;
-        size_t               origUniqueTokenWeight(void) const;
-        size_t               maxStringLen(void) const;
-        size_t               outOfOrderCommonTokenIndex(void) const;
+        const std::string    &baseString() const;
+        const TSizeSizePrVec &baseTokenIds() const;
+        size_t               baseWeight() const;
+        const TSizeSizePrVec &commonUniqueTokenIds() const;
+        size_t               commonUniqueTokenWeight() const;
+        size_t               origUniqueTokenWeight() const;
+        size_t               maxStringLen() const;
+        size_t               outOfOrderCommonTokenIndex() const;
 
         //! What's the longest string we'll consider a match for this type?
         //! Currently simply 10% longer than the longest string we've seen.
-        size_t               maxMatchingStringLen(void) const;
+        size_t               maxMatchingStringLen() const;
 
         //! What is the weight of tokens in a given map that are missing from
         //! this type's common unique tokens?
@@ -116,7 +116,7 @@ class API_EXPORT CTokenListType
         bool containsCommonTokensInOrder(const TSizeSizePrVec &tokenIds) const;
 
         //! How many matching strings are there?
-        size_t numMatches(void) const;
+        size_t numMatches() const;
 
         //! Persist state by passing information to the supplied inserter
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;

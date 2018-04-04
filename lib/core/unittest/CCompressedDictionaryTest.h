@@ -22,10 +22,10 @@
 class CCompressedDictionaryTest : public CppUnit::TestFixture
 {
     public:
-        void testAll(void);
-        void testPersist(void);
+        void testAll();
+        void testPersist();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CCompressedDictionaryTest_h

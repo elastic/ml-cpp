@@ -74,12 +74,12 @@ CNotEnoughDataPenalty::CNotEnoughDataPenalty(const CAutoconfigurerParams &params
         CPenalty(params)
 {}
 
-CNotEnoughDataPenalty *CNotEnoughDataPenalty::clone(void) const
+CNotEnoughDataPenalty *CNotEnoughDataPenalty::clone() const
 {
     return new CNotEnoughDataPenalty(*this);
 }
 
-std::string CNotEnoughDataPenalty::name(void) const
+std::string CNotEnoughDataPenalty::name() const
 {
     return "not enough data";
 }

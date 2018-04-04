@@ -58,26 +58,26 @@ double PROBABILITY_TO_SAMPLE_N_GRAMS = 0.02;
 
 }
 
-CDataSummaryStatistics::CDataSummaryStatistics(void) : m_Count(0)
+CDataSummaryStatistics::CDataSummaryStatistics() : m_Count(0)
 {
 }
 
-uint64_t CDataSummaryStatistics::count(void) const
+uint64_t CDataSummaryStatistics::count() const
 {
     return m_Count;
 }
 
-core_t::TTime CDataSummaryStatistics::earliest(void) const
+core_t::TTime CDataSummaryStatistics::earliest() const
 {
     return m_Earliest[0];
 }
 
-core_t::TTime CDataSummaryStatistics::latest(void) const
+core_t::TTime CDataSummaryStatistics::latest() const
 {
     return m_Latest[0];
 }
 
-double CDataSummaryStatistics::meanRate(void) const
+double CDataSummaryStatistics::meanRate() const
 {
     return static_cast<double>(m_Count) / static_cast<double>(m_Latest[0] - m_Earliest[0]);
 }
@@ -192,22 +192,22 @@ void CCategoricalDataSummaryStatistics::add(core_t::TTime time, const std::strin
     this->approximateIfCardinalityTooHigh();
 }
 
-std::size_t CCategoricalDataSummaryStatistics::distinctCount(void) const
+std::size_t CCategoricalDataSummaryStatistics::distinctCount() const
 {
     return !m_Approximating ? m_ValueCounts.size() : m_DistinctValues.number();
 }
 
-std::size_t CCategoricalDataSummaryStatistics::minimumLength(void) const
+std::size_t CCategoricalDataSummaryStatistics::minimumLength() const
 {
     return m_MinLength[0];
 }
 
-std::size_t CCategoricalDataSummaryStatistics::maximumLength(void) const
+std::size_t CCategoricalDataSummaryStatistics::maximumLength() const
 {
     return m_MaxLength[0];
 }
 
-double CCategoricalDataSummaryStatistics::entropy(void) const
+double CCategoricalDataSummaryStatistics::entropy() const
 {
     return m_EmpiricalEntropy.calculate();
 }
@@ -226,7 +226,7 @@ void CCategoricalDataSummaryStatistics::topN(TStrSizePrVec &result) const
     }
 }
 
-double CCategoricalDataSummaryStatistics::meanCountInRemainders(void) const
+double CCategoricalDataSummaryStatistics::meanCountInRemainders() const
 {
     TStrUInt64UMapCItrVec topN;
     this->topN(topN);
@@ -251,7 +251,7 @@ void CCategoricalDataSummaryStatistics::addNGrams(std::size_t n, const std::stri
     }
 }
 
-void CCategoricalDataSummaryStatistics::approximateIfCardinalityTooHigh(void)
+void CCategoricalDataSummaryStatistics::approximateIfCardinalityTooHigh()
 {
     using TSizeUInt64UMapCItr = TSizeUInt64UMap::const_iterator;
 
@@ -309,7 +309,7 @@ double CCategoricalDataSummaryStatistics::calibratedCount(std::size_t category) 
     return m_CountSketch.count(static_cast<uint32_t>(category)) - maths::CBasicStatistics::mean(error);
 }
 
-void CCategoricalDataSummaryStatistics::findLowestTopN(void)
+void CCategoricalDataSummaryStatistics::findLowestTopN()
 {
     using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<TStrUInt64UMapItr, 1, TDerefSecondLess>;
     TMinAccumulator lowest;
@@ -378,21 +378,21 @@ void CNumericDataSummaryStatistics::add(core_t::TTime time, const std::string &e
     m_Clusters.add(value);
 }
 
-double CNumericDataSummaryStatistics::minimum(void) const
+double CNumericDataSummaryStatistics::minimum() const
 {
     double result;
     m_QuantileSketch.minimum(result);
     return result;
 }
 
-double CNumericDataSummaryStatistics::median(void) const
+double CNumericDataSummaryStatistics::median() const
 {
     double result;
     m_QuantileSketch.quantile(50.0, result);
     return result;
 }
 
-double CNumericDataSummaryStatistics::maximum(void) const
+double CNumericDataSummaryStatistics::maximum() const
 {
     double result;
     m_QuantileSketch.maximum(result);

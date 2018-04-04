@@ -27,16 +27,16 @@ class CAnomalyScoreTest : public CppUnit::TestFixture
         typedef std::vector<double> TDoubleVec;
 
     public:
-        void testComputeScores(void);
-        void testNormalizeScoresQuantiles(void);
-        void testNormalizeScoresNoisy(void);
-        void testNormalizeScoresLargeScore(void);
-        void testNormalizeScoresNearZero(void);
-        void testNormalizeScoresOrdering(void);
-        void testJsonConversion(void);
-        void testPersistEmpty(void);
+        void testComputeScores();
+        void testNormalizeScoresQuantiles();
+        void testNormalizeScoresNoisy();
+        void testNormalizeScoresLargeScore();
+        void testNormalizeScoresNearZero();
+        void testNormalizeScoresOrdering();
+        void testJsonConversion();
+        void testPersistEmpty();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CAnomalyScoreCalculatorTest_h

@@ -139,7 +139,7 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
         //! unwritten results for
         struct SBucketData
         {
-            SBucketData(void);
+            SBucketData();
 
             //! The max normalized anomaly score of the bucket influencers
             double                s_MaxBucketInfluencerNormalizedAnomalyScore;
@@ -198,7 +198,7 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
                           core::CJsonOutputStreamWrapper &strmOut);
 
         //! Destructor flushes the stream
-        virtual ~CJsonOutputWriter(void);
+        virtual ~CJsonOutputWriter();
 
         //! Set field names.  In this class this function has no effect and it
         //! always returns true
@@ -209,7 +209,7 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
         using COutputHandler::fieldNames;
 
         //! Returns an empty vector
-        virtual const TStrVec &fieldNames(void) const;
+        virtual const TStrVec &fieldNames() const;
 
         //! Write the data row fields as a JSON object
         virtual bool writeRow(const TStrStrUMap &dataRowFields,
@@ -224,12 +224,12 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
         void limitNumberRecords(size_t count);
 
         //! A value of 0 indicates no limit has been set
-        size_t limitNumberRecords(void) const;
+        size_t limitNumberRecords() const;
 
         //! Close the JSON structures and flush output.
         //! This method should only be called once and will have no affect
         //! on subsequent invocations
-        virtual void finalise(void);
+        virtual void finalise();
 
         //! Receive a count of possible results
         void possibleResultCount(core_t::TTime time, size_t count);

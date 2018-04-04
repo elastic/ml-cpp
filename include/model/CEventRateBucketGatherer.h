@@ -80,16 +80,16 @@ class MODEL_EXPORT CUniqueStringFeatureData
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
         //! Get the checksum of this object.
-        uint64_t checksum(void) const;
+        uint64_t checksum() const;
 
         //! Get the memory usage of this object in a tree structure.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory usage of this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         //! Print the unique strings for debug.
-        std::string print(void) const;
+        std::string print() const;
 
     private:
         TDictionary1 m_Dictionary1;
@@ -177,10 +177,10 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
         //! other purpose.
         //!
         //! \warning The caller owns the object returned.
-        virtual CBucketGatherer *cloneForPersistence(void) const;
+        virtual CBucketGatherer *cloneForPersistence() const;
 
         //! The persistence tag name of this derived class.
-        virtual const std::string& persistenceTag(void) const;
+        virtual const std::string& persistenceTag() const;
         //@}
 
         //! \name Fields
@@ -191,20 +191,20 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
         //! probabilities are aggregated, i.e. the "over" field name for
         //! population searches and the "by" field name for individual
         //! searches.
-        virtual const std::string &personFieldName(void) const;
+        virtual const std::string &personFieldName() const;
 
         //! Get the attribute field name if one exists, i.e. the "by" for
         //! population searches, field name and returns empty otherwise.
-        virtual const std::string &attributeFieldName(void) const;
+        virtual const std::string &attributeFieldName() const;
 
         //! Returns an empty string.
-        virtual const std::string &valueFieldName(void) const;
+        virtual const std::string &valueFieldName() const;
 
         //! Get an iterator at the beginning the influencing field names.
-        virtual TStrVecCItr beginInfluencers(void) const;
+        virtual TStrVecCItr beginInfluencers() const;
 
         //! Get an iterator at the end of the influencing field names.
-        virtual TStrVecCItr endInfluencers(void) const;
+        virtual TStrVecCItr endInfluencers() const;
 
         //! Get the fields for which to gather data.
         //!
@@ -214,11 +214,11 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
         //! attributes which are being analyzed. An empty string acts like
         //! a wild card and matches all records. This is used for analysis
         //! which is attribute independent such as total count.
-        virtual const TStrVec &fieldsOfInterest(void) const;
+        virtual const TStrVec &fieldsOfInterest() const;
         //@}
 
         //! Get a description of the search.
-        virtual std::string description(void) const;
+        virtual std::string description() const;
 
         //! \name Update
         //@{
@@ -256,19 +256,19 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
         //@}
 
         //! Get the checksum of this gatherer.
-        virtual uint64_t checksum(void) const;
+        virtual uint64_t checksum() const;
 
         //! Get the memory used by this object.
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
 
         //! Clear this data gatherer.
-        virtual void clear(void);
+        virtual void clear();
 
         //! Reset bucket and return true if bucket was successfully reset or false otherwise.
         virtual bool resetBucket(core_t::TTime bucketStart);
@@ -469,7 +469,7 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
                                   const TStrVec &influenceFieldNames);
 
         //! Initialize the feature data gatherers.
-        void initializeFeatureData(void);
+        void initializeFeatureData();
 
         //! Copy the influencer person counts to \p results.
         //!

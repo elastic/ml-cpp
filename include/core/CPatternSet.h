@@ -55,7 +55,7 @@ class CORE_EXPORT CPatternSet
 
     public:
         //! Default constructor.
-        CPatternSet(void);
+        CPatternSet();
 
         //! Initialise the set from JSON that is an array of strings.
         bool initFromJson(const std::string &json);
@@ -64,7 +64,7 @@ class CORE_EXPORT CPatternSet
         bool contains(const std::string &key) const;
 
         //! Clears the set.
-        void clear(void);
+        void clear();
 
     private:
         void sortAndPruneDuplicates(TStrVec &keys);

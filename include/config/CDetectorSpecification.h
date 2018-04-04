@@ -142,7 +142,7 @@ class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetect
         //! \name Detector Scoring
         //@{
         //! Get the current detector score.
-        double score(void) const;
+        double score() const;
 
         //! The penalties that apply to the various
         void scores(TParamScoresVec &result) const;
@@ -156,34 +156,34 @@ class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetect
                             const TStrVec &description);
 
         //! Refresh all scores.
-        void refreshScores(void);
+        void refreshScores();
         //@}
 
         //! \name Detector Attributes
         //@{
         //! Is the detector one of the count functions?
-        config_t::EFunctionCategory function(void) const;
+        config_t::EFunctionCategory function() const;
 
         //! Get the field which is the argument of the function.
-        const TOptionalStr &argumentField(void) const;
+        const TOptionalStr &argumentField() const;
 
         //! Get the by field name. Null if there isn't one.
-        const TOptionalStr &byField(void) const;
+        const TOptionalStr &byField() const;
 
         //! Get the over field name. Null if there isn't one.
-        const TOptionalStr &overField(void) const;
+        const TOptionalStr &overField() const;
 
         //! Get the partition field name. Null if there isn't one.
-        const TOptionalStr &partitionField(void) const;
+        const TOptionalStr &partitionField() const;
 
         //! Get the influences which have been configured.
-        const TStrVec &influences(void) const;
+        const TStrVec &influences() const;
 
         //! Get the bucket lengths.
         void candidateBucketLengths(TTimeVec &result) const;
 
         //! Check if this detector is for population analysis.
-        bool isPopulation(void) const;
+        bool isPopulation() const;
         //@}
 
         //! A total order of two detector specifications.
@@ -193,32 +193,32 @@ class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetect
         bool operator==(const CDetectorSpecification &rhs) const;
 
         //! Get the identifier.
-        std::size_t id(void) const;
+        std::size_t id() const;
 
         //! Set the identifier.
         void id(std::size_t id);
 
         //! Get the argument field statistics if there is one.
-        const CFieldStatistics *argumentFieldStatistics(void) const;
+        const CFieldStatistics *argumentFieldStatistics() const;
 
         //! Get the by field statistics if there is one.
-        const CFieldStatistics *byFieldStatistics(void) const;
+        const CFieldStatistics *byFieldStatistics() const;
 
         //! Get the over field statistics if there is one.
-        const CFieldStatistics *overFieldStatistics(void) const;
+        const CFieldStatistics *overFieldStatistics() const;
 
         //! Get the partition field statistics if there is one.
-        const CFieldStatistics *partitionFieldStatistics(void) const;
+        const CFieldStatistics *partitionFieldStatistics() const;
 
         //! Get the count statistics for this detector.
-        const CDataCountStatistics *countStatistics(void) const;
+        const CDataCountStatistics *countStatistics() const;
 
         //! Write a configuration which can be interpreted by our
         //! autodetect processes.
-        std::string detectorConfig(void) const;
+        std::string detectorConfig() const;
 
         //! Get a description of the detector.
-        std::string description(void) const;
+        std::string description() const;
 
     private:
         using TStrVecVec = std::vector<TStrVec>;
@@ -228,20 +228,20 @@ class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetect
 
     private:
         //! Get the parameters.
-        const CAutoconfigurerParams &params(void) const;
+        const CAutoconfigurerParams &params() const;
 
         //! Get the highest index of any non-null function field.
-        int highestFieldIndex(void) const;
+        int highestFieldIndex() const;
 
         //! Get the indices of the penalties used for this detector.
-        TSizeVecCPtrAry penaltyIndicesInUse(void) const;
+        TSizeVecCPtrAry penaltyIndicesInUse() const;
 
         //! Initialize the penalties.
-        void initializePenalties(void);
+        void initializePenalties();
 
         //! Update the value of the ignore empty flag based on the
         //! current scores.
-        void refreshIgnoreEmpty(void);
+        void refreshIgnoreEmpty();
 
     private:
         //! The parameters.

@@ -183,7 +183,7 @@ class CSampleGatherer
         //@}
 
         //! Get the dimension of the underlying statistic.
-        std::size_t dimension(void) const
+        std::size_t dimension() const
         {
             return m_Dimension;
         }
@@ -334,7 +334,7 @@ class CSampleGatherer
         }
 
         //! Get the checksum of this gatherer.
-        uint64_t checksum(void) const
+        uint64_t checksum() const
         {
             uint64_t seed = static_cast<uint64_t>(m_Classifier.isInteger());
             seed = maths::CChecksum::calculate(seed, m_Classifier.isNonNegative());
@@ -355,7 +355,7 @@ class CSampleGatherer
         }
 
         //! Get the memory used by this gatherer.
-        std::size_t memoryUsage(void) const
+        std::size_t memoryUsage() const
         {
             return   sizeof(*this)
                    + core::CMemory::dynamicSize(m_SampleStats)
@@ -365,7 +365,7 @@ class CSampleGatherer
         }
 
         //! Print this gatherer for debug.
-        std::string print(void) const
+        std::string print() const
         {
             std::ostringstream result;
             result << m_Classifier.isInteger()

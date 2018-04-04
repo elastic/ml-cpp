@@ -33,7 +33,7 @@ namespace
 const char WILDCARD = '*';
 }
 
-CPatternSet::CPatternSet(void)
+CPatternSet::CPatternSet()
     : m_FullMatchPatterns(),
       m_PrefixPatterns(),
       m_SuffixPatterns(),
@@ -140,7 +140,7 @@ bool CPatternSet::contains(const std::string &key) const
     return false;
 }
 
-void CPatternSet::clear(void)
+void CPatternSet::clear()
 {
     m_FullMatchPatterns.clear();
     m_PrefixPatterns.clear();

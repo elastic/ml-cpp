@@ -68,7 +68,7 @@ class CXMeansOnlineForTest : public maths::CXMeansOnline<T, N>
             this->maths::CXMeansOnline<T, N>::add(x, dummy, count);
         }
 
-        const TClusterVec &clusters(void) const
+        const TClusterVec &clusters() const
         {
             return this->maths::CXMeansOnline<T, N>::clusters();
         }
@@ -87,7 +87,7 @@ bool restore(const maths::SDistributionRestoreParams &params,
 
 }
 
-void CXMeansOnlineTest::testCluster(void)
+void CXMeansOnlineTest::testCluster()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CXMeansOnlineTest::testCluster  |");
@@ -268,7 +268,7 @@ void CXMeansOnlineTest::testCluster(void)
     CPPUNIT_ASSERT_EQUAL(true, split->second.shouldMerge(split->first));
 }
 
-void CXMeansOnlineTest::testClusteringVanilla(void)
+void CXMeansOnlineTest::testClusteringVanilla()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CXMeansOnlineTest::testClusteringVanilla  |");
@@ -397,7 +397,7 @@ void CXMeansOnlineTest::testClusteringVanilla(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanCovError) < 0.06);
 }
 
-void CXMeansOnlineTest::testClusteringWithOutliers(void)
+void CXMeansOnlineTest::testClusteringWithOutliers()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CXMeansOnlineTest::testClusteringWithOutliers  |");
@@ -522,7 +522,7 @@ void CXMeansOnlineTest::testClusteringWithOutliers(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanCovError) < 0.07);
 }
 
-void CXMeansOnlineTest::testManyClusters(void)
+void CXMeansOnlineTest::testManyClusters()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CXMeansOnlineTest::testManyClusters  |");
@@ -619,7 +619,7 @@ void CXMeansOnlineTest::testManyClusters(void)
     }
 }
 
-void CXMeansOnlineTest::testAdaption(void)
+void CXMeansOnlineTest::testAdaption()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CXMeansOnlineTest::testAdaption  |");
@@ -748,7 +748,7 @@ void CXMeansOnlineTest::testAdaption(void)
     }
 }
 
-void CXMeansOnlineTest::testLargeHistory(void)
+void CXMeansOnlineTest::testLargeHistory()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CXMeansOnlineTest::testLargeHistory  |");
@@ -798,7 +798,7 @@ void CXMeansOnlineTest::testLargeHistory(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), clusterer.clusters().size());
 }
 
-void CXMeansOnlineTest::testLatLongData(void)
+void CXMeansOnlineTest::testLatLongData()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CXMeansOnlineTest::testLatLongData  |");
@@ -872,7 +872,7 @@ void CXMeansOnlineTest::testLatLongData(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(LLC) < 0.6 * maths::CBasicStatistics::mean(LLR));
 }
 
-void CXMeansOnlineTest::testPersist(void)
+void CXMeansOnlineTest::testPersist()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CXMeansOnlineTest::testPersist  |");
@@ -948,7 +948,7 @@ void CXMeansOnlineTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CXMeansOnlineTest::suite(void)
+CppUnit::Test *CXMeansOnlineTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CXMeansOnlineTest");
 

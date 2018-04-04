@@ -26,7 +26,7 @@ namespace core
 {
 
 
-CReadWriteLock::CReadWriteLock(void)
+CReadWriteLock::CReadWriteLock()
 {
     // Valgrind can complain if this is not initialised
     memset(&m_ReadWriteLock, 0x00, sizeof(m_ReadWriteLock));
@@ -37,7 +37,7 @@ CReadWriteLock::CReadWriteLock(void)
     }
 }
 
-CReadWriteLock::~CReadWriteLock(void)
+CReadWriteLock::~CReadWriteLock()
 {
     int ret(pthread_rwlock_destroy(&m_ReadWriteLock));
     if (ret != 0)
@@ -46,7 +46,7 @@ CReadWriteLock::~CReadWriteLock(void)
     }
 }
 
-void CReadWriteLock::readLock(void)
+void CReadWriteLock::readLock()
 {
     int ret(pthread_rwlock_rdlock(&m_ReadWriteLock));
     if (ret != 0)
@@ -55,7 +55,7 @@ void CReadWriteLock::readLock(void)
     }
 }
 
-void CReadWriteLock::readUnlock(void)
+void CReadWriteLock::readUnlock()
 {
     int ret(pthread_rwlock_unlock(&m_ReadWriteLock));
     if (ret != 0)
@@ -64,7 +64,7 @@ void CReadWriteLock::readUnlock(void)
     }
 }
 
-void CReadWriteLock::writeLock(void)
+void CReadWriteLock::writeLock()
 {
     int ret(pthread_rwlock_wrlock(&m_ReadWriteLock));
     if (ret != 0)
@@ -73,7 +73,7 @@ void CReadWriteLock::writeLock(void)
     }
 }
 
-void CReadWriteLock::writeUnlock(void)
+void CReadWriteLock::writeUnlock()
 {
     int ret(pthread_rwlock_unlock(&m_ReadWriteLock));
     if (ret != 0)

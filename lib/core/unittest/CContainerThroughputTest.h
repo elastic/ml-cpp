@@ -31,14 +31,14 @@ class CContainerThroughputTest : public CppUnit::TestFixture
         };
 
     public:
-        void testVector(void);
-        void testList(void);
-        void testDeque(void);
-        void testMap(void);
-        void testCircBuf(void);
-        void testMultiIndex(void);
+        void testVector();
+        void testList();
+        void testDeque();
+        void testMap();
+        void testCircBuf();
+        void testMultiIndex();
 
-        void setUp(void);
+        void setUp();
 
         static CppUnit::Test *suite();
 

@@ -40,7 +40,7 @@ using namespace ml;
 
 using TDoubleVec = std::vector<double>;
 
-void CStatisticalTestsTest::testCramerVonMises(void)
+void CStatisticalTestsTest::testCramerVonMises()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CStatisticalTestsTest::testCramerVonMises  |");
@@ -142,7 +142,7 @@ void CStatisticalTestsTest::testCramerVonMises(void)
     CPPUNIT_ASSERT(averageMeanError < 0.011);
 }
 
-void CStatisticalTestsTest::testPersist(void)
+void CStatisticalTestsTest::testPersist()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CStatisticalTestsTest::testPersist  |");
@@ -192,7 +192,7 @@ void CStatisticalTestsTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CStatisticalTestsTest::suite(void)
+CppUnit::Test *CStatisticalTestsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStatisticalTestsTest");
 

@@ -80,7 +80,7 @@ class CUniqueIterator : private boost::addable2< CUniqueIterator, ptrdiff_t,
         TFloatFloatPr &operator*() const { return (*m_Knots)[m_I]; }
         TFloatFloatPr *operator->() const { return &(*m_Knots)[m_I]; }
 
-        const CUniqueIterator &operator++(void)
+        const CUniqueIterator &operator++()
         {
             double x = (*m_Knots)[m_I].first;
             ptrdiff_t n = m_Knots->size();
@@ -88,7 +88,7 @@ class CUniqueIterator : private boost::addable2< CUniqueIterator, ptrdiff_t,
             return *this;
         }
 
-        const CUniqueIterator &operator--(void)
+        const CUniqueIterator &operator--()
         {
             double x = (*m_Knots)[m_I].first;
             while (--m_I >= 0 && (*m_Knots)[m_I].first == x) {}
@@ -113,7 +113,7 @@ class CUniqueIterator : private boost::addable2< CUniqueIterator, ptrdiff_t,
             return *this;
         }
 
-        ptrdiff_t index(void) const { return m_I; }
+        ptrdiff_t index() const { return m_I; }
 
     private:
         TFloatFloatPrVec *m_Knots;
@@ -401,12 +401,12 @@ bool CQuantileSketch::quantile(double percentage, double &result) const
     return true;
 }
 
-const CQuantileSketch::TFloatFloatPrVec &CQuantileSketch::knots(void) const
+const CQuantileSketch::TFloatFloatPrVec &CQuantileSketch::knots() const
 {
     return m_Knots;
 }
 
-double CQuantileSketch::count(void) const
+double CQuantileSketch::count() const
 {
     return m_Count;
 }
@@ -424,12 +424,12 @@ void CQuantileSketch::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
     core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
 }
 
-std::size_t CQuantileSketch::memoryUsage(void) const
+std::size_t CQuantileSketch::memoryUsage() const
 {
     return core::CMemory::dynamicSize(m_Knots);
 }
 
-bool CQuantileSketch::checkInvariants(void) const
+bool CQuantileSketch::checkInvariants() const
 {
     if (m_Knots.size() > m_MaxSize)
     {
@@ -460,12 +460,12 @@ bool CQuantileSketch::checkInvariants(void) const
     return true;
 }
 
-std::string CQuantileSketch::print(void) const
+std::string CQuantileSketch::print() const
 {
     return core::CContainerPrinter::print(m_Knots);
 }
 
-void CQuantileSketch::reduce(void)
+void CQuantileSketch::reduce()
 {
     using TSizeVec = std::vector<std::size_t>;
 
@@ -563,7 +563,7 @@ void CQuantileSketch::reduce(void)
     }
 }
 
-void CQuantileSketch::orderAndDeduplicate(void)
+void CQuantileSketch::orderAndDeduplicate()
 {
     if (m_Unsorted > 0)
     {
@@ -590,7 +590,7 @@ void CQuantileSketch::orderAndDeduplicate(void)
     m_Unsorted = 0;
 }
 
-std::size_t CQuantileSketch::target(void) const
+std::size_t CQuantileSketch::target() const
 {
     return static_cast<std::size_t>(0.9 * static_cast<double>(m_MaxSize) + 1.0);
 }

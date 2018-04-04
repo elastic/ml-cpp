@@ -120,7 +120,7 @@ class MODEL_EXPORT CAnomalyScore
 
                 //! Does this normalizer have enough information to normalize
                 //! anomaly scores?
-                bool canNormalize(void) const;
+                bool canNormalize() const;
 
                 //! This normalizes the aggregate scores, i.e. the sum
                 //! of \p scores, and scales all the scores by a constant
@@ -171,7 +171,7 @@ class MODEL_EXPORT CAnomalyScore
 
                 //! Set the normalizer back to how it was immediately after
                 //! construction
-                void clear(void);
+                void clear();
 
                 //! \name Serialization
                 //@{
@@ -184,7 +184,7 @@ class MODEL_EXPORT CAnomalyScore
 
             public:
                 //! Get a checksum of the object.
-                uint64_t checksum(void) const;
+                uint64_t checksum() const;
 
             private:
                 using TDoubleDoublePr = std::pair<double, double>;

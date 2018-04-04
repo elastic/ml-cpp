@@ -172,7 +172,7 @@ class TEST_EXPORT CRandomNumbers
         //! Get a uniform generator in the range [0, n). This can be used
         //! in conjunction with std::random_shuffle if you want a seeded
         //! platform independent implementation.
-        CUniform0nGenerator uniformGenerator(void);
+        CUniform0nGenerator uniformGenerator();
 
         //! Throw away \p n random numbers.
         void discard(std::size_t n);

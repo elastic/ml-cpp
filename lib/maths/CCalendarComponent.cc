@@ -103,23 +103,23 @@ void CCalendarComponent::acceptPersistInserter(core::CStatePersistInserter &inse
                              &CCalendarComponentAdaptiveBucketing::acceptPersistInserter, &m_Bucketing, _1));
 }
 
-bool CCalendarComponent::initialized(void) const
+bool CCalendarComponent::initialized() const
 {
     return this->CDecompositionComponent::initialized();
 }
 
-void CCalendarComponent::initialize(void)
+void CCalendarComponent::initialize()
 {
     this->clear();
     m_Bucketing.initialize(this->maxSize());
 }
 
-std::size_t CCalendarComponent::size(void) const
+std::size_t CCalendarComponent::size() const
 {
     return m_Bucketing.size();
 }
 
-void CCalendarComponent::clear(void)
+void CCalendarComponent::clear()
 {
     this->CDecompositionComponent::clear();
     if (m_Bucketing.initialized())
@@ -149,7 +149,7 @@ void CCalendarComponent::interpolate(core_t::TTime time, bool refine)
     }
 }
 
-double CCalendarComponent::decayRate(void) const
+double CCalendarComponent::decayRate() const
 {
     return m_Bucketing.decayRate();
 }
@@ -164,7 +164,7 @@ void CCalendarComponent::propagateForwardsByTime(double time)
     m_Bucketing.propagateForwardsByTime(time);
 }
 
-CCalendarFeature CCalendarComponent::feature(void) const
+CCalendarFeature CCalendarComponent::feature() const
 {
     return m_Bucketing.feature();
 }
@@ -176,7 +176,7 @@ TDoubleDoublePr CCalendarComponent::value(core_t::TTime time, double confidence)
     return this->CDecompositionComponent::value(offset, n, confidence);
 }
 
-double CCalendarComponent::meanValue(void) const
+double CCalendarComponent::meanValue() const
 {
     return this->CDecompositionComponent::meanValue();
 }
@@ -188,12 +188,12 @@ TDoubleDoublePr CCalendarComponent::variance(core_t::TTime time, double confiden
     return this->CDecompositionComponent::variance(offset, n, confidence);
 }
 
-double CCalendarComponent::meanVariance(void) const
+double CCalendarComponent::meanVariance() const
 {
     return this->CDecompositionComponent::meanVariance();
 }
 
-double CCalendarComponent::heteroscedasticity(void) const
+double CCalendarComponent::heteroscedasticity() const
 {
     return this->CDecompositionComponent::heteroscedasticity();
 }
@@ -211,7 +211,7 @@ void CCalendarComponent::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr me
     core::CMemoryDebug::dynamicSize("m_Splines", this->splines(), mem);
 }
 
-std::size_t CCalendarComponent::memoryUsage(void) const
+std::size_t CCalendarComponent::memoryUsage() const
 {
     return core::CMemory::dynamicSize(m_Bucketing) + core::CMemory::dynamicSize(this->splines());
 }

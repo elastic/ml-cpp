@@ -21,13 +21,13 @@
 class CTokenListReverseSearchCreatorTest : public CppUnit::TestFixture
 {
     public:
-        void testCostOfToken(void);
-        void testCreateNullSearch(void);
-        void testCreateNoUniqueTokenSearch(void);
-        void testInitStandardSearch(void);
-        void testAddCommonUniqueToken(void);
-        void testAddInOrderCommonToken(void);
-        void testCloseStandardSearch(void);
+        void testCostOfToken();
+        void testCreateNullSearch();
+        void testCreateNoUniqueTokenSearch();
+        void testInitStandardSearch();
+        void testAddCommonUniqueToken();
+        void testAddInOrderCommonToken();
+        void testCloseStandardSearch();
 
         static CppUnit::Test *suite();
 };

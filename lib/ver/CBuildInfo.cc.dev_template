@@ -32,22 +32,22 @@ const std::string CBuildInfo::BUILD_NUMBER("DEVELOPMENT BUILD by @user.name@");
 const std::string CBuildInfo::COPYRIGHT("Copyright (c) @build.year@ Elasticsearch BV");
 
 
-const std::string &CBuildInfo::versionNumber(void)
+const std::string &CBuildInfo::versionNumber()
 {
     return VERSION_NUMBER;
 }
 
-const std::string &CBuildInfo::buildNumber(void)
+const std::string &CBuildInfo::buildNumber()
 {
     return BUILD_NUMBER;
 }
 
-const std::string &CBuildInfo::copyright(void)
+const std::string &CBuildInfo::copyright()
 {
     return COPYRIGHT;
 }
 
-std::string CBuildInfo::fullInfo(void)
+std::string CBuildInfo::fullInfo()
 {
     static const size_t BITS_PER_BYTE(8);
 

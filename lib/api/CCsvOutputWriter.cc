@@ -73,7 +73,7 @@ CCsvOutputWriter::CCsvOutputWriter(std::ostream &strmOut,
     }
 }
 
-CCsvOutputWriter::~CCsvOutputWriter(void)
+CCsvOutputWriter::~CCsvOutputWriter()
 {
     // Since we didn't flush the stream whilst working, we flush it on
     // destruction
@@ -157,7 +157,7 @@ bool CCsvOutputWriter::fieldNames(const TStrVec &fieldNames,
     return true;
 }
 
-const COutputHandler::TStrVec &CCsvOutputWriter::fieldNames(void) const
+const COutputHandler::TStrVec &CCsvOutputWriter::fieldNames() const
 {
     return m_FieldNames;
 }
@@ -229,7 +229,7 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
     return true;
 }
 
-std::string CCsvOutputWriter::internalString(void) const
+std::string CCsvOutputWriter::internalString() const
 {
     const_cast<std::ostream &>(m_StrmOut).flush();
 
@@ -286,7 +286,7 @@ void CCsvOutputWriter::appendField(const std::string &field)
     }
 }
 
-std::ostream &CCsvOutputWriter::outputStream(void)
+std::ostream &CCsvOutputWriter::outputStream()
 {
     return m_StrmOut;
 }

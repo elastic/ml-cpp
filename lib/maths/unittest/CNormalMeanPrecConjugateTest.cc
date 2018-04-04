@@ -61,7 +61,7 @@ CNormalMeanPrecConjugate makePrior(maths_t::EDataType dataType = maths_t::E_Cont
 
 }
 
-void CNormalMeanPrecConjugateTest::testMultipleUpdate(void)
+void CNormalMeanPrecConjugateTest::testMultipleUpdate()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testMultipleUpdate  |");
@@ -151,7 +151,7 @@ void CNormalMeanPrecConjugateTest::testMultipleUpdate(void)
     }
 }
 
-void CNormalMeanPrecConjugateTest::testPropagation(void)
+void CNormalMeanPrecConjugateTest::testPropagation()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testPropagation  |");
@@ -191,7 +191,7 @@ void CNormalMeanPrecConjugateTest::testPropagation(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(precision, propagatedPrecision, eps);
 }
 
-void CNormalMeanPrecConjugateTest::testMeanEstimation(void)
+void CNormalMeanPrecConjugateTest::testMeanEstimation()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testMeanEstimation  |");
@@ -262,7 +262,7 @@ void CNormalMeanPrecConjugateTest::testMeanEstimation(void)
     }
 }
 
-void CNormalMeanPrecConjugateTest::testPrecisionEstimation(void)
+void CNormalMeanPrecConjugateTest::testPrecisionEstimation()
 {
     LOG_DEBUG("+---------------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testPrecisionEstimation  |");
@@ -335,7 +335,7 @@ void CNormalMeanPrecConjugateTest::testPrecisionEstimation(void)
     }
 }
 
-void CNormalMeanPrecConjugateTest::testMarginalLikelihood(void)
+void CNormalMeanPrecConjugateTest::testMarginalLikelihood()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testMarginalLikelihood  |");
@@ -565,7 +565,7 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihood(void)
     }
 }
 
-void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean(void)
+void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean()
 {
     LOG_DEBUG("+------------------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean  |");
@@ -624,7 +624,7 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean(void)
     }
 }
 
-void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode(void)
+void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode()
 {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode |");
@@ -674,7 +674,7 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode(void)
     }
 }
 
-void CNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance(void)
+void CNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance()
 {
     LOG_DEBUG("+----------------------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance  |");
@@ -733,7 +733,7 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance(void)
     }
 }
 
-void CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood(void)
+void CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood()
 {
     LOG_DEBUG("+--------------------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood  |");
@@ -824,7 +824,7 @@ void CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanVarError) < 0.04);
 }
 
-void CNormalMeanPrecConjugateTest::testCdf(void)
+void CNormalMeanPrecConjugateTest::testCdf()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testCdf  |");
@@ -871,7 +871,7 @@ void CNormalMeanPrecConjugateTest::testCdf(void)
     }
 }
 
-void CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples(void)
+void CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples()
 {
     LOG_DEBUG("+--------------------------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples  |");
@@ -1022,7 +1022,7 @@ void CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.01);
 }
 
-void CNormalMeanPrecConjugateTest::testAnomalyScore(void)
+void CNormalMeanPrecConjugateTest::testAnomalyScore()
 {
     LOG_DEBUG("+--------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testAnomalyScore  |");
@@ -1160,7 +1160,7 @@ void CNormalMeanPrecConjugateTest::testAnomalyScore(void)
     CPPUNIT_ASSERT(totalFalsePositiveRate < 0.003);
 }
 
-void CNormalMeanPrecConjugateTest::testIntegerData(void)
+void CNormalMeanPrecConjugateTest::testIntegerData()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testIntegerData  |");
@@ -1267,7 +1267,7 @@ void CNormalMeanPrecConjugateTest::testIntegerData(void)
     }
 }
 
-void CNormalMeanPrecConjugateTest::testLowVariationData(void)
+void CNormalMeanPrecConjugateTest::testLowVariationData()
 {
     LOG_DEBUG("+------------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testLowVariationData  |");
@@ -1306,7 +1306,7 @@ void CNormalMeanPrecConjugateTest::testLowVariationData(void)
     }
 }
 
-void CNormalMeanPrecConjugateTest::testPersist(void)
+void CNormalMeanPrecConjugateTest::testPersist()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testPersist  |");
@@ -1367,7 +1367,7 @@ void CNormalMeanPrecConjugateTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CNormalMeanPrecConjugateTest::testSeasonalVarianceScale(void)
+void CNormalMeanPrecConjugateTest::testSeasonalVarianceScale()
 {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testSeasonalVarianceScale  |");
@@ -1555,7 +1555,7 @@ void CNormalMeanPrecConjugateTest::testSeasonalVarianceScale(void)
     }
 }
 
-void CNormalMeanPrecConjugateTest::testCountVarianceScale(void)
+void CNormalMeanPrecConjugateTest::testCountVarianceScale()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CNormalMeanPrecConjugateTest::testCountVarianceScale  |");

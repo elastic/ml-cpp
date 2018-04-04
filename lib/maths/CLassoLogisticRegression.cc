@@ -244,7 +244,7 @@ namespace lasso_logistic_regression_detail
 
 ////// CDenseMatrix //////
 
-CDenseMatrix::CDenseMatrix(void)
+CDenseMatrix::CDenseMatrix()
 {
 }
 
@@ -261,7 +261,7 @@ void CDenseMatrix::swap(CDenseMatrix &other)
 
 ////// CSparseMatrix //////
 
-CSparseMatrix::CSparseMatrix(void) :
+CSparseMatrix::CSparseMatrix() :
         m_Rows(0),
         m_Columns(0)
 {
@@ -425,7 +425,7 @@ bool CCyclicCoordinateDescent::runIncremental(const CSparseMatrix &x,
 
 ////// CLogisticRegressionModel //////
 
-CLogisticRegressionModel::CLogisticRegressionModel(void) :
+CLogisticRegressionModel::CLogisticRegressionModel() :
         m_Beta0(0.0),
         m_Beta()
 {
@@ -775,7 +775,7 @@ class C2FoldCrossValidatedLogLikelihood
 ////// CLassoLogisticRegression //////
 
 template<typename STORAGE>
-CLassoLogisticRegression<STORAGE>::CLassoLogisticRegression(void) :
+CLassoLogisticRegression<STORAGE>::CLassoLogisticRegression() :
         m_X(),
         m_D(0),
         m_Y(),
@@ -921,7 +921,7 @@ bool CLassoLogisticRegression<STORAGE>::doLearn(CLogisticRegressionModel &result
 }
 
 template<typename STORAGE>
-bool CLassoLogisticRegression<STORAGE>::sanityChecks(void) const
+bool CLassoLogisticRegression<STORAGE>::sanityChecks() const
 {
     if (m_Y.empty())
     {

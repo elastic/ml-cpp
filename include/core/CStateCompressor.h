@@ -81,7 +81,7 @@ class CORE_EXPORT CStateCompressor : public CDataAdder
                 std::streamsize write(const char *s, std::streamsize n);
 
                 //! Interface method: flush the output and close the stream
-                void close(void);
+                void close();
 
                 //! Set the search ID to use
                 void index(const std::string &index,
@@ -89,10 +89,10 @@ class CORE_EXPORT CStateCompressor : public CDataAdder
 
                 //! True if all of the chunked writes were successful.
                 //! If one or any of the writes failed the result is false
-                bool allWritesSuccessful(void);
+                bool allWritesSuccessful();
 
                 //! How many compressed documents have been generated?
-                size_t numCompressedDocs(void) const;
+                size_t numCompressedDocs() const;
 
             private:
                 //! Handle the details of writing a stream of bytes to the internal
@@ -152,7 +152,7 @@ class CORE_EXPORT CStateCompressor : public CDataAdder
                                     bool force);
 
         //! How many compressed documents have been generated?
-        size_t numCompressedDocs(void) const;
+        size_t numCompressedDocs() const;
 
     private:
 

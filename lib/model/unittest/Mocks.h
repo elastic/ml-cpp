@@ -43,15 +43,15 @@ class CMockModel : public CAnomalyDetectorModel
 
         virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
-        virtual CAnomalyDetectorModel *cloneForPersistence(void) const;
+        virtual CAnomalyDetectorModel *cloneForPersistence() const;
 
-        virtual model_t::EModelType category(void) const;
+        virtual model_t::EModelType category() const;
 
-        virtual bool isPopulation(void) const;
+        virtual bool isPopulation() const;
 
-        virtual bool isEventRate(void) const;
+        virtual bool isEventRate() const;
 
-        virtual bool isMetric(void) const;
+        virtual bool isMetric() const;
 
         virtual TOptionalUInt64 currentBucketCount(std::size_t pid,
                                                    core_t::TTime time) const;
@@ -104,13 +104,13 @@ class CMockModel : public CAnomalyDetectorModel
 
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
-        virtual std::size_t memoryUsage(void) const;
+        virtual std::size_t memoryUsage() const;
 
-        virtual std::size_t computeMemoryUsage(void) const;
+        virtual std::size_t computeMemoryUsage() const;
 
-        virtual std::size_t staticSize(void) const;
+        virtual std::size_t staticSize() const;
 
-        virtual CModelDetailsViewPtr details(void) const;
+        virtual CModelDetailsViewPtr details() const;
 
         virtual double attributeFrequency(std::size_t cid) const;
 
@@ -135,10 +135,10 @@ class CMockModel : public CAnomalyDetectorModel
         void mockTimeSeriesModels(const TMathsModelPtrVec &model);
 
     protected:
-        virtual core_t::TTime currentBucketStartTime(void) const;
+        virtual core_t::TTime currentBucketStartTime() const;
         virtual void currentBucketStartTime(core_t::TTime time);
         virtual void createNewModels(std::size_t n, std::size_t m);
-        virtual void updateRecycledModels(void);
+        virtual void updateRecycledModels();
         virtual void clearPrunedResources(const TSizeVec &people,
                                           const TSizeVec &attributes);
 
@@ -151,7 +151,7 @@ class CMockModel : public CAnomalyDetectorModel
     private:
         virtual void currentBucketTotalCount(uint64_t totalCount);
         virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime);
-        virtual CMemoryUsageEstimator *memoryUsageEstimator(void) const;
+        virtual CMemoryUsageEstimator *memoryUsageEstimator() const;
 
     private:
         bool m_IsPopulation;

@@ -64,7 +64,7 @@ class CMultivariateMultimodalPriorForTest : public maths::CMultivariateMultimoda
                  maths::CMultivariateMultimodalPrior<N>(prior)
         {}
 
-        const TModeVec &modes(void) const
+        const TModeVec &modes() const
         {
             return this->maths::CMultivariateMultimodalPrior<N>::modes();
         }
@@ -184,7 +184,7 @@ std::string print(maths_t::EDataType dataType)
 
 }
 
-void CMultivariateMultimodalPriorTest::testMultipleUpdate(void)
+void CMultivariateMultimodalPriorTest::testMultipleUpdate()
 {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testMultipleUpdate  |");
@@ -261,7 +261,7 @@ void CMultivariateMultimodalPriorTest::testMultipleUpdate(void)
     }
 }
 
-void CMultivariateMultimodalPriorTest::testPropagation(void)
+void CMultivariateMultimodalPriorTest::testPropagation()
 {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testPropagation  |");
@@ -340,7 +340,7 @@ void CMultivariateMultimodalPriorTest::testPropagation(void)
     }
 }
 
-void CMultivariateMultimodalPriorTest::testSingleMode(void)
+void CMultivariateMultimodalPriorTest::testSingleMode()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testSingleMode  |");
@@ -370,7 +370,7 @@ void CMultivariateMultimodalPriorTest::testSingleMode(void)
     }
 }
 
-void CMultivariateMultimodalPriorTest::testMultipleModes(void)
+void CMultivariateMultimodalPriorTest::testMultipleModes()
 {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testMultipleModes  |");
@@ -477,7 +477,7 @@ void CMultivariateMultimodalPriorTest::testMultipleModes(void)
     }
 }
 
-void CMultivariateMultimodalPriorTest::testSplitAndMerge(void)
+void CMultivariateMultimodalPriorTest::testSplitAndMerge()
 {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testSplitAndMerge  |");
@@ -629,7 +629,7 @@ void CMultivariateMultimodalPriorTest::testSplitAndMerge(void)
     }
 }
 
-void CMultivariateMultimodalPriorTest::testMarginalLikelihood(void)
+void CMultivariateMultimodalPriorTest::testMarginalLikelihood()
 {
     LOG_DEBUG("+------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testMarginalLikelihood  |");
@@ -761,7 +761,7 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihood(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanCovarianceError) < 0.04);
 }
 
-void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean(void)
+void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean()
 {
     LOG_DEBUG("+----------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean  |");
@@ -819,7 +819,7 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.002);
 }
 
-void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode(void)
+void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode()
 {
     LOG_DEBUG("+----------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode  |");
@@ -891,7 +891,7 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.02);
 }
 
-void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood(void)
+void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood()
 {
     LOG_DEBUG("+------------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood  |");
@@ -998,7 +998,7 @@ void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood(void)
                                  0.02);
 }
 
-void CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples(void)
+void CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples()
 {
     LOG_DEBUG("+------------------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples  |");
@@ -1118,7 +1118,7 @@ void CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples(void)
     }
 }
 
-void CMultivariateMultimodalPriorTest::testIntegerData(void)
+void CMultivariateMultimodalPriorTest::testIntegerData()
 {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testIntegerData  |");
@@ -1127,7 +1127,7 @@ void CMultivariateMultimodalPriorTest::testIntegerData(void)
     // TODO
 }
 
-void CMultivariateMultimodalPriorTest::testLowVariationData(void)
+void CMultivariateMultimodalPriorTest::testLowVariationData()
 {
     LOG_DEBUG("+----------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testLowVariationData  |");
@@ -1136,7 +1136,7 @@ void CMultivariateMultimodalPriorTest::testLowVariationData(void)
     // TODO
 }
 
-void CMultivariateMultimodalPriorTest::testLatLongData(void)
+void CMultivariateMultimodalPriorTest::testLatLongData()
 {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testLatLongData  |");
@@ -1195,7 +1195,7 @@ void CMultivariateMultimodalPriorTest::testLatLongData(void)
     //f << prior->printMarginalLikelihoodFunction(0, 1);
 }
 
-void CMultivariateMultimodalPriorTest::testPersist(void)
+void CMultivariateMultimodalPriorTest::testPersist()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testPersist  |");
@@ -1270,7 +1270,7 @@ void CMultivariateMultimodalPriorTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CMultivariateMultimodalPriorTest::suite(void)
+CppUnit::Test *CMultivariateMultimodalPriorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMultivariateMultimodalPriorTest");
 

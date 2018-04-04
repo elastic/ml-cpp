@@ -21,8 +21,8 @@
 class COsFileFuncsTest : public CppUnit::TestFixture
 {
     public:
-        void testInode(void);
-        void testLStat(void);
+        void testInode();
+        void testLStat();
 
         static CppUnit::Test *suite();
 };

@@ -100,7 +100,7 @@ class CONFIG_EXPORT CReportWriter : public api::COutputHandler
                                 const TStrVec &extraFieldNames);
 
         //! Return an empty string vector.
-        virtual const TStrVec &fieldNames(void) const;
+        virtual const TStrVec &fieldNames() const;
 
         // Bring the other overload of fieldNames() into scope.
         using api::COutputHandler::fieldNames;
@@ -137,8 +137,8 @@ class CONFIG_EXPORT CReportWriter : public api::COutputHandler
         void addDetector(const CDetectorSpecification &spec);
 
         //! Write the report.
-        //virtual void write(void) const = 0;
-        void write(void) const;
+        //virtual void write() const = 0;
+        void write() const;
 
     protected:
         //! The statistics in the summary table for unclassified fields.

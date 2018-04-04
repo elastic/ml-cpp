@@ -21,9 +21,9 @@
 class CBase64FilterTest : public CppUnit::TestFixture
 {
     public:
-        void testDecode(void);
-        void testEncode(void);
-        void testBoth(void);
+        void testDecode();
+        void testEncode();
+        void testBoth();
 
         static CppUnit::Test *suite();
 };

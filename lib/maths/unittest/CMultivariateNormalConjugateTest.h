@@ -21,21 +21,21 @@
 class CMultivariateNormalConjugateTest : public CppUnit::TestFixture
 {
     public:
-        void testMultipleUpdate(void);
-        void testPropagation(void);
-        void testMeanVectorEstimation(void);
-        void testPrecisionMatrixEstimation(void);
-        void testMarginalLikelihood(void);
-        void testMarginalLikelihoodMode(void);
-        void testSampleMarginalLikelihood(void);
-        void testProbabilityOfLessLikelySamples(void);
-        void testIntegerData(void);
-        void testLowVariationData(void);
-        void testPersist(void);
-        void calibrationExperiment(void);
-        void dataGenerator(void);
+        void testMultipleUpdate();
+        void testPropagation();
+        void testMeanVectorEstimation();
+        void testPrecisionMatrixEstimation();
+        void testMarginalLikelihood();
+        void testMarginalLikelihoodMode();
+        void testSampleMarginalLikelihood();
+        void testProbabilityOfLessLikelySamples();
+        void testIntegerData();
+        void testLowVariationData();
+        void testPersist();
+        void calibrationExperiment();
+        void dataGenerator();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CMultivariateNormalConjugateTest_h

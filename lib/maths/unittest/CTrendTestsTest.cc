@@ -51,7 +51,7 @@ const core_t::TTime DAY       = core::constants::DAY;
 const core_t::TTime WEEK      = core::constants::WEEK;
 }
 
-void CTrendTestsTest::testRandomizedPeriodicity(void)
+void CTrendTestsTest::testRandomizedPeriodicity()
 {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CTrendTestsTest::testRandomizedPeriodicity  |");
@@ -158,7 +158,7 @@ void CTrendTestsTest::testRandomizedPeriodicity(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(typeII) < 0.05);
 }
 
-void CTrendTestsTest::testCalendarCyclic(void)
+void CTrendTestsTest::testCalendarCyclic()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CTrendTestsTest::testCalendarCyclic  |");
@@ -334,7 +334,7 @@ void CTrendTestsTest::testCalendarCyclic(void)
     }
 }
 
-void CTrendTestsTest::testPersist(void)
+void CTrendTestsTest::testPersist()
 {
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  CTrendTestsTest::testPersist  |");
@@ -447,7 +447,7 @@ void CTrendTestsTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CTrendTestsTest::suite(void)
+CppUnit::Test *CTrendTestsTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTrendTestsTest");
 

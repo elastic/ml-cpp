@@ -37,7 +37,7 @@ const DWORD STOP_WAIT_HINT_MSECS(10000);
 
 //! This needs to be called quickly after startup, because it will only work
 //! while the parent process is still running.
-DWORD findParentProcessId(void)
+DWORD findParentProcessId()
 {
     HANDLE snapshotHandle(CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
     if (snapshotHandle == INVALID_HANDLE_VALUE)
@@ -89,7 +89,7 @@ const char *CProcess::STOPPING_MSG("Process Shutting Down.");
 const char *CProcess::STOPPED_MSG("Process Exiting.");
 
 
-CProcess::CProcess(void)
+CProcess::CProcess()
     : m_IsService(false),
       m_Initialised(false),
       m_Running(false),
@@ -98,23 +98,23 @@ CProcess::CProcess(void)
 {
 }
 
-CProcess &CProcess::instance(void)
+CProcess &CProcess::instance()
 {
     static CProcess instance;
     return instance;
 }
 
-bool CProcess::isService(void) const
+bool CProcess::isService() const
 {
     return m_IsService;
 }
 
-CProcess::TPid CProcess::id(void) const
+CProcess::TPid CProcess::id() const
 {
     return GetCurrentProcessId();
 }
 
-CProcess::TPid CProcess::parentId(void) const
+CProcess::TPid CProcess::parentId() const
 {
     if (PPID == 0)
     {
@@ -191,7 +191,7 @@ bool CProcess::startDispatcher(TMlMainFunc mlMain,
     return success;
 }
 
-bool CProcess::isInitialised(void) const
+bool CProcess::isInitialised() const
 {
     return m_Initialised;
 }
@@ -216,7 +216,7 @@ void CProcess::initialisationComplete(const TShutdownFunc &shutdownFunc)
     this->serviceCtrlHandler(SERVICE_CONTROL_INTERROGATE);
 }
 
-void CProcess::initialisationComplete(void)
+void CProcess::initialisationComplete()
 {
     CScopedFastLock lock(m_ShutdownFuncMutex);
 
@@ -238,7 +238,7 @@ void CProcess::initialisationComplete(void)
     this->serviceCtrlHandler(SERVICE_CONTROL_INTERROGATE);
 }
 
-bool CProcess::isRunning(void) const
+bool CProcess::isRunning() const
 {
     return m_Running;
 }
@@ -382,7 +382,7 @@ void WINAPI CProcess::serviceCtrlHandler(DWORD ctrlType)
     }
 }
 
-bool CProcess::shutdown(void)
+bool CProcess::shutdown()
 {
     if (CLogger::instance().hasBeenReconfigured())
     {

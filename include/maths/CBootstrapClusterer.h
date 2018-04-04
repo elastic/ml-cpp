@@ -170,7 +170,7 @@ class CBootstrapClusterer
             }
 
             //! Get the cost of the current cut.
-            double cost(void) const
+            double cost() const
             {
                 return s_Cut / static_cast<double>(s_A * (s_V - s_A));
             }
@@ -188,7 +188,7 @@ class CBootstrapClusterer
             }
 
             //! Get the next vertex to visit.
-            std::size_t next(void) const
+            std::size_t next() const
             {
                 return s_Queue.front().second;
             }
@@ -215,7 +215,7 @@ class CBootstrapClusterer
 #if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
             __attribute__ ((__noinline__))
 #endif // defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
-            void initializeQueue(void)
+            void initializeQueue()
             {
                 s_Queue.clear();
                 s_Queue.reserve(s_ToVisit.size());
@@ -227,7 +227,7 @@ class CBootstrapClusterer
             }
 
             //! Pop the priority queue of vertices to visit.
-            void popQueue(void)
+            void popQueue()
             {
                 std::pop_heap(s_Queue.begin(), s_Queue.end(), std::less<TDoubleSizePr>());
                 s_Queue.pop_back();
@@ -848,7 +848,7 @@ class CBootstrapClusterer
         }
 
         //! Get the offsets for the clusterings.
-        TSizeVec &offsets(void) { return m_Offsets; }
+        TSizeVec &offsets() { return m_Offsets; }
 
     private:
         //! \brief A parity filter predicate which tests whether
@@ -858,7 +858,7 @@ class CBootstrapClusterer
         class CParityFilter
         {
             public:
-                CParityFilter(void) : m_Graph(0), m_Parities(0), m_Parity(false) {}
+                CParityFilter() : m_Graph(0), m_Parities(0), m_Parity(false) {}
                 CParityFilter(const TGraph &graph, const TBoolVec &parities, bool parity) :
                         m_Graph(&graph),
                         m_Parities(&parities),

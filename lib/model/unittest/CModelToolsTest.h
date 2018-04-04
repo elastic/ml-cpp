@@ -21,10 +21,10 @@
 class CModelToolsTest : public CppUnit::TestFixture
 {
     public:
-        void testFuzzyDeduplicate(void);
-        void testProbabilityCache(void);
+        void testFuzzyDeduplicate();
+        void testProbabilityCache();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 

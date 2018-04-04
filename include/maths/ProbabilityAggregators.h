@@ -70,13 +70,13 @@ class MATHS_EXPORT CJointProbabilityOfLessLikelySamples : private boost::addable
         };
 
     public:
-        CJointProbabilityOfLessLikelySamples(void);
+        CJointProbabilityOfLessLikelySamples();
 
         //! Initialize from \p value if possible.
         bool fromDelimited(const std::string &value);
 
         //! Convert to a delimited string.
-        std::string toDelimited(void) const;
+        std::string toDelimited() const;
 
         //! Combine two joint probability calculators.
         const CJointProbabilityOfLessLikelySamples &
@@ -94,13 +94,13 @@ class MATHS_EXPORT CJointProbabilityOfLessLikelySamples : private boost::addable
         bool averageProbability(double &result) const;
 
         //! Get the first probability.
-        TOptionalDouble onlyProbability(void) const;
+        TOptionalDouble onlyProbability() const;
 
         //! Get the total deviation of all samples added.
-        double distance(void) const;
+        double distance() const;
 
         //! Get the count of all samples added.
-        double numberSamples(void) const;
+        double numberSamples() const;
 
         //! Get a checksum for an object of this class.
         uint64_t checksum(uint64_t seed) const;
@@ -148,7 +148,7 @@ class MATHS_EXPORT CLogJointProbabilityOfLessLikelySamples : protected CJointPro
                                                              private boost::addable<CLogJointProbabilityOfLessLikelySamples>
 {
     public:
-        CLogJointProbabilityOfLessLikelySamples(void);
+        CLogJointProbabilityOfLessLikelySamples();
 
         //! Combine two log joint probability calculators.
         const CLogJointProbabilityOfLessLikelySamples &
@@ -206,13 +206,13 @@ class MATHS_EXPORT CLogJointProbabilityOfLessLikelySamples : protected CJointPro
 class MATHS_EXPORT CProbabilityOfExtremeSample : private boost::addable<CProbabilityOfExtremeSample>
 {
     public:
-        CProbabilityOfExtremeSample(void);
+        CProbabilityOfExtremeSample();
 
         //! Initialize from \p value if possible.
         bool fromDelimited(const std::string &value);
 
         //! Convert to a delimited string.
-        std::string toDelimited(void) const;
+        std::string toDelimited() const;
 
         //! Combine two extreme probability calculators.
         const CProbabilityOfExtremeSample &
@@ -299,7 +299,7 @@ class MATHS_EXPORT CLogProbabilityOfMFromNExtremeSamples : private boost::addabl
         bool fromDelimited(const std::string &value);
 
         //! Convert to a delimited string.
-        std::string toDelimited(void) const;
+        std::string toDelimited() const;
 
         //! Combine two extreme probability calculators.
         const CLogProbabilityOfMFromNExtremeSamples &

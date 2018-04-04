@@ -58,7 +58,7 @@ const std::string NAN_ARRAY_NAME("nan[]");
 const std::string TTIME_ARRAY_NAME("TTime[]");
 }
 
-void CRapidJsonWriterBaseTest::testAddFields(void)
+void CRapidJsonWriterBaseTest::testAddFields()
 {
     std::ostringstream strm;
     rapidjson::OStreamWrapper writeStream(strm);
@@ -112,7 +112,7 @@ void CRapidJsonWriterBaseTest::testAddFields(void)
 }
 
 
-void CRapidJsonWriterBaseTest::testRemoveMemberIfPresent(void)
+void CRapidJsonWriterBaseTest::testRemoveMemberIfPresent()
 {
     std::ostringstream strm;
     rapidjson::OStreamWrapper writeStream(strm);

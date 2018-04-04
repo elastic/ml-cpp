@@ -61,28 +61,28 @@ class MATHS_EXPORT CSampling : private core::CNonInstantiatable
 
             public:
                 //! Mock the random number generator to produce a constant.
-                void mock(void);
+                void mock();
 
                 //! Unmock the random number generator.
-                void unmock(void);
+                void unmock();
 
                 //! Seed the random number generator.
-                void seed(void);
+                void seed();
 
                 //! Returns the smallest value that the generator can produce.
-                static result_type min(void)
+                static result_type min()
                 {
                     return boost::random::mt11213b::min();
                 }
 
                 //! Returns the largest value that the generator can produce.
-                static result_type max(void)
+                static result_type max()
                 {
                     return boost::random::mt11213b::max();
                 }
 
                 //! Produces the next value of the generator.
-                result_type operator()(void)
+                result_type operator()()
                 {
                     if (m_Mock)
                     {
@@ -136,8 +136,8 @@ class MATHS_EXPORT CSampling : private core::CNonInstantiatable
         class MATHS_EXPORT CScopeMockRandomNumberGenerator
         {
             public:
-                CScopeMockRandomNumberGenerator(void);
-                ~CScopeMockRandomNumberGenerator(void);
+                CScopeMockRandomNumberGenerator();
+                ~CScopeMockRandomNumberGenerator();
         };
 
     public:
@@ -151,7 +151,7 @@ class MATHS_EXPORT CSampling : private core::CNonInstantiatable
         //@}
 
         //! Reinitialize the random number generator.
-        static void seed(void);
+        static void seed();
 
         //! \name Uniform Sampling
         //!

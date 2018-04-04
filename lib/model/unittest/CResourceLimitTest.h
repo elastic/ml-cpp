@@ -33,11 +33,11 @@ class CResultWriter;
 class CResourceLimitTest : public CppUnit::TestFixture
 {
     public:
-        void testLimitBy(void);
-        void testLimitByOver(void);
-        void testLargeAllocations(void);
+        void testLimitBy();
+        void testLimitByOver();
+        void testLargeAllocations();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 
     private:
         void importCsvDataWithLimiter(ml::core_t::TTime firstTime,

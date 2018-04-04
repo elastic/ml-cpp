@@ -21,9 +21,9 @@
 class CLimitsTest : public CppUnit::TestFixture
 {
     public:
-        void testTrivial(void);
-        void testValid(void);
-        void testInvalid(void);
+        void testTrivial();
+        void testValid();
+        void testInvalid();
 
         static CppUnit::Test *suite();
 };

@@ -71,7 +71,7 @@ bool CSingleStreamDataAdder::streamComplete(TOStreamP &stream, bool force)
     return stream != 0 && !stream->bad();
 }
 
-std::size_t CSingleStreamDataAdder::maxDocumentSize(void) const
+std::size_t CSingleStreamDataAdder::maxDocumentSize() const
 {
     return MAX_DOCUMENT_SIZE;
 }

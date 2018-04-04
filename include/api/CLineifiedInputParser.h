@@ -66,12 +66,12 @@ class API_EXPORT CLineifiedInputParser : public CInputParser
         //! character at the end of the line is replaced with a zero terminator
         //! byte so that the line can later be parsed in-situ by a library
         //! that expects a zero-terminated string.
-        TCharPSizePr parseLine(void);
+        TCharPSizePr parseLine();
 
         //! Reset the work buffer to empty.  This should be called if the stream
         //! that data is being read from might have had its stream buffer
         //! changed.
-        void resetBuffer(void);
+        void resetBuffer();
 
     private:
         //! Allocate this much memory for the working buffer

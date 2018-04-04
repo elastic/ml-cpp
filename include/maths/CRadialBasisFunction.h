@@ -38,12 +38,12 @@ namespace maths
 class MATHS_EXPORT CRadialBasisFunction
 {
     public:
-        virtual ~CRadialBasisFunction(void);
+        virtual ~CRadialBasisFunction();
 
         //! Create a copy of this object.
         //!
         //! \warning The caller owns this copy.
-        virtual CRadialBasisFunction *clone(void) const = 0;
+        virtual CRadialBasisFunction *clone() const = 0;
 
         //! \brief Evaluate the basis function with centre \p centre
         //! at the point \p x.
@@ -123,7 +123,7 @@ class MATHS_EXPORT CGaussianBasisFunction : public CRadialBasisFunction
         //! Create a copy of this object.
         //!
         //! \warning The caller owns this copy.
-        virtual CGaussianBasisFunction *clone(void) const;
+        virtual CGaussianBasisFunction *clone() const;
 
         //! \brief Evaluate the basis function with centre \p centre
         //! at the point \p x.
@@ -185,7 +185,7 @@ class MATHS_EXPORT CInverseQuadraticBasisFunction : public CRadialBasisFunction
         //! Create a copy of this object.
         //!
         //! \warning The caller owns this copy.
-        CInverseQuadraticBasisFunction *clone(void) const;
+        CInverseQuadraticBasisFunction *clone() const;
 
         //! \brief Evaluate the basis function with centre \p centre
         //! at the point \p x.

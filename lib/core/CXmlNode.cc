@@ -21,7 +21,7 @@ namespace core
 {
 
 
-CXmlNode::CXmlNode(void)
+CXmlNode::CXmlNode()
 {
 }
 
@@ -46,21 +46,21 @@ CXmlNode::CXmlNode(const std::string &name,
 {
 }
 
-CXmlNode::~CXmlNode(void)
+CXmlNode::~CXmlNode()
 {
 }
 
-const std::string &CXmlNode::name(void) const
+const std::string &CXmlNode::name() const
 {
     return m_Name;
 }
 
-const std::string &CXmlNode::value(void) const
+const std::string &CXmlNode::value() const
 {
     return m_Value;
 }
 
-const CXmlNode::TStrStrPrVec &CXmlNode::attributes(void) const
+const CXmlNode::TStrStrPrVec &CXmlNode::attributes() const
 {
     return m_Attributes;
 }
@@ -75,7 +75,7 @@ void CXmlNode::value(const std::string &value)
     m_Value = value;
 }
 
-std::string CXmlNode::dump(void) const
+std::string CXmlNode::dump() const
 {
     std::string strRep("name=");
     strRep += m_Name;

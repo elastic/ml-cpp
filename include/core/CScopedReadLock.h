@@ -41,7 +41,7 @@ class CORE_EXPORT CScopedReadLock : private CNonCopyable
         CScopedReadLock(CReadWriteLock &readWriteLock);
 
         //! Unlock specified read/write lock
-        ~CScopedReadLock(void);
+        ~CScopedReadLock();
 
     private:
         CReadWriteLock &m_ReadWriteLock;

@@ -32,7 +32,7 @@ const std::string DASH("-");
 
 }
 
-CEventData::CEventData(void) :
+CEventData::CEventData() :
         m_Time(0),
         m_Pid(),
         m_Cids(),
@@ -52,7 +52,7 @@ void CEventData::swap(CEventData &other)
     std::swap(m_IsExplicitNull, other.m_IsExplicitNull);
 }
 
-void CEventData::clear(void)
+void CEventData::clear()
 {
     m_Time = 0;
     m_Pid = boost::none;
@@ -122,17 +122,17 @@ void CEventData::addStatistics(const TDouble1VecArraySizePr &values)
     m_Values.push_back(values);
 }
 
-core_t::TTime CEventData::time(void) const
+core_t::TTime CEventData::time() const
 {
     return m_Time;
 }
 
-CEventData::TOptionalSize CEventData::personId(void) const
+CEventData::TOptionalSize CEventData::personId() const
 {
     return m_Pid;
 }
 
-CEventData::TOptionalSize CEventData::attributeId(void) const
+CEventData::TOptionalSize CEventData::attributeId() const
 {
     if (m_Cids.size() != 1)
     {
@@ -143,7 +143,7 @@ CEventData::TOptionalSize CEventData::attributeId(void) const
     return m_Cids[0];
 }
 
-const CEventData::TDouble1VecArray &CEventData::values(void) const
+const CEventData::TDouble1VecArray &CEventData::values() const
 {
     if (m_Values.size() != 1)
     {
@@ -154,17 +154,17 @@ const CEventData::TDouble1VecArray &CEventData::values(void) const
     return m_Values[0] ? m_Values[0]->first : DUMMY_ARRAY;
 }
 
-const CEventData::TOptionalStr &CEventData::stringValue(void) const
+const CEventData::TOptionalStr &CEventData::stringValue() const
 {
     return m_StringValue;
 }
 
-const CEventData::TOptionalStrVec &CEventData::influences(void) const
+const CEventData::TOptionalStrVec &CEventData::influences() const
 {
     return m_Influences;
 }
 
-CEventData::TOptionalSize CEventData::count(void) const
+CEventData::TOptionalSize CEventData::count() const
 {
     if (m_Values.size() != 1)
     {
@@ -175,7 +175,7 @@ CEventData::TOptionalSize CEventData::count(void) const
     return m_Values[0] ? m_Values[0]->second : TOptionalSize();
 }
 
-std::string CEventData::print(void) const
+std::string CEventData::print() const
 {
     return   core::CStringUtils::typeToString(m_Time)
            + ' ' + (m_Pid ? core::CStringUtils::typeToString(*m_Pid) : DASH)
@@ -198,7 +198,7 @@ CEventData::TOptionalSize CEventData::count(std::size_t i) const
     return i < m_Values.size() && m_Values[i] ? m_Values[i]->second : TOptionalSize();
 }
 
-void CEventData::setExplicitNull(void)
+void CEventData::setExplicitNull()
 {
     // Set count to 0 to avoid checks of count being unset
     this->addCountStatistic(0);
@@ -206,7 +206,7 @@ void CEventData::setExplicitNull(void)
     m_IsExplicitNull = true;
 }
 
-bool CEventData::isExplicitNull(void) const
+bool CEventData::isExplicitNull() const
 {
     return m_IsExplicitNull;
 }

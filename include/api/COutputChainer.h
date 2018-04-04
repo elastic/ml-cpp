@@ -56,7 +56,7 @@ class API_EXPORT COutputChainer : public COutputHandler
         COutputChainer(CDataProcessor &dataProcessor);
 
         //! We're going to be writing to a new output stream
-        virtual void newOutputStream(void);
+        virtual void newOutputStream();
 
         //! Set field names, adding extra field names if they're not already
         //! present - this is only allowed once
@@ -64,7 +64,7 @@ class API_EXPORT COutputChainer : public COutputHandler
                                 const TStrVec &extraFieldNames);
 
         //! Get field names
-        virtual const TStrVec &fieldNames(void) const;
+        virtual const TStrVec &fieldNames() const;
 
         // Bring the other overload of fieldNames() into scope
         using COutputHandler::fieldNames;
@@ -84,7 +84,7 @@ class API_EXPORT COutputChainer : public COutputHandler
         //! called - they should do the best they can on the assumption that
         //! this method will not be called, but may be able to improve their
         //! output if this method is called.
-        virtual void finalise(void);
+        virtual void finalise();
 
         //! Restore previously saved state
         virtual bool restoreState(core::CDataSearcher &restoreSearcher,

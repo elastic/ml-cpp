@@ -46,11 +46,11 @@ class CORE_EXPORT CProgName : private CNonInstantiatable
     public:
         //! Get the name of the current program.  On error, an empty string is
         //! returned.
-        static std::string progName(void);
+        static std::string progName();
 
         //! Get the directory where the current program's executable image is
         //! located.  On error, an empty string is returned.
-        static std::string progDir(void);
+        static std::string progDir();
 };
 
 

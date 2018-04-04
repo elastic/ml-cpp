@@ -31,7 +31,7 @@ using namespace ml;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 
-void CLinearAlgebraTest::testSymmetricMatrixNxN(void)
+void CLinearAlgebraTest::testSymmetricMatrixNxN()
 {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testSymmetricMatrixNxN  |");
@@ -194,7 +194,7 @@ void CLinearAlgebraTest::testSymmetricMatrixNxN(void)
     }
 }
 
-void CLinearAlgebraTest::testVectorNx1(void)
+void CLinearAlgebraTest::testVectorNx1()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testVectorNx1  |");
@@ -307,7 +307,7 @@ void CLinearAlgebraTest::testVectorNx1(void)
     }
 }
 
-void CLinearAlgebraTest::testSymmetricMatrix(void)
+void CLinearAlgebraTest::testSymmetricMatrix()
 {
     LOG_DEBUG("+-------------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testSymmetricMatrix  |");
@@ -511,7 +511,7 @@ void CLinearAlgebraTest::testSymmetricMatrix(void)
     }
 }
 
-void CLinearAlgebraTest::testVector(void)
+void CLinearAlgebraTest::testVector()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testVector  |");
@@ -638,7 +638,7 @@ void CLinearAlgebraTest::testVector(void)
     }
 }
 
-void CLinearAlgebraTest::testNorms(void)
+void CLinearAlgebraTest::testNorms()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testNorms  |");
@@ -704,7 +704,7 @@ void CLinearAlgebraTest::testNorms(void)
     }
 }
 
-void CLinearAlgebraTest::testUtils(void)
+void CLinearAlgebraTest::testUtils()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testUtils  |");
@@ -938,7 +938,7 @@ void CLinearAlgebraTest::testUtils(void)
     }
 }
 
-void CLinearAlgebraTest::testGaussianLogLikelihood(void)
+void CLinearAlgebraTest::testGaussianLogLikelihood()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testGaussianLogLikelihood  |");
@@ -1073,7 +1073,7 @@ void CLinearAlgebraTest::testGaussianLogLikelihood(void)
     }
 }
 
-void CLinearAlgebraTest::testSampleGaussian(void)
+void CLinearAlgebraTest::testSampleGaussian()
 {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testSampleGaussian  |");
@@ -1181,7 +1181,7 @@ void CLinearAlgebraTest::testSampleGaussian(void)
     }
 }
 
-void CLinearAlgebraTest::testLogDeterminant(void)
+void CLinearAlgebraTest::testLogDeterminant()
 {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testLogDeterminant  |");
@@ -1274,7 +1274,7 @@ std::string print(const MATRIX &m)
 
 }
 
-void CLinearAlgebraTest::testProjected(void)
+void CLinearAlgebraTest::testProjected()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testProjected  |");
@@ -1333,7 +1333,7 @@ void CLinearAlgebraTest::testProjected(void)
     }
 }
 
-void CLinearAlgebraTest::testPersist(void)
+void CLinearAlgebraTest::testPersist()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testPersist  |");
@@ -1400,7 +1400,7 @@ void CLinearAlgebraTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CLinearAlgebraTest::suite(void)
+CppUnit::Test *CLinearAlgebraTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLinearAlgebraTest");
 

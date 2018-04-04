@@ -47,12 +47,12 @@ class API_EXPORT CTokenListReverseSearchCreatorIntf
         CTokenListReverseSearchCreatorIntf(const std::string &fieldName);
 
         //! Virtual destructor for an abstract base class
-        virtual ~CTokenListReverseSearchCreatorIntf(void);
+        virtual ~CTokenListReverseSearchCreatorIntf();
 
         //! What's the maximum cost of tokens we can include in the reverse
         //! search?  Derived classes can decide what they mean by cost, as they
         //! also decide the cost of each token.
-        virtual size_t availableCost(void) const = 0;
+        virtual size_t availableCost() const = 0;
 
         //! What would be the cost of adding the specified token occurring the
         //! specified number of times to the reverse search?  Derived classes
@@ -105,7 +105,7 @@ class API_EXPORT CTokenListReverseSearchCreatorIntf
                                          std::string &part2) const;
 
         //! Access to the field name
-        const std::string &fieldName(void) const;
+        const std::string &fieldName() const;
 
     private:
         //! Which field name is being used for categorisation?

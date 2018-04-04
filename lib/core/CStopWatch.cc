@@ -36,7 +36,7 @@ CStopWatch::CStopWatch(bool startRunning)
     }
 }
 
-void CStopWatch::start(void)
+void CStopWatch::start()
 {
     if (m_IsRunning)
     {
@@ -48,7 +48,7 @@ void CStopWatch::start(void)
     m_Start = m_MonotonicTime.milliseconds();
 }
 
-uint64_t CStopWatch::stop(void)
+uint64_t CStopWatch::stop()
 {
     if (!m_IsRunning)
     {
@@ -63,7 +63,7 @@ uint64_t CStopWatch::stop(void)
     return m_AccumulatedTime;
 }
 
-uint64_t CStopWatch::lap(void)
+uint64_t CStopWatch::lap()
 {
     if (!m_IsRunning)
     {
@@ -74,7 +74,7 @@ uint64_t CStopWatch::lap(void)
     return m_AccumulatedTime + this->calcDuration();
 }
 
-bool CStopWatch::isRunning(void) const
+bool CStopWatch::isRunning() const
 {
     return m_IsRunning;
 }
@@ -90,7 +90,7 @@ void CStopWatch::reset(bool startRunning)
     }
 }
 
-uint64_t CStopWatch::calcDuration(void)
+uint64_t CStopWatch::calcDuration()
 {
     uint64_t current(m_MonotonicTime.milliseconds());
     if (current < m_Start)

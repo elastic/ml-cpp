@@ -102,7 +102,7 @@ class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel
         //@}
 
         //! Returns false.
-        virtual bool isPopulation(void) const;
+        virtual bool isPopulation() const;
 
         //! \name Bucket Statistics
         //@{
@@ -175,13 +175,13 @@ class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
 
         //! Get the memory used by this model.
-        virtual std::size_t memoryUsage(void) const = 0;
+        virtual std::size_t memoryUsage() const = 0;
 
         //! Get the static size of this object - used for virtual hierarchies.
-        virtual std::size_t staticSize(void) const = 0;
+        virtual std::size_t staticSize() const = 0;
 
         //! Get the non-estimated value of the the memory used by this model.
-        virtual std::size_t computeMemoryUsage(void) const = 0;
+        virtual std::size_t computeMemoryUsage() const = 0;
 
     protected:
         using TStrCRefDouble1VecDouble1VecPrPr = std::pair<TStrCRef, TDouble1VecDouble1VecPr>;
@@ -197,7 +197,7 @@ class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel
         bool doAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
         //! Get the start time of the current bucket.
-        virtual core_t::TTime currentBucketStartTime(void) const = 0;
+        virtual core_t::TTime currentBucketStartTime() const = 0;
 
         //! Set the start time of the current bucket.
         virtual void currentBucketStartTime(core_t::TTime time) = 0;
@@ -210,7 +210,7 @@ class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel
         virtual void createNewModels(std::size_t n, std::size_t m) = 0;
 
         //! Reinitialize the time series models for recycled people.
-        virtual void updateRecycledModels(void) = 0;
+        virtual void updateRecycledModels() = 0;
 
         //! Update the correlation models.
         void refreshCorrelationModels(std::size_t resourceLimit,
@@ -279,27 +279,27 @@ class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel
                                        TDouble1Vec &baseline) const;
 
         //! Get the first time each person was seen.
-        const TTimeVec &firstBucketTimes(void) const;
+        const TTimeVec &firstBucketTimes() const;
 
         //! Get the last time each persion was seen
-        const TTimeVec &lastBucketTimes(void) const;
+        const TTimeVec &lastBucketTimes() const;
 
         //! Get the amount by which to derate the initial decay rate
         //! and the minimum Winsorisation weight for \p pid at \p time.
         double derate(std::size_t pid, core_t::TTime time) const;
 
         //! Print the current bucketing interval.
-        std::string printCurrentBucket(void) const;
+        std::string printCurrentBucket() const;
 
     private:
         //! Get the person counts in the current bucket.
-        virtual const TSizeUInt64PrVec &currentBucketPersonCounts(void) const = 0;
+        virtual const TSizeUInt64PrVec &currentBucketPersonCounts() const = 0;
 
         //! Get writable person counts in the current bucket.
-        virtual TSizeUInt64PrVec &currentBucketPersonCounts(void) = 0;
+        virtual TSizeUInt64PrVec &currentBucketPersonCounts() = 0;
 
         //! Get the total number of correlation models.
-        std::size_t numberCorrelations(void) const;
+        std::size_t numberCorrelations() const;
 
         //! Returns one.
         virtual double attributeFrequency(std::size_t cid) const;
@@ -308,7 +308,7 @@ class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel
         virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime);
 
         //! Get the model memory usage estimator
-        virtual CMemoryUsageEstimator *memoryUsageEstimator(void) const;
+        virtual CMemoryUsageEstimator *memoryUsageEstimator() const;
 
     private:
         //! The time that each person was first seen.

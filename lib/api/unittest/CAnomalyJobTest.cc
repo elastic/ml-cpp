@@ -68,10 +68,10 @@ class CEmptySearcher : public ml::core::CDataSearcher
 class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor
 {
     public:
-        CSingleResultVisitor(void) : m_LastResult(0.0)
+        CSingleResultVisitor() : m_LastResult(0.0)
         { }
 
-        virtual ~CSingleResultVisitor(void)
+        virtual ~CSingleResultVisitor()
         { }
 
         virtual void visit(const ml::model::CHierarchicalResults &/*results*/,
@@ -96,7 +96,7 @@ class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor
             }
         }
 
-        double lastResults(void) const
+        double lastResults() const
         {
             return m_LastResult;
         }
@@ -108,10 +108,10 @@ class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor
 class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor
 {
     public:
-        CMultiResultVisitor(void) : m_LastResult(0.0)
+        CMultiResultVisitor() : m_LastResult(0.0)
         { }
 
-        virtual ~CMultiResultVisitor(void)
+        virtual ~CMultiResultVisitor()
         { }
 
         virtual void visit(const ml::model::CHierarchicalResults &/*results*/,
@@ -146,7 +146,7 @@ class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor
             }
         }
 
-        double lastResults(void) const
+        double lastResults() const
         {
             return m_LastResult;
         }
@@ -161,7 +161,7 @@ class CResultsScoreVisitor : public ml::model::CHierarchicalResultsVisitor
         CResultsScoreVisitor(int score) : m_Score(score)
         { }
 
-        virtual ~CResultsScoreVisitor(void)
+        virtual ~CResultsScoreVisitor()
         { }
 
         virtual void visit(const ml::model::CHierarchicalResults &/*results*/,
@@ -221,7 +221,7 @@ const ml::core_t::TTime BUCKET_SIZE(3600);
 
 using namespace ml;
 
-void CAnomalyJobTest::testBadTimes(void)
+void CAnomalyJobTest::testBadTimes()
 {
     {
         // Test with no time field
@@ -298,7 +298,7 @@ void CAnomalyJobTest::testBadTimes(void)
     }
 }
 
-void CAnomalyJobTest::testOutOfSequence(void)
+void CAnomalyJobTest::testOutOfSequence()
 {
     {
         // Test out of sequence record
@@ -336,7 +336,7 @@ void CAnomalyJobTest::testOutOfSequence(void)
     }
 }
 
-void CAnomalyJobTest::testControlMessages(void)
+void CAnomalyJobTest::testControlMessages()
 {
     {
         // Test control messages
@@ -495,7 +495,7 @@ void CAnomalyJobTest::testControlMessages(void)
     }
 }
 
-void CAnomalyJobTest::testSkipTimeControlMessage(void)
+void CAnomalyJobTest::testSkipTimeControlMessage()
 {
     model::CLimits limits;
     api::CFieldConfig fieldConfig;
@@ -548,7 +548,7 @@ void CAnomalyJobTest::testSkipTimeControlMessage(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(11), countBuckets("bucket", outputStrm.str() + "]"));
 }
 
-void CAnomalyJobTest::testOutOfPhase(void)
+void CAnomalyJobTest::testOutOfPhase()
 {
     // Ensure the right data ends up in the right buckets
     // First we test that it works as expected for non-out-of-phase,
@@ -1513,7 +1513,7 @@ void CAnomalyJobTest::testOutOfPhase(void)
     }
 }
 
-void CAnomalyJobTest::testBucketSelection(void)
+void CAnomalyJobTest::testBucketSelection()
 {
     LOG_DEBUG("*** testBucketSelection ***");
     core_t::TTime bucketSize = 100;
@@ -1642,7 +1642,7 @@ void CAnomalyJobTest::testBucketSelection(void)
     }
 }
 
-void CAnomalyJobTest::testModelPlot(void)
+void CAnomalyJobTest::testModelPlot()
 {
     LOG_DEBUG("*** testModelPlot ***");
     {
@@ -1830,7 +1830,7 @@ void CAnomalyJobTest::testModelPlot(void)
     }
 }
 
-void CAnomalyJobTest::testInterimResultEdgeCases(void)
+void CAnomalyJobTest::testInterimResultEdgeCases()
 {
     LOG_DEBUG("*** testInterimResultEdgeCases ***");
 
@@ -1894,7 +1894,7 @@ void CAnomalyJobTest::testInterimResultEdgeCases(void)
     std::remove(logFile);
 }
 
-void CAnomalyJobTest::testRestoreFailsWithEmptyStream(void)
+void CAnomalyJobTest::testRestoreFailsWithEmptyStream()
 {
     model::CLimits limits;
     api::CFieldConfig fieldConfig;
@@ -1915,7 +1915,7 @@ void CAnomalyJobTest::testRestoreFailsWithEmptyStream(void)
     CPPUNIT_ASSERT(job.restoreState(restoreSearcher, completeToTime) == false);
 }
 
-CppUnit::Test* CAnomalyJobTest::suite(void)
+CppUnit::Test* CAnomalyJobTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAnomalyJobTest");
 

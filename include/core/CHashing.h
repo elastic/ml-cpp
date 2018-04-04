@@ -71,20 +71,20 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                 {
                     public:
                         //! See CMemory.
-                        static bool dynamicSizeAlwaysZero(void) { return true; }
+                        static bool dynamicSizeAlwaysZero() { return true; }
 
                     public:
-                        CUInt32Hash(void);
+                        CUInt32Hash();
                         CUInt32Hash(uint32_t m, uint32_t a, uint32_t b);
 
                         //! Get the range.
-                        uint32_t m(void) const;
+                        uint32_t m() const;
 
                         //! Get the multiplier.
-                        uint32_t a(void) const;
+                        uint32_t a() const;
 
                         //! Get the offset.
-                        uint32_t b(void) const;
+                        uint32_t b() const;
 
                         //! \note This is implemented inline in contravention to
                         //! the coding standards because we definitely don't want
@@ -99,7 +99,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                         }
 
                         //! Print the hash function for debug.
-                        std::string print(void) const;
+                        std::string print() const;
 
                     private:
                         uint32_t m_M, m_A, m_B;
@@ -115,17 +115,17 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                 {
                     public:
                         //! See CMemory.
-                        static bool dynamicSizeAlwaysZero(void) { return true; }
+                        static bool dynamicSizeAlwaysZero() { return true; }
 
                     public:
-                        CUInt32UnrestrictedHash(void);
+                        CUInt32UnrestrictedHash();
                         CUInt32UnrestrictedHash(uint32_t a, uint32_t b);
 
                         //! Get the multiplier.
-                        uint32_t a(void) const;
+                        uint32_t a() const;
 
                         //! Get the offset.
-                        uint32_t b(void) const;
+                        uint32_t b() const;
 
                         //! \note This is implemented inline in contravention to
                         //! the coding standards because we definitely don't want
@@ -139,7 +139,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                         }
 
                         //! Print the hash function for debug.
-                        std::string print(void) const;
+                        std::string print() const;
 
                     private:
                         uint32_t m_A, m_B;
@@ -165,13 +165,13 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                         CUInt32VecHash(uint32_t m, const TUInt32Vec &a, uint32_t b);
 
                         //! Get the range.
-                        uint32_t m(void) const;
+                        uint32_t m() const;
 
                         //! Get the multipliers.
-                        const TUInt32Vec &a(void) const;
+                        const TUInt32Vec &a() const;
 
                         //! Get the offset.
-                        uint32_t b(void) const;
+                        uint32_t b() const;
 
                         //! Overload for case our vector has two elements to
                         //! avoid overhead of creating a vector to hash.
@@ -213,7 +213,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                         }
 
                         //! Print the hash function for debug.
-                        std::string print(void) const;
+                        std::string print() const;
 
                     private:
                         uint32_t m_M;
@@ -407,7 +407,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
         {
             public:
                 //! See CMemory.
-                static bool dynamicSizeAlwaysZero(void) { return true; }
+                static bool dynamicSizeAlwaysZero() { return true; }
 
             public:
                 CMurmurHash2BT(std::size_t seed = 0x5bd1e995) :
@@ -429,7 +429,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
         {
             public:
                 //! See CMemory.
-                static bool dynamicSizeAlwaysZero(void) { return true; }
+                static bool dynamicSizeAlwaysZero() { return true; }
                 using TStrCRef = boost::reference_wrapper<const std::string>;
 
             public:
@@ -462,7 +462,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
         {
             public:
                 //! See CMemory.
-                static bool dynamicSizeAlwaysZero(void) { return true; }
+                static bool dynamicSizeAlwaysZero() { return true; }
                 using TStrCRef = boost::reference_wrapper<const std::string>;
 
             public:

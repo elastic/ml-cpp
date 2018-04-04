@@ -21,9 +21,9 @@
 class CLengthEncodedInputParserTest : public CppUnit::TestFixture
 {
     public:
-        void testCsvEquivalence(void);
-        void testThroughput(void);
-        void testCorruptStreamDetection(void);
+        void testCsvEquivalence();
+        void testThroughput();
+        void testCorruptStreamDetection();
 
         static CppUnit::Test *suite();
 };

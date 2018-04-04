@@ -32,7 +32,7 @@ using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 
-void CReportWriterTest::testPretty(void)
+void CReportWriterTest::testPretty()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+---------------------------------+");
@@ -167,7 +167,7 @@ void CReportWriterTest::testPretty(void)
     LOG_DEBUG(o.str());
 }
 
-void CReportWriterTest::testJSON(void)
+void CReportWriterTest::testJSON()
 {
     LOG_DEBUG("");
     LOG_DEBUG("+-------------------------------+");
@@ -175,7 +175,7 @@ void CReportWriterTest::testJSON(void)
     LOG_DEBUG("+-------------------------------+");
 }
 
-CppUnit::Test *CReportWriterTest::suite(void)
+CppUnit::Test *CReportWriterTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CReportWriterTest");
 

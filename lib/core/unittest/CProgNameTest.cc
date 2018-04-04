@@ -33,7 +33,7 @@ CppUnit::Test *CProgNameTest::suite()
     return suiteOfTests;
 }
 
-void CProgNameTest::testProgName(void)
+void CProgNameTest::testProgName()
 {
     std::string progName(ml::core::CProgName::progName());
 
@@ -42,7 +42,7 @@ void CProgNameTest::testProgName(void)
     CPPUNIT_ASSERT_EQUAL(std::string("ml_test"), progName);
 }
 
-void CProgNameTest::testProgDir(void)
+void CProgNameTest::testProgDir()
 {
     std::string progDir(ml::core::CProgName::progDir());
 
