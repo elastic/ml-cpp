@@ -34,7 +34,7 @@ namespace {
 //! fclose() doesn't check for NULL pointers, so wrap it for use as a shared_ptr
 //! deleter
 void safeFClose(FILE* file) {
-    if (file != 0) {
+    if (file != nullptr) {
         ::fclose(file);
     }
 }
@@ -50,7 +50,7 @@ bool ignoreSigPipe() {
     sa.sa_flags = 0;
     // Error reporting is deferred, as the logger won't be logging to the right
     // place when this function runs
-    return ::sigaction(SIGPIPE, &sa, 0) == 0;
+    return ::sigaction(SIGPIPE, &sa, nullptr) == 0;
 }
 
 const bool SIGPIPE_IGNORED(ignoreSigPipe());
@@ -171,7 +171,7 @@ std::string CNamedPipeFactory::defaultPath() {
     // Make sure path ends with a slash so it's ready to have a file name
     // appended.  (_PATH_VARTMP already has this on all platforms I've seen,
     // but a user-defined $TMPDIR might not.)
-    std::string path((tmpDir == 0) ? _PATH_VARTMP : tmpDir);
+    std::string path((tmpDir == nullptr) ? _PATH_VARTMP : tmpDir);
     if (path[path.length() - 1] != '/') {
         path += '/';
     }

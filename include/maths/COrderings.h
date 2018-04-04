@@ -46,6 +46,7 @@ namespace maths {
 //!      or second element of the pair.
 //!   -# Efficiently, O(N log(N)), simultaneously sorting multiple vectors
 //!      using one of the vectors to provide the ordering.
+<<<<<<< HEAD
 class COrderings : private core::CNonInstantiatable {
 public:
     //! \brief Orders two optional values such that non-null are

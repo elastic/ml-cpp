@@ -25,7 +25,7 @@ namespace ml {
 namespace core {
 
 CCondition::CCondition(CMutex& mutex) : m_Mutex(mutex) {
-    int ret(::pthread_cond_init(&m_Condition, 0));
+    int ret(::pthread_cond_init(&m_Condition, nullptr));
     if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
@@ -86,7 +86,7 @@ void CCondition::broadcast() {
 
 bool CCondition::convert(uint32_t t, timespec& tm) {
     timeval now;
-    if (::gettimeofday(&now, 0) < 0) {
+    if (::gettimeofday(&now, nullptr) < 0) {
         LOG_WARN(::strerror(errno));
         return false;
     }

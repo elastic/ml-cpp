@@ -56,7 +56,7 @@ CXmlNodeWithChildrenPool::newNode(const std::string& name, double value, CIEEE75
 }
 
 void CXmlNodeWithChildrenPool::recycle(CXmlNodeWithChildren::TXmlNodeWithChildrenP& nodePtr) {
-    if (nodePtr == 0) {
+    if (nodePtr == nullptr) {
         LOG_ERROR("Unexpected NULL pointer");
         return;
     }

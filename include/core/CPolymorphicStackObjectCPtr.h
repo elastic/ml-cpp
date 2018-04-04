@@ -89,7 +89,7 @@ public:
         MAYBE_RETURN(TConstD3);
         MAYBE_RETURN(TConstD4);
 #undef MAYBE_RETURN
-        return 0;
+        return nullptr;
     }
 
     TConstBase& operator*() const { return *(this->operator->()); }

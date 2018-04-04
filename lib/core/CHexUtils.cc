@@ -31,7 +31,7 @@ CHexUtils::CHexUtils(const uint8_t* pkt, size_t pktLen, bool printHeader, bool p
 }
 
 CHexUtils::CHexUtils(const TDataVec& data, bool printHeader, bool printAscii)
-    : m_Pkt((data.size() > 0) ? &data[0] : 0), m_PktLen(data.size()), m_PrintHeader(printHeader), m_PrintAscii(printAscii) {
+    : m_Pkt((data.size() > 0) ? data.data() : nullptr), m_PktLen(data.size()), m_PrintHeader(printHeader), m_PrintAscii(printAscii) {
 }
 
 void CHexUtils::dump(const uint8_t* pkt, size_t pktLen) {
@@ -45,7 +45,7 @@ std::ostream& operator<<(std::ostream& strm, const CHexUtils& hex) {
         strm << "DataSize: " << hex.m_PktLen << " {" << core_t::LINE_ENDING;
     }
 
-    if (hex.m_Pkt != 0) {
+    if (hex.m_Pkt != nullptr) {
         strm << std::hex;
 
         std::string text;

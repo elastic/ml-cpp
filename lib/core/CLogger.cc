@@ -64,9 +64,9 @@ CLogger::CLogger() : m_Logger(0), m_Reconfigured(false), m_ProgramName(CProgName
 
 CLogger::~CLogger() {
     log4cxx::LogManager::shutdown();
-    m_Logger = 0;
+    m_Logger = nullptr;
 
-    if (m_PipeFile != 0) {
+    if (m_PipeFile != nullptr) {
         // Revert the stderr file descriptor.
         if (m_OrigStderrFd != -1) {
             COsFileFuncs::dup2(m_OrigStderrFd, ::fileno(stderr));
@@ -76,7 +76,7 @@ CLogger::~CLogger() {
 }
 
 void CLogger::reset() {
-    if (m_PipeFile != 0) {
+    if (m_PipeFile != nullptr) {
         // Revert the stderr file descriptor.
         if (m_OrigStderrFd != -1) {
             COsFileFuncs::dup2(m_OrigStderrFd, ::fileno(stderr));
@@ -130,7 +130,7 @@ void CLogger::reset() {
 
         m_Logger = log4cxx::Logger::getRootLogger();
     } catch (log4cxx::helpers::Exception& e) {
-        if (m_Logger != 0) {
+        if (m_Logger != nullptr) {
             // (Can't use the Ml LOG_ERROR macro here, as the object
             // it references is only part constructed.)
             LOG4CXX_ERROR(m_Logger, "Could not initialise logger: " << e.what());
@@ -153,10 +153,10 @@ bool CLogger::hasBeenReconfigured() const {
 void CLogger::logEnvironment() const {
     std::string env("Environment variables:");
     // environ is a global variable from the C runtime library
-    if (environ == 0) {
+    if (environ == nullptr) {
         env += " (None found)";
     } else {
-        for (char** envPtr = environ; *envPtr != 0; ++envPtr) {
+        for (char** envPtr = environ; *envPtr != nullptr; ++envPtr) {
             env += core_t::LINE_ENDING;
             env += *envPtr;
         }
@@ -197,7 +197,7 @@ bool CLogger::setLoggingLevel(ELevel level) {
     }
 
     // Defend against corrupt argument
-    if (levelToSet == 0) {
+    if (levelToSet == nullptr) {
         return false;
     }
 
@@ -205,7 +205,7 @@ bool CLogger::setLoggingLevel(ELevel level) {
     // active logger when we call its setLevel() method, but because it's a
     // smart pointer, at least it will still exist
     log4cxx::LoggerPtr loggerToChange(m_Logger);
-    if (loggerToChange == 0) {
+    if (loggerToChange == nullptr) {
         return false;
     }
 
@@ -222,7 +222,7 @@ bool CLogger::setLoggingLevel(ELevel level) {
         // Unfortunately, thresholds are a concept lower down the inheritance
         // hierarchy than the Appender base class, so we have to downcast.
         log4cxx::WriterAppender* writerToChange(dynamic_cast<log4cxx::WriterAppender*>(appenderToChange));
-        if (writerToChange != 0) {
+        if (writerToChange != nullptr) {
             writerToChange->setThreshold(levelToSet);
         }
     }
@@ -248,7 +248,7 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
     }
 
     m_PipeFile = CNamedPipeFactory::openPipeFileWrite(pipeName);
-    if (m_PipeFile == 0) {
+    if (m_PipeFile == nullptr) {
         LOG_ERROR("Cannot log to named pipe " << pipeName << " as it could not be opened for writing");
         return false;
     }
@@ -324,13 +324,13 @@ bool CLogger::reconfigureFromProps(log4cxx::helpers::Properties& props) {
         // TCP server can be identified as having come from this process.
         m_Logger = log4cxx::Logger::getLogger(m_ProgramName);
 
-        if (m_Logger == 0) {
+        if (m_Logger == nullptr) {
             // We can't use the log macros if the pointer to the logger is NULL
             std::cerr << "Failed to reinitialise logger for " << m_ProgramName << std::endl;
             return false;
         }
     } catch (log4cxx::helpers::Exception& e) {
-        if (m_Logger != 0) {
+        if (m_Logger != nullptr) {
             LOG_ERROR("Failed to reinitialise logger: " << e.what());
         } else {
             // We can't use the log macros if the pointer to the logger is NULL

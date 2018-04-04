@@ -390,7 +390,7 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     if (ret > 2) {
         // Look for an 'e'
         char* ptr(static_cast<char*>(::memchr(buf, 'e', ret - 1)));
-        if (ptr != 0) {
+        if (ptr != nullptr) {
             bool edit = false;
             bool minus = false;
 
@@ -444,7 +444,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
         return false;
     }
 
-    char* endPtr(0);
+    char* endPtr(nullptr);
     errno = 0;
     unsigned long long ret(::strtoull(str.c_str(), &endPtr, 0));
 
@@ -469,7 +469,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
         return false;
     }
 
-    if (endPtr != 0 && *endPtr != '\0') {
+    if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str
                                                    << "'"
@@ -492,7 +492,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
         return false;
     }
 
-    char* endPtr(0);
+    char* endPtr(nullptr);
     errno = 0;
     unsigned long ret(::strtoul(str.c_str(), &endPtr, 0));
 
@@ -517,7 +517,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
         return false;
     }
 
-    if (endPtr != 0 && *endPtr != '\0') {
+    if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str
                                                    << "'"
@@ -586,7 +586,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long long&
         return false;
     }
 
-    char* endPtr(0);
+    char* endPtr(nullptr);
     errno = 0;
     long long ret(::strtoll(str.c_str(), &endPtr, 0));
 
@@ -611,7 +611,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long long&
         return false;
     }
 
-    if (endPtr != 0 && *endPtr != '\0') {
+    if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str
                                                    << "'"
@@ -634,7 +634,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long& i) {
         return false;
     }
 
-    char* endPtr(0);
+    char* endPtr(nullptr);
     errno = 0;
     long ret(::strtol(str.c_str(), &endPtr, 0));
 
@@ -659,7 +659,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long& i) {
         return false;
     }
 
-    if (endPtr != 0 && *endPtr != '\0') {
+    if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str
                                                    << "'"
@@ -796,7 +796,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, double& d)
         return false;
     }
 
-    char* endPtr(0);
+    char* endPtr(nullptr);
     errno = 0;
     double ret(::strtod(str.c_str(), &endPtr));
 
@@ -820,7 +820,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, double& d)
         return false;
     }
 
-    if (endPtr != 0 && *endPtr != '\0') {
+    if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str
                                                    << "'"

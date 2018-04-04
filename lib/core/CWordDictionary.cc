@@ -80,7 +80,7 @@ CFastMutex CWordDictionary::ms_LoadMutex;
 volatile CWordDictionary* CWordDictionary::ms_Instance(0);
 
 const CWordDictionary& CWordDictionary::instance() {
-    if (ms_Instance == 0) {
+    if (ms_Instance == nullptr) {
         CScopedFastLock lock(ms_LoadMutex);
 
         // Even if we get into this code block in more than one thread, whatever
@@ -153,7 +153,7 @@ CWordDictionary::CWordDictionary() {
 }
 
 CWordDictionary::~CWordDictionary() {
-    ms_Instance = 0;
+    ms_Instance = nullptr;
 }
 
 size_t CWordDictionary::CStrHashIgnoreCase::operator()(const std::string& str) const {

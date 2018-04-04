@@ -266,7 +266,7 @@ private:
     //! Print a std::auto_ptr.
     template<typename T>
     static std::string printElement(const std::auto_ptr<T>& value) {
-        if (value.get() == 0) {
+        if (value.get() == nullptr) {
             return "\"null\"";
         }
         std::ostringstream result;
