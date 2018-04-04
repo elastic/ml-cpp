@@ -82,12 +82,12 @@ class CBlockingMessageQueue
         {
         }
 
-        virtual ~CBlockingMessageQueue(void)
+        virtual ~CBlockingMessageQueue()
         {
         }
 
         //! Initialise - create the receiving thread
-        bool start(void)
+        bool start()
         {
             CScopedLock lock(m_Mutex);
 
@@ -103,7 +103,7 @@ class CBlockingMessageQueue
         }
 
         //! Shutdown - kill thread
-        bool stop(void)
+        bool stop()
         {
             m_Thread.stop();
 
@@ -159,7 +159,7 @@ class CBlockingMessageQueue
         //! much more efficient to get this when dispatching a message, as
         //! everything can then be done under a single mutex lock.  This method
         //! must be used sparingly to avoid excessive lock contention.
-        size_t pending(void) const
+        size_t pending() const
         {
             CScopedLock lock(m_Mutex);
 
@@ -168,7 +168,7 @@ class CBlockingMessageQueue
 
     private:
         //! No-op shutdown function if no other is provided
-        static void defaultShutdownFunc(void)
+        static void defaultShutdownFunc()
         {
         }
 
@@ -186,14 +186,14 @@ class CBlockingMessageQueue
                 }
 
                 //! The queue must have the mutex for this to be called
-                bool isRunning(void) const
+                bool isRunning() const
                 {
                     // Assumes lock
                     return m_IsRunning;
                 }
 
             protected:
-                void run(void)
+                void run()
                 {
                     m_MessageQueue.m_Mutex.lock();
                     m_MessageQueue.m_ProducerCondition.signal();
@@ -241,7 +241,7 @@ class CBlockingMessageQueue
                     m_MessageQueue.m_Mutex.unlock();
                 }
 
-                void shutdown(void)
+                void shutdown()
                 {
                     CScopedLock lock(m_MessageQueue.m_Mutex);
 

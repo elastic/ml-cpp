@@ -70,13 +70,13 @@ class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable< CPacke
         };
 
     public:
-        CPackedBitVector(void);
+        CPackedBitVector();
         explicit CPackedBitVector(bool bit);
         CPackedBitVector(std::size_t dimension, bool bit);
         CPackedBitVector(const TBoolVec &bits);
 
         //! Contract the vector by popping a component from the start.
-        void contract(void);
+        void contract();
 
         //! Extend the vector to dimension adding the component \p bit.
         void extend(bool bit);
@@ -87,11 +87,11 @@ class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable< CPacke
         bool fromDelimited(const std::string &str);
 
         //! Persist state to delimited values.
-        std::string toDelimited(void) const;
+        std::string toDelimited() const;
         //@}
 
         //! Get the dimension.
-        std::size_t dimension(void) const;
+        std::size_t dimension() const;
 
         //! Get the i'th component (no bounds checking).
         bool operator()(std::size_t i) const;
@@ -103,35 +103,35 @@ class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable< CPacke
         bool operator<(const CPackedBitVector &rhs) const;
 
         //! Get the complement vector, i.e. the vector whose bits are negated.
-        CPackedBitVector complement(void) const;
+        CPackedBitVector complement() const;
 
         //! Inner product.
         double inner(const CPackedBitVector &covector,
                      EOperation op = E_AND) const;
 
         //! Euclidean norm.
-        double euclidean(void) const
+        double euclidean() const
         {
             return std::sqrt(this->inner(*this));
         }
 
         //! Manhattan norm.
-        double manhattan(void) const
+        double manhattan() const
         {
             return this->inner(*this);
         }
 
         //! Convert to a bit vector.
-        TBoolVec toBitVector(void) const;
+        TBoolVec toBitVector() const;
 
         //! Get a checksum of this vector's components.
-        uint64_t checksum(void) const;
+        uint64_t checksum() const;
 
         //! Debug the memory used by this object.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         using TUInt8Vec = std::vector<uint8_t>;

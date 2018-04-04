@@ -28,7 +28,7 @@ using namespace ml;
 
 using TDoubleVec = std::vector<double>;
 
-void CCountMinSketchTest::testCounts(void)
+void CCountMinSketchTest::testCounts()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CCountMinSketchTest::testCounts  |");
@@ -140,7 +140,7 @@ void CCountMinSketchTest::testCounts(void)
     }
 }
 
-void CCountMinSketchTest::testSwap(void)
+void CCountMinSketchTest::testSwap()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CCountMinSketchTest::testSwap  |");
@@ -208,7 +208,7 @@ void CCountMinSketchTest::testSwap(void)
     sketch3.swap(sketch4);
 }
 
-void CCountMinSketchTest::testPersist(void)
+void CCountMinSketchTest::testPersist()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CCountMinSketchTest::testPersist  |");
@@ -290,7 +290,7 @@ void CCountMinSketchTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CCountMinSketchTest::suite(void)
+CppUnit::Test *CCountMinSketchTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCountMinSketchTest");
 

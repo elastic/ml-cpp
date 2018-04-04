@@ -146,7 +146,7 @@ class CORE_EXPORT CWordDictionary : private CNonCopyable
 
     public:
         //! Get the singleton instance
-        static const CWordDictionary &instance(void);
+        static const CWordDictionary &instance();
 
         //! Check if a word is in the dictionary.  Don't call this as well as
         //! partOfSpeech().  Instead simply call partOfSpeech(), noting that
@@ -163,8 +163,8 @@ class CORE_EXPORT CWordDictionary : private CNonCopyable
 
     private:
         //! Constructor for a singleton is private
-        CWordDictionary(void);
-        ~CWordDictionary(void);
+        CWordDictionary();
+        ~CWordDictionary();
 
     private:
         class CStrHashIgnoreCase : std::unary_function<std::string, bool>

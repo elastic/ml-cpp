@@ -21,13 +21,13 @@
 class CMixtureDistributionTest : public CppUnit::TestFixture
 {
     public:
-        void testSupport(void);
-        void testMode(void);
-        void testPdf(void);
-        void testCdf(void);
-        void testQuantile(void);
+        void testSupport();
+        void testMode();
+        void testPdf();
+        void testCdf();
+        void testQuantile();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CMixtureDistributionTest_h

@@ -55,7 +55,7 @@ CppUnit::Test *CStringSimilarityTesterTest::suite()
     return suiteOfTests;
 }
 
-void CStringSimilarityTesterTest::testStringSimilarity(void)
+void CStringSimilarityTesterTest::testStringSimilarity()
 {
     std::string str1("This is identical");
     std::string str2("This is identical");
@@ -144,7 +144,7 @@ void CStringSimilarityTesterTest::testStringSimilarity(void)
     CPPUNIT_ASSERT_EQUAL(similarity3, similarity9);
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistance(void)
+void CStringSimilarityTesterTest::testLevensteinDistance()
 {
     ml::core::CStringSimilarityTester sst;
 
@@ -189,7 +189,7 @@ void CStringSimilarityTesterTest::testLevensteinDistance(void)
     CPPUNIT_ASSERT_EQUAL(size_t(7), sst.levenshteinDistanceEx(str1, str4, &::isdigit));
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistance2(void)
+void CStringSimilarityTesterTest::testLevensteinDistance2()
 {
     ml::core::CStringSimilarityTester sst;
 
@@ -266,7 +266,7 @@ void CStringSimilarityTesterTest::testLevensteinDistance2(void)
     CPPUNIT_ASSERT_EQUAL(size_t(9), sst.levenshteinDistance(empty, serviceStart));
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent(void)
+void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent()
 {
     ml::core::CStringSimilarityTester sst;
 
@@ -312,7 +312,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent(void
              " took " << (end - start) << " seconds");
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar(void)
+void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar()
 {
     ml::core::CStringSimilarityTester sst;
 
@@ -365,7 +365,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar(void)
              (end - start) << " seconds");
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence(void)
+void CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence()
 {
     // The intention here is to ensure that the Berghel-Roach algorithm delivers
     // the same results as the simple algorithm.  We take advantage of
@@ -393,7 +393,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence(voi
                          sst.berghelRoachEditDistance(mouse, elephant));
 }
 
-void CStringSimilarityTesterTest::testWeightedEditDistance(void)
+void CStringSimilarityTesterTest::testWeightedEditDistance()
 {
     ml::core::CStringSimilarityTester sst;
 

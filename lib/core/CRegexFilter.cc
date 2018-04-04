@@ -21,7 +21,7 @@ namespace ml
 namespace core
 {
 
-CRegexFilter::CRegexFilter(void)
+CRegexFilter::CRegexFilter()
     : m_Regex()
 {
 }
@@ -64,7 +64,7 @@ std::string CRegexFilter::apply(const std::string &target) const
     return result;
 }
 
-bool CRegexFilter::empty(void) const
+bool CRegexFilter::empty() const
 {
     return m_Regex.empty();
 }

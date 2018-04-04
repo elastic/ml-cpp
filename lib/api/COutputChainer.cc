@@ -30,7 +30,7 @@ COutputChainer::COutputChainer(CDataProcessor &dataProcessor)
 {
 }
 
-void COutputChainer::newOutputStream(void)
+void COutputChainer::newOutputStream()
 {
     m_DataProcessor.newOutputStream();
 }
@@ -80,7 +80,7 @@ bool COutputChainer::fieldNames(const TStrVec &fieldNames,
     return true;
 }
 
-const COutputHandler::TStrVec &COutputChainer::fieldNames(void) const
+const COutputHandler::TStrVec &COutputChainer::fieldNames() const
 {
     return m_FieldNames;
 }
@@ -139,7 +139,7 @@ bool COutputChainer::writeRow(const TStrStrUMap &dataRowFields,
     return true;
 }
 
-void COutputChainer::finalise(void)
+void COutputChainer::finalise()
 {
     m_DataProcessor.finalise();
 }

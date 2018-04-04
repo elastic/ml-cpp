@@ -39,7 +39,7 @@ CppUnit::Test *CWordDictionaryTest::suite()
     return suiteOfTests;
 }
 
-void CWordDictionaryTest::testLookups(void)
+void CWordDictionaryTest::testLookups()
 {
     const ml::core::CWordDictionary &dict = ml::core::CWordDictionary::instance();
 
@@ -57,7 +57,7 @@ void CWordDictionaryTest::testLookups(void)
     CPPUNIT_ASSERT(!dict.isInDictionary("HELLO2"));
 }
 
-void CWordDictionaryTest::testPartOfSpeech(void)
+void CWordDictionaryTest::testPartOfSpeech()
 {
     const ml::core::CWordDictionary &dict = ml::core::CWordDictionary::instance();
 
@@ -89,7 +89,7 @@ void CWordDictionaryTest::testPartOfSpeech(void)
                          dict.partOfSpeech("a"));
 }
 
-void CWordDictionaryTest::testWeightingFunctors(void)
+void CWordDictionaryTest::testWeightingFunctors()
 {
     {
         ml::core::CWordDictionary::TWeightAll2 weighter;
@@ -153,7 +153,7 @@ void CWordDictionaryTest::testWeightingFunctors(void)
     }
 }
 
-void CWordDictionaryTest::testPerformance(void)
+void CWordDictionaryTest::testPerformance()
 {
     const ml::core::CWordDictionary &dict = ml::core::CWordDictionary::instance();
 

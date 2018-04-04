@@ -21,11 +21,11 @@
 class CLoggerTest : public CppUnit::TestFixture
 {
     public:
-        void testLogging(void);
-        void testReconfiguration(void);
-        void testSetLevel(void);
-        void testLogEnvironment(void);
-        void testNonAsciiJsonLogging(void);
+        void testLogging();
+        void testReconfiguration();
+        void testSetLevel();
+        void testLogEnvironment();
+        void testNonAsciiJsonLogging();
 
         static CppUnit::Test *suite();
 };

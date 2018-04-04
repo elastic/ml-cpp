@@ -69,13 +69,13 @@ class API_EXPORT COutputHandler : private core::CNonCopyable
         using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
     public:
-        COutputHandler(void);
+        COutputHandler();
 
         //! Virtual destructor for abstract base class
-        virtual ~COutputHandler(void);
+        virtual ~COutputHandler();
 
         //! We're going to be writing to a new output stream
-        virtual void newOutputStream(void);
+        virtual void newOutputStream();
 
         //! Set field names - this must only be called once per output file
         bool fieldNames(const TStrVec &fieldNames);
@@ -86,7 +86,7 @@ class API_EXPORT COutputHandler : private core::CNonCopyable
                                 const TStrVec &extraFieldNames) = 0;
 
         //! Get field names
-        virtual const TStrVec &fieldNames(void) const = 0;
+        virtual const TStrVec &fieldNames() const = 0;
 
         //! Write a row to the stream.  The supplied map must contain every
         //! field value.
@@ -100,7 +100,7 @@ class API_EXPORT COutputHandler : private core::CNonCopyable
                               const TStrStrUMap &overrideDataRowFields) = 0;
 
         //! Perform any final processing once all input data has been seen.
-        virtual void finalise(void);
+        virtual void finalise();
 
         //! Restore previously saved state
         virtual bool restoreState(core::CDataSearcher &restoreSearcher,

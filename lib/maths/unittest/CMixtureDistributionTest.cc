@@ -33,7 +33,7 @@ using TNormalVec = std::vector<boost::math::normal_distribution<>>;
 using TLogNormalVec = std::vector<boost::math::lognormal_distribution<>>;
 using TGammaVec = std::vector<boost::math::gamma_distribution<>>;
 
-void CMixtureDistributionTest::testSupport(void)
+void CMixtureDistributionTest::testSupport()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testSupport  |");
@@ -67,7 +67,7 @@ void CMixtureDistributionTest::testSupport(void)
     }
 }
 
-void CMixtureDistributionTest::testMode(void)
+void CMixtureDistributionTest::testMode()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testMode  |");
@@ -191,7 +191,7 @@ void CMixtureDistributionTest::testMode(void)
     }
 }
 
-void CMixtureDistributionTest::testPdf(void)
+void CMixtureDistributionTest::testPdf()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CMixtureDistributionTest::testPdf  |");
@@ -279,7 +279,7 @@ void CMixtureDistributionTest::testPdf(void)
     }
 }
 
-void CMixtureDistributionTest::testCdf(void)
+void CMixtureDistributionTest::testCdf()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CMixtureDistributionTest::testCdf  |");
@@ -367,7 +367,7 @@ void CMixtureDistributionTest::testCdf(void)
     }
 }
 
-void CMixtureDistributionTest::testQuantile(void)
+void CMixtureDistributionTest::testQuantile()
 {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CMixtureDistributionTest::testQuantile  |");
@@ -430,7 +430,7 @@ void CMixtureDistributionTest::testQuantile(void)
     }
 }
 
-CppUnit::Test *CMixtureDistributionTest::suite(void)
+CppUnit::Test *CMixtureDistributionTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMixtureDistributionTest");
 

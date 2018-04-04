@@ -41,7 +41,7 @@ CCompressUtils::CCompressUtils(bool lengthOnly, int level)
     }
 }
 
-CCompressUtils::~CCompressUtils(void)
+CCompressUtils::~CCompressUtils()
 {
     int ret(::deflateEnd(&m_ZlibStrm));
     if (ret != Z_OK)
@@ -113,7 +113,7 @@ bool CCompressUtils::compressedLength(bool finish, size_t &length)
     return true;
 }
 
-void CCompressUtils::reset(void)
+void CCompressUtils::reset()
 {
     int ret(::deflateReset(&m_ZlibStrm));
     if (ret != Z_OK)

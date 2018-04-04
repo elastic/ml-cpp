@@ -89,7 +89,7 @@ CppUnit::Test *CDetectionRuleTest::suite()
     return suiteOfTests;
 }
 
-void CDetectionRuleTest::testApplyGivenCategoricalCondition(void)
+void CDetectionRuleTest::testApplyGivenCategoricalCondition()
 {
     LOG_DEBUG("*** testApplyGivenCategoricalCondition ***");
 
@@ -296,7 +296,7 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void)
     }
 }
 
-void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void)
+void CDetectionRuleTest::testApplyGivenNumericalActualCondition()
 {
     LOG_DEBUG("*** testApplyGivenNumericalActionCondition ***");
 
@@ -404,7 +404,7 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void)
     }
 }
 
-void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition(void)
+void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition()
 {
     LOG_DEBUG("*** testApplyGivenNumericalTypicalCondition ***");
 
@@ -480,7 +480,7 @@ void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition(void)
     }
 }
 
-void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition(void)
+void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition()
 {
     LOG_DEBUG("*** testApplyGivenNumericalDiffAbsCondition ***");
 
@@ -580,7 +580,7 @@ void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition(void)
     }
 }
 
-void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField(void)
+void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField()
 {
     LOG_DEBUG("*** testApplyGivenSingleSeriesModelAndConditionWithField ***");
 
@@ -630,7 +630,7 @@ void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField(vo
             model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == false);
 }
 
-void CDetectionRuleTest::testApplyGivenNoActualValueAvailable(void)
+void CDetectionRuleTest::testApplyGivenNoActualValueAvailable()
 {
     LOG_DEBUG("*** testApplyGivenNoActualValueAvailable ***");
 
@@ -672,7 +672,7 @@ void CDetectionRuleTest::testApplyGivenNoActualValueAvailable(void)
             model_t::E_IndividualMeanByPerson, resultType, 0, 0, 400) == false);
 }
 
-void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel(void)
+void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel()
 {
     LOG_DEBUG("*** testApplyGivenDifferentSeriesAndIndividualModel ***");
 
@@ -719,7 +719,7 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel(void)
             model_t::E_IndividualMeanByPerson, resultType, 1, 0, 100) == false);
 }
 
-void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel(void)
+void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel()
 {
     LOG_DEBUG("*** testApplyGivenDifferentSeriesAndPopulationModel ***");
 
@@ -781,7 +781,7 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel(void)
             model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) == false);
 }
 
-void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void)
+void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr()
 {
     LOG_DEBUG("*** testApplyGivenMultipleConditionsWithOr ***");
 
@@ -901,7 +901,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void)
     }
 }
 
-void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void)
+void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd()
 {
     LOG_DEBUG("*** testApplyGivenMultipleConditionsWithAnd ***");
 
@@ -1025,7 +1025,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void)
     }
 }
 
-void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(void)
+void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel()
 {
     LOG_DEBUG("*** testApplyGivenTargetFieldIsPartitionAndIndividualModel ***");
 
@@ -1119,7 +1119,7 @@ void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(
     }
 }
 
-void CDetectionRuleTest::testApplyGivenTimeCondition(void)
+void CDetectionRuleTest::testApplyGivenTimeCondition()
 {
     LOG_DEBUG("*** testApplyGivenTimeCondition ***");
 
@@ -1166,7 +1166,7 @@ void CDetectionRuleTest::testApplyGivenTimeCondition(void)
                 model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
 }
 
-void CDetectionRuleTest::testRuleActions(void)
+void CDetectionRuleTest::testRuleActions()
 {
     LOG_DEBUG("*** testRuleActions ***");
 

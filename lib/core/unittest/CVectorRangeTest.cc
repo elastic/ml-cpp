@@ -27,7 +27,7 @@ using TDoubleVec = std::vector<double>;
 using TDoubleRng = core::CVectorRange<TDoubleVec>;
 using TDoubleCRng = core::CVectorRange<const TDoubleVec>;
 
-void CVectorRangeTest::testCreation(void)
+void CVectorRangeTest::testCreation()
 {
     LOG_DEBUG("*** CVectorRangeTest::testCreation ***");
 
@@ -65,7 +65,7 @@ void CVectorRangeTest::testCreation(void)
     }
 }
 
-void CVectorRangeTest::testAccessors(void)
+void CVectorRangeTest::testAccessors()
 {
     LOG_DEBUG("*** CVectorRangeTest::testAccessors ***");
 
@@ -97,7 +97,7 @@ void CVectorRangeTest::testAccessors(void)
     CPPUNIT_ASSERT_EQUAL(9.8, crange14.back());
 }
 
-void CVectorRangeTest::testIterators(void)
+void CVectorRangeTest::testIterators()
 {
     LOG_DEBUG("*** CVectorRangeTest::testIterators ***");
 
@@ -125,7 +125,7 @@ void CVectorRangeTest::testIterators(void)
     CPPUNIT_ASSERT_EQUAL(std::ptrdiff_t(3), crange14.end() - crange14.begin());
 }
 
-void CVectorRangeTest::testSizing(void)
+void CVectorRangeTest::testSizing()
 {
     LOG_DEBUG("*** CVectorRangeTest::testSizing ***");
 
@@ -151,7 +151,7 @@ void CVectorRangeTest::testSizing(void)
     CPPUNIT_ASSERT(values.capacity() >= 15);
 }
 
-void CVectorRangeTest::testModifiers(void)
+void CVectorRangeTest::testModifiers()
 {
     LOG_DEBUG("*** CVectorRangeTest::testModifiers ***");
 
@@ -218,7 +218,7 @@ void CVectorRangeTest::testModifiers(void)
     CPPUNIT_ASSERT_EQUAL(s223, core::CContainerPrinter::print(range113));
 }
 
-void CVectorRangeTest::testComparisons(void)
+void CVectorRangeTest::testComparisons()
 {
     LOG_DEBUG("*** CVectorRangeTest::testComparisons ***");
 
@@ -253,7 +253,7 @@ void CVectorRangeTest::testComparisons(void)
     CPPUNIT_ASSERT(!(range103 >= range202));
 }
 
-CppUnit::Test *CVectorRangeTest::suite(void)
+CppUnit::Test *CVectorRangeTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CVectorRangeTest");
 

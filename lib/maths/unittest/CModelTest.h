@@ -21,9 +21,9 @@
 class CModelTest : public CppUnit::TestFixture
 {
     public:
-        void testAll(void);
+        void testAll();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDE_CModelTest_h

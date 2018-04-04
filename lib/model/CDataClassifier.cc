@@ -62,12 +62,12 @@ void CDataClassifier::add(model_t::EFeature feature,
     }
 }
 
-bool CDataClassifier::isInteger(void) const
+bool CDataClassifier::isInteger() const
 {
     return m_IsInteger;
 }
 
-bool CDataClassifier::isNonNegative(void) const
+bool CDataClassifier::isNonNegative() const
 {
     return m_IsNonNegative;
 }

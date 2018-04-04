@@ -45,7 +45,7 @@ namespace
                 }
             }
 
-            size_t size(void) const
+            size_t size() const
             {
                 return m_Strings.size();
             }
@@ -57,7 +57,7 @@ namespace
     };
 }
 
-void CBlockingMessageQueueTest::testSendReceive(void)
+void CBlockingMessageQueueTest::testSendReceive()
 {
     CReceiver receiver;
 

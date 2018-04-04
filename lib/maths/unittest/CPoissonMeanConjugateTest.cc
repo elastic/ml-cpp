@@ -55,7 +55,7 @@ using CPoissonMeanConjugate = CPriorTestInterfaceMixin<maths::CPoissonMeanConjug
 
 }
 
-void CPoissonMeanConjugateTest::testMultipleUpdate(void)
+void CPoissonMeanConjugateTest::testMultipleUpdate()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testMultipleUpdate  |");
@@ -139,7 +139,7 @@ void CPoissonMeanConjugateTest::testMultipleUpdate(void)
     }
 }
 
-void CPoissonMeanConjugateTest::testPropagation(void)
+void CPoissonMeanConjugateTest::testPropagation()
 {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testPropagation  |");
@@ -175,7 +175,7 @@ void CPoissonMeanConjugateTest::testPropagation(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(mean, propagatedMean, eps);
 }
 
-void CPoissonMeanConjugateTest::testMeanEstimation(void)
+void CPoissonMeanConjugateTest::testMeanEstimation()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testMeanEstimation  |");
@@ -246,7 +246,7 @@ void CPoissonMeanConjugateTest::testMeanEstimation(void)
     }
 }
 
-void CPoissonMeanConjugateTest::testMarginalLikelihood(void)
+void CPoissonMeanConjugateTest::testMarginalLikelihood()
 {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testMarginalLikelihood  |");
@@ -391,7 +391,7 @@ void CPoissonMeanConjugateTest::testMarginalLikelihood(void)
     }
 }
 
-void CPoissonMeanConjugateTest::testMarginalLikelihoodMode(void)
+void CPoissonMeanConjugateTest::testMarginalLikelihoodMode()
 {
     LOG_DEBUG("+---------------------------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testMarginalLikelihoodMode  |");
@@ -439,7 +439,7 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodMode(void)
     }
 }
 
-void CPoissonMeanConjugateTest::testMarginalLikelihoodVariance(void)
+void CPoissonMeanConjugateTest::testMarginalLikelihoodVariance()
 {
     LOG_DEBUG("+-------------------------------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testMarginalLikelihoodVariance  |");
@@ -490,7 +490,7 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodVariance(void)
     }
 }
 
-void CPoissonMeanConjugateTest::testSampleMarginalLikelihood(void)
+void CPoissonMeanConjugateTest::testSampleMarginalLikelihood()
 {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testSampleMarginalLikelihood  |");
@@ -579,7 +579,7 @@ void CPoissonMeanConjugateTest::testSampleMarginalLikelihood(void)
     }
 }
 
-void CPoissonMeanConjugateTest::testCdf(void)
+void CPoissonMeanConjugateTest::testCdf()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testCdf  |");
@@ -638,7 +638,7 @@ void CPoissonMeanConjugateTest::testCdf(void)
     }
 }
 
-void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples(void)
+void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples()
 {
     LOG_DEBUG("+-----------------------------------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples  |");
@@ -787,7 +787,7 @@ void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.02);
 }
 
-void CPoissonMeanConjugateTest::testAnomalyScore(void)
+void CPoissonMeanConjugateTest::testAnomalyScore()
 {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testAnomalyScore  |");
@@ -919,7 +919,7 @@ void CPoissonMeanConjugateTest::testAnomalyScore(void)
     CPPUNIT_ASSERT(totalFalsePositiveRate <= 0.004);
 }
 
-void CPoissonMeanConjugateTest::testOffset(void)
+void CPoissonMeanConjugateTest::testOffset()
 {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testOffset  |");
@@ -985,7 +985,7 @@ void CPoissonMeanConjugateTest::testOffset(void)
     }
 }
 
-void CPoissonMeanConjugateTest::testPersist(void)
+void CPoissonMeanConjugateTest::testPersist()
 {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testPersist  |");
@@ -1044,7 +1044,7 @@ void CPoissonMeanConjugateTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CPoissonMeanConjugateTest::testNegativeSample(void)
+void CPoissonMeanConjugateTest::testNegativeSample()
 {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CPoissonMeanConjugateTest::testNegativeSample  |");
@@ -1086,7 +1086,7 @@ void CPoissonMeanConjugateTest::testNegativeSample(void)
     CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
 }
 
-CppUnit::Test *CPoissonMeanConjugateTest::suite(void)
+CppUnit::Test *CPoissonMeanConjugateTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPoissonMeanConjugateTest");
 

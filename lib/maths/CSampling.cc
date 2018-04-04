@@ -508,7 +508,7 @@ void CSampling::staticsAcceptPersistInserter(core::CStatePersistInserter &insert
     inserter.insertValue(RNG_TAG, rng);
 }
 
-void CSampling::seed(void)
+void CSampling::seed()
 {
     core::CScopedFastLock scopedLock(ms_Lock);
     ms_Rng.seed();
@@ -995,27 +995,27 @@ core::CFastMutex CSampling::ms_Lock;
 CSampling::CRandomNumberGenerator CSampling::ms_Rng;
 
 
-void CSampling::CRandomNumberGenerator::mock(void)
+void CSampling::CRandomNumberGenerator::mock()
 {
     m_Mock.reset((min() + max()) / 2);
 }
 
-void CSampling::CRandomNumberGenerator::unmock(void)
+void CSampling::CRandomNumberGenerator::unmock()
 {
     m_Mock.reset();
 }
 
-void CSampling::CRandomNumberGenerator::seed(void)
+void CSampling::CRandomNumberGenerator::seed()
 {
     m_Rng.seed();
 }
 
-CSampling::CScopeMockRandomNumberGenerator::CScopeMockRandomNumberGenerator(void)
+CSampling::CScopeMockRandomNumberGenerator::CScopeMockRandomNumberGenerator()
 {
     CSampling::ms_Rng.mock();
 }
 
-CSampling::CScopeMockRandomNumberGenerator::~CScopeMockRandomNumberGenerator(void)
+CSampling::CScopeMockRandomNumberGenerator::~CScopeMockRandomNumberGenerator()
 {
     CSampling::ms_Rng.unmock();
 }

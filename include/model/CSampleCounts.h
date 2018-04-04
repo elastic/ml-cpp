@@ -66,7 +66,7 @@ class MODEL_EXPORT CSampleCounts
         CSampleCounts(bool isForPersistence,
                       const CSampleCounts &other);
 
-        CSampleCounts *cloneForPersistence(void) const;
+        CSampleCounts *cloneForPersistence() const;
 
         //! Persist the sample counts to a state document.
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
@@ -112,10 +112,10 @@ class MODEL_EXPORT CSampleCounts
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         //! Clear the sample counts.
-        void clear(void);
+        void clear();
 
     private:
         using TUIntVec = std::vector<unsigned int>;

@@ -49,16 +49,16 @@ class CORE_EXPORT CJsonLogLayout : public Layout
             LOG4CXX_CAST_ENTRY_CHAIN(Layout)
         END_LOG4CXX_CAST_MAP()
 
-        CJsonLogLayout(void);
+        CJsonLogLayout();
 
         //! Accessors for location info (i.e. should file/line be included in
         //! log output?
         void locationInfo(bool locationInfo);
-        bool locationInfo(void) const;
+        bool locationInfo() const;
 
         //! Accessors for whether MDC key-value pairs should be output.
         void properties(bool properties);
-        bool properties(void) const;
+        bool properties() const;
 
         //! No options to activate.
         void activateOptions(Pool &p);
@@ -73,7 +73,7 @@ class CORE_EXPORT CJsonLogLayout : public Layout
                             Pool &p) const;
 
         //! The CJsonLogLayout prints and does not ignore exceptions.
-        virtual bool ignoresThrowable(void) const;
+        virtual bool ignoresThrowable() const;
 
     private:
         //! Include location info by default

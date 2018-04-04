@@ -323,7 +323,7 @@ class CNumericalLogProbabilityOfMFromNExtremeSamples
         }
 
         //! Calculate the probability (by numerical integration).
-        double calculate(void)
+        double calculate()
         {
             double result;
             CLogIntegrand f(m_P, m_Corrections, m_N, m_P.size(), 1u);
@@ -358,7 +358,7 @@ const char DELIMITER(':');
 
 //////// CJointProbabilityOfLessLikelySample Implementation ////////
 
-CJointProbabilityOfLessLikelySamples::CJointProbabilityOfLessLikelySamples(void) :
+CJointProbabilityOfLessLikelySamples::CJointProbabilityOfLessLikelySamples() :
         m_Distance(0.0), m_NumberSamples(0.0)
 {
 }
@@ -387,7 +387,7 @@ bool CJointProbabilityOfLessLikelySamples::fromDelimited(const std::string &valu
     return false;
 }
 
-std::string CJointProbabilityOfLessLikelySamples::toDelimited(void) const
+std::string CJointProbabilityOfLessLikelySamples::toDelimited() const
 {
     core::CPersistUtils::CBuiltinToString converter(DELIMITER);
     if (m_OnlyProbability)
@@ -580,17 +580,17 @@ bool CJointProbabilityOfLessLikelySamples::averageProbability(double &result) co
 }
 
 CJointProbabilityOfLessLikelySamples::TOptionalDouble
-    CJointProbabilityOfLessLikelySamples::onlyProbability(void) const
+    CJointProbabilityOfLessLikelySamples::onlyProbability() const
 {
     return m_OnlyProbability;
 }
 
-double CJointProbabilityOfLessLikelySamples::distance(void) const
+double CJointProbabilityOfLessLikelySamples::distance() const
 {
     return m_Distance;
 }
 
-double CJointProbabilityOfLessLikelySamples::numberSamples(void) const
+double CJointProbabilityOfLessLikelySamples::numberSamples() const
 {
     return m_NumberSamples;
 }
@@ -626,7 +626,7 @@ CJointProbabilityOfLessLikelySamples &
 
 //////// CLogJointProbabilityOfLessLikelySample Implementation ////////
 
-CLogJointProbabilityOfLessLikelySamples::CLogJointProbabilityOfLessLikelySamples(void)
+CLogJointProbabilityOfLessLikelySamples::CLogJointProbabilityOfLessLikelySamples()
 {
 }
 
@@ -955,7 +955,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double &result
 
 //////// CProbabilityOfExtremeSample Implementation ////////
 
-CProbabilityOfExtremeSample::CProbabilityOfExtremeSample(void) :
+CProbabilityOfExtremeSample::CProbabilityOfExtremeSample() :
         m_NumberSamples(0.0)
 {
 }
@@ -971,7 +971,7 @@ bool CProbabilityOfExtremeSample::fromDelimited(const std::string &value)
     return m_MinValue.fromDelimited(value.substr(i+1));
 }
 
-std::string CProbabilityOfExtremeSample::toDelimited(void) const
+std::string CProbabilityOfExtremeSample::toDelimited() const
 {
     return   core::CStringUtils::typeToString(m_NumberSamples)
            + DELIMITER
@@ -1040,7 +1040,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::fromDelimited(const std::string &val
     return m_MinValues.fromDelimited(value.substr(i+1));
 }
 
-std::string CLogProbabilityOfMFromNExtremeSamples::toDelimited(void) const
+std::string CLogProbabilityOfMFromNExtremeSamples::toDelimited() const
 {
     return   core::CStringUtils::typeToString(m_NumberSamples)
            + DELIMITER

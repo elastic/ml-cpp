@@ -47,7 +47,7 @@ void safeFClose(FILE *file)
 //! in the same process) at the other end of one of our named pipes to abruptly
 //! terminate our processes.  Instead we should handle remote reader death by
 //! gracefully reacting to write failures.
-bool ignoreSigPipe(void)
+bool ignoreSigPipe()
 {
     struct sigaction sa;
     sigemptyset(&sa.sa_mask);
@@ -190,7 +190,7 @@ bool CNamedPipeFactory::isNamedPipe(const std::string &fileName)
     return (statbuf.st_mode & S_IFMT) == S_IFIFO;
 }
 
-std::string CNamedPipeFactory::defaultPath(void)
+std::string CNamedPipeFactory::defaultPath()
 {
     // In production this needs to match the setting of java.io.tmpdir.  We rely
     // on the JVM that spawns our controller daemon setting TMPDIR in the

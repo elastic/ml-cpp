@@ -1328,7 +1328,7 @@ void addFeatures(EFunction function,
 }
 
 //! Build a map from features to the functions which include them.
-TFeatureFunctionVecMap buildFeatureFunctionMap(void)
+TFeatureFunctionVecMap buildFeatureFunctionMap()
 {
     TFeatureFunctionVecMap result;
 

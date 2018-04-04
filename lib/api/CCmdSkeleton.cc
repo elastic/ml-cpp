@@ -41,7 +41,7 @@ CCmdSkeleton::CCmdSkeleton(core::CDataSearcher *restoreSearcher,
 {
 }
 
-bool CCmdSkeleton::ioLoop(void)
+bool CCmdSkeleton::ioLoop()
 {
     if (m_RestoreSearcher == 0)
     {
@@ -74,7 +74,7 @@ bool CCmdSkeleton::ioLoop(void)
     return this->persistState();
 }
 
-bool CCmdSkeleton::persistState(void)
+bool CCmdSkeleton::persistState()
 {
     if (m_Persister == 0)
     {

@@ -83,7 +83,7 @@ CppUnit::Test *CSingleStreamDataAdderTest::suite()
     return suiteOfTests;
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistBy(void)
+void CSingleStreamDataAdderTest::testDetectorPersistBy()
 {
     this->detectorPersistHelper("testfiles/new_mlfields.conf",
                                 "testfiles/big_ascending.txt",
@@ -91,7 +91,7 @@ void CSingleStreamDataAdderTest::testDetectorPersistBy(void)
                                 "%d/%b/%Y:%T %z");
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistOver(void)
+void CSingleStreamDataAdderTest::testDetectorPersistOver()
 {
     this->detectorPersistHelper("testfiles/new_mlfields_over.conf",
                                 "testfiles/big_ascending.txt",
@@ -99,7 +99,7 @@ void CSingleStreamDataAdderTest::testDetectorPersistOver(void)
                                 "%d/%b/%Y:%T %z");
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistPartition(void)
+void CSingleStreamDataAdderTest::testDetectorPersistPartition()
 {
     this->detectorPersistHelper("testfiles/new_mlfields_partition.conf",
                                 "testfiles/big_ascending.txt",
@@ -107,21 +107,21 @@ void CSingleStreamDataAdderTest::testDetectorPersistPartition(void)
                                 "%d/%b/%Y:%T %z");
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistDc(void)
+void CSingleStreamDataAdderTest::testDetectorPersistDc()
 {
     this->detectorPersistHelper("testfiles/new_persist_dc.conf",
                                 "testfiles/files_users_programs.csv",
                                 5);
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistCount(void)
+void CSingleStreamDataAdderTest::testDetectorPersistCount()
 {
     this->detectorPersistHelper("testfiles/new_persist_count.conf",
                                 "testfiles/files_users_programs.csv",
                                 5);
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistCategorization(void)
+void CSingleStreamDataAdderTest::testDetectorPersistCategorization()
 {
     this->detectorPersistHelper("testfiles/new_persist_categorization.conf",
                                 "testfiles/time_messages.csv",

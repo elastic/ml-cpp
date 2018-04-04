@@ -49,7 +49,7 @@ uint8_t trailingZeros(uint32_t x)
 
 }
 
-void CBjkstUniqueValuesTest::testTrailingZeros(void)
+void CBjkstUniqueValuesTest::testTrailingZeros()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testTrailingZeros  |");
@@ -77,7 +77,7 @@ void CBjkstUniqueValuesTest::testTrailingZeros(void)
     }
 }
 
-void CBjkstUniqueValuesTest::testNumber(void)
+void CBjkstUniqueValuesTest::testNumber()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testNumber  |");
@@ -151,7 +151,7 @@ void CBjkstUniqueValuesTest::testNumber(void)
     CPPUNIT_ASSERT(largeError6Count < 85);
 }
 
-void CBjkstUniqueValuesTest::testRemove(void)
+void CBjkstUniqueValuesTest::testRemove()
 {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testRemove  |");
@@ -222,7 +222,7 @@ void CBjkstUniqueValuesTest::testRemove(void)
                    < 1.3 * maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove));
 }
 
-void CBjkstUniqueValuesTest::testSwap(void)
+void CBjkstUniqueValuesTest::testSwap()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testSwap  |");
@@ -290,7 +290,7 @@ void CBjkstUniqueValuesTest::testSwap(void)
     sketch3.swap(sketch4);
 }
 
-void CBjkstUniqueValuesTest::testSmall(void)
+void CBjkstUniqueValuesTest::testSmall()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testSmall  |");
@@ -338,7 +338,7 @@ void CBjkstUniqueValuesTest::testSmall(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanRelativeError) < 0.05);
 }
 
-void CBjkstUniqueValuesTest::testPersist(void)
+void CBjkstUniqueValuesTest::testPersist()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testPersist  |");
@@ -417,7 +417,7 @@ void CBjkstUniqueValuesTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CBjkstUniqueValuesTest::suite(void)
+CppUnit::Test *CBjkstUniqueValuesTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBjkstUniqueValuesTest");
 

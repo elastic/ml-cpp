@@ -111,12 +111,12 @@ struct selector<T, typename enable_if_is_type<uint64_t (T::*)(uint64_t) const, &
     using value = MemberChecksumWithSeed;
 };
 template<typename T>
-struct selector<T, typename enable_if_is_type<uint64_t (T::*)(void) const, &T::checksum>::type>
+struct selector<T, typename enable_if_is_type<uint64_t (T::*)() const, &T::checksum>::type>
 {
     using value = MemberChecksumWithoutSeed;
 };
 template<typename T>
-struct selector<T, typename enable_if_is_type<std::size_t (T::*)(void) const, &T::hash>::type>
+struct selector<T, typename enable_if_is_type<std::size_t (T::*)() const, &T::hash>::type>
 {
     using value = MemberHash;
 };

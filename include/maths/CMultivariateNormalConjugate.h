@@ -89,7 +89,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
 {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
+        static bool dynamicSizeAlwaysZero() { return true; }
 
         using TDoubleVec = std::vector<double>;
         using TPoint = CVectorNx1<double, N>;
@@ -156,7 +156,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
             traverser.traverseSubLevel(boost::bind(&CMultivariateNormalConjugate::acceptRestoreTraverser, this, _1));
         }
 
-        virtual ~CMultivariateNormalConjugate(void) {}
+        virtual ~CMultivariateNormalConjugate() {}
 
         // Default copy constructor and assignment operator work.
 
@@ -183,13 +183,13 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         //! Create a copy of the prior.
         //!
         //! \warning Caller owns returned object.
-        virtual CMultivariateNormalConjugate *clone(void) const
+        virtual CMultivariateNormalConjugate *clone() const
         {
             return new CMultivariateNormalConjugate(*this);
         }
 
         //! Get the dimension of the prior.
-        std::size_t dimension(void) const
+        std::size_t dimension() const
         {
             return N;
         }
@@ -579,14 +579,14 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         }
 
         //! Get the support for the marginal likelihood function.
-        virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const
+        virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const
         {
             return {TPoint::smallest().template toVector<TDouble10Vec>(),
                     TPoint::largest().template toVector<TDouble10Vec>()};
         }
 
         //! Get the mean of the marginal likelihood function.
-        virtual TDouble10Vec marginalLikelihoodMean(void) const
+        virtual TDouble10Vec marginalLikelihoodMean() const
         {
             return this->mean().template toVector<TDouble10Vec>();
         }
@@ -599,13 +599,13 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         }
 
         //! Get the covariance matrix for the marginal likelihood.
-        virtual TDouble10Vec10Vec marginalLikelihoodCovariance(void) const
+        virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const
         {
             return this->covarianceMatrix().template toVectors<TDouble10Vec10Vec>();
         }
 
         //! Get the diagonal of the covariance matrix for the marginal likelihood.
-        virtual TDouble10Vec marginalLikelihoodVariances(void) const
+        virtual TDouble10Vec marginalLikelihoodVariances() const
         {
             return this->covarianceMatrix().template diagonal<TDouble10Vec>();
         }
@@ -792,7 +792,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         }
 
         //! Check if this is a non-informative prior.
-        virtual bool isNonInformative(void) const
+        virtual bool isNonInformative() const
         {
             return m_WishartDegreesFreedom <= static_cast<double>(N + 1);
         }
@@ -836,19 +836,19 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         }
 
         //! Get the memory used by this component
-        virtual std::size_t memoryUsage(void) const
+        virtual std::size_t memoryUsage() const
         {
             return 0;
         }
 
         //! Get the static size of this object - used for virtual hierarchies
-        virtual std::size_t staticSize(void) const
+        virtual std::size_t staticSize() const
         {
             return sizeof(*this);
         }
 
         //! Get the tag name for this prior.
-        virtual std::string persistenceTag(void) const
+        virtual std::string persistenceTag() const
         {
             return NORMAL_TAG + core::CStringUtils::typeToString(N);
         }
@@ -1052,13 +1052,13 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         //@}
 
         //! Get the expected mean of the marginal likelihood.
-        TPoint mean(void) const
+        TPoint mean() const
         {
             return this->isInteger() ? m_GaussianMean - TPoint(0.5) : m_GaussianMean;
         }
 
         //! Get the covariance matrix for the marginal likelihood.
-        TMatrix covarianceMatrix(void) const
+        TMatrix covarianceMatrix() const
         {
             // This can be found by change of variables from the prior on the
             // precision matrix. In particular, if X ~ W_d(V, n) and Y = X^(-1),
@@ -1081,7 +1081,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         //! \name Test Functions
         //@{
         //! Get the expected precision matrix of the marginal likelhood.
-        TMatrix precision(void) const
+        TMatrix precision() const
         {
             if (this->isNonInformative())
             {
@@ -1265,7 +1265,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         }
 
         //! Check that the state is valid.
-        bool isBad(void) const
+        bool isBad() const
         {
             return    !CMathsFuncs::isFinite(m_GaussianMean)
                    || !CMathsFuncs::isFinite(m_GaussianPrecision)
@@ -1274,7 +1274,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         }
 
         //! Full debug dump of the state of this prior.
-        std::string debug(void) const
+        std::string debug() const
         {
             std::ostringstream result;
             result << std::scientific << std::setprecision(15)

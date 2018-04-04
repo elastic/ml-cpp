@@ -32,13 +32,13 @@ namespace core
 {
 
 
-CRapidXmlParser::CRapidXmlParser(void)
+CRapidXmlParser::CRapidXmlParser()
     : m_XmlBufSize(0),
       m_NavigatedNode(0)
 {
 }
 
-CRapidXmlParser::~CRapidXmlParser(void)
+CRapidXmlParser::~CRapidXmlParser()
 {
 }
 
@@ -67,7 +67,7 @@ bool CRapidXmlParser::parseStringIgnoreCdata(const std::string &xml)
                                                                           xml.length());
 }
 
-std::string CRapidXmlParser::rootElementName(void) const
+std::string CRapidXmlParser::rootElementName() const
 {
     const TCharRapidXmlNode *root(m_Doc.first_node());
     if (root == 0)
@@ -106,7 +106,7 @@ bool CRapidXmlParser::rootElementAttributes(TStrStrMap &rootAttributes) const
     return true;
 }
 
-std::string CRapidXmlParser::dumpToString(void) const
+std::string CRapidXmlParser::dumpToString() const
 {
     std::string result;
     rapidxml::print(std::back_inserter(result),
@@ -281,13 +281,13 @@ bool CRapidXmlParser::toNodeHierarchy(const TCharRapidXmlNode &parentNode,
     return true;
 }
 
-bool CRapidXmlParser::navigateRoot(void)
+bool CRapidXmlParser::navigateRoot()
 {
     m_NavigatedNode = m_Doc.first_node();
     return m_NavigatedNode != 0;
 }
 
-bool CRapidXmlParser::navigateFirstChild(void)
+bool CRapidXmlParser::navigateFirstChild()
 {
     if (m_NavigatedNode == 0)
     {
@@ -309,7 +309,7 @@ bool CRapidXmlParser::navigateFirstChild(void)
     return false;
 }
 
-bool CRapidXmlParser::navigateNext(void)
+bool CRapidXmlParser::navigateNext()
 {
     if (m_NavigatedNode == 0)
     {
@@ -331,7 +331,7 @@ bool CRapidXmlParser::navigateNext(void)
     return false;
 }
 
-bool CRapidXmlParser::navigateParent(void)
+bool CRapidXmlParser::navigateParent()
 {
     if (m_NavigatedNode == 0)
     {

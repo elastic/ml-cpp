@@ -28,7 +28,7 @@ namespace core
 {
 
 
-CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(void)
+CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool()
     : m_MaxRecycled(m_Recycled.max_size())
 {
 }
@@ -38,7 +38,7 @@ CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(size_t maxRecycled)
 {
 }
 
-CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(void)
+CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode()
 {
     if (m_Recycled.empty())
     {

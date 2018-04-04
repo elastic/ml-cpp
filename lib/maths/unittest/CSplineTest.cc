@@ -64,7 +64,7 @@ std::string print(maths::CSplineTypes::EType type)
 
 }
 
-void CSplineTest::testNatural(void)
+void CSplineTest::testNatural()
 {
     LOG_DEBUG("+----------------------------+");
     LOG_DEBUG("|  CSplineTest::testNatural  |");
@@ -141,7 +141,7 @@ void CSplineTest::testNatural(void)
     }
 }
 
-void CSplineTest::testParabolicRunout(void)
+void CSplineTest::testParabolicRunout()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CSplineTest::testParabolicRunout  |");
@@ -223,7 +223,7 @@ void CSplineTest::testParabolicRunout(void)
     }
 }
 
-void CSplineTest::testPeriodic(void)
+void CSplineTest::testPeriodic()
 {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CSplineTest::testPeriodic  |");
@@ -290,7 +290,7 @@ void CSplineTest::testPeriodic(void)
     }
 }
 
-void CSplineTest::testMean(void)
+void CSplineTest::testMean()
 {
     LOG_DEBUG("+-------------------------+");
     LOG_DEBUG("|  CSplineTest::testMean  |");
@@ -405,7 +405,7 @@ void CSplineTest::testMean(void)
     }
 }
 
-void CSplineTest::testIllposed(void)
+void CSplineTest::testIllposed()
 {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CSplineTest::testIllposed  |");
@@ -453,7 +453,7 @@ void CSplineTest::testIllposed(void)
     }
 }
 
-void CSplineTest::testSlope(void)
+void CSplineTest::testSlope()
 {
     LOG_DEBUG("+--------------------------+");
     LOG_DEBUG("|  CSplineTest::testSlope  |");
@@ -584,7 +584,7 @@ void CSplineTest::testSlope(void)
     }
 }
 
-void CSplineTest::testSplineReference(void)
+void CSplineTest::testSplineReference()
 {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CSplineTest::testSplineReference  |");
@@ -651,7 +651,7 @@ void CSplineTest::testSplineReference(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), splineRef.memoryUsage());
 }
 
-CppUnit::Test *CSplineTest::suite(void)
+CppUnit::Test *CSplineTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSplineTest");
 

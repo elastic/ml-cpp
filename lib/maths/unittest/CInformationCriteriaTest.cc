@@ -68,7 +68,7 @@ double logfGaussian(const POINT &mean,
 
 }
 
-void CInformationCriteriaTest::testSphericalGaussian(void)
+void CInformationCriteriaTest::testSphericalGaussian()
 {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CInformationCriteriaTest::testSphericalGaussian  |");
@@ -239,7 +239,7 @@ void CInformationCriteriaTest::testSphericalGaussian(void)
     }
 }
 
-void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster(void)
+void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster()
 {
     LOG_DEBUG("+-----------------------------------------------------------------------+");
     LOG_DEBUG("|  CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster  |");
@@ -310,7 +310,7 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster(void)
     }
 }
 
-void CInformationCriteriaTest::testGaussian(void)
+void CInformationCriteriaTest::testGaussian()
 {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CInformationCriteriaTest::testGaussian  |");
@@ -475,7 +475,7 @@ void CInformationCriteriaTest::testGaussian(void)
     }
 }
 
-void CInformationCriteriaTest::testGaussianWithSphericalCluster(void)
+void CInformationCriteriaTest::testGaussianWithSphericalCluster()
 {
     LOG_DEBUG("+--------------------------------------------------------------+");
     LOG_DEBUG("|  CInformationCriteriaTest::testGaussianWithSphericalCluster  |");
@@ -542,7 +542,7 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster(void)
     }
 }
 
-CppUnit::Test *CInformationCriteriaTest::suite(void)
+CppUnit::Test *CInformationCriteriaTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CInformationCriteriaTest");
 

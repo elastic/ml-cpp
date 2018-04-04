@@ -117,7 +117,7 @@ void CAdaptiveBucketing::swap(CAdaptiveBucketing &other)
     std::swap(m_Force, other.m_Force);
 }
 
-bool CAdaptiveBucketing::initialized(void) const
+bool CAdaptiveBucketing::initialized() const
 {
     return m_Endpoints.size() > 0;
 }
@@ -187,12 +187,12 @@ void CAdaptiveBucketing::initialValues(core_t::TTime start,
     }
 }
 
-std::size_t CAdaptiveBucketing::size(void) const
+std::size_t CAdaptiveBucketing::size() const
 {
     return m_Centres.size();
 }
 
-void CAdaptiveBucketing::clear(void)
+void CAdaptiveBucketing::clear()
 {
     clearAndShrink(m_Endpoints);
     clearAndShrink(m_Centres);
@@ -212,7 +212,7 @@ void CAdaptiveBucketing::decayRate(double value)
     m_DecayRate = std::max(value, MINIMUM_DECAY_RATE);
 }
 
-double CAdaptiveBucketing::decayRate(void) const
+double CAdaptiveBucketing::decayRate() const
 {
     return m_DecayRate;
 }
@@ -224,7 +224,7 @@ void CAdaptiveBucketing::age(double factor)
     m_Force.age(factor);
 }
 
-double CAdaptiveBucketing::minimumBucketLength(void) const
+double CAdaptiveBucketing::minimumBucketLength() const
 {
     return m_MinimumBucketLength;
 }
@@ -486,27 +486,27 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
     return knots.size() >= 2;
 }
 
-const CAdaptiveBucketing::TFloatVec &CAdaptiveBucketing::endpoints(void) const
+const CAdaptiveBucketing::TFloatVec &CAdaptiveBucketing::endpoints() const
 {
     return m_Endpoints;
 }
 
-CAdaptiveBucketing::TFloatVec &CAdaptiveBucketing::endpoints(void)
+CAdaptiveBucketing::TFloatVec &CAdaptiveBucketing::endpoints()
 {
     return m_Endpoints;
 }
 
-const CAdaptiveBucketing::TFloatVec &CAdaptiveBucketing::centres(void) const
+const CAdaptiveBucketing::TFloatVec &CAdaptiveBucketing::centres() const
 {
     return m_Centres;
 }
 
-CAdaptiveBucketing::TFloatVec &CAdaptiveBucketing::centres(void)
+CAdaptiveBucketing::TFloatVec &CAdaptiveBucketing::centres()
 {
     return m_Centres;
 }
 
-double CAdaptiveBucketing::count(void) const
+double CAdaptiveBucketing::count() const
 {
     double result = 0.0;
     for (std::size_t i = 0u; i < m_Centres.size(); ++i)
@@ -527,7 +527,7 @@ CAdaptiveBucketing::TDoubleVec CAdaptiveBucketing::values(core_t::TTime time) co
     return result;
 }
 
-CAdaptiveBucketing::TDoubleVec CAdaptiveBucketing::variances(void) const
+CAdaptiveBucketing::TDoubleVec CAdaptiveBucketing::variances() const
 {
     TDoubleVec result;
     result.reserve(m_Centres.size());
@@ -565,7 +565,7 @@ uint64_t CAdaptiveBucketing::checksum(uint64_t seed) const
     return CChecksum::calculate(seed, m_Centres);
 }
 
-std::size_t CAdaptiveBucketing::memoryUsage(void) const
+std::size_t CAdaptiveBucketing::memoryUsage() const
 {
     std::size_t mem{core::CMemory::dynamicSize(m_Endpoints)};
     mem += core::CMemory::dynamicSize(m_Centres);

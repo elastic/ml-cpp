@@ -67,11 +67,11 @@ void addStringInt(TGenericLineWriter &writer,
 
 }
 
-CStatistics::CStatistics(void)
+CStatistics::CStatistics()
 {
 }
 
-CStatistics &CStatistics::instance(void)
+CStatistics &CStatistics::instance()
 {
     return ms_Instance;
 }

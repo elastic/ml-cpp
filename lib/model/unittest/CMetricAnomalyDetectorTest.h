@@ -21,11 +21,11 @@
 class CMetricAnomalyDetectorTest : public CppUnit::TestFixture
 {
     public:
-        void testAnomalies(void);
-        void testPersist(void);
-        void testExcludeFrequent(void);
+        void testAnomalies();
+        void testPersist();
+        void testExcludeFrequent();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CMetricAnomalyDetectorTest_h

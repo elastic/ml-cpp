@@ -109,7 +109,7 @@ double adjustedMaximumMultiplier(core_t::TTime bucketLength_)
 
 }
 
-CDecayRateController::CDecayRateController(void) : m_Checks(0), m_Target(1.0)
+CDecayRateController::CDecayRateController() : m_Checks(0), m_Target(1.0)
 {
     m_Multiplier.add(m_Target);
 }
@@ -125,7 +125,7 @@ CDecayRateController::CDecayRateController(int checks, std::size_t dimension) :
     m_Multiplier.add(m_Target);
 }
 
-void CDecayRateController::reset(void)
+void CDecayRateController::reset()
 {
     m_Target         = 1.0;
     m_Multiplier     = TMeanAccumulator();
@@ -286,12 +286,12 @@ double CDecayRateController::multiplier(const TDouble1Vec &prediction,
     return result;
 }
 
-double CDecayRateController::multiplier(void) const
+double CDecayRateController::multiplier() const
 {
     return CBasicStatistics::mean(m_Multiplier);
 }
 
-std::size_t CDecayRateController::dimension(void) const
+std::size_t CDecayRateController::dimension() const
 {
     return m_PredictionMean.size();
 }
@@ -305,7 +305,7 @@ void CDecayRateController::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr 
     core::CMemoryDebug::dynamicSize("m_HistoricalAbsError", m_HistoricalAbsError, mem);
 }
 
-std::size_t CDecayRateController::memoryUsage(void) const
+std::size_t CDecayRateController::memoryUsage() const
 {
     std::size_t mem = core::CMemory::dynamicSize(m_PredictionMean);
     mem += core::CMemory::dynamicSize(m_Bias);
@@ -322,7 +322,7 @@ uint64_t CDecayRateController::checksum(uint64_t seed) const
     return CChecksum::calculate(seed, m_HistoricalAbsError);
 }
 
-double CDecayRateController::count(void) const
+double CDecayRateController::count() const
 {
     return CBasicStatistics::count(m_HistoricalAbsError[0]);
 }

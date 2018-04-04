@@ -77,16 +77,16 @@ class MATHS_EXPORT CCountMinSketch
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
 
         //! Get the number of rows.
-        std::size_t rows(void) const;
+        std::size_t rows() const;
 
         //! Get the number of columns.
-        std::size_t columns(void) const;
+        std::size_t columns() const;
 
         //! Get the \f$\delta\f$ probability.
-        double delta(void) const;
+        double delta() const;
 
         //! Get the \f$P(1-\delta)\f$ error.
-        double oneMinusDeltaError(void) const;
+        double oneMinusDeltaError() const;
 
         //! Add a count of \p count for category \p category.
         //!
@@ -105,7 +105,7 @@ class MATHS_EXPORT CCountMinSketch
         void age(double alpha);
 
         //! Get the total count of all categories.
-        double totalCount(void) const;
+        double totalCount() const;
 
         //! Get the count of category \p category.
         double count(uint32_t category) const;
@@ -114,7 +114,7 @@ class MATHS_EXPORT CCountMinSketch
         double fraction(uint32_t category) const;
 
         //! Check if the counts are sketched.
-        bool sketched(void) const;
+        bool sketched() const;
 
         //! Get a checksum for the sketch.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -123,7 +123,7 @@ class MATHS_EXPORT CCountMinSketch
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this sketch.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         using TUInt32HashVec = core::CHashing::CUniversalHash::TUInt32UnrestrictedHashVec;
@@ -133,7 +133,7 @@ class MATHS_EXPORT CCountMinSketch
         //! Wraps up the sketch data.
         struct MATHS_EXPORT SSketch
         {
-            SSketch(void) = default;
+            SSketch() = default;
             SSketch(std::size_t rows, std::size_t columns);
 
             //! Create by traversing a state document.
@@ -156,7 +156,7 @@ class MATHS_EXPORT CCountMinSketch
         using TUInt32FloatPrVecOrSketch = boost::variant<TUInt32FloatPrVec, SSketch>;
 
         //! Maybe switch to sketching the counts.
-        void sketch(void);
+        void sketch();
 
     private:
         //! The number of rows.

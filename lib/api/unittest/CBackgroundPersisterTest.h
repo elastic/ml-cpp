@@ -23,10 +23,10 @@
 class CBackgroundPersisterTest : public CppUnit::TestFixture
 {
     public:
-        void testDetectorPersistBy(void);
-        void testDetectorPersistOver(void);
-        void testDetectorPersistPartition(void);
-        void testCategorizationOnlyPersist(void);
+        void testDetectorPersistBy();
+        void testDetectorPersistOver();
+        void testDetectorPersistPartition();
+        void testCategorizationOnlyPersist();
 
         static CppUnit::Test *suite();
 

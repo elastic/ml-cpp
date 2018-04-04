@@ -196,12 +196,12 @@ void COneOfNPrior::swap(COneOfNPrior &other)
     m_Models.swap(other.m_Models);
 }
 
-COneOfNPrior::EPrior COneOfNPrior::type(void) const
+COneOfNPrior::EPrior COneOfNPrior::type() const
 {
     return E_OneOfN;
 }
 
-COneOfNPrior *COneOfNPrior::clone(void) const
+COneOfNPrior *COneOfNPrior::clone() const
 {
     return new COneOfNPrior(*this);
 }
@@ -254,7 +254,7 @@ void COneOfNPrior::removeModels(CModelFilter &filter)
     m_Models.erase(m_Models.begin() + last, m_Models.end());
 }
 
-bool COneOfNPrior::needsOffset(void) const
+bool COneOfNPrior::needsOffset() const
 {
     for (const auto &model : m_Models)
     {
@@ -297,7 +297,7 @@ double COneOfNPrior::adjustOffset(const TWeightStyleVec &weightStyles,
     return CBasicStatistics::mean(result);
 }
 
-double COneOfNPrior::offset(void) const
+double COneOfNPrior::offset() const
 {
     double offset = 0.0;
     for (const auto &model : m_Models)
@@ -508,7 +508,7 @@ void COneOfNPrior::propagateForwardsByTime(double time)
     LOG_TRACE("numberSamples = " << this->numberSamples());
 }
 
-COneOfNPrior::TDoubleDoublePr COneOfNPrior::marginalLikelihoodSupport(void) const
+COneOfNPrior::TDoubleDoublePr COneOfNPrior::marginalLikelihoodSupport() const
 {
     TDoubleDoublePr result(MINUS_INF, INF);
 
@@ -526,7 +526,7 @@ COneOfNPrior::TDoubleDoublePr COneOfNPrior::marginalLikelihoodSupport(void) cons
     return result;
 }
 
-double COneOfNPrior::marginalLikelihoodMean(void) const
+double COneOfNPrior::marginalLikelihoodMean() const
 {
     if (this->isNonInformative())
     {
@@ -1053,7 +1053,7 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
     return true;
 }
 
-bool COneOfNPrior::isNonInformative(void) const
+bool COneOfNPrior::isNonInformative() const
 {
     for (const auto &model : m_Models)
     {
@@ -1093,7 +1093,7 @@ void COneOfNPrior::print(const std::string &indent, std::string &result) const
     }
 }
 
-std::string COneOfNPrior::printJointDensityFunction(void) const
+std::string COneOfNPrior::printJointDensityFunction() const
 {
     return "Not supported";
 }
@@ -1110,12 +1110,12 @@ void COneOfNPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) con
     core::CMemoryDebug::dynamicSize("m_Models", m_Models, mem);
 }
 
-std::size_t COneOfNPrior::memoryUsage(void) const
+std::size_t COneOfNPrior::memoryUsage() const
 {
     return core::CMemory::dynamicSize(m_Models);
 }
 
-std::size_t COneOfNPrior::staticSize(void) const
+std::size_t COneOfNPrior::staticSize() const
 {
     return sizeof(*this);
 }
@@ -1132,7 +1132,7 @@ void COneOfNPrior::acceptPersistInserter(core::CStatePersistInserter &inserter) 
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
 }
 
-COneOfNPrior::TDoubleVec COneOfNPrior::weights(void) const
+COneOfNPrior::TDoubleVec COneOfNPrior::weights() const
 {
     TDoubleVec result = this->logWeights();
     for (auto &weight : result)
@@ -1142,7 +1142,7 @@ COneOfNPrior::TDoubleVec COneOfNPrior::weights(void) const
     return result;
 }
 
-COneOfNPrior::TDoubleVec COneOfNPrior::logWeights(void) const
+COneOfNPrior::TDoubleVec COneOfNPrior::logWeights() const
 {
     TDoubleVec result;
     result.reserve(m_Models.size());
@@ -1162,7 +1162,7 @@ COneOfNPrior::TDoubleVec COneOfNPrior::logWeights(void) const
     return result;
 }
 
-COneOfNPrior::TPriorCPtrVec COneOfNPrior::models(void) const
+COneOfNPrior::TPriorCPtrVec COneOfNPrior::models() const
 {
     TPriorCPtrVec result;
     result.reserve(m_Models.size());
@@ -1210,7 +1210,7 @@ bool COneOfNPrior::modelAcceptRestoreTraverser(const SDistributionRestoreParams 
     return true;
 }
 
-COneOfNPrior::TDoubleSizePr5Vec COneOfNPrior::normalizedLogWeights(void) const
+COneOfNPrior::TDoubleSizePr5Vec COneOfNPrior::normalizedLogWeights() const
 {
     TDoubleSizePr5Vec result;
     double Z = 0.0;
@@ -1232,7 +1232,7 @@ COneOfNPrior::TDoubleSizePr5Vec COneOfNPrior::normalizedLogWeights(void) const
     return result;
 }
 
-double COneOfNPrior::medianModelMean(void) const
+double COneOfNPrior::medianModelMean() const
 {
     TDoubleVec means;
     means.reserve(m_Models.size());
@@ -1246,7 +1246,7 @@ double COneOfNPrior::medianModelMean(void) const
     return CBasicStatistics::median(means);
 }
 
-bool COneOfNPrior::badWeights(void) const
+bool COneOfNPrior::badWeights() const
 {
     for (const auto &model : m_Models)
     {
@@ -1258,7 +1258,7 @@ bool COneOfNPrior::badWeights(void) const
     return false;
 }
 
-std::string COneOfNPrior::debugWeights(void) const
+std::string COneOfNPrior::debugWeights() const
 {
     if (m_Models.empty())
     {

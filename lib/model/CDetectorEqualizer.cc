@@ -143,7 +143,7 @@ double CDetectorEqualizer::correct(int detector, double probability)
     return probability;
 }
 
-void CDetectorEqualizer::clear(void)
+void CDetectorEqualizer::clear()
 {
     m_Sketches.clear();
 }
@@ -156,12 +156,12 @@ void CDetectorEqualizer::age(double factor)
     }
 }
 
-uint64_t CDetectorEqualizer::checksum(void) const
+uint64_t CDetectorEqualizer::checksum() const
 {
     return maths::CChecksum::calculate(0, m_Sketches);
 }
 
-double CDetectorEqualizer::largestProbabilityToCorrect(void)
+double CDetectorEqualizer::largestProbabilityToCorrect()
 {
     return maths::LARGEST_SIGNIFICANT_PROBABILITY;
 }

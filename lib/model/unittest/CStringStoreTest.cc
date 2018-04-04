@@ -52,7 +52,7 @@ class CStringThread : public core::CThread
             result.insert(m_UniquePtrs.begin(), m_UniquePtrs.end());
         }
 
-        void propagateLastThreadAssert(void)
+        void propagateLastThreadAssert()
         {
             if (m_LastException != 0)
             {
@@ -60,14 +60,14 @@ class CStringThread : public core::CThread
             }
         }
 
-        void clearPtrs(void)
+        void clearPtrs()
         {
             m_UniquePtrs.clear();
             m_Ptrs.clear();
         }
 
     private:
-        virtual void run(void)
+        virtual void run()
         {
             try
             {
@@ -94,7 +94,7 @@ class CStringThread : public core::CThread
             }
         }
 
-        virtual void shutdown(void)
+        virtual void shutdown()
         {
         }
 
@@ -108,7 +108,7 @@ class CStringThread : public core::CThread
 
 }
 
-void CStringStoreTest::setUp(void)
+void CStringStoreTest::setUp()
 {
     // Other test suites also use the string store, and it will mess up the
     // tests in this suite if the string store is not empty when they start
@@ -116,7 +116,7 @@ void CStringStoreTest::setUp(void)
     CStringStore::influencers().clearEverythingTestOnly();
 }
 
-void CStringStoreTest::testStringStore(void)
+void CStringStoreTest::testStringStore()
 {
     TStrVec strings;
     strings.emplace_back("Milano");
@@ -245,7 +245,7 @@ void CStringStoreTest::testStringStore(void)
     }
 }
 
-void CStringStoreTest::testMemUsage(void)
+void CStringStoreTest::testMemUsage()
 {
     std::string shortStr("short");
     std::string longStr("much much longer than the short string");
@@ -283,7 +283,7 @@ void CStringStoreTest::testMemUsage(void)
     CPPUNIT_ASSERT_EQUAL(origMemUse, CStringStore::names().memoryUsage());
 }
 
-CppUnit::Test *CStringStoreTest::suite(void)
+CppUnit::Test *CStringStoreTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 

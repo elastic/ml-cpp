@@ -169,7 +169,7 @@ class MODEL_EXPORT CBucketGatherer
         CBucketGatherer(bool isForPersistence,
                         const CBucketGatherer &other);
 
-        virtual ~CBucketGatherer(void) = default;
+        virtual ~CBucketGatherer() = default;
         //@}
 
         //! \name Persistence
@@ -185,10 +185,10 @@ class MODEL_EXPORT CBucketGatherer
         //! affect the persisted representation, and must not be used for any
         //! other purpose.
         //! \warning The caller owns the object returned.
-        virtual CBucketGatherer *cloneForPersistence(void) const = 0;
+        virtual CBucketGatherer *cloneForPersistence() const = 0;
 
         //! The persistence tag name of the subclass.
-        virtual const std::string& persistenceTag(void) const = 0;
+        virtual const std::string& persistenceTag() const = 0;
         //@}
 
         //! \name Fields
@@ -197,19 +197,19 @@ class MODEL_EXPORT CBucketGatherer
         //! probabilities are aggregated, i.e. the "by" field name for
         //! individual models and the "over" field name for population
         //! models.
-        virtual const std::string &personFieldName(void) const = 0;
+        virtual const std::string &personFieldName() const = 0;
 
         //! Get the attribute field name if one exists.
-        virtual const std::string &attributeFieldName(void) const = 0;
+        virtual const std::string &attributeFieldName() const = 0;
 
         //! Get the name of the field containing the metric value.
-        virtual const std::string &valueFieldName(void) const = 0;
+        virtual const std::string &valueFieldName() const = 0;
 
         //! Get an iterator at the beginning the influencing field names.
-        virtual TStrVecCItr beginInfluencers(void) const = 0;
+        virtual TStrVecCItr beginInfluencers() const = 0;
 
         //! Get an iterator at the end of the influencing field names.
-        virtual TStrVecCItr endInfluencers(void) const = 0;
+        virtual TStrVecCItr endInfluencers() const = 0;
 
         //! Get the fields for which to gather data.
         //!
@@ -217,11 +217,11 @@ class MODEL_EXPORT CBucketGatherer
         //! the fields which define the categories whose counts are being
         //! analyzed, the fields containing metric series names and values
         //! and the fields defining a population.
-        virtual const TStrVec &fieldsOfInterest(void) const = 0;
+        virtual const TStrVec &fieldsOfInterest() const = 0;
         //@}
 
         //! Get a description of the component searches.
-        virtual std::string description(void) const = 0;
+        virtual std::string description() const = 0;
 
         //! \name Update
         //@{
@@ -288,16 +288,16 @@ class MODEL_EXPORT CBucketGatherer
         //! \name Time
         //@{
         //! Get the start of the current bucketing time interval.
-        core_t::TTime currentBucketStartTime(void) const;
+        core_t::TTime currentBucketStartTime() const;
 
         //! Set the start of the current bucketing time interval.
         void currentBucketStartTime(core_t::TTime time);
 
         //! The earliest time for which data can still arrive.
-        core_t::TTime earliestBucketStartTime(void) const;
+        core_t::TTime earliestBucketStartTime() const;
 
         //! Get the length of the bucketing time interval.
-        core_t::TTime bucketLength(void) const;
+        core_t::TTime bucketLength() const;
 
         //! Check if data is available at \p time.
         bool dataAvailable(core_t::TTime time) const;
@@ -313,7 +313,7 @@ class MODEL_EXPORT CBucketGatherer
                                  core_t::TTime endTime) const;
 
         //! Print the current bucket.
-        std::string printCurrentBucket(void) const;
+        std::string printCurrentBucket() const;
         //@}
 
         //! \name Counts
@@ -328,19 +328,19 @@ class MODEL_EXPORT CBucketGatherer
         //@}
 
         //! Get the checksum of this gatherer.
-        virtual uint64_t checksum(void) const = 0;
+        virtual uint64_t checksum() const = 0;
 
         //! Debug the memory used by this component.
         virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
 
         //! Get the memory used by this component.
-        virtual std::size_t memoryUsage(void) const = 0;
+        virtual std::size_t memoryUsage() const = 0;
 
         //! Get the static size of this object.
-        virtual std::size_t staticSize(void) const = 0;
+        virtual std::size_t staticSize() const = 0;
 
         //! Clear this data gatherer.
-        virtual void clear(void) = 0;
+        virtual void clear() = 0;
 
         //! Reset bucket and return true if bucket was successfully
         //! reset or false otherwise.
@@ -415,7 +415,7 @@ class MODEL_EXPORT CBucketGatherer
                                  TFeatureAnyPrVec &result) const = 0;
 
         //! Get a reference to the owning data gatherer.
-        const CDataGatherer &dataGatherer(void) const;
+        const CDataGatherer &dataGatherer() const;
 
         //! Has this pid/cid pair had only explicit null records?
         bool hasExplicitNullsOnly(core_t::TTime time, std::size_t pid, std::size_t cid) const;

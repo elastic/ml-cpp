@@ -46,17 +46,17 @@ CLogTDistribution::CLogTDistribution(double degreesFreedom,
         m_Scale(scale)
 {}
 
-double CLogTDistribution::degreesFreedom(void) const
+double CLogTDistribution::degreesFreedom() const
 {
     return m_DegreesFreedom;
 }
 
-double CLogTDistribution::location(void) const
+double CLogTDistribution::location() const
 {
     return m_Location;
 }
 
-double CLogTDistribution::scale(void) const
+double CLogTDistribution::scale() const
 {
     return m_Scale;
 }

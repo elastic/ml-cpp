@@ -77,7 +77,7 @@ class CORE_EXPORT CXmlNode
         };
 
     public:
-        CXmlNode(void);
+        CXmlNode();
 
         CXmlNode(const std::string &name);
 
@@ -88,12 +88,12 @@ class CORE_EXPORT CXmlNode
                  const std::string &value,
                  const TStrStrMap &attributes);
 
-        virtual ~CXmlNode(void);
+        virtual ~CXmlNode();
 
         //! Accessors
-        const std::string  &name(void) const;
-        const std::string  &value(void) const;
-        const TStrStrPrVec &attributes(void) const;
+        const std::string  &name() const;
+        const std::string  &value() const;
+        const TStrStrPrVec &attributes() const;
 
         //! Set name
         void name(const std::string &name);
@@ -102,7 +102,7 @@ class CORE_EXPORT CXmlNode
         void value(const std::string &value);
 
         //! Debug dump of all
-        virtual std::string dump(void) const;
+        virtual std::string dump() const;
 
         //! Retrieve an attribute (if exists), and convert it to the supplied
         //! type

@@ -36,14 +36,14 @@ class CEofThread : public ml::core::CThread
         }
 
     protected:
-        virtual void run(void)
+        virtual void run()
         {
             ml::core::CSleep::sleep(200);
 
             m_Buf.signalEndOfFile();
         }
 
-        virtual void shutdown(void)
+        virtual void shutdown()
         {
         }
 
@@ -64,7 +64,7 @@ CppUnit::Test *CBlockingCallCancellerThreadTest::suite()
     return suiteOfTests;
 }
 
-void CBlockingCallCancellerThreadTest::testCancelBlock(void)
+void CBlockingCallCancellerThreadTest::testCancelBlock()
 {
     ml::core::CDualThreadStreamBuf buf;
     std::istream monStrm(&buf);

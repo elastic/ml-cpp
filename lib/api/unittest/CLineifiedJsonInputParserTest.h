@@ -21,8 +21,8 @@
 class CLineifiedJsonInputParserTest : public CppUnit::TestFixture
 {
     public:
-        void testThroughputArbitrary(void);
-        void testThroughputCommon(void);
+        void testThroughputArbitrary();
+        void testThroughputCommon();
 
         static CppUnit::Test *suite();
 

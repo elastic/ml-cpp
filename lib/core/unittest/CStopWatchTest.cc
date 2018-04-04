@@ -32,7 +32,7 @@ CppUnit::Test *CStopWatchTest::suite()
     return suiteOfTests;
 }
 
-void CStopWatchTest::testStopWatch(void)
+void CStopWatchTest::testStopWatch()
 {
     ml::core::CStopWatch stopWatch;
 

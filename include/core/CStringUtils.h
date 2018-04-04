@@ -211,7 +211,7 @@ class CORE_EXPORT CStringUtils : private CNonInstantiatable
         //! Get a locale object for character transformations
         //! TODO - remove when we switch to a character conversion library
         //! (e.g. ICU)
-        static const std::locale &locale(void);
+        static const std::locale &locale();
 
     private:
         //! Internal calls for public templated methods

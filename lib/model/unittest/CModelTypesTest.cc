@@ -19,7 +19,7 @@
 using namespace ml;
 using namespace model;
 
-void CModelTypesTest::testAll(void)
+void CModelTypesTest::testAll()
 {
     {
         // test print categories
@@ -1012,7 +1012,7 @@ void CModelTypesTest::testAll(void)
     }
 }
 
-CppUnit::Test *CModelTypesTest::suite(void)
+CppUnit::Test *CModelTypesTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelTypesTest");
 

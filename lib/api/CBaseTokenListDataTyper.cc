@@ -62,7 +62,7 @@ CBaseTokenListDataTyper::CBaseTokenListDataTyper(const TTokenListReverseSearchCr
 {
 }
 
-void CBaseTokenListDataTyper::dumpStats(void) const
+void CBaseTokenListDataTyper::dumpStats() const
 {
     // Type number is vector index plus one
     int typeNum(1);
@@ -425,7 +425,7 @@ class CPairFirstElementGreater
 
 }
 
-bool CBaseTokenListDataTyper::hasChanged(void) const
+bool CBaseTokenListDataTyper::hasChanged() const
 {
     return m_HasChanged;
 }
@@ -511,7 +511,7 @@ void CBaseTokenListDataTyper::acceptPersistInserter(const TTokenMIndex &tokenIdL
     }
 }
 
-CDataTyper::TPersistFunc CBaseTokenListDataTyper::makePersistFunc(void) const
+CDataTyper::TPersistFunc CBaseTokenListDataTyper::makePersistFunc() const
 {
     return boost::bind(&CBaseTokenListDataTyper::acceptPersistInserter,
                        m_TokenIdLookup,
@@ -644,17 +644,17 @@ CBaseTokenListDataTyper::CTokenInfoItem::CTokenInfoItem(const std::string &str,
 {
 }
 
-const std::string &CBaseTokenListDataTyper::CTokenInfoItem::str(void) const
+const std::string &CBaseTokenListDataTyper::CTokenInfoItem::str() const
 {
     return m_Str;
 }
 
-size_t CBaseTokenListDataTyper::CTokenInfoItem::index(void) const
+size_t CBaseTokenListDataTyper::CTokenInfoItem::index() const
 {
     return m_Index;
 }
 
-size_t CBaseTokenListDataTyper::CTokenInfoItem::typeCount(void) const
+size_t CBaseTokenListDataTyper::CTokenInfoItem::typeCount() const
 {
     return m_TypeCount;
 }
@@ -664,7 +664,7 @@ void CBaseTokenListDataTyper::CTokenInfoItem::typeCount(size_t typeCount)
     m_TypeCount = typeCount;
 }
 
-void CBaseTokenListDataTyper::CTokenInfoItem::incTypeCount(void)
+void CBaseTokenListDataTyper::CTokenInfoItem::incTypeCount()
 {
     ++m_TypeCount;
 }

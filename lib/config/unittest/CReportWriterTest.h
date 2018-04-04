@@ -21,10 +21,10 @@
 class CReportWriterTest : public CppUnit::TestFixture
 {
     public:
-        void testPretty(void);
-        void testJSON(void);
+        void testPretty();
+        void testJSON();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CReportWriterTest_h

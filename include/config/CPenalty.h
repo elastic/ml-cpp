@@ -88,13 +88,13 @@ class CONFIG_EXPORT CPenalty
                 CClosure(const CPenalty &penalty);
 
                 //! Create a penalty on the heap from this closure.
-                CPenalty *clone(void) const;
+                CPenalty *clone() const;
 
                 //! Add a penalty to the closure.
                 CClosure &add(const CPenalty &penalty);
 
                 //! Get the closure's penalties.
-                TPenaltyCPtrVec &penalties(void);
+                TPenaltyCPtrVec &penalties();
 
             private:
                 //! The penalties in the closure.
@@ -105,13 +105,13 @@ class CONFIG_EXPORT CPenalty
         CPenalty(const CAutoconfigurerParams &params);
         CPenalty(const CPenalty &other);
         explicit CPenalty(CClosure other);
-        virtual ~CPenalty(void);
+        virtual ~CPenalty();
 
         //! Create a copy on the heap.
-        virtual CPenalty *clone(void) const;
+        virtual CPenalty *clone() const;
 
         //! Get the name of this penalty.
-        virtual std::string name(void) const;
+        virtual std::string name() const;
 
         //! Get the product penalty of this and \p rhs.
         const CPenalty &operator*=(const CPenalty &rhs);
@@ -145,7 +145,7 @@ class CONFIG_EXPORT CPenalty
 
     protected:
         //! Get the parameters.
-        const CAutoconfigurerParams &params(void) const;
+        const CAutoconfigurerParams &params() const;
 
     private:
         //! Not assignable.

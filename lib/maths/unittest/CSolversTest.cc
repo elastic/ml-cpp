@@ -94,7 +94,7 @@ class CLog
 
 }
 
-void CSolversTest::testBracket(void)
+void CSolversTest::testBracket()
 {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CSolversTest::testBracket  |");
@@ -166,7 +166,7 @@ void CSolversTest::testBracket(void)
     }
 }
 
-void CSolversTest::testBisection(void)
+void CSolversTest::testBisection()
 {
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CSolversTest::testBisection  |");
@@ -309,7 +309,7 @@ void CSolversTest::testBisection(void)
     }
 }
 
-void CSolversTest::testBrent(void)
+void CSolversTest::testBrent()
 {
     LOG_DEBUG("+---------------------------+");
     LOG_DEBUG("|  CSolversTest::testBrent  |");
@@ -430,7 +430,7 @@ void CSolversTest::testBrent(void)
     }
 }
 
-void CSolversTest::testSublevelSet(void)
+void CSolversTest::testSublevelSet()
 {
     using TDoubleDoublePr = std::pair<double, double>;
 
@@ -485,7 +485,7 @@ void CSolversTest::testSublevelSet(void)
     }
 }
 
-CppUnit::Test *CSolversTest::suite(void)
+CppUnit::Test *CSolversTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSolversTest");
 

@@ -42,9 +42,9 @@ class MATHS_EXPORT CSeasonalTime
         using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
 
     public:
-        CSeasonalTime(void);
+        CSeasonalTime();
         CSeasonalTime(core_t::TTime period, double precedence);
-        virtual ~CSeasonalTime(void) = default;
+        virtual ~CSeasonalTime() = default;
 
         //! A total order on seasonal times.
         bool operator<(const CSeasonalTime &rhs) const;
@@ -52,13 +52,13 @@ class MATHS_EXPORT CSeasonalTime
         //! Get a copy of this time.
         //!
         //! \warning The caller owns the result.
-        virtual CSeasonalTime *clone(void) const = 0;
+        virtual CSeasonalTime *clone() const = 0;
 
         //! Initialize from a string created by persist.
         virtual bool fromString(const std::string &value) = 0;
 
         //! Convert to a string.
-        virtual std::string toString(void) const = 0;
+        virtual std::string toString() const = 0;
 
         //! \name Time Transforms
         //@{
@@ -85,7 +85,7 @@ class MATHS_EXPORT CSeasonalTime
         //! \name Period
         //@{
         //! Get the period.
-        core_t::TTime period(void) const;
+        core_t::TTime period() const;
 
         //! Set the period.
         void period(core_t::TTime period);
@@ -94,7 +94,7 @@ class MATHS_EXPORT CSeasonalTime
         //! \name Regression
         //@{
         //! Get the origin of the time coordinates.
-        core_t::TTime regressionOrigin(void) const;
+        core_t::TTime regressionOrigin() const;
 
         //! Set the origin of the time coordinates.
         void regressionOrigin(core_t::TTime origin);
@@ -103,28 +103,28 @@ class MATHS_EXPORT CSeasonalTime
         //! \name Window
         //@{
         //! Get the repeat interval for the window pattern.
-        virtual core_t::TTime windowRepeat(void) const = 0;
+        virtual core_t::TTime windowRepeat() const = 0;
 
         //! Get the start of the window pattern.
-        virtual core_t::TTime windowRepeatStart(void) const = 0;
+        virtual core_t::TTime windowRepeatStart() const = 0;
 
         //! Get the start of the window.
-        virtual core_t::TTime windowStart(void) const = 0;
+        virtual core_t::TTime windowStart() const = 0;
 
         //! Get the end of the window.
-        virtual core_t::TTime windowEnd(void) const = 0;
+        virtual core_t::TTime windowEnd() const = 0;
 
         //! Get the window.
-        TTimeTimePr window(void) const;
+        TTimeTimePr window() const;
 
         //! Get the window length.
-        core_t::TTime windowLength(void) const;
+        core_t::TTime windowLength() const;
 
         //! Check if this applies to a time window.
-        bool windowed(void) const;
+        bool windowed() const;
 
         //! Get the fraction of time which overlaps the window.
-        double fractionInWindow(void) const;
+        double fractionInWindow() const;
         //@}
 
         //! Check whether this time's seasonal component time excludes
@@ -132,7 +132,7 @@ class MATHS_EXPORT CSeasonalTime
         bool excludes(const CSeasonalTime &other) const;
 
         //! True if this has a weekend and false otherwise.
-        virtual bool hasWeekend(void) const = 0;
+        virtual bool hasWeekend() const = 0;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed = 0) const = 0;
@@ -147,7 +147,7 @@ class MATHS_EXPORT CSeasonalTime
         core_t::TTime startOfWindowRepeat(core_t::TTime offset, core_t::TTime time) const;
 
         //! Get the scale to apply when computing the regression time.
-        virtual core_t::TTime regressionTimeScale(void) const = 0;
+        virtual core_t::TTime regressionTimeScale() const = 0;
 
     private:
         //! The periodic repeat.
@@ -165,7 +165,7 @@ class MATHS_EXPORT CSeasonalTime
 class MATHS_EXPORT CDiurnalTime : public CSeasonalTime
 {
     public:
-        CDiurnalTime(void);
+        CDiurnalTime();
         CDiurnalTime(core_t::TTime startOfWeek,
                      core_t::TTime windowStart,
                      core_t::TTime windowEnd,
@@ -173,35 +173,35 @@ class MATHS_EXPORT CDiurnalTime : public CSeasonalTime
                      double precedence = 1.0);
 
         //! Get a copy of this time.
-        CDiurnalTime *clone(void) const;
+        CDiurnalTime *clone() const;
 
         //! Initialize from a string created by persist.
         virtual bool fromString(const std::string &value);
 
         //! Convert to a string.
-        virtual std::string toString(void) const;
+        virtual std::string toString() const;
 
         //! Get the length of a week.
-        virtual core_t::TTime windowRepeat(void) const;
+        virtual core_t::TTime windowRepeat() const;
 
         //! Get the start of the week.
-        virtual core_t::TTime windowRepeatStart(void) const;
+        virtual core_t::TTime windowRepeatStart() const;
 
         //! Get the start of the window.
-        virtual core_t::TTime windowStart(void) const;
+        virtual core_t::TTime windowStart() const;
 
         //! Get the end of the window.
-        virtual core_t::TTime windowEnd(void) const;
+        virtual core_t::TTime windowEnd() const;
 
         //! True if this has a weekend and false otherwise.
-        virtual bool hasWeekend(void) const;
+        virtual bool hasWeekend() const;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed = 0) const;
 
     private:
         //! Get the scale to apply when computing the regression time.
-        virtual core_t::TTime regressionTimeScale(void) const;
+        virtual core_t::TTime regressionTimeScale() const;
 
     private:
         //! The start of the week.
@@ -217,39 +217,39 @@ class MATHS_EXPORT CDiurnalTime : public CSeasonalTime
 class MATHS_EXPORT CGeneralPeriodTime : public CSeasonalTime
 {
     public:
-        CGeneralPeriodTime(void) = default;
+        CGeneralPeriodTime() = default;
         CGeneralPeriodTime(core_t::TTime period, double precedence = 1.0);
 
         //! Get a copy of this time.
-        CGeneralPeriodTime *clone(void) const;
+        CGeneralPeriodTime *clone() const;
 
         //! Initialize from a string created by persist.
         virtual bool fromString(const std::string &value);
 
         //! Convert to a string.
-        virtual std::string toString(void) const;
+        virtual std::string toString() const;
 
         //! Return the period.
-        virtual core_t::TTime windowRepeat(void) const;
+        virtual core_t::TTime windowRepeat() const;
 
         //! Returns zero.
-        virtual core_t::TTime windowRepeatStart(void) const;
+        virtual core_t::TTime windowRepeatStart() const;
 
         //! Returns zero.
-        virtual core_t::TTime windowStart(void) const;
+        virtual core_t::TTime windowStart() const;
 
         //! Returns the period.
-        virtual core_t::TTime windowEnd(void) const;
+        virtual core_t::TTime windowEnd() const;
 
         //! Returns false.
-        virtual bool hasWeekend(void) const;
+        virtual bool hasWeekend() const;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed = 0) const;
 
     private:
         //! Get the scale to apply when computing the regression time.
-        virtual core_t::TTime regressionTimeScale(void) const;
+        virtual core_t::TTime regressionTimeScale() const;
 };
 
 //! \brief Convert CSeasonalTime sub-classes to/from text representations.

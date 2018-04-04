@@ -44,25 +44,25 @@ class CORE_EXPORT CUname : private CNonInstantiatable
 {
     public:
         //! uname -s
-        static std::string sysName(void);
+        static std::string sysName();
         //! uname -n
-        static std::string nodeName(void);
+        static std::string nodeName();
         //! uname -r
-        static std::string release(void);
+        static std::string release();
         //! uname -v
-        static std::string version(void);
+        static std::string version();
         //! uname -m
-        static std::string machine(void);
+        static std::string machine();
         //! uname -a (or possibly a cut down version on some platforms)
-        static std::string all(void);
+        static std::string all();
 
         //! Return the platform name in the format <platform>-<arch>
         //! e.g. linux-x86_64
-        static std::string mlPlatform(void);
+        static std::string mlPlatform();
 
         //! On Unix this is equivalent to uname -r; on Windows it's the
         //! underlying Windows NT version.
-        static std::string mlOsVer(void);
+        static std::string mlOsVer();
 };
 
 

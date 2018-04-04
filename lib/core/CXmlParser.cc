@@ -46,7 +46,7 @@ const size_t      CXmlParser::MAX_INDENT_SPACES(10);
 const char        *CXmlParser::INDENT_SPACE_STR("          ");
 
 
-CXmlParser::CXmlParser(void)
+CXmlParser::CXmlParser()
     : m_Doc(0),
       m_XPathContext(0),
       m_NavigatedNode(0)
@@ -56,12 +56,12 @@ CXmlParser::CXmlParser(void)
     // xmlLoadExtDtdDefaultValue = 1;
 }
 
-CXmlParser::~CXmlParser(void)
+CXmlParser::~CXmlParser()
 {
     this->destroy();
 }
 
-void CXmlParser::destroy(void)
+void CXmlParser::destroy()
 {
     if (m_XPathContext != 0)
     {
@@ -168,7 +168,7 @@ bool CXmlParser::parseBufferInSitu(char *begin, size_t length)
     return this->parseBuffer(begin, length);
 }
 
-std::string CXmlParser::rootElementName(void) const
+std::string CXmlParser::rootElementName() const
 {
     if (m_Doc == 0)
     {
@@ -392,7 +392,7 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr,
     return true;
 }
 
-std::string CXmlParser::dumpToString(void) const
+std::string CXmlParser::dumpToString() const
 {
     // The xmlTreeIndentString "global" is really a per-thread variable.
     // 4 spaces per indent to match Ml standard.
@@ -418,7 +418,7 @@ std::string CXmlParser::dumpToString(void) const
     return result;
 }
 
-void CXmlParser::dumpToStdout(void) const
+void CXmlParser::dumpToStdout() const
 {
     // The xmlTreeIndentString "global" is really a per-thread variable.
     // 4 spaces per indent to match Ml standard.
@@ -747,7 +747,7 @@ bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool &pool,
     return this->toNodeHierarchy(*root, pool, cachePtr, rootNodePtr);
 }
 
-bool CXmlParser::navigateRoot(void)
+bool CXmlParser::navigateRoot()
 {
     if (m_Doc != 0)
     {
@@ -756,7 +756,7 @@ bool CXmlParser::navigateRoot(void)
     return m_NavigatedNode != 0;
 }
 
-bool CXmlParser::navigateFirstChild(void)
+bool CXmlParser::navigateFirstChild()
 {
     if (m_NavigatedNode == 0)
     {
@@ -778,7 +778,7 @@ bool CXmlParser::navigateFirstChild(void)
     return false;
 }
 
-bool CXmlParser::navigateNext(void)
+bool CXmlParser::navigateNext()
 {
     if (m_NavigatedNode == 0)
     {
@@ -800,7 +800,7 @@ bool CXmlParser::navigateNext(void)
     return false;
 }
 
-bool CXmlParser::navigateParent(void)
+bool CXmlParser::navigateParent()
 {
     if (m_NavigatedNode == 0)
     {

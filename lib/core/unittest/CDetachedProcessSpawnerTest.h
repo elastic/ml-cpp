@@ -21,10 +21,10 @@
 class CDetachedProcessSpawnerTest : public CppUnit::TestFixture
 {
     public:
-        void testSpawn(void);
-        void testKill(void);
-        void testPermitted(void);
-        void testNonExistent(void);
+        void testSpawn();
+        void testKill();
+        void testPermitted();
+        void testNonExistent();
 
         static CppUnit::Test *suite();
 };

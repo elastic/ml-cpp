@@ -81,7 +81,7 @@ std::string print(const POINT &point)
 
 }
 
-void CKMeansOnlineTest::testVariance(void)
+void CKMeansOnlineTest::testVariance()
 {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CKMeansOnlineTest::testVariance  |");
@@ -130,7 +130,7 @@ void CKMeansOnlineTest::testVariance(void)
     }
 }
 
-void CKMeansOnlineTest::testAdd(void)
+void CKMeansOnlineTest::testAdd()
 {
     LOG_DEBUG("+------------------------------+");
     LOG_DEBUG("|  CKMeansOnlineTest::testAdd  |");
@@ -189,7 +189,7 @@ void CKMeansOnlineTest::testAdd(void)
     }
 }
 
-void CKMeansOnlineTest::testReduce(void)
+void CKMeansOnlineTest::testReduce()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CKMeansOnlineTest::testReduce  |");
@@ -262,7 +262,7 @@ void CKMeansOnlineTest::testReduce(void)
     }
 }
 
-void CKMeansOnlineTest::testClustering(void)
+void CKMeansOnlineTest::testClustering()
 {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CKMeansOnlineTest::testClustering  |");
@@ -422,7 +422,7 @@ void CKMeansOnlineTest::testClustering(void)
     }
 }
 
-void CKMeansOnlineTest::testSplit(void)
+void CKMeansOnlineTest::testSplit()
 {
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  CKMeansOnlineTest::testSplit  |");
@@ -500,7 +500,7 @@ void CKMeansOnlineTest::testSplit(void)
     }
 }
 
-void CKMeansOnlineTest::testMerge(void)
+void CKMeansOnlineTest::testMerge()
 {
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  CKMeansOnlineTest::testMerge  |");
@@ -581,7 +581,7 @@ void CKMeansOnlineTest::testMerge(void)
             1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones));
 }
 
-void CKMeansOnlineTest::testPropagateForwardsByTime(void)
+void CKMeansOnlineTest::testPropagateForwardsByTime()
 {
     LOG_DEBUG("+--------------------------------------------------+");
     LOG_DEBUG("|  CKMeansOnlineTest::testPropagateForwardsByTime  |");
@@ -634,7 +634,7 @@ void CKMeansOnlineTest::testPropagateForwardsByTime(void)
     }
 }
 
-void CKMeansOnlineTest::testSample(void)
+void CKMeansOnlineTest::testSample()
 {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CKMeansOnlineTest::testSample  |");
@@ -754,7 +754,7 @@ void CKMeansOnlineTest::testSample(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, covarianceError1, 0.24);
 }
 
-void CKMeansOnlineTest::testPersist(void)
+void CKMeansOnlineTest::testPersist()
 {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CKMeansOnlineTest::testPersist  |");
@@ -817,7 +817,7 @@ void CKMeansOnlineTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CKMeansOnlineTest::suite(void)
+CppUnit::Test *CKMeansOnlineTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CKMeansOnlineTest");
 

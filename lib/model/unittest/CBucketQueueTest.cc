@@ -35,7 +35,7 @@ using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, uint64_t>;
 using TSizeSizePrUInt64UMapQueue = model::CBucketQueue<TSizeSizePrUInt64UMap>;
 using TSizeSizePrUInt64UMapQueueCItr = TSizeSizePrUInt64UMapQueue::const_iterator;
 
-void CBucketQueueTest::testConstructorFillsQueue(void)
+void CBucketQueueTest::testConstructorFillsQueue()
 {
     CBucketQueue<int> queue(3, 5, 15);
 
@@ -49,7 +49,7 @@ void CBucketQueueTest::testConstructorFillsQueue(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(4), values.size());
 }
 
-void CBucketQueueTest::testPushGivenEarlierTime(void)
+void CBucketQueueTest::testPushGivenEarlierTime()
 {
     CBucketQueue<std::string> queue(1, 5, 0);
     queue.push("a", 5);
@@ -63,7 +63,7 @@ void CBucketQueueTest::testPushGivenEarlierTime(void)
     CPPUNIT_ASSERT_EQUAL(std::string("b"), queue.get(12));
 }
 
-void CBucketQueueTest::testGetGivenFullQueueWithNoPop(void)
+void CBucketQueueTest::testGetGivenFullQueueWithNoPop()
 {
     CBucketQueue<std::string> queue(1, 5, 0);
     queue.push("a", 5);
@@ -74,7 +74,7 @@ void CBucketQueueTest::testGetGivenFullQueueWithNoPop(void)
     CPPUNIT_ASSERT_EQUAL(std::string("b"), queue.get(10));
 }
 
-void CBucketQueueTest::testGetGivenFullQueueAfterPop(void)
+void CBucketQueueTest::testGetGivenFullQueueAfterPop()
 {
     CBucketQueue<std::string> queue(1, 5, 0);
     queue.push("a", 5);
@@ -86,7 +86,7 @@ void CBucketQueueTest::testGetGivenFullQueueAfterPop(void)
     CPPUNIT_ASSERT_EQUAL(std::string("c"), queue.get(19));
 }
 
-void CBucketQueueTest::testClear(void)
+void CBucketQueueTest::testClear()
 {
     CBucketQueue<int> queue(2, 5, 0);
     CPPUNIT_ASSERT_EQUAL(std::size_t(3), queue.size());
@@ -103,7 +103,7 @@ void CBucketQueueTest::testClear(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(3), queue.size());
 }
 
-void CBucketQueueTest::testIterators(void)
+void CBucketQueueTest::testIterators()
 {
     using TStringQueueItr = CBucketQueue<std::string>::iterator;
 
@@ -122,7 +122,7 @@ void CBucketQueueTest::testIterators(void)
     CPPUNIT_ASSERT_EQUAL(std::string("a"), strings[1]);
 }
 
-void CBucketQueueTest::testReverseIterators(void)
+void CBucketQueueTest::testReverseIterators()
 {
     using TStringQueueCRItr = CBucketQueue<std::string>::const_reverse_iterator;
 
@@ -142,7 +142,7 @@ void CBucketQueueTest::testReverseIterators(void)
 }
 
 
-void CBucketQueueTest::testBucketQueueUMap(void)
+void CBucketQueueTest::testBucketQueueUMap()
 {
     // Tests the memory usage of an unordered_map in a bucket queue
     // before and after persistence

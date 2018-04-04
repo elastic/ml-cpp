@@ -79,16 +79,16 @@ class CORE_EXPORT CProcess : private CNonCopyable
 
     public:
         //! Access to singleton
-        static CProcess &instance(void);
+        static CProcess &instance();
 
         //! Is this process running as a Windows service?
-        bool isService(void) const;
+        bool isService() const;
 
         //! Get the process ID
-        TPid id(void) const;
+        TPid id() const;
 
         //! Get the parent process ID
-        TPid parentId(void) const;
+        TPid parentId() const;
 
         //! If this process is not running as a Windows service, this call will
         //! immediately pass control to the mlMain() function.  If this
@@ -99,7 +99,7 @@ class CORE_EXPORT CProcess : private CNonCopyable
                              char *argv[]);
 
         //! Check if the application is initialised
-        bool isInitialised(void) const;
+        bool isInitialised() const;
 
         //! Record successful completion of the application's initialisation
         //! phase.  This must be passed a shutdown function that can be used
@@ -109,16 +109,16 @@ class CORE_EXPORT CProcess : private CNonCopyable
         //! Record successful completion of the application's initialisation
         //! phase.  No shutdown function is passed, so the application will
         //! not be able to stop gracefully.
-        void initialisationComplete(void);
+        void initialisationComplete();
 
         //! Check if the application is running
-        bool isRunning(void) const;
+        bool isRunning() const;
 
         //! Instruct the application to shutdown gracefully.  This will only
         //! succeed if initialisation has been reported to be complete.  (Even
         //! if this method returns success, the application will only shut
         //! down as gracefully if the shutdown function works as it should.)
-        bool shutdown(void);
+        bool shutdown();
 
 #ifdef Windows
         //! Windows service main function
@@ -130,7 +130,7 @@ class CORE_EXPORT CProcess : private CNonCopyable
 
     private:
         // Constructor for a singleton is private.
-        CProcess(void);
+        CProcess();
 
     private:
         //! Is this process running as a Windows service?

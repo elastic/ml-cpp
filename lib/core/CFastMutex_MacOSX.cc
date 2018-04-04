@@ -21,23 +21,23 @@ namespace core
 {
 
 
-CFastMutex::CFastMutex(void)
+CFastMutex::CFastMutex()
     // The OSSpinLock type is just an integer, and zero means unlocked.  See
     // "man spinlock" for details.
     : m_Mutex(0)
 {
 }
 
-CFastMutex::~CFastMutex(void)
+CFastMutex::~CFastMutex()
 {
 }
 
-void CFastMutex::lock(void)
+void CFastMutex::lock()
 {
     OSSpinLockLock(&m_Mutex);
 }
 
-void CFastMutex::unlock(void)
+void CFastMutex::unlock()
 {
     OSSpinLockUnlock(&m_Mutex);
 }

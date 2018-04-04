@@ -29,7 +29,7 @@ CScopedReadLock::CScopedReadLock(CReadWriteLock &readWriteLock)
     m_ReadWriteLock.readLock();
 }
 
-CScopedReadLock::~CScopedReadLock(void)
+CScopedReadLock::~CScopedReadLock()
 {
     m_ReadWriteLock.readUnlock();
 }

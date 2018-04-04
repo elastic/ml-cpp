@@ -21,8 +21,8 @@
 class CThreadFarmTest : public CppUnit::TestFixture
 {
     public:
-        void testNumCpus(void);
-        void testSendReceive(void);
+        void testNumCpus();
+        void testSendReceive();
 
         static CppUnit::Test *suite();
 };

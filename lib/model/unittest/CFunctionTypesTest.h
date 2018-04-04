@@ -21,9 +21,9 @@
 class CFunctionTypesTest : public CppUnit::TestFixture
 {
     public:
-        void testFeaturesToFunction(void);
+        void testFeaturesToFunction();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CFunctionTypesTest_h

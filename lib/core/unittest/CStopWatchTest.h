@@ -21,7 +21,7 @@
 class CStopWatchTest : public CppUnit::TestFixture
 {
     public:
-        void testStopWatch(void);
+        void testStopWatch();
 
         static CppUnit::Test *suite();
 };

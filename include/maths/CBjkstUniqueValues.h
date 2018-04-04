@@ -115,7 +115,7 @@ class MATHS_EXPORT CBjkstUniqueValues
         void remove(uint32_t value);
 
         //! Get an estimate of the number of unique values added.
-        uint32_t number(void) const;
+        uint32_t number() const;
 
         //! Get a checksum for the sketch.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -124,7 +124,7 @@ class MATHS_EXPORT CBjkstUniqueValues
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this sketch.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         using TUInt8Vec = std::vector<uint8_t>;
@@ -136,7 +136,7 @@ class MATHS_EXPORT CBjkstUniqueValues
         //! Wraps up the sketch data.
         struct MATHS_EXPORT SSketch
         {
-            SSketch(void);
+            SSketch();
             SSketch(std::size_t numberHashes);
 
             //! Efficiently swap the contents of two sketches.
@@ -156,7 +156,7 @@ class MATHS_EXPORT CBjkstUniqueValues
             void remove(uint32_t value);
 
             //! Get an estimate of the number of unique values added.
-            uint32_t number(void) const;
+            uint32_t number() const;
 
             //! The secondary hash function.
             TUInt32HashVec s_G;
@@ -172,7 +172,7 @@ class MATHS_EXPORT CBjkstUniqueValues
 
     private:
         //! Maybe switch to sketching the distinct value set.
-        void sketch(void);
+        void sketch();
 
     private:
         //! The maximum size of the sketch set before compression.

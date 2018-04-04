@@ -138,7 +138,7 @@ double mean(const TDoubleDoublePr &x)
 
 }
 
-void CSeasonalComponentTest::testNoPeriodicity(void)
+void CSeasonalComponentTest::testNoPeriodicity()
 {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentTest::testNoPeriodicity  |");
@@ -241,7 +241,7 @@ void CSeasonalComponentTest::testNoPeriodicity(void)
     CPPUNIT_ASSERT(totalError2 < 0.15);
 }
 
-void CSeasonalComponentTest::testConstantPeriodic(void)
+void CSeasonalComponentTest::testConstantPeriodic()
 {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentTest::testConstantPeriodic  |");
@@ -499,7 +499,7 @@ void CSeasonalComponentTest::testConstantPeriodic(void)
     }
 }
 
-void CSeasonalComponentTest::testTimeVaryingPeriodic(void)
+void CSeasonalComponentTest::testTimeVaryingPeriodic()
 {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentTest::testTimeVaryingPeriodic  |");
@@ -658,7 +658,7 @@ void CSeasonalComponentTest::testTimeVaryingPeriodic(void)
     CPPUNIT_ASSERT(totalError2 / numberErrors < 14.0);
 }
 
-void CSeasonalComponentTest::testVeryLowVariation(void)
+void CSeasonalComponentTest::testVeryLowVariation()
 {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentTest::testVeryLowVariation  |");
@@ -763,7 +763,7 @@ void CSeasonalComponentTest::testVeryLowVariation(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(totalError2, 0.0, 0.04 * deviation);
 }
 
-void CSeasonalComponentTest::testVariance(void)
+void CSeasonalComponentTest::testVariance()
 {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentTest::testVariance  |");
@@ -818,7 +818,7 @@ void CSeasonalComponentTest::testVariance(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.11);
 }
 
-void CSeasonalComponentTest::testPersist(void)
+void CSeasonalComponentTest::testPersist()
 {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CSeasonalComponentTest::testPersist  |");
@@ -913,7 +913,7 @@ void CSeasonalComponentTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CSeasonalComponentTest::suite(void)
+CppUnit::Test *CSeasonalComponentTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSeasonalComponentTest");
 

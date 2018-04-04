@@ -26,7 +26,7 @@ namespace core
 {
 
 
-CFastMutex::CFastMutex(void)
+CFastMutex::CFastMutex()
 {
     int ret(pthread_mutex_init(&m_Mutex, 0));
     if (ret != 0)
@@ -35,7 +35,7 @@ CFastMutex::CFastMutex(void)
     }
 }
 
-CFastMutex::~CFastMutex(void)
+CFastMutex::~CFastMutex()
 {
     int ret(pthread_mutex_destroy(&m_Mutex));
     if (ret != 0)
@@ -44,7 +44,7 @@ CFastMutex::~CFastMutex(void)
     }
 }
 
-void CFastMutex::lock(void)
+void CFastMutex::lock()
 {
     int ret(pthread_mutex_lock(&m_Mutex));
     if (ret != 0)
@@ -53,7 +53,7 @@ void CFastMutex::lock(void)
     }
 }
 
-void CFastMutex::unlock(void)
+void CFastMutex::unlock()
 {
     int ret(pthread_mutex_unlock(&m_Mutex));
     if (ret != 0)

@@ -22,7 +22,7 @@
 
 using namespace ml;
 
-void CSmallVectorTest::testNonStandard(void)
+void CSmallVectorTest::testNonStandard()
 {
     using TDoubleVec = std::vector<double>;
     using TDouble5Vec = core::CSmallVector<double, 5>;
@@ -55,7 +55,7 @@ void CSmallVectorTest::testNonStandard(void)
     }
 }
 
-CppUnit::Test *CSmallVectorTest::suite(void)
+CppUnit::Test *CSmallVectorTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSmallVectorTest");
 

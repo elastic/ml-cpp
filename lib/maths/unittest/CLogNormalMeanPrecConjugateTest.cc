@@ -62,7 +62,7 @@ CLogNormalMeanPrecConjugate makePrior(maths_t::EDataType dataType = maths_t::E_C
 
 }
 
-void CLogNormalMeanPrecConjugateTest::testMultipleUpdate(void)
+void CLogNormalMeanPrecConjugateTest::testMultipleUpdate()
 {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testMultipleUpdate  |");
@@ -167,7 +167,7 @@ void CLogNormalMeanPrecConjugateTest::testMultipleUpdate(void)
     }
 }
 
-void CLogNormalMeanPrecConjugateTest::testPropagation(void)
+void CLogNormalMeanPrecConjugateTest::testPropagation()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testPropagation  |");
@@ -207,7 +207,7 @@ void CLogNormalMeanPrecConjugateTest::testPropagation(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(precision, propagatedPrecision, eps);
 }
 
-void CLogNormalMeanPrecConjugateTest::testMeanEstimation(void)
+void CLogNormalMeanPrecConjugateTest::testMeanEstimation()
 {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testMeanEstimation  |");
@@ -279,7 +279,7 @@ void CLogNormalMeanPrecConjugateTest::testMeanEstimation(void)
     }
 }
 
-void CLogNormalMeanPrecConjugateTest::testPrecisionEstimation(void)
+void CLogNormalMeanPrecConjugateTest::testPrecisionEstimation()
 {
     LOG_DEBUG("+------------------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testPrecisionEstimation  |");
@@ -353,7 +353,7 @@ void CLogNormalMeanPrecConjugateTest::testPrecisionEstimation(void)
     }
 }
 
-void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood(void)
+void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood()
 {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihood  |");
@@ -594,7 +594,7 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood(void)
     }
 }
 
-void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMean(void)
+void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMean()
 {
     LOG_DEBUG("+---------------------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMean  |");
@@ -653,7 +653,7 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMean(void)
     }
 }
 
-void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode(void)
+void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode()
 {
     LOG_DEBUG("+---------------------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode  |");
@@ -716,7 +716,7 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode(void)
     }
 }
 
-void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance(void)
+void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance()
 {
     LOG_DEBUG("+-------------------------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance  |");
@@ -772,7 +772,7 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance(void)
     }
 }
 
-void CLogNormalMeanPrecConjugateTest::testSampleMarginalLikelihood(void)
+void CLogNormalMeanPrecConjugateTest::testSampleMarginalLikelihood()
 {
     LOG_DEBUG("+-----------------------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testSampleMarginalLikelihood  |");
@@ -860,7 +860,7 @@ void CLogNormalMeanPrecConjugateTest::testSampleMarginalLikelihood(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMeanError) < 0.25);
 }
 
-void CLogNormalMeanPrecConjugateTest::testCdf(void)
+void CLogNormalMeanPrecConjugateTest::testCdf()
 {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testCdf  |");
@@ -917,7 +917,7 @@ void CLogNormalMeanPrecConjugateTest::testCdf(void)
     }
 }
 
-void CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples(void)
+void CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples()
 {
     LOG_DEBUG("+-----------------------------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples  |");
@@ -1068,7 +1068,7 @@ void CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.01);
 }
 
-void CLogNormalMeanPrecConjugateTest::testAnomalyScore(void)
+void CLogNormalMeanPrecConjugateTest::testAnomalyScore()
 {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testAnomalyScore  |");
@@ -1204,7 +1204,7 @@ void CLogNormalMeanPrecConjugateTest::testAnomalyScore(void)
     CPPUNIT_ASSERT(totalFalsePositiveRate < 0.004);
 }
 
-void CLogNormalMeanPrecConjugateTest::testOffset(void)
+void CLogNormalMeanPrecConjugateTest::testOffset()
 {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testOffset  |");
@@ -1284,7 +1284,7 @@ void CLogNormalMeanPrecConjugateTest::testOffset(void)
     }
 }
 
-void CLogNormalMeanPrecConjugateTest::testIntegerData(void)
+void CLogNormalMeanPrecConjugateTest::testIntegerData()
 {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testIntegerData  |");
@@ -1416,7 +1416,7 @@ void CLogNormalMeanPrecConjugateTest::testIntegerData(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.005);
 }
 
-void CLogNormalMeanPrecConjugateTest::testLowVariationData(void)
+void CLogNormalMeanPrecConjugateTest::testLowVariationData()
 {
     LOG_DEBUG("+---------------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testLowVariationData  |");
@@ -1453,7 +1453,7 @@ void CLogNormalMeanPrecConjugateTest::testLowVariationData(void)
     }
 }
 
-void CLogNormalMeanPrecConjugateTest::testPersist(void)
+void CLogNormalMeanPrecConjugateTest::testPersist()
 {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testPersist  |");
@@ -1512,7 +1512,7 @@ void CLogNormalMeanPrecConjugateTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CLogNormalMeanPrecConjugateTest::testVarianceScale(void)
+void CLogNormalMeanPrecConjugateTest::testVarianceScale()
 {
     LOG_DEBUG("+------------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testVarianceScale  |");
@@ -1885,7 +1885,7 @@ void CLogNormalMeanPrecConjugateTest::testVarianceScale(void)
     }
 }
 
-void CLogNormalMeanPrecConjugateTest::testNegativeSample(void)
+void CLogNormalMeanPrecConjugateTest::testNegativeSample()
 {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CLogNormalMeanPrecConjugateTest::testNegativeSample  |");
@@ -1924,7 +1924,7 @@ void CLogNormalMeanPrecConjugateTest::testNegativeSample(void)
     CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
 }
 
-CppUnit::Test* CLogNormalMeanPrecConjugateTest::suite(void)
+CppUnit::Test* CLogNormalMeanPrecConjugateTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLogNormalMeanPrecConjugateTest");
 

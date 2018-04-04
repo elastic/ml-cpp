@@ -110,12 +110,12 @@ void CDecompositionComponent::swap(CDecompositionComponent &other)
     m_Splines.swap(other.m_Splines);
 }
 
-bool CDecompositionComponent::initialized(void) const
+bool CDecompositionComponent::initialized() const
 {
     return m_Splines.initialized();
 }
 
-void CDecompositionComponent::clear(void)
+void CDecompositionComponent::clear()
 {
     if (m_Splines.initialized())
     {
@@ -185,7 +185,7 @@ TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double c
     return {m_MeanValue, m_MeanValue};
 }
 
-double CDecompositionComponent::meanValue(void) const
+double CDecompositionComponent::meanValue() const
 {
     return m_MeanValue;
 }
@@ -224,12 +224,12 @@ TDoubleDoublePr CDecompositionComponent::variance(double offset, double n, doubl
     return {m_MeanVariance, m_MeanVariance};
 }
 
-double CDecompositionComponent::meanVariance(void) const
+double CDecompositionComponent::meanVariance() const
 {
     return m_MeanVariance;
 }
 
-double CDecompositionComponent::heteroscedasticity(void) const
+double CDecompositionComponent::heteroscedasticity() const
 {
     if (m_MeanVariance == 0.0)
     {
@@ -249,22 +249,22 @@ double CDecompositionComponent::heteroscedasticity(void) const
     return result.count() > 0 ? result[0] : 0.0;
 }
 
-std::size_t CDecompositionComponent::maxSize(void) const
+std::size_t CDecompositionComponent::maxSize() const
 {
     return std::max(m_MaxSize, MIN_MAX_SIZE);
 }
 
-CSplineTypes::EBoundaryCondition CDecompositionComponent::boundaryCondition(void) const
+CSplineTypes::EBoundaryCondition CDecompositionComponent::boundaryCondition() const
 {
     return m_BoundaryCondition;
 }
 
-CDecompositionComponent::TSplineCRef CDecompositionComponent::valueSpline(void) const
+CDecompositionComponent::TSplineCRef CDecompositionComponent::valueSpline() const
 {
     return m_Splines.spline(CPackedSplines::E_Value);
 }
 
-CDecompositionComponent::TSplineCRef CDecompositionComponent::varianceSpline(void) const
+CDecompositionComponent::TSplineCRef CDecompositionComponent::varianceSpline() const
 {
     return m_Splines.spline(CPackedSplines::E_Variance);
 }
@@ -278,7 +278,7 @@ uint64_t CDecompositionComponent::checksum(uint64_t seed) const
     return CChecksum::calculate(seed, m_MeanVariance);
 }
 
-const CDecompositionComponent::CPackedSplines &CDecompositionComponent::splines(void) const
+const CDecompositionComponent::CPackedSplines &CDecompositionComponent::splines() const
 {
     return m_Splines;
 }
@@ -341,12 +341,12 @@ void CDecompositionComponent::CPackedSplines::swap(CPackedSplines &other)
     m_Curvatures[1].swap(other.m_Curvatures[1]);
 }
 
-bool CDecompositionComponent::CPackedSplines::initialized(void) const
+bool CDecompositionComponent::CPackedSplines::initialized() const
 {
     return m_Knots.size() > 0;
 }
 
-void CDecompositionComponent::CPackedSplines::clear(void)
+void CDecompositionComponent::CPackedSplines::clear()
 {
     this->spline(E_Value).clear();
     this->spline(E_Variance).clear();
@@ -376,7 +376,7 @@ CDecompositionComponent::TSplineRef CDecompositionComponent::CPackedSplines::spl
                       boost::ref(m_Curvatures[static_cast<std::size_t>(spline)]));
 }
 
-const CDecompositionComponent::TFloatVec &CDecompositionComponent::CPackedSplines::knots(void) const
+const CDecompositionComponent::TFloatVec &CDecompositionComponent::CPackedSplines::knots() const
 {
     return m_Knots;
 }
@@ -422,7 +422,7 @@ void CDecompositionComponent::CPackedSplines::debugMemoryUsage(core::CMemoryUsag
     core::CMemoryDebug::dynamicSize("m_Curvatures[1]", m_Curvatures[1], mem);
 }
 
-std::size_t CDecompositionComponent::CPackedSplines::memoryUsage(void) const
+std::size_t CDecompositionComponent::CPackedSplines::memoryUsage() const
 {
     std::size_t mem{core::CMemory::dynamicSize(m_Knots)};
     mem += core::CMemory::dynamicSize(m_Values[0]);

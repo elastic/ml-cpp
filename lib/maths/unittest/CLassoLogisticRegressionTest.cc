@@ -101,7 +101,7 @@ double logLikelihood(const TDoubleVecVec &x,
 
 }
 
-void CLassoLogisticRegressionTest::testCyclicCoordinateDescent(void)
+void CLassoLogisticRegressionTest::testCyclicCoordinateDescent()
 {
     LOG_DEBUG("+-------------------------------------------------------------+");
     LOG_DEBUG("|  CLassoLogisticRegressionTest::testCyclicCoordinateDescent  |");
@@ -258,7 +258,7 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent(void)
     // in order as we increase lambda.
 }
 
-void CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse(void)
+void CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse()
 {
     LOG_DEBUG("+------------------------------------------------------------------------+");
     LOG_DEBUG("|  CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse  |");
@@ -266,22 +266,22 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse(void)
     // TODO
 }
 
-void CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental(void)
+void CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental()
 {
     // TODO
 }
 
-void CLassoLogisticRegressionTest::testNormBasedLambda(void)
+void CLassoLogisticRegressionTest::testNormBasedLambda()
 {
     // TODO
 }
 
-void CLassoLogisticRegressionTest::testCrossValidatedLambda(void)
+void CLassoLogisticRegressionTest::testCrossValidatedLambda()
 {
     // TODO
 }
 
-CppUnit::Test *CLassoLogisticRegressionTest::suite(void)
+CppUnit::Test *CLassoLogisticRegressionTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLassoLogisticRegressionTest");
 

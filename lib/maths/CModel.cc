@@ -74,7 +74,7 @@ const double LEARN_RATE = 1.0;
 const double DECAY_RATE = 0.0;
 
 //! Get the parameters for the stub model.
-CModelParams stubParameters(void)
+CModelParams stubParameters()
 {
     return CModelParams(0, LEARN_RATE, DECAY_RATE, 0.0);
 }
@@ -92,27 +92,27 @@ CModelParams::CModelParams(core_t::TTime bucketLength,
         m_ProbabilityBucketEmpty(0.0)
 {}
 
-core_t::TTime CModelParams::bucketLength(void) const
+core_t::TTime CModelParams::bucketLength() const
 {
     return m_BucketLength;
 }
 
-double CModelParams::learnRate(void) const
+double CModelParams::learnRate() const
 {
     return m_LearnRate;
 }
 
-double CModelParams::decayRate(void) const
+double CModelParams::decayRate() const
 {
     return m_DecayRate;
 }
 
-double CModelParams::averagingDecayRate(void) const
+double CModelParams::averagingDecayRate() const
 {
     return 5.0 * m_DecayRate;
 }
 
-double CModelParams::minimumSeasonalVarianceScale(void) const
+double CModelParams::minimumSeasonalVarianceScale() const
 {
     return m_MinimumSeasonalVarianceScale;
 }
@@ -122,13 +122,13 @@ void CModelParams::probabilityBucketEmpty(double probability)
     m_ProbabilityBucketEmpty = probability;
 }
 
-double CModelParams::probabilityBucketEmpty(void) const
+double CModelParams::probabilityBucketEmpty() const
 {
     return m_ProbabilityBucketEmpty;
 }
 
 
-CModelAddSamplesParams::CModelAddSamplesParams(void) :
+CModelAddSamplesParams::CModelAddSamplesParams() :
         m_Type(maths_t::E_MixedData),
         m_IsNonNegative(false),
         m_PropagationInterval(1.0),
@@ -143,7 +143,7 @@ CModelAddSamplesParams &CModelAddSamplesParams::integer(bool integer)
     return *this;
 }
 
-maths_t::EDataType CModelAddSamplesParams::type(void) const
+maths_t::EDataType CModelAddSamplesParams::type() const
 {
     return m_Type;
 }
@@ -154,7 +154,7 @@ CModelAddSamplesParams &CModelAddSamplesParams::nonNegative(bool nonNegative)
     return *this;
 }
 
-bool CModelAddSamplesParams::isNonNegative(void) const
+bool CModelAddSamplesParams::isNonNegative() const
 {
     return m_IsNonNegative;
 }
@@ -165,7 +165,7 @@ CModelAddSamplesParams &CModelAddSamplesParams::propagationInterval(double inter
     return *this;
 }
 
-double CModelAddSamplesParams::propagationInterval(void) const
+double CModelAddSamplesParams::propagationInterval() const
 {
     return m_PropagationInterval;
 }
@@ -176,7 +176,7 @@ CModelAddSamplesParams &CModelAddSamplesParams::weightStyles(const maths_t::TWei
     return *this;
 }
 
-const maths_t::TWeightStyleVec &CModelAddSamplesParams::weightStyles(void) const
+const maths_t::TWeightStyleVec &CModelAddSamplesParams::weightStyles() const
 {
     return *m_WeightStyles;
 }
@@ -187,7 +187,7 @@ CModelAddSamplesParams &CModelAddSamplesParams::trendWeights(const TDouble2Vec4V
     return *this;
 }
 
-const CModelAddSamplesParams::TDouble2Vec4VecVec &CModelAddSamplesParams::trendWeights(void) const
+const CModelAddSamplesParams::TDouble2Vec4VecVec &CModelAddSamplesParams::trendWeights() const
 {
     return *m_TrendWeights;
 }
@@ -198,13 +198,13 @@ CModelAddSamplesParams &CModelAddSamplesParams::priorWeights(const TDouble2Vec4V
     return *this;
 }
 
-const CModelAddSamplesParams::TDouble2Vec4VecVec &CModelAddSamplesParams::priorWeights(void) const
+const CModelAddSamplesParams::TDouble2Vec4VecVec &CModelAddSamplesParams::priorWeights() const
 {
     return *m_PriorWeights;
 }
 
 
-CModelProbabilityParams::CModelProbabilityParams(void) :
+CModelProbabilityParams::CModelProbabilityParams() :
         m_Tag(0),
         m_SeasonalConfidenceInterval(DEFAULT_SEASONAL_CONFIDENCE_INTERVAL),
         m_WeightStyles(0),
@@ -217,7 +217,7 @@ CModelProbabilityParams &CModelProbabilityParams::tag(std::size_t tag)
     return *this;
 }
 
-std::size_t CModelProbabilityParams::tag(void) const
+std::size_t CModelProbabilityParams::tag() const
 {
     return m_Tag;
 }
@@ -228,7 +228,7 @@ CModelProbabilityParams &CModelProbabilityParams::addCalculation(maths_t::EProba
     return *this;
 }
 
-std::size_t CModelProbabilityParams::calculations(void) const
+std::size_t CModelProbabilityParams::calculations() const
 {
     return m_Calculations.size();
 }
@@ -244,7 +244,7 @@ CModelProbabilityParams &CModelProbabilityParams::seasonalConfidenceInterval(dou
     return *this;
 }
 
-double CModelProbabilityParams::seasonalConfidenceInterval(void) const
+double CModelProbabilityParams::seasonalConfidenceInterval() const
 {
     return m_SeasonalConfidenceInterval;
 }
@@ -255,7 +255,7 @@ CModelProbabilityParams &CModelProbabilityParams::addBucketEmpty(const TBool2Vec
     return *this;
 }
 
-const CModelProbabilityParams::TBool2Vec1Vec &CModelProbabilityParams::bucketEmpty(void) const
+const CModelProbabilityParams::TBool2Vec1Vec &CModelProbabilityParams::bucketEmpty() const
 {
     return m_BucketEmpty;
 }
@@ -266,7 +266,7 @@ CModelProbabilityParams &CModelProbabilityParams::weightStyles(const maths_t::TW
     return *this;
 }
 
-const maths_t::TWeightStyleVec &CModelProbabilityParams::weightStyles(void) const
+const maths_t::TWeightStyleVec &CModelProbabilityParams::weightStyles() const
 {
     return *m_WeightStyles;
 }
@@ -283,12 +283,12 @@ CModelProbabilityParams &CModelProbabilityParams::weights(const TDouble2Vec4Vec1
     return *this;
 }
 
-const CModelProbabilityParams::TDouble2Vec4Vec1Vec &CModelProbabilityParams::weights(void) const
+const CModelProbabilityParams::TDouble2Vec4Vec1Vec &CModelProbabilityParams::weights() const
 {
     return m_Weights;
 }
 
-CModelProbabilityParams::TDouble2Vec4Vec1Vec &CModelProbabilityParams::weights(void)
+CModelProbabilityParams::TDouble2Vec4Vec1Vec &CModelProbabilityParams::weights()
 {
     return m_Weights;
 }
@@ -299,7 +299,7 @@ CModelProbabilityParams &CModelProbabilityParams::addCoordinate(std::size_t coor
     return *this;
 }
 
-const CModelProbabilityParams::TSize2Vec &CModelProbabilityParams::coordinates(void) const
+const CModelProbabilityParams::TSize2Vec &CModelProbabilityParams::coordinates() const
 {
     return m_Coordinates;
 }
@@ -310,7 +310,7 @@ CModelProbabilityParams &CModelProbabilityParams::mostAnomalousCorrelate(std::si
     return *this;
 }
 
-CModelProbabilityParams::TOptionalSize CModelProbabilityParams::mostAnomalousCorrelate(void) const
+CModelProbabilityParams::TOptionalSize CModelProbabilityParams::mostAnomalousCorrelate() const
 {
     return m_MostAnomalousCorrelate;
 }
@@ -321,7 +321,7 @@ CModelProbabilityParams &CModelProbabilityParams::updateAnomalyModel(bool update
     return *this;
 }
 
-bool CModelProbabilityParams::updateAnomalyModel(void) const
+bool CModelProbabilityParams::updateAnomalyModel() const
 {
     return m_UpdateAnomalyModel;
 }
@@ -334,12 +334,12 @@ double CModel::effectiveCount(std::size_t n)
     return n <= boost::size(EFFECTIVE_COUNT) ? EFFECTIVE_COUNT[n-1] : 0.5;
 }
 
-const CModelParams &CModel::params(void) const
+const CModelParams &CModel::params() const
 {
     return m_Params;
 }
 
-CModelParams &CModel::params(void)
+CModelParams &CModel::params()
 {
     return m_Params;
 }
@@ -394,9 +394,9 @@ double CModel::correctForEmptyBucket(maths_t::EProbabilityCalculation calculatio
 }
 
 
-CModelStub::CModelStub(void) : CModel(stubParameters()) {}
+CModelStub::CModelStub() : CModel(stubParameters()) {}
 
-std::size_t CModelStub::identifier(void) const
+std::size_t CModelStub::identifier() const
 {
     return 0;
 }
@@ -406,17 +406,17 @@ CModelStub *CModelStub::clone(std::size_t /*id*/) const
     return new CModelStub(*this);
 }
 
-CModelStub *CModelStub::cloneForPersistence(void) const
+CModelStub *CModelStub::cloneForPersistence() const
 {
     return new CModelStub(*this);
 }
 
-CModelStub *CModelStub::cloneForForecast(void) const
+CModelStub *CModelStub::cloneForForecast() const
 {
     return new CModelStub(*this);
 }
 
-bool CModelStub::isForecastPossible(void) const
+bool CModelStub::isForecastPossible() const
 {
     return false;
 }
@@ -425,7 +425,7 @@ void CModelStub::modelCorrelations(CTimeSeriesCorrelations &/*model*/)
 {
 }
 
-CModelStub::TSize2Vec1Vec CModelStub::correlates(void) const
+CModelStub::TSize2Vec1Vec CModelStub::correlates() const
 {
     return TSize2Vec1Vec();
 }
@@ -533,7 +533,7 @@ void CModelStub::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr /*mem*/) c
 {
 }
 
-std::size_t CModelStub::memoryUsage(void) const
+std::size_t CModelStub::memoryUsage() const
 {
     return 0;
 }
@@ -542,7 +542,7 @@ void CModelStub::acceptPersistInserter(core::CStatePersistInserter &/*inserter*/
 {
 }
 
-maths_t::EDataType CModelStub::dataType(void) const
+maths_t::EDataType CModelStub::dataType() const
 {
     return maths_t::E_MixedData;
 }

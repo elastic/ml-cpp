@@ -31,7 +31,7 @@ const size_t CMapPopulationTest::FILL_SIZE(20);
 const size_t CMapPopulationTest::TEST_SIZE(200000);
 
 
-CMapPopulationTest::CMapPopulationTest(void)
+CMapPopulationTest::CMapPopulationTest()
     : m_TestData(0)
 {
 }
@@ -47,7 +47,7 @@ CppUnit::Test *CMapPopulationTest::suite()
     return suiteOfTests;
 }
 
-void CMapPopulationTest::setUp(void)
+void CMapPopulationTest::setUp()
 {
     // This class gets constructed once for every test, but by making the test
     // data static every test will use the same test data, which is important
@@ -91,27 +91,27 @@ CMapPopulationTest::CTestData::CTestData(size_t fillSize)
     }
 }
 
-const CMapPopulationTest::CTestData::TStrVec &CMapPopulationTest::CTestData::stringKeys(void) const
+const CMapPopulationTest::CTestData::TStrVec &CMapPopulationTest::CTestData::stringKeys() const
 {
     return m_StringKeys;
 }
 
-const CMapPopulationTest::CTestData::TStrVec &CMapPopulationTest::CTestData::stringVals(void) const
+const CMapPopulationTest::CTestData::TStrVec &CMapPopulationTest::CTestData::stringVals() const
 {
     return m_StringVals;
 }
 
-const CMapPopulationTest::CTestData::TCharPVec &CMapPopulationTest::CTestData::charPtrKeys(void) const
+const CMapPopulationTest::CTestData::TCharPVec &CMapPopulationTest::CTestData::charPtrKeys() const
 {
     return m_CharPtrKeys;
 }
 
-const CMapPopulationTest::CTestData::TCharPVec &CMapPopulationTest::CTestData::charPtrVals(void) const
+const CMapPopulationTest::CTestData::TCharPVec &CMapPopulationTest::CTestData::charPtrVals() const
 {
     return m_CharPtrVals;
 }
 
-void CMapPopulationTest::testMapInsertSpeed(void)
+void CMapPopulationTest::testMapInsertSpeed()
 {
     // Schedule all the other tests to be run in a thread pool - the number of
     // threads is chosen to be less than the number of cores so that the results
@@ -133,7 +133,7 @@ void CMapPopulationTest::testMapInsertSpeed(void)
     tp.wait();
 }
 
-void CMapPopulationTest::testMapInsertStr(void)
+void CMapPopulationTest::testMapInsertStr()
 {
     TStrStrMapVec testVec(TEST_SIZE);
 
@@ -152,7 +152,7 @@ void CMapPopulationTest::testMapInsertStr(void)
              " seconds");
 }
 
-void CMapPopulationTest::testMapInsertCharP(void)
+void CMapPopulationTest::testMapInsertCharP()
 {
     TStrStrMapVec testVec(TEST_SIZE);
 
@@ -171,7 +171,7 @@ void CMapPopulationTest::testMapInsertCharP(void)
              " seconds");
 }
 
-void CMapPopulationTest::testMapOpSqBracStr(void)
+void CMapPopulationTest::testMapOpSqBracStr()
 {
     TStrStrMapVec testVec(TEST_SIZE);
 
@@ -190,7 +190,7 @@ void CMapPopulationTest::testMapOpSqBracStr(void)
              " seconds");
 }
 
-void CMapPopulationTest::testMapOpSqBracCharP(void)
+void CMapPopulationTest::testMapOpSqBracCharP()
 {
     TStrStrMapVec testVec(TEST_SIZE);
 
@@ -209,7 +209,7 @@ void CMapPopulationTest::testMapOpSqBracCharP(void)
              " seconds");
 }
 
-void CMapPopulationTest::testUMapInsertStr(void)
+void CMapPopulationTest::testUMapInsertStr()
 {
     TStrStrUMapVec testVec(TEST_SIZE);
 
@@ -228,7 +228,7 @@ void CMapPopulationTest::testUMapInsertStr(void)
              " seconds");
 }
 
-void CMapPopulationTest::testUMapInsertCharP(void)
+void CMapPopulationTest::testUMapInsertCharP()
 {
     TStrStrUMapVec testVec(TEST_SIZE);
 
@@ -247,7 +247,7 @@ void CMapPopulationTest::testUMapInsertCharP(void)
              " seconds");
 }
 
-void CMapPopulationTest::testUMapOpSqBracStr(void)
+void CMapPopulationTest::testUMapOpSqBracStr()
 {
     TStrStrUMapVec testVec(TEST_SIZE);
 
@@ -266,7 +266,7 @@ void CMapPopulationTest::testUMapOpSqBracStr(void)
              " seconds");
 }
 
-void CMapPopulationTest::testUMapOpSqBracCharP(void)
+void CMapPopulationTest::testUMapOpSqBracCharP()
 {
     TStrStrUMapVec testVec(TEST_SIZE);
 

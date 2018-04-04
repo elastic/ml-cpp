@@ -52,9 +52,9 @@ CPenalty::CPenalty(CClosure closure) :
     m_Penalties.swap(closure.penalties());
 }
 
-CPenalty::~CPenalty(void) {}
+CPenalty::~CPenalty() {}
 
-std::string CPenalty::name(void) const
+std::string CPenalty::name() const
 {
     std::string result;
     for (std::size_t i = 0u; i < m_Penalties.size(); ++i)
@@ -64,7 +64,7 @@ std::string CPenalty::name(void) const
     return result;
 }
 
-CPenalty *CPenalty::clone(void) const
+CPenalty *CPenalty::clone() const
 {
     return new CPenalty(*this);
 }
@@ -129,7 +129,7 @@ bool CPenalty::scoreIsZeroFor(double penalty)
     return penalty * constants::MAXIMUM_DETECTOR_SCORE < constants::DETECTOR_SCORE_EPSILON;
 }
 
-const CAutoconfigurerParams &CPenalty::params(void) const
+const CAutoconfigurerParams &CPenalty::params() const
 {
     return m_Params;
 }
@@ -149,7 +149,7 @@ CPenalty::CClosure::CClosure(const CPenalty &penalty)
     this->add(penalty);
 }
 
-CPenalty *CPenalty::CClosure::clone(void) const
+CPenalty *CPenalty::CClosure::clone() const
 {
     return new CPenalty(*this);
 }
@@ -160,7 +160,7 @@ CPenalty::CClosure &CPenalty::CClosure::add(const CPenalty &penalty)
     return *this;
 }
 
-CPenalty::TPenaltyCPtrVec &CPenalty::CClosure::penalties(void)
+CPenalty::TPenaltyCPtrVec &CPenalty::CClosure::penalties()
 {
     return m_Penalties;
 }

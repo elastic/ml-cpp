@@ -502,7 +502,7 @@ void CBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove)
     }
 }
 
-core_t::TTime CBucketGatherer::currentBucketStartTime(void) const
+core_t::TTime CBucketGatherer::currentBucketStartTime() const
 {
     return m_BucketStart;
 }
@@ -512,13 +512,13 @@ void CBucketGatherer::currentBucketStartTime(core_t::TTime time)
     m_BucketStart = time;
 }
 
-core_t::TTime CBucketGatherer::earliestBucketStartTime(void) const
+core_t::TTime CBucketGatherer::earliestBucketStartTime() const
 {
     return   this->currentBucketStartTime()
           - (m_DataGatherer.params().s_LatencyBuckets * this->bucketLength());
 }
 
-core_t::TTime CBucketGatherer::bucketLength(void) const
+core_t::TTime CBucketGatherer::bucketLength() const
 {
     return m_DataGatherer.params().s_BucketLength;
 }
@@ -569,12 +569,12 @@ bool CBucketGatherer::validateSampleTimes(core_t::TTime &startTime,
     return false;
 }
 
-const CDataGatherer &CBucketGatherer::dataGatherer(void) const
+const CDataGatherer &CBucketGatherer::dataGatherer() const
 {
     return m_DataGatherer;
 }
 
-std::string CBucketGatherer::printCurrentBucket(void) const
+std::string CBucketGatherer::printCurrentBucket() const
 {
     std::ostringstream result;
     result << "[" << m_BucketStart << "," << m_BucketStart + this->bucketLength() << ")";
@@ -605,7 +605,7 @@ bool CBucketGatherer::hasExplicitNullsOnly(core_t::TTime time, std::size_t pid, 
           && bucketCounts.find(pidCid) == bucketCounts.end();
 }
 
-uint64_t CBucketGatherer::checksum(void) const
+uint64_t CBucketGatherer::checksum() const
 {
     using TStrCRef = boost::reference_wrapper<const std::string>;
     using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
@@ -666,7 +666,7 @@ void CBucketGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
     core::CMemoryDebug::dynamicSize("m_Influencers", m_InfluencerCounts, mem);
 }
 
-std::size_t CBucketGatherer::memoryUsage(void) const
+std::size_t CBucketGatherer::memoryUsage() const
 {
     std::size_t mem = core::CMemory::dynamicSize(m_PersonAttributeCounts);
     mem += core::CMemory::dynamicSize(m_PersonAttributeExplicitNulls);
@@ -674,7 +674,7 @@ std::size_t CBucketGatherer::memoryUsage(void) const
     return mem;
 }
 
-void CBucketGatherer::clear(void)
+void CBucketGatherer::clear()
 {
     m_PersonAttributeCounts.clear(TSizeSizePrUInt64UMap(1));
     m_PersonAttributeExplicitNulls.clear(TSizeSizePrUSet(1));

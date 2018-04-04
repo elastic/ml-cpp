@@ -62,7 +62,7 @@ CCsvInputParser::CCsvInputParser(std::istream &strmIn,
 {
 }
 
-const std::string &CCsvInputParser::fieldNameStr(void) const
+const std::string &CCsvInputParser::fieldNameStr() const
 {
     return m_FieldNameStr;
 }
@@ -131,7 +131,7 @@ bool CCsvInputParser::readStream(const TReaderFunc &readerFunc)
     return true;
 }
 
-bool CCsvInputParser::parseCsvRecordFromStream(void)
+bool CCsvInputParser::parseCsvRecordFromStream()
 {
     // For maximum performance, read the stream in large chunks that can be
     // moved around by memcpy().  Using memcpy() is an order of magnitude faster
@@ -235,7 +235,7 @@ bool CCsvInputParser::parseCsvRecordFromStream(void)
     return true;
 }
 
-bool CCsvInputParser::parseFieldNames(void)
+bool CCsvInputParser::parseFieldNames()
 {
     LOG_TRACE("Parse field names");
 

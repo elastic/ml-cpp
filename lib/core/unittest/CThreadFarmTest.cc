@@ -40,7 +40,7 @@ CppUnit::Test *CThreadFarmTest::suite()
     return suiteOfTests;
 }
 
-void CThreadFarmTest::testNumCpus(void)
+void CThreadFarmTest::testNumCpus()
 {
     unsigned int numCpus(boost::thread::hardware_concurrency());
 
@@ -52,7 +52,7 @@ namespace
     class CString
     {
         public:
-            CString(void)
+            CString()
             {
             }
 
@@ -76,7 +76,7 @@ namespace
                 return *this;
             }
 
-            const std::string   &str(void) const
+            const std::string   &str() const
             {
                 return m_Str;
             }
@@ -103,7 +103,7 @@ namespace
                 m_OutstandingOutput.insert(expected);
             }
 
-            bool haveAllExpected(void)
+            bool haveAllExpected()
             {
                 ml::core::CScopedLock lock(m_Mutex);
 
@@ -144,7 +144,7 @@ namespace
     };
 }
 
-void CThreadFarmTest::testSendReceive(void)
+void CThreadFarmTest::testSendReceive()
 {
     CHandler handler;
 

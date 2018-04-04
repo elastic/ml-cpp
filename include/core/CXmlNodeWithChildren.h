@@ -49,7 +49,7 @@ class CORE_EXPORT CXmlNodeWithChildren : public CXmlNode
         using TChildNodePVecCItr = TChildNodePVec::const_iterator;
 
     public:
-        CXmlNodeWithChildren(void);
+        CXmlNodeWithChildren();
 
         CXmlNodeWithChildren(const std::string &name);
 
@@ -62,7 +62,7 @@ class CORE_EXPORT CXmlNodeWithChildren : public CXmlNode
 
         CXmlNodeWithChildren(const CXmlNodeWithChildren &arg);
 
-        virtual ~CXmlNodeWithChildren(void);
+        virtual ~CXmlNodeWithChildren();
 
         CXmlNodeWithChildren &operator=(const CXmlNodeWithChildren &rhs);
 
@@ -76,10 +76,10 @@ class CORE_EXPORT CXmlNodeWithChildren : public CXmlNode
         void addChildP(const TXmlNodeWithChildrenP &childP);
 
         //! Get children
-        const TChildNodePVec &children(void) const;
+        const TChildNodePVec &children() const;
 
         //! Debug dump of hierarchy
-        virtual std::string dump(void) const;
+        virtual std::string dump() const;
         virtual std::string dump(size_t indent) const;
 
     private:

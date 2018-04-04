@@ -81,7 +81,7 @@ const std::string EMPTY_STRING;
 
 struct SAnomaly
 {
-    SAnomaly(void) : s_Bucket(0u), s_Person(), s_Attributes() {}
+    SAnomaly() : s_Bucket(0u), s_Person(), s_Attributes() {}
     SAnomaly(std::size_t bucket,
              const std::string &person,
              const TDoubleStrPrVec &attributes) :
@@ -100,7 +100,7 @@ struct SAnomaly
         return s_Bucket < other.s_Bucket;
     }
 
-    std::string print(void) const
+    std::string print() const
     {
         std::ostringstream result;
         result << "[" << s_Bucket << ", " + s_Person << ",";
@@ -344,7 +344,7 @@ void processBucket(core_t::TTime time,
 
 }
 
-void CMetricPopulationModelTest::testBasicAccessors(void)
+void CMetricPopulationModelTest::testBasicAccessors()
 {
     LOG_DEBUG("*** CMetricPopulationModelTest::testBasicAccessors ***");
 
@@ -496,7 +496,7 @@ void CMetricPopulationModelTest::testBasicAccessors(void)
     }
 }
 
-void CMetricPopulationModelTest::testMinMaxAndMean(void)
+void CMetricPopulationModelTest::testMinMaxAndMean()
 {
     LOG_DEBUG("*** testMinMaxAndMean ***");
 
@@ -658,7 +658,7 @@ void CMetricPopulationModelTest::testMinMaxAndMean(void)
     }
 }
 
-void CMetricPopulationModelTest::testVarp(void)
+void CMetricPopulationModelTest::testVarp()
 {
     LOG_DEBUG("*** testVarp ***");
 
@@ -758,7 +758,7 @@ void CMetricPopulationModelTest::testVarp(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, annotatedProbability.s_Influences[0].second, 0.00001);
 }
 
-void CMetricPopulationModelTest::testComputeProbability(void)
+void CMetricPopulationModelTest::testComputeProbability()
 {
     LOG_DEBUG("*** testComputeProbability ***");
 
@@ -870,7 +870,7 @@ void CMetricPopulationModelTest::testComputeProbability(void)
     }
 }
 
-void CMetricPopulationModelTest::testPrune(void)
+void CMetricPopulationModelTest::testPrune()
 {
     LOG_DEBUG("*** testPrune ***");
 
@@ -1106,7 +1106,7 @@ void CMetricPopulationModelTest::testPrune(void)
     CPPUNIT_ASSERT_EQUAL(numberOfPeopleBeforePrune, clonedModelHolder->dataGatherer().numberActivePeople());
 }
 
-void CMetricPopulationModelTest::testKey(void)
+void CMetricPopulationModelTest::testKey()
 {
     LOG_DEBUG("*** testKey ***");
 
@@ -1155,7 +1155,7 @@ void CMetricPopulationModelTest::testKey(void)
     }
 }
 
-void CMetricPopulationModelTest::testFrequency(void)
+void CMetricPopulationModelTest::testFrequency()
 {
     LOG_DEBUG("*** CMetricPopulationModelTest::testFrequency ***");
 
@@ -1252,7 +1252,7 @@ void CMetricPopulationModelTest::testFrequency(void)
     }
 }
 
-void CMetricPopulationModelTest::testSampleRateWeight(void)
+void CMetricPopulationModelTest::testSampleRateWeight()
 {
     LOG_DEBUG("*** CMetricPopulationModelTest::testSampleRateWeight ***");
 
@@ -1386,7 +1386,7 @@ void CMetricPopulationModelTest::testSampleRateWeight(void)
     }
 }
 
-void CMetricPopulationModelTest::testPeriodicity(void)
+void CMetricPopulationModelTest::testPeriodicity()
 {
     LOG_DEBUG("*** testPeriodicity ***");
 
@@ -1521,7 +1521,7 @@ void CMetricPopulationModelTest::testPeriodicity(void)
     CPPUNIT_ASSERT(totalw > 3.0 * totalwo);
 }
 
-void CMetricPopulationModelTest::testPersistence(void)
+void CMetricPopulationModelTest::testPersistence()
 {
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -1592,7 +1592,7 @@ void CMetricPopulationModelTest::testPersistence(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CMetricPopulationModelTest::testIgnoreSamplingGivenDetectionRules(void)
+void CMetricPopulationModelTest::testIgnoreSamplingGivenDetectionRules()
 {
     LOG_DEBUG("*** testIgnoreSamplingGivenDetectionRules ***");
 
@@ -1718,7 +1718,7 @@ void CMetricPopulationModelTest::testIgnoreSamplingGivenDetectionRules(void)
 }
 
 
-CppUnit::Test *CMetricPopulationModelTest::suite(void)
+CppUnit::Test *CMetricPopulationModelTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMetricPopulationModelTest");
 

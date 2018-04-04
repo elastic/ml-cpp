@@ -73,22 +73,22 @@ class API_EXPORT CIoManager : private core::CNonCopyable
         //! This will close any streams and unlink named pipes.  All
         //! input/output/restore/persist operations must be complete at the time
         //! this object is destroyed.
-        ~CIoManager(void);
+        ~CIoManager();
 
         //! Set up the necessary streams given the constructor arguments.
-        bool initIo(void);
+        bool initIo();
 
         //! Get the stream to get input data from.
-        std::istream &inputStream(void);
+        std::istream &inputStream();
 
         //! Get the stream to write output to.
-        std::ostream &outputStream(void);
+        std::ostream &outputStream();
 
         //! Get the stream to restore state from.  If NULL then don't restore state.
-        core::CNamedPipeFactory::TIStreamP restoreStream(void);
+        core::CNamedPipeFactory::TIStreamP restoreStream();
 
         //! Get the stream to persist state to.  If NULL then don't persist state.
-        core::CNamedPipeFactory::TOStreamP persistStream(void);
+        core::CNamedPipeFactory::TOStreamP persistStream();
 
     private:
         //! Have the streams been successfully initialised?
