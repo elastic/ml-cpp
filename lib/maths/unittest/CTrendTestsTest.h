@@ -20,11 +20,11 @@
 
 class CTrendTestsTest : public CppUnit::TestFixture {
 public:
-    void testRandomizedPeriodicity(void);
-    void testCalendarCyclic(void);
-    void testPersist(void);
+    void testRandomizedPeriodicity();
+    void testCalendarCyclic();
+    void testPersist();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CTrendTestsTest_h

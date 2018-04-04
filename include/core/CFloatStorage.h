@@ -21,15 +21,14 @@
 
 #include <maths/ImportExport.h>
 
+#include <cmath>
 #include <limits>
-
-#include <math.h>
 
 namespace ml {
 namespace core {
 
 namespace {
-const int MAX_PRECISE_INTEGER_FLOAT(static_cast<int>(::pow(10.0, static_cast<double>(std::numeric_limits<float>::digits10))) - 1);
+const int MAX_PRECISE_INTEGER_FLOAT(static_cast<int>(std::pow(10.0, static_cast<double>(std::numeric_limits<float>::digits10))) - 1);
 }
 
 //! \brief This class should be used in place of float whenever
@@ -71,11 +70,11 @@ const int MAX_PRECISE_INTEGER_FLOAT(static_cast<int>(::pow(10.0, static_cast<dou
 class CORE_EXPORT CFloatStorage {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero(void) { return true; }
+    static bool dynamicSizeAlwaysZero() { return true; }
 
 public:
     //! Default construction of the floating point value.
-    CFloatStorage(void) : m_Value() {}
+    CFloatStorage() : m_Value() {}
 
     //! Integer promotion. So one can write things like CFloatStorage(1).
     CFloatStorage(int value) : m_Value(float(value)) {
@@ -103,9 +102,7 @@ public:
     }
 
     //! Convert to a string.
-    std::string toString(void) const {
-        return CStringUtils::typeToStringPrecise(static_cast<double>(m_Value), CIEEE754::E_SinglePrecision);
-    }
+    std::string toString() const { return CStringUtils::typeToStringPrecise(static_cast<double>(m_Value), CIEEE754::E_SinglePrecision); }
 
     //! \name Double Assignment
     //@{
@@ -137,7 +134,7 @@ public:
     //@}
 
     //! Implicit conversion to a double.
-    operator double(void) const { return static_cast<double>(m_Value); }
+    operator double() const { return static_cast<double>(m_Value); }
 
 private:
     //! Utility to actually set the floating point value.

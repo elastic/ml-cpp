@@ -26,7 +26,7 @@ const char* CPP_SRC_HOME("CPP_SRC_HOME");
 namespace ml {
 namespace core {
 
-std::string CResourceLocator::resourceDir(void) {
+std::string CResourceLocator::resourceDir() {
     // Look relative to the program that's running, assuming this directory layout:
     // $ES_HOME/plugin/<plugin name>/resources
     // $ES_HOME/plugin/<plugin name>/platform/<platform name>/bin
@@ -51,7 +51,7 @@ std::string CResourceLocator::resourceDir(void) {
     return productionDir;
 }
 
-std::string CResourceLocator::logDir(void) {
+std::string CResourceLocator::logDir() {
     // Look relative to the program that's running, assuming this directory layout:
     // $ES_HOME/logs
     // $ES_HOME/plugin/<plugin name>/platform/<platform name>/bin
@@ -67,7 +67,7 @@ std::string CResourceLocator::logDir(void) {
     return productionDir;
 }
 
-std::string CResourceLocator::cppRootDir(void) {
+std::string CResourceLocator::cppRootDir() {
     const char* cppSrcHome(::getenv(CPP_SRC_HOME));
     if (cppSrcHome == 0) {
         // Assume we're in a unittest directory

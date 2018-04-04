@@ -26,26 +26,25 @@
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <utility>
 #include <vector>
-
-#include <math.h>
 
 namespace ml {
 namespace maths {
 
 namespace {
 
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::pair<double, TSizeSizePr> TDoubleSizeSizePrPr;
-typedef std::vector<TDoubleSizeSizePrPr> TDoubleSizeSizePrPrVec;
-typedef CAgglomerativeClusterer::TSizeVec TSizeVec;
-typedef CAgglomerativeClusterer::TDoubleVec TDoubleVec;
-typedef CAgglomerativeClusterer::TDoubleVecVec TDoubleVecVec;
-typedef CAgglomerativeClusterer::CNode TNode;
-typedef CAgglomerativeClusterer::TNodeVec TNodeVec;
-typedef std::vector<TNode*> TNodePtrVec;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TDoubleSizeSizePrPr = std::pair<double, TSizeSizePr>;
+using TDoubleSizeSizePrPrVec = std::vector<TDoubleSizeSizePrPr>;
+using TSizeVec = CAgglomerativeClusterer::TSizeVec;
+using TDoubleVec = CAgglomerativeClusterer::TDoubleVec;
+using TDoubleVecVec = CAgglomerativeClusterer::TDoubleVecVec;
+using TNode = CAgglomerativeClusterer::CNode;
+using TNodeVec = CAgglomerativeClusterer::TNodeVec;
+using TNodePtrVec = std::vector<TNode*>;
 
 const double INF = boost::numeric::bounds<double>::highest();
 
@@ -106,8 +105,8 @@ struct SWard {
         double sa = sizes[a];
         double sb = sizes[b];
         double sx = sizes[x];
-        distance(distanceMatrix, b, x) = ::sqrt((sa + sx) * distance(distanceMatrix, a, x) + (sb + sx) * distance(distanceMatrix, b, x) -
-                                                sx * distance(distanceMatrix, a, b)) /
+        distance(distanceMatrix, b, x) = std::sqrt((sa + sx) * distance(distanceMatrix, a, x) + (sb + sx) * distance(distanceMatrix, b, x) -
+                                                   sx * distance(distanceMatrix, a, b)) /
                                          (sa + sb + sx);
     }
 };
@@ -404,15 +403,15 @@ bool CAgglomerativeClusterer::CNode::addChild(CNode& child) {
     return false;
 }
 
-std::size_t CAgglomerativeClusterer::CNode::index(void) const {
+std::size_t CAgglomerativeClusterer::CNode::index() const {
     return m_Index;
 }
 
-double CAgglomerativeClusterer::CNode::height(void) const {
+double CAgglomerativeClusterer::CNode::height() const {
     return m_Height;
 }
 
-TNode& CAgglomerativeClusterer::CNode::root(void) {
+TNode& CAgglomerativeClusterer::CNode::root() {
     CNode* result = this;
     for (CNode* parent = m_Parent; parent; parent = parent->m_Parent) {
         result = parent;

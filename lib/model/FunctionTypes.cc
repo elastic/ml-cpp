@@ -26,7 +26,7 @@ namespace ml {
 namespace model {
 namespace function_t {
 
-typedef model_t::TFeatureVec TFeatureVec;
+using TFeatureVec = model_t::TFeatureVec;
 
 bool isIndividual(EFunction function) {
     switch (function) {
@@ -536,9 +536,9 @@ bool isForecastSupported(EFunction function) {
 
 namespace {
 
-typedef std::map<model_t::EFeature, TFunctionVec> TFeatureFunctionVecMap;
-typedef TFeatureFunctionVecMap::iterator TFeatureFunctionVecMapItr;
-typedef TFeatureFunctionVecMap::const_iterator TFeatureFunctionVecMapCItr;
+using TFeatureFunctionVecMap = std::map<model_t::EFeature, TFunctionVec>;
+using TFeatureFunctionVecMapItr = TFeatureFunctionVecMap::iterator;
+using TFeatureFunctionVecMapCItr = TFeatureFunctionVecMap::const_iterator;
 
 namespace detail {
 
@@ -1035,7 +1035,7 @@ void addFeatures(EFunction function, TFeatureFunctionVecMap& map) {
 }
 
 //! Build a map from features to the functions which include them.
-TFeatureFunctionVecMap buildFeatureFunctionMap(void) {
+TFeatureFunctionVecMap buildFeatureFunctionMap() {
     TFeatureFunctionVecMap result;
 
     // This is written like this to generate a compiler warning

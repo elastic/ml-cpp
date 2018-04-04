@@ -31,14 +31,14 @@ CCondition::CCondition(CMutex& mutex) : m_Mutex(mutex) {
     }
 }
 
-CCondition::~CCondition(void) {
+CCondition::~CCondition() {
     int ret(::pthread_cond_destroy(&m_Condition));
     if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
 }
 
-bool CCondition::wait(void) {
+bool CCondition::wait() {
     // Note: pthread_cond_wait() returns 0 if interrupted by a signal, so the
     // caller must check a condition that will detect spurious wakeups
     int ret(::pthread_cond_wait(&m_Condition, &m_Mutex.m_Mutex));
@@ -70,14 +70,14 @@ bool CCondition::wait(uint32_t t) {
     return true;
 }
 
-void CCondition::signal(void) {
+void CCondition::signal() {
     int ret(::pthread_cond_signal(&m_Condition));
     if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
 }
 
-void CCondition::broadcast(void) {
+void CCondition::broadcast() {
     int ret(::pthread_cond_broadcast(&m_Condition));
     if (ret != 0) {
         LOG_WARN(::strerror(ret));

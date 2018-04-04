@@ -34,7 +34,7 @@ CppUnit::Test* CStateRestoreStreamFilterTest::suite() {
     return suiteOfTests;
 }
 
-void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval(void) {
+void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval() {
     std::istringstream input("{\"index\":{\"_id\":\"some_id\"}}\n"
                              "{\"compressed\" : [ \"a\",\"b\"]}");
 
@@ -55,7 +55,7 @@ void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval(void) {
     CPPUNIT_ASSERT_EQUAL(expected, output);
 }
 
-void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte(void) {
+void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte() {
     std::stringstream input;
 
     input << "{\"index\":{\"_id\":\"some_id\"}}\n";

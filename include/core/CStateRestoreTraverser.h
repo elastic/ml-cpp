@@ -48,17 +48,17 @@ namespace core {
 //!
 class CORE_EXPORT CStateRestoreTraverser : private CNonCopyable {
 public:
-    CStateRestoreTraverser(void);
+    CStateRestoreTraverser();
 
     //! Virtual destructor for abstract class
-    virtual ~CStateRestoreTraverser(void);
+    virtual ~CStateRestoreTraverser();
 
     //! Navigate to the next element at the current level, or return false
     //! if there isn't one
-    virtual bool next(void) = 0;
+    virtual bool next() = 0;
 
     //! Does the current element have a sub-level?
-    virtual bool hasSubLevel(void) const = 0;
+    virtual bool hasSubLevel() const = 0;
 
     //! Traverse the sub-level of the current element.  The supplied
     //! function will be called with the traverser pointing at the first
@@ -84,43 +84,43 @@ public:
 
     //! Get the name of the current element - the returned reference is only
     //! valid for as long as the traverser is pointing at the same element
-    virtual const std::string& name(void) const = 0;
+    virtual const std::string& name() const = 0;
 
     //! Get the value of the current element - the returned reference is
     //! only valid for as long as the traverser is pointing at the same
     //! element
-    virtual const std::string& value(void) const = 0;
+    virtual const std::string& value() const = 0;
 
     //! Has the end of the inputstream been reached?
-    virtual bool isEof(void) const = 0;
+    virtual bool isEof() const = 0;
 
     //! Is the state document unintelligible?
-    bool haveBadState(void) const;
+    bool haveBadState() const;
 
 protected:
     //! Set the bad state flag, which indicates that the state document was
     //! unintelligible.
-    void setBadState(void);
+    void setBadState();
 
     //! Navigate to the start of the sub-level of the current element, or
     //! return false if there isn't one
-    virtual bool descend(void) = 0;
+    virtual bool descend() = 0;
 
     //! Navigate to the element of the level above from which descend() was
     //! called, or return false if there isn't a level above
-    virtual bool ascend(void) = 0;
+    virtual bool ascend() = 0;
 
 private:
     //! Class to implement RAII for traversing the next level down
     class CORE_EXPORT CAutoLevel : private CNonCopyable {
     public:
         CAutoLevel(CStateRestoreTraverser& traverser);
-        ~CAutoLevel(void);
+        ~CAutoLevel();
 
         //! Set the bad state flag, called from an exception handler
         //! further up, so that we don't try and read from the stream
         //! in the destructor
-        void setBadState(void);
+        void setBadState();
 
     private:
         CStateRestoreTraverser& m_Traverser;

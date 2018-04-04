@@ -92,13 +92,13 @@ protected:
     CAdaptiveBucketing(double decayRate, double minimumBucketLength);
     //! Construct by traversing a state document.
     CAdaptiveBucketing(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser);
-    virtual ~CAdaptiveBucketing(void) = default;
+    virtual ~CAdaptiveBucketing() = default;
 
     //! Efficiently swap the contents of two bucketing objects.
     void swap(CAdaptiveBucketing& other);
 
     //! Check if the bucketing has been initialized.
-    bool initialized(void) const;
+    bool initialized() const;
 
     //! Create a new uniform bucketing with \p n buckets on the
     //! interval [\p a, \p b].
@@ -119,11 +119,11 @@ protected:
     void initialValues(core_t::TTime startTime, core_t::TTime endTime, const TFloatMeanAccumulatorVec& values);
 
     //! Get the number of buckets.
-    std::size_t size(void) const;
+    std::size_t size() const;
 
     //! Clear the contents of this bucketing and recover any
     //! allocated memory.
-    void clear(void);
+    void clear();
 
     //! Add the function value at \p time.
     //!
@@ -137,13 +137,13 @@ protected:
     void decayRate(double value);
 
     //! Get the rate at which the bucketing loses information.
-    double decayRate(void) const;
+    double decayRate() const;
 
     //! Age the force moments.
     void age(double factor);
 
     //! Get the minimum permitted bucket length.
-    double minimumBucketLength(void) const;
+    double minimumBucketLength() const;
 
     //! Refine the bucket end points to minimize the maximum averaging
     //! error in any bucket.
@@ -168,25 +168,25 @@ protected:
                TDoubleVec& variances) const;
 
     //! Get the bucket end points.
-    const TFloatVec& endpoints(void) const;
+    const TFloatVec& endpoints() const;
 
     //! Get the bucket end points.
-    TFloatVec& endpoints(void);
+    TFloatVec& endpoints();
 
     //! Get the bucket value centres.
-    const TFloatVec& centres(void) const;
+    const TFloatVec& centres() const;
 
     //! Get the bucket value centres.
-    TFloatVec& centres(void);
+    TFloatVec& centres();
 
     //! Get the total count of in the bucketing.
-    double count(void) const;
+    double count() const;
 
     //! Get the bucket regressions.
     TDoubleVec values(core_t::TTime time) const;
 
     //! Get the bucket variances.
-    TDoubleVec variances(void) const;
+    TDoubleVec variances() const;
 
     //! Compute the index of the bucket to which \p time belongs
     bool bucket(core_t::TTime time, std::size_t& result) const;
@@ -195,7 +195,7 @@ protected:
     uint64_t checksum(uint64_t seed = 0) const;
 
     //! Get the memory used by this component
-    std::size_t memoryUsage(void) const;
+    std::size_t memoryUsage() const;
 
 private:
     //! Compute the values corresponding to the change in end

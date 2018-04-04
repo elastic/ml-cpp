@@ -19,12 +19,13 @@
 
 class CTimeUtilsTest : public CppUnit::TestFixture {
 public:
-    void testNow(void);
-    void testToIso8601(void);
-    void testToLocal(void);
-    void testStrptime(void);
-    void testTimezone(void);
-    void testDateWords(void);
+    void testNow();
+    void testToIso8601();
+    void testToLocal();
+    void testToEpochMs();
+    void testStrptime();
+    void testTimezone();
+    void testDateWords();
 
     static CppUnit::Test* suite();
 };

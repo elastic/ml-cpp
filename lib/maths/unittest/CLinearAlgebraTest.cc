@@ -28,10 +28,10 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 
-void CLinearAlgebraTest::testSymmetricMatrixNxN(void) {
+void CLinearAlgebraTest::testSymmetricMatrixNxN() {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testSymmetricMatrixNxN  |");
     LOG_DEBUG("+----------------------------------------------+");
@@ -159,7 +159,7 @@ void CLinearAlgebraTest::testSymmetricMatrixNxN(void) {
     }
 }
 
-void CLinearAlgebraTest::testVectorNx1(void) {
+void CLinearAlgebraTest::testVectorNx1() {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testVectorNx1  |");
     LOG_DEBUG("+-------------------------------------+");
@@ -262,7 +262,7 @@ void CLinearAlgebraTest::testVectorNx1(void) {
     }
 }
 
-void CLinearAlgebraTest::testSymmetricMatrix(void) {
+void CLinearAlgebraTest::testSymmetricMatrix() {
     LOG_DEBUG("+-------------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testSymmetricMatrix  |");
     LOG_DEBUG("+-------------------------------------------+");
@@ -416,7 +416,7 @@ void CLinearAlgebraTest::testSymmetricMatrix(void) {
     }
 }
 
-void CLinearAlgebraTest::testVector(void) {
+void CLinearAlgebraTest::testVector() {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testVector  |");
     LOG_DEBUG("+----------------------------------+");
@@ -532,7 +532,7 @@ void CLinearAlgebraTest::testVector(void) {
     }
 }
 
-void CLinearAlgebraTest::testNorms(void) {
+void CLinearAlgebraTest::testNorms() {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testNorms  |");
     LOG_DEBUG("+---------------------------------+");
@@ -557,7 +557,7 @@ void CLinearAlgebraTest::testNorms(void) {
     }
 }
 
-void CLinearAlgebraTest::testUtils(void) {
+void CLinearAlgebraTest::testUtils() {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testUtils  |");
     LOG_DEBUG("+---------------------------------+");
@@ -610,7 +610,7 @@ void CLinearAlgebraTest::testUtils(void) {
         }
 
         {
-            double expected[] = {1.0, ::sqrt(3.1), ::sqrt(2.2), ::sqrt(4.9), ::sqrt(12.0)};
+            double expected[] = {1.0, std::sqrt(3.1), std::sqrt(2.2), std::sqrt(4.9), std::sqrt(12.0)};
             LOG_DEBUG("sqrt(v1) = " << maths::sqrt(v1));
             for (std::size_t i = 0u; i < 5; ++i) {
                 CPPUNIT_ASSERT_EQUAL(expected[i], (maths::sqrt(v1))(i));
@@ -684,8 +684,9 @@ void CLinearAlgebraTest::testUtils(void) {
         }
 
         {
-            double expected[][3] = {
-                {::sqrt(2.1), ::sqrt(0.3), ::sqrt(0.4)}, {::sqrt(0.3), ::sqrt(1.2), ::sqrt(3.8)}, {::sqrt(0.4), ::sqrt(3.8), ::sqrt(0.2)}};
+            double expected[][3] = {{std::sqrt(2.1), std::sqrt(0.3), std::sqrt(0.4)},
+                                    {std::sqrt(0.3), std::sqrt(1.2), std::sqrt(3.8)},
+                                    {std::sqrt(0.4), std::sqrt(3.8), std::sqrt(0.2)}};
             LOG_DEBUG("sqrt(m1) = " << maths::sqrt(m1));
             for (std::size_t i = 0u; i < 3; ++i) {
                 for (std::size_t j = 0u; j < 3; ++j) {
@@ -706,7 +707,7 @@ void CLinearAlgebraTest::testUtils(void) {
     }
 }
 
-void CLinearAlgebraTest::testGaussianLogLikelihood(void) {
+void CLinearAlgebraTest::testGaussianLogLikelihood() {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testGaussianLogLikelihood  |");
     LOG_DEBUG("+-------------------------------------------------+");
@@ -761,15 +762,15 @@ void CLinearAlgebraTest::testGaussianLogLikelihood(void) {
         double likelihood;
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e1, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (3.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0) + 4.0 / 10.0), likelihood, 1e-10);
+            -0.5 * (3.0 * std::log(boost::math::double_constants::two_pi) + std::log(10.0 * 5.0 * 5.0) + 4.0 / 10.0), likelihood, 1e-10);
 
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e2, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (3.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0) + 2.0 / 5.0), likelihood, 1e-10);
+            -0.5 * (3.0 * std::log(boost::math::double_constants::two_pi) + std::log(10.0 * 5.0 * 5.0) + 2.0 / 5.0), likelihood, 1e-10);
 
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e3, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (3.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0) + 6.0 / 5.0), likelihood, 1e-10);
+            -0.5 * (3.0 * std::log(boost::math::double_constants::two_pi) + std::log(10.0 * 5.0 * 5.0) + 6.0 / 5.0), likelihood, 1e-10);
 
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpOverflowed, maths::gaussianLogLikelihood(covariance, e1, likelihood, false));
         CPPUNIT_ASSERT(likelihood > 0.0);
@@ -796,20 +797,28 @@ void CLinearAlgebraTest::testGaussianLogLikelihood(void) {
         double likelihood;
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e1, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (4.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0 * 2.0) + 4.0 / 10.0), likelihood, 1e-10);
+            -0.5 * (4.0 * std::log(boost::math::double_constants::two_pi) + std::log(10.0 * 5.0 * 5.0 * 2.0) + 4.0 / 10.0),
+            likelihood,
+            1e-10);
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e2, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (4.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0 * 2.0) + 2.0 / 5.0), likelihood, 1e-10);
+            -0.5 * (4.0 * std::log(boost::math::double_constants::two_pi) + std::log(10.0 * 5.0 * 5.0 * 2.0) + 2.0 / 5.0),
+            likelihood,
+            1e-10);
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e3, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (4.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0 * 2.0) + 6.0 / 5.0), likelihood, 1e-10);
+            -0.5 * (4.0 * std::log(boost::math::double_constants::two_pi) + std::log(10.0 * 5.0 * 5.0 * 2.0) + 6.0 / 5.0),
+            likelihood,
+            1e-10);
         CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::gaussianLogLikelihood(covariance, e4, likelihood));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            -0.5 * (4.0 * ::log(boost::math::double_constants::two_pi) + ::log(10.0 * 5.0 * 5.0 * 2.0) + 12.0 / 2.0), likelihood, 1e-10);
+            -0.5 * (4.0 * std::log(boost::math::double_constants::two_pi) + std::log(10.0 * 5.0 * 5.0 * 2.0) + 12.0 / 2.0),
+            likelihood,
+            1e-10);
     }
 }
 
-void CLinearAlgebraTest::testSampleGaussian(void) {
+void CLinearAlgebraTest::testSampleGaussian() {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testSampleGaussian  |");
     LOG_DEBUG("+------------------------------------------+");
@@ -904,7 +913,7 @@ void CLinearAlgebraTest::testSampleGaussian(void) {
     }
 }
 
-void CLinearAlgebraTest::testLogDeterminant(void) {
+void CLinearAlgebraTest::testLogDeterminant() {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testLogDeterminant  |");
     LOG_DEBUG("+------------------------------------------+");
@@ -930,8 +939,8 @@ void CLinearAlgebraTest::testLogDeterminant(void) {
             double logDeterminant;
             maths::logDeterminant(M, logDeterminant);
             LOG_DEBUG("expected |M| = " << expected[i]);
-            LOG_DEBUG("got      |M| = " << ::exp(logDeterminant));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i], ::exp(logDeterminant), 1e-4 * expected[i]);
+            LOG_DEBUG("got      |M| = " << std::exp(logDeterminant));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i], std::exp(logDeterminant), 1e-4 * expected[i]);
         }
     }
 
@@ -951,7 +960,7 @@ void CLinearAlgebraTest::testLogDeterminant(void) {
                                                 2.0 * maths::CSymmetricMatrixNxN<double, 4>(maths::E_OuterProduct, e4 / e4.euclidean()));
         double logDeterminant;
         maths::logDeterminant(M, logDeterminant);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(10.0 * 5.0 * 5.0 * 2.0), logDeterminant, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(std::log(10.0 * 5.0 * 5.0 * 2.0), logDeterminant, 1e-10);
     }
 }
 
@@ -965,12 +974,12 @@ std::string print(const MATRIX& m) {
 }
 }
 
-void CLinearAlgebraTest::testProjected(void) {
+void CLinearAlgebraTest::testProjected() {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testProjected  |");
     LOG_DEBUG("+-------------------------------------+");
 
-    typedef std::vector<std::size_t> TSizeVec;
+    using TSizeVec = std::vector<std::size_t>;
 
     const double m[][5] = {{1.2, 2.4, 1.9, 3.8, 8.3},
                            {2.4, 1.0, 0.2, 1.6, 3.1},
@@ -1017,7 +1026,7 @@ void CLinearAlgebraTest::testProjected(void) {
     }
 }
 
-void CLinearAlgebraTest::testPersist(void) {
+void CLinearAlgebraTest::testPersist() {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CLinearAlgebraTest::testPersist  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -1074,7 +1083,7 @@ void CLinearAlgebraTest::testPersist(void) {
     }
 }
 
-CppUnit::Test* CLinearAlgebraTest::suite(void) {
+CppUnit::Test* CLinearAlgebraTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLinearAlgebraTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testSymmetricMatrixNxN",

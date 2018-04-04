@@ -51,28 +51,28 @@ public:
 
 class CTestOutputHandler : public COutputHandler {
 public:
-    CTestOutputHandler(void) : COutputHandler(), m_NewStream(false), m_Finalised(false), m_Records(0) {}
+    CTestOutputHandler() : COutputHandler(), m_NewStream(false), m_Finalised(false), m_Records(0) {}
 
-    virtual ~CTestOutputHandler(void) {}
+    virtual ~CTestOutputHandler() {}
 
-    virtual void finalise(void) { m_Finalised = true; }
+    virtual void finalise() { m_Finalised = true; }
 
-    bool hasFinalised(void) const { return m_Finalised; }
+    bool hasFinalised() const { return m_Finalised; }
 
-    virtual void newOutputStream(void) { m_NewStream = true; }
+    virtual void newOutputStream() { m_NewStream = true; }
 
-    bool isNewStream(void) const { return m_NewStream; }
+    bool isNewStream() const { return m_NewStream; }
 
     virtual bool fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*extraFieldNames*/) { return true; }
 
-    virtual const TStrVec& fieldNames(void) const { return m_FieldNames; }
+    virtual const TStrVec& fieldNames() const { return m_FieldNames; }
 
     virtual bool writeRow(const TStrStrUMap& /*dataRowFields*/, const TStrStrUMap& /*overrideDataRowFields*/) {
         m_Records++;
         return true;
     }
 
-    uint64_t getNumRows(void) const { return m_Records; }
+    uint64_t getNumRows() const { return m_Records; }
 
 private:
     TStrVec m_FieldNames;
@@ -96,20 +96,20 @@ private:
 
 class CTestDataAdder : public core::CDataAdder {
 public:
-    CTestDataAdder(void) : m_Stream(new std::ostringstream) {}
+    CTestDataAdder() : m_Stream(new std::ostringstream) {}
 
     virtual TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) { return m_Stream; }
 
     virtual bool streamComplete(TOStreamP& /*strm*/, bool /*force*/) { return true; }
 
-    TOStreamP getStream(void) { return m_Stream; }
+    TOStreamP getStream() { return m_Stream; }
 
 private:
     TOStreamP m_Stream;
 };
 }
 
-void CFieldDataTyperTest::testAll(void) {
+void CFieldDataTyperTest::testAll() {
     model::CLimits limits;
     CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
@@ -186,7 +186,7 @@ void CFieldDataTyperTest::testAll(void) {
     CPPUNIT_ASSERT_EQUAL(origJson, newJson);
 }
 
-void CFieldDataTyperTest::testNodeReverseSearch(void) {
+void CFieldDataTyperTest::testNodeReverseSearch() {
     model::CLimits limits;
     CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
@@ -225,7 +225,7 @@ void CFieldDataTyperTest::testNodeReverseSearch(void) {
     CPPUNIT_ASSERT(output.find("\"message\"") == std::string::npos);
 }
 
-void CFieldDataTyperTest::testPassOnControlMessages(void) {
+void CFieldDataTyperTest::testPassOnControlMessages() {
     model::CLimits limits;
     CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
@@ -253,7 +253,7 @@ void CFieldDataTyperTest::testPassOnControlMessages(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("[]"), output);
 }
 
-void CFieldDataTyperTest::testHandleControlMessages(void) {
+void CFieldDataTyperTest::testHandleControlMessages() {
     model::CLimits limits;
     CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
@@ -279,7 +279,7 @@ void CFieldDataTyperTest::testHandleControlMessages(void) {
     CPPUNIT_ASSERT_EQUAL(std::string::size_type(0), output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0}}"));
 }
 
-void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState(void) {
+void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState() {
     model::CLimits limits;
     CFieldConfig config;
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));

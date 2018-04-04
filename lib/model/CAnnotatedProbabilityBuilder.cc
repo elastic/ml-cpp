@@ -123,7 +123,7 @@ void CAnnotatedProbabilityBuilder::addAttributeDescriptiveData(std::size_t cid,
     }
 }
 
-void CAnnotatedProbabilityBuilder::build(void) {
+void CAnnotatedProbabilityBuilder::build() {
     this->addDescriptiveData();
 
     if (m_NumberAttributeProbabilities > 0 && m_MinAttributeProbabilities.count() > 0) {
@@ -137,7 +137,7 @@ void CAnnotatedProbabilityBuilder::build(void) {
     }
 }
 
-void CAnnotatedProbabilityBuilder::addDescriptiveData(void) {
+void CAnnotatedProbabilityBuilder::addDescriptiveData() {
     if (m_IsPopulation && (m_IsRare || m_IsFreqRare)) {
         m_Result.addDescriptiveData(annotated_probability::E_PERSON_COUNT, static_cast<double>(m_NumberOfPeople));
         if (m_IsRare) {

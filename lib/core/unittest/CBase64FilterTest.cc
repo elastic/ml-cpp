@@ -22,23 +22,23 @@
 #include <boost/random.hpp>
 #include <boost/random/uniform_int.hpp>
 
-typedef boost::mt19937 TRandom;
-typedef boost::uniform_int<> TDistribution;
-typedef boost::random::variate_generator<TRandom&, TDistribution> TGenerator;
-typedef boost::generator_iterator<TGenerator> TGeneratorItr;
+using TRandom = boost::mt19937;
+using TDistribution = boost::uniform_int<>;
+using TGenerator = boost::random::variate_generator<TRandom&, TDistribution>;
+using TGeneratorItr = boost::generator_iterator<TGenerator>;
 
 using namespace ml;
 using namespace core;
 
 namespace {
 
-typedef boost::iostreams::filtering_stream<boost::iostreams::output> TFilteredOutput;
-typedef boost::iostreams::filtering_stream<boost::iostreams::input> TFilteredInput;
+using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
+using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
 
 // Implements the boost::iostreams Source template interface
 class CMockSource {
 public:
-    typedef char char_type;
+    using char_type = char;
 
     struct category : public boost::iostreams::source_tag {};
 
@@ -56,7 +56,7 @@ public:
         return toCopy;
     }
 
-    void close(void) {}
+    void close() {}
 
 private:
     std::string m_Data;
@@ -66,7 +66,7 @@ private:
 // Implements the boost::iostreams Sink template interface
 class CMockSink {
 public:
-    typedef char char_type;
+    using char_type = char;
 
     struct category : public boost::iostreams::sink_tag, public boost::iostreams::closable_tag {};
 
@@ -78,9 +78,9 @@ public:
         return n;
     }
 
-    void close(void) {}
+    void close() {}
 
-    const std::string getData(void) const { return m_Data; }
+    const std::string getData() const { return m_Data; }
 
 private:
     void writeInternal(const char* s, std::streamsize& written, std::streamsize& n);
@@ -110,7 +110,7 @@ void testEncodeDecode(const std::string& input) {
 }
 }
 
-void CBase64FilterTest::testEncode(void) {
+void CBase64FilterTest::testEncode() {
     {
         // Test encode ability, with known test data
 
@@ -151,7 +151,7 @@ void CBase64FilterTest::testEncode(void) {
     }
 }
 
-void CBase64FilterTest::testDecode(void) {
+void CBase64FilterTest::testDecode() {
     {
         // Test decoding
         std::string encoded = "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz"
@@ -185,7 +185,7 @@ void CBase64FilterTest::testDecode(void) {
     }
 }
 
-void CBase64FilterTest::testBoth(void) {
+void CBase64FilterTest::testBoth() {
     {
         ::testEncodeDecode("a");
         ::testEncodeDecode("aa");

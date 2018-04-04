@@ -20,10 +20,10 @@
 
 class CKdTreeTest : public CppUnit::TestFixture {
 public:
-    void testBuild(void);
-    void testNearestNeighbour(void);
+    void testBuild();
+    void testNearestNeighbour();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CKdTreeTest_h

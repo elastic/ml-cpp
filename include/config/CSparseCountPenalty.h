@@ -36,10 +36,10 @@ public:
     CSparseCountPenalty(const CAutoconfigurerParams& params);
 
     //! Create a copy on the heap.
-    virtual CSparseCountPenalty* clone(void) const;
+    virtual CSparseCountPenalty* clone() const;
 
     //! Get the name of this penalty.
-    virtual std::string name(void) const;
+    virtual std::string name() const;
 
 private:
     //! Compute a penalty for rare detectors.

@@ -63,10 +63,10 @@ struct SMake<CMetricMultivariateStatistic<STATISTIC>> {
 //! and count if possible, and persisting and restoring them all
 //! of which delegate to the appropriate statistic functions.
 struct MODEL_EXPORT CMetricStatisticWrappers {
-    typedef core::CSmallVector<double, 1> TDouble1Vec;
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-    typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TVarianceAccumulator;
-    typedef maths::CFixedQuantileSketch<maths::CQuantileSketch::E_PiecewiseConstant, 30> TMedianAccumulator;
+    using TDouble1Vec = core::CSmallVector<double, 1>;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TVarianceAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TMedianAccumulator = maths::CFixedQuantileSketch<maths::CQuantileSketch::E_PiecewiseConstant, 30>;
 
     //! Make a statistic.
     template<typename STATISTIC>

@@ -21,58 +21,58 @@
 
 class CSampleQueueTest : public CppUnit::TestFixture {
 public:
-    void testSampleToString(void);
-    void testSampleFromString(void);
+    void testSampleToString();
+    void testSampleFromString();
 
-    void testAddGivenQueueIsEmptyShouldCreateNewSubSample(void);
-    void testAddGivenQueueIsFullShouldResize(void);
-    void testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample(void);
-    void testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSampleButDifferentBucket(void);
-    void testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample(void);
-    void testAddGivenTimeIsInOrderAndFarFromLatestSubSample(void);
-    void testAddGivenTimeIsWithinFullLatestSubSample(void);
+    void testAddGivenQueueIsEmptyShouldCreateNewSubSample();
+    void testAddGivenQueueIsFullShouldResize();
+    void testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample();
+    void testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSampleButDifferentBucket();
+    void testAddGivenTimeIsInOrderAndCloseToFullLatestSubSample();
+    void testAddGivenTimeIsInOrderAndFarFromLatestSubSample();
+    void testAddGivenTimeIsWithinFullLatestSubSample();
 
-    void testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample(void);
-    void testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSubSample(void);
-    void testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSample(void);
-    void testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSampleButDifferentBucket(void);
-    void testAddGivenTimeIsHistoricalAndWithinSomeSubSample(void);
-    void testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatest(void);
-    void testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatestButDifferentBucket(void);
-    void testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSubSamples(void);
-    void testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSamples(void);
-    void testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubSamples(void);
-    void testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSamples(void);
-    void testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleButOnlyNextHasSpace(void);
-    void testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOnlyPreviousHasSpace(void);
-    void testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap(void);
-    void testAddGivenTimeIsHistoricalAndFallsInTooSmallGap(void);
+    void testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample();
+    void testAddGivenTimeIsHistoricalAndCloseBeforeFullEarliestSubSample();
+    void testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSample();
+    void testAddGivenTimeIsHistoricalAndCloseBeforeNonFullEarliestSubSampleButDifferentBucket();
+    void testAddGivenTimeIsHistoricalAndWithinSomeSubSample();
+    void testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatest();
+    void testAddGivenTimeIsHistoricalAndCloserToSubSampleBeforeLatestButDifferentBucket();
+    void testAddGivenTimeIsHistoricalAndCloserToPreviousOfNonFullSubSamples();
+    void testAddGivenTimeIsHistoricalAndCloserToNextOfNonFullSubSamples();
+    void testAddGivenTimeIsHistoricalAndCloserToPreviousOfFullSubSamples();
+    void testAddGivenTimeIsHistoricalAndCloserToNextOfFullSubSamples();
+    void testAddGivenTimeIsHistoricalAndCloserToPreviousSubSampleButOnlyNextHasSpace();
+    void testAddGivenTimeIsHistoricalAndCloserToNextSubSampleButOnlyPreviousHasSpace();
+    void testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap();
+    void testAddGivenTimeIsHistoricalAndFallsInTooSmallGap();
 
-    void testCanSampleGivenEmptyQueue(void);
-    void testCanSample(void);
+    void testCanSampleGivenEmptyQueue();
+    void testCanSample();
 
-    void testSampleGivenExactlyOneSampleOfExactCountToBeCreated(void);
-    void testSampleGivenExactlyOneSampleOfOverCountToBeCreated(void);
-    void testSampleGivenOneSampleToBeCreatedAndRemainder(void);
-    void testSampleGivenTwoSamplesToBeCreatedAndRemainder(void);
-    void testSampleGivenNoSampleToBeCreated(void);
-    void testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess(void);
+    void testSampleGivenExactlyOneSampleOfExactCountToBeCreated();
+    void testSampleGivenExactlyOneSampleOfOverCountToBeCreated();
+    void testSampleGivenOneSampleToBeCreatedAndRemainder();
+    void testSampleGivenTwoSamplesToBeCreatedAndRemainder();
+    void testSampleGivenNoSampleToBeCreated();
+    void testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess();
 
-    void testResetBucketGivenEmptyQueue(void);
-    void testResetBucketGivenBucketBeforeEarliestSubSample(void);
-    void testResetBucketGivenBucketAtEarliestSubSample(void);
-    void testResetBucketGivenBucketInBetweenWithoutAnySubSamples(void);
-    void testResetBucketGivenBucketAtInBetweenSubSample(void);
-    void testResetBucketGivenBucketAtLatestSubSample(void);
-    void testResetBucketGivenBucketAfterLatestSubSample(void);
+    void testResetBucketGivenEmptyQueue();
+    void testResetBucketGivenBucketBeforeEarliestSubSample();
+    void testResetBucketGivenBucketAtEarliestSubSample();
+    void testResetBucketGivenBucketInBetweenWithoutAnySubSamples();
+    void testResetBucketGivenBucketAtInBetweenSubSample();
+    void testResetBucketGivenBucketAtLatestSubSample();
+    void testResetBucketGivenBucketAfterLatestSubSample();
 
-    void testSubSamplesNeverSpanOverDifferentBuckets(void);
+    void testSubSamplesNeverSpanOverDifferentBuckets();
 
-    void testPersistence(void);
+    void testPersistence();
 
-    void testQualityOfSamplesGivenConstantRate(void);
-    void testQualityOfSamplesGivenVariableRate(void);
-    void testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder(void);
+    void testQualityOfSamplesGivenConstantRate();
+    void testQualityOfSamplesGivenVariableRate();
+    void testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder();
 
     static CppUnit::Test* suite();
 };

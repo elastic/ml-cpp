@@ -19,7 +19,7 @@
 
 class CAllocationStrategyTest : public CppUnit::TestFixture {
 public:
-    void test(void);
+    void test();
 
     static CppUnit::Test* suite();
 };

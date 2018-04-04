@@ -25,6 +25,6 @@ CppUnit::Test* CProcessPriorityTest::suite() {
     return suiteOfTests;
 }
 
-void CProcessPriorityTest::testReducePriority(void) {
+void CProcessPriorityTest::testReducePriority() {
     ml::core::CProcessPriority::reducePriority();
 }

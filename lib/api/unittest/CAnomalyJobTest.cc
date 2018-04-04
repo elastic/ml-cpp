@@ -62,9 +62,9 @@ public:
 
 class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
-    CSingleResultVisitor(void) : m_LastResult(0.0) {}
+    CSingleResultVisitor() : m_LastResult(0.0) {}
 
-    virtual ~CSingleResultVisitor(void) {}
+    virtual ~CSingleResultVisitor() {}
 
     virtual void visit(const ml::model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
         if (!this->isSimpleCount(node) && this->isLeaf(node)) {
@@ -80,7 +80,7 @@ public:
         }
     }
 
-    double lastResults(void) const { return m_LastResult; }
+    double lastResults() const { return m_LastResult; }
 
 private:
     double m_LastResult;
@@ -88,9 +88,9 @@ private:
 
 class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
-    CMultiResultVisitor(void) : m_LastResult(0.0) {}
+    CMultiResultVisitor() : m_LastResult(0.0) {}
 
-    virtual ~CMultiResultVisitor(void) {}
+    virtual ~CMultiResultVisitor() {}
 
     virtual void visit(const ml::model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
         if (!this->isSimpleCount(node) && this->isLeaf(node)) {
@@ -113,7 +113,7 @@ public:
         }
     }
 
-    double lastResults(void) const { return m_LastResult; }
+    double lastResults() const { return m_LastResult; }
 
 private:
     double m_LastResult;
@@ -123,7 +123,7 @@ class CResultsScoreVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
     CResultsScoreVisitor(int score) : m_Score(score) {}
 
-    virtual ~CResultsScoreVisitor(void) {}
+    virtual ~CResultsScoreVisitor() {}
 
     virtual void visit(const ml::model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
         if (this->isRoot(node)) {
@@ -170,7 +170,7 @@ const ml::core_t::TTime BUCKET_SIZE(3600);
 
 using namespace ml;
 
-void CAnomalyJobTest::testBadTimes(void) {
+void CAnomalyJobTest::testBadTimes() {
     {
         // Test with no time field
         model::CLimits limits;
@@ -248,7 +248,7 @@ void CAnomalyJobTest::testBadTimes(void) {
     }
 }
 
-void CAnomalyJobTest::testOutOfSequence(void) {
+void CAnomalyJobTest::testOutOfSequence() {
     {
         // Test out of sequence record
         model::CLimits limits;
@@ -283,7 +283,7 @@ void CAnomalyJobTest::testOutOfSequence(void) {
     }
 }
 
-void CAnomalyJobTest::testControlMessages(void) {
+void CAnomalyJobTest::testControlMessages() {
     {
         // Test control messages
         model::CLimits limits;
@@ -426,7 +426,7 @@ void CAnomalyJobTest::testControlMessages(void) {
     }
 }
 
-void CAnomalyJobTest::testSkipTimeControlMessage(void) {
+void CAnomalyJobTest::testSkipTimeControlMessage() {
     model::CLimits limits;
     api::CFieldConfig fieldConfig;
     api::CFieldConfig::TStrVec clauses;
@@ -475,7 +475,7 @@ void CAnomalyJobTest::testSkipTimeControlMessage(void) {
     CPPUNIT_ASSERT_EQUAL(std::size_t(11), countBuckets("bucket", outputStrm.str() + "]"));
 }
 
-void CAnomalyJobTest::testOutOfPhase(void) {
+void CAnomalyJobTest::testOutOfPhase() {
     // Ensure the right data ends up in the right buckets
     // First we test that it works as expected for non-out-of-phase,
     // then we crank in the out-of-phase
@@ -1428,7 +1428,7 @@ void CAnomalyJobTest::testOutOfPhase(void) {
     }
 }
 
-void CAnomalyJobTest::testBucketSelection(void) {
+void CAnomalyJobTest::testBucketSelection() {
     LOG_DEBUG("*** testBucketSelection ***");
     core_t::TTime bucketSize = 100;
     model::CLimits limits;
@@ -1546,7 +1546,7 @@ void CAnomalyJobTest::testBucketSelection(void) {
     }
 }
 
-void CAnomalyJobTest::testModelPlot(void) {
+void CAnomalyJobTest::testModelPlot() {
     LOG_DEBUG("*** testModelPlot ***");
     {
         // Test non-overlapping buckets
@@ -1731,7 +1731,7 @@ void CAnomalyJobTest::testModelPlot(void) {
     }
 }
 
-void CAnomalyJobTest::testInterimResultEdgeCases(void) {
+void CAnomalyJobTest::testInterimResultEdgeCases() {
     LOG_DEBUG("*** testInterimResultEdgeCases ***");
 
     const char* logFile = "test.log";
@@ -1792,7 +1792,7 @@ void CAnomalyJobTest::testInterimResultEdgeCases(void) {
     std::remove(logFile);
 }
 
-void CAnomalyJobTest::testRestoreFailsWithEmptyStream(void) {
+void CAnomalyJobTest::testRestoreFailsWithEmptyStream() {
     model::CLimits limits;
     api::CFieldConfig fieldConfig;
     api::CFieldConfig::TStrVec clauses;
@@ -1810,7 +1810,7 @@ void CAnomalyJobTest::testRestoreFailsWithEmptyStream(void) {
     CPPUNIT_ASSERT(job.restoreState(restoreSearcher, completeToTime) == false);
 }
 
-CppUnit::Test* CAnomalyJobTest::suite(void) {
+CppUnit::Test* CAnomalyJobTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnomalyJobTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>("CAnomalyJobTest::testBadTimes", &CAnomalyJobTest::testBadTimes));

@@ -19,10 +19,10 @@
 
 class CWordDictionaryTest : public CppUnit::TestFixture {
 public:
-    void testLookups(void);
-    void testPartOfSpeech(void);
-    void testWeightingFunctors(void);
-    void testPerformance(void);
+    void testLookups();
+    void testPartOfSpeech();
+    void testWeightingFunctors();
+    void testPerformance();
 
     static CppUnit::Test* suite();
 };

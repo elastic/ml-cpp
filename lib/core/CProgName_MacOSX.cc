@@ -23,7 +23,7 @@
 namespace ml {
 namespace core {
 
-std::string CProgName::progName(void) {
+std::string CProgName::progName() {
     const char* progName(::getprogname());
     if (progName == 0) {
         return std::string();
@@ -32,7 +32,7 @@ std::string CProgName::progName(void) {
     return progName;
 }
 
-std::string CProgName::progDir(void) {
+std::string CProgName::progDir() {
     uint32_t bufferSize(2048);
     std::string path(bufferSize, '\0');
     if (_NSGetExecutablePath(&path[0], &bufferSize) != 0) {

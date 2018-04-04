@@ -48,14 +48,14 @@ namespace core {
 //!
 class CORE_EXPORT CReadWriteLock : private CNonCopyable {
 public:
-    CReadWriteLock(void);
-    ~CReadWriteLock(void);
+    CReadWriteLock();
+    ~CReadWriteLock();
 
-    void readLock(void);
-    void readUnlock(void);
+    void readLock();
+    void readUnlock();
 
-    void writeLock(void);
-    void writeUnlock(void);
+    void writeLock();
+    void writeUnlock();
 
 private:
 #ifdef Windows

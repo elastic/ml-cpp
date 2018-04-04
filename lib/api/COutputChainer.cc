@@ -24,7 +24,7 @@ namespace api {
 COutputChainer::COutputChainer(CDataProcessor& dataProcessor) : m_DataProcessor(dataProcessor) {
 }
 
-void COutputChainer::newOutputStream(void) {
+void COutputChainer::newOutputStream() {
     m_DataProcessor.newOutputStream();
 }
 
@@ -61,7 +61,7 @@ bool COutputChainer::fieldNames(const TStrVec& fieldNames, const TStrVec& extraF
     return true;
 }
 
-const COutputHandler::TStrVec& COutputChainer::fieldNames(void) const {
+const COutputHandler::TStrVec& COutputChainer::fieldNames() const {
     return m_FieldNames;
 }
 
@@ -71,7 +71,7 @@ bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMa
         return false;
     }
 
-    typedef std::equal_to<std::string> TStrEqualTo;
+    using TStrEqualTo = std::equal_to<std::string>;
     TStrEqualTo pred;
 
     TPreComputedHashVecCItr preComputedHashIter = m_Hashes.begin();
@@ -103,7 +103,7 @@ bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMa
     return true;
 }
 
-void COutputChainer::finalise(void) {
+void COutputChainer::finalise() {
     m_DataProcessor.finalise();
 }
 

@@ -114,27 +114,27 @@ double CDetectorEqualizer::correct(int detector, double probability) {
         double alpha = maths::CTools::truncate((logp - A) / (B - A), 0.0, 1.0);
         LOG_TRACE("Corrected log(p) = " << -alpha * logpc - (1.0 - alpha) * logp);
 
-        return ::exp(-alpha * logpc - (1.0 - alpha) * logp);
+        return std::exp(-alpha * logpc - (1.0 - alpha) * logp);
     }
 
     return probability;
 }
 
-void CDetectorEqualizer::clear(void) {
+void CDetectorEqualizer::clear() {
     m_Sketches.clear();
 }
 
 void CDetectorEqualizer::age(double factor) {
-    for (auto&& sketch : m_Sketches) {
+    for (auto& sketch : m_Sketches) {
         sketch.second.age(factor);
     }
 }
 
-uint64_t CDetectorEqualizer::checksum(void) const {
+uint64_t CDetectorEqualizer::checksum() const {
     return maths::CChecksum::calculate(0, m_Sketches);
 }
 
-double CDetectorEqualizer::largestProbabilityToCorrect(void) {
+double CDetectorEqualizer::largestProbabilityToCorrect() {
     return maths::LARGEST_SIGNIFICANT_PROBABILITY;
 }
 

@@ -45,11 +45,11 @@ class CXmlParser;
 //!
 class CORE_EXPORT CXmlNode {
 public:
-    typedef std::map<std::string, std::string> TStrStrMap;
-    typedef std::pair<std::string, std::string> TStrStrPr;
-    typedef std::vector<TStrStrPr> TStrStrPrVec;
-    typedef TStrStrPrVec::iterator TStrStrPrVecItr;
-    typedef TStrStrPrVec::const_iterator TStrStrPrVecCItr;
+    using TStrStrMap = std::map<std::string, std::string>;
+    using TStrStrPr = std::pair<std::string, std::string>;
+    using TStrStrPrVec = std::vector<TStrStrPr>;
+    using TStrStrPrVecItr = TStrStrPrVec::iterator;
+    using TStrStrPrVecCItr = TStrStrPrVec::const_iterator;
 
 private:
     class CFirstElementEquals {
@@ -67,7 +67,7 @@ private:
     };
 
 public:
-    CXmlNode(void);
+    CXmlNode();
 
     CXmlNode(const std::string& name);
 
@@ -75,12 +75,12 @@ public:
 
     CXmlNode(const std::string& name, const std::string& value, const TStrStrMap& attributes);
 
-    virtual ~CXmlNode(void);
+    virtual ~CXmlNode();
 
     //! Accessors
-    const std::string& name(void) const;
-    const std::string& value(void) const;
-    const TStrStrPrVec& attributes(void) const;
+    const std::string& name() const;
+    const std::string& value() const;
+    const TStrStrPrVec& attributes() const;
 
     //! Set name
     void name(const std::string& name);
@@ -89,7 +89,7 @@ public:
     void value(const std::string& value);
 
     //! Debug dump of all
-    virtual std::string dump(void) const;
+    virtual std::string dump() const;
 
     //! Retrieve an attribute (if exists), and convert it to the supplied
     //! type

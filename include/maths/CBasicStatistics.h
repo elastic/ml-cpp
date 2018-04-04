@@ -155,7 +155,7 @@ public:
         using TCoordinate = typename SCoordinate<T>::Type;
 
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
+        static bool dynamicSizeAlwaysZero() { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
 
         explicit SSampleCentralMoments(const T& initial = T(0)) : s_Count(0) { std::fill_n(s_Moments, ORDER, initial); }
 
@@ -179,7 +179,7 @@ public:
         bool fromDelimited(const std::string& str);
 
         //! Convert to a delimited string.
-        std::string toDelimited(void) const;
+        std::string toDelimited() const;
         //@}
 
         //! Total order based on count then lexicographical less of moments.
@@ -377,7 +377,7 @@ public:
         //@}
 
         //! Get a checksum for this object.
-        uint64_t checksum(void) const;
+        uint64_t checksum() const;
 
         TCoordinate s_Count;
         T s_Moments[ORDER];
@@ -698,12 +698,12 @@ public:
     template<typename T, std::size_t N>
     struct SSampleCovariances : public std::unary_function<CVectorNx1<T, N>, void> {
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
+        static bool dynamicSizeAlwaysZero() { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
 
         using TVector = CVectorNx1<T, N>;
         using TMatrix = CSymmetricMatrixNxN<T, N>;
 
-        SSampleCovariances(void) : s_Count{0}, s_Mean{0}, s_Covariances{0} {}
+        SSampleCovariances() : s_Count{0}, s_Mean{0}, s_Covariances{0} {}
 
         SSampleCovariances(T count, const TVector& mean, const TMatrix& covariances)
             : s_Count{count}, s_Mean{mean}, s_Covariances{covariances} {}
@@ -731,7 +731,7 @@ public:
         bool fromDelimited(std::string str);
 
         //! Convert to a delimited string.
-        std::string toDelimited(void) const;
+        std::string toDelimited() const;
         //@}
 
         //! \name Update
@@ -894,7 +894,7 @@ public:
         //@}
 
         //! Get a checksum for this object.
-        uint64_t checksum(void) const;
+        uint64_t checksum() const;
 
         TVector s_Count;
         TVector s_Mean;
@@ -1014,7 +1014,7 @@ private:
         bool fromDelimited(const std::string& value);
 
         //! Convert to a delimited string.
-        std::string toDelimited(void) const;
+        std::string toDelimited() const;
         //@}
 
         //! \name Update
@@ -1069,7 +1069,7 @@ private:
 
         //! An efficient sort of the statistics (which are not stored
         //! in sorted order during accumulation for efficiency).
-        void sort(void) {
+        void sort() {
             if (m_UnusedCount > 0) {
                 std::sort(this->begin(), this->end(), m_Less);
             } else {
@@ -1103,12 +1103,12 @@ private:
         //! Get the "biggest" in the collection. This depends on the
         //! order predicate and is effectively the first value which
         //! will be removed if a new value displaces it.
-        inline const T& biggest(void) const {
+        inline const T& biggest() const {
             return m_UnusedCount > 0 ? *std::max_element(this->begin(), this->end(), m_Less) : *this->begin();
         }
 
         //! Get the number of statistics.
-        inline std::size_t count(void) const { return m_Statistics.size() - m_UnusedCount; }
+        inline std::size_t count() const { return m_Statistics.size() - m_UnusedCount; }
 
         //! Get the i'th statistic.
         inline T& operator[](std::size_t i) { return m_Statistics[m_UnusedCount + i]; }
@@ -1116,28 +1116,28 @@ private:
         inline const T& operator[](std::size_t i) const { return m_Statistics[m_UnusedCount + i]; }
 
         //! Get an iterator over the statistics.
-        inline iterator begin(void) { return m_Statistics.begin() + m_UnusedCount; }
+        inline iterator begin() { return m_Statistics.begin() + m_UnusedCount; }
         //! Get an iterator over the statistics.
-        inline const_iterator begin(void) const { return m_Statistics.begin() + m_UnusedCount; }
+        inline const_iterator begin() const { return m_Statistics.begin() + m_UnusedCount; }
 
         //! Get a reverse iterator over the order statistics.
-        inline reverse_iterator rbegin(void) { return m_Statistics.rbegin(); }
+        inline reverse_iterator rbegin() { return m_Statistics.rbegin(); }
         //! Get a reverse iterator over the order statistics.
-        inline const_reverse_iterator rbegin(void) const { return m_Statistics.rbegin(); }
+        inline const_reverse_iterator rbegin() const { return m_Statistics.rbegin(); }
 
         //! Get an iterator representing the end of the statistics.
-        inline iterator end(void) { return m_Statistics.end(); }
+        inline iterator end() { return m_Statistics.end(); }
         //! Get an iterator representing the end of the statistics.
-        inline const_iterator end(void) const { return m_Statistics.end(); }
+        inline const_iterator end() const { return m_Statistics.end(); }
 
         //! Get an iterator representing the end of the statistics.
-        inline reverse_iterator rend(void) { return m_Statistics.rbegin() + m_UnusedCount; }
+        inline reverse_iterator rend() { return m_Statistics.rbegin() + m_UnusedCount; }
         //! Get an iterator representing the end of the statistics.
-        inline const_reverse_iterator rend(void) const { return m_Statistics.rbegin() + m_UnusedCount; }
+        inline const_reverse_iterator rend() const { return m_Statistics.rbegin() + m_UnusedCount; }
         //@}
 
         //! Remove all statistics.
-        void clear(void) {
+        void clear() {
             std::fill(m_Statistics.begin() + m_UnusedCount, m_Statistics.end(), T{});
             m_UnusedCount = m_Statistics.size();
         }
@@ -1146,11 +1146,11 @@ private:
         uint64_t checksum(uint64_t seed) const;
 
         //! Print for debug.
-        std::string print(void) const { return core::CContainerPrinter::print(this->begin(), this->end()); }
+        std::string print() const { return core::CContainerPrinter::print(this->begin(), this->end()); }
 
     protected:
         //! Get the statistics.
-        CONTAINER& statistics(void) { return m_Statistics; }
+        CONTAINER& statistics() { return m_Statistics; }
 
     private:
         LESS m_Less;
@@ -1207,7 +1207,7 @@ public:
         using const_iterator = typename TImpl::const_iterator;
 
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
+        static bool dynamicSizeAlwaysZero() { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
 
     public:
         explicit COrderStatisticsStack(const LESS& less = LESS{}) : TImpl{TArray(), less} { this->statistics().assign(T{}); }
@@ -1320,7 +1320,7 @@ public:
     class CMinMax : boost::addable<CMinMax<T, LESS, GREATER>> {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
+        static bool dynamicSizeAlwaysZero() { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
 
     public:
         explicit CMinMax(const LESS& less = LESS{}, const GREATER& greater = GREATER{}) : m_Min{less}, m_Max{greater} {}
@@ -1359,19 +1359,19 @@ public:
         }
 
         //! Get the count of statistics.
-        bool initialized(void) const { return m_Min.count() > 0; }
+        bool initialized() const { return m_Min.count() > 0; }
 
         //! Get the minimum value.
-        T min(void) const { return m_Min[0]; }
+        T min() const { return m_Min[0]; }
 
         //! Get the maximum value.
-        T max(void) const { return m_Max[0]; }
+        T max() const { return m_Max[0]; }
 
         //! Get the range.
-        T range(void) const { return m_Max[0] - m_Min[0]; }
+        T range() const { return m_Max[0] - m_Min[0]; }
 
         //! Get the margin by which all the values have the same sign.
-        T signMargin(void) const {
+        T signMargin() const {
             if (this->initialized()) {
                 if (m_Min[0] * m_Max[0] > T{0}) {
                     return m_Min[0] > T{0} ? m_Min[0] : m_Max[0];
@@ -1381,7 +1381,7 @@ public:
         }
 
         //! Get a checksum for this object.
-        uint64_t checksum(void) const { return core::CHashing::hashCombine(m_Min.checksum(), m_Max.checksum()); }
+        uint64_t checksum() const { return core::CHashing::hashCombine(m_Min.checksum(), m_Max.checksum()); }
 
     private:
         //! The set minimum.

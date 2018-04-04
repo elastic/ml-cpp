@@ -42,17 +42,16 @@
 using namespace ml;
 using namespace model;
 
-typedef std::vector<std::string> TStrVec;
+using TStrVec = std::vector<std::string>;
 
 class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
 public:
-    typedef boost::tuple<core_t::TTime,
-                         double /* probability */,
-                         std::string /* byFieldName*/,
-                         std::string /* overFieldName */,
-                         std::string /* partitionFieldName */>
-        TResultsTp;
-    typedef std::vector<TResultsTp> TResultsVec;
+    using TResultsTp = boost::tuple<core_t::TTime,
+                                    double /* probability */,
+                                    std::string /* byFieldName*/,
+                                    std::string /* overFieldName */,
+                                    std::string /* partitionFieldName */>;
+    using TResultsVec = std::vector<TResultsTp>;
 
 public:
     CResultWriter(const CAnomalyDetectorModelConfig& modelConfig, const CLimits& limits) : m_ModelConfig(modelConfig), m_Limits(limits) {}
@@ -102,7 +101,7 @@ public:
         return true;
     }
 
-    const TResultsVec& results(void) const { return m_Results; }
+    const TResultsVec& results() const { return m_Results; }
 
 private:
     const CAnomalyDetectorModelConfig& m_ModelConfig;
@@ -110,7 +109,7 @@ private:
     TResultsVec m_Results;
 };
 
-CppUnit::Test* CResourceLimitTest::suite(void) {
+CppUnit::Test* CResourceLimitTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceLimitTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLimitTest>("CResourceLimitTest::testLimitBy", &CResourceLimitTest::testLimitBy));
@@ -121,7 +120,7 @@ CppUnit::Test* CResourceLimitTest::suite(void) {
     return suiteOfTests;
 }
 
-void CResourceLimitTest::testLimitBy(void) {
+void CResourceLimitTest::testLimitBy() {
     // Check that we can get some results from a test data set, then
     // turn on resource limiting and still get the same results
 
@@ -190,7 +189,7 @@ void CResourceLimitTest::testLimitBy(void) {
     }
 }
 
-void CResourceLimitTest::testLimitByOver(void) {
+void CResourceLimitTest::testLimitByOver() {
     // Check that we can get some results from a test data set, then
     // turn on resource limiting and still get the results from
     // non-limited data, but not results from limited data
@@ -283,7 +282,7 @@ public:
           m_NewPeople(0),
           m_NewAttributes(0) {}
 
-    virtual void updateRecycledModels(void) {
+    virtual void updateRecycledModels() {
         // Do nothing
     }
 
@@ -295,9 +294,9 @@ public:
 
     void test(core_t::TTime time) { this->createUpdateNewModels(time, m_ResourceMonitor); }
 
-    std::size_t getNewPeople(void) const { return m_NewPeople; }
+    std::size_t getNewPeople() const { return m_NewPeople; }
 
-    std::size_t getNewAttributes(void) const { return m_NewAttributes; }
+    std::size_t getNewAttributes() const { return m_NewAttributes; }
 
 private:
     CResourceMonitor& m_ResourceMonitor;
@@ -324,7 +323,7 @@ public:
           m_NewPeople(0),
           m_NewAttributes(0) {}
 
-    virtual void updateRecycledModels(void) {
+    virtual void updateRecycledModels() {
         // Do nothing
     }
 
@@ -336,9 +335,9 @@ public:
 
     void test(core_t::TTime time) { this->createUpdateNewModels(time, m_ResourceMonitor); }
 
-    std::size_t getNewPeople(void) const { return m_NewPeople; }
+    std::size_t getNewPeople() const { return m_NewPeople; }
 
-    std::size_t getNewAttributes(void) const { return m_NewAttributes; }
+    std::size_t getNewAttributes() const { return m_NewAttributes; }
 
 private:
     CResourceMonitor& m_ResourceMonitor;
@@ -386,7 +385,7 @@ void addPersonMetricData(std::size_t start,
 }
 }
 
-void CResourceLimitTest::testLargeAllocations(void) {
+void CResourceLimitTest::testLargeAllocations() {
     {
         // Test CEventRateModel::createUpdateNewModels()
         const std::string EMPTY_STRING("");
@@ -541,7 +540,7 @@ void CResourceLimitTest::importCsvDataWithLimiter(core_t::TTime firstTime,
                                                   std::size_t limitCutoff,
                                                   CResourceMonitor& resourceMonitor) {
 
-    typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
+    using TifstreamPtr = boost::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
     CPPUNIT_ASSERT(ifs->is_open());
 

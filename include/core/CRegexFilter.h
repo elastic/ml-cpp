@@ -36,11 +36,11 @@ namespace core {
 //!
 class CORE_EXPORT CRegexFilter {
 public:
-    typedef std::vector<CRegex> TRegexVec;
-    typedef std::vector<std::string> TStrVec;
+    using TRegexVec = std::vector<CRegex>;
+    using TStrVec = std::vector<std::string>;
 
 public:
-    CRegexFilter(void);
+    CRegexFilter();
 
     //! Configures the filter for the given \p regularExpressions.
     bool configure(const TStrVec& regularExpressions);
@@ -49,7 +49,7 @@ public:
     std::string apply(const std::string& target) const;
 
     //! Returns true if the filter is empty.
-    bool empty(void) const;
+    bool empty() const;
 
 private:
     //! The regular expressions comprising the filter.

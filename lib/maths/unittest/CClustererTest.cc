@@ -26,7 +26,7 @@
 
 using namespace ml;
 
-void CClustererTest::testIndexGenerator(void) {
+void CClustererTest::testIndexGenerator() {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CClustererTest::testIndexGenerator  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -36,10 +36,10 @@ void CClustererTest::testIndexGenerator(void) {
     //   2) The highest index in the set is less than the
     //      maximum set size to date.
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<double> TDoubleVec;
-    typedef std::set<std::size_t, std::greater<std::size_t>> TSizeSet;
-    typedef TSizeSet::iterator TSizeSetItr;
+    using TSizeVec = std::vector<std::size_t>;
+    using TDoubleVec = std::vector<double>;
+    using TSizeSet = std::set<std::size_t, std::greater<std::size_t>>;
+    using TSizeSetItr = TSizeSet::iterator;
 
     test::CRandomNumbers rng;
 
@@ -83,7 +83,7 @@ void CClustererTest::testIndexGenerator(void) {
     }
 }
 
-CppUnit::Test* CClustererTest::suite(void) {
+CppUnit::Test* CClustererTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CClustererTest");
 
     suiteOfTests->addTest(

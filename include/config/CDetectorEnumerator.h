@@ -42,7 +42,7 @@ class CDetectorSpecification;
 //! and once all fields have been added the configurations are generated.
 class CONFIG_EXPORT CDetectorEnumerator {
 public:
-    typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;
+    using TDetectorSpecificationVec = std::vector<CDetectorSpecification>;
 
 public:
     CDetectorEnumerator(const CAutoconfigurerParams& params);
@@ -78,10 +78,10 @@ public:
     void generate(TDetectorSpecificationVec& result);
 
 private:
-    typedef std::vector<std::string> TStrVec;
-    typedef boost::optional<std::string> TOptionalStr;
-    typedef std::vector<config_t::EFunctionCategory> TFunctionCategoryVec;
-    typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
+    using TStrVec = std::vector<std::string>;
+    using TOptionalStr = boost::optional<std::string>;
+    using TFunctionCategoryVec = std::vector<config_t::EFunctionCategory>;
+    using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
 
 private:
     //! Add the detectors with no partitioning fields.

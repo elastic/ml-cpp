@@ -115,7 +115,7 @@ public:
         using reference = typename std::iterator_traits<ITR>::reference;
 
     public:
-        CFiniteIterator(void) : m_Base(), m_End() {}
+        CFiniteIterator() : m_Base(), m_End() {}
         CFiniteIterator(const ITR& base, const ITR& end) : m_Base(base), m_End(end) {
             if (m_Base != m_End && !isFinite(*m_Base)) {
                 this->increment();
@@ -128,12 +128,12 @@ public:
         bool operator!=(const CFiniteIterator& rhs) const { return m_Base != rhs.m_Base; }
 
         //! Dereference.
-        reference operator*(void)const { return *m_Base; }
+        reference operator*() const { return *m_Base; }
         //! Pointer.
-        pointer operator->(void)const { return m_Base.operator->(); }
+        pointer operator->() const { return m_Base.operator->(); }
 
         //! Prefix increment.
-        const CFiniteIterator& operator++(void) {
+        const CFiniteIterator& operator++() {
             this->increment();
             return *this;
         }
@@ -146,7 +146,7 @@ public:
 
     private:
         //! Implements increment.
-        void increment(void) {
+        void increment() {
             while (++m_Base != m_End) {
                 if (isFinite(*m_Base)) {
                     break;

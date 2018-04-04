@@ -20,15 +20,15 @@
 
 class CPackedBitVectorTest : public CppUnit::TestFixture {
 public:
-    void testCreation(void);
-    void testExtend(void);
-    void testContract(void);
-    void testOperators(void);
-    void testInner(void);
-    void testBitwiseOr(void);
-    void testPersist(void);
+    void testCreation();
+    void testExtend();
+    void testContract();
+    void testOperators();
+    void testInner();
+    void testBitwiseOr();
+    void testPersist();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CPackedBitVectorTest_h

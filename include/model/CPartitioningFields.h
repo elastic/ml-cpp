@@ -45,7 +45,7 @@ public:
     void add(const std::string& fieldName, const std::string& fieldValue);
 
     //! Get the number of partitioning fields.
-    std::size_t size(void) const;
+    std::size_t size() const;
 
     //! Get a read only reference to the i'th field (name, value) pair.
     const TStrCRefStrCRefPr& operator[](std::size_t i) const;
@@ -53,12 +53,12 @@ public:
     TStrCRefStrCRefPr& operator[](std::size_t i);
 
     //! Get a read only reference to the last field (name, value) pair.
-    const TStrCRefStrCRefPr& back(void) const;
+    const TStrCRefStrCRefPr& back() const;
     //! Get the last field (name, value) pair.
-    TStrCRefStrCRefPr& back(void);
+    TStrCRefStrCRefPr& back();
 
     //! Get the partition field value.
-    const std::string& partitionFieldValue(void) const;
+    const std::string& partitionFieldValue() const;
 
 private:
     //! The partitioning fields (name, value) pairs.

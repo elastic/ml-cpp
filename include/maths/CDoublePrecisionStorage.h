@@ -35,7 +35,7 @@ public:
     CDoublePrecisionStorage(double v) : m_Value(v) {}
 
     //! Implicit conversion to a double.
-    operator double(void) const { return m_Value; }
+    operator double() const { return m_Value; }
 
     //! Assign from a double.
     CDoublePrecisionStorage& operator=(double value) {

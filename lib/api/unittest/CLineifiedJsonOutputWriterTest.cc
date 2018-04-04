@@ -31,7 +31,7 @@ CppUnit::Test* CLineifiedJsonOutputWriterTest::suite() {
     return suiteOfTests;
 }
 
-void CLineifiedJsonOutputWriterTest::testStringOutput(void) {
+void CLineifiedJsonOutputWriterTest::testStringOutput() {
     ml::api::CLineifiedJsonOutputWriter::TStrStrUMap dataRowFields;
     dataRowFields["probability"] = "0.01";
     dataRowFields["normalized_score"] = "2.2";
@@ -46,7 +46,7 @@ void CLineifiedJsonOutputWriterTest::testStringOutput(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("{\"probability\":\"0.01\",\"normalized_score\":\"3.3\"}\n"), output);
 }
 
-void CLineifiedJsonOutputWriterTest::testNumericOutput(void) {
+void CLineifiedJsonOutputWriterTest::testNumericOutput() {
     ml::api::CLineifiedJsonOutputWriter::TStrStrUMap dataRowFields;
     dataRowFields["probability"] = "0.01";
     dataRowFields["normalized_score"] = "2.2";

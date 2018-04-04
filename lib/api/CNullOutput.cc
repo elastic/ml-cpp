@@ -21,7 +21,7 @@ bool CNullOutput::fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*ext
     return true;
 }
 
-const COutputHandler::TStrVec& CNullOutput::fieldNames(void) const {
+const COutputHandler::TStrVec& CNullOutput::fieldNames() const {
     return EMPTY_FIELD_NAMES;
 }
 

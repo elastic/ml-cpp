@@ -24,7 +24,7 @@
 
 #include <boost/functional/hash.hpp>
 
-#include <math.h>
+#include <cmath>
 
 namespace ml {
 namespace maths {
@@ -49,7 +49,7 @@ struct MATHS_EXPORT SCountAndVariance {
 template<typename POINT>
 class CSphericalCluster {
 public:
-    typedef CAnnotatedVector<POINT, SCountAndVariance> Type;
+    using Type = CAnnotatedVector<POINT, SCountAndVariance>;
 
     class CHash {
     public:
@@ -92,7 +92,7 @@ struct SCentralMomentsCustomAdd<CAnnotatedVector<CVectorNx1<U, N>, SCountAndVari
     static inline void add(const CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance>& x,
                            typename SCoordinate<T>::Type n,
                            CBasicStatistics::SSampleCentralMoments<T, 1>& moments) {
-        typedef typename SCoordinate<T>::Type TCoordinate;
+        using TCoordinate = typename SCoordinate<T>::Type;
         moments.add(x, TCoordinate(x.annotation().s_Count) * n, 0);
     }
 
@@ -100,7 +100,7 @@ struct SCentralMomentsCustomAdd<CAnnotatedVector<CVectorNx1<U, N>, SCountAndVari
     static inline void add(const CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance>& x,
                            typename SCoordinate<T>::Type n,
                            CBasicStatistics::SSampleCentralMoments<T, 2>& moments) {
-        typedef typename SCoordinate<T>::Type TCoordinate;
+        using TCoordinate = typename SCoordinate<T>::Type;
         moments += CBasicStatistics::accumulator(TCoordinate(x.annotation().s_Count) * n, T(x), T(x.annotation().s_Variance));
     }
 };
@@ -167,8 +167,8 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarian
 //! Write a description of \p cluster for debugging.
 template<typename POINT>
 std::ostream& operator<<(std::ostream& o, const CAnnotatedVector<POINT, SCountAndVariance>& cluster) {
-    return o << static_cast<const POINT&>(cluster) << " (" << cluster.annotation().s_Count << "," << ::sqrt(cluster.annotation().s_Variance)
-             << ")";
+    return o << static_cast<const POINT&>(cluster) << " (" << cluster.annotation().s_Count << ","
+             << std::sqrt(cluster.annotation().s_Variance) << ")";
 }
 }
 }

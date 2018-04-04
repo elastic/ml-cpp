@@ -45,11 +45,11 @@ class CCondition;
 //!
 class CORE_EXPORT CMutex : private CNonCopyable {
 public:
-    CMutex(void);
-    ~CMutex(void);
+    CMutex();
+    ~CMutex();
 
-    void lock(void);
-    void unlock(void);
+    void lock();
+    void unlock();
 
 private:
 #ifdef Windows

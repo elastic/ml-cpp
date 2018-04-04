@@ -51,7 +51,7 @@ estimate(CMemoryUsageEstimator& estimator, std::size_t people, std::size_t attri
 }
 }
 
-void CMemoryUsageEstimatorTest::testEstimateLinear(void) {
+void CMemoryUsageEstimatorTest::testEstimateLinear() {
     LOG_DEBUG("Running estimator test estimate linear");
 
     CMemoryUsageEstimator estimator;
@@ -105,7 +105,7 @@ void CMemoryUsageEstimatorTest::testEstimateLinear(void) {
     CPPUNIT_ASSERT(!mem);
 }
 
-void CMemoryUsageEstimatorTest::testEstimateNonlinear(void) {
+void CMemoryUsageEstimatorTest::testEstimateNonlinear() {
     LOG_DEBUG("Running estimator test estimate non-linear");
 
     {
@@ -154,7 +154,7 @@ void CMemoryUsageEstimatorTest::testEstimateNonlinear(void) {
     }
 }
 
-void CMemoryUsageEstimatorTest::testPersist(void) {
+void CMemoryUsageEstimatorTest::testPersist() {
     LOG_DEBUG("Running estimator test persist");
 
     CMemoryUsageEstimator origEstimator;

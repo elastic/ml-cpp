@@ -53,14 +53,14 @@ class CPenalty;
 class CONFIG_EXPORT CDetectorSpecification
     : boost::equality_comparable<CDetectorSpecification, boost::less_than_comparable<CDetectorSpecification>> {
 public:
-    typedef std::vector<double> TDoubleVec;
-    typedef std::vector<TDoubleVec> TDoubleVecVec;
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<core_t::TTime> TTimeVec;
-    typedef std::vector<std::string> TStrVec;
-    typedef boost::optional<std::string> TOptionalStr;
-    typedef std::vector<CFieldStatistics> TFieldStatisticsVec;
-    typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
+    using TDoubleVec = std::vector<double>;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TSizeVec = std::vector<std::size_t>;
+    using TTimeVec = std::vector<core_t::TTime>;
+    using TStrVec = std::vector<std::string>;
+    using TOptionalStr = boost::optional<std::string>;
+    using TFieldStatisticsVec = std::vector<CFieldStatistics>;
+    using TPenaltyPtr = boost::shared_ptr<CPenalty>;
 
     //! Ternary boolean type which supports unknown.
     enum EFuzzyBool { E_True, E_False, E_Maybe };
@@ -82,7 +82,7 @@ public:
         TStrVec s_Descriptions;
     };
 
-    typedef std::vector<SParamScores> TParamScoresVec;
+    using TParamScoresVec = std::vector<SParamScores>;
 
 public:
     CDetectorSpecification(const CAutoconfigurerParams& params, config_t::EFunctionCategory function, std::size_t id);
@@ -128,7 +128,7 @@ public:
     //! \name Detector Scoring
     //@{
     //! Get the current detector score.
-    double score(void) const;
+    double score() const;
 
     //! The penalties that apply to the various
     void scores(TParamScoresVec& result) const;
@@ -140,34 +140,34 @@ public:
     void applyPenalties(const TSizeVec& indices, const TDoubleVec& penalty, const TStrVec& description);
 
     //! Refresh all scores.
-    void refreshScores(void);
+    void refreshScores();
     //@}
 
     //! \name Detector Attributes
     //@{
     //! Is the detector one of the count functions?
-    config_t::EFunctionCategory function(void) const;
+    config_t::EFunctionCategory function() const;
 
     //! Get the field which is the argument of the function.
-    const TOptionalStr& argumentField(void) const;
+    const TOptionalStr& argumentField() const;
 
     //! Get the by field name. Null if there isn't one.
-    const TOptionalStr& byField(void) const;
+    const TOptionalStr& byField() const;
 
     //! Get the over field name. Null if there isn't one.
-    const TOptionalStr& overField(void) const;
+    const TOptionalStr& overField() const;
 
     //! Get the partition field name. Null if there isn't one.
-    const TOptionalStr& partitionField(void) const;
+    const TOptionalStr& partitionField() const;
 
     //! Get the influences which have been configured.
-    const TStrVec& influences(void) const;
+    const TStrVec& influences() const;
 
     //! Get the bucket lengths.
     void candidateBucketLengths(TTimeVec& result) const;
 
     //! Check if this detector is for population analysis.
-    bool isPopulation(void) const;
+    bool isPopulation() const;
     //@}
 
     //! A total order of two detector specifications.
@@ -177,55 +177,55 @@ public:
     bool operator==(const CDetectorSpecification& rhs) const;
 
     //! Get the identifier.
-    std::size_t id(void) const;
+    std::size_t id() const;
 
     //! Set the identifier.
     void id(std::size_t id);
 
     //! Get the argument field statistics if there is one.
-    const CFieldStatistics* argumentFieldStatistics(void) const;
+    const CFieldStatistics* argumentFieldStatistics() const;
 
     //! Get the by field statistics if there is one.
-    const CFieldStatistics* byFieldStatistics(void) const;
+    const CFieldStatistics* byFieldStatistics() const;
 
     //! Get the over field statistics if there is one.
-    const CFieldStatistics* overFieldStatistics(void) const;
+    const CFieldStatistics* overFieldStatistics() const;
 
     //! Get the partition field statistics if there is one.
-    const CFieldStatistics* partitionFieldStatistics(void) const;
+    const CFieldStatistics* partitionFieldStatistics() const;
 
     //! Get the count statistics for this detector.
-    const CDataCountStatistics* countStatistics(void) const;
+    const CDataCountStatistics* countStatistics() const;
 
     //! Write a configuration which can be interpreted by our
     //! autodetect processes.
-    std::string detectorConfig(void) const;
+    std::string detectorConfig() const;
 
     //! Get a description of the detector.
-    std::string description(void) const;
+    std::string description() const;
 
 private:
-    typedef std::vector<TStrVec> TStrVecVec;
-    typedef boost::optional<core_t::TTime> TOptionalTime;
-    typedef boost::array<const TSizeVec*, 2> TSizeVecCPtrAry;
-    typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
+    using TStrVecVec = std::vector<TStrVec>;
+    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TSizeVecCPtrAry = boost::array<const TSizeVec*, 2>;
+    using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
 
 private:
     //! Get the parameters.
-    const CAutoconfigurerParams& params(void) const;
+    const CAutoconfigurerParams& params() const;
 
     //! Get the highest index of any non-null function field.
-    int highestFieldIndex(void) const;
+    int highestFieldIndex() const;
 
     //! Get the indices of the penalties used for this detector.
-    TSizeVecCPtrAry penaltyIndicesInUse(void) const;
+    TSizeVecCPtrAry penaltyIndicesInUse() const;
 
     //! Initialize the penalties.
-    void initializePenalties(void);
+    void initializePenalties();
 
     //! Update the value of the ignore empty flag based on the
     //! current scores.
-    void refreshIgnoreEmpty(void);
+    void refreshIgnoreEmpty();
 
 private:
     //! The parameters.

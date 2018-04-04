@@ -133,7 +133,7 @@ bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std:
 }
 
 template<typename T, unsigned int ORDER>
-std::string CBasicStatistics::SSampleCentralMoments<T, ORDER>::toDelimited(void) const {
+std::string CBasicStatistics::SSampleCentralMoments<T, ORDER>::toDelimited() const {
     std::string result(basic_statistics_detail::typeToString(s_Count));
     for (std::size_t index = 0; index < ORDER; ++index) {
         result += INTERNAL_DELIMITER;
@@ -144,7 +144,7 @@ std::string CBasicStatistics::SSampleCentralMoments<T, ORDER>::toDelimited(void)
 }
 
 template<typename T, unsigned int ORDER>
-uint64_t CBasicStatistics::SSampleCentralMoments<T, ORDER>::checksum(void) const {
+uint64_t CBasicStatistics::SSampleCentralMoments<T, ORDER>::checksum() const {
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(s_Count);
     for (std::size_t i = 0u; i < ORDER; ++i) {
@@ -186,13 +186,13 @@ bool CBasicStatistics::SSampleCovariances<T, N>::fromDelimited(std::string str) 
 }
 
 template<typename T, std::size_t N>
-std::string CBasicStatistics::SSampleCovariances<T, N>::toDelimited(void) const {
+std::string CBasicStatistics::SSampleCovariances<T, N>::toDelimited() const {
     return s_Count.toDelimited() + CLinearAlgebra::DELIMITER + s_Mean.toDelimited() + CLinearAlgebra::DELIMITER +
            s_Covariances.toDelimited();
 }
 
 template<typename T, std::size_t N>
-uint64_t CBasicStatistics::SSampleCovariances<T, N>::checksum(void) const {
+uint64_t CBasicStatistics::SSampleCovariances<T, N>::checksum() const {
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(s_Count);
     raw << ' ';
@@ -249,7 +249,7 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(c
 }
 
 template<typename T, typename CONTAINER, typename LESS>
-std::string CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited(void) const {
+std::string CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited() const {
     if (this->count() == 0) {
         return std::string{};
     }

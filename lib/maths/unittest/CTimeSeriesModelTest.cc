@@ -77,19 +77,19 @@ const std::size_t TAG{0u};
 class CTimeSeriesCorrelateModelAllocator : public maths::CTimeSeriesCorrelateModelAllocator {
 public:
     //! Check if we can still allocate any correlations.
-    virtual bool areAllocationsAllowed(void) const { return true; }
+    virtual bool areAllocationsAllowed() const { return true; }
 
     //! Check if \p correlations exceeds the memory limit.
     virtual bool exceedsLimit(std::size_t /*correlations*/) const { return false; }
 
     //! Get the maximum number of correlations we should model.
-    virtual std::size_t maxNumberCorrelations(void) const { return 5000; }
+    virtual std::size_t maxNumberCorrelations() const { return 5000; }
 
     //! Get the chunk size in which to allocate correlations.
-    virtual std::size_t chunkSize(void) const { return 500; }
+    virtual std::size_t chunkSize() const { return 500; }
 
     //! Create a new prior for a correlation model.
-    virtual TMultivariatePriorPtr newPrior(void) const {
+    virtual TMultivariatePriorPtr newPrior() const {
         return TMultivariatePriorPtr(
             maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE).clone());
     }
@@ -103,25 +103,25 @@ maths::CModelParams params(core_t::TTime bucketLength) {
     return maths::CModelParams{bucketLength, learnRates[bucketLength], DECAY_RATE, minimumSeasonalVarianceScale};
 }
 
-maths::CNormalMeanPrecConjugate univariateNormal(void) {
+maths::CNormalMeanPrecConjugate univariateNormal() {
     return maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
 }
 
-maths::CLogNormalMeanPrecConjugate univariateLogNormal(void) {
+maths::CLogNormalMeanPrecConjugate univariateLogNormal() {
     return maths::CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.0, DECAY_RATE);
 }
 
-maths::CMultimodalPrior univariateMultimodal(void) {
+maths::CMultimodalPrior univariateMultimodal() {
     maths::CXMeansOnline1d clusterer{
         maths_t::E_ContinuousData, maths::CAvailableModeDistributions::ALL, maths_t::E_ClustersFractionWeight, DECAY_RATE};
     return maths::CMultimodalPrior{maths_t::E_ContinuousData, clusterer, univariateNormal(), DECAY_RATE};
 }
 
-maths::CMultivariateNormalConjugate<3> multivariateNormal(void) {
+maths::CMultivariateNormalConjugate<3> multivariateNormal() {
     return maths::CMultivariateNormalConjugate<3>::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
 }
 
-maths::CMultivariateMultimodalPrior<3> multivariateMultimodal(void) {
+maths::CMultivariateMultimodalPrior<3> multivariateMultimodal() {
     maths::CXMeansOnline<maths::CFloatStorage, 3> clusterer(maths_t::E_ContinuousData, maths_t::E_ClustersFractionWeight, DECAY_RATE);
     return maths::CMultivariateMultimodalPrior<3>(
         maths_t::E_ContinuousData,
@@ -153,7 +153,7 @@ void reinitializePrior(double learnRate,
         prior.addSamples(maths::CConstantWeights::COUNT, detrended_, {{TDouble10Vec(value.second.size(), learnRate)}});
     }
     if (controllers) {
-        for (auto&& trend : trends) {
+        for (auto& trend : trends) {
             trend->decayRate(trend->decayRate() / (*controllers)[0].multiplier());
         }
         prior.decayRate(prior.decayRate() / (*controllers)[1].multiplier());
@@ -163,7 +163,7 @@ void reinitializePrior(double learnRate,
 }
 }
 
-void CTimeSeriesModelTest::testClone(void) {
+void CTimeSeriesModelTest::testClone() {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testClone  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -238,7 +238,7 @@ void CTimeSeriesModelTest::testClone(void) {
     }
 }
 
-void CTimeSeriesModelTest::testMode(void) {
+void CTimeSeriesModelTest::testMode() {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testMode  |");
     LOG_DEBUG("+----------------------------------+");
@@ -301,9 +301,9 @@ void CTimeSeriesModelTest::testMode(void) {
         maths::CUnivariateTimeSeriesModel model{params(bucketLength), 0, trend, prior};
 
         core_t::TTime time{0};
-        for (auto&& sample : samples) {
-            sample += 20.0 + 10.0 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time) /
-                                          static_cast<double>(core::constants::DAY));
+        for (auto& sample : samples) {
+            sample += 20.0 + 10.0 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) /
+                                             static_cast<double>(core::constants::DAY));
             time += bucketLength;
         }
 
@@ -405,11 +405,11 @@ void CTimeSeriesModelTest::testMode(void) {
         maths::CMultivariateTimeSeriesModel model{params(bucketLength), *trends[0], prior};
 
         core_t::TTime time{0};
-        for (auto&& sample : samples) {
+        for (auto& sample : samples) {
             double amplitude{10.0};
             for (std::size_t i = 0u; i < sample.size(); ++i) {
-                sample[i] += 30.0 + amplitude * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time) /
-                                                      static_cast<double>(core::constants::DAY));
+                sample[i] += 30.0 + amplitude * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) /
+                                                         static_cast<double>(core::constants::DAY));
                 amplitude += 4.0;
             }
             time += bucketLength;
@@ -456,7 +456,7 @@ void CTimeSeriesModelTest::testMode(void) {
     }
 }
 
-void CTimeSeriesModelTest::testAddBucketValue(void) {
+void CTimeSeriesModelTest::testAddBucketValue() {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testAddBucketValue  |");
     LOG_DEBUG("+--------------------------------------------+");
@@ -491,7 +491,7 @@ void CTimeSeriesModelTest::testAddBucketValue(void) {
     CPPUNIT_ASSERT_EQUAL(prior.checksum(), model.prior().checksum());
 }
 
-void CTimeSeriesModelTest::testAddSamples(void) {
+void CTimeSeriesModelTest::testAddSamples() {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testAddSamples  |");
     LOG_DEBUG("+----------------------------------------+");
@@ -670,7 +670,7 @@ void CTimeSeriesModelTest::testAddSamples(void) {
 
         core_t::TTime time{0};
         for (auto noise : samples) {
-            double sample{20.0 + 4.0 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0) +
+            double sample{20.0 + 4.0 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0) +
                           (time / bucketLength > 1800 ? 10.0 : 0.0) + noise};
 
             TTimeDouble2VecSizeTrVec sample_{core::make_triple(time, TDouble2Vec{sample}, TAG)};
@@ -742,7 +742,7 @@ void CTimeSeriesModelTest::testAddSamples(void) {
         TDouble2Vec4VecVec weights{{{1.0, 1.0, 1.0}}};
 
         core_t::TTime time{0};
-        for (auto&& sample : samples) {
+        for (auto& sample : samples) {
             bool reinitialize{false};
             bool hasTrend{false};
             TDouble10Vec1Vec detrended{TDouble10Vec(3)};
@@ -750,7 +750,7 @@ void CTimeSeriesModelTest::testAddSamples(void) {
 
             double amplitude{10.0};
             for (std::size_t i = 0u; i < sample.size(); ++i) {
-                sample[i] = 30.0 + amplitude * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0) +
+                sample[i] = 30.0 + amplitude * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0) +
                             (time / bucketLength > 1800 ? 10.0 : 0.0) + sample[i];
                 reinitialize |= trends[i]->addPoint(time, sample[i]);
                 detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0);
@@ -805,7 +805,7 @@ void CTimeSeriesModelTest::testAddSamples(void) {
     }
 }
 
-void CTimeSeriesModelTest::testPredict(void) {
+void CTimeSeriesModelTest::testPredict() {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testPredict  |");
     LOG_DEBUG("+-------------------------------------+");
@@ -829,7 +829,7 @@ void CTimeSeriesModelTest::testPredict(void) {
         TDouble2Vec4VecVec weights{maths::CConstantWeights::unit<TDouble2Vec>(1)};
         core_t::TTime time{0};
         for (auto sample : samples) {
-            sample += 10.0 + 5.0 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0);
+            sample += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0);
 
             maths::CModelAddSamplesParams params;
             params.integer(false)
@@ -853,7 +853,7 @@ void CTimeSeriesModelTest::testPredict(void) {
 
         TMeanAccumulator meanError;
         for (core_t::TTime time_ = time; time_ < time + 86400; time_ += 3600) {
-            double trend_{10.0 + 5.0 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time_) / 86400.0)};
+            double trend_{10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time_) / 86400.0)};
             double expected{maths::CBasicStatistics::mean(trend.baseline(time_)) +
                             maths::CBasicStatistics::mean(prior.marginalLikelihoodConfidenceInterval(0.0))};
             double predicted{model.predict(time_)[0]};
@@ -922,9 +922,9 @@ void CTimeSeriesModelTest::testPredict(void) {
 
         TDouble2Vec4VecVec weights{maths::CConstantWeights::unit<TDouble2Vec>(3)};
         core_t::TTime time{0};
-        for (auto&& sample : samples) {
-            for (auto&& coordinate : sample) {
-                coordinate += 10.0 + 5.0 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0);
+        for (auto& sample : samples) {
+            for (auto& coordinate : sample) {
+                coordinate += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0);
             }
             bool reinitialize{false};
             TDouble10Vec detrended;
@@ -953,7 +953,8 @@ void CTimeSeriesModelTest::testPredict(void) {
             maths::CMultivariatePrior::TSize10Vec marginalize{1, 2};
             maths::CMultivariatePrior::TSizeDoublePr10Vec condition;
             for (std::size_t i = 0u; i < mean.size(); ++i) {
-                double trend_{mean[i] + 10.0 + 5.0 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time_) / 86400.0)};
+                double trend_{mean[i] + 10.0 +
+                              5.0 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time_) / 86400.0)};
                 maths::CMultivariatePrior::TUnivariatePriorPtr margin{prior.univariate(marginalize, condition).first};
                 double expected{maths::CBasicStatistics::mean(trends[i]->baseline(time_)) +
                                 maths::CBasicStatistics::mean(margin->marginalLikelihoodConfidenceInterval(0.0))};
@@ -1021,7 +1022,7 @@ void CTimeSeriesModelTest::testPredict(void) {
     }
 }
 
-void CTimeSeriesModelTest::testProbability(void) {
+void CTimeSeriesModelTest::testProbability() {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testProbability  |");
     LOG_DEBUG("+-----------------------------------------+");
@@ -1057,7 +1058,7 @@ void CTimeSeriesModelTest::testProbability(void) {
                 .trendWeights(weight)
                 .priorWeights(weight);
 
-            double trend{5.0 + 5.0 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0)};
+            double trend{5.0 + 5.0 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0)};
 
             models[0].addSamples(params, {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             models[1].addSamples(params, {core::make_triple(time, TDouble2Vec{trend + sample}, TAG)});
@@ -1146,7 +1147,7 @@ void CTimeSeriesModelTest::testProbability(void) {
 
         core_t::TTime time{0};
         const TDouble2Vec4VecVec weight{maths::CConstantWeights::unit<TDouble2Vec>(3)};
-        for (auto&& sample : samples) {
+        for (auto& sample : samples) {
             maths::CModelAddSamplesParams params;
             params.integer(false)
                 .propagationInterval(1.0)
@@ -1157,8 +1158,8 @@ void CTimeSeriesModelTest::testProbability(void) {
             TDouble2Vec sample_(sample);
             models[0].addSamples(params, {core::make_triple(time, sample_, TAG)});
 
-            double trend{5.0 + 5.0 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0)};
-            for (auto&& component : sample_) {
+            double trend{5.0 + 5.0 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0)};
+            for (auto& component : sample_) {
                 component += trend;
             }
 
@@ -1249,7 +1250,7 @@ void CTimeSeriesModelTest::testProbability(void) {
         TDouble2Vec4VecVec weights{weight};
         std::size_t bucket{0};
         core_t::TTime time{0};
-        for (auto&& sample : samples) {
+        for (auto& sample : samples) {
             if (std::binary_search(anomalies.begin(), anomalies.end(), bucket++)) {
                 sample += 10.0;
             }
@@ -1290,7 +1291,7 @@ void CTimeSeriesModelTest::testProbability(void) {
     }
 }
 
-void CTimeSeriesModelTest::testWeights(void) {
+void CTimeSeriesModelTest::testWeights() {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testWeights  |");
     LOG_DEBUG("+-------------------------------------+");
@@ -1310,7 +1311,7 @@ void CTimeSeriesModelTest::testWeights(void) {
         TDouble2Vec4VecVec weights{{{1.0}}};
         core_t::TTime time{0};
         for (auto sample : samples) {
-            double scale{10.0 + 5.0 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0)};
+            double scale{10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0)};
             sample = scale * (1.0 + 0.1 * sample);
 
             maths::CModelAddSamplesParams params;
@@ -1337,7 +1338,8 @@ void CTimeSeriesModelTest::testWeights(void) {
         LOG_DEBUG("Seasonal");
         TMeanAccumulator error;
         for (core_t::TTime time_ = time; time_ < time + 86400; time_ += 3600) {
-            double dataScale{::pow(1.0 + 0.5 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time_) / 86400.0), 2.0)};
+            double dataScale{
+                std::pow(1.0 + 0.5 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time_) / 86400.0), 2.0)};
 
             double expectedScale{trend.scale(time_, prior.marginalLikelihoodVariance(), 0.0).second};
             double scale{model.seasonalWeight(0.0, time_)[0]};
@@ -1381,8 +1383,8 @@ void CTimeSeriesModelTest::testWeights(void) {
         TDouble10Vec4Vec1Vec weight{{{1.0, 1.0, 1.0}}};
         TDouble2Vec4VecVec weights{{{1.0, 1.0, 1.0}}};
         core_t::TTime time{0};
-        for (auto&& sample : samples) {
-            double scale{10.0 + 5.0 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0)};
+        for (auto& sample : samples) {
+            double scale{10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0)};
 
             bool reinitialize{false};
             TDouble10Vec1Vec detrended{TDouble10Vec(3)};
@@ -1410,7 +1412,8 @@ void CTimeSeriesModelTest::testWeights(void) {
         LOG_DEBUG("Seasonal");
         TMeanAccumulator error;
         for (core_t::TTime time_ = time; time_ < time + 86400; time_ += 3600) {
-            double dataScale{::pow(1.0 + 0.5 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time_) / 86400.0), 2.0)};
+            double dataScale{
+                std::pow(1.0 + 0.5 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time_) / 86400.0), 2.0)};
 
             for (std::size_t i = 0u; i < 3; ++i) {
                 double expectedScale{trends[i]->scale(time_, prior.marginalLikelihoodVariances()[i], 0.0).second};
@@ -1436,7 +1439,7 @@ void CTimeSeriesModelTest::testWeights(void) {
     }
 }
 
-void CTimeSeriesModelTest::testMemoryUsage(void) {
+void CTimeSeriesModelTest::testMemoryUsage() {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testMemoryUsage  |");
     LOG_DEBUG("+-----------------------------------------+");
@@ -1466,7 +1469,7 @@ void CTimeSeriesModelTest::testMemoryUsage(void) {
                 .weightStyles(maths::CConstantWeights::COUNT)
                 .trendWeights(weights)
                 .priorWeights(weights);
-            sample += 10.0 + 5.0 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0);
+            sample += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0);
             trend.addPoint(time, sample);
             model->addSamples(params, {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
@@ -1500,8 +1503,8 @@ void CTimeSeriesModelTest::testMemoryUsage(void) {
                 .weightStyles(maths::CConstantWeights::COUNT)
                 .trendWeights(weights)
                 .priorWeights(weights);
-            for (auto&& coordinate : sample) {
-                coordinate += 10.0 + 5.0 * ::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0);
+            for (auto& coordinate : sample) {
+                coordinate += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / 86400.0);
             }
             trend.addPoint(time, sample[0]);
             model->addSamples(params, {core::make_triple(time, TDouble2Vec(sample), TAG)});
@@ -1519,7 +1522,7 @@ void CTimeSeriesModelTest::testMemoryUsage(void) {
     // TODO LOG_DEBUG("Correlates");
 }
 
-void CTimeSeriesModelTest::testPersist(void) {
+void CTimeSeriesModelTest::testPersist() {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testPersist  |");
     LOG_DEBUG("+-------------------------------------+");
@@ -1627,7 +1630,7 @@ void CTimeSeriesModelTest::testPersist(void) {
     // TODO LOG_DEBUG("Correlates");
 }
 
-void CTimeSeriesModelTest::testUpgrade(void) {
+void CTimeSeriesModelTest::testUpgrade() {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testUpgrade  |");
     LOG_DEBUG("+-------------------------------------+");
@@ -1737,7 +1740,7 @@ void CTimeSeriesModelTest::testUpgrade(void) {
     }
 }
 
-void CTimeSeriesModelTest::testAddSamplesWithCorrelations(void) {
+void CTimeSeriesModelTest::testAddSamplesWithCorrelations() {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testAddSamplesWithCorrelations  |");
     LOG_DEBUG("+--------------------------------------------------------+");
@@ -1783,13 +1786,13 @@ void CTimeSeriesModelTest::testAddSamplesWithCorrelations(void) {
     // TODO LOG_DEBUG("Correlations with tags (for population)");
 }
 
-void CTimeSeriesModelTest::testProbabilityWithCorrelations(void) {
+void CTimeSeriesModelTest::testProbabilityWithCorrelations() {
     LOG_DEBUG("+---------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testProbabilityWithCorrelations  |");
     LOG_DEBUG("+---------------------------------------------------------+");
 }
 
-void CTimeSeriesModelTest::testAnomalyModel(void) {
+void CTimeSeriesModelTest::testAnomalyModel() {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesModelTest::testAnomalyModel  |");
     LOG_DEBUG("+------------------------------------------+");
@@ -1822,7 +1825,7 @@ void CTimeSeriesModelTest::testAnomalyModel(void) {
         TDouble2Vec4VecVec weights{weight};
         std::size_t bucket{0};
         core_t::TTime time{0};
-        for (auto&& sample : samples) {
+        for (auto& sample : samples) {
             if (std::binary_search(anomalies.begin(), anomalies.end(), bucket++)) {
                 sample += 12.0;
             }
@@ -1862,7 +1865,7 @@ void CTimeSeriesModelTest::testAnomalyModel(void) {
         TDoubleVec anomalyProbabilities;
         for (const auto& anomaly : mostAnomalous) {
             anomalyBuckets.push_back(anomaly.second);
-            anomalyProbabilities.push_back(::exp(anomaly.first));
+            anomalyProbabilities.push_back(std::exp(anomaly.first));
         }
         LOG_DEBUG("anomalies = " << core::CContainerPrinter::print(anomalyBuckets));
         LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(anomalyProbabilities));
@@ -1904,8 +1907,8 @@ void CTimeSeriesModelTest::testAnomalyModel(void) {
         TDouble2Vec4VecVec weights{weight};
         core_t::TTime time{0};
         std::size_t bucket{0};
-        for (auto&& sample : samples) {
-            for (auto&& coordinate : sample) {
+        for (auto& sample : samples) {
+            for (auto& coordinate : sample) {
                 if (std::binary_search(anomalies.begin(), anomalies.end(), bucket)) {
                     coordinate += 12.0;
                 }
@@ -1947,7 +1950,7 @@ void CTimeSeriesModelTest::testAnomalyModel(void) {
         TDoubleVec anomalyProbabilities;
         for (const auto& anomaly : mostAnomalous) {
             anomalyBuckets.push_back(anomaly.second);
-            anomalyProbabilities.push_back(::exp(anomaly.first));
+            anomalyProbabilities.push_back(std::exp(anomaly.first));
         }
         LOG_DEBUG("anomalies = " << core::CContainerPrinter::print(anomalyBuckets));
         LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(anomalyProbabilities));
@@ -1972,7 +1975,7 @@ void CTimeSeriesModelTest::testAnomalyModel(void) {
     }
 }
 
-CppUnit::Test* CTimeSeriesModelTest::suite(void) {
+CppUnit::Test* CTimeSeriesModelTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesModelTest");
 
     suiteOfTests->addTest(

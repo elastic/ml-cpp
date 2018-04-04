@@ -40,7 +40,7 @@ void noOpHandler(int /*sig*/) {
 //! handling then we could change the signal we use in this class to another
 //! (maybe SIGURG).  However, it's bad practice for reusable libraries to
 //! unconditionally install signal handlers, so unlikely to be a problem.
-bool installNoOpSigIoHandler(void) {
+bool installNoOpSigIoHandler() {
     struct sigaction sa;
     sigemptyset(&sa.sa_mask);
     sa.sa_handler = &noOpHandler;
@@ -54,10 +54,10 @@ const bool SIGIO_HANDLER_INSTALLED(installNoOpSigIoHandler());
 namespace ml {
 namespace core {
 
-CThread::CThread(void) : m_ThreadId(0) {
+CThread::CThread() : m_ThreadId(0) {
 }
 
-CThread::~CThread(void) {
+CThread::~CThread() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadId != 0) {
@@ -65,7 +65,7 @@ CThread::~CThread(void) {
     }
 }
 
-bool CThread::start(void) {
+bool CThread::start() {
     TThreadId dummy(0);
 
     return this->start(dummy);
@@ -92,7 +92,7 @@ bool CThread::start(TThreadId& threadId) {
     return true;
 }
 
-bool CThread::stop(void) {
+bool CThread::stop() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadId == 0) {
@@ -118,7 +118,7 @@ bool CThread::stop(void) {
     return true;
 }
 
-bool CThread::waitForFinish(void) {
+bool CThread::waitForFinish() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadId == 0) {
@@ -141,13 +141,13 @@ bool CThread::waitForFinish(void) {
     return true;
 }
 
-bool CThread::isStarted(void) const {
+bool CThread::isStarted() const {
     CScopedLock lock(m_IdMutex);
 
     return (m_ThreadId != 0);
 }
 
-bool CThread::cancelBlockedIo(void) {
+bool CThread::cancelBlockedIo() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadId == 0) {
@@ -194,7 +194,7 @@ bool CThread::cancelBlockedIo(TThreadId threadId) {
     return true;
 }
 
-CThread::TThreadId CThread::currentThreadId(void) {
+CThread::TThreadId CThread::currentThreadId() {
     return pthread_self();
 }
 

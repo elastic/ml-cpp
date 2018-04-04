@@ -67,7 +67,7 @@ CppUnit::Test* CCommandProcessorTest::suite() {
     return suiteOfTests;
 }
 
-void CCommandProcessorTest::testStartPermitted(void) {
+void CCommandProcessorTest::testStartPermitted() {
     // Remove any output file left behind by a previous failed test, but don't
     // check the return code as this will usually fail
     ::remove(OUTPUT_FILE.c_str());
@@ -100,7 +100,7 @@ void CCommandProcessorTest::testStartPermitted(void) {
     CPPUNIT_ASSERT_EQUAL(0, ::remove(OUTPUT_FILE.c_str()));
 }
 
-void CCommandProcessorTest::testStartNonPermitted(void) {
+void CCommandProcessorTest::testStartNonPermitted() {
     ml::controller::CCommandProcessor::TStrVec permittedPaths(1, "some other process");
     ml::controller::CCommandProcessor processor(permittedPaths);
 
@@ -127,7 +127,7 @@ void CCommandProcessorTest::testStartNonPermitted(void) {
     CPPUNIT_ASSERT_EQUAL(SLOGAN2, content);
 }
 
-void CCommandProcessorTest::testStartNonExistent(void) {
+void CCommandProcessorTest::testStartNonExistent() {
     ml::controller::CCommandProcessor::TStrVec permittedPaths(1, "some other process");
     ml::controller::CCommandProcessor processor(permittedPaths);
 
@@ -137,7 +137,7 @@ void CCommandProcessorTest::testStartNonExistent(void) {
     CPPUNIT_ASSERT(!processor.handleCommand(command));
 }
 
-void CCommandProcessorTest::testKillDisallowed(void) {
+void CCommandProcessorTest::testKillDisallowed() {
     // Attempt to kill a process that exists but isn't allowed to be killed,
     // namely the unit test program
 
@@ -151,7 +151,7 @@ void CCommandProcessorTest::testKillDisallowed(void) {
     CPPUNIT_ASSERT(!processor.handleCommand(command));
 }
 
-void CCommandProcessorTest::testInvalidVerb(void) {
+void CCommandProcessorTest::testInvalidVerb() {
     ml::controller::CCommandProcessor::TStrVec permittedPaths(1, "some other process");
     ml::controller::CCommandProcessor processor(permittedPaths);
 

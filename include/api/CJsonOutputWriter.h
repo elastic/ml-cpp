@@ -16,7 +16,6 @@
 #define INCLUDED_ml_api_CJsonOutputWriter_h
 
 #include <core/CJsonOutputStreamWrapper.h>
-#include <core/CMutex.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
@@ -36,7 +35,6 @@
 
 #include <iosfwd>
 #include <map>
-#include <queue>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -108,34 +106,34 @@ namespace api {
 //!
 class API_EXPORT CJsonOutputWriter : public COutputHandler {
 public:
-    typedef boost::shared_ptr<rapidjson::Document> TDocumentPtr;
-    typedef boost::weak_ptr<rapidjson::Document> TDocumentWeakPtr;
-    typedef std::vector<TDocumentWeakPtr> TDocumentWeakPtrVec;
-    typedef TDocumentWeakPtrVec::iterator TDocumentWeakPtrVecItr;
-    typedef TDocumentWeakPtrVec::const_iterator TDocumentWeakPtrVecCItr;
+    using TDocumentPtr = boost::shared_ptr<rapidjson::Document>;
+    using TDocumentWeakPtr = boost::weak_ptr<rapidjson::Document>;
+    using TDocumentWeakPtrVec = std::vector<TDocumentWeakPtr>;
+    using TDocumentWeakPtrVecItr = TDocumentWeakPtrVec::iterator;
+    using TDocumentWeakPtrVecCItr = TDocumentWeakPtrVec::const_iterator;
 
-    typedef std::pair<TDocumentWeakPtr, int> TDocumentWeakPtrIntPr;
-    typedef std::vector<TDocumentWeakPtrIntPr> TDocumentWeakPtrIntPrVec;
-    typedef TDocumentWeakPtrIntPrVec::iterator TDocumentWeakPtrIntPrVecItr;
-    typedef std::map<std::string, TDocumentWeakPtrVec> TStrDocumentPtrVecMap;
+    using TDocumentWeakPtrIntPr = std::pair<TDocumentWeakPtr, int>;
+    using TDocumentWeakPtrIntPrVec = std::vector<TDocumentWeakPtrIntPr>;
+    using TDocumentWeakPtrIntPrVecItr = TDocumentWeakPtrIntPrVec::iterator;
+    using TStrDocumentPtrVecMap = std::map<std::string, TDocumentWeakPtrVec>;
 
-    typedef std::vector<std::string> TStrVec;
-    typedef core::CSmallVector<std::string, 1> TStr1Vec;
-    typedef std::vector<core_t::TTime> TTimeVec;
-    typedef std::vector<double> TDoubleVec;
-    typedef std::pair<double, double> TDoubleDoublePr;
-    typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-    typedef std::pair<double, TDoubleDoublePr> TDoubleDoubleDoublePrPr;
-    typedef std::vector<TDoubleDoubleDoublePrPr> TDoubleDoubleDoublePrPrVec;
-    typedef std::pair<std::string, double> TStringDoublePr;
-    typedef std::vector<TStringDoublePr> TStringDoublePrVec;
+    using TStrVec = std::vector<std::string>;
+    using TStr1Vec = core::CSmallVector<std::string, 1>;
+    using TTimeVec = std::vector<core_t::TTime>;
+    using TDoubleVec = std::vector<double>;
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+    using TDoubleDoubleDoublePrPr = std::pair<double, TDoubleDoublePr>;
+    using TDoubleDoubleDoublePrPrVec = std::vector<TDoubleDoubleDoublePrPr>;
+    using TStringDoublePr = std::pair<std::string, double>;
+    using TStringDoublePrVec = std::vector<TStringDoublePr>;
 
-    typedef boost::shared_ptr<rapidjson::Value> TValuePtr;
+    using TValuePtr = boost::shared_ptr<rapidjson::Value>;
 
     //! Structure to buffer up information about each bucket that we have
     //! unwritten results for
     struct SBucketData {
-        SBucketData(void);
+        SBucketData();
 
         //! The max normalized anomaly score of the bucket influencers
         double s_MaxBucketInfluencerNormalizedAnomalyScore;
@@ -180,106 +178,20 @@ public:
         TStr1Vec s_ScheduledEventDescriptions;
     };
 
-    typedef std::map<core_t::TTime, SBucketData> TTimeBucketDataMap;
-    typedef TTimeBucketDataMap::iterator TTimeBucketDataMapItr;
-    typedef TTimeBucketDataMap::const_iterator TTimeBucketDataMapCItr;
-
-    static const std::string JOB_ID;
-    static const std::string TIMESTAMP;
-    static const std::string BUCKET;
-    static const std::string LOG_TIME;
-    static const std::string DETECTOR_INDEX;
-    static const std::string RECORDS;
-    static const std::string EVENT_COUNT;
-    static const std::string IS_INTERIM;
-    static const std::string PROBABILITY;
-    static const std::string RAW_ANOMALY_SCORE;
-    static const std::string ANOMALY_SCORE;
-    static const std::string RECORD_SCORE;
-    static const std::string INITIAL_RECORD_SCORE;
-    static const std::string INFLUENCER_SCORE;
-    static const std::string INITIAL_INFLUENCER_SCORE;
-    static const std::string FIELD_NAME;
-    static const std::string BY_FIELD_NAME;
-    static const std::string BY_FIELD_VALUE;
-    static const std::string CORRELATED_BY_FIELD_VALUE;
-    static const std::string TYPICAL;
-    static const std::string ACTUAL;
-    static const std::string CAUSES;
-    static const std::string FUNCTION;
-    static const std::string FUNCTION_DESCRIPTION;
-    static const std::string OVER_FIELD_NAME;
-    static const std::string OVER_FIELD_VALUE;
-    static const std::string PARTITION_FIELD_NAME;
-    static const std::string PARTITION_FIELD_VALUE;
-    static const std::string INITIAL_SCORE;
-    static const std::string BUCKET_INFLUENCERS;
-    static const std::string INFLUENCERS;
-    static const std::string INFLUENCER_FIELD_NAME;
-    static const std::string INFLUENCER_FIELD_VALUE;
-    static const std::string INFLUENCER_FIELD_VALUES;
-    static const std::string FLUSH;
-    static const std::string ID;
-    static const std::string LAST_FINALIZED_BUCKET_END;
-    static const std::string QUANTILE_STATE;
-    static const std::string QUANTILES;
-    static const std::string MODEL_SIZE_STATS;
-    static const std::string MODEL_BYTES;
-    static const std::string TOTAL_BY_FIELD_COUNT;
-    static const std::string TOTAL_OVER_FIELD_COUNT;
-    static const std::string TOTAL_PARTITION_FIELD_COUNT;
-    static const std::string BUCKET_ALLOCATION_FAILURES_COUNT;
-    static const std::string MEMORY_STATUS;
-    static const std::string CATEGORY_DEFINITION;
-    static const std::string CATEGORY_ID;
-    static const std::string TERMS;
-    static const std::string REGEX;
-    static const std::string MAX_MATCHING_LENGTH;
-    static const std::string EXAMPLES;
-    static const std::string MODEL_SNAPSHOT;
-    static const std::string SNAPSHOT_ID;
-    static const std::string SNAPSHOT_DOC_COUNT;
-    static const std::string DESCRIPTION;
-    static const std::string LATEST_RECORD_TIME;
-    static const std::string BUCKET_SPAN;
-    static const std::string LATEST_RESULT_TIME;
-    static const std::string PROCESSING_TIME;
-    static const std::string TIME_INFLUENCER;
-    static const std::string PARTITION_SCORES;
-    static const std::string SCHEDULED_EVENTS;
+    using TTimeBucketDataMap = std::map<core_t::TTime, SBucketData>;
+    using TTimeBucketDataMapItr = TTimeBucketDataMap::iterator;
+    using TTimeBucketDataMapCItr = TTimeBucketDataMap::const_iterator;
 
 private:
-    typedef CCategoryExamplesCollector::TStrSet TStrSet;
-    typedef TStrSet::const_iterator TStrSetCItr;
-
-    struct SModelSnapshotReport {
-        SModelSnapshotReport(core_t::TTime snapshotTimestamp,
-                             const std::string& description,
-                             const std::string& snapshotId,
-                             size_t numDocs,
-                             const model::CResourceMonitor::SResults& modelSizeStats,
-                             const std::string& normalizerState,
-                             core_t::TTime latestRecordTime,
-                             core_t::TTime latestFinalResultTime);
-
-        core_t::TTime s_SnapshotTimestamp;
-        std::string s_Description;
-        std::string s_SnapshotId;
-        size_t s_NumDocs;
-        model::CResourceMonitor::SResults s_ModelSizeStats;
-        std::string s_NormalizerState;
-        core_t::TTime s_LatestRecordTime;
-        core_t::TTime s_LatestFinalResultTime;
-    };
-
-    typedef std::queue<SModelSnapshotReport> TModelSnapshotReportQueue;
+    using TStrSet = CCategoryExamplesCollector::TStrSet;
+    using TStrSetCItr = TStrSet::const_iterator;
 
 public:
     //! Constructor that causes output to be written to the specified wrapped stream
     CJsonOutputWriter(const std::string& jobId, core::CJsonOutputStreamWrapper& strmOut);
 
     //! Destructor flushes the stream
-    virtual ~CJsonOutputWriter(void);
+    virtual ~CJsonOutputWriter();
 
     //! Set field names.  In this class this function has no effect and it
     //! always returns true
@@ -289,7 +201,7 @@ public:
     using COutputHandler::fieldNames;
 
     //! Returns an empty vector
-    virtual const TStrVec& fieldNames(void) const;
+    virtual const TStrVec& fieldNames() const;
 
     //! Write the data row fields as a JSON object
     virtual bool writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields);
@@ -303,12 +215,12 @@ public:
     void limitNumberRecords(size_t count);
 
     //! A value of 0 indicates no limit has been set
-    size_t limitNumberRecords(void) const;
+    size_t limitNumberRecords() const;
 
     //! Close the JSON structures and flush output.
     //! This method should only be called once and will have no affect
     //! on subsequent invocations
-    virtual void finalise(void);
+    virtual void finalise();
 
     //! Receive a count of possible results
     void possibleResultCount(core_t::TTime time, size_t count);
@@ -335,19 +247,6 @@ public:
     //! Report the current levels of resource usage, as given to us
     //! from the CResourceMonitor via a callback
     void reportMemoryUsage(const model::CResourceMonitor::SResults& results);
-
-    //! Report information about completion of model persistence.
-    //! This method can be called in a thread other than the one
-    //! receiving the majority of results, so reporting is done
-    //! asynchronously.
-    void reportPersistComplete(core_t::TTime snapshotTimestamp,
-                               const std::string& description,
-                               const std::string& snapshotId,
-                               size_t numDocs,
-                               const model::CResourceMonitor::SResults& modelSizeStats,
-                               const std::string& normalizerState,
-                               core_t::TTime latestRecordTime,
-                               core_t::TTime latestFinalResultTime);
 
     //! Acknowledge a flush request by echoing back the flush ID
     void acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd);
@@ -401,16 +300,6 @@ private:
     //! Write partition score & probability
     void addPartitionScores(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc);
 
-    //! Write any model snapshot reports that are queuing up.
-    void writeModelSnapshotReports(void);
-
-    //! Write the JSON object showing current levels of resource usage, as
-    //! given to us from the CResourceMonitor via a callback
-    void writeMemoryUsageObject(const model::CResourceMonitor::SResults& results);
-
-    //! Write the quantile's state
-    void writeQuantileState(const std::string& state, core_t::TTime timestamp);
-
 private:
     //! The job ID
     std::string m_JobId;
@@ -438,12 +327,6 @@ private:
     //! m_JsonPoolAllocator.  (Hence this is declared after the memory pool
     //! so that it's destroyed first when the destructor runs.)
     TTimeBucketDataMap m_BucketDataByTime;
-
-    //! Protects the m_ModelSnapshotReports from concurrent access.
-    core::CMutex m_ModelSnapshotReportsQueueMutex;
-
-    //! Queue of model snapshot reports waiting to be output.
-    TModelSnapshotReportQueue m_ModelSnapshotReports;
 };
 }
 }

@@ -35,7 +35,7 @@ namespace ml {
 namespace test {
 
 void CRandomNumbers::generateNormalSamples(double mean, double variance, std::size_t numberSamples, TDoubleVec& samples) {
-    boost::random::normal_distribution<> normal(mean, ::sqrt(variance));
+    boost::random::normal_distribution<> normal(mean, std::sqrt(variance));
     generateSamples(m_Generator, normal, numberSamples, samples);
 }
 
@@ -89,7 +89,7 @@ void CRandomNumbers::generateStudentsSamples(double degreesFreedom, std::size_t 
 }
 
 void CRandomNumbers::generateLogNormalSamples(double location, double squareScale, std::size_t numberSamples, TDoubleVec& samples) {
-    boost::random::lognormal_distribution<> logNormal(location, ::sqrt(squareScale));
+    boost::random::lognormal_distribution<> logNormal(location, std::sqrt(squareScale));
     generateSamples(m_Generator, logNormal, numberSamples, samples);
 }
 
@@ -177,7 +177,7 @@ void CRandomNumbers::generateWords(std::size_t length, std::size_t numberSamples
     }
 }
 
-CRandomNumbers::CUniform0nGenerator CRandomNumbers::uniformGenerator(void) {
+CRandomNumbers::CUniform0nGenerator CRandomNumbers::uniformGenerator() {
     return CUniform0nGenerator(m_Generator);
 }
 

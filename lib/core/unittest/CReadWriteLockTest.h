@@ -19,9 +19,9 @@
 
 class CReadWriteLockTest : public CppUnit::TestFixture {
 public:
-    void testReadLock(void);
-    void testWriteLock(void);
-    void testPerformanceVersusMutex(void);
+    void testReadLock();
+    void testWriteLock();
+    void testPerformanceVersusMutex();
 
     static CppUnit::Test* suite();
 };

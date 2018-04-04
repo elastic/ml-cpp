@@ -33,12 +33,12 @@ namespace detail {
 
 class CTrackerThread : public CThread {
 public:
-    typedef std::map<CProcess::TPid, HANDLE> TPidHandleMap;
+    using TPidHandleMap = std::map<CProcess::TPid, HANDLE>;
 
 public:
-    CTrackerThread(void) : m_Shutdown(false), m_Condition(m_Mutex) {}
+    CTrackerThread() : m_Shutdown(false), m_Condition(m_Mutex) {}
 
-    virtual ~CTrackerThread(void) {
+    virtual ~CTrackerThread() {
         // Close the handles to any child processes that outlived us
         CScopedLock lock(m_Mutex);
 
@@ -49,7 +49,7 @@ public:
 
     //! Mutex is accessible so the code outside the class can avoid race
     //! conditions.
-    CMutex& mutex(void) { return m_Mutex; }
+    CMutex& mutex() { return m_Mutex; }
 
     //! Add a PID to track, together with its corresponding process handle.
     void addPid(CProcess::TPid pid, HANDLE processHandle) {
@@ -89,7 +89,7 @@ public:
     }
 
 protected:
-    virtual void run(void) {
+    virtual void run() {
         CScopedLock lock(m_Mutex);
 
         while (!m_Shutdown) {
@@ -105,7 +105,7 @@ protected:
         }
     }
 
-    virtual void shutdown(void) {
+    virtual void shutdown() {
         LOG_DEBUG("Shutting down spawned process tracker thread");
         CScopedLock lock(m_Mutex);
         m_Shutdown = true;
@@ -115,7 +115,7 @@ protected:
 private:
     //! Reap zombie child processes and adjust the set of live child PIDs
     //! accordingly.  MUST be called with m_Mutex locked.
-    void checkForDeadChildren(void) {
+    void checkForDeadChildren() {
         auto iter = m_Pids.begin();
         while (iter != m_Pids.end()) {
             // The reason for using WaitForSingleObject() here instead of
@@ -150,7 +150,7 @@ CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec& permittedProcess
     }
 }
 
-CDetachedProcessSpawner::~CDetachedProcessSpawner(void) {
+CDetachedProcessSpawner::~CDetachedProcessSpawner() {
     if (m_TrackerThread->stop() == false) {
         LOG_ERROR("Failed to stop spawned process tracker thread");
     }

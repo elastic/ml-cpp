@@ -85,7 +85,7 @@ const core_t::TTime UNSET_TIME{0};
 const double SUFFICIENT_INTERVAL_TO_ESTIMATE_SLOPE{2.5};
 }
 
-CSeasonalComponentAdaptiveBucketing::CSeasonalComponentAdaptiveBucketing(void) : CAdaptiveBucketing{0.0, 0.0} {
+CSeasonalComponentAdaptiveBucketing::CSeasonalComponentAdaptiveBucketing() : CAdaptiveBucketing{0.0, 0.0} {
 }
 
 CSeasonalComponentAdaptiveBucketing::CSeasonalComponentAdaptiveBucketing(const CSeasonalTime& time,
@@ -127,7 +127,7 @@ void CSeasonalComponentAdaptiveBucketing::swap(CSeasonalComponentAdaptiveBucketi
     m_Buckets.swap(other.m_Buckets);
 }
 
-bool CSeasonalComponentAdaptiveBucketing::initialized(void) const {
+bool CSeasonalComponentAdaptiveBucketing::initialized() const {
     return this->CAdaptiveBucketing::initialized();
 }
 
@@ -155,11 +155,11 @@ void CSeasonalComponentAdaptiveBucketing::initialValues(core_t::TTime startTime,
     }
 }
 
-std::size_t CSeasonalComponentAdaptiveBucketing::size(void) const {
+std::size_t CSeasonalComponentAdaptiveBucketing::size() const {
     return this->CAdaptiveBucketing::size();
 }
 
-void CSeasonalComponentAdaptiveBucketing::clear(void) {
+void CSeasonalComponentAdaptiveBucketing::clear() {
     this->CAdaptiveBucketing::clear();
     clearAndShrink(m_Buckets);
 }
@@ -217,7 +217,7 @@ void CSeasonalComponentAdaptiveBucketing::add(core_t::TTime time, double value, 
     bucket_.s_LastUpdate = bucket_.s_LastUpdate == UNSET_TIME ? time : std::max(bucket_.s_LastUpdate, time);
 }
 
-const CSeasonalTime& CSeasonalComponentAdaptiveBucketing::time(void) const {
+const CSeasonalTime& CSeasonalComponentAdaptiveBucketing::time() const {
     return *m_Time;
 }
 
@@ -225,7 +225,7 @@ void CSeasonalComponentAdaptiveBucketing::decayRate(double value) {
     this->CAdaptiveBucketing::decayRate(value);
 }
 
-double CSeasonalComponentAdaptiveBucketing::decayRate(void) const {
+double CSeasonalComponentAdaptiveBucketing::decayRate() const {
     return this->CAdaptiveBucketing::decayRate();
 }
 
@@ -241,7 +241,7 @@ void CSeasonalComponentAdaptiveBucketing::propagateForwardsByTime(double time, b
     }
 }
 
-double CSeasonalComponentAdaptiveBucketing::minimumBucketLength(void) const {
+double CSeasonalComponentAdaptiveBucketing::minimumBucketLength() const {
     return this->CAdaptiveBucketing::minimumBucketLength();
 }
 
@@ -273,7 +273,7 @@ bool CSeasonalComponentAdaptiveBucketing::knots(core_t::TTime time,
     return this->CAdaptiveBucketing::knots(time, boundary, knots, values, variances);
 }
 
-double CSeasonalComponentAdaptiveBucketing::slope(void) const {
+double CSeasonalComponentAdaptiveBucketing::slope() const {
     CBasicStatistics::CMinMax<double> minmax;
     for (const auto& bucket : m_Buckets) {
         if (bucket.s_Regression.count() > 0.0) {
@@ -300,15 +300,15 @@ void CSeasonalComponentAdaptiveBucketing::debugMemoryUsage(core::CMemoryUsage::T
     core::CMemoryDebug::dynamicSize("m_Buckets", m_Buckets, mem);
 }
 
-std::size_t CSeasonalComponentAdaptiveBucketing::memoryUsage(void) const {
+std::size_t CSeasonalComponentAdaptiveBucketing::memoryUsage() const {
     return this->CAdaptiveBucketing::memoryUsage() + core::CMemory::dynamicSize(m_Buckets);
 }
 
-const CSeasonalComponentAdaptiveBucketing::TFloatVec& CSeasonalComponentAdaptiveBucketing::endpoints(void) const {
+const CSeasonalComponentAdaptiveBucketing::TFloatVec& CSeasonalComponentAdaptiveBucketing::endpoints() const {
     return this->CAdaptiveBucketing::endpoints();
 }
 
-double CSeasonalComponentAdaptiveBucketing::count(void) const {
+double CSeasonalComponentAdaptiveBucketing::count() const {
     return this->CAdaptiveBucketing::count();
 }
 
@@ -316,7 +316,7 @@ CSeasonalComponentAdaptiveBucketing::TDoubleVec CSeasonalComponentAdaptiveBucket
     return this->CAdaptiveBucketing::values(time);
 }
 
-CSeasonalComponentAdaptiveBucketing::TDoubleVec CSeasonalComponentAdaptiveBucketing::variances(void) const {
+CSeasonalComponentAdaptiveBucketing::TDoubleVec CSeasonalComponentAdaptiveBucketing::variances() const {
     return this->CAdaptiveBucketing::variances();
 }
 
@@ -560,7 +560,7 @@ double CSeasonalComponentAdaptiveBucketing::observedInterval(core_t::TTime time)
         time);
 }
 
-CSeasonalComponentAdaptiveBucketing::SBucket::SBucket(void) : s_Variance{0.0}, s_FirstUpdate{UNSET_TIME}, s_LastUpdate{UNSET_TIME} {
+CSeasonalComponentAdaptiveBucketing::SBucket::SBucket() : s_Variance{0.0}, s_FirstUpdate{UNSET_TIME}, s_LastUpdate{UNSET_TIME} {
 }
 
 CSeasonalComponentAdaptiveBucketing::SBucket::SBucket(const TRegression& regression,

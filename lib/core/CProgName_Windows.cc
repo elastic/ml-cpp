@@ -23,7 +23,7 @@
 namespace ml {
 namespace core {
 
-std::string CProgName::progName(void) {
+std::string CProgName::progName() {
     static const size_t BUFFER_SIZE(2048);
     char buffer[BUFFER_SIZE] = {'\0'};
     if (GetModuleFileName(0, buffer, BUFFER_SIZE - 1) == FALSE) {
@@ -54,7 +54,7 @@ std::string CProgName::progName(void) {
     return progName;
 }
 
-std::string CProgName::progDir(void) {
+std::string CProgName::progDir() {
     static const size_t BUFFER_SIZE(2048);
     std::string path(BUFFER_SIZE, '\0');
     if (GetModuleFileName(0, &path[0], BUFFER_SIZE) == FALSE) {

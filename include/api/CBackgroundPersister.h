@@ -23,8 +23,11 @@
 
 #include <api/ImportExport.h>
 
+#include <atomic>
 #include <functional>
 #include <list>
+
+class CBackgroundPersisterTest;
 
 namespace ml {
 namespace api {
@@ -41,6 +44,13 @@ namespace api {
 //! state is being persisted to, and partly because the chances
 //! are that a lot of memory is being used by the temporary
 //! copy of the data to be persisted.
+//!
+//! Persistence happens in a background thread and further
+//! persistence requests via the startBackgroundPersist*() methods
+//! will be rejected if the background thread is executing.
+//! However, calls to startBackgroundPersist() and
+//! startBackgroundPersistIfAppropriate() are not thread safe and
+//! must not be made concurrently.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! This class expects to call a persistence function taking
@@ -76,14 +86,14 @@ public:
                          const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
                          core::CDataAdder& dataAdder);
 
-    ~CBackgroundPersister(void);
+    ~CBackgroundPersister();
 
     //! Is background persistence currently in progress?
-    bool isBusy(void) const;
+    bool isBusy() const;
 
     //! Wait for any background persistence currently in progress to
     //! complete
-    bool waitForIdle(void);
+    bool waitForIdle();
 
     //! Add a function to be called when the background persist is started.
     //! This will be rejected if a background persistence is currently in
@@ -93,25 +103,23 @@ public:
     //! \return true if the function was added; false if not.
     bool addPersistFunc(core::CDataAdder::TPersistFunc persistFunc);
 
-    //! When this function is called a background persistence will be
-    //! triggered unless there is already one in progress.
-    bool startPersist(void);
-
-    //! Clear any persistence functions that have been added but not yet
-    //! invoked.  This will be rejected if a background persistence is
-    //! currently in progress.
-    //! \return true if the list of functions is clear; false if not.
-    bool clear(void);
-
     //! Set the first processor persist function, which is used to start the
     //! chain of background persistence.  This will be rejected if a
     //! background persistence is currently in progress.
+    //! This should be set once before startBackgroundPersistIfAppropriate is
+    //! called.
     bool firstProcessorPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc);
 
-    //! Check whether a background persist is appropriate now, and if it is
-    //! then start it by calling the first processor periodic persist
-    //! function.
-    bool startBackgroundPersistIfAppropriate(void);
+    //! Start a background persist is one is not running.
+    //! Calls the first processor periodic persist function first.
+    //! Concurrent calls to this method are not threadsafe.
+    bool startBackgroundPersist();
+
+    //! If the periodic persist interval has passed since the last persist
+    //! then it is appropriate to persist now.  Start it by calling the
+    //! first processor periodic persist function.
+    //! Concurrent calls to this method are not threadsafe.
+    bool startBackgroundPersistIfAppropriate();
 
 private:
     //! Implementation of the background thread
@@ -121,13 +129,28 @@ private:
 
     protected:
         //! Inherited virtual interface
-        virtual void run(void);
-        virtual void shutdown(void);
+        virtual void run();
+        virtual void shutdown();
 
     private:
         //! Reference to the owning background persister
         CBackgroundPersister& m_Owner;
     };
+
+private:
+    //! Persist in the background setting the last persist time
+    //! to timeOfPersistence
+    bool startBackgroundPersist(core_t::TTime timeOfPersistence);
+
+    //! When this function is called a background persistence will be
+    //! triggered unless there is already one in progress.
+    bool startPersist();
+
+    //! Clear any persistence functions that have been added but not yet
+    //! invoked.  This will be rejected if a background persistence is
+    //! currently in progress.
+    //! \return true if the list of functions is clear; false if not.
+    bool clear();
 
 private:
     //! How frequently should background persistence be attempted?
@@ -151,10 +174,10 @@ private:
     core::CFastMutex m_Mutex;
 
     //! Is the background thread currently busy persisting data?
-    volatile bool m_IsBusy;
+    std::atomic_bool m_IsBusy;
 
     //! Have we been told to shut down?
-    volatile bool m_IsShutdown;
+    std::atomic_bool m_IsShutdown;
 
     using TPersistFuncList = std::list<core::CDataAdder::TPersistFunc>;
 
@@ -167,6 +190,9 @@ private:
     // Allow the background thread to access the member variables of the owning
     // object
     friend class CBackgroundThread;
+
+    // For testing
+    friend class ::CBackgroundPersisterTest;
 };
 }
 }

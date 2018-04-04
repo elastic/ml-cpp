@@ -31,12 +31,12 @@ CJsonStateRestoreTraverser::CJsonStateRestoreTraverser(std::istream& inputStream
     : m_ReadStream(inputStream), m_Handler(), m_Started(false), m_DesiredLevel(0), m_IsArrayOfObjects(false) {
 }
 
-bool CJsonStateRestoreTraverser::isEof(void) const {
+bool CJsonStateRestoreTraverser::isEof() const {
     // Rapid JSON istreamwrapper returns \0 when it reaches EOF
     return m_ReadStream.Peek() == '\0';
 }
 
-bool CJsonStateRestoreTraverser::next(void) {
+bool CJsonStateRestoreTraverser::next() {
     if (!m_Started) {
         if (this->start() == false) {
             return false;
@@ -66,7 +66,7 @@ bool CJsonStateRestoreTraverser::next(void) {
     return false;
 }
 
-bool CJsonStateRestoreTraverser::nextObject(void) {
+bool CJsonStateRestoreTraverser::nextObject() {
     if (!m_IsArrayOfObjects) {
         return false;
     }
@@ -78,7 +78,7 @@ bool CJsonStateRestoreTraverser::nextObject(void) {
     return ok;
 }
 
-bool CJsonStateRestoreTraverser::hasSubLevel(void) const {
+bool CJsonStateRestoreTraverser::hasSubLevel() const {
     if (!m_Started) {
         if (const_cast<CJsonStateRestoreTraverser*>(this)->start() == false) {
             return false;
@@ -88,7 +88,7 @@ bool CJsonStateRestoreTraverser::hasSubLevel(void) const {
     return this->currentLevel() == 1 + m_DesiredLevel;
 }
 
-const std::string& CJsonStateRestoreTraverser::name(void) const {
+const std::string& CJsonStateRestoreTraverser::name() const {
     if (!m_Started) {
         if (const_cast<CJsonStateRestoreTraverser*>(this)->start() == false) {
             return EMPTY_STRING;
@@ -98,7 +98,7 @@ const std::string& CJsonStateRestoreTraverser::name(void) const {
     return this->currentName();
 }
 
-const std::string& CJsonStateRestoreTraverser::value(void) const {
+const std::string& CJsonStateRestoreTraverser::value() const {
     if (!m_Started) {
         if (const_cast<CJsonStateRestoreTraverser*>(this)->start() == false) {
             return EMPTY_STRING;
@@ -108,7 +108,7 @@ const std::string& CJsonStateRestoreTraverser::value(void) const {
     return this->currentValue();
 }
 
-bool CJsonStateRestoreTraverser::descend(void) {
+bool CJsonStateRestoreTraverser::descend() {
     if (!m_Started) {
         if (this->start() == false) {
             return false;
@@ -133,7 +133,7 @@ bool CJsonStateRestoreTraverser::descend(void) {
     return this->advance();
 }
 
-bool CJsonStateRestoreTraverser::ascend(void) {
+bool CJsonStateRestoreTraverser::ascend() {
     // If we're trying to ascend above the root level then something has gone
     // wrong
     if (m_DesiredLevel == 0) {
@@ -156,41 +156,41 @@ bool CJsonStateRestoreTraverser::ascend(void) {
     return this->advance();
 }
 
-void CJsonStateRestoreTraverser::debug(void) const {
+void CJsonStateRestoreTraverser::debug() const {
     LOG_DEBUG("Current: name = " << this->currentName() << " value = " << this->currentValue() << " level = " << this->currentLevel()
                                  << ", Next: name = " << this->nextName() << " value = " << this->nextValue()
                                  << " level = " << this->nextLevel() << " is array of objects = " << m_IsArrayOfObjects);
 }
 
-size_t CJsonStateRestoreTraverser::currentLevel(void) const {
+size_t CJsonStateRestoreTraverser::currentLevel() const {
     return m_Handler.s_Level[1 - m_Handler.s_NextIndex];
 }
 
-bool CJsonStateRestoreTraverser::currentIsEndOfLevel(void) const {
+bool CJsonStateRestoreTraverser::currentIsEndOfLevel() const {
     return m_Handler.s_IsEndOfLevel[1 - m_Handler.s_NextIndex];
 }
 
-const std::string& CJsonStateRestoreTraverser::currentName(void) const {
+const std::string& CJsonStateRestoreTraverser::currentName() const {
     return m_Handler.s_Name[1 - m_Handler.s_NextIndex];
 }
 
-const std::string& CJsonStateRestoreTraverser::currentValue(void) const {
+const std::string& CJsonStateRestoreTraverser::currentValue() const {
     return m_Handler.s_Value[1 - m_Handler.s_NextIndex];
 }
 
-size_t CJsonStateRestoreTraverser::nextLevel(void) const {
+size_t CJsonStateRestoreTraverser::nextLevel() const {
     return m_Handler.s_Level[m_Handler.s_NextIndex];
 }
 
-bool CJsonStateRestoreTraverser::nextIsEndOfLevel(void) const {
+bool CJsonStateRestoreTraverser::nextIsEndOfLevel() const {
     return m_Handler.s_IsEndOfLevel[m_Handler.s_NextIndex];
 }
 
-const std::string& CJsonStateRestoreTraverser::nextName(void) const {
+const std::string& CJsonStateRestoreTraverser::nextName() const {
     return m_Handler.s_Name[m_Handler.s_NextIndex];
 }
 
-const std::string& CJsonStateRestoreTraverser::nextValue(void) const {
+const std::string& CJsonStateRestoreTraverser::nextValue() const {
     return m_Handler.s_Value[m_Handler.s_NextIndex];
 }
 
@@ -227,7 +227,7 @@ bool CJsonStateRestoreTraverser::skipArray() {
     return true;
 }
 
-bool CJsonStateRestoreTraverser::start(void) {
+bool CJsonStateRestoreTraverser::start() {
     m_Started = true;
     m_Reader.IterativeParseInit();
 
@@ -285,7 +285,7 @@ bool CJsonStateRestoreTraverser::advance() {
     return true;
 }
 
-void CJsonStateRestoreTraverser::logError(void) {
+void CJsonStateRestoreTraverser::logError() {
     const char* error(rapidjson::GetParseError_En(m_Reader.GetParseErrorCode()));
     LOG_ERROR("Error parsing JSON at offset " << m_Reader.GetErrorOffset() << ": " << ((error != 0) ? error : "No message"));
     this->setBadState();

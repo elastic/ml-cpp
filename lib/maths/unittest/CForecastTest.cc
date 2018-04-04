@@ -68,7 +68,7 @@ maths::CModelParams params(core_t::TTime bucketLength) {
     return maths::CModelParams{bucketLength, learnRates[bucketLength], DECAY_RATE, minimumSeasonalVarianceScale};
 }
 
-maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary decayRateControllers(void) {
+maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary decayRateControllers() {
     return {{maths::CDecayRateController(
                  maths::CDecayRateController::E_PredictionBias | maths::CDecayRateController::E_PredictionErrorIncrease, 1),
              maths::CDecayRateController(maths::CDecayRateController::E_PredictionBias |
@@ -82,7 +82,7 @@ void mockSink(maths::SErrorBar errorBar, TErrorBarVec& prediction) {
     prediction.push_back(errorBar);
 }
 
-void CForecastTest::testDailyNoLongTermTrend(void) {
+void CForecastTest::testDailyNoLongTermTrend() {
     LOG_DEBUG("+-------------------------------------------+");
     LOG_DEBUG("|  CForecastTest::testDailyNoLongTermTrend  |");
     LOG_DEBUG("+-------------------------------------------+");
@@ -103,7 +103,7 @@ void CForecastTest::testDailyNoLongTermTrend(void) {
     this->test(trend, bucketLength, 60, 64.0, 4.0, 0.13);
 }
 
-void CForecastTest::testDailyConstantLongTermTrend(void) {
+void CForecastTest::testDailyConstantLongTermTrend() {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CForecastTest::testDailyConstantLongTermTrend  |");
     LOG_DEBUG("+-------------------------------------------------+");
@@ -120,7 +120,7 @@ void CForecastTest::testDailyConstantLongTermTrend(void) {
     this->test(trend, bucketLength, 60, 64.0, 15.0, 0.02);
 }
 
-void CForecastTest::testDailyVaryingLongTermTrend(void) {
+void CForecastTest::testDailyVaryingLongTermTrend() {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  CForecastTest::testDailyVaryingLongTermTrend  |");
     LOG_DEBUG("+------------------------------------------------+");
@@ -144,7 +144,7 @@ void CForecastTest::testDailyVaryingLongTermTrend(void) {
     this->test(trend, bucketLength, 100, 9.0, 13.0, 0.04);
 }
 
-void CForecastTest::testComplexNoLongTermTrend(void) {
+void CForecastTest::testComplexNoLongTermTrend() {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CForecastTest::testComplexNoLongTermTrend  |");
     LOG_DEBUG("+---------------------------------------------+");
@@ -163,7 +163,7 @@ void CForecastTest::testComplexNoLongTermTrend(void) {
     this->test(trend, bucketLength, 60, 24.0, 34.0, 0.13);
 }
 
-void CForecastTest::testComplexConstantLongTermTrend(void) {
+void CForecastTest::testComplexConstantLongTermTrend() {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CForecastTest::testComplexConstantLongTermTrend  |");
     LOG_DEBUG("+---------------------------------------------------+");
@@ -182,7 +182,7 @@ void CForecastTest::testComplexConstantLongTermTrend(void) {
     this->test(trend, bucketLength, 60, 24.0, 17.0, 0.04);
 }
 
-void CForecastTest::testComplexVaryingLongTermTrend(void) {
+void CForecastTest::testComplexVaryingLongTermTrend() {
     LOG_DEBUG("+--------------------------------------------------+");
     LOG_DEBUG("|  CForecastTest::testComplexVaryingLongTermTrend  |");
     LOG_DEBUG("+--------------------------------------------------+");
@@ -211,7 +211,7 @@ void CForecastTest::testComplexVaryingLongTermTrend(void) {
     this->test(trend, bucketLength, 60, 4.0, 23.0, 0.05);
 }
 
-void CForecastTest::testNonNegative(void) {
+void CForecastTest::testNonNegative() {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CForecastTest::testNonNegative  |");
     LOG_DEBUG("+----------------------------------+");
@@ -294,7 +294,7 @@ void CForecastTest::testNonNegative(void) {
     CPPUNIT_ASSERT(percentageOutOfBounds < 8.0);
 }
 
-void CForecastTest::testFinancialIndex(void) {
+void CForecastTest::testFinancialIndex() {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CForecastTest::testFinancialIndex  |");
     LOG_DEBUG("+-------------------------------------+");
@@ -375,7 +375,7 @@ void CForecastTest::testFinancialIndex(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.1);
 }
 
-CppUnit::Test* CForecastTest::suite(void) {
+CppUnit::Test* CForecastTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CForecastTest");
 
     suiteOfTests->addTest(

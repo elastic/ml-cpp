@@ -40,7 +40,7 @@ namespace {
 
 class CSetupVisitor {
 public:
-    CSetupVisitor(void) : m_RecordsPerBlock(0) {}
+    CSetupVisitor() : m_RecordsPerBlock(0) {}
 
     //! Handle a record
     bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
@@ -67,7 +67,7 @@ public:
         return str;
     }
 
-    size_t recordsPerBlock(void) const { return m_RecordsPerBlock; }
+    size_t recordsPerBlock() const { return m_RecordsPerBlock; }
 
 private:
     size_t m_RecordsPerBlock;
@@ -76,7 +76,7 @@ private:
 
 class CVisitor {
 public:
-    CVisitor(void) : m_RecordCount(0) {}
+    CVisitor() : m_RecordCount(0) {}
 
     //! Handle a record
     bool operator()(const ml::api::CLineifiedJsonInputParser::TStrStrUMap& /*dataRowFields*/) {
@@ -84,19 +84,19 @@ public:
         return true;
     }
 
-    size_t recordCount(void) const { return m_RecordCount; }
+    size_t recordCount() const { return m_RecordCount; }
 
 private:
     size_t m_RecordCount;
 };
 }
 
-void CLineifiedJsonInputParserTest::testThroughputArbitrary(void) {
+void CLineifiedJsonInputParserTest::testThroughputArbitrary() {
     LOG_INFO("Testing assuming arbitrary fields in JSON documents");
     this->runTest(false);
 }
 
-void CLineifiedJsonInputParserTest::testThroughputCommon(void) {
+void CLineifiedJsonInputParserTest::testThroughputCommon() {
     LOG_INFO("Testing assuming all JSON documents have the same fields");
     this->runTest(true);
 }

@@ -72,7 +72,7 @@ public:
     }
 
     //! Get the memory used by this component.
-    std::size_t memoryUsage(void) const { return m_Queue.memoryUsage(); }
+    std::size_t memoryUsage() const { return m_Queue.memoryUsage(); }
 
 private:
     //! Queue for the tasks

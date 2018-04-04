@@ -46,6 +46,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <numeric>
 #include <string>
@@ -56,13 +57,13 @@ namespace ml {
 namespace maths {
 namespace multivariate_multimodal_prior_detail {
 
-typedef std::pair<size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 3> TSizeDoublePr3Vec;
-typedef boost::shared_ptr<CMultivariatePrior> TPriorPtr;
-typedef CMultivariatePrior::TDouble10Vec1Vec TDouble10Vec1Vec;
-typedef CMultivariatePrior::TDouble10Vec4Vec1Vec TDouble10Vec4Vec1Vec;
-typedef SMultimodalPriorMode<boost::shared_ptr<CMultivariatePrior>> TMode;
-typedef std::vector<TMode> TModeVec;
+using TSizeDoublePr = std::pair<size_t, double>;
+using TSizeDoublePr3Vec = core::CSmallVector<TSizeDoublePr, 3>;
+using TPriorPtr = boost::shared_ptr<CMultivariatePrior>;
+using TDouble10Vec1Vec = CMultivariatePrior::TDouble10Vec1Vec;
+using TDouble10Vec4Vec1Vec = CMultivariatePrior::TDouble10Vec4Vec1Vec;
+using TMode = SMultimodalPriorMode<boost::shared_ptr<CMultivariatePrior>>;
+using TModeVec = std::vector<TMode>;
 
 //! Implementation of a sample joint log marginal likelihood calculation.
 MATHS_EXPORT
@@ -131,18 +132,18 @@ std::string debugWeights(const TModeVec& modes);
 template<std::size_t N>
 class CMultivariateMultimodalPrior : public CMultivariatePrior {
 public:
-    typedef core::CSmallVector<double, 5> TDouble5Vec;
-    typedef CVectorNx1<double, N> TPoint;
-    typedef CVectorNx1<CFloatStorage, N> TFloatPoint;
-    typedef std::vector<TPoint> TPointVec;
-    typedef core::CSmallVector<TPoint, 4> TPoint4Vec;
-    typedef typename CBasicStatistics::SSampleMean<TPoint>::TAccumulator TMeanAccumulator;
-    typedef CSymmetricMatrixNxN<double, N> TMatrix;
-    typedef std::vector<TMatrix> TMatrixVec;
-    typedef CClusterer<TFloatPoint> TClusterer;
-    typedef boost::shared_ptr<TClusterer> TClustererPtr;
-    typedef std::vector<TPriorPtr> TPriorPtrVec;
-    typedef CConstantWeights TWeights;
+    using TDouble5Vec = core::CSmallVector<double, 5>;
+    using TPoint = CVectorNx1<double, N>;
+    using TFloatPoint = CVectorNx1<CFloatStorage, N>;
+    using TPointVec = std::vector<TPoint>;
+    using TPoint4Vec = core::CSmallVector<TPoint, 4>;
+    using TMeanAccumulator = typename CBasicStatistics::SSampleMean<TPoint>::TAccumulator;
+    using TMatrix = CSymmetricMatrixNxN<double, N>;
+    using TMatrixVec = std::vector<TMatrix>;
+    using TClusterer = CClusterer<TFloatPoint>;
+    using TClustererPtr = boost::shared_ptr<TClusterer>;
+    using TPriorPtrVec = std::vector<TPriorPtr>;
+    using TWeights = CConstantWeights;
 
     // Lift all overloads of into scope.
     //{
@@ -238,10 +239,10 @@ public:
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CMultivariatePrior* clone(void) const { return new CMultivariateMultimodalPrior(*this); }
+    virtual CMultivariatePrior* clone() const { return new CMultivariateMultimodalPrior(*this); }
 
     //! Get the dimension of the prior.
-    virtual std::size_t dimension(void) const { return N; }
+    virtual std::size_t dimension() const { return N; }
 
     //! Set the data type.
     virtual void dataType(maths_t::EDataType value) {
@@ -306,7 +307,7 @@ public:
 
         // See CMultimodalPrior::addSamples for discussion.
 
-        typedef core::CSmallVector<TSizeDoublePr, 2> TSizeDoublePr2Vec;
+        using TSizeDoublePr2Vec = core::CSmallVector<TSizeDoublePr, 2>;
 
         // Declared outside the loop to minimize the number of times it
         // is initialized.
@@ -372,7 +373,7 @@ public:
                     if (winsorisation != missing) {
                         TDouble10Vec& ww = weight[0][winsorisation];
                         double f = (k->weight() + cluster.second) / Z;
-                        for (auto&& w : ww) {
+                        for (auto& w : ww) {
                             w = std::max(1.0 - (1.0 - w) / f, w * f);
                         }
                     }
@@ -411,7 +412,7 @@ public:
             mode.s_Prior->propagateForwardsByTime(time);
         }
 
-        this->numberSamples(this->numberSamples() * ::exp(-this->scaledDecayRate() * time));
+        this->numberSamples(this->numberSamples() * std::exp(-this->scaledDecayRate() * time));
         LOG_TRACE("numberSamples = " << this->numberSamples());
     }
 
@@ -449,8 +450,8 @@ public:
         }
 
         double Z = 0.0;
-        for (auto&& weight : weights) {
-            weight = ::exp(weight - maxWeight[0]);
+        for (auto& weight : weights) {
+            weight = std::exp(weight - maxWeight[0]);
             Z += weight;
         }
         for (std::size_t i = 0u; i < weights.size(); ++i) {
@@ -458,7 +459,7 @@ public:
         }
 
         return {TUnivariatePriorPtr(new CMultimodalPrior(this->dataType(), this->decayRate(), modes)),
-                Z > 0.0 ? maxWeight[0] + ::log(Z) : 0.0};
+                Z > 0.0 ? maxWeight[0] + std::log(Z) : 0.0};
     }
 
     //! Compute the bivariate prior marginalizing over the variables
@@ -500,19 +501,19 @@ public:
         }
 
         double Z = 0.0;
-        for (auto&& weight : weights) {
-            weight = ::exp(weight - maxWeight[0]);
+        for (auto& weight : weights) {
+            weight = std::exp(weight - maxWeight[0]);
             Z += weight;
         }
         for (std::size_t i = 0u; i < weights.size(); ++i) {
             modes[i]->numberSamples(weights[i] / Z * modes[i]->numberSamples());
         }
 
-        return {TPriorPtr(new CMultivariateMultimodalPrior<2>(this->dataType(), modes)), Z > 0.0 ? maxWeight[0] + ::log(Z) : 0.0};
+        return {TPriorPtr(new CMultivariateMultimodalPrior<2>(this->dataType(), modes)), Z > 0.0 ? maxWeight[0] + std::log(Z) : 0.0};
     }
 
     //! Get the support for the marginal likelihood function.
-    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const {
+    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const {
         if (m_Modes.size() == 0) {
             return {TPoint::smallest().template toVector<TDouble10Vec>(), TPoint::largest().template toVector<TDouble10Vec>()};
         }
@@ -534,7 +535,7 @@ public:
     }
 
     //! Get the mean of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMean(void) const {
+    virtual TDouble10Vec marginalLikelihoodMean() const {
         if (m_Modes.size() == 0) {
             return TDouble10Vec(N, 0.0);
         }
@@ -580,7 +581,7 @@ public:
             return m_Modes[0].s_Prior->marginalLikelihoodMode(weightStyles, weight);
         }
 
-        typedef CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>> TMaxAccumulator;
+        using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
 
         // We'll approximate this as the mode with the maximum likelihood.
         TPoint result(0.0);
@@ -604,7 +605,7 @@ public:
             if (prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE, mode, weight_, likelihood) & maths_t::E_FpAllErrors) {
                 continue;
             }
-            if (modeLikelihood.add(::log(w) + likelihood)) {
+            if (modeLikelihood.add(std::log(w) + likelihood)) {
                 result = TPoint(mode[0]);
             }
         }
@@ -625,7 +626,7 @@ public:
     }
 
     //! Get the covariance matrix for the marginal likelihood.
-    virtual TDouble10Vec10Vec marginalLikelihoodCovariance(void) const {
+    virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const {
         if (m_Modes.size() == 0) {
             return TPoint::largest().diagonal().template toVectors<TDouble10Vec10Vec>();
         }
@@ -636,7 +637,7 @@ public:
     }
 
     //! Get the diagonal of the covariance matrix for the marginal likelihood.
-    virtual TDouble10Vec marginalLikelihoodVariances(void) const {
+    virtual TDouble10Vec marginalLikelihoodVariances() const {
         if (m_Modes.size() == 0) {
             return TPoint::largest().template toVector<TDouble10Vec>();
         }
@@ -710,7 +711,7 @@ public:
                 TPoint seasonalScale = sqrt(TPoint(maths_t::seasonalVarianceScale(N, weightStyles, weights[i])));
                 double logSeasonalScale = 0.0;
                 for (std::size_t j = 0u; j < seasonalScale.dimension(); ++j) {
-                    logSeasonalScale += ::log(seasonalScale(j));
+                    logSeasonalScale += std::log(seasonalScale(j));
                 }
 
                 TPoint x(samples[i]);
@@ -781,7 +782,7 @@ public:
     }
 
     //! Check if this is a non-informative prior.
-    virtual bool isNonInformative(void) const { return m_Modes.empty() || (m_Modes.size() == 1 && m_Modes[0].s_Prior->isNonInformative()); }
+    virtual bool isNonInformative() const { return m_Modes.empty() || (m_Modes.size() == 1 && m_Modes[0].s_Prior->isNonInformative()); }
 
     //! Get a human readable description of the prior.
     //!
@@ -815,7 +816,7 @@ public:
     }
 
     //! Get the memory used by this component
-    virtual std::size_t memoryUsage(void) const {
+    virtual std::size_t memoryUsage() const {
         std::size_t mem = core::CMemory::dynamicSize(m_Clusterer);
         mem += core::CMemory::dynamicSize(m_SeedPrior);
         mem += core::CMemory::dynamicSize(m_Modes);
@@ -823,10 +824,10 @@ public:
     }
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize(void) const { return sizeof(*this); }
+    virtual std::size_t staticSize() const { return sizeof(*this); }
 
     //! Get the tag name for this prior.
-    virtual std::string persistenceTag(void) const { return MULTIMODAL_TAG + core::CStringUtils::typeToString(N); }
+    virtual std::string persistenceTag() const { return MULTIMODAL_TAG + core::CStringUtils::typeToString(N); }
 
     //! Persist state by passing information to the supplied inserter
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -841,10 +842,10 @@ public:
     //@}
 
     //! Get the current number of modes.
-    std::size_t numberModes(void) const { return m_Modes.size(); }
+    std::size_t numberModes() const { return m_Modes.size(); }
 
     //! Get the expected mean of the marginal likelihood.
-    TPoint mean(void) const {
+    TPoint mean() const {
         // By linearity we have that:
         //   Integral{ x * Sum_i{ w(i) * f(x | i) } }
         //     = Sum_i{ w(i) * Integral{ x * f(x | i) } }
@@ -859,12 +860,12 @@ public:
     }
 
 protected:
-    typedef multivariate_multimodal_prior_detail::TMode TMode;
-    typedef multivariate_multimodal_prior_detail::TModeVec TModeVec;
+    using TMode = multivariate_multimodal_prior_detail::TMode;
+    using TModeVec = multivariate_multimodal_prior_detail::TModeVec;
 
 protected:
     //! Get the modes.
-    const TModeVec& modes(void) const { return m_Modes; }
+    const TModeVec& modes() const { return m_Modes; }
 
 private:
     //! The callback invoked when a mode is split.
@@ -1028,21 +1029,21 @@ private:
     }
 
     //! We should only use this prior when it has multiple modes.
-    virtual bool participatesInModelSelection(void) const { return m_Modes.size() > 1; }
+    virtual bool participatesInModelSelection() const { return m_Modes.size() > 1; }
 
     //! Get the number of nuisance parameters in the marginal likelihood.
     //!
     //! This is just number modes - 1 due to the normalization constraint.
-    virtual double unmarginalizedParameters(void) const { return std::max(static_cast<double>(m_Modes.size()), 1.0) - 1.0; }
+    virtual double unmarginalizedParameters() const { return std::max(static_cast<double>(m_Modes.size()), 1.0) - 1.0; }
 
     //! Get the convariance matrix for the marginal likelihood.
-    TMatrix covarianceMatrix(void) const {
+    TMatrix covarianceMatrix() const {
         // By linearity we have that:
         //   Integral{ (x - m)' * (x - m) * Sum_i{ w(i) * f(x | i) } }
         //     = Sum_i{ w(i) * (Integral{ x' * x * f(x | i) } - m' * m) }
         //     = Sum_i{ w(i) * ((mi' * mi + Ci) - m' * m) }
 
-        typedef typename CBasicStatistics::SSampleMean<TMatrix>::TAccumulator TMatrixMeanAccumulator;
+        using TMatrixMeanAccumulator = typename CBasicStatistics::SSampleMean<TMatrix>::TAccumulator;
 
         TMatrix mean2 = TPoint(this->marginalLikelihoodMean()).outer();
 
@@ -1058,7 +1059,7 @@ private:
     }
 
     //! Full debug dump of the mode weights.
-    std::string debugWeights(void) const { return multivariate_multimodal_prior_detail::debugWeights(m_Modes); }
+    std::string debugWeights() const { return multivariate_multimodal_prior_detail::debugWeights(m_Modes); }
 
 private:
     //! The object which partitions the data into clusters.

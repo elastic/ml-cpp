@@ -36,20 +36,20 @@
 
 namespace {
 
-typedef ml::maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef ml::maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator TMeanVarSkewAccumulator;
-typedef ml::core::CSmallVector<TMeanAccumulator, 2> TMeanAccumulator2Vec;
-typedef ml::core::CSmallVector<TMeanVarAccumulator, 2> TMeanVarAccumulator2Vec;
-typedef ml::core::CSmallVector<TMeanVarSkewAccumulator, 2> TMeanVarSkewAccumulator2Vec;
-typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
-typedef std::vector<TMeanVarAccumulator> TMeanVarAccumulatorVec;
-typedef std::vector<TMeanVarSkewAccumulator> TMeanVarSkewAccumulatorVec;
+using TMeanAccumulator = ml::maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanVarAccumulator = ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TMeanVarSkewAccumulator = ml::maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator;
+using TMeanAccumulator2Vec = ml::core::CSmallVector<TMeanAccumulator, 2>;
+using TMeanVarAccumulator2Vec = ml::core::CSmallVector<TMeanVarAccumulator, 2>;
+using TMeanVarSkewAccumulator2Vec = ml::core::CSmallVector<TMeanVarSkewAccumulator, 2>;
+using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
+using TMeanVarSkewAccumulatorVec = std::vector<TMeanVarSkewAccumulator>;
 
 const std::string TAG("a");
 
 struct SRestore {
-    typedef bool result_type;
+    using result_type = bool;
 
     template<typename T>
     bool operator()(std::vector<T>& restored, ml::core::CStateRestoreTraverser& traverser) const {
@@ -63,7 +63,7 @@ struct SRestore {
 };
 }
 
-CppUnit::Test* CBasicStatisticsTest::suite(void) {
+CppUnit::Test* CBasicStatisticsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBasicStatisticsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>("CBasicStatisticsTest::testMean", &CBasicStatisticsTest::testMean));
@@ -85,7 +85,7 @@ CppUnit::Test* CBasicStatisticsTest::suite(void) {
     return suiteOfTests;
 }
 
-void CBasicStatisticsTest::testMean(void) {
+void CBasicStatisticsTest::testMean() {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testMean |");
     LOG_DEBUG("+---------------------------------+");
@@ -100,12 +100,12 @@ void CBasicStatisticsTest::testMean(void) {
     CPPUNIT_ASSERT_EQUAL(56.47875, mean);
 }
 
-void CBasicStatisticsTest::testCentralMoments(void) {
+void CBasicStatisticsTest::testCentralMoments() {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testCentralMoments  |");
     LOG_DEBUG("+--------------------------------------------+");
 
-    typedef std::vector<double> TDoubleVec;
+    using TDoubleVec = std::vector<double>;
 
     LOG_DEBUG("Test mean double");
     {
@@ -127,7 +127,7 @@ void CBasicStatisticsTest::testCentralMoments(void) {
 
     LOG_DEBUG("Test mean float");
     {
-        typedef ml::maths::CBasicStatistics::SSampleMean<float>::TAccumulator TFloatMeanAccumulator;
+        using TFloatMeanAccumulator = ml::maths::CBasicStatistics::SSampleMean<float>::TAccumulator;
 
         float samples[] = {0.9f, 10.0f, 5.6f, 1.23f, -12.3f, 7.2f, 0.0f, 1.2f};
 
@@ -385,10 +385,10 @@ void CBasicStatisticsTest::testCentralMoments(void) {
     }
 
     LOG_DEBUG("test vector") {
-        typedef ml::maths::CBasicStatistics::SSampleMean<ml::maths::CVectorNx1<double, 4>>::TAccumulator TVectorMeanAccumulator;
-        typedef ml::maths::CBasicStatistics::SSampleMeanVar<ml::maths::CVectorNx1<double, 4>>::TAccumulator TVectorMeanVarAccumulator;
-        typedef ml::maths::CBasicStatistics::SSampleMeanVarSkew<ml::maths::CVectorNx1<double, 4>>::TAccumulator
-            TVectorMeanVarSkewAccumulator;
+        using TVectorMeanAccumulator = ml::maths::CBasicStatistics::SSampleMean<ml::maths::CVectorNx1<double, 4>>::TAccumulator;
+        using TVectorMeanVarAccumulator = ml::maths::CBasicStatistics::SSampleMeanVar<ml::maths::CVectorNx1<double, 4>>::TAccumulator;
+        using TVectorMeanVarSkewAccumulator =
+            ml::maths::CBasicStatistics::SSampleMeanVarSkew<ml::maths::CVectorNx1<double, 4>>::TAccumulator;
 
         ml::test::CRandomNumbers rng;
 
@@ -643,13 +643,13 @@ void CBasicStatisticsTest::testCentralMoments(void) {
     CPPUNIT_ASSERT_EQUAL(true, ml::core::memory_detail::SDynamicSizeAlwaysZero<TMeanVarSkewAccumulator>::value());
 }
 
-void CBasicStatisticsTest::testVectorCentralMoments(void) {
+void CBasicStatisticsTest::testVectorCentralMoments() {
     LOG_DEBUG("+--------------------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testVectorCentralMoments  |");
     LOG_DEBUG("+--------------------------------------------------+");
 
-    typedef ml::core::CSmallVector<double, 2> TDouble2Vec;
-    typedef std::vector<double> TDoubleVec;
+    using TDouble2Vec = ml::core::CSmallVector<double, 2>;
+    using TDoubleVec = std::vector<double>;
 
     {
         TMeanAccumulator2Vec moments1(2);
@@ -739,7 +739,7 @@ void CBasicStatisticsTest::testVectorCentralMoments(void) {
     }
 }
 
-void CBasicStatisticsTest::testCovariances(void) {
+void CBasicStatisticsTest::testCovariances() {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testCovariances  |");
     LOG_DEBUG("+-----------------------------------------+");
@@ -787,7 +787,7 @@ void CBasicStatisticsTest::testCovariances(void) {
     }
 
     {
-        typedef std::vector<ml::maths::CVectorNx1<double, 4>> TVectorVec;
+        using TVectorVec = std::vector<ml::maths::CVectorNx1<double, 4>>;
 
         double mean_[] = {1.0, 3.0, 2.0, 7.0};
         ml::maths::CVectorNx1<double, 4> mean(mean_);
@@ -863,16 +863,16 @@ void CBasicStatisticsTest::testCovariances(void) {
     }
 }
 
-void CBasicStatisticsTest::testCovariancesLedoitWolf(void) {
+void CBasicStatisticsTest::testCovariancesLedoitWolf() {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testCovariancesLedoitWolf  |");
     LOG_DEBUG("+---------------------------------------------------+");
 
-    typedef std::vector<double> TDoubleVec;
-    typedef std::vector<TDoubleVec> TDoubleVecVec;
-    typedef ml::maths::CVectorNx1<double, 2> TVector2;
-    typedef std::vector<TVector2> TVector2Vec;
-    typedef ml::maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
+    using TDoubleVec = std::vector<double>;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TVector2 = ml::maths::CVectorNx1<double, 2>;
+    using TVector2Vec = std::vector<TVector2>;
+    using TMatrix2 = ml::maths::CSymmetricMatrixNxN<double, 2>;
 
     ml::test::CRandomNumbers rng;
 
@@ -937,7 +937,7 @@ void CBasicStatisticsTest::testCovariancesLedoitWolf(void) {
     CPPUNIT_ASSERT(ml::maths::CBasicStatistics::mean(errorLW) < 0.9 * ml::maths::CBasicStatistics::mean(error));
 }
 
-void CBasicStatisticsTest::testMedian(void) {
+void CBasicStatisticsTest::testMedian() {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testMedian  |");
     LOG_DEBUG("+------------------------------------+");
@@ -996,7 +996,7 @@ void CBasicStatisticsTest::testMedian(void) {
     }
 }
 
-void CBasicStatisticsTest::testOrderStatistics(void) {
+void CBasicStatisticsTest::testOrderStatistics() {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testOrderStatistics  |");
     LOG_DEBUG("+---------------------------------------------+");
@@ -1004,10 +1004,10 @@ void CBasicStatisticsTest::testOrderStatistics(void) {
     // Test that the order statistics accumulators work for finding min and max
     // elements of a collection.
 
-    typedef ml::maths::CBasicStatistics::COrderStatisticsStack<double, 2u> TMinStatsStack;
-    typedef ml::maths::CBasicStatistics::COrderStatisticsStack<double, 3u, std::greater<double>> TMaxStatsStack;
-    typedef ml::maths::CBasicStatistics::COrderStatisticsHeap<double> TMinStatsHeap;
-    typedef ml::maths::CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>> TMaxStatsHeap;
+    using TMinStatsStack = ml::maths::CBasicStatistics::COrderStatisticsStack<double, 2u>;
+    using TMaxStatsStack = ml::maths::CBasicStatistics::COrderStatisticsStack<double, 3u, std::greater<double>>;
+    using TMinStatsHeap = ml::maths::CBasicStatistics::COrderStatisticsHeap<double>;
+    using TMaxStatsHeap = ml::maths::CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
 
     {
         // Test on the stack min, max, combine and persist and restore.
@@ -1178,12 +1178,12 @@ void CBasicStatisticsTest::testOrderStatistics(void) {
     }
 }
 
-void CBasicStatisticsTest::testMinMax(void) {
+void CBasicStatisticsTest::testMinMax() {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CBasicStatisticsTest::testMinMax  |");
     LOG_DEBUG("+------------------------------------+");
 
-    typedef std::vector<double> TDoubleVec;
+    using TDoubleVec = std::vector<double>;
 
     TDoubleVec positive{1.0, 2.7, 4.0, 0.3, 11.7};
     TDoubleVec negative{-3.7, -0.8, -18.2, -0.8};

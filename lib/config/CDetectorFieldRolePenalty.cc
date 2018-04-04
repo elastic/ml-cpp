@@ -27,7 +27,7 @@ namespace ml {
 namespace config {
 namespace {
 
-typedef const CFieldStatistics* (CDetectorSpecification::*TGetStatistics)(void)const;
+using TGetStatistics = const CFieldStatistics* (CDetectorSpecification::*)() const;
 const TGetStatistics STATISTIC[] = {
     &CDetectorSpecification::argumentFieldStatistics,
     &CDetectorSpecification::byFieldStatistics,
@@ -40,11 +40,11 @@ CDetectorFieldRolePenalty::CDetectorFieldRolePenalty(const CAutoconfigurerParams
     std::fill_n(m_FieldRolePenalties, constants::NUMBER_FIELD_INDICES, static_cast<const CPenalty*>(0));
 }
 
-CDetectorFieldRolePenalty* CDetectorFieldRolePenalty::clone(void) const {
+CDetectorFieldRolePenalty* CDetectorFieldRolePenalty::clone() const {
     return new CDetectorFieldRolePenalty(*this);
 }
 
-std::string CDetectorFieldRolePenalty::name(void) const {
+std::string CDetectorFieldRolePenalty::name() const {
     std::string arguments;
     for (std::size_t i = 0u; i < constants::NUMBER_FIELD_INDICES; ++i) {
         if (m_FieldRolePenalties[i]) {

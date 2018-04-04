@@ -49,10 +49,10 @@ public:
 
 protected:
     //! Called when the thread is started.
-    virtual void run(void);
+    virtual void run();
 
     //! Called when the thread is stopped.
-    virtual void shutdown(void);
+    virtual void shutdown();
 
 private:
     //! Thread ID of the thread that this object will cancel blocking IO in

@@ -55,7 +55,7 @@ public:
 
 private:
     //! Don't allow objects to be instantiated
-    CWordExtractor(void);
+    CWordExtractor();
     CWordExtractor(const CWordExtractor&);
 
 private:

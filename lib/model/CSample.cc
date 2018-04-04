@@ -64,7 +64,7 @@ bool CSample::SFromString::operator()(const std::string& token, CSample& value) 
     return true;
 }
 
-CSample::CSample(void) : m_Time(0), m_Value(), m_VarianceScale(0.0), m_Count(0) {
+CSample::CSample() : m_Time(0), m_Value(), m_VarianceScale(0.0), m_Count(0) {
 }
 
 CSample::CSample(core_t::TTime time, const TDouble1Vec& value, double varianceScale, double count)
@@ -72,7 +72,7 @@ CSample::CSample(core_t::TTime time, const TDouble1Vec& value, double varianceSc
 }
 
 CSample::TDouble1Vec CSample::value(std::size_t dimension) const {
-    typedef std::vector<std::size_t> TSizeVec;
+    using TSizeVec = std::vector<std::size_t>;
 
     TDouble1Vec result;
     const TSizeVec& indices = CFeatureDataIndexing::valueIndices(dimension);
@@ -83,14 +83,14 @@ CSample::TDouble1Vec CSample::value(std::size_t dimension) const {
     return result;
 }
 
-uint64_t CSample::checksum(void) const {
+uint64_t CSample::checksum() const {
     uint64_t seed = static_cast<uint64_t>(m_Time);
     seed = maths::CChecksum::calculate(seed, m_Value);
     seed = maths::CChecksum::calculate(seed, m_VarianceScale);
     return maths::CChecksum::calculate(seed, m_Count);
 }
 
-std::string CSample::print(void) const {
+std::string CSample::print() const {
     std::ostringstream result;
     result << '(' << m_Time << ' ' << core::CContainerPrinter::print(m_Value) << ' ' << m_VarianceScale << ' ' << m_Count << ')';
     return result.str();
@@ -101,7 +101,7 @@ void CSample::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     core::CMemoryDebug::dynamicSize("m_Value", m_Value, mem);
 }
 
-std::size_t CSample::memoryUsage(void) const {
+std::size_t CSample::memoryUsage() const {
     return core::CMemory::dynamicSize(m_Value);
 }
 }

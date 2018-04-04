@@ -39,7 +39,7 @@ namespace hierarchical_results_detail {
 
 namespace {
 
-typedef SNode::TNodeCPtr TNodeCPtr;
+using TNodeCPtr = SNode::TNodeCPtr;
 
 //! CHierarchicalResults tags
 const std::string NODES_1_TAG("a");
@@ -171,8 +171,8 @@ SNode* address(SNode& value) {
 //! Aggregate the nodes in a layer.
 template<typename LESS, typename ITR, typename FACTORY>
 void aggregateLayer(ITR beginLayer, ITR endLayer, CHierarchicalResults& results, FACTORY newNode, std::vector<SNode*>& newLayer) {
-    typedef std::vector<SNode*> TNodePtrVec;
-    typedef std::map<TNodeCPtr, TNodePtrVec, LESS> TNodeCPtrNodePtrVecMap;
+    using TNodePtrVec = std::vector<SNode*>;
+    using TNodeCPtrNodePtrVecMap = std::map<TNodeCPtr, TNodePtrVec, LESS>;
 
     newLayer.clear();
 
@@ -241,7 +241,7 @@ public:
 
 } // unnamed::
 
-SResultSpec::SResultSpec(void)
+SResultSpec::SResultSpec()
     : s_Detector(0),
       s_IsSimpleCount(false),
       s_IsPopulation(false),
@@ -256,7 +256,7 @@ SResultSpec::SResultSpec(void)
       s_Function(function_t::E_IndividualCount) {
 }
 
-std::string SResultSpec::print(void) const {
+std::string SResultSpec::print() const {
     return '\'' + core::CStringUtils::typeToStringPretty(s_IsSimpleCount) + '/' + core::CStringUtils::typeToStringPretty(s_IsPopulation) +
            '/' + *s_FunctionName + '/' + *s_PartitionFieldName + '/' + *s_PartitionFieldValue + '/' + *s_PersonFieldName + '/' +
            *s_PersonFieldValue + '/' + *s_ValueFieldName + '\'';
@@ -311,7 +311,7 @@ bool SResultSpec::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser
     return true;
 }
 
-SNode::SNode(void)
+SNode::SNode()
     : s_Parent(0),
       s_AnnotatedProbability(1.0),
       s_Detector(-3),
@@ -340,11 +340,11 @@ SNode::SNode(const SResultSpec& simpleSearch, SAnnotatedProbability& annotatedPr
     s_AnnotatedProbability.swap(annotatedProbability);
 }
 
-double SNode::probability(void) const {
+double SNode::probability() const {
     return s_AnnotatedProbability.s_Probability;
 }
 
-void SNode::propagateFields(void) {
+void SNode::propagateFields() {
     if (s_Children.empty()) {
         return;
     }
@@ -375,7 +375,7 @@ void SNode::propagateFields(void) {
     }
 }
 
-std::string SNode::print(void) const {
+std::string SNode::print() const {
     return s_Spec.print() + ": " + core::CStringUtils::typeToStringPretty(this->probability()) + ", " +
            core::CStringUtils::typeToStringPretty(s_RawAnomalyScore) +
            (s_AnnotatedProbability.s_Influences.empty() ? "" : ", " + core::CContainerPrinter::print(s_AnnotatedProbability.s_Influences));
@@ -492,7 +492,7 @@ void swap(SNode& node1, SNode& node2) {
 
 using namespace hierarchical_results_detail;
 
-CHierarchicalResults::CHierarchicalResults(void) : m_ResultType(model_t::CResultType::E_Final) {
+CHierarchicalResults::CHierarchicalResults() : m_ResultType(model_t::CResultType::E_Final) {
 }
 
 void CHierarchicalResults::addSimpleCountResult(SAnnotatedProbability& annotatedProbability,
@@ -552,8 +552,8 @@ void CHierarchicalResults::addInfluencer(const std::string& name) {
     this->newPivotRoot(CStringStore::influencers().get(name));
 }
 
-void CHierarchicalResults::buildHierarchy(void) {
-    typedef std::vector<SNode*> TNodePtrVec;
+void CHierarchicalResults::buildHierarchy() {
+    using TNodePtrVec = std::vector<SNode*>;
 
     m_Nodes.erase(std::remove_if(m_Nodes.begin(), m_Nodes.end(), isAggregate), m_Nodes.end());
 
@@ -624,7 +624,7 @@ void CHierarchicalResults::buildHierarchy(void) {
     this->bottomUpBreadthFirst(influencePropagator);
 }
 
-void CHierarchicalResults::createPivots(void) {
+void CHierarchicalResults::createPivots() {
     LOG_TRACE("Creating pivots");
 
     for (const auto& node : m_Nodes) {
@@ -638,14 +638,14 @@ void CHierarchicalResults::createPivots(void) {
         }
     }
 
-    for (auto&& pivot : m_PivotNodes) {
+    for (auto& pivot : m_PivotNodes) {
         TNode& root = this->newPivotRoot(pivot.second.s_Spec.s_PersonFieldName);
         root.s_Children.push_back(&pivot.second);
         pivot.second.s_Parent = &root;
     }
 }
 
-const CHierarchicalResults::TNode* CHierarchicalResults::root(void) const {
+const CHierarchicalResults::TNode* CHierarchicalResults::root() const {
     if (m_Nodes.empty()) {
         return 0;
     }
@@ -701,11 +701,11 @@ void CHierarchicalResults::pivotsTopDownBreadthFirst(CHierarchicalResultsVisitor
     }
 }
 
-bool CHierarchicalResults::empty(void) const {
+bool CHierarchicalResults::empty() const {
     return m_Nodes.empty();
 }
 
-std::size_t CHierarchicalResults::resultCount(void) const {
+std::size_t CHierarchicalResults::resultCount() const {
     std::size_t result = 0u;
     for (const auto& node : m_Nodes) {
         if (isLeaf(node) && !node.s_Spec.s_IsSimpleCount) {
@@ -715,19 +715,19 @@ std::size_t CHierarchicalResults::resultCount(void) const {
     return result;
 }
 
-void CHierarchicalResults::setInterim(void) {
+void CHierarchicalResults::setInterim() {
     m_ResultType.set(model_t::CResultType::E_Interim);
 }
 
-model_t::CResultType CHierarchicalResults::resultType(void) const {
+model_t::CResultType CHierarchicalResults::resultType() const {
     return m_ResultType;
 }
 
 void CHierarchicalResults::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    typedef TStoredStringPtrNodeMap::const_iterator TStoredStringPtrNodeMapCItr;
-    typedef std::vector<TStoredStringPtrNodeMapCItr> TStoredStringPtrNodeMapCItrVec;
-    typedef TStoredStringPtrStoredStringPtrPrNodeMap::const_iterator TStoredStringPtrStoredStringPtrPrNodeMapCItr;
-    typedef std::vector<TStoredStringPtrStoredStringPtrPrNodeMapCItr> TStoredStringPtrStoredStringPtrPrNodeMapCItrVec;
+    using TStoredStringPtrNodeMapCItr = TStoredStringPtrNodeMap::const_iterator;
+    using TStoredStringPtrNodeMapCItrVec = std::vector<TStoredStringPtrNodeMapCItr>;
+    using TStoredStringPtrStoredStringPtrPrNodeMapCItr = TStoredStringPtrStoredStringPtrPrNodeMap::const_iterator;
+    using TStoredStringPtrStoredStringPtrPrNodeMapCItrVec = std::vector<TStoredStringPtrStoredStringPtrPrNodeMapCItr>;
 
     TNodePtrSizeUMap nodePointers;
 
@@ -868,7 +868,7 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
     return true;
 }
 
-std::string CHierarchicalResults::print(void) const {
+std::string CHierarchicalResults::print() const {
     std::ostringstream ss;
     for (const auto& node : m_Nodes) {
         ss << "\t" << node.print() << core_t::LINE_ENDING;
@@ -876,7 +876,7 @@ std::string CHierarchicalResults::print(void) const {
     return ss.str();
 }
 
-CHierarchicalResults::TNode& CHierarchicalResults::newNode(void) {
+CHierarchicalResults::TNode& CHierarchicalResults::newNode() {
     m_Nodes.push_back(TNode());
     return m_Nodes.back();
 }
@@ -907,7 +907,7 @@ void CHierarchicalResults::postorderDepthFirst(const TNode* node, CHierarchicalR
     visitor.visit(*this, *node, /*pivot =*/false);
 }
 
-CHierarchicalResultsVisitor::~CHierarchicalResultsVisitor(void) {
+CHierarchicalResultsVisitor::~CHierarchicalResultsVisitor() {
 }
 
 bool CHierarchicalResultsVisitor::isRoot(const TNode& node) {

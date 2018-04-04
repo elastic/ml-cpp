@@ -27,7 +27,7 @@
 namespace ml {
 namespace test {
 
-std::string CTestTmpDir::tmpDir(void) {
+std::string CTestTmpDir::tmpDir() {
     // Try to create a user-specific sub-directory of the temporary directory so
     // that multiple users sharing the same server don't clash.  However, if
     // this fails for any reason drop back to just raw /tmp.

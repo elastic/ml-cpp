@@ -37,7 +37,7 @@ public:
     CScopedReadLock(CReadWriteLock& readWriteLock);
 
     //! Unlock specified read/write lock
-    ~CScopedReadLock(void);
+    ~CScopedReadLock();
 
 private:
     CReadWriteLock& m_ReadWriteLock;

@@ -29,12 +29,11 @@
 #include <boost/math/tools/roots.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <limits>
 #include <stdexcept>
 #include <utility>
-
-#include <math.h>
 
 namespace ml {
 namespace maths {
@@ -47,7 +46,7 @@ namespace maths {
 //! interval bisection.
 class MATHS_EXPORT CSolvers {
 private:
-    typedef std::pair<double, double> TDoubleDoublePr;
+    using TDoubleDoublePr = std::pair<double, double>;
 
     //! \name Helpers
     //@{
@@ -113,7 +112,7 @@ private:
                          double lb,
                          double& x,
                          double& fx) {
-        tolerance = std::max(tolerance, ::sqrt(std::numeric_limits<double>::epsilon()));
+        tolerance = std::max(tolerance, std::sqrt(std::numeric_limits<double>::epsilon()));
         const double golden = 0.3819660;
 
         if (fa < fb) {
@@ -133,9 +132,9 @@ private:
         do {
             double xm = bisect(a, b);
 
-            double t1 = tolerance * (::fabs(x) + 0.25);
+            double t1 = tolerance * (std::fabs(x) + 0.25);
             double t2 = 2.0 * t1;
-            if (fx <= lb || ::fabs(x - xm) <= (t2 - (b - a) / 2.0)) {
+            if (fx <= lb || std::fabs(x - xm) <= (t2 - (b - a) / 2.0)) {
                 break;
             }
 
@@ -150,12 +149,12 @@ private:
                 if (q > 0) {
                     p = -p;
                 }
-                q = ::fabs(q);
+                q = std::fabs(q);
 
                 double td = sLast;
-                sLast = ::fabs(s);
+                sLast = std::fabs(s);
 
-                if (::fabs(p) >= q * td / 2.0 || p <= q * (a - x) || p >= q * (b - x)) {
+                if (std::fabs(p) >= q * td / 2.0 || p <= q * (a - x) || p >= q * (b - x)) {
                     // Minimum not in range or converging too slowly.
                     sLast = (x >= xm) ? x - a : b - x;
                     s = sign * std::max(golden * sLast, t1);
@@ -236,7 +235,7 @@ private:
             if (n < (3 * maxIterations) / 4) {
                 double minStep = step;
                 double maxStep = step * step;
-                step = fa == fb ? maxStep : std::min(std::max(::fabs(b - a) / ::fabs(fb - fa) * ::fabs(fb), minStep), maxStep);
+                step = fa == fb ? maxStep : std::min(std::max(std::fabs(b - a) / std::fabs(fb - fa) * std::fabs(fb), minStep), maxStep);
             }
             a = b;
             fa = fb;
@@ -508,7 +507,7 @@ public:
             return false;
         }
 
-        if (::fabs(fa) < ::fabs(fb)) {
+        if (std::fabs(fa) < std::fabs(fb)) {
             std::swap(a, b);
             std::swap(fa, fb);
         }
@@ -524,8 +523,8 @@ public:
             double e = (3.0 * a + b) / 4.0;
 
             if ((!(((s > e) && (s < b)) || ((s < e) && (s > b)))) ||
-                (bisected && ((::fabs(s - b) >= ::fabs(b - c) / 2.0) || equal(b, c))) ||
-                (!bisected && ((::fabs(s - b) >= ::fabs(c - d) / 2.0) || equal(c, d)))) {
+                (bisected && ((std::fabs(s - b) >= std::fabs(b - c) / 2.0) || equal(b, c))) ||
+                (!bisected && ((std::fabs(s - b) >= std::fabs(c - d) / 2.0) || equal(c, d)))) {
                 // Use bisection.
                 s = bisect(a, b);
                 bisected = true;
@@ -552,7 +551,7 @@ public:
                 fb = fs;
             }
 
-            if (::fabs(fa) < ::fabs(fb)) {
+            if (std::fabs(fa) < std::fabs(fb)) {
                 std::swap(a, b);
                 std::swap(fa, fb);
             }
@@ -758,8 +757,8 @@ public:
     //! \param[out] fx Set to the value of f at \p x.
     template<typename T, typename F>
     static bool globalMinimize(const T& p, const F& f, double& x, double& fx) {
-        typedef std::pair<double, std::size_t> TDoubleSizePr;
-        typedef CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1> TMinAccumulator;
+        using TDoubleSizePr = std::pair<double, std::size_t>;
+        using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1>;
 
         std::size_t n = p.size();
 
@@ -872,7 +871,7 @@ public:
         LOG_TRACE("a = " << a << ", x = " << x << ", b = " << b);
         LOG_TRACE("f_(a) = " << fa - fc << ", f_(x) = " << fx - fc << ", f_(b) = " << fb - fc);
 
-        const double eps = ::sqrt(std::numeric_limits<double>::epsilon()) * b;
+        const double eps = std::sqrt(std::numeric_limits<double>::epsilon()) * b;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
         LOG_TRACE("eps = " << eps);
 

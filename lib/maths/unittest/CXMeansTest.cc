@@ -34,30 +34,30 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::vector<uint64_t> TUInt64Vec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef TVector2Vec::const_iterator TVector2VecCItr;
-typedef std::vector<TVector2Vec> TVector2VecVec;
-typedef maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator TMeanVar2Accumulator;
-typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
-typedef std::vector<TMatrix2> TMatrix2Vec;
-typedef maths::CVectorNx1<double, 4> TVector4;
-typedef std::vector<TVector4> TVector4Vec;
-typedef maths::CBasicStatistics::SSampleMeanVar<TVector4>::TAccumulator TMeanVar4Accumulator;
-typedef maths::CSymmetricMatrixNxN<double, 4> TMatrix4;
-typedef std::vector<TMatrix4> TMatrix4Vec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TUInt64Vec = std::vector<uint64_t>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TVector2 = maths::CVectorNx1<double, 2>;
+using TVector2Vec = std::vector<TVector2>;
+using TVector2VecCItr = TVector2Vec::const_iterator;
+using TVector2VecVec = std::vector<TVector2Vec>;
+using TMeanVar2Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator;
+using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
+using TMatrix2Vec = std::vector<TMatrix2>;
+using TVector4 = maths::CVectorNx1<double, 4>;
+using TVector4Vec = std::vector<TVector4>;
+using TMeanVar4Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector4>::TAccumulator;
+using TMatrix4 = maths::CSymmetricMatrixNxN<double, 4>;
+using TMatrix4Vec = std::vector<TMatrix4>;
 
 //! \brief Expose internals of x-means for testing.
 template<typename POINT, typename COST = maths::CSphericalGaussianInfoCriterion<POINT, maths::E_BIC>>
 class CXMeansForTest : public maths::CXMeans<POINT, COST> {
 public:
-    typedef typename maths::CXMeans<POINT, COST>::TUInt64USet TUInt64USet;
+    using TUInt64USet = typename maths::CXMeans<POINT, COST>::TUInt64USet;
 
 public:
     CXMeansForTest(std::size_t kmax) : maths::CXMeans<POINT, COST>(kmax) {}
@@ -68,19 +68,19 @@ public:
         return this->maths::CXMeans<POINT, COST>::improveStructure(clusterSeeds, kmeansIterations);
     }
 
-    const TUInt64USet& inactive(void) const { return this->maths::CXMeans<POINT, COST>::inactive(); }
+    const TUInt64USet& inactive() const { return this->maths::CXMeans<POINT, COST>::inactive(); }
 };
 
 template<typename POINT>
 double logfSphericalGaussian(const POINT& mean, double variance, const POINT& x) {
     double d = static_cast<double>(x.dimension());
     double r = (x - mean).euclidean();
-    return -0.5 * d * ::log(boost::math::double_constants::two_pi * variance) - 0.5 * r * r / variance;
+    return -0.5 * d * std::log(boost::math::double_constants::two_pi * variance) - 0.5 * r * r / variance;
 }
 
 class CEmpiricalKullbackLeibler {
 public:
-    double value(void) const { return maths::CBasicStatistics::mean(m_Divergence) - ::log(maths::CBasicStatistics::count(m_Divergence)); }
+    double value() const { return maths::CBasicStatistics::mean(m_Divergence) - std::log(maths::CBasicStatistics::count(m_Divergence)); }
 
     template<typename POINT>
     void add(const std::vector<POINT>& points) {
@@ -119,14 +119,14 @@ void computePurities(const TSizeVecVec& clusters, TDoubleVec& purities) {
 }
 }
 
-void CXMeansTest::testCluster(void) {
+void CXMeansTest::testCluster() {
     LOG_DEBUG("+----------------------------+");
     LOG_DEBUG("|  CXMeansTest::testCluster  |");
     LOG_DEBUG("+----------------------------+");
 
     // Test basic accessors and checksum functionality of cluster.
 
-    typedef std::vector<double> TDoubleVec;
+    using TDoubleVec = std::vector<double>;
 
     maths::CSampling::seed();
 
@@ -186,14 +186,14 @@ void CXMeansTest::testCluster(void) {
     }
 }
 
-void CXMeansTest::testImproveStructure(void) {
+void CXMeansTest::testImproveStructure() {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CXMeansTest::testImproveStructure  |");
     LOG_DEBUG("+-------------------------------------+");
 
     // Test improve structure finds an obvious split of the data.
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CSampling::seed();
 
@@ -258,7 +258,7 @@ void CXMeansTest::testImproveStructure(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.25);
 }
 
-void CXMeansTest::testImproveParams(void) {
+void CXMeansTest::testImproveParams() {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CXMeansTest::testImproveParams  |");
     LOG_DEBUG("+----------------------------------+");
@@ -317,7 +317,7 @@ void CXMeansTest::testImproveParams(void) {
     }
 }
 
-void CXMeansTest::testOneCluster(void) {
+void CXMeansTest::testOneCluster() {
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CXMeansTest::testOneCluster  |");
     LOG_DEBUG("+-------------------------------+");
@@ -372,7 +372,7 @@ void CXMeansTest::testOneCluster(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanNumberClusters) < 1.15);
 }
 
-void CXMeansTest::testFiveClusters(void) {
+void CXMeansTest::testFiveClusters() {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CXMeansTest::testFiveClusters  |");
     LOG_DEBUG("+---------------------------------+");
@@ -482,17 +482,17 @@ void CXMeansTest::testFiveClusters(void) {
     }
 
     LOG_DEBUG("mean number clusters = " << maths::CBasicStatistics::mean(meanNumberClusters));
-    LOG_DEBUG("sd number clusters = " << ::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)));
+    LOG_DEBUG("sd number clusters = " << std::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)));
     LOG_DEBUG("KL gain = " << maths::CBasicStatistics::mean(klgain));
     LOG_DEBUG("mean total purity = " << maths::CBasicStatistics::mean(meanTotalPurity));
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, maths::CBasicStatistics::mean(meanNumberClusters), 0.3);
-    CPPUNIT_ASSERT(::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)) < 0.9);
+    CPPUNIT_ASSERT(std::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)) < 0.9);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(klgain) > -0.1);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanTotalPurity) > 0.93);
 }
 
-void CXMeansTest::testTwentyClusters(void) {
+void CXMeansTest::testTwentyClusters() {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CXMeansTest::testTwentyClusters  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -586,12 +586,12 @@ void CXMeansTest::testTwentyClusters(void) {
     LOG_DEBUG("totalPurity           = " << maths::CBasicStatistics::mean(totalPurity));
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL(20.0, static_cast<double>(xmeans.clusters().size()), 6.0);
-    CPPUNIT_ASSERT(klc.value() < kl.value() + 0.05 * std::max(::fabs(klc.value()), ::fabs(kl.value())));
+    CPPUNIT_ASSERT(klc.value() < kl.value() + 0.05 * std::max(std::fabs(klc.value()), std::fabs(kl.value())));
     CPPUNIT_ASSERT(minPurity > 0.4);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(totalPurity) > 0.8);
 }
 
-void CXMeansTest::testPoorlyConditioned(void) {
+void CXMeansTest::testPoorlyConditioned() {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CXMeansTest::testPoorlyConditioned  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -644,7 +644,7 @@ void CXMeansTest::testPoorlyConditioned(void) {
     }
 }
 
-CppUnit::Test* CXMeansTest::suite(void) {
+CppUnit::Test* CXMeansTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXMeansTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testCluster", &CXMeansTest::testCluster));

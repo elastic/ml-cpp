@@ -35,12 +35,12 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TStrVec = std::vector<std::string>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-void CDataSummaryStatisticsTest::testRate(void) {
+void CDataSummaryStatisticsTest::testRate() {
     LOG_DEBUG("");
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  CDataSummaryStatisticsTest::testRate  |");
@@ -68,7 +68,7 @@ void CDataSummaryStatisticsTest::testRate(void) {
     }
 }
 
-void CDataSummaryStatisticsTest::testCategoricalDistinctCount(void) {
+void CDataSummaryStatisticsTest::testCategoricalDistinctCount() {
     LOG_DEBUG("");
     LOG_DEBUG("+------------------------------------------------------------+");
     LOG_DEBUG("|  CDataSummaryStatisticsTest::testCategoricalDistinctCount  |");
@@ -108,7 +108,7 @@ void CDataSummaryStatisticsTest::testCategoricalDistinctCount(void) {
     }
 }
 
-void CDataSummaryStatisticsTest::testCategoricalTopN(void) {
+void CDataSummaryStatisticsTest::testCategoricalTopN() {
     LOG_DEBUG("");
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CDataSummaryStatisticsTest::testCategoricalTopN  |");
@@ -160,7 +160,7 @@ void CDataSummaryStatisticsTest::testCategoricalTopN(void) {
 
         double exact = static_cast<double>(counts[i]);
         double approx = static_cast<double>(topn[i].second);
-        double error = ::fabs(exact - approx) / exact;
+        double error = std::fabs(exact - approx) / exact;
 
         CPPUNIT_ASSERT_EQUAL(categories[freq[i]], topn[i].first);
         CPPUNIT_ASSERT(error < 0.05);
@@ -171,7 +171,7 @@ void CDataSummaryStatisticsTest::testCategoricalTopN(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.005);
 }
 
-void CDataSummaryStatisticsTest::testNumericBasicStatistics(void) {
+void CDataSummaryStatisticsTest::testNumericBasicStatistics() {
     LOG_DEBUG("");
     LOG_DEBUG("+----------------------------------------------------------+");
     LOG_DEBUG("|  CDataSummaryStatisticsTest::testNumericBasicStatistics  |");
@@ -220,9 +220,9 @@ void CDataSummaryStatisticsTest::testNumericBasicStatistics(void) {
         LOG_DEBUG("*** Log-Normal ***");
 
         double location = 1.0;
-        double scale = ::sqrt(2.0);
+        double scale = std::sqrt(2.0);
 
-        boost::math::lognormal_distribution<> lognormal(1.0, ::sqrt(2.0));
+        boost::math::lognormal_distribution<> lognormal(1.0, std::sqrt(2.0));
         LOG_DEBUG("distribution median = " << boost::math::median(lognormal));
 
         TMeanAccumulator meanError;
@@ -236,9 +236,9 @@ void CDataSummaryStatisticsTest::testNumericBasicStatistics(void) {
             }
 
             LOG_DEBUG("median  = " << summary.median());
-            CPPUNIT_ASSERT(::fabs(summary.median() - boost::math::median(lognormal)) < 0.25);
+            CPPUNIT_ASSERT(std::fabs(summary.median() - boost::math::median(lognormal)) < 0.25);
 
-            meanError.add(::fabs(summary.median() - boost::math::median(lognormal)) / boost::math::median(lognormal));
+            meanError.add(std::fabs(summary.median() - boost::math::median(lognormal)) / boost::math::median(lognormal));
         }
 
         LOG_DEBUG("mean error = " << maths::CBasicStatistics::mean(meanError));
@@ -246,7 +246,7 @@ void CDataSummaryStatisticsTest::testNumericBasicStatistics(void) {
     }
 }
 
-void CDataSummaryStatisticsTest::testNumericDistribution(void) {
+void CDataSummaryStatisticsTest::testNumericDistribution() {
     LOG_DEBUG("");
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CDataSummaryStatisticsTest::testNumericDistribution  |");
@@ -261,7 +261,7 @@ void CDataSummaryStatisticsTest::testNumericDistribution(void) {
 
         rng.generateLogNormalSamples(1.0, 3.0, 10000, samples);
 
-        boost::math::lognormal_distribution<> d(1.0, ::sqrt(3.0));
+        boost::math::lognormal_distribution<> d(1.0, std::sqrt(3.0));
 
         config::CNumericDataSummaryStatistics statistics(false);
         for (std::size_t i = 0u; i < samples.size(); ++i) {
@@ -281,7 +281,7 @@ void CDataSummaryStatisticsTest::testNumericDistribution(void) {
             double fexpected = boost::math::pdf(d, std::max(chart[i].first, 0.0));
             double f = chart[i].second;
             LOG_DEBUG("x = " << chart[i].first << ", fexpected(x) = " << fexpected << ", f(x) = " << f);
-            meanAbsError.add(::fabs(f - fexpected));
+            meanAbsError.add(std::fabs(f - fexpected));
             mean.add(fexpected);
         }
 
@@ -305,7 +305,7 @@ void CDataSummaryStatisticsTest::testNumericDistribution(void) {
         samples.insert(samples.end(), modeSamples.begin(), modeSamples.end());
 
         double weights[] = {1.0 / 5.5, 2.0 / 5.5, 1.5 / 5.5, 1.0 / 5.5};
-        boost::math::normal_distribution<> m0(10.0, ::sqrt(10.0));
+        boost::math::normal_distribution<> m0(10.0, std::sqrt(10.0));
         boost::math::gamma_distribution<> m1(100.0, 1.0);
         boost::math::normal_distribution<> m2(200.0, 10.0);
         boost::math::gamma_distribution<> m3(100.0, 5.0);
@@ -328,8 +328,8 @@ void CDataSummaryStatisticsTest::testNumericDistribution(void) {
                                weights[2] * boost::math::pdf(m2, chart[i].first) + weights[3] * boost::math::pdf(m3, chart[i].first);
             double f = chart[i].second;
             LOG_DEBUG("x = " << chart[i].first << ", fexpected(x) = " << fexpected << ", f(x) = " << f);
-            meanAbsError.add(::fabs(f - fexpected));
-            meanRelError.add(::fabs(::log(f) - ::log(fexpected)) / ::fabs(::log(fexpected)));
+            meanAbsError.add(std::fabs(f - fexpected));
+            meanRelError.add(std::fabs(std::log(f) - std::log(fexpected)) / std::fabs(std::log(fexpected)));
         }
 
         LOG_DEBUG("meanAbsError = " << maths::CBasicStatistics::mean(meanAbsError));
@@ -339,7 +339,7 @@ void CDataSummaryStatisticsTest::testNumericDistribution(void) {
     }
 }
 
-CppUnit::Test* CDataSummaryStatisticsTest::suite(void) {
+CppUnit::Test* CDataSummaryStatisticsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataSummaryStatisticsTest");
 
     suiteOfTests->addTest(

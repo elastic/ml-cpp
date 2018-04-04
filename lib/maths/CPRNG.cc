@@ -43,7 +43,7 @@ uint64_t rotl(const uint64_t x, int k) {
 }
 }
 
-CPRNG::CSplitMix64::CSplitMix64(void) : m_X(0) {
+CPRNG::CSplitMix64::CSplitMix64() : m_X(0) {
     this->seed();
 }
 
@@ -55,7 +55,7 @@ bool CPRNG::CSplitMix64::operator==(CSplitMix64 other) const {
     return m_X == other.m_X;
 }
 
-void CPRNG::CSplitMix64::seed(void) {
+void CPRNG::CSplitMix64::seed() {
     m_X = 0;
 }
 
@@ -63,15 +63,15 @@ void CPRNG::CSplitMix64::seed(uint64_t seed) {
     m_X = seed;
 }
 
-uint64_t CPRNG::CSplitMix64::min(void) {
+uint64_t CPRNG::CSplitMix64::min() {
     return 0;
 }
 
-uint64_t CPRNG::CSplitMix64::max(void) {
+uint64_t CPRNG::CSplitMix64::max() {
     return boost::numeric::bounds<uint64_t>::highest();
 }
 
-uint64_t CPRNG::CSplitMix64::operator()(void) {
+uint64_t CPRNG::CSplitMix64::operator()() {
     uint64_t x = (m_X += A);
     x = (x ^ (x >> 30)) * B;
     x = (x ^ (x >> 27)) * C;
@@ -82,7 +82,7 @@ void CPRNG::CSplitMix64::discard(uint64_t n) {
     detail::discard(n, *this);
 }
 
-std::string CPRNG::CSplitMix64::toString(void) const {
+std::string CPRNG::CSplitMix64::toString() const {
     return core::CStringUtils::typeToString(m_X);
 }
 
@@ -94,7 +94,7 @@ const uint64_t CPRNG::CSplitMix64::A(0x9E3779B97F4A7C15);
 const uint64_t CPRNG::CSplitMix64::B(0xBF58476D1CE4E5B9);
 const uint64_t CPRNG::CSplitMix64::C(0x94D049BB133111EB);
 
-CPRNG::CXorOShiro128Plus::CXorOShiro128Plus(void) {
+CPRNG::CXorOShiro128Plus::CXorOShiro128Plus() {
     this->seed();
 }
 
@@ -106,7 +106,7 @@ bool CPRNG::CXorOShiro128Plus::operator==(const CXorOShiro128Plus& other) const 
     return std::equal(&m_X[0], &m_X[2], &other.m_X[0]);
 }
 
-void CPRNG::CXorOShiro128Plus::seed(void) {
+void CPRNG::CXorOShiro128Plus::seed() {
     this->seed(0);
 }
 
@@ -115,15 +115,15 @@ void CPRNG::CXorOShiro128Plus::seed(uint64_t seed) {
     seeds.generate(&m_X[0], &m_X[2]);
 }
 
-uint64_t CPRNG::CXorOShiro128Plus::min(void) {
+uint64_t CPRNG::CXorOShiro128Plus::min() {
     return 0;
 }
 
-uint64_t CPRNG::CXorOShiro128Plus::max(void) {
+uint64_t CPRNG::CXorOShiro128Plus::max() {
     return boost::numeric::bounds<uint64_t>::highest();
 }
 
-uint64_t CPRNG::CXorOShiro128Plus::operator()(void) {
+uint64_t CPRNG::CXorOShiro128Plus::operator()() {
     uint64_t x0 = m_X[0];
     uint64_t x1 = m_X[1];
     uint64_t result = x0 + x1;
@@ -137,7 +137,7 @@ void CPRNG::CXorOShiro128Plus::discard(uint64_t n) {
     detail::discard(n, *this);
 }
 
-void CPRNG::CXorOShiro128Plus::jump(void) {
+void CPRNG::CXorOShiro128Plus::jump() {
     uint64_t x[2] = {0};
     for (std::size_t i = 0; i < 2; ++i) {
         for (unsigned int b = 0; b < 64; ++b) {
@@ -153,7 +153,7 @@ void CPRNG::CXorOShiro128Plus::jump(void) {
     m_X[1] = x[1];
 }
 
-std::string CPRNG::CXorOShiro128Plus::toString(void) const {
+std::string CPRNG::CXorOShiro128Plus::toString() const {
     const uint64_t* begin = &m_X[0];
     const uint64_t* end = &m_X[2];
     return core::CPersistUtils::toString(begin, end);
@@ -165,7 +165,7 @@ bool CPRNG::CXorOShiro128Plus::fromString(const std::string& state) {
 
 const uint64_t CPRNG::CXorOShiro128Plus::JUMP[] = {0xbeac0467eba5facb, 0xd86b048b86aa9922};
 
-CPRNG::CXorShift1024Mult::CXorShift1024Mult(void) : m_P(0) {
+CPRNG::CXorShift1024Mult::CXorShift1024Mult() : m_P(0) {
     this->seed();
 }
 
@@ -177,7 +177,7 @@ bool CPRNG::CXorShift1024Mult::operator==(const CXorShift1024Mult& other) const 
     return m_P == other.m_P && std::equal(&m_X[0], &m_X[16], &other.m_X[0]);
 }
 
-void CPRNG::CXorShift1024Mult::seed(void) {
+void CPRNG::CXorShift1024Mult::seed() {
     this->seed(0);
 }
 
@@ -186,15 +186,15 @@ void CPRNG::CXorShift1024Mult::seed(uint64_t seed) {
     seeds.generate(&m_X[0], &m_X[16]);
 }
 
-uint64_t CPRNG::CXorShift1024Mult::min(void) {
+uint64_t CPRNG::CXorShift1024Mult::min() {
     return 0;
 }
 
-uint64_t CPRNG::CXorShift1024Mult::max(void) {
+uint64_t CPRNG::CXorShift1024Mult::max() {
     return boost::numeric::bounds<uint64_t>::highest();
 }
 
-uint64_t CPRNG::CXorShift1024Mult::operator()(void) {
+uint64_t CPRNG::CXorShift1024Mult::operator()() {
     uint64_t x0 = m_X[m_P];
     m_P = (m_P + 1) & 15;
     uint64_t x1 = m_X[m_P];
@@ -207,7 +207,7 @@ void CPRNG::CXorShift1024Mult::discard(uint64_t n) {
     detail::discard(n, *this);
 }
 
-void CPRNG::CXorShift1024Mult::jump(void) {
+void CPRNG::CXorShift1024Mult::jump() {
     uint64_t t[16] = {0};
 
     for (std::size_t i = 0; i < 16; ++i) {
@@ -226,7 +226,7 @@ void CPRNG::CXorShift1024Mult::jump(void) {
     }
 }
 
-std::string CPRNG::CXorShift1024Mult::toString(void) const {
+std::string CPRNG::CXorShift1024Mult::toString() const {
     const uint64_t* begin = &m_X[0];
     const uint64_t* end = &m_X[16];
     return core::CPersistUtils::toString(begin, end) + core::CPersistUtils::PAIR_DELIMITER + core::CStringUtils::typeToString(m_P);

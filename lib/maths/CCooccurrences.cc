@@ -27,6 +27,7 @@
 
 #include <boost/math/distributions/chi_squared.hpp>
 
+#include <cmath>
 #include <string>
 
 namespace ml {
@@ -34,19 +35,19 @@ namespace maths {
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef boost::unordered_set<TSizeSizePr> TSizeSizePrUSet;
-typedef CVector<double> TPoint;
-typedef std::vector<TPoint> TPointVec;
-typedef std::vector<CPackedBitVector> TPackedBitVectorVec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrUSet = boost::unordered_set<TSizeSizePr>;
+using TPoint = CVector<double>;
+using TPointVec = std::vector<TPoint>;
+using TPackedBitVectorVec = std::vector<CPackedBitVector>;
 
 //! \brief Counts the (co-)occurrences of two variables.
 struct SCooccurrence {
-    SCooccurrence(void) : s_Nxy(0.0), s_Nx(0.0), s_Ny(0.0), s_X(0), s_Y(0) {}
+    SCooccurrence() : s_Nxy(0.0), s_Nx(0.0), s_Ny(0.0), s_X(0), s_Y(0) {}
     SCooccurrence(double nxy, double nx, double ny, std::size_t x, std::size_t y) : s_Nxy(nxy), s_Nx(nx), s_Ny(ny), s_X(x), s_Y(y) {}
 
     bool operator<(const SCooccurrence& rhs) const {
@@ -57,7 +58,7 @@ struct SCooccurrence {
     std::size_t s_X, s_Y;
 };
 
-typedef CBasicStatistics::COrderStatisticsHeap<SCooccurrence> TMostSignificant;
+using TMostSignificant = CBasicStatistics::COrderStatisticsHeap<SCooccurrence>;
 
 //! Compute \p x * \p x.
 double pow2(double x) {
@@ -173,7 +174,7 @@ void seed(const TPackedBitVectorVec& indicators,
         for (std::size_t j = 0u; j < projected.size(); ++j) {
             theta[i] += pow2(projected[j][i]);
         }
-        theta[i] = ::acos(::sqrt(theta[i]));
+        theta[i] = std::acos(std::sqrt(theta[i]));
     }
     COrderings::simultaneousSort(theta, mask);
     for (std::size_t i = 1u; i < n; ++i) {
@@ -237,7 +238,7 @@ void searchForMostSignificantCooccurrences(const TPackedBitVectorVec& indicators
     TSizeVecVec masks(p, mask);
     for (std::size_t i = 0u; i < p; ++i) {
         for (std::size_t j = 0u; j < n; ++j) {
-            thetas[i][j] = ::acos(thetas[i][j]);
+            thetas[i][j] = std::acos(thetas[i][j]);
         }
         COrderings::simultaneousSort(thetas[i], masks[i]);
     }
@@ -249,7 +250,7 @@ void searchForMostSignificantCooccurrences(const TPackedBitVectorVec& indicators
     for (std::size_t i = 0u; i < n; ++i) {
         double lambda = mostSignificant.biggest().s_Nxy / (mostSignificant.biggest().s_Nx * mostSignificant.biggest().s_Ny);
 
-        double bound = 2.0 * ::asin(1.0 - lambda);
+        double bound = 2.0 * std::asin(1.0 - lambda);
 
         computeFilter(masks[0], thetas[0], i, bound, candidates);
         for (std::size_t j = 1u; !candidates.empty() && j < p; ++j) {
@@ -334,9 +335,9 @@ double significance(double nxy, double nx, double ny, double n) {
         double px = nx / n;
         double py = ny / n;
 
-        double lambda = n * (-g * px * py * ::log(g) + px * (1.0 - g * py) * ::log((1.0 - py) / (1.0 - g * py)) +
-                             py * (1.0 - g * px) * ::log((1.0 - px) / (1.0 - g * px)) +
-                             (1.0 - px - py + g * px * py) * ::log((1.0 - px) * (1.0 - py) / (1.0 - px - py + g * px * py)));
+        double lambda = n * (-g * px * py * std::log(g) + px * (1.0 - g * py) * std::log((1.0 - py) / (1.0 - g * py)) +
+                             py * (1.0 - g * px) * std::log((1.0 - px) / (1.0 - g * px)) +
+                             (1.0 - px - py + g * px * py) * std::log((1.0 - px) * (1.0 - py) / (1.0 - px - py + g * px * py)));
 
         boost::math::chi_squared_distribution<> chi(1.0);
 
@@ -418,7 +419,7 @@ void CCooccurrences::topNBySignificance(std::size_t n, TSizeSizePrVec& top, TDou
         }
     }
 
-    std::size_t p = static_cast<std::size_t>(std::max(::sqrt(static_cast<double>(dimension)), 1.0) + 0.5);
+    std::size_t p = static_cast<std::size_t>(std::max(std::sqrt(static_cast<double>(dimension)), 1.0) + 0.5);
 
     TMostSignificant mostSignificant(n);
     searchForMostSignificantCooccurrences(m_Indicators, lengths, mask, p, mostSignificant);
@@ -469,7 +470,7 @@ void CCooccurrences::add(std::size_t X) {
     m_CurrentIndicators.insert(X);
 }
 
-void CCooccurrences::capture(void) {
+void CCooccurrences::capture() {
     if (++m_Offset < m_IndicatorWidth) {
         return;
     }
@@ -502,7 +503,7 @@ void CCooccurrences::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) c
     core::CMemoryDebug::dynamicSize("m_Indicators", m_Indicators, mem);
 }
 
-std::size_t CCooccurrences::memoryUsage(void) const {
+std::size_t CCooccurrences::memoryUsage() const {
     std::size_t mem = core::CMemory::dynamicSize(m_CurrentIndicators);
     mem += core::CMemory::dynamicSize(m_Indicators);
     return mem;

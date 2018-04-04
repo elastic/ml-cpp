@@ -19,12 +19,12 @@
 
 class CSingleStreamDataAdderTest : public CppUnit::TestFixture {
 public:
-    void testDetectorPersistBy(void);
-    void testDetectorPersistOver(void);
-    void testDetectorPersistPartition(void);
-    void testDetectorPersistDc(void);
-    void testDetectorPersistCount(void);
-    void testDetectorPersistCategorization(void);
+    void testDetectorPersistBy();
+    void testDetectorPersistOver();
+    void testDetectorPersistPartition();
+    void testDetectorPersistDc();
+    void testDetectorPersistCount();
+    void testDetectorPersistCategorization();
 
     static CppUnit::Test* suite();
 

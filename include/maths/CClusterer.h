@@ -51,16 +51,16 @@ public:
     };
 
     // Callback function signature for when clusters are split.
-    typedef std::function<void(std::size_t, std::size_t, std::size_t)> TSplitFunc;
+    using TSplitFunc = std::function<void(std::size_t, std::size_t, std::size_t)>;
 
     // Callback function signature for when clusters are merged.
-    typedef std::function<void(std::size_t, std::size_t, std::size_t)> TMergeFunc;
+    using TMergeFunc = std::function<void(std::size_t, std::size_t, std::size_t)>;
 
     //! Generates unique cluster indices.
     class MATHS_EXPORT CIndexGenerator {
     public:
         //! Create a new  generator.
-        CIndexGenerator(void);
+        CIndexGenerator();
 
         //! Restore by traversing a state document
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -69,10 +69,10 @@ public:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Deep copy this index generator.
-        CIndexGenerator deepCopy(void) const;
+        CIndexGenerator deepCopy() const;
 
         //! Get the next available unique cluster index.
-        std::size_t next(void) const;
+        std::size_t next() const;
 
         //! Recycle the specified cluster index.
         void recycle(std::size_t index);
@@ -81,14 +81,14 @@ public:
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this component
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
         //! Print the state of the heap for debug.
-        std::string print(void) const;
+        std::string print() const;
 
     private:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef boost::shared_ptr<TSizeVec> TSizeVecPtr;
+        using TSizeVec = std::vector<std::size_t>;
+        using TSizeVecPtr = boost::shared_ptr<TSizeVec>;
 
     private:
         //! A heap of the next available unique indices.
@@ -135,14 +135,14 @@ public:
 template<typename POINT>
 class CClusterer : public CClustererTypes {
 public:
-    typedef boost::shared_ptr<CClusterer> TClustererPtr;
-    typedef std::vector<POINT> TPointVec;
-    typedef typename SPromoted<POINT>::Type TPointPrecise;
-    typedef std::vector<TPointPrecise> TPointPreciseVec;
-    typedef std::pair<TPointPrecise, double> TPointPreciseDoublePr;
-    typedef std::vector<TPointPreciseDoublePr> TPointPreciseDoublePrVec;
-    typedef std::pair<std::size_t, double> TSizeDoublePr;
-    typedef core::CSmallVector<TSizeDoublePr, 2> TSizeDoublePr2Vec;
+    using TClustererPtr = boost::shared_ptr<CClusterer>;
+    using TPointVec = std::vector<POINT>;
+    using TPointPrecise = typename SPromoted<POINT>::Type;
+    using TPointPreciseVec = std::vector<TPointPrecise>;
+    using TPointPreciseDoublePr = std::pair<TPointPrecise, double>;
+    using TPointPreciseDoublePrVec = std::vector<TPointPreciseDoublePr>;
+    using TSizeDoublePr = std::pair<std::size_t, double>;
+    using TSizeDoublePr2Vec = core::CSmallVector<TSizeDoublePr, 2>;
 
 public:
     //! Create a new clusterer.
@@ -152,12 +152,12 @@ public:
     explicit CClusterer(const TSplitFunc& splitFunc = CDoNothing(), const TMergeFunc& mergeFunc = CDoNothing())
         : m_SplitFunc(splitFunc), m_MergeFunc(mergeFunc) {}
 
-    virtual ~CClusterer(void) {}
+    virtual ~CClusterer() {}
 
     //! \name Clusterer Contract
     //@{
     //! Get the tag name for this clusterer.
-    virtual std::string persistenceTag(void) const = 0;
+    virtual std::string persistenceTag() const = 0;
 
     //! Creates a copy of the clusterer.
     //!
@@ -165,13 +165,13 @@ public:
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
     //! \warning Caller owns returned object.
-    virtual CClusterer* clone(void) const = 0;
+    virtual CClusterer* clone() const = 0;
 
     //! Clear the current clusterer state.
-    virtual void clear(void) = 0;
+    virtual void clear() = 0;
 
     //! Get the number of clusters.
-    virtual std::size_t numberClusters(void) const = 0;
+    virtual std::size_t numberClusters() const = 0;
 
     //! Set the type of data being clustered.
     virtual void dataType(maths_t::EDataType dataType) = 0;
@@ -245,20 +245,20 @@ public:
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
 
     //! Get the memory used by this component
-    virtual std::size_t memoryUsage(void) const = 0;
+    virtual std::size_t memoryUsage() const = 0;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize(void) const = 0;
+    virtual std::size_t staticSize() const = 0;
     //@}
 
     //! Get the callback function to invoke when a cluster is split.
-    const TSplitFunc& splitFunc(void) const { return m_SplitFunc; }
+    const TSplitFunc& splitFunc() const { return m_SplitFunc; }
 
     //! Set the callback function to invoke when a cluster is split.
     void splitFunc(const TSplitFunc& value) { m_SplitFunc = value; }
 
     //! Get the callback function to invoke when two clusters are merged.
-    const TMergeFunc& mergeFunc(void) const { return m_MergeFunc; }
+    const TMergeFunc& mergeFunc() const { return m_MergeFunc; }
 
     //! Set the callback function to invoke when two clusters are merged.
     void mergeFunc(const TSplitFunc& value) { m_MergeFunc = value; }
@@ -278,7 +278,7 @@ private:
     TMergeFunc m_MergeFunc;
 };
 
-typedef CClusterer<double> CClusterer1d;
+using CClusterer1d = CClusterer<double>;
 }
 }
 

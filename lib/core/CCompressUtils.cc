@@ -33,7 +33,7 @@ CCompressUtils::CCompressUtils(bool lengthOnly, int level) : m_State(E_Unused), 
     }
 }
 
-CCompressUtils::~CCompressUtils(void) {
+CCompressUtils::~CCompressUtils() {
     int ret(::deflateEnd(&m_ZlibStrm));
     if (ret != Z_OK) {
         LOG_ERROR("Error ending Z stream: " << ::zError(ret));
@@ -92,7 +92,7 @@ bool CCompressUtils::compressedLength(bool finish, size_t& length) {
     return true;
 }
 
-void CCompressUtils::reset(void) {
+void CCompressUtils::reset() {
     int ret(::deflateReset(&m_ZlibStrm));
     if (ret != Z_OK) {
         // deflateReset() will only fail if one or more of the critical members

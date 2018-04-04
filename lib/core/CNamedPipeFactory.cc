@@ -43,7 +43,7 @@ void safeFClose(FILE* file) {
 //! in the same process) at the other end of one of our named pipes to abruptly
 //! terminate our processes.  Instead we should handle remote reader death by
 //! gracefully reacting to write failures.
-bool ignoreSigPipe(void) {
+bool ignoreSigPipe() {
     struct sigaction sa;
     sigemptyset(&sa.sa_mask);
     sa.sa_handler = SIG_IGN;
@@ -121,7 +121,7 @@ CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::st
     if (fd == -1) {
         return TIStreamP();
     }
-    typedef boost::iostreams::stream<boost::iostreams::file_descriptor_source> TFileDescriptorSourceStream;
+    using TFileDescriptorSourceStream = boost::iostreams::stream<boost::iostreams::file_descriptor_source>;
     return TIStreamP(new TFileDescriptorSourceStream(boost::iostreams::file_descriptor_source(fd, boost::iostreams::close_handle)));
 }
 
@@ -130,7 +130,7 @@ CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::s
     if (fd == -1) {
         return TOStreamP();
     }
-    typedef boost::iostreams::stream<CRetryingFileDescriptorSink> TRetryingFileDescriptorSinkStream;
+    using TRetryingFileDescriptorSinkStream = boost::iostreams::stream<CRetryingFileDescriptorSink>;
     return TOStreamP(new TRetryingFileDescriptorSinkStream(CRetryingFileDescriptorSink(fd, boost::iostreams::close_handle)));
 }
 
@@ -159,7 +159,7 @@ bool CNamedPipeFactory::isNamedPipe(const std::string& fileName) {
     return (statbuf.st_mode & S_IFMT) == S_IFIFO;
 }
 
-std::string CNamedPipeFactory::defaultPath(void) {
+std::string CNamedPipeFactory::defaultPath() {
     // In production this needs to match the setting of java.io.tmpdir.  We rely
     // on the JVM that spawns our controller daemon setting TMPDIR in the
     // environment of the spawned process.  For unit testing and adhoc testing

@@ -43,14 +43,14 @@ class CORE_EXPORT CResourceLocator : private CNonInstantiatable {
 public:
     //! Get the directory that stores resource files, e.g. timezone
     //! details and dictionary words.
-    static std::string resourceDir(void);
+    static std::string resourceDir();
 
     //! Get the directory that stores log files.
-    static std::string logDir(void);
+    static std::string logDir();
 
     //! Get the root directory for the C++ section of the source tree.
     //! (Obviously this should only be used in test code!)
-    static std::string cppRootDir(void);
+    static std::string cppRootDir();
 };
 }
 }

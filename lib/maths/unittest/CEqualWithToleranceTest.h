@@ -20,11 +20,11 @@
 
 class CEqualWithToleranceTest : public CppUnit::TestFixture {
 public:
-    void testScalar(void);
-    void testVector(void);
-    void testMatrix(void);
+    void testScalar();
+    void testVector();
+    void testMatrix();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CEqualWithToleranceTest_h

@@ -89,14 +89,14 @@ namespace detail {
 
 class CTrackerThread : public CThread {
 public:
-    typedef std::set<CProcess::TPid> TPidSet;
+    using TPidSet = std::set<CProcess::TPid>;
 
 public:
-    CTrackerThread(void) : m_Shutdown(false), m_Condition(m_Mutex) {}
+    CTrackerThread() : m_Shutdown(false), m_Condition(m_Mutex) {}
 
     //! Mutex is accessible so the code outside the class can avoid race
     //! conditions.
-    CMutex& mutex(void) { return m_Mutex; }
+    CMutex& mutex() { return m_Mutex; }
 
     //! Add a PID to track.
     void addPid(CProcess::TPid pid) {
@@ -139,7 +139,7 @@ public:
     }
 
 protected:
-    virtual void run(void) {
+    virtual void run() {
         CScopedLock lock(m_Mutex);
 
         while (!m_Shutdown) {
@@ -155,7 +155,7 @@ protected:
         }
     }
 
-    virtual void shutdown(void) {
+    virtual void shutdown() {
         LOG_DEBUG("Shutting down spawned process tracker thread");
         CScopedLock lock(m_Mutex);
         m_Shutdown = true;
@@ -165,7 +165,7 @@ protected:
 private:
     //! Reap zombie child processes and adjust the set of live child PIDs
     //! accordingly.  MUST be called with m_Mutex locked.
-    void checkForDeadChildren(void) {
+    void checkForDeadChildren() {
         int status = 0;
         for (;;) {
             CProcess::TPid pid = ::waitpid(-1, &status, WNOHANG);
@@ -221,7 +221,7 @@ CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec& permittedProcess
     }
 }
 
-CDetachedProcessSpawner::~CDetachedProcessSpawner(void) {
+CDetachedProcessSpawner::~CDetachedProcessSpawner() {
     if (m_TrackerThread->stop() == false) {
         LOG_ERROR("Failed to stop spawned process tracker thread");
     }
@@ -243,7 +243,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
         return false;
     }
 
-    typedef std::vector<char*> TCharPVec;
+    using TCharPVec = std::vector<char*>;
     // Size of argv is two bigger than the number of arguments because:
     // 1) We add the program name at the beginning
     // 2) The list of arguments must be terminated by a NULL pointer

@@ -28,12 +28,12 @@ using namespace ml;
 using namespace maths;
 using namespace test;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<boost::math::normal_distribution<>> TNormalVec;
-typedef std::vector<boost::math::lognormal_distribution<>> TLogNormalVec;
-typedef std::vector<boost::math::gamma_distribution<>> TGammaVec;
+using TDoubleVec = std::vector<double>;
+using TNormalVec = std::vector<boost::math::normal_distribution<>>;
+using TLogNormalVec = std::vector<boost::math::lognormal_distribution<>>;
+using TGammaVec = std::vector<boost::math::gamma_distribution<>>;
 
-void CMixtureDistributionTest::testSupport(void) {
+void CMixtureDistributionTest::testSupport() {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testSupport  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -64,7 +64,7 @@ void CMixtureDistributionTest::testSupport(void) {
     }
 }
 
-void CMixtureDistributionTest::testMode(void) {
+void CMixtureDistributionTest::testMode() {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testMode  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -169,7 +169,7 @@ void CMixtureDistributionTest::testMode(void) {
     }
 }
 
-void CMixtureDistributionTest::testPdf(void) {
+void CMixtureDistributionTest::testPdf() {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CMixtureDistributionTest::testPdf  |");
     LOG_DEBUG("+-------------------------------------+");
@@ -219,7 +219,7 @@ void CMixtureDistributionTest::testPdf(void) {
     }
 }
 
-void CMixtureDistributionTest::testCdf(void) {
+void CMixtureDistributionTest::testCdf() {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CMixtureDistributionTest::testCdf  |");
     LOG_DEBUG("+-------------------------------------+");
@@ -278,7 +278,7 @@ void CMixtureDistributionTest::testCdf(void) {
     }
 }
 
-void CMixtureDistributionTest::testQuantile(void) {
+void CMixtureDistributionTest::testQuantile() {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CMixtureDistributionTest::testQuantile  |");
     LOG_DEBUG("+------------------------------------------+");
@@ -311,13 +311,13 @@ void CMixtureDistributionTest::testQuantile(void) {
         for (unsigned int p = 1; p < 100; ++p) {
             double q = static_cast<double>(p) / 100.0;
             double f = cdf(mixture, quantile(mixture, q));
-            LOG_DEBUG("Error = " << ::fabs(q - f));
+            LOG_DEBUG("Error = " << std::fabs(q - f));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(q, f, 1e-10);
         }
     }
 }
 
-CppUnit::Test* CMixtureDistributionTest::suite(void) {
+CppUnit::Test* CMixtureDistributionTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMixtureDistributionTest");
 
     suiteOfTests->addTest(

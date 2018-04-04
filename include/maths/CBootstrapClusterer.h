@@ -75,22 +75,21 @@ namespace maths {
 template<typename POINT>
 class CBootstrapClusterer {
 public:
-    typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef TSizeVec::iterator TSizeVecItr;
-    typedef std::vector<TSizeVec> TSizeVecVec;
-    typedef std::vector<TSizeVecVec> TSizeVecVecVec;
-    typedef std::vector<POINT> TPointVec;
-    typedef std::vector<TPointVec> TPointVecVec;
-    typedef boost::
-        adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, boost::no_property, boost::property<boost::edge_weight_t, double>>
-            TGraph;
-    typedef typename boost::graph_traits<TGraph>::vertex_descriptor TVertex;
-    typedef typename boost::graph_traits<TGraph>::edge_descriptor TEdge;
-    typedef typename boost::graph_traits<TGraph>::vertex_iterator TVertexItr;
-    typedef typename boost::graph_traits<TGraph>::edge_iterator TEdgeItr;
-    typedef typename boost::graph_traits<TGraph>::out_edge_iterator TOutEdgeItr;
-    typedef typename boost::graph_traits<TGraph>::adjacency_iterator TAdjacencyItr;
+    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecItr = TSizeVec::iterator;
+    using TSizeVecVec = std::vector<TSizeVec>;
+    using TSizeVecVecVec = std::vector<TSizeVecVec>;
+    using TPointVec = std::vector<POINT>;
+    using TPointVecVec = std::vector<TPointVec>;
+    using TGraph = boost::
+        adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, boost::no_property, boost::property<boost::edge_weight_t, double>>;
+    using TVertex = typename boost::graph_traits<TGraph>::vertex_descriptor;
+    using TEdge = typename boost::graph_traits<TGraph>::edge_descriptor;
+    using TVertexItr = typename boost::graph_traits<TGraph>::vertex_iterator;
+    using TEdgeItr = typename boost::graph_traits<TGraph>::edge_iterator;
+    using TOutEdgeItr = typename boost::graph_traits<TGraph>::out_edge_iterator;
+    using TAdjacencyItr = typename boost::graph_traits<TGraph>::adjacency_iterator;
 
 public:
     CBootstrapClusterer(double overlapThreshold, double chainingFactor)
@@ -119,11 +118,11 @@ public:
     }
 
 protected:
-    typedef std::vector<double> TDoubleVec;
-    typedef std::vector<bool> TBoolVec;
-    typedef std::vector<TSizeSizePr> TSizeSizePrVec;
-    typedef std::pair<double, std::size_t> TDoubleSizePr;
-    typedef std::vector<TDoubleSizePr> TDoubleSizePrVec;
+    using TDoubleVec = std::vector<double>;
+    using TBoolVec = std::vector<bool>;
+    using TSizeSizePrVec = std::vector<TSizeSizePr>;
+    using TDoubleSizePr = std::pair<double, std::size_t>;
+    using TDoubleSizePrVec = std::vector<TDoubleSizePr>;
 
     //! \brief Checks if a cluster is empty.
     struct SIsEmpty {
@@ -144,7 +143,7 @@ protected:
         }
 
         //! Get the cost of the current cut.
-        double cost(void) const { return s_Cut / static_cast<double>(s_A * (s_V - s_A)); }
+        double cost() const { return s_Cut / static_cast<double>(s_A * (s_V - s_A)); }
 
         //! Check if the vertex is to visit.
         bool toVisit(std::size_t i) const { return this->toVisit(s_ToVisit.size(), i); }
@@ -153,7 +152,7 @@ protected:
         bool toVisit(std::size_t n, std::size_t i) const { return std::binary_search(s_ToVisit.begin(), s_ToVisit.begin() + n, i); }
 
         //! Get the next vertex to visit.
-        std::size_t next(void) const { return s_Queue.front().second; }
+        std::size_t next() const { return s_Queue.front().second; }
 
         //! Get the first right or equal vertex.
         std::size_t nextToVisit(std::size_t i) const {
@@ -173,7 +172,7 @@ protected:
         __attribute__((__noinline__))
 #endif // defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
         void
-        initializeQueue(void) {
+        initializeQueue() {
             s_Queue.clear();
             s_Queue.reserve(s_ToVisit.size());
             for (std::size_t i = 0u; i < s_ToVisit.size(); ++i) {
@@ -183,7 +182,7 @@ protected:
         }
 
         //! Pop the priority queue of vertices to visit.
-        void popQueue(void) {
+        void popQueue() {
             std::pop_heap(s_Queue.begin(), s_Queue.end(), std::less<TDoubleSizePr>());
             s_Queue.pop_back();
         }
@@ -272,8 +271,8 @@ protected:
     //! in each bootstrap clustering and whose edges connect clusters
     //! which overlap significantly.
     void buildClusterGraph(const TPointVec& points, TSizeVecVecVec& bootstrapClusters, TGraph& graph) const {
-        typedef boost::unordered_set<TSizeSizePr> TSizeSizePrUSet;
-        typedef TSizeSizePrUSet::const_iterator TSizeSizePrUSetCItr;
+        using TSizeSizePrUSet = boost::unordered_set<TSizeSizePr>;
+        using TSizeSizePrUSetCItr = TSizeSizePrUSet::const_iterator;
 
         TSizeSizePrUSet edges;
 
@@ -378,9 +377,9 @@ protected:
     //! \param[out] result Filled in with the majority vote clusters
     //! of \p bootstrapClusters.
     void buildClusters(const TPointVec& points, const TSizeVecVecVec& bootstrapClusters, const TGraph& graph, TPointVecVec& result) const {
-        typedef boost::unordered_map<std::size_t, std::size_t> TSizeSizeUMap;
-        typedef TSizeSizeUMap::const_iterator TSizeSizeUMapCItr;
-        typedef std::vector<TSizeSizeUMap> TSizeSizeUMapVec;
+        using TSizeSizeUMap = boost::unordered_map<std::size_t, std::size_t>;
+        using TSizeSizeUMapCItr = TSizeSizeUMap::const_iterator;
+        using TSizeSizeUMapVec = std::vector<TSizeSizeUMap>;
 
         // Find the maximum connected components.
         TSizeVec components(boost::num_vertices(graph));
@@ -699,7 +698,7 @@ protected:
     }
 
     //! Get the offsets for the clusterings.
-    TSizeVec& offsets(void) { return m_Offsets; }
+    TSizeVec& offsets() { return m_Offsets; }
 
 private:
     //! \brief A parity filter predicate which tests whether
@@ -708,7 +707,7 @@ private:
     //! This is intended for use with boost::filtered_graph.
     class CParityFilter {
     public:
-        CParityFilter(void) : m_Graph(0), m_Parities(0), m_Parity(false) {}
+        CParityFilter() : m_Graph(0), m_Parities(0), m_Parity(false) {}
         CParityFilter(const TGraph& graph, const TBoolVec& parities, bool parity)
             : m_Graph(&graph), m_Parities(&parities), m_Parity(parity) {}
 
@@ -805,7 +804,7 @@ private:
 
     //! Check that the subgraph with true parity is connected.
     std::size_t positiveSubgraphConnected(const TGraph& graph, const TBoolVec& parities, TSizeVec& components) const {
-        typedef boost::filtered_graph<TGraph, CParityFilter, CParityFilter> TParityGraph;
+        using TParityGraph = boost::filtered_graph<TGraph, CParityFilter, CParityFilter>;
         CParityFilter parityFilter(graph, parities, true);
         TParityGraph parityGraph(graph, parityFilter, parityFilter);
         components.resize(boost::num_vertices(graph));
@@ -857,10 +856,10 @@ const double CBootstrapClusterer<POINT>::SEPARATION_THRESHOLD(0.1);
 template<typename POINT>
 class CBootstrapClustererFacadeExtractClusters {
 public:
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
-    typedef std::vector<POINT> TPointVec;
-    typedef typename TPointVec::const_iterator TPointVecCItr;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecVec = std::vector<TSizeVec>;
+    using TPointVec = std::vector<POINT>;
+    using TPointVecCItr = typename TPointVec::const_iterator;
 
 public:
     //! Compute the cluster of each point in \p points.
@@ -917,9 +916,9 @@ class CBootstrapClustererFacade {};
 template<typename POINT, typename COST>
 class CBootstrapClustererFacade<CXMeans<POINT, COST>> : private CBootstrapClustererFacadeExtractClusters<POINT> {
 public:
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
-    typedef std::vector<POINT> TPointVec;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecVec = std::vector<TSizeVec>;
+    using TPointVec = std::vector<POINT>;
 
 public:
     CBootstrapClustererFacade(const CXMeans<POINT, COST>& xmeans,
@@ -933,8 +932,8 @@ public:
 
     //! \note Assumes \p points are sorted.
     void cluster(const TPointVec& points, TSizeVecVec& result) {
-        typedef boost::reference_wrapper<const TPointVec> TPointVecCRef;
-        typedef std::vector<TPointVecCRef> TPointVecCRefVec;
+        using TPointVecCRef = boost::reference_wrapper<const TPointVec>;
+        using TPointVecCRefVec = std::vector<TPointVecCRef>;
 
         // Initialize
         TPointVec tmp(points);
@@ -970,9 +969,9 @@ private:
 template<typename POINT>
 class CBootstrapClustererFacade<CKMeansFast<POINT>> : private CBootstrapClustererFacadeExtractClusters<POINT> {
 public:
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
-    typedef std::vector<POINT> TPointVec;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecVec = std::vector<TSizeVec>;
+    using TPointVec = std::vector<POINT>;
 
 public:
     CBootstrapClustererFacade(const CKMeansFast<POINT>& kmeans, std::size_t k, std::size_t maxIterations)
@@ -980,7 +979,7 @@ public:
 
     //! \note Assumes \p points are sorted.
     void cluster(const TPointVec& points, TSizeVecVec& result) {
-        typedef std::vector<TPointVec> TPointVecVec;
+        using TPointVecVec = std::vector<TPointVec>;
 
         // Initialize
         TPointVec tmp(points);

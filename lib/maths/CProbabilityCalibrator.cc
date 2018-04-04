@@ -25,6 +25,7 @@
 #include <boost/bind.hpp>
 #include <boost/math/distributions/beta.hpp>
 
+#include <cmath>
 #include <string>
 
 namespace ml {
@@ -37,13 +38,13 @@ const double DISCRETIZATION_FACTOR = 100.0;
 
 //! Convert a probability to a positive integer.
 uint32_t discreteProbability(const double probability) {
-    return static_cast<uint32_t>(DISCRETIZATION_FACTOR * -::log(probability) + 0.5);
+    return static_cast<uint32_t>(DISCRETIZATION_FACTOR * -std::log(probability) + 0.5);
 }
 
 //! Convert a discrete probability integer into the
 //! approximate probability which generated it.
 double rawProbability(const uint32_t& discreteProbability) {
-    return ::exp(-static_cast<double>(discreteProbability) / DISCRETIZATION_FACTOR);
+    return std::exp(-static_cast<double>(discreteProbability) / DISCRETIZATION_FACTOR);
 }
 
 const std::string STYLE_TAG("a");

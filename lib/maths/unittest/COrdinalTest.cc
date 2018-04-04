@@ -33,7 +33,7 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 template<typename T>
 std::string precisePrint(T x) {
@@ -43,7 +43,7 @@ std::string precisePrint(T x) {
 }
 }
 
-void COrdinalTest::testEqual(void) {
+void COrdinalTest::testEqual() {
     LOG_DEBUG("");
     LOG_DEBUG("+---------------------------+");
     LOG_DEBUG("|  COrdinalTest::testEqual  |");
@@ -61,18 +61,18 @@ void COrdinalTest::testEqual(void) {
         equal = maths::COrdinal(sample[0]) == maths::COrdinal(sample[0]);
         CPPUNIT_ASSERT_EQUAL(true, equal);
         if (sample[0] >= 0.0) {
-            equal = maths::COrdinal(static_cast<int64_t>(sample[0])) == maths::COrdinal(::floor(sample[0]));
+            equal = maths::COrdinal(static_cast<int64_t>(sample[0])) == maths::COrdinal(std::floor(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
-            equal = maths::COrdinal(::floor(sample[0])) == maths::COrdinal(static_cast<int64_t>(sample[0]));
+            equal = maths::COrdinal(std::floor(sample[0])) == maths::COrdinal(static_cast<int64_t>(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
-            equal = maths::COrdinal(static_cast<uint64_t>(sample[0])) == maths::COrdinal(::floor(sample[0]));
+            equal = maths::COrdinal(static_cast<uint64_t>(sample[0])) == maths::COrdinal(std::floor(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
-            equal = maths::COrdinal(::floor(sample[0])) == maths::COrdinal(static_cast<uint64_t>(sample[0]));
+            equal = maths::COrdinal(std::floor(sample[0])) == maths::COrdinal(static_cast<uint64_t>(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
         } else {
-            equal = maths::COrdinal(static_cast<int64_t>(sample[0])) == maths::COrdinal(::ceil(sample[0]));
+            equal = maths::COrdinal(static_cast<int64_t>(sample[0])) == maths::COrdinal(std::ceil(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
-            equal = maths::COrdinal(::ceil(sample[0])) == maths::COrdinal(static_cast<int64_t>(sample[0]));
+            equal = maths::COrdinal(std::ceil(sample[0])) == maths::COrdinal(static_cast<int64_t>(sample[0]));
             CPPUNIT_ASSERT_EQUAL(true, equal);
         }
     }
@@ -108,7 +108,7 @@ void COrdinalTest::testEqual(void) {
     CPPUNIT_ASSERT(s2[1] != s1[0]);
 }
 
-void COrdinalTest::testLess(void) {
+void COrdinalTest::testLess() {
     LOG_DEBUG("");
     LOG_DEBUG("+--------------------------+");
     LOG_DEBUG("|  COrdinalTest::testLess  |");
@@ -184,7 +184,7 @@ void COrdinalTest::testLess(void) {
     CPPUNIT_ASSERT(!(s2[3] < s1[0]));
 }
 
-void COrdinalTest::testIsNan(void) {
+void COrdinalTest::testIsNan() {
     LOG_DEBUG("");
     LOG_DEBUG("+---------------------------+");
     LOG_DEBUG("|  COrdinalTest::testIsNan  |");
@@ -229,7 +229,7 @@ void COrdinalTest::testIsNan(void) {
     }
 }
 
-void COrdinalTest::testAsDouble(void) {
+void COrdinalTest::testAsDouble() {
     LOG_DEBUG("");
     LOG_DEBUG("+------------------------------+");
     LOG_DEBUG("|  COrdinalTest::testAsDouble  |");
@@ -243,11 +243,11 @@ void COrdinalTest::testAsDouble(void) {
         TDoubleVec sample;
         rng.generateUniformSamples(-20000.0, 0.0, 1, sample);
         maths::COrdinal signedOrdinal(static_cast<int64_t>(sample[0]));
-        CPPUNIT_ASSERT_EQUAL(::ceil(sample[0]), signedOrdinal.asDouble());
+        CPPUNIT_ASSERT_EQUAL(std::ceil(sample[0]), signedOrdinal.asDouble());
 
         rng.generateUniformSamples(0.0, 20000.0, 1, sample);
         maths::COrdinal unsignedOrdinal(static_cast<uint64_t>(sample[0]));
-        CPPUNIT_ASSERT_EQUAL(::floor(sample[0]), unsignedOrdinal.asDouble());
+        CPPUNIT_ASSERT_EQUAL(std::floor(sample[0]), unsignedOrdinal.asDouble());
 
         rng.generateUniformSamples(-1.0, 1.0, 1, sample);
         maths::COrdinal doubleOrdinal(sample[0]);
@@ -265,7 +265,7 @@ void COrdinalTest::testAsDouble(void) {
     }
 }
 
-void COrdinalTest::testHash(void) {
+void COrdinalTest::testHash() {
     LOG_DEBUG("");
     LOG_DEBUG("+--------------------------+");
     LOG_DEBUG("|  COrdinalTest::testHash  |");
@@ -273,7 +273,7 @@ void COrdinalTest::testHash(void) {
 
     // Test that hashing works over the full range of the distinct types.
 
-    typedef boost::unordered_set<std::size_t> TSizeUSet;
+    using TSizeUSet = boost::unordered_set<std::size_t>;
 
     test::CRandomNumbers rng;
 
@@ -304,7 +304,7 @@ void COrdinalTest::testHash(void) {
     CPPUNIT_ASSERT_EQUAL(std::size_t(100), doubleHashes.size());
 }
 
-CppUnit::Test* COrdinalTest::suite(void) {
+CppUnit::Test* COrdinalTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COrdinalTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<COrdinalTest>("COrdinalTest::testEqual", &COrdinalTest::testEqual));

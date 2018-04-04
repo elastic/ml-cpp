@@ -120,7 +120,7 @@ class CStatePersistInserter;
 class CORE_EXPORT CStatistics : private CNonCopyable {
 public:
     //! Singleton pattern
-    static CStatistics& instance(void);
+    static CStatistics& instance();
 
     //! Provide access to the relevant stat from the collection
     static CStat& stat(int index);
@@ -135,11 +135,11 @@ public:
     //@}
 
 private:
-    typedef boost::array<CStat, stat_t::E_LastEnumStat> TStatArray;
+    using TStatArray = boost::array<CStat, stat_t::E_LastEnumStat>;
 
 private:
     //! Constructor of a Singleton is private
-    CStatistics(void);
+    CStatistics();
 
     //! The unique instance.
     static CStatistics ms_Instance;

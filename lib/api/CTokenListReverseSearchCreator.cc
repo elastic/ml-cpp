@@ -23,7 +23,7 @@ CTokenListReverseSearchCreator::CTokenListReverseSearchCreator(const std::string
     : CTokenListReverseSearchCreatorIntf(fieldName) {
 }
 
-size_t CTokenListReverseSearchCreator::availableCost(void) const {
+size_t CTokenListReverseSearchCreator::availableCost() const {
     // This is pretty arbitrary, but MUST be less than the maximum length of a
     // field in ES (currently 32766 bytes), and ideally should be quite a lot
     // less as a huge reverse search is pretty unwieldy

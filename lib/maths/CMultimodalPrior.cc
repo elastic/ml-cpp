@@ -55,10 +55,10 @@ namespace maths {
 
 namespace {
 
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 2> TSizeDoublePr2Vec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::set<std::size_t> TSizeSet;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TSizeDoublePr2Vec = core::CSmallVector<TSizeDoublePr, 2>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TSizeSet = std::set<std::size_t>;
 
 const std::size_t MODE_SPLIT_NUMBER_SAMPLES(50u);
 const std::size_t MODE_MERGE_NUMBER_SAMPLES(25u);
@@ -186,11 +186,11 @@ void CMultimodalPrior::swap(CMultimodalPrior& other) {
     m_Modes.swap(other.m_Modes);
 }
 
-CMultimodalPrior::EPrior CMultimodalPrior::type(void) const {
+CMultimodalPrior::EPrior CMultimodalPrior::type() const {
     return E_Multimodal;
 }
 
-CMultimodalPrior* CMultimodalPrior::clone(void) const {
+CMultimodalPrior* CMultimodalPrior::clone() const {
     return new CMultimodalPrior(*this);
 }
 
@@ -218,7 +218,7 @@ void CMultimodalPrior::setToNonInformative(double /*offset*/, double decayRate) 
     this->numberSamples(0.0);
 }
 
-bool CMultimodalPrior::needsOffset(void) const {
+bool CMultimodalPrior::needsOffset() const {
     for (const auto& mode : m_Modes) {
         if (mode.s_Prior->needsOffset()) {
             return true;
@@ -246,7 +246,7 @@ double CMultimodalPrior::adjustOffset(const TWeightStyleVec& weightStyles, const
     return result;
 }
 
-double CMultimodalPrior::offset(void) const {
+double CMultimodalPrior::offset() const {
     double offset = 0.0;
     for (const auto& mode : m_Modes) {
         offset = std::max(offset, mode.s_Prior->offset());
@@ -385,11 +385,11 @@ void CMultimodalPrior::propagateForwardsByTime(double time) {
     LOG_TRACE("numberSamples = " << this->numberSamples());
 }
 
-TDoubleDoublePr CMultimodalPrior::marginalLikelihoodSupport(void) const {
+TDoubleDoublePr CMultimodalPrior::marginalLikelihoodSupport() const {
     return CMultimodalPriorUtils::marginalLikelihoodSupport(m_Modes);
 }
 
-double CMultimodalPrior::marginalLikelihoodMean(void) const {
+double CMultimodalPrior::marginalLikelihoodMean() const {
     return CMultimodalPriorUtils::marginalLikelihoodMean(m_Modes);
 }
 
@@ -399,12 +399,12 @@ double CMultimodalPrior::nearestMarginalLikelihoodMean(double value) const {
     }
 
     double mean = m_Modes[0].s_Prior->marginalLikelihoodMean();
-    double distance = ::fabs(value - mean);
+    double distance = std::fabs(value - mean);
     double result = mean;
     for (std::size_t i = 1u; i < m_Modes.size(); ++i) {
         mean = m_Modes[i].s_Prior->marginalLikelihoodMean();
-        if (::fabs(value - mean) < distance) {
-            distance = ::fabs(value - mean);
+        if (std::fabs(value - mean) < distance) {
+            distance = std::fabs(value - mean);
             result = mean;
         }
     }
@@ -505,7 +505,7 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
         *this, m_Modes, calculation, weightStyles, samples, weights, lowerBound, upperBound, tail);
 }
 
-bool CMultimodalPrior::isNonInformative(void) const {
+bool CMultimodalPrior::isNonInformative() const {
     return CMultimodalPriorUtils::isNonInformative(m_Modes);
 }
 
@@ -513,7 +513,7 @@ void CMultimodalPrior::print(const std::string& indent, std::string& result) con
     CMultimodalPriorUtils::print(m_Modes, indent, result);
 }
 
-std::string CMultimodalPrior::printJointDensityFunction(void) const {
+std::string CMultimodalPrior::printJointDensityFunction() const {
     return "Not supported";
 }
 
@@ -531,14 +531,14 @@ void CMultimodalPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
     core::CMemoryDebug::dynamicSize("m_Modes", m_Modes, mem);
 }
 
-std::size_t CMultimodalPrior::memoryUsage(void) const {
+std::size_t CMultimodalPrior::memoryUsage() const {
     std::size_t mem = core::CMemory::dynamicSize(m_Clusterer);
     mem += core::CMemory::dynamicSize(m_SeedPrior);
     mem += core::CMemory::dynamicSize(m_Modes);
     return mem;
 }
 
-std::size_t CMultimodalPrior::staticSize(void) const {
+std::size_t CMultimodalPrior::staticSize() const {
     return sizeof(*this);
 }
 
@@ -552,7 +552,7 @@ void CMultimodalPrior::acceptPersistInserter(core::CStatePersistInserter& insert
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
 }
 
-std::size_t CMultimodalPrior::numberModes(void) const {
+std::size_t CMultimodalPrior::numberModes() const {
     return m_Modes.size();
 }
 
@@ -583,15 +583,15 @@ bool CMultimodalPrior::checkInvariants(const std::string& tag) const {
     return result;
 }
 
-bool CMultimodalPrior::participatesInModelSelection(void) const {
+bool CMultimodalPrior::participatesInModelSelection() const {
     return m_Modes.size() > 1;
 }
 
-double CMultimodalPrior::unmarginalizedParameters(void) const {
+double CMultimodalPrior::unmarginalizedParameters() const {
     return std::max(static_cast<double>(m_Modes.size()), 1.0) - 1.0;
 }
 
-std::string CMultimodalPrior::debugWeights(void) const {
+std::string CMultimodalPrior::debugWeights() const {
     return TMode::debugWeights(m_Modes);
 }
 

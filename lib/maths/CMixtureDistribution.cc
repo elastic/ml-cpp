@@ -21,7 +21,7 @@ namespace ml {
 namespace maths {
 namespace {
 
-typedef std::pair<double, double> TDoubleDoublePr;
+using TDoubleDoublePr = std::pair<double, double>;
 
 //! brief Invokes the support function on a distribution.
 struct SSupport {
@@ -83,7 +83,7 @@ struct SQuantile {
 template<typename RESULT, typename VISITOR_ACTION>
 class CUnaryVisitor {
 public:
-    typedef RESULT result_type;
+    using result_type = RESULT;
 
 public:
     template<typename DISTRIBUTION>
@@ -99,7 +99,7 @@ private:
 template<typename RESULT, typename VISITOR_ACTION>
 class CBinaryVisitor {
 public:
-    typedef RESULT result_type;
+    using result_type = RESULT;
 
 public:
     template<typename DISTRIBUTION>

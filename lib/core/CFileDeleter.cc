@@ -26,7 +26,7 @@ namespace core {
 CFileDeleter::CFileDeleter(const std::string& fileName) : m_FileName(fileName) {
 }
 
-CFileDeleter::~CFileDeleter(void) {
+CFileDeleter::~CFileDeleter() {
     if (m_FileName.empty()) {
         return;
     }

@@ -53,7 +53,7 @@ protected:
     //! Line end character
     static const char LINE_END;
 
-    typedef std::pair<char*, size_t> TCharPSizePr;
+    using TCharPSizePr = std::pair<char*, size_t>;
 
 protected:
     //! Return a pointer to the start of the next line and its length,
@@ -62,12 +62,12 @@ protected:
     //! character at the end of the line is replaced with a zero terminator
     //! byte so that the line can later be parsed in-situ by a library
     //! that expects a zero-terminated string.
-    TCharPSizePr parseLine(void);
+    TCharPSizePr parseLine();
 
     //! Reset the work buffer to empty.  This should be called if the stream
     //! that data is being read from might have had its stream buffer
     //! changed.
-    void resetBuffer(void);
+    void resetBuffer();
 
 private:
     //! Allocate this much memory for the working buffer
@@ -76,7 +76,7 @@ private:
     //! Reference to the stream we're going to read from
     std::istream& m_StrmIn;
 
-    typedef boost::scoped_array<char> TScopedCharArray;
+    using TScopedCharArray = boost::scoped_array<char>;
 
     //! The working buffer is a raw character array rather than a string to
     //! facilitate the use of std::istream::read() to obtain input rather

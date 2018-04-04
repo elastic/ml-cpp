@@ -20,26 +20,26 @@
 
 class CGammaRateConjugateTest : public CppUnit::TestFixture {
 public:
-    void testMultipleUpdate(void);
-    void testPropagation(void);
-    void testShapeEstimation(void);
-    void testRateEstimation(void);
-    void testMarginalLikelihood(void);
-    void testMarginalLikelihoodMean(void);
-    void testMarginalLikelihoodMode(void);
-    void testMarginalLikelihoodVariance(void);
-    void testSampleMarginalLikelihood(void);
-    void testCdf(void);
-    void testProbabilityOfLessLikelySamples(void);
-    void testAnomalyScore(void);
-    void testOffset(void);
-    void testIntegerData(void);
-    void testLowVariationData(void);
-    void testPersist(void);
-    void testVarianceScale(void);
-    void testNegativeSample(void);
+    void testMultipleUpdate();
+    void testPropagation();
+    void testShapeEstimation();
+    void testRateEstimation();
+    void testMarginalLikelihood();
+    void testMarginalLikelihoodMean();
+    void testMarginalLikelihoodMode();
+    void testMarginalLikelihoodVariance();
+    void testSampleMarginalLikelihood();
+    void testCdf();
+    void testProbabilityOfLessLikelySamples();
+    void testAnomalyScore();
+    void testOffset();
+    void testIntegerData();
+    void testLowVariationData();
+    void testPersist();
+    void testVarianceScale();
+    void testNegativeSample();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CGammaRateConjugateTest_h

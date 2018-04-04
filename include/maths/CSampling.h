@@ -56,22 +56,22 @@ public:
 
     public:
         //! Mock the random number generator to produce a constant.
-        void mock(void);
+        void mock();
 
         //! Unmock the random number generator.
-        void unmock(void);
+        void unmock();
 
         //! Seed the random number generator.
-        void seed(void);
+        void seed();
 
         //! Returns the smallest value that the generator can produce.
-        static result_type min(void) { return boost::random::mt11213b::min(); }
+        static result_type min() { return boost::random::mt11213b::min(); }
 
         //! Returns the largest value that the generator can produce.
-        static result_type max(void) { return boost::random::mt11213b::max(); }
+        static result_type max() { return boost::random::mt11213b::max(); }
 
         //! Produces the next value of the generator.
-        result_type operator()(void) {
+        result_type operator()() {
             if (m_Mock) {
                 return *m_Mock;
             }
@@ -113,8 +113,8 @@ public:
     //! it is constructed.
     class MATHS_EXPORT CScopeMockRandomNumberGenerator {
     public:
-        CScopeMockRandomNumberGenerator(void);
-        ~CScopeMockRandomNumberGenerator(void);
+        CScopeMockRandomNumberGenerator();
+        ~CScopeMockRandomNumberGenerator();
     };
 
 public:
@@ -128,7 +128,7 @@ public:
     //@}
 
     //! Reinitialize the random number generator.
-    static void seed(void);
+    static void seed();
 
     //! \name Uniform Sampling
     //!

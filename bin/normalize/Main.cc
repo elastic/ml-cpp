@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
     modelConfig.perPartitionNormalization(perPartitionNormalization);
 
     // There's a choice of input and output formats for the numbers to be normalised
-    typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
+    using TScopedInputParserP = boost::scoped_ptr<ml::api::CInputParser>;
     TScopedInputParserP inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
         inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA));
     }
 
-    typedef boost::scoped_ptr<ml::api::COutputHandler> TScopedOutputHandlerP;
+    using TScopedOutputHandlerP = boost::scoped_ptr<ml::api::COutputHandler>;
     TScopedOutputHandlerP outputWriter;
     if (writeCsv) {
         outputWriter.reset(new ml::api::CCsvOutputWriter(ioMgr.outputStream()));

@@ -31,7 +31,7 @@ CppUnit::Test* CMemoryUsageJsonWriterTest::suite() {
     return suiteOfTests;
 }
 
-void CMemoryUsageJsonWriterTest::test(void) {
+void CMemoryUsageJsonWriterTest::test() {
     {
         // Check that adding nothing produces nothing
         std::ostringstream ss;
@@ -99,8 +99,8 @@ void CMemoryUsageJsonWriterTest::test(void) {
         writer.endArray();
         writer.endObject();
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Womple\":{\"memory\":44}},{"
-                                         "\"Whimple\":{\"memory\":66},\"magic\":{\"memory\":7777}}]}\n"),
+        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Womple\":{\"memory\":44}},{\"Whimple\":{\"memory\":"
+                                         "66},\"magic\":{\"memory\":7777}}]}\n"),
                              ss.str());
     }
     {
@@ -120,8 +120,8 @@ void CMemoryUsageJsonWriterTest::test(void) {
         writer.endArray();
         writer.endObject();
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Dumplings\":{\"memory\":345},"
-                                         "\"Gravy\":{\"memory\":12341234}}]}\n"),
-                             ss.str());
+        CPPUNIT_ASSERT_EQUAL(
+            std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Dumplings\":{\"memory\":345},\"Gravy\":{\"memory\":12341234}}]}\n"),
+            ss.str());
     }
 }

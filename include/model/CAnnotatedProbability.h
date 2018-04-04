@@ -61,7 +61,7 @@ struct MODEL_EXPORT SAttributeProbability {
     using TDescriptiveDataDoublePr2Vec = core::CSmallVector<TDescriptiveDataDoublePr, 2>;
     using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
 
-    SAttributeProbability(void);
+    SAttributeProbability();
     SAttributeProbability(std::size_t cid,
                           const core::CStoredStringPtr& attribute,
                           double probability,
@@ -122,7 +122,7 @@ struct MODEL_EXPORT SAnnotatedProbability {
     using TOptionalDouble = boost::optional<double>;
     using TOptionalUInt64 = boost::optional<uint64_t>;
 
-    SAnnotatedProbability(void);
+    SAnnotatedProbability();
     SAnnotatedProbability(double p);
 
     //! Add the descriptive data \p value for \p key.
@@ -132,7 +132,7 @@ struct MODEL_EXPORT SAnnotatedProbability {
     void swap(SAnnotatedProbability& other);
 
     //! Is the result type interim?
-    bool isInterim(void) const;
+    bool isInterim() const;
 
     //! Persist the probability passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

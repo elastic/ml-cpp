@@ -24,9 +24,9 @@ namespace ml {
 namespace maths {
 namespace multivariate_multimodal_prior_detail {
 
-typedef std::vector<double> TDoubleVec;
-typedef CMultivariatePrior::TDouble10Vec TDouble10Vec;
-typedef CMultivariatePrior::TDouble10Vec4Vec TDouble10Vec4Vec;
+using TDoubleVec = std::vector<double>;
+using TDouble10Vec = CMultivariatePrior::TDouble10Vec;
+using TDouble10Vec4Vec = CMultivariatePrior::TDouble10Vec4Vec;
 
 namespace {
 
@@ -93,12 +93,12 @@ maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TModeVec& mo
         for (const auto& likelihood : modeLogLikelihoods) {
             double w = modes[likelihood.first].weight();
             // Divide through by the largest value to avoid underflow.
-            sampleLikelihood += w * ::exp(likelihood.second - maxLogLikelihood);
+            sampleLikelihood += w * std::exp(likelihood.second - maxLogLikelihood);
             Z += w;
         }
 
         sampleLikelihood /= Z;
-        result = (::log(sampleLikelihood) + maxLogLikelihood);
+        result = (std::log(sampleLikelihood) + maxLogLikelihood);
 
         LOG_TRACE("sample = " << core::CContainerPrinter::print(sample) << ", maxLogLikelihood = " << maxLogLikelihood
                               << ", sampleLogLikelihood = " << result);
@@ -129,7 +129,7 @@ void sampleMarginalLikelihood(const TModeVec& modes, std::size_t numberSamples, 
         normalizedWeights.push_back(weight);
         Z += weight;
     }
-    for (auto&& weight : normalizedWeights) {
+    for (auto& weight : normalizedWeights) {
         weight /= Z;
     }
 
@@ -176,7 +176,7 @@ void modeMergeCallback(std::size_t dimension,
                        std::size_t targetIndex) {
     LOG_TRACE("Merging modes with indices " << leftMergeIndex << " " << rightMergeIndex);
 
-    typedef std::set<std::size_t> TSizeSet;
+    using TSizeSet = std::set<std::size_t>;
 
     // Create the new mode.
     TMode newMode(targetIndex, seedPrior);

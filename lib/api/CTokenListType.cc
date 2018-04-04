@@ -236,39 +236,39 @@ bool CTokenListType::addString(bool isDryRun,
     return changed;
 }
 
-const std::string& CTokenListType::baseString(void) const {
+const std::string& CTokenListType::baseString() const {
     return m_BaseString;
 }
 
-const CTokenListType::TSizeSizePrVec& CTokenListType::baseTokenIds(void) const {
+const CTokenListType::TSizeSizePrVec& CTokenListType::baseTokenIds() const {
     return m_BaseTokenIds;
 }
 
-size_t CTokenListType::baseWeight(void) const {
+size_t CTokenListType::baseWeight() const {
     return m_BaseWeight;
 }
 
-const CTokenListType::TSizeSizePrVec& CTokenListType::commonUniqueTokenIds(void) const {
+const CTokenListType::TSizeSizePrVec& CTokenListType::commonUniqueTokenIds() const {
     return m_CommonUniqueTokenIds;
 }
 
-size_t CTokenListType::commonUniqueTokenWeight(void) const {
+size_t CTokenListType::commonUniqueTokenWeight() const {
     return m_CommonUniqueTokenWeight;
 }
 
-size_t CTokenListType::origUniqueTokenWeight(void) const {
+size_t CTokenListType::origUniqueTokenWeight() const {
     return m_OrigUniqueTokenWeight;
 }
 
-size_t CTokenListType::maxStringLen(void) const {
+size_t CTokenListType::maxStringLen() const {
     return m_MaxStringLen;
 }
 
-size_t CTokenListType::outOfOrderCommonTokenIndex(void) const {
+size_t CTokenListType::outOfOrderCommonTokenIndex() const {
     return m_OutOfOrderCommonTokenIndex;
 }
 
-size_t CTokenListType::maxMatchingStringLen(void) const {
+size_t CTokenListType::maxMatchingStringLen() const {
     // Add a 10% margin of error
     return (m_MaxStringLen * 11) / 10;
 }
@@ -352,7 +352,7 @@ bool CTokenListType::containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds)
     return true;
 }
 
-size_t CTokenListType::numMatches(void) const {
+size_t CTokenListType::numMatches() const {
     return m_NumMatches;
 }
 

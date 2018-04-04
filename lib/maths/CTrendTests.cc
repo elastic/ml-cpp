@@ -84,7 +84,7 @@ void zeroMean(TDoubleVec& samples) {
     for (auto sample : samples) {
         mean.add(sample);
     }
-    for (auto&& sample : samples) {
+    for (auto& sample : samples) {
         sample -= CBasicStatistics::mean(mean);
     }
 }
@@ -123,7 +123,7 @@ const core_t::TTime WEEK = core::constants::WEEK;
 
 //////// CRandomizedPeriodicitytest ////////
 
-CRandomizedPeriodicityTest::CRandomizedPeriodicityTest(void)
+CRandomizedPeriodicityTest::CRandomizedPeriodicityTest()
     : m_DayRefreshedProjections(-DAY_RESAMPLE_INTERVAL), m_WeekRefreshedProjections(-DAY_RESAMPLE_INTERVAL) {
     resample(0);
 }
@@ -265,7 +265,7 @@ void CRandomizedPeriodicityTest::add(core_t::TTime time, double value) {
     m_WeekProjections.add(weekSample);
 }
 
-bool CRandomizedPeriodicityTest::test(void) const {
+bool CRandomizedPeriodicityTest::test() const {
     static const double SIGNIFICANCE = 1e-3;
 
     try {
@@ -299,7 +299,7 @@ bool CRandomizedPeriodicityTest::test(void) const {
     return false;
 }
 
-void CRandomizedPeriodicityTest::reset(void) {
+void CRandomizedPeriodicityTest::reset() {
     core::CScopedLock lock(ms_Lock);
 
     ms_Rng = boost::random::mt19937_64();
@@ -468,11 +468,11 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
     }
 }
 
-CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test(void) const {
+CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test() const {
     // The statistics we need in order to be able to test for calendar
     // features.
     struct SStats {
-        SStats(void) : s_Offset(0), s_Repeats(0), s_Sum(0.0), s_Count(0.0), s_Significance(0.0) {}
+        SStats() : s_Offset(0), s_Repeats(0), s_Sum(0.0), s_Count(0.0), s_Significance(0.0) {}
         core_t::TTime s_Offset;
         unsigned int s_Repeats;
         double s_Sum;
@@ -521,7 +521,7 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test(void) const {
         double x = stat.second.s_Count;
         double e = stat.second.s_Sum;
         double s = stat.second.s_Significance;
-        if (stat.second.s_Repeats >= MINIMUM_REPEATS && e > errorThreshold * x && ::pow(s, r) < MAXIMUM_SIGNIFICANCE) {
+        if (stat.second.s_Repeats >= MINIMUM_REPEATS && e > errorThreshold * x && std::pow(s, r) < MAXIMUM_SIGNIFICANCE) {
             result.add({e, stat.second.s_Offset, feature});
         }
     }
@@ -542,7 +542,7 @@ void CCalendarCyclicTest::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr m
     core::CMemoryDebug::dynamicSize("m_ErrorSums", m_ErrorSums, mem);
 }
 
-std::size_t CCalendarCyclicTest::memoryUsage(void) const {
+std::size_t CCalendarCyclicTest::memoryUsage() const {
     return core::CMemory::dynamicSize(m_ErrorQuantiles) + core::CMemory::dynamicSize(m_ErrorCounts) +
            core::CMemory::dynamicSize(m_ErrorSums);
 }

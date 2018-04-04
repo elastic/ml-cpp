@@ -33,7 +33,7 @@ CCmdSkeleton::CCmdSkeleton(core::CDataSearcher* restoreSearcher,
     : m_RestoreSearcher(restoreSearcher), m_Persister(persister), m_InputParser(inputParser), m_Processor(processor) {
 }
 
-bool CCmdSkeleton::ioLoop(void) {
+bool CCmdSkeleton::ioLoop() {
     if (m_RestoreSearcher == 0) {
         LOG_DEBUG("No restoration source specified - will not attempt to restore state");
     } else {
@@ -57,7 +57,7 @@ bool CCmdSkeleton::ioLoop(void) {
     return this->persistState();
 }
 
-bool CCmdSkeleton::persistState(void) {
+bool CCmdSkeleton::persistState() {
     if (m_Persister == 0) {
         LOG_DEBUG("No persistence sink specified - will not attempt to persist state");
         return true;

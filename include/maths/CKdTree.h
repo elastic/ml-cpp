@@ -24,6 +24,7 @@
 #include <maths/CTypeConversions.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <vector>
 
@@ -70,12 +71,12 @@ typename SPromoted<typename SCoordinate<POINT>::Type>::Type euclidean(const POIN
 template<typename POINT, typename NODE_DATA = kdtree_detail::SEmptyNodeData>
 class CKdTree {
 public:
-    typedef std::vector<POINT> TPointVec;
-    typedef typename TPointVec::iterator TPointVecItr;
-    typedef typename SCoordinate<POINT>::Type TCoordinate;
-    typedef typename SPromoted<TCoordinate>::Type TCoordinatePrecise;
-    typedef std::pair<TCoordinatePrecise, POINT> TCoordinatePrecisePointPr;
-    typedef CBasicStatistics::COrderStatisticsHeap<TCoordinatePrecisePointPr> TNearestAccumulator;
+    using TPointVec = std::vector<POINT>;
+    using TPointVecItr = typename TPointVec::iterator;
+    using TCoordinate = typename SCoordinate<POINT>::Type;
+    using TCoordinatePrecise = typename SPromoted<TCoordinate>::Type;
+    using TCoordinatePrecisePointPr = std::pair<TCoordinatePrecise, POINT>;
+    using TNearestAccumulator = CBasicStatistics::COrderStatisticsHeap<TCoordinatePrecisePointPr>;
 
     //! Less on a specific coordinate of point position vector.
     class CCoordinateLess {
@@ -114,7 +115,7 @@ public:
         }
 
         //! Get the coordinate the points are split on.
-        std::size_t depth(void) const {
+        std::size_t depth() const {
             std::size_t depth = 0u;
             for (const SNode* ancestor = s_Parent; ancestor; ancestor = ancestor->s_Parent) {
                 ++depth;
@@ -153,7 +154,7 @@ public:
     }
 
     //! Get the number of points in the tree.
-    std::size_t size(void) const { return m_Nodes.size(); }
+    std::size_t size() const { return m_Nodes.size(); }
 
     //! Branch and bound search for nearest neighbour of \p point.
     const POINT* nearestNeighbour(const POINT& point) const {
@@ -218,7 +219,7 @@ public:
     }
 
     //! Check the tree invariants.
-    bool checkInvariants(void) const {
+    bool checkInvariants() const {
         for (std::size_t i = 0u; i < m_Nodes.size(); ++i) {
             if (!m_Nodes[i].checkInvariants(m_Dimension)) {
                 return false;
@@ -228,7 +229,7 @@ public:
     }
 
 private:
-    typedef std::vector<SNode> TNodeVec;
+    using TNodeVec = std::vector<SNode>;
 
 private:
     //! Recursively build the k-d tree.
@@ -273,7 +274,7 @@ private:
 
             std::size_t nextCoordinate = (coordinate + 1) % m_Dimension;
             nearest = this->nearestNeighbour(point, *primary, nextCoordinate, nearest, distanceToNearest);
-            if (secondary && ::fabs(distanceToHyperplane) < distanceToNearest) {
+            if (secondary && std::fabs(distanceToHyperplane) < distanceToNearest) {
                 nearest = this->nearestNeighbour(point, *secondary, nextCoordinate, nearest, distanceToNearest);
             }
         }
@@ -298,7 +299,7 @@ private:
 
             std::size_t nextCoordinate = (coordinate + 1) % m_Dimension;
             this->nearestNeighbours(point, *primary, nextCoordinate, nearest);
-            if (secondary && ::fabs(distanceToHyperplane) < nearest.biggest().first) {
+            if (secondary && std::fabs(distanceToHyperplane) < nearest.biggest().first) {
                 this->nearestNeighbours(point, *secondary, nextCoordinate, nearest);
             }
         }

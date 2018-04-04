@@ -56,8 +56,8 @@ namespace model {
 template<class STATISTIC>
 class CMetricPartialStatistic {
 public:
-    typedef core::CSmallVector<double, 1> TDouble1Vec;
-    typedef maths::CBasicStatistics::SSampleMean<maths::CDoublePrecisionStorage>::TAccumulator TMeanAccumulator;
+    using TDouble1Vec = core::CSmallVector<double, 1>;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<maths::CDoublePrecisionStorage>::TAccumulator;
 
 public:
     static const std::string VALUE_TAG;
@@ -102,13 +102,13 @@ public:
     }
 
     //! Returns the aggregated value of all the measurements.
-    inline TDouble1Vec value(void) const { return CMetricStatisticWrappers::value(m_Value); }
+    inline TDouble1Vec value() const { return CMetricStatisticWrappers::value(m_Value); }
 
     //! Returns the combined count of all the measurements.
-    inline double count(void) const { return maths::CBasicStatistics::count(m_Time); }
+    inline double count() const { return maths::CBasicStatistics::count(m_Time); }
 
     //! Returns the mean time of all the measurements.
-    inline core_t::TTime time(void) const { return static_cast<core_t::TTime>(maths::CBasicStatistics::mean(m_Time) + 0.5); }
+    inline core_t::TTime time() const { return static_cast<core_t::TTime>(maths::CBasicStatistics::mean(m_Time) + 0.5); }
 
     //! Combine two partial statistics.
     inline const CMetricPartialStatistic& operator+=(const CMetricPartialStatistic& rhs) {
@@ -131,12 +131,12 @@ public:
     }
 
     //! Get the memory used by the statistic.
-    inline std::size_t memoryUsage(void) const {
+    inline std::size_t memoryUsage() const {
         return sizeof(*this) + core::CMemory::dynamicSize(m_Value) + core::CMemory::dynamicSize(m_Time);
     }
 
     //! Print partial statistic
-    inline std::string print(void) const {
+    inline std::string print() const {
         std::ostringstream result;
         result << m_Value << ' ' << maths::CBasicStatistics::mean(m_Time);
         return result.str();

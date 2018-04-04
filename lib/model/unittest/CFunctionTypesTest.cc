@@ -23,7 +23,7 @@
 using namespace ml;
 using namespace model;
 
-void CFunctionTypesTest::testFeaturesToFunction(void) {
+void CFunctionTypesTest::testFeaturesToFunction() {
     model_t::TFeatureVec features;
 
     {
@@ -243,7 +243,7 @@ void CFunctionTypesTest::testFeaturesToFunction(void) {
     }
 }
 
-CppUnit::Test* CFunctionTypesTest::suite(void) {
+CppUnit::Test* CFunctionTypesTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFunctionTypesTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CFunctionTypesTest>("CFunctionTypesTest::testFeaturesToFunction",

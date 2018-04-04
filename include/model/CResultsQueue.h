@@ -29,7 +29,7 @@ class CHierarchicalResults;
 //! overlapping bucket result selection
 class MODEL_EXPORT CResultsQueue {
 public:
-    typedef CBucketQueue<CHierarchicalResults> THierarchicalResultsQueue;
+    using THierarchicalResultsQueue = CBucketQueue<CHierarchicalResults>;
 
 public:
     //! Constructor
@@ -39,7 +39,7 @@ public:
     void reset(core_t::TTime time);
 
     //! Have we got unsent items in the queue?
-    bool hasInterimResults(void) const;
+    bool hasInterimResults() const;
 
     //! Push to the underlying queue
     void push(const CHierarchicalResults& item, core_t::TTime time);
@@ -54,13 +54,13 @@ public:
     CHierarchicalResults& get(core_t::TTime time);
 
     //! Returns the size of the queue.
-    std::size_t size(void) const;
+    std::size_t size() const;
 
     //! Get the latest result from the queue
-    CHierarchicalResults& latest(void);
+    CHierarchicalResults& latest();
 
     //! Returns the latest bucket end time, as tracked by the queue
-    core_t::TTime latestBucketEnd(void) const;
+    core_t::TTime latestBucketEnd() const;
 
     //! Select which queued result object to output, based on anomaly score
     //! and which have been output most recently

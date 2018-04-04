@@ -32,7 +32,7 @@ namespace core {
 
 namespace {
 
-typedef core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
+using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
 
 static const std::string NAME_TYPE("name");
 static const std::string DESCRIPTION_TYPE("description");
@@ -59,10 +59,10 @@ void addStringInt(TGenericLineWriter& writer, const std::string& name, const std
 }
 }
 
-CStatistics::CStatistics(void) {
+CStatistics::CStatistics() {
 }
 
-CStatistics& CStatistics::instance(void) {
+CStatistics& CStatistics::instance() {
     return ms_Instance;
 }
 

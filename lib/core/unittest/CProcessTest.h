@@ -19,7 +19,7 @@
 
 class CProcessTest : public CppUnit::TestFixture {
 public:
-    void testPids(void);
+    void testPids();
 
     static CppUnit::Test* suite();
 };

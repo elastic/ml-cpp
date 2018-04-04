@@ -28,11 +28,11 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TStrVec = std::vector<std::string>;
 
-void CReportWriterTest::testPretty(void) {
+void CReportWriterTest::testPretty() {
     LOG_DEBUG("");
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CReportWriterTest::testPretty  |");
@@ -115,7 +115,7 @@ void CReportWriterTest::testPretty(void) {
         const std::string& code = codes[index[0]];
         stats2[2].add(time, code);
 
-        double range = weight_ > 1.0 ? ::sqrt(weight_) : weight_ * weight_;
+        double range = weight_ > 1.0 ? std::sqrt(weight_) : weight_ * weight_;
         rng.generateUniformSamples(weight_ - range / 2.0, weight_ + range / 2.0, 1, weight);
         stats3.add(time, core::CStringUtils::typeToString(weight[0]));
 
@@ -139,14 +139,14 @@ void CReportWriterTest::testPretty(void) {
     LOG_DEBUG(o.str());
 }
 
-void CReportWriterTest::testJSON(void) {
+void CReportWriterTest::testJSON() {
     LOG_DEBUG("");
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CReportWriterTest::testJSON  |");
     LOG_DEBUG("+-------------------------------+");
 }
 
-CppUnit::Test* CReportWriterTest::suite(void) {
+CppUnit::Test* CReportWriterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CReportWriterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CReportWriterTest>("CReportWriterTest::testPretty", &CReportWriterTest::testPretty));

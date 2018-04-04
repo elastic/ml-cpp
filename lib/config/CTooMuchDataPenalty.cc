@@ -25,12 +25,13 @@
 #include <config/CDetectorSpecification.h>
 #include <config/CTools.h>
 
+#include <cmath>
 #include <cstddef>
 
 namespace ml {
 namespace config {
 namespace {
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 //! Get the description prefix.
 std::string descriptionPrefix(const CDetectorSpecification& spec, const TMeanAccumulator& meanOccupied, std::size_t partitions) {
@@ -54,11 +55,11 @@ std::string descriptionPrefix(const CDetectorSpecification& spec, const TMeanAcc
 CTooMuchDataPenalty::CTooMuchDataPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {
 }
 
-CTooMuchDataPenalty* CTooMuchDataPenalty::clone(void) const {
+CTooMuchDataPenalty* CTooMuchDataPenalty::clone() const {
     return new CTooMuchDataPenalty(*this);
 }
 
-std::string CTooMuchDataPenalty::name(void) const {
+std::string CTooMuchDataPenalty::name() const {
     return "too much data";
 }
 
@@ -92,7 +93,7 @@ void CTooMuchDataPenalty::penaltyFor(const CByOverAndPartitionDataCountStatistic
 void CTooMuchDataPenalty::penaltyFor(const TUInt64Vec& bucketCounts,
                                      const TBucketCountStatisticsVec& statistics,
                                      CDetectorSpecification& spec) const {
-    typedef CBucketCountStatistics::TSizeSizePrMomentsUMap::const_iterator TSizeSizePrMomentsUMapCItr;
+    using TSizeSizePrMomentsUMapCItr = CBucketCountStatistics::TSizeSizePrMomentsUMap::const_iterator;
 
     const CAutoconfigurerParams::TTimeVec& candidates = this->params().candidateBucketLengths();
 
@@ -130,7 +131,7 @@ void CTooMuchDataPenalty::penaltyFor(const TUInt64Vec& bucketCounts,
             }
 
             if (maths::CBasicStatistics::count(penalizedOccupancy) > 0.95 * static_cast<double>(mi.size())) {
-                double penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
+                double penalty = std::min(std::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
                 std::size_t index = this->params().penaltyIndexFor(bid, true);
                 indices.push_back(index);
                 penalties.push_back(penalty);

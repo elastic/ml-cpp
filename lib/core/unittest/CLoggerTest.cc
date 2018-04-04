@@ -50,7 +50,7 @@ CppUnit::Test* CLoggerTest::suite() {
     return suiteOfTests;
 }
 
-void CLoggerTest::testLogging(void) {
+void CLoggerTest::testLogging() {
     std::string t("Test message");
 
     LOG_TRACE("Trace");
@@ -74,7 +74,7 @@ void CLoggerTest::testLogging(void) {
     } catch (std::runtime_error&) { CPPUNIT_ASSERT(true); }
 }
 
-void CLoggerTest::testReconfiguration(void) {
+void CLoggerTest::testReconfiguration() {
     ml::core::CLogger& logger = ml::core::CLogger::instance();
 
     LOG_DEBUG("Starting logger reconfiguration test");
@@ -95,7 +95,7 @@ void CLoggerTest::testReconfiguration(void) {
     CPPUNIT_ASSERT(logger.hasBeenReconfigured());
 }
 
-void CLoggerTest::testSetLevel(void) {
+void CLoggerTest::testSetLevel() {
     ml::core::CLogger& logger = ml::core::CLogger::instance();
 
     LOG_DEBUG("Starting logger level test");
@@ -150,7 +150,7 @@ void CLoggerTest::testSetLevel(void) {
     LOG_DEBUG("Finished logger level test");
 }
 
-void CLoggerTest::testNonAsciiJsonLogging(void) {
+void CLoggerTest::testNonAsciiJsonLogging() {
     std::vector<std::string> messages{"Non-iso8859-15: 编码", "Non-ascii: üaöä", "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
 
     std::ostringstream loggedData;
@@ -200,6 +200,6 @@ void CLoggerTest::testNonAsciiJsonLogging(void) {
     CPPUNIT_ASSERT_EQUAL(messages.size(), foundMessages);
 }
 
-void CLoggerTest::testLogEnvironment(void) {
+void CLoggerTest::testLogEnvironment() {
     ml::core::CLogger::instance().logEnvironment();
 }

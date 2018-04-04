@@ -76,26 +76,26 @@ public:
     CDualThreadStreamBuf(size_t bufferCapacity = DEFAULT_BUFFER_CAPACITY);
 
     //! Set the end-of-file flag
-    void signalEndOfFile(void);
+    void signalEndOfFile();
 
     //! Get the end-of-file flag
-    bool endOfFile(void) const;
+    bool endOfFile() const;
 
     //! Set the fatal error flag
-    void signalFatalError(void);
+    void signalFatalError();
 
     //! Get the fatal error flag
-    bool hasFatalError(void) const;
+    bool hasFatalError() const;
 
 protected:
     //! Get an estimate of the number of characters still to read after an
     //! underflow.  In the case of this class we return the amount of data
     //! in the intermediate buffer.
-    virtual std::streamsize showmanyc(void);
+    virtual std::streamsize showmanyc();
 
     //! Switch the buffers immediately.  Effectively this flushes data
     //! through with lower latency but also less efficiently.
-    virtual int sync(void);
+    virtual int sync();
 
     //! Get up to n characters from the read buffer and store them in the
     //! array pointed to by s.
@@ -104,7 +104,7 @@ protected:
     //! Try to obtain more data for the write buffer.  This is done by
     //! swapping it with the intermediate buffer.  This may block if no data
     //! is available to read in the intermediate buffer.
-    virtual int underflow(void);
+    virtual int underflow();
 
     //! Put character back in the case of backup underflow.
     virtual int pbackfail(int c = traits_type::eof());
@@ -129,16 +129,16 @@ private:
     //! Swap the intermediate buffer with the write buffer.  Will block if
     //! the intermediate buffer is not empty.  NB: m_IntermediateBufferMutex
     //! MUST be locked when this method is called.
-    bool swapWriteBuffer(void);
+    bool swapWriteBuffer();
 
     //! Swap the intermediate buffer with the read buffer.  Will block if
     //! the intermediate buffer is empty.  NB: m_IntermediateBufferMutex
     //! MUST be locked when this method is called.
-    bool swapReadBuffer(void);
+    bool swapReadBuffer();
 
 private:
     //! Used to manage the two buffers.
-    typedef boost::scoped_array<char> TScopedCharArray;
+    using TScopedCharArray = boost::scoped_array<char>;
 
     //! Buffer that put functions will write to.
     TScopedCharArray m_WriteBuffer;

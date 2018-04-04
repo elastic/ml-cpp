@@ -23,17 +23,17 @@
 
 #include <boost/range.hpp>
 
-#include <math.h>
+#include <cmath>
 
 using namespace ml;
 using namespace maths;
 using namespace test;
 
-typedef std::vector<double> TDoubleVec;
-typedef TDoubleVec::iterator TDoubleVecItr;
-typedef TDoubleVec::const_iterator TDoubleVecCItr;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecItr = TDoubleVec::iterator;
+using TDoubleVecCItr = TDoubleVec::const_iterator;
 
-void CLogTDistributionTest::testMode(void) {
+void CLogTDistributionTest::testMode() {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testMode  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -52,9 +52,9 @@ void CLogTDistributionTest::testMode(void) {
         for (size_t j = 0; j < boost::size(locations); ++j) {
             for (size_t k = 0; k < boost::size(squareScales); ++k) {
                 LOG_DEBUG("degrees freedom = " << degreesFreedoms[i] << ", location = " << locations[j]
-                                               << ", scale = " << ::sqrt(squareScales[k]));
+                                               << ", scale = " << std::sqrt(squareScales[k]));
 
-                CLogTDistribution logt(degreesFreedoms[i], locations[j], ::sqrt(squareScales[k]));
+                CLogTDistribution logt(degreesFreedoms[i], locations[j], std::sqrt(squareScales[k]));
 
                 double x = mode(logt);
 
@@ -75,7 +75,7 @@ void CLogTDistributionTest::testMode(void) {
     }
 }
 
-void CLogTDistributionTest::testPdf(void) {
+void CLogTDistributionTest::testPdf() {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testPdf  |");
     LOG_DEBUG("+----------------------------------+");
@@ -93,7 +93,7 @@ void CLogTDistributionTest::testPdf(void) {
     nTests = std::min(nTests, boost::size(squareScales));
 
     for (size_t test = 0; test < nTests; ++test) {
-        CLogTDistribution logt(degreesFreedom[test], locations[test], ::sqrt(squareScales[test]));
+        CLogTDistribution logt(degreesFreedom[test], locations[test], std::sqrt(squareScales[test]));
 
         for (unsigned int p = 1; p < 100; ++p) {
             double q = static_cast<double>(p) / 100.0;
@@ -110,7 +110,7 @@ void CLogTDistributionTest::testPdf(void) {
     }
 }
 
-void CLogTDistributionTest::testCdf(void) {
+void CLogTDistributionTest::testCdf() {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testCdf  |");
     LOG_DEBUG("+----------------------------------+");
@@ -134,11 +134,11 @@ void CLogTDistributionTest::testCdf(void) {
         rng.generateStudentsSamples(degreesFreedom[test], nSamples, samples);
 
         for (TDoubleVecItr sampleItr = samples.begin(); sampleItr != samples.end(); ++sampleItr) {
-            *sampleItr = ::exp(*sampleItr * ::sqrt(squareScales[test]) + locations[test]);
+            *sampleItr = std::exp(*sampleItr * std::sqrt(squareScales[test]) + locations[test]);
         }
 
         // Check the data percentiles.
-        CLogTDistribution logt(degreesFreedom[test], locations[test], ::sqrt(squareScales[test]));
+        CLogTDistribution logt(degreesFreedom[test], locations[test], std::sqrt(squareScales[test]));
 
         std::sort(samples.begin(), samples.end());
         for (unsigned int p = 1; p < 100; ++p) {
@@ -155,7 +155,7 @@ void CLogTDistributionTest::testCdf(void) {
     }
 }
 
-void CLogTDistributionTest::testQuantile(void) {
+void CLogTDistributionTest::testQuantile() {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CLogTDistributionTest::testQuantile  |");
     LOG_DEBUG("+---------------------------------------+");
@@ -170,7 +170,7 @@ void CLogTDistributionTest::testQuantile(void) {
     nTests = std::min(nTests, boost::size(squareScales));
 
     for (size_t test = 0; test < nTests; ++test) {
-        CLogTDistribution logt(degreesFreedom[test], locations[test], ::sqrt(squareScales[test]));
+        CLogTDistribution logt(degreesFreedom[test], locations[test], std::sqrt(squareScales[test]));
 
         for (unsigned int p = 1; p < 100; ++p) {
             double q = static_cast<double>(p) / 100.0;
@@ -182,7 +182,7 @@ void CLogTDistributionTest::testQuantile(void) {
     }
 }
 
-CppUnit::Test* CLogTDistributionTest::suite(void) {
+CppUnit::Test* CLogTDistributionTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLogTDistributionTest");
 
     suiteOfTests->addTest(

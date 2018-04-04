@@ -68,7 +68,7 @@ CppUnit::Test* CStringUtilsTest::suite() {
     return suiteOfTests;
 }
 
-void CStringUtilsTest::testNumMatches(void) {
+void CStringUtilsTest::testNumMatches() {
     {
         std::string str("%d %M %Y %f %D  %t");
 
@@ -77,7 +77,7 @@ void CStringUtilsTest::testNumMatches(void) {
     }
 }
 
-void CStringUtilsTest::testReplace(void) {
+void CStringUtilsTest::testReplace() {
     {
         std::string in("%d%M%Y%f%D%t");
         const std::string out(" %d %M %Y %f %D %t");
@@ -96,7 +96,7 @@ void CStringUtilsTest::testReplace(void) {
     }
 }
 
-void CStringUtilsTest::testReplaceFirst(void) {
+void CStringUtilsTest::testReplaceFirst() {
     {
         std::string in("%d%M%Y%f%D%t");
         const std::string out(" %d%M%Y%f%D%t");
@@ -115,7 +115,7 @@ void CStringUtilsTest::testReplaceFirst(void) {
     }
 }
 
-void CStringUtilsTest::testTypeToString(void) {
+void CStringUtilsTest::testTypeToString() {
     {
         uint64_t i(18446744073709551615ULL);
         std::string expected("18446744073709551615");
@@ -176,7 +176,7 @@ void CStringUtilsTest::testTypeToString(void) {
     }
 }
 
-void CStringUtilsTest::testTypeToStringPrecise(void) {
+void CStringUtilsTest::testTypeToStringPrecise() {
     {
         double i(1.0);
         std::string expected("1");
@@ -277,7 +277,7 @@ void CStringUtilsTest::testTypeToStringPrecise(void) {
     }
 }
 
-void CStringUtilsTest::testTypeToStringPretty(void) {
+void CStringUtilsTest::testTypeToStringPretty() {
     // This doesn't assert because the format differs between operating systems
     LOG_DEBUG("1.0 -> " << ml::core::CStringUtils::typeToStringPretty(1.0));
     LOG_DEBUG("0.123456 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456));
@@ -288,7 +288,7 @@ void CStringUtilsTest::testTypeToStringPretty(void) {
     LOG_DEBUG("123456787654321.23456 -> " << ml::core::CStringUtils::typeToStringPretty(123456787654321.23456));
 }
 
-void CStringUtilsTest::testStringToType(void) {
+void CStringUtilsTest::testStringToType() {
     {
         // All good conversions
         bool ret;
@@ -451,7 +451,7 @@ void CStringUtilsTest::testStringToType(void) {
     }
 }
 
-void CStringUtilsTest::testTokeniser(void) {
+void CStringUtilsTest::testTokeniser() {
     std::string str = "sadcasd csac asdcasdc asdc asdc sadc sadc asd csdc ewwef f sdf sd f sdf  sdfsadfasdf\n"
                       "adscasdcadsc\n"
                       "asdfcasdcadsds<ENDsa wefasdsadc<END>asdcsadcadsc\n"
@@ -514,7 +514,7 @@ void CStringUtilsTest::testTokeniser(const std::string& delim, const std::string
     CPPUNIT_ASSERT(strtokVec == tokens);
 }
 
-void CStringUtilsTest::testTrim(void) {
+void CStringUtilsTest::testTrim() {
     std::string testStr;
 
     testStr = "  hello\r\n";
@@ -546,12 +546,12 @@ void CStringUtilsTest::testTrim(void) {
     CPPUNIT_ASSERT_EQUAL(std::string(""), testStr);
 }
 
-void CStringUtilsTest::testJoin(void) {
+void CStringUtilsTest::testJoin() {
     LOG_DEBUG("*** testJoin ***")
     using namespace ml;
     using namespace core;
-    typedef std::vector<std::string> TStrVec;
-    typedef std::set<std::string> TStrSet;
+    using TStrVec = std::vector<std::string>;
+    using TStrSet = std::set<std::string>;
 
     TStrVec strVec;
 
@@ -589,7 +589,7 @@ void CStringUtilsTest::testJoin(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("aaa,bbb,ccc"), CStringUtils::join(strSet, std::string(",")));
 }
 
-void CStringUtilsTest::testLower(void) {
+void CStringUtilsTest::testLower() {
     CPPUNIT_ASSERT_EQUAL(std::string("hello"), ml::core::CStringUtils::toLower("hello"));
     CPPUNIT_ASSERT_EQUAL(std::string("hello"), ml::core::CStringUtils::toLower("Hello"));
     CPPUNIT_ASSERT_EQUAL(std::string("hello"), ml::core::CStringUtils::toLower("HELLO"));
@@ -599,7 +599,7 @@ void CStringUtilsTest::testLower(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("_-+hello"), ml::core::CStringUtils::toLower("_-+HELLO"));
 }
 
-void CStringUtilsTest::testUpper(void) {
+void CStringUtilsTest::testUpper() {
     CPPUNIT_ASSERT_EQUAL(std::string("HELLO"), ml::core::CStringUtils::toUpper("hello"));
     CPPUNIT_ASSERT_EQUAL(std::string("HELLO"), ml::core::CStringUtils::toUpper("Hello"));
     CPPUNIT_ASSERT_EQUAL(std::string("HELLO"), ml::core::CStringUtils::toUpper("HELLO"));
@@ -609,7 +609,7 @@ void CStringUtilsTest::testUpper(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("_-+HELLO"), ml::core::CStringUtils::toUpper("_-+HELLO"));
 }
 
-void CStringUtilsTest::testNarrowWiden(void) {
+void CStringUtilsTest::testNarrowWiden() {
     std::string hello1("Hello");
     std::wstring hello2(L"Hello");
 
@@ -620,7 +620,7 @@ void CStringUtilsTest::testNarrowWiden(void) {
     CPPUNIT_ASSERT(ml::core::CStringUtils::wideToNarrow(hello2) == hello1);
 }
 
-void CStringUtilsTest::testEscape(void) {
+void CStringUtilsTest::testEscape() {
     const std::string toEscape("\"'\\");
 
     const std::string escaped1("\\\"quoted\\\"");
@@ -636,7 +636,7 @@ void CStringUtilsTest::testEscape(void) {
     CPPUNIT_ASSERT_EQUAL(escaped2, unEscaped2);
 }
 
-void CStringUtilsTest::testUnEscape(void) {
+void CStringUtilsTest::testUnEscape() {
     std::string escaped1("\\\"quoted\\\"");
     const std::string unEscaped1("\"quoted\"");
 
@@ -654,7 +654,7 @@ void CStringUtilsTest::testUnEscape(void) {
     ml::core::CStringUtils::unEscape('\\', dodgy);
 }
 
-void CStringUtilsTest::testLongestSubstr(void) {
+void CStringUtilsTest::testLongestSubstr() {
     {
         std::string str1;
         std::string str2;
@@ -737,7 +737,7 @@ void CStringUtilsTest::testLongestSubstr(void) {
     }
 }
 
-void CStringUtilsTest::testLongestSubseq(void) {
+void CStringUtilsTest::testLongestSubseq() {
     {
         std::string str1;
         std::string str2;
@@ -820,7 +820,7 @@ void CStringUtilsTest::testLongestSubseq(void) {
     }
 }
 
-void CStringUtilsTest::testNormaliseWhitespace(void) {
+void CStringUtilsTest::testNormaliseWhitespace() {
     std::string spacey(" what\ta   lot \tof\n"
                        "spaces");
     std::string normalised(" what a lot of spaces");
@@ -828,7 +828,7 @@ void CStringUtilsTest::testNormaliseWhitespace(void) {
     CPPUNIT_ASSERT_EQUAL(normalised, ml::core::CStringUtils::normaliseWhitespace(spacey));
 }
 
-void CStringUtilsTest::testPerformance(void) {
+void CStringUtilsTest::testPerformance() {
     static const size_t TEST_SIZE(1000000);
     static const double TEST_SIZE_D(static_cast<double>(TEST_SIZE));
 
@@ -891,7 +891,7 @@ void CStringUtilsTest::testPerformance(void) {
     }
 }
 
-void CStringUtilsTest::testUtf8ByteType(void) {
+void CStringUtilsTest::testUtf8ByteType() {
     std::string testStr;
     // single byte UTF-8 character
     testStr += "a";
@@ -914,7 +914,7 @@ void CStringUtilsTest::testUtf8ByteType(void) {
     CPPUNIT_ASSERT_EQUAL(-1, ml::core::CStringUtils::utf8ByteType(testStr[9]));
 }
 
-void CStringUtilsTest::testRoundtripMaxDouble(void) {
+void CStringUtilsTest::testRoundtripMaxDouble() {
     ml::core::CIEEE754::EPrecision precisions[] = {ml::core::CIEEE754::E_SinglePrecision, ml::core::CIEEE754::E_DoublePrecision};
     double tolerances[] = {5e-7, 5e-15};
     for (std::size_t i = 0u; i < boost::size(precisions); ++i) {

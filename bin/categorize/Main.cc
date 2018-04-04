@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
     }
     ml::api::CFieldConfig fieldConfig(categorizationFieldName);
 
-    typedef boost::scoped_ptr<ml::core::CDataSearcher> TScopedDataSearcherP;
+    using TScopedDataSearcherP = boost::scoped_ptr<ml::core::CDataSearcher>;
     TScopedDataSearcherP restoreSearcher;
     if (ioMgr.restoreStream() != 0) {
         // Check whether state is restored from a file, if so we assume that this is a debugging case
@@ -157,13 +157,13 @@ int main(int argc, char** argv) {
         }
     }
 
-    typedef boost::scoped_ptr<ml::core::CDataAdder> TScopedDataAdderP;
+    using TScopedDataAdderP = boost::scoped_ptr<ml::core::CDataAdder>;
     TScopedDataAdderP persister;
     if (ioMgr.persistStream() != 0) {
         persister.reset(new ml::api::CSingleStreamDataAdder(ioMgr.persistStream()));
     }
 
-    typedef boost::scoped_ptr<ml::api::CBackgroundPersister> TScopedBackgroundPersisterP;
+    using TScopedBackgroundPersisterP = boost::scoped_ptr<ml::api::CBackgroundPersister>;
     TScopedBackgroundPersisterP periodicPersister;
     if (persistInterval >= 0) {
         if (persister == 0) {
@@ -175,7 +175,7 @@ int main(int argc, char** argv) {
         periodicPersister.reset(new ml::api::CBackgroundPersister(persistInterval, *persister));
     }
 
-    typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
+    using TScopedInputParserP = boost::scoped_ptr<ml::api::CInputParser>;
     TScopedInputParserP inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));

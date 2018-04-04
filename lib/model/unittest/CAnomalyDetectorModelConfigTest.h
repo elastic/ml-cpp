@@ -20,10 +20,10 @@
 
 class CAnomalyDetectorModelConfigTest : public CppUnit::TestFixture {
 public:
-    void testNormal(void);
-    void testErrors(void);
+    void testNormal();
+    void testErrors();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CAnomalyDetectorModelConfigTest_h

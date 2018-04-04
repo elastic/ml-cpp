@@ -89,7 +89,7 @@ public:
     void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this component.
-    std::size_t memoryUsage(void) const;
+    std::size_t memoryUsage() const;
 
 private:
     void returnAndCheckBuffer(rapidjson::StringBuffer* buffer);

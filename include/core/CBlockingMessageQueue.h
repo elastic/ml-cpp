@@ -73,10 +73,10 @@ public:
           m_Queue(QUEUE_CAPACITY),
           m_ShutdownFunc(shutdownFunc) {}
 
-    virtual ~CBlockingMessageQueue(void) {}
+    virtual ~CBlockingMessageQueue() {}
 
     //! Initialise - create the receiving thread
-    bool start(void) {
+    bool start() {
         CScopedLock lock(m_Mutex);
 
         if (m_Thread.start() == false) {
@@ -90,7 +90,7 @@ public:
     }
 
     //! Shutdown - kill thread
-    bool stop(void) {
+    bool stop() {
         m_Thread.stop();
 
         return true;
@@ -139,7 +139,7 @@ public:
     //! much more efficient to get this when dispatching a message, as
     //! everything can then be done under a single mutex lock.  This method
     //! must be used sparingly to avoid excessive lock contention.
-    size_t pending(void) const {
+    size_t pending() const {
         CScopedLock lock(m_Mutex);
 
         return m_Queue.size();
@@ -147,7 +147,7 @@ public:
 
 private:
     //! No-op shutdown function if no other is provided
-    static void defaultShutdownFunc(void) {}
+    static void defaultShutdownFunc() {}
 
 private:
     class CMessageQueueThread : public CThread {
@@ -156,13 +156,13 @@ private:
             : m_MessageQueue(messageQueue), m_ShuttingDown(false), m_IsRunning(false) {}
 
         //! The queue must have the mutex for this to be called
-        bool isRunning(void) const {
+        bool isRunning() const {
             // Assumes lock
             return m_IsRunning;
         }
 
     protected:
-        void run(void) {
+        void run() {
             m_MessageQueue.m_Mutex.lock();
             m_MessageQueue.m_ProducerCondition.signal();
 
@@ -206,7 +206,7 @@ private:
             m_MessageQueue.m_Mutex.unlock();
         }
 
-        void shutdown(void) {
+        void shutdown() {
             CScopedLock lock(m_MessageQueue.m_Mutex);
 
             m_ShuttingDown = true;
@@ -250,7 +250,7 @@ private:
     //! Using a circular buffer for the queue means that it will not do any
     //! memory allocations after construction (providing the message type
     //! does not allocate any heap memory in its constructor).
-    typedef boost::circular_buffer<MESSAGE> TMessageCircBuf;
+    using TMessageCircBuf = boost::circular_buffer<MESSAGE>;
 
     TMessageCircBuf m_Queue;
 

@@ -20,9 +20,9 @@
 
 class CAssignmentTest : public CppUnit::TestFixture {
 public:
-    void testKuhnMunkres(void);
+    void testKuhnMunkres();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CAssignmentTest_h

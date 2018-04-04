@@ -146,7 +146,7 @@ public:
     CCsvInputParser(std::istream& strmIn, char separator = COMMA);
 
     //! Get field name row exactly as it was in the input
-    const std::string& fieldNameStr(void) const;
+    const std::string& fieldNameStr() const;
 
     //! Read records from the stream. The supplied reader function is called
     //! once per record.  If the supplied reader function returns false,
@@ -158,10 +158,10 @@ public:
 private:
     //! Attempt to parse a single CSV record from the stream into the
     //! working record.  The CSV is assumed to be in the Excel style.
-    bool parseCsvRecordFromStream(void);
+    bool parseCsvRecordFromStream();
 
     //! Attempt to parse the field names from the working record.
-    bool parseFieldNames(void);
+    bool parseFieldNames();
 
     //! Attempt to parse the current working record into data fields.
     bool parseDataRecord(const TStrRefVec& fieldValRefs);

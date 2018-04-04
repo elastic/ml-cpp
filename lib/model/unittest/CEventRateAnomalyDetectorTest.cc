@@ -40,12 +40,12 @@
 
 namespace {
 
-typedef std::vector<ml::core_t::TTime> TTimeVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::map<ml::core_t::TTime, double> TTimeDoubleMap;
-typedef TTimeDoubleMap::const_iterator TTimeDoubleMapCItr;
-typedef std::pair<ml::core_t::TTime, std::string> TTimeStrPr;
-typedef std::set<TTimeStrPr> TTimeStrPrSet;
+using TTimeVec = std::vector<ml::core_t::TTime>;
+using TStrVec = std::vector<std::string>;
+using TTimeDoubleMap = std::map<ml::core_t::TTime, double>;
+using TTimeDoubleMapCItr = TTimeDoubleMap::const_iterator;
+using TTimeStrPr = std::pair<ml::core_t::TTime, std::string>;
+using TTimeStrPrSet = std::set<TTimeStrPr>;
 
 const std::string EMPTY_STRING;
 
@@ -97,13 +97,13 @@ public:
         return true;
     }
 
-    size_t calls(void) const { return m_Calls; }
+    size_t calls() const { return m_Calls; }
 
-    size_t numDistinctTimes(void) const { return m_AllAnomalies.size(); }
+    size_t numDistinctTimes() const { return m_AllAnomalies.size(); }
 
-    const TTimeDoubleMap& anomalyScores(void) const { return m_AnomalyScores; }
+    const TTimeDoubleMap& anomalyScores() const { return m_AnomalyScores; }
 
-    const TTimeStrPrSet& allAnomalies(void) const { return m_AllAnomalies; }
+    const TTimeStrPrSet& allAnomalies() const { return m_AllAnomalies; }
 
 private:
     const ml::model::CAnomalyDetectorModelConfig& m_ModelConfig;
@@ -119,9 +119,9 @@ void importData(ml::core_t::TTime firstTime,
                 CResultWriter& outputResults,
                 const TStrVec& fileNames,
                 ml::model::CAnomalyDetector& detector) {
-    typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
-    typedef std::vector<TifstreamPtr> TifstreamPtrVec;
-    typedef std::vector<ml::core_t::TTime> TTimeVec;
+    using TifstreamPtr = boost::shared_ptr<std::ifstream>;
+    using TifstreamPtrVec = std::vector<TifstreamPtr>;
+    using TTimeVec = std::vector<ml::core_t::TTime>;
 
     TifstreamPtrVec ifss;
     for (std::size_t i = 0u; i < fileNames.size(); ++i) {
@@ -173,7 +173,7 @@ void importData(ml::core_t::TTime firstTime,
 }
 }
 
-void CEventRateAnomalyDetectorTest::testAnomalies(void) {
+void CEventRateAnomalyDetectorTest::testAnomalies() {
     static const size_t EXPECTED_ANOMALOUS_HOURS(12);
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);
@@ -233,7 +233,7 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void) {
     CPPUNIT_ASSERT_EQUAL(std::size_t(10), detectedMySQL);
 }
 
-void CEventRateAnomalyDetectorTest::testPersist(void) {
+void CEventRateAnomalyDetectorTest::testPersist() {
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);
     static const ml::core_t::TTime BUCKET_SIZE(3600);
@@ -294,7 +294,7 @@ void CEventRateAnomalyDetectorTest::testPersist(void) {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test* CEventRateAnomalyDetectorTest::suite(void) {
+CppUnit::Test* CEventRateAnomalyDetectorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateAnomalyDetectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>("CEventRateAnomalyDetectorTest::testAnomalies",

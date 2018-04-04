@@ -22,29 +22,29 @@
 
 class CEventRateModelTest : public CppUnit::TestFixture {
 public:
-    void testOnlineCountSample(void);
-    void testOnlineNonZeroCountSample(void);
-    void testOnlineRare(void);
-    void testOnlineProbabilityCalculation(void);
-    void testOnlineProbabilityCalculationForLowNonZeroCount(void);
-    void testOnlineProbabilityCalculationForHighNonZeroCount(void);
-    void testOnlineCorrelatedNoTrend(void);
-    void testOnlineCorrelatedTrend(void);
-    void testPrune(void);
-    void testKey(void);
-    void testModelsWithValueFields(void);
-    void testCountProbabilityCalculationWithInfluence(void);
-    void testDistinctCountProbabilityCalculationWithInfluence(void);
-    void testOnlineRareWithInfluence(void);
-    void testSkipSampling(void);
-    void testExplicitNulls(void);
-    void testInterimCorrections(void);
-    void testInterimCorrectionsWithCorrelations(void);
-    void testSummaryCountZeroRecordsAreIgnored(void);
-    void testComputeProbabilityGivenDetectionRule(void);
-    void testDecayRateControl(void);
-    void testIgnoreSamplingGivenDetectionRules(void);
-    static CppUnit::Test* suite(void);
+    void testOnlineCountSample();
+    void testOnlineNonZeroCountSample();
+    void testOnlineRare();
+    void testOnlineProbabilityCalculation();
+    void testOnlineProbabilityCalculationForLowNonZeroCount();
+    void testOnlineProbabilityCalculationForHighNonZeroCount();
+    void testOnlineCorrelatedNoTrend();
+    void testOnlineCorrelatedTrend();
+    void testPrune();
+    void testKey();
+    void testModelsWithValueFields();
+    void testCountProbabilityCalculationWithInfluence();
+    void testDistinctCountProbabilityCalculationWithInfluence();
+    void testOnlineRareWithInfluence();
+    void testSkipSampling();
+    void testExplicitNulls();
+    void testInterimCorrections();
+    void testInterimCorrectionsWithCorrelations();
+    void testSummaryCountZeroRecordsAreIgnored();
+    void testComputeProbabilityGivenDetectionRule();
+    void testDecayRateControl();
+    void testIgnoreSamplingGivenDetectionRules();
+    static CppUnit::Test* suite();
 
 private:
     ml::model::CResourceMonitor m_ResourceMonitor;

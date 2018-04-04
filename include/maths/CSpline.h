@@ -26,18 +26,18 @@
 #include <maths/MathsTypes.h>
 
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <string>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace maths {
 
 namespace spline_detail {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<CFloatStorage> TFloatVec;
+using TDoubleVec = std::vector<double>;
+using TFloatVec = std::vector<CFloatStorage>;
 
 //! Solves \f$Ax = y\f$ where \f$A\f$ is a tridiagonal matrix
 //! consisting of vectors \f$a\f$, \f$b\f$ and \f$c\f$.
@@ -71,8 +71,8 @@ solvePeturbedTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c
 //! \brief Defines types used by the spline implementation.
 class MATHS_EXPORT CSplineTypes {
 public:
-    typedef std::vector<double> TDoubleVec;
-    typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    using TDoubleVec = std::vector<double>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     //! Types of spline interpolation that this will perform.
     //!
@@ -127,12 +127,12 @@ template<typename KNOTS = std::vector<CFloatStorage>,
          typename CURVATURES = std::vector<double>>
 class CSpline : public CSplineTypes {
 public:
-    typedef typename boost::unwrap_reference<KNOTS>::type TKnots;
-    typedef typename boost::unwrap_reference<VALUES>::type TValues;
-    typedef typename boost::unwrap_reference<CURVATURES>::type TCurvatures;
-    typedef typename boost::remove_const<TKnots>::type TNonConstKnots;
-    typedef typename boost::remove_const<TValues>::type TNonConstValues;
-    typedef typename boost::remove_const<TCurvatures>::type TNonConstCurvatures;
+    using TKnots = typename boost::unwrap_reference<KNOTS>::type;
+    using TValues = typename boost::unwrap_reference<VALUES>::type;
+    using TCurvatures = typename boost::unwrap_reference<CURVATURES>::type;
+    using TNonConstKnots = typename boost::remove_const<TKnots>::type;
+    using TNonConstValues = typename boost::remove_const<TValues>::type;
+    using TNonConstCurvatures = typename boost::remove_const<TCurvatures>::type;
 
 public:
     CSpline(EType type) : m_Type(type) {}
@@ -150,11 +150,11 @@ public:
     }
 
     //! Check if the spline has been initialized.
-    bool initialized(void) const { return this->knots().size() > 0; }
+    bool initialized() const { return this->knots().size() > 0; }
 
     //! Clear the contents of this spline and recover any
     //! allocated memory.
-    void clear(void) {
+    void clear() {
         TNonConstKnots noKnots;
         this->knotsRef().swap(noKnots);
         TNonConstValues noValues;
@@ -206,7 +206,7 @@ public:
     }
 
     //! Get the mean value of the spline.
-    double mean(void) const {
+    double mean() const {
         if (this->knots().empty()) {
             return 0.0;
         }
@@ -281,7 +281,7 @@ public:
     //! <pre class="fragment">
     //!   \f$\frac{1}{|b-a|}\int_{[a,b]}{\left|\frac{df(s)}{ds}\right|}ds\f$
     //! </pre>
-    double absSlope(void) const {
+    double absSlope() const {
         double result = 0.0;
 
         std::size_t n = this->knots().size();
@@ -289,7 +289,7 @@ public:
         switch (m_Type) {
         case E_Linear:
             for (std::size_t i = 1u; i < n; ++i) {
-                result += ::fabs((this->values()[i] - this->values()[i - 1]));
+                result += std::fabs((this->values()[i] - this->values()[i - 1]));
             }
             break;
 
@@ -305,7 +305,7 @@ public:
 
                 double descriminant = bi * bi - 3.0 * ai * ci;
                 if (descriminant < 0.0) {
-                    result += ::fabs(((ai * h + bi) * h + ci) * h);
+                    result += std::fabs(((ai * h + bi) * h + ci) * h);
                     continue;
                 }
                 double rl = CTools::truncate(a - (bi + descriminant) / 3.0 / ai, a, b);
@@ -313,9 +313,9 @@ public:
                 if (rl > rr) {
                     std::swap(rl, rr);
                 }
-                result += ::fabs(((ai * (rl - a) + bi) * (rl - a) + ci) * (rl - a)) +
-                          ::fabs(((ai * (rr - rl) + bi) * (rr - rl) + ci) * (rr - rl)) +
-                          ::fabs(((ai * (b - rr) + bi) * (b - rr) + ci) * (b - rr));
+                result += std::fabs(((ai * (rl - a) + bi) * (rl - a) + ci) * (rl - a)) +
+                          std::fabs(((ai * (rr - rl) + bi) * (rr - rl) + ci) * (rr - rl)) +
+                          std::fabs(((ai * (b - rr) + bi) * (b - rr) + ci) * (b - rr));
             }
             break;
         }
@@ -603,7 +603,7 @@ public:
     }
 
     //! Get the memory used by this component
-    std::size_t memoryUsage(void) const {
+    std::size_t memoryUsage() const {
         std::size_t mem = core::CMemory::dynamicSize(m_Knots);
         mem += core::CMemory::dynamicSize(m_Values);
         mem += core::CMemory::dynamicSize(m_Curvatures);
@@ -611,23 +611,23 @@ public:
     }
 
     //! Get the knot points of the spline.
-    inline const TNonConstKnots& knots(void) const { return boost::unwrap_ref(m_Knots); }
+    inline const TNonConstKnots& knots() const { return boost::unwrap_ref(m_Knots); }
 
     //! Get the values at the knot points of the spline.
-    inline const TNonConstValues& values(void) const { return boost::unwrap_ref(m_Values); }
+    inline const TNonConstValues& values() const { return boost::unwrap_ref(m_Values); }
 
     //! Get the curvatures at the knot points of the spline.
-    inline const TNonConstCurvatures& curvatures(void) const { return boost::unwrap_ref(m_Curvatures); }
+    inline const TNonConstCurvatures& curvatures() const { return boost::unwrap_ref(m_Curvatures); }
 
 private:
     //! Get the knot points of the spline.
-    inline TKnots& knotsRef(void) { return boost::unwrap_ref(m_Knots); }
+    inline TKnots& knotsRef() { return boost::unwrap_ref(m_Knots); }
 
     //! Get the values at the knot points of the spline.
-    inline TNonConstValues& valuesRef(void) { return boost::unwrap_ref(m_Values); }
+    inline TNonConstValues& valuesRef() { return boost::unwrap_ref(m_Values); }
 
     //! Get the curvatures at the knot points of the spline.
-    inline TCurvatures& curvaturesRef(void) { return boost::unwrap_ref(m_Curvatures); }
+    inline TCurvatures& curvaturesRef() { return boost::unwrap_ref(m_Curvatures); }
 
 private:
     //! The type of spline.

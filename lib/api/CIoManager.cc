@@ -85,10 +85,10 @@ CIoManager::CIoManager(const std::string& inputFileName,
     std::cerr.tie(0);
 }
 
-CIoManager::~CIoManager(void) {
+CIoManager::~CIoManager() {
 }
 
-bool CIoManager::initIo(void) {
+bool CIoManager::initIo() {
     m_IoInitialised = setUpIStream(m_InputFileName, m_IsInputFileNamedPipe, m_InputStream) &&
                       setUpOStream(m_OutputFileName, m_IsOutputFileNamedPipe, m_OutputStream) &&
                       setUpIStream(m_RestoreFileName, m_IsRestoreFileNamedPipe, m_RestoreStream) &&
@@ -96,7 +96,7 @@ bool CIoManager::initIo(void) {
     return m_IoInitialised;
 }
 
-std::istream& CIoManager::inputStream(void) {
+std::istream& CIoManager::inputStream() {
     if (m_InputStream != 0) {
         return *m_InputStream;
     }
@@ -108,7 +108,7 @@ std::istream& CIoManager::inputStream(void) {
     return std::cin;
 }
 
-std::ostream& CIoManager::outputStream(void) {
+std::ostream& CIoManager::outputStream() {
     if (m_OutputStream != 0) {
         return *m_OutputStream;
     }
@@ -120,7 +120,7 @@ std::ostream& CIoManager::outputStream(void) {
     return std::cout;
 }
 
-core::CNamedPipeFactory::TIStreamP CIoManager::restoreStream(void) {
+core::CNamedPipeFactory::TIStreamP CIoManager::restoreStream() {
     if (!m_IoInitialised) {
         LOG_ERROR("Accessing restore stream before IO is initialised");
     }
@@ -128,7 +128,7 @@ core::CNamedPipeFactory::TIStreamP CIoManager::restoreStream(void) {
     return m_RestoreStream;
 }
 
-core::CNamedPipeFactory::TOStreamP CIoManager::persistStream(void) {
+core::CNamedPipeFactory::TOStreamP CIoManager::persistStream() {
     if (!m_IoInitialised) {
         LOG_ERROR("Accessing persist stream before IO is initialised");
     }

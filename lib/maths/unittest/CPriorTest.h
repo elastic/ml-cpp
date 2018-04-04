@@ -20,9 +20,9 @@
 
 class CPriorTest : public CppUnit::TestFixture {
 public:
-    void testExpectation(void);
+    void testExpectation();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CPriorTest_h

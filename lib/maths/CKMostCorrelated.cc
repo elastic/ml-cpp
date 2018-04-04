@@ -35,6 +35,7 @@
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/unordered_set.hpp>
 
+#include <cmath>
 #include <functional>
 
 namespace bg = boost::geometry;
@@ -46,11 +47,11 @@ namespace maths {
 
 namespace {
 
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef boost::unordered_set<TSizeSizePr> TSizeSizePrUSet;
-typedef boost::array<double, CKMostCorrelated::NUMBER_PROJECTIONS> TPoint;
-typedef std::pair<TPoint, std::size_t> TPointSizePr;
-typedef std::vector<TPointSizePr> TPointSizePrVec;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrUSet = boost::unordered_set<TSizeSizePr>;
+using TPoint = boost::array<double, CKMostCorrelated::NUMBER_PROJECTIONS>;
+using TPointSizePr = std::pair<TPoint, std::size_t>;
+using TPointSizePrVec = std::vector<TPointSizePr>;
 
 //! \brief Unary predicate to check variables, corresponding
 //! to labeled points, are not equal to a specified variable.
@@ -223,7 +224,7 @@ void CKMostCorrelated::removeVariables(const TSizeVec& remove) {
     }
 }
 
-bool CKMostCorrelated::changed(void) const {
+bool CKMostCorrelated::changed() const {
     return m_Projections.size() == PROJECTION_DIMENSION;
 }
 
@@ -238,15 +239,15 @@ void CKMostCorrelated::add(std::size_t X, double x) {
     TVector projected(0.0);
     if (CBasicStatistics::count(moments) > 2.0) {
         double m = CBasicStatistics::mean(moments);
-        double sd = ::sqrt(CBasicStatistics::variance(moments));
-        if (sd > 10.0 * std::numeric_limits<double>::epsilon() * ::fabs(m)) {
+        double sd = std::sqrt(CBasicStatistics::variance(moments));
+        if (sd > 10.0 * std::numeric_limits<double>::epsilon() * std::fabs(m)) {
             projected = m_Projections.back() * (x - m) / sd;
             m_CurrentProjected[X] += projected;
         }
     }
 }
 
-void CKMostCorrelated::capture(void) {
+void CKMostCorrelated::capture() {
     m_MaximumCount += 1.0;
 
     for (TSizeVectorUMapCItr i = m_CurrentProjected.begin(); i != m_CurrentProjected.end(); ++i) {
@@ -358,7 +359,7 @@ void CKMostCorrelated::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
     core::CMemoryDebug::dynamicSize("m_MostCorrelated", m_MostCorrelated, mem);
 }
 
-std::size_t CKMostCorrelated::memoryUsage(void) const {
+std::size_t CKMostCorrelated::memoryUsage() const {
     std::size_t mem = core::CMemory::dynamicSize(m_Projections);
     mem += core::CMemory::dynamicSize(m_CurrentProjected);
     mem += core::CMemory::dynamicSize(m_Projected);
@@ -368,9 +369,9 @@ std::size_t CKMostCorrelated::memoryUsage(void) const {
 }
 
 void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
-    typedef CBasicStatistics::COrderStatisticsStack<double, 2, std::greater<double>> TMaxDoubleAccumulator;
-    typedef CBasicStatistics::COrderStatisticsHeap<SCorrelation> TMaxCorrelationAccumulator;
-    typedef bgi::rtree<TPointSizePr, bgi::quadratic<16>> TPointRTree;
+    using TMaxDoubleAccumulator = CBasicStatistics::COrderStatisticsStack<double, 2, std::greater<double>>;
+    using TMaxCorrelationAccumulator = CBasicStatistics::COrderStatisticsHeap<SCorrelation>;
+    using TPointRTree = bgi::rtree<TPointSizePr, bgi::quadratic<16>>;
 
     result.clear();
 
@@ -505,7 +506,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
                 std::size_t X = points[i].second;
                 const TVectorPackedBitVectorPr& px = m_Projected.at(X);
 
-                TVector width(::sqrt(threshold));
+                TVector width(std::sqrt(threshold));
                 nearest.clear();
                 {
                     bgm::box<TPoint> box((px.first - width).to<double>().toBoostArray(), (px.first + width).to<double>().toBoostArray());
@@ -554,7 +555,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
     LOG_TRACE("most correlated " << core::CContainerPrinter::print(result));
 }
 
-void CKMostCorrelated::nextProjection(void) {
+void CKMostCorrelated::nextProjection() {
     TDoubleVec uniform01;
     CSampling::uniformSample(m_Rng, 0.0, 1.0, NUMBER_PROJECTIONS * PROJECTION_DIMENSION, uniform01);
     m_Projections.reserve(PROJECTION_DIMENSION);
@@ -567,7 +568,7 @@ void CKMostCorrelated::nextProjection(void) {
 
     m_Projected.clear();
 
-    double factor = ::exp(-m_DecayRate);
+    double factor = std::exp(-m_DecayRate);
     m_MaximumCount *= factor;
     for (std::size_t i = 0u; i < m_Moments.size(); ++i) {
         m_Moments[i].age(factor);
@@ -577,19 +578,19 @@ void CKMostCorrelated::nextProjection(void) {
     }
 }
 
-const CKMostCorrelated::TVectorVec& CKMostCorrelated::projections(void) const {
+const CKMostCorrelated::TVectorVec& CKMostCorrelated::projections() const {
     return m_Projections;
 }
 
-const CKMostCorrelated::TSizeVectorPackedBitVectorPrUMap& CKMostCorrelated::projected(void) const {
+const CKMostCorrelated::TSizeVectorPackedBitVectorPrUMap& CKMostCorrelated::projected() const {
     return m_Projected;
 }
 
-const CKMostCorrelated::TCorrelationVec& CKMostCorrelated::correlations(void) const {
+const CKMostCorrelated::TCorrelationVec& CKMostCorrelated::correlations() const {
     return m_MostCorrelated;
 }
 
-const CKMostCorrelated::TMeanVarAccumulatorVec& CKMostCorrelated::moments(void) const {
+const CKMostCorrelated::TMeanVarAccumulatorVec& CKMostCorrelated::moments() const {
     return m_Moments;
 }
 
@@ -597,7 +598,7 @@ const std::size_t CKMostCorrelated::PROJECTION_DIMENSION = 20u;
 const double CKMostCorrelated::MINIMUM_SPARSENESS = 0.5;
 const double CKMostCorrelated::REPLACE_FRACTION = 0.1;
 
-CKMostCorrelated::SCorrelation::SCorrelation(void)
+CKMostCorrelated::SCorrelation::SCorrelation()
     : s_X(std::numeric_limits<std::size_t>::max()), s_Y(std::numeric_limits<std::size_t>::max()) {
 }
 
@@ -657,12 +658,12 @@ void CKMostCorrelated::SCorrelation::update(const TSizeVectorPackedBitVectorPrUM
 }
 
 double CKMostCorrelated::SCorrelation::distance(double amax) const {
-    return static_cast<double>(NUMBER_PROJECTIONS) * amax * 2.0 * (1.0 - ::fabs(CBasicStatistics::mean(s_Correlation)));
+    return static_cast<double>(NUMBER_PROJECTIONS) * amax * 2.0 * (1.0 - std::fabs(CBasicStatistics::mean(s_Correlation)));
 }
 
-double CKMostCorrelated::SCorrelation::absCorrelation(void) const {
-    return ::fabs(CBasicStatistics::mean(s_Correlation)) -
-           (1.0 / std::max(CBasicStatistics::count(s_Correlation), 2.0) + ::sqrt(CBasicStatistics::variance(s_Correlation)));
+double CKMostCorrelated::SCorrelation::absCorrelation() const {
+    return std::fabs(CBasicStatistics::mean(s_Correlation)) -
+           (1.0 / std::max(CBasicStatistics::count(s_Correlation), 2.0) + std::sqrt(CBasicStatistics::variance(s_Correlation)));
 }
 
 double
@@ -729,7 +730,7 @@ uint64_t CKMostCorrelated::SCorrelation::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, s_Y);
 }
 
-std::string CKMostCorrelated::SCorrelation::print(void) const {
+std::string CKMostCorrelated::SCorrelation::print() const {
     return CBasicStatistics::print(s_Correlation) + ' ' + core::CStringUtils::typeToString(s_X) + ' ' +
            core::CStringUtils::typeToString(s_Y);
 }

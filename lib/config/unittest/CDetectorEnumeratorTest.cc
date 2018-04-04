@@ -35,7 +35,7 @@ std::string print(const config::CDetectorEnumerator::TDetectorSpecificationVec& 
 }
 }
 
-void CDetectorEnumeratorTest::testAll(void) {
+void CDetectorEnumeratorTest::testAll() {
     LOG_DEBUG("");
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CDetectorEnumeratorTest::testAll  |");
@@ -221,7 +221,7 @@ void CDetectorEnumeratorTest::testAll(void) {
     }
 }
 
-CppUnit::Test* CDetectorEnumeratorTest::suite(void) {
+CppUnit::Test* CDetectorEnumeratorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectorEnumeratorTest");
 
     suiteOfTests->addTest(

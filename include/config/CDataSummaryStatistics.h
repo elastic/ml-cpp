@@ -43,26 +43,26 @@ namespace config {
 //! of records in the data set.
 class CONFIG_EXPORT CDataSummaryStatistics {
 public:
-    CDataSummaryStatistics(void);
+    CDataSummaryStatistics();
 
     //! Add an example arriving at \p time.
     void add(core_t::TTime time);
 
     //! Get the total count of examples.
-    uint64_t count(void) const;
+    uint64_t count() const;
 
     //! Get the earliest time of any example.
-    core_t::TTime earliest(void) const;
+    core_t::TTime earliest() const;
 
     //! Get the latest time of any example.
-    core_t::TTime latest(void) const;
+    core_t::TTime latest() const;
 
     //! The mean rate of examples in the data set.
-    double meanRate(void) const;
+    double meanRate() const;
 
 protected:
-    typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1> TMinTimeAccumulator;
-    typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime>> TMaxTimeAccumulator;
+    using TMinTimeAccumulator = maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1>;
+    using TMaxTimeAccumulator = maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime>>;
 
 private:
     //! The earliest example time.
@@ -86,8 +86,8 @@ private:
 //! appropriate sketch data structures for very high distinct counts.
 class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStatistics {
 public:
-    typedef std::pair<std::string, std::size_t> TStrSizePr;
-    typedef std::vector<TStrSizePr> TStrSizePrVec;
+    using TStrSizePr = std::pair<std::string, std::size_t>;
+    using TStrSizePrVec = std::vector<TStrSizePr>;
 
     //! The smallest cardinality at which we'll approximate the statistics.
     static const std::size_t TO_APPROXIMATE = 5000000;
@@ -100,46 +100,46 @@ public:
     void add(core_t::TTime time, const std::string& example);
 
     //! Get the distinct count of categories.
-    std::size_t distinctCount(void) const;
+    std::size_t distinctCount() const;
 
     //! Get the minimum length of any category.
-    std::size_t minimumLength(void) const;
+    std::size_t minimumLength() const;
 
     //! Get the maximum length of any category.
-    std::size_t maximumLength(void) const;
+    std::size_t maximumLength() const;
 
     //! Get the estimated empirical entropy of the categories.
-    double entropy(void) const;
+    double entropy() const;
 
     //! Get the top-n most frequent categories and their counts.
     void topN(TStrSizePrVec& result) const;
 
     //! Get the mean count in the remaining categories.
-    double meanCountInRemainders(void) const;
+    double meanCountInRemainders() const;
 
 private:
     //! The number of n-grams on which we maintain statistics.
     static const std::size_t NUMBER_N_GRAMS = 5;
 
 private:
-    typedef std::pair<uint32_t, uint64_t> TUInt32UInt64Pr;
-    typedef std::vector<TUInt32UInt64Pr> TUInt32UInt64PrVec;
-    typedef boost::unordered_map<std::size_t, uint64_t> TSizeUInt64UMap;
-    typedef boost::unordered_map<std::string, uint64_t> TStrUInt64UMap;
-    typedef TStrUInt64UMap::iterator TStrUInt64UMapItr;
-    typedef TStrUInt64UMap::const_iterator TStrUInt64UMapCItr;
-    typedef std::vector<TStrUInt64UMapCItr> TStrUInt64UMapCItrVec;
-    typedef maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1> TMinSizeAccumulator;
-    typedef maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1, std::greater<std::size_t>> TMaxSizeAccumulator;
-    typedef std::vector<maths::CBjkstUniqueValues> TBjkstUniqueValuesVec;
-    typedef std::vector<maths::CEntropySketch> TEntropySketchVec;
+    using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
+    using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
+    using TSizeUInt64UMap = boost::unordered_map<std::size_t, uint64_t>;
+    using TStrUInt64UMap = boost::unordered_map<std::string, uint64_t>;
+    using TStrUInt64UMapItr = TStrUInt64UMap::iterator;
+    using TStrUInt64UMapCItr = TStrUInt64UMap::const_iterator;
+    using TStrUInt64UMapCItrVec = std::vector<TStrUInt64UMapCItr>;
+    using TMinSizeAccumulator = maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1>;
+    using TMaxSizeAccumulator = maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1, std::greater<std::size_t>>;
+    using TBjkstUniqueValuesVec = std::vector<maths::CBjkstUniqueValues>;
+    using TEntropySketchVec = std::vector<maths::CEntropySketch>;
 
 private:
     //! Extract the \p n grams and update the relevant statistics.
     void addNGrams(std::size_t n, const std::string& example);
 
     //! If the cardinality is too high approximate the statistics.
-    void approximateIfCardinalityTooHigh(void);
+    void approximateIfCardinalityTooHigh();
 
     //! Update the counts of the calibrators.
     void updateCalibrators(std::size_t category);
@@ -148,7 +148,7 @@ private:
     double calibratedCount(std::size_t category) const;
 
     //! Fill in the lowest top-n vector.
-    void findLowestTopN(void);
+    void findLowestTopN();
 
     //! Get the top-n most frequent categories.
     void topN(TStrUInt64UMapCItrVec& result) const;
@@ -215,8 +215,8 @@ private:
 //! and don't care about over fitting as we do for anomaly detection.
 class CONFIG_EXPORT CNumericDataSummaryStatistics : public CDataSummaryStatistics {
 public:
-    typedef std::pair<double, double> TDoubleDoublePr;
-    typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 
 public:
     CNumericDataSummaryStatistics(bool integer);
@@ -226,13 +226,13 @@ public:
     void add(core_t::TTime time, const std::string& example);
 
     //! Get the minimum value.
-    double minimum(void) const;
+    double minimum() const;
 
     //! Get the approximate median of the values.
-    double median(void) const;
+    double median() const;
 
     //! Get the maximum value.
-    double maximum(void) const;
+    double maximum() const;
 
     //! Get a chart of the density function we have estimated.
     bool densityChart(TDoubleDoublePrVec& result) const;

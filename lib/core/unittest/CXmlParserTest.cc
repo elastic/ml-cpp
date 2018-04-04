@@ -58,7 +58,7 @@ CppUnit::Test* CXmlParserTest::suite() {
     return suiteOfTests;
 }
 
-void CXmlParserTest::testParse1File(void) {
+void CXmlParserTest::testParse1File() {
     std::string badFileName = "./testfiles/CXmlParser_bad.xml";
     std::string goodFileName = "./testfiles/CXmlParser1.xml";
 
@@ -70,7 +70,7 @@ void CXmlParserTest::testParse1File(void) {
     this->testParse1(parser);
 }
 
-void CXmlParserTest::testParse1String(void) {
+void CXmlParserTest::testParse1String() {
     std::string goodString = CXmlParserTest::fileToString("./testfiles/CXmlParser1.xml");
 
     ml::core::CXmlParser parser;
@@ -80,7 +80,7 @@ void CXmlParserTest::testParse1String(void) {
     this->testParse1(parser);
 }
 
-void CXmlParserTest::testParse2(void) {
+void CXmlParserTest::testParse2() {
     std::string goodFileName = "./testfiles/CXmlParser2.xml";
 
     ml::core::CXmlParser parser;
@@ -128,7 +128,7 @@ void CXmlParserTest::testParse2(void) {
     CPPUNIT_ASSERT(nodes[1].attributes().empty());
 }
 
-void CXmlParserTest::testNavigate(void) {
+void CXmlParserTest::testNavigate() {
     std::string goodFileName = "./testfiles/CXmlParser2.xml";
 
     ml::core::CXmlParser parser;
@@ -162,7 +162,7 @@ void CXmlParserTest::testNavigate(void) {
     CPPUNIT_ASSERT(!parser.navigateNext());
 }
 
-void CXmlParserTest::testParseXInclude(void) {
+void CXmlParserTest::testParseXInclude() {
     std::string goodFileName = "./testfiles/CXmlParser3.xml";
     std::string badFileName = "./testfiles/CXmlParser4.xml";
 
@@ -212,7 +212,7 @@ void CXmlParserTest::testParseXInclude(void) {
     CPPUNIT_ASSERT(nodes[1].attributes().empty());
 }
 
-void CXmlParserTest::testParse3(void) {
+void CXmlParserTest::testParse3() {
     std::string fileName = "./testfiles/CXmlParser5.xml";
 
     ml::core::CXmlParser parser;
@@ -245,7 +245,7 @@ void CXmlParserTest::testParse3(void) {
     }
 }
 
-void CXmlParserTest::testParse4(void) {
+void CXmlParserTest::testParse4() {
     std::string fileName = "./testfiles/CXmlParser1.xml";
 
     ml::core::CXmlParser parser;
@@ -275,7 +275,7 @@ void CXmlParserTest::testParse4(void) {
     CPPUNIT_ASSERT(!parser.evalXPathExpression("/ItemSearchResponse/Items/Request/ItemSearchRequest/Author", i));
 }
 
-void CXmlParserTest::testParse5(void) {
+void CXmlParserTest::testParse5() {
     ml::core::CXmlParser parser;
 
     std::string xml = "\
@@ -304,7 +304,7 @@ void CXmlParserTest::testParse5(void) {
     CPPUNIT_ASSERT_EQUAL(itr->second, std::string("value3"));
 }
 
-void CXmlParserTest::testParse6(void) {
+void CXmlParserTest::testParse6() {
 
     {
         ml::core::CXmlParser parser;
@@ -381,7 +381,7 @@ void CXmlParserTest::testParse6(void) {
     }
 }
 
-void CXmlParserTest::testConvert1(void) {
+void CXmlParserTest::testConvert1() {
     ml::core::CXmlParser::TStrStrMap values;
 
     values.insert(ml::core::CXmlParser::TStrStrMap::value_type("key", "<&sdacasdc"));
@@ -407,7 +407,7 @@ void CXmlParserTest::testConvert1(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("sdac asdc asdc\nadsc\nasdc\n"), node.value());
 }
 
-void CXmlParserTest::testConvert2(void) {
+void CXmlParserTest::testConvert2() {
     ml::core::CXmlParser::TStrStrMap values;
 
     values.insert(ml::core::CXmlParser::TStrStrMap::value_type("key", "<&sdacasdc"));
@@ -428,7 +428,7 @@ void CXmlParserTest::testConvert2(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("sdac asdc asdc\nadsc\nasdc\n"), node.value());
 }
 
-void CXmlParserTest::testConvert3(void) {
+void CXmlParserTest::testConvert3() {
     ml::core::CXmlParser::TStrStrMap values;
 
     values.insert(ml::core::CXmlParser::TStrStrMap::value_type("key", "<&sdacasdc"));
@@ -460,7 +460,7 @@ void CXmlParserTest::testConvert3(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("1"), node.value());
 }
 
-void CXmlParserTest::testConvert4(void) {
+void CXmlParserTest::testConvert4() {
     // Use a standard node hierarchy to allow for comparison with the
     // standards-compliant XML parser
     ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(CRapidXmlParserTest::makeTestNodeHierarchy());
@@ -492,7 +492,7 @@ void CXmlParserTest::testConvert4(void) {
     CPPUNIT_ASSERT(converted.find("</dual>") != std::string::npos);
 }
 
-void CXmlParserTest::testAddNewChildNode(void) {
+void CXmlParserTest::testAddNewChildNode() {
     ml::core::CXmlParser parser;
 
     std::string xml = "\
@@ -519,7 +519,7 @@ void CXmlParserTest::testAddNewChildNode(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("value4"), value);
 }
 
-void CXmlParserTest::testSetRootNode(void) {
+void CXmlParserTest::testSetRootNode() {
 
     {
         ml::core::CXmlParser parser;
@@ -548,7 +548,7 @@ void CXmlParserTest::testSetRootNode(void) {
     }
 }
 
-void CXmlParserTest::testDump(void) {
+void CXmlParserTest::testDump() {
     std::string fileName = "./testfiles/CXmlParser1.xml";
 
     ml::core::CXmlParser parser1;
@@ -585,8 +585,8 @@ void CXmlParserTest::testParse1(const ml::core::CXmlParser& parser) {
 
     CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/OperationRequest/HTTPHeaders/Header/@Value", node));
     CPPUNIT_ASSERT_EQUAL(std::string("Value"), node.name());
-    CPPUNIT_ASSERT_EQUAL(std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant Browser; Avant Browser; .NET CLR "
-                                     "1.0.3705; .NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC 4.0; InfoPath.2)"),
+    CPPUNIT_ASSERT_EQUAL(std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant Browser; Avant Browser; .NET CLR 1.0.3705; "
+                                     ".NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC 4.0; InfoPath.2)"),
                          node.value());
     CPPUNIT_ASSERT(node.attributes().empty());
 
@@ -627,7 +627,7 @@ bool CXmlParserTest::testAttribute(const ml::core::CXmlNode& node, const std::st
     return true;
 }
 
-void CXmlParserTest::testMakeValidName(void) {
+void CXmlParserTest::testMakeValidName() {
     CPPUNIT_ASSERT_EQUAL(std::string("name"), ml::core::CXmlParser::makeValidName("name"));
     CPPUNIT_ASSERT_EQUAL(std::string("name1"), ml::core::CXmlParser::makeValidName("name1"));
     CPPUNIT_ASSERT_EQUAL(std::string("_name"), ml::core::CXmlParser::makeValidName("1name"));
@@ -637,7 +637,7 @@ void CXmlParserTest::testMakeValidName(void) {
                          ml::core::CXmlParser::makeValidName("\\\\cencl01b\\System\\System Calls/sec"));
 }
 
-void CXmlParserTest::testChangeChild(void) {
+void CXmlParserTest::testChangeChild() {
     ml::core::CXmlParser parser;
 
     CPPUNIT_ASSERT(parser.setRootNode("root"));
@@ -691,7 +691,7 @@ void CXmlParserTest::testChangeChild(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("changed3"), value);
 }
 
-void CXmlParserTest::testHugeDoc(void) {
+void CXmlParserTest::testHugeDoc() {
     // libxml2 can exhibit O(n^2.42) behaviour if the xmlXPathOrderDocElems()
     // function hasn't been called on the document.  Obviously this only shows
     // up as a problem in huge XML documents.
@@ -732,7 +732,7 @@ void CXmlParserTest::testHugeDoc(void) {
     ::remove(fileName.c_str());
 }
 
-void CXmlParserTest::testParseSpeed(void) {
+void CXmlParserTest::testParseSpeed() {
     static const size_t TEST_SIZE(25000);
 
     std::string testString(CXmlParserTest::fileToString("./testfiles/CXmlParser2.xml"));
@@ -760,7 +760,7 @@ void CXmlParserTest::testParseSpeed(void) {
     LOG_INFO("Parsing " << TEST_SIZE << " documents took " << (end - start) << " seconds");
 }
 
-void CXmlParserTest::testConvertSpeed(void) {
+void CXmlParserTest::testConvertSpeed() {
     static const size_t TEST_SIZE(100000);
 
     // Use a standard node hierarchy to allow for comparison with the
@@ -781,7 +781,7 @@ void CXmlParserTest::testConvertSpeed(void) {
     LOG_INFO("Converting " << TEST_SIZE << " documents took " << (end - start) << " seconds");
 }
 
-void CXmlParserTest::testComplexXPath(void) {
+void CXmlParserTest::testComplexXPath() {
     ml::core::CXmlParser parser;
     CPPUNIT_ASSERT(parser.parseFile("testfiles/withNs.xml"));
 

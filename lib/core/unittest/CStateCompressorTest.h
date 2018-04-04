@@ -19,10 +19,10 @@
 
 class CStateCompressorTest : public CppUnit::TestFixture {
 public:
-    void testForApiNoKey(void);
-    void testStreaming(void);
-    void testChunking(void);
-    void testFile(void);
+    void testForApiNoKey();
+    void testStreaming();
+    void testChunking();
+    void testFile();
 
     static CppUnit::Test* suite();
 };

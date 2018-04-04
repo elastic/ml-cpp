@@ -20,9 +20,9 @@
 
 class CProbabilityCalibratorTest : public CppUnit::TestFixture {
 public:
-    void testCalibration(void);
+    void testCalibration();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CProbabilityCalibratorTest_h

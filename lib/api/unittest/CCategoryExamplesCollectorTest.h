@@ -19,13 +19,13 @@
 
 class CCategoryExamplesCollectorTest : public CppUnit::TestFixture {
 public:
-    void testAddGivenMaxExamplesIsZero(void);
-    void testAddGivenSameCategoryExamplePairAddedTwice(void);
-    void testAddGivenMoreThanMaxExamplesAreAddedForSameCategory(void);
-    void testAddGivenCategoryAddedIsNotSubsequent(void);
-    void testExamples(void);
-    void testPersist(void);
-    void testTruncation(void);
+    void testAddGivenMaxExamplesIsZero();
+    void testAddGivenSameCategoryExamplePairAddedTwice();
+    void testAddGivenMoreThanMaxExamplesAreAddedForSameCategory();
+    void testAddGivenCategoryAddedIsNotSubsequent();
+    void testExamples();
+    void testPersist();
+    void testTruncation();
 
     static CppUnit::Test* suite();
 };

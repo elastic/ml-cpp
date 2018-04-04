@@ -50,7 +50,7 @@ const core_t::TTime DAY = core::constants::DAY;
 const core_t::TTime WEEK = core::constants::WEEK;
 }
 
-void CTrendTestsTest::testRandomizedPeriodicity(void) {
+void CTrendTestsTest::testRandomizedPeriodicity() {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CTrendTestsTest::testRandomizedPeriodicity  |");
     LOG_DEBUG("+----------------------------------------------+");
@@ -124,7 +124,7 @@ void CTrendTestsTest::testRandomizedPeriodicity(void) {
             LOG_DEBUG("time to detect moments = " << timeToDetectionMoments[i]);
             LOG_DEBUG("maximum time to detect = " << timeToDetectionMax[i][0]);
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(timeToDetectionMoments[i]) < 1.5 * DAY);
-            CPPUNIT_ASSERT(::sqrt(maths::CBasicStatistics::variance(timeToDetectionMoments[i])) < 5 * DAY);
+            CPPUNIT_ASSERT(std::sqrt(maths::CBasicStatistics::variance(timeToDetectionMoments[i])) < 5 * DAY);
             CPPUNIT_ASSERT(timeToDetectionMax[i][0] <= 27 * WEEK);
         }
     }
@@ -134,7 +134,7 @@ void CTrendTestsTest::testRandomizedPeriodicity(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(typeII) < 0.05);
 }
 
-void CTrendTestsTest::testCalendarCyclic(void) {
+void CTrendTestsTest::testCalendarCyclic() {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CTrendTestsTest::testCalendarCyclic  |");
     LOG_DEBUG("+---------------------------------------+");
@@ -281,7 +281,7 @@ void CTrendTestsTest::testCalendarCyclic(void) {
     }
 }
 
-void CTrendTestsTest::testPersist(void) {
+void CTrendTestsTest::testPersist() {
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  CTrendTestsTest::testPersist  |");
     LOG_DEBUG("+--------------------------------+");
@@ -388,7 +388,7 @@ void CTrendTestsTest::testPersist(void) {
     }
 }
 
-CppUnit::Test* CTrendTestsTest::suite(void) {
+CppUnit::Test* CTrendTestsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTrendTestsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CTrendTestsTest>("CTrendTestsTest::testRandomizedPeriodicity",

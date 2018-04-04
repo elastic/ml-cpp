@@ -60,28 +60,28 @@ public:
                                const TDecayRateController2Ary* controllers = 0,
                                bool modelAnomalies = true);
     CUnivariateTimeSeriesModel(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
-    ~CUnivariateTimeSeriesModel(void);
+    ~CUnivariateTimeSeriesModel();
 
     //! Get the model identifier.
-    virtual std::size_t identifier(void) const;
+    virtual std::size_t identifier() const;
 
     //! Create a copy of this model passing ownership to the caller.
     virtual CUnivariateTimeSeriesModel* clone(std::size_t id) const;
 
     //! Create a copy of the state we need to persist passing ownership to the caller.
-    virtual CUnivariateTimeSeriesModel* cloneForPersistence(void) const;
+    virtual CUnivariateTimeSeriesModel* cloneForPersistence() const;
 
     //! Create a copy of the state we need to run forecasting.
-    virtual CUnivariateTimeSeriesModel* cloneForForecast(void) const;
+    virtual CUnivariateTimeSeriesModel* cloneForForecast() const;
 
     //! Return true if forecast is currently possible for this model.
-    virtual bool isForecastPossible(void) const;
+    virtual bool isForecastPossible() const;
 
     //! Tell this to model correlations.
     virtual void modelCorrelations(CTimeSeriesCorrelations& model);
 
     //! Get the correlated time series identifier pairs if any.
-    virtual TSize2Vec1Vec correlates(void) const;
+    virtual TSize2Vec1Vec correlates() const;
 
     //! Update the model with the bucket \p value.
     virtual void addBucketValue(const TTimeDouble2VecSizeTrVec& value);
@@ -150,7 +150,7 @@ public:
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this object.
-    virtual std::size_t memoryUsage(void) const;
+    virtual std::size_t memoryUsage() const;
 
     //! Initialize reading state from \p traverser.
     bool acceptRestoreTraverser(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
@@ -159,18 +159,18 @@ public:
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Get the type of data being modeled.
-    virtual maths_t::EDataType dataType(void) const;
+    virtual maths_t::EDataType dataType() const;
 
     //! \name Test Functions
     //@{
     //! Get the sliding window of recent values.
-    const TTimeDoublePrCBuf& slidingWindow(void) const;
+    const TTimeDoublePrCBuf& slidingWindow() const;
 
     //! Get the trend.
-    const CTimeSeriesDecompositionInterface& trend(void) const;
+    const CTimeSeriesDecompositionInterface& trend() const;
 
     //! Get the prior.
-    const CPrior& prior(void) const;
+    const CPrior& prior() const;
     //@}
 
 private:
@@ -246,22 +246,22 @@ public:
     using TMultivariatePriorPtr = boost::shared_ptr<CMultivariatePrior>;
 
 public:
-    virtual ~CTimeSeriesCorrelateModelAllocator(void) = default;
+    virtual ~CTimeSeriesCorrelateModelAllocator() = default;
 
     //! Check if we can still allocate any correlations.
-    virtual bool areAllocationsAllowed(void) const = 0;
+    virtual bool areAllocationsAllowed() const = 0;
 
     //! Check if \p correlations exceeds the memory limit.
     virtual bool exceedsLimit(std::size_t correlations) const = 0;
 
     //! Get the maximum number of correlations we should model.
-    virtual std::size_t maxNumberCorrelations(void) const = 0;
+    virtual std::size_t maxNumberCorrelations() const = 0;
 
     //! Get the chunk size in which to allocate correlations.
-    virtual std::size_t chunkSize(void) const = 0;
+    virtual std::size_t chunkSize() const = 0;
 
     //! Create a new prior for a correlation model.
-    virtual TMultivariatePriorPtr newPrior(void) const = 0;
+    virtual TMultivariatePriorPtr newPrior() const = 0;
 };
 
 //! \brief A model of the top k correlates.
@@ -322,10 +322,10 @@ public:
     const CTimeSeriesCorrelations& operator=(const CTimeSeriesCorrelations&) = delete;
 
     //! Create a copy of this model passing ownership to the caller.
-    CTimeSeriesCorrelations* clone(void) const;
+    CTimeSeriesCorrelations* clone() const;
 
     //! Create a copy of the state we need to persist passing ownership to the caller.
-    CTimeSeriesCorrelations* cloneForPersistence(void) const;
+    CTimeSeriesCorrelations* cloneForPersistence() const;
 
     //! Process all samples added from individual time series models.
     //!
@@ -341,13 +341,13 @@ public:
     void refresh(const CTimeSeriesCorrelateModelAllocator& allocator);
 
     //! Get the correlation joint distribution models.
-    const TSizeSizePrMultivariatePriorPtrDoublePrUMap& correlatePriors(void) const;
+    const TSizeSizePrMultivariatePriorPtrDoublePrUMap& correlatePriors() const;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this object.
-    std::size_t memoryUsage(void) const;
+    std::size_t memoryUsage() const;
 
     //! Initialize reading state from \p traverser.
     bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
@@ -406,7 +406,7 @@ private:
 
     //! Refresh the mapping from time series identifier to correlate
     //! identifiers.
-    void refreshLookup(void);
+    void refreshLookup();
 
 private:
     //! The minimum significant Pearson correlation.
@@ -459,25 +459,25 @@ public:
     CMultivariateTimeSeriesModel(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
 
     //! Returns 0 since these models don't need a unique identifier.
-    virtual std::size_t identifier(void) const;
+    virtual std::size_t identifier() const;
 
     //! Create a copy of this model passing ownership to the caller.
     virtual CMultivariateTimeSeriesModel* clone(std::size_t id) const;
 
     //! Create a copy of the state we need to persist passing ownership to the caller.
-    virtual CMultivariateTimeSeriesModel* cloneForPersistence(void) const;
+    virtual CMultivariateTimeSeriesModel* cloneForPersistence() const;
 
     //! Create a copy of the state we need to run forecasting.
-    virtual CMultivariateTimeSeriesModel* cloneForForecast(void) const;
+    virtual CMultivariateTimeSeriesModel* cloneForForecast() const;
 
     //! Returns false (not currently supported for multivariate features).
-    virtual bool isForecastPossible(void) const;
+    virtual bool isForecastPossible() const;
 
     //! No-op.
     virtual void modelCorrelations(CTimeSeriesCorrelations& model);
 
     //! Returns empty.
-    virtual TSize2Vec1Vec correlates(void) const;
+    virtual TSize2Vec1Vec correlates() const;
 
     //! Update the model with the bucket \p value.
     virtual void addBucketValue(const TTimeDouble2VecSizeTrVec& value);
@@ -543,7 +543,7 @@ public:
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this object.
-    virtual std::size_t memoryUsage(void) const;
+    virtual std::size_t memoryUsage() const;
 
     //! Initialize reading state from \p traverser.
     bool acceptRestoreTraverser(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
@@ -552,18 +552,18 @@ public:
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Get the type of data being modeled.
-    virtual maths_t::EDataType dataType(void) const;
+    virtual maths_t::EDataType dataType() const;
 
     //! \name Test Functions
     //@{
     //! Get the sliding window of recent values.
-    const TTimeDouble2VecPrCBuf& slidingWindow(void) const;
+    const TTimeDouble2VecPrCBuf& slidingWindow() const;
 
     //! Get the trend.
-    const TDecompositionPtr10Vec& trend(void) const;
+    const TDecompositionPtr10Vec& trend() const;
 
     //! Get the prior.
-    const CMultivariatePrior& prior(void) const;
+    const CMultivariatePrior& prior() const;
     //@}
 
 private:
@@ -586,7 +586,7 @@ private:
     void appendPredictionErrors(double interval, const TDouble2Vec& sample, TDouble1VecVec (&result)[2]);
 
     //! Get the model dimension.
-    std::size_t dimension(void) const;
+    std::size_t dimension() const;
 
 private:
     //! True if the data are non-negative.

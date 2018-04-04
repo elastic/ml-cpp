@@ -44,8 +44,8 @@ namespace model {
 
 namespace {
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<core_t::TTime> TTimeVec;
+using TSizeVec = std::vector<std::size_t>;
+using TTimeVec = std::vector<core_t::TTime>;
 
 const CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMap EMPTY_RULES_MAP;
 const CAnomalyDetectorModelConfig::TStrDetectionRulePrVec EMPTY_EVENTS;
@@ -157,7 +157,7 @@ double CAnomalyDetectorModelConfig::trendDecayRate(double modelDecayRate, core_t
     return std::min(24.0 * modelDecayRate / bucketNormalizationFactor(bucketLength) / std::max(scale, 1.0), 0.1);
 }
 
-CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig(void)
+CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig()
     : m_BucketLength(STANDARD_BUCKET_LENGTH),
       m_BucketResultsDelay(DEFAULT_BUCKET_RESULTS_DELAY),
       m_MultivariateByFields(false),
@@ -178,7 +178,7 @@ CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig(void)
 
 void CAnomalyDetectorModelConfig::bucketLength(core_t::TTime length) {
     m_BucketLength = length;
-    for (auto&& factory : m_Factories) {
+    for (auto& factory : m_Factories) {
         factory.second->updateBucketLength(length);
     }
 }
@@ -424,7 +424,7 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
     try {
         std::string valueStr(propTree.get<std::string>(TERMS_PROPERTY));
 
-        typedef core::CStringUtils::TStrVec TStrVec;
+        using TStrVec = core::CStringUtils::TStrVec;
         TStrVec tokens;
         std::string remainder;
         core::CStringUtils::tokenise(",", valueStr, tokens, remainder);
@@ -633,32 +633,32 @@ CAnomalyDetectorModelConfig::factory(int identifier,
 }
 
 void CAnomalyDetectorModelConfig::decayRate(double value) {
-    for (auto&& factory : m_Factories) {
+    for (auto& factory : m_Factories) {
         factory.second->decayRate(value);
     }
 }
 
-double CAnomalyDetectorModelConfig::decayRate(void) const {
+double CAnomalyDetectorModelConfig::decayRate() const {
     return m_Factories.begin()->second->modelParams().s_DecayRate;
 }
 
-core_t::TTime CAnomalyDetectorModelConfig::bucketLength(void) const {
+core_t::TTime CAnomalyDetectorModelConfig::bucketLength() const {
     return m_BucketLength;
 }
 
-core_t::TTime CAnomalyDetectorModelConfig::latency(void) const {
+core_t::TTime CAnomalyDetectorModelConfig::latency() const {
     return m_BucketLength * m_Factories.begin()->second->modelParams().s_LatencyBuckets;
 }
 
-std::size_t CAnomalyDetectorModelConfig::latencyBuckets(void) const {
+std::size_t CAnomalyDetectorModelConfig::latencyBuckets() const {
     return m_Factories.begin()->second->modelParams().s_LatencyBuckets;
 }
 
-std::size_t CAnomalyDetectorModelConfig::bucketResultsDelay(void) const {
+std::size_t CAnomalyDetectorModelConfig::bucketResultsDelay() const {
     return m_BucketResultsDelay;
 }
 
-bool CAnomalyDetectorModelConfig::multivariateByFields(void) const {
+bool CAnomalyDetectorModelConfig::multivariateByFields() const {
     return m_MultivariateByFields;
 }
 
@@ -670,7 +670,7 @@ void CAnomalyDetectorModelConfig::modelPlotBoundsPercentile(double percentile) {
     m_ModelPlotBoundsPercentile = percentile;
 }
 
-double CAnomalyDetectorModelConfig::modelPlotBoundsPercentile(void) const {
+double CAnomalyDetectorModelConfig::modelPlotBoundsPercentile() const {
     return m_ModelPlotBoundsPercentile;
 }
 
@@ -678,7 +678,7 @@ void CAnomalyDetectorModelConfig::modelPlotTerms(TStrSet terms) {
     m_ModelPlotTerms.swap(terms);
 }
 
-const CAnomalyDetectorModelConfig::TStrSet& CAnomalyDetectorModelConfig::modelPlotTerms(void) const {
+const CAnomalyDetectorModelConfig::TStrSet& CAnomalyDetectorModelConfig::modelPlotTerms() const {
     return m_ModelPlotTerms;
 }
 
@@ -686,23 +686,23 @@ double CAnomalyDetectorModelConfig::aggregationStyleParam(model_t::EAggregationS
     return m_AggregationStyleParams[style][param];
 }
 
-double CAnomalyDetectorModelConfig::maximumAnomalousProbability(void) const {
+double CAnomalyDetectorModelConfig::maximumAnomalousProbability() const {
     return m_MaximumAnomalousProbability;
 }
 
-double CAnomalyDetectorModelConfig::noisePercentile(void) const {
+double CAnomalyDetectorModelConfig::noisePercentile() const {
     return m_NoisePercentile;
 }
 
-double CAnomalyDetectorModelConfig::noiseMultiplier(void) const {
+double CAnomalyDetectorModelConfig::noiseMultiplier() const {
     return m_NoiseMultiplier;
 }
 
-const CAnomalyDetectorModelConfig::TDoubleDoublePrVec& CAnomalyDetectorModelConfig::normalizedScoreKnotPoints(void) const {
+const CAnomalyDetectorModelConfig::TDoubleDoublePrVec& CAnomalyDetectorModelConfig::normalizedScoreKnotPoints() const {
     return m_NormalizedScoreKnotPoints;
 }
 
-bool CAnomalyDetectorModelConfig::perPartitionNormalization(void) const {
+bool CAnomalyDetectorModelConfig::perPartitionNormalization() const {
     return m_PerPartitionNormalisation;
 }
 
@@ -718,7 +718,7 @@ void CAnomalyDetectorModelConfig::scheduledEvents(TStrDetectionRulePrVecCRef sch
     m_ScheduledEvents = scheduledEvents;
 }
 
-core_t::TTime CAnomalyDetectorModelConfig::samplingAgeCutoff(void) const {
+core_t::TTime CAnomalyDetectorModelConfig::samplingAgeCutoff() const {
     return m_Factories.begin()->second->modelParams().s_SamplingAgeCutoff;
 }
 
@@ -744,7 +744,7 @@ const std::string PER_PARTITION_NORMALIZATION_PROPERTY("perPartitionNormalizatio
 }
 
 bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptree& propertyTree) {
-    typedef std::vector<std::string> TStrVec;
+    using TStrVec = std::vector<std::string>;
 
     bool result = true;
 
@@ -762,7 +762,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
 
             learnRate *= bucketNormalizationFactor(this->bucketLength());
-            for (auto&& factory : m_Factories) {
+            for (auto& factory : m_Factories) {
                 factory.second->learnRate(learnRate);
             }
         } else if (propName == DECAY_RATE_PROPERTY) {
@@ -774,7 +774,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
 
             decayRate *= bucketNormalizationFactor(this->bucketLength());
-            for (auto&& factory : m_Factories) {
+            for (auto& factory : m_Factories) {
                 factory.second->decayRate(decayRate);
             }
         } else if (propName == INITIAL_DECAY_RATE_MULTIPLIER_PROPERTY) {
@@ -785,7 +785,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 continue;
             }
 
-            for (auto&& factory : m_Factories) {
+            for (auto& factory : m_Factories) {
                 factory.second->initialDecayRateMultiplier(multiplier);
             }
         } else if (propName == MAXIMUM_UPDATES_PER_BUCKET_PROPERTY) {
@@ -796,7 +796,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 continue;
             }
 
-            for (auto&& factory : m_Factories) {
+            for (auto& factory : m_Factories) {
                 factory.second->maximumUpdatesPerBucket(maximumUpdatesPerBucket);
             }
         } else if (propName == TOTAL_PROBABILITY_CALC_SAMPLING_SIZE_PROPERTY) {
@@ -807,7 +807,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (auto&& factory : m_Factories) {
+            for (auto& factory : m_Factories) {
                 factory.second->totalProbabilityCalcSamplingSize(totalProbabilityCalcSamplingSize);
             }
         } else if (propName == INDIVIDUAL_MODE_FRACTION_PROPERTY) {
@@ -856,7 +856,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (auto&& factory : m_Factories) {
+            for (auto& factory : m_Factories) {
                 factory.second->componentSize(componentSize);
             }
         } else if (propName == SAMPLE_COUNT_FACTOR_PROPERTY) {
@@ -866,7 +866,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (auto&& factory : m_Factories) {
+            for (auto& factory : m_Factories) {
                 factory.second->sampleCountFactor(factor);
             }
         } else if (propName == PRUNE_WINDOW_SCALE_MINIMUM) {
@@ -876,7 +876,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (auto&& factory : m_Factories) {
+            for (auto& factory : m_Factories) {
                 factory.second->pruneWindowScaleMinimum(factor);
             }
         } else if (propName == PRUNE_WINDOW_SCALE_MAXIMUM) {
@@ -886,7 +886,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (auto&& factory : m_Factories) {
+            for (auto& factory : m_Factories) {
                 factory.second->pruneWindowScaleMaximum(factor);
             }
         } else if (propName == AGGREGATION_STYLE_PARAMS) {
@@ -986,7 +986,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
     return result;
 }
 
-double CAnomalyDetectorModelConfig::bucketNormalizationFactor(void) const {
+double CAnomalyDetectorModelConfig::bucketNormalizationFactor() const {
     return bucketNormalizationFactor(m_BucketLength);
 }
 }

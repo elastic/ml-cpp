@@ -28,9 +28,9 @@
 
 using namespace ml;
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<core_t::TTime> TTimeVec;
-typedef std::vector<maths::CCalendarFeature> TCalendarFeatureVec;
+using TSizeVec = std::vector<std::size_t>;
+using TTimeVec = std::vector<core_t::TTime>;
+using TCalendarFeatureVec = std::vector<maths::CCalendarFeature>;
 
 namespace {
 const core_t::TTime DAY = 86400;
@@ -38,18 +38,18 @@ const core_t::TTime DAY = 86400;
 //! \brief Sets the timezone to GMT for the lifetime of the objct.
 class CScopeGMT {
 public:
-    CScopeGMT(void) {
+    CScopeGMT() {
         m_Timezone = core::CTimezone::instance().timezoneName();
         core::CTimezone::instance().timezoneName("GMT");
     }
-    ~CScopeGMT(void) { core::CTimezone::instance().timezoneName(m_Timezone); }
+    ~CScopeGMT() { core::CTimezone::instance().timezoneName(m_Timezone); }
 
 private:
     std::string m_Timezone;
 };
 }
 
-void CCalendarFeatureTest::testInitialize(void) {
+void CCalendarFeatureTest::testInitialize() {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  CCalendarFeatureTest::testInitialize  |");
     LOG_DEBUG("+----------------------------------------+");
@@ -76,7 +76,7 @@ void CCalendarFeatureTest::testInitialize(void) {
     }
 }
 
-void CCalendarFeatureTest::testComparison(void) {
+void CCalendarFeatureTest::testComparison() {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  CCalendarFeatureTest::testComparison  |");
     LOG_DEBUG("+----------------------------------------+");
@@ -113,7 +113,7 @@ void CCalendarFeatureTest::testComparison(void) {
     }
 }
 
-void CCalendarFeatureTest::testOffset(void) {
+void CCalendarFeatureTest::testOffset() {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CCalendarFeatureTest::testOffset  |");
     LOG_DEBUG("+------------------------------------+");
@@ -238,7 +238,7 @@ void CCalendarFeatureTest::testOffset(void) {
     }
 }
 
-void CCalendarFeatureTest::testPersist(void) {
+void CCalendarFeatureTest::testPersist() {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CCalendarFeatureTest::testPersist  |");
     LOG_DEBUG("+-------------------------------------+");
@@ -257,7 +257,7 @@ void CCalendarFeatureTest::testPersist(void) {
     }
 }
 
-CppUnit::Test* CCalendarFeatureTest::suite(void) {
+CppUnit::Test* CCalendarFeatureTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCalendarFeatureTest");
 
     suiteOfTests->addTest(

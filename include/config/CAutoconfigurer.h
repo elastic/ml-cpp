@@ -47,13 +47,13 @@ public:
     CAutoconfigurer(const CAutoconfigurerParams& params, CReportWriter& reportWriter);
 
     //! We're going to be writing to a new output stream.
-    virtual void newOutputStream(void);
+    virtual void newOutputStream();
 
     //! Receive a single record to be processed.
     virtual bool handleRecord(const TStrStrUMap& fieldValues);
 
     //! Generate the report.
-    virtual void finalise(void);
+    virtual void finalise();
 
     //! No-op.
     virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
@@ -62,13 +62,13 @@ public:
     virtual bool persistState(core::CDataAdder& persister);
 
     //! How many records did we handle?
-    virtual uint64_t numRecordsHandled(void) const;
+    virtual uint64_t numRecordsHandled() const;
 
     //! Access the output handler.
-    virtual api::COutputHandler& outputHandler(void);
+    virtual api::COutputHandler& outputHandler();
 
 private:
-    typedef boost::shared_ptr<CAutoconfigurerImpl> TImplPtr;
+    using TImplPtr = boost::shared_ptr<CAutoconfigurerImpl>;
 
 private:
     //! The pointer to the actual implementation.

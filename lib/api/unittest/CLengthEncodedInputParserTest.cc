@@ -50,7 +50,7 @@ namespace {
 
 class CSetupVisitor {
 public:
-    CSetupVisitor(void) : m_RecordsPerBlock(0) {}
+    CSetupVisitor() : m_RecordsPerBlock(0) {}
 
     //! Handle a record
     bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
@@ -93,7 +93,7 @@ public:
         return str;
     }
 
-    size_t recordsPerBlock(void) const { return m_RecordsPerBlock; }
+    size_t recordsPerBlock() const { return m_RecordsPerBlock; }
 
 private:
     template<typename NUM_TYPE>
@@ -110,7 +110,7 @@ private:
 
 class CVisitor {
 public:
-    CVisitor(void) : m_Fast(true), m_RecordCount(0) {}
+    CVisitor() : m_Fast(true), m_RecordCount(0) {}
 
     CVisitor(const ml::api::CCsvInputParser::TStrVec& expectedFieldNames)
         : m_Fast(false), m_RecordCount(0), m_ExpectedFieldNames(expectedFieldNames) {}
@@ -146,7 +146,7 @@ public:
         return true;
     }
 
-    size_t recordCount(void) const { return m_RecordCount; }
+    size_t recordCount() const { return m_RecordCount; }
 
 private:
     bool m_Fast;
@@ -155,7 +155,7 @@ private:
 };
 }
 
-void CLengthEncodedInputParserTest::testCsvEquivalence(void) {
+void CLengthEncodedInputParserTest::testCsvEquivalence() {
     std::ifstream ifs("testfiles/simple.txt");
     CPPUNIT_ASSERT(ifs.is_open());
 
@@ -205,7 +205,7 @@ void CLengthEncodedInputParserTest::testCsvEquivalence(void) {
     CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
 }
 
-void CLengthEncodedInputParserTest::testThroughput(void) {
+void CLengthEncodedInputParserTest::testThroughput() {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 
@@ -242,7 +242,7 @@ void CLengthEncodedInputParserTest::testThroughput(void) {
     LOG_INFO("Parsing " << visitor.recordCount() << " records took " << (end - start) << " seconds");
 }
 
-void CLengthEncodedInputParserTest::testCorruptStreamDetection(void) {
+void CLengthEncodedInputParserTest::testCorruptStreamDetection() {
     uint32_t numFields(1);
     uint32_t numFieldsNet(htonl(numFields));
     std::string dodgyInput(reinterpret_cast<char*>(&numFieldsNet), sizeof(uint32_t));

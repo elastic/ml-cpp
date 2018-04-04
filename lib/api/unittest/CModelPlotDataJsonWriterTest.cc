@@ -33,7 +33,7 @@ CppUnit::Test* CModelPlotDataJsonWriterTest::suite() {
     return suiteOfTests;
 }
 
-void CModelPlotDataJsonWriterTest::testWriteFlat(void) {
+void CModelPlotDataJsonWriterTest::testWriteFlat() {
     std::ostringstream sstream;
 
     {

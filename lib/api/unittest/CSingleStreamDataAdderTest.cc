@@ -47,15 +47,12 @@
 
 namespace {
 
-void reportPersistComplete(ml::core_t::TTime /*snapshotTimestamp*/,
-                           const std::string& description,
-                           const std::string& snapshotIdIn,
-                           size_t numDocsIn,
+void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
                            std::string& snapshotIdOut,
                            size_t& numDocsOut) {
-    LOG_DEBUG("Persist complete with description: " << description);
-    snapshotIdOut = snapshotIdIn;
-    numDocsOut = numDocsIn;
+    LOG_INFO("Persist complete with description: " << modelSnapshotReport.s_Description);
+    snapshotIdOut = modelSnapshotReport.s_SnapshotId;
+    numDocsOut = modelSnapshotReport.s_NumDocs;
 }
 }
 
@@ -76,27 +73,27 @@ CppUnit::Test* CSingleStreamDataAdderTest::suite() {
     return suiteOfTests;
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistBy(void) {
+void CSingleStreamDataAdderTest::testDetectorPersistBy() {
     this->detectorPersistHelper("testfiles/new_mlfields.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistOver(void) {
+void CSingleStreamDataAdderTest::testDetectorPersistOver() {
     this->detectorPersistHelper("testfiles/new_mlfields_over.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistPartition(void) {
+void CSingleStreamDataAdderTest::testDetectorPersistPartition() {
     this->detectorPersistHelper("testfiles/new_mlfields_partition.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistDc(void) {
+void CSingleStreamDataAdderTest::testDetectorPersistDc() {
     this->detectorPersistHelper("testfiles/new_persist_dc.conf", "testfiles/files_users_programs.csv", 5);
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistCount(void) {
+void CSingleStreamDataAdderTest::testDetectorPersistCount() {
     this->detectorPersistHelper("testfiles/new_persist_count.conf", "testfiles/files_users_programs.csv", 5);
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistCategorization(void) {
+void CSingleStreamDataAdderTest::testDetectorPersistCategorization() {
     this->detectorPersistHelper("testfiles/new_persist_categorization.conf", "testfiles/time_messages.csv", 0);
 }
 
@@ -132,7 +129,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
                                  fieldConfig,
                                  modelConfig,
                                  wrappedOutputStream,
-                                 boost::bind(&reportPersistComplete, _1, _2, _3, _4, boost::ref(origSnapshotId), boost::ref(numOrigDocs)),
+                                 boost::bind(&reportPersistComplete, _1, boost::ref(origSnapshotId), boost::ref(numOrigDocs)),
                                  nullptr,
                                  -1,
                                  "time",
@@ -176,13 +173,12 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
 
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
-    ml::api::CAnomalyJob restoredJob(
-        JOB_ID,
-        limits,
-        fieldConfig,
-        modelConfig,
-        wrappedOutputStream,
-        boost::bind(&reportPersistComplete, _1, _2, _3, _4, boost::ref(restoredSnapshotId), boost::ref(numRestoredDocs)));
+    ml::api::CAnomalyJob restoredJob(JOB_ID,
+                                     limits,
+                                     fieldConfig,
+                                     modelConfig,
+                                     wrappedOutputStream,
+                                     boost::bind(&reportPersistComplete, _1, boost::ref(restoredSnapshotId), boost::ref(numRestoredDocs)));
 
     ml::api::CDataProcessor* restoredFirstProcessor(&restoredJob);
 

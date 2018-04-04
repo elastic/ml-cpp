@@ -32,6 +32,7 @@
 #include <api/CDataProcessor.h>
 #include <api/CForecastRunner.h>
 #include <api/CJsonOutputWriter.h>
+#include <api/CModelSnapshotJsonWriter.h>
 #include <api/ImportExport.h>
 
 #include <boost/shared_ptr.hpp>
@@ -113,27 +114,19 @@ public:
     };
 
 public:
-    typedef std::function<void(core_t::TTime,
-                               const std::string&,
-                               const std::string&,
-                               size_t,
-                               const model::CResourceMonitor::SResults&,
-                               const std::string&,
-                               core_t::TTime,
-                               core_t::TTime)>
-        TPersistCompleteFunc;
-    typedef model::CAnomalyDetector::TAnomalyDetectorPtr TAnomalyDetectorPtr;
-    typedef std::vector<TAnomalyDetectorPtr> TAnomalyDetectorPtrVec;
-    typedef std::vector<TAnomalyDetectorPtr>::iterator TAnomalyDetectorPtrVecItr;
-    typedef std::vector<TAnomalyDetectorPtr>::const_iterator TAnomalyDetectorPtrVecCItr;
-    typedef std::vector<model::CSearchKey> TKeyVec;
-    typedef boost::unordered_map<model::CSearchKey::TStrKeyPr, TAnomalyDetectorPtr, model::CStrKeyPrHash, model::CStrKeyPrEqual>
-        TKeyAnomalyDetectorPtrUMap;
-    typedef std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr> TKeyCRefAnomalyDetectorPtrPr;
-    typedef std::vector<TKeyCRefAnomalyDetectorPtrPr> TKeyCRefAnomalyDetectorPtrPrVec;
-    typedef model::CAnomalyDetector::TModelPlotDataVec TModelPlotDataVec;
-    typedef TModelPlotDataVec::const_iterator TModelPlotDataVecCItr;
-    typedef model::CBucketQueue<TModelPlotDataVec> TModelPlotDataVecQueue;
+    using TPersistCompleteFunc = std::function<void(const CModelSnapshotJsonWriter::SModelSnapshotReport&)>;
+    using TAnomalyDetectorPtr = model::CAnomalyDetector::TAnomalyDetectorPtr;
+    using TAnomalyDetectorPtrVec = std::vector<TAnomalyDetectorPtr>;
+    using TAnomalyDetectorPtrVecItr = std::vector<TAnomalyDetectorPtr>::iterator;
+    using TAnomalyDetectorPtrVecCItr = std::vector<TAnomalyDetectorPtr>::const_iterator;
+    using TKeyVec = std::vector<model::CSearchKey>;
+    using TKeyAnomalyDetectorPtrUMap =
+        boost::unordered_map<model::CSearchKey::TStrKeyPr, TAnomalyDetectorPtr, model::CStrKeyPrHash, model::CStrKeyPrEqual>;
+    using TKeyCRefAnomalyDetectorPtrPr = std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr>;
+    using TKeyCRefAnomalyDetectorPtrPrVec = std::vector<TKeyCRefAnomalyDetectorPtrPr>;
+    using TModelPlotDataVec = model::CAnomalyDetector::TModelPlotDataVec;
+    using TModelPlotDataVecCItr = TModelPlotDataVec::const_iterator;
+    using TModelPlotDataVecQueue = model::CBucketQueue<TModelPlotDataVec>;
 
     struct API_EXPORT SRestoredStateDetail {
         ERestoreStateStatus s_RestoredStateStatus;
@@ -160,7 +153,7 @@ public:
         TKeyCRefAnomalyDetectorPtrPrVec s_Detectors;
     };
 
-    typedef boost::shared_ptr<SBackgroundPersistArgs> TBackgroundPersistArgsPtr;
+    using TBackgroundPersistArgsPtr = boost::shared_ptr<SBackgroundPersistArgs>;
 
 public:
     CAnomalyJob(const std::string& jobId,
@@ -175,20 +168,20 @@ public:
                 const std::string& timeFieldFormat = EMPTY_STRING,
                 size_t maxAnomalyRecords = 0u);
 
-    virtual ~CAnomalyJob(void);
+    virtual ~CAnomalyJob();
 
     //! We're going to be writing to a new output stream
-    virtual void newOutputStream(void);
+    virtual void newOutputStream();
 
     //! Access the output handler
-    virtual COutputHandler& outputHandler(void);
+    virtual COutputHandler& outputHandler();
 
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
     virtual bool handleRecord(const TStrStrUMap& dataRowFields);
 
     //! Perform any final processing once all input data has been seen.
-    virtual void finalise(void);
+    virtual void finalise();
 
     //! Restore previously saved state
     virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
@@ -200,13 +193,13 @@ public:
     virtual bool initNormalizer(const std::string& quantilesStateFile);
 
     //! How many records did we handle?
-    virtual uint64_t numRecordsHandled(void) const;
+    virtual uint64_t numRecordsHandled() const;
 
     //! Log a list of the detectors and keys
-    void description(void) const;
+    void description() const;
 
     //! Log a list of the detectors, keys and their memory usage
-    void descriptionAndDebugMemoryUsage(void) const;
+    void descriptionAndDebugMemoryUsage() const;
 
     //! Extra information on the success/failure of restoring the model state.
     //! In certain situations such as no data being loaded from the restorer
@@ -312,7 +305,7 @@ private:
 
     //! Get the bucketLength, or half the bucketLength if
     //! out-of-phase buckets are active
-    core_t::TTime effectiveBucketLength(void) const;
+    core_t::TTime effectiveBucketLength() const;
 
     //! Update configuration
     void updateConfig(const std::string& config);
@@ -355,7 +348,7 @@ private:
 
     //! Iterate over the models, refresh their memory status, and send a report
     //! to the API
-    void refreshMemoryAndReport(void);
+    void refreshMemoryAndReport();
 
     //! Update configuration
     void doForecast(const std::string& controlMessage);
@@ -395,7 +388,7 @@ protected:
                                               model::CResourceMonitor& resourceMonitor);
 
     //! Prune all the models
-    void pruneAllModels(void);
+    void pruneAllModels();
 
 private:
     //! The job ID

@@ -19,13 +19,13 @@
 
 class CRestorePreviousStateTest : public CppUnit::TestFixture {
 public:
-    void testRestoreDetectorBy(void);
-    void testRestoreDetectorOver(void);
-    void testRestoreDetectorPartition(void);
-    void testRestoreDetectorDc(void);
-    void testRestoreDetectorCount(void);
-    void testRestoreNormalizer(void);
-    void testRestoreCategorizer(void);
+    void testRestoreDetectorBy();
+    void testRestoreDetectorOver();
+    void testRestoreDetectorPartition();
+    void testRestoreDetectorDc();
+    void testRestoreDetectorCount();
+    void testRestoreNormalizer();
+    void testRestoreCategorizer();
 
     static CppUnit::Test* suite();
 

@@ -39,7 +39,7 @@ namespace {
 //! \brief Creates new normalizer instances.
 class CNormalizerFactory {
 public:
-    typedef CHierarchicalResultsNormalizer::TNormalizer TNormalizer;
+    using TNormalizer = CHierarchicalResultsNormalizer::TNormalizer;
 
     CNormalizerFactory(const CAnomalyDetectorModelConfig& modelConfig) : m_ModelConfig(modelConfig) {}
 
@@ -76,7 +76,7 @@ SNormalizer::SNormalizer(const std::string& description, const TNormalizerPtr& n
     : s_Description(description), s_Normalizer(normalizer) {
 }
 
-void SNormalizer::clear(void) {
+void SNormalizer::clear() {
     s_Normalizer->clear();
 }
 
@@ -84,7 +84,7 @@ void SNormalizer::propagateForwardByTime(double time) {
     s_Normalizer->propagateForwardByTime(time);
 }
 
-uint64_t SNormalizer::checksum(void) const {
+uint64_t SNormalizer::checksum() const {
     uint64_t seed = maths::CChecksum::calculate(0, s_Description);
     return maths::CChecksum::calculate(seed, s_Normalizer);
 }
@@ -101,7 +101,7 @@ void CHierarchicalResultsNormalizer::setJob(EJob job) {
     m_Job = job;
 }
 
-void CHierarchicalResultsNormalizer::clear(void) {
+void CHierarchicalResultsNormalizer::clear() {
     this->TBase::clear();
     m_HasLastUpdateCausedBigChange = false;
 }
@@ -151,7 +151,7 @@ void CHierarchicalResultsNormalizer::propagateForwardByTime(double time) {
     this->age(boost::bind(&TNormalizer::propagateForwardByTime, _1, time));
 }
 
-bool CHierarchicalResultsNormalizer::hasLastUpdateCausedBigChange(void) const {
+bool CHierarchicalResultsNormalizer::hasLastUpdateCausedBigChange() const {
     return m_HasLastUpdateCausedBigChange;
 }
 
@@ -292,7 +292,7 @@ CHierarchicalResultsNormalizer::ERestoreOutcome CHierarchicalResultsNormalizer::
     return isBucketNormalizerRestored ? E_Ok : E_Incomplete;
 }
 
-const CAnomalyScore::CNormalizer& CHierarchicalResultsNormalizer::bucketNormalizer(void) const {
+const CAnomalyScore::CNormalizer& CHierarchicalResultsNormalizer::bucketNormalizer() const {
     return *this->bucketElement().s_Normalizer;
 }
 
@@ -361,7 +361,7 @@ bool CHierarchicalResultsNormalizer::parseCue(const std::string& cue,
     return true;
 }
 
-const std::string& CHierarchicalResultsNormalizer::bucketCue(void) {
+const std::string& CHierarchicalResultsNormalizer::bucketCue() {
     return BUCKET_CUE;
 }
 

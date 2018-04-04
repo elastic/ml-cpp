@@ -28,7 +28,7 @@ CppUnit::Test* CWordExtractorTest::suite() {
     return suiteOfTests;
 }
 
-void CWordExtractorTest::testWordExtract(void) {
+void CWordExtractorTest::testWordExtract() {
     {
         std::string message("2017-01-25 02:10:03,551 ERROR [co.elastic.tradefeedtracker.MessageLoggerService] Failed to Rollback");
         std::string words;
@@ -41,8 +41,7 @@ void CWordExtractorTest::testWordExtract(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("Failed to Rollback"), words);
     }
     {
-        std::string message("2017-01-25 14:20:49,646 INFO  "
-                            "[co.elastic.settlement.synchronization.errors.NonFXInstructionSyncImpl] Found "
+        std::string message("2017-01-25 14:20:49,646 INFO  [co.elastic.settlement.synchronization.errors.NonFXInstructionSyncImpl] Found "
                             "corresponding outgoingPaymentFlow :: OutGoingPaymentFlow.id = 7480");
         std::string words;
 
@@ -66,7 +65,7 @@ void CWordExtractorTest::testWordExtract(void) {
     }
 }
 
-void CWordExtractorTest::testMinConsecutive(void) {
+void CWordExtractorTest::testMinConsecutive() {
     {
         std::string message("2017-01-25 02:10:03,551 ERROR [co.elastic.tradefeedtracker.MessageLoggerService] Failed to Rollback");
         std::string words;
@@ -124,8 +123,8 @@ void CWordExtractorTest::testMinConsecutive(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("which is more than the configured time"), words);
     }
     {
-        std::string message("<ml00-4253.1.p2ps: Warning: > Output threshold breached for: dave at position "
-                            "192.168.156.136/net using application 163 on channel 12.<END>");
+        std::string message("<ml00-4253.1.p2ps: Warning: > Output threshold breached for: dave at position 192.168.156.136/net using "
+                            "application 163 on channel 12.<END>");
         std::string words;
 
         ml::core::CWordExtractor::extractWordsFromMessage(2, message, words);

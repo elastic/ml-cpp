@@ -37,7 +37,7 @@ using TOStringStreamConcurrentWrapper = CConcurrentWrapper<std::ostringstream>;
 // a low capacity wrapper with only 5 buckets for the queue, the 3 controls the wakeup of threads
 using TOStringStreamLowCapacityConcurrentWrapper = CConcurrentWrapper<std::ostringstream, 5, 3>;
 
-void CConcurrentWrapperTest::testBasic(void) {
+void CConcurrentWrapperTest::testBasic() {
 
     std::ostringstream stringStream;
     {
@@ -80,7 +80,7 @@ void taskLowCapacityQueue(TOStringStreamLowCapacityConcurrentWrapper& sink, int 
 }
 }
 
-void CConcurrentWrapperTest::testThreads(void) {
+void CConcurrentWrapperTest::testThreads() {
     std::ostringstream stringStream;
     static const size_t MESSAGES(1500);
     {
@@ -105,7 +105,7 @@ void CConcurrentWrapperTest::testThreads(void) {
     }
 }
 
-void CConcurrentWrapperTest::testThreadsSlow(void) {
+void CConcurrentWrapperTest::testThreadsSlow() {
     std::ostringstream stringStream;
     static const size_t MESSAGES(50);
 
@@ -131,7 +131,7 @@ void CConcurrentWrapperTest::testThreadsSlow(void) {
     }
 }
 
-void CConcurrentWrapperTest::testThreadsSlowLowCapacity(void) {
+void CConcurrentWrapperTest::testThreadsSlowLowCapacity() {
     std::ostringstream stringStream;
     static const size_t MESSAGES(50);
 
@@ -158,7 +158,7 @@ void CConcurrentWrapperTest::testThreadsSlowLowCapacity(void) {
     }
 }
 
-void CConcurrentWrapperTest::testThreadsLowCapacity(void) {
+void CConcurrentWrapperTest::testThreadsLowCapacity() {
     std::ostringstream stringStream;
     static const size_t MESSAGES(2500);
 
@@ -185,7 +185,7 @@ void CConcurrentWrapperTest::testThreadsLowCapacity(void) {
     }
 }
 
-void CConcurrentWrapperTest::testMemoryDebug(void) {
+void CConcurrentWrapperTest::testMemoryDebug() {
     CMemoryUsage mem;
 
     std::ostringstream stringStream;
@@ -195,7 +195,7 @@ void CConcurrentWrapperTest::testMemoryDebug(void) {
     CPPUNIT_ASSERT_EQUAL(wrappedStringStream.memoryUsage(), mem.usage());
 }
 
-CppUnit::Test* CConcurrentWrapperTest::suite(void) {
+CppUnit::Test* CConcurrentWrapperTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CConcurrentWrapperTest");
 
     suiteOfTests->addTest(

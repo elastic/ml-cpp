@@ -22,22 +22,22 @@
 
 class CEventRateDataGathererTest : public CppUnit::TestFixture {
 public:
-    void singleSeriesTests(void);
-    void multipleSeriesTests(void);
-    void testRemovePeople(void);
-    void singleSeriesOutOfOrderFinalResultTests(void);
-    void singleSeriesOutOfOrderInterimResultTests(void);
-    void multipleSeriesOutOfOrderFinalResultTests(void);
-    void testArrivalBeforeLatencyWindowIsIgnored(void);
-    void testResetBucketGivenSingleSeries(void);
-    void testResetBucketGivenMultipleSeries(void);
-    void testResetBucketGivenBucketNotAvailable(void);
-    void testInfluencerBucketStatistics(void);
-    void testDistinctStrings(void);
-    void testLatencyPersist(void);
-    void testDiurnalFeatures(void);
+    void singleSeriesTests();
+    void multipleSeriesTests();
+    void testRemovePeople();
+    void singleSeriesOutOfOrderFinalResultTests();
+    void singleSeriesOutOfOrderInterimResultTests();
+    void multipleSeriesOutOfOrderFinalResultTests();
+    void testArrivalBeforeLatencyWindowIsIgnored();
+    void testResetBucketGivenSingleSeries();
+    void testResetBucketGivenMultipleSeries();
+    void testResetBucketGivenBucketNotAvailable();
+    void testInfluencerBucketStatistics();
+    void testDistinctStrings();
+    void testLatencyPersist();
+    void testDiurnalFeatures();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 
 private:
     ml::model::CResourceMonitor m_ResourceMonitor;

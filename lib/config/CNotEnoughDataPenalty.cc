@@ -27,12 +27,13 @@
 
 #include <boost/range.hpp>
 
+#include <cmath>
 #include <cstddef>
 
 namespace ml {
 namespace config {
 namespace {
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 //! Get the description prefix.
 std::string descriptionPrefix(const CDetectorSpecification& spec, const TMeanAccumulator& meanOccupied, std::size_t partitions) {
@@ -58,11 +59,11 @@ const bool IGNORE_EMPTY[] = {false, true};
 CNotEnoughDataPenalty::CNotEnoughDataPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {
 }
 
-CNotEnoughDataPenalty* CNotEnoughDataPenalty::clone(void) const {
+CNotEnoughDataPenalty* CNotEnoughDataPenalty::clone() const {
     return new CNotEnoughDataPenalty(*this);
 }
 
-std::string CNotEnoughDataPenalty::name(void) const {
+std::string CNotEnoughDataPenalty::name() const {
     return "not enough data";
 }
 
@@ -96,7 +97,7 @@ void CNotEnoughDataPenalty::penaltyFor(const CByOverAndPartitionDataCountStatist
 void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec& bucketCounts,
                                        const TBucketCountStatisticsVec& statistics,
                                        CDetectorSpecification& spec) const {
-    typedef CBucketCountStatistics::TSizeSizePrMomentsUMap::const_iterator TSizeSizePrMomentsUMapCItr;
+    using TSizeSizePrMomentsUMapCItr = CBucketCountStatistics::TSizeSizePrMomentsUMap::const_iterator;
 
     const CAutoconfigurerParams::TTimeVec& candidates = this->params().candidateBucketLengths();
 
@@ -135,7 +136,7 @@ void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec& bucketCounts,
                     }
                 }
 
-                double penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
+                double penalty = std::min(std::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
                 std::size_t index = this->params().penaltyIndexFor(bid, IGNORE_EMPTY[i]);
                 indices.push_back(index);
                 penalties.push_back(penalty);

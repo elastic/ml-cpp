@@ -32,20 +32,20 @@ class CAnomalyDetectorModelConfig;
 
 namespace hierarchical_results_normalizer_detail {
 
-typedef boost::shared_ptr<CAnomalyScore::CNormalizer> TNormalizerPtr;
+using TNormalizerPtr = boost::shared_ptr<CAnomalyScore::CNormalizer>;
 
 //! \brief A normalizer instance and a descriptive string.
 struct MODEL_EXPORT SNormalizer {
     SNormalizer(const std::string& description, const TNormalizerPtr& normalizer);
 
     //! Clear the normalizer.
-    void clear(void);
+    void clear();
 
     //! Age the normalizer to account for \p time passing.
     void propagateForwardByTime(double time);
 
     //! Compute a checksum for this object.
-    uint64_t checksum(void) const;
+    uint64_t checksum() const;
 
     std::string s_Description;
     TNormalizerPtr s_Normalizer;
@@ -89,12 +89,12 @@ class MODEL_EXPORT CHierarchicalResultsNormalizer
     : public CHierarchicalResultsLevelSet<hierarchical_results_normalizer_detail::SNormalizer>,
       private core::CNonCopyable {
 public:
-    typedef CHierarchicalResultsLevelSet<hierarchical_results_normalizer_detail::SNormalizer> TBase;
-    typedef TBase::Type TNormalizer;
-    typedef TBase::TTypePtrVec TNormalizerPtrVec;
-    typedef TBase::TWordTypePr TWordNormalizerPr;
-    typedef TBase::TWordTypePrVec TWordNormalizerPrVec;
-    typedef std::vector<std::string> TStrVec;
+    using TBase = CHierarchicalResultsLevelSet<hierarchical_results_normalizer_detail::SNormalizer>;
+    using TNormalizer = TBase::Type;
+    using TNormalizerPtrVec = TBase::TTypePtrVec;
+    using TWordNormalizerPr = TBase::TWordTypePr;
+    using TWordNormalizerPrVec = TBase::TWordTypePrVec;
+    using TStrVec = std::vector<std::string>;
 
     //! Enumeration of the possible jobs that the normalizer can
     //! perform when invoked.
@@ -110,10 +110,10 @@ public:
     void setJob(EJob job);
 
     //! Clear all state such that all normalizers restart from scratch.
-    void clear(void);
+    void clear();
 
     //! Reset the hasLastUpdateCausedBigChange() flag
-    void resetBigChange(void);
+    void resetBigChange();
 
     //! Update the normalizer with the node's anomaly score.
     virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot);
@@ -123,7 +123,7 @@ public:
 
     //! Returns true if the last update caused a big change to the quantiles
     //! or false otherwise.
-    bool hasLastUpdateCausedBigChange(void) const;
+    bool hasLastUpdateCausedBigChange() const;
 
     //! Convert each normalizer to a JSON document and store these as an
     //! array to the string provided.
@@ -134,7 +134,7 @@ public:
     ERestoreOutcome fromJsonStream(std::istream& inputStream);
 
     //! Access to the root normalizer.
-    const CAnomalyScore::CNormalizer& bucketNormalizer(void) const;
+    const CAnomalyScore::CNormalizer& bucketNormalizer() const;
 
     //! Get the influencer bucket normalizer for \p influencerFieldName.
     //!
@@ -171,7 +171,7 @@ private:
     bool parseCue(const std::string& cue, TWordNormalizerPrVec*& normalizers, TDictionary::TUInt64Array& hashArray);
 
     //! Get the persistence cue for the root normalizer.
-    static const std::string& bucketCue(void);
+    static const std::string& bucketCue();
 
     //! Get the persistence cue for a influencer bucket normalizer.
     static std::string influencerBucketCue(const TWord& word);

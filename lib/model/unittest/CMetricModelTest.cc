@@ -62,36 +62,36 @@ using namespace model;
 
 namespace {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef std::pair<double, std::size_t> TDoubleSizePr;
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<TStrVec> TStrVecVec;
-typedef boost::optional<uint64_t> TOptionalUInt64;
-typedef boost::optional<double> TOptionalDouble;
-typedef std::vector<TOptionalDouble> TOptionalDoubleVec;
-typedef boost::optional<std::string> TOptionalStr;
-typedef std::pair<core_t::TTime, double> TTimeDoublePr;
-typedef boost::optional<TTimeDoublePr> TOptionalTimeDoublePr;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u> TMinAccumulator;
-typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>> TMaxAccumulator;
-typedef boost::shared_ptr<maths::CModel> TMathsModelPtr;
-typedef boost::shared_ptr<maths::CPrior> TPriorPtr;
-typedef boost::shared_ptr<maths::CMultivariatePrior> TMultivariatePriorPtr;
-typedef std::pair<double, std::string> TDoubleStrPr;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 2> TDouble2Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
-typedef std::vector<std::string> TStrVec;
-typedef std::pair<core_t::TTime, TStrVec> TTimeStrVecPr;
-typedef std::vector<TTimeStrVecPr> TTimeStrVecPrVec;
+using TDoubleDoublePr = std::pair<double, double>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TDoubleSizePr = std::pair<double, std::size_t>;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TStrVec = std::vector<std::string>;
+using TStrVecVec = std::vector<TStrVec>;
+using TOptionalUInt64 = boost::optional<uint64_t>;
+using TOptionalDouble = boost::optional<double>;
+using TOptionalDoubleVec = std::vector<TOptionalDouble>;
+using TOptionalStr = boost::optional<std::string>;
+using TTimeDoublePr = std::pair<core_t::TTime, double>;
+using TOptionalTimeDoublePr = boost::optional<TTimeDoublePr>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+using TPriorPtr = boost::shared_ptr<maths::CPrior>;
+using TMultivariatePriorPtr = boost::shared_ptr<maths::CMultivariatePrior>;
+using TDoubleStrPr = std::pair<double, std::string>;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble2Vec = core::CSmallVector<double, 2>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
+using TStrVec = std::vector<std::string>;
+using TTimeStrVecPr = std::pair<core_t::TTime, TStrVec>;
+using TTimeStrVecPrVec = std::vector<TTimeStrVecPr>;
 
 const std::string EMPTY_STRING;
 
@@ -266,7 +266,7 @@ const TDouble4Vec1Vec UNIT_WEIGHT(1, TDouble4Vec(1, 1.0));
 const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
-void CMetricModelTest::testSample(void) {
+void CMetricModelTest::testSample() {
     LOG_DEBUG("*** testSample ***");
 
     core_t::TTime startTime(45);
@@ -488,14 +488,14 @@ void CMetricModelTest::testSample(void) {
     }
 }
 
-void CMetricModelTest::testMultivariateSample(void) {
+void CMetricModelTest::testMultivariateSample() {
     LOG_DEBUG("*** testMultivariateSample ***");
 
-    typedef std::vector<TDoubleVecVec> TDoubleVecVecVec;
-    typedef maths::CVectorNx1<double, 2> TVector2;
-    typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
-    typedef std::pair<core_t::TTime, boost::array<double, 2>> TTimeDouble2AryPr;
-    typedef std::vector<TTimeDouble2AryPr> TTimeDouble2AryPrVec;
+    using TDoubleVecVecVec = std::vector<TDoubleVecVec>;
+    using TVector2 = maths::CVectorNx1<double, 2>;
+    using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
+    using TTimeDouble2AryPr = std::pair<core_t::TTime, boost::array<double, 2>>;
+    using TTimeDouble2AryPrVec = std::vector<TTimeDouble2AryPr>;
 
     core_t::TTime startTime(45);
     core_t::TTime bucketLength(5);
@@ -662,10 +662,10 @@ void CMetricModelTest::testMultivariateSample(void) {
     }
 }
 
-void CMetricModelTest::testProbabilityCalculationForMetric(void) {
+void CMetricModelTest::testProbabilityCalculationForMetric() {
     LOG_DEBUG("*** testProbabilityCalculationForMetric ***");
 
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> TMinAccumulator;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -727,10 +727,10 @@ void CMetricModelTest::testProbabilityCalculationForMetric(void) {
     CPPUNIT_ASSERT(minProbabilities[0].first / minProbabilities[1].first < 0.05);
 }
 
-void CMetricModelTest::testProbabilityCalculationForMedian(void) {
+void CMetricModelTest::testProbabilityCalculationForMedian() {
     LOG_DEBUG("*** testProbabilityCalculationForMedian ***");
 
-    typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> TMinAccumulator;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -801,7 +801,7 @@ void CMetricModelTest::testProbabilityCalculationForMedian(void) {
     CPPUNIT_ASSERT_EQUAL(fd->s_BucketValue->value().size(), std::size_t(1));
 }
 
-void CMetricModelTest::testProbabilityCalculationForLowMean(void) {
+void CMetricModelTest::testProbabilityCalculationForLowMean() {
     LOG_DEBUG("*** testProbabilityCalculationForLowMean ***");
 
     core_t::TTime startTime(0);
@@ -861,7 +861,7 @@ void CMetricModelTest::testProbabilityCalculationForLowMean(void) {
     CPPUNIT_ASSERT(probabilities[highMeanBucket] > 0.1);
 }
 
-void CMetricModelTest::testProbabilityCalculationForHighMean(void) {
+void CMetricModelTest::testProbabilityCalculationForHighMean() {
     LOG_DEBUG("*** testProbabilityCalculationForHighMean ***");
 
     core_t::TTime startTime(0);
@@ -921,7 +921,7 @@ void CMetricModelTest::testProbabilityCalculationForHighMean(void) {
     CPPUNIT_ASSERT(probabilities[highMeanBucket] < 0.01);
 }
 
-void CMetricModelTest::testProbabilityCalculationForLowSum(void) {
+void CMetricModelTest::testProbabilityCalculationForLowSum() {
     LOG_DEBUG("*** testProbabilityCalculationForLowSum ***");
 
     core_t::TTime startTime(0);
@@ -980,7 +980,7 @@ void CMetricModelTest::testProbabilityCalculationForLowSum(void) {
     CPPUNIT_ASSERT(probabilities[highSumBucket] > 0.1);
 }
 
-void CMetricModelTest::testProbabilityCalculationForHighSum(void) {
+void CMetricModelTest::testProbabilityCalculationForHighSum() {
     LOG_DEBUG("*** testProbabilityCalculationForLowSum ***");
 
     core_t::TTime startTime(0);
@@ -1039,13 +1039,13 @@ void CMetricModelTest::testProbabilityCalculationForHighSum(void) {
     CPPUNIT_ASSERT(probabilities[highSumBucket] < 0.01);
 }
 
-void CMetricModelTest::testProbabilityCalculationForLatLong(void) {
+void CMetricModelTest::testProbabilityCalculationForLatLong() {
     LOG_DEBUG("*** testProbabilityCalculationForLatLong ***");
 
     // TODO
 }
 
-void CMetricModelTest::testInfluence(void) {
+void CMetricModelTest::testInfluence() {
     LOG_DEBUG("*** testInfluence ***");
 
     using TMinAccumulator = maths::CBasicStatistics::SMin<TDoubleStrPr>::TAccumulator;
@@ -1281,21 +1281,21 @@ void CMetricModelTest::testInfluence(void) {
     }
 }
 
-void CMetricModelTest::testLatLongInfluence(void) {
+void CMetricModelTest::testLatLongInfluence() {
     LOG_DEBUG("*** testLatLongInfluence ***");
 
     // TODO
 }
 
-void CMetricModelTest::testPrune(void) {
+void CMetricModelTest::testPrune() {
     LOG_DEBUG("*** testPrune ***");
 
     maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
-    typedef std::vector<CEventData> TEventDataVec;
-    typedef std::map<std::size_t, std::size_t> TSizeSizeMap;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecVec = std::vector<TSizeVec>;
+    using TEventDataVec = std::vector<CEventData>;
+    using TSizeSizeMap = std::map<std::size_t, std::size_t>;
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -1456,7 +1456,7 @@ void CMetricModelTest::testPrune(void) {
     CPPUNIT_ASSERT_EQUAL(numberOfPeopleBeforePrune, clonedModelHolder->dataGatherer().numberActivePeople());
 }
 
-void CMetricModelTest::testKey(void) {
+void CMetricModelTest::testKey() {
     function_t::EFunction countFunctions[] = {function_t::E_IndividualMetric,
                                               function_t::E_IndividualMetricMean,
                                               function_t::E_IndividualMetricMin,
@@ -1487,7 +1487,7 @@ void CMetricModelTest::testKey(void) {
     }
 }
 
-void CMetricModelTest::testSkipSampling(void) {
+void CMetricModelTest::testSkipSampling() {
     LOG_DEBUG("*** testSkipSampling ***");
 
     core_t::TTime startTime(100);
@@ -1571,7 +1571,7 @@ void CMetricModelTest::testSkipSampling(void) {
             .checksum());
 }
 
-void CMetricModelTest::testExplicitNulls(void) {
+void CMetricModelTest::testExplicitNulls() {
     LOG_DEBUG("*** testExplicitNulls ***");
 
     core_t::TTime startTime(100);
@@ -1647,7 +1647,7 @@ void CMetricModelTest::testExplicitNulls(void) {
             .checksum());
 }
 
-void CMetricModelTest::testVarp(void) {
+void CMetricModelTest::testVarp() {
     LOG_DEBUG("*** testVarp ***");
 
     core_t::TTime startTime(500000);
@@ -1753,7 +1753,7 @@ void CMetricModelTest::testVarp(void) {
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.5);
 }
 
-void CMetricModelTest::testInterimCorrections(void) {
+void CMetricModelTest::testInterimCorrections() {
     LOG_DEBUG("*** testInterimCorrections ***");
 
     core_t::TTime startTime(3600);
@@ -1838,7 +1838,7 @@ void CMetricModelTest::testInterimCorrections(void) {
     CPPUNIT_ASSERT(p3Baseline[0] > 59.0 && p3Baseline[0] < 61.0);
 }
 
-void CMetricModelTest::testInterimCorrectionsWithCorrelations(void) {
+void CMetricModelTest::testInterimCorrectionsWithCorrelations() {
     LOG_DEBUG("*** testInterimCorrectionsWithCorrelations ***");
 
     core_t::TTime startTime(3600);
@@ -1927,11 +1927,11 @@ void CMetricModelTest::testInterimCorrectionsWithCorrelations(void) {
     CPPUNIT_ASSERT(p3Baseline[0] > 7.4 && p3Baseline[0] < 7.6);
 }
 
-void CMetricModelTest::testCorrelatePersist(void) {
+void CMetricModelTest::testCorrelatePersist() {
     LOG_DEBUG("*** testCorrelatePersist ***");
 
-    typedef maths::CVectorNx1<double, 2> TVector2;
-    typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
+    using TVector2 = maths::CVectorNx1<double, 2>;
+    using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
@@ -2002,7 +2002,7 @@ void CMetricModelTest::testCorrelatePersist(void) {
     }
 }
 
-void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored(void) {
+void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored() {
     LOG_DEBUG("*** testSummaryCountZeroRecordsAreIgnored ***");
 
     core_t::TTime startTime(100);
@@ -2085,7 +2085,7 @@ void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored(void) {
     CPPUNIT_ASSERT_EQUAL(modelWithZeros.checksum(), modelNoZeros.checksum());
 }
 
-void CMetricModelTest::testDecayRateControl(void) {
+void CMetricModelTest::testDecayRateControl() {
     LOG_DEBUG("*** testDecayRateControl ***");
 
     core_t::TTime startTime = 0;
@@ -2174,10 +2174,10 @@ void CMetricModelTest::testDecayRateControl(void) {
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
-            double value =
-                10.0 *
-                (1.0 + ::sin(boost::math::double_constants::two_pi * static_cast<double>(t) / static_cast<double>(core::constants::DAY))) *
-                (t < 5 * core::constants::WEEK ? 1.0 : 2.0);
+            double value = 10.0 *
+                           (1.0 + std::sin(boost::math::double_constants::two_pi * static_cast<double>(t) /
+                                           static_cast<double>(core::constants::DAY))) *
+                           (t < 5 * core::constants::WEEK ? 1.0 : 2.0);
             TDoubleVec noise;
             rng.generateUniformSamples(0.0, 3.0, 1, noise);
             addArrival(*gatherer, m_ResourceMonitor, t + bucketLength / 2, "p1", value + noise[0]);
@@ -2225,11 +2225,11 @@ void CMetricModelTest::testDecayRateControl(void) {
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
-            double value =
-                10.0 *
-                (1.0 + ::sin(boost::math::double_constants::two_pi * static_cast<double>(t) / static_cast<double>(core::constants::DAY))) *
-                (1.0 +
-                 ::sin(boost::math::double_constants::two_pi * static_cast<double>(t) / 10.0 / static_cast<double>(core::constants::WEEK)));
+            double value = 10.0 *
+                           (1.0 + std::sin(boost::math::double_constants::two_pi * static_cast<double>(t) /
+                                           static_cast<double>(core::constants::DAY))) *
+                           (1.0 + std::sin(boost::math::double_constants::two_pi * static_cast<double>(t) / 10.0 /
+                                           static_cast<double>(core::constants::WEEK)));
             TDoubleVec noise;
             rng.generateUniformSamples(0.0, 3.0, 1, noise);
             addArrival(*gatherer, m_ResourceMonitor, t + bucketLength / 2, "p1", value + noise[0]);
@@ -2249,7 +2249,7 @@ void CMetricModelTest::testDecayRateControl(void) {
     }
 }
 
-void CMetricModelTest::testProbabilityCalculationForLowMedian(void) {
+void CMetricModelTest::testProbabilityCalculationForLowMedian() {
     LOG_DEBUG("*** testProbabilityCalculationForLowMedian ***");
 
     core_t::TTime startTime(0);
@@ -2309,7 +2309,7 @@ void CMetricModelTest::testProbabilityCalculationForLowMedian(void) {
     CPPUNIT_ASSERT(probabilities[highMedianBucket] > 0.1);
 }
 
-void CMetricModelTest::testProbabilityCalculationForHighMedian(void) {
+void CMetricModelTest::testProbabilityCalculationForHighMedian() {
     LOG_DEBUG("*** testProbabilityCalculationForHighMedian ***");
 
     core_t::TTime startTime(0);
@@ -2369,7 +2369,7 @@ void CMetricModelTest::testProbabilityCalculationForHighMedian(void) {
     CPPUNIT_ASSERT(probabilities[highMedianBucket] < 0.01);
 }
 
-void CMetricModelTest::testIgnoreSamplingGivenDetectionRules(void) {
+void CMetricModelTest::testIgnoreSamplingGivenDetectionRules() {
     LOG_DEBUG("*** testIgnoreSamplingGivenDetectionRules ***");
 
     // Create 2 models, one of which has a skip sampling rule.
@@ -2479,7 +2479,7 @@ void CMetricModelTest::testIgnoreSamplingGivenDetectionRules(void) {
     // CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
 }
 
-CppUnit::Test* CMetricModelTest::suite(void) {
+CppUnit::Test* CMetricModelTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricModelTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMetricModelTest>("CMetricModelTest::testSample", &CMetricModelTest::testSample));

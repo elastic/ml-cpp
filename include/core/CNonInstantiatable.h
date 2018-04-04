@@ -35,7 +35,7 @@ namespace core {
 class CORE_EXPORT CNonInstantiatable {
 private:
     //! Prevent instantiation
-    CNonInstantiatable(void);
+    CNonInstantiatable();
     CNonInstantiatable(const CNonInstantiatable&);
 };
 }

@@ -45,7 +45,7 @@ public:
     CThreadDataWriter(const std::string& fileName, size_t size) : m_FileName(fileName), m_Size(size) {}
 
 protected:
-    virtual void run(void) {
+    virtual void run() {
         // Wait for the file to exist
         ml::core::CSleep::sleep(SLEEP_TIME_MS);
 
@@ -55,7 +55,7 @@ protected:
         }
     }
 
-    virtual void shutdown(void) {}
+    virtual void shutdown() {}
 
 private:
     std::string m_FileName;
@@ -66,10 +66,10 @@ class CThreadDataReader : public ml::core::CThread {
 public:
     CThreadDataReader(const std::string& fileName) : m_FileName(fileName) {}
 
-    const std::string& data(void) const { return m_Data; }
+    const std::string& data() const { return m_Data; }
 
 protected:
-    virtual void run(void) {
+    virtual void run() {
         m_Data.clear();
 
         std::ifstream strm;
@@ -104,7 +104,7 @@ protected:
         }
     }
 
-    virtual void shutdown(void) {}
+    virtual void shutdown() {}
 
 private:
     std::string m_FileName;
@@ -116,7 +116,7 @@ public:
     CThreadBlockCanceller(ml::core::CThread::TThreadId threadId) : m_ThreadId(threadId) {}
 
 protected:
-    virtual void run(void) {
+    virtual void run() {
         // Wait for the file to exist
         ml::core::CSleep::sleep(SLEEP_TIME_MS);
 
@@ -124,7 +124,7 @@ protected:
         CPPUNIT_ASSERT(ml::core::CThread::cancelBlockedIo(m_ThreadId));
     }
 
-    virtual void shutdown(void) {}
+    virtual void shutdown() {}
 
 private:
     ml::core::CThread::TThreadId m_ThreadId;
@@ -152,7 +152,7 @@ CppUnit::Test* CNamedPipeFactoryTest::suite() {
     return suiteOfTests;
 }
 
-void CNamedPipeFactoryTest::testServerIsCppReader(void) {
+void CNamedPipeFactoryTest::testServerIsCppReader() {
     CThreadDataWriter threadWriter(TEST_PIPE_NAME, TEST_SIZE);
     CPPUNIT_ASSERT(threadWriter.start());
 
@@ -178,7 +178,7 @@ void CNamedPipeFactoryTest::testServerIsCppReader(void) {
     strm.reset();
 }
 
-void CNamedPipeFactoryTest::testServerIsCReader(void) {
+void CNamedPipeFactoryTest::testServerIsCReader() {
     CThreadDataWriter threadWriter(TEST_PIPE_NAME, TEST_SIZE);
     CPPUNIT_ASSERT(threadWriter.start());
 
@@ -204,7 +204,7 @@ void CNamedPipeFactoryTest::testServerIsCReader(void) {
     file.reset();
 }
 
-void CNamedPipeFactoryTest::testServerIsCppWriter(void) {
+void CNamedPipeFactoryTest::testServerIsCppWriter() {
     CThreadDataReader threadReader(TEST_PIPE_NAME);
     CPPUNIT_ASSERT(threadReader.start());
 
@@ -230,7 +230,7 @@ void CNamedPipeFactoryTest::testServerIsCppWriter(void) {
     CPPUNIT_ASSERT_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
 }
 
-void CNamedPipeFactoryTest::testServerIsCWriter(void) {
+void CNamedPipeFactoryTest::testServerIsCWriter() {
     CThreadDataReader threadReader(TEST_PIPE_NAME);
     CPPUNIT_ASSERT(threadReader.start());
 
@@ -255,7 +255,7 @@ void CNamedPipeFactoryTest::testServerIsCWriter(void) {
     CPPUNIT_ASSERT_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
 }
 
-void CNamedPipeFactoryTest::testCancelBlock(void) {
+void CNamedPipeFactoryTest::testCancelBlock() {
     CThreadBlockCanceller cancellerThread(ml::core::CThread::currentThreadId());
     CPPUNIT_ASSERT(cancellerThread.start());
 
@@ -265,12 +265,12 @@ void CNamedPipeFactoryTest::testCancelBlock(void) {
     CPPUNIT_ASSERT(cancellerThread.stop());
 }
 
-void CNamedPipeFactoryTest::testErrorIfRegularFile(void) {
+void CNamedPipeFactoryTest::testErrorIfRegularFile() {
     ml::core::CNamedPipeFactory::TIStreamP strm = ml::core::CNamedPipeFactory::openPipeStreamRead("Main.cc");
     CPPUNIT_ASSERT(strm == 0);
 }
 
-void CNamedPipeFactoryTest::testErrorIfSymlink(void) {
+void CNamedPipeFactoryTest::testErrorIfSymlink() {
 #ifdef Windows
     // It's impossible to create a symlink to a named pipe on Windows - they
     // live under \\.\pipe\ and it's not possible to symlink to this part of

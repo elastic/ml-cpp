@@ -26,17 +26,16 @@
 
 namespace {
 
-typedef ml::api::CTokenListDataTyper<true,  // Warping
-                                     true,  // Underscores
-                                     true,  // Dots
-                                     true,  // Dashes
-                                     true,  // Ignore leading digit
-                                     true,  // Ignore hex
-                                     true,  // Ignore date words
-                                     false, // Ignore field names
-                                     2,     // Min dictionary word length
-                                     ml::core::CWordDictionary::TWeightVerbs5Other2>
-    TTokenListDataTyperKeepsFields;
+using TTokenListDataTyperKeepsFields = ml::api::CTokenListDataTyper<true,  // Warping
+                                                                    true,  // Underscores
+                                                                    true,  // Dots
+                                                                    true,  // Dashes
+                                                                    true,  // Ignore leading digit
+                                                                    true,  // Ignore hex
+                                                                    true,  // Ignore date words
+                                                                    false, // Ignore field names
+                                                                    2,     // Min dictionary word length
+                                                                    ml::core::CWordDictionary::TWeightVerbs5Other2>;
 
 const TTokenListDataTyperKeepsFields::TTokenListReverseSearchCreatorIntfCPtr NO_REVERSE_SEARCH_CREATOR;
 }
@@ -74,17 +73,17 @@ CppUnit::Test* CTokenListDataTyperTest::suite() {
     return suiteOfTests;
 }
 
-void CTokenListDataTyperTest::setUp(void) {
+void CTokenListDataTyperTest::setUp() {
     // Enable trace level logging for these unit tests
     ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Trace);
 }
 
-void CTokenListDataTyperTest::tearDown(void) {
+void CTokenListDataTyperTest::tearDown() {
     // Revert to debug level logging for any subsequent unit tests
     ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Debug);
 }
 
-void CTokenListDataTyperTest::testHexData(void) {
+void CTokenListDataTyperTest::testHexData() {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "[0x0000000800000000 ", 500));
@@ -94,7 +93,7 @@ void CTokenListDataTyperTest::testHexData(void) {
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, " 0x0000000800000000,", 500));
 }
 
-void CTokenListDataTyperTest::testRmdsData(void) {
+void CTokenListDataTyperTest::testRmdsData() {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.", 500));
@@ -109,7 +108,7 @@ void CTokenListDataTyperTest::testRmdsData(void) {
     CPPUNIT_ASSERT_EQUAL(4, typer.computeType(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
 }
 
-void CTokenListDataTyperTest::testProxyData(void) {
+void CTokenListDataTyperTest::testProxyData() {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1,
@@ -124,51 +123,53 @@ void CTokenListDataTyperTest::testProxyData(void) {
                                            500));
     CPPUNIT_ASSERT_EQUAL(2,
                          typer.computeType(false,
-                                           " [1094662464] INFO  transactionuser <6508700927200972648@10.10.18.82> - "
-                                           "---------------- DESTROYING RegistrationServer ---------------",
+                                           " [1094662464] INFO  transactionuser <6508700927200972648@10.10.18.82> - ---------------- "
+                                           "DESTROYING RegistrationServer ---------------",
                                            500));
-    CPPUNIT_ASSERT_EQUAL(3,
+    CPPUNIT_ASSERT_EQUAL(
+        3,
+        typer.computeType(
+            false,
+            " [1111529792] INFO  proxy <45409105041220090733@192.168.251.123> - +++++++++++++++ CREATING ProxyCore ++++++++++++++++",
+            500));
+    CPPUNIT_ASSERT_EQUAL(
+        4,
+        typer.computeType(
+            false,
+            " [1091504448] INFO  transactionuser <3c26709ab9f0-iih26eh8pxxa> - +++++++++++++++ CREATING PresenceAgent ++++++++++++++++",
+            500));
+    CPPUNIT_ASSERT_EQUAL(5,
                          typer.computeType(false,
-                                           " [1111529792] INFO  proxy <45409105041220090733@192.168.251.123> - "
-                                           "+++++++++++++++ CREATING ProxyCore ++++++++++++++++",
-                                           500));
-    CPPUNIT_ASSERT_EQUAL(4,
-                         typer.computeType(false,
-                                           " [1091504448] INFO  transactionuser <3c26709ab9f0-iih26eh8pxxa> - "
-                                           "+++++++++++++++ CREATING PresenceAgent ++++++++++++++++",
+                                           " [1111529792] INFO  session <45409105041220090733@192.168.251.123> - ----------------- PROXY "
+                                           "Session DESTROYED --------------------",
                                            500));
     CPPUNIT_ASSERT_EQUAL(5,
                          typer.computeType(false,
-                                           " [1111529792] INFO  session <45409105041220090733@192.168.251.123> - "
-                                           "----------------- PROXY Session DESTROYED --------------------",
-                                           500));
-    CPPUNIT_ASSERT_EQUAL(5,
-                         typer.computeType(false,
-                                           " [1094662464] INFO  session <ch6z1bho8xeprb3z4ty604iktl6c@dave.proxy.uk> - "
-                                           "----------------- PROXY Session DESTROYED --------------------",
+                                           " [1094662464] INFO  session <ch6z1bho8xeprb3z4ty604iktl6c@dave.proxy.uk> - ----------------- "
+                                           "PROXY Session DESTROYED --------------------",
                                            500));
 }
 
-void CTokenListDataTyperTest::testFxData(void) {
+void CTokenListDataTyperTest::testFxData() {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
-    CPPUNIT_ASSERT_EQUAL(1,
-                         typer.computeType(false,
-                                           "<L_MSG MN=\"ml12220\" PID=\"ml010_managed4\" TID=\"asyncDelivery41\" "
-                                           "DT=\"\" PT=\"ERROR\" AP=\"wts\" DN=\"\" SN=\"\" "
-                                           "SR=\"co.elastic.session.ejb.FxCoverSessionBean\">javax.ejb.FinderException "
-                                           "- findFxCover([]): null</L_MSG>",
-                                           500));
-    CPPUNIT_ASSERT_EQUAL(1,
-                         typer.computeType(false,
-                                           "<L_MSG MN=\"ml12213\" PID=\"ml010_managed2\" TID=\"asyncDelivery44\" "
-                                           "DT=\"\" PT=\"ERROR\" AP=\"wts\" DN=\"\" SN=\"\" "
-                                           "SR=\"co.elastic.session.ejb.FxCoverSessionBean\">javax.ejb.FinderException "
-                                           "- findFxCover([]): null</L_MSG>",
-                                           500));
+    CPPUNIT_ASSERT_EQUAL(
+        1,
+        typer.computeType(false,
+                          "<L_MSG MN=\"ml12220\" PID=\"ml010_managed4\" TID=\"asyncDelivery41\" DT=\"\" PT=\"ERROR\" AP=\"wts\" DN=\"\" "
+                          "SN=\"\" SR=\"co.elastic.session.ejb.FxCoverSessionBean\">javax.ejb.FinderException - findFxCover([]): "
+                          "null</L_MSG>",
+                          500));
+    CPPUNIT_ASSERT_EQUAL(
+        1,
+        typer.computeType(false,
+                          "<L_MSG MN=\"ml12213\" PID=\"ml010_managed2\" TID=\"asyncDelivery44\" DT=\"\" PT=\"ERROR\" AP=\"wts\" DN=\"\" "
+                          "SN=\"\" SR=\"co.elastic.session.ejb.FxCoverSessionBean\">javax.ejb.FinderException - findFxCover([]): "
+                          "null</L_MSG>",
+                          500));
 }
 
-void CTokenListDataTyperTest::testApacheData(void) {
+void CTokenListDataTyperTest::testApacheData() {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, " org.apache.coyote.http11.Http11BaseProtocol destroy", 500));
@@ -177,45 +178,44 @@ void CTokenListDataTyperTest::testApacheData(void) {
     CPPUNIT_ASSERT_EQUAL(4, typer.computeType(false, " org.apache.coyote.http11.Http11BaseProtocol stop", 500));
 }
 
-void CTokenListDataTyperTest::testBrokerageData(void) {
+void CTokenListDataTyperTest::testBrokerageData() {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
-    CPPUNIT_ASSERT_EQUAL(1,
-                         typer.computeType(false,
-                                           "AUDIT  ; tomcat-http--16; ee96c0c4567c0c11d6b90f9bc8b54aaa77; "
-                                           "REQ4e42023e0a0328d020003e460005aa33; applnx911.elastic.co; ; Request Complete: "
-                                           "/mlgw/mlb/ofsummary/summary "
-                                           "[T=283ms,CUSTPREF-WEB_ACCOUNT_PREFERENCES=95,MAUI-ETSPROF2=155,NBMSG-NB_MESSAGING_SERVICE="
-                                           "164,CustAcctProfile=BRK=2;NB=0;FILI=0;CESG=0;CC=0;AcctTotal=2,migrated=2]",
-                                           500));
-    CPPUNIT_ASSERT_EQUAL(2,
-                         typer.computeType(false,
-                                           "AUDIT  ; tomcat-http--39; ee763e95747c0b11d6b90f9bc8b54aaa77; "
-                                           "REQ4e42023e0a0429a020000c6f0002aa33; applnx811.elastic.co; ; Request "
-                                           "Complete: /mlgw/mlb/ofaccounts/brokerageAccountHistory "
-                                           "[T=414ms,CUSTPREF-INS_PERSON_WEB_ACCT_PREFERENCES=298,MAUI-PSL04XD=108]",
-                                           500));
-    CPPUNIT_ASSERT_EQUAL(3,
-                         typer.computeType(false,
-                                           "AUDIT  ; tomcat-http--39; ee256201da7c0c11d6b90f9bc8b54aaa77; "
-                                           "REQ4e42023b0a022925200027180002aa33; applnx711.elastic.co; ; Request "
-                                           "Complete: /mlgw/mlb/ofpositions/brokerageAccountPositionsIframe "
-                                           "[T=90ms,CacheStore-GetAttribute=5,MAUI-ECAPPOS=50,RR-QUOTE_TRANSACTION=11]",
-                                           500));
+    CPPUNIT_ASSERT_EQUAL(
+        1,
+        typer.computeType(false,
+                          "AUDIT  ; tomcat-http--16; ee96c0c4567c0c11d6b90f9bc8b54aaa77; REQ4e42023e0a0328d020003e460005aa33; "
+                          "applnx911.elastic.co; ; Request Complete: /mlgw/mlb/ofsummary/summary "
+                          "[T=283ms,CUSTPREF-WEB_ACCOUNT_PREFERENCES=95,MAUI-ETSPROF2=155,NBMSG-NB_MESSAGING_SERVICE=164,CustAcctProfile="
+                          "BRK=2;NB=0;FILI=0;CESG=0;CC=0;AcctTotal=2,migrated=2]",
+                          500));
+    CPPUNIT_ASSERT_EQUAL(
+        2,
+        typer.computeType(false,
+                          "AUDIT  ; tomcat-http--39; ee763e95747c0b11d6b90f9bc8b54aaa77; REQ4e42023e0a0429a020000c6f0002aa33; "
+                          "applnx811.elastic.co; ; Request Complete: /mlgw/mlb/ofaccounts/brokerageAccountHistory "
+                          "[T=414ms,CUSTPREF-INS_PERSON_WEB_ACCT_PREFERENCES=298,MAUI-PSL04XD=108]",
+                          500));
+    CPPUNIT_ASSERT_EQUAL(
+        3,
+        typer.computeType(false,
+                          "AUDIT  ; tomcat-http--39; ee256201da7c0c11d6b90f9bc8b54aaa77; REQ4e42023b0a022925200027180002aa33; "
+                          "applnx711.elastic.co; ; Request Complete: /mlgw/mlb/ofpositions/brokerageAccountPositionsIframe "
+                          "[T=90ms,CacheStore-GetAttribute=5,MAUI-ECAPPOS=50,RR-QUOTE_TRANSACTION=11]",
+                          500));
 }
 
-void CTokenListDataTyperTest::testVmwareData(void) {
+void CTokenListDataTyperTest::testVmwareData() {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(
         1,
         typer.computeType(
             false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback", 103));
-    CPPUNIT_ASSERT_EQUAL(2,
-                         typer.computeType(false,
-                                           "Vpxa: [49EC0B90 verbose 'Default' opID=WFU-ddeadb59] [VpxaHalVmHostagent] "
-                                           "11: GuestInfo changed 'guest.disk",
-                                           107));
+    CPPUNIT_ASSERT_EQUAL(
+        2,
+        typer.computeType(
+            false, "Vpxa: [49EC0B90 verbose 'Default' opID=WFU-ddeadb59] [VpxaHalVmHostagent] 11: GuestInfo changed 'guest.disk", 107));
     CPPUNIT_ASSERT_EQUAL(
         3,
         typer.computeType(
@@ -224,24 +224,23 @@ void CTokenListDataTyperTest::testVmwareData(void) {
         1,
         typer.computeType(
             false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-35689729] [WaitForUpdatesDone] Received callback", 103));
-    CPPUNIT_ASSERT_EQUAL(2,
-                         typer.computeType(false,
-                                           "Vpxa: [49EC0B90 verbose 'Default' opID=WFU-35689729] [VpxaHalVmHostagent] "
-                                           "15: GuestInfo changed 'guest.disk",
-                                           107));
+    CPPUNIT_ASSERT_EQUAL(
+        2,
+        typer.computeType(
+            false, "Vpxa: [49EC0B90 verbose 'Default' opID=WFU-35689729] [VpxaHalVmHostagent] 15: GuestInfo changed 'guest.disk", 107));
     CPPUNIT_ASSERT_EQUAL(
         3,
         typer.computeType(
             false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-35689729] [WaitForUpdatesDone] Completed callback", 104));
 }
 
-void CTokenListDataTyperTest::testBankData(void) {
+void CTokenListDataTyperTest::testBankData() {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1,
                          typer.computeType(false,
-                                           "INFO  [co.elastic.settlement.synchronization.PaymentFlowProcessorImpl] "
-                                           "Process payment flow for tradeId=80894728 and backOfficeId=9354474",
+                                           "INFO  [co.elastic.settlement.synchronization.PaymentFlowProcessorImpl] Process payment flow "
+                                           "for tradeId=80894728 and backOfficeId=9354474",
                                            500));
     CPPUNIT_ASSERT_EQUAL(2,
                          typer.computeType(false,
@@ -253,12 +252,12 @@ void CTokenListDataTyperTest::testBankData(void) {
     // first type
     CPPUNIT_ASSERT_EQUAL(1,
                          typer.computeType(false,
-                                           "INFO  [co.elastic.settlement.synchronization.PaymentFlowProcessorImpl] "
-                                           "Synchronize payment flow for tradeId=80894721 and backOfficeId=9354469",
+                                           "INFO  [co.elastic.settlement.synchronization.PaymentFlowProcessorImpl] Synchronize payment "
+                                           "flow for tradeId=80894721 and backOfficeId=9354469",
                                            500));
 }
 
-void CTokenListDataTyperTest::testJavaGcData(void) {
+void CTokenListDataTyperTest::testJavaGcData() {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "2016-04-27T19:57:43.644-0700: 1922084.903: [GC", 46));
@@ -275,44 +274,37 @@ void CTokenListDataTyperTest::testJavaGcData(void) {
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "2016-04-30T19:57:43.646-0700: 1922087.906: [GC", 46));
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "2016-04-30T19:57:43.647-0700: 1922087.906: [GC", 46));
 
-    CPPUNIT_ASSERT_EQUAL(2,
-                         typer.computeType(false,
-                                           "PSYoungGen      total 2572800K, used 1759355K [0x0000000759500000, "
-                                           "0x0000000800000000, 0x0000000800000000)",
-                                           106));
-    CPPUNIT_ASSERT_EQUAL(2,
-                         typer.computeType(false,
-                                           "PSYoungGen      total 2572801K, used 1759355K [0x0000000759500000, "
-                                           "0x0000000800000000, 0x0000000800000000)",
-                                           106));
-    CPPUNIT_ASSERT_EQUAL(2,
-                         typer.computeType(false,
-                                           "PSYoungGen      total 2572802K, used 1759355K [0x0000000759500000, "
-                                           "0x0000000800000000, 0x0000000800000000)",
-                                           106));
-    CPPUNIT_ASSERT_EQUAL(2,
-                         typer.computeType(false,
-                                           "PSYoungGen      total 2572803K, used 1759355K [0x0000000759500000, "
-                                           "0x0000000800000000, 0x0000000800000000)",
-                                           106));
-    CPPUNIT_ASSERT_EQUAL(2,
-                         typer.computeType(false,
-                                           "PSYoungGen      total 2572803K, used 1759355K [0x0000000759600000, "
-                                           "0x0000000800000000, 0x0000000800000000)",
-                                           106));
-    CPPUNIT_ASSERT_EQUAL(2,
-                         typer.computeType(false,
-                                           "PSYoungGen      total 2572803K, used 1759355K [0x0000000759700000, "
-                                           "0x0000000800000000, 0x0000000800000000)",
-                                           106));
-    CPPUNIT_ASSERT_EQUAL(2,
-                         typer.computeType(false,
-                                           "PSYoungGen      total 2572803K, used 1759355K [0x0000000759800000, "
-                                           "0x0000000800000000, 0x0000000800000000)",
-                                           106));
+    CPPUNIT_ASSERT_EQUAL(
+        2,
+        typer.computeType(
+            false, "PSYoungGen      total 2572800K, used 1759355K [0x0000000759500000, 0x0000000800000000, 0x0000000800000000)", 106));
+    CPPUNIT_ASSERT_EQUAL(
+        2,
+        typer.computeType(
+            false, "PSYoungGen      total 2572801K, used 1759355K [0x0000000759500000, 0x0000000800000000, 0x0000000800000000)", 106));
+    CPPUNIT_ASSERT_EQUAL(
+        2,
+        typer.computeType(
+            false, "PSYoungGen      total 2572802K, used 1759355K [0x0000000759500000, 0x0000000800000000, 0x0000000800000000)", 106));
+    CPPUNIT_ASSERT_EQUAL(
+        2,
+        typer.computeType(
+            false, "PSYoungGen      total 2572803K, used 1759355K [0x0000000759500000, 0x0000000800000000, 0x0000000800000000)", 106));
+    CPPUNIT_ASSERT_EQUAL(
+        2,
+        typer.computeType(
+            false, "PSYoungGen      total 2572803K, used 1759355K [0x0000000759600000, 0x0000000800000000, 0x0000000800000000)", 106));
+    CPPUNIT_ASSERT_EQUAL(
+        2,
+        typer.computeType(
+            false, "PSYoungGen      total 2572803K, used 1759355K [0x0000000759700000, 0x0000000800000000, 0x0000000800000000)", 106));
+    CPPUNIT_ASSERT_EQUAL(
+        2,
+        typer.computeType(
+            false, "PSYoungGen      total 2572803K, used 1759355K [0x0000000759800000, 0x0000000800000000, 0x0000000800000000)", 106));
 }
 
-void CTokenListDataTyperTest::testPersist(void) {
+void CTokenListDataTyperTest::testPersist() {
     TTokenListDataTyperKeepsFields origTyper(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     origTyper.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.", 500);
@@ -355,7 +347,7 @@ void CTokenListDataTyperTest::testPersist(void) {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CTokenListDataTyperTest::testLongReverseSearch(void) {
+void CTokenListDataTyperTest::testLongReverseSearch() {
     TTokenListDataTyperKeepsFields::TTokenListReverseSearchCreatorIntfCPtr reverseSearchCreator(
         new ml::api::CTokenListReverseSearchCreator("_raw"));
     TTokenListDataTyperKeepsFields typer(reverseSearchCreator, 0.7, "_raw");
@@ -402,7 +394,7 @@ void CTokenListDataTyperTest::testLongReverseSearch(void) {
     CPPUNIT_ASSERT(terms.find("off") != std::string::npos);
 }
 
-void CTokenListDataTyperTest::testPreTokenised(void) {
+void CTokenListDataTyperTest::testPreTokenised() {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.", 500));
@@ -439,7 +431,7 @@ void CTokenListDataTyperTest::testPreTokenised(void) {
     CPPUNIT_ASSERT_EQUAL(5, typer.computeType(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
 }
 
-void CTokenListDataTyperTest::testPreTokenisedPerformance(void) {
+void CTokenListDataTyperTest::testPreTokenisedPerformance() {
     static const size_t TEST_SIZE(100000);
     ml::core::CStopWatch stopWatch;
 
@@ -451,11 +443,10 @@ void CTokenListDataTyperTest::testPreTokenisedPerformance(void) {
 
         stopWatch.start();
         for (size_t count = 0; count < TEST_SIZE; ++count) {
-            CPPUNIT_ASSERT_EQUAL(1,
-                                 typer.computeType(false,
-                                                   "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] "
-                                                   "[WaitForUpdatesDone] Received callback",
-                                                   103));
+            CPPUNIT_ASSERT_EQUAL(
+                1,
+                typer.computeType(
+                    false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback", 103));
         }
         inlineTokenisationTime = stopWatch.stop();
 
@@ -477,12 +468,12 @@ void CTokenListDataTyperTest::testPreTokenisedPerformance(void) {
 
         stopWatch.start();
         for (size_t count = 0; count < TEST_SIZE; ++count) {
-            CPPUNIT_ASSERT_EQUAL(1,
-                                 typer.computeType(false,
-                                                   fields,
-                                                   "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] "
-                                                   "[WaitForUpdatesDone] Received callback",
-                                                   103));
+            CPPUNIT_ASSERT_EQUAL(
+                1,
+                typer.computeType(false,
+                                  fields,
+                                  "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback",
+                                  103));
         }
         preTokenisationTime = stopWatch.stop();
 

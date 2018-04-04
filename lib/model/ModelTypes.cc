@@ -764,12 +764,12 @@ double emptyBucketCountWeight(EFeature feature, double frequency, double cutoff)
     if (countsEmptyBuckets(feature) && cutoff > 0.0) {
         static const double M = 1.001;
         static const double C = 0.025;
-        static const double K = ::log((M + 1.0) / (M - 1.0)) / C;
+        static const double K = std::log((M + 1.0) / (M - 1.0)) / C;
         double df = frequency - std::min(cutoff + C, 1.0);
         if (df < -C) {
             return 0.0;
         } else if (df < C) {
-            double fa = ::exp(K * df);
+            double fa = std::exp(K * df);
             return 0.5 * (1.0 + M * (fa - 1.0) / (fa + 1.0));
         }
     }
@@ -1128,10 +1128,10 @@ double adjustProbability(EFeature feature, core_t::TTime elapsedTime, double pro
     case E_IndividualHighInfoContentByBucketAndPerson:
         break;
     case E_IndividualTimeOfDayByBucketAndPerson:
-        pNewCluster = ::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::DAY)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::DAY)));
         break;
     case E_IndividualTimeOfWeekByBucketAndPerson:
-        pNewCluster = ::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::WEEK)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::WEEK)));
         break;
 
     CASE_INDIVIDUAL_METRIC:
@@ -1151,10 +1151,10 @@ double adjustProbability(EFeature feature, core_t::TTime elapsedTime, double pro
     case E_PopulationHighInfoContentByBucketPersonAndAttribute:
         break;
     case E_PopulationTimeOfDayByBucketPersonAndAttribute:
-        pNewCluster = ::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::DAY)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::DAY)));
         break;
     case E_PopulationTimeOfWeekByBucketPersonAndAttribute:
-        pNewCluster = ::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::WEEK)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::WEEK)));
         break;
 
     CASE_POPULATION_METRIC:
@@ -1172,10 +1172,10 @@ double adjustProbability(EFeature feature, core_t::TTime elapsedTime, double pro
     case E_PeersHighInfoContentByBucketPersonAndAttribute:
         break;
     case E_PeersTimeOfDayByBucketPersonAndAttribute:
-        pNewCluster = ::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::DAY)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::DAY)));
         break;
     case E_PeersTimeOfWeekByBucketPersonAndAttribute:
-        pNewCluster = ::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::WEEK)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::WEEK)));
         break;
 
     CASE_PEERS_METRIC:

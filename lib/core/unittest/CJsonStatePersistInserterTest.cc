@@ -37,7 +37,7 @@ void insert2ndLevel(ml::core::CStatePersistInserter& inserter) {
 }
 }
 
-void CJsonStatePersistInserterTest::testPersist(void) {
+void CJsonStatePersistInserterTest::testPersist() {
     std::ostringstream strm;
 
     {

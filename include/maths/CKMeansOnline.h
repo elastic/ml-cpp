@@ -34,6 +34,7 @@
 #include <maths/CTypeConversions.h>
 #include <maths/Constants.h>
 
+#include <cmath>
 #include <cstddef>
 #include <numeric>
 #include <utility>
@@ -61,14 +62,14 @@ namespace maths {
 template<typename POINT>
 class CKMeansOnline {
 public:
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
-    typedef typename SFloatingPoint<POINT, double>::Type TDoublePoint;
-    typedef std::vector<TDoublePoint> TDoublePointVec;
-    typedef typename CSphericalCluster<POINT>::Type TSphericalCluster;
-    typedef std::vector<TSphericalCluster> TSphericalClusterVec;
-    typedef std::vector<TSphericalClusterVec> TSphericalClusterVecVec;
-    typedef std::vector<CKMeansOnline> TKMeansOnlineVec;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecVec = std::vector<TSizeVec>;
+    using TDoublePoint = typename SFloatingPoint<POINT, double>::Type;
+    using TDoublePointVec = std::vector<TDoublePoint>;
+    using TSphericalCluster = typename CSphericalCluster<POINT>::Type;
+    using TSphericalClusterVec = std::vector<TSphericalCluster>;
+    using TSphericalClusterVecVec = std::vector<TSphericalClusterVec>;
+    using TKMeansOnlineVec = std::vector<CKMeansOnline>;
 
 protected:
     //! \brief Checks if a cluster should be deleted based on its count.
@@ -85,15 +86,15 @@ protected:
         double m_MinimumCategoryCount;
     };
 
-    typedef typename SFloatingPoint<POINT, CFloatStorage>::Type TFloatPoint;
-    typedef typename SCoordinate<TFloatPoint>::Type TFloatCoordinate;
-    typedef std::pair<TFloatPoint, double> TFloatPointDoublePr;
-    typedef std::vector<TFloatPointDoublePr> TFloatPointDoublePrVec;
-    typedef typename CBasicStatistics::SSampleMean<TFloatPoint>::TAccumulator TFloatMeanAccumulator;
-    typedef std::pair<TFloatMeanAccumulator, double> TFloatMeanAccumulatorDoublePr;
-    typedef std::vector<TFloatMeanAccumulatorDoublePr> TFloatMeanAccumulatorDoublePrVec;
-    typedef typename CBasicStatistics::SSampleMean<TDoublePoint>::TAccumulator TDoubleMeanAccumulator;
-    typedef typename CBasicStatistics::SSampleMeanVar<TDoublePoint>::TAccumulator TDoubleMeanVarAccumulator;
+    using TFloatPoint = typename SFloatingPoint<POINT, CFloatStorage>::Type;
+    using TFloatCoordinate = typename SCoordinate<TFloatPoint>::Type;
+    using TFloatPointDoublePr = std::pair<TFloatPoint, double>;
+    using TFloatPointDoublePrVec = std::vector<TFloatPointDoublePr>;
+    using TFloatMeanAccumulator = typename CBasicStatistics::SSampleMean<TFloatPoint>::TAccumulator;
+    using TFloatMeanAccumulatorDoublePr = std::pair<TFloatMeanAccumulator, double>;
+    using TFloatMeanAccumulatorDoublePrVec = std::vector<TFloatMeanAccumulatorDoublePr>;
+    using TDoubleMeanAccumulator = typename CBasicStatistics::SSampleMean<TDoublePoint>::TAccumulator;
+    using TDoubleMeanVarAccumulator = typename CBasicStatistics::SSampleMeanVar<TDoublePoint>::TAccumulator;
 
 protected:
     //! The minimum permitted size for the clusterer.
@@ -164,7 +165,7 @@ public:
     }
 
     //! Get the total number of clusters.
-    std::size_t size(void) const { return std::min(m_Clusters.size() + m_PointsBuffer.size(), m_K); }
+    std::size_t size() const { return std::min(m_Clusters.size() + m_PointsBuffer.size(), m_K); }
 
     //! Get the clusters being maintained.
     void clusters(TSphericalClusterVec& result) const {
@@ -330,7 +331,7 @@ public:
             return;
         }
 
-        double alpha = ::exp(-m_DecayRate * time);
+        double alpha = std::exp(-m_DecayRate * time);
         LOG_TRACE("alpha = " << alpha);
 
         this->age(alpha);
@@ -352,7 +353,7 @@ public:
     }
 
     //! Get the current points buffer.
-    bool buffering(void) const { return m_PointsBuffer.size() > 0; }
+    bool buffering() const { return m_PointsBuffer.size() > 0; }
 
     //! Get \p n samples of the distribution corresponding to the
     //! categories we are maintaining.
@@ -365,8 +366,8 @@ public:
             return;
         }
 
-        typedef std::vector<double> TDoubleVec;
-        typedef std::pair<double, std::size_t> TDoubleSizePr;
+        using TDoubleVec = std::vector<double>;
+        using TDoubleSizePr = std::pair<double, std::size_t>;
 
         static const double ALMOST_ONE = 0.99999;
 
@@ -400,7 +401,7 @@ public:
             if (m_Clusters[i].second == 0.0) {
                 categorySamples.push_back(m);
             } else {
-                std::size_t ni_ = static_cast<std::size_t>(::ceil(ni));
+                std::size_t ni_ = static_cast<std::size_t>(std::ceil(ni));
                 TDoublePoint v(m_Clusters[i].second);
                 sampleGaussian(ni_, m, v.diagonal(), categorySamples);
             }
@@ -414,7 +415,7 @@ public:
         LOG_TRACE("weights = " << core::CContainerPrinter::print(weights));
 
         TDoublePointVec final;
-        final.reserve(static_cast<std::size_t>(::ceil(std::accumulate(weights.begin(), weights.end(), 0.0))));
+        final.reserve(static_cast<std::size_t>(std::ceil(std::accumulate(weights.begin(), weights.end(), 0.0))));
         TDoubleMeanAccumulator sample;
         for (;;) {
             CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1> nearest;
@@ -447,7 +448,7 @@ public:
     }
 
     //! Print this classifier for debug.
-    std::string print(void) const { return core::CContainerPrinter::print(m_Clusters); }
+    std::string print() const { return core::CContainerPrinter::print(m_Clusters); }
 
     //! Get a checksum for this object.
     uint64_t checksum(uint64_t seed = 0) const {
@@ -465,7 +466,7 @@ public:
     }
 
     //! Get the memory used by this component
-    std::size_t memoryUsage(void) const {
+    std::size_t memoryUsage() const {
         std::size_t mem = core::CMemory::dynamicSize(m_Clusters);
         mem += core::CMemory::dynamicSize(m_PointsBuffer);
         return mem;
@@ -503,7 +504,7 @@ protected:
     }
 
     //! Reduce the number of clusters to m_K by k-means clustering.
-    void reduce(void) {
+    void reduce() {
         // Add all the points as new spherical clusters and reduce.
         for (std::size_t i = 0u; i < m_PointsBuffer.size(); ++i) {
             m_Clusters.push_back(TFloatMeanAccumulatorDoublePr());

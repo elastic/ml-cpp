@@ -62,7 +62,7 @@ CppUnit::Test* CFieldConfigTest::suite() {
     return suiteOfTests;
 }
 
-void CFieldConfigTest::testTrivial(void) {
+void CFieldConfigTest::testTrivial() {
     ml::api::CFieldConfig config("count", "mlcategory");
 
     const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
@@ -82,20 +82,20 @@ void CFieldConfigTest::testTrivial(void) {
     CPPUNIT_ASSERT_EQUAL(size_t(1), superset.count("mlcategory"));
 }
 
-void CFieldConfigTest::testValid(void) {
+void CFieldConfigTest::testValid() {
     this->testValidFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2), "testfiles/new_mlfields.conf");
 }
 
-void CFieldConfigTest::testInvalid(void) {
+void CFieldConfigTest::testInvalid() {
     this->testInvalidFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2), "testfiles/new_invalidmlfields.conf");
 }
 
-void CFieldConfigTest::testValidSummaryCountFieldName(void) {
+void CFieldConfigTest::testValidSummaryCountFieldName() {
     this->testValidSummaryCountFieldNameFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
                                              "testfiles/new_mlfields_summarycount.conf");
 }
 
-void CFieldConfigTest::testValidClauses(void) {
+void CFieldConfigTest::testValidClauses() {
     ml::api::CFieldConfig config;
 
     {
@@ -475,7 +475,7 @@ void CFieldConfigTest::testValidClauses(void) {
     }
 }
 
-void CFieldConfigTest::testInvalidClauses(void) {
+void CFieldConfigTest::testInvalidClauses() {
     ml::api::CFieldConfig config;
 
     {
@@ -610,7 +610,7 @@ void CFieldConfigTest::testInvalidClauses(void) {
     }
 }
 
-void CFieldConfigTest::testFieldOptions(void) {
+void CFieldConfigTest::testFieldOptions() {
     {
         ml::api::CFieldConfig::CFieldOptions opt("count", 42);
 
@@ -772,7 +772,7 @@ void CFieldConfigTest::testFieldOptions(void) {
     }
 }
 
-void CFieldConfigTest::testValidPopulationClauses(void) {
+void CFieldConfigTest::testValidPopulationClauses() {
     {
         ml::api::CFieldConfig config;
 
@@ -1046,16 +1046,16 @@ void CFieldConfigTest::testValidPopulationClauses(void) {
     }
 }
 
-void CFieldConfigTest::testValidPopulation(void) {
+void CFieldConfigTest::testValidPopulation() {
     this->testValidPopulationFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2), "testfiles/new_populationmlfields.conf");
 }
 
-void CFieldConfigTest::testDefaultCategorizationField(void) {
+void CFieldConfigTest::testDefaultCategorizationField() {
     this->testDefaultCategorizationFieldFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
                                              "testfiles/new_mlfields_sos_message_cat.conf");
 }
 
-void CFieldConfigTest::testCategorizationFieldWithFilters(void) {
+void CFieldConfigTest::testCategorizationFieldWithFilters() {
     std::string fileName("testfiles/new_mlfields_categorization_filters.conf");
 
     ml::api::CFieldConfig config;
@@ -1075,7 +1075,7 @@ void CFieldConfigTest::testCategorizationFieldWithFilters(void) {
     CPPUNIT_ASSERT_EQUAL(std::string(" "), config.categorizationFilters()[1]);
 }
 
-void CFieldConfigTest::testExcludeFrequentClauses(void) {
+void CFieldConfigTest::testExcludeFrequentClauses() {
     {
         // Basic case with no excludefrequent
         ml::api::CFieldConfig config;
@@ -1284,19 +1284,19 @@ void CFieldConfigTest::testExcludeFrequentClauses(void) {
     }
 }
 
-void CFieldConfigTest::testExcludeFrequent(void) {
+void CFieldConfigTest::testExcludeFrequent() {
     this->testExcludeFrequentFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2), "testfiles/new_mlfields_excludefrequent.conf");
 }
 
-void CFieldConfigTest::testSlashes(void) {
+void CFieldConfigTest::testSlashes() {
     this->testSlashesFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2), "testfiles/new_mlfields_slashes.conf");
 }
 
-void CFieldConfigTest::testBracketPercent(void) {
+void CFieldConfigTest::testBracketPercent() {
     this->testBracketPercentFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2), "testfiles/new_mlfields_bracket_percent.conf");
 }
 
-void CFieldConfigTest::testClauseTokenise(void) {
+void CFieldConfigTest::testClauseTokenise() {
     ml::api::CFieldConfig config;
 
     {
@@ -1451,13 +1451,13 @@ void CFieldConfigTest::testClauseTokenise(void) {
     }
 }
 
-void CFieldConfigTest::testUtf8Bom(void) {
+void CFieldConfigTest::testUtf8Bom() {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_mlfields_with_utf8_bom.conf"));
 }
 
-void CFieldConfigTest::testAddByOverPartitionInfluencers(void) {
+void CFieldConfigTest::testAddByOverPartitionInfluencers() {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_mlfields_excludefrequent.conf"));
@@ -1478,7 +1478,7 @@ void CFieldConfigTest::testAddByOverPartitionInfluencers(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("src_ip"), copyInfluencers[5]);
 }
 
-void CFieldConfigTest::testAddOptions(void) {
+void CFieldConfigTest::testAddOptions() {
     ml::api::CFieldConfig configFromFile;
     ml::api::CFieldConfig configFromScratch;
 
@@ -1789,7 +1789,7 @@ void CFieldConfigTest::testBracketPercentFile(TInitFromFileFunc initFunc, const 
     CPPUNIT_ASSERT_EQUAL(std::string("This string should have quotes removed"), config.categorizationFieldName());
 }
 
-void CFieldConfigTest::testScheduledEvents(void) {
+void CFieldConfigTest::testScheduledEvents() {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(config.initFromFile("testfiles/scheduled_events.conf"));

@@ -19,8 +19,8 @@
 
 class CMessageQueueTest : public CppUnit::TestFixture {
 public:
-    void testSendReceive(void);
-    void testTiming(void);
+    void testSendReceive();
+    void testTiming();
 
     static CppUnit::Test* suite();
 };

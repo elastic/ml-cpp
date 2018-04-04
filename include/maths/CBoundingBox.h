@@ -36,16 +36,16 @@ template<typename POINT>
 class CBoundingBox {
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero(void) { return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value(); }
-    typedef typename SFloatingPoint<POINT, double>::Type TPointPrecise;
+    static bool dynamicSizeAlwaysZero() { return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value(); }
+    using TPointPrecise = typename SFloatingPoint<POINT, double>::Type;
 
 public:
-    CBoundingBox(void) : m_Empty(true), m_A(), m_B() {}
+    CBoundingBox() : m_Empty(true), m_A(), m_B() {}
 
     CBoundingBox(const POINT& x) : m_Empty(false), m_A(x), m_B(x) {}
 
     //! Clear the bounding box.
-    void clear(void) {
+    void clear() {
         m_Empty = true;
         m_A = m_B = POINT();
     }
@@ -75,13 +75,13 @@ public:
     }
 
     //! Get the bottom left corner.
-    const POINT& blc(void) const { return m_A; }
+    const POINT& blc() const { return m_A; }
 
     //! Get the top right corner.
-    const POINT& trc(void) const { return m_B; }
+    const POINT& trc() const { return m_B; }
 
     //! Get the centre of the bounding box.
-    POINT centre(void) const { return POINT(TPointPrecise(m_A + m_B) / 2.0); }
+    POINT centre() const { return POINT(TPointPrecise(m_A + m_B) / 2.0); }
 
     //! Check if \p x is everywhere closer to the bounding box
     //! than \p y.
@@ -103,7 +103,7 @@ public:
     }
 
     //! Print this bounding box.
-    std::string print(void) const {
+    std::string print() const {
         std::ostringstream result;
         result << "{" << m_A << ", " << m_B << "}";
         return result.str();

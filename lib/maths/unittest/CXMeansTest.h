@@ -20,15 +20,15 @@
 
 class CXMeansTest : public CppUnit::TestFixture {
 public:
-    void testCluster(void);
-    void testImproveParams(void);
-    void testImproveStructure(void);
-    void testOneCluster(void);
-    void testFiveClusters(void);
-    void testTwentyClusters(void);
-    void testPoorlyConditioned(void);
+    void testCluster();
+    void testImproveParams();
+    void testImproveStructure();
+    void testOneCluster();
+    void testFiveClusters();
+    void testTwentyClusters();
+    void testPoorlyConditioned();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CXMeansTest_h

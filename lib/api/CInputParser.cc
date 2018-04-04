@@ -17,21 +17,21 @@
 namespace ml {
 namespace api {
 
-CInputParser::CInputParser(void) : m_GotFieldNames(false), m_GotData(false) {
+CInputParser::CInputParser() : m_GotFieldNames(false), m_GotData(false) {
 }
 
-CInputParser::~CInputParser(void) {
+CInputParser::~CInputParser() {
 }
 
-bool CInputParser::gotFieldNames(void) const {
+bool CInputParser::gotFieldNames() const {
     return m_GotFieldNames;
 }
 
-bool CInputParser::gotData(void) const {
+bool CInputParser::gotData() const {
     return m_GotData;
 }
 
-const CInputParser::TStrVec& CInputParser::fieldNames(void) const {
+const CInputParser::TStrVec& CInputParser::fieldNames() const {
     return m_FieldNames;
 }
 
@@ -43,7 +43,7 @@ void CInputParser::gotData(bool gotData) {
     m_GotData = gotData;
 }
 
-CInputParser::TStrVec& CInputParser::fieldNames(void) {
+CInputParser::TStrVec& CInputParser::fieldNames() {
     return m_FieldNames;
 }
 }

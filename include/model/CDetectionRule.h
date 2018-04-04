@@ -55,7 +55,7 @@ public:
 public:
     //! Default constructor.
     //! The rule's action defaults to FILTER_RESULTS and the connective to OR.
-    CDetectionRule(void);
+    CDetectionRule();
 
     //! Set the rule's action.
     void action(int ruleAction);
@@ -83,15 +83,15 @@ public:
                core_t::TTime time) const;
 
     //! Pretty-print the rule.
-    std::string print(void) const;
+    std::string print() const;
 
 private:
     //! Check whether the given series is in the scope
     //! of the rule's target.
     bool isInScope(const CAnomalyDetectorModel& model, std::size_t pid, std::size_t cid) const;
 
-    std::string printAction(void) const;
-    std::string printConditionsConnective(void) const;
+    std::string printAction() const;
+    std::string printConditionsConnective() const;
 
 private:
     //! The rule action. It works as a bit mask so its value

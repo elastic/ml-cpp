@@ -47,7 +47,7 @@ public:
     using TRegression = CRegression::CLeastSquaresOnline<1, CFloatStorage>;
 
 public:
-    CSeasonalComponentAdaptiveBucketing(void);
+    CSeasonalComponentAdaptiveBucketing();
     explicit CSeasonalComponentAdaptiveBucketing(const CSeasonalTime& time, double decayRate = 0.0, double minimumBucketLength = 0.0);
     CSeasonalComponentAdaptiveBucketing(const CSeasonalComponentAdaptiveBucketing& other);
     //! Construct by traversing a state document.
@@ -63,7 +63,7 @@ public:
     void swap(CSeasonalComponentAdaptiveBucketing& other);
 
     //! Check if the bucketing has been initialized.
-    bool initialized(void) const;
+    bool initialized() const;
 
     //! Create a new uniform bucketing with \p n buckets.
     //!
@@ -81,11 +81,11 @@ public:
     void initialValues(core_t::TTime startTime, core_t::TTime endTime, const TFloatMeanAccumulatorVec& values);
 
     //! Get the number of buckets.
-    std::size_t size(void) const;
+    std::size_t size() const;
 
     //! Clear the contents of this bucketing and recover any
     //! allocated memory.
-    void clear(void);
+    void clear();
 
     //! Shift the regressions' time origin to \p time.
     void shiftOrigin(core_t::TTime time);
@@ -106,19 +106,19 @@ public:
     void add(core_t::TTime time, double value, double prediction, double weight = 1.0);
 
     //! Get the time provider.
-    const CSeasonalTime& time(void) const;
+    const CSeasonalTime& time() const;
 
     //! Set the rate at which the bucketing loses information.
     void decayRate(double value);
 
     //! Get the rate at which the bucketing loses information.
-    double decayRate(void) const;
+    double decayRate() const;
 
     //! Age the bucket values to account for \p time elapsed time.
     void propagateForwardsByTime(double time, bool meanRevert = false);
 
     //! Get the minimum permitted bucket length.
-    double minimumBucketLength(void) const;
+    double minimumBucketLength() const;
 
     //! Refine the bucket end points to minimize the maximum averaging
     //! error in any bucket.
@@ -149,7 +149,7 @@ public:
                TDoubleVec& variances) const;
 
     //! Get the common slope of the bucket regression models.
-    double slope(void) const;
+    double slope() const;
 
     //! Check if this regression models have enough history to predict.
     bool slopeAccurate(core_t::TTime time) const;
@@ -161,21 +161,21 @@ public:
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this component
-    std::size_t memoryUsage(void) const;
+    std::size_t memoryUsage() const;
 
     //! \name Test Functions
     //@{
     //! Get the bucket end points.
-    const TFloatVec& endpoints(void) const;
+    const TFloatVec& endpoints() const;
 
     //! Get the total count of in the bucketing.
-    double count(void) const;
+    double count() const;
 
     //! Get the bucket regression predictions at \p time.
     TDoubleVec values(core_t::TTime time) const;
 
     //! Get the bucket variances.
-    TDoubleVec variances(void) const;
+    TDoubleVec variances() const;
     //@}
 
 private:
@@ -183,7 +183,7 @@ private:
 
     //! \brief The state maintained for each bucket.
     struct SBucket {
-        SBucket(void);
+        SBucket();
         SBucket(const TRegression& regression, double variance, core_t::TTime firstUpdate, core_t::TTime lastUpdate);
 
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);

@@ -30,7 +30,7 @@ CppUnit::Test* CMessageBufferTest::suite() {
 namespace {
 class CBuffer {
 public:
-    typedef std::vector<std::string> TStrVec;
+    using TStrVec = std::vector<std::string>;
 
 public:
     CBuffer(uint32_t flushInterval) : m_FlushInterval(flushInterval) {}
@@ -42,7 +42,7 @@ public:
         m_Buffer.push_back(str);
     }
 
-    uint32_t flushInterval(void) const { return m_FlushInterval; }
+    uint32_t flushInterval() const { return m_FlushInterval; }
 
     ml::core_t::TTime flushMessages(TStrVec& messages) {
         LOG_DEBUG("Flush messages " << m_Buffer.size());
@@ -65,7 +65,7 @@ public:
         LOG_DEBUG("Processed " << messages.size() << " " << m_Results.size() << " messages");
     }
 
-    size_t size(void) const { return m_Results.size(); }
+    size_t size() const { return m_Results.size(); }
 
 private:
     uint32_t m_FlushInterval;
@@ -74,7 +74,7 @@ private:
 };
 }
 
-void CMessageBufferTest::testAll(void) {
+void CMessageBufferTest::testAll() {
     CBuffer buffer(10);
 
     ml::core::CMessageBuffer<std::string, CBuffer> queue(buffer);

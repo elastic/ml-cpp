@@ -62,7 +62,7 @@ public:
     void refresh(const CAnomalyDetectorModelConfig& modelConfig);
 
     //! Clear all state such that all equalizers restart from scratch.
-    void clear(void);
+    void clear();
 
     //! Compute the aggregate probability for \p node.
     virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot);
@@ -82,7 +82,7 @@ public:
     //@}
 
     //! Get a checksum of this object.
-    uint64_t checksum(void) const;
+    uint64_t checksum() const;
 
 private:
     using TBase = CHierarchicalResultsLevelSet<CDetectorEqualizer>;

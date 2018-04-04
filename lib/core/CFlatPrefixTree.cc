@@ -58,7 +58,7 @@ CFlatPrefixTree::SDistinctChar::SDistinctChar(char c, char type, std::size_t sta
     : s_Char(c), s_Type(type), s_Start(start), s_End(end) {
 }
 
-CFlatPrefixTree::CFlatPrefixTree(void) : m_FlatTree() {
+CFlatPrefixTree::CFlatPrefixTree() : m_FlatTree() {
 }
 
 bool CFlatPrefixTree::build(const TStrVec& prefixes) {
@@ -202,11 +202,11 @@ bool CFlatPrefixTree::matches(ITR start, ITR end, bool requireFullMatch) const {
     return false;
 }
 
-void CFlatPrefixTree::clear(void) {
+void CFlatPrefixTree::clear() {
     m_FlatTree.clear();
 }
 
-std::string CFlatPrefixTree::print(void) const {
+std::string CFlatPrefixTree::print() const {
     std::string result;
     result += "[";
     for (std::size_t i = 0; i < m_FlatTree.size(); ++i) {

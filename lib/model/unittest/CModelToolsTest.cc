@@ -51,18 +51,18 @@ maths::CModelParams params(core_t::TTime bucketLength) {
     return maths::CModelParams{bucketLength, learnRates[bucketLength], DECAY_RATE, minimumSeasonalVarianceScale};
 }
 
-maths::CNormalMeanPrecConjugate normal(void) {
+maths::CNormalMeanPrecConjugate normal() {
     return maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
 }
 
-maths::CMultimodalPrior multimodal(void) {
+maths::CMultimodalPrior multimodal() {
     maths::CXMeansOnline1d clusterer{
         maths_t::E_ContinuousData, maths::CAvailableModeDistributions::ALL, maths_t::E_ClustersFractionWeight, DECAY_RATE};
     return maths::CMultimodalPrior{maths_t::E_ContinuousData, clusterer, normal(), DECAY_RATE};
 }
 }
 
-void CModelToolsTest::testFuzzyDeduplicate(void) {
+void CModelToolsTest::testFuzzyDeduplicate() {
     LOG_DEBUG("*** CModelToolsTest::testFuzzyDeduplicate ***");
 
     test::CRandomNumbers rng;
@@ -184,7 +184,7 @@ void CModelToolsTest::testFuzzyDeduplicate(void) {
     }
 }
 
-void CModelToolsTest::testProbabilityCache(void) {
+void CModelToolsTest::testProbabilityCache() {
     LOG_DEBUG("*** CModelToolsTest::testProbabilityCache ***");
 
     using TBool2Vec = core::CSmallVector<bool, 2>;
@@ -319,7 +319,7 @@ void CModelToolsTest::testProbabilityCache(void) {
     }
 }
 
-CppUnit::Test* CModelToolsTest::suite(void) {
+CppUnit::Test* CModelToolsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelToolsTest");
 
     suiteOfTests->addTest(

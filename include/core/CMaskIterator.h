@@ -44,15 +44,15 @@ template<typename ITR>
 class CMaskIterator : private boost::incrementable< CMaskIterator<ITR>,
                               boost::decrementable< CMaskIterator<ITR>,
                               boost::addable2< CMaskIterator<ITR>, typename std::iterator_traits<ITR>::difference_type,
-                              boost::subtractable2<CMaskIterator<ITR>, typename std::iterator_traits<ITR>::difference_type > > > > {
+                              boost::subtractable2< CMaskIterator<ITR>, typename std::iterator_traits<ITR>::difference_type > > > > {
     // clang-format on
 public:
-    typedef typename std::iterator_traits<ITR>::difference_type difference_type;
-    typedef typename std::iterator_traits<ITR>::value_type value_type;
-    typedef typename std::iterator_traits<ITR>::pointer pointer;
-    typedef typename std::iterator_traits<ITR>::reference reference;
-    typedef typename std::iterator_traits<ITR>::iterator_category iterator_category;
-    typedef std::vector<difference_type> TDifferenceVec;
+    using difference_type = typename std::iterator_traits<ITR>::difference_type;
+    using value_type = typename std::iterator_traits<ITR>::value_type;
+    using pointer = typename std::iterator_traits<ITR>::pointer;
+    using reference = typename std::iterator_traits<ITR>::reference;
+    using iterator_category = typename std::iterator_traits<ITR>::iterator_category;
+    using TDifferenceVec = std::vector<difference_type>;
 
 public:
     CMaskIterator(ITR begin, const TDifferenceVec& mask, difference_type index) : m_Begin(begin), m_Mask(&mask), m_Index(index) {}
@@ -82,15 +82,15 @@ public:
         return this->baseEqual(rhs) && m_Index <= rhs.m_Index;
     }
 
-    reference operator*(void)const { return *(m_Begin + (*m_Mask)[m_Index]); }
-    pointer operator->(void)const { return &(*(m_Begin + (*m_Mask)[m_Index])); }
+    reference operator*() const { return *(m_Begin + (*m_Mask)[m_Index]); }
+    pointer operator->() const { return &(*(m_Begin + (*m_Mask)[m_Index])); }
     reference operator[](difference_type n) const { return *(m_Begin + (*m_Mask)[m_Index + n]); }
 
-    const CMaskIterator& operator++(void) {
+    const CMaskIterator& operator++() {
         ++m_Index;
         return *this;
     }
-    const CMaskIterator& operator--(void) {
+    const CMaskIterator& operator--() {
         --m_Index;
         return *this;
     }

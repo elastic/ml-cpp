@@ -19,7 +19,7 @@
 
 #include "CMockSearcher.h"
 
-CMockDataAdder::CMockDataAdder(void) {
+CMockDataAdder::CMockDataAdder() {
 }
 
 CMockDataAdder::TOStreamP CMockDataAdder::addStreamed(const std::string& index, const std::string& /*id*/) {
@@ -48,11 +48,11 @@ bool CMockDataAdder::streamComplete(TOStreamP& strm, bool /*force*/) {
     return found;
 }
 
-const CMockDataAdder::TStrStrVecMap& CMockDataAdder::events(void) const {
+const CMockDataAdder::TStrStrVecMap& CMockDataAdder::events() const {
     return m_Events;
 }
 
-void CMockDataAdder::clear(void) {
+void CMockDataAdder::clear() {
     m_Events.clear();
     m_Streams.clear();
 }

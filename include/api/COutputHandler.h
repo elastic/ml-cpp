@@ -55,22 +55,22 @@ class CBackgroundPersister;
 //!
 class API_EXPORT COutputHandler : private core::CNonCopyable {
 public:
-    typedef std::vector<std::string> TStrVec;
-    typedef TStrVec::iterator TStrVecItr;
-    typedef TStrVec::const_iterator TStrVecCItr;
+    using TStrVec = std::vector<std::string>;
+    using TStrVecItr = TStrVec::iterator;
+    using TStrVecCItr = TStrVec::const_iterator;
 
-    typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-    typedef TStrStrUMap::iterator TStrStrUMapItr;
-    typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
+    using TStrStrUMap = boost::unordered_map<std::string, std::string>;
+    using TStrStrUMapItr = TStrStrUMap::iterator;
+    using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
 public:
-    COutputHandler(void);
+    COutputHandler();
 
     //! Virtual destructor for abstract base class
-    virtual ~COutputHandler(void);
+    virtual ~COutputHandler();
 
     //! We're going to be writing to a new output stream
-    virtual void newOutputStream(void);
+    virtual void newOutputStream();
 
     //! Set field names - this must only be called once per output file
     bool fieldNames(const TStrVec& fieldNames);
@@ -80,7 +80,7 @@ public:
     virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) = 0;
 
     //! Get field names
-    virtual const TStrVec& fieldNames(void) const = 0;
+    virtual const TStrVec& fieldNames() const = 0;
 
     //! Write a row to the stream.  The supplied map must contain every
     //! field value.
@@ -93,7 +93,7 @@ public:
     virtual bool writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) = 0;
 
     //! Perform any final processing once all input data has been seen.
-    virtual void finalise(void);
+    virtual void finalise();
 
     //! Restore previously saved state
     virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
@@ -130,9 +130,9 @@ protected:
     //! Used when there are no field overrides
     static const TStrStrUMap EMPTY_FIELD_OVERRIDES;
 
-    typedef std::vector<CPreComputedHash> TPreComputedHashVec;
-    typedef TPreComputedHashVec::iterator TPreComputedHashVecItr;
-    typedef TPreComputedHashVec::const_iterator TPreComputedHashVecCItr;
+    using TPreComputedHashVec = std::vector<CPreComputedHash>;
+    using TPreComputedHashVecItr = TPreComputedHashVec::iterator;
+    using TPreComputedHashVecCItr = TPreComputedHashVec::const_iterator;
 };
 }
 }

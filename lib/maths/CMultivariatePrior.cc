@@ -43,8 +43,7 @@ void setDecayRate(double value, double fallback, double& result) {
 }
 }
 
-CMultivariatePrior::CMultivariatePrior(void)
-    : m_Forecasting(false), m_DataType(maths_t::E_DiscreteData), m_DecayRate(0.0), m_NumberSamples(0) {
+CMultivariatePrior::CMultivariatePrior() : m_Forecasting(false), m_DataType(maths_t::E_DiscreteData), m_DecayRate(0.0), m_NumberSamples(0) {
 }
 
 CMultivariatePrior::CMultivariatePrior(maths_t::EDataType dataType, double decayRate)
@@ -59,27 +58,27 @@ void CMultivariatePrior::swap(CMultivariatePrior& other) {
     std::swap(m_NumberSamples, other.m_NumberSamples);
 }
 
-void CMultivariatePrior::forForecasting(void) {
+void CMultivariatePrior::forForecasting() {
     m_Forecasting = true;
 }
 
-bool CMultivariatePrior::isForForecasting(void) const {
+bool CMultivariatePrior::isForForecasting() const {
     return m_Forecasting;
 }
 
-bool CMultivariatePrior::isDiscrete(void) const {
+bool CMultivariatePrior::isDiscrete() const {
     return m_DataType == maths_t::E_DiscreteData || m_DataType == maths_t::E_IntegerData;
 }
 
-bool CMultivariatePrior::isInteger(void) const {
+bool CMultivariatePrior::isInteger() const {
     return m_DataType == maths_t::E_IntegerData;
 }
 
-maths_t::EDataType CMultivariatePrior::dataType(void) const {
+maths_t::EDataType CMultivariatePrior::dataType() const {
     return m_DataType;
 }
 
-double CMultivariatePrior::decayRate(void) const {
+double CMultivariatePrior::decayRate() const {
     return m_DecayRate;
 }
 
@@ -267,8 +266,8 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     }
     LOG_TRACE("lb = " << core::CContainerPrinter::print(lb) << ", ub = " << core::CContainerPrinter::print(ub));
 
-    lowerBound = ::sqrt(lb[0] * lb[1]);
-    upperBound = ::sqrt(ub[0] * ub[1]);
+    lowerBound = std::sqrt(lb[0] * lb[1]);
+    upperBound = std::sqrt(ub[0] * ub[1]);
     return true;
 }
 
@@ -342,7 +341,7 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x, s
             sample[0][1] = y_;
             double l;
             xyMargin->jointLogMarginalLikelihood(CConstantWeights::COUNT, sample, weight, l);
-            likelihood << ::exp(l) << " ";
+            likelihood << std::exp(l) << " ";
         }
         likelihood << core_t::LINE_ENDING;
     }
@@ -358,17 +357,17 @@ uint64_t CMultivariatePrior::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_NumberSamples);
 }
 
-std::string CMultivariatePrior::print(void) const {
+std::string CMultivariatePrior::print() const {
     std::string result;
     this->print("--", result);
     return result;
 }
 
-double CMultivariatePrior::offsetMargin(void) const {
+double CMultivariatePrior::offsetMargin() const {
     return 0.2;
 }
 
-double CMultivariatePrior::numberSamples(void) const {
+double CMultivariatePrior::numberSamples() const {
     return m_NumberSamples;
 }
 
@@ -376,16 +375,16 @@ void CMultivariatePrior::numberSamples(double numberSamples) {
     m_NumberSamples = numberSamples;
 }
 
-bool CMultivariatePrior::participatesInModelSelection(void) const {
+bool CMultivariatePrior::participatesInModelSelection() const {
     return true;
 }
 
-double CMultivariatePrior::unmarginalizedParameters(void) const {
+double CMultivariatePrior::unmarginalizedParameters() const {
     return 0.0;
 }
 
-double CMultivariatePrior::scaledDecayRate(void) const {
-    return ::pow(0.5, static_cast<double>(this->dimension())) * this->decayRate();
+double CMultivariatePrior::scaledDecayRate() const {
+    return std::pow(0.5, static_cast<double>(this->dimension())) * this->decayRate();
 }
 
 void CMultivariatePrior::addSamples(double n) {

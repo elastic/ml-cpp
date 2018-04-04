@@ -35,7 +35,7 @@ const DWORD STOP_WAIT_HINT_MSECS(10000);
 
 //! This needs to be called quickly after startup, because it will only work
 //! while the parent process is still running.
-DWORD findParentProcessId(void) {
+DWORD findParentProcessId() {
     HANDLE snapshotHandle(CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
     if (snapshotHandle == INVALID_HANDLE_VALUE) {
         // Log at the point of retrieval, as this is too early in the program
@@ -76,23 +76,23 @@ const char* CProcess::STARTED_MSG("Process Started.");
 const char* CProcess::STOPPING_MSG("Process Shutting Down.");
 const char* CProcess::STOPPED_MSG("Process Exiting.");
 
-CProcess::CProcess(void) : m_IsService(false), m_Initialised(false), m_Running(false), m_MlMainFunc(0), m_ServiceHandle(0) {
+CProcess::CProcess() : m_IsService(false), m_Initialised(false), m_Running(false), m_MlMainFunc(0), m_ServiceHandle(0) {
 }
 
-CProcess& CProcess::instance(void) {
+CProcess& CProcess::instance() {
     static CProcess instance;
     return instance;
 }
 
-bool CProcess::isService(void) const {
+bool CProcess::isService() const {
     return m_IsService;
 }
 
-CProcess::TPid CProcess::id(void) const {
+CProcess::TPid CProcess::id() const {
     return GetCurrentProcessId();
 }
 
-CProcess::TPid CProcess::parentId(void) const {
+CProcess::TPid CProcess::parentId() const {
     if (PPID == 0) {
         LOG_ERROR("Failed to find parent process ID");
     }
@@ -154,7 +154,7 @@ bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char* argv[]) {
     return success;
 }
 
-bool CProcess::isInitialised(void) const {
+bool CProcess::isInitialised() const {
     return m_Initialised;
 }
 
@@ -175,7 +175,7 @@ void CProcess::initialisationComplete(const TShutdownFunc& shutdownFunc) {
     this->serviceCtrlHandler(SERVICE_CONTROL_INTERROGATE);
 }
 
-void CProcess::initialisationComplete(void) {
+void CProcess::initialisationComplete() {
     CScopedFastLock lock(m_ShutdownFuncMutex);
 
     if (!m_Initialised) {
@@ -194,7 +194,7 @@ void CProcess::initialisationComplete(void) {
     this->serviceCtrlHandler(SERVICE_CONTROL_INTERROGATE);
 }
 
-bool CProcess::isRunning(void) const {
+bool CProcess::isRunning() const {
     return m_Running;
 }
 
@@ -209,7 +209,7 @@ void WINAPI CProcess::serviceMain(DWORD argc, char* argv[]) {
     }
 
     if (process.m_MlMainFunc != 0) {
-        typedef boost::scoped_array<char*> TScopedCharPArray;
+        using TScopedCharPArray = boost::scoped_array<char*>;
 
         // Merge the arguments from the service itself with the arguments
         // passed to the original main() call
@@ -313,7 +313,7 @@ void WINAPI CProcess::serviceCtrlHandler(DWORD ctrlType) {
     }
 }
 
-bool CProcess::shutdown(void) {
+bool CProcess::shutdown() {
     if (CLogger::instance().hasBeenReconfigured()) {
         LOG_INFO(STOPPING_MSG);
     }

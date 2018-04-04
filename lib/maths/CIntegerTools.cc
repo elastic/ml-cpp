@@ -17,16 +17,15 @@
 
 #include <core/CLogger.h>
 
-#include <math.h>
-
 #include <algorithm>
+#include <cmath>
 
 namespace ml {
 namespace maths {
 
 bool CIntegerTools::isInteger(double value, double tolerance) {
     double integerPart;
-    double remainder = ::modf(value, &integerPart);
+    double remainder = std::modf(value, &integerPart);
     return remainder <= tolerance * integerPart;
 }
 

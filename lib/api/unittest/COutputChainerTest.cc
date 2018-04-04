@@ -39,7 +39,7 @@ CppUnit::Test* COutputChainerTest::suite() {
     return suiteOfTests;
 }
 
-void COutputChainerTest::testChaining(void) {
+void COutputChainerTest::testChaining() {
     static const ml::core_t::TTime BUCKET_SIZE(3600);
 
     std::string inputFileName("testfiles/big_ascending.txt");
@@ -85,7 +85,7 @@ void COutputChainerTest::testChaining(void) {
     // Check the results by re-reading the output file
     std::ifstream reReadStrm(outputFileName.c_str());
     std::string line;
-    std::string modelSizeString("\"" + ml::api::CJsonOutputWriter::MODEL_BYTES + "\":");
+    std::string modelSizeString("\"model_bytes\":");
 
     std::string expectedLineStart("{\"bucket\":{\"job_id\":\"job\",\"timestamp\":1431853200000,");
 

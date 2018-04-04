@@ -51,14 +51,14 @@ public:
         : m_SleepTime(sleepTime), m_Iterations(iterations), m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run(void) {
+    void run() {
         for (uint32_t count = 0; count < m_Iterations; ++count) {
             m_Variable += m_Increment;
             ml::core::CSleep::sleep(m_SleepTime);
         }
     }
 
-    void shutdown(void) {
+    void shutdown() {
         // Always just wait for run() to complete
     }
 
@@ -75,14 +75,14 @@ public:
         : m_SleepTime(sleepTime), m_Iterations(iterations), m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run(void) {
+    void run() {
         for (uint32_t count = 0; count < m_Iterations; ++count) {
             m_Variable.fetch_add(m_Increment);
             ml::core::CSleep::sleep(m_SleepTime);
         }
     }
 
-    void shutdown(void) {
+    void shutdown() {
         // Always just wait for run() to complete
     }
 
@@ -103,7 +103,7 @@ public:
         : m_Mutex(mutex), m_SleepTime(sleepTime), m_Iterations(iterations), m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run(void) {
+    void run() {
         for (uint32_t count = 0; count < m_Iterations; ++count) {
             ml::core::CScopedFastLock lock(m_Mutex);
 
@@ -112,7 +112,7 @@ protected:
         }
     }
 
-    void shutdown(void) {
+    void shutdown() {
         // Always just wait for run() to complete
     }
 
@@ -130,7 +130,7 @@ public:
         : m_Mutex(mutex), m_SleepTime(sleepTime), m_Iterations(iterations), m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run(void) {
+    void run() {
         for (uint32_t count = 0; count < m_Iterations; ++count) {
             ml::core::CScopedLock lock(m_Mutex);
 
@@ -139,7 +139,7 @@ protected:
         }
     }
 
-    void shutdown(void) {
+    void shutdown() {
         // Always just wait for run() to complete
     }
 
@@ -161,7 +161,7 @@ public:
         : m_ReadWriteLock(readWriteLock), m_SleepTime(sleepTime), m_Iterations(iterations), m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run(void) {
+    void run() {
         for (uint32_t count = 0; count < m_Iterations; ++count) {
             ml::core::CScopedWriteLock lock(m_ReadWriteLock);
 
@@ -170,7 +170,7 @@ protected:
         }
     }
 
-    void shutdown(void) {
+    void shutdown() {
         // Always just wait for run() to complete
     }
 
@@ -187,10 +187,10 @@ public:
     CReadLockProtectedReader(ml::core::CReadWriteLock& readWriteLock, uint32_t sleepTime, uint32_t iterations, volatile uint32_t& variable)
         : m_ReadWriteLock(readWriteLock), m_SleepTime(sleepTime), m_Iterations(iterations), m_Variable(variable), m_LastRead(variable) {}
 
-    uint32_t lastRead(void) const { return m_LastRead; }
+    uint32_t lastRead() const { return m_LastRead; }
 
 protected:
-    void run(void) {
+    void run() {
         for (uint32_t count = 0; count < m_Iterations; ++count) {
             ml::core::CScopedReadLock lock(m_ReadWriteLock);
 
@@ -199,7 +199,7 @@ protected:
         }
     }
 
-    void shutdown(void) {
+    void shutdown() {
         // Always just wait for run() to complete
     }
 
@@ -212,7 +212,7 @@ private:
 };
 }
 
-void CReadWriteLockTest::testReadLock(void) {
+void CReadWriteLockTest::testReadLock() {
     uint32_t testVariable(0);
     ml::core::CReadWriteLock readWriteLock;
 
@@ -251,7 +251,7 @@ void CReadWriteLockTest::testReadLock(void) {
     CPPUNIT_ASSERT_EQUAL(testVariable, reader3.lastRead());
 }
 
-void CReadWriteLockTest::testWriteLock(void) {
+void CReadWriteLockTest::testWriteLock() {
     static const uint32_t TEST_SIZE(50000);
 
     uint32_t testVariable(0);
@@ -274,7 +274,7 @@ void CReadWriteLockTest::testWriteLock(void) {
     CPPUNIT_ASSERT_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
 }
 
-void CReadWriteLockTest::testPerformanceVersusMutex(void) {
+void CReadWriteLockTest::testPerformanceVersusMutex() {
     static const uint32_t TEST_SIZE(1000000);
 
     {

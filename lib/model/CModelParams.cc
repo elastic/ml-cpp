@@ -78,7 +78,7 @@ void SModelParams::configureLatency(core_t::TTime latency, core_t::TTime bucketL
     }
 }
 
-double SModelParams::minimumCategoryCount(void) const {
+double SModelParams::minimumCategoryCount() const {
     return s_LearnRate * CAnomalyDetectorModelConfig::DEFAULT_CATEGORY_DELETE_FRACTION;
 }
 

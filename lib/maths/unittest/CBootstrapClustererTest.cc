@@ -31,30 +31,30 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<bool> TBoolVec;
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef std::vector<TVector2Vec> TVector2VecVec;
-typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
-typedef std::vector<TMatrix2> TMatrix2Vec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+using TBoolVec = std::vector<bool>;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TVector2 = maths::CVectorNx1<double, 2>;
+using TVector2Vec = std::vector<TVector2>;
+using TVector2VecVec = std::vector<TVector2Vec>;
+using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
+using TMatrix2Vec = std::vector<TMatrix2>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 struct SVector2Hash {
     std::size_t operator()(const TVector2& x) const { return static_cast<std::size_t>(x.checksum()); }
 };
-typedef boost::unordered_map<TVector2, std::size_t, SVector2Hash> TVector2SizeUMap;
+using TVector2SizeUMap = boost::unordered_map<TVector2, std::size_t, SVector2Hash>;
 
 template<typename POINT>
 class CBootstrapClustererForTest : public maths::CBootstrapClusterer<POINT> {
 public:
-    typedef typename maths::CBootstrapClusterer<POINT>::TBoolVec TBoolVec;
-    typedef typename maths::CBootstrapClusterer<POINT>::TSizeVec TSizeVec;
-    typedef typename maths::CBootstrapClusterer<POINT>::TSizeVecVecVec TSizeVecVecVec;
-    typedef typename maths::CBootstrapClusterer<POINT>::TPointVec TPointVec;
-    typedef typename maths::CBootstrapClusterer<POINT>::TGraph TGraph;
+    using TBoolVec = typename maths::CBootstrapClusterer<POINT>::TBoolVec;
+    using TSizeVec = typename maths::CBootstrapClusterer<POINT>::TSizeVec;
+    using TSizeVecVecVec = typename maths::CBootstrapClusterer<POINT>::TSizeVecVecVec;
+    using TPointVec = typename maths::CBootstrapClusterer<POINT>::TPointVec;
+    using TGraph = typename maths::CBootstrapClusterer<POINT>::TGraph;
 
 public:
     CBootstrapClustererForTest(double overlapThreshold, double chainingFactor)
@@ -75,14 +75,14 @@ public:
         return this->maths::CBootstrapClusterer<POINT>::cutSearch(u, v, graph, threshold, cost, parities);
     }
 
-    TSizeVec& offsets(void) { return this->maths::CBootstrapClusterer<POINT>::offsets(); }
+    TSizeVec& offsets() { return this->maths::CBootstrapClusterer<POINT>::offsets(); }
 };
 
-typedef CBootstrapClustererForTest<TVector2> TBootstrapClustererForTest2;
-typedef TBootstrapClustererForTest2::TGraph TGraph;
-typedef boost::graph_traits<TGraph>::vertex_iterator TVertexItr;
-typedef boost::graph_traits<TGraph>::edge_iterator TEdgeItr;
-typedef boost::graph_traits<TGraph>::adjacency_iterator TAdjacencyItr;
+using TBootstrapClustererForTest2 = CBootstrapClustererForTest<TVector2>;
+using TGraph = TBootstrapClustererForTest2::TGraph;
+using TVertexItr = boost::graph_traits<TGraph>::vertex_iterator;
+using TEdgeItr = boost::graph_traits<TGraph>::edge_iterator;
+using TAdjacencyItr = boost::graph_traits<TGraph>::adjacency_iterator;
 
 void clique(std::size_t a, std::size_t b, TGraph& graph) {
     for (std::size_t i = a; i < b; ++i) {
@@ -100,7 +100,7 @@ void connect(const TSizeVec& U, const TSizeVec& V, TGraph& graph) {
 }
 }
 
-void CBootstrapClustererTest::testFacade(void) {
+void CBootstrapClustererTest::testFacade() {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testFacade  |");
     LOG_DEBUG("+---------------------------------------+");
@@ -171,7 +171,7 @@ void CBootstrapClustererTest::testFacade(void) {
     }
 }
 
-void CBootstrapClustererTest::testBuildClusterGraph(void) {
+void CBootstrapClustererTest::testBuildClusterGraph() {
     LOG_DEBUG("+--------------------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testBuildClusterGraph  |");
     LOG_DEBUG("+--------------------------------------------------+");
@@ -277,7 +277,7 @@ void CBootstrapClustererTest::testBuildClusterGraph(void) {
     }
 }
 
-void CBootstrapClustererTest::testCutSearch(void) {
+void CBootstrapClustererTest::testCutSearch() {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testCutSearch  |");
     LOG_DEBUG("+------------------------------------------+");
@@ -329,7 +329,7 @@ void CBootstrapClustererTest::testCutSearch(void) {
     CPPUNIT_ASSERT(1.0 - maths::CBasicStatistics::mean(quality) > 0.98);
 }
 
-void CBootstrapClustererTest::testSeparate(void) {
+void CBootstrapClustererTest::testSeparate() {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testSeparate  |");
     LOG_DEBUG("+-----------------------------------------+");
@@ -410,7 +410,7 @@ void CBootstrapClustererTest::testSeparate(void) {
     CPPUNIT_ASSERT(1.0 - maths::CBasicStatistics::mean(quality) > 0.99);
 }
 
-void CBootstrapClustererTest::testThickets(void) {
+void CBootstrapClustererTest::testThickets() {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testThickets  |");
     LOG_DEBUG("+-----------------------------------------+");
@@ -493,7 +493,7 @@ void CBootstrapClustererTest::testThickets(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanJaccard) > 0.99);
 }
 
-void CBootstrapClustererTest::testNonConvexClustering(void) {
+void CBootstrapClustererTest::testNonConvexClustering() {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testNonConvexClustering  |");
     LOG_DEBUG("+----------------------------------------------------+");
@@ -639,7 +639,7 @@ void CBootstrapClustererTest::testNonConvexClustering(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(jaccardBootstrapToPerfect) > maths::CBasicStatistics::mean(jaccardVanillaToPerfect));
 }
 
-void CBootstrapClustererTest::testClusteringStability(void) {
+void CBootstrapClustererTest::testClusteringStability() {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CBootstrapClustererTest::testClusteringStability  |");
     LOG_DEBUG("+----------------------------------------------------+");
@@ -750,7 +750,7 @@ void CBootstrapClustererTest::testClusteringStability(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanConsistency) > 0.95);
 }
 
-CppUnit::Test* CBootstrapClustererTest::suite(void) {
+CppUnit::Test* CBootstrapClustererTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBootstrapClustererTest");
 
     suiteOfTests->addTest(

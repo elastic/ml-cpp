@@ -86,8 +86,8 @@ namespace maths {
 //! and to reserve sufficient memory up front for our node allocator.
 class MATHS_EXPORT CQDigest : private core::CNonCopyable {
 public:
-    typedef std::pair<uint32_t, uint64_t> TUInt32UInt64Pr;
-    typedef std::vector<TUInt32UInt64Pr> TUInt32UInt64PrVec;
+    using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
+    using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
 
 public:
     //! \name XML Tag Names
@@ -128,7 +128,7 @@ public:
     bool scale(double factor);
 
     //! Reset the quantiles to the state before any values were added.
-    void clear(void);
+    void clear();
 
     //! Compute the quantile \p q.
     //!
@@ -193,10 +193,10 @@ public:
     void summary(TUInt32UInt64PrVec& result) const;
 
     //! Get the total number of values added to the q-digest.
-    uint64_t n(void) const;
+    uint64_t n() const;
 
     //! Get the size factor "k" for the q-digest.
-    uint64_t k(void) const;
+    uint64_t k() const;
 
     //! Get a checksum of this object.
     uint64_t checksum(uint64_t seed) const;
@@ -204,24 +204,24 @@ public:
     //! \name Test Methods
     //@{
     //! Check the digest invariants.
-    bool checkInvariants(void) const;
+    bool checkInvariants() const;
 
     //! Print the q-digest.
-    std::string print(void) const;
+    std::string print() const;
     //@}
 
 private:
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef TSizeVec::const_iterator TSizeVecCItr;
-    typedef std::greater<std::size_t> TSizeGreater;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecCItr = TSizeVec::const_iterator;
+    using TSizeGreater = std::greater<std::size_t>;
 
     class CNode;
     class CNodeAllocator;
 
-    typedef std::vector<CNode*> TNodePtrVec;
-    typedef TNodePtrVec::iterator TNodePtrVecItr;
-    typedef TNodePtrVec::const_iterator TNodePtrVecCItr;
-    typedef TNodePtrVec::const_reverse_iterator TNodePtrVecCRItr;
+    using TNodePtrVec = std::vector<CNode*>;
+    using TNodePtrVecItr = TNodePtrVec::iterator;
+    using TNodePtrVecCItr = TNodePtrVec::const_iterator;
+    using TNodePtrVecCRItr = TNodePtrVec::const_reverse_iterator;
 
     //! Orders node pointers by level order.
     struct MATHS_EXPORT SLevelLess {
@@ -247,11 +247,11 @@ private:
         //@}
 
     public:
-        CNode(void);
+        CNode();
         CNode(uint32_t min, uint32_t max, uint64_t count, uint64_t subtreeCount);
 
         //! Get the size of the q-digest rooted at this node.
-        std::size_t size(void) const;
+        std::size_t size() const;
 
         //! Get the approximate quantile \p n.
         uint32_t quantile(uint64_t leftCount, uint64_t n) const;
@@ -292,15 +292,15 @@ private:
         uint64_t age(double factor);
 
         //! Get the span of universe values covered by the node.
-        uint32_t span(void) const;
+        uint32_t span() const;
         //! Get the minimum value covered by the node.
-        uint32_t min(void) const;
+        uint32_t min() const;
         //! Get the maximum value covered by the node.
-        uint32_t max(void) const;
+        uint32_t max() const;
         //! Get the count of entries in the node range.
-        const uint64_t& count(void) const;
+        const uint64_t& count() const;
         //! Get the count in the subtree rooted at this node.
-        const uint64_t& subtreeCount(void) const;
+        const uint64_t& subtreeCount() const;
 
         //! Persist this node and descendents
         void persistRecursive(const std::string& nodeTag, core::CStatePersistInserter& inserter) const;
@@ -312,7 +312,7 @@ private:
         bool checkInvariants(uint64_t compressionFactor) const;
 
         //! Print for debug.
-        std::string print(void) const;
+        std::string print() const;
 
     private:
         //! Persist state by passing information to the supplied
@@ -324,13 +324,13 @@ private:
         bool operator==(const CNode& node) const;
 
         //! Get the index of the immediate ancestor in the q-digest.
-        CNode* ancestor(void) const;
+        CNode* ancestor() const;
         //! Get the number of descendants.
-        std::size_t numberDescendants(void) const;
+        std::size_t numberDescendants() const;
         //! Get an iterator over the descendants.
-        TNodePtrVecCItr beginDescendants(void) const;
+        TNodePtrVecCItr beginDescendants() const;
         //! Get the end of the descendants.
-        TNodePtrVecCItr endDescendants(void) const;
+        TNodePtrVecCItr endDescendants() const;
         //! Get the sibling of \p node if it exists in the q-digest.
         CNode* sibling(const CNode& node) const;
 
@@ -341,11 +341,11 @@ private:
         //! Is this an ancestor of \p node in the complete tree.
         bool isAncestor(const CNode& node) const;
         //! Is this node the root.
-        bool isRoot(void) const;
+        bool isRoot() const;
         //! Is this node a leaf.
-        bool isLeaf(void) const;
+        bool isLeaf() const;
         //! Is this the left child of a node in the complete tree.
-        bool isLeftChild(void) const;
+        bool isLeftChild() const;
 
         //! Detach this node from the q-digest.
         void detach(CNodeAllocator& allocator);
@@ -386,12 +386,12 @@ private:
         void release(CNode& node);
 
     private:
-        typedef std::vector<TNodePtrVec> TNodePtrVecVec;
-        typedef std::vector<CNode> TNodeVec;
-        typedef std::vector<CNode>::const_iterator TNodeVecCItr;
-        typedef std::list<TNodeVec> TNodeVecList;
-        typedef TNodeVecList::iterator TNodeVecListItr;
-        typedef TNodeVecList::const_iterator TNodeVecListCItr;
+        using TNodePtrVecVec = std::vector<TNodePtrVec>;
+        using TNodeVec = std::vector<CNode>;
+        using TNodeVecCItr = std::vector<CNode>::const_iterator;
+        using TNodeVecList = std::list<TNodeVec>;
+        using TNodeVecListItr = TNodeVecList::iterator;
+        using TNodeVecListCItr = TNodeVecList::const_iterator;
 
     private:
         //! Find the block to which \p node belongs.
@@ -404,7 +404,7 @@ private:
 
 private:
     //! Compress the q-digest bottom up in level order.
-    void compress(void);
+    void compress();
 
     //! Starting at the lowest nodes in \p compress in level order
     //! compress all q-digest paths bottom up in level order to the

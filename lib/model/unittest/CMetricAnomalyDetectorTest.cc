@@ -47,9 +47,9 @@ using namespace ml;
 
 namespace {
 
-typedef std::pair<core_t::TTime, core_t::TTime> TTimeTimePr;
-typedef std::vector<TTimeTimePr> TTimeTimePrVec;
-typedef std::vector<double> TDoubleVec;
+using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
+using TTimeTimePrVec = std::vector<TTimeTimePr>;
+using TDoubleVec = std::vector<double>;
 
 bool doIntersect(const TTimeTimePr& i1, const TTimeTimePr& i2) {
     return !(i2.second <= i1.first || i1.second <= i2.first);
@@ -115,13 +115,13 @@ public:
         return true;
     }
 
-    const TTimeTimePrVec& highAnomalyTimes(void) const { return m_HighAnomalyTimes; }
+    const TTimeTimePrVec& highAnomalyTimes() const { return m_HighAnomalyTimes; }
 
-    const TDoubleVec& highAnomalyFactors(void) const { return m_HighAnomalyFactors; }
+    const TDoubleVec& highAnomalyFactors() const { return m_HighAnomalyFactors; }
 
-    const TDoubleVec& anomalyFactors(void) const { return m_AnomalyFactors; }
+    const TDoubleVec& anomalyFactors() const { return m_AnomalyFactors; }
 
-    const TDoubleVec& anomalyRates(void) const { return m_AnomalyRates; }
+    const TDoubleVec& anomalyRates() const { return m_AnomalyRates; }
 
 private:
     const model::CAnomalyDetectorModelConfig& m_ModelConfig;
@@ -171,7 +171,7 @@ void importCsvData(core_t::TTime firstTime,
                    CResultWriter& outputResults,
                    const std::string& fileName,
                    model::CAnomalyDetector& detector) {
-    typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
+    using TifstreamPtr = boost::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
     CPPUNIT_ASSERT(ifs->is_open());
 
@@ -211,7 +211,7 @@ void importCsvData(core_t::TTime firstTime,
 const std::string EMPTY_STRING;
 }
 
-void CMetricAnomalyDetectorTest::testAnomalies(void) {
+void CMetricAnomalyDetectorTest::testAnomalies() {
     // The test data has one genuine anomaly in the interval
     // [1360617335, 1360617481]. The rest of the samples are
     // Gaussian with mean 30 and standard deviation 5. The
@@ -321,10 +321,10 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
     LOG_DEBUG("high rate noise = " << highRateNoise << ", low rate noise = " << lowRateNoise);
 
     // We don't have significantly more noise in the low rate channel.
-    CPPUNIT_ASSERT(::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.2);
+    CPPUNIT_ASSERT(std::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.2);
 }
 
-void CMetricAnomalyDetectorTest::testPersist(void) {
+void CMetricAnomalyDetectorTest::testPersist() {
     static const core_t::TTime FIRST_TIME(1360540800);
     static const core_t::TTime LAST_TIME(FIRST_TIME + 86400);
     static const core_t::TTime BUCKET_LENGTH(300);
@@ -381,7 +381,7 @@ void CMetricAnomalyDetectorTest::testPersist(void) {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
+void CMetricAnomalyDetectorTest::testExcludeFrequent() {
     static const core_t::TTime FIRST_TIME(1406916000);
     static const core_t::TTime BUCKET_LENGTH(3600);
 
@@ -445,7 +445,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
     }
 }
 
-CppUnit::Test* CMetricAnomalyDetectorTest::suite(void) {
+CppUnit::Test* CMetricAnomalyDetectorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricAnomalyDetectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>("CMetricAnomalyDetectorTest::testAnomalies",

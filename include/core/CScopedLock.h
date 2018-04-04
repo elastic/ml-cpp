@@ -37,7 +37,7 @@ public:
     CScopedLock(CMutex& mutex);
 
     //! Unlock specified mutex
-    ~CScopedLock(void);
+    ~CScopedLock();
 
 private:
     CMutex& m_Mutex;

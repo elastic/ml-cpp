@@ -19,8 +19,8 @@
 
 class CMonotonicTimeTest : public CppUnit::TestFixture {
 public:
-    void testMilliseconds(void);
-    void testNanoseconds(void);
+    void testMilliseconds();
+    void testNanoseconds();
 
     static CppUnit::Test* suite();
 };

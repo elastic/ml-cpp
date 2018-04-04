@@ -17,7 +17,7 @@
 namespace ml {
 namespace core {
 
-void CCrashHandler::installCrashHandler(void) {
+void CCrashHandler::installCrashHandler() {
     // do nothing, see platform specific actions
 }
 }

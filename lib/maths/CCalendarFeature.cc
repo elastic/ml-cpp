@@ -58,7 +58,7 @@ std::string print_(int count, bool suffix) {
 }
 }
 
-CCalendarFeature::CCalendarFeature(void) : m_Feature(INVALID), m_Value(INVALID) {
+CCalendarFeature::CCalendarFeature() : m_Feature(INVALID), m_Value(INVALID) {
 }
 
 CCalendarFeature::CCalendarFeature(uint16_t feature, core_t::TTime time) : m_Feature(INVALID), m_Value(INVALID) {
@@ -130,7 +130,7 @@ bool CCalendarFeature::fromDelimited(const std::string& value) {
     return false;
 }
 
-std::string CCalendarFeature::toDelimited(void) const {
+std::string CCalendarFeature::toDelimited() const {
     int state[2] = {static_cast<int>(m_Feature), static_cast<int>(m_Value)};
     const int* begin = boost::begin(state);
     const int* end = boost::end(state);
@@ -189,7 +189,7 @@ bool CCalendarFeature::inWindow(core_t::TTime time) const {
     return offset >= 0 && offset < this->window();
 }
 
-core_t::TTime CCalendarFeature::window(void) const {
+core_t::TTime CCalendarFeature::window() const {
     return core::constants::DAY;
 }
 
@@ -198,7 +198,7 @@ uint64_t CCalendarFeature::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Value);
 }
 
-std::string CCalendarFeature::print(void) const {
+std::string CCalendarFeature::print() const {
     switch (m_Feature) {
     case DAYS_SINCE_START_OF_MONTH:
         return print_(static_cast<int>(m_Value) + 1, true) + " day of month";

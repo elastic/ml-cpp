@@ -142,9 +142,9 @@ public:
     };
 
 public:
-    typedef SResults TResults;
-    typedef std::function<bool(TResults)> TResultWriterFunc;
-    typedef std::function<bool(core_t::TTime, TNode, bool)> TPivotWriterFunc;
+    using TResults = SResults;
+    using TResultWriterFunc = std::function<bool(TResults)>;
+    using TPivotWriterFunc = std::function<bool(core_t::TTime, TNode, bool)>;
 
 public:
     CHierarchicalResultsWriter(const model::CLimits& limits,

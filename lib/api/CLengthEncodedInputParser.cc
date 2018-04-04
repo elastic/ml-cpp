@@ -236,7 +236,7 @@ bool CLengthEncodedInputParser::parseStringFromStream(size_t length, std::string
     return true;
 }
 
-size_t CLengthEncodedInputParser::refillBuffer(void) {
+size_t CLengthEncodedInputParser::refillBuffer() {
     // NB: This assumes the buffer is allocated, which is OK for a private
     // method.  Callers are responsible for ensuring that the buffer isn't NULL
     // when calling this method.

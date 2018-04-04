@@ -20,12 +20,12 @@
 
 class CSetToolsTest : public CppUnit::TestFixture {
 public:
-    void testInplaceSetDifference(void);
-    void testSetSizes(void);
-    void testJaccard(void);
-    void testOverlap(void);
+    void testInplaceSetDifference();
+    void testSetSizes();
+    void testJaccard();
+    void testOverlap();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CSetToolsTest_h

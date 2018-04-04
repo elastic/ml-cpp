@@ -24,13 +24,13 @@
 namespace ml {
 namespace core {
 
-CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(void) : m_MaxRecycled(m_Recycled.max_size()) {
+CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool() : m_MaxRecycled(m_Recycled.max_size()) {
 }
 
 CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(size_t maxRecycled) : m_MaxRecycled(std::min(maxRecycled, m_Recycled.max_size())) {
 }
 
-CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(void) {
+CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode() {
     if (m_Recycled.empty()) {
         return boost::make_shared<CXmlNodeWithChildren>();
     }

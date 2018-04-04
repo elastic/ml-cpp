@@ -150,7 +150,7 @@ public:
     //@}
 
     //! Get the dimension of the underlying statistic.
-    std::size_t dimension(void) const { return m_Dimension; }
+    std::size_t dimension() const { return m_Dimension; }
 
     //! Get the feature data for the bucketing interval containing
     //! \p time.
@@ -246,7 +246,7 @@ public:
     //! Update the state to represent the start of a new bucket.
     void startNewBucket(core_t::TTime time) {
         m_BucketStats.push(TMetricPartialStatistic(m_Dimension), time);
-        for (auto&& stats : m_InfluencerBucketStats) {
+        for (auto& stats : m_InfluencerBucketStats) {
             stats.push(TStoredStringPtrStatUMap(1), time);
         }
         m_Samples.clear();
@@ -255,7 +255,7 @@ public:
     //! Reset the bucket state for the bucket containing \p bucketStart.
     void resetBucket(core_t::TTime bucketStart) {
         m_BucketStats.get(bucketStart) = TMetricPartialStatistic(m_Dimension);
-        for (auto&& stats : m_InfluencerBucketStats) {
+        for (auto& stats : m_InfluencerBucketStats) {
             stats.get(bucketStart) = TStoredStringPtrStatUMap(1);
         }
         m_SampleStats.resetBucket(bucketStart);
@@ -275,7 +275,7 @@ public:
     }
 
     //! Get the checksum of this gatherer.
-    uint64_t checksum(void) const {
+    uint64_t checksum() const {
         uint64_t seed = static_cast<uint64_t>(m_Classifier.isInteger());
         seed = maths::CChecksum::calculate(seed, m_Classifier.isNonNegative());
         seed = maths::CChecksum::calculate(seed, m_SampleStats);
@@ -293,13 +293,13 @@ public:
     }
 
     //! Get the memory used by this gatherer.
-    std::size_t memoryUsage(void) const {
+    std::size_t memoryUsage() const {
         return sizeof(*this) + core::CMemory::dynamicSize(m_SampleStats) + core::CMemory::dynamicSize(m_BucketStats) +
                core::CMemory::dynamicSize(m_InfluencerBucketStats) + core::CMemory::dynamicSize(m_Samples);
     }
 
     //! Print this gatherer for debug.
-    std::string print(void) const {
+    std::string print() const {
         std::ostringstream result;
         result << m_Classifier.isInteger() << ' ' << m_Classifier.isNonNegative() << ' ' << m_BucketStats.print() << ' '
                << m_SampleStats.print() << ' ' << core::CContainerPrinter::print(m_Samples) << ' '

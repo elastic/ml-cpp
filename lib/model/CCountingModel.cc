@@ -94,23 +94,23 @@ bool CCountingModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
     return true;
 }
 
-CAnomalyDetectorModel* CCountingModel::cloneForPersistence(void) const {
+CAnomalyDetectorModel* CCountingModel::cloneForPersistence() const {
     return new CCountingModel(true, *this);
 }
 
-model_t::EModelType CCountingModel::category(void) const {
+model_t::EModelType CCountingModel::category() const {
     return model_t::E_Counting;
 }
 
-bool CCountingModel::isPopulation(void) const {
+bool CCountingModel::isPopulation() const {
     return false;
 }
 
-bool CCountingModel::isEventRate(void) const {
+bool CCountingModel::isEventRate() const {
     return false;
 }
 
-bool CCountingModel::isMetric(void) const {
+bool CCountingModel::isMetric() const {
     return false;
 }
 
@@ -146,7 +146,7 @@ CCountingModel::TDouble1Vec CCountingModel::baselineBucketMean(model_t::EFeature
 }
 
 void CCountingModel::currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const {
-    typedef boost::unordered_set<std::size_t> TSizeUSet;
+    using TSizeUSet = boost::unordered_set<std::size_t>;
 
     result.clear();
 
@@ -219,7 +219,7 @@ void CCountingModel::setMatchedEventsDescriptions(core_t::TTime sampleTime, core
 
     if (matchedEvents.empty() == false) {
         TStr1Vec descriptions;
-        for (auto&& event : matchedEvents) {
+        for (auto& event : matchedEvents) {
             descriptions.push_back(event.first);
         }
         m_ScheduledEventDescriptions[bucketStartTime] = descriptions;
@@ -230,7 +230,7 @@ SModelParams::TStrDetectionRulePrVec CCountingModel::checkScheduledEvents(core_t
     const SModelParams::TStrDetectionRulePrVec& events = this->params().s_ScheduledEvents.get();
     SModelParams::TStrDetectionRulePrVec matchedEvents;
 
-    for (auto&& event : events) {
+    for (auto& event : events) {
         // Note that as the counting model is not aware of partitions
         // scheduled events cannot support partitions as the code stands.
         if (event.second.apply(CDetectionRule::E_SkipSampling,
@@ -296,23 +296,23 @@ void CCountingModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) c
     core::CMemoryDebug::dynamicSize("m_MeanCounts", m_MeanCounts, mem);
 }
 
-std::size_t CCountingModel::memoryUsage(void) const {
+std::size_t CCountingModel::memoryUsage() const {
     return this->CAnomalyDetectorModel::memoryUsage() + core::CMemory::dynamicSize(m_Counts) + core::CMemory::dynamicSize(m_MeanCounts);
 }
 
-std::size_t CCountingModel::computeMemoryUsage(void) const {
+std::size_t CCountingModel::computeMemoryUsage() const {
     return this->memoryUsage();
 }
 
-std::size_t CCountingModel::staticSize(void) const {
+std::size_t CCountingModel::staticSize() const {
     return sizeof(*this);
 }
 
-CCountingModel::CModelDetailsViewPtr CCountingModel::details(void) const {
+CCountingModel::CModelDetailsViewPtr CCountingModel::details() const {
     return CModelDetailsViewPtr();
 }
 
-core_t::TTime CCountingModel::currentBucketStartTime(void) const {
+core_t::TTime CCountingModel::currentBucketStartTime() const {
     return m_StartTime;
 }
 
@@ -366,7 +366,7 @@ void CCountingModel::updateCurrentBucketsStats(core_t::TTime time) {
     }
 }
 
-void CCountingModel::updateRecycledModels(void) {
+void CCountingModel::updateRecycledModels() {
     for (auto person : this->dataGatherer().recycledPersonIds()) {
         m_MeanCounts[person] = TMeanAccumulator();
     }
@@ -381,13 +381,13 @@ bool CCountingModel::bucketStatsAvailable(core_t::TTime time) const {
     return time >= m_StartTime && time < m_StartTime + this->bucketLength();
 }
 
-std::string CCountingModel::printCurrentBucket(void) const {
+std::string CCountingModel::printCurrentBucket() const {
     std::ostringstream result;
     result << "[" << m_StartTime << "," << m_StartTime + this->bucketLength() << ")";
     return result.str();
 }
 
-CMemoryUsageEstimator* CCountingModel::memoryUsageEstimator(void) const {
+CMemoryUsageEstimator* CCountingModel::memoryUsageEstimator() const {
     return 0;
 }
 }

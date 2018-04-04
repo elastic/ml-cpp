@@ -33,23 +33,23 @@ bool CMockModel::acceptRestoreTraverser(core::CStateRestoreTraverser& /*traverse
     return false;
 }
 
-CAnomalyDetectorModel* CMockModel::cloneForPersistence(void) const {
+CAnomalyDetectorModel* CMockModel::cloneForPersistence() const {
     return 0;
 }
 
-model_t::EModelType CMockModel::category(void) const {
+model_t::EModelType CMockModel::category() const {
     return model_t::E_MetricOnline;
 }
 
-bool CMockModel::isPopulation(void) const {
+bool CMockModel::isPopulation() const {
     return m_IsPopulation;
 }
 
-bool CMockModel::isEventRate(void) const {
+bool CMockModel::isEventRate() const {
     return false;
 }
 
-bool CMockModel::isMetric(void) const {
+bool CMockModel::isMetric() const {
     return false;
 }
 
@@ -121,19 +121,19 @@ uint64_t CMockModel::checksum(bool /*includeCurrentBucketStats*/) const {
 void CMockModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr /*mem*/) const {
 }
 
-std::size_t CMockModel::memoryUsage(void) const {
+std::size_t CMockModel::memoryUsage() const {
     return 0;
 }
 
-std::size_t CMockModel::computeMemoryUsage(void) const {
+std::size_t CMockModel::computeMemoryUsage() const {
     return 0;
 }
 
-std::size_t CMockModel::staticSize(void) const {
+std::size_t CMockModel::staticSize() const {
     return 0;
 }
 
-CMockModel::CModelDetailsViewPtr CMockModel::details(void) const {
+CMockModel::CModelDetailsViewPtr CMockModel::details() const {
     CModelDetailsViewPtr result{new CMockModelDetailsView(*this)};
     return result;
 }
@@ -142,7 +142,7 @@ double CMockModel::attributeFrequency(std::size_t /*cid*/) const {
     return 0.0;
 }
 
-core_t::TTime CMockModel::currentBucketStartTime(void) const {
+core_t::TTime CMockModel::currentBucketStartTime() const {
     return 0;
 }
 
@@ -152,7 +152,7 @@ void CMockModel::currentBucketStartTime(core_t::TTime /*time*/) {
 void CMockModel::createNewModels(std::size_t /*n*/, std::size_t /*m*/) {
 }
 
-void CMockModel::updateRecycledModels(void) {
+void CMockModel::updateRecycledModels() {
 }
 
 void CMockModel::clearPrunedResources(const TSizeVec& /*people*/, const TSizeVec& /*attributes*/) {
@@ -192,7 +192,7 @@ void CMockModel::mockTimeSeriesModels(const TMathsModelPtrVec& models) {
     m_Models = models;
 }
 
-CMemoryUsageEstimator* CMockModel::memoryUsageEstimator(void) const {
+CMemoryUsageEstimator* CMockModel::memoryUsageEstimator() const {
     return 0;
 }
 

@@ -56,12 +56,12 @@ namespace maths {
 template<typename POINT, typename COST = CSphericalGaussianInfoCriterion<POINT, E_BIC>>
 class CXMeans {
 public:
-    typedef std::vector<double> TDoubleVec;
-    typedef std::vector<POINT> TPointVec;
-    typedef std::vector<TPointVec> TPointVecVec;
-    typedef boost::unordered_set<uint64_t> TUInt64USet;
-    typedef TUInt64USet::iterator TUInt64USetItr;
-    typedef typename CBasicStatistics::SSampleMean<POINT>::TAccumulator TMeanAccumulator;
+    using TDoubleVec = std::vector<double>;
+    using TPointVec = std::vector<POINT>;
+    using TPointVecVec = std::vector<TPointVec>;
+    using TUInt64USet = boost::unordered_set<uint64_t>;
+    using TUInt64USetItr = TUInt64USet::iterator;
+    using TMeanAccumulator = typename CBasicStatistics::SSampleMean<POINT>::TAccumulator;
 
     //! A cluster.
     //!
@@ -71,7 +71,7 @@ public:
     //! points for stable comparison.
     class CCluster {
     public:
-        CCluster(void) : m_Cost(std::numeric_limits<double>::max()), m_Checksum(0) {}
+        CCluster() : m_Cost(std::numeric_limits<double>::max()), m_Checksum(0) {}
 
         //! Check for equality using checksum and then points if the
         //! checksum is ambiguous.
@@ -84,17 +84,17 @@ public:
         }
 
         //! Get the number of points in the cluster.
-        std::size_t size(void) const { return m_Points.size(); }
+        std::size_t size() const { return m_Points.size(); }
 
         //! Set the cluster cost.
         void cost(double cost) { m_Cost = cost; }
         //! Get the cluster cost.
-        double cost(void) const { return m_Cost; }
+        double cost() const { return m_Cost; }
 
         //! Set the cluster centre.
         void centre(const POINT& centre) { m_Centre = centre; }
         //! Get the cluster centre.
-        const POINT& centre(void) const { return m_Centre; }
+        const POINT& centre() const { return m_Centre; }
 
         //! Swap the points into place and recalculate the checksum.
         void points(TPointVec& points) {
@@ -103,10 +103,10 @@ public:
             m_Checksum = CChecksum::calculate(0, m_Points);
         }
         //! Get the cluster points.
-        const TPointVec& points(void) const { return m_Points; }
+        const TPointVec& points() const { return m_Points; }
 
         //! Get the cluster checksum.
-        uint64_t checksum(void) const { return m_Checksum; }
+        uint64_t checksum() const { return m_Checksum; }
 
     private:
         //! The information criterion cost of this cluster.
@@ -119,7 +119,7 @@ public:
         uint64_t m_Checksum;
     };
 
-    typedef std::vector<CCluster> TClusterVec;
+    using TClusterVec = std::vector<CCluster>;
 
 public:
     CXMeans(std::size_t kmax) : m_Kmax(kmax), m_MinCost(std::numeric_limits<double>::max()) {
@@ -145,10 +145,10 @@ public:
     }
 
     //! Get the best centres found to date.
-    const TPointVec& centres(void) const { return m_BestCentres; }
+    const TPointVec& centres() const { return m_BestCentres; }
 
     //! Get the best clusters found to date.
-    const TClusterVec& clusters(void) const { return m_Clusters; }
+    const TClusterVec& clusters() const { return m_Clusters; }
 
     //! Run the full x-means algorithm.
     //!
@@ -180,8 +180,8 @@ protected:
     //! \param[in] kmeansIterations The limit on the number of
     //! iterations of Lloyd's algorithm to use.
     void improveParams(std::size_t kmeansIterations) {
-        typedef const CCluster* TClusterCPtr;
-        typedef std::vector<TClusterCPtr> TClusterCPtrVec;
+        using TClusterCPtr = const CCluster*;
+        using TClusterCPtrVec = std::vector<TClusterCPtr>;
 
         std::size_t n = m_Clusters.size();
 
@@ -342,7 +342,7 @@ protected:
     }
 
     //! Get the checksums of the clusters which are inactive.
-    const TUInt64USet& inactive(void) const { return m_Inactive; }
+    const TUInt64USet& inactive() const { return m_Inactive; }
 
 private:
     //! Generate seed points for the cluster centres in k-splits

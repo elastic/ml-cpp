@@ -67,12 +67,12 @@ namespace model {
 //! state can be maintained.
 class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel {
 public:
-    typedef std::vector<core_t::TTime> TTimeVec;
-    typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-    typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-    typedef std::vector<maths::CCountMinSketch> TCountMinSketchVec;
-    typedef std::vector<maths::CBjkstUniqueValues> TBjkstUniqueValuesVec;
-    typedef boost::unordered_map<std::size_t, core_t::TTime> TSizeTimeUMap;
+    using TTimeVec = std::vector<core_t::TTime>;
+    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+    using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
+    using TCountMinSketchVec = std::vector<maths::CCountMinSketch>;
+    using TBjkstUniqueValuesVec = std::vector<maths::CBjkstUniqueValues>;
+    using TSizeTimeUMap = boost::unordered_map<std::size_t, core_t::TTime>;
 
     //! Lift the overloads of baselineBucketMean into the class scope.
     using CAnomalyDetectorModel::baselineBucketMean;
@@ -100,7 +100,7 @@ public:
     //@}
 
     //! Returns true.
-    virtual bool isPopulation(void) const;
+    virtual bool isPopulation() const;
 
     //! \name Bucket Statistics
     //@{
@@ -168,13 +168,13 @@ public:
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
 
     //! Get the memory used by this model.
-    virtual std::size_t memoryUsage(void) const = 0;
+    virtual std::size_t memoryUsage() const = 0;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize(void) const = 0;
+    virtual std::size_t staticSize() const = 0;
 
     //! Get the non-estimated value of the the memory used by this model.
-    virtual std::size_t computeMemoryUsage(void) const = 0;
+    virtual std::size_t computeMemoryUsage() const = 0;
 
     //! Get the frequency of the attribute identified by \p cid.
     virtual double attributeFrequency(std::size_t cid) const;
@@ -189,7 +189,7 @@ protected:
     public:
         CCorrectionKey(model_t::EFeature feature, std::size_t pid, std::size_t cid, std::size_t correlated = 0);
         bool operator==(const CCorrectionKey& rhs) const;
-        std::size_t hash(void) const;
+        std::size_t hash() const;
 
     private:
         model_t::EFeature m_Feature;
@@ -212,7 +212,7 @@ protected:
     bool doAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Get the current bucket person counts.
-    virtual const TSizeUInt64PrVec& personCounts(void) const = 0;
+    virtual const TSizeUInt64PrVec& personCounts() const = 0;
 
     //! Check if bucket statistics are available for the specified time.
     virtual bool bucketStatsAvailable(core_t::TTime time) const = 0;
@@ -226,7 +226,7 @@ protected:
 
     //! Initialize the time series models for recycled attributes
     //! and/or people.
-    virtual void updateRecycledModels(void) = 0;
+    virtual void updateRecycledModels() = 0;
 
     //! Update the correlation models.
     virtual void refreshCorrelationModels(std::size_t resourceLimit, CResourceMonitor& resourceMonitor) = 0;
@@ -252,9 +252,9 @@ protected:
     void applyFilters(bool updateStatistics, const PERSON_FILTER& personFilter, const ATTRIBUTE_FILTER& attributeFilter, T& data) const;
 
     //! Get the first time each attribute was seen.
-    const TTimeVec& attributeFirstBucketTimes(void) const;
+    const TTimeVec& attributeFirstBucketTimes() const;
     //! Get the last time each attribute was seen.
-    const TTimeVec& attributeLastBucketTimes(void) const;
+    const TTimeVec& attributeLastBucketTimes() const;
 
     //! Get the people and attributes to remove if any.
     void

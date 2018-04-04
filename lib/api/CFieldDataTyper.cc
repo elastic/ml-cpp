@@ -75,11 +75,11 @@ CFieldDataTyper::CFieldDataTyper(const std::string& jobId,
     m_CategorizationFilter.configure(config.categorizationFilters());
 }
 
-CFieldDataTyper::~CFieldDataTyper(void) {
+CFieldDataTyper::~CFieldDataTyper() {
     m_DataTyper->dumpStats();
 }
 
-void CFieldDataTyper::newOutputStream(void) {
+void CFieldDataTyper::newOutputStream() {
     m_WriteFieldNames = true;
     m_OutputHandler.newOutputStream();
 }
@@ -120,7 +120,7 @@ bool CFieldDataTyper::handleRecord(const TStrStrUMap& dataRowFields) {
     return true;
 }
 
-void CFieldDataTyper::finalise(void) {
+void CFieldDataTyper::finalise() {
     // Pass on the request in case we're chained
     m_OutputHandler.finalise();
 
@@ -132,11 +132,11 @@ void CFieldDataTyper::finalise(void) {
     }
 }
 
-uint64_t CFieldDataTyper::numRecordsHandled(void) const {
+uint64_t CFieldDataTyper::numRecordsHandled() const {
     return m_NumRecordsHandled;
 }
 
-COutputHandler& CFieldDataTyper::outputHandler(void) {
+COutputHandler& CFieldDataTyper::outputHandler() {
     return m_OutputHandler;
 }
 
@@ -405,7 +405,7 @@ bool CFieldDataTyper::periodicPersistState(CBackgroundPersister& persister) {
     return true;
 }
 
-void CFieldDataTyper::resetAfterCorruptRestore(void) {
+void CFieldDataTyper::resetAfterCorruptRestore() {
     LOG_WARN("Discarding corrupt categorizer state - will re-categorize from scratch");
 
     m_SearchTerms.clear();

@@ -19,7 +19,7 @@
 
 class CByteSwapperTest : public CppUnit::TestFixture {
 public:
-    void testByteSwaps(void);
+    void testByteSwaps();
 
     static CppUnit::Test* suite();
 };

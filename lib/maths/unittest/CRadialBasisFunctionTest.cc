@@ -29,7 +29,7 @@ namespace {
 
 class CValueAdaptor {
 public:
-    typedef double result_type;
+    using result_type = double;
 
 public:
     CValueAdaptor(const maths::CRadialBasisFunction& function, double centre, double scale)
@@ -64,7 +64,7 @@ private:
 };
 }
 
-void CRadialBasisFunctionTest::testDerivative(void) {
+void CRadialBasisFunctionTest::testDerivative() {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CRadialBasisFunctionTest::testDerivative  |");
     LOG_DEBUG("+--------------------------------------------+");
@@ -117,7 +117,7 @@ void CRadialBasisFunctionTest::testDerivative(void) {
     }
 }
 
-void CRadialBasisFunctionTest::testMean(void) {
+void CRadialBasisFunctionTest::testMean() {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CRadialBasisFunctionTest::testMean  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -178,7 +178,7 @@ void CRadialBasisFunctionTest::testMean(void) {
     }
 }
 
-void CRadialBasisFunctionTest::testMeanSquareDerivative(void) {
+void CRadialBasisFunctionTest::testMeanSquareDerivative() {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CRadialBasisFunctionTest::testMean  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -239,7 +239,7 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative(void) {
     }
 }
 
-void CRadialBasisFunctionTest::testProduct(void) {
+void CRadialBasisFunctionTest::testProduct() {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CRadialBasisFunctionTest::testProduct  |");
     LOG_DEBUG("+-----------------------------------------+");
@@ -314,7 +314,7 @@ void CRadialBasisFunctionTest::testProduct(void) {
     }
 }
 
-CppUnit::Test* CRadialBasisFunctionTest::suite(void) {
+CppUnit::Test* CRadialBasisFunctionTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRadialBasisFunctionTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testDerivative",

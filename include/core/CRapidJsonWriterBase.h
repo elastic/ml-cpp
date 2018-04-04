@@ -20,6 +20,7 @@
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CRapidJsonPoolAllocator.h>
+#include <core/CTimeUtils.h>
 #include <core/CoreTypes.h>
 #include <core/ImportExport.h>
 
@@ -70,24 +71,24 @@ template<typename OUTPUT_STREAM,
          template<typename, typename, typename, typename, unsigned> class JSON_WRITER = rapidjson::Writer>
 class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS> {
 public:
-    typedef std::vector<core_t::TTime> TTimeVec;
-    typedef std::vector<std::string> TStrVec;
-    typedef std::vector<double> TDoubleVec;
-    typedef std::pair<double, double> TDoubleDoublePr;
-    typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-    typedef std::pair<double, TDoubleDoublePr> TDoubleDoubleDoublePrPr;
-    typedef std::vector<TDoubleDoubleDoublePrPr> TDoubleDoubleDoublePrPrVec;
-    typedef boost::unordered_set<std::string> TStrUSet;
-    typedef rapidjson::Document TDocument;
-    typedef rapidjson::Value TValue;
-    typedef boost::weak_ptr<TDocument> TDocumentWeakPtr;
-    typedef boost::shared_ptr<TValue> TValuePtr;
+    using TTimeVec = std::vector<core_t::TTime>;
+    using TStrVec = std::vector<std::string>;
+    using TDoubleVec = std::vector<double>;
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+    using TDoubleDoubleDoublePrPr = std::pair<double, TDoubleDoublePr>;
+    using TDoubleDoubleDoublePrPrVec = std::vector<TDoubleDoubleDoublePrPr>;
+    using TStrUSet = boost::unordered_set<std::string>;
+    using TDocument = rapidjson::Document;
+    using TValue = rapidjson::Value;
+    using TDocumentWeakPtr = boost::weak_ptr<TDocument>;
+    using TValuePtr = boost::shared_ptr<TValue>;
 
-    typedef boost::shared_ptr<CRapidJsonPoolAllocator> TPoolAllocatorPtr;
-    typedef std::stack<TPoolAllocatorPtr> TPoolAllocatorPtrStack;
-    typedef boost::unordered_map<std::string, TPoolAllocatorPtr> TStrPoolAllocatorPtrMap;
-    typedef TStrPoolAllocatorPtrMap::iterator TStrPoolAllocatorPtrMapItr;
-    typedef std::pair<TStrPoolAllocatorPtrMapItr, bool> TStrPoolAllocatorPtrMapItrBoolPr;
+    using TPoolAllocatorPtr = boost::shared_ptr<CRapidJsonPoolAllocator>;
+    using TPoolAllocatorPtrStack = std::stack<TPoolAllocatorPtr>;
+    using TStrPoolAllocatorPtrMap = boost::unordered_map<std::string, TPoolAllocatorPtr>;
+    using TStrPoolAllocatorPtrMapItr = TStrPoolAllocatorPtrMap::iterator;
+    using TStrPoolAllocatorPtrMapItrBoolPr = std::pair<TStrPoolAllocatorPtrMapItr, bool>;
 
 public:
     using TRapidJsonWriterBase = JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS>;
@@ -164,6 +165,9 @@ public:
 
         return TRapidJsonWriterBase::Double(d);
     }
+
+    //! Writes an epoch second timestamp as an epoch millis timestamp
+    bool Time(core_t::TTime t) { return this->Int64(CTimeUtils::toEpochMs(t)); }
 
     //! Push a constant string into a supplied rapidjson object value
     //! \p[in] value constant string
@@ -320,8 +324,7 @@ public:
     //! Automatically turns time from 'seconds_since_epoch' into 'milliseconds_since_epoch'
     //! \p fieldName must outlive \p obj or memory corruption will occur.
     void addTimeFieldToObj(const std::string& fieldName, core_t::TTime value, TValue& obj) const {
-        int64_t javaTimestamp = int64_t(value) * 1000;
-        TValue v(javaTimestamp);
+        TValue v(CTimeUtils::toEpochMs(value));
         this->addMember(fieldName, v, obj);
     }
 
@@ -436,7 +439,7 @@ public:
         TValue array = this->makeArray(values.size());
 
         for (const auto& value : values) {
-            this->pushBack(value * int64_t(1000), array);
+            this->pushBack(CTimeUtils::toEpochMs(value), array);
         }
 
         this->addMember(fieldName, array, obj);

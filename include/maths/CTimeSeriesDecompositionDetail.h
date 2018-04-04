@@ -130,8 +130,8 @@ public:
     //! series decomposition.
     class MATHS_EXPORT CHandler : core::CNonCopyable {
     public:
-        CHandler(void);
-        virtual ~CHandler(void);
+        CHandler();
+        virtual ~CHandler();
 
         //! Add a value.
         virtual void handle(const SAddValue& message);
@@ -149,7 +149,7 @@ public:
         void mediator(CMediator* mediator);
 
         //! Get the mediator.
-        CMediator* mediator(void) const;
+        CMediator* mediator() const;
 
     private:
         //! The controller responsible for forwarding messages.
@@ -170,7 +170,7 @@ public:
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         using THandlerRef = boost::reference_wrapper<CHandler>;
@@ -217,7 +217,7 @@ public:
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         using TTimeAry = boost::array<core_t::TTime, 2>;
@@ -246,7 +246,7 @@ public:
 
         //! Account for memory that is not yet allocated
         //! during the initial state
-        std::size_t extraMemoryOnInitialization(void) const;
+        std::size_t extraMemoryOnInitialization() const;
 
     private:
         //! The state machine.
@@ -298,7 +298,7 @@ public:
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         using TCalendarCyclicTestPtr = boost::shared_ptr<CCalendarCyclicTest>;
@@ -315,7 +315,7 @@ public:
 
         //! Account for memory that is not yet allocated
         //! during the initial state
-        std::size_t extraMemoryOnInitialization(void) const;
+        std::size_t extraMemoryOnInitialization() const;
 
     private:
         //! The state machine.
@@ -341,10 +341,10 @@ public:
         class MATHS_EXPORT CScopeNotifyOnStateChange : core::CNonCopyable {
         public:
             CScopeNotifyOnStateChange(CComponents& components);
-            ~CScopeNotifyOnStateChange(void);
+            ~CScopeNotifyOnStateChange();
 
             //! Check if the seasonal component's state changed.
-            bool changed(void) const;
+            bool changed() const;
 
         private:
             //! The seasonal components this is watching.
@@ -379,38 +379,38 @@ public:
         void decayRate(double decayRate);
 
         //! Get the decay rate.
-        double decayRate(void) const;
+        double decayRate() const;
 
         //! Age the components to account for the interval \p end - \p start
         //! elapsed time.
         void propagateForwards(core_t::TTime start, core_t::TTime end);
 
         //! Check if the decomposition has any initialized components.
-        bool initialized(void) const;
+        bool initialized() const;
 
         //! Get the long term trend.
-        const CTrendComponent& trend(void) const;
+        const CTrendComponent& trend() const;
 
         //! Get the seasonal components.
-        const maths_t::TSeasonalComponentVec& seasonal(void) const;
+        const maths_t::TSeasonalComponentVec& seasonal() const;
 
         //! Get the calendar components.
-        const maths_t::TCalendarComponentVec& calendar(void) const;
+        const maths_t::TCalendarComponentVec& calendar() const;
 
         //! Return true if we're using the trend for prediction.
-        bool usingTrendForPrediction(void) const;
+        bool usingTrendForPrediction() const;
 
         //! Get configuration for the periodicity test.
-        CPeriodicityHypothesisTestsConfig periodicityTestConfig(void) const;
+        CPeriodicityHypothesisTestsConfig periodicityTestConfig() const;
 
         //! Get the mean value of the baseline in the vicinity of \p time.
         double meanValue(core_t::TTime time) const;
 
         //! Get the mean variance of the baseline.
-        double meanVariance(void) const;
+        double meanVariance() const;
 
         //! Get the mean error variance scale for the components.
-        double meanVarianceScale(void) const;
+        double meanVarianceScale() const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -419,7 +419,7 @@ public:
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by this object.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         using TOptionalDouble = boost::optional<double>;
@@ -440,7 +440,7 @@ public:
             bool fromDelimited(const std::string& str);
 
             //! Convert to a delimited string.
-            std::string toDelimited(void) const;
+            std::string toDelimited() const;
 
             //! Update the errors.
             //!
@@ -450,7 +450,7 @@ public:
             void add(double error, double prediction, double weight);
 
             //! Clear the error statistics.
-            void clear(void);
+            void clear();
 
             //! Check if we should discard \p seasonal.
             bool remove(core_t::TTime bucketLength, CSeasonalComponent& seasonal) const;
@@ -495,7 +495,7 @@ public:
             void propagateForwards(core_t::TTime start, core_t::TTime end);
 
             //! Get the combined size of the seasonal components.
-            std::size_t size(void) const;
+            std::size_t size() const;
 
             //! Get the state to update.
             void componentsErrorsAndDeltas(core_t::TTime time,
@@ -510,7 +510,7 @@ public:
             void interpolate(core_t::TTime time, core_t::TTime last, bool refine);
 
             //! Check if any of the components has been initialized.
-            bool initialized(void) const;
+            bool initialized() const;
 
             //! Remove low value components
             bool prune(core_t::TTime time, core_t::TTime bucketLength);
@@ -525,7 +525,7 @@ public:
             void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
             //! Get the memory used by this object.
-            std::size_t memoryUsage(void) const;
+            std::size_t memoryUsage() const;
 
             //! The seasonal components.
             maths_t::TSeasonalComponentVec s_Components;
@@ -552,7 +552,7 @@ public:
             void propagateForwards(core_t::TTime start, core_t::TTime end);
 
             //! Get the combined size of the seasonal components.
-            std::size_t size(void) const;
+            std::size_t size() const;
 
             //! Check if there is already a component for \p feature.
             bool haveComponent(CCalendarFeature feature) const;
@@ -567,7 +567,7 @@ public:
             void interpolate(core_t::TTime time, core_t::TTime last, bool refine);
 
             //! Check if any of the components has been initialized.
-            bool initialized(void) const;
+            bool initialized() const;
 
             //! Remove low value components.
             bool prune(core_t::TTime time, core_t::TTime bucketLength);
@@ -579,7 +579,7 @@ public:
             void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
             //! Get the memory used by this object.
-            std::size_t memoryUsage(void) const;
+            std::size_t memoryUsage() const;
 
             //! The calendar components.
             maths_t::TCalendarComponentVec s_Components;
@@ -592,10 +592,10 @@ public:
 
     private:
         //! Get the total size of the components.
-        std::size_t size(void) const;
+        std::size_t size() const;
 
         //! Get the maximum permitted size of the components.
-        std::size_t maxSize(void) const;
+        std::size_t maxSize() const;
 
         //! Add new seasonal components to \p components.
         bool addSeasonalComponents(const CPeriodicityHypothesisTestsResult& result,
@@ -612,7 +612,7 @@ public:
                                   TComponentErrorsVec& errors) const;
 
         //! Clear all component error statistics.
-        void clearComponentErrors(void);
+        void clearComponentErrors();
 
         //! Handle \p symbol.
         void apply(std::size_t symbol, const SMessage& message);

@@ -158,7 +158,7 @@ void CSearchKey::swap(CSearchKey& other) {
 }
 
 bool CSearchKey::operator==(const CSearchKey& rhs) const {
-    typedef std::equal_to<std::string> TStrEqualTo;
+    using TStrEqualTo = std::equal_to<std::string>;
 
     return this->hash() == rhs.hash() && m_Identifier == rhs.m_Identifier && m_Function == rhs.m_Function && m_UseNull == rhs.m_UseNull &&
            m_ExcludeFrequent == rhs.m_ExcludeFrequent && m_FieldName == rhs.m_FieldName && m_ByFieldName == rhs.m_ByFieldName &&
@@ -238,11 +238,11 @@ const CSearchKey SIMPLE_COUNT_KEY(0, // identifier
                                   CSearchKey::COUNT_NAME);
 }
 
-const CSearchKey& CSearchKey::simpleCountKey(void) {
+const CSearchKey& CSearchKey::simpleCountKey() {
     return SIMPLE_COUNT_KEY;
 }
 
-bool CSearchKey::isSimpleCount(void) const {
+bool CSearchKey::isSimpleCount() const {
     return isSimpleCount(m_Function, *m_ByFieldName);
 }
 
@@ -250,15 +250,15 @@ bool CSearchKey::isSimpleCount(function_t::EFunction function, const std::string
     return function == function_t::E_IndividualCount && byFieldName == COUNT_NAME;
 }
 
-bool CSearchKey::isMetric(void) const {
+bool CSearchKey::isMetric() const {
     return function_t::isMetric(m_Function);
 }
 
-bool CSearchKey::isPopulation(void) const {
+bool CSearchKey::isPopulation() const {
     return function_t::isPopulation(m_Function);
 }
 
-std::string CSearchKey::toCue(void) const {
+std::string CSearchKey::toCue() const {
     std::string cue;
     cue.reserve(64 + // hopefully covers function description and slashes
                 m_FieldName->length() + m_ByFieldName->length() + m_OverFieldName->length() + m_PartitionFieldName->length());
@@ -282,25 +282,25 @@ std::string CSearchKey::toCue(void) const {
     return cue;
 }
 
-std::string CSearchKey::debug(void) const {
+std::string CSearchKey::debug() const {
     std::ostringstream strm;
     strm << *this;
     return strm.str();
 }
 
-int CSearchKey::identifier(void) const {
+int CSearchKey::identifier() const {
     return m_Identifier;
 }
 
-function_t::EFunction CSearchKey::function(void) const {
+function_t::EFunction CSearchKey::function() const {
     return m_Function;
 }
 
-bool CSearchKey::useNull(void) const {
+bool CSearchKey::useNull() const {
     return m_UseNull;
 }
 
-model_t::EExcludeFrequent CSearchKey::excludeFrequent(void) const {
+model_t::EExcludeFrequent CSearchKey::excludeFrequent() const {
     return m_ExcludeFrequent;
 }
 
@@ -308,27 +308,27 @@ bool CSearchKey::hasField(const std::string& name) const {
     return *m_PartitionFieldName == name || *m_OverFieldName == name || *m_ByFieldName == name || *m_FieldName == name;
 }
 
-const std::string& CSearchKey::fieldName(void) const {
+const std::string& CSearchKey::fieldName() const {
     return *m_FieldName;
 }
 
-const std::string& CSearchKey::byFieldName(void) const {
+const std::string& CSearchKey::byFieldName() const {
     return *m_ByFieldName;
 }
 
-const std::string& CSearchKey::overFieldName(void) const {
+const std::string& CSearchKey::overFieldName() const {
     return *m_OverFieldName;
 }
 
-const std::string& CSearchKey::partitionFieldName(void) const {
+const std::string& CSearchKey::partitionFieldName() const {
     return *m_PartitionFieldName;
 }
 
-const CSearchKey::TStoredStringPtrVec& CSearchKey::influenceFieldNames(void) const {
+const CSearchKey::TStoredStringPtrVec& CSearchKey::influenceFieldNames() const {
     return m_InfluenceFieldNames;
 }
 
-uint64_t CSearchKey::hash(void) const {
+uint64_t CSearchKey::hash() const {
     if (m_Hash != 0) {
         return m_Hash;
     }

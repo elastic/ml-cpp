@@ -30,7 +30,7 @@ namespace core {
 // Initialise class static data
 const core_t::TTime CTimeUtils::MAX_CLOCK_DISCREPANCY(300);
 
-core_t::TTime CTimeUtils::now(void) {
+core_t::TTime CTimeUtils::now() {
     return ::time(0);
 }
 
@@ -50,6 +50,10 @@ std::string CTimeUtils::toTimeString(core_t::TTime t) {
     std::string result;
     CTimeUtils::toStringCommon(t, "%H:%M:%S", result);
     return result;
+}
+
+int64_t CTimeUtils::toEpochMs(core_t::TTime t) {
+    return static_cast<int64_t>(t) * 1000;
 }
 
 bool CTimeUtils::strptime(const std::string& format, const std::string& dateTime, core_t::TTime& preTime) {
@@ -145,7 +149,7 @@ bool CTimeUtils::isDateWord(const std::string& word) {
 CFastMutex CTimeUtils::CDateWordCache::ms_InitMutex;
 volatile CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance(0);
 
-const CTimeUtils::CDateWordCache& CTimeUtils::CDateWordCache::instance(void) {
+const CTimeUtils::CDateWordCache& CTimeUtils::CDateWordCache::instance() {
     if (ms_Instance == 0) {
         CScopedFastLock lock(ms_InitMutex);
 
@@ -166,7 +170,7 @@ bool CTimeUtils::CDateWordCache::isDateWord(const std::string& word) const {
     return m_DateWords.find(word) != m_DateWords.end();
 }
 
-CTimeUtils::CDateWordCache::CDateWordCache(void) {
+CTimeUtils::CDateWordCache::CDateWordCache() {
     static const size_t SIZE(256);
     char buf[SIZE] = {'\0'};
 
@@ -241,7 +245,7 @@ CTimeUtils::CDateWordCache::CDateWordCache(void) {
     }
 }
 
-CTimeUtils::CDateWordCache::~CDateWordCache(void) {
+CTimeUtils::CDateWordCache::~CDateWordCache() {
     ms_Instance = 0;
 }
 }

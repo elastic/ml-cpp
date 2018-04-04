@@ -19,10 +19,10 @@
 
 class CDualThreadStreamBufTest : public CppUnit::TestFixture {
 public:
-    void testThroughput(void);
-    void testSlowConsumer(void);
-    void testPutback(void);
-    void testFatal(void);
+    void testThroughput();
+    void testSlowConsumer();
+    void testPutback();
+    void testFatal();
 
     static CppUnit::Test* suite();
 };

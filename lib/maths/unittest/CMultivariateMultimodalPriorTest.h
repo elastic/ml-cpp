@@ -20,22 +20,22 @@
 
 class CMultivariateMultimodalPriorTest : public CppUnit::TestFixture {
 public:
-    void testMultipleUpdate(void);
-    void testPropagation(void);
-    void testSingleMode(void);
-    void testMultipleModes(void);
-    void testSplitAndMerge(void);
-    void testMarginalLikelihood(void);
-    void testMarginalLikelihoodMean(void);
-    void testMarginalLikelihoodMode(void);
-    void testSampleMarginalLikelihood(void);
-    void testProbabilityOfLessLikelySamples(void);
-    void testIntegerData(void);
-    void testLowVariationData(void);
-    void testLatLongData(void);
-    void testPersist(void);
+    void testMultipleUpdate();
+    void testPropagation();
+    void testSingleMode();
+    void testMultipleModes();
+    void testSplitAndMerge();
+    void testMarginalLikelihood();
+    void testMarginalLikelihoodMean();
+    void testMarginalLikelihoodMode();
+    void testSampleMarginalLikelihood();
+    void testProbabilityOfLessLikelySamples();
+    void testIntegerData();
+    void testLowVariationData();
+    void testLatLongData();
+    void testPersist();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CMultivariateMultimodalPriorTest_h

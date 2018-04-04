@@ -21,7 +21,7 @@
 namespace ml {
 namespace core {
 
-CMonotonicTime::CMonotonicTime(void) : m_ScalingFactor1(1), m_ScalingFactor2(1000000), m_ScalingFactor3(1) {
+CMonotonicTime::CMonotonicTime() : m_ScalingFactor1(1), m_ScalingFactor2(1000000), m_ScalingFactor3(1) {
     mach_timebase_info_data_t info;
     if (::mach_timebase_info(&info) != 0) {
         // Assume numerator and denominator for nanoseconds are both 1 (which is
@@ -34,11 +34,11 @@ CMonotonicTime::CMonotonicTime(void) : m_ScalingFactor1(1), m_ScalingFactor2(100
     }
 }
 
-uint64_t CMonotonicTime::milliseconds(void) const {
+uint64_t CMonotonicTime::milliseconds() const {
     return ::mach_absolute_time() * m_ScalingFactor1 / m_ScalingFactor2;
 }
 
-uint64_t CMonotonicTime::nanoseconds(void) const {
+uint64_t CMonotonicTime::nanoseconds() const {
     return ::mach_absolute_time() * m_ScalingFactor1 / m_ScalingFactor3;
 }
 }

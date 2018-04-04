@@ -35,8 +35,8 @@ using namespace model;
 
 namespace {
 
-typedef std::vector<model_t::EFeature> TFeatureVec;
-typedef std::vector<std::string> TStrVec;
+using TFeatureVec = std::vector<model_t::EFeature>;
+using TStrVec = std::vector<std::string>;
 
 const std::string EMPTY_STRING;
 }
@@ -78,7 +78,7 @@ CppUnit::Test* CDetectionRuleTest::suite() {
     return suiteOfTests;
 }
 
-void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
+void CDetectionRuleTest::testApplyGivenCategoricalCondition() {
     LOG_DEBUG("*** testApplyGivenCategoricalCondition ***");
 
     core_t::TTime bucketLength = 100;
@@ -307,7 +307,7 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
     }
 }
 
-void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void) {
+void CDetectionRuleTest::testApplyGivenNumericalActualCondition() {
     LOG_DEBUG("*** testApplyGivenNumericalActionCondition ***");
 
     core_t::TTime bucketLength = 100;
@@ -419,7 +419,7 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void) {
     }
 }
 
-void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition(void) {
+void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition() {
     LOG_DEBUG("*** testApplyGivenNumericalTypicalCondition ***");
 
     core_t::TTime bucketLength = 100;
@@ -503,7 +503,7 @@ void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition(void) {
     }
 }
 
-void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition(void) {
+void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition() {
     LOG_DEBUG("*** testApplyGivenNumericalDiffAbsCondition ***");
 
     core_t::TTime bucketLength = 100;
@@ -609,7 +609,7 @@ void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition(void) {
     }
 }
 
-void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField(void) {
+void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField() {
     LOG_DEBUG("*** testApplyGivenSingleSeriesModelAndConditionWithField ***");
 
     core_t::TTime bucketLength = 100;
@@ -666,7 +666,7 @@ void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField(vo
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == false);
 }
 
-void CDetectionRuleTest::testApplyGivenNoActualValueAvailable(void) {
+void CDetectionRuleTest::testApplyGivenNoActualValueAvailable() {
     LOG_DEBUG("*** testApplyGivenNoActualValueAvailable ***");
 
     core_t::TTime bucketLength = 100;
@@ -717,7 +717,7 @@ void CDetectionRuleTest::testApplyGivenNoActualValueAvailable(void) {
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_IndividualMeanByPerson, resultType, 0, 0, 400) == false);
 }
 
-void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel(void) {
+void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel() {
     LOG_DEBUG("*** testApplyGivenDifferentSeriesAndIndividualModel ***");
 
     core_t::TTime bucketLength = 100;
@@ -772,7 +772,7 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel(void) {
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_IndividualMeanByPerson, resultType, 1, 0, 100) == false);
 }
 
-void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel(void) {
+void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel() {
     LOG_DEBUG("*** testApplyGivenDifferentSeriesAndPopulationModel ***");
 
     core_t::TTime bucketLength = 100;
@@ -844,7 +844,7 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel(void) {
         rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) == false);
 }
 
-void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void) {
+void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr() {
     LOG_DEBUG("*** testApplyGivenMultipleConditionsWithOr ***");
 
     core_t::TTime bucketLength = 100;
@@ -971,7 +971,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void) {
     }
 }
 
-void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void) {
+void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd() {
     LOG_DEBUG("*** testApplyGivenMultipleConditionsWithAnd ***");
 
     core_t::TTime bucketLength = 100;
@@ -1104,7 +1104,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void) {
     }
 }
 
-void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(void) {
+void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel() {
     LOG_DEBUG("*** testApplyGivenTargetFieldIsPartitionAndIndividualModel ***");
 
     core_t::TTime bucketLength = 100;
@@ -1204,7 +1204,7 @@ void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(
     }
 }
 
-void CDetectionRuleTest::testApplyGivenTimeCondition(void) {
+void CDetectionRuleTest::testApplyGivenTimeCondition() {
     LOG_DEBUG("*** testApplyGivenTimeCondition ***");
 
     core_t::TTime bucketLength = 100;
@@ -1256,7 +1256,7 @@ void CDetectionRuleTest::testApplyGivenTimeCondition(void) {
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model, model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
 }
 
-void CDetectionRuleTest::testRuleActions(void) {
+void CDetectionRuleTest::testRuleActions() {
     LOG_DEBUG("*** testRuleActions ***");
 
     core_t::TTime bucketLength = 100;

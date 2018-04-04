@@ -142,21 +142,21 @@ CAnomalyDetector::CAnomalyDetector(bool isForPersistence, const CAnomalyDetector
     }
 }
 
-CAnomalyDetector::~CAnomalyDetector(void) {
+CAnomalyDetector::~CAnomalyDetector() {
     if (!m_IsForPersistence) {
         m_Limits.resourceMonitor().unRegisterComponent(*this);
     }
 }
 
-size_t CAnomalyDetector::numberActivePeople(void) const {
+size_t CAnomalyDetector::numberActivePeople() const {
     return m_DataGatherer->numberActivePeople();
 }
 
-size_t CAnomalyDetector::numberActiveAttributes(void) const {
+size_t CAnomalyDetector::numberActiveAttributes() const {
     return m_DataGatherer->numberActiveAttributes();
 }
 
-size_t CAnomalyDetector::maxDimension(void) const {
+size_t CAnomalyDetector::maxDimension() const {
     return m_DataGatherer->maxDimension();
 }
 
@@ -339,7 +339,7 @@ void CAnomalyDetector::legacyModelsAcceptPersistInserter(core::CStatePersistInse
     inserter.insertLevel(MODEL_TAG, boost::bind(&CAnomalyDetectorModel::acceptPersistInserter, m_Model.get(), _1));
 }
 
-const CAnomalyDetector::TStrVec& CAnomalyDetector::fieldsOfInterest(void) const {
+const CAnomalyDetector::TStrVec& CAnomalyDetector::fieldsOfInterest() const {
     return m_DataGatherer->fieldsOfInterest();
 }
 
@@ -539,7 +539,7 @@ void CAnomalyDetector::buildInterimResults(core_t::TTime bucketStartTime, core_t
                              results);
 }
 
-void CAnomalyDetector::pruneModels(void) {
+void CAnomalyDetector::pruneModels() {
     // Purge out any ancient models which are effectively dead.
     m_Model->prune(m_Model->defaultPruneWindow());
 }
@@ -567,26 +567,26 @@ void CAnomalyDetector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
     core::CMemoryDebug::dynamicSize("m_Model", m_Model, mem);
 }
 
-std::size_t CAnomalyDetector::memoryUsage(void) const {
+std::size_t CAnomalyDetector::memoryUsage() const {
     // We only account for the model in CResourceMonitor,
     // so we just include that here.
     std::size_t mem = core::CMemory::dynamicSize(m_Model);
     return mem;
 }
 
-const core_t::TTime& CAnomalyDetector::lastBucketEndTime(void) const {
+const core_t::TTime& CAnomalyDetector::lastBucketEndTime() const {
     return m_LastBucketEndTime;
 }
 
-core_t::TTime& CAnomalyDetector::lastBucketEndTime(void) {
+core_t::TTime& CAnomalyDetector::lastBucketEndTime() {
     return m_LastBucketEndTime;
 }
 
-core_t::TTime CAnomalyDetector::modelBucketLength(void) const {
+core_t::TTime CAnomalyDetector::modelBucketLength() const {
     return m_ModelConfig.bucketLength();
 }
 
-std::string CAnomalyDetector::description(void) const {
+std::string CAnomalyDetector::description() const {
     auto beginInfluencers = m_DataGatherer->beginInfluencers();
     auto endInfluencers = m_DataGatherer->endInfluencers();
     return m_DataGatherer->description() + (m_DataGatherer->partitionFieldValue().empty() ? "" : "/") +
@@ -641,28 +641,28 @@ void CAnomalyDetector::noUpdateLastSampledBucket(core_t::TTime /*bucketEndTime*/
     // Do nothing
 }
 
-std::string CAnomalyDetector::toCue(void) const {
+std::string CAnomalyDetector::toCue() const {
     return m_DataGatherer->searchKey().toCue() + m_DataGatherer->searchKey().CUE_DELIMITER + m_DataGatherer->partitionFieldValue();
 }
 
-std::string CAnomalyDetector::debug(void) const {
+std::string CAnomalyDetector::debug() const {
     return m_DataGatherer->searchKey().debug() + '/' + m_DataGatherer->partitionFieldValue();
 }
 
-bool CAnomalyDetector::isSimpleCount(void) const {
+bool CAnomalyDetector::isSimpleCount() const {
     return false;
 }
 
-void CAnomalyDetector::initSimpleCounting(void) {
+void CAnomalyDetector::initSimpleCounting() {
     bool addedPerson = false;
     m_DataGatherer->addPerson(COUNT_NAME, m_Limits.resourceMonitor(), addedPerson);
 }
 
-const CAnomalyDetector::TModelPtr& CAnomalyDetector::model(void) const {
+const CAnomalyDetector::TModelPtr& CAnomalyDetector::model() const {
     return m_Model;
 }
 
-CAnomalyDetector::TModelPtr& CAnomalyDetector::model(void) {
+CAnomalyDetector::TModelPtr& CAnomalyDetector::model() {
     return m_Model;
 }
 

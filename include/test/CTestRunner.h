@@ -89,10 +89,10 @@ public:
 
 public:
     CTestRunner(int argc, const char** argv);
-    virtual ~CTestRunner(void);
+    virtual ~CTestRunner();
 
     //! The command to run tests - DO NOT CALL run()
-    virtual bool runTests(void);
+    virtual bool runTests();
 
 protected:
     //! Time the unit tests
@@ -110,8 +110,8 @@ private:
     void processCmdLine(int argc, const char** argv);
 
 private:
-    typedef std::vector<std::string> TStrVec;
-    typedef TStrVec::iterator TStrVecItr;
+    using TStrVec = std::vector<std::string>;
+    using TStrVecItr = TStrVec::iterator;
 
     TStrVec m_TestCases;
     std::string m_ExeName;

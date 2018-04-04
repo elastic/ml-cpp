@@ -21,19 +21,19 @@
 
 class CDetectionRuleTest : public CppUnit::TestFixture {
 public:
-    void testApplyGivenCategoricalCondition(void);
-    void testApplyGivenNumericalActualCondition(void);
-    void testApplyGivenNumericalTypicalCondition(void);
-    void testApplyGivenNumericalDiffAbsCondition(void);
-    void testApplyGivenSingleSeriesModelAndConditionWithField(void);
-    void testApplyGivenNoActualValueAvailable(void);
-    void testApplyGivenDifferentSeriesAndIndividualModel(void);
-    void testApplyGivenDifferentSeriesAndPopulationModel(void);
-    void testApplyGivenMultipleConditionsWithOr(void);
-    void testApplyGivenMultipleConditionsWithAnd(void);
-    void testApplyGivenTargetFieldIsPartitionAndIndividualModel(void);
-    void testApplyGivenTimeCondition(void);
-    void testRuleActions(void);
+    void testApplyGivenCategoricalCondition();
+    void testApplyGivenNumericalActualCondition();
+    void testApplyGivenNumericalTypicalCondition();
+    void testApplyGivenNumericalDiffAbsCondition();
+    void testApplyGivenSingleSeriesModelAndConditionWithField();
+    void testApplyGivenNoActualValueAvailable();
+    void testApplyGivenDifferentSeriesAndIndividualModel();
+    void testApplyGivenDifferentSeriesAndPopulationModel();
+    void testApplyGivenMultipleConditionsWithOr();
+    void testApplyGivenMultipleConditionsWithAnd();
+    void testApplyGivenTargetFieldIsPartitionAndIndividualModel();
+    void testApplyGivenTimeCondition();
+    void testRuleActions();
 
     static CppUnit::Test* suite();
 

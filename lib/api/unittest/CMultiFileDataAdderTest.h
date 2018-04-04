@@ -19,12 +19,12 @@
 
 class CMultiFileDataAdderTest : public CppUnit::TestFixture {
 public:
-    void testSimpleWrite(void);
-    void testDetectorPersistBy(void);
-    void testDetectorPersistOver(void);
-    void testDetectorPersistPartition(void);
-    void testDetectorPersistDc(void);
-    void testDetectorPersistCount(void);
+    void testSimpleWrite();
+    void testDetectorPersistBy();
+    void testDetectorPersistOver();
+    void testDetectorPersistPartition();
+    void testDetectorPersistDc();
+    void testDetectorPersistCount();
 
     static CppUnit::Test* suite();
 

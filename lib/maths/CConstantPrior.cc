@@ -26,18 +26,17 @@
 
 #include <boost/bind.hpp>
 
+#include <cmath>
 #include <iomanip>
 #include <ios>
 #include <limits>
 #include <sstream>
 
-#include <math.h>
-
 namespace ml {
 namespace maths {
 
 namespace {
-typedef boost::optional<double> TOptionalDouble;
+using TOptionalDouble = boost::optional<double>;
 
 //! Set the constant, validating the input.
 void setConstant(double value, TOptionalDouble& result) {
@@ -53,7 +52,7 @@ const std::string CONSTANT_TAG("a");
 
 const std::string EMPTY_STRING;
 
-const double LOG_TWO = ::log(2.0);
+const double LOG_TWO = std::log(2.0);
 }
 
 CConstantPrior::CConstantPrior(const TOptionalDouble& constant) : CPrior(maths_t::E_DiscreteData, 0.0) {
@@ -76,11 +75,11 @@ bool CConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
     return true;
 }
 
-CConstantPrior::EPrior CConstantPrior::type(void) const {
+CConstantPrior::EPrior CConstantPrior::type() const {
     return E_Constant;
 }
 
-CConstantPrior* CConstantPrior::clone(void) const {
+CConstantPrior* CConstantPrior::clone() const {
     return new CConstantPrior(*this);
 }
 
@@ -88,7 +87,7 @@ void CConstantPrior::setToNonInformative(double /*offset*/, double /*decayRate*/
     m_Constant.reset();
 }
 
-bool CConstantPrior::needsOffset(void) const {
+bool CConstantPrior::needsOffset() const {
     return false;
 }
 
@@ -97,7 +96,7 @@ CConstantPrior::adjustOffset(const TWeightStyleVec& /*weightStyle*/, const TDoub
     return 0.0;
 }
 
-double CConstantPrior::offset(void) const {
+double CConstantPrior::offset() const {
     return 0.0;
 }
 
@@ -111,11 +110,11 @@ void CConstantPrior::addSamples(const TWeightStyleVec& /*weightStyle*/, const TD
 void CConstantPrior::propagateForwardsByTime(double /*time*/) {
 }
 
-CConstantPrior::TDoubleDoublePr CConstantPrior::marginalLikelihoodSupport(void) const {
+CConstantPrior::TDoubleDoublePr CConstantPrior::marginalLikelihoodSupport() const {
     return std::make_pair(boost::numeric::bounds<double>::lowest(), boost::numeric::bounds<double>::highest());
 }
 
-double CConstantPrior::marginalLikelihoodMean(void) const {
+double CConstantPrior::marginalLikelihoodMean() const {
     if (this->isNonInformative()) {
         return 0.0;
     }
@@ -319,7 +318,7 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
     return true;
 }
 
-bool CConstantPrior::isNonInformative(void) const {
+bool CConstantPrior::isNonInformative() const {
     return !m_Constant;
 }
 
@@ -335,7 +334,7 @@ std::string CConstantPrior::printMarginalLikelihoodFunction(double /*weight*/) c
     return EMPTY_STRING;
 }
 
-std::string CConstantPrior::printJointDensityFunction(void) const {
+std::string CConstantPrior::printJointDensityFunction() const {
     // The prior is (arguably) Dirichlet with infinite concentration
     // at the constant so not particularly interesting and we don't
     // bother to define this function.
@@ -351,11 +350,11 @@ void CConstantPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) c
     mem->setName("CConstantPrior");
 }
 
-std::size_t CConstantPrior::memoryUsage(void) const {
+std::size_t CConstantPrior::memoryUsage() const {
     return 0;
 }
 
-std::size_t CConstantPrior::staticSize(void) const {
+std::size_t CConstantPrior::staticSize() const {
     return sizeof(*this);
 }
 
@@ -365,7 +364,7 @@ void CConstantPrior::acceptPersistInserter(core::CStatePersistInserter& inserter
     }
 }
 
-CConstantPrior::TOptionalDouble CConstantPrior::constant(void) const {
+CConstantPrior::TOptionalDouble CConstantPrior::constant() const {
     return m_Constant;
 }
 }

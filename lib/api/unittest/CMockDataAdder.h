@@ -32,15 +32,15 @@
 //!
 class CMockDataAdder : public ml::core::CDataAdder {
 public:
-    typedef std::vector<std::string> TStrVec;
-    typedef std::map<std::string, TStrVec> TStrStrVecMap;
-    typedef TStrStrVecMap::const_iterator TStrStrVecMapCItr;
-    typedef std::map<std::string, TOStreamP> TStrOStreamPMap;
-    typedef TStrOStreamPMap::const_iterator TStrOStreamPMapCItr;
-    typedef TStrOStreamPMap::iterator TStrOStreamPMapItr;
+    using TStrVec = std::vector<std::string>;
+    using TStrStrVecMap = std::map<std::string, TStrVec>;
+    using TStrStrVecMapCItr = TStrStrVecMap::const_iterator;
+    using TStrOStreamPMap = std::map<std::string, TOStreamP>;
+    using TStrOStreamPMapCItr = TStrOStreamPMap::const_iterator;
+    using TStrOStreamPMapItr = TStrOStreamPMap::iterator;
 
 public:
-    CMockDataAdder(void);
+    CMockDataAdder();
 
     //! Add streamed data - return of NULL stream indicates failure.
     //! Since the data to be written isn't known at the time this function
@@ -57,10 +57,10 @@ public:
     virtual bool streamComplete(TOStreamP& strm, bool force);
 
     //! Access persisted events
-    const TStrStrVecMap& events(void) const;
+    const TStrStrVecMap& events() const;
 
     //! Wipe the contents of the data store
-    void clear(void);
+    void clear();
 
 private:
     //! Persisted events

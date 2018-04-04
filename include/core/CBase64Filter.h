@@ -56,11 +56,11 @@ namespace core {
 //!
 class CORE_EXPORT CBase64Encoder {
 public:
-    typedef boost::circular_buffer<uint8_t> TUInt8Buf;
-    typedef TUInt8Buf::iterator TUInt8BufItr;
-    typedef TUInt8Buf::const_iterator TUInt8BufCItr;
+    using TUInt8Buf = boost::circular_buffer<uint8_t>;
+    using TUInt8BufItr = TUInt8Buf::iterator;
+    using TUInt8BufCItr = TUInt8Buf::const_iterator;
 
-    typedef char char_type;
+    using char_type = char;
 
     //! Tell boost::iostreams what this filter is capable of
     struct category : public boost::iostreams::output,
@@ -106,8 +106,8 @@ private:
     //! the converted output into the stream snk
     template<typename SINK>
     void Encode(SINK& snk, bool isFinal) {
-        typedef boost::archive::iterators::transform_width<TUInt8BufCItr, 6, 8> TUInt8BufCItrTransformItr;
-        typedef boost::archive::iterators::base64_from_binary<TUInt8BufCItrTransformItr> TBase64Text;
+        using TUInt8BufCItrTransformItr = boost::archive::iterators::transform_width<TUInt8BufCItr, 6, 8>;
+        using TBase64Text = boost::archive::iterators::base64_from_binary<TUInt8BufCItrTransformItr>;
 
         TUInt8BufItr endItr = m_Buffer.end();
         // Base64 turns 3 bytes into 4 characters - unless this is the final part
@@ -161,11 +161,11 @@ private:
 //!
 class CORE_EXPORT CBase64Decoder {
 public:
-    typedef boost::circular_buffer<uint8_t> TUInt8Buf;
-    typedef TUInt8Buf::iterator TUInt8BufItr;
-    typedef TUInt8Buf::const_iterator TUInt8BufCItr;
-    typedef TUInt8Buf::const_reverse_iterator TUInt8BufCRItr;
-    typedef char char_type;
+    using TUInt8Buf = boost::circular_buffer<uint8_t>;
+    using TUInt8BufItr = TUInt8Buf::iterator;
+    using TUInt8BufCItr = TUInt8Buf::const_iterator;
+    using TUInt8BufCRItr = TUInt8Buf::const_reverse_iterator;
+    using char_type = char;
 
     //! Tell boost::iostreams what this filter is capable of
     struct category : public boost::iostreams::input,
@@ -256,8 +256,8 @@ private:
     //! Perform the conversion from Base64 to raw bytes
     void Decode(bool isFinal) {
         // Base64 turns 4 characters into 3 bytes
-        typedef boost::archive::iterators::binary_from_base64<TUInt8BufCItr> TUInt8BufCItrBinaryBase64Itr;
-        typedef boost::archive::iterators::transform_width<TUInt8BufCItrBinaryBase64Itr, 8, 6, uint8_t> TBase64Binary;
+        using TUInt8BufCItrBinaryBase64Itr = boost::archive::iterators::binary_from_base64<TUInt8BufCItr>;
+        using TBase64Binary = boost::archive::iterators::transform_width<TUInt8BufCItrBinaryBase64Itr, 8, 6, uint8_t>;
 
         std::size_t inBytes = m_BufferIn.size();
         if (inBytes == 0) {

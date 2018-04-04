@@ -28,7 +28,7 @@ CppUnit::Test* CStopWatchTest::suite() {
     return suiteOfTests;
 }
 
-void CStopWatchTest::testStopWatch(void) {
+void CStopWatchTest::testStopWatch() {
     ml::core::CStopWatch stopWatch;
 
     LOG_DEBUG("About to start stop watch test");

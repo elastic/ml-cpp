@@ -25,7 +25,7 @@ CppUnit::Test* CWindowsErrorTest::suite() {
     return suiteOfTests;
 }
 
-void CWindowsErrorTest::testErrors(void) {
+void CWindowsErrorTest::testErrors() {
     LOG_INFO("Windows error 1 is : " << ml::core::CWindowsError(1));
     LOG_INFO("Windows error 2 is : " << ml::core::CWindowsError(2));
     LOG_INFO("Windows error 3 is : " << ml::core::CWindowsError(3));

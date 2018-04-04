@@ -22,9 +22,9 @@
 
 class CCountingModelTest : public CppUnit::TestFixture {
 public:
-    void testSkipSampling(void);
-    void testCheckScheduledEvents(void);
-    static CppUnit::Test* suite(void);
+    void testSkipSampling();
+    void testCheckScheduledEvents();
+    static CppUnit::Test* suite();
 
 private:
     ml::model::CResourceMonitor m_ResourceMonitor;

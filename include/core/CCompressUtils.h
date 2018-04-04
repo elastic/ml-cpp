@@ -47,11 +47,11 @@ namespace core {
 class CORE_EXPORT CCompressUtils : private CNonCopyable {
 public:
     //! The output type
-    typedef std::vector<Bytef> TByteVec;
+    using TByteVec = std::vector<Bytef>;
 
 public:
     explicit CCompressUtils(bool lengthOnly, int level = Z_DEFAULT_COMPRESSION);
-    ~CCompressUtils(void);
+    ~CCompressUtils();
 
     //! Add a string.  Multiple calls to this function without finishing the
     //! compression are equivalent to compressing the concatenation of the
@@ -76,7 +76,7 @@ public:
     //! new string after having finished the previous compression, but
     //! sometimes, for example when recovering from an error, it may be
     //! desirable to explicitly reset the compressor state.
-    void reset(void);
+    void reset();
 
 private:
     bool doCompress(bool finish, const std::string& input);

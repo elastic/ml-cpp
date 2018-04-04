@@ -49,14 +49,14 @@ public:
     CLineifiedXmlOutputWriter(const std::string& rootName, std::ostream& strmOut);
 
     //! Destructor flushes the stream
-    virtual ~CLineifiedXmlOutputWriter(void);
+    virtual ~CLineifiedXmlOutputWriter();
 
     //! Set field names - this function has no affect it always
     //! returns true
     virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     //! Returns an empty vector
-    virtual const TStrVec& fieldNames(void) const;
+    virtual const TStrVec& fieldNames() const;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
@@ -69,7 +69,7 @@ public:
 
     //! Get the contents of the internal string stream - for use with the
     //! zero argument constructor
-    std::string internalString(void) const;
+    std::string internalString() const;
 
 private:
     //! Name of the root element in which the fields to be output will be

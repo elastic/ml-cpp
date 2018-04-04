@@ -76,10 +76,10 @@ bool CGradientDescent::run(std::size_t n, const TVector& x0, const CFunction& f,
     return true;
 }
 
-CGradientDescent::CFunction::~CFunction(void) {
+CGradientDescent::CFunction::~CFunction() {
 }
 
-CGradientDescent::CGradient::~CGradient(void) {
+CGradientDescent::CGradient::~CGradient() {
 }
 
 CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFunction& f, double eps) : m_Eps(eps), m_F(f) {

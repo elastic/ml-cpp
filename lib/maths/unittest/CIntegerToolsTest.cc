@@ -26,13 +26,13 @@
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/range.hpp>
 
-#include <math.h>
+#include <cmath>
 
 using namespace ml;
 
 namespace {
 
-typedef std::vector<std::size_t> TSizeVec;
+using TSizeVec = std::vector<std::size_t>;
 
 std::string printBits(uint64_t x) {
     std::string result(64, '0');
@@ -45,7 +45,7 @@ std::string printBits(uint64_t x) {
 }
 }
 
-void CIntegerToolsTest::testNextPow2(void) {
+void CIntegerToolsTest::testNextPow2() {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testNextPow2  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -69,7 +69,7 @@ void CIntegerToolsTest::testNextPow2(void) {
     }
 }
 
-void CIntegerToolsTest::testReverseBits(void) {
+void CIntegerToolsTest::testReverseBits() {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testReverseBits  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -94,7 +94,7 @@ void CIntegerToolsTest::testReverseBits(void) {
     }
 }
 
-void CIntegerToolsTest::testGcd(void) {
+void CIntegerToolsTest::testGcd() {
     LOG_DEBUG("+------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testGcd  |");
     LOG_DEBUG("+------------------------------+");
@@ -189,7 +189,7 @@ void CIntegerToolsTest::testGcd(void) {
     CPPUNIT_ASSERT_EQUAL(std::size_t(19), maths::CIntegerTools::gcd(n));
 }
 
-void CIntegerToolsTest::testBinomial(void) {
+void CIntegerToolsTest::testBinomial() {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CIntegerToolsTest::testBinomial  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -201,14 +201,14 @@ void CIntegerToolsTest::testBinomial(void) {
             LOG_DEBUG("j = " << j << ", n = " << n[i] << ", (n j) = " << maths::CIntegerTools::binomial(n[i], j));
 
             double expected =
-                ::exp(boost::math::lgamma(static_cast<double>(n[i] + 1)) - boost::math::lgamma(static_cast<double>(n[i] - j + 1)) -
-                      boost::math::lgamma(static_cast<double>(j + 1)));
+                std::exp(boost::math::lgamma(static_cast<double>(n[i] + 1)) - boost::math::lgamma(static_cast<double>(n[i] - j + 1)) -
+                         boost::math::lgamma(static_cast<double>(j + 1)));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, maths::CIntegerTools::binomial(n[i], j), 1e-10);
         }
     }
 }
 
-CppUnit::Test* CIntegerToolsTest::suite(void) {
+CppUnit::Test* CIntegerToolsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIntegerToolsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testNextPow2", &CIntegerToolsTest::testNextPow2));

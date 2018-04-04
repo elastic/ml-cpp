@@ -20,13 +20,13 @@
 
 class CDataSummaryStatisticsTest : public CppUnit::TestFixture {
 public:
-    void testRate(void);
-    void testCategoricalDistinctCount(void);
-    void testCategoricalTopN(void);
-    void testNumericBasicStatistics(void);
-    void testNumericDistribution(void);
+    void testRate();
+    void testCategoricalDistinctCount();
+    void testCategoricalTopN();
+    void testNumericBasicStatistics();
+    void testNumericDistribution();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CDataSummaryStatisticsTest_h

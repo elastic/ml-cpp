@@ -27,23 +27,23 @@ const char* CProcess::STARTED_MSG("Process Started.");
 const char* CProcess::STOPPING_MSG("Process Shutting Down.");
 const char* CProcess::STOPPED_MSG("Process Exiting.");
 
-CProcess::CProcess(void) : m_IsService(false), m_Initialised(false), m_Running(false), m_MlMainFunc(0) {
+CProcess::CProcess() : m_IsService(false), m_Initialised(false), m_Running(false), m_MlMainFunc(0) {
 }
 
-CProcess& CProcess::instance(void) {
+CProcess& CProcess::instance() {
     static CProcess instance;
     return instance;
 }
 
-bool CProcess::isService(void) const {
+bool CProcess::isService() const {
     return m_IsService;
 }
 
-CProcess::TPid CProcess::id(void) const {
+CProcess::TPid CProcess::id() const {
     return ::getpid();
 }
 
-CProcess::TPid CProcess::parentId(void) const {
+CProcess::TPid CProcess::parentId() const {
     return ::getppid();
 }
 
@@ -73,7 +73,7 @@ bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char* argv[]) {
     return success;
 }
 
-bool CProcess::isInitialised(void) const {
+bool CProcess::isInitialised() const {
     return m_Initialised;
 }
 
@@ -90,7 +90,7 @@ void CProcess::initialisationComplete(const TShutdownFunc& shutdownFunc) {
     m_ShutdownFunc = shutdownFunc;
 }
 
-void CProcess::initialisationComplete(void) {
+void CProcess::initialisationComplete() {
     CScopedFastLock lock(m_ShutdownFuncMutex);
 
     if (!m_Initialised) {
@@ -105,11 +105,11 @@ void CProcess::initialisationComplete(void) {
     m_ShutdownFunc.swap(emptyFunc);
 }
 
-bool CProcess::isRunning(void) const {
+bool CProcess::isRunning() const {
     return m_Running;
 }
 
-bool CProcess::shutdown(void) {
+bool CProcess::shutdown() {
     if (CLogger::instance().hasBeenReconfigured()) {
         LOG_INFO(STOPPING_MSG);
     }

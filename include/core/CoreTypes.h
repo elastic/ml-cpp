@@ -22,7 +22,7 @@ namespace core_t {
 
 //! For now just use seconds as the ml time granularity
 //! This is a UTC value
-typedef time_t TTime;
+using TTime = time_t;
 
 //! The standard line ending for the platform - DON'T make this std::string as
 //! that would cause many strings to be constructed (since the variable is

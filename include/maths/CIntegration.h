@@ -29,10 +29,9 @@
 
 #include <algorithm>
 #include <atomic>
+#include <cmath>
 #include <functional>
 #include <numeric>
-
-#include <math.h>
 
 namespace ml {
 namespace maths {
@@ -204,7 +203,7 @@ public:
     //! of the integral is returned. This is intended to support integration
     //! where the integrand is very small and may underflow double. This is
     //! handled by renormalizing the integral so only underflows if values
-    //! are less than ::exp(-std::numeric_limits<double>::max()), so really
+    //! are less than std::exp(-std::numeric_limits<double>::max()), so really
     //! very small!
     //!
     //! \param[in] function The log of the function to integrate.
@@ -243,7 +242,7 @@ public:
         // Re-normalize and then take exponentials to avoid underflow.
         double fmax = *std::max_element(fx, fx + ORDER);
         for (unsigned int i = 0; i < ORDER; ++i) {
-            fx[i] = ::exp(fx[i] - fmax);
+            fx[i] = std::exp(fx[i] - fmax);
         }
 
         // Quadrature.
@@ -251,7 +250,7 @@ public:
             result += weights[i] * fx[i];
         }
         result *= range;
-        result = result <= 0.0 ? core::constants::LOG_MIN_DOUBLE : fmax + ::log(result);
+        result = result <= 0.0 ? core::constants::LOG_MIN_DOUBLE : fmax + std::log(result);
 
         return true;
     }
@@ -301,12 +300,12 @@ public:
         TDoubleVec corrections;
         corrections.reserve(fIntervals.size());
         for (std::size_t i = 0u; i < fIntervals.size(); ++i) {
-            corrections.push_back(::fabs(fIntervals[i]));
+            corrections.push_back(std::fabs(fIntervals[i]));
         }
 
         for (std::size_t i = 0u; !intervals.empty() && i < refinements; ++i) {
             std::size_t n = intervals.size();
-            double cutoff = tolerance * ::fabs(result) / static_cast<double>(n);
+            double cutoff = tolerance * std::fabs(result) / static_cast<double>(n);
 
             std::size_t end = 0u;
             for (std::size_t j = 0u; j < corrections.size(); ++j) {
@@ -363,12 +362,12 @@ public:
                 LOG_TRACE("fjNew = " << fjNew << ", fjOld = " << fjOld);
                 double correction = fjNew - fjOld;
                 if (i + 1 < refinements) {
-                    corrections[j] = ::fabs(correction);
-                    corrections.resize(corrections.size() + splitsPerRefinement - 1, ::fabs(correction));
+                    corrections[j] = std::fabs(correction);
+                    corrections.resize(corrections.size() + splitsPerRefinement - 1, std::fabs(correction));
                 }
 
                 result += correction;
-                cutoff = tolerance * ::fabs(result) / static_cast<double>(n);
+                cutoff = tolerance * std::fabs(result) / static_cast<double>(n);
             }
         }
 
@@ -409,7 +408,7 @@ public:
         using TVectorVec = std::vector<TVector>;
 
     public:
-        static const CSparseGaussLegendreQuadrature& instance(void) {
+        static const CSparseGaussLegendreQuadrature& instance() {
             const CSparseGaussLegendreQuadrature* tmp = ms_Instance.load(std::memory_order_acquire);
             if (!tmp) {
                 core::CScopedFastLock scopedLock(CIntegration::ms_Mutex);
@@ -423,10 +422,10 @@ public:
         }
 
         //! The sparse grid point weights.
-        const TDoubleVec& weights(void) const { return m_Weights; }
+        const TDoubleVec& weights() const { return m_Weights; }
 
         //! The sparse grid point points.
-        const TVectorVec& points(void) const { return m_Points; }
+        const TVectorVec& points() const { return m_Points; }
 
     private:
         using TUIntVec = std::vector<unsigned int>;
@@ -455,7 +454,7 @@ public:
             return false;
         }
 
-        CSparseGaussLegendreQuadrature(void) {
+        CSparseGaussLegendreQuadrature() {
             // Generate the weights. We don't exploit the weight and
             // abscissa symmetries to reduce the static storage since
             // this reduces the speed of integration and since we limit

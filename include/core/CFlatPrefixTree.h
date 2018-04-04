@@ -56,15 +56,15 @@ namespace core {
 //! and so on.
 class CORE_EXPORT CFlatPrefixTree {
 public:
-    typedef std::vector<std::string> TStrVec;
-    typedef TStrVec::const_iterator TStrVecCItr;
-    typedef std::string::const_iterator TStrCItr;
-    typedef std::string::const_reverse_iterator TStrCRItr;
+    using TStrVec = std::vector<std::string>;
+    using TStrVecCItr = TStrVec::const_iterator;
+    using TStrCItr = std::string::const_iterator;
+    using TStrCRItr = std::string::const_reverse_iterator;
 
 private:
     struct SNode {
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
+        static bool dynamicSizeAlwaysZero() { return true; }
 
         SNode(char c, char type, uint32_t next);
 
@@ -84,13 +84,13 @@ private:
     };
 
 private:
-    typedef std::vector<SNode> TNodeVec;
-    typedef TNodeVec::const_iterator TNodeVecCItr;
-    typedef std::vector<SDistinctChar> TDistinctCharVec;
+    using TNodeVec = std::vector<SNode>;
+    using TNodeVecCItr = TNodeVec::const_iterator;
+    using TDistinctCharVec = std::vector<SDistinctChar>;
 
 public:
     //! Default constructor.
-    CFlatPrefixTree(void);
+    CFlatPrefixTree();
 
     //! Builds the tree from a list of \p prefixes. The \p prefixes
     //! vector is required to be lexicographically sorted.
@@ -120,10 +120,10 @@ public:
     bool matchesFully(TStrCRItr start, TStrCRItr end) const;
 
     //! Clears the tree.
-    void clear(void);
+    void clear();
 
     //! Pretty-prints the tree.
-    std::string print(void) const;
+    std::string print() const;
 
 private:
     //! The recursive building helper.

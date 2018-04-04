@@ -35,12 +35,12 @@ namespace core {
 //!
 class CORE_EXPORT CRegex {
 public:
-    typedef std::vector<std::string> TStrVec;
-    typedef TStrVec::iterator TStrVecItr;
-    typedef TStrVec::const_iterator TStrVecCItr;
+    using TStrVec = std::vector<std::string>;
+    using TStrVecItr = TStrVec::iterator;
+    using TStrVecCItr = TStrVec::const_iterator;
 
 public:
-    CRegex(void);
+    CRegex();
 
     bool init(const std::string&);
 
@@ -62,11 +62,11 @@ public:
     bool split(const std::string&, TStrVec&) const;
 
     //! Get the pattern string (not a reference due to boost API)
-    std::string str(void) const;
+    std::string str() const;
 
     //! How much of the regex is literal characters rather than character
     //! classes?
-    size_t literalCount(void) const;
+    size_t literalCount() const;
 
     //! Useful for converting a string literal into a regex that will match
     //! it

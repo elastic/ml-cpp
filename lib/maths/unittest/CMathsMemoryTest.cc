@@ -32,7 +32,7 @@
 using namespace ml;
 using namespace maths;
 
-void CMathsMemoryTest::testTimeSeriesDecompositions(void) {
+void CMathsMemoryTest::testTimeSeriesDecompositions() {
     CTimeSeriesDecomposition decomp(0.95, 3600, 55);
 
     core_t::TTime time;
@@ -47,7 +47,7 @@ void CMathsMemoryTest::testTimeSeriesDecompositions(void) {
     CPPUNIT_ASSERT_EQUAL(decomp.memoryUsage(), mem.usage());
 }
 
-void CMathsMemoryTest::testPriors(void) {
+void CMathsMemoryTest::testPriors() {
     CConstantPrior::TOptionalDouble d;
     CConstantPrior constantPrior(d);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), constantPrior.memoryUsage());
@@ -122,8 +122,8 @@ void CMathsMemoryTest::testPriors(void) {
     CPPUNIT_ASSERT_EQUAL(multimodalPrior.memoryUsage(), mem.usage());
 }
 
-void CMathsMemoryTest::testBjkstVec(void) {
-    typedef std::vector<maths::CBjkstUniqueValues> TBjkstValuesVec;
+void CMathsMemoryTest::testBjkstVec() {
+    using TBjkstValuesVec = std::vector<maths::CBjkstUniqueValues>;
     {
         // Test empty
         TBjkstValuesVec values;
@@ -164,7 +164,7 @@ void CMathsMemoryTest::testBjkstVec(void) {
     }
 }
 
-CppUnit::Test* CMathsMemoryTest::suite(void) {
+CppUnit::Test* CMathsMemoryTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMathsMemoryTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMathsMemoryTest>("CMathsMemoryTest::testPriors", &CMathsMemoryTest::testPriors));

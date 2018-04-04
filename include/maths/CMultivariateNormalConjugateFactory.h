@@ -35,7 +35,7 @@ struct SDistributionRestoreParams;
 //! \brief Factory for multivariate normal conjugate priors.
 class MATHS_EXPORT CMultivariateNormalConjugateFactory {
 public:
-    typedef boost::shared_ptr<CMultivariatePrior> TPriorPtr;
+    using TPriorPtr = boost::shared_ptr<CMultivariatePrior>;
 
 public:
     //! Create a new non-informative multivariate normal prior.

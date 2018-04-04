@@ -20,19 +20,19 @@
 
 class CXMeansOnline1dTest : public CppUnit::TestFixture {
 public:
-    void testCluster(void);
-    void testMixtureOfGaussians(void);
-    void testMixtureOfUniforms(void);
-    void testMixtureOfLogNormals(void);
-    void testOutliers(void);
-    void testManyClusters(void);
-    void testLowVariation(void);
-    void testAdaption(void);
-    void testLargeHistory(void);
-    void testPersist(void);
-    void testPruneEmptyCluster(void);
+    void testCluster();
+    void testMixtureOfGaussians();
+    void testMixtureOfUniforms();
+    void testMixtureOfLogNormals();
+    void testOutliers();
+    void testManyClusters();
+    void testLowVariation();
+    void testAdaption();
+    void testLargeHistory();
+    void testPersist();
+    void testPruneEmptyCluster();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CXMeansOnline1dTest_h

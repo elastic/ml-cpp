@@ -50,15 +50,15 @@ namespace core {
 //!
 class CORE_EXPORT CStateDecompressor : public CDataSearcher {
 public:
-    typedef boost::iostreams::filtering_stream<boost::iostreams::input> TFilteredInput;
-    typedef boost::shared_ptr<TFilteredInput> TFilteredInputP;
+    using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
+    using TFilteredInputP = boost::shared_ptr<TFilteredInput>;
 
     static const std::string EMPTY_DATA;
 
     // Implements the boost::iostreams Source template interface
     class CDechunkFilter {
     public:
-        typedef char char_type;
+        using char_type = char;
 
         //! Inform the filtering_stream owning object what this is capable of
         struct category : public boost::iostreams::source_tag {};
@@ -72,12 +72,12 @@ public:
         std::streamsize read(char* s, std::streamsize n);
 
         //! Interface method: close the downstream stream
-        void close(void);
+        void close();
 
     private:
         //! Find the JSON header
         //! Read until the array field CStateCompressor::COMPRESSED is found
-        bool readHeader(void);
+        bool readHeader();
 
         //! Manage the reading of bytes from the stream
         void handleRead(char* s, std::streamsize n, std::streamsize& bytesDone);

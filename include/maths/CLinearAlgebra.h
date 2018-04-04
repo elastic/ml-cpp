@@ -56,10 +56,10 @@ struct SSymmetricMatrix {
     using Type = typename STORAGE::value_type;
 
     //! Get read only reference.
-    inline const SSymmetricMatrix& base(void) const { return *this; }
+    inline const SSymmetricMatrix& base() const { return *this; }
 
     //! Get writable reference.
-    inline SSymmetricMatrix& base(void) { return *this; }
+    inline SSymmetricMatrix& base() { return *this; }
 
     //! Set this vector equal to \p other.
     template<typename OTHER_STORAGE>
@@ -71,7 +71,7 @@ struct SSymmetricMatrix {
     bool fromDelimited(const std::string& str);
 
     //! Convert to a delimited string.
-    std::string toDelimited(void) const;
+    std::string toDelimited() const;
 
     //! Get the i,j 'th component (no bounds checking).
     inline Type element(std::size_t i, std::size_t j) const {
@@ -90,7 +90,7 @@ struct SSymmetricMatrix {
     }
 
     //! Component-wise negative.
-    void negative(void) {
+    void negative() {
         for (std::size_t i = 0u; i < m_LowerTriangle.size(); ++i) {
             m_LowerTriangle[i] = -m_LowerTriangle[i];
         }
@@ -138,7 +138,7 @@ struct SSymmetricMatrix {
     bool less(const SSymmetricMatrix& rhs) const { return m_LowerTriangle < rhs.m_LowerTriangle; }
 
     //! Check if this is zero.
-    bool isZero(void) const {
+    bool isZero() const {
         return std::find_if(m_LowerTriangle.begin(), m_LowerTriangle.end(), [](double ei) { return ei != 0.0; }) == m_LowerTriangle.end();
     }
 
@@ -185,7 +185,7 @@ struct SSymmetricMatrix {
     }
 
     //! Get a checksum of the elements of this matrix.
-    uint64_t checksum(void) const {
+    uint64_t checksum() const {
         uint64_t result = 0u;
         for (std::size_t i = 0u; i < m_LowerTriangle.size(); ++i) {
             result = core::CHashing::hashCombine(result, static_cast<uint64_t>(m_LowerTriangle[i]));
@@ -239,7 +239,7 @@ class CSymmetricMatrixNxN : private boost::equality_comparable< CSymmetricMatrix
                                     boost::multipliable< CSymmetricMatrixNxN<T, N>,
                                     boost::multipliable2< CSymmetricMatrixNxN<T, N>, T,
                                     boost::dividable2< CSymmetricMatrixNxN<T, N>, T > > > > > > >,
-                            private linear_algebra_detail::SSymmetricMatrix<boost::array<T, N*(N + 1) / 2 > >,
+                            private linear_algebra_detail::SSymmetricMatrix<boost::array<T, N * (N + 1) / 2> >,
                             private linear_algebra_detail::CBoundsCheck<N>::InRange {
     // clang-format on
 private:
@@ -255,7 +255,7 @@ public:
 
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero(void) { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
+    static bool dynamicSizeAlwaysZero() { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
 
 public:
     //! Set to multiple of ones matrix.
@@ -326,14 +326,14 @@ public:
     bool fromDelimited(const std::string& str) { return this->TBase::fromDelimited(str); }
 
     //! Convert to a delimited string.
-    std::string toDelimited(void) const { return this->TBase::toDelimited(); }
+    std::string toDelimited() const { return this->TBase::toDelimited(); }
     //@}
 
     //! Get the number of rows.
-    std::size_t rows(void) const { return N; }
+    std::size_t rows() const { return N; }
 
     //! Get the number of columns.
-    std::size_t columns(void) const { return N; }
+    std::size_t columns() const { return N; }
 
     //! Get the i,j 'th component (no bounds checking).
     inline T operator()(std::size_t i, std::size_t j) const { return this->element(i, j); }
@@ -342,13 +342,13 @@ public:
     inline T& operator()(std::size_t i, std::size_t j) { return this->element(i, j); }
 
     //! Get an iterator over the elements.
-    TConstIterator begin(void) const { return TBase::m_LowerTriangle.begin(); }
+    TConstIterator begin() const { return TBase::m_LowerTriangle.begin(); }
 
     //! Get an iterator to the end of the elements.
-    TConstIterator end(void) const { return TBase::m_LowerTriangle.end(); }
+    TConstIterator end() const { return TBase::m_LowerTriangle.end(); }
 
     //! Component-wise negation.
-    CSymmetricMatrixNxN operator-(void) const {
+    CSymmetricMatrixNxN operator-() const {
         CSymmetricMatrixNxN result(*this);
         result.negative();
         return result;
@@ -400,23 +400,23 @@ public:
     bool operator<(const CSymmetricMatrixNxN& rhs) const { return this->less(rhs.base()); }
 
     //! Check if this is zero.
-    bool isZero(void) const { return this->TBase::isZero(); }
+    bool isZero() const { return this->TBase::isZero(); }
 
     //! Get the matrix diagonal.
     template<typename VECTOR>
-    VECTOR diagonal(void) const {
+    VECTOR diagonal() const {
         return this->TBase::template diagonal<VECTOR>(N);
     }
 
     //! Get the trace.
-    T trace(void) const { return this->TBase::trace(N); }
+    T trace() const { return this->TBase::trace(N); }
 
     //! Get the Frobenius norm.
-    double frobenius(void) const { return this->TBase::frobenius(N); }
+    double frobenius() const { return this->TBase::frobenius(N); }
 
     //! Convert to a vector of vectors.
     template<typename VECTOR_OF_VECTORS>
-    inline VECTOR_OF_VECTORS toVectors(void) const {
+    inline VECTOR_OF_VECTORS toVectors() const {
         VECTOR_OF_VECTORS result(N);
         for (std::size_t i = 0u; i < N; ++i) {
             result[i].resize(N);
@@ -434,13 +434,13 @@ public:
     //!
     //! \note The copy should be avoided by RVO.
     template<typename MATRIX>
-    inline MATRIX toType(void) const {
+    inline MATRIX toType() const {
         MATRIX result(N, N);
         return this->TBase::toType(N, result);
     }
 
     //! Get a checksum for the matrix.
-    uint64_t checksum(void) const { return this->TBase::checksum(); }
+    uint64_t checksum() const { return this->TBase::checksum(); }
 };
 
 //! \brief Gets a zero symmetric matrix with specified dimension.
@@ -489,7 +489,7 @@ class CSymmetricMatrix : private boost::equality_comparable< CSymmetricMatrix<T>
                                  boost::multipliable< CSymmetricMatrix<T>,
                                  boost::multipliable2< CSymmetricMatrix<T>, T,
                                  boost::dividable2< CSymmetricMatrix<T>, T > > > > > > >,
-                         private linear_algebra_detail::SSymmetricMatrix<std::vector<T>> {
+                         private linear_algebra_detail::SSymmetricMatrix<std::vector<T> > {
     // clang-format on
 private:
     using TBase = linear_algebra_detail::SSymmetricMatrix<std::vector<T>>;
@@ -582,14 +582,14 @@ public:
     }
 
     //! Convert to a delimited string.
-    std::string toDelimited(void) const { return this->TBase::toDelimited(); }
+    std::string toDelimited() const { return this->TBase::toDelimited(); }
     //@}
 
     //! Get the number of rows.
-    std::size_t rows(void) const { return m_D; }
+    std::size_t rows() const { return m_D; }
 
     //! Get the number of columns.
-    std::size_t columns(void) const { return m_D; }
+    std::size_t columns() const { return m_D; }
 
     //! Get the i,j 'th component (no bounds checking).
     inline T operator()(std::size_t i, std::size_t j) const { return this->element(i, j); }
@@ -598,13 +598,13 @@ public:
     inline T& operator()(std::size_t i, std::size_t j) { return this->element(i, j); }
 
     //! Get an iterator over the elements.
-    TConstIterator begin(void) const { return TBase::m_X.begin(); }
+    TConstIterator begin() const { return TBase::m_X.begin(); }
 
     //! Get an iterator to the end of the elements.
-    TConstIterator end(void) const { return TBase::m_X.end(); }
+    TConstIterator end() const { return TBase::m_X.end(); }
 
     //! Component-wise negation.
-    CSymmetricMatrix operator-(void) const {
+    CSymmetricMatrix operator-() const {
         CSymmetricMatrix result(*this);
         result.negative();
         return result;
@@ -656,23 +656,23 @@ public:
     bool operator<(const CSymmetricMatrix& rhs) const { return this->less(rhs.base()); }
 
     //! Check if this is zero.
-    bool isZero(void) const { return this->TBase::isZero(); }
+    bool isZero() const { return this->TBase::isZero(); }
 
     //! Get the matrix diagonal.
     template<typename VECTOR>
-    VECTOR diagonal(void) const {
+    VECTOR diagonal() const {
         return this->TBase::template diagonal<VECTOR>(m_D);
     }
 
     //! Get the trace.
-    T trace(void) const { return this->TBase::trace(m_D); }
+    T trace() const { return this->TBase::trace(m_D); }
 
     //! The Frobenius norm.
-    double frobenius(void) const { return this->TBase::frobenius(m_D); }
+    double frobenius() const { return this->TBase::frobenius(m_D); }
 
     //! Convert to a vector of vectors.
     template<typename VECTOR_OF_VECTORS>
-    inline VECTOR_OF_VECTORS toVectors(void) const {
+    inline VECTOR_OF_VECTORS toVectors() const {
         VECTOR_OF_VECTORS result(m_D);
         for (std::size_t i = 0u; i < m_D; ++i) {
             result[i].resize(m_D);
@@ -690,13 +690,13 @@ public:
     //!
     //! \note The copy should be avoided by RVO.
     template<typename MATRIX>
-    inline MATRIX toType(void) const {
+    inline MATRIX toType() const {
         MATRIX result(m_D, m_D);
         return this->TBase::toType(m_D, result);
     }
 
     //! Get a checksum for the matrix.
-    uint64_t checksum(void) const { return core::CHashing::hashCombine(this->TBase::checksum(), static_cast<uint64_t>(m_D)); }
+    uint64_t checksum() const { return core::CHashing::hashCombine(this->TBase::checksum(), static_cast<uint64_t>(m_D)); }
 
 private:
     //! Compute the dimension from the number of elements.
@@ -723,10 +723,10 @@ struct SVector {
     using Type = typename STORAGE::value_type;
 
     //! Get read only reference.
-    inline const SVector& base(void) const { return *this; }
+    inline const SVector& base() const { return *this; }
 
     //! Get writable reference.
-    inline SVector& base(void) { return *this; }
+    inline SVector& base() { return *this; }
 
     //! Set this vector equal to \p other.
     template<typename OTHER_STORAGE>
@@ -738,10 +738,10 @@ struct SVector {
     bool fromDelimited(const std::string& str);
 
     //! Convert to a delimited string.
-    std::string toDelimited(void) const;
+    std::string toDelimited() const;
 
     //! Component-wise negative.
-    void negative(void) {
+    void negative() {
         for (std::size_t i = 0u; i < m_X.size(); ++i) {
             m_X[i] = -m_X[i];
         }
@@ -796,7 +796,7 @@ struct SVector {
     bool less(const SVector& rhs) const { return m_X < rhs.m_X; }
 
     //! Check if this is zero.
-    bool isZero(void) const {
+    bool isZero() const {
         return std::find_if(m_X.begin(), m_X.end(), [](double xi) { return xi != 0.0; }) == m_X.end();
     }
 
@@ -820,10 +820,10 @@ struct SVector {
     }
 
     //! The L1 norm of the vector.
-    double L1(void) const {
+    double L1() const {
         double result = 0.0;
         for (std::size_t i = 0u; i < m_X.size(); ++i) {
-            result += ::fabs(static_cast<double>(m_X[i]));
+            result += std::fabs(static_cast<double>(m_X[i]));
         }
         return result;
     }
@@ -838,7 +838,7 @@ struct SVector {
     }
 
     //! Get a checksum of the components of this vector.
-    uint64_t checksum(void) const {
+    uint64_t checksum() const {
         uint64_t result = static_cast<uint64_t>(m_X[0]);
         for (std::size_t i = 1u; i < m_X.size(); ++i) {
             result = core::CHashing::hashCombine(result, static_cast<uint64_t>(m_X[i]));
@@ -903,7 +903,7 @@ public:
 
 public:
     //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero(void) { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
+    static bool dynamicSizeAlwaysZero() { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
 
 public:
     //! Set to multiple of ones vector.
@@ -974,11 +974,11 @@ public:
     bool fromDelimited(const std::string& str) { return this->TBase::fromDelimited(str); }
 
     //! Convert to a delimited string.
-    std::string toDelimited(void) const { return this->TBase::toDelimited(); }
+    std::string toDelimited() const { return this->TBase::toDelimited(); }
     //@}
 
     //! Get the dimension.
-    std::size_t dimension(void) const { return N; }
+    std::size_t dimension() const { return N; }
 
     //! Get the i'th component (no bounds checking).
     inline T operator()(std::size_t i) const { return TBase::m_X[i]; }
@@ -987,13 +987,13 @@ public:
     inline T& operator()(std::size_t i) { return TBase::m_X[i]; }
 
     //! Get an iterator over the elements.
-    TConstIterator begin(void) const { return TBase::m_X.begin(); }
+    TConstIterator begin() const { return TBase::m_X.begin(); }
 
     //! Get an iterator to the end of the elements.
-    TConstIterator end(void) const { return TBase::m_X.end(); }
+    TConstIterator end() const { return TBase::m_X.end(); }
 
     //! Component-wise negation.
-    CVectorNx1 operator-(void) const {
+    CVectorNx1 operator-() const {
         CVectorNx1 result(*this);
         result.negative();
         return result;
@@ -1042,7 +1042,7 @@ public:
     bool operator<(const CVectorNx1& rhs) const { return this->less(rhs.base()); }
 
     //! Check if this is zero.
-    bool isZero(void) const { return this->TBase::isZero(); }
+    bool isZero() const { return this->TBase::isZero(); }
 
     //! Inner product.
     double inner(const CVectorNx1& covector) const { return this->TBase::inner(covector.base()); }
@@ -1056,54 +1056,54 @@ public:
     //! Outer product.
     //!
     //! \note The copy should be avoided by RVO.
-    CSymmetricMatrixNxN<T, N> outer(void) const { return CSymmetricMatrixNxN<T, N>(E_OuterProduct, *this); }
+    CSymmetricMatrixNxN<T, N> outer() const { return CSymmetricMatrixNxN<T, N>(E_OuterProduct, *this); }
 
     //! A diagonal matrix.
     //!
     //! \note The copy should be avoided by RVO.
-    CSymmetricMatrixNxN<T, N> diagonal(void) const { return CSymmetricMatrixNxN<T, N>(E_Diagonal, *this); }
+    CSymmetricMatrixNxN<T, N> diagonal() const { return CSymmetricMatrixNxN<T, N>(E_Diagonal, *this); }
 
     //! L1 norm.
-    double L1(void) const { return this->TBase::L1(); }
+    double L1() const { return this->TBase::L1(); }
 
     //! Euclidean norm.
-    double euclidean(void) const { return std::sqrt(this->inner(*this)); }
+    double euclidean() const { return std::sqrt(this->inner(*this)); }
 
     //! Convert to a vector on a different underlying type.
     template<typename U>
-    inline CVectorNx1<U, N> to(void) const {
+    inline CVectorNx1<U, N> to() const {
         return CVectorNx1<U, N>(*this);
     }
 
     //! Convert to a vector.
     template<typename VECTOR>
-    inline VECTOR toVector(void) const {
+    inline VECTOR toVector() const {
         return VECTOR(this->begin(), this->end());
     }
 
     //! Convert to a boost array.
-    inline TBoostArray toBoostArray(void) const { return TBase::m_X; }
+    inline TBoostArray toBoostArray() const { return TBase::m_X; }
 
     //! Convert to the specified vector representation.
     //!
     //! \note The copy should be avoided by RVO.
     template<typename VECTOR>
-    inline VECTOR toType(void) const {
+    inline VECTOR toType() const {
         VECTOR result(N);
         return this->TBase::toType(result);
     }
 
     //! Get a checksum of this vector's components.
-    uint64_t checksum(void) const { return this->TBase::checksum(); }
+    uint64_t checksum() const { return this->TBase::checksum(); }
 
     //! Get the smallest possible vector.
-    static const CVectorNx1& smallest(void) {
+    static const CVectorNx1& smallest() {
         static const CVectorNx1 result(boost::numeric::bounds<T>::lowest());
         return result;
     }
 
     //! Get the largest possible vector.
-    static const CVectorNx1& largest(void) {
+    static const CVectorNx1& largest() {
         static const CVectorNx1 result(boost::numeric::bounds<T>::highest());
         return result;
     }
@@ -1168,7 +1168,7 @@ class CVector : private boost::equality_comparable< CVector<T>,
                         boost::multipliable2< CVector<T>, T,
                         boost::dividable< CVector<T>,
                         boost::dividable2< CVector<T>, T > > > > > > > >,
-                private linear_algebra_detail::SVector<std::vector<T>> {
+                private linear_algebra_detail::SVector<std::vector<T> > {
     // clang-format on
 private:
     using TBase = linear_algebra_detail::SVector<std::vector<T>>;
@@ -1254,11 +1254,11 @@ public:
     bool fromDelimited(const std::string& str) { return this->TBase::fromDelimited(str); }
 
     //! Persist state to delimited values.
-    std::string toDelimited(void) const { return this->TBase::toDelimited(); }
+    std::string toDelimited() const { return this->TBase::toDelimited(); }
     //@}
 
     //! Get the dimension.
-    std::size_t dimension(void) const { return TBase::m_X.size(); }
+    std::size_t dimension() const { return TBase::m_X.size(); }
 
     //! Get the i'th component (no bounds checking).
     inline T operator()(std::size_t i) const { return TBase::m_X[i]; }
@@ -1267,13 +1267,13 @@ public:
     inline T& operator()(std::size_t i) { return TBase::m_X[i]; }
 
     //! Get an iterator over the elements.
-    TConstIterator begin(void) const { return TBase::m_X.begin(); }
+    TConstIterator begin() const { return TBase::m_X.begin(); }
 
     //! Get an iterator to the end of the elements.
-    TConstIterator end(void) const { return TBase::m_X.end(); }
+    TConstIterator end() const { return TBase::m_X.end(); }
 
     //! Component-wise negation.
-    CVector operator-(void) const {
+    CVector operator-() const {
         CVector result(*this);
         result.negative();
         return result;
@@ -1322,7 +1322,7 @@ public:
     bool operator<(const CVector& rhs) const { return this->less(rhs.base()); }
 
     //! Check if this is zero.
-    bool isZero(void) const { return this->TBase::isZero(); }
+    bool isZero() const { return this->TBase::isZero(); }
 
     //! Inner product.
     double inner(const CVector& covector) const { return this->TBase::inner(covector.base()); }
@@ -1336,28 +1336,28 @@ public:
     //! Outer product.
     //!
     //! \note The copy should be avoided by RVO.
-    CSymmetricMatrix<T> outer(void) const { return CSymmetricMatrix<T>(E_OuterProduct, *this); }
+    CSymmetricMatrix<T> outer() const { return CSymmetricMatrix<T>(E_OuterProduct, *this); }
 
     //! A diagonal matrix.
     //!
     //! \note The copy should be avoided by RVO.
-    CSymmetricMatrix<T> diagonal(void) const { return CSymmetricMatrix<T>(E_Diagonal, *this); }
+    CSymmetricMatrix<T> diagonal() const { return CSymmetricMatrix<T>(E_Diagonal, *this); }
 
     //! L1 norm.
-    double L1(void) const { return this->TBase::L1(); }
+    double L1() const { return this->TBase::L1(); }
 
     //! Euclidean norm.
-    double euclidean(void) const { return std::sqrt(this->inner(*this)); }
+    double euclidean() const { return std::sqrt(this->inner(*this)); }
 
     //! Convert to a vector on a different underlying type.
     template<typename U>
-    inline CVector<U> to(void) const {
+    inline CVector<U> to() const {
         return CVector<U>(*this);
     }
 
     //! Convert to a vector.
     template<typename VECTOR>
-    inline VECTOR toVector(void) const {
+    inline VECTOR toVector() const {
         return VECTOR(this->begin(), this->end());
     }
 
@@ -1365,13 +1365,13 @@ public:
     //!
     //! \note The copy should be avoided by RVO.
     template<typename VECTOR>
-    inline VECTOR toType(void) const {
+    inline VECTOR toType() const {
         VECTOR result(this->dimension());
         return this->TBase::toType(result);
     }
 
     //! Get a checksum of this vector's components.
-    uint64_t checksum(void) const { return this->TBase::checksum(); }
+    uint64_t checksum() const { return this->TBase::checksum(); }
 
     //! Get the smallest possible vector.
     static const CVector& smallest(std::size_t d) {

@@ -49,17 +49,14 @@
 
 namespace {
 
-typedef std::vector<std::string> TStrVec;
+using TStrVec = std::vector<std::string>;
 
-void reportPersistComplete(ml::core_t::TTime /*snapshotTimestamp*/,
-                           const std::string& description,
-                           const std::string& snapshotIdIn,
-                           size_t numDocsIn,
+void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
                            std::string& snapshotIdOut,
                            size_t& numDocsOut) {
-    LOG_DEBUG("Persist complete with description: " << description);
-    snapshotIdOut = snapshotIdIn;
-    numDocsOut = numDocsIn;
+    LOG_INFO("Persist complete with description: " << modelSnapshotReport.s_Description);
+    snapshotIdOut = modelSnapshotReport.s_SnapshotId;
+    numDocsOut = modelSnapshotReport.s_NumDocs;
 }
 }
 
@@ -80,7 +77,7 @@ CppUnit::Test* CMultiFileDataAdderTest::suite() {
     return suiteOfTests;
 }
 
-void CMultiFileDataAdderTest::testSimpleWrite(void) {
+void CMultiFileDataAdderTest::testSimpleWrite() {
     static const std::string EVENT("Hello Event");
     static const std::string SUMMARY_EVENT("Hello Summary Event");
 
@@ -140,23 +137,23 @@ void CMultiFileDataAdderTest::testSimpleWrite(void) {
     CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(workDir));
 }
 
-void CMultiFileDataAdderTest::testDetectorPersistBy(void) {
+void CMultiFileDataAdderTest::testDetectorPersistBy() {
     this->detectorPersistHelper("testfiles/new_mlfields.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
-void CMultiFileDataAdderTest::testDetectorPersistOver(void) {
+void CMultiFileDataAdderTest::testDetectorPersistOver() {
     this->detectorPersistHelper("testfiles/new_mlfields_over.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
-void CMultiFileDataAdderTest::testDetectorPersistPartition(void) {
+void CMultiFileDataAdderTest::testDetectorPersistPartition() {
     this->detectorPersistHelper("testfiles/new_mlfields_partition.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
-void CMultiFileDataAdderTest::testDetectorPersistDc(void) {
+void CMultiFileDataAdderTest::testDetectorPersistDc() {
     this->detectorPersistHelper("testfiles/new_persist_dc.conf", "testfiles/files_users_programs.csv", 5);
 }
 
-void CMultiFileDataAdderTest::testDetectorPersistCount(void) {
+void CMultiFileDataAdderTest::testDetectorPersistCount() {
     this->detectorPersistHelper("testfiles/new_persist_count.conf", "testfiles/files_users_programs.csv", 5);
 }
 
@@ -190,7 +187,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
                                  fieldConfig,
                                  modelConfig,
                                  wrappedOutputStream,
-                                 boost::bind(&reportPersistComplete, _1, _2, _3, _4, boost::ref(origSnapshotId), boost::ref(numOrigDocs)),
+                                 boost::bind(&reportPersistComplete, _1, boost::ref(origSnapshotId), boost::ref(numOrigDocs)),
                                  nullptr,
                                  -1,
                                  "time",
@@ -245,13 +242,12 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
 
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
-    ml::api::CAnomalyJob restoredJob(
-        JOB_ID,
-        limits,
-        fieldConfig,
-        modelConfig,
-        wrappedOutputStream,
-        boost::bind(&reportPersistComplete, _1, _2, _3, _4, boost::ref(restoredSnapshotId), boost::ref(numRestoredDocs)));
+    ml::api::CAnomalyJob restoredJob(JOB_ID,
+                                     limits,
+                                     fieldConfig,
+                                     modelConfig,
+                                     wrappedOutputStream,
+                                     boost::bind(&reportPersistComplete, _1, boost::ref(restoredSnapshotId), boost::ref(numRestoredDocs)));
 
     {
         ml::core_t::TTime completeToTime(0);

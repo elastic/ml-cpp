@@ -19,7 +19,7 @@
 
 class CThreadPoolTest : public CppUnit::TestFixture {
 public:
-    void testPool(void);
+    void testPool();
 
     static CppUnit::Test* suite();
 };

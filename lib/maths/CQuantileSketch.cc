@@ -36,10 +36,10 @@ namespace maths {
 
 namespace {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef CQuantileSketch::TFloatFloatPr TFloatFloatPr;
-typedef CQuantileSketch::TFloatFloatPrVec TFloatFloatPrVec;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TFloatFloatPr = CQuantileSketch::TFloatFloatPr;
+using TFloatFloatPrVec = CQuantileSketch::TFloatFloatPrVec;
 
 //! \brief Orders two indices of a value vector by increasing value.
 class CIndexingGreater {
@@ -68,14 +68,14 @@ public:
     TFloatFloatPr& operator*() const { return (*m_Knots)[m_I]; }
     TFloatFloatPr* operator->() const { return &(*m_Knots)[m_I]; }
 
-    const CUniqueIterator& operator++(void) {
+    const CUniqueIterator& operator++() {
         double x = (*m_Knots)[m_I].first;
         ptrdiff_t n = m_Knots->size();
         while (++m_I < n && (*m_Knots)[m_I].first == x) {}
         return *this;
     }
 
-    const CUniqueIterator& operator--(void) {
+    const CUniqueIterator& operator--() {
         double x = (*m_Knots)[m_I].first;
         while (--m_I >= 0 && (*m_Knots)[m_I].first == x) {}
         return *this;
@@ -95,7 +95,7 @@ public:
         return *this;
     }
 
-    ptrdiff_t index(void) const { return m_I; }
+    ptrdiff_t index() const { return m_I; }
 
 private:
     TFloatFloatPrVec* m_Knots;
@@ -326,11 +326,11 @@ bool CQuantileSketch::quantile(double percentage, double& result) const {
     return true;
 }
 
-const CQuantileSketch::TFloatFloatPrVec& CQuantileSketch::knots(void) const {
+const CQuantileSketch::TFloatFloatPrVec& CQuantileSketch::knots() const {
     return m_Knots;
 }
 
-double CQuantileSketch::count(void) const {
+double CQuantileSketch::count() const {
     return m_Count;
 }
 
@@ -345,11 +345,11 @@ void CQuantileSketch::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
     core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
 }
 
-std::size_t CQuantileSketch::memoryUsage(void) const {
+std::size_t CQuantileSketch::memoryUsage() const {
     return core::CMemory::dynamicSize(m_Knots);
 }
 
-bool CQuantileSketch::checkInvariants(void) const {
+bool CQuantileSketch::checkInvariants() const {
     if (m_Knots.size() > m_MaxSize) {
         LOG_ERROR("Too many knots: " << m_Knots.size() << " > " << m_MaxSize);
         return false;
@@ -366,19 +366,19 @@ bool CQuantileSketch::checkInvariants(void) const {
     for (std::size_t i = 0u; i < m_Knots.size(); ++i) {
         count += m_Knots[i].second;
     }
-    if (::fabs(m_Count - count) > 10.0 * EPS * m_Count) {
-        LOG_ERROR("Count mismatch: error " << ::fabs(m_Count - count) << "/" << m_Count);
+    if (std::fabs(m_Count - count) > 10.0 * EPS * m_Count) {
+        LOG_ERROR("Count mismatch: error " << std::fabs(m_Count - count) << "/" << m_Count);
         return false;
     }
     return true;
 }
 
-std::string CQuantileSketch::print(void) const {
+std::string CQuantileSketch::print() const {
     return core::CContainerPrinter::print(m_Knots);
 }
 
-void CQuantileSketch::reduce(void) {
-    typedef std::vector<std::size_t> TSizeVec;
+void CQuantileSketch::reduce() {
+    using TSizeVec = std::vector<std::size_t>;
 
     CPRNG::CXorOShiro128Plus rng(static_cast<uint64_t>(m_Count));
     boost::random::uniform_01<double> u01;
@@ -463,7 +463,7 @@ void CQuantileSketch::reduce(void) {
     }
 }
 
-void CQuantileSketch::orderAndDeduplicate(void) {
+void CQuantileSketch::orderAndDeduplicate() {
     if (m_Unsorted > 0) {
         std::sort(m_Knots.end() - m_Unsorted, m_Knots.end());
         std::inplace_merge(m_Knots.begin(), m_Knots.end() - m_Unsorted, m_Knots.end());
@@ -486,7 +486,7 @@ void CQuantileSketch::orderAndDeduplicate(void) {
     m_Unsorted = 0;
 }
 
-std::size_t CQuantileSketch::target(void) const {
+std::size_t CQuantileSketch::target() const {
     return static_cast<std::size_t>(0.9 * static_cast<double>(m_MaxSize) + 1.0);
 }
 

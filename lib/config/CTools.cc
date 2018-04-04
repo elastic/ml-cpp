@@ -22,8 +22,8 @@
 #include <boost/range.hpp>
 
 #include <cctype>
+#include <cmath>
 #include <cstddef>
-#include <math.h>
 
 namespace ml {
 namespace config {
@@ -50,7 +50,7 @@ double CTools::interpolate(double a, double b, double pa, double pb, double x) {
 }
 
 double CTools::powInterpolate(double p, double a, double b, double pa, double pb, double x) {
-    return maths::CTools::truncate(pa + (pb - pa) * ::pow((x - a) / (b - a), p), std::min(pa, pb), std::max(pa, pb));
+    return maths::CTools::truncate(pa + (pb - pa) * std::pow((x - a) / (b - a), p), std::min(pa, pb), std::max(pa, pb));
 }
 
 double CTools::logInterpolate(double a, double b, double pa, double pb, double x) {
@@ -64,17 +64,17 @@ std::string CTools::prettyPrint(double d) {
     char buf[20];
     ::memset(buf, 0, sizeof(buf));
 
-    if (::fabs(d) <= 1e-3) {
+    if (std::fabs(d) <= 1e-3) {
         std::sprintf(buf, "%.2e", d);
-    } else if (::fabs(d) < 0.1) {
+    } else if (std::fabs(d) < 0.1) {
         std::sprintf(buf, "%.3f", d);
-    } else if (::fabs(d) < 1.0) {
+    } else if (std::fabs(d) < 1.0) {
         std::sprintf(buf, "%.2f", d);
-    } else if (::fabs(d) < 1e2) {
+    } else if (std::fabs(d) < 1e2) {
         std::sprintf(buf, "%.1f", d);
-    } else if (::fabs(d) < 1e5) {
+    } else if (std::fabs(d) < 1e5) {
         std::sprintf(buf, "%.0f", d);
-    } else if (::fabs(d) < 1e13) {
+    } else if (std::fabs(d) < 1e13) {
         std::sprintf(buf, "%.0f", d);
         char* end = std::find(buf, buf + 20, '\0');
         for (char* pos = end; pos - buf > 3 && std::isdigit(static_cast<unsigned char>(pos[-4])); pos -= 3, ++end) {

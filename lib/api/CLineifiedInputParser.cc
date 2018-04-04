@@ -31,7 +31,7 @@ CLineifiedInputParser::CLineifiedInputParser(std::istream& strmIn)
     : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(0), m_WorkBufferCapacity(0), m_WorkBufferPtr(0), m_WorkBufferEnd(0) {
 }
 
-CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine(void) {
+CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine() {
     // For maximum performance, read the stream in large chunks that can be
     // moved around by memcpy().  Using memcpy() is an order of magnitude faster
     // than the naive approach of checking and copying one character at a time.
@@ -94,7 +94,7 @@ CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine(void) {
     return TCharPSizePr(static_cast<char*>(0), 0);
 }
 
-void CLineifiedInputParser::resetBuffer(void) {
+void CLineifiedInputParser::resetBuffer() {
     m_WorkBufferEnd = m_WorkBufferPtr;
 }
 }

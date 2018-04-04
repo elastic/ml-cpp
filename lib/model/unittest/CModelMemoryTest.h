@@ -20,10 +20,10 @@
 
 class CModelMemoryTest : public CppUnit::TestFixture {
 public:
-    void testOnlineEventRateModel(void);
-    void testOnlineMetricModel(void);
+    void testOnlineEventRateModel();
+    void testOnlineMetricModel();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CModelMemoryTest_h

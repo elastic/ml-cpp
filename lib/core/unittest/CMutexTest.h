@@ -19,7 +19,7 @@
 
 class CMutexTest : public CppUnit::TestFixture {
 public:
-    void testRecursive(void);
+    void testRecursive();
 
     static CppUnit::Test* suite();
 };

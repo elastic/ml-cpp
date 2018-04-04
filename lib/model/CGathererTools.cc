@@ -51,7 +51,7 @@ const std::string SUM_MAP_VALUE_TAG("c");
 
 //! \brief Manages persistence of bucket sums.
 struct SSumSerializer {
-    typedef std::vector<CSample> TSampleVec;
+    using TSampleVec = std::vector<CSample>;
 
     void operator()(const TSampleVec& sample, core::CStatePersistInserter& inserter) const {
         inserter.insertValue(SUM_SAMPLE_TAG, core::CPersistUtils::toString(sample, CSample::SToString()));
@@ -68,11 +68,11 @@ struct SSumSerializer {
 
 //! \brief Manages persistence of influence bucket sums.
 struct SInfluencerSumSerializer {
-    typedef boost::unordered_map<core::CStoredStringPtr, double> TStoredStringPtrDoubleUMap;
-    typedef TStoredStringPtrDoubleUMap::const_iterator TStoredStringPtrDoubleUMapCItr;
-    typedef boost::reference_wrapper<const std::string> TStrCRef;
-    typedef std::pair<TStrCRef, double> TStrCRefDoublePr;
-    typedef std::vector<TStrCRefDoublePr> TStrCRefDoublePrVec;
+    using TStoredStringPtrDoubleUMap = boost::unordered_map<core::CStoredStringPtr, double>;
+    using TStoredStringPtrDoubleUMapCItr = TStoredStringPtrDoubleUMap::const_iterator;
+    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRefDoublePr = std::pair<TStrCRef, double>;
+    using TStrCRefDoublePrVec = std::vector<TStrCRefDoublePr>;
 
     void operator()(const TStoredStringPtrDoubleUMap& map, core::CStatePersistInserter& inserter) const {
         TStrCRefDoublePrVec ordered;
@@ -106,14 +106,14 @@ struct SInfluencerSumSerializer {
 
 } // unnamed::
 
-CGathererTools::CArrivalTimeGatherer::CArrivalTimeGatherer(void) : m_LastTime(FIRST_TIME) {
+CGathererTools::CArrivalTimeGatherer::CArrivalTimeGatherer() : m_LastTime(FIRST_TIME) {
 }
 
-CGathererTools::TOptionalDouble CGathererTools::CArrivalTimeGatherer::featureData(void) const {
+CGathererTools::TOptionalDouble CGathererTools::CArrivalTimeGatherer::featureData() const {
     return maths::CBasicStatistics::count(m_Value) > 0.0 ? TOptionalDouble(maths::CBasicStatistics::mean(m_Value)) : TOptionalDouble();
 }
 
-void CGathererTools::CArrivalTimeGatherer::startNewBucket(void) {
+void CGathererTools::CArrivalTimeGatherer::startNewBucket() {
     m_Value = TAccumulator();
 }
 
@@ -138,11 +138,11 @@ bool CGathererTools::CArrivalTimeGatherer::acceptRestoreTraverser(core::CStateRe
     return true;
 }
 
-uint64_t CGathererTools::CArrivalTimeGatherer::checksum(void) const {
+uint64_t CGathererTools::CArrivalTimeGatherer::checksum() const {
     return maths::CChecksum::calculate(static_cast<uint64_t>(m_LastTime), m_Value);
 }
 
-std::string CGathererTools::CArrivalTimeGatherer::print(void) const {
+std::string CGathererTools::CArrivalTimeGatherer::print() const {
     std::ostringstream o;
     if (maths::CBasicStatistics::count(m_Value) > 0.0) {
         o << maths::CBasicStatistics::mean(m_Value);
@@ -168,17 +168,17 @@ CGathererTools::CSumGatherer::CSumGatherer(const SModelParams& params,
           TStoredStringPtrDoubleUMapQueue(params.s_LatencyBuckets + 3, bucketLength, startTime, TStoredStringPtrDoubleUMap(1))) {
 }
 
-std::size_t CGathererTools::CSumGatherer::dimension(void) const {
+std::size_t CGathererTools::CSumGatherer::dimension() const {
     return 1;
 }
 
 SMetricFeatureData
 CGathererTools::CSumGatherer::featureData(core_t::TTime time, core_t::TTime /*bucketLength*/, const TSampleVec& emptySample) const {
-    typedef boost::reference_wrapper<const std::string> TStrCRef;
-    typedef std::pair<TDouble1Vec, double> TDouble1VecDoublePr;
-    typedef std::pair<TStrCRef, TDouble1VecDoublePr> TStrCRefDouble1VecDoublePrPr;
-    typedef std::vector<TStrCRefDouble1VecDoublePrPr> TStrCRefDouble1VecDoublePrPrVec;
-    typedef std::vector<TStrCRefDouble1VecDoublePrPrVec> TStrCRefDouble1VecDoublePrPrVecVec;
+    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TDouble1VecDoublePr = std::pair<TDouble1Vec, double>;
+    using TStrCRefDouble1VecDoublePrPr = std::pair<TStrCRef, TDouble1VecDoublePr>;
+    using TStrCRefDouble1VecDoublePrPrVec = std::vector<TStrCRefDouble1VecDoublePrPr>;
+    using TStrCRefDouble1VecDoublePrPrVecVec = std::vector<TStrCRefDouble1VecDoublePrPrVec>;
 
     const TSampleVec* sum = &m_BucketSums.get(time);
     if (sum->empty()) {
@@ -272,7 +272,7 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
     return true;
 }
 
-uint64_t CGathererTools::CSumGatherer::checksum(void) const {
+uint64_t CGathererTools::CSumGatherer::checksum() const {
     uint64_t seed = static_cast<uint64_t>(m_Classifier.isInteger());
     seed = maths::CChecksum::calculate(seed, m_Classifier.isNonNegative());
     seed = maths::CChecksum::calculate(seed, m_BucketSums);
@@ -285,11 +285,11 @@ void CGathererTools::CSumGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryU
     core::CMemoryDebug::dynamicSize("m_InfluencerBucketSums", m_InfluencerBucketSums, mem);
 }
 
-std::size_t CGathererTools::CSumGatherer::memoryUsage(void) const {
+std::size_t CGathererTools::CSumGatherer::memoryUsage() const {
     return core::CMemory::dynamicSize(m_BucketSums) + core::CMemory::dynamicSize(m_InfluencerBucketSums);
 }
 
-std::string CGathererTools::CSumGatherer::print(void) const {
+std::string CGathererTools::CSumGatherer::print() const {
     std::ostringstream result;
     result << m_Classifier.isInteger() << ' ' << m_BucketSums.print() << ' ' << core::CContainerPrinter::print(m_InfluencerBucketSums);
     return result.str();

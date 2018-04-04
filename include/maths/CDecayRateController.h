@@ -66,11 +66,11 @@ public:
     };
 
 public:
-    CDecayRateController(void);
+    CDecayRateController();
     CDecayRateController(int checks, std::size_t dimension);
 
     //! Reset the errors.
-    void reset(void);
+    void reset();
 
     //! Restore by reading state from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -87,23 +87,23 @@ public:
                       double decayRate);
 
     //! Get the current multiplier.
-    double multiplier(void) const;
+    double multiplier() const;
 
     //! Get the dimension of the time series model this controls.
-    std::size_t dimension(void) const;
+    std::size_t dimension() const;
 
     //! Debug the memory used by this controller.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this controller.
-    std::size_t memoryUsage(void) const;
+    std::size_t memoryUsage() const;
 
     //! Get a checksum of this object.
     uint64_t checksum(uint64_t seed = 0) const;
 
 private:
     //! Get the count of residuals added so far.
-    double count(void) const;
+    double count() const;
 
     //! Get the change to apply to the decay rate multiplier.
     double change(const double (&stats)[3], core_t::TTime bucketLength) const;

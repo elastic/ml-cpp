@@ -19,10 +19,10 @@
 
 class CCompressUtilsTest : public CppUnit::TestFixture {
 public:
-    void testEmptyAdd(void);
-    void testOneAdd(void);
-    void testManyAdds(void);
-    void testLengthOnly(void);
+    void testEmptyAdd();
+    void testOneAdd();
+    void testManyAdds();
+    void testLengthOnly();
 
     static CppUnit::Test* suite();
 };

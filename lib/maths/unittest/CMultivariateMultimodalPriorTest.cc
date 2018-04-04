@@ -36,13 +36,13 @@
 using namespace ml;
 using namespace handy_typedefs;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<TDoubleVecVec> TDoubleVecVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
-typedef maths::CBasicStatistics::SSampleCovariances<double, 2> TCovariances2;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TDoubleVecVecVec = std::vector<TDoubleVecVec>;
+using TSizeVec = std::vector<std::size_t>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
+using TCovariances2 = maths::CBasicStatistics::SSampleCovariances<double, 2>;
 
 namespace {
 
@@ -54,14 +54,14 @@ const TDouble10Vec4Vec1Vec SINGLE_UNIT_WEIGHT_2(1, TDouble10Vec4Vec(1, UNIT_WEIG
 template<std::size_t N>
 class CMultivariateMultimodalPriorForTest : public maths::CMultivariateMultimodalPrior<N> {
 public:
-    typedef typename maths::CMultivariateMultimodalPrior<N>::TClusterer TClusterer;
-    typedef typename maths::CMultivariateMultimodalPrior<N>::TModeVec TModeVec;
+    using TClusterer = typename maths::CMultivariateMultimodalPrior<N>::TClusterer;
+    using TModeVec = typename maths::CMultivariateMultimodalPrior<N>::TModeVec;
 
 public:
     CMultivariateMultimodalPriorForTest(const maths::CMultivariateMultimodalPrior<N>& prior)
         : maths::CMultivariateMultimodalPrior<N>(prior) {}
 
-    const TModeVec& modes(void) const { return this->maths::CMultivariateMultimodalPrior<N>::modes(); }
+    const TModeVec& modes() const { return this->maths::CMultivariateMultimodalPrior<N>::modes(); }
 };
 
 template<std::size_t N>
@@ -98,9 +98,9 @@ double logLikelihood(const double w[N], const double means[N][2], const double c
         TMatrix2 covariance(covariances[i], covariances[i] + 3);
         double ll;
         maths::gaussianLogLikelihood(covariance, TVector2(x) - mean, ll);
-        lx += w[i] * ::exp(ll);
+        lx += w[i] * std::exp(ll);
     }
-    return ::log(lx);
+    return std::log(lx);
 }
 
 double logLikelihood(const TDoubleVec& w, const TDoubleVecVec& means, const TDoubleVecVecVec& covariances, const TDoubleVec& x) {
@@ -108,9 +108,9 @@ double logLikelihood(const TDoubleVec& w, const TDoubleVecVec& means, const TDou
     for (std::size_t i = 0u; i < w.size(); ++i) {
         double ll;
         maths::gaussianLogLikelihood(TMatrix2(covariances[i]), TVector2(x) - TVector2(means[i]), ll);
-        lx += w[i] * ::exp(ll);
+        lx += w[i] * std::exp(ll);
     }
-    return ::log(lx);
+    return std::log(lx);
 }
 
 void empiricalProbabilityOfLessLikelySamples(const TDoubleVec& w,
@@ -148,7 +148,7 @@ std::string print(maths_t::EDataType dataType) {
 }
 }
 
-void CMultivariateMultimodalPriorTest::testMultipleUpdate(void) {
+void CMultivariateMultimodalPriorTest::testMultipleUpdate() {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testMultipleUpdate  |");
     LOG_DEBUG("+--------------------------------------------------------+");
@@ -211,7 +211,7 @@ void CMultivariateMultimodalPriorTest::testMultipleUpdate(void) {
     }
 }
 
-void CMultivariateMultimodalPriorTest::testPropagation(void) {
+void CMultivariateMultimodalPriorTest::testPropagation() {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testPropagation  |");
     LOG_DEBUG("+-----------------------------------------------------+");
@@ -276,7 +276,7 @@ void CMultivariateMultimodalPriorTest::testPropagation(void) {
     }
 }
 
-void CMultivariateMultimodalPriorTest::testSingleMode(void) {
+void CMultivariateMultimodalPriorTest::testSingleMode() {
     LOG_DEBUG("+----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testSingleMode  |");
     LOG_DEBUG("+----------------------------------------------------+");
@@ -302,7 +302,7 @@ void CMultivariateMultimodalPriorTest::testSingleMode(void) {
     }
 }
 
-void CMultivariateMultimodalPriorTest::testMultipleModes(void) {
+void CMultivariateMultimodalPriorTest::testMultipleModes() {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testMultipleModes  |");
     LOG_DEBUG("+-------------------------------------------------------+");
@@ -381,14 +381,14 @@ void CMultivariateMultimodalPriorTest::testMultipleModes(void) {
     }
 }
 
-void CMultivariateMultimodalPriorTest::testSplitAndMerge(void) {
+void CMultivariateMultimodalPriorTest::testSplitAndMerge() {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testSplitAndMerge  |");
     LOG_DEBUG("+-------------------------------------------------------+");
 
     // Test clustering which changes over time.
 
-    typedef std::vector<TDoubleVecVec> TDoubleVecVecVec;
+    using TDoubleVecVecVec = std::vector<TDoubleVecVec>;
 
     maths::CSampling::seed();
 
@@ -503,7 +503,7 @@ void CMultivariateMultimodalPriorTest::testSplitAndMerge(void) {
     }
 }
 
-void CMultivariateMultimodalPriorTest::testMarginalLikelihood(void) {
+void CMultivariateMultimodalPriorTest::testMarginalLikelihood() {
     LOG_DEBUG("+------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testMarginalLikelihood  |");
     LOG_DEBUG("+------------------------------------------------------------+");
@@ -562,15 +562,15 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihood(void) {
             LOG_DEBUG("m = " << means[i]);
             LOG_DEBUG("v = " << trace);
 
-            double intervals[][2] = {{means[i](0) - 3.0 * ::sqrt(trace), means[i](1) - 3.0 * ::sqrt(trace)},
-                                     {means[i](0) - 3.0 * ::sqrt(trace), means[i](1) - 1.0 * ::sqrt(trace)},
-                                     {means[i](0) - 3.0 * ::sqrt(trace), means[i](1) + 1.0 * ::sqrt(trace)},
-                                     {means[i](0) - 1.0 * ::sqrt(trace), means[i](1) - 3.0 * ::sqrt(trace)},
-                                     {means[i](0) - 1.0 * ::sqrt(trace), means[i](1) - 1.0 * ::sqrt(trace)},
-                                     {means[i](0) - 1.0 * ::sqrt(trace), means[i](1) + 1.0 * ::sqrt(trace)},
-                                     {means[i](0) + 1.0 * ::sqrt(trace), means[i](1) - 3.0 * ::sqrt(trace)},
-                                     {means[i](0) + 1.0 * ::sqrt(trace), means[i](1) - 1.0 * ::sqrt(trace)},
-                                     {means[i](0) + 1.0 * ::sqrt(trace), means[i](1) + 1.0 * ::sqrt(trace)}};
+            double intervals[][2] = {{means[i](0) - 3.0 * std::sqrt(trace), means[i](1) - 3.0 * std::sqrt(trace)},
+                                     {means[i](0) - 3.0 * std::sqrt(trace), means[i](1) - 1.0 * std::sqrt(trace)},
+                                     {means[i](0) - 3.0 * std::sqrt(trace), means[i](1) + 1.0 * std::sqrt(trace)},
+                                     {means[i](0) - 1.0 * std::sqrt(trace), means[i](1) - 3.0 * std::sqrt(trace)},
+                                     {means[i](0) - 1.0 * std::sqrt(trace), means[i](1) - 1.0 * std::sqrt(trace)},
+                                     {means[i](0) - 1.0 * std::sqrt(trace), means[i](1) + 1.0 * std::sqrt(trace)},
+                                     {means[i](0) + 1.0 * std::sqrt(trace), means[i](1) - 3.0 * std::sqrt(trace)},
+                                     {means[i](0) + 1.0 * std::sqrt(trace), means[i](1) - 1.0 * std::sqrt(trace)},
+                                     {means[i](0) + 1.0 * std::sqrt(trace), means[i](1) + 1.0 * std::sqrt(trace)}};
             CUnitKernel<2> likelihoodKernel(filter);
             CMeanKernel<2> meanKernel(filter);
             CCovarianceKernel<2> covarianceKernel(filter, expectedMean);
@@ -578,8 +578,8 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihood(void) {
             for (std::size_t j = 0u; j < boost::size(intervals); ++j) {
                 TDoubleVec a(boost::begin(intervals[j]), boost::end(intervals[j]));
                 TDoubleVec b(a);
-                b[0] += 2.0 * ::sqrt(trace);
-                b[1] += 2.0 * ::sqrt(trace);
+                b[0] += 2.0 * std::sqrt(trace);
+                b[1] += 2.0 * std::sqrt(trace);
 
                 double zj;
                 maths::CIntegration::sparseGaussLegendre<maths::CIntegration::OrderSix, maths::CIntegration::TwoDimensions>(
@@ -625,7 +625,7 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihood(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanCovarianceError) < 0.04);
 }
 
-void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean(void) {
+void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean() {
     LOG_DEBUG("+----------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean  |");
     LOG_DEBUG("+----------------------------------------------------------------+");
@@ -671,14 +671,14 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMean(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.002);
 }
 
-void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode(void) {
+void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode() {
     LOG_DEBUG("+----------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode  |");
     LOG_DEBUG("+----------------------------------------------------------------+");
 
     // Test that the sample mode is close to the generating distribution mode.
 
-    typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>> TMaxAccumulator;
+    using TMaxAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
 
     maths::CSampling::seed();
 
@@ -731,7 +731,7 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.02);
 }
 
-void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood(void) {
+void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood() {
     LOG_DEBUG("+------------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood  |");
     LOG_DEBUG("+------------------------------------------------------------------+");
@@ -819,7 +819,7 @@ void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood(void) {
         0.02);
 }
 
-void CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
+void CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples() {
     LOG_DEBUG("+------------------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples  |");
     LOG_DEBUG("+------------------------------------------------------------------------+");
@@ -888,9 +888,9 @@ void CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) 
                 double pa = (lb + ub) / 2.0;
 
                 LOG_DEBUG("  p(" << x << "), actual = " << pa << ", expected = " << px);
-                meanAbsError.add(::fabs(px - pa));
+                meanAbsError.add(std::fabs(px - pa));
                 if (px < 1.0 && px > 0.0) {
-                    meanRelError.add(::fabs(::log(px) - ::log(pa)) / ::fabs(::log(px)));
+                    meanRelError.add(std::fabs(std::log(px) - std::log(pa)) / std::fabs(std::log(px)));
                 }
             }
 
@@ -903,7 +903,7 @@ void CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) 
     }
 }
 
-void CMultivariateMultimodalPriorTest::testIntegerData(void) {
+void CMultivariateMultimodalPriorTest::testIntegerData() {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testIntegerData  |");
     LOG_DEBUG("+-----------------------------------------------------+");
@@ -911,7 +911,7 @@ void CMultivariateMultimodalPriorTest::testIntegerData(void) {
     // TODO
 }
 
-void CMultivariateMultimodalPriorTest::testLowVariationData(void) {
+void CMultivariateMultimodalPriorTest::testLowVariationData() {
     LOG_DEBUG("+----------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testLowVariationData  |");
     LOG_DEBUG("+----------------------------------------------------------+");
@@ -919,13 +919,13 @@ void CMultivariateMultimodalPriorTest::testLowVariationData(void) {
     // TODO
 }
 
-void CMultivariateMultimodalPriorTest::testLatLongData(void) {
+void CMultivariateMultimodalPriorTest::testLatLongData() {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testLatLongData  |");
     LOG_DEBUG("+-----------------------------------------------------+");
 
-    typedef std::pair<core_t::TTime, TDoubleVec> TTimeDoubleVecPr;
-    typedef std::vector<TTimeDoubleVecPr> TTimeDoubleVecPrVec;
+    using TTimeDoubleVecPr = std::pair<core_t::TTime, TDoubleVec>;
+    using TTimeDoubleVecPrVec = std::vector<TTimeDoubleVecPr>;
 
     TTimeDoubleVecPrVec timeseries;
     CPPUNIT_ASSERT(
@@ -973,7 +973,7 @@ void CMultivariateMultimodalPriorTest::testLatLongData(void) {
     //f << prior->printMarginalLikelihoodFunction(0, 1);
 }
 
-void CMultivariateMultimodalPriorTest::testPersist(void) {
+void CMultivariateMultimodalPriorTest::testPersist() {
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateMultimodalPriorTest::testPersist  |");
     LOG_DEBUG("+-------------------------------------------------+");
@@ -1036,7 +1036,7 @@ void CMultivariateMultimodalPriorTest::testPersist(void) {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test* CMultivariateMultimodalPriorTest::suite(void) {
+CppUnit::Test* CMultivariateMultimodalPriorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultivariateMultimodalPriorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateMultimodalPriorTest>("CMultivariateMultimodalPriorTest::testMultipleUpdate",

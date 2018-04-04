@@ -39,7 +39,7 @@ CppUnit::Test* CResultNormalizerTest::suite() {
     return suiteOfTests;
 }
 
-void CResultNormalizerTest::testInitNormalizer(void) {
+void CResultNormalizerTest::testInitNormalizer() {
     ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
 
     ml::api::CLineifiedJsonOutputWriter outputWriter;

@@ -22,7 +22,7 @@ extern char* __progname;
 namespace ml {
 namespace core {
 
-std::string CProgName::progName(void) {
+std::string CProgName::progName() {
     if (__progname == 0) {
         return std::string();
     }
@@ -30,7 +30,7 @@ std::string CProgName::progName(void) {
     return __progname;
 }
 
-std::string CProgName::progDir(void) {
+std::string CProgName::progDir() {
     static const size_t BUFFER_SIZE(2048);
     std::string path(BUFFER_SIZE, '\0');
     ssize_t len(::readlink("/proc/self/exe", &path[0], BUFFER_SIZE));

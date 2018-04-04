@@ -59,15 +59,15 @@ CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval
     }
 }
 
-CBackgroundPersister::~CBackgroundPersister(void) {
+CBackgroundPersister::~CBackgroundPersister() {
     this->waitForIdle();
 }
 
-bool CBackgroundPersister::isBusy(void) const {
+bool CBackgroundPersister::isBusy() const {
     return m_IsBusy;
 }
 
-bool CBackgroundPersister::waitForIdle(void) {
+bool CBackgroundPersister::waitForIdle() {
     {
         core::CScopedFastLock lock(m_Mutex);
 
@@ -86,7 +86,7 @@ bool CBackgroundPersister::addPersistFunc(core::CDataAdder::TPersistFunc persist
 
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy) {
+    if (this->isBusy()) {
         return false;
     }
 
@@ -103,14 +103,14 @@ bool CBackgroundPersister::addPersistFunc(core::CDataAdder::TPersistFunc persist
     return true;
 }
 
-bool CBackgroundPersister::startPersist(void) {
-    if (m_PersistFuncs.empty()) {
+bool CBackgroundPersister::startPersist() {
+    core::CScopedFastLock lock(m_Mutex);
+
+    if (this->isBusy()) {
         return false;
     }
 
-    core::CScopedFastLock lock(m_Mutex);
-
-    if (m_IsBusy) {
+    if (m_PersistFuncs.empty()) {
         return false;
     }
 
@@ -128,10 +128,10 @@ bool CBackgroundPersister::startPersist(void) {
     return m_IsBusy;
 }
 
-bool CBackgroundPersister::clear(void) {
+bool CBackgroundPersister::clear() {
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy) {
+    if (this->isBusy()) {
         return false;
     }
 
@@ -143,7 +143,7 @@ bool CBackgroundPersister::clear(void) {
 bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc) {
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy) {
+    if (this->isBusy()) {
         return false;
     }
 
@@ -152,7 +152,16 @@ bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcess
     return true;
 }
 
-bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void) {
+bool CBackgroundPersister::startBackgroundPersist() {
+    if (this->isBusy()) {
+        LOG_WARN("Cannot start background persist as a previous "
+                 "persist is still in progress");
+        return false;
+    }
+    return this->startBackgroundPersist(core::CTimeUtils::now());
+}
+
+bool CBackgroundPersister::startBackgroundPersistIfAppropriate() {
     core_t::TTime due(m_LastPeriodicPersistTime + m_PeriodicPersistInterval);
     core_t::TTime now(core::CTimeUtils::now());
     if (now < due) {
@@ -170,6 +179,10 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void) {
         return false;
     }
 
+    return this->startBackgroundPersist(now);
+}
+
+bool CBackgroundPersister::startBackgroundPersist(core_t::TTime timeOfPersistence) {
     bool backgroundPersistSetupOk = m_FirstProcessorPeriodicPersistFunc(*this);
     if (!backgroundPersistSetupOk) {
         LOG_ERROR("Failed to create background persistence functions");
@@ -179,7 +192,7 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void) {
         return false;
     }
 
-    m_LastPeriodicPersistTime = now;
+    m_LastPeriodicPersistTime = timeOfPersistence;
 
     LOG_INFO("Background persist starting background thread");
 
@@ -195,8 +208,9 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void) {
 CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister& owner) : m_Owner(owner) {
 }
 
-void CBackgroundPersister::CBackgroundThread::run(void) {
-
+void CBackgroundPersister::CBackgroundThread::run() {
+    // The isBusy check will prevent concurrent access to
+    // m_Owner.m_PersistFuncs here
     while (!m_Owner.m_PersistFuncs.empty()) {
         if (!m_Owner.m_IsShutdown) {
             m_Owner.m_PersistFuncs.front()(m_Owner.m_DataAdder);
@@ -205,11 +219,10 @@ void CBackgroundPersister::CBackgroundThread::run(void) {
     }
 
     core::CScopedFastLock lock(m_Owner.m_Mutex);
-
     m_Owner.m_IsBusy = false;
 }
 
-void CBackgroundPersister::CBackgroundThread::shutdown(void) {
+void CBackgroundPersister::CBackgroundThread::shutdown() {
     m_Owner.m_IsShutdown = true;
 }
 }

@@ -34,7 +34,7 @@ CppUnit::Test* CThreadFarmTest::suite() {
     return suiteOfTests;
 }
 
-void CThreadFarmTest::testNumCpus(void) {
+void CThreadFarmTest::testNumCpus() {
     unsigned int numCpus(boost::thread::hardware_concurrency());
 
     LOG_INFO("Number of CPUs on this machine is " << numCpus);
@@ -43,7 +43,7 @@ void CThreadFarmTest::testNumCpus(void) {
 namespace {
 class CString {
 public:
-    CString(void) {}
+    CString() {}
 
     CString(const std::string& str) : m_Str(str) {}
 
@@ -59,7 +59,7 @@ public:
         return *this;
     }
 
-    const std::string& str(void) const { return m_Str; }
+    const std::string& str() const { return m_Str; }
 
 private:
     std::string m_Str;
@@ -79,7 +79,7 @@ public:
         m_OutstandingOutput.insert(expected);
     }
 
-    bool haveAllExpected(void) {
+    bool haveAllExpected() {
         ml::core::CScopedLock lock(m_Mutex);
 
         TStrSet::iterator iter = m_OutstandingOutput.begin();
@@ -91,7 +91,7 @@ public:
     }
 
 private:
-    typedef std::set<std::string> TStrSet;
+    using TStrSet = std::set<std::string>;
 
     TStrSet m_OutstandingOutput;
     ml::core::CMutex m_Mutex;
@@ -114,7 +114,7 @@ private:
 };
 }
 
-void CThreadFarmTest::testSendReceive(void) {
+void CThreadFarmTest::testSendReceive() {
     CHandler handler;
 
     ml::core::CThreadFarm<CHandler, CProcessor, std::string, CString> farm(handler, "test");

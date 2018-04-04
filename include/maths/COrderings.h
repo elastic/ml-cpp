@@ -53,7 +53,7 @@ public:
     //! less than null values and otherwise compares using the type
     //! operator <.
     struct SOptionalLess {
-        typedef bool result_type;
+        using result_type = bool;
 
         //! \note U and V must be convertible to T or optional<T>
         //! for some type T and T must support operator <.
@@ -82,7 +82,7 @@ public:
     //! than non-null values and otherwise compares using the type
     //! operator >.
     struct SOptionalGreater {
-        typedef bool result_type;
+        using result_type = bool;
 
         //! \note U and V must be convertible to T or optional<T>
         //! for some type T and T must support operator >.
@@ -111,7 +111,7 @@ public:
     //! than null values and otherwise compares using the type
     //! operator <.
     struct SPtrLess {
-        typedef bool result_type;
+        using result_type = bool;
 
         template<typename T>
         inline bool operator()(const T* lhs, const T* rhs) const {
@@ -130,7 +130,7 @@ public:
     //! than non-null values and otherwise compares using
     //! the type operator >.
     struct SPtrGreater {
-        typedef bool result_type;
+        using result_type = bool;
 
         template<typename T>
         inline bool operator()(const T* lhs, const T* rhs) const {
@@ -148,7 +148,7 @@ public:
     //! \brief Orders two reference wrapped objects which are
     //! comparable with operator <.
     struct SReferenceLess {
-        typedef bool result_type;
+        using result_type = bool;
 
         template<typename U, typename V>
         inline bool operator()(const U& lhs, const V& rhs) const {
@@ -164,7 +164,7 @@ public:
     //! \brief Orders two reference wrapped objects which are
     //! comparable with operator >.
     struct SReferenceGreater {
-        typedef bool result_type;
+        using result_type = bool;
 
         template<typename U, typename V>
         inline bool operator()(const U& lhs, const V& rhs) const {
@@ -285,7 +285,7 @@ public:
 
     //! \brief Wrapper around various less than comparisons.
     struct SLess {
-        typedef bool result_type;
+        using result_type = bool;
 
         template<typename T>
         bool operator()(const boost::optional<T>& lhs, const boost::optional<T>& rhs) const {
@@ -325,7 +325,7 @@ public:
 
     //! \brief Wrapper around various less than comparisons.
     struct SGreater {
-        typedef bool result_type;
+        using result_type = bool;
 
         template<typename T>
         bool operator()(const boost::optional<T>& lhs, const boost::optional<T>& rhs) const {
@@ -620,7 +620,7 @@ public:
     if (boost::algorithm::is_sorted(keys.begin(), keys.end(), comp)) {                                                                     \
         return true;                                                                                                                       \
     }                                                                                                                                      \
-    typedef std::vector<std::size_t> TSizeVec;                                                                                             \
+    using TSizeVec = std::vector<std::size_t>;                                                                                             \
     TSizeVec ordering;                                                                                                                     \
     ordering.reserve(keys.size());                                                                                                         \
     for (std::size_t i = 0u; i < keys.size(); ++i) {                                                                                       \

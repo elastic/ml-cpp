@@ -27,7 +27,7 @@ CppUnit::Test* CProgNameTest::suite() {
     return suiteOfTests;
 }
 
-void CProgNameTest::testProgName(void) {
+void CProgNameTest::testProgName() {
     std::string progName(ml::core::CProgName::progName());
 
     LOG_DEBUG("Current program name is " << progName);
@@ -35,7 +35,7 @@ void CProgNameTest::testProgName(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("ml_test"), progName);
 }
 
-void CProgNameTest::testProgDir(void) {
+void CProgNameTest::testProgDir() {
     std::string progDir(ml::core::CProgName::progDir());
 
     LOG_DEBUG("Current program directory is " << progDir);

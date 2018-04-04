@@ -34,7 +34,7 @@ void insert2ndLevel(ml::core::CStatePersistInserter& inserter) {
 }
 }
 
-void CRapidXmlStatePersistInserterTest::testPersist(void) {
+void CRapidXmlStatePersistInserterTest::testPersist() {
     ml::core::CRapidXmlStatePersistInserter::TStrStrMap rootAttributes;
     rootAttributes["attr1"] = "attrVal1";
     rootAttributes["attr2"] = "attrVal2";
@@ -52,7 +52,7 @@ void CRapidXmlStatePersistInserterTest::testPersist(void) {
 
     inserter.toXml(false, xml);
     CPPUNIT_ASSERT_EQUAL(std::string("<root attr1=\"attrVal1\" "
-                                     "attr2=\"attrVal2\"><level1A>a</level1A><level1B>25</"
-                                     "level1B><level1C><level2A>3.14</level2A><level2B>z</level2B></level1C></root>"),
+                                     "attr2=\"attrVal2\"><level1A>a</level1A><level1B>25</level1B><level1C><level2A>3.14</"
+                                     "level2A><level2B>z</level2B></level1C></root>"),
                          xml);
 }

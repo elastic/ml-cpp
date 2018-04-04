@@ -201,8 +201,8 @@ bool CEventRatePopulationModel::acceptRestoreTraverser(core::CStateRestoreTraver
         RESTORE(MEMORY_ESTIMATOR_TAG, core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
     } while (traverser.next());
 
-    for (auto&& feature : m_FeatureModels) {
-        for (auto&& model : feature.s_Models) {
+    for (auto& feature : m_FeatureModels) {
+        for (auto& model : feature.s_Models) {
             for (const auto& correlates : m_FeatureCorrelatesModels) {
                 if (feature.s_Feature == correlates.s_Feature) {
                     model->modelCorrelations(*correlates.s_Models);
@@ -214,19 +214,19 @@ bool CEventRatePopulationModel::acceptRestoreTraverser(core::CStateRestoreTraver
     return true;
 }
 
-CAnomalyDetectorModel* CEventRatePopulationModel::cloneForPersistence(void) const {
+CAnomalyDetectorModel* CEventRatePopulationModel::cloneForPersistence() const {
     return new CEventRatePopulationModel(true, *this);
 }
 
-model_t::EModelType CEventRatePopulationModel::category(void) const {
+model_t::EModelType CEventRatePopulationModel::category() const {
     return model_t::E_EventRateOnline;
 }
 
-bool CEventRatePopulationModel::isEventRate(void) const {
+bool CEventRatePopulationModel::isEventRate() const {
     return true;
 }
 
-bool CEventRatePopulationModel::isMetric(void) const {
+bool CEventRatePopulationModel::isMetric() const {
     return false;
 }
 
@@ -259,7 +259,7 @@ CEventRatePopulationModel::TDouble1Vec CEventRatePopulationModel::baselineBucket
     if (model_t::isConstant(feature) && !m_AttributeProbabilities.lookup(pid, probability)) {
         probability = 1.0;
     }
-    for (auto&& coord : result) {
+    for (auto& coord : result) {
         coord = probability * model_t::inverseOffsetCountToZero(feature, coord);
     }
     this->correctBaselineForInterim(feature, pid, cid, type, correlated, this->currentBucketInterimCorrections(), result);
@@ -293,7 +293,7 @@ void CEventRatePopulationModel::sampleBucketStatistics(core_t::TTime startTime, 
 
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(time, bucketLength, featureData);
-        for (auto&& featureData_ : featureData) {
+        for (auto& featureData_ : featureData) {
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
@@ -337,7 +337,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime, core_t::TTime en
         gatherer.personNonZeroCounts(time, personCounts);
         this->applyFilter(model_t::E_XF_Over, true, this->personFilter(), personCounts);
 
-        for (auto&& featureData_ : featureData) {
+        for (auto& featureData_ : featureData) {
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
@@ -374,7 +374,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime, core_t::TTime en
                     uint64_t count = CDataGatherer::extractData(data_).s_Count;
                     fuzzy[cid].add({static_cast<double>(count)});
                 }
-                for (auto&& fuzzy_ : fuzzy) {
+                for (auto& fuzzy_ : fuzzy) {
                     fuzzy_.second.computeEpsilons(bucketLength, this->params().s_MinimumToDeduplicate);
                 }
             }
@@ -419,7 +419,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime, core_t::TTime en
                 }
             }
 
-            for (auto&& attribute : attributes) {
+            for (auto& attribute : attributes) {
                 std::size_t cid = attribute.first;
                 maths::CModelAddSamplesParams params;
                 params.integer(true)
@@ -468,7 +468,7 @@ void CEventRatePopulationModel::prune(std::size_t maximumAge) {
     if (gatherer.dataAvailable(m_CurrentBucketStats.s_StartTime)) {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(m_CurrentBucketStats.s_StartTime, gatherer.bucketLength(), featureData);
-        for (auto&& feature : featureData) {
+        for (auto& feature : featureData) {
             m_CurrentBucketStats.s_FeatureData[feature.first].swap(feature.second);
         }
     }
@@ -751,7 +751,7 @@ void CEventRatePopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsag
     core::CMemoryDebug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
 }
 
-std::size_t CEventRatePopulationModel::memoryUsage(void) const {
+std::size_t CEventRatePopulationModel::memoryUsage() const {
     const CDataGatherer& gatherer = this->dataGatherer();
     TOptionalSize estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
                                                        gatherer.numberActiveAttributes(),
@@ -759,7 +759,7 @@ std::size_t CEventRatePopulationModel::memoryUsage(void) const {
     return estimate ? estimate.get() : this->computeMemoryUsage();
 }
 
-std::size_t CEventRatePopulationModel::computeMemoryUsage(void) const {
+std::size_t CEventRatePopulationModel::computeMemoryUsage() const {
     std::size_t mem = this->CPopulationModel::memoryUsage();
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
@@ -773,15 +773,15 @@ std::size_t CEventRatePopulationModel::computeMemoryUsage(void) const {
     return mem;
 }
 
-CMemoryUsageEstimator* CEventRatePopulationModel::memoryUsageEstimator(void) const {
+CMemoryUsageEstimator* CEventRatePopulationModel::memoryUsageEstimator() const {
     return &m_MemoryEstimator;
 }
 
-std::size_t CEventRatePopulationModel::staticSize(void) const {
+std::size_t CEventRatePopulationModel::staticSize() const {
     return sizeof(*this);
 }
 
-CEventRatePopulationModel::CModelDetailsViewPtr CEventRatePopulationModel::details(void) const {
+CEventRatePopulationModel::CModelDetailsViewPtr CEventRatePopulationModel::details() const {
     return CModelDetailsViewPtr(new CEventRatePopulationModelDetailsView(*this));
 }
 
@@ -797,7 +797,7 @@ const CEventRatePopulationModel::TSizeSizePrFeatureDataPrVec& CEventRatePopulati
     return result == m_CurrentBucketStats.s_FeatureData.end() ? EMPTY : result->second;
 }
 
-core_t::TTime CEventRatePopulationModel::currentBucketStartTime(void) const {
+core_t::TTime CEventRatePopulationModel::currentBucketStartTime() const {
     return m_CurrentBucketStats.s_StartTime;
 }
 
@@ -809,21 +809,21 @@ void CEventRatePopulationModel::currentBucketTotalCount(uint64_t totalCount) {
     m_CurrentBucketStats.s_TotalCount = totalCount;
 }
 
-uint64_t CEventRatePopulationModel::currentBucketTotalCount(void) const {
+uint64_t CEventRatePopulationModel::currentBucketTotalCount() const {
     return m_CurrentBucketStats.s_TotalCount;
 }
 
-const CEventRatePopulationModel::TSizeUInt64PrVec& CEventRatePopulationModel::personCounts(void) const {
+const CEventRatePopulationModel::TSizeUInt64PrVec& CEventRatePopulationModel::personCounts() const {
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
-CEventRatePopulationModel::TCorrectionKeyDouble1VecUMap& CEventRatePopulationModel::currentBucketInterimCorrections(void) const {
+CEventRatePopulationModel::TCorrectionKeyDouble1VecUMap& CEventRatePopulationModel::currentBucketInterimCorrections() const {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
 
 void CEventRatePopulationModel::createNewModels(std::size_t n, std::size_t m) {
     if (m > 0) {
-        for (auto&& feature : m_FeatureModels) {
+        for (auto& feature : m_FeatureModels) {
             std::size_t newM = feature.s_Models.size() + m;
             core::CAllocationStrategy::reserve(feature.s_Models, newM);
             for (std::size_t cid = feature.s_Models.size(); cid < newM; ++cid) {
@@ -839,10 +839,10 @@ void CEventRatePopulationModel::createNewModels(std::size_t n, std::size_t m) {
     this->CPopulationModel::createNewModels(n, m);
 }
 
-void CEventRatePopulationModel::updateRecycledModels(void) {
+void CEventRatePopulationModel::updateRecycledModels() {
     CDataGatherer& gatherer = this->dataGatherer();
     for (auto cid : gatherer.recycledAttributeIds()) {
-        for (auto&& feature : m_FeatureModels) {
+        for (auto& feature : m_FeatureModels) {
             feature.s_Models[cid].reset(feature.s_NewModel->clone(cid));
             for (const auto& correlates : m_FeatureCorrelatesModels) {
                 if (feature.s_Feature == correlates.s_Feature) {
@@ -860,7 +860,7 @@ void CEventRatePopulationModel::refreshCorrelationModels(std::size_t resourceLim
     auto memoryUsage = boost::bind(&CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate, this, n, 0, _1);
     CTimeSeriesCorrelateModelAllocator allocator(
         resourceMonitor, memoryUsage, resourceLimit, static_cast<std::size_t>(maxNumberCorrelations + 0.5));
-    for (auto&& feature : m_FeatureCorrelatesModels) {
+    for (auto& feature : m_FeatureCorrelatesModels) {
         allocator.prototypePrior(feature.s_ModelPrior);
         feature.s_Models->refresh(allocator);
     }
@@ -868,7 +868,7 @@ void CEventRatePopulationModel::refreshCorrelationModels(std::size_t resourceLim
 
 void CEventRatePopulationModel::clearPrunedResources(const TSizeVec& /*people*/, const TSizeVec& attributes) {
     for (auto cid : attributes) {
-        for (auto&& feature : m_FeatureModels) {
+        for (auto& feature : m_FeatureModels) {
             feature.s_Models[cid].reset(this->tinyModel());
         }
     }
@@ -876,7 +876,7 @@ void CEventRatePopulationModel::clearPrunedResources(const TSizeVec& /*people*/,
 
 void CEventRatePopulationModel::doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) {
     core_t::TTime gap = endTime - startTime;
-    for (auto&& feature : m_FeatureModels) {
+    for (auto& feature : m_FeatureModels) {
         for (auto& model : feature.s_Models) {
             model->skipTime(gap);
         }

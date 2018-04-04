@@ -30,17 +30,17 @@
 using namespace ml;
 using namespace core;
 
-typedef boost::mt19937 TRandom;
-typedef boost::uniform_int<> TDistribution;
-typedef boost::random::variate_generator<TRandom&, TDistribution> TGenerator;
-typedef boost::generator_iterator<TGenerator> TGeneratorItr;
+using TRandom = boost::mt19937;
+using TDistribution = boost::uniform_int<>;
+using TGenerator = boost::random::variate_generator<TRandom&, TDistribution>;
+using TGeneratorItr = boost::generator_iterator<TGenerator>;
 
 namespace {
 
-typedef std::map<std::size_t, std::string> TSizeStrMap;
-typedef TSizeStrMap::const_iterator TSizeStrMapCItr;
-typedef core::CDataAdder::TOStreamP TOStreamP;
-typedef core::CDataSearcher::TIStreamP TIStreamP;
+using TSizeStrMap = std::map<std::size_t, std::string>;
+using TSizeStrMapCItr = TSizeStrMap::const_iterator;
+using TOStreamP = core::CDataAdder::TOStreamP;
+using TIStreamP = core::CDataSearcher::TIStreamP;
 
 void insert3rdLevel(ml::core::CStatePersistInserter& inserter) {
     inserter.insertValue("ssdrgad", 99999, ml::core::CIEEE754::E_SinglePrecision);
@@ -83,9 +83,9 @@ public:
         return true;
     }
 
-    virtual std::size_t maxDocumentSize(void) const { return m_MaxDocumentSize; }
+    virtual std::size_t maxDocumentSize() const { return m_MaxDocumentSize; }
 
-    const TSizeStrMap& data(void) const { return m_Data; }
+    const TSizeStrMap& data() const { return m_Data; }
 
 private:
     TSizeStrMap m_Data;
@@ -114,9 +114,9 @@ public:
         return stream;
     }
 
-    std::size_t totalDocs(void) const { return m_Adder.data().size(); }
+    std::size_t totalDocs() const { return m_Adder.data().size(); }
 
-    std::size_t askedFor(void) const { return m_AskedFor; }
+    std::size_t askedFor() const { return m_AskedFor; }
 
 private:
     CMockDataAdder& m_Adder;
@@ -124,7 +124,7 @@ private:
 };
 }
 
-void CStateCompressorTest::testForApiNoKey(void) {
+void CStateCompressorTest::testForApiNoKey() {
     // This test verifies the basic operation of compressing and decompressing
     // some JSON data, using two simultaneous streams: one regular stringstream,
     // and one compress/decompress stream
@@ -164,7 +164,7 @@ void CStateCompressorTest::testForApiNoKey(void) {
     CPPUNIT_ASSERT_EQUAL(ref.size(), restored.size());
 }
 
-void CStateCompressorTest::testStreaming(void) {
+void CStateCompressorTest::testStreaming() {
     // The purpose of this test is to add a reasonable block of data to the
     // compressed store, then read it back out and show that the data is
     // read in stream chunks, not all at once. CMockDataSearcher has a
@@ -230,7 +230,7 @@ void CStateCompressorTest::testStreaming(void) {
     }
 }
 
-void CStateCompressorTest::testChunking(void) {
+void CStateCompressorTest::testChunking() {
     // Put arbitrary string data into the stream, and stress different sizes
     // check CMockDataAdder with max doc sizes from 500 to 500000
 

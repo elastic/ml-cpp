@@ -46,7 +46,7 @@ CMetricPopulationModelFactory::CMetricPopulationModelFactory(const SModelParams&
       m_BucketResultsDelay(0) {
 }
 
-CMetricPopulationModelFactory* CMetricPopulationModelFactory::clone(void) const {
+CMetricPopulationModelFactory* CMetricPopulationModelFactory::clone() const {
     return new CMetricPopulationModelFactory(*this);
 }
 
@@ -225,7 +225,7 @@ CMetricPopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature
     return this->multivariateOneOfNPrior(2, params, priors);
 }
 
-const CSearchKey& CMetricPopulationModelFactory::searchKey(void) const {
+const CSearchKey& CMetricPopulationModelFactory::searchKey() const {
     if (!m_SearchKeyCache) {
         m_SearchKeyCache.reset(CSearchKey(m_Identifier,
                                           function_t::function(m_Features),
@@ -240,15 +240,15 @@ const CSearchKey& CMetricPopulationModelFactory::searchKey(void) const {
     return *m_SearchKeyCache;
 }
 
-bool CMetricPopulationModelFactory::isSimpleCount(void) const {
+bool CMetricPopulationModelFactory::isSimpleCount() const {
     return false;
 }
 
-model_t::ESummaryMode CMetricPopulationModelFactory::summaryMode(void) const {
+model_t::ESummaryMode CMetricPopulationModelFactory::summaryMode() const {
     return m_SummaryMode;
 }
 
-maths_t::EDataType CMetricPopulationModelFactory::dataType(void) const {
+maths_t::EDataType CMetricPopulationModelFactory::dataType() const {
     return maths_t::E_ContinuousData;
 }
 
@@ -284,7 +284,7 @@ void CMetricPopulationModelFactory::bucketResultsDelay(std::size_t bucketResults
     m_BucketResultsDelay = bucketResultsDelay;
 }
 
-CMetricPopulationModelFactory::TStrCRefVec CMetricPopulationModelFactory::partitioningFields(void) const {
+CMetricPopulationModelFactory::TStrCRefVec CMetricPopulationModelFactory::partitioningFields() const {
     TStrCRefVec result;
     result.reserve(3);
     if (!m_PartitionFieldName.empty()) {

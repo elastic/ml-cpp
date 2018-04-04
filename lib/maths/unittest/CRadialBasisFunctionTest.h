@@ -20,12 +20,12 @@
 
 class CRadialBasisFunctionTest : public CppUnit::TestFixture {
 public:
-    void testDerivative(void);
-    void testMean(void);
-    void testMeanSquareDerivative(void);
-    void testProduct(void);
+    void testDerivative();
+    void testMean();
+    void testMeanSquareDerivative();
+    void testProduct();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CRadialBasisFunctionTest_h

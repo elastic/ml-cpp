@@ -47,7 +47,7 @@ public:
                                  const std::string& summaryCountFieldName = "");
 
     //! Create a copy of the factory owned by the calling code.
-    virtual CMetricModelFactory* clone(void) const;
+    virtual CMetricModelFactory* clone() const;
 
     //! \name Factory Methods
     //@{
@@ -103,16 +103,16 @@ public:
     //@}
 
     //! Get the search key corresponding to this factory.
-    virtual const CSearchKey& searchKey(void) const;
+    virtual const CSearchKey& searchKey() const;
 
     //! Returns false.
-    virtual bool isSimpleCount(void) const;
+    virtual bool isSimpleCount() const;
 
     //! Check the pre-summarisation mode for this factory.
-    virtual model_t::ESummaryMode summaryMode(void) const;
+    virtual model_t::ESummaryMode summaryMode() const;
 
     //! Get the default data type for models from this factory.
-    virtual maths_t::EDataType dataType(void) const;
+    virtual maths_t::EDataType dataType() const;
 
     //! \name Customization by a specific search
     //@{
@@ -141,7 +141,7 @@ public:
 
 private:
     //! Get the field values which partition the data for modeling.
-    virtual TStrCRefVec partitioningFields(void) const;
+    virtual TStrCRefVec partitioningFields() const;
 
 private:
     //! The identifier of the search for which this generates models.

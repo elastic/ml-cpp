@@ -50,10 +50,10 @@ public:
     CInputThread(ml::core::CDualThreadStreamBuf& buffer, uint32_t delay = 0, size_t fatalAfter = 0)
         : m_Buffer(buffer), m_Delay(delay), m_FatalAfter(fatalAfter), m_TotalData(0) {}
 
-    size_t totalData(void) const { return m_TotalData; }
+    size_t totalData() const { return m_TotalData; }
 
 protected:
-    virtual void run(void) {
+    virtual void run() {
         std::istream strm(&m_Buffer);
         size_t count(0);
         std::string line;
@@ -69,7 +69,7 @@ protected:
         }
     }
 
-    virtual void shutdown(void) { m_Buffer.signalFatalError(); }
+    virtual void shutdown() { m_Buffer.signalFatalError(); }
 
 private:
     ml::core::CDualThreadStreamBuf& m_Buffer;
@@ -93,7 +93,7 @@ const char* DATA("According to the most recent Wikipedia definition \"Predictive
                  "change between components that causes failure in complex IT systems.\n");
 }
 
-void CDualThreadStreamBufTest::testThroughput(void) {
+void CDualThreadStreamBufTest::testThroughput() {
     static const size_t TEST_SIZE(1000000);
     size_t dataSize(::strlen(DATA));
     size_t totalDataSize(TEST_SIZE * dataSize);
@@ -131,7 +131,7 @@ void CDualThreadStreamBufTest::testThroughput(void) {
                                                            << (end - start) << " seconds");
 }
 
-void CDualThreadStreamBufTest::testSlowConsumer(void) {
+void CDualThreadStreamBufTest::testSlowConsumer() {
     static const size_t TEST_SIZE(25);
     static const uint32_t DELAY(200);
     size_t dataSize(::strlen(DATA));
@@ -175,7 +175,7 @@ void CDualThreadStreamBufTest::testSlowConsumer(void) {
     CPPUNIT_ASSERT(duration <= delaySecs + TOLERANCE);
 }
 
-void CDualThreadStreamBufTest::testPutback(void) {
+void CDualThreadStreamBufTest::testPutback() {
     size_t dataSize(::strlen(DATA));
 
     ml::core::CDualThreadStreamBuf buf;
@@ -216,7 +216,7 @@ void CDualThreadStreamBufTest::testPutback(void) {
     CPPUNIT_ASSERT_EQUAL(std::string(DATA), remainder);
 }
 
-void CDualThreadStreamBufTest::testFatal(void) {
+void CDualThreadStreamBufTest::testFatal() {
     static const size_t TEST_SIZE(10000);
     static const size_t BUFFER_CAPACITY(16384);
     size_t dataSize(::strlen(DATA));

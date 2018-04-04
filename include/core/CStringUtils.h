@@ -42,9 +42,9 @@ public:
     static const std::string WHITESPACE_CHARS;
 
 public:
-    typedef std::vector<std::string> TStrVec;
-    typedef TStrVec::iterator TStrVecItr;
-    typedef TStrVec::const_iterator TStrVecCItr;
+    using TStrVec = std::vector<std::string>;
+    using TStrVecItr = TStrVec::iterator;
+    using TStrVecCItr = TStrVec::const_iterator;
 
 public:
     //! If \p c is the start of a UTF-8 character, return the number of
@@ -176,7 +176,7 @@ public:
     //! Get a locale object for character transformations
     //! TODO - remove when we switch to a character conversion library
     //! (e.g. ICU)
-    static const std::locale& locale(void);
+    static const std::locale& locale();
 
 private:
     //! Internal calls for public templated methods

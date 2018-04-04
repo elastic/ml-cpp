@@ -54,7 +54,7 @@ namespace maths {
 //! must be non-negative.
 class MATHS_EXPORT CJointProbabilityOfLessLikelySamples : private boost::addable<CJointProbabilityOfLessLikelySamples> {
 public:
-    typedef boost::optional<double> TOptionalDouble;
+    using TOptionalDouble = boost::optional<double>;
 
     //! Functor wrapper of CJointProbabilityOfLessLikelySamples::add.
     struct SAddProbability {
@@ -63,13 +63,13 @@ public:
     };
 
 public:
-    CJointProbabilityOfLessLikelySamples(void);
+    CJointProbabilityOfLessLikelySamples();
 
     //! Initialize from \p value if possible.
     bool fromDelimited(const std::string& value);
 
     //! Convert to a delimited string.
-    std::string toDelimited(void) const;
+    std::string toDelimited() const;
 
     //! Combine two joint probability calculators.
     const CJointProbabilityOfLessLikelySamples& operator+=(const CJointProbabilityOfLessLikelySamples& other);
@@ -86,13 +86,13 @@ public:
     bool averageProbability(double& result) const;
 
     //! Get the first probability.
-    TOptionalDouble onlyProbability(void) const;
+    TOptionalDouble onlyProbability() const;
 
     //! Get the total deviation of all samples added.
-    double distance(void) const;
+    double distance() const;
 
     //! Get the count of all samples added.
-    double numberSamples(void) const;
+    double numberSamples() const;
 
     //! Get a checksum for an object of this class.
     uint64_t checksum(uint64_t seed) const;
@@ -138,7 +138,7 @@ std::ostream& operator<<(std::ostream& o, const CJointProbabilityOfLessLikelySam
 class MATHS_EXPORT CLogJointProbabilityOfLessLikelySamples : protected CJointProbabilityOfLessLikelySamples,
                                                              private boost::addable<CLogJointProbabilityOfLessLikelySamples> {
 public:
-    CLogJointProbabilityOfLessLikelySamples(void);
+    CLogJointProbabilityOfLessLikelySamples();
 
     //! Combine two log joint probability calculators.
     const CLogJointProbabilityOfLessLikelySamples& operator+=(const CLogJointProbabilityOfLessLikelySamples& other);
@@ -194,13 +194,13 @@ public:
 //! where we have used the fact that \f$(1 - F(x)) = p / 2\f$.
 class MATHS_EXPORT CProbabilityOfExtremeSample : private boost::addable<CProbabilityOfExtremeSample> {
 public:
-    CProbabilityOfExtremeSample(void);
+    CProbabilityOfExtremeSample();
 
     //! Initialize from \p value if possible.
     bool fromDelimited(const std::string& value);
 
     //! Convert to a delimited string.
-    std::string toDelimited(void) const;
+    std::string toDelimited() const;
 
     //! Combine two extreme probability calculators.
     const CProbabilityOfExtremeSample& operator+=(const CProbabilityOfExtremeSample& other);
@@ -219,7 +219,7 @@ public:
     std::ostream& print(std::ostream& o) const;
 
 private:
-    typedef CBasicStatistics::COrderStatisticsStack<double, 1u> TMinValueAccumulator;
+    using TMinValueAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1u>;
 
 private:
     TMinValueAccumulator m_MinValue;
@@ -283,7 +283,7 @@ public:
     bool fromDelimited(const std::string& value);
 
     //! Convert to a delimited string.
-    std::string toDelimited(void) const;
+    std::string toDelimited() const;
 
     //! Combine two extreme probability calculators.
     const CLogProbabilityOfMFromNExtremeSamples& operator+=(const CLogProbabilityOfMFromNExtremeSamples& other);
@@ -303,7 +303,7 @@ public:
     uint64_t checksum(uint64_t seed) const;
 
 private:
-    typedef CBasicStatistics::COrderStatisticsHeap<double> TMinValueAccumulator;
+    using TMinValueAccumulator = CBasicStatistics::COrderStatisticsHeap<double>;
 
 private:
     TMinValueAccumulator m_MinValues;

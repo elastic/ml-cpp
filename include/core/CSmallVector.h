@@ -127,7 +127,7 @@ public:
     }
 
     // Extend to convert implicitly to a vector.
-    inline operator std::vector<T>(void) const { return std::vector<T>(this->begin(), this->end()); }
+    inline operator std::vector<T>() const { return std::vector<T>(this->begin(), this->end()); }
 
     // Non-standard plus assign for the case that T has operator+=.
     const CSmallVector& operator+=(const CSmallVectorBase<T>& rhs) {

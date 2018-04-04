@@ -22,6 +22,7 @@
 #include <maths/CLinearAlgebra.h>
 #include <maths/ImportExport.h>
 
+#include <cmath>
 #include <cstddef>
 #include <vector>
 
@@ -34,20 +35,20 @@ namespace maths {
 //! \see https://en.wikipedia.org/wiki/Gradient_descent.
 class MATHS_EXPORT CGradientDescent {
 public:
-    typedef std::vector<double> TDoubleVec;
-    typedef CVector<double> TVector;
+    using TDoubleVec = std::vector<double>;
+    using TVector = CVector<double>;
 
     //! \brief The interface for the function calculation.
     class MATHS_EXPORT CFunction {
     public:
-        virtual ~CFunction(void);
+        virtual ~CFunction();
         virtual bool operator()(const TVector& x, double& result) const = 0;
     };
 
     //! \brief The interface for the gradient calculation.
     class MATHS_EXPORT CGradient {
     public:
-        virtual ~CGradient(void);
+        virtual ~CGradient();
         virtual bool operator()(const TVector& x, TVector& result) const = 0;
     };
 

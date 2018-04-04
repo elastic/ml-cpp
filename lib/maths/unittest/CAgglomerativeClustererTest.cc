@@ -33,12 +33,12 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::pair<double, TSizeVec> TDoubleSizeVecPr;
-typedef std::vector<TDoubleSizeVecPr> TDoubleSizeVecPrVec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
+using TDoubleSizeVecPr = std::pair<double, TSizeVec>;
+using TDoubleSizeVecPrVec = std::vector<TDoubleSizeVecPr>;
 
 class CCluster {
 public:
@@ -58,17 +58,17 @@ public:
 
     void add(TDoubleSizeVecPrVec& result) { result.push_back(TDoubleSizeVecPr(m_Height, m_Points)); }
 
-    const TSizeVec& points(void) const { return m_Points; }
+    const TSizeVec& points() const { return m_Points; }
 
 private:
-    explicit CCluster(void) : m_Height(0.0) {}
+    explicit CCluster() : m_Height(0.0) {}
 
 private:
     double m_Height;
     TSizeVec m_Points;
 };
 
-typedef std::vector<CCluster> TClusterVec;
+using TClusterVec = std::vector<CCluster>;
 
 class CSlinkObjective {
 public:
@@ -184,7 +184,7 @@ std::string print(maths::CAgglomerativeClusterer::EObjective o) {
 }
 }
 
-void CAgglomerativeClustererTest::testNode(void) {
+void CAgglomerativeClustererTest::testNode() {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CAgglomerativeClustererTest::testNode  |");
     LOG_DEBUG("+-----------------------------------------+");
@@ -249,7 +249,7 @@ void CAgglomerativeClustererTest::testNode(void) {
     }
 }
 
-void CAgglomerativeClustererTest::testSimplePermutations(void) {
+void CAgglomerativeClustererTest::testSimplePermutations() {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CAgglomerativeClustererTest::testSimplePermutations  |");
     LOG_DEBUG("+-------------------------------------------------------+");
@@ -274,7 +274,7 @@ void CAgglomerativeClustererTest::testSimplePermutations(void) {
             TDoubleVecVec distanceMatrix(n);
             for (std::size_t i = 0u; i < n; ++i) {
                 for (std::size_t j = i; j < n; ++j) {
-                    distanceMatrix[j].push_back(::fabs(x[p[i]] - x[p[j]]));
+                    distanceMatrix[j].push_back(std::fabs(x[p[i]] - x[p[j]]));
                 }
                 LOG_DEBUG("D = " << core::CContainerPrinter::print(distanceMatrix[i]));
             }
@@ -304,7 +304,7 @@ void CAgglomerativeClustererTest::testSimplePermutations(void) {
     }
 }
 
-void CAgglomerativeClustererTest::testDegenerate(void) {
+void CAgglomerativeClustererTest::testDegenerate() {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CAgglomerativeClustererTest::testDegenerate  |");
     LOG_DEBUG("+-----------------------------------------------+");
@@ -336,7 +336,7 @@ void CAgglomerativeClustererTest::testDegenerate(void) {
             TDoubleVecVec distanceMatrix(n);
             for (std::size_t i = 0u; i < n; ++i) {
                 for (std::size_t j = i; j < n; ++j) {
-                    distanceMatrix[j].push_back(::fabs(x[p[i]] - x[p[j]]));
+                    distanceMatrix[j].push_back(std::fabs(x[p[i]] - x[p[j]]));
                 }
                 if (count % 10 == 0) {
                     LOG_DEBUG("D = " << core::CContainerPrinter::print(distanceMatrix[i]));
@@ -375,7 +375,7 @@ void CAgglomerativeClustererTest::testDegenerate(void) {
     }
 }
 
-void CAgglomerativeClustererTest::testRandom(void) {
+void CAgglomerativeClustererTest::testRandom() {
     LOG_DEBUG("+-------------------------------------------+");
     LOG_DEBUG("|  CAgglomerativeClustererTest::testRandom  |");
     LOG_DEBUG("+-------------------------------------------+");
@@ -447,7 +447,7 @@ void CAgglomerativeClustererTest::testRandom(void) {
     }
 }
 
-CppUnit::Test* CAgglomerativeClustererTest::suite(void) {
+CppUnit::Test* CAgglomerativeClustererTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAgglomerativeClustererTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>("CAgglomerativeClustererTest::testNode",

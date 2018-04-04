@@ -60,24 +60,24 @@ public:
     //! \name Prior Contract
     //@{
     //! Get the type of this prior.
-    virtual EPrior type(void) const;
+    virtual EPrior type() const;
 
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CConstantPrior* clone(void) const;
+    virtual CConstantPrior* clone() const;
 
     //! Reset the prior to non-informative.
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
 
     //! Returns false.
-    virtual bool needsOffset(void) const;
+    virtual bool needsOffset() const;
 
     //! No-op.
     virtual double adjustOffset(const TWeightStyleVec& weightStyle, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
     //! Returns zero.
-    virtual double offset(void) const;
+    virtual double offset() const;
 
     //! Set the constant if it hasn't been set.
     virtual void addSamples(const TWeightStyleVec& weightStyle, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
@@ -86,10 +86,10 @@ public:
     virtual void propagateForwardsByTime(double time);
 
     //! Get the support for the marginal likelihood function.
-    virtual TDoubleDoublePr marginalLikelihoodSupport(void) const;
+    virtual TDoubleDoublePr marginalLikelihoodSupport() const;
 
     //! Returns constant or zero if unset (by equidistribution).
-    virtual double marginalLikelihoodMean(void) const;
+    virtual double marginalLikelihoodMean() const;
 
     //! Returns constant or zero if unset (by equidistribution).
     virtual double marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
@@ -140,7 +140,7 @@ public:
                                                 maths_t::ETail& tail) const;
 
     //! Check if this is a non-informative prior.
-    bool isNonInformative(void) const;
+    bool isNonInformative() const;
 
     //! Get a human readable description of the prior.
     //!
@@ -152,7 +152,7 @@ public:
     virtual std::string printMarginalLikelihoodFunction(double weight = 1.0) const;
 
     //! Print the prior density function of the parameters.
-    virtual std::string printJointDensityFunction(void) const;
+    virtual std::string printJointDensityFunction() const;
 
     //! Get a checksum for this object.
     virtual uint64_t checksum(uint64_t seed = 0) const;
@@ -161,17 +161,17 @@ public:
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this component
-    virtual std::size_t memoryUsage(void) const;
+    virtual std::size_t memoryUsage() const;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize(void) const;
+    virtual std::size_t staticSize() const;
 
     //! Persist state by passing information to the supplied inserter
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
     //@}
 
     //! Get the constant value.
-    TOptionalDouble constant(void) const;
+    TOptionalDouble constant() const;
 
 private:
     //! Create by traversing a state document.

@@ -42,7 +42,7 @@ namespace core {
 //!
 class CORE_EXPORT CBufferFlushTimer {
 public:
-    CBufferFlushTimer(void);
+    CBufferFlushTimer();
 
     core_t::TTime flushTime(core_t::TTime bufferDelay, core_t::TTime bufferMaxTime);
 

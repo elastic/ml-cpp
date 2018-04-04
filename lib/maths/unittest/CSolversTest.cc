@@ -22,9 +22,8 @@
 #include <maths/CEqualWithTolerance.h>
 #include <maths/CSolvers.h>
 
+#include <cmath>
 #include <utility>
-
-#include <math.h>
 
 using namespace ml;
 using namespace maths;
@@ -46,39 +45,40 @@ double f2(const double& x) {
 //! There is a root is in the interval:\n
 //!   [0.739085133215160, 0.739085133215161]
 double f3(const double& x) {
-    return ::cos(x) - x;
+    return std::cos(x) - x;
 }
 
 //! Root at x = 2/3.
 double f4(const double& x) {
-    return x <= 2.0 / 3.0 ? ::pow(::fabs(x - 2.0 / 3.0), 0.2) : -::pow(::fabs(x - 2.0 / 3.0), 0.2);
+    return x <= 2.0 / 3.0 ? std::pow(std::fabs(x - 2.0 / 3.0), 0.2) : -std::pow(std::fabs(x - 2.0 / 3.0), 0.2);
 }
 
 //! This has local maxima at 4 and 10.
 double f5(const double& x) {
-    return 1.1 * ::exp(-(x - 4.0) * (x - 4.0)) + 0.4 * ::exp(-(x - 10.0) * (x - 10.0) / 4.0);
+    return 1.1 * std::exp(-(x - 4.0) * (x - 4.0)) + 0.4 * std::exp(-(x - 10.0) * (x - 10.0) / 4.0);
 }
 
 //! This has local maxima at 4, 6 and 10.
 double f6(const double& x) {
-    return 1.1 * ::exp(-2.0 * (x - 4.0) * (x - 4.0)) + 0.1 * ::exp(-(x - 6.0) * (x - 6.0)) + 0.4 * ::exp(-(x - 10.0) * (x - 10.0) / 2.0);
+    return 1.1 * std::exp(-2.0 * (x - 4.0) * (x - 4.0)) + 0.1 * std::exp(-(x - 6.0) * (x - 6.0)) +
+           0.4 * std::exp(-(x - 10.0) * (x - 10.0) / 2.0);
 }
 
 class CLog {
 public:
-    typedef double result_type;
+    using result_type = double;
 
 public:
     double operator()(const double& x) const {
         if (x <= 0.0) {
             throw std::range_error("Bad value to log " + core::CStringUtils::typeToString(x));
         }
-        return ::log(x);
+        return std::log(x);
     }
 };
 }
 
-void CSolversTest::testBracket(void) {
+void CSolversTest::testBracket() {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CSolversTest::testBracket  |");
     LOG_DEBUG("+-----------------------------+");
@@ -132,7 +132,7 @@ void CSolversTest::testBracket(void) {
     }
 }
 
-void CSolversTest::testBisection(void) {
+void CSolversTest::testBisection() {
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CSolversTest::testBisection  |");
     LOG_DEBUG("+-------------------------------+");
@@ -194,9 +194,9 @@ void CSolversTest::testBisection(void) {
             LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << f3(a) << ", f(b) = " << f3(b));
             CPPUNIT_ASSERT(f3(a) * f3(b) <= 0.0);
 
-            double error = ::fabs(bestGuess - 0.7390851332151607);
+            double error = std::fabs(bestGuess - 0.7390851332151607);
             LOG_DEBUG("bestGuess = " << bestGuess << ", f(bestGuess) = " << f3(bestGuess) << ", error = " << error);
-            CPPUNIT_ASSERT(error < ::fabs((a + b) / 2.0 - 0.7390851332151607));
+            CPPUNIT_ASSERT(error < std::fabs((a + b) / 2.0 - 0.7390851332151607));
             double convergenceFactor = error / lastError;
             lastError = error;
             if (i != 3) {
@@ -205,7 +205,7 @@ void CSolversTest::testBisection(void) {
             LOG_DEBUG("-")
         }
 
-        double meanConvergenceFactor = ::pow(lastError / 0.7390851332151607, 1.0 / 20.0);
+        double meanConvergenceFactor = std::pow(lastError / 0.7390851332151607, 1.0 / 20.0);
         LOG_DEBUG("mean convergence factor = " << meanConvergenceFactor);
         CPPUNIT_ASSERT(meanConvergenceFactor < 0.4);
     }
@@ -238,14 +238,14 @@ void CSolversTest::testBisection(void) {
             CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5 * lastInterval, b - a, 1e-5);
             lastInterval = b - a;
 
-            double error = ::fabs(bestGuess - 2.0 / 3.0);
+            double error = std::fabs(bestGuess - 2.0 / 3.0);
             LOG_DEBUG("bestGuess = " << bestGuess << ", f(bestGuess) = " << f4(bestGuess) << ", error = " << error);
-            CPPUNIT_ASSERT(error < ::fabs((a + b) / 2.0 - 2.0 / 3.0));
+            CPPUNIT_ASSERT(error < std::fabs((a + b) / 2.0 - 2.0 / 3.0));
             convergenceFactor *= (error / lastError);
             lastError = error;
 
             if ((i - 2) % 4 == 0) {
-                convergenceFactor = ::pow(convergenceFactor, 0.25);
+                convergenceFactor = std::pow(convergenceFactor, 0.25);
                 LOG_DEBUG("convergence factor = " << convergenceFactor);
                 if (i - 2 != 4) {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5, convergenceFactor, 1e-5);
@@ -255,13 +255,13 @@ void CSolversTest::testBisection(void) {
             LOG_DEBUG("-")
         }
 
-        double meanConvergenceFactor = ::pow(lastError / (2.0 / 3.0), 1.0 / 40.0);
+        double meanConvergenceFactor = std::pow(lastError / (2.0 / 3.0), 1.0 / 40.0);
         LOG_DEBUG("mean convergence factor = " << meanConvergenceFactor);
         CPPUNIT_ASSERT(meanConvergenceFactor < 0.56);
     }
 }
 
-void CSolversTest::testBrent(void) {
+void CSolversTest::testBrent() {
     LOG_DEBUG("+---------------------------+");
     LOG_DEBUG("|  CSolversTest::testBrent  |");
     LOG_DEBUG("+---------------------------+");
@@ -323,9 +323,9 @@ void CSolversTest::testBrent(void) {
             LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << f3(a) << ", f(b) = " << f3(b));
             CPPUNIT_ASSERT(f3(a) * f3(b) <= 0.0);
 
-            double error = ::fabs(bestGuess - 0.7390851332151607);
+            double error = std::fabs(bestGuess - 0.7390851332151607);
             LOG_DEBUG("bestGuess = " << bestGuess << ", f(bestGuess) = " << f3(bestGuess) << ", error = " << error);
-            CPPUNIT_ASSERT(error < ::fabs((a + b) / 2.0 - 0.7390851332151607));
+            CPPUNIT_ASSERT(error < std::fabs((a + b) / 2.0 - 0.7390851332151607));
             double convergenceFactor = error / lastError;
             lastError = error;
             if (i != 3) {
@@ -358,22 +358,22 @@ void CSolversTest::testBrent(void) {
             LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << f4(a) << ", f(b) = " << f4(b));
             CPPUNIT_ASSERT(f4(a) * f4(b) <= 0.0);
 
-            double error = ::fabs(bestGuess - 2.0 / 3.0);
+            double error = std::fabs(bestGuess - 2.0 / 3.0);
             LOG_DEBUG("bestGuess = " << bestGuess << ", f(bestGuess) = " << f4(bestGuess) << ", error = " << error);
-            CPPUNIT_ASSERT(error < ::fabs((a + b) / 2.0 - 2.0 / 3.0));
+            CPPUNIT_ASSERT(error < std::fabs((a + b) / 2.0 - 2.0 / 3.0));
             double convergenceFactor = error / lastError;
             lastError = error;
             LOG_DEBUG("convergence factor = " << convergenceFactor);
         }
 
-        double meanConvergenceFactor = ::pow(lastError / (2.0 / 3.0), 1.0 / 40.0);
+        double meanConvergenceFactor = std::pow(lastError / (2.0 / 3.0), 1.0 / 40.0);
         LOG_DEBUG("mean convergence factor = " << meanConvergenceFactor);
         CPPUNIT_ASSERT(meanConvergenceFactor < 0.505);
     }
 }
 
-void CSolversTest::testSublevelSet(void) {
-    typedef std::pair<double, double> TDoubleDoublePr;
+void CSolversTest::testSublevelSet() {
+    using TDoubleDoublePr = std::pair<double, double>;
 
     // Should converge immediately to minimum of quadratic.
     TDoubleDoublePr sublevelSet;
@@ -416,7 +416,7 @@ void CSolversTest::testSublevelSet(void) {
     }
 }
 
-CppUnit::Test* CSolversTest::suite(void) {
+CppUnit::Test* CSolversTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSolversTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBracket", &CSolversTest::testBracket));

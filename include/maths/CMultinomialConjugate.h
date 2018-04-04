@@ -52,7 +52,7 @@ struct SDistributionRestoreParams;
 //! From a design point of view this is the composite pattern.
 class MATHS_EXPORT CMultinomialConjugate : public CPrior {
 public:
-    typedef CEqualWithTolerance<double> TEqualWithTolerance;
+    using TEqualWithTolerance = CEqualWithTolerance<double>;
 
     //! Lift the overloads of addSamples into scope.
     using CPrior::addSamples;
@@ -64,7 +64,7 @@ public:
     //@{
     //! Construct an arbitrarily initialised object, suitable only for
     //! assigning to or swapping with a valid one.
-    CMultinomialConjugate(void);
+    CMultinomialConjugate();
 
     CMultinomialConjugate(std::size_t maximumNumberOfCategories,
                           const TDoubleVec& categories,
@@ -90,25 +90,25 @@ public:
     //! \name Prior Contract
     //@{
     //! Get the type of this prior.
-    virtual EPrior type(void) const;
+    virtual EPrior type() const;
 
     //! Create a copy of the prior.
     //!
     //! \return A pointer to a newly allocated clone of this prior.
     //! \warning The caller owns the object returned.
-    virtual CMultinomialConjugate* clone(void) const;
+    virtual CMultinomialConjugate* clone() const;
 
     //! Reset the prior to non-informative.
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
 
     //! Returns false.
-    virtual bool needsOffset(void) const;
+    virtual bool needsOffset() const;
 
     //! No-op.
     virtual double adjustOffset(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
     //! Returns zero.
-    virtual double offset(void) const;
+    virtual double offset() const;
 
     //! Update the prior with a collection of independent samples from the
     //! multinomial variable.
@@ -131,10 +131,10 @@ public:
     virtual void propagateForwardsByTime(double time);
 
     //! Get the support for the marginal likelihood function.
-    virtual TDoubleDoublePr marginalLikelihoodSupport(void) const;
+    virtual TDoubleDoublePr marginalLikelihoodSupport() const;
 
     //! Get the mean of the marginal likelihood function.
-    virtual double marginalLikelihoodMean(void) const;
+    virtual double marginalLikelihoodMean() const;
 
     //! Get the mode of the marginal likelihood function.
     virtual double marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
@@ -258,7 +258,7 @@ public:
                                                 maths_t::ETail& tail) const;
 
     //! Check if this is a non-informative prior.
-    virtual bool isNonInformative(void) const;
+    virtual bool isNonInformative() const;
 
     //! Get a human readable description of the prior.
     //!
@@ -274,7 +274,7 @@ public:
     //! Print the prior density function in a specified format.
     //!
     //! \see CPrior::printJointDensityFunction for details.
-    virtual std::string printJointDensityFunction(void) const;
+    virtual std::string printJointDensityFunction() const;
 
     //! Get a checksum for this object.
     virtual uint64_t checksum(uint64_t seed = 0) const;
@@ -283,10 +283,10 @@ public:
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this component
-    virtual std::size_t memoryUsage(void) const;
+    virtual std::size_t memoryUsage() const;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize(void) const;
+    virtual std::size_t staticSize() const;
 
     //! Persist state by passing information to the supplied inserter
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -304,16 +304,16 @@ public:
     bool index(double category, std::size_t& result) const;
 
     //! Get the categories.
-    const TDoubleVec& categories(void) const;
+    const TDoubleVec& categories() const;
 
     //! Get the concentrations.
-    const TDoubleVec& concentrations(void) const;
+    const TDoubleVec& concentrations() const;
 
     //! Get the concentration for a specified category
     bool concentration(double category, double& result) const;
 
     //! Get the total concetration for a specified category
-    double totalConcentration(void) const;
+    double totalConcentration() const;
 
     //! Get the expected probability of \p category if it exists.
     //!
@@ -327,7 +327,7 @@ public:
     //! \note The marginal likelihood function of a single sample is
     //! multinomial with probabilities equal to the expected values of
     //! each probability parameter in the Dirichlet prior.
-    TDoubleVec probabilities(void) const;
+    TDoubleVec probabilities() const;
 
     //! Compute upper and lower bounds for the collection of probabilities:
     //! <pre class="fragment">
@@ -376,7 +376,7 @@ private:
     //! buffer, which means that the buffers can end up twice as large
     //! as we need. This shrinks the capacity based on the number of
     //! available categories remaining.
-    void shrink(void);
+    void shrink();
 
 private:
     //! The sum of the concentration parameters of a non-informative prior.

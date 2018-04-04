@@ -46,25 +46,25 @@ CppUnit::Test* CPatternSetTest::suite() {
     return suiteOfTests;
 }
 
-void CPatternSetTest::testInitFromJson_GivenInvalidJson(void) {
+void CPatternSetTest::testInitFromJson_GivenInvalidJson() {
     std::string json("[\"foo\"");
     CPatternSet set;
     CPPUNIT_ASSERT(set.initFromJson(json) == false);
 }
 
-void CPatternSetTest::testInitFromJson_GivenNonArray(void) {
+void CPatternSetTest::testInitFromJson_GivenNonArray() {
     std::string json("{}");
     CPatternSet set;
     CPPUNIT_ASSERT(set.initFromJson(json) == false);
 }
 
-void CPatternSetTest::testInitFromJson_GivenArrayWithNonStringItem(void) {
+void CPatternSetTest::testInitFromJson_GivenArrayWithNonStringItem() {
     std::string json("[\"foo\", 3]");
     CPatternSet set;
     CPPUNIT_ASSERT(set.initFromJson(json) == false);
 }
 
-void CPatternSetTest::testInitFromJson_GivenArrayWithDuplicates(void) {
+void CPatternSetTest::testInitFromJson_GivenArrayWithDuplicates() {
     std::string json("[\"foo\",\"foo\", \"bar\", \"bar\"]");
 
     CPatternSet set;
@@ -74,7 +74,7 @@ void CPatternSetTest::testInitFromJson_GivenArrayWithDuplicates(void) {
     CPPUNIT_ASSERT(set.contains("bar"));
 }
 
-void CPatternSetTest::testContains_GivenFullMatchKeys(void) {
+void CPatternSetTest::testContains_GivenFullMatchKeys() {
     std::string json("[\"foo\",\"bar\"]");
 
     CPatternSet set;
@@ -85,7 +85,7 @@ void CPatternSetTest::testContains_GivenFullMatchKeys(void) {
     CPPUNIT_ASSERT(set.contains("nonItem") == false);
 }
 
-void CPatternSetTest::testContains_GivenPrefixKeys(void) {
+void CPatternSetTest::testContains_GivenPrefixKeys() {
     std::string json("[\"abc*\", \"foo*\"]");
 
     CPatternSet set;
@@ -99,7 +99,7 @@ void CPatternSetTest::testContains_GivenPrefixKeys(void) {
     CPPUNIT_ASSERT(set.contains("_foo") == false);
 }
 
-void CPatternSetTest::testContains_GivenSuffixKeys(void) {
+void CPatternSetTest::testContains_GivenSuffixKeys() {
     std::string json("[\"*xyz\", \"*foo\"]");
 
     CPatternSet set;
@@ -113,7 +113,7 @@ void CPatternSetTest::testContains_GivenSuffixKeys(void) {
     CPPUNIT_ASSERT(set.contains("foo_") == false);
 }
 
-void CPatternSetTest::testContains_GivenContainsKeys(void) {
+void CPatternSetTest::testContains_GivenContainsKeys() {
     std::string json("[\"*foo*\", \"*456*\"]");
 
     CPatternSet set;
@@ -131,7 +131,7 @@ void CPatternSetTest::testContains_GivenContainsKeys(void) {
     CPPUNIT_ASSERT(set.contains("12346789") == false);
 }
 
-void CPatternSetTest::testContains_GivenMixedKeys(void) {
+void CPatternSetTest::testContains_GivenMixedKeys() {
     std::string json("[\"foo\", \"foo*\", \"*foo\", \"*foo*\"]");
 
     CPatternSet set;
@@ -144,7 +144,7 @@ void CPatternSetTest::testContains_GivenMixedKeys(void) {
     CPPUNIT_ASSERT(set.contains("fo") == false);
 }
 
-void CPatternSetTest::testClear(void) {
+void CPatternSetTest::testClear() {
     std::string json("[\"foo\"]");
 
     CPatternSet set;

@@ -31,7 +31,7 @@ CppUnit::Test* CRegexTest::suite() {
     return suiteOfTests;
 }
 
-void CRegexTest::testInit(void) {
+void CRegexTest::testInit() {
     {
         std::string regexStr = "[[:digit: ] )";
 
@@ -91,7 +91,7 @@ void CRegexTest::testInit(void) {
     }
 }
 
-void CRegexTest::testSearch(void) {
+void CRegexTest::testSearch() {
     {
         // Uninitialised
         ml::core::CRegex regex;
@@ -147,7 +147,7 @@ void CRegexTest::testSearch(void) {
     }
 }
 
-void CRegexTest::testTokenise1(void) {
+void CRegexTest::testTokenise1() {
     std::string str1("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:53:44 2008> Transport node error on node 0x1234<END>");
     std::string str2("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> Transport read error (8) on node 0x1235<END>");
 
@@ -227,12 +227,12 @@ void CRegexTest::testTokenise1(void) {
         CPPUNIT_ASSERT(!regex.tokenise(str1, tokens));
     }
 
-    std::string str3("Sep 10, 2009 3:54:12 AM org.apache.tomcat.util.http.Parameters processParameters\r\nWARNING: "
-                     "Parameters: Invalid chunk ignored.");
+    std::string str3(
+        "Sep 10, 2009 3:54:12 AM org.apache.tomcat.util.http.Parameters processParameters\r\nWARNING: Parameters: Invalid chunk ignored.");
 
     {
-        std::string regexStr("(\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+)\\s*([[:alnum:].]+)\\s*(\\w+)\\r?\\n("
-                             "INFO|WARNING|SEVERE|DEBUG|FATAL): Parameters: Invalid chunk ignored\\.\\s*");
+        std::string regexStr("(\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+)\\s*([[:alnum:].]+)\\s*(\\w+)\\r?\\n(INFO|WARNING|SEVERE|"
+                             "DEBUG|FATAL): Parameters: Invalid chunk ignored\\.\\s*");
 
         ml::core::CRegex regex;
 
@@ -251,8 +251,7 @@ void CRegexTest::testTokenise1(void) {
     std::string str4("dataview[(@name=\"Snoozed\")]/rows/row[(@name=\"796480523\")]/cell[(@column=\"managedEntity\")]");
 
     {
-        std::string regexStr(".*dataview\\[\\(@name=\"(.*)\"\\)\\]/rows/row\\[\\(@name=\"(.*)\"\\)\\]/"
-                             "cell\\[\\(@column=\"(.*)\"\\)\\].*");
+        std::string regexStr(".*dataview\\[\\(@name=\"(.*)\"\\)\\]/rows/row\\[\\(@name=\"(.*)\"\\)\\]/cell\\[\\(@column=\"(.*)\"\\)\\].*");
 
         ml::core::CRegex regex;
 
@@ -269,7 +268,7 @@ void CRegexTest::testTokenise1(void) {
     }
 }
 
-void CRegexTest::testTokenise2(void) {
+void CRegexTest::testTokenise2() {
     std::string regexStr("(.+?)(?:\\((.*?)\\))?");
 
     ml::core::CRegex regex;
@@ -305,7 +304,7 @@ void CRegexTest::testTokenise2(void) {
     CPPUNIT_ASSERT(tokens[1].empty());
 }
 
-void CRegexTest::testSplit(void) {
+void CRegexTest::testSplit() {
     std::string str1("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:53:44 2008> Transport node error on node 0x1234<END>");
     std::string str2("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> Transport read error (8) on node 0x1235<END>");
 
@@ -336,14 +335,14 @@ void CRegexTest::testSplit(void) {
     }
 }
 
-void CRegexTest::testEscape(void) {
+void CRegexTest::testEscape() {
     CPPUNIT_ASSERT_EQUAL(std::string("\\.\\.\\."), ml::core::CRegex::escapeRegexSpecial("..."));
     CPPUNIT_ASSERT_EQUAL(std::string("hello"), ml::core::CRegex::escapeRegexSpecial("hello"));
     CPPUNIT_ASSERT_EQUAL(std::string("\\)hello\\(\\n\\^"), ml::core::CRegex::escapeRegexSpecial(")hello(\n^"));
     CPPUNIT_ASSERT_EQUAL(std::string("\\)hello\\(\\r?\\n\\^"), ml::core::CRegex::escapeRegexSpecial(")hello(\r\n^"));
 }
 
-void CRegexTest::testLiteralCount(void) {
+void CRegexTest::testLiteralCount() {
     {
         // Uninitialised
         ml::core::CRegex regex;

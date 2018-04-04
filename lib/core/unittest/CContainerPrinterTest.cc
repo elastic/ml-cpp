@@ -30,7 +30,7 @@
 using namespace ml;
 using namespace core;
 
-void CContainerPrinterTest::testAll(void) {
+void CContainerPrinterTest::testAll() {
     std::vector<double> vec;
     LOG_DEBUG("vec = " << CContainerPrinter::print(vec));
     CPPUNIT_ASSERT(CContainerPrinter::print(vec) == "[]");
@@ -79,7 +79,7 @@ void CContainerPrinterTest::testAll(void) {
                          CContainerPrinter::print(aggregate));
 }
 
-CppUnit::Test* CContainerPrinterTest::suite(void) {
+CppUnit::Test* CContainerPrinterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CContainerPrinterTest");
 
     suiteOfTests->addTest(

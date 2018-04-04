@@ -86,7 +86,7 @@ public:
         size_t operator()(EPartOfSpeech partOfSpeech) { return (partOfSpeech == E_NotInDictionary) ? 0 : DEFAULT_EXTRA_WEIGHT; }
     };
 
-    typedef CWeightAll<2> TWeightAll2;
+    using TWeightAll2 = CWeightAll<2>;
 
     //! Functor for weighting one type of dictionary word by a certain
     //! amount and all dictionary words by a different amount
@@ -101,7 +101,7 @@ public:
         }
     };
 
-    typedef CWeightOnePart<E_Verb, 5, 2> TWeightVerbs5Other2;
+    using TWeightVerbs5Other2 = CWeightOnePart<E_Verb, 5, 2>;
 
     //! Functor for weighting two types of dictionary word by certain
     //! amounts and all dictionary words by a different amount
@@ -127,7 +127,7 @@ public:
 
 public:
     //! Get the singleton instance
-    static const CWordDictionary& instance(void);
+    static const CWordDictionary& instance();
 
     //! Check if a word is in the dictionary.  Don't call this as well as
     //! partOfSpeech().  Instead simply call partOfSpeech(), noting that
@@ -144,8 +144,8 @@ public:
 
 private:
     //! Constructor for a singleton is private
-    CWordDictionary(void);
-    ~CWordDictionary(void);
+    CWordDictionary();
+    ~CWordDictionary();
 
 private:
     class CStrHashIgnoreCase : std::unary_function<std::string, bool> {
@@ -176,8 +176,8 @@ private:
     //! Stores the dictionary words - using a multi-index even though
     //! there's only one index, because of its flexible key extractors.
     //! The key is the string, but hashed and compared ignoring case.
-    typedef boost::unordered_map<std::string, EPartOfSpeech, CStrHashIgnoreCase, CStrEqualIgnoreCase> TStrUMap;
-    typedef TStrUMap::const_iterator TStrUMapCItr;
+    using TStrUMap = boost::unordered_map<std::string, EPartOfSpeech, CStrHashIgnoreCase, CStrEqualIgnoreCase>;
+    using TStrUMapCItr = TStrUMap::const_iterator;
 
     //! Our dictionary of words
     TStrUMap m_DictionaryWords;

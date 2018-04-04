@@ -41,7 +41,7 @@ CppUnit::Test* CRapidXmlParserTest::suite() {
     return suiteOfTests;
 }
 
-void CRapidXmlParserTest::testParse1(void) {
+void CRapidXmlParserTest::testParse1() {
     std::string goodString = CRapidXmlParserTest::fileToString("./testfiles/CXmlParser1.xml");
 
     ml::core::CRapidXmlParser parser;
@@ -51,7 +51,7 @@ void CRapidXmlParserTest::testParse1(void) {
     this->testParse1(parser);
 }
 
-void CRapidXmlParserTest::testParse2(void) {
+void CRapidXmlParserTest::testParse2() {
     std::string goodString = CRapidXmlParserTest::fileToString("./testfiles/CXmlParser2.xml");
 
     ml::core::CRapidXmlParser parser;
@@ -107,7 +107,7 @@ void CRapidXmlParserTest::testParse2(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"), tokenAndRegex1[1]->value());
 }
 
-void CRapidXmlParserTest::testNavigate(void) {
+void CRapidXmlParserTest::testNavigate() {
     std::string goodString = CRapidXmlParserTest::fileToString("./testfiles/CXmlParser2.xml");
 
     ml::core::CRapidXmlParser parser;
@@ -141,7 +141,7 @@ void CRapidXmlParserTest::testNavigate(void) {
     CPPUNIT_ASSERT(!parser.navigateNext());
 }
 
-ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP CRapidXmlParserTest::makeTestNodeHierarchy(void) {
+ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP CRapidXmlParserTest::makeTestNodeHierarchy() {
     ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(new ml::core::CXmlNodeWithChildren("root"));
 
     ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP id(new ml::core::CXmlNodeWithChildren("id", "123"));
@@ -171,7 +171,7 @@ ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP CRapidXmlParserTest::makeT
     return root;
 }
 
-void CRapidXmlParserTest::testConvert(void) {
+void CRapidXmlParserTest::testConvert() {
     // Use a standard node hierarchy to allow for comparison with the
     // standards-compliant XML parser
     ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(CRapidXmlParserTest::makeTestNodeHierarchy());
@@ -203,7 +203,7 @@ void CRapidXmlParserTest::testConvert(void) {
     CPPUNIT_ASSERT(converted.find("</dual>") != std::string::npos);
 }
 
-void CRapidXmlParserTest::testDump(void) {
+void CRapidXmlParserTest::testDump() {
     std::string goodString = CRapidXmlParserTest::fileToString("./testfiles/CXmlParser1.xml");
 
     ml::core::CRapidXmlParser parser1;
@@ -302,7 +302,7 @@ bool CRapidXmlParserTest::testAttribute(const ml::core::CXmlNode& node, const st
     return true;
 }
 
-void CRapidXmlParserTest::testParseSpeed(void) {
+void CRapidXmlParserTest::testParseSpeed() {
     static const size_t TEST_SIZE(25000);
 
     std::string testString(CRapidXmlParserTest::fileToString("./testfiles/CXmlParser2.xml"));
@@ -330,7 +330,7 @@ void CRapidXmlParserTest::testParseSpeed(void) {
     LOG_INFO("Parsing " << TEST_SIZE << " documents took " << (end - start) << " seconds");
 }
 
-void CRapidXmlParserTest::testConvertSpeed(void) {
+void CRapidXmlParserTest::testConvertSpeed() {
     static const size_t TEST_SIZE(100000);
 
     // Use a standard node hierarchy to allow for comparison with the

@@ -154,7 +154,7 @@ public:
     void writeFinalMessage(const std::string& message);
 
     //! get the number of forecast records written
-    uint64_t numRecordsWritten(void) const;
+    uint64_t numRecordsWritten() const;
 
 private:
     void writeCommonStatsFields(rapidjson::Value& doc);

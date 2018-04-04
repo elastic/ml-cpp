@@ -75,14 +75,14 @@ namespace core {
 class CORE_EXPORT CStringSimilarityTester : private CNonCopyable {
 public:
     //! Used by the simple Levenshtein distance algorithm
-    typedef boost::scoped_array<size_t> TScopedSizeArray;
+    using TScopedSizeArray = boost::scoped_array<size_t>;
 
     //! Used by the more advanced Berghel-Roach algorithm
-    typedef boost::scoped_array<int> TScopedIntArray;
-    typedef boost::scoped_array<int*> TScopedIntPArray;
+    using TScopedIntArray = boost::scoped_array<int>;
+    using TScopedIntPArray = boost::scoped_array<int*>;
 
 public:
-    CStringSimilarityTester(void);
+    CStringSimilarityTester();
 
     //! Calculate how similar two strings are
     bool similarity(const std::string& first, const std::string& second, double& result) const;
@@ -231,7 +231,7 @@ public:
         // one go for efficiency.  Then the current and previous column
         // pointers alternate between pointing and the first and second half
         // of the memory block.
-        typedef boost::scoped_array<size_t> TScopedSizeArray;
+        using TScopedSizeArray = boost::scoped_array<size_t>;
         TScopedSizeArray data(new size_t[(secondLen + 1) * 2]);
         size_t* currentCol(data.get());
         size_t* prevCol(currentCol + (secondLen + 1));

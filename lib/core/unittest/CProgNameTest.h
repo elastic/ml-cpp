@@ -19,8 +19,8 @@
 
 class CProgNameTest : public CppUnit::TestFixture {
 public:
-    void testProgName(void);
-    void testProgDir(void);
+    void testProgName();
+    void testProgDir();
 
     static CppUnit::Test* suite();
 };

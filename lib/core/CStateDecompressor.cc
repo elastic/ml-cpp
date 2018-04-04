@@ -125,7 +125,7 @@ bool CStateDecompressor::CDechunkFilter::parseNext() {
     return m_Reader->IterativeParseNext<parseFlags>(*m_InputStreamWrapper, m_Handler);
 }
 
-bool CStateDecompressor::CDechunkFilter::readHeader(void) {
+bool CStateDecompressor::CDechunkFilter::readHeader() {
     m_Reader->IterativeParseInit();
 
     if (this->parseNext() == false) {
@@ -235,7 +235,7 @@ std::streamsize CStateDecompressor::CDechunkFilter::endOfStream(char* s, std::st
     return (bytesDone == 0) ? -1 : bytesDone;
 }
 
-void CStateDecompressor::CDechunkFilter::close(void) {
+void CStateDecompressor::CDechunkFilter::close() {
 }
 
 bool CStateDecompressor::CDechunkFilter::SRapidJsonHandler::Bool(bool) {

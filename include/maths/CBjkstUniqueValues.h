@@ -79,7 +79,7 @@ namespace maths {
 //! constructor should be less than a few hundred.
 class MATHS_EXPORT CBjkstUniqueValues {
 public:
-    typedef core::CHashing::CUniversalHash::TUInt32UnrestrictedHashVec TUInt32HashVec;
+    using TUInt32HashVec = core::CHashing::CUniversalHash::TUInt32UnrestrictedHashVec;
 
 public:
     //! Get the count of trailing zeros in value.
@@ -111,7 +111,7 @@ public:
     void remove(uint32_t value);
 
     //! Get an estimate of the number of unique values added.
-    uint32_t number(void) const;
+    uint32_t number() const;
 
     //! Get a checksum for the sketch.
     uint64_t checksum(uint64_t seed = 0) const;
@@ -120,18 +120,18 @@ public:
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this sketch.
-    std::size_t memoryUsage(void) const;
+    std::size_t memoryUsage() const;
 
 private:
-    typedef std::vector<uint8_t> TUInt8Vec;
-    typedef std::vector<TUInt8Vec> TUInt8VecVec;
-    typedef std::vector<uint32_t> TUInt32Vec;
-    typedef TUInt32Vec::iterator TUInt32VecItr;
-    typedef TUInt32Vec::const_iterator TUInt32VecCItr;
+    using TUInt8Vec = std::vector<uint8_t>;
+    using TUInt8VecVec = std::vector<TUInt8Vec>;
+    using TUInt32Vec = std::vector<uint32_t>;
+    using TUInt32VecItr = TUInt32Vec::iterator;
+    using TUInt32VecCItr = TUInt32Vec::const_iterator;
 
     //! Wraps up the sketch data.
     struct MATHS_EXPORT SSketch {
-        SSketch(void);
+        SSketch();
         SSketch(std::size_t numberHashes);
 
         //! Efficiently swap the contents of two sketches.
@@ -150,7 +150,7 @@ private:
         void remove(uint32_t value);
 
         //! Get an estimate of the number of unique values added.
-        uint32_t number(void) const;
+        uint32_t number() const;
 
         //! The secondary hash function.
         TUInt32HashVec s_G;
@@ -162,11 +162,11 @@ private:
         TUInt8VecVec s_B;
     };
 
-    typedef boost::variant<TUInt32Vec, SSketch> TUInt32VecOrSketch;
+    using TUInt32VecOrSketch = boost::variant<TUInt32Vec, SSketch>;
 
 private:
     //! Maybe switch to sketching the distinct value set.
-    void sketch(void);
+    void sketch();
 
 private:
     //! The maximum size of the sketch set before compression.

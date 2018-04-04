@@ -67,7 +67,7 @@ using TSizeFuzzyDeduplicateUMap = boost::unordered_map<std::size_t, CModelTools:
 
 //! \brief The values and weights for an attribute.
 struct SValuesAndWeights {
-    SValuesAndWeights(void) : s_IsInteger(false), s_IsNonNegative(false) {}
+    SValuesAndWeights() : s_IsInteger(false), s_IsNonNegative(false) {}
     bool s_IsInteger, s_IsNonNegative;
     maths::CModel::TTimeDouble2VecSizeTrVec s_BucketValues;
     maths::CModel::TTimeDouble2VecSizeTrVec s_Values;
@@ -192,8 +192,8 @@ bool CMetricPopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser
         RESTORE(MEMORY_ESTIMATOR_TAG, core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
     } while (traverser.next());
 
-    for (auto&& feature : m_FeatureModels) {
-        for (auto&& model : feature.s_Models) {
+    for (auto& feature : m_FeatureModels) {
+        for (auto& model : feature.s_Models) {
             for (const auto& correlates : m_FeatureCorrelatesModels) {
                 if (feature.s_Feature == correlates.s_Feature) {
                     model->modelCorrelations(*correlates.s_Models);
@@ -205,19 +205,19 @@ bool CMetricPopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser
     return true;
 }
 
-CAnomalyDetectorModel* CMetricPopulationModel::cloneForPersistence(void) const {
+CAnomalyDetectorModel* CMetricPopulationModel::cloneForPersistence() const {
     return new CMetricPopulationModel(true, *this);
 }
 
-model_t::EModelType CMetricPopulationModel::category(void) const {
+model_t::EModelType CMetricPopulationModel::category() const {
     return model_t::E_MetricOnline;
 }
 
-bool CMetricPopulationModel::isEventRate(void) const {
+bool CMetricPopulationModel::isEventRate() const {
     return false;
 }
 
-bool CMetricPopulationModel::isMetric(void) const {
+bool CMetricPopulationModel::isMetric() const {
     return true;
 }
 
@@ -270,7 +270,7 @@ void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime, cor
 
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(time, bucketLength, featureData);
-        for (auto&& featureData_ : featureData) {
+        for (auto& featureData_ : featureData) {
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
@@ -418,7 +418,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime, core_t::TTime endTi
                 }
             }
 
-            for (auto&& attribute : attributes) {
+            for (auto& attribute : attributes) {
                 std::size_t cid = attribute.first;
                 core_t::TTime latest = boost::numeric::bounds<core_t::TTime>::lowest();
                 for (const auto& value : attribute.second.s_Values) {
@@ -472,7 +472,7 @@ void CMetricPopulationModel::prune(std::size_t maximumAge) {
     if (gatherer.dataAvailable(m_CurrentBucketStats.s_StartTime)) {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(m_CurrentBucketStats.s_StartTime, gatherer.bucketLength(), featureData);
-        for (auto&& feature : featureData) {
+        for (auto& feature : featureData) {
             m_CurrentBucketStats.s_FeatureData[feature.first].swap(feature.second);
         }
     }
@@ -683,7 +683,7 @@ void CMetricPopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePt
     core::CMemoryDebug::dynamicSize("m_MemoryEstimator", m_MemoryEstimator, mem);
 }
 
-std::size_t CMetricPopulationModel::memoryUsage(void) const {
+std::size_t CMetricPopulationModel::memoryUsage() const {
     const CDataGatherer& gatherer = this->dataGatherer();
     TOptionalSize estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
                                                        gatherer.numberActiveAttributes(),
@@ -691,7 +691,7 @@ std::size_t CMetricPopulationModel::memoryUsage(void) const {
     return estimate ? estimate.get() : this->computeMemoryUsage();
 }
 
-std::size_t CMetricPopulationModel::computeMemoryUsage(void) const {
+std::size_t CMetricPopulationModel::computeMemoryUsage() const {
     std::size_t mem = this->CPopulationModel::memoryUsage();
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
@@ -702,15 +702,15 @@ std::size_t CMetricPopulationModel::computeMemoryUsage(void) const {
     return mem;
 }
 
-CMemoryUsageEstimator* CMetricPopulationModel::memoryUsageEstimator(void) const {
+CMemoryUsageEstimator* CMetricPopulationModel::memoryUsageEstimator() const {
     return &m_MemoryEstimator;
 }
 
-std::size_t CMetricPopulationModel::staticSize(void) const {
+std::size_t CMetricPopulationModel::staticSize() const {
     return sizeof(*this);
 }
 
-CMetricPopulationModel::CModelDetailsViewPtr CMetricPopulationModel::details(void) const {
+CMetricPopulationModel::CModelDetailsViewPtr CMetricPopulationModel::details() const {
     return CModelDetailsViewPtr(new CMetricPopulationModelDetailsView(*this));
 }
 
@@ -725,7 +725,7 @@ const TSizeSizePrFeatureDataPrVec& CMetricPopulationModel::featureData(model_t::
     return result == m_CurrentBucketStats.s_FeatureData.end() ? EMPTY : result->second;
 }
 
-core_t::TTime CMetricPopulationModel::currentBucketStartTime(void) const {
+core_t::TTime CMetricPopulationModel::currentBucketStartTime() const {
     return m_CurrentBucketStats.s_StartTime;
 }
 
@@ -733,7 +733,7 @@ void CMetricPopulationModel::currentBucketStartTime(core_t::TTime startTime) {
     m_CurrentBucketStats.s_StartTime = startTime;
 }
 
-uint64_t CMetricPopulationModel::currentBucketTotalCount(void) const {
+uint64_t CMetricPopulationModel::currentBucketTotalCount() const {
     return m_CurrentBucketStats.s_TotalCount;
 }
 
@@ -741,17 +741,17 @@ void CMetricPopulationModel::currentBucketTotalCount(uint64_t totalCount) {
     m_CurrentBucketStats.s_TotalCount = totalCount;
 }
 
-const CMetricPopulationModel::TSizeUInt64PrVec& CMetricPopulationModel::personCounts(void) const {
+const CMetricPopulationModel::TSizeUInt64PrVec& CMetricPopulationModel::personCounts() const {
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
-CPopulationModel::TCorrectionKeyDouble1VecUMap& CMetricPopulationModel::currentBucketInterimCorrections(void) const {
+CPopulationModel::TCorrectionKeyDouble1VecUMap& CMetricPopulationModel::currentBucketInterimCorrections() const {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
 
 void CMetricPopulationModel::createNewModels(std::size_t n, std::size_t m) {
     if (m > 0) {
-        for (auto&& feature : m_FeatureModels) {
+        for (auto& feature : m_FeatureModels) {
             std::size_t newM = feature.s_Models.size() + m;
             core::CAllocationStrategy::reserve(feature.s_Models, newM);
             for (std::size_t cid = feature.s_Models.size(); cid < newM; ++cid) {
@@ -767,10 +767,10 @@ void CMetricPopulationModel::createNewModels(std::size_t n, std::size_t m) {
     this->CPopulationModel::createNewModels(n, m);
 }
 
-void CMetricPopulationModel::updateRecycledModels(void) {
+void CMetricPopulationModel::updateRecycledModels() {
     CDataGatherer& gatherer = this->dataGatherer();
     for (auto cid : gatherer.recycledAttributeIds()) {
-        for (auto&& feature : m_FeatureModels) {
+        for (auto& feature : m_FeatureModels) {
             feature.s_Models[cid].reset(feature.s_NewModel->clone(cid));
             for (const auto& correlates : m_FeatureCorrelatesModels) {
                 if (feature.s_Feature == correlates.s_Feature) {
@@ -788,7 +788,7 @@ void CMetricPopulationModel::refreshCorrelationModels(std::size_t resourceLimit,
     auto memoryUsage = boost::bind(&CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate, this, n, 0, _1);
     CTimeSeriesCorrelateModelAllocator allocator(
         resourceMonitor, memoryUsage, resourceLimit, static_cast<std::size_t>(maxNumberCorrelations + 0.5));
-    for (auto&& feature : m_FeatureCorrelatesModels) {
+    for (auto& feature : m_FeatureCorrelatesModels) {
         allocator.prototypePrior(feature.s_ModelPrior);
         feature.s_Models->refresh(allocator);
     }
@@ -797,7 +797,7 @@ void CMetricPopulationModel::refreshCorrelationModels(std::size_t resourceLimit,
 void CMetricPopulationModel::clearPrunedResources(const TSizeVec& /*people*/, const TSizeVec& /*attributes*/) {
     CDataGatherer& gatherer = this->dataGatherer();
     for (auto cid : gatherer.recycledAttributeIds()) {
-        for (auto&& feature : m_FeatureModels) {
+        for (auto& feature : m_FeatureModels) {
             feature.s_Models[cid].reset(feature.s_NewModel->clone(cid));
             for (const auto& correlates : m_FeatureCorrelatesModels) {
                 if (feature.s_Feature == correlates.s_Feature) {
@@ -810,7 +810,7 @@ void CMetricPopulationModel::clearPrunedResources(const TSizeVec& /*people*/, co
 
 void CMetricPopulationModel::doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) {
     core_t::TTime gap = endTime - startTime;
-    for (auto&& feature : m_FeatureModels) {
+    for (auto& feature : m_FeatureModels) {
         for (auto& model : feature.s_Models) {
             model->skipTime(gap);
         }

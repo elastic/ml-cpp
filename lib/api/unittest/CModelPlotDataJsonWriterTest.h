@@ -19,7 +19,7 @@
 
 class CModelPlotDataJsonWriterTest : public CppUnit::TestFixture {
 public:
-    void testWriteFlat(void);
+    void testWriteFlat();
 
     static CppUnit::Test* suite();
 };

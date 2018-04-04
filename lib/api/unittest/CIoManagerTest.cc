@@ -53,7 +53,7 @@ public:
     CThreadDataWriter(const std::string& fileName, size_t size) : m_FileName(fileName), m_Size(size) {}
 
 protected:
-    virtual void run(void) {
+    virtual void run() {
         // Wait for the file to exist
         ml::core::CSleep::sleep(SLEEP_TIME_MS);
 
@@ -63,7 +63,7 @@ protected:
         }
     }
 
-    virtual void shutdown(void) {}
+    virtual void shutdown() {}
 
 private:
     std::string m_FileName;
@@ -74,7 +74,7 @@ class CThreadDataReader : public ml::core::CThread {
 public:
     CThreadDataReader(const std::string& fileName) : m_FileName(fileName), m_Shutdown(false) {}
 
-    const std::string& data(void) const {
+    const std::string& data() const {
         // The memory barriers associated with the mutex lock should ensure
         // the thread calling this method has as up-to-date view of m_Data's
         // member variables as the thread that updated it
@@ -83,7 +83,7 @@ public:
     }
 
 protected:
-    virtual void run(void) {
+    virtual void run() {
         m_Data.clear();
 
         std::ifstream strm;
@@ -125,7 +125,7 @@ protected:
         }
     }
 
-    virtual void shutdown(void) { m_Shutdown = true; }
+    virtual void shutdown() { m_Shutdown = true; }
 
 private:
     mutable ml::core::CMutex m_Mutex;
@@ -149,7 +149,7 @@ CppUnit::Test* CIoManagerTest::suite() {
     return suiteOfTests;
 }
 
-void CIoManagerTest::testStdinStdout(void) {
+void CIoManagerTest::testStdinStdout() {
     ml::api::CIoManager ioMgr("", false, "", false);
     CPPUNIT_ASSERT(ioMgr.initIo());
 
@@ -162,7 +162,7 @@ void CIoManagerTest::testStdinStdout(void) {
     CPPUNIT_ASSERT_EQUAL(coutAsIStream, &ioMgr.outputStream());
 }
 
-void CIoManagerTest::testFileIoGood(void) {
+void CIoManagerTest::testFileIoGood() {
     // Remove output file that possibly might have been left behind by a
     // previous failed test - ignore the error code from this call though as
     // it'll generally fail
@@ -180,11 +180,11 @@ void CIoManagerTest::testFileIoGood(void) {
     CPPUNIT_ASSERT_EQUAL(0, ::remove(GOOD_OUTPUT_FILE_NAME));
 }
 
-void CIoManagerTest::testFileIoBad(void) {
+void CIoManagerTest::testFileIoBad() {
     this->testCommon(BAD_INPUT_FILE_NAME, false, BAD_OUTPUT_FILE_NAME, false, false);
 }
 
-void CIoManagerTest::testNamedPipeIoGood(void) {
+void CIoManagerTest::testNamedPipeIoGood() {
     // For the named pipe test, data needs to be written to the IO manager's
     // input pipe after the IO manager has started
     CThreadDataWriter threadWriter(GOOD_INPUT_PIPE_NAME, TEST_SIZE);
@@ -195,7 +195,7 @@ void CIoManagerTest::testNamedPipeIoGood(void) {
     CPPUNIT_ASSERT(threadWriter.stop());
 }
 
-void CIoManagerTest::testNamedPipeIoBad(void) {
+void CIoManagerTest::testNamedPipeIoBad() {
     this->testCommon(BAD_INPUT_PIPE_NAME, true, BAD_OUTPUT_PIPE_NAME, true, false);
 }
 

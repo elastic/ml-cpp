@@ -32,7 +32,7 @@ CppUnit::Test* CCompressUtilsTest::suite() {
     return suiteOfTests;
 }
 
-void CCompressUtilsTest::testEmptyAdd(void) {
+void CCompressUtilsTest::testEmptyAdd() {
     ml::core::CCompressUtils compressor(false);
 
     std::string str;
@@ -51,7 +51,7 @@ void CCompressUtilsTest::testEmptyAdd(void) {
     CPPUNIT_ASSERT_EQUAL(length, output.size());
 }
 
-void CCompressUtilsTest::testOneAdd(void) {
+void CCompressUtilsTest::testOneAdd() {
     ml::core::CCompressUtils compressor(false);
 
     std::string str("1234567890");
@@ -70,7 +70,7 @@ void CCompressUtilsTest::testOneAdd(void) {
     CPPUNIT_ASSERT_EQUAL(length, output.size());
 }
 
-void CCompressUtilsTest::testManyAdds(void) {
+void CCompressUtilsTest::testManyAdds() {
     ml::core::CCompressUtils compressorMulti(false);
 
     std::string str1("1234567890");
@@ -107,7 +107,7 @@ void CCompressUtilsTest::testManyAdds(void) {
     CPPUNIT_ASSERT(outputMulti == outputSingle);
 }
 
-void CCompressUtilsTest::testLengthOnly(void) {
+void CCompressUtilsTest::testLengthOnly() {
     ml::core::CCompressUtils compressorFull(false);
 
     std::string str("qwertyuiopa1234sdfghjklzxcvbnm");

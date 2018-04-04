@@ -19,8 +19,8 @@
 
 class CTripleTest : public CppUnit::TestFixture {
 public:
-    void testOperators(void);
-    void testBoostHashReady(void);
+    void testOperators();
+    void testBoostHashReady();
 
     static CppUnit::Test* suite();
 };

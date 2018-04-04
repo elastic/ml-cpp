@@ -38,13 +38,12 @@
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <limits>
 #include <numeric>
 #include <sstream>
 #include <string>
-
-#include <math.h>
 
 namespace ml {
 namespace maths {
@@ -64,10 +63,10 @@ struct SStaticCast {
 
 namespace detail {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef maths_t::TWeightStyleVec TWeightStyleVec;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TWeightStyleVec = maths_t::TWeightStyleVec;
 
 //! Adds "weight" x "right operand" to the "left operand".
 struct SPlusWeight {
@@ -152,7 +151,7 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
 
                 double mean = shape / rate;
                 if (mean > MINIMUM_GAUSSIAN_MEAN) {
-                    double deviation = ::sqrt((rate + 1.0) / rate * mean);
+                    double deviation = std::sqrt((rate + 1.0) / rate * mean);
                     boost::math::normal_distribution<> normal(mean, deviation);
                     result = aggregate(result, func(normal, x), n);
                 } else {
@@ -223,11 +222,11 @@ CPoissonMeanConjugate CPoissonMeanConjugate::nonInformativePrior(double offset, 
     return CPoissonMeanConjugate(offset, NON_INFORMATIVE_SHAPE, NON_INFORMATIVE_RATE, decayRate);
 }
 
-CPoissonMeanConjugate::EPrior CPoissonMeanConjugate::type(void) const {
+CPoissonMeanConjugate::EPrior CPoissonMeanConjugate::type() const {
     return E_Poisson;
 }
 
-CPoissonMeanConjugate* CPoissonMeanConjugate::clone(void) const {
+CPoissonMeanConjugate* CPoissonMeanConjugate::clone() const {
     return new CPoissonMeanConjugate(*this);
 }
 
@@ -235,7 +234,7 @@ void CPoissonMeanConjugate::setToNonInformative(double offset, double decayRate)
     *this = nonInformativePrior(offset, decayRate);
 }
 
-bool CPoissonMeanConjugate::needsOffset(void) const {
+bool CPoissonMeanConjugate::needsOffset() const {
     return true;
 }
 
@@ -286,7 +285,7 @@ double CPoissonMeanConjugate::adjustOffset(const TWeightStyleVec& /*weightStyles
         return 0.0;
     }
 
-    for (auto&& sample : resamples) {
+    for (auto& sample : resamples) {
         sample = std::max(sample, OFFSET_MARGIN - offset);
     }
 
@@ -300,7 +299,7 @@ double CPoissonMeanConjugate::adjustOffset(const TWeightStyleVec& /*weightStyles
     return std::min(after - before, 0.0);
 }
 
-double CPoissonMeanConjugate::offset(void) const {
+double CPoissonMeanConjugate::offset() const {
     return m_Offset;
 }
 
@@ -372,7 +371,7 @@ void CPoissonMeanConjugate::propagateForwardsByTime(double time) {
         return;
     }
 
-    double alpha = ::exp(-this->decayRate() * time);
+    double alpha = std::exp(-this->decayRate() * time);
 
     // We want to increase the variance of the gamma distribution
     // while holding its mean constant s.t. in the limit t -> inf
@@ -395,11 +394,11 @@ void CPoissonMeanConjugate::propagateForwardsByTime(double time) {
                         << ", numberSamples = " << this->numberSamples());
 }
 
-CPoissonMeanConjugate::TDoubleDoublePr CPoissonMeanConjugate::marginalLikelihoodSupport(void) const {
+CPoissonMeanConjugate::TDoubleDoublePr CPoissonMeanConjugate::marginalLikelihoodSupport() const {
     return std::make_pair(-m_Offset, boost::numeric::bounds<double>::highest());
 }
 
-double CPoissonMeanConjugate::marginalLikelihoodMean(void) const {
+double CPoissonMeanConjugate::marginalLikelihoodMean() const {
     if (this->isNonInformative()) {
         return -m_Offset;
     }
@@ -560,8 +559,8 @@ maths_t::EFloatingPointErrorStatus CPoissonMeanConjugate::jointLogMarginalLikeli
         double impliedShape = m_Shape + sampleSum;
         double impliedRate = m_Rate + numberSamples;
 
-        result = boost::math::lgamma(impliedShape) + m_Shape * ::log(m_Rate) - impliedShape * ::log(impliedRate) - sampleLogFactorialSum -
-                 boost::math::lgamma(m_Shape);
+        result = boost::math::lgamma(impliedShape) + m_Shape * std::log(m_Rate) - impliedShape * std::log(impliedRate) -
+                 sampleLogFactorialSum - boost::math::lgamma(m_Shape);
     } catch (const std::exception& e) {
         LOG_ERROR("Error calculating marginal likelihood: " << e.what());
         return maths_t::E_FpFailed;
@@ -636,7 +635,7 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples, 
         LOG_TRACE("mean = " << mean << ", variance = " << variance);
 
         try {
-            boost::math::normal_distribution<> normal(mean, ::sqrt(variance));
+            boost::math::normal_distribution<> normal(mean, std::sqrt(variance));
 
             for (std::size_t i = 1u; i < numberSamples; ++i) {
                 double q = static_cast<double>(i) / static_cast<double>(numberSamples);
@@ -671,8 +670,8 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples, 
         using boost::math::policies::policy;
         using boost::math::policies::real;
 
-        typedef policy<discrete_quantile<real>> TRealQuantilePolicy;
-        typedef boost::math::negative_binomial_distribution<double, TRealQuantilePolicy> TNegativeBinomialRealQuantile;
+        using TRealQuantilePolicy = policy<discrete_quantile<real>>;
+        using TNegativeBinomialRealQuantile = boost::math::negative_binomial_distribution<double, TRealQuantilePolicy>;
 
         try {
             TNegativeBinomialRealQuantile negativeBinomial1(r, p);
@@ -803,7 +802,7 @@ bool CPoissonMeanConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
     return true;
 }
 
-bool CPoissonMeanConjugate::isNonInformative(void) const {
+bool CPoissonMeanConjugate::isNonInformative() const {
     return m_Rate == NON_INFORMATIVE_RATE;
 }
 
@@ -814,10 +813,10 @@ void CPoissonMeanConjugate::print(const std::string& indent, std::string& result
         return;
     }
     result += "mean = " + core::CStringUtils::typeToStringPretty(this->marginalLikelihoodMean()) +
-              " sd = " + core::CStringUtils::typeToStringPretty(::sqrt(this->marginalLikelihoodVariance()));
+              " sd = " + core::CStringUtils::typeToStringPretty(std::sqrt(this->marginalLikelihoodVariance()));
 }
 
-std::string CPoissonMeanConjugate::printJointDensityFunction(void) const {
+std::string CPoissonMeanConjugate::printJointDensityFunction() const {
     if (this->isNonInformative()) {
         // The non-informative prior is improper and effectively 0 everywhere.
         return std::string();
@@ -838,7 +837,7 @@ std::string CPoissonMeanConjugate::printJointDensityFunction(void) const {
 
     // Calculate the first point and increment at which to plot the p.d.f.
     double mean = boost::math::mean(gamma);
-    double dev = ::sqrt(boost::math::variance(gamma));
+    double dev = std::sqrt(boost::math::variance(gamma));
     double increment = RANGE * dev / (POINTS - 1.0);
     double x = std::max(mean - RANGE * dev / 2.0, 0.0);
 
@@ -867,11 +866,11 @@ void CPoissonMeanConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr
     mem->setName("CPoissonMeanConjugate");
 }
 
-std::size_t CPoissonMeanConjugate::memoryUsage(void) const {
+std::size_t CPoissonMeanConjugate::memoryUsage() const {
     return 0;
 }
 
-std::size_t CPoissonMeanConjugate::staticSize(void) const {
+std::size_t CPoissonMeanConjugate::staticSize() const {
     return sizeof(*this);
 }
 
@@ -883,7 +882,7 @@ void CPoissonMeanConjugate::acceptPersistInserter(core::CStatePersistInserter& i
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
 }
 
-double CPoissonMeanConjugate::priorMean(void) const {
+double CPoissonMeanConjugate::priorMean() const {
     if (this->isNonInformative()) {
         return 0.0;
     }
@@ -898,7 +897,7 @@ double CPoissonMeanConjugate::priorMean(void) const {
     return 0.0;
 }
 
-double CPoissonMeanConjugate::priorVariance(void) const {
+double CPoissonMeanConjugate::priorVariance() const {
     if (this->isNonInformative()) {
         return boost::numeric::bounds<double>::highest();
     }

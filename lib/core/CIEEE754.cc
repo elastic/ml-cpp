@@ -15,7 +15,7 @@
 
 #include <core/CIEEE754.h>
 
-#include <math.h>
+#include <cmath>
 
 namespace ml {
 namespace core {
@@ -26,17 +26,17 @@ double CIEEE754::round(double value, EPrecision precision) {
     // the values are close to max double.
 
     int exponent;
-    double mantissa = ::frexp(value, &exponent);
+    double mantissa = std::frexp(value, &exponent);
 
     switch (precision) {
     case E_HalfPrecision: {
-        static double PRECISION = 2048.0;
-        mantissa = mantissa < 0.0 ? ::ceil(mantissa * PRECISION - 0.5) / PRECISION : ::floor(mantissa * PRECISION + 0.5) / PRECISION;
+        static const double PRECISION = 2048.0;
+        mantissa = mantissa < 0.0 ? std::ceil(mantissa * PRECISION - 0.5) / PRECISION : std::floor(mantissa * PRECISION + 0.5) / PRECISION;
         break;
     }
     case E_SinglePrecision: {
-        static double PRECISION = 16777216.0;
-        mantissa = mantissa < 0.0 ? ::ceil(mantissa * PRECISION - 0.5) / PRECISION : ::floor(mantissa * PRECISION + 0.5) / PRECISION;
+        static const double PRECISION = 16777216.0;
+        mantissa = mantissa < 0.0 ? std::ceil(mantissa * PRECISION - 0.5) / PRECISION : std::floor(mantissa * PRECISION + 0.5) / PRECISION;
         break;
     }
     case E_DoublePrecision:
@@ -44,7 +44,7 @@ double CIEEE754::round(double value, EPrecision precision) {
         break;
     }
 
-    return ::ldexp(mantissa, exponent);
+    return std::ldexp(mantissa, exponent);
 }
 }
 }

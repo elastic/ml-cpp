@@ -82,49 +82,49 @@ public:
     //@{
     //! Construct an arbitrarily initialised object, suitable only for
     //! assigning to or swapping with a valid one.
-    CMultivariatePrior(void);
+    CMultivariatePrior();
 
     //! \param[in] dataType The type of data being modeled.
     //! \param[in] decayRate The rate at which the prior returns to non-
     //! informative.
     CMultivariatePrior(maths_t::EDataType dataType, double decayRate);
 
-    virtual ~CMultivariatePrior(void) = default;
+    virtual ~CMultivariatePrior() = default;
 
     //! Swap the contents of this prior and \p other.
     void swap(CMultivariatePrior& other);
     //@}
 
     //! Mark the prior as being used for forecasting.
-    void forForecasting(void);
+    void forForecasting();
 
     //! Check if this prior is being used for forecasting.
     //!
     //! \warning This is an irreversible action so if the prior
     //! is still need it should be copied first.
-    bool isForForecasting(void) const;
+    bool isForForecasting() const;
 
     //! Check if the prior is being used to model discrete data.
-    bool isDiscrete(void) const;
+    bool isDiscrete() const;
 
     //! Check if the prior is being used to model integer data.
-    bool isInteger(void) const;
+    bool isInteger() const;
 
     //! Get the data type.
-    maths_t::EDataType dataType(void) const;
+    maths_t::EDataType dataType() const;
 
     //! Get the rate at which the prior returns to non-informative.
-    double decayRate(void) const;
+    double decayRate() const;
 
     //! \name Prior Contract
     //@{
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CMultivariatePrior* clone(void) const = 0;
+    virtual CMultivariatePrior* clone() const = 0;
 
     //! Get the dimension of the prior.
-    virtual std::size_t dimension(void) const = 0;
+    virtual std::size_t dimension() const = 0;
 
     //! Set the data type.
     virtual void dataType(maths_t::EDataType value);
@@ -188,10 +188,10 @@ public:
     virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const = 0;
 
     //! Get the support for the marginal likelihood function.
-    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const = 0;
+    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const = 0;
 
     //! Get the mean of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMean(void) const = 0;
+    virtual TDouble10Vec marginalLikelihoodMean() const = 0;
 
     //! Get the nearest mean of the multimodal prior marginal likelihood,
     //! otherwise the marginal likelihood mean.
@@ -204,10 +204,10 @@ public:
     virtual TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) const;
 
     //! Get the covariance matrix for the marginal likelihood.
-    virtual TDouble10Vec10Vec marginalLikelihoodCovariance(void) const = 0;
+    virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const = 0;
 
     //! Get the diagonal of the covariance matrix for the marginal likelihood.
-    virtual TDouble10Vec marginalLikelihoodVariances(void) const = 0;
+    virtual TDouble10Vec marginalLikelihoodVariances() const = 0;
 
     //! Calculate the log marginal likelihood function, integrating over the
     //! prior density function.
@@ -307,10 +307,10 @@ public:
                                         TTail10Vec& tail) const;
 
     //! Check if this is a non-informative prior.
-    virtual bool isNonInformative(void) const = 0;
+    virtual bool isNonInformative() const = 0;
 
     //! Get a human readable description of the prior.
-    std::string print(void) const;
+    std::string print() const;
 
     //! Get a human readable description of the prior.
     //!
@@ -345,13 +345,13 @@ public:
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
 
     //! Get the memory used by this component
-    virtual std::size_t memoryUsage(void) const = 0;
+    virtual std::size_t memoryUsage() const = 0;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize(void) const = 0;
+    virtual std::size_t staticSize() const = 0;
 
     //! Get the tag name for this prior.
-    virtual std::string persistenceTag(void) const = 0;
+    virtual std::string persistenceTag() const = 0;
 
     //! Persist state by passing information to the supplied inserter
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
@@ -365,16 +365,16 @@ public:
     //!
     //! \note This is overridden by CPriorTestInterface so don't replace
     //! it by a static constant in the calling functions.
-    virtual double offsetMargin(void) const;
+    virtual double offsetMargin() const;
 
     //! Get the number of samples received.
-    double numberSamples(void) const;
+    double numberSamples() const;
 
     //! Set the number of samples received to \p numberSamples.
     void numberSamples(double numberSamples);
 
     //! Check if we should use this prior at present.
-    virtual bool participatesInModelSelection(void) const;
+    virtual bool participatesInModelSelection() const;
 
     //! Get the number of unmarginalized parameters in the marginal likelihood.
     //!
@@ -382,11 +382,11 @@ public:
     //! compute a marginal likelihood don't need to be counted since we
     //! are interested in the estimating the usual BIC approximation for
     //! \f$int_{\theta}f(x|\theta, M)f(\theta|M)\d\theta\f$
-    virtual double unmarginalizedParameters(void) const;
+    virtual double unmarginalizedParameters() const;
 
 protected:
     //! Get the scaled decay rate for use by propagateForwardsByTime.
-    double scaledDecayRate(void) const;
+    double scaledDecayRate() const;
 
     //! Update the number of samples received to date by adding \p n.
     void addSamples(double n);

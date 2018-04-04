@@ -15,12 +15,14 @@
 
 #include <api/CJsonOutputWriter.h>
 
-#include <core/CScopedLock.h>
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
 
 #include <model/CHierarchicalResultsNormalizer.h>
 #include <model/ModelTypes.h>
+
+#include <api/CModelSizeStatsJsonWriter.h>
+#include <api/CModelSnapshotJsonWriter.h>
 
 #include <algorithm>
 #include <ostream>
@@ -29,6 +31,56 @@ namespace ml {
 namespace api {
 
 namespace {
+
+// JSON field names
+const std::string JOB_ID("job_id");
+const std::string TIMESTAMP("timestamp");
+const std::string BUCKET("bucket");
+const std::string DETECTOR_INDEX("detector_index");
+const std::string RECORDS("records");
+const std::string EVENT_COUNT("event_count");
+const std::string IS_INTERIM("is_interim");
+const std::string PROBABILITY("probability");
+const std::string RAW_ANOMALY_SCORE("raw_anomaly_score");
+const std::string ANOMALY_SCORE("anomaly_score");
+const std::string RECORD_SCORE("record_score");
+const std::string INITIAL_RECORD_SCORE("initial_record_score");
+const std::string INFLUENCER_SCORE("influencer_score");
+const std::string INITIAL_INFLUENCER_SCORE("initial_influencer_score");
+const std::string FIELD_NAME("field_name");
+const std::string BY_FIELD_NAME("by_field_name");
+const std::string BY_FIELD_VALUE("by_field_value");
+const std::string CORRELATED_BY_FIELD_VALUE("correlated_by_field_value");
+const std::string TYPICAL("typical");
+const std::string ACTUAL("actual");
+const std::string CAUSES("causes");
+const std::string FUNCTION("function");
+const std::string FUNCTION_DESCRIPTION("function_description");
+const std::string OVER_FIELD_NAME("over_field_name");
+const std::string OVER_FIELD_VALUE("over_field_value");
+const std::string PARTITION_FIELD_NAME("partition_field_name");
+const std::string PARTITION_FIELD_VALUE("partition_field_value");
+const std::string INITIAL_SCORE("initial_anomaly_score");
+const std::string INFLUENCER_FIELD_NAME("influencer_field_name");
+const std::string INFLUENCER_FIELD_VALUE("influencer_field_value");
+const std::string INFLUENCER_FIELD_VALUES("influencer_field_values");
+const std::string BUCKET_INFLUENCERS("bucket_influencers");
+const std::string INFLUENCERS("influencers");
+const std::string FLUSH("flush");
+const std::string ID("id");
+const std::string LAST_FINALIZED_BUCKET_END("last_finalized_bucket_end");
+const std::string CATEGORY_ID("category_id");
+const std::string CATEGORY_DEFINITION("category_definition");
+const std::string TERMS("terms");
+const std::string REGEX("regex");
+const std::string MAX_MATCHING_LENGTH("max_matching_length");
+const std::string EXAMPLES("examples");
+const std::string BUCKET_SPAN("bucket_span");
+const std::string PROCESSING_TIME("processing_time_ms");
+const std::string TIME_INFLUENCER("bucket_time");
+const std::string PARTITION_SCORES("partition_scores");
+const std::string SCHEDULED_EVENTS("scheduled_events");
+const std::string QUANTILES("quantiles");
 
 //! Get a numeric field from a JSON document.
 //! Assumes the document contains the field.
@@ -47,8 +99,7 @@ double doubleFromDocument(const CJsonOutputWriter::TDocumentWeakPtr& weakDoc, co
 class CProbabilityLess {
 public:
     bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr& lhs, const CJsonOutputWriter::TDocumentWeakPtrIntPr& rhs) const {
-        return doubleFromDocument(lhs.first, CJsonOutputWriter::PROBABILITY) <
-               doubleFromDocument(rhs.first, CJsonOutputWriter::PROBABILITY);
+        return doubleFromDocument(lhs.first, PROBABILITY) < doubleFromDocument(rhs.first, PROBABILITY);
     }
 };
 
@@ -59,8 +110,7 @@ class CDetectorThenProbabilityLess {
 public:
     bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr& lhs, const CJsonOutputWriter::TDocumentWeakPtrIntPr& rhs) const {
         if (lhs.second == rhs.second) {
-            return doubleFromDocument(lhs.first, CJsonOutputWriter::PROBABILITY) <
-                   doubleFromDocument(rhs.first, CJsonOutputWriter::PROBABILITY);
+            return doubleFromDocument(lhs.first, PROBABILITY) < doubleFromDocument(rhs.first, PROBABILITY);
         }
         return lhs.second < rhs.second;
     }
@@ -91,74 +141,9 @@ private:
     const std::string& m_Field;
 };
 
-const CInfluencerGreater INFLUENCER_GREATER = CInfluencerGreater(CJsonOutputWriter::INITIAL_INFLUENCER_SCORE);
-const CInfluencerGreater BUCKET_INFLUENCER_GREATER = CInfluencerGreater(CJsonOutputWriter::INITIAL_SCORE);
+const CInfluencerGreater INFLUENCER_GREATER = CInfluencerGreater(INITIAL_INFLUENCER_SCORE);
+const CInfluencerGreater BUCKET_INFLUENCER_GREATER = CInfluencerGreater(INITIAL_SCORE);
 }
-
-// JSON field names
-const std::string CJsonOutputWriter::JOB_ID("job_id");
-const std::string CJsonOutputWriter::TIMESTAMP("timestamp");
-const std::string CJsonOutputWriter::BUCKET("bucket");
-const std::string CJsonOutputWriter::LOG_TIME("log_time");
-const std::string CJsonOutputWriter::DETECTOR_INDEX("detector_index");
-const std::string CJsonOutputWriter::RECORDS("records");
-const std::string CJsonOutputWriter::EVENT_COUNT("event_count");
-const std::string CJsonOutputWriter::IS_INTERIM("is_interim");
-const std::string CJsonOutputWriter::PROBABILITY("probability");
-const std::string CJsonOutputWriter::RAW_ANOMALY_SCORE("raw_anomaly_score");
-const std::string CJsonOutputWriter::ANOMALY_SCORE("anomaly_score");
-const std::string CJsonOutputWriter::RECORD_SCORE("record_score");
-const std::string CJsonOutputWriter::INITIAL_RECORD_SCORE("initial_record_score");
-const std::string CJsonOutputWriter::INFLUENCER_SCORE("influencer_score");
-const std::string CJsonOutputWriter::INITIAL_INFLUENCER_SCORE("initial_influencer_score");
-const std::string CJsonOutputWriter::FIELD_NAME("field_name");
-const std::string CJsonOutputWriter::BY_FIELD_NAME("by_field_name");
-const std::string CJsonOutputWriter::BY_FIELD_VALUE("by_field_value");
-const std::string CJsonOutputWriter::CORRELATED_BY_FIELD_VALUE("correlated_by_field_value");
-const std::string CJsonOutputWriter::TYPICAL("typical");
-const std::string CJsonOutputWriter::ACTUAL("actual");
-const std::string CJsonOutputWriter::CAUSES("causes");
-const std::string CJsonOutputWriter::FUNCTION("function");
-const std::string CJsonOutputWriter::FUNCTION_DESCRIPTION("function_description");
-const std::string CJsonOutputWriter::OVER_FIELD_NAME("over_field_name");
-const std::string CJsonOutputWriter::OVER_FIELD_VALUE("over_field_value");
-const std::string CJsonOutputWriter::PARTITION_FIELD_NAME("partition_field_name");
-const std::string CJsonOutputWriter::PARTITION_FIELD_VALUE("partition_field_value");
-const std::string CJsonOutputWriter::INITIAL_SCORE("initial_anomaly_score");
-const std::string CJsonOutputWriter::INFLUENCER_FIELD_NAME("influencer_field_name");
-const std::string CJsonOutputWriter::INFLUENCER_FIELD_VALUE("influencer_field_value");
-const std::string CJsonOutputWriter::INFLUENCER_FIELD_VALUES("influencer_field_values");
-const std::string CJsonOutputWriter::BUCKET_INFLUENCERS("bucket_influencers");
-const std::string CJsonOutputWriter::INFLUENCERS("influencers");
-const std::string CJsonOutputWriter::FLUSH("flush");
-const std::string CJsonOutputWriter::ID("id");
-const std::string CJsonOutputWriter::LAST_FINALIZED_BUCKET_END("last_finalized_bucket_end");
-const std::string CJsonOutputWriter::QUANTILE_STATE("quantile_state");
-const std::string CJsonOutputWriter::QUANTILES("quantiles");
-const std::string CJsonOutputWriter::MODEL_SIZE_STATS("model_size_stats");
-const std::string CJsonOutputWriter::MODEL_BYTES("model_bytes");
-const std::string CJsonOutputWriter::TOTAL_BY_FIELD_COUNT("total_by_field_count");
-const std::string CJsonOutputWriter::TOTAL_OVER_FIELD_COUNT("total_over_field_count");
-const std::string CJsonOutputWriter::TOTAL_PARTITION_FIELD_COUNT("total_partition_field_count");
-const std::string CJsonOutputWriter::BUCKET_ALLOCATION_FAILURES_COUNT("bucket_allocation_failures_count");
-const std::string CJsonOutputWriter::MEMORY_STATUS("memory_status");
-const std::string CJsonOutputWriter::CATEGORY_ID("category_id");
-const std::string CJsonOutputWriter::CATEGORY_DEFINITION("category_definition");
-const std::string CJsonOutputWriter::TERMS("terms");
-const std::string CJsonOutputWriter::REGEX("regex");
-const std::string CJsonOutputWriter::MAX_MATCHING_LENGTH("max_matching_length");
-const std::string CJsonOutputWriter::EXAMPLES("examples");
-const std::string CJsonOutputWriter::MODEL_SNAPSHOT("model_snapshot");
-const std::string CJsonOutputWriter::SNAPSHOT_ID("snapshot_id");
-const std::string CJsonOutputWriter::SNAPSHOT_DOC_COUNT("snapshot_doc_count");
-const std::string CJsonOutputWriter::DESCRIPTION("description");
-const std::string CJsonOutputWriter::LATEST_RECORD_TIME("latest_record_time_stamp");
-const std::string CJsonOutputWriter::BUCKET_SPAN("bucket_span");
-const std::string CJsonOutputWriter::LATEST_RESULT_TIME("latest_result_time_stamp");
-const std::string CJsonOutputWriter::PROCESSING_TIME("processing_time_ms");
-const std::string CJsonOutputWriter::TIME_INFLUENCER("bucket_time");
-const std::string CJsonOutputWriter::PARTITION_SCORES("partition_scores");
-const std::string CJsonOutputWriter::SCHEDULED_EVENTS("scheduled_events");
 
 CJsonOutputWriter::CJsonOutputWriter(const std::string& jobId, core::CJsonOutputStreamWrapper& strmOut)
     : m_JobId(jobId), m_Writer(strmOut), m_LastNonInterimBucketTime(0), m_Finalised(false), m_RecordOutputLimit(0) {
@@ -166,16 +151,14 @@ CJsonOutputWriter::CJsonOutputWriter(const std::string& jobId, core::CJsonOutput
     // the moment, the output stream might be redirected after construction
 }
 
-CJsonOutputWriter::~CJsonOutputWriter(void) {
+CJsonOutputWriter::~CJsonOutputWriter() {
     finalise();
 }
 
-void CJsonOutputWriter::finalise(void) {
+void CJsonOutputWriter::finalise() {
     if (m_Finalised) {
         return;
     }
-
-    this->writeModelSnapshotReports();
 
     // Flush the output This ensures that any buffers are written out
     // Note: This is still asynchronous.
@@ -338,8 +321,6 @@ void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
 }
 
 bool CJsonOutputWriter::endOutputBatch(bool isInterim, uint64_t bucketProcessingTime) {
-    this->writeModelSnapshotReports();
-
     for (TTimeBucketDataMapItr iter = m_BucketDataByTime.begin(); iter != m_BucketDataByTime.end(); ++iter) {
         this->writeBucket(isInterim, iter->first, iter->second, bucketProcessingTime);
         if (!isInterim) {
@@ -359,7 +340,7 @@ bool CJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/, const TStrVec&
     return true;
 }
 
-const CJsonOutputWriter::TStrVec& CJsonOutputWriter::fieldNames(void) const {
+const CJsonOutputWriter::TStrVec& CJsonOutputWriter::fieldNames() const {
     return EMPTY_FIELD_NAMES;
 }
 
@@ -417,7 +398,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
             m_Writer.addIntFieldToObj(DETECTOR_INDEX, detectorIndex, *docPtr);
             m_Writer.addIntFieldToObj(BUCKET_SPAN, bucketData.s_BucketSpan, *docPtr);
             m_Writer.addStringFieldCopyToObj(JOB_ID, m_JobId, *docPtr);
-            m_Writer.addIntFieldToObj(TIMESTAMP, bucketTime * 1000, *docPtr);
+            m_Writer.addTimeFieldToObj(TIMESTAMP, bucketTime, *docPtr);
 
             if (isInterim) {
                 m_Writer.addBoolFieldToObj(IS_INTERIM, isInterim, *docPtr);
@@ -444,7 +425,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
             }
 
             m_Writer.addStringFieldCopyToObj(JOB_ID, m_JobId, *docPtr);
-            m_Writer.addIntFieldToObj(TIMESTAMP, bucketTime * 1000, *docPtr);
+            m_Writer.addTimeFieldToObj(TIMESTAMP, bucketTime, *docPtr);
             if (isInterim) {
                 m_Writer.addBoolFieldToObj(IS_INTERIM, isInterim, *docPtr);
             }
@@ -463,7 +444,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
     m_Writer.String(JOB_ID);
     m_Writer.String(m_JobId);
     m_Writer.String(TIMESTAMP);
-    m_Writer.Int64(bucketTime * 1000);
+    m_Writer.Time(bucketTime);
 
     m_Writer.String(ANOMALY_SCORE);
     m_Writer.Double(bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore);
@@ -493,7 +474,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
             }
 
             m_Writer.addStringFieldCopyToObj(JOB_ID, m_JobId, *docPtr);
-            m_Writer.addIntFieldToObj(TIMESTAMP, bucketTime * 1000, *docPtr);
+            m_Writer.addTimeFieldToObj(TIMESTAMP, bucketTime, *docPtr);
             m_Writer.addIntFieldToObj(BUCKET_SPAN, bucketData.s_BucketSpan, *docPtr);
             if (isInterim) {
                 m_Writer.addBoolFieldToObj(IS_INTERIM, isInterim, *docPtr);
@@ -672,12 +653,12 @@ void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredS
     //! influenceResults. These strings must exist up to the time the results
     //! are written
 
-    typedef std::pair<const char*, double> TCharPtrDoublePr;
-    typedef std::vector<TCharPtrDoublePr> TCharPtrDoublePrVec;
-    typedef TCharPtrDoublePrVec::iterator TCharPtrDoublePrVecIter;
-    typedef std::pair<const char*, TCharPtrDoublePrVec> TCharPtrCharPtrDoublePrVecPr;
-    typedef boost::unordered_map<std::string, TCharPtrCharPtrDoublePrVecPr> TStrCharPtrCharPtrDoublePrVecPrUMap;
-    typedef TStrCharPtrCharPtrDoublePrVecPrUMap::iterator TStrCharPtrCharPtrDoublePrVecPrUMapIter;
+    using TCharPtrDoublePr = std::pair<const char*, double>;
+    using TCharPtrDoublePrVec = std::vector<TCharPtrDoublePr>;
+    using TCharPtrDoublePrVecIter = TCharPtrDoublePrVec::iterator;
+    using TCharPtrCharPtrDoublePrVecPr = std::pair<const char*, TCharPtrDoublePrVec>;
+    using TStrCharPtrCharPtrDoublePrVecPrUMap = boost::unordered_map<std::string, TCharPtrCharPtrDoublePrVecPr>;
+    using TStrCharPtrCharPtrDoublePrVecPrUMapIter = TStrCharPtrCharPtrDoublePrVecPrUMap::iterator;
 
     TStrCharPtrCharPtrDoublePrVecPrUMap influences;
 
@@ -787,7 +768,7 @@ void CJsonOutputWriter::limitNumberRecords(size_t count) {
     m_RecordOutputLimit = count;
 }
 
-size_t CJsonOutputWriter::limitNumberRecords(void) const {
+size_t CJsonOutputWriter::limitNumberRecords() const {
     return m_RecordOutputLimit;
 }
 
@@ -795,12 +776,10 @@ void CJsonOutputWriter::persistNormalizer(const model::CHierarchicalResultsNorma
     std::string quantilesState;
     normalizer.toJson(m_LastNonInterimBucketTime, "api", quantilesState, true);
 
-    this->writeModelSnapshotReports();
-
     m_Writer.StartObject();
     m_Writer.String(QUANTILES);
     // No need to copy the strings as the doc is written straight away
-    writeQuantileState(quantilesState, m_LastNonInterimBucketTime);
+    CModelSnapshotJsonWriter::writeQuantileState(m_JobId, quantilesState, m_LastNonInterimBucketTime, m_Writer);
     m_Writer.EndObject();
 
     persistTime = core::CTimeUtils::now();
@@ -816,142 +795,14 @@ void CJsonOutputWriter::popAllocator() {
 }
 
 void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SResults& results) {
-    this->writeModelSnapshotReports();
-
     m_Writer.StartObject();
-    this->writeMemoryUsageObject(results);
+    CModelSizeStatsJsonWriter::write(m_JobId, results, m_Writer);
     m_Writer.EndObject();
 
     LOG_TRACE("Wrote memory usage results");
 }
 
-void CJsonOutputWriter::writeMemoryUsageObject(const model::CResourceMonitor::SResults& results) {
-    m_Writer.String(MODEL_SIZE_STATS);
-    m_Writer.StartObject();
-
-    m_Writer.String(JOB_ID);
-    m_Writer.String(m_JobId);
-    m_Writer.String(MODEL_BYTES);
-    // Background persist causes the memory size to double due to copying
-    // the models. On top of that, after the persist is done we may not
-    // be able to retrieve that memory back. Thus, we report twice the
-    // memory usage in order to allow for that.
-    // See https://github.com/elastic/x-pack-elasticsearch/issues/1020.
-    // Issue https://github.com/elastic/x-pack-elasticsearch/issues/857
-    // discusses adding an option to perform only foreground persist.
-    // If that gets implemented, we should only double when background
-    // persist is configured.
-    m_Writer.Uint64(results.s_Usage * 2);
-
-    m_Writer.String(TOTAL_BY_FIELD_COUNT);
-    m_Writer.Uint64(results.s_ByFields);
-
-    m_Writer.String(TOTAL_OVER_FIELD_COUNT);
-    m_Writer.Uint64(results.s_OverFields);
-
-    m_Writer.String(TOTAL_PARTITION_FIELD_COUNT);
-    m_Writer.Uint64(results.s_PartitionFields);
-
-    m_Writer.String(BUCKET_ALLOCATION_FAILURES_COUNT);
-    m_Writer.Uint64(results.s_AllocationFailures);
-
-    m_Writer.String(MEMORY_STATUS);
-    m_Writer.String(print(results.s_MemoryStatus));
-
-    m_Writer.String(TIMESTAMP);
-    m_Writer.Int64(results.s_BucketStartTime * 1000);
-
-    m_Writer.String(LOG_TIME);
-    m_Writer.Int64(core::CTimeUtils::now() * 1000);
-
-    m_Writer.EndObject();
-}
-
-void CJsonOutputWriter::reportPersistComplete(core_t::TTime snapshotTimestamp,
-                                              const std::string& description,
-                                              const std::string& snapshotId,
-                                              size_t numDocs,
-                                              const model::CResourceMonitor::SResults& modelSizeStats,
-                                              const std::string& normalizerState,
-                                              core_t::TTime latestRecordTime,
-                                              core_t::TTime latestFinalResultTime) {
-    core::CScopedLock lock(m_ModelSnapshotReportsQueueMutex);
-
-    m_ModelSnapshotReports.push(SModelSnapshotReport(
-        snapshotTimestamp, description, snapshotId, numDocs, modelSizeStats, normalizerState, latestRecordTime, latestFinalResultTime));
-}
-
-void CJsonOutputWriter::writeModelSnapshotReports(void) {
-    core::CScopedLock lock(m_ModelSnapshotReportsQueueMutex);
-
-    while (!m_ModelSnapshotReports.empty()) {
-        const SModelSnapshotReport& report = m_ModelSnapshotReports.front();
-
-        m_Writer.StartObject();
-        m_Writer.String(MODEL_SNAPSHOT);
-        m_Writer.StartObject();
-
-        m_Writer.String(JOB_ID);
-        m_Writer.String(m_JobId);
-        m_Writer.String(SNAPSHOT_ID);
-        m_Writer.String(report.s_SnapshotId);
-
-        m_Writer.String(SNAPSHOT_DOC_COUNT);
-        m_Writer.Uint64(report.s_NumDocs);
-
-        // Write as a Java timestamp - ms since the epoch rather than seconds
-        int64_t javaTimestamp = int64_t(report.s_SnapshotTimestamp) * 1000;
-
-        m_Writer.String(TIMESTAMP);
-        m_Writer.Int64(javaTimestamp);
-
-        m_Writer.String(DESCRIPTION);
-        m_Writer.String(report.s_Description);
-
-        this->writeMemoryUsageObject(report.s_ModelSizeStats);
-
-        if (report.s_LatestRecordTime > 0) {
-            javaTimestamp = int64_t(report.s_LatestRecordTime) * 1000;
-
-            m_Writer.String(LATEST_RECORD_TIME);
-            m_Writer.Int64(javaTimestamp);
-        }
-        if (report.s_LatestFinalResultTime > 0) {
-            javaTimestamp = int64_t(report.s_LatestFinalResultTime) * 1000;
-
-            m_Writer.String(LATEST_RESULT_TIME);
-            m_Writer.Int64(javaTimestamp);
-        }
-
-        // write normalizerState here
-        m_Writer.String(QUANTILES);
-
-        writeQuantileState(report.s_NormalizerState, report.s_LatestFinalResultTime);
-
-        m_Writer.EndObject();
-        m_Writer.EndObject();
-
-        LOG_DEBUG("Wrote model snapshot report with ID " << report.s_SnapshotId << " for: " << report.s_Description
-                                                         << ", latest final results at " << report.s_LatestFinalResultTime);
-
-        m_ModelSnapshotReports.pop();
-    }
-}
-
-void CJsonOutputWriter::writeQuantileState(const std::string& state, core_t::TTime time) {
-    m_Writer.StartObject();
-    m_Writer.String(JOB_ID);
-    m_Writer.String(m_JobId);
-    m_Writer.String(QUANTILE_STATE);
-    m_Writer.String(state);
-    m_Writer.String(TIMESTAMP);
-    m_Writer.Int64(time * 1000);
-    m_Writer.EndObject();
-}
-
 void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd) {
-    this->writeModelSnapshotReports();
-
     m_Writer.StartObject();
     m_Writer.String(FLUSH);
     m_Writer.StartObject();
@@ -959,7 +810,7 @@ void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId, core_t::TTi
     m_Writer.String(ID);
     m_Writer.String(flushId);
     m_Writer.String(LAST_FINALIZED_BUCKET_END);
-    m_Writer.Int64(lastFinalizedBucketEnd * 1000);
+    m_Writer.Time(lastFinalizedBucketEnd);
 
     m_Writer.EndObject();
     m_Writer.EndObject();
@@ -974,8 +825,6 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
                                                 const std::string& regex,
                                                 std::size_t maxMatchingFieldLength,
                                                 const TStrSet& examples) {
-    this->writeModelSnapshotReports();
-
     m_Writer.StartObject();
     m_Writer.String(CATEGORY_DEFINITION);
     m_Writer.StartObject();
@@ -1000,7 +849,7 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
     m_Writer.EndObject();
 }
 
-CJsonOutputWriter::SBucketData::SBucketData(void)
+CJsonOutputWriter::SBucketData::SBucketData()
     : s_MaxBucketInfluencerNormalizedAnomalyScore(0.0),
       s_InputEventCount(0),
       s_RecordCount(0),
@@ -1008,24 +857,6 @@ CJsonOutputWriter::SBucketData::SBucketData(void)
       s_HighestProbability(-1),
       s_LowestInfluencerScore(101.0),
       s_LowestBucketInfluencerScore(101.0) {
-}
-
-CJsonOutputWriter::SModelSnapshotReport::SModelSnapshotReport(core_t::TTime snapshotTimestamp,
-                                                              const std::string& description,
-                                                              const std::string& snapshotId,
-                                                              size_t numDocs,
-                                                              const model::CResourceMonitor::SResults& modelSizeStats,
-                                                              const std::string& normalizerState,
-                                                              core_t::TTime latestRecordTime,
-                                                              core_t::TTime latestFinalResultTime)
-    : s_SnapshotTimestamp(snapshotTimestamp),
-      s_Description(description),
-      s_SnapshotId(snapshotId),
-      s_NumDocs(numDocs),
-      s_ModelSizeStats(modelSizeStats),
-      s_NormalizerState(normalizerState),
-      s_LatestRecordTime(latestRecordTime),
-      s_LatestFinalResultTime(latestFinalResultTime) {
 }
 }
 }

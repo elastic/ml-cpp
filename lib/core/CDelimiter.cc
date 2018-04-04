@@ -24,7 +24,7 @@ namespace core {
 
 const std::string CDelimiter::DEFAULT_DELIMITER(",");
 
-CDelimiter::CDelimiter(void)
+CDelimiter::CDelimiter()
     : m_Valid(m_Delimiter.init(DEFAULT_DELIMITER)),
       m_HaveFollowingRegex(false),
       m_WaiveFollowingRegexAfterTime(false),
@@ -105,11 +105,11 @@ bool CDelimiter::isFollowingTextAcceptable(size_t searchPos, const std::string& 
     return answer;
 }
 
-bool CDelimiter::valid(void) const {
+bool CDelimiter::valid() const {
     return m_Valid;
 }
 
-std::string CDelimiter::delimiter(void) const {
+std::string CDelimiter::delimiter() const {
     return m_Delimiter.str();
 }
 
@@ -244,7 +244,7 @@ void CDelimiter::quote(char quote, char escape) {
     m_Escape = escape;
 }
 
-char CDelimiter::quote(void) const {
+char CDelimiter::quote() const {
     return m_Quote;
 }
 

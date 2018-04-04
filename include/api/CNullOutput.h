@@ -42,7 +42,7 @@ public:
     virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     //! Get field names - always empty.
-    virtual const TStrVec& fieldNames(void) const;
+    virtual const TStrVec& fieldNames() const;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;

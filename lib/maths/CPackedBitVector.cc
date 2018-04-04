@@ -25,7 +25,7 @@
 namespace ml {
 namespace maths {
 
-CPackedBitVector::CPackedBitVector(void) : m_Dimension(0), m_First(false), m_Parity(true) {
+CPackedBitVector::CPackedBitVector() : m_Dimension(0), m_First(false), m_Parity(true) {
 }
 
 CPackedBitVector::CPackedBitVector(bool bit) : m_Dimension(1), m_First(bit), m_Parity(true), m_RunLengths(1, 1) {
@@ -61,7 +61,7 @@ CPackedBitVector::CPackedBitVector(const TBoolVec& bits)
     m_RunLengths.push_back(static_cast<uint8_t>(length));
 }
 
-void CPackedBitVector::contract(void) {
+void CPackedBitVector::contract() {
     if (m_Dimension == 0) {
         return;
     }
@@ -141,7 +141,7 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
     return true;
 }
 
-std::string CPackedBitVector::toDelimited(void) const {
+std::string CPackedBitVector::toDelimited() const {
     std::string result;
     result += core::CStringUtils::typeToString(m_Dimension) + core::CPersistUtils::DELIMITER;
     result += core::CStringUtils::typeToString(static_cast<int>(m_First)) + core::CPersistUtils::DELIMITER;
@@ -150,7 +150,7 @@ std::string CPackedBitVector::toDelimited(void) const {
     return result;
 }
 
-std::size_t CPackedBitVector::dimension(void) const {
+std::size_t CPackedBitVector::dimension() const {
     return m_Dimension;
 }
 
@@ -173,7 +173,7 @@ bool CPackedBitVector::operator<(const CPackedBitVector& rhs) const {
         m_Dimension, m_First, m_Parity, m_RunLengths, rhs.m_Dimension, rhs.m_First, rhs.m_Parity, rhs.m_RunLengths);
 }
 
-CPackedBitVector CPackedBitVector::complement(void) const {
+CPackedBitVector CPackedBitVector::complement() const {
     CPackedBitVector result(*this);
     result.m_First = !result.m_First;
     return result;
@@ -252,7 +252,7 @@ double CPackedBitVector::inner(const CPackedBitVector& covector, EOperation op) 
     return result;
 }
 
-CPackedBitVector::TBoolVec CPackedBitVector::toBitVector(void) const {
+CPackedBitVector::TBoolVec CPackedBitVector::toBitVector() const {
     if (m_Dimension == 0) {
         return TBoolVec();
     }
@@ -271,7 +271,7 @@ CPackedBitVector::TBoolVec CPackedBitVector::toBitVector(void) const {
     return result;
 }
 
-uint64_t CPackedBitVector::checksum(void) const {
+uint64_t CPackedBitVector::checksum() const {
     uint64_t seed = m_Dimension;
     seed = CChecksum::calculate(seed, m_First);
     seed = CChecksum::calculate(seed, m_Parity);
@@ -283,7 +283,7 @@ void CPackedBitVector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
     core::CMemoryDebug::dynamicSize("m_RunLengths", m_RunLengths, mem);
 }
 
-std::size_t CPackedBitVector::memoryUsage(void) const {
+std::size_t CPackedBitVector::memoryUsage() const {
     return core::CMemory::dynamicSize(m_RunLengths);
 }
 

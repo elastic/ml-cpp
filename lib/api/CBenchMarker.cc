@@ -26,7 +26,7 @@
 namespace ml {
 namespace api {
 
-CBenchMarker::CBenchMarker(void) : m_TotalMessages(0), m_ScoredMessages(0) {
+CBenchMarker::CBenchMarker() : m_TotalMessages(0), m_ScoredMessages(0) {
 }
 
 bool CBenchMarker::init(const std::string& regexFilename) {
@@ -83,11 +83,11 @@ void CBenchMarker::addResult(const std::string& message, int type) {
     }
 }
 
-void CBenchMarker::dumpResults(void) const {
+void CBenchMarker::dumpResults() const {
     // Sort the results in descending order of actual type occurrence
-    typedef std::pair<size_t, TRegexIntSizeStrPrMapPrVecCItr> TSizeRegexIntSizeStrPrMapPrVecCItrPr;
-    typedef std::vector<TSizeRegexIntSizeStrPrMapPrVecCItrPr> TSizeRegexIntSizeStrPrMapPrVecCItrPrVec;
-    typedef TSizeRegexIntSizeStrPrMapPrVecCItrPrVec::const_iterator TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr;
+    using TSizeRegexIntSizeStrPrMapPrVecCItrPr = std::pair<size_t, TRegexIntSizeStrPrMapPrVecCItr>;
+    using TSizeRegexIntSizeStrPrMapPrVecCItrPrVec = std::vector<TSizeRegexIntSizeStrPrMapPrVecCItrPr>;
+    using TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr = TSizeRegexIntSizeStrPrMapPrVecCItrPrVec::const_iterator;
 
     TSizeRegexIntSizeStrPrMapPrVecCItrPrVec sortVec;
     sortVec.reserve(m_Measures.size());
@@ -104,14 +104,14 @@ void CBenchMarker::dumpResults(void) const {
     }
 
     // Sort descending
-    typedef std::greater<TSizeRegexIntSizeStrPrMapPrVecCItrPr> TGreaterSizeRegexIntSizeStrPrMapPrVecCItrPr;
+    using TGreaterSizeRegexIntSizeStrPrMapPrVecCItrPr = std::greater<TSizeRegexIntSizeStrPrMapPrVecCItrPr>;
     TGreaterSizeRegexIntSizeStrPrMapPrVecCItrPr comp;
     std::sort(sortVec.begin(), sortVec.end(), comp);
 
     std::ostringstream strm;
     strm << "Results:" << core_t::LINE_ENDING;
 
-    typedef std::set<int> TIntSet;
+    using TIntSet = std::set<int>;
 
     TIntSet usedTypes;
     size_t observedActuals(0);

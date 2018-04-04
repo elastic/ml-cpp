@@ -37,7 +37,7 @@ CppUnit::Test* CDelimiterTest::suite() {
     return suiteOfTests;
 }
 
-void CDelimiterTest::testSimpleTokenise(void) {
+void CDelimiterTest::testSimpleTokenise() {
     std::string testData("Oct 12, 2008 8:38:51 AM org.apache.tomcat.util.http.Parameters processParameters\n"
                          "WARNING: Parameters: Invalid chunk ignored.\n"
                          "Oct 12, 2008 8:38:52 AM org.apache.tomcat.util.http.Parameters processParameters\n"
@@ -79,7 +79,7 @@ void CDelimiterTest::testSimpleTokenise(void) {
     CPPUNIT_ASSERT_EQUAL(size_t(0), remainder.size());
 }
 
-void CDelimiterTest::testRegexTokenise(void) {
+void CDelimiterTest::testRegexTokenise() {
     // Some of the lines here are Windows text format, and others Unix text
     std::string testData("Oct 12, 2008 8:38:51 AM org.apache.tomcat.util.http.Parameters processParameters\r\n"
                          "WARNING: Parameters: Invalid chunk ignored.\r\n"
@@ -123,11 +123,11 @@ void CDelimiterTest::testRegexTokenise(void) {
     CPPUNIT_ASSERT_EQUAL(size_t(0), remainder.size());
 }
 
-void CDelimiterTest::testQuotedTokenise(void) {
+void CDelimiterTest::testQuotedTokenise() {
     // NB: The backslashes here escape the quotes for the benefit of the C++ compiler
-    std::string testData("3,1,5415.1132,56135135,0x00000001,0x00000002,\"SOME_STRING\",\"\",\"\",\"\",\"\",\"\",\"\","
-                         "\"\",\"\",\"\",\"\",\"\",\"\",0x0000000000000000,0x0000000000000000,\"\",\"\",\"\",\"\",\"\","
-                         "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"");
+    std::string testData("3,1,5415.1132,56135135,0x00000001,0x00000002,\"SOME_STRING\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
+                         "\"\",\"\",0x0000000000000000,0x0000000000000000,\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
+                         "\"\",\"\",\"\",\"\",\"\",\"\"");
 
     LOG_DEBUG("Input data:\n" << testData << '\n');
 
@@ -149,14 +149,13 @@ void CDelimiterTest::testQuotedTokenise(void) {
     CPPUNIT_ASSERT_EQUAL(size_t(40), delimited.size());
 }
 
-void CDelimiterTest::testQuotedEscapedTokenise(void) {
+void CDelimiterTest::testQuotedEscapedTokenise() {
     // Similar to previous test, but there are four values with escaped quotes in AFTER
     // pre-processing by the C++ compiler
-    std::string testData("3,1,5415.1132,56135135,0x00000001,0x00000002,\"SOME_STRING\",\"\",\"\\\"\",\"\",\"\",\"\","
-                         "\"\",\"\",\"A \\\"middling\\\" "
-                         "one\",\"\",\"\",\"\",\"\",0x0000000000000000,0x0000000000000000,\"\",\"\",\"\",\"\",\"\","
-                         "\"\",\"\",\"\\\"start\",\"\",\"\",\"end\\\"\",\"\",\"\",\"\",\"\",\"\",\"\\\"both\\\"\",\"\","
-                         "\"\"");
+    std::string testData("3,1,5415.1132,56135135,0x00000001,0x00000002,\"SOME_STRING\",\"\",\"\\\"\",\"\",\"\",\"\",\"\",\"\",\"A "
+                         "\\\"middling\\\" "
+                         "one\",\"\",\"\",\"\",\"\",0x0000000000000000,0x0000000000000000,\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\\\"start\","
+                         "\"\",\"\",\"end\\\"\",\"\",\"\",\"\",\"\",\"\",\"\\\"both\\\"\",\"\",\"\"");
 
     LOG_DEBUG("Input data:\n" << testData << '\n');
 
@@ -178,12 +177,10 @@ void CDelimiterTest::testQuotedEscapedTokenise(void) {
     CPPUNIT_ASSERT_EQUAL(size_t(40), delimited.size());
 }
 
-void CDelimiterTest::testInvalidQuotedTokenise(void) {
+void CDelimiterTest::testInvalidQuotedTokenise() {
     // Invalid quoting (e.g. mismatched) mustn't cause the tokeniser to go into
     // an infinite loop
-    std::string testData("4/26/2011 "
-                         "4:19,aaa.bbbbbb@cc.ddddd.com,\"64222\",\"/"
-                         "some_action.do?param1=foo&param2=Sljahfej+kfejhafef/3931nfV");
+    std::string testData("4/26/2011 4:19,aaa.bbbbbb@cc.ddddd.com,\"64222\",\"/some_action.do?param1=foo&param2=Sljahfej+kfejhafef/3931nfV");
 
     LOG_DEBUG("Input data:\n" << testData << '\n');
 
@@ -199,17 +196,16 @@ void CDelimiterTest::testInvalidQuotedTokenise(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("/some_action.do?param1=foo&param2=Sljahfej+kfejhafef/3931nfV"), remainder);
 }
 
-void CDelimiterTest::testQuoteEqualsEscapeTokenise(void) {
+void CDelimiterTest::testQuoteEqualsEscapeTokenise() {
     // In this example, double quotes are used for quoting, but they are escaped
     // by doubling them up, so the escape character is the same as the quote
     // character
-    std::string testData("May 24 22:02:13 1,2012/05/24 22:02:13,724747467,SOME_STRING,url,1,2012/04/10 "
-                         "02:53:17,192.168.0.3,192.168.0.1,0.0.0.0,0.0.0.0,aaa,bbbbbb,,ccccc,dddd1,eeee,ffffff,"
-                         "gggggggg1/2,ggggggg1/1,aA,2012/04/10 "
-                         "02:53:19,27555,1,8450,80,0,0,0x200000,hhh,jjjjjjj,\"www.somesite.com/ajax/home.php/"
-                         "Pane?__a=1&data={\"\"pid\"\":34,\"\"data\"\":[\"\"a.163624624.35636.13135\"\",true,false]}&__"
-                         "user=6625141\",(9999),yetuth-atrat,info,client-to-server,0,0x0,192.168.0.0-192.168.255.255,"
-                         "Some Country,0,application/x-javascript");
+    std::string testData(
+        "May 24 22:02:13 1,2012/05/24 22:02:13,724747467,SOME_STRING,url,1,2012/04/10 "
+        "02:53:17,192.168.0.3,192.168.0.1,0.0.0.0,0.0.0.0,aaa,bbbbbb,,ccccc,dddd1,eeee,ffffff,gggggggg1/2,ggggggg1/1,aA,2012/04/10 "
+        "02:53:19,27555,1,8450,80,0,0,0x200000,hhh,jjjjjjj,\"www.somesite.com/ajax/home.php/"
+        "Pane?__a=1&data={\"\"pid\"\":34,\"\"data\"\":[\"\"a.163624624.35636.13135\"\",true,false]}&__user=6625141\",(9999),yetuth-atrat,"
+        "info,client-to-server,0,0x0,192.168.0.0-192.168.255.255,Some Country,0,application/x-javascript");
 
     LOG_DEBUG("Input data:\n" << testData << '\n');
 

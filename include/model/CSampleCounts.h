@@ -46,9 +46,9 @@ class CDataGatherer;
 //! the sample count.
 class MODEL_EXPORT CSampleCounts {
 public:
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-    typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
-    typedef std::vector<std::size_t> TSizeVec;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+    using TSizeVec = std::vector<std::size_t>;
 
 public:
     explicit CSampleCounts(unsigned int sampleCountOverride = 0);
@@ -60,7 +60,7 @@ public:
     //! a general purpose copy constructor.
     CSampleCounts(bool isForPersistence, const CSampleCounts& other);
 
-    CSampleCounts* cloneForPersistence(void) const;
+    CSampleCounts* cloneForPersistence() const;
 
     //! Persist the sample counts to a state document.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -103,13 +103,13 @@ public:
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this object.
-    std::size_t memoryUsage(void) const;
+    std::size_t memoryUsage() const;
 
     //! Clear the sample counts.
-    void clear(void);
+    void clear();
 
 private:
-    typedef std::vector<unsigned int> TUIntVec;
+    using TUIntVec = std::vector<unsigned int>;
 
 private:
     //! Get the name of the entity identified by \p id.

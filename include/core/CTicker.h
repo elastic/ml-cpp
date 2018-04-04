@@ -43,14 +43,14 @@ public:
     CTicker(uint32_t timeOut, RECEIVER& receiver) : m_Condition(m_Mutex), m_Quit(false), m_TimeOut(timeOut), m_Receiver(receiver) {}
 
     //! Destructor will stop the ticker thread if it's already running
-    ~CTicker(void) {
+    ~CTicker() {
         if (this->isStarted()) {
             this->stop();
         }
     }
 
 protected:
-    void run(void) {
+    void run() {
         CScopedLock lock(m_Mutex);
 
         while (!m_Quit) {
@@ -64,7 +64,7 @@ protected:
         m_Quit = false;
     }
 
-    void shutdown(void) {
+    void shutdown() {
         CScopedLock lock(m_Mutex);
 
         m_Quit = true;

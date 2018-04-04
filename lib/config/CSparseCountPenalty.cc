@@ -26,13 +26,14 @@
 
 #include <boost/range.hpp>
 
+#include <cmath>
 #include <vector>
 
 namespace ml {
 namespace config {
 namespace {
 
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 //! Extract the \p n quantiles from \p quantiles.
 void extract(const maths::CQuantileSketch& quantiles, std::size_t n, TDoubleVec& result) {
@@ -71,11 +72,11 @@ const bool IGNORE_EMPTY[] = {false, true};
 CSparseCountPenalty::CSparseCountPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {
 }
 
-CSparseCountPenalty* CSparseCountPenalty::clone(void) const {
+CSparseCountPenalty* CSparseCountPenalty::clone() const {
     return new CSparseCountPenalty(*this);
 }
 
-std::string CSparseCountPenalty::name(void) const {
+std::string CSparseCountPenalty::name() const {
     return "sparse count penalty";
 }
 
@@ -84,13 +85,13 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
         return;
     }
 
-    typedef std::vector<TDoubleVec> TDoubleVecVec;
-    typedef CBucketCountStatistics::TSizeSizePrQuantileUMap TSizeSizePrQuantileUMap;
-    typedef TSizeSizePrQuantileUMap::const_iterator TSizeSizePrQuantileUMapCItr;
-    typedef std::vector<const TSizeSizePrQuantileUMap*> TSizeSizePrQuantileUMapCPtrVec;
-    typedef std::vector<const CBucketCountStatistics::TSizeSizePrMomentsUMap*> TSizeSizePrMomentsUMapCPtrVec;
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-    typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TSizeSizePrQuantileUMap = CBucketCountStatistics::TSizeSizePrQuantileUMap;
+    using TSizeSizePrQuantileUMapCItr = TSizeSizePrQuantileUMap::const_iterator;
+    using TSizeSizePrQuantileUMapCPtrVec = std::vector<const TSizeSizePrQuantileUMap*>;
+    using TSizeSizePrMomentsUMapCPtrVec = std::vector<const CBucketCountStatistics::TSizeSizePrMomentsUMap*>;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 
     if (const CDataCountStatistics* stats = spec.countStatistics()) {
         const CAutoconfigurerParams::TTimeVec& candidates = this->params().candidateBucketLengths();
@@ -171,7 +172,7 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
                             }
                             double scale = static_cast<double>(longest) / static_cast<double>(candidates[bid]);
                             for (std::size_t j = 0u; j < xq[bid].size(); ++j) {
-                                xq[bid][j] = scale * means[bid] + ::sqrt(scale) * (xq[bid][j] - means[bid]);
+                                xq[bid][j] = scale * means[bid] + std::sqrt(scale) * (xq[bid][j] - means[bid]);
                             }
                         }
                     }
@@ -192,7 +193,7 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
                 for (std::size_t bid = 0u; bid < penalties_.size(); ++bid) {
                     std::size_t index = this->params().penaltyIndexFor(bid, IGNORE_EMPTY[iid]);
                     indices.push_back(index);
-                    double penalty = ::exp(maths::CBasicStatistics::mean(penalties_[bid]));
+                    double penalty = std::exp(maths::CBasicStatistics::mean(penalties_[bid]));
                     std::string description;
                     if (penalty < 1.0) {
                         description = "The bucket length does not properly capture the variation in event rate";

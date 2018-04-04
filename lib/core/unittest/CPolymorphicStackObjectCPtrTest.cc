@@ -25,34 +25,34 @@ namespace {
 
 class CBase {
 public:
-    virtual ~CBase(void) {}
-    virtual std::string iam(void) const = 0;
+    virtual ~CBase() {}
+    virtual std::string iam() const = 0;
 };
 
 class CDerived1 : public CBase {
 public:
-    virtual std::string iam(void) const { return "d1"; }
+    virtual std::string iam() const { return "d1"; }
 };
 
 class CDerived2 : public CBase {
 public:
-    virtual std::string iam(void) const { return "d2"; }
+    virtual std::string iam() const { return "d2"; }
 };
 
 class CDerived3 : public CBase {
 public:
-    virtual std::string iam(void) const { return "d3"; }
+    virtual std::string iam() const { return "d3"; }
 };
 
 class CDerived4 : public CBase {
 public:
-    virtual std::string iam(void) const { return "d4"; }
+    virtual std::string iam() const { return "d4"; }
 };
 }
 
-void CPolymorphicStackObjectCPtrTest::testAll(void) {
-    typedef core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2> TStackPtr12;
-    typedef core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2, CDerived3, CDerived4> TStackPtr1234;
+void CPolymorphicStackObjectCPtrTest::testAll() {
+    using TStackPtr12 = core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2>;
+    using TStackPtr1234 = core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2, CDerived3, CDerived4>;
 
     TStackPtr12 test1((CDerived1()));
     CPPUNIT_ASSERT_EQUAL(std::string("d1"), test1->iam());
@@ -83,7 +83,7 @@ void CPolymorphicStackObjectCPtrTest::testAll(void) {
     CPPUNIT_ASSERT(!null);
 }
 
-CppUnit::Test* CPolymorphicStackObjectCPtrTest::suite(void) {
+CppUnit::Test* CPolymorphicStackObjectCPtrTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPolymorphicStackObjectCPtrTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CPolymorphicStackObjectCPtrTest>("CPolymorphicStackObjectCPtrTest::testAll",

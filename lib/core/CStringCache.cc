@@ -23,7 +23,7 @@ namespace core {
 
 const std::string CStringCache::EMPTY_STRING;
 
-CStringCache::CStringCache(void) : m_HaveCopyOnWriteStrings(false) {
+CStringCache::CStringCache() : m_HaveCopyOnWriteStrings(false) {
     // Detect whether strings have copy-on-write semantics - if they don't then
     // this class may be of little value
     std::string test1("test copy-on-write");
@@ -33,7 +33,7 @@ CStringCache::CStringCache(void) : m_HaveCopyOnWriteStrings(false) {
     }
 }
 
-bool CStringCache::haveCopyOnWriteStrings(void) const {
+bool CStringCache::haveCopyOnWriteStrings() const {
     return m_HaveCopyOnWriteStrings;
 }
 

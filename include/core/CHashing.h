@@ -50,7 +50,7 @@ public:
     //! sufficient for our use cases!
     class CORE_EXPORT CUniversalHash {
     public:
-        typedef std::vector<uint32_t> TUInt32Vec;
+        using TUInt32Vec = std::vector<uint32_t>;
 
     public:
         //! A member of the universal (2-independent) hash family on
@@ -65,20 +65,20 @@ public:
         class CORE_EXPORT CUInt32Hash {
         public:
             //! See CMemory.
-            static bool dynamicSizeAlwaysZero(void) { return true; }
+            static bool dynamicSizeAlwaysZero() { return true; }
 
         public:
-            CUInt32Hash(void);
+            CUInt32Hash();
             CUInt32Hash(uint32_t m, uint32_t a, uint32_t b);
 
             //! Get the range.
-            uint32_t m(void) const;
+            uint32_t m() const;
 
             //! Get the multiplier.
-            uint32_t a(void) const;
+            uint32_t a() const;
 
             //! Get the offset.
-            uint32_t b(void) const;
+            uint32_t b() const;
 
             //! \note This is implemented inline in contravention to
             //! the coding standards because we definitely don't want
@@ -91,13 +91,13 @@ public:
             }
 
             //! Print the hash function for debug.
-            std::string print(void) const;
+            std::string print() const;
 
         private:
             uint32_t m_M, m_A, m_B;
         };
 
-        typedef std::vector<CUInt32Hash> TUInt32HashVec;
+        using TUInt32HashVec = std::vector<CUInt32Hash>;
 
         //! A lightweight implementation universal (2-independent) on
         //! 32-bit integers. This doesn't further restrict the range
@@ -106,17 +106,17 @@ public:
         class CORE_EXPORT CUInt32UnrestrictedHash {
         public:
             //! See CMemory.
-            static bool dynamicSizeAlwaysZero(void) { return true; }
+            static bool dynamicSizeAlwaysZero() { return true; }
 
         public:
-            CUInt32UnrestrictedHash(void);
+            CUInt32UnrestrictedHash();
             CUInt32UnrestrictedHash(uint32_t a, uint32_t b);
 
             //! Get the multiplier.
-            uint32_t a(void) const;
+            uint32_t a() const;
 
             //! Get the offset.
-            uint32_t b(void) const;
+            uint32_t b() const;
 
             //! \note This is implemented inline in contravention to
             //! the coding standards because we definitely don't want
@@ -128,13 +128,13 @@ public:
             }
 
             //! Print the hash function for debug.
-            std::string print(void) const;
+            std::string print() const;
 
         private:
             uint32_t m_A, m_B;
         };
 
-        typedef std::vector<CUInt32UnrestrictedHash> TUInt32UnrestrictedHashVec;
+        using TUInt32UnrestrictedHashVec = std::vector<CUInt32UnrestrictedHash>;
 
         //! A member of the universal (2-independent) hash family on
         //! vectors of integers (Carter and Wegman):
@@ -153,13 +153,13 @@ public:
             CUInt32VecHash(uint32_t m, const TUInt32Vec& a, uint32_t b);
 
             //! Get the range.
-            uint32_t m(void) const;
+            uint32_t m() const;
 
             //! Get the multipliers.
-            const TUInt32Vec& a(void) const;
+            const TUInt32Vec& a() const;
 
             //! Get the offset.
-            uint32_t b(void) const;
+            uint32_t b() const;
 
             //! Overload for case our vector has two elements to
             //! avoid overhead of creating a vector to hash.
@@ -194,7 +194,7 @@ public:
             }
 
             //! Print the hash function for debug.
-            std::string print(void) const;
+            std::string print() const;
 
         private:
             uint32_t m_M;
@@ -202,7 +202,7 @@ public:
             uint32_t m_B;
         };
 
-        typedef std::vector<CUInt32VecHash> TUInt32VecHashVec;
+        using TUInt32VecHashVec = std::vector<CUInt32VecHash>;
 
         //! Converts hash function objects to a string.
         class CORE_EXPORT CToString {
@@ -370,7 +370,7 @@ public:
     class CMurmurHash2BT : public std::unary_function<T, std::size_t> {
     public:
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
+        static bool dynamicSizeAlwaysZero() { return true; }
 
     public:
         CMurmurHash2BT(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
@@ -388,8 +388,8 @@ public:
     class CORE_EXPORT CMurmurHash2String : public std::unary_function<std::string, std::size_t> {
     public:
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
-        typedef boost::reference_wrapper<const std::string> TStrCRef;
+        static bool dynamicSizeAlwaysZero() { return true; }
+        using TStrCRef = boost::reference_wrapper<const std::string>;
 
     public:
         CMurmurHash2String(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
@@ -415,8 +415,8 @@ public:
     class CORE_EXPORT CSafeMurmurHash2String64 : public std::unary_function<std::string, uint64_t> {
     public:
         //! See CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
-        typedef boost::reference_wrapper<const std::string> TStrCRef;
+        static bool dynamicSizeAlwaysZero() { return true; }
+        using TStrCRef = boost::reference_wrapper<const std::string>;
 
     public:
         CSafeMurmurHash2String64(uint64_t seed = 0x5bd1e995) : m_Seed(seed) {}

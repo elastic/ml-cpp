@@ -39,8 +39,8 @@ namespace api {
 //!
 class API_EXPORT CCategoryExamplesCollector {
 public:
-    typedef std::set<std::string> TStrSet;
-    typedef TStrSet::const_iterator TStrSetCItr;
+    using TStrSet = std::set<std::string>;
+    using TStrSetCItr = TStrSet::const_iterator;
 
     //! Truncate examples to be no longer than this
     static const size_t MAX_EXAMPLE_LENGTH;
@@ -67,7 +67,7 @@ public:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Clear all examples
-    void clear(void);
+    void clear();
 
 private:
     using TSizeStrSetUMap = boost::unordered_map<std::size_t, TStrSet>;

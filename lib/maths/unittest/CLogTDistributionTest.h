@@ -20,12 +20,12 @@
 
 class CLogTDistributionTest : public CppUnit::TestFixture {
 public:
-    void testMode(void);
-    void testPdf(void);
-    void testCdf(void);
-    void testQuantile(void);
+    void testMode();
+    void testPdf();
+    void testCdf();
+    void testQuantile();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CLogTDistributionTest_h

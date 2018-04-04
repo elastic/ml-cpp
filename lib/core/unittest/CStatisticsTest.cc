@@ -31,7 +31,7 @@ const int TEST_STAT = 0u;
 
 class CStatisticsTestRunner : public ml::core::CThread {
 public:
-    CStatisticsTestRunner(void) : m_I(0), m_N(0) {}
+    CStatisticsTestRunner() : m_I(0), m_N(0) {}
 
     void initialise(int i, int n) {
         m_N = n;
@@ -39,7 +39,7 @@ public:
     }
 
 private:
-    virtual void run(void) {
+    virtual void run() {
         if (m_I < 6) {
             ml::core::CStatistics::stat(TEST_STAT + m_I).increment();
         } else {
@@ -47,7 +47,7 @@ private:
         }
     }
 
-    virtual void shutdown(void) {}
+    virtual void shutdown() {}
 
     int m_I;
     int m_N;
@@ -64,7 +64,7 @@ CppUnit::Test* CStatisticsTest::suite() {
     return suiteOfTests;
 }
 
-void CStatisticsTest::testStatistics(void) {
+void CStatisticsTest::testStatistics() {
     LOG_TRACE("Starting Statistics test");
     ml::core::CStatistics& stats = ml::core::CStatistics::instance();
 
@@ -107,7 +107,7 @@ void CStatisticsTest::testStatistics(void) {
     LOG_TRACE("Finished Statistics test");
 }
 
-void CStatisticsTest::testPersist(void) {
+void CStatisticsTest::testPersist() {
     LOG_DEBUG("Starting persist test");
     ml::core::CStatistics& stats = ml::core::CStatistics::instance();
 

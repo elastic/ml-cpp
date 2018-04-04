@@ -39,7 +39,7 @@ namespace core {
 //!
 class CORE_EXPORT CHexUtils {
 public:
-    typedef std::vector<uint8_t> TDataVec;
+    using TDataVec = std::vector<uint8_t>;
 
 public:
     //! Construct an object of this class, which can then be output to a

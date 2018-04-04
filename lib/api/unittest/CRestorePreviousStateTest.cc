@@ -43,15 +43,12 @@
 
 namespace {
 
-void reportPersistComplete(ml::core_t::TTime /*snapshotTimestamp*/,
-                           const std::string& description,
-                           const std::string& snapshotIdIn,
-                           size_t numDocsIn,
+void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
                            std::string& snapshotIdOut,
                            size_t& numDocsOut) {
-    LOG_DEBUG("Persist complete with description: " << description);
-    snapshotIdOut = snapshotIdIn;
-    numDocsOut = numDocsIn;
+    LOG_DEBUG("Persist complete with description: " << modelSnapshotReport.s_Description);
+    snapshotIdOut = modelSnapshotReport.s_SnapshotId;
+    numDocsOut = modelSnapshotReport.s_NumDocs;
 }
 
 struct SRestoreTestConfig {
@@ -84,7 +81,7 @@ CppUnit::Test* CRestorePreviousStateTest::suite() {
     return suiteOfTests;
 }
 
-void CRestorePreviousStateTest::testRestoreDetectorBy(void) {
+void CRestorePreviousStateTest::testRestoreDetectorBy() {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO("Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/by_detector_state.json",
@@ -94,7 +91,7 @@ void CRestorePreviousStateTest::testRestoreDetectorBy(void) {
     }
 }
 
-void CRestorePreviousStateTest::testRestoreDetectorOver(void) {
+void CRestorePreviousStateTest::testRestoreDetectorOver() {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO("Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/over_detector_state.json",
@@ -104,7 +101,7 @@ void CRestorePreviousStateTest::testRestoreDetectorOver(void) {
     }
 }
 
-void CRestorePreviousStateTest::testRestoreDetectorPartition(void) {
+void CRestorePreviousStateTest::testRestoreDetectorPartition() {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO("Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/partition_detector_state.json",
@@ -114,7 +111,7 @@ void CRestorePreviousStateTest::testRestoreDetectorPartition(void) {
     }
 }
 
-void CRestorePreviousStateTest::testRestoreDetectorDc(void) {
+void CRestorePreviousStateTest::testRestoreDetectorDc() {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO("Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/dc_detector_state.json",
@@ -124,7 +121,7 @@ void CRestorePreviousStateTest::testRestoreDetectorDc(void) {
     }
 }
 
-void CRestorePreviousStateTest::testRestoreDetectorCount(void) {
+void CRestorePreviousStateTest::testRestoreDetectorCount() {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO("Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/count_detector_state.json",
@@ -219,13 +216,12 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& 
 
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
-    ml::api::CAnomalyJob restoredJob(
-        JOB_ID,
-        limits,
-        fieldConfig,
-        modelConfig,
-        wrappedOutputStream,
-        boost::bind(&reportPersistComplete, _1, _2, _3, _4, boost::ref(restoredSnapshotId), boost::ref(numRestoredDocs)));
+    ml::api::CAnomalyJob restoredJob(JOB_ID,
+                                     limits,
+                                     fieldConfig,
+                                     modelConfig,
+                                     wrappedOutputStream,
+                                     boost::bind(&reportPersistComplete, _1, boost::ref(restoredSnapshotId), boost::ref(numRestoredDocs)));
 
     std::size_t numDocsInStateFile(0);
     {

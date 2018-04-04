@@ -22,8 +22,6 @@
 
 #include <functional>
 
-#include <math.h>
-
 namespace ml {
 namespace maths {
 

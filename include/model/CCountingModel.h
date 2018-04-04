@@ -61,16 +61,16 @@ public:
     //@}
 
     //! Returns event rate online.
-    virtual model_t::EModelType category(void) const;
+    virtual model_t::EModelType category() const;
 
     //! Returns false.
-    virtual bool isPopulation(void) const;
+    virtual bool isPopulation() const;
 
     //! Returns false.
-    virtual bool isEventRate(void) const;
+    virtual bool isEventRate() const;
 
     //! Returns false.
-    virtual bool isMetric(void) const;
+    virtual bool isMetric() const;
 
     //! \name Persistence
     //@{
@@ -85,7 +85,7 @@ public:
     //! persisted representation, and must not be used for any other
     //! purpose.
     //! \warning The caller owns the object returned.
-    virtual CAnomalyDetectorModel* cloneForPersistence(void) const;
+    virtual CAnomalyDetectorModel* cloneForPersistence() const;
     //@}
 
     //! \name Bucket Statistics
@@ -202,32 +202,32 @@ public:
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this model
-    virtual std::size_t memoryUsage(void) const;
+    virtual std::size_t memoryUsage() const;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize(void) const;
+    virtual std::size_t staticSize() const;
 
     //! Returns null.
-    virtual CModelDetailsViewPtr details(void) const;
+    virtual CModelDetailsViewPtr details() const;
 
     //! Get the descriptions of any occurring scheduled event descriptions for the bucket time
     virtual const TStr1Vec& scheduledEventDescriptions(core_t::TTime time) const;
 
 public:
-    typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-    typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-    typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
+    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+    using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 
 protected:
     //! Get the start time of the current bucket.
-    virtual core_t::TTime currentBucketStartTime(void) const;
+    virtual core_t::TTime currentBucketStartTime() const;
 
     //! Set the start time of the current bucket.
     virtual void currentBucketStartTime(core_t::TTime time);
 
     //! Get the non-estimated value of the the memory used by this model.
-    virtual std::size_t computeMemoryUsage(void) const;
+    virtual std::size_t computeMemoryUsage() const;
 
 private:
     //! Get the scheduled events that match at sampleTime.
@@ -250,7 +250,7 @@ private:
     void updateCurrentBucketsStats(core_t::TTime time);
 
     //! Reinitialize the time series models for recycled people.
-    virtual void updateRecycledModels(void);
+    virtual void updateRecycledModels();
 
     //! Initialize the time series models for newly observed people.
     virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes);
@@ -259,7 +259,7 @@ private:
     bool bucketStatsAvailable(core_t::TTime time) const;
 
     //! Print the current bucketing interval.
-    std::string printCurrentBucket(void) const;
+    std::string printCurrentBucket() const;
 
     //! Set the current bucket total count.
     virtual void currentBucketTotalCount(uint64_t totalCount);
@@ -268,10 +268,10 @@ private:
     virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime);
 
     //! Get the model memory usage estimator
-    virtual CMemoryUsageEstimator* memoryUsageEstimator(void) const;
+    virtual CMemoryUsageEstimator* memoryUsageEstimator() const;
 
 private:
-    typedef boost::unordered_map<core_t::TTime, TStr1Vec> TTimeStr1VecUMap;
+    using TTimeStr1VecUMap = boost::unordered_map<core_t::TTime, TStr1Vec>;
 
 private:
     //! The start time of the last sampled bucket.

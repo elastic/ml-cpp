@@ -29,12 +29,11 @@
 #include <maths/CSolvers.h>
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
-
-#include <math.h>
 
 namespace ml {
 namespace maths {
@@ -57,7 +56,7 @@ void setDecayRate(double value, double fallback, CFloatStorage& result) {
 const std::size_t ADJUST_OFFSET_TRIALS = 20;
 }
 
-CPrior::CPrior(void) : m_DataType(maths_t::E_DiscreteData), m_DecayRate(0.0), m_NumberSamples(0) {
+CPrior::CPrior() : m_DataType(maths_t::E_DiscreteData), m_DecayRate(0.0), m_NumberSamples(0) {
 }
 
 CPrior::CPrior(maths_t::EDataType dataType, double decayRate) : m_DataType(dataType), m_NumberSamples(0) {
@@ -70,15 +69,15 @@ void CPrior::swap(CPrior& other) {
     std::swap(m_NumberSamples, other.m_NumberSamples);
 }
 
-bool CPrior::isDiscrete(void) const {
+bool CPrior::isDiscrete() const {
     return m_DataType == maths_t::E_DiscreteData || m_DataType == maths_t::E_IntegerData;
 }
 
-bool CPrior::isInteger(void) const {
+bool CPrior::isInteger() const {
     return m_DataType == maths_t::E_IntegerData;
 }
 
-maths_t::EDataType CPrior::dataType(void) const {
+maths_t::EDataType CPrior::dataType() const {
     return m_DataType;
 }
 
@@ -86,7 +85,7 @@ void CPrior::dataType(maths_t::EDataType value) {
     m_DataType = value;
 }
 
-double CPrior::decayRate(void) const {
+double CPrior::decayRate() const {
     return m_DecayRate;
 }
 
@@ -97,7 +96,7 @@ void CPrior::decayRate(double value) {
 void CPrior::removeModels(CModelFilter& /*filter*/) {
 }
 
-double CPrior::offsetMargin(void) const {
+double CPrior::offsetMargin() const {
     return 0.0;
 }
 
@@ -119,7 +118,7 @@ CPrior::TDouble1Vec CPrior::marginalLikelihoodModes(const TWeightStyleVec& weigh
     return TDouble1Vec{this->marginalLikelihoodMode(weightStyles, weights)};
 }
 
-std::string CPrior::print(void) const {
+std::string CPrior::print() const {
     std::string result;
     this->print("", result);
     return result;
@@ -186,7 +185,7 @@ uint64_t CPrior::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_NumberSamples);
 }
 
-double CPrior::numberSamples(void) const {
+double CPrior::numberSamples() const {
     return m_NumberSamples;
 }
 
@@ -194,11 +193,11 @@ void CPrior::numberSamples(double numberSamples) {
     m_NumberSamples = numberSamples;
 }
 
-bool CPrior::participatesInModelSelection(void) const {
+bool CPrior::participatesInModelSelection() const {
     return true;
 }
 
-double CPrior::unmarginalizedParameters(void) const {
+double CPrior::unmarginalizedParameters() const {
     return 0.0;
 }
 
@@ -296,7 +295,7 @@ void CPrior::addSamples(double n) {
     m_NumberSamples += n;
 }
 
-std::string CPrior::debug(void) const {
+std::string CPrior::debug() const {
     return std::string();
 }
 
@@ -305,7 +304,7 @@ const std::size_t CPrior::ADJUST_OFFSET_SAMPLE_SIZE = 50u;
 
 ////////// CPrior::CModelFilter Implementation //////////
 
-CPrior::CModelFilter::CModelFilter(void) : m_Filter(0) {
+CPrior::CModelFilter::CModelFilter() : m_Filter(0) {
 }
 
 CPrior::CModelFilter& CPrior::CModelFilter::remove(EPrior model) {
@@ -356,27 +355,27 @@ void CPrior::COffsetParameters::resample(double minimumSample) {
     m_Prior->adjustOffsetResamples(minimumSample, m_Resamples, m_ResamplesWeights);
 }
 
-CPrior& CPrior::COffsetParameters::prior(void) const {
+CPrior& CPrior::COffsetParameters::prior() const {
     return *m_Prior;
 }
 
-const maths_t::TWeightStyleVec& CPrior::COffsetParameters::weightStyles(void) const {
+const maths_t::TWeightStyleVec& CPrior::COffsetParameters::weightStyles() const {
     return *m_WeightStyles;
 }
 
-const CPrior::TDouble1Vec& CPrior::COffsetParameters::samples(void) const {
+const CPrior::TDouble1Vec& CPrior::COffsetParameters::samples() const {
     return *m_Samples;
 }
 
-const CPrior::TDouble4Vec1Vec& CPrior::COffsetParameters::weights(void) const {
+const CPrior::TDouble4Vec1Vec& CPrior::COffsetParameters::weights() const {
     return *m_Weights;
 }
 
-const CPrior::TDouble1Vec& CPrior::COffsetParameters::resamples(void) const {
+const CPrior::TDouble1Vec& CPrior::COffsetParameters::resamples() const {
     return m_Resamples;
 }
 
-const CPrior::TDouble4Vec1Vec& CPrior::COffsetParameters::resamplesWeights(void) const {
+const CPrior::TDouble4Vec1Vec& CPrior::COffsetParameters::resamplesWeights() const {
     return m_ResamplesWeights;
 }
 

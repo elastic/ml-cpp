@@ -32,11 +32,11 @@ CCompressOStream::CCompressOStream(CStateCompressor::CChunkFilter& filter)
     }
 }
 
-CCompressOStream::~CCompressOStream(void) {
+CCompressOStream::~CCompressOStream() {
     this->close();
 }
 
-void CCompressOStream::close(void) {
+void CCompressOStream::close() {
     if (m_UploadThread.isStarted()) {
         LOG_TRACE("Thread has been started, so stopping it");
         if (m_UploadThread.stop() == false) {
@@ -59,7 +59,7 @@ CCompressOStream::CCompressThread::CCompressThread(CCompressOStream& stream,
     m_OutFilter.push(boost::ref(m_FilterSink));
 }
 
-void CCompressOStream::CCompressThread::run(void) {
+void CCompressOStream::CCompressThread::run() {
     LOG_TRACE("CompressThread run");
 
     char buf[4096];
@@ -81,7 +81,7 @@ void CCompressOStream::CCompressThread::run(void) {
     boost::iostreams::close(m_OutFilter);
 }
 
-void CCompressOStream::CCompressThread::shutdown(void) {
+void CCompressOStream::CCompressThread::shutdown() {
     m_StreamBuf.signalEndOfFile();
     LOG_TRACE("CompressThread shutdown called");
 }

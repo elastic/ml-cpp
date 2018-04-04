@@ -42,11 +42,11 @@ std::string prefix(const std::string& description) {
 CCantBeNumeric::CCantBeNumeric(const CAutoconfigurerParams& params) : CPenalty(params) {
 }
 
-CCantBeNumeric* CCantBeNumeric::clone(void) const {
+CCantBeNumeric* CCantBeNumeric::clone() const {
     return new CCantBeNumeric(*this);
 }
 
-std::string CCantBeNumeric::name(void) const {
+std::string CCantBeNumeric::name() const {
     return "can't be numeric";
 }
 
@@ -62,11 +62,11 @@ void CCantBeNumeric::penaltyFromMe(const CFieldStatistics& stats, double& penalt
 CCantBeCategorical::CCantBeCategorical(const CAutoconfigurerParams& params) : CPenalty(params) {
 }
 
-CCantBeCategorical* CCantBeCategorical::clone(void) const {
+CCantBeCategorical* CCantBeCategorical::clone() const {
     return new CCantBeCategorical(*this);
 }
 
-std::string CCantBeCategorical::name(void) const {
+std::string CCantBeCategorical::name() const {
     return "Can't be categorical";
 }
 
@@ -82,11 +82,11 @@ void CCantBeCategorical::penaltyFromMe(const CFieldStatistics& stats, double& pe
 CDontUseUnaryField::CDontUseUnaryField(const CAutoconfigurerParams& params) : CPenalty(params) {
 }
 
-CDontUseUnaryField* CDontUseUnaryField::clone(void) const {
+CDontUseUnaryField* CDontUseUnaryField::clone() const {
     return new CDontUseUnaryField(*this);
 }
 
-std::string CDontUseUnaryField::name(void) const {
+std::string CDontUseUnaryField::name() const {
     return "don't use unary field";
 }
 
@@ -109,11 +109,11 @@ CDistinctCountThresholdPenalty::CDistinctCountThresholdPenalty(const CAutoconfig
       m_DistinctCountForPenaltyOfZero(static_cast<double>(distinctCountForPenaltyOfZero)) {
 }
 
-CDistinctCountThresholdPenalty* CDistinctCountThresholdPenalty::clone(void) const {
+CDistinctCountThresholdPenalty* CDistinctCountThresholdPenalty::clone() const {
     return new CDistinctCountThresholdPenalty(*this);
 }
 
-std::string CDistinctCountThresholdPenalty::name(void) const {
+std::string CDistinctCountThresholdPenalty::name() const {
     return "distinct count thresholds " + core::CStringUtils::typeToString(m_DistinctCountForPenaltyOfZero) + " and " +
            core::CStringUtils::typeToString(m_DistinctCountForPenaltyOfOne);
 }

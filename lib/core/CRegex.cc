@@ -84,7 +84,7 @@ const char* translateErrorCode(boost::regex_constants::error_type code) {
 namespace ml {
 namespace core {
 
-CRegex::CRegex(void) : m_Initialised(false) {
+CRegex::CRegex() : m_Initialised(false) {
 }
 
 bool CRegex::init(const std::string& regex) {
@@ -232,7 +232,7 @@ bool CRegex::search(const std::string& str, size_t& position) const {
     return this->search(0, str, position, length);
 }
 
-std::string CRegex::str(void) const {
+std::string CRegex::str() const {
     if (!m_Initialised) {
         LOG_ERROR("Regex not initialised");
         return std::string();
@@ -241,7 +241,7 @@ std::string CRegex::str(void) const {
     return m_Regex.str();
 }
 
-size_t CRegex::literalCount(void) const {
+size_t CRegex::literalCount() const {
     if (!m_Initialised) {
         LOG_ERROR("Regex not initialised");
         return 0;

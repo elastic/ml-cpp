@@ -20,10 +20,10 @@
 
 class CToolsTest : public CppUnit::TestFixture {
 public:
-    void testDataGatherers(void);
-    void testProbabilityAggregator(void);
+    void testDataGatherers();
+    void testProbabilityAggregator();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CToolsTest_h

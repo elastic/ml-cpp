@@ -33,7 +33,7 @@ const std::size_t RARE_BY_INDEX = 3u;
 const std::size_t OVER_INDEX = 4u;
 const std::size_t PARTITION_INDEX = 5u;
 
-typedef std::size_t (CAutoconfigurerParams::*TCountThreshold)(void) const;
+using TCountThreshold = std::size_t (CAutoconfigurerParams::*)() const;
 
 const std::size_t PENALTY_INDICES[] = {BY_INDEX, RARE_BY_INDEX, OVER_INDEX, PARTITION_INDEX};
 const TCountThreshold PENALTY_THRESHOLD[] = {&CAutoconfigurerParams::highNumberByFieldValues,
@@ -57,27 +57,27 @@ CAutoconfigurerFieldRolePenalties::CAutoconfigurerFieldRolePenalties(const CAuto
     }
 }
 
-const CPenalty& CAutoconfigurerFieldRolePenalties::categoricalFunctionArgumentPenalty(void) const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::categoricalFunctionArgumentPenalty() const {
     return *m_Penalties[CATEGORICAL_ARGUMENT_INDEX];
 }
 
-const CPenalty& CAutoconfigurerFieldRolePenalties::metricFunctionArgumentPenalty(void) const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::metricFunctionArgumentPenalty() const {
     return *m_Penalties[METRIC_ARGUMENT_INDEX];
 }
 
-const CPenalty& CAutoconfigurerFieldRolePenalties::byPenalty(void) const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::byPenalty() const {
     return *m_Penalties[BY_INDEX];
 }
 
-const CPenalty& CAutoconfigurerFieldRolePenalties::rareByPenalty(void) const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::rareByPenalty() const {
     return *m_Penalties[RARE_BY_INDEX];
 }
 
-const CPenalty& CAutoconfigurerFieldRolePenalties::overPenalty(void) const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::overPenalty() const {
     return *m_Penalties[OVER_INDEX];
 }
 
-const CPenalty& CAutoconfigurerFieldRolePenalties::partitionPenalty(void) const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::partitionPenalty() const {
     return *m_Penalties[PARTITION_INDEX];
 }
 }

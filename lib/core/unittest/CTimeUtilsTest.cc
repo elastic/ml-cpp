@@ -28,6 +28,7 @@ CppUnit::Test* CTimeUtilsTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testNow", &CTimeUtilsTest::testNow));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testToIso8601", &CTimeUtilsTest::testToIso8601));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testToLocal", &CTimeUtilsTest::testToLocal));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testToEpochMs", &CTimeUtilsTest::testToEpochMs));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testStrptime", &CTimeUtilsTest::testStrptime));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testTimezone", &CTimeUtilsTest::testTimezone));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testDateWords", &CTimeUtilsTest::testDateWords));
@@ -35,7 +36,7 @@ CppUnit::Test* CTimeUtilsTest::suite() {
     return suiteOfTests;
 }
 
-void CTimeUtilsTest::testNow(void) {
+void CTimeUtilsTest::testNow() {
     ml::core_t::TTime t1(ml::core::CTimeUtils::now());
     ml::core::CSleep::sleep(1001);
     ml::core_t::TTime t2(ml::core::CTimeUtils::now());
@@ -43,7 +44,7 @@ void CTimeUtilsTest::testNow(void) {
     CPPUNIT_ASSERT(t2 > t1);
 }
 
-void CTimeUtilsTest::testToIso8601(void) {
+void CTimeUtilsTest::testToIso8601() {
     // These tests assume UK time.  In case they're ever run outside the UK,
     // we'll explicitly set the timezone for the purpose of these tests.
     CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Europe/London"));
@@ -66,7 +67,7 @@ void CTimeUtilsTest::testToIso8601(void) {
     }
 }
 
-void CTimeUtilsTest::testToLocal(void) {
+void CTimeUtilsTest::testToLocal() {
     // These tests assume UK time.  In case they're ever run outside the UK,
     // we'll explicitly set the timezone for the purpose of these tests.
     CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Europe/London"));
@@ -97,7 +98,14 @@ void CTimeUtilsTest::testToLocal(void) {
     }
 }
 
-void CTimeUtilsTest::testStrptime(void) {
+void CTimeUtilsTest::testToEpochMs() {
+    CPPUNIT_ASSERT_EQUAL(int64_t(1000), ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1)));
+    CPPUNIT_ASSERT_EQUAL(int64_t(-1000), ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1)));
+    CPPUNIT_ASSERT_EQUAL(int64_t(1521035866000), ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1521035866)));
+    CPPUNIT_ASSERT_EQUAL(int64_t(-1521035866000), ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1521035866)));
+}
+
+void CTimeUtilsTest::testStrptime() {
     // These tests assume UK time.  In case they're ever run outside the UK,
     // we'll explicitly set the timezone for the purpose of these tests.
     CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Europe/London"));
@@ -258,7 +266,7 @@ void CTimeUtilsTest::testStrptime(void) {
     }
 }
 
-void CTimeUtilsTest::testTimezone(void) {
+void CTimeUtilsTest::testTimezone() {
     static const ml::core_t::TTime SECONDS_PER_HOUR = 3600;
 
     // These convert the same date/time to a Unix time, but in a variety of
@@ -377,7 +385,7 @@ void CTimeUtilsTest::testTimezone(void) {
     CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone(""));
 }
 
-void CTimeUtilsTest::testDateWords(void) {
+void CTimeUtilsTest::testDateWords() {
     // These tests assume they're being run in an English speaking country
 
     LOG_DEBUG("Checking day of week abbreviations");

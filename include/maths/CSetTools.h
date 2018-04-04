@@ -41,7 +41,7 @@ public:
     //! of indices.
     class CIndexInSet {
     public:
-        typedef std::set<std::size_t> TSizeSet;
+        using TSizeSet = std::set<std::size_t>;
 
     public:
         CIndexInSet(std::size_t index) : m_IndexSet(index) {}
@@ -58,7 +58,7 @@ public:
         }
 
     private:
-        typedef boost::variant<std::size_t, TSizeSet> TSizeOrSizeSet;
+        using TSizeOrSizeSet = boost::variant<std::size_t, TSizeSet>;
 
     private:
         TSizeOrSizeSet m_IndexSet;

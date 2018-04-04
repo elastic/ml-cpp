@@ -40,7 +40,7 @@ const ml::core::CTimezone& DO_NOT_USE_THIS_VARIABLE = ml::core::CTimezone::insta
 namespace ml {
 namespace core {
 
-CTimezone::CTimezone(void) {
+CTimezone::CTimezone() {
     CScopedFastLock lock(m_Mutex);
 
     // We never want to use the Visual C++ runtime library's timezone switching
@@ -62,15 +62,15 @@ CTimezone::CTimezone(void) {
     } catch (std::exception& ex) { LOG_ERROR("Failed to load Boost timezone database from " << path << " : " << ex.what()); }
 }
 
-CTimezone::~CTimezone(void) {
+CTimezone::~CTimezone() {
 }
 
-CTimezone& CTimezone::instance(void) {
+CTimezone& CTimezone::instance() {
     static CTimezone instance;
     return instance;
 }
 
-const std::string& CTimezone::timezoneName(void) const {
+const std::string& CTimezone::timezoneName() const {
     CScopedFastLock lock(m_Mutex);
 
     return m_Name;
@@ -102,7 +102,7 @@ bool CTimezone::setTimezone(const std::string& timezone) {
     return CTimezone::instance().timezoneName(timezone);
 }
 
-std::string CTimezone::stdAbbrev(void) const {
+std::string CTimezone::stdAbbrev() const {
     CScopedFastLock lock(m_Mutex);
 
     if (m_Timezone == 0) {
@@ -112,7 +112,7 @@ std::string CTimezone::stdAbbrev(void) const {
     return m_Timezone->std_zone_abbrev();
 }
 
-std::string CTimezone::dstAbbrev(void) const {
+std::string CTimezone::dstAbbrev() const {
     CScopedFastLock lock(m_Mutex);
 
     if (m_Timezone == 0) {

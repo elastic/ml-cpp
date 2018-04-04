@@ -166,13 +166,13 @@ public:
     CPriorTestInterfaceMixin(const CPriorTestInterfaceMixin& other)
         : PRIOR(static_cast<const PRIOR&>(other)), CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {}
 
-    virtual ~CPriorTestInterfaceMixin(void) {}
+    virtual ~CPriorTestInterfaceMixin() {}
 
     //! Swap the contents efficiently.
     void swap(CPriorTestInterfaceMixin& other) { this->PRIOR::swap(other); }
 
     //! Clone the object.
-    virtual CPriorTestInterfaceMixin* clone(void) const { return new CPriorTestInterfaceMixin(*this); }
+    virtual CPriorTestInterfaceMixin* clone() const { return new CPriorTestInterfaceMixin(*this); }
 };
 
 //! \brief Kernel for checking normalization with CPrior::expectation.

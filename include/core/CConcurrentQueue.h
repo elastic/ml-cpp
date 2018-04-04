@@ -43,7 +43,7 @@ namespace core {
 template<typename T, size_t QUEUE_CAPACITY, size_t NOTIFY_CAPACITY = QUEUE_CAPACITY>
 class CConcurrentQueue final : private CNonCopyable {
 public:
-    CConcurrentQueue(void) : m_Queue(QUEUE_CAPACITY) {
+    CConcurrentQueue() : m_Queue(QUEUE_CAPACITY) {
         static_assert(NOTIFY_CAPACITY > 0, "NOTIFY_CAPACITY must be positive");
         static_assert(QUEUE_CAPACITY >= NOTIFY_CAPACITY, "QUEUE_CAPACITY cannot be less than NOTIFY_CAPACITY");
     }
@@ -111,7 +111,7 @@ public:
     }
 
     //! Get the memory used by this component.
-    std::size_t memoryUsage(void) const { return CMemory::dynamicSize(m_Queue); }
+    std::size_t memoryUsage() const { return CMemory::dynamicSize(m_Queue); }
 
     // ! Return the number of items currently in the queue
     size_t size() const { return m_Queue.size(); }

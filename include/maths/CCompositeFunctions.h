@@ -21,9 +21,8 @@
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 
+#include <cmath>
 #include <limits>
-
-#include <math.h>
 
 namespace ml {
 namespace maths {
@@ -37,35 +36,35 @@ struct function_result_type {};
 //! Vanilla function type 1: "result type" is the return type.
 template<typename R, typename A1>
 struct function_result_type<R (*)(A1)> {
-    typedef typename boost::remove_reference<R>::type type;
+    using type = typename boost::remove_reference<R>::type;
 };
 
 //! Vanilla function type 2: "result type" is the second argument type.
 template<typename R, typename A1, typename A2>
 struct function_result_type<R (*)(A1, A2)> {
-    typedef typename boost::remove_reference<A2>::type type;
+    using type = typename boost::remove_reference<A2>::type;
 };
 
-typedef boost::true_type true_;
-typedef boost::false_type false_;
+using true_ = boost::true_type;
+using false_ = boost::false_type;
 
 //! \brief Auxiliary type used by has_result_type to test for
 //! a nested typedef.
 template<typename T, typename R = void>
 struct enable_if_type {
-    typedef R type;
+    using type = R;
 };
 
 //! Checks for a nested typedef called result_type.
 template<typename T, typename ENABLE = void>
 struct has_result_type {
-    typedef false_ value;
+    using value = false_;
 };
 
 //! Has a nested typedef called result_type.
 template<typename T>
 struct has_result_type<T, typename enable_if_type<typename T::result_type>::type> {
-    typedef true_ value;
+    using value = true_;
 };
 
 //! Extracts the result type of a function (object) for composition.
@@ -78,13 +77,13 @@ struct result_type_impl {};
 //! define a nested typedef called result_type as per our compositions.
 template<typename F>
 struct result_type_impl<F, true_> {
-    typedef typename F::result_type type;
+    using type = typename F::result_type;
 };
 
 //! Deduce result type from function (object).
 template<typename F>
 struct result_type_impl<F, false_> {
-    typedef typename function_result_type<F>::type type;
+    using type = typename function_result_type<F>::type;
 };
 
 //! \brief Tries to deduce the result type of a function (object)
@@ -124,8 +123,8 @@ public:
     template<typename F_, typename T = typename composition_detail::result_type<F_>::type>
     class CMinusConstant {
     public:
-        typedef typename boost::remove_reference<F_>::type F;
-        typedef T result_type;
+        using F = typename boost::remove_reference<F_>::type;
+        using result_type = T;
 
     public:
         CMinusConstant(const F& f, double offset) : m_F(f), m_Offset(offset) {}
@@ -151,8 +150,8 @@ public:
     template<typename F_, typename T = typename composition_detail::result_type<F_>::type>
     class CMinus {
     public:
-        typedef typename boost::remove_reference<F_>::type F;
-        typedef T result_type;
+        using F = typename boost::remove_reference<F_>::type;
+        using result_type = T;
 
     public:
         explicit CMinus(const F& f = F()) : m_F(f) {}
@@ -177,24 +176,24 @@ public:
     template<typename F_, typename T = typename composition_detail::result_type<F_>::type>
     class CExp {
     public:
-        typedef typename boost::remove_reference<F_>::type F;
-        typedef T result_type;
+        using F = typename boost::remove_reference<F_>::type;
+        using result_type = T;
 
     public:
         explicit CExp(const F& f = F()) : m_F(f) {}
 
         //! For function returning value.
         inline T operator()(double x) const {
-            static const double LOG_MIN_DOUBLE = ::log(std::numeric_limits<double>::min());
+            static const double LOG_MIN_DOUBLE = std::log(std::numeric_limits<double>::min());
             double fx = m_F(x);
-            return fx < LOG_MIN_DOUBLE ? 0.0 : ::exp(fx);
+            return fx < LOG_MIN_DOUBLE ? 0.0 : std::exp(fx);
         }
 
         //! For function return success/fail and taking result as argument.
         inline bool operator()(double x, T& result) const {
-            static const double LOG_MIN_DOUBLE = ::log(std::numeric_limits<double>::min());
+            static const double LOG_MIN_DOUBLE = std::log(std::numeric_limits<double>::min());
             if (m_F(x, result)) {
-                result = result < LOG_MIN_DOUBLE ? 0.0 : ::exp(result);
+                result = result < LOG_MIN_DOUBLE ? 0.0 : std::exp(result);
                 return true;
             }
             return false;
@@ -211,9 +210,9 @@ public:
              typename V = typename composition_detail::result_type<G_>::type>
     class CProduct {
     public:
-        typedef typename boost::remove_reference<F_>::type F;
-        typedef typename boost::remove_reference<G_>::type G;
-        typedef U result_type;
+        using F = typename boost::remove_reference<F_>::type;
+        using G = typename boost::remove_reference<G_>::type;
+        using result_type = U;
 
     public:
         explicit CProduct(const F& f = F(), const G& g = G()) : m_F(f), m_G(g) {}
@@ -233,10 +232,10 @@ public:
         }
 
         //! Retrieve the component function f.
-        const F& f(void) const { return m_F; }
+        const F& f() const { return m_F; }
 
         //! Retrieve the component function g.
-        const G& g(void) const { return m_G; }
+        const G& g() const { return m_G; }
 
     private:
         F_ m_F;

@@ -26,7 +26,7 @@ CppUnit::Test* CJsonLogLayoutTest::suite() {
     return suiteOfTests;
 }
 
-void CJsonLogLayoutTest::testPathCropping(void) {
+void CJsonLogLayoutTest::testPathCropping() {
     LOG_DEBUG("CJsonLogLayoutTest::testPathCropping");
 #ifdef Windows
     CPPUNIT_ASSERT_EQUAL(std::string("source.h"), log4cxx::helpers::CJsonLogLayout::cropPath("c:\\\\home\\hendrik\\src\\include/source.h"));

@@ -36,8 +36,8 @@ namespace maths {
 //! \brief A collection of statistical tests and test statistics.
 class MATHS_EXPORT CStatisticalTests {
 public:
-    typedef std::vector<uint16_t> TUInt16Vec;
-    typedef std::vector<double> TDoubleVec;
+    using TUInt16Vec = std::vector<uint16_t>;
+    using TDoubleVec = std::vector<double>;
 
 public:
     //! Get the significance of a left tail F-test for \p x when
@@ -112,7 +112,7 @@ public:
 
         //! Get the mean test p-value for the observations
         //! to date.
-        double pValue(void) const;
+        double pValue() const;
 
         //! Age out old p-values of the test.
         void age(double factor);
@@ -130,7 +130,7 @@ public:
         static const double SCALE;
 
     private:
-        typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+        using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     private:
         //! The "count - 1" in the test statistic.

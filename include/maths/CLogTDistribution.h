@@ -41,15 +41,15 @@ namespace maths {
 //! distribution.
 class MATHS_EXPORT CLogTDistribution {
 public:
-    typedef std::pair<double, double> TDoubleDoublePr;
-    typedef boost::optional<double> TOptionalDouble;
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TOptionalDouble = boost::optional<double>;
 
 public:
     CLogTDistribution(double degreesFreedom, double location, double scale);
 
-    double degreesFreedom(void) const;
-    double location(void) const;
-    double scale(void) const;
+    double degreesFreedom() const;
+    double location() const;
+    double scale() const;
 
 private:
     double m_DegreesFreedom;

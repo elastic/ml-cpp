@@ -26,11 +26,11 @@ namespace config {
 CSpanTooSmallForBucketLengthPenalty::CSpanTooSmallForBucketLengthPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {
 }
 
-CSpanTooSmallForBucketLengthPenalty* CSpanTooSmallForBucketLengthPenalty::clone(void) const {
+CSpanTooSmallForBucketLengthPenalty* CSpanTooSmallForBucketLengthPenalty::clone() const {
     return new CSpanTooSmallForBucketLengthPenalty(*this);
 }
 
-std::string CSpanTooSmallForBucketLengthPenalty::name(void) const {
+std::string CSpanTooSmallForBucketLengthPenalty::name() const {
     return "span too small for bucket length";
 }
 

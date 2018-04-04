@@ -50,7 +50,7 @@ struct SSqrt<VectorTag> {
     template<typename VECTOR>
     static void calculate(std::size_t d, VECTOR& result) {
         for (std::size_t i = 0u; i < d; ++i) {
-            result(i) = ::sqrt(result(i));
+            result(i) = std::sqrt(result(i));
         }
     }
 };
@@ -61,7 +61,7 @@ struct SSqrt<MatrixTag> {
     static void calculate(std::size_t d, MATRIX& result) {
         for (std::size_t i = 0u; i < d; ++i) {
             for (std::size_t j = 0u; j <= i; ++j) {
-                result(i, j) = ::sqrt(result(i, j));
+                result(i, j) = std::sqrt(result(i, j));
             }
         }
     }
@@ -213,7 +213,7 @@ struct SFabs<VectorTag> {
     template<typename VECTOR>
     static void calculate(std::size_t d, VECTOR& result) {
         for (std::size_t i = 0u; i < d; ++i) {
-            result(i) = ::fabs(result(i));
+            result(i) = std::fabs(result(i));
         }
     }
 };
@@ -224,7 +224,7 @@ struct SFabs<MatrixTag> {
     static void calculate(std::size_t d, MATRIX& result) {
         for (std::size_t i = 0u; i < d; ++i) {
             for (std::size_t j = 0u; j <= i; ++j) {
-                result(i, j) = ::fabs(result(i, j));
+                result(i, j) = std::fabs(result(i, j));
             }
         }
     }
@@ -623,7 +623,7 @@ CSymmetricMatrix<T> fabs(const CSymmetricMatrix<T>& m) {
 //! Efficiently scale the \p i'th row and column by \p scale.
 template<typename T, std::size_t N>
 void scaleCovariances(std::size_t i, T scale, CSymmetricMatrixNxN<T, N>& m) {
-    scale = ::sqrt(scale);
+    scale = std::sqrt(scale);
     for (std::size_t j = 0u; j < m.columns(); ++j) {
         if (i == j) {
             m(i, j) *= scale;
@@ -643,7 +643,7 @@ void scaleCovariances(const CVectorNx1<T, N>& scale, CSymmetricMatrixNxN<T, N>& 
 //! Efficiently scale the \p i'th row and column by \p scale.
 template<typename T>
 void scaleCovariances(std::size_t i, T scale, CSymmetricMatrix<T>& m) {
-    scale = ::sqrt(scale);
+    scale = std::sqrt(scale);
     for (std::size_t j = 0u; j < m.columns(); ++j) {
         if (i == j) {
             m(i, j) = scale;

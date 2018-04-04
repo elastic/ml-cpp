@@ -21,13 +21,13 @@ namespace api {
 const COutputHandler::TStrVec COutputHandler::EMPTY_FIELD_NAMES;
 const COutputHandler::TStrStrUMap COutputHandler::EMPTY_FIELD_OVERRIDES;
 
-COutputHandler::COutputHandler(void) {
+COutputHandler::COutputHandler() {
 }
 
-COutputHandler::~COutputHandler(void) {
+COutputHandler::~COutputHandler() {
 }
 
-void COutputHandler::newOutputStream(void) {
+void COutputHandler::newOutputStream() {
     // NOOP unless overridden
 }
 
@@ -41,7 +41,7 @@ bool COutputHandler::writeRow(const TStrStrUMap& dataRowFields) {
     return this->writeRow(EMPTY_FIELD_OVERRIDES, dataRowFields);
 }
 
-void COutputHandler::finalise(void) {
+void COutputHandler::finalise() {
     // NOOP unless overridden
 }
 

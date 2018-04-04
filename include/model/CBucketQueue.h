@@ -41,11 +41,11 @@ namespace model {
 template<typename T>
 class CBucketQueue {
 public:
-    typedef boost::circular_buffer<T> TQueue;
-    typedef typename TQueue::value_type value_type;
-    typedef typename TQueue::iterator iterator;
-    typedef typename TQueue::const_iterator const_iterator;
-    typedef typename TQueue::const_reverse_iterator const_reverse_iterator;
+    using TQueue = boost::circular_buffer<T>;
+    using value_type = typename TQueue::value_type;
+    using iterator = typename TQueue::iterator;
+    using const_iterator = typename TQueue::const_iterator;
+    using const_reverse_iterator = typename TQueue::const_reverse_iterator;
 
 public:
     static const std::string BUCKET_TAG;
@@ -116,10 +116,10 @@ public:
     const T& get(core_t::TTime time) const { return m_Queue[this->index(time)]; }
 
     //! Returns the size of the queue.
-    std::size_t size(void) const { return m_Queue.size(); }
+    std::size_t size() const { return m_Queue.size(); }
 
     //! Is the queue empty?
-    bool empty(void) const { return m_Queue.empty(); }
+    bool empty() const { return m_Queue.empty(); }
 
     //! Removes all items from the queue and fills with initial values
     //! Note, the queue should never be empty.
@@ -134,33 +134,33 @@ public:
 
     //! Returns an iterator pointing to the latest bucket and directed
     //! towards the earlier buckets.
-    iterator begin(void) { return m_Queue.begin(); }
+    iterator begin() { return m_Queue.begin(); }
 
     //! Returns an iterator pointing to the end of the queue.
-    iterator end(void) { return m_Queue.end(); }
+    iterator end() { return m_Queue.end(); }
 
     //! Returns an iterator pointing to the latest bucket and directed
     //! towards the earlier buckets.
-    const_iterator begin(void) const { return m_Queue.begin(); }
+    const_iterator begin() const { return m_Queue.begin(); }
 
     //! Returns an iterator pointing to the end of the queue.
-    const_iterator end(void) const { return m_Queue.end(); }
+    const_iterator end() const { return m_Queue.end(); }
 
     //! Returns a reverse_iterator pointing to the earliest bucket and directed
     //! towards the later buckets.
-    const_reverse_iterator rbegin(void) const { return m_Queue.rbegin(); }
+    const_reverse_iterator rbegin() const { return m_Queue.rbegin(); }
 
     //! Returns an iterator pointing to the end of the "reversed" queue.
-    const_reverse_iterator rend(void) const { return m_Queue.rend(); }
+    const_reverse_iterator rend() const { return m_Queue.rend(); }
 
     //! Returns the item in the queue corresponding to the earliest bucket.
-    T& earliest(void) { return m_Queue.back(); }
+    T& earliest() { return m_Queue.back(); }
 
     //! Returns the item corresponding to the latest bucket.
-    T& latest(void) { return m_Queue.front(); }
+    T& latest() { return m_Queue.front(); }
 
     //! Returns the latest bucket end time, as tracked by the queue.
-    core_t::TTime latestBucketEnd(void) const { return m_LatestBucketEnd; }
+    core_t::TTime latestBucketEnd() const { return m_LatestBucketEnd; }
 
     //! Debug the memory used by this component.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
@@ -169,13 +169,13 @@ public:
     }
 
     //! Get the memory used by this component.
-    std::size_t memoryUsage(void) const { return core::CMemory::dynamicSize(m_Queue); }
+    std::size_t memoryUsage() const { return core::CMemory::dynamicSize(m_Queue); }
 
     //! Prints the contents of the queue.
-    std::string print(void) const { return core::CContainerPrinter::print(m_Queue); }
+    std::string print() const { return core::CContainerPrinter::print(m_Queue); }
 
     //! Return the configured bucketlength of this queue
-    core_t::TTime bucketLength(void) const { return m_BucketLength; }
+    core_t::TTime bucketLength() const { return m_BucketLength; }
 
     //! Generic persist interface that assumes the bucket items can
     //! be persisted by core::CPersistUtils

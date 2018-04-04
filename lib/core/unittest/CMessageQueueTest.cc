@@ -50,10 +50,10 @@ public:
         }
     }
 
-    size_t size(void) const { return m_Strings.size(); }
+    size_t size() const { return m_Strings.size(); }
 
 private:
-    typedef std::vector<std::string> TStrVec;
+    using TStrVec = std::vector<std::string>;
 
     TStrVec m_Strings;
 
@@ -61,7 +61,7 @@ private:
 };
 }
 
-void CMessageQueueTest::testSendReceive(void) {
+void CMessageQueueTest::testSendReceive() {
     CReceiver receiver;
 
     ml::core::CMessageQueue<std::string, CReceiver> queue(receiver);
@@ -83,7 +83,7 @@ void CMessageQueueTest::testSendReceive(void) {
     CPPUNIT_ASSERT_EQUAL(TEST_SIZE, receiver.size());
 }
 
-void CMessageQueueTest::testTiming(void) {
+void CMessageQueueTest::testTiming() {
     // Tell the receiver to delay processing by 29ms for each item (otherwise
     // it will be too fast to time on a modern computer).
     CReceiver receiver(29);

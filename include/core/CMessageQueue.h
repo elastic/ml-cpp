@@ -81,10 +81,10 @@ public:
           // buffer can have capacity zero.
           m_Readings((NUM_TO_TIME > 0) ? (NUM_TO_TIME + 1) : 0) {}
 
-    virtual ~CMessageQueue(void) {}
+    virtual ~CMessageQueue() {}
 
     //! Initialise - create the receiving thread
-    bool start(void) {
+    bool start() {
         CScopedLock lock(m_Mutex);
 
         if (m_Thread.start() == false) {
@@ -98,7 +98,7 @@ public:
     }
 
     //! Shutdown - kill thread
-    bool stop(void) {
+    bool stop() {
         m_Thread.stop();
 
         return true;
@@ -137,7 +137,7 @@ public:
     //! much more efficient to get this when dispatching a message, as
     //! everything can then be done under a single mutex lock.  This method
     //! must be used sparingly to avoid excessive lock contention.
-    size_t pending(void) const {
+    size_t pending() const {
         CScopedLock lock(m_Mutex);
 
         return m_Queue.size();
@@ -146,7 +146,7 @@ public:
     //! Get the average time taken to process the last N items (in
     //! seconds), where N was specified when timing was enabled.  A
     //! negative return value indicates an error.
-    double rollingAverageProcessingTime(void) const {
+    double rollingAverageProcessingTime() const {
         if (NUM_TO_TIME == 0) {
             LOG_ERROR("Message queue timing is not switched on");
 
@@ -171,7 +171,7 @@ public:
 
 private:
     //! No-op shutdown function if no other is provided
-    static void defaultShutdownFunc(void) {}
+    static void defaultShutdownFunc() {}
 
 private:
     class CMessageQueueThread : public CThread {
@@ -180,13 +180,13 @@ private:
             : m_MessageQueue(messageQueue), m_ShuttingDown(false), m_IsRunning(false) {}
 
         //! The queue must have the mutex for this to be called
-        bool isRunning(void) const {
+        bool isRunning() const {
             // Assumes lock
             return m_IsRunning;
         }
 
     protected:
-        void run(void) {
+        void run() {
             m_MessageQueue.m_Mutex.lock();
             m_MessageQueue.m_Condition.signal();
 
@@ -240,7 +240,7 @@ private:
             m_MessageQueue.m_Mutex.unlock();
         }
 
-        void shutdown(void) {
+        void shutdown() {
             CScopedLock lock(m_MessageQueue.m_Mutex);
 
             m_ShuttingDown = true;
@@ -279,7 +279,7 @@ private:
     CCondition m_Condition;
     RECEIVER& m_Receiver;
 
-    typedef std::queue<MESSAGE> TMessageQueue;
+    using TMessageQueue = std::queue<MESSAGE>;
 
     TMessageQueue m_Queue;
 
@@ -289,7 +289,7 @@ private:
     //! A stop watch for timing how long it takes to process messages
     CStopWatch m_StopWatch;
 
-    typedef boost::circular_buffer<uint64_t> TUIntCircBuf;
+    using TUIntCircBuf = boost::circular_buffer<uint64_t>;
 
     //! Stop watch readings
     TUIntCircBuf m_Readings;

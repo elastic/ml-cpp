@@ -37,7 +37,7 @@ void second_task() {
 }
 }
 
-void CThreadPoolTest::testPool(void) {
+void CThreadPoolTest::testPool() {
     // Create fifo thread pool container with two threads.
     boost::threadpool::pool tp(2);
 

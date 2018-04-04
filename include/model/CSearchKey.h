@@ -79,18 +79,18 @@ namespace model {
 //!
 class MODEL_EXPORT CSearchKey {
 public:
-    typedef std::vector<std::string> TStrVec;
-    typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
+    using TStrVec = std::vector<std::string>;
+    using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
 
     //! The type of a search key which mixes in the partition field
     //! value.
-    typedef std::pair<std::string, CSearchKey> TStrKeyPr;
+    using TStrKeyPr = std::pair<std::string, CSearchKey>;
 
     //! The type of a constant reference string search key pair.
     //!
     //! \note This is intended for map lookups when one doesn't want
     //! to copy the strings.
-    typedef std::pair<boost::reference_wrapper<const std::string>, boost::reference_wrapper<const CSearchKey>> TStrCRefKeyCRefPr;
+    using TStrCRefKeyCRefPr = std::pair<boost::reference_wrapper<const std::string>, boost::reference_wrapper<const CSearchKey>>;
 
 public:
     //! If the "by" field name is "count" then the key represents
@@ -143,64 +143,64 @@ public:
     bool operator<(const CSearchKey& rhs) const;
 
     //! Get an identifier for this search.
-    int identifier(void) const;
+    int identifier() const;
 
     //! Get the unique simple counting search key.
     //!
     //! Definition: the function is individual count and the "by"
     //! field name is "count".
-    static const CSearchKey& simpleCountKey(void);
+    static const CSearchKey& simpleCountKey();
 
     //! Does this key represent a simple counting search?
-    bool isSimpleCount(void) const;
+    bool isSimpleCount() const;
 
     //! Do the function and by field name identify a simple
     //! counting search.
     static bool isSimpleCount(function_t::EFunction function, const std::string& byFieldName);
 
     //! Is the function type for use with the individual models?
-    bool isMetric(void) const;
+    bool isMetric() const;
 
     //! Is the function type for use with the population models?
-    bool isPopulation(void) const;
+    bool isPopulation() const;
 
     //! Create a "cue" suitable to be used in persisted state.
-    std::string toCue(void) const;
+    std::string toCue() const;
 
     //! Debug representation.  Note that operator<<() is more efficient than
     //! generating this debug string and immediately outputting it to a
     //! stream.
-    std::string debug(void) const;
+    std::string debug() const;
 
     //! Get the function.
-    function_t::EFunction function(void) const;
+    function_t::EFunction function() const;
 
     //! Get whether to use null field values.
-    bool useNull(void) const;
+    bool useNull() const;
 
     //! Get the ExcludeFrequent setting
-    model_t::EExcludeFrequent excludeFrequent(void) const;
+    model_t::EExcludeFrequent excludeFrequent() const;
 
     //! Check if there is a field called \p name.
     bool hasField(const std::string& name) const;
 
     //! Get the value field name.
-    const std::string& fieldName(void) const;
+    const std::string& fieldName() const;
 
     //! Get the by field name.
-    const std::string& byFieldName(void) const;
+    const std::string& byFieldName() const;
 
     //! Get the over field name.
-    const std::string& overFieldName(void) const;
+    const std::string& overFieldName() const;
 
     //! Get the partition field name.
-    const std::string& partitionFieldName(void) const;
+    const std::string& partitionFieldName() const;
 
     //! Get the influence field names.
-    const TStoredStringPtrVec& influenceFieldNames(void) const;
+    const TStoredStringPtrVec& influenceFieldNames() const;
 
     //! Get a hash of the contents of this key.
-    uint64_t hash(void) const;
+    uint64_t hash() const;
 
 private:
     int m_Identifier;

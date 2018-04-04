@@ -29,6 +29,7 @@
 #include <boost/bind.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <string>
 #include <utility>
 #include <vector>
@@ -38,11 +39,11 @@ namespace maths {
 
 namespace {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 
 namespace detail {
 
@@ -68,7 +69,7 @@ double logLikelihoodFromCluster(const TDouble1Vec& sample, const CNormalMeanPrec
     if (status & maths_t::E_FpOverflowed) {
         return likelihood;
     }
-    return likelihood + ::log(normal.numberSamples());
+    return likelihood + std::log(normal.numberSamples());
 }
 
 } // detail::
@@ -100,7 +101,7 @@ bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& p
     return true;
 }
 
-std::string CKMeansOnline1d::persistenceTag(void) const {
+std::string CKMeansOnline1d::persistenceTag() const {
     return K_MEANS_ONLINE_1D_TAG;
 }
 
@@ -110,15 +111,15 @@ void CKMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserte
     }
 }
 
-CKMeansOnline1d* CKMeansOnline1d::clone(void) const {
+CKMeansOnline1d* CKMeansOnline1d::clone() const {
     return new CKMeansOnline1d(*this);
 }
 
-void CKMeansOnline1d::clear(void) {
+void CKMeansOnline1d::clear() {
     m_Clusters.clear();
 }
 
-std::size_t CKMeansOnline1d::numberClusters(void) const {
+std::size_t CKMeansOnline1d::numberClusters() const {
     return m_Clusters.size();
 }
 
@@ -152,7 +153,7 @@ bool CKMeansOnline1d::clusterSpread(std::size_t index, double& result) const {
         LOG_ERROR("Cluster " << index << " doesn't exist");
         return false;
     }
-    result = ::sqrt(m_Clusters[index].marginalLikelihoodVariance());
+    result = std::sqrt(m_Clusters[index].marginalLikelihoodVariance());
     return true;
 }
 
@@ -180,8 +181,8 @@ void CKMeansOnline1d::cluster(const double& point, TSizeDoublePr2Vec& result, do
         double likelihoodRight = detail::logLikelihoodFromCluster(sample, *rightCluster);
 
         double renormalizer = std::max(likelihoodLeft, likelihoodRight);
-        double pLeft = ::exp(likelihoodLeft - renormalizer);
-        double pRight = ::exp(likelihoodRight - renormalizer);
+        double pLeft = std::exp(likelihoodLeft - renormalizer);
+        double pRight = std::exp(likelihoodRight - renormalizer);
         double normalizer = pLeft + pRight;
         pLeft /= normalizer;
         pRight /= normalizer;
@@ -256,11 +257,11 @@ void CKMeansOnline1d::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
     core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
 }
 
-std::size_t CKMeansOnline1d::memoryUsage(void) const {
+std::size_t CKMeansOnline1d::memoryUsage() const {
     return core::CMemory::dynamicSize(m_Clusters);
 }
 
-std::size_t CKMeansOnline1d::staticSize(void) const {
+std::size_t CKMeansOnline1d::staticSize() const {
     return sizeof(*this);
 }
 

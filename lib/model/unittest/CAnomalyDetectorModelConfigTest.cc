@@ -27,7 +27,7 @@ using namespace ml;
 using namespace model;
 
 namespace {
-typedef std::vector<double> TDoubleVec;
+using TDoubleVec = std::vector<double>;
 
 const function_t::EFunction INDIVIDUAL_COUNT = function_t::E_IndividualCount;
 const function_t::EFunction INDIVIDUAL_METRIC = function_t::E_IndividualMetricMin;
@@ -35,7 +35,7 @@ const function_t::EFunction POPULATION_COUNT = function_t::E_PopulationCount;
 const function_t::EFunction POPULATION_METRIC = function_t::E_PopulationMetric;
 }
 
-void CAnomalyDetectorModelConfigTest::testNormal(void) {
+void CAnomalyDetectorModelConfigTest::testNormal() {
     {
         CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig(1800);
         CPPUNIT_ASSERT(config.init("testfiles/mlmodel.conf"));
@@ -109,7 +109,7 @@ void CAnomalyDetectorModelConfigTest::testNormal(void) {
     }
 }
 
-void CAnomalyDetectorModelConfigTest::testErrors(void) {
+void CAnomalyDetectorModelConfigTest::testErrors() {
     {
         CAnomalyDetectorModelConfig config1 = CAnomalyDetectorModelConfig::defaultConfig(1800);
         CPPUNIT_ASSERT(!config1.init("testfiles/invalidmlmodel.conf"));
@@ -201,7 +201,7 @@ void CAnomalyDetectorModelConfigTest::testErrors(void) {
     }
 }
 
-CppUnit::Test* CAnomalyDetectorModelConfigTest::suite(void) {
+CppUnit::Test* CAnomalyDetectorModelConfigTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnomalyDetectorModelConfigTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyDetectorModelConfigTest>("CAnomalyDetectorModelConfigTest::testNormal",

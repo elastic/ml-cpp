@@ -63,7 +63,7 @@ namespace api {
 
 // We use short field names to reduce the state size
 namespace {
-typedef boost::reference_wrapper<const std::string> TStrCRef;
+using TStrCRef = boost::reference_wrapper<const std::string>;
 
 //! Convert a (string, key) pair to something readable.
 template<typename T>
@@ -82,6 +82,10 @@ const std::string HIERARCHICAL_RESULTS_TAG("f");
 const std::string LATEST_RECORD_TIME_TAG("h");
 const std::string MODEL_PLOT_TAG("i");
 const std::string LAST_RESULTS_TIME_TAG("j");
+
+//! The minimum version required to read the state corresponding to a model snapshot.
+//! This should be updated every time there is a breaking change to the model state.
+const std::string MODEL_SNAPSHOT_MIN_VERSION("6.3.0");
 }
 
 // Statics
@@ -134,11 +138,11 @@ CAnomalyJob::~CAnomalyJob() {
     m_ForecastRunner.finishForecasts();
 }
 
-void CAnomalyJob::newOutputStream(void) {
+void CAnomalyJob::newOutputStream() {
     m_JsonOutputWriter.newOutputStream();
 }
 
-COutputHandler& CAnomalyJob::outputHandler(void) {
+COutputHandler& CAnomalyJob::outputHandler() {
     return m_JsonOutputWriter;
 }
 
@@ -224,7 +228,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
     return true;
 }
 
-void CAnomalyJob::finalise(void) {
+void CAnomalyJob::finalise() {
     // Persist final state of normalizer
     m_JsonOutputWriter.persistNormalizer(m_Normalizer, m_LastNormalizerPersistTime);
 
@@ -246,11 +250,11 @@ bool CAnomalyJob::initNormalizer(const std::string& quantilesStateFile) {
     return m_Normalizer.fromJsonStream(inputStream) == model::CHierarchicalResultsNormalizer::E_Ok;
 }
 
-uint64_t CAnomalyJob::numRecordsHandled(void) const {
+uint64_t CAnomalyJob::numRecordsHandled() const {
     return m_NumRecordsHandled;
 }
 
-void CAnomalyJob::description(void) const {
+void CAnomalyJob::description() const {
     if (m_Detectors.empty()) {
         return;
     }
@@ -273,7 +277,7 @@ void CAnomalyJob::description(void) const {
     }
 }
 
-void CAnomalyJob::descriptionAndDebugMemoryUsage(void) const {
+void CAnomalyJob::descriptionAndDebugMemoryUsage() const {
     if (m_Detectors.empty()) {
         LOG_INFO("No detectors");
         return;
@@ -346,6 +350,11 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
     case 'p':
         this->doForecast(controlMessage);
         break;
+    case 'w': {
+        if (m_PeriodicPersister != nullptr) {
+            m_PeriodicPersister->startBackgroundPersist();
+        }
+    } break;
     default:
         LOG_WARN("Ignoring unknown control message of length " << controlMessage.length() << " beginning with '" << controlMessage[0]
                                                                << '\'');
@@ -495,7 +504,7 @@ void CAnomalyJob::timeNow(core_t::TTime time) {
     }
 }
 
-core_t::TTime CAnomalyJob::effectiveBucketLength(void) const {
+core_t::TTime CAnomalyJob::effectiveBucketLength() const {
     return m_ModelConfig.bucketResultsDelay() ? m_ModelConfig.bucketLength() / 2 : m_ModelConfig.bucketLength();
 }
 
@@ -517,7 +526,7 @@ void CAnomalyJob::generateInterimResults(const std::string& controlMessage) {
 }
 
 bool CAnomalyJob::parseTimeRangeInControlMessage(const std::string& controlMessage, core_t::TTime& start, core_t::TTime& end) {
-    typedef core::CStringUtils::TStrVec TStrVec;
+    using TStrVec = core::CStringUtils::TStrVec;
     TStrVec tokens;
     std::string remainder;
     core::CStringUtils::tokenise(" ", controlMessage.substr(1, std::string::npos), tokens, remainder);
@@ -553,8 +562,8 @@ void CAnomalyJob::doForecast(const std::string& controlMessage) {
 }
 
 void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
-    typedef TKeyAnomalyDetectorPtrUMap::const_iterator TKeyAnomalyDetectorPtrUMapCItr;
-    typedef std::vector<TKeyAnomalyDetectorPtrUMapCItr> TKeyAnomalyDetectorPtrUMapCItrVec;
+    using TKeyAnomalyDetectorPtrUMapCItr = TKeyAnomalyDetectorPtrUMap::const_iterator;
+    using TKeyAnomalyDetectorPtrUMapCItrVec = std::vector<TKeyAnomalyDetectorPtrUMapCItr>;
 
     static uint64_t cumulativeTime = 0;
 
@@ -675,7 +684,7 @@ void CAnomalyJob::writeOutResults(bool interim,
         LOG_TRACE("Got results object here: " << results.root()->s_RawAnomalyScore << " / " << results.root()->s_NormalizedAnomalyScore
                                               << ", count " << results.resultCount() << " at " << bucketTime);
 
-        typedef ml::core::CScopedRapidJsonPoolAllocator<CJsonOutputWriter> TScopedAllocator;
+        using TScopedAllocator = ml::core::CScopedRapidJsonPoolAllocator<CJsonOutputWriter>;
         static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
         TScopedAllocator scopedAllocator(ALLOCATOR_ID, m_JsonOutputWriter);
 
@@ -1137,17 +1146,21 @@ bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
             }
 
             if (m_PersistCompleteFunc) {
-                m_PersistCompleteFunc(snapshotTimestamp,
-                                      descriptionPrefix + core::CTimeUtils::toIso8601(snapshotTimestamp),
-                                      snapShotId,
-                                      compressor.numCompressedDocs(),
-                                      modelSizeStats,
-                                      normalizerState,
-                                      latestRecordTime,
-                                      // This needs to be the last final result time as it serves
-                                      // as the time after which all results are deleted when a
-                                      // model snapshot is reverted
-                                      lastFinalisedBucketEnd - m_ModelConfig.bucketLength());
+                CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport{
+                    MODEL_SNAPSHOT_MIN_VERSION,
+                    snapshotTimestamp,
+                    descriptionPrefix + core::CTimeUtils::toIso8601(snapshotTimestamp),
+                    snapShotId,
+                    compressor.numCompressedDocs(),
+                    modelSizeStats,
+                    normalizerState,
+                    latestRecordTime,
+                    // This needs to be the last final result time as it serves
+                    // as the time after which all results are deleted when a
+                    // model snapshot is reverted
+                    lastFinalisedBucketEnd - m_ModelConfig.bucketLength()};
+
+                m_PersistCompleteFunc(modelSnapshotReport);
             }
         }
     } catch (std::exception& e) {
@@ -1271,7 +1284,7 @@ void CAnomalyJob::writeOutModelPlot(core_t::TTime resultsTime, CModelPlotDataJso
     }
 }
 
-void CAnomalyJob::refreshMemoryAndReport(void) {
+void CAnomalyJob::refreshMemoryAndReport() {
     // Make sure model size stats are up to date and then send a final memory
     // usage report
     for (const auto& detector_ : m_Detectors) {
@@ -1354,7 +1367,7 @@ const CAnomalyJob::TAnomalyDetectorPtr& CAnomalyJob::detectorForKey(bool isResto
     return itr->second;
 }
 
-void CAnomalyJob::pruneAllModels(void) {
+void CAnomalyJob::pruneAllModels() {
     LOG_INFO("Pruning all models");
 
     for (const auto& detector_ : m_Detectors) {

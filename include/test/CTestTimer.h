@@ -57,17 +57,17 @@ public:
     uint64_t timeForTest(const std::string& testName) const;
 
     //! Get the total time taken for all tests
-    uint64_t totalTime(void) const;
+    uint64_t totalTime() const;
 
     //! Get the average time taken for the tests
-    uint64_t averageTime(void) const;
+    uint64_t averageTime() const;
 
 private:
     //! Used to time each test
     core::CStopWatch m_StopWatch;
 
-    typedef std::map<std::string, uint64_t> TStrUInt64Map;
-    typedef TStrUInt64Map::const_iterator TStrUInt64MapCItr;
+    using TStrUInt64Map = std::map<std::string, uint64_t>;
+    using TStrUInt64MapCItr = TStrUInt64Map::const_iterator;
 
     //! Map of test name to time taken (in ms)
     TStrUInt64Map m_TestTimes;

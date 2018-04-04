@@ -45,8 +45,8 @@ public:
     static const std::string XML_HEADER;
 
 public:
-    CXmlParserIntf(void);
-    virtual ~CXmlParserIntf(void);
+    CXmlParserIntf();
+    virtual ~CXmlParserIntf();
 
     //! Parse XML stored in a string
     virtual bool parseString(const std::string& xml) = 0;
@@ -59,10 +59,10 @@ public:
     virtual bool parseBufferInSitu(char* begin, size_t length) = 0;
 
     //! Return the root element name (empty string if not parsed yet)
-    virtual std::string rootElementName(void) const = 0;
+    virtual std::string rootElementName() const = 0;
 
     //! Dump the document to string
-    virtual std::string dumpToString(void) const = 0;
+    virtual std::string dumpToString() const = 0;
 
     //! Convert the entire XML document into a hierarchy of node objects.
     //! This is much more efficient than making repeated calls to
@@ -84,10 +84,10 @@ public:
 
     //! Functions for navigating an XML document without converting it to a
     //! node hierarchy
-    virtual bool navigateRoot(void) = 0;
-    virtual bool navigateFirstChild(void) = 0;
-    virtual bool navigateNext(void) = 0;
-    virtual bool navigateParent(void) = 0;
+    virtual bool navigateRoot() = 0;
+    virtual bool navigateFirstChild() = 0;
+    virtual bool navigateNext() = 0;
+    virtual bool navigateParent() = 0;
     virtual bool currentNodeName(std::string& name) = 0;
     virtual bool currentNodeValue(std::string& value) = 0;
 

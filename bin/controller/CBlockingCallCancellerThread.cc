@@ -25,7 +25,7 @@ CBlockingCallCancellerThread::CBlockingCallCancellerThread(core::CThread::TThrea
     : m_PotentiallyBlockedThreadId(potentiallyBlockedThreadId), m_MonitorStream(monitorStream), m_Shutdown(false) {
 }
 
-void CBlockingCallCancellerThread::run(void) {
+void CBlockingCallCancellerThread::run() {
     char c;
     while (m_MonitorStream >> c) {
         if (m_Shutdown) {
@@ -38,7 +38,7 @@ void CBlockingCallCancellerThread::run(void) {
     }
 }
 
-void CBlockingCallCancellerThread::shutdown(void) {
+void CBlockingCallCancellerThread::shutdown() {
     m_Shutdown = true;
 
     // This is to wake up the stream reading in the run() method of this object.

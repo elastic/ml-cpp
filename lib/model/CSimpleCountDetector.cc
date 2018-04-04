@@ -41,11 +41,11 @@ CSimpleCountDetector::CSimpleCountDetector(bool isForPersistence, const CAnomaly
     : CAnomalyDetector(isForPersistence, other) {
 }
 
-bool CSimpleCountDetector::isSimpleCount(void) const {
+bool CSimpleCountDetector::isSimpleCount() const {
     return true;
 }
 
-void CSimpleCountDetector::pruneModels(void) {
+void CSimpleCountDetector::pruneModels() {
     return;
 }
 

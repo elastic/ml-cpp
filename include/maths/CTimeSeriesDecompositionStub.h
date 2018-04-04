@@ -32,16 +32,16 @@ namespace maths {
 class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositionInterface {
 public:
     //! Clone this decomposition.
-    virtual CTimeSeriesDecompositionStub* clone(void) const;
+    virtual CTimeSeriesDecompositionStub* clone() const;
 
     //! No-op.
     virtual void decayRate(double decayRate);
 
     //! Get the decay rate.
-    virtual double decayRate(void) const;
+    virtual double decayRate() const;
 
     //! Returns false.
-    virtual bool initialized(void) const;
+    virtual bool initialized() const;
 
     //! No-op returning false.
     virtual bool addPoint(core_t::TTime time,
@@ -71,7 +71,7 @@ public:
     virtual double detrend(core_t::TTime time, double value, double confidence) const;
 
     //! Returns 0.0.
-    virtual double meanVariance(void) const;
+    virtual double meanVariance() const;
 
     //! Returns (1.0, 1.0).
     virtual maths_t::TDoubleDoublePr scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
@@ -86,16 +86,16 @@ public:
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this object.
-    virtual std::size_t memoryUsage(void) const;
+    virtual std::size_t memoryUsage() const;
 
     //! Get the static size of this object.
-    virtual std::size_t staticSize(void) const;
+    virtual std::size_t staticSize() const;
 
     //! Get the seasonal components.
-    virtual const maths_t::TSeasonalComponentVec& seasonalComponents(void) const;
+    virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const;
 
     //! Returns 0.
-    virtual core_t::TTime lastValueTime(void) const;
+    virtual core_t::TTime lastValueTime() const;
 };
 }
 }

@@ -47,22 +47,22 @@ CppUnit::Test* CConfigUpdaterTest::suite() {
     return suiteOfTests;
 }
 
-void CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed(void) {
+void CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed() {
     CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
     CPPUNIT_ASSERT(configUpdater.update("this is invalid") == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenUnknownStanzas(void) {
+void CConfigUpdaterTest::testUpdateGivenUnknownStanzas() {
     CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
     CPPUNIT_ASSERT(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenModelPlotConfig(void) {
-    typedef model::CAnomalyDetectorModelConfig::TStrSet TStrSet;
+void CConfigUpdaterTest::testUpdateGivenModelPlotConfig() {
+    using TStrSet = model::CAnomalyDetectorModelConfig::TStrSet;
 
     CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
@@ -85,7 +85,7 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig(void) {
     CPPUNIT_ASSERT(terms.find(std::string("d")) != terms.end());
 }
 
-void CConfigUpdaterTest::testUpdateGivenDetectorRules(void) {
+void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
     CFieldConfig fieldConfig;
     std::string originalRules0("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
     originalRules0 += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
@@ -98,9 +98,8 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules(void) {
 
     std::string configUpdate0("[detectorRules]\ndetectorIndex = 0\nrulesJson = []\n");
     std::string configUpdate1("[detectorRules]\ndetectorIndex = 1\nrulesJson = "
-                              "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",\"conditions\":[{"
-                              "\"type\":\"numerical_typical\",\"condition\":{\"operator\":\"lt\",\"value\":\"15\"}}]}"
-                              "]");
+                              "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",\"conditions\":[{\"type\":\"numerical_"
+                              "typical\",\"condition\":{\"operator\":\"lt\",\"value\":\"15\"}}]}]");
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
@@ -114,7 +113,7 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF TYPICAL < 15.000000"), itr->second[0].print());
 }
 
-void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex(void) {
+void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex() {
     CFieldConfig fieldConfig;
     std::string originalRules("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
     originalRules += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
@@ -129,7 +128,7 @@ void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex(void) {
     CPPUNIT_ASSERT(configUpdater.update(configUpdate) == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenFilters(void) {
+void CConfigUpdaterTest::testUpdateGivenFilters() {
     CFieldConfig fieldConfig;
     fieldConfig.processFilter("filter.filter_1", "[\"aaa\",\"bbb\"]");
     fieldConfig.processFilter("filter.filter_2", "[\"ccc\",\"ddd\"]");
@@ -178,7 +177,7 @@ void CConfigUpdaterTest::testUpdateGivenFilters(void) {
     CPPUNIT_ASSERT(ruleFilters["filter_3"].contains("new"));
 }
 
-void CConfigUpdaterTest::testUpdateGivenScheduledEvents(void) {
+void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
     std::string validRule1 = "[{\"actions\":[\"filter_results\",\"skip_sampling\"],\"conditions_connective\":\"and\","
                              "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"1\"}},"
                              "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"2\"}}]}]";

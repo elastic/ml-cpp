@@ -40,7 +40,7 @@ CCountingModelFactory::CCountingModelFactory(const SModelParams& params,
       m_BucketResultsDelay(0) {
 }
 
-CCountingModelFactory* CCountingModelFactory::clone(void) const {
+CCountingModelFactory* CCountingModelFactory::clone() const {
     return new CCountingModelFactory(*this);
 }
 
@@ -112,7 +112,7 @@ CCountingModelFactory::TMultivariatePriorPtr CCountingModelFactory::defaultCorre
     return boost::make_shared<maths::CMultivariateConstantPrior>(2);
 }
 
-const CSearchKey& CCountingModelFactory::searchKey(void) const {
+const CSearchKey& CCountingModelFactory::searchKey() const {
     if (!m_SearchKeyCache) {
         m_SearchKeyCache.reset(CSearchKey(m_Identifier,
                                           function_t::function(m_Features),
@@ -126,15 +126,15 @@ const CSearchKey& CCountingModelFactory::searchKey(void) const {
     return *m_SearchKeyCache;
 }
 
-bool CCountingModelFactory::isSimpleCount(void) const {
+bool CCountingModelFactory::isSimpleCount() const {
     return CSearchKey::isSimpleCount(function_t::function(m_Features), m_PersonFieldName);
 }
 
-model_t::ESummaryMode CCountingModelFactory::summaryMode(void) const {
+model_t::ESummaryMode CCountingModelFactory::summaryMode() const {
     return m_SummaryMode;
 }
 
-maths_t::EDataType CCountingModelFactory::dataType(void) const {
+maths_t::EDataType CCountingModelFactory::dataType() const {
     return maths_t::E_IntegerData;
 }
 
@@ -167,7 +167,7 @@ void CCountingModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) {
     m_BucketResultsDelay = bucketResultsDelay;
 }
 
-CCountingModelFactory::TStrCRefVec CCountingModelFactory::partitioningFields(void) const {
+CCountingModelFactory::TStrCRefVec CCountingModelFactory::partitioningFields() const {
     TStrCRefVec result;
     result.reserve(2);
     if (!m_PartitionFieldName.empty()) {

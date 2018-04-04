@@ -43,7 +43,9 @@
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
 #include <api/CFieldDataTyper.h>
+#include <api/CJsonOutputWriter.h>
 #include <api/CLineifiedJsonInputParser.h>
+#include <api/CModelSnapshotJsonWriter.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 
@@ -70,14 +72,9 @@ std::string versionNumber() {
     return version;
 }
 
-void reportPersistComplete(ml::core_t::TTime /*snapshotTimestamp*/,
-                           const std::string& description,
-                           const std::string& /*snapshotIdIn*/,
-                           size_t /*numDocsIn*/,
-                           const ml::model::CResourceMonitor::SResults& /*results*/,
-                           const std::string& normalizerState) {
-    LOG_INFO("Persist complete with description: " << description);
-    persistedNormalizerState = normalizerState;
+void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport) {
+    LOG_INFO("Persist complete with description: " << modelSnapshotReport.s_Description);
+    persistedNormalizerState = modelSnapshotReport.s_NormalizerState;
 }
 
 bool writeNormalizerState(const std::string& outputFileName) {
@@ -162,7 +159,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
                                  fieldConfig,
                                  modelConfig,
                                  wrappedOutputStream,
-                                 boost::bind(&reportPersistComplete, _1, _2, _3, _4, _5, _6),
+                                 boost::bind(&reportPersistComplete, _1),
                                  nullptr,
                                  -1,
                                  "time",

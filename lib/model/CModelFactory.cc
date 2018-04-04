@@ -147,7 +147,7 @@ CModelFactory::TMultivariatePriorPtr CModelFactory::defaultCorrelatePrior(model_
     return this->defaultCorrelatePrior(feature, m_ModelParams);
 }
 
-maths::CMultinomialConjugate CModelFactory::defaultCategoricalPrior(void) const {
+maths::CMultinomialConjugate CModelFactory::defaultCategoricalPrior() const {
     return maths::CMultinomialConjugate::nonInformativePrior(boost::numeric::bounds<std::size_t>::highest(), m_ModelParams.s_DecayRate);
 }
 
@@ -247,15 +247,15 @@ void CModelFactory::componentSize(std::size_t componentSize) {
     m_ModelParams.s_ComponentSize = componentSize;
 }
 
-double CModelFactory::minimumModeFraction(void) const {
+double CModelFactory::minimumModeFraction() const {
     return m_ModelParams.s_MinimumModeFraction;
 }
 
-double CModelFactory::minimumModeCount(void) const {
+double CModelFactory::minimumModeCount() const {
     return m_ModelParams.s_MinimumModeCount;
 }
 
-std::size_t CModelFactory::componentSize(void) const {
+std::size_t CModelFactory::componentSize() const {
     return m_ModelParams.s_ComponentSize;
 }
 
@@ -328,7 +328,7 @@ CModelFactory::TMultivariatePriorPtr CModelFactory::latLongPrior(const SModelPar
                                                                       *modePrior);
 }
 
-const SModelParams& CModelFactory::modelParams(void) const {
+const SModelParams& CModelFactory::modelParams() const {
     return m_ModelParams;
 }
 

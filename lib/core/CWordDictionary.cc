@@ -79,7 +79,7 @@ const char* CWordDictionary::DICTIONARY_FILE("ml-en.dict");
 CFastMutex CWordDictionary::ms_LoadMutex;
 volatile CWordDictionary* CWordDictionary::ms_Instance(0);
 
-const CWordDictionary& CWordDictionary::instance(void) {
+const CWordDictionary& CWordDictionary::instance() {
     if (ms_Instance == 0) {
         CScopedFastLock lock(ms_LoadMutex);
 
@@ -108,7 +108,7 @@ CWordDictionary::EPartOfSpeech CWordDictionary::partOfSpeech(const std::string& 
     return iter->second;
 }
 
-CWordDictionary::CWordDictionary(void) {
+CWordDictionary::CWordDictionary() {
     std::string fileToLoad(CResourceLocator::resourceDir() + '/' + DICTIONARY_FILE);
 
     // If the file can't be read for some reason, we just end up with an empty
@@ -152,7 +152,7 @@ CWordDictionary::CWordDictionary(void) {
     }
 }
 
-CWordDictionary::~CWordDictionary(void) {
+CWordDictionary::~CWordDictionary() {
     ms_Instance = 0;
 }
 

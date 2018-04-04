@@ -79,10 +79,10 @@ protected:
         void swap(CPackedSplines& other);
 
         //! Check if the splines have been initialized.
-        bool initialized(void) const;
+        bool initialized() const;
 
         //! Clear the splines.
-        void clear(void);
+        void clear();
 
         //! Shift the spline values by \p shift.
         void shift(ESpline spline, double shift);
@@ -94,7 +94,7 @@ protected:
         TSplineRef spline(ESpline spline);
 
         //! Get the splines' knot points.
-        const TFloatVec& knots(void) const;
+        const TFloatVec& knots() const;
 
         //! Interpolate the value and variance functions on \p knots.
         void interpolate(const TDoubleVec& knots,
@@ -109,7 +109,7 @@ protected:
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
         //! Get the memory used by these splines.
-        std::size_t memoryUsage(void) const;
+        std::size_t memoryUsage() const;
 
     private:
         //! The splines' types.
@@ -138,10 +138,10 @@ protected:
     void swap(CDecompositionComponent& other);
 
     //! Check if the seasonal component has been estimated.
-    bool initialized(void) const;
+    bool initialized() const;
 
     //! Clear all data.
-    void clear(void);
+    void clear();
 
     //! Update the interpolation of the bucket values.
     //!
@@ -162,7 +162,7 @@ protected:
     TDoubleDoublePr value(double offset, double n, double confidence) const;
 
     //! Get the mean value of the function.
-    double meanValue(void) const;
+    double meanValue() const;
 
     //! Get the variance of the residual about the function at \p time.
     //!
@@ -173,26 +173,26 @@ protected:
     TDoubleDoublePr variance(double offset, double n, double confidence) const;
 
     //! Get the mean variance of the function residuals.
-    double meanVariance(void) const;
+    double meanVariance() const;
 
     //! Get the maximum ratio between a residual variance and the mean
     //! residual variance.
-    double heteroscedasticity(void) const;
+    double heteroscedasticity() const;
 
     //! Get the maximum size to use for the bucketing.
-    std::size_t maxSize(void) const;
+    std::size_t maxSize() const;
 
     //! Get the boundary condition to use when interpolating.
-    CSplineTypes::EBoundaryCondition boundaryCondition(void) const;
+    CSplineTypes::EBoundaryCondition boundaryCondition() const;
 
     //! Get the value spline.
-    TSplineCRef valueSpline(void) const;
+    TSplineCRef valueSpline() const;
 
     //! Get the variance spline.
-    TSplineCRef varianceSpline(void) const;
+    TSplineCRef varianceSpline() const;
 
     //! Get the underlying splines representation.
-    const CPackedSplines& splines(void) const;
+    const CPackedSplines& splines() const;
 
     //! Get a checksum for this object.
     uint64_t checksum(uint64_t seed) const;

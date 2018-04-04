@@ -34,9 +34,9 @@ namespace maths {
 namespace {
 namespace detail {
 
-typedef std::vector<uint8_t> TUInt8Vec;
-typedef TUInt8Vec::iterator TUInt8VecItr;
-typedef TUInt8Vec::const_iterator TUInt8VecCItr;
+using TUInt8Vec = std::vector<uint8_t>;
+using TUInt8VecItr = TUInt8Vec::iterator;
+using TUInt8VecCItr = TUInt8Vec::const_iterator;
 
 //! Convert the decomposition of the hash into two 8 bit integers
 //! bask into the original hash value.
@@ -46,7 +46,7 @@ inline uint16_t from8Bit(uint8_t leading, uint8_t trailing) {
     return static_cast<uint16_t>((static_cast<unsigned int>(leading) << 8) + trailing);
 }
 
-typedef std::pair<uint8_t, uint8_t> TUInt8UInt8Pr;
+using TUInt8UInt8Pr = std::pair<uint8_t, uint8_t>;
 
 //! \brief Random access iterator wrapper for B set iterator.
 //!
@@ -61,26 +61,26 @@ typedef std::pair<uint8_t, uint8_t> TUInt8UInt8Pr;
 //! \endcode
 // clang-format off
 class CHashIterator : public std::iterator<std::random_access_iterator_tag, uint16_t>,
-                      private boost::less_than_comparable< CHashIterator,
-                              boost::addable<CHashIterator, ptrdiff_t, 
-                              boost::subtractable<CHashIterator, ptrdiff_t > > > {
+                      private boost::less_than_comparable<CHashIterator,
+                              boost::addable<CHashIterator, ptrdiff_t,
+                              boost::subtractable<CHashIterator, ptrdiff_t>> > {
     // clang-format on
 public:
     //! The STL that comes with g++ requires a default constructor - this
     //! will create an object that's suitable only to be assigned to, which
     //! is hopefully all g++'s STL does with it!
-    CHashIterator(void) : m_Itr() {}
+    CHashIterator() : m_Itr() {}
 
     CHashIterator(TUInt8VecItr itr) : m_Itr(itr) {}
 
-    TUInt8VecItr base(void) const { return m_Itr; }
+    TUInt8VecItr base() const { return m_Itr; }
 
     bool operator==(CHashIterator other) const { return m_Itr == other.m_Itr; }
     bool operator!=(CHashIterator other) const { return m_Itr != other.m_Itr; }
     bool operator<(CHashIterator other) const { return m_Itr < other.m_Itr; }
 
-    uint16_t operator*(void)const { return from8Bit(*m_Itr, *(m_Itr + 1)); }
-    const CHashIterator& operator++(void) {
+    uint16_t operator*() const { return from8Bit(*m_Itr, *(m_Itr + 1)); }
+    const CHashIterator& operator++() {
         m_Itr += 3;
         return *this;
     }
@@ -89,7 +89,7 @@ public:
         m_Itr += 3;
         return result;
     }
-    const CHashIterator& operator--(void) {
+    const CHashIterator& operator--() {
         m_Itr -= 3;
         return *this;
     }
@@ -182,7 +182,7 @@ void prune(TUInt8Vec& b, uint8_t z) {
 
 } // detail::
 
-typedef boost::optional<std::size_t> TOptionalSize;
+using TOptionalSize = boost::optional<std::size_t>;
 
 const char DELIMITER(':');
 const char PAIR_DELIMITER(';');
@@ -374,7 +374,7 @@ void CBjkstUniqueValues::remove(uint32_t value) {
     }
 }
 
-uint32_t CBjkstUniqueValues::number(void) const {
+uint32_t CBjkstUniqueValues::number() const {
     const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values == 0) {
         try {
@@ -418,7 +418,7 @@ void CBjkstUniqueValues::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr me
     }
 }
 
-std::size_t CBjkstUniqueValues::memoryUsage(void) const {
+std::size_t CBjkstUniqueValues::memoryUsage() const {
     std::size_t mem = 0;
     const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values) {
@@ -436,7 +436,7 @@ std::size_t CBjkstUniqueValues::memoryUsage(void) const {
     return mem;
 }
 
-void CBjkstUniqueValues::sketch(void) {
+void CBjkstUniqueValues::sketch() {
     static const std::size_t UINT8_SIZE = sizeof(uint8_t);
     static const std::size_t UINT32_SIZE = sizeof(uint32_t);
     static const std::size_t HASH_SIZE = sizeof(core::CHashing::CUniversalHash::CUInt32UnrestrictedHash);
@@ -470,7 +470,7 @@ void CBjkstUniqueValues::sketch(void) {
     }
 }
 
-CBjkstUniqueValues::SSketch::SSketch(void) {
+CBjkstUniqueValues::SSketch::SSketch() {
 }
 
 CBjkstUniqueValues::SSketch::SSketch(std::size_t numberHashes) {
@@ -571,8 +571,8 @@ void CBjkstUniqueValues::SSketch::remove(uint32_t value) {
     }
 }
 
-uint32_t CBjkstUniqueValues::SSketch::number(void) const {
-    typedef std::vector<uint32_t> TUInt32Vec;
+uint32_t CBjkstUniqueValues::SSketch::number() const {
+    using TUInt32Vec = std::vector<uint32_t>;
 
     // This uses the median trick to reduce the error.
 

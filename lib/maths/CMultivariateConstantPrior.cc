@@ -35,15 +35,13 @@
 #include <limits>
 #include <sstream>
 
-#include <math.h>
-
 namespace ml {
 namespace maths {
 
 namespace {
 
-typedef core::CSmallVector<double, 10> TDouble10Vec;
-typedef boost::optional<TDouble10Vec> TOptionalDouble10Vec;
+using TDouble10Vec = core::CSmallVector<double, 10>;
+using TOptionalDouble10Vec = boost::optional<TDouble10Vec>;
 
 //! \brief Converts a constant value to a string.
 class CConstantToString {
@@ -90,11 +88,11 @@ bool CMultivariateConstantPrior::acceptRestoreTraverser(core::CStateRestoreTrave
     return true;
 }
 
-CMultivariateConstantPrior* CMultivariateConstantPrior::clone(void) const {
+CMultivariateConstantPrior* CMultivariateConstantPrior::clone() const {
     return new CMultivariateConstantPrior(*this);
 }
 
-std::size_t CMultivariateConstantPrior::dimension(void) const {
+std::size_t CMultivariateConstantPrior::dimension() const {
     return m_Dimension;
 }
 
@@ -166,7 +164,7 @@ CMultivariateConstantPrior::TPriorPtrDoublePr CMultivariateConstantPrior::bivari
     return TPriorPtrDoublePr(TPriorPtr(new CMultivariateConstantPrior(2)), 0.0);
 }
 
-CMultivariateConstantPrior::TDouble10VecDouble10VecPr CMultivariateConstantPrior::marginalLikelihoodSupport(void) const {
+CMultivariateConstantPrior::TDouble10VecDouble10VecPr CMultivariateConstantPrior::marginalLikelihoodSupport() const {
     TDouble10Vec lowest(m_Dimension);
     TDouble10Vec highest(m_Dimension);
     for (std::size_t i = 0u; i < m_Dimension; ++i) {
@@ -176,7 +174,7 @@ CMultivariateConstantPrior::TDouble10VecDouble10VecPr CMultivariateConstantPrior
     return std::make_pair(lowest, highest);
 }
 
-CMultivariateConstantPrior::TDouble10Vec CMultivariateConstantPrior::marginalLikelihoodMean(void) const {
+CMultivariateConstantPrior::TDouble10Vec CMultivariateConstantPrior::marginalLikelihoodMean() const {
     if (this->isNonInformative()) {
         return TDouble10Vec(m_Dimension, 0.0);
     }
@@ -189,7 +187,7 @@ CMultivariateConstantPrior::TDouble10Vec CMultivariateConstantPrior::marginalLik
     return this->marginalLikelihoodMean();
 }
 
-CMultivariateConstantPrior::TDouble10Vec10Vec CMultivariateConstantPrior::marginalLikelihoodCovariance(void) const {
+CMultivariateConstantPrior::TDouble10Vec10Vec CMultivariateConstantPrior::marginalLikelihoodCovariance() const {
     TDouble10Vec10Vec result(m_Dimension, TDouble10Vec(m_Dimension, 0.0));
     if (this->isNonInformative()) {
         for (std::size_t i = 0u; i < m_Dimension; ++i) {
@@ -199,7 +197,7 @@ CMultivariateConstantPrior::TDouble10Vec10Vec CMultivariateConstantPrior::margin
     return result;
 }
 
-CMultivariateConstantPrior::TDouble10Vec CMultivariateConstantPrior::marginalLikelihoodVariances(void) const {
+CMultivariateConstantPrior::TDouble10Vec CMultivariateConstantPrior::marginalLikelihoodVariances() const {
     return TDouble10Vec(m_Dimension, this->isNonInformative() ? boost::numeric::bounds<double>::highest() : 0.0);
 }
 
@@ -263,7 +261,7 @@ void CMultivariateConstantPrior::sampleMarginalLikelihood(std::size_t numberSamp
     samples.resize(numberSamples, *m_Constant);
 }
 
-bool CMultivariateConstantPrior::isNonInformative(void) const {
+bool CMultivariateConstantPrior::isNonInformative() const {
     return !m_Constant;
 }
 
@@ -282,11 +280,11 @@ void CMultivariateConstantPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsa
     core::CMemoryDebug::dynamicSize("m_Constant", m_Constant, mem);
 }
 
-std::size_t CMultivariateConstantPrior::memoryUsage(void) const {
+std::size_t CMultivariateConstantPrior::memoryUsage() const {
     return core::CMemory::dynamicSize(m_Constant);
 }
 
-std::size_t CMultivariateConstantPrior::staticSize(void) const {
+std::size_t CMultivariateConstantPrior::staticSize() const {
     return sizeof(*this);
 }
 
@@ -296,11 +294,11 @@ void CMultivariateConstantPrior::acceptPersistInserter(core::CStatePersistInsert
     }
 }
 
-std::string CMultivariateConstantPrior::persistenceTag(void) const {
+std::string CMultivariateConstantPrior::persistenceTag() const {
     return CONSTANT_TAG + core::CStringUtils::typeToString(m_Dimension);
 }
 
-const CMultivariateConstantPrior::TOptionalDouble10Vec& CMultivariateConstantPrior::constant(void) const {
+const CMultivariateConstantPrior::TOptionalDouble10Vec& CMultivariateConstantPrior::constant() const {
     return m_Constant;
 }
 }

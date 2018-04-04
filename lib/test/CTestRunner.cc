@@ -66,7 +66,7 @@ CTestRunner::CTestRunner(int argc, const char** argv) {
     this->processCmdLine(argc, argv);
 }
 
-CTestRunner::~CTestRunner(void) {
+CTestRunner::~CTestRunner() {
 }
 
 void CTestRunner::processCmdLine(int argc, const char** argv) {
@@ -121,7 +121,7 @@ void CTestRunner::processCmdLine(int argc, const char** argv) {
     }
 }
 
-bool CTestRunner::runTests(void) {
+bool CTestRunner::runTests() {
     boost::filesystem::path cwd;
     try {
         cwd = boost::filesystem::current_path();

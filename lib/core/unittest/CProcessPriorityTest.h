@@ -19,7 +19,7 @@
 
 class CProcessPriorityTest : public CppUnit::TestFixture {
 public:
-    void testReducePriority(void);
+    void testReducePriority();
 
     static CppUnit::Test* suite();
 };

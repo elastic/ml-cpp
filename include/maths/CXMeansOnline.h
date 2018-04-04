@@ -38,6 +38,7 @@
 
 #include <boost/iterator/counting_iterator.hpp>
 
+#include <cmath>
 #include <cstddef>
 #include <vector>
 
@@ -82,28 +83,28 @@ namespace maths {
 template<typename T, std::size_t N>
 class CXMeansOnline : public CClusterer<CVectorNx1<T, N>> {
 public:
-    typedef CVectorNx1<T, N> TPoint;
-    typedef std::vector<TPoint> TPointVec;
-    typedef typename CClusterer<TPoint>::TPointPrecise TPointPrecise;
-    typedef typename CClusterer<TPoint>::TPointPreciseVec TPointPreciseVec;
-    typedef typename CClusterer<TPoint>::TPointPreciseDoublePrVec TPointPreciseDoublePrVec;
-    typedef typename CClusterer<TPoint>::TSizeDoublePr TSizeDoublePr;
-    typedef typename CClusterer<TPoint>::TSizeDoublePr2Vec TSizeDoublePr2Vec;
-    typedef std::vector<double> TDoubleVec;
-    typedef std::vector<TDoubleVec> TDoubleVecVec;
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
-    typedef typename SPromoted<T>::Type TPrecise;
-    typedef CSymmetricMatrixNxN<TPrecise, N> TMatrixPrecise;
-    typedef CBasicStatistics::SSampleCovariances<TPrecise, N> TCovariances;
-    typedef typename CSphericalCluster<TPoint>::Type TSphericalCluster;
-    typedef std::vector<TSphericalCluster> TSphericalClusterVec;
-    typedef std::vector<TSphericalClusterVec> TSphericalClusterVecVec;
-    typedef CKMeansOnline<TPoint> TKMeansOnline;
-    typedef std::vector<TKMeansOnline> TKMeansOnlineVec;
+    using TPoint = CVectorNx1<T, N>;
+    using TPointVec = std::vector<TPoint>;
+    using TPointPrecise = typename CClusterer<TPoint>::TPointPrecise;
+    using TPointPreciseVec = typename CClusterer<TPoint>::TPointPreciseVec;
+    using TPointPreciseDoublePrVec = typename CClusterer<TPoint>::TPointPreciseDoublePrVec;
+    using TSizeDoublePr = typename CClusterer<TPoint>::TSizeDoublePr;
+    using TSizeDoublePr2Vec = typename CClusterer<TPoint>::TSizeDoublePr2Vec;
+    using TDoubleVec = std::vector<double>;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecVec = std::vector<TSizeVec>;
+    using TPrecise = typename SPromoted<T>::Type;
+    using TMatrixPrecise = CSymmetricMatrixNxN<TPrecise, N>;
+    using TCovariances = CBasicStatistics::SSampleCovariances<TPrecise, N>;
+    using TSphericalCluster = typename CSphericalCluster<TPoint>::Type;
+    using TSphericalClusterVec = std::vector<TSphericalCluster>;
+    using TSphericalClusterVecVec = std::vector<TSphericalClusterVec>;
+    using TKMeansOnline = CKMeansOnline<TPoint>;
+    using TKMeansOnlineVec = std::vector<TKMeansOnline>;
     class CCluster;
-    typedef std::pair<CCluster, CCluster> TClusterClusterPr;
-    typedef boost::optional<TClusterClusterPr> TOptionalClusterClusterPr;
+    using TClusterClusterPr = std::pair<CCluster, CCluster>;
+    using TOptionalClusterClusterPr = boost::optional<TClusterClusterPr>;
 
     //! \brief Represents a cluster.
     class CCluster {
@@ -172,31 +173,31 @@ public:
 
         //! Propagate the cluster forwards by \p time.
         void propagateForwardsByTime(double time) {
-            double alpha = ::exp(-this->scaledDecayRate() * time);
+            double alpha = std::exp(-this->scaledDecayRate() * time);
             m_Covariances.age(alpha);
             m_Structure.age(alpha);
         }
 
         //! Get the unique index of this cluster.
-        std::size_t index(void) const { return m_Index; }
+        std::size_t index() const { return m_Index; }
 
         //! Get the centre of the cluster.
         //!
         //! This is defined as the sample mean.
-        const TPointPrecise& centre(void) const { return CBasicStatistics::mean(m_Covariances); }
+        const TPointPrecise& centre() const { return CBasicStatistics::mean(m_Covariances); }
 
         //! Get the spread of the cluster.
         //!
         //! This is defined as the trace of the sample covariance matrix.
-        double spread(void) const {
-            return ::sqrt(CBasicStatistics::maximumLikelihoodCovariances(m_Covariances).trace() / static_cast<double>(N));
+        double spread() const {
+            return std::sqrt(CBasicStatistics::maximumLikelihoodCovariances(m_Covariances).trace() / static_cast<double>(N));
         }
 
         //! Get the sample covariance matrix this cluster.
-        const TCovariances& covariances(void) const { return m_Covariances; }
+        const TCovariances& covariances() const { return m_Covariances; }
 
         //! Get the total count of values added to the cluster.
-        double count(void) const { return CBasicStatistics::count(m_Covariances); }
+        double count() const { return CBasicStatistics::count(m_Covariances); }
 
         //! Get the weight of the cluster.
         double weight(maths_t::EClusterWeightCalc calc) const {
@@ -223,7 +224,7 @@ public:
             if (status & maths_t::E_FpOverflowed) {
                 return likelihood;
             }
-            return likelihood + ::log(this->weight(calc));
+            return likelihood + std::log(this->weight(calc));
         }
 
         //! Get \p numberSamples from this cluster.
@@ -320,7 +321,7 @@ public:
         }
 
         //! Get the memory used by this component.
-        std::size_t memoryUsage(void) const { return core::CMemory::dynamicSize(m_Structure); }
+        std::size_t memoryUsage() const { return core::CMemory::dynamicSize(m_Structure); }
 
         //! Get Bayes Information Criterion decrease in going from one
         //! to two clusters.
@@ -506,7 +507,7 @@ public:
 
     private:
         //! Get the scaled decay rate for use by propagateForwardsByTime.
-        double scaledDecayRate(void) const { return ::pow(0.5, static_cast<double>(N)) * m_DecayRate; }
+        double scaledDecayRate() const { return std::pow(0.5, static_cast<double>(N)) * m_DecayRate; }
 
     private:
         //! A unique identifier for this cluster.
@@ -525,9 +526,9 @@ public:
         TKMeansOnline m_Structure;
     };
 
-    typedef std::vector<CCluster> TClusterVec;
-    typedef typename TClusterVec::iterator TClusterVecItr;
-    typedef typename TClusterVec::const_iterator TClusterVecCItr;
+    using TClusterVec = std::vector<CCluster>;
+    using TClusterVecItr = typename TClusterVec::iterator;
+    using TClusterVecCItr = typename TClusterVec::const_iterator;
 
 public:
     //! \name Life-cycle
@@ -622,7 +623,7 @@ public:
     }
     //@}
 
-    virtual ~CXMeansOnline(void) {}
+    virtual ~CXMeansOnline() {}
 
     //! Efficiently swap the contents of two k-means objects.
     void swap(CXMeansOnline& other) {
@@ -643,7 +644,7 @@ public:
     //! \name Clusterer Contract
     //@{
     //! Get the tag name for this clusterer.
-    virtual std::string persistenceTag(void) const { return CClustererTypes::X_MEANS_ONLINE_TAG; }
+    virtual std::string persistenceTag() const { return CClustererTypes::X_MEANS_ONLINE_TAG; }
 
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -663,10 +664,10 @@ public:
     //! Creates a copy of the clusterer.
     //!
     //! \warning Caller owns returned object.
-    virtual CXMeansOnline* clone(void) const { return new CXMeansOnline(*this); }
+    virtual CXMeansOnline* clone() const { return new CXMeansOnline(*this); }
 
     //! Clear the current clusterer state.
-    virtual void clear(void) {
+    virtual void clear() {
         *this = CXMeansOnline(m_DataType,
                               m_WeightCalc,
                               m_InitialDecayRate,
@@ -678,7 +679,7 @@ public:
     }
 
     //! Get the number of clusters.
-    virtual std::size_t numberClusters(void) const { return m_Clusters.size(); }
+    virtual std::size_t numberClusters() const { return m_Clusters.size(); }
 
     //! Set the type of data being clustered.
     virtual void dataType(maths_t::EDataType dataType) {
@@ -755,7 +756,7 @@ public:
         }
         double normalizer = 0.0;
         for (std::size_t i = 0u; i < result.size(); ++i) {
-            result[i].second = ::exp(result[i].second - renormalizer);
+            result[i].second = std::exp(result[i].second - renormalizer);
             normalizer += result[i].second;
         }
         double pmax = 0.0;
@@ -786,8 +787,8 @@ public:
                 this->cluster(x, clusters, count);
             }
         } else {
-            typedef std::pair<double, std::size_t> TSizeDoublePr;
-            typedef CBasicStatistics::COrderStatisticsStack<TSizeDoublePr, 2, std::greater<TSizeDoublePr>> TMaxAccumulator;
+            using TSizeDoublePr = std::pair<double, std::size_t>;
+            using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<TSizeDoublePr, 2, std::greater<TSizeDoublePr>>;
 
             TMaxAccumulator closest;
             for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
@@ -801,7 +802,7 @@ public:
 
             // Normalize the likelihood values.
             double p0 = 1.0;
-            double p1 = ::exp(likelihood1 - likelihood0);
+            double p1 = std::exp(likelihood1 - likelihood0);
             double normalizer = p0 + p1;
             p0 /= normalizer;
             p1 /= normalizer;
@@ -863,7 +864,7 @@ public:
             LOG_ERROR("Can't propagate backwards in time");
             return;
         }
-        m_HistoryLength *= ::exp(-m_DecayRate * time);
+        m_HistoryLength *= std::exp(-m_DecayRate * time);
         for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
             m_Clusters[i].propagateForwardsByTime(time);
         }
@@ -910,14 +911,14 @@ public:
     }
 
     //! Get the memory used by the object.
-    virtual std::size_t memoryUsage(void) const {
+    virtual std::size_t memoryUsage() const {
         std::size_t mem = core::CMemory::dynamicSize(m_ClusterIndexGenerator);
         mem += core::CMemory::dynamicSize(m_Clusters);
         return mem;
     }
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize(void) const { return sizeof(*this); }
+    virtual std::size_t staticSize() const { return sizeof(*this); }
 
     //! Get a checksum for this object.
     virtual uint64_t checksum(uint64_t seed = 0) const {
@@ -930,7 +931,7 @@ public:
     //@}
 
     //! The total count of points.
-    double count(void) const {
+    double count() const {
         double result = 0.0;
         for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
             result += m_Clusters[i].count();
@@ -939,7 +940,7 @@ public:
     }
 
     //! Print a representation of the clusters that can be plotted in octave.
-    std::string printClusters(void) const {
+    std::string printClusters() const {
         if (m_Clusters.empty()) {
             return std::string();
         }
@@ -952,7 +953,7 @@ public:
     }
 
     //! Get the index generator.
-    CClustererTypes::CIndexGenerator& indexGenerator(void) { return m_ClusterIndexGenerator; }
+    CClustererTypes::CIndexGenerator& indexGenerator() { return m_ClusterIndexGenerator; }
 
 protected:
     //! Restore by traversing a state document
@@ -995,14 +996,14 @@ protected:
     }
 
     //! Compute the minimum split count.
-    double minimumSplitCount(void) const {
+    double minimumSplitCount() const {
         double result = m_MinimumClusterCount;
         if (m_MinimumClusterFraction > 0.0) {
             double count = 0.0;
             for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
                 count += m_Clusters[i].count();
             }
-            double scale = std::max(m_HistoryLength * (1.0 - ::exp(-m_InitialDecayRate)), 1.0);
+            double scale = std::max(m_HistoryLength * (1.0 - std::exp(-m_InitialDecayRate)), 1.0);
             count *= m_MinimumClusterFraction / scale;
             result = std::max(result, count);
         }
@@ -1052,13 +1053,13 @@ protected:
     }
 
     //! Remove any clusters which are effectively dead.
-    bool prune(void) {
+    bool prune() {
         if (m_Clusters.size() <= 1) {
             return false;
         }
 
-        typedef std::pair<double, std::size_t> TDoubleSizePr;
-        typedef CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1, COrderings::SFirstLess> TMinAccumulator;
+        using TDoubleSizePr = std::pair<double, std::size_t>;
+        using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1, COrderings::SFirstLess>;
 
         bool result = false;
 
@@ -1103,7 +1104,7 @@ protected:
             return &m_Clusters[0];
         }
 
-        typedef CBasicStatistics::COrderStatisticsStack<double, 1> TMinAccumulator;
+        using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1>;
 
         CCluster* result = 0;
         TMinAccumulator min;
@@ -1123,7 +1124,7 @@ protected:
     }
 
     //! Get the clusters.
-    const TClusterVec& clusters(void) const { return m_Clusters; }
+    const TClusterVec& clusters() const { return m_Clusters; }
 
 private:
     //! \brief Checks if probabilities are less than a specified threshold.

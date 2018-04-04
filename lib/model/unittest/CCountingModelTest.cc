@@ -73,7 +73,7 @@ SModelParams::TStrDetectionRulePr makeScheduledEvent(const std::string& descript
 const std::string EMPTY_STRING;
 }
 
-void CCountingModelTest::testSkipSampling(void) {
+void CCountingModelTest::testSkipSampling() {
     LOG_DEBUG("*** testSkipSampling ***");
 
     core_t::TTime startTime(100);
@@ -134,7 +134,7 @@ void CCountingModelTest::testSkipSampling(void) {
     }
 }
 
-void CCountingModelTest::testCheckScheduledEvents(void) {
+void CCountingModelTest::testCheckScheduledEvents() {
     LOG_DEBUG("*** testCheckScheduledEvents ***");
 
     core_t::TTime startTime(100);
@@ -230,7 +230,7 @@ void CCountingModelTest::testCheckScheduledEvents(void) {
     }
 }
 
-CppUnit::Test* CCountingModelTest::suite(void) {
+CppUnit::Test* CCountingModelTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCountingModelTest");
 
     suiteOfTests->addTest(

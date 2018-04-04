@@ -30,7 +30,7 @@ CppUnit::Test* CFileDeleterTest::suite() {
     return suiteOfTests;
 }
 
-void CFileDeleterTest::testDelete(void) {
+void CFileDeleterTest::testDelete() {
     std::string fileName("CFileDeleterTest.txt");
 
     {

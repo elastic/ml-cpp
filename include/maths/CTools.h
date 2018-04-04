@@ -303,7 +303,7 @@ public:
     //!
     //! This is used to stop calculations under/overflowing if we
     //! allow the probability to be zero (for example).
-    static double smallestProbability(void);
+    static double smallestProbability();
 
     //! \name Safe Probability Density Function
     //! Unfortunately, boost::math::pdf and boost::math::cdf don't
@@ -447,7 +447,7 @@ private:
 
     public:
         //! Builds the table.
-        CLookupTableForFastLog(void) {
+        CLookupTableForFastLog() {
             // Notes:
             //   1) The shift is the maximum mantissa / BINS.
             //   2) The sign bit is set to 0 which is positive.

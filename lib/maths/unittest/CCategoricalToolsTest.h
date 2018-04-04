@@ -20,13 +20,13 @@
 
 class CCategoricalToolsTest : public CppUnit::TestFixture {
 public:
-    void testProbabilityOfLessLikelyMultinomialSample(void);
-    void testProbabilityOfLessLikelyCategoryCount(void);
-    void testExpectedDistinctCategories(void);
-    void testLogBinomialProbability(void);
-    void testLogMultinomialProbability(void);
+    void testProbabilityOfLessLikelyMultinomialSample();
+    void testProbabilityOfLessLikelyCategoryCount();
+    void testExpectedDistinctCategories();
+    void testLogBinomialProbability();
+    void testLogMultinomialProbability();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CCategoricalToolsTest_h

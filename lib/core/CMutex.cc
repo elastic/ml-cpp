@@ -22,7 +22,7 @@
 namespace ml {
 namespace core {
 
-CMutex::CMutex(void) {
+CMutex::CMutex() {
     pthread_mutexattr_t attr;
 
     int ret(pthread_mutexattr_init(&attr));
@@ -46,21 +46,21 @@ CMutex::CMutex(void) {
     }
 }
 
-CMutex::~CMutex(void) {
+CMutex::~CMutex() {
     int ret(pthread_mutex_destroy(&m_Mutex));
     if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
 }
 
-void CMutex::lock(void) {
+void CMutex::lock() {
     int ret(pthread_mutex_lock(&m_Mutex));
     if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
 }
 
-void CMutex::unlock(void) {
+void CMutex::unlock() {
     int ret(pthread_mutex_unlock(&m_Mutex));
     if (ret != 0) {
         LOG_WARN(::strerror(ret));

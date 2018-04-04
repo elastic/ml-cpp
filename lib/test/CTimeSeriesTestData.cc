@@ -28,8 +28,8 @@ namespace ml {
 namespace test {
 
 const std::string CTimeSeriesTestData::DEFAULT_REGEX("\\s*(\\d+|\\d+\\.\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s*");
-const std::string CTimeSeriesTestData::DEFAULT_BIVALUED_REGEX("\\s*(\\d+|\\d+\\.\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)"
-                                                              "\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s*");
+const std::string CTimeSeriesTestData::DEFAULT_BIVALUED_REGEX(
+    "\\s*(\\d+|\\d+\\.\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s*");
 const std::string CTimeSeriesTestData::DEFAULT_DATE_FORMAT("");
 const std::string CTimeSeriesTestData::CSV_UNIX_REGEX("^(\\d+),([-]*[\\d\\.]+)");
 const std::string CTimeSeriesTestData::CSV_UNIX_BIVALUED_REGEX("^(\\d+),([-]*[\\d\\.]+),([-]*[\\d\\.]+)");
@@ -82,7 +82,7 @@ bool CTimeSeriesTestData::parseCounter(const std::string& fileName, TTimeDoubleP
 
     double last(0);
     bool started(false);
-    for (auto&& result : results) {
+    for (auto& result : results) {
         double value = result.second;
         if (started == false) {
             result.second = 0;
@@ -142,7 +142,7 @@ bool CTimeSeriesTestData::pad(const TTimeDoublePrVec& data, core_t::TTime minTim
     results.reserve(static_cast<size_t>(maxTime - minTime + 1));
 
     // Inefficient but easy and safe
-    typedef std::map<core_t::TTime, double> TTimeDoubleMap;
+    using TTimeDoubleMap = std::map<core_t::TTime, double>;
 
     TTimeDoubleMap dataMap;
 

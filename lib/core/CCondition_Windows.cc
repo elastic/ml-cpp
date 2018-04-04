@@ -25,11 +25,11 @@ CCondition::CCondition(CMutex& mutex) : m_Mutex(mutex) {
     InitializeConditionVariable(&m_Condition);
 }
 
-CCondition::~CCondition(void) {
+CCondition::~CCondition() {
     // There's no need to explicitly destroy a Windows condition variable
 }
 
-bool CCondition::wait(void) {
+bool CCondition::wait() {
     BOOL success(SleepConditionVariableCS(&m_Condition, &m_Mutex.m_Mutex, INFINITE));
     if (success == FALSE) {
         LOG_WARN("Condition wait failed : " << CWindowsError());
@@ -52,11 +52,11 @@ bool CCondition::wait(uint32_t t) {
     return true;
 }
 
-void CCondition::signal(void) {
+void CCondition::signal() {
     WakeConditionVariable(&m_Condition);
 }
 
-void CCondition::broadcast(void) {
+void CCondition::broadcast() {
     WakeAllConditionVariable(&m_Condition);
 }
 }

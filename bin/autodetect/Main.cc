@@ -45,6 +45,7 @@
 #include <api/CIoManager.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CLengthEncodedInputParser.h>
+#include <api/CModelSnapshotJsonWriter.h>
 #include <api/COutputChainer.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
@@ -62,7 +63,7 @@
 #include <stdlib.h>
 
 int main(int argc, char** argv) {
-    typedef ml::autodetect::CCmdLineParser::TStrVec TStrVec;
+    using TStrVec = ml::autodetect::CCmdLineParser::TStrVec;
 
     // Read command line options
     std::string limitConfigFile;
@@ -194,7 +195,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    typedef boost::scoped_ptr<ml::core::CDataSearcher> TScopedDataSearcherP;
+    using TScopedDataSearcherP = boost::scoped_ptr<ml::core::CDataSearcher>;
     TScopedDataSearcherP restoreSearcher;
     if (ioMgr.restoreStream() != 0) {
         // Check whether state is restored from a file, if so we assume that this is a debugging case
@@ -210,13 +211,13 @@ int main(int argc, char** argv) {
         }
     }
 
-    typedef boost::scoped_ptr<ml::core::CDataAdder> TScopedDataAdderP;
+    using TScopedDataAdderP = boost::scoped_ptr<ml::core::CDataAdder>;
     TScopedDataAdderP persister;
     if (ioMgr.persistStream() != 0) {
         persister.reset(new ml::api::CSingleStreamDataAdder(ioMgr.persistStream()));
     }
 
-    typedef boost::scoped_ptr<ml::api::CBackgroundPersister> TScopedBackgroundPersisterP;
+    using TScopedBackgroundPersisterP = boost::scoped_ptr<ml::api::CBackgroundPersister>;
     TScopedBackgroundPersisterP periodicPersister;
     if (persistInterval >= 0) {
         if (persister == 0) {
@@ -228,7 +229,7 @@ int main(int argc, char** argv) {
         periodicPersister.reset(new ml::api::CBackgroundPersister(persistInterval, *persister));
     }
 
-    typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
+    using TScopedInputParserP = boost::scoped_ptr<ml::api::CInputParser>;
     TScopedInputParserP inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
@@ -238,8 +239,7 @@ int main(int argc, char** argv) {
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
 
-    // output writer for CFieldDataTyper and persistence callback
-    ml::api::CJsonOutputWriter outputWriter(jobId, wrappedOutputStream);
+    ml::api::CModelSnapshotJsonWriter modelSnapshotWriter(jobId, wrappedOutputStream);
     if (fieldConfig.initFromCmdLine(fieldConfigFile, clauseTokens) == false) {
         LOG_FATAL("Field config could not be interpreted");
         return EXIT_FAILURE;
@@ -251,7 +251,7 @@ int main(int argc, char** argv) {
                              fieldConfig,
                              modelConfig,
                              wrappedOutputStream,
-                             boost::bind(&ml::api::CJsonOutputWriter::reportPersistComplete, &outputWriter, _1, _2, _3, _4, _5, _6, _7, _8),
+                             boost::bind(&ml::api::CModelSnapshotJsonWriter::write, &modelSnapshotWriter, _1),
                              periodicPersister.get(),
                              maxQuantileInterval,
                              timeField,
@@ -273,8 +273,10 @@ int main(int argc, char** argv) {
     // Chain the categorizer's output to the anomaly detector's input
     ml::api::COutputChainer outputChainer(job);
 
+    ml::api::CJsonOutputWriter fieldDataTyperOutputWriter(jobId, wrappedOutputStream);
+
     // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, outputChainer, outputWriter);
+    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, outputChainer, fieldDataTyperOutputWriter);
 
     if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
         LOG_DEBUG("Applying the categorization typer for anomaly detection");
@@ -294,7 +296,7 @@ int main(int argc, char** argv) {
     // as it must be finalised before the skeleton is destroyed, and C++
     // destruction order means the skeleton will be destroyed before the output
     // writer as it was constructed last.
-    outputWriter.finalise();
+    fieldDataTyperOutputWriter.finalise();
 
     if (!ioLoopSucceeded) {
         LOG_FATAL("Ml anomaly detector job failed");

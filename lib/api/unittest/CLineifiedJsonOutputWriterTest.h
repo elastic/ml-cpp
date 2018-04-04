@@ -19,8 +19,8 @@
 
 class CLineifiedJsonOutputWriterTest : public CppUnit::TestFixture {
 public:
-    void testStringOutput(void);
-    void testNumericOutput(void);
+    void testStringOutput();
+    void testNumericOutput();
 
     static CppUnit::Test* suite();
 };

@@ -32,52 +32,52 @@ namespace core {
 
 namespace {
 
-typedef boost::random::uniform_int_distribution<uint32_t> TUniform32;
+using TUniform32 = boost::random::uniform_int_distribution<uint32_t>;
 }
 
 const uint64_t CHashing::CUniversalHash::BIG_PRIME = 4294967291ull;
 boost::random::mt11213b CHashing::CUniversalHash::ms_Generator;
 CFastMutex CHashing::CUniversalHash::ms_Mutex;
 
-CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash(void) : m_M(1000), m_A(1), m_B(0) {
+CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash() : m_M(1000), m_A(1), m_B(0) {
 }
 
 CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash(uint32_t m, uint32_t a, uint32_t b) : m_M(m), m_A(a), m_B(b) {
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32Hash::m(void) const {
+uint32_t CHashing::CUniversalHash::CUInt32Hash::m() const {
     return m_M;
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32Hash::a(void) const {
+uint32_t CHashing::CUniversalHash::CUInt32Hash::a() const {
     return m_A;
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32Hash::b(void) const {
+uint32_t CHashing::CUniversalHash::CUInt32Hash::b() const {
     return m_B;
 }
 
-std::string CHashing::CUniversalHash::CUInt32Hash::print(void) const {
+std::string CHashing::CUniversalHash::CUInt32Hash::print() const {
     std::ostringstream result;
     result << "\"((" << m_A << " * x + " << m_B << ") mod " << BIG_PRIME << ") mod " << m_M << "\"";
     return result.str();
 }
 
-CHashing::CUniversalHash::CUInt32UnrestrictedHash::CUInt32UnrestrictedHash(void) : m_A(1), m_B(0) {
+CHashing::CUniversalHash::CUInt32UnrestrictedHash::CUInt32UnrestrictedHash() : m_A(1), m_B(0) {
 }
 
 CHashing::CUniversalHash::CUInt32UnrestrictedHash::CUInt32UnrestrictedHash(uint32_t a, uint32_t b) : m_A(a), m_B(b) {
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::a(void) const {
+uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::a() const {
     return m_A;
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::b(void) const {
+uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::b() const {
     return m_B;
 }
 
-std::string CHashing::CUniversalHash::CUInt32UnrestrictedHash::print(void) const {
+std::string CHashing::CUniversalHash::CUInt32UnrestrictedHash::print() const {
     std::ostringstream result;
     result << "\"(" << m_A << " * x + " << m_B << ") mod " << BIG_PRIME << "\"";
     return result.str();
@@ -86,19 +86,19 @@ std::string CHashing::CUniversalHash::CUInt32UnrestrictedHash::print(void) const
 CHashing::CUniversalHash::CUInt32VecHash::CUInt32VecHash(uint32_t m, const TUInt32Vec& a, uint32_t b) : m_M(m), m_A(a), m_B(b) {
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32VecHash::m(void) const {
+uint32_t CHashing::CUniversalHash::CUInt32VecHash::m() const {
     return m_M;
 }
 
-const CHashing::CUniversalHash::TUInt32Vec& CHashing::CUniversalHash::CUInt32VecHash::a(void) const {
+const CHashing::CUniversalHash::TUInt32Vec& CHashing::CUniversalHash::CUInt32VecHash::a() const {
     return m_A;
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32VecHash::b(void) const {
+uint32_t CHashing::CUniversalHash::CUInt32VecHash::b() const {
     return m_B;
 }
 
-std::string CHashing::CUniversalHash::CUInt32VecHash::print(void) const {
+std::string CHashing::CUniversalHash::CUInt32VecHash::print() const {
     std::ostringstream result;
     result << "\"((" << m_A[0] << "* x0";
     for (std::size_t i = 1u; i < m_A.size(); ++i) {
@@ -236,7 +236,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, TUInt32Unrestricted
 }
 
 void CHashing::CUniversalHash::generateHashes(std::size_t k, std::size_t n, uint32_t m, TUInt32VecHashVec& result) {
-    typedef std::vector<TUInt32Vec> TUInt32VecVec;
+    using TUInt32VecVec = std::vector<TUInt32Vec>;
 
     TUInt32VecVec a;
     TUInt32Vec b;

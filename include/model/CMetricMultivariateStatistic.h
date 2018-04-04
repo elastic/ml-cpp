@@ -51,7 +51,7 @@ namespace model {
 template<class STATISTIC>
 class CMetricMultivariateStatistic {
 public:
-    typedef core::CSmallVector<double, 1> TDouble1Vec;
+    using TDouble1Vec = core::CSmallVector<double, 1>;
 
 public:
     static const std::string VALUE_TAG;
@@ -97,7 +97,7 @@ public:
     }
 
     //! Returns the aggregated value of all the measurements.
-    TDouble1Vec value(void) const {
+    TDouble1Vec value() const {
         std::size_t dimension = m_Values.size();
         TDouble1Vec result(dimension);
         for (std::size_t i = 0u; i < dimension; ++i) {
@@ -114,7 +114,7 @@ public:
 
     //! Returns the aggregated value of all the measurements suitable
     //! for computing influence.
-    TDouble1Vec influencerValue(void) const {
+    TDouble1Vec influencerValue() const {
         std::size_t dimension = m_Values.size();
         TDouble1Vec result(dimension);
         for (std::size_t i = 0u; i < dimension; ++i) {
@@ -130,7 +130,7 @@ public:
     }
 
     //! Returns the count of all the measurements.
-    double count(void) const { return CMetricStatisticWrappers::count(m_Values[0]); }
+    double count() const { return CMetricStatisticWrappers::count(m_Values[0]); }
 
     //! Combine two partial statistics.
     const CMetricMultivariateStatistic& operator+=(const CMetricMultivariateStatistic& rhs) {
@@ -150,17 +150,17 @@ public:
     }
 
     //! Get the memory used by the statistic.
-    std::size_t memoryUsage(void) const { return sizeof(*this) + core::CMemory::dynamicSize(m_Values); }
+    std::size_t memoryUsage() const { return sizeof(*this) + core::CMemory::dynamicSize(m_Values); }
 
     //! Print partial statistic
-    std::string print(void) const {
+    std::string print() const {
         std::ostringstream result;
         result << core::CContainerPrinter::print(m_Values);
         return result.str();
     }
 
 private:
-    typedef core::CSmallVector<STATISTIC, 2> TStatistic2Vec;
+    using TStatistic2Vec = core::CSmallVector<STATISTIC, 2>;
 
 private:
     TStatistic2Vec m_Values;

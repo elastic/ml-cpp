@@ -20,11 +20,11 @@
 
 class CMathsMemoryTest : public CppUnit::TestFixture {
 public:
-    void testPriors(void);
-    void testBjkstVec(void);
-    void testTimeSeriesDecompositions(void);
+    void testPriors();
+    void testBjkstVec();
+    void testTimeSeriesDecompositions();
 
-    static CppUnit::Test* suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CMathsMemoryTest_h

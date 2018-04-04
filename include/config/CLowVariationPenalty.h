@@ -40,10 +40,10 @@ public:
     CLowVariationPenalty(const CAutoconfigurerParams& params);
 
     //! Create a copy on the heap.
-    virtual CLowVariationPenalty* clone(void) const;
+    virtual CLowVariationPenalty* clone() const;
 
     //! Get the name of this penalty.
-    virtual std::string name(void) const;
+    virtual std::string name() const;
 
 private:
     //! Apply a penalty for features with very little variation.

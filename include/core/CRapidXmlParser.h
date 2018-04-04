@@ -69,12 +69,12 @@ class CRapidXmlStateRestoreTraverser;
 //!
 class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf {
 public:
-    typedef std::map<std::string, std::string> TStrStrMap;
-    typedef TStrStrMap::const_iterator TStrStrMapCItr;
+    using TStrStrMap = std::map<std::string, std::string>;
+    using TStrStrMapCItr = TStrStrMap::const_iterator;
 
 public:
-    CRapidXmlParser(void);
-    virtual ~CRapidXmlParser(void);
+    CRapidXmlParser();
+    virtual ~CRapidXmlParser();
 
     //! Parse XML stored in a string
     virtual bool parseString(const std::string& xml);
@@ -90,13 +90,13 @@ public:
     bool parseStringIgnoreCdata(const std::string& xml);
 
     //! Return the root element name (empty string if not parsed yet)
-    virtual std::string rootElementName(void) const;
+    virtual std::string rootElementName() const;
 
     //! Get the root element attributes (returns false if not parsed yet)
     bool rootElementAttributes(TStrStrMap& rootAttributes) const;
 
     //! Dump the document to string
-    virtual std::string dumpToString(void) const;
+    virtual std::string dumpToString() const;
 
     //! Convert the entire XML document into a hierarchy of node objects.
     //! This is much more efficient than making repeated calls to
@@ -117,10 +117,10 @@ public:
 
     //! Functions for navigating an XML document without converting it to a
     //! node hierarchy
-    virtual bool navigateRoot(void);
-    virtual bool navigateFirstChild(void);
-    virtual bool navigateNext(void);
-    virtual bool navigateParent(void);
+    virtual bool navigateRoot();
+    virtual bool navigateFirstChild();
+    virtual bool navigateNext();
+    virtual bool navigateParent();
     virtual bool currentNodeName(std::string& name);
     virtual bool currentNodeValue(std::string& value);
 
@@ -133,9 +133,9 @@ public:
     static void convert(bool indent, const CXmlNodeWithChildren& root, std::string& result);
 
 private:
-    typedef rapidxml::xml_document<char> TCharRapidXmlDocument;
-    typedef rapidxml::xml_node<char> TCharRapidXmlNode;
-    typedef rapidxml::xml_attribute<char> TCharRapidXmlAttribute;
+    using TCharRapidXmlDocument = rapidxml::xml_document<char>;
+    using TCharRapidXmlNode = rapidxml::xml_node<char>;
+    using TCharRapidXmlAttribute = rapidxml::xml_attribute<char>;
 
     //! Called recursively by the public toNodeHierarchy() method
     bool toNodeHierarchy(const TCharRapidXmlNode& parentNode,
@@ -162,7 +162,7 @@ private:
     //! than in a string to avoid any problems with reference counting in
     //! STL strings.  (Obviously the template parameter here needs to match
     //! the rapidxml typedef template arguments in the typedefs above.)
-    typedef boost::scoped_array<char> TScopedCharArray;
+    using TScopedCharArray = boost::scoped_array<char>;
 
     //! RapidXml parses the XML in-situ, so keep a copy of the input
     TScopedCharArray m_XmlBuf;

@@ -32,11 +32,11 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::vector<TSizeSizePr> TSizeSizePrVec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+using TSizeSizePrVec = std::vector<TSizeSizePr>;
 
 template<std::size_t N, std::size_t M>
 void fill(const double (&costs)[N][M], TDoubleVecVec& result) {
@@ -49,7 +49,7 @@ void fill(const double (&costs)[N][M], TDoubleVecVec& result) {
 }
 
 void fill(const TDoubleVec& costs, TDoubleVecVec& result) {
-    std::size_t n = static_cast<std::size_t>(::sqrt(static_cast<double>(costs.size())));
+    std::size_t n = static_cast<std::size_t>(std::sqrt(static_cast<double>(costs.size())));
     result.reserve(n);
     for (std::size_t i = 0u; i < n; ++i) {
         result.push_back(TDoubleVec());
@@ -94,7 +94,7 @@ double match(const TDoubleVecVec& costs, TSizeSizePrVec& matching) {
 }
 }
 
-void CAssignmentTest::testKuhnMunkres(void) {
+void CAssignmentTest::testKuhnMunkres() {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CAssignmentTest::testKuhnMunkres |");
     LOG_DEBUG("+-----------------------------------+");
@@ -273,7 +273,7 @@ void CAssignmentTest::testKuhnMunkres(void) {
     }
 }
 
-CppUnit::Test* CAssignmentTest::suite(void) {
+CppUnit::Test* CAssignmentTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAssignmentTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAssignmentTest>("CAssignmentTest::testKuhnMunkres", &CAssignmentTest::testKuhnMunkres));

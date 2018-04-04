@@ -54,7 +54,7 @@ CCsvOutputWriter::CCsvOutputWriter(std::ostream& strmOut, bool outputMessages, b
     }
 }
 
-CCsvOutputWriter::~CCsvOutputWriter(void) {
+CCsvOutputWriter::~CCsvOutputWriter() {
     // Since we didn't flush the stream whilst working, we flush it on
     // destruction
     m_StrmOut.flush();
@@ -122,7 +122,7 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
     return true;
 }
 
-const COutputHandler::TStrVec& CCsvOutputWriter::fieldNames(void) const {
+const COutputHandler::TStrVec& CCsvOutputWriter::fieldNames() const {
     return m_FieldNames;
 }
 
@@ -136,7 +136,7 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrU
     // all gets written to the stream
     m_WorkRecord.clear();
 
-    typedef std::equal_to<std::string> TStrEqualTo;
+    using TStrEqualTo = std::equal_to<std::string>;
     TStrEqualTo pred;
 
     TStrVecCItr fieldNameIter = m_FieldNames.begin();
@@ -177,7 +177,7 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrU
     return true;
 }
 
-std::string CCsvOutputWriter::internalString(void) const {
+std::string CCsvOutputWriter::internalString() const {
     const_cast<std::ostream&>(m_StrmOut).flush();
 
     // This is only of any value if the first constructor was used - it's up to
@@ -218,7 +218,7 @@ void CCsvOutputWriter::appendField(const std::string& field) {
     }
 }
 
-std::ostream& CCsvOutputWriter::outputStream(void) {
+std::ostream& CCsvOutputWriter::outputStream() {
     return m_StrmOut;
 }
 }

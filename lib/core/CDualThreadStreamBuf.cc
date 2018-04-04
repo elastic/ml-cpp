@@ -51,7 +51,7 @@ CDualThreadStreamBuf::CDualThreadStreamBuf(size_t bufferCapacity)
     this->setg(begin, end, end);
 }
 
-void CDualThreadStreamBuf::signalEndOfFile(void) {
+void CDualThreadStreamBuf::signalEndOfFile() {
     CScopedLock lock(m_IntermediateBufferMutex);
 
     if (m_Eof) {
@@ -84,11 +84,11 @@ void CDualThreadStreamBuf::signalEndOfFile(void) {
     m_Eof = true;
 }
 
-bool CDualThreadStreamBuf::endOfFile(void) const {
+bool CDualThreadStreamBuf::endOfFile() const {
     return m_Eof;
 }
 
-void CDualThreadStreamBuf::signalFatalError(void) {
+void CDualThreadStreamBuf::signalFatalError() {
     CScopedLock lock(m_IntermediateBufferMutex);
 
     // Chuck away the current read buffer
@@ -101,11 +101,11 @@ void CDualThreadStreamBuf::signalFatalError(void) {
     m_IntermediateBufferCondition.signal();
 }
 
-bool CDualThreadStreamBuf::hasFatalError(void) const {
+bool CDualThreadStreamBuf::hasFatalError() const {
     return m_FatalError;
 }
 
-std::streamsize CDualThreadStreamBuf::showmanyc(void) {
+std::streamsize CDualThreadStreamBuf::showmanyc() {
     // Note that, unlike a file, we have no way of finding out what the total
     // amount of unread data is
 
@@ -122,7 +122,7 @@ std::streamsize CDualThreadStreamBuf::showmanyc(void) {
     return ret;
 }
 
-int CDualThreadStreamBuf::sync(void) {
+int CDualThreadStreamBuf::sync() {
     CScopedLock lock(m_IntermediateBufferMutex);
 
     if (m_FatalError) {
@@ -174,7 +174,7 @@ std::streamsize CDualThreadStreamBuf::xsgetn(char* s, std::streamsize n) {
     return ret;
 }
 
-int CDualThreadStreamBuf::underflow(void) {
+int CDualThreadStreamBuf::underflow() {
     CScopedLock lock(m_IntermediateBufferMutex);
 
     if (m_FatalError || this->swapReadBuffer() == false) {
@@ -312,7 +312,7 @@ std::streampos CDualThreadStreamBuf::seekoff(std::streamoff off, std::ios_base::
 }
 
 // NB: m_IntermediateBufferMutex MUST be locked when this method is called
-bool CDualThreadStreamBuf::swapWriteBuffer(void) {
+bool CDualThreadStreamBuf::swapWriteBuffer() {
     // Wait until the intermediate buffer is empty
     while (m_IntermediateBufferEnd > m_IntermediateBuffer.get()) {
         m_IntermediateBufferCondition.wait();
@@ -338,7 +338,7 @@ bool CDualThreadStreamBuf::swapWriteBuffer(void) {
 }
 
 // NB: m_IntermediateBufferMutex MUST be locked when this method is called
-bool CDualThreadStreamBuf::swapReadBuffer(void) {
+bool CDualThreadStreamBuf::swapReadBuffer() {
     // Wait until the intermediate buffer contains data
     while (!m_Eof && m_IntermediateBufferEnd == m_IntermediateBuffer.get()) {
         m_IntermediateBufferCondition.wait();

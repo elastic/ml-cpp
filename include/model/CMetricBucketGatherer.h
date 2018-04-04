@@ -48,10 +48,10 @@ class CResourceMonitor;
 //! \sa CDataGatherer.
 class MODEL_EXPORT CMetricBucketGatherer : public CBucketGatherer {
 public:
-    typedef std::pair<model_t::EMetricCategory, std::size_t> TCategorySizePr;
-    typedef std::map<TCategorySizePr, boost::any> TCategorySizePrAnyMap;
-    typedef TCategorySizePrAnyMap::iterator TCategorySizePrAnyMapItr;
-    typedef TCategorySizePrAnyMap::const_iterator TCategorySizePrAnyMapCItr;
+    using TCategorySizePr = std::pair<model_t::EMetricCategory, std::size_t>;
+    using TCategorySizePrAnyMap = std::map<TCategorySizePr, boost::any>;
+    using TCategorySizePrAnyMapItr = TCategorySizePrAnyMap::iterator;
+    using TCategorySizePrAnyMapCItr = TCategorySizePrAnyMap::const_iterator;
 
 public:
     //! \name Life-cycle
@@ -109,10 +109,10 @@ public:
     //! affect the persisted representation, and must not be used for any
     //! other purpose.
     //! \warning The caller owns the object returned.
-    virtual CBucketGatherer* cloneForPersistence(void) const;
+    virtual CBucketGatherer* cloneForPersistence() const;
 
     //! The persistence tag name of this derived class.
-    virtual const std::string& persistenceTag(void) const;
+    virtual const std::string& persistenceTag() const;
 
 private:
     //! Internal restore function.
@@ -128,20 +128,20 @@ public:
     //! probabilities are aggregated, i.e. the "over" field name for
     //! population searches and the "by" field name for individual
     //! searches.
-    virtual const std::string& personFieldName(void) const;
+    virtual const std::string& personFieldName() const;
 
     //! Get the attribute field name if one exists, i.e. the "by" for
     //! population searches, field name and returns empty otherwise.
-    virtual const std::string& attributeFieldName(void) const;
+    virtual const std::string& attributeFieldName() const;
 
     //! Returns an empty string.
-    virtual const std::string& valueFieldName(void) const;
+    virtual const std::string& valueFieldName() const;
 
     //! Get an iterator at the beginning the influencing field names.
-    virtual TStrVecCItr beginInfluencers(void) const;
+    virtual TStrVecCItr beginInfluencers() const;
 
     //! Get an iterator at the end of the influencing field names.
-    virtual TStrVecCItr endInfluencers(void) const;
+    virtual TStrVecCItr endInfluencers() const;
 
     //! Get the fields for which to gather data.
     //!
@@ -151,11 +151,11 @@ public:
     //! attributes which are being analyzed. An empty string acts like
     //! a wild card and matches all records. This is used for analysis
     //! which is attribute independent such as total count.
-    virtual const TStrVec& fieldsOfInterest(void) const;
+    virtual const TStrVec& fieldsOfInterest() const;
     //@}
 
     //! Get a description of the search.
-    virtual std::string description(void) const;
+    virtual std::string description() const;
 
     //! \name Update
     //@{
@@ -194,19 +194,19 @@ public:
     //@}
 
     //! Get the checksum of this gatherer.
-    virtual uint64_t checksum(void) const;
+    virtual uint64_t checksum() const;
 
     //! Debug the memory used by this object.
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this object.
-    virtual std::size_t memoryUsage(void) const;
+    virtual std::size_t memoryUsage() const;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize(void) const;
+    virtual std::size_t staticSize() const;
 
     //! Clear this data gatherer.
-    virtual void clear(void);
+    virtual void clear();
 
     //! Reset bucket and return true if bucket was successfully reset or false otherwise.
     virtual bool resetBucket(core_t::TTime bucketStart);
@@ -281,7 +281,7 @@ private:
     void initializeFieldNamesPart2(const std::string& valueFieldName, const std::string& summaryCountFieldName);
 
     //! Initialize the feature data gatherers.
-    void initializeFeatureData(void);
+    void initializeFeatureData();
 
 private:
     //! The metric value field name.  This is held separately to

@@ -21,7 +21,7 @@
 namespace ml {
 namespace core {
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(void) : CXmlNode() {
+CXmlNodeWithChildren::CXmlNodeWithChildren() : CXmlNode() {
 }
 
 CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name) : CXmlNode(name) {
@@ -37,7 +37,7 @@ CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name, const std::s
 CXmlNodeWithChildren::CXmlNodeWithChildren(const CXmlNodeWithChildren& arg) : CXmlNode(arg), m_Children(arg.m_Children) {
 }
 
-CXmlNodeWithChildren::~CXmlNodeWithChildren(void) {
+CXmlNodeWithChildren::~CXmlNodeWithChildren() {
 }
 
 CXmlNodeWithChildren& CXmlNodeWithChildren::operator=(const CXmlNodeWithChildren& rhs) {
@@ -62,11 +62,11 @@ void CXmlNodeWithChildren::addChildP(const TXmlNodeWithChildrenP& childP) {
     m_Children.push_back(childP);
 }
 
-const CXmlNodeWithChildren::TChildNodePVec& CXmlNodeWithChildren::children(void) const {
+const CXmlNodeWithChildren::TChildNodePVec& CXmlNodeWithChildren::children() const {
     return m_Children;
 }
 
-std::string CXmlNodeWithChildren::dump(void) const {
+std::string CXmlNodeWithChildren::dump() const {
     return this->dump(0);
 }
 

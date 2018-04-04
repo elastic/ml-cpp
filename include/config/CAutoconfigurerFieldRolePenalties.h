@@ -42,25 +42,25 @@ public:
     CAutoconfigurerFieldRolePenalties(const CAutoconfigurerParams& params);
 
     //! Get the penalty for categorical function arguments.
-    const CPenalty& categoricalFunctionArgumentPenalty(void) const;
+    const CPenalty& categoricalFunctionArgumentPenalty() const;
 
     //! Get the penalty for metric function arguments.
-    const CPenalty& metricFunctionArgumentPenalty(void) const;
+    const CPenalty& metricFunctionArgumentPenalty() const;
 
     //! Get the penalty for "by" fields.
-    const CPenalty& byPenalty(void) const;
+    const CPenalty& byPenalty() const;
 
     //! Get the penalty for "by" fields of rare commands.
-    const CPenalty& rareByPenalty(void) const;
+    const CPenalty& rareByPenalty() const;
 
     //! Get the penalty for "over" fields.
-    const CPenalty& overPenalty(void) const;
+    const CPenalty& overPenalty() const;
 
     //! Get the penalty for "partition" fields.
-    const CPenalty& partitionPenalty(void) const;
+    const CPenalty& partitionPenalty() const;
 
 private:
-    typedef boost::shared_ptr<const CPenalty> TPenaltyCPtr;
+    using TPenaltyCPtr = boost::shared_ptr<const CPenalty>;
 
 private:
     //! The penalties.

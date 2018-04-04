@@ -41,7 +41,7 @@ namespace maths {
 //! manner to all other types of data.
 class MATHS_EXPORT CMultivariateConstantPrior : public CMultivariatePrior {
 public:
-    typedef boost::optional<TDouble10Vec> TOptionalDouble10Vec;
+    using TOptionalDouble10Vec = boost::optional<TDouble10Vec>;
 
     // Lift all overloads of into scope.
     //{
@@ -63,10 +63,10 @@ public:
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CMultivariateConstantPrior* clone(void) const;
+    virtual CMultivariateConstantPrior* clone() const;
 
     //! Get the dimension of the prior.
-    virtual std::size_t dimension(void) const;
+    virtual std::size_t dimension() const;
 
     //! Reset the prior to non-informative.
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
@@ -87,19 +87,19 @@ public:
     virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const;
 
     //! Get the support for the marginal likelihood function.
-    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const;
+    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const;
 
     //! Returns constant or zero if unset (by equidistribution).
-    virtual TDouble10Vec marginalLikelihoodMean(void) const;
+    virtual TDouble10Vec marginalLikelihoodMean() const;
 
     //! Returns constant or zero if unset (by equidistribution).
     virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) const;
 
     //! Get the covariance matrix of the marginal likelihood.
-    virtual TDouble10Vec10Vec marginalLikelihoodCovariance(void) const;
+    virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const;
 
     //! Get the diagonal of the covariance matrix of the marginal likelihood.
-    virtual TDouble10Vec marginalLikelihoodVariances(void) const;
+    virtual TDouble10Vec marginalLikelihoodVariances() const;
 
     //! Returns a large value if all samples are equal to the constant
     //! and zero otherwise.
@@ -112,7 +112,7 @@ public:
     virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble10Vec1Vec& samples) const;
 
     //! Check if this is a non-informative prior.
-    bool isNonInformative(void) const;
+    bool isNonInformative() const;
 
     //! Get a human readable description of the prior.
     //!
@@ -127,20 +127,20 @@ public:
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
     //! Get the memory used by this component
-    virtual std::size_t memoryUsage(void) const;
+    virtual std::size_t memoryUsage() const;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize(void) const;
+    virtual std::size_t staticSize() const;
 
     //! Persist state by passing information to the supplied inserter
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Get the tag name for this prior.
-    virtual std::string persistenceTag(void) const;
+    virtual std::string persistenceTag() const;
     //@}
 
     //! Get the constant value.
-    const TOptionalDouble10Vec& constant(void) const;
+    const TOptionalDouble10Vec& constant() const;
 
 private:
     //! Create by traversing a state document.

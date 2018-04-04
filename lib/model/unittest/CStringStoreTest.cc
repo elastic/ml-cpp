@@ -29,33 +29,33 @@ using namespace ml;
 using namespace model;
 
 namespace {
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
-typedef boost::unordered_set<const std::string*> TStrCPtrUSet;
+using TSizeVec = std::vector<std::size_t>;
+using TStrVec = std::vector<std::string>;
+using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
+using TStrCPtrUSet = boost::unordered_set<const std::string*>;
 
 class CStringThread : public core::CThread {
 public:
-    typedef boost::shared_ptr<CppUnit::Exception> TCppUnitExceptionP;
+    using TCppUnitExceptionP = boost::shared_ptr<CppUnit::Exception>;
 
 public:
     CStringThread(std::size_t i, const TStrVec& strings) : m_I(i), m_Strings(strings) {}
 
     void uniques(TStrCPtrUSet& result) const { result.insert(m_UniquePtrs.begin(), m_UniquePtrs.end()); }
 
-    void propagateLastThreadAssert(void) {
+    void propagateLastThreadAssert() {
         if (m_LastException != 0) {
             throw *m_LastException;
         }
     }
 
-    void clearPtrs(void) {
+    void clearPtrs() {
         m_UniquePtrs.clear();
         m_Ptrs.clear();
     }
 
 private:
-    virtual void run(void) {
+    virtual void run() {
         try {
             std::size_t n = m_Strings.size();
             for (std::size_t i = m_I; i < 1000; ++i) {
@@ -77,7 +77,7 @@ private:
         }
     }
 
-    virtual void shutdown(void) {}
+    virtual void shutdown() {}
 
 private:
     std::size_t m_I;
@@ -88,14 +88,14 @@ private:
 };
 }
 
-void CStringStoreTest::setUp(void) {
+void CStringStoreTest::setUp() {
     // Other test suites also use the string store, and it will mess up the
     // tests in this suite if the string store is not empty when they start
     CStringStore::names().clearEverythingTestOnly();
     CStringStore::influencers().clearEverythingTestOnly();
 }
 
-void CStringStoreTest::testStringStore(void) {
+void CStringStoreTest::testStringStore() {
     TStrVec strings;
     strings.emplace_back("Milano");
     strings.emplace_back("Monza");
@@ -136,8 +136,8 @@ void CStringStoreTest::testStringStore(void) {
     {
         LOG_DEBUG("Testing multi-threaded");
 
-        typedef boost::shared_ptr<CStringThread> TThreadPtr;
-        typedef std::vector<TThreadPtr> TThreadVec;
+        using TThreadPtr = boost::shared_ptr<CStringThread>;
+        using TThreadVec = std::vector<TThreadPtr>;
         TThreadVec threads;
         for (std::size_t i = 0; i < 20; ++i) {
             threads.emplace_back(new CStringThread(i, strings));
@@ -177,8 +177,8 @@ void CStringStoreTest::testStringStore(void) {
             lotsOfStrings.push_back(core::CStringUtils::typeToString(i));
         }
 
-        typedef boost::shared_ptr<CStringThread> TThreadPtr;
-        typedef std::vector<TThreadPtr> TThreadVec;
+        using TThreadPtr = boost::shared_ptr<CStringThread>;
+        using TThreadVec = std::vector<TThreadPtr>;
         TThreadVec threads;
         for (std::size_t i = 0; i < 20; ++i) {
             threads.emplace_back(new CStringThread(i * 50, lotsOfStrings));
@@ -211,7 +211,7 @@ void CStringStoreTest::testStringStore(void) {
     }
 }
 
-void CStringStoreTest::testMemUsage(void) {
+void CStringStoreTest::testMemUsage() {
     std::string shortStr("short");
     std::string longStr("much much longer than the short string");
 
@@ -248,7 +248,7 @@ void CStringStoreTest::testMemUsage(void) {
     CPPUNIT_ASSERT_EQUAL(origMemUse, CStringStore::names().memoryUsage());
 }
 
-CppUnit::Test* CStringStoreTest::suite(void) {
+CppUnit::Test* CStringStoreTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 
     suiteOfTests->addTest(

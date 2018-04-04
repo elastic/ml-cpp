@@ -49,14 +49,14 @@ class MemberHash {};
 //! typedef.
 template<typename T, typename R = void>
 struct enable_if_type {
-    typedef R type;
+    using type = R;
 };
 
 //! Auxiliary type used by has_checksum_function to test for a nested
 //! member function.
 template<typename T, T, typename R = void>
 struct enable_if_is_type {
-    typedef R type;
+    using type = R;
 };
 
 //! \name Class used to select appropriate checksum implementation
@@ -72,11 +72,11 @@ struct enable_if_is_type {
 //@{
 template<typename T, typename ITR = void>
 struct container_selector {
-    typedef BasicChecksum value;
+    using value = BasicChecksum;
 };
 template<typename T>
 struct container_selector<T, typename enable_if_type<typename T::const_iterator>::type> {
-    typedef ContainerChecksum value;
+    using value = ContainerChecksum;
 };
 //@}
 
@@ -95,19 +95,19 @@ struct container_selector<T, typename enable_if_type<typename T::const_iterator>
 //@{
 template<typename T, typename ENABLE = void>
 struct selector {
-    typedef typename container_selector<T>::value value;
+    using value = typename container_selector<T>::value;
 };
 template<typename T>
 struct selector<T, typename enable_if_is_type<uint64_t (T::*)(uint64_t) const, &T::checksum>::type> {
-    typedef MemberChecksumWithSeed value;
+    using value = MemberChecksumWithSeed;
 };
 template<typename T>
-struct selector<T, typename enable_if_is_type<uint64_t (T::*)(void) const, &T::checksum>::type> {
-    typedef MemberChecksumWithoutSeed value;
+struct selector<T, typename enable_if_is_type<uint64_t (T::*)() const, &T::checksum>::type> {
+    using value = MemberChecksumWithoutSeed;
 };
 template<typename T>
-struct selector<T, typename enable_if_is_type<std::size_t (T::*)(void) const, &T::hash>::type> {
-    typedef MemberHash value;
+struct selector<T, typename enable_if_is_type<std::size_t (T::*)() const, &T::hash>::type> {
+    using value = MemberHash;
 };
 //@}
 
@@ -246,7 +246,7 @@ public:
     //! Call on elements.
     template<typename T>
     static uint64_t dispatch(uint64_t seed, const T& target) {
-        typedef typename T::const_iterator CItr;
+        using CItr = typename T::const_iterator;
         uint64_t result = seed;
         for (CItr itr = target.begin(); itr != target.end(); ++itr) {
             result = CChecksumImpl<typename selector<typename T::value_type>::value>::dispatch(result, *itr);
@@ -257,8 +257,8 @@ public:
     //! Stable hash of unordered set.
     template<typename T>
     static uint64_t dispatch(uint64_t seed, const boost::unordered_set<T>& target) {
-        typedef boost::reference_wrapper<const T> TCRef;
-        typedef std::vector<TCRef> TCRefVec;
+        using TCRef = boost::reference_wrapper<const T>;
+        using TCRefVec = std::vector<TCRef>;
 
         TCRefVec ordered;
         ordered.reserve(target.size());
@@ -274,10 +274,10 @@ public:
     //! Stable hash of unordered map.
     template<typename U, typename V>
     static uint64_t dispatch(uint64_t seed, const boost::unordered_map<U, V>& target) {
-        typedef boost::reference_wrapper<const U> TUCRef;
-        typedef boost::reference_wrapper<const V> TVCRef;
-        typedef std::pair<TUCRef, TVCRef> TUCRefVCRefPr;
-        typedef std::vector<TUCRefVCRefPr> TUCRefVCRefPrVec;
+        using TUCRef = boost::reference_wrapper<const U>;
+        using TVCRef = boost::reference_wrapper<const V>;
+        using TUCRefVCRefPr = std::pair<TUCRef, TVCRef>;
+        using TUCRefVCRefPrVec = std::vector<TUCRefVCRefPr>;
 
         TUCRefVCRefPrVec ordered;
         ordered.reserve(target.size());

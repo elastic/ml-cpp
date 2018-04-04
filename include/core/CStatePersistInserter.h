@@ -41,7 +41,7 @@ namespace core {
 class CORE_EXPORT CStatePersistInserter : private CNonCopyable {
 public:
     //! Virtual destructor for abstract class
-    virtual ~CStatePersistInserter(void);
+    virtual ~CStatePersistInserter();
 
     //! Store a name/value
     virtual void insertValue(const std::string& name, const std::string& value) = 0;
@@ -68,14 +68,14 @@ protected:
     virtual void newLevel(const std::string& name) = 0;
 
     //! End the current level
-    virtual void endLevel(void) = 0;
+    virtual void endLevel() = 0;
 
 private:
     //! Class to implement RAII for moving to the next level
     class CORE_EXPORT CAutoLevel : private CNonCopyable {
     public:
         CAutoLevel(const std::string& name, CStatePersistInserter& inserter);
-        ~CAutoLevel(void);
+        ~CAutoLevel();
 
     private:
         CStatePersistInserter& m_Inserter;

@@ -59,10 +59,10 @@ bool traverse1stLevel(ml::core::CStateRestoreTraverser& traverser) {
 }
 }
 
-void CRapidXmlStateRestoreTraverserTest::testRestore(void) {
+void CRapidXmlStateRestoreTraverserTest::testRestore() {
     std::string xml("<root attr1=\"attrVal1\" "
-                    "attr2=\"attrVal2\"><level1A>a</level1A><level1B>25</level1B><level1C><level2A>3.14</"
-                    "level2A><level2B>z</level2B></level1C></root>");
+                    "attr2=\"attrVal2\"><level1A>a</level1A><level1B>25</level1B><level1C><level2A>3.14</level2A><level2B>z</level2B></"
+                    "level1C></root>");
 
     ml::core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));

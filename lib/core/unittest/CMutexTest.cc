@@ -24,7 +24,7 @@ CppUnit::Test* CMutexTest::suite() {
     return suiteOfTests;
 }
 
-void CMutexTest::testRecursive(void) {
+void CMutexTest::testRecursive() {
     ml::core::CMutex mutex;
 
     mutex.lock();

@@ -24,18 +24,19 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <cmath>
 #include <vector>
 
 namespace ml {
 namespace config {
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator TMomentsAccumulator;
-typedef boost::unordered_map<std::size_t, TMomentsAccumulator> TSizeMomentsUMap;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TStrVec = std::vector<std::string>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMomentsAccumulator = maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator;
+using TSizeMomentsUMap = boost::unordered_map<std::size_t, TMomentsAccumulator>;
 
 const double MIN = 0.9 * constants::DETECTOR_SCORE_EPSILON / constants::MAXIMUM_DETECTOR_SCORE;
 const double INF = boost::numeric::bounds<double>::highest();
@@ -43,8 +44,8 @@ const double INF = boost::numeric::bounds<double>::highest();
 //! Compute the coefficient of variation from \p moments.
 template<typename MOMENTS>
 double cov(const MOMENTS& moments) {
-    double m = ::fabs(maths::CBasicStatistics::mean(moments));
-    double sd = ::sqrt(maths::CBasicStatistics::maximumLikelihoodVariance(moments));
+    double m = std::fabs(maths::CBasicStatistics::mean(moments));
+    double sd = std::sqrt(maths::CBasicStatistics::maximumLikelihoodVariance(moments));
     return sd == 0.0 ? 0.0 : (m == 0.0 ? INF : sd / m);
 }
 
@@ -61,7 +62,7 @@ void penaltyImpl(const CAutoconfigurerParams& params, const MOMENTS& moments, do
             proportionWithLowVariation += 1.0;
         }
     }
-    penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
+    penalty = std::min(std::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
     proportionWithLowVariation /= static_cast<double>(moments.size());
 }
 
@@ -79,7 +80,7 @@ struct SDistinctCountPenalty {
                 proportionWithLowVariation += 1.0;
             }
         }
-        penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
+        penalty = std::min(std::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
         proportionWithLowVariation /= static_cast<double>(moments.size());
     }
 };
@@ -98,7 +99,7 @@ struct SInfoContentPenalty {
                 proportionWithLowVariation += 1.0;
             }
         }
-        penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
+        penalty = std::min(std::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
         proportionWithLowVariation /= static_cast<double>(moments.size());
     }
 };
@@ -195,11 +196,11 @@ void penaltyForImpl(const CAutoconfigurerParams& params,
 CLowVariationPenalty::CLowVariationPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {
 }
 
-CLowVariationPenalty* CLowVariationPenalty::clone(void) const {
+CLowVariationPenalty* CLowVariationPenalty::clone() const {
     return new CLowVariationPenalty(*this);
 }
 
-std::string CLowVariationPenalty::name(void) const {
+std::string CLowVariationPenalty::name() const {
     return "low variation";
 }
 
