@@ -54,11 +54,7 @@ const bool SIGIO_HANDLER_INSTALLED(installNoOpSigIoHandler());
 namespace ml {
 namespace core {
 
-#ifdef MacOSX
-CThread::TThreadId CThread::UNALLOCATED_THREAD_ID = nullptr;
-#else
-CThread::TThreadId CThread::UNALLOCATED_THREAD_ID = 0;
-#endif
+CThread::TThreadId CThread::UNALLOCATED_THREAD_ID{};
 
 CThread::CThread() : m_ThreadId(UNALLOCATED_THREAD_ID) {
 }
