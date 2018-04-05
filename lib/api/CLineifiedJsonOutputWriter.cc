@@ -14,6 +14,7 @@
  */
 #include <api/CLineifiedJsonOutputWriter.h>
 
+#include <core/CScopedRapidJsonPoolAllocator.h>
 #include <core/CSleep.h>
 #include <core/CStringUtils.h>
 
@@ -58,6 +59,9 @@ const CLineifiedJsonOutputWriter::TStrVec& CLineifiedJsonOutputWriter::fieldName
 }
 
 bool CLineifiedJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) {
+    using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<TGenericLineWriter>;
+    TScopedAllocator scopedAllocator("CLineifiedJsonOutputWriter::writeRow", m_Writer);
+
     rapidjson::Document doc = m_Writer.makeDoc();
 
     // Write all the fields to the document as strings
