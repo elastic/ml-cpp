@@ -255,7 +255,7 @@ private:
     //! Print a non associative element pointer for debug.
     template<typename T>
     static std::string printElement(T* value) {
-        if (value == 0) {
+        if (value == nullptr) {
             return "\"null\"";
         }
         std::ostringstream result;

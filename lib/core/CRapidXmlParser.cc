@@ -371,7 +371,7 @@ void CRapidXmlParser::convertChildren(const CXmlNodeWithChildren& current,
     // If a node has both children and a value, RapidXML requires that we add a
     // data node containing the value
     if (xmlNode.value_size() > 0 && !childVec.empty()) {
-        TCharRapidXmlNode* dataNode(doc.allocate_node(rapidxml::node_data, 0, xmlNode.value(), 0, xmlNode.value_size()));
+        TCharRapidXmlNode* dataNode(doc.allocate_node(rapidxml::node_data, nullptr, xmlNode.value(), 0, xmlNode.value_size()));
         xmlNode.append_node(dataNode);
     }
 

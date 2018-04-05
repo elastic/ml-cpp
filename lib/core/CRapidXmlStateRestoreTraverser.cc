@@ -110,7 +110,7 @@ CRapidXmlParser::TCharRapidXmlNode* CRapidXmlStateRestoreTraverser::nextNodeElem
         return nullptr;
     }
 
-    for (CRapidXmlParser::TCharRapidXmlNode* nextNode = m_CurrentNode->next_sibling(); nextNode != 0; nextNode = nextNode->next_sibling()) {
+    for (CRapidXmlParser::TCharRapidXmlNode* nextNode = m_CurrentNode->next_sibling(); nextNode != nullptr; nextNode = nextNode->next_sibling()) {
         // We ignore comments, CDATA and any other type of node that's not an
         // element
         if (nextNode->type() == rapidxml::node_element) {
@@ -126,7 +126,7 @@ CRapidXmlParser::TCharRapidXmlNode* CRapidXmlStateRestoreTraverser::firstChildNo
         return nullptr;
     }
 
-    for (CRapidXmlParser::TCharRapidXmlNode* child = m_CurrentNode->first_node(); child != 0; child = child->next_sibling()) {
+    for (CRapidXmlParser::TCharRapidXmlNode* child = m_CurrentNode->first_node(); child != nullptr; child = child->next_sibling()) {
         // We ignore comments, CDATA and any other type of node that's not an
         // element
         if (child->type() == rapidxml::node_element) {

@@ -79,19 +79,9 @@ std::string CXmlNodeWithChildren::dump(size_t indent) const {
     strRep += core_t::LINE_ENDING;
 
     // Now add children at next level of indenting
-<<<<<<< HEAD
     for (TChildNodePVecCItr childIter = m_Children.begin(); childIter != m_Children.end(); ++childIter) {
         const CXmlNodeWithChildren* child = childIter->get();
-        if (child != 0) {
-=======
-    for (TChildNodePVecCItr childIter = m_Children.begin();
-         childIter != m_Children.end();
-         ++childIter)
-    {
-        const CXmlNodeWithChildren *child = childIter->get();
-        if (child != nullptr)
-        {
->>>>>>> Use nullptr instead of 0 in core lib
+        if (child != nullptr) {
             strRep += child->dump(indent + 1);
         }
     }

@@ -74,7 +74,7 @@ public:
         return *this;
     }
 
-    operator bool() const { return boost::relaxed_get<CNullPolymorphicStackObjectCPtr>(&m_Storage) == 0; }
+    operator bool() const { return boost::relaxed_get<CNullPolymorphicStackObjectCPtr>(&m_Storage) == nullptr; }
 
     TConstBase* operator->() const {
 #define MAYBE_RETURN(TYPE)                                                                                                                 \

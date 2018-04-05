@@ -147,7 +147,7 @@ bool CTimeUtils::isDateWord(const std::string& word) {
 
 // Initialise statics for the inner class CDateWordCache
 CFastMutex CTimeUtils::CDateWordCache::ms_InitMutex;
-volatile CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance(0);
+volatile CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance(nullptr);
 
 const CTimeUtils::CDateWordCache& CTimeUtils::CDateWordCache::instance() {
     if (ms_Instance == nullptr) {

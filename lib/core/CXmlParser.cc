@@ -144,21 +144,19 @@ bool CXmlParser::parseBufferInSitu(char* begin, size_t length) {
     return this->parseBuffer(begin, length);
 }
 
-std::string CXmlParser::rootElementName() const
-{
+std::string CXmlParser::rootElementName() const {
     if (m_Doc == nullptr) {
-    {
         LOG_ERROR("Cannot get root element for unparsed document");
         return std::string();
     }
 
-    xmlNode *root(xmlDocGetRootElement(m_Doc));
+    xmlNode* root(xmlDocGetRootElement(m_Doc));
     if (root == nullptr) {
         LOG_ERROR("Error getting root element");
         return std::string();
     }
 
-    const char *name(reinterpret_cast<const char *>(root->name));
+    const char* name(reinterpret_cast<const char*>(root->name));
     if (name == nullptr) {
         LOG_ERROR("Error getting root element name");
         return std::string();
@@ -282,7 +280,7 @@ bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, CXmlParser::T
         return false;
     }
 
-    xmlNodeSet *nodes = xpathObj->nodesetval;
+    xmlNodeSet* nodes = xpathObj->nodesetval;
     if (nodes == nullptr) {
         xmlXPathFreeObject(xpathObj);
         // Returning 0 results is not an error at this stage
@@ -935,6 +933,8 @@ bool CXmlParser::toNodeHierarchy(const xmlNode& parentNode,
     const xmlNode* childNode(parentNode.children);
     while (childNode != nullptr) {
         if (childNode->type == XML_ELEMENT_NODE) {
+            CXmlNodeWithChildren::TXmlNodeWithChildrenP childPtr;
+
             if (this->toNodeHierarchy(*childNode, pool, cache, childPtr) == false) {
                 return false;
             }
