@@ -66,16 +66,14 @@ CAnomalyDetectorModel* CEventRateModelFactory::makeModel(const SModelInitializat
         influenceCalculators.push_back(this->defaultInfluenceCalculators(name, features));
     }
 
-    return new CEventRateModel(this->modelParams(),
-                               dataGatherer,
-                               this->defaultFeatureModels(features,
-                                                          dataGatherer->bucketLength(),
-                                                          this->minimumSeasonalVarianceScale(),
-                                                          true),
-                               this->defaultCorrelatePriors(features),
-                               this->defaultCorrelates(features),
-                               this->defaultCategoricalPrior(),
-                               influenceCalculators);
+    return new CEventRateModel(
+        this->modelParams(),
+        dataGatherer,
+        this->defaultFeatureModels(features, dataGatherer->bucketLength(), this->minimumSeasonalVarianceScale(), true),
+        this->defaultCorrelatePriors(features),
+        this->defaultCorrelates(features),
+        this->defaultCategoricalPrior(),
+        influenceCalculators);
 }
 
 CAnomalyDetectorModel* CEventRateModelFactory::makeModel(const SModelInitializationData& initData,
@@ -289,8 +287,7 @@ void CEventRateModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) 
     m_BucketResultsDelay = bucketResultsDelay;
 }
 
-double CEventRateModelFactory::minimumSeasonalVarianceScale() const
-{
+double CEventRateModelFactory::minimumSeasonalVarianceScale() const {
     return 0.4;
 }
 

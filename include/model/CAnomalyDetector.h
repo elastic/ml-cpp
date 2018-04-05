@@ -238,7 +238,7 @@ public:
 
     //! Generate maths models for forecasting
     CForecastDataSink::SForecastResultSeries getForecastModels(bool persistOnDisk = false,
-                                                               const std::string &persistenceFolder = EMPTY_STRING) const;
+                                                               const std::string& persistenceFolder = EMPTY_STRING) const;
 
     //! Remove dead models, i.e. those models that have more-or-less
     //! reverted back to their non-informative state.  BE CAREFUL WHEN

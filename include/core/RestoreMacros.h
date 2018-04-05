@@ -48,25 +48,22 @@ namespace core {
         continue;                                                                                                                          \
     }
 
-#define RESTORE_ENUM(tag, target, enumtype)                                           \
-        if (name == tag)                                                              \
-        {                                                                             \
-            int value;                                                                \
-            if (core::CStringUtils::stringToType(traverser.value(), value) == false)  \
-            {                                                                         \
-                LOG_ERROR("Failed to restore " #tag ", got " << traverser.value());   \
-                return false;                                                         \
-            }                                                                         \
-            target = enumtype(value);                                                 \
-            continue;                                                                 \
-        }
+#define RESTORE_ENUM(tag, target, enumtype)                                                                                                \
+    if (name == tag) {                                                                                                                     \
+        int value;                                                                                                                         \
+        if (core::CStringUtils::stringToType(traverser.value(), value) == false) {                                                         \
+            LOG_ERROR("Failed to restore " #tag ", got " << traverser.value());                                                            \
+            return false;                                                                                                                  \
+        }                                                                                                                                  \
+        target = enumtype(value);                                                                                                          \
+        continue;                                                                                                                          \
+    }
 
-#define RESTORE_ENUM_CHECKED(tag, target, enumtype, restoreSuccess)                   \
-        if (name == tag)                                                              \
-        {                                                                             \
-            restoreSuccess = true;                                                    \
-            RESTORE_ENUM(tag, target, enumtype)                                       \
-        }
+#define RESTORE_ENUM_CHECKED(tag, target, enumtype, restoreSuccess)                                                                        \
+    if (name == tag) {                                                                                                                     \
+        restoreSuccess = true;                                                                                                             \
+        RESTORE_ENUM(tag, target, enumtype)                                                                                                \
+    }
 
 #define RESTORE_SETUP_TEARDOWN(tag, setup, restore, teardown)                                                                              \
     if (name == tag) {                                                                                                                     \

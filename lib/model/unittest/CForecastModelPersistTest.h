@@ -18,12 +18,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CForecastModelPersistTest : public CppUnit::TestFixture
-{
-    public:
-        void testPersistAndRestore();
+class CForecastModelPersistTest : public CppUnit::TestFixture {
+public:
+    void testPersistAndRestore();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CForecastModelPersistTest_h

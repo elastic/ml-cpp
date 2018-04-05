@@ -66,15 +66,13 @@ CAnomalyDetectorModel* CEventRatePopulationModelFactory::makeModel(const SModelI
         influenceCalculators.push_back(this->defaultInfluenceCalculators(name, features));
     }
 
-    return new CEventRatePopulationModel(this->modelParams(),
-                                         dataGatherer,
-                                         this->defaultFeatureModels(features,
-                                                                    dataGatherer->bucketLength(),
-                                                                    this->minimumSeasonalVarianceScale(),
-                                                                    false),
-                                         this->defaultCorrelatePriors(features),
-                                         this->defaultCorrelates(features),
-                                         influenceCalculators);
+    return new CEventRatePopulationModel(
+        this->modelParams(),
+        dataGatherer,
+        this->defaultFeatureModels(features, dataGatherer->bucketLength(), this->minimumSeasonalVarianceScale(), false),
+        this->defaultCorrelatePriors(features),
+        this->defaultCorrelates(features),
+        influenceCalculators);
 }
 
 CAnomalyDetectorModel* CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& initData,
@@ -304,8 +302,7 @@ CEventRatePopulationModelFactory::TStrCRefVec CEventRatePopulationModelFactory::
     return result;
 }
 
-double CEventRatePopulationModelFactory::minimumSeasonalVarianceScale() const
-{
+double CEventRatePopulationModelFactory::minimumSeasonalVarianceScale() const {
     return 1.0;
 }
 }

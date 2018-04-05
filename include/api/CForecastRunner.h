@@ -78,22 +78,22 @@ public:
     static const size_t DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
 
     //! max memory allowed to use for forecast models
-        static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520ull; // 20MB
+    static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520ull; // 20MB
 
-        // Note: This value measures the size in memory, not the size of the persistence,
-        // which is likely higher and would be hard to calculate upfront
-        //! max memory allowed to use for forecast models persisting to disk
-        static const size_t MAX_FORECAST_MODEL_PERSISTANCE_MEMORY = 524288000ull; // 500MB
+    // Note: This value measures the size in memory, not the size of the persistence,
+    // which is likely higher and would be hard to calculate upfront
+    //! max memory allowed to use for forecast models persisting to disk
+    static const size_t MAX_FORECAST_MODEL_PERSISTANCE_MEMORY = 524288000ull; // 500MB
 
-        // Note: This value is lower than on X-pack side to prevent side-effects,
-        // if you change this value also change the limit on X-pack side.
-        // The purpose of this value is to guard the rest of the system regarding
-        // an out of disk space
-        //! minimum disk space required for disk persistence
-        static const size_t MIN_FORECAST_AVAILABLE_DISK_SPACE = 4294967296ull; // 4GB
+    // Note: This value is lower than on X-pack side to prevent side-effects,
+    // if you change this value also change the limit on X-pack side.
+    // The purpose of this value is to guard the rest of the system regarding
+    // an out of disk space
+    //! minimum disk space required for disk persistence
+    static const size_t MIN_FORECAST_AVAILABLE_DISK_SPACE = 4294967296ull; // 4GB
 
     //! minimum time between stat updates to prevent to many updates in a short time
-        static const uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000ul; // 3s
+    static const uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000ul; // 3s
 
 private:
     static const std::string ERROR_FORECAST_REQUEST_FAILED_TO_PARSE;
@@ -104,8 +104,8 @@ private:
     static const std::string ERROR_NO_CREATE_TIME;
     static const std::string ERROR_BAD_MEMORY_STATUS;
     static const std::string ERROR_MEMORY_LIMIT;
-        static const std::string ERROR_MEMORY_LIMIT_DISK;
-        static const std::string ERROR_MEMORY_LIMIT_DISKSPACE;
+    static const std::string ERROR_MEMORY_LIMIT_DISK;
+    static const std::string ERROR_MEMORY_LIMIT_DISKSPACE;
     static const std::string ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS;
     static const std::string ERROR_NO_SUPPORTED_FUNCTIONS;
     static const std::string WARNING_DURATION_LIMIT;
@@ -124,7 +124,7 @@ public:
     using TForecastModelWrapper = model::CForecastDataSink::SForecastModelWrapper;
     using TForecastResultSeries = model::CForecastDataSink::SForecastResultSeries;
     using TForecastResultSeriesVec = std::vector<TForecastResultSeries>;
-        using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
 
     using TStrUSet = boost::unordered_set<std::string>;
 
@@ -211,8 +211,8 @@ private:
         //! A collection storing important messages from forecasting
         TStrUSet s_Messages;
 
-            //! A directory to persist models on disk
-            std::string                 s_TemporaryFolder;
+        //! A directory to persist models on disk
+        std::string s_TemporaryFolder;
     };
 
 private:
@@ -225,8 +225,8 @@ private:
     //! Check for new jobs, blocks while waiting
     bool tryGetJob(SForecast& forecastJob);
 
-        //! check for sufficient disk space
-        bool sufficientAvailableDiskSpace(const boost::filesystem::path &path);
+    //! check for sufficient disk space
+    bool sufficientAvailableDiskSpace(const boost::filesystem::path& path);
 
     //! pushes new jobs into the internal 'queue' (thread boundary)
     bool push(SForecast& forecastJob);

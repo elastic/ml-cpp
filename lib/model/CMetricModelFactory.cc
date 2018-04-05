@@ -67,10 +67,7 @@ CAnomalyDetectorModel* CMetricModelFactory::makeModel(const SModelInitialization
 
     return new CMetricModel(this->modelParams(),
                             dataGatherer,
-                            this->defaultFeatureModels(features,
-                                                       dataGatherer->bucketLength(),
-                                                       this->minimumSeasonalVarianceScale(),
-                                                       true),
+                            this->defaultFeatureModels(features, dataGatherer->bucketLength(), this->minimumSeasonalVarianceScale(), true),
                             this->defaultCorrelatePriors(features),
                             this->defaultCorrelates(features),
                             influenceCalculators);
@@ -290,8 +287,7 @@ void CMetricModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) {
     m_BucketResultsDelay = bucketResultsDelay;
 }
 
-double CMetricModelFactory::minimumSeasonalVarianceScale() const
-{
+double CMetricModelFactory::minimumSeasonalVarianceScale() const {
     return 0.4;
 }
 

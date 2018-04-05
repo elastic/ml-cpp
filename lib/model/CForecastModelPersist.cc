@@ -27,10 +27,8 @@
 
 #include <boost/bind.hpp>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 namespace {
 static const std::string FORECAST_MODEL_PERSIST_TAG("forecast_persist");
@@ -40,71 +38,55 @@ static const std::string MODEL_TAG("model");
 static const std::string BY_FIELD_VALUE_TAG("by_field_value");
 }
 
-CForecastModelPersist::CPersist::CPersist(const std::string &temporaryPath):
-    m_FileName(temporaryPath),
-    m_OutStream(),
-    m_PersistInserter()
-{
+CForecastModelPersist::CPersist::CPersist(const std::string& temporaryPath)
+    : m_FileName(temporaryPath), m_OutStream(), m_PersistInserter() {
     m_FileName /= boost::filesystem::unique_path("forecast-persist-%%%%-%%%%-%%%%-%%%%");
     m_OutStream.open(m_FileName.string());
     m_PersistInserter.reset(new core::CJsonStatePersistInserter(m_OutStream));
 }
 
-void CForecastModelPersist::CPersist::addModel(const maths::CModel *model,
+void CForecastModelPersist::CPersist::addModel(const maths::CModel* model,
                                                const model_t::EFeature feature,
-                                               const std::string &byFieldValue)
-{
-    if (!m_PersistInserter)
-    {
+                                               const std::string& byFieldValue) {
+    if (!m_PersistInserter) {
         LOG_ERROR("Internal error: Can not add model to an already closed stream.");
         return;
     }
 
     m_PersistInserter->insertLevel(FORECAST_MODEL_PERSIST_TAG,
-                                   boost::bind<void>(CForecastModelPersist::CPersist::persistOneModel,
-                                                     _1, model, feature, byFieldValue));
+                                   boost::bind<void>(CForecastModelPersist::CPersist::persistOneModel, _1, model, feature, byFieldValue));
 }
 
-void CForecastModelPersist::CPersist::persistOneModel(core::CStatePersistInserter &inserter,
-                                                      const maths::CModel *model,
+void CForecastModelPersist::CPersist::persistOneModel(core::CStatePersistInserter& inserter,
+                                                      const maths::CModel* model,
                                                       const model_t::EFeature feature,
-                                                      const std::string &byFieldValue)
-{
+                                                      const std::string& byFieldValue) {
     inserter.insertValue(FEATURE_TAG, feature);
     inserter.insertValue(DATA_TYPE_TAG, model->dataType());
     inserter.insertValue(BY_FIELD_VALUE_TAG, byFieldValue);
     inserter.insertLevel(MODEL_TAG, boost::bind<void>(maths::CModelStateSerialiser(), boost::cref(*model), _1));
 }
 
-const std::string &CForecastModelPersist::CPersist::finalizePersistAndGetFile()
-{
+const std::string& CForecastModelPersist::CPersist::finalizePersistAndGetFile() {
     // destruct m_PersistInserter to force close it
     m_PersistInserter.reset();
     m_OutStream.close();
     return m_FileName.string();
 }
 
-CForecastModelPersist::CRestore::CRestore(const SModelParams &modelParams,
-                                          double minimumSeasonalVarianceScale,
-                                          const std::string &fileName):
-    m_ModelParams(modelParams),
-    m_MinimumSeasonalVarianceScale(minimumSeasonalVarianceScale),
-    m_InStream(fileName),
-    m_RestoreTraverser(m_InStream)
-{
+CForecastModelPersist::CRestore::CRestore(const SModelParams& modelParams, double minimumSeasonalVarianceScale, const std::string& fileName)
+    : m_ModelParams(modelParams),
+      m_MinimumSeasonalVarianceScale(minimumSeasonalVarianceScale),
+      m_InStream(fileName),
+      m_RestoreTraverser(m_InStream) {
 }
 
-bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr &model,
-                                                model_t::EFeature &feature,
-                                                std::string &byFieldValue)
-{
-    if (m_RestoreTraverser.isEof())
-    {
+bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model, model_t::EFeature& feature, std::string& byFieldValue) {
+    if (m_RestoreTraverser.isEof()) {
         return false;
     }
 
-    if (m_RestoreTraverser.name() != FORECAST_MODEL_PERSIST_TAG)
-    {
+    if (m_RestoreTraverser.name() != FORECAST_MODEL_PERSIST_TAG) {
         LOG_ERROR("Failed to restore forecast model, unexpected tag");
         return false;
     }
@@ -115,14 +97,13 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr &model,
     }
 
     TMathsModelPtr originalModel;
-    if(!m_RestoreTraverser.traverseSubLevel(boost::bind<bool>(CForecastModelPersist::CRestore::restoreOneModel,
-                                                              _1,
-                                                              boost::cref(m_ModelParams),
-                                                              m_MinimumSeasonalVarianceScale,
-                                                              boost::ref(originalModel),
-                                                              boost::ref(feature),
-                                                              boost::ref(byFieldValue))))
-    {
+    if (!m_RestoreTraverser.traverseSubLevel(boost::bind<bool>(CForecastModelPersist::CRestore::restoreOneModel,
+                                                               _1,
+                                                               boost::cref(m_ModelParams),
+                                                               m_MinimumSeasonalVarianceScale,
+                                                               boost::ref(originalModel),
+                                                               boost::ref(feature),
+                                                               boost::ref(byFieldValue)))) {
         LOG_ERROR("Failed to restore forecast model, internal error");
         return false;
     }
@@ -133,13 +114,12 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr &model,
     return true;
 }
 
-bool CForecastModelPersist::CRestore::restoreOneModel(core::CStateRestoreTraverser &traverser,
+bool CForecastModelPersist::CRestore::restoreOneModel(core::CStateRestoreTraverser& traverser,
                                                       const SModelParams modelParams,
                                                       double minimumSeasonalVarianceScale,
-                                                      TMathsModelPtr &model,
-                                                      model_t::EFeature &feature,
-                                                      std::string &byFieldValue)
-{
+                                                      TMathsModelPtr& model,
+                                                      model_t::EFeature& feature,
+                                                      std::string& byFieldValue) {
     // reset all
     model.reset();
     bool restoredFeature = false;
@@ -147,45 +127,34 @@ bool CForecastModelPersist::CRestore::restoreOneModel(core::CStateRestoreTravers
     byFieldValue.clear();
     maths_t::EDataType dataType;
 
-    do
-    {
-        const std::string &name = traverser.name();
+    do {
+        const std::string& name = traverser.name();
         RESTORE_ENUM_CHECKED(FEATURE_TAG, feature, model_t::EFeature, restoredFeature)
         RESTORE_ENUM_CHECKED(DATA_TYPE_TAG, dataType, maths_t::EDataType, restoredDataType)
         RESTORE_BUILT_IN(BY_FIELD_VALUE_TAG, byFieldValue)
-        if (name == MODEL_TAG)
-        {
-            if (!restoredDataType)
-            {
+        if (name == MODEL_TAG) {
+            if (!restoredDataType) {
                 LOG_ERROR("Failed to restore forecast model, datatype missing");
                 return false;
             }
 
             maths::SModelRestoreParams params{
-                maths::CModelParams(modelParams.s_BucketLength,
-                                    modelParams.s_LearnRate,
-                                    modelParams.s_DecayRate,
-                                    minimumSeasonalVarianceScale
-                ),
+                maths::CModelParams(
+                    modelParams.s_BucketLength, modelParams.s_LearnRate, modelParams.s_DecayRate, minimumSeasonalVarianceScale),
                 maths::STimeSeriesDecompositionRestoreParams{
-                    modelParams.s_DecayRate,
-                    modelParams.s_BucketLength,
-                    modelParams.s_ComponentSize},
-                    modelParams.distributionRestoreParams(dataType)};
+                    modelParams.s_DecayRate, modelParams.s_BucketLength, modelParams.s_ComponentSize},
+                modelParams.distributionRestoreParams(dataType)};
 
-            if(!traverser.traverseSubLevel(boost::bind<bool>(maths::CModelStateSerialiser(),
-                                                             boost::cref(params), boost::ref(model), _1)))
-            {
+            if (!traverser.traverseSubLevel(
+                    boost::bind<bool>(maths::CModelStateSerialiser(), boost::cref(params), boost::ref(model), _1))) {
                 LOG_ERROR("Failed to restore forecast model, model missing");
                 return false;
             }
         }
-    }
-    while (traverser.next());
+    } while (traverser.next());
 
     // only the by_field_value can be empty
-    if (!model || !restoredFeature || !restoredDataType)
-    {
+    if (!model || !restoredFeature || !restoredDataType) {
         LOG_ERROR("Failed to restore forecast model, data missing");
         return false;
     }

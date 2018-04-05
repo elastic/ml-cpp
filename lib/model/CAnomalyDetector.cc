@@ -497,7 +497,7 @@ CForecastDataSink::SForecastModelPrerequisites CAnomalyDetector::getForecastPrer
 }
 
 CForecastDataSink::SForecastResultSeries CAnomalyDetector::getForecastModels(bool persistOnDisk,
-                                                                             const std::string &persistenceFolder) const
+                                                                             const std::string& persistenceFolder) const {
     CForecastDataSink::SForecastResultSeries series(m_ModelFactory->modelParams());
 
     if (m_DataGatherer->isPopulation()) {
@@ -518,20 +518,15 @@ CForecastDataSink::SForecastResultSeries CAnomalyDetector::getForecastModels(boo
     series.s_PartitionFieldValue = m_DataGatherer->partitionFieldValue();
     series.s_MinimumSeasonalVarianceScale = m_ModelFactory->minimumSeasonalVarianceScale();
 
-    if (persistOnDisk)
-    {
+    if (persistOnDisk) {
         CForecastModelPersist::CPersist persister(persistenceFolder);
 
-        for (std::size_t pid = 0u, maxPid = m_DataGatherer->numberPeople(); pid < maxPid; ++pid)
-        {
+        for (std::size_t pid = 0u, maxPid = m_DataGatherer->numberPeople(); pid < maxPid; ++pid) {
             // todo: Add terms filtering here
-            if (m_DataGatherer->isPersonActive(pid))
-            {
-                for (auto feature : view->features())
-                {
-                    const maths::CModel *model = view->model(feature, pid);
-                    if (model != nullptr && model->isForecastPossible())
-                    {
+            if (m_DataGatherer->isPersonActive(pid)) {
+                for (auto feature : view->features()) {
+                    const maths::CModel* model = view->model(feature, pid);
+                    if (model != nullptr && model->isForecastPossible()) {
                         persister.addModel(model, feature, m_DataGatherer->personName(pid));
                     }
                 }
@@ -539,23 +534,15 @@ CForecastDataSink::SForecastResultSeries CAnomalyDetector::getForecastModels(boo
         }
 
         series.s_ToForecastPersisted = persister.finalizePersistAndGetFile();
-    }
-    else
-    {
-        for (std::size_t pid = 0u, maxPid = m_DataGatherer->numberPeople(); pid < maxPid; ++pid)
-        {
+    } else {
+        for (std::size_t pid = 0u, maxPid = m_DataGatherer->numberPeople(); pid < maxPid; ++pid) {
             // todo: Add terms filtering here
-            if (m_DataGatherer->isPersonActive(pid))
-            {
-                for (auto feature : view->features())
-                {
-                    const maths::CModel *model = view->model(feature, pid);
-                    if (model != nullptr && model->isForecastPossible())
-                    {
+            if (m_DataGatherer->isPersonActive(pid)) {
+                for (auto feature : view->features()) {
+                    const maths::CModel* model = view->model(feature, pid);
+                    if (model != nullptr && model->isForecastPossible()) {
                         series.s_ToForecast.emplace_back(
-                                feature,
-                                CForecastDataSink::TMathsModelPtr(model->cloneForForecast()),
-                                m_DataGatherer->personName(pid));
+                            feature, CForecastDataSink::TMathsModelPtr(model->cloneForForecast()), m_DataGatherer->personName(pid));
                     }
                 }
             }
