@@ -335,8 +335,8 @@ public:
         // verification
         // See http://linux/wiki/index.php/Technical_design_issues#std::string
 #ifdef MacOSX
-        // For lengths up to 22 bytes there is no allocation
         if (capacity <= 22) {
+            // For lengths up to 22 bytes there is no allocation
             return 0;
         }
         return capacity + 1;
@@ -352,9 +352,9 @@ public:
         }
         return capacity + sizeof(void*) + (2 * sizeof(std::size_t)) + 1;
 
-#else // Linux with C++11 ABI and Windows                                                                                                  \
-      // For lengths up to 15 bytes there is no allocation
+#else // Linux with C++11 ABI and Windows
         if (capacity <= 15) {
+            // For lengths up to 15 bytes there is no allocation
             return 0;
         }
         return capacity + 1;
@@ -733,11 +733,11 @@ public:
         std::size_t capacity = t.capacity();
         std::size_t unused = 0;
 #ifdef MacOSX
-        // For lengths up to 22 bytes there is no allocation
         if (capacity > 22) {
             unused = capacity - length;
             ++capacity;
         } else {
+            // For lengths up to 22 bytes there is no allocation
             capacity = 0;
         }
 
@@ -752,12 +752,12 @@ public:
             capacity += sizeof(void*) + (2 * sizeof(std::size_t)) + 1;
         }
 
-#else // Linux with C++11 ABI and Windows                                                                                                  \
-      // For lengths up to 15 bytes there is no allocation
+#else // Linux with C++11 ABI and Windows
         if (capacity > 15) {
             unused = capacity - length;
             ++capacity;
         } else {
+            // For lengths up to 15 bytes there is no allocation
             capacity = 0;
         }
 #endif
