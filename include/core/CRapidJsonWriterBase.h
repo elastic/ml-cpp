@@ -62,28 +62,40 @@ template<typename OUTPUT_STREAM,
          template<typename, typename, typename, typename, unsigned> class JSON_WRITER = rapidjson::Writer>
 class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS> {
 public:
-    using TTimeVec = std::vector<core_t::TTime>;
-    using TStrVec = std::vector<std::string>;
-    using TDoubleVec = std::vector<double>;
-    using TDoubleDoublePr = std::pair<double, double>;
-    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-    using TDoubleDoubleDoublePrPr = std::pair<double, TDoubleDoublePr>;
-    using TDoubleDoubleDoublePrPrVec = std::vector<TDoubleDoubleDoublePrPr>;
-    using TStrUSet = boost::unordered_set<std::string>;
-    using TDocument = rapidjson::Document;
-    using TValue = rapidjson::Value;
-    using TDocumentWeakPtr = boost::weak_ptr<TDocument>;
-    using TValuePtr = boost::shared_ptr<TValue>;
+    typedef std::vector<core_t::TTime> TTimeVec;
+    typedef std::vector<std::string> TStrVec;
+    typedef std::vector<double> TDoubleVec;
+    typedef std::pair<double, double> TDoubleDoublePr;
+    typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
+    typedef std::pair<double, TDoubleDoublePr> TDoubleDoubleDoublePrPr;
+    typedef std::vector<TDoubleDoubleDoublePrPr> TDoubleDoubleDoublePrPrVec;
+    typedef boost::unordered_set<std::string> TStrUSet;
+    typedef rapidjson::Document TDocument;
+    typedef rapidjson::Value TValue;
+    typedef boost::weak_ptr<TDocument> TDocumentWeakPtr;
+    typedef boost::shared_ptr<TValue> TValuePtr;
 
-    using TPoolAllocatorPtr = boost::shared_ptr<CRapidJsonPoolAllocator>;
-    using TPoolAllocatorPtrStack = std::stack<TPoolAllocatorPtr>;
-    using TStrPoolAllocatorPtrMap = boost::unordered_map<std::string, TPoolAllocatorPtr>;
-    using TStrPoolAllocatorPtrMapItr = TStrPoolAllocatorPtrMap::iterator;
-    using TStrPoolAllocatorPtrMapItrBoolPr = std::pair<TStrPoolAllocatorPtrMapItr, bool>;
+    typedef boost::shared_ptr<CRapidJsonPoolAllocator> TPoolAllocatorPtr;
+    typedef std::stack<TPoolAllocatorPtr> TPoolAllocatorPtrStack;
+    typedef boost::unordered_map<std::string, TPoolAllocatorPtr> TStrPoolAllocatorPtrMap;
+    typedef TStrPoolAllocatorPtrMap::iterator TStrPoolAllocatorPtrMapItr;
+    typedef std::pair<TStrPoolAllocatorPtrMapItr, bool> TStrPoolAllocatorPtrMapItrBoolPr;
 
 public:
     using TRapidJsonWriterBase = JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS>;
 
+    //! Instances of this class may very well be long lived, potentially for the lifetime of the application.
+    //! Over the course of that lifetime resources will accumulate in the underlying rapidjson memory
+    //! allocator. To prevent excessive memory expansion these resources will need to be cleaned regularly.
+    //!
+    //! In preference to clients of this class explicitly clearing the allocator a helper/wrapper class -
+    //! \p CScopedRapidJsonPoolAllocator - is provided. This helper has an RAII style interface that clears the
+    //! allocator when it goes out of scope which requires that the writer provides the push/popAllocator
+    //! functions.  The intent of this approach is to make it possible to use one or two separate allocators
+    //! for the writer at nested scope.
+    //!
+    //! Note that allocators are not destroyed by the pop operation, they persist for the lifetime of the
+    //! writer in a cache for swift retrieval.
     CRapidJsonWriterBase(OUTPUT_STREAM& os) : TRapidJsonWriterBase(os) {
         // push a default rapidjson allocator onto our stack
         m_JsonPoolAllocators.push(boost::make_shared<CRapidJsonPoolAllocator>());
@@ -94,10 +106,9 @@ public:
         m_JsonPoolAllocators.push(boost::make_shared<CRapidJsonPoolAllocator>());
     }
 
-    virtual ~CRapidJsonWriterBase() {
-        // clean up resources
-        m_JsonPoolAllocators.pop();
-    }
+    // No need for an explicit destructor here as the allocators clear themselves
+    // on destruction.
+    virtual ~CRapidJsonWriterBase() = default;
 
     //! Push a named allocator on to the stack
     //! Look in the cache for the allocator - creating it if not present
