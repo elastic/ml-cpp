@@ -17,30 +17,25 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CRestorePreviousStateTest : public CppUnit::TestFixture {
+public:
+    void testRestoreDetectorBy();
+    void testRestoreDetectorOver();
+    void testRestoreDetectorPartition();
+    void testRestoreDetectorDc();
+    void testRestoreDetectorCount();
+    void testRestoreNormalizer();
+    void testRestoreCategorizer();
 
-class CRestorePreviousStateTest : public CppUnit::TestFixture
-{
-    public:
-        void testRestoreDetectorBy(void);
-        void testRestoreDetectorOver(void);
-        void testRestoreDetectorPartition(void);
-        void testRestoreDetectorDc(void);
-        void testRestoreDetectorCount(void);
-        void testRestoreNormalizer(void);
-        void testRestoreCategorizer(void);
+    static CppUnit::Test* suite();
 
-        static CppUnit::Test *suite();
+private:
+    void
+    anomalyDetectorRestoreHelper(const std::string& stateFile, const std::string& configFileName, bool isSymmetric, int latencyBuckets);
 
-    private:
-        void anomalyDetectorRestoreHelper(const std::string &stateFile,
-                                          const std::string &configFileName,
-                                          bool isSymmetric,
-                                          int latencyBuckets);
+    void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric);
 
-        void categorizerRestoreHelper(const std::string &stateFile,
-                                    bool isSymmetric);
-
-        std::string stripDocIds(const std::string &peristedState);
+    std::string stripDocIds(const std::string& peristedState);
 };
 
 #endif // INCLUDED_CRestorePreviousStateTest_h

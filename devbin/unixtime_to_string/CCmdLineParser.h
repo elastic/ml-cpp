@@ -17,12 +17,8 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace syslogparsertester
-{
-
+namespace ml {
+namespace syslogparsertester {
 
 //! \brief
 //! Very simple command line parser.
@@ -34,23 +30,16 @@ namespace syslogparsertester
 //! Put in a class rather than main to allow testing.
 //! TODO make this generic.
 //!
-class CCmdLineParser
-{
-    public:
-        //! Parse the arguments. ONLY return true if configFile and dateTime
-        //! are defined.
-        static bool parse(int argc,
-                          const char * const *argv,
-                          std::string &configFile,
-                          std::string &syslogLine);
+class CCmdLineParser {
+public:
+    //! Parse the arguments. ONLY return true if configFile and dateTime
+    //! are defined.
+    static bool parse(int argc, const char* const* argv, std::string& configFile, std::string& syslogLine);
 
-    private:
-        static const std::string DESCRIPTION;
+private:
+    static const std::string DESCRIPTION;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_date_time_tester_CCmdLineParser_h
-

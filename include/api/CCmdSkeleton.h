@@ -21,16 +21,12 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CDataAdder;
 class CDataSearcher;
 }
-namespace api
-{
+namespace api {
 class CDataProcessor;
 class CInputParser;
 
@@ -45,39 +41,32 @@ class CInputParser;
 //! this class, which, in practice, means that the CIoManager object managing
 //! them must outlive this object.
 //!
-class API_EXPORT CCmdSkeleton : private core::CNonCopyable
-{
-    public:
-        CCmdSkeleton(core::CDataSearcher *restoreSearcher,
-                     core::CDataAdder *persister,
-                     CInputParser &inputParser,
-                     CDataProcessor &processor);
+class API_EXPORT CCmdSkeleton : private core::CNonCopyable {
+public:
+    CCmdSkeleton(core::CDataSearcher* restoreSearcher, core::CDataAdder* persister, CInputParser& inputParser, CDataProcessor& processor);
 
-        //! Pass input to the processor until it's consumed as much as it can.
-        bool ioLoop(void);
+    //! Pass input to the processor until it's consumed as much as it can.
+    bool ioLoop();
 
-    private:
-        //! Persists the state of the models
-        bool persistState(void);
+private:
+    //! Persists the state of the models
+    bool persistState();
 
-    private:
-        //! NULL if state restoration is not required.
-        core::CDataSearcher *m_RestoreSearcher;
+private:
+    //! NULL if state restoration is not required.
+    core::CDataSearcher* m_RestoreSearcher;
 
-        //! NULL if state persistence is not required.
-        core::CDataAdder    *m_Persister;
+    //! NULL if state persistence is not required.
+    core::CDataAdder* m_Persister;
 
-        //! Input data parser.
-        CInputParser        &m_InputParser;
+    //! Input data parser.
+    CInputParser& m_InputParser;
 
-        //! Reference to the object that's going to do the command-specific
-        //! processing of the data.
-        CDataProcessor      &m_Processor;
+    //! Reference to the object that's going to do the command-specific
+    //! processing of the data.
+    CDataProcessor& m_Processor;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_api_CCmdSkeleton_h
-

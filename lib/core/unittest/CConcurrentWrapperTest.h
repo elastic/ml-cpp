@@ -18,18 +18,16 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CConcurrentWrapperTest : public CppUnit::TestFixture
-{
-    public:
-        void testBasic(void);
-        void testThreads(void);
-        void testThreadsSlow(void);
-        void testThreadsSlowLowCapacity(void);
-        void testThreadsLowCapacity(void);
-        void testMemoryDebug(void);
+class CConcurrentWrapperTest : public CppUnit::TestFixture {
+public:
+    void testBasic();
+    void testThreads();
+    void testThreadsSlow();
+    void testThreadsSlowLowCapacity();
+    void testThreadsLowCapacity();
+    void testMemoryDebug();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
-
 
 #endif /* INCLUDED_CConcurrentWrapperTest_h */

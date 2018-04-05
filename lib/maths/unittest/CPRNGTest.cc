@@ -28,8 +28,7 @@
 
 using namespace ml;
 
-void CPRNGTest::testSplitMix64(void)
-{
+void CPRNGTest::testSplitMix64() {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CPRNGTest::testSplitMix64  |");
     LOG_DEBUG("+-----------------------------+");
@@ -41,25 +40,23 @@ void CPRNGTest::testSplitMix64(void)
 
     // Test min and max.
     maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> min;
-    maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t> > max;
-    for (std::size_t i = 0u; i < 10000; ++i)
-    {
+    maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t>> max;
+    for (std::size_t i = 0u; i < 10000; ++i) {
         uint64_t x = rng1();
         min.add(x);
         max.add(x);
     }
     LOG_DEBUG("min = " << min[0] << ", max = " << max[0]);
-    CPPUNIT_ASSERT(min[0] <  (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
-    CPPUNIT_ASSERT(max[0] >   maths::CPRNG::CSplitMix64::max()
-                           - (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
+    CPPUNIT_ASSERT(min[0] < (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
+    CPPUNIT_ASSERT(max[0] >
+                   maths::CPRNG::CSplitMix64::max() - (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
 
     // Test generate.
     maths::CPRNG::CSplitMix64 rng2 = rng1;
-    uint64_t samples1[50] = { 0u };
+    uint64_t samples1[50] = {0u};
     rng1.generate(&samples1[0], &samples1[50]);
-    uint64_t samples2[50] = { 0u };
-    for (std::size_t i = 0u; i < 50; ++i)
-    {
+    uint64_t samples2[50] = {0u};
+    for (std::size_t i = 0u; i < 50; ++i) {
         samples2[i] = rng2();
     }
     CPPUNIT_ASSERT(std::equal(&samples1[0], &samples1[50], &samples2[0]));
@@ -67,16 +64,14 @@ void CPRNGTest::testSplitMix64(void)
     // Test distribution.
     {
         boost::random::mt19937_64 mt;
-        double p1[50] = { 0.0 };
-        double p2[50] = { 0.0 };
+        double p1[50] = {0.0};
+        double p2[50] = {0.0};
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m1;
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m2;
-        for (std::size_t t = 0u; t < 50; ++t)
-        {
+        for (std::size_t t = 0u; t < 50; ++t) {
             maths::CStatisticalTests::CCramerVonMises cvm1(50);
             maths::CStatisticalTests::CCramerVonMises cvm2(50);
-            for (std::size_t i = 0u; i < 5000; ++i)
-            {
+            for (std::size_t i = 0u; i < 5000; ++i) {
                 cvm1.addF(u01(rng1));
                 cvm2.addF(u01(mt));
             }
@@ -94,16 +89,14 @@ void CPRNGTest::testSplitMix64(void)
     {
         boost::random::mt11213b mt;
         boost::math::normal_distribution<> n410(4.0, 10.0);
-        double p1[50] = { 0.0 };
-        double p2[50] = { 0.0 };
+        double p1[50] = {0.0};
+        double p2[50] = {0.0};
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m1;
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m2;
-        for (std::size_t t = 0u; t < 50; ++t)
-        {
+        for (std::size_t t = 0u; t < 50; ++t) {
             maths::CStatisticalTests::CCramerVonMises cvm1(50);
             maths::CStatisticalTests::CCramerVonMises cvm2(50);
-            for (std::size_t i = 0u; i < 5000; ++i)
-            {
+            for (std::size_t i = 0u; i < 5000; ++i) {
                 cvm1.addF(boost::math::cdf(n410, norm(rng1)));
                 cvm2.addF(boost::math::cdf(n410, norm(mt)));
             }
@@ -122,12 +115,10 @@ void CPRNGTest::testSplitMix64(void)
     // Test discard.
     maths::CPRNG::CSplitMix64 rng3 = rng1;
     rng1.discard(10);
-    for (std::size_t i = 0u; i < 10; ++i)
-    {
+    for (std::size_t i = 0u; i < 10; ++i) {
         rng3();
     }
-    for (std::size_t t = 0u; t < 500; ++t)
-    {
+    for (std::size_t t = 0u; t < 500; ++t) {
         CPPUNIT_ASSERT_EQUAL(rng1(), rng3());
     }
 
@@ -136,14 +127,12 @@ void CPRNGTest::testSplitMix64(void)
     LOG_DEBUG("state = " << state);
     maths::CPRNG::CSplitMix64 rng4;
     CPPUNIT_ASSERT(rng4.fromString(state));
-    for (std::size_t t = 0u; t < 500; ++t)
-    {
+    for (std::size_t t = 0u; t < 500; ++t) {
         CPPUNIT_ASSERT_EQUAL(rng1(), rng4());
     }
 }
 
-void CPRNGTest::testXorOShiro128Plus(void)
-{
+void CPRNGTest::testXorOShiro128Plus() {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CPRNGTest::testXorOShiro128Plus  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -155,25 +144,23 @@ void CPRNGTest::testXorOShiro128Plus(void)
 
     // Test min and max.
     maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> min;
-    maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t> > max;
-    for (std::size_t i = 0u; i < 10000; ++i)
-    {
+    maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t>> max;
+    for (std::size_t i = 0u; i < 10000; ++i) {
         uint64_t x = rng1();
         min.add(x);
         max.add(x);
     }
     LOG_DEBUG("min = " << min[0] << ", max = " << max[0]);
-    CPPUNIT_ASSERT(min[0] <  (maths::CPRNG::CXorOShiro128Plus::max() - maths::CPRNG::CXorOShiro128Plus::min()) / 2000);
-    CPPUNIT_ASSERT(max[0] >   maths::CPRNG::CXorOShiro128Plus::max()
-                           - (maths::CPRNG::CXorOShiro128Plus::max() - maths::CPRNG::CXorOShiro128Plus::min()) / 2000);
+    CPPUNIT_ASSERT(min[0] < (maths::CPRNG::CXorOShiro128Plus::max() - maths::CPRNG::CXorOShiro128Plus::min()) / 2000);
+    CPPUNIT_ASSERT(max[0] > maths::CPRNG::CXorOShiro128Plus::max() -
+                                (maths::CPRNG::CXorOShiro128Plus::max() - maths::CPRNG::CXorOShiro128Plus::min()) / 2000);
 
     // Test generate.
     maths::CPRNG::CXorOShiro128Plus rng2 = rng1;
-    uint64_t samples1[50] = { 0u };
+    uint64_t samples1[50] = {0u};
     rng1.generate(&samples1[0], &samples1[50]);
-    uint64_t samples2[50] = { 0u };
-    for (std::size_t i = 0u; i < 50; ++i)
-    {
+    uint64_t samples2[50] = {0u};
+    for (std::size_t i = 0u; i < 50; ++i) {
         samples2[i] = rng2();
     }
     CPPUNIT_ASSERT(std::equal(&samples1[0], &samples1[50], &samples2[0]));
@@ -181,16 +168,14 @@ void CPRNGTest::testXorOShiro128Plus(void)
     // Test distribution.
     {
         boost::random::mt11213b mt;
-        double p1[50] = { 0.0 };
-        double p2[50] = { 0.0 };
+        double p1[50] = {0.0};
+        double p2[50] = {0.0};
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m1;
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m2;
-        for (std::size_t t = 0u; t < 50; ++t)
-        {
+        for (std::size_t t = 0u; t < 50; ++t) {
             maths::CStatisticalTests::CCramerVonMises cvm1(50);
             maths::CStatisticalTests::CCramerVonMises cvm2(50);
-            for (std::size_t i = 0u; i < 5000; ++i)
-            {
+            for (std::size_t i = 0u; i < 5000; ++i) {
                 cvm1.addF(u01(rng1));
                 cvm2.addF(u01(mt));
             }
@@ -208,16 +193,14 @@ void CPRNGTest::testXorOShiro128Plus(void)
     {
         boost::random::mt19937_64 mt;
         boost::math::normal_distribution<> nm44(-4.0, 4.0);
-        double p1[50] = { 0.0 };
-        double p2[50] = { 0.0 };
+        double p1[50] = {0.0};
+        double p2[50] = {0.0};
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m1;
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m2;
-        for (std::size_t t = 0u; t < 50; ++t)
-        {
+        for (std::size_t t = 0u; t < 50; ++t) {
             maths::CStatisticalTests::CCramerVonMises cvm1(50);
             maths::CStatisticalTests::CCramerVonMises cvm2(50);
-            for (std::size_t i = 0u; i < 5000; ++i)
-            {
+            for (std::size_t i = 0u; i < 5000; ++i) {
                 cvm1.addF(boost::math::cdf(nm44, norm(rng1)));
                 cvm2.addF(boost::math::cdf(nm44, norm(mt)));
             }
@@ -236,12 +219,10 @@ void CPRNGTest::testXorOShiro128Plus(void)
     // Test discard.
     maths::CPRNG::CXorOShiro128Plus rng3 = rng1;
     rng1.discard(10);
-    for (std::size_t i = 0u; i < 10; ++i)
-    {
+    for (std::size_t i = 0u; i < 10; ++i) {
         rng3();
     }
-    for (std::size_t t = 0u; t < 500; ++t)
-    {
+    for (std::size_t t = 0u; t < 500; ++t) {
         CPPUNIT_ASSERT_EQUAL(rng1(), rng3());
     }
 
@@ -251,15 +232,13 @@ void CPRNGTest::testXorOShiro128Plus(void)
     // offset, i.e. rng + n + jump == rng + jump + n.
     maths::CPRNG::CXorOShiro128Plus rng4(rng1);
     maths::CPRNG::CXorOShiro128Plus rng5(rng1);
-    std::size_t steps[] = { 10, 3, 19 };
-    for (std::size_t s = 0u; s < boost::size(steps); ++s)
-    {
+    std::size_t steps[] = {10, 3, 19};
+    for (std::size_t s = 0u; s < boost::size(steps); ++s) {
         rng4.jump();
         rng4.discard(steps[s]);
         rng5.discard(steps[s]);
         rng5.jump();
-        for (std::size_t t = 0u; t < 20; ++t)
-        {
+        for (std::size_t t = 0u; t < 20; ++t) {
             CPPUNIT_ASSERT_EQUAL(rng4(), rng5());
         }
     }
@@ -268,14 +247,12 @@ void CPRNGTest::testXorOShiro128Plus(void)
     std::string state = rng1.toString();
     LOG_DEBUG("state = " << state);
     CPPUNIT_ASSERT(rng4.fromString(state));
-    for (std::size_t t = 0u; t < 500; ++t)
-    {
+    for (std::size_t t = 0u; t < 500; ++t) {
         CPPUNIT_ASSERT_EQUAL(rng1(), rng4());
     }
 }
 
-void CPRNGTest::testXorShift1024Mult(void)
-{
+void CPRNGTest::testXorShift1024Mult() {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CPRNGTest::testXorShift1024Mult  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -287,25 +264,23 @@ void CPRNGTest::testXorShift1024Mult(void)
 
     // Test min and max.
     maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> min;
-    maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t> > max;
-    for (std::size_t i = 0u; i < 10000; ++i)
-    {
+    maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t>> max;
+    for (std::size_t i = 0u; i < 10000; ++i) {
         uint64_t x = rng1();
         min.add(x);
         max.add(x);
     }
     LOG_DEBUG("min = " << min[0] << ", max = " << max[0]);
-    CPPUNIT_ASSERT(min[0] <  (maths::CPRNG::CXorShift1024Mult::max() - maths::CPRNG::CXorShift1024Mult::min()) / 2000);
-    CPPUNIT_ASSERT(max[0] >   maths::CPRNG::CXorShift1024Mult::max()
-                           - (maths::CPRNG::CXorShift1024Mult::max() - maths::CPRNG::CXorShift1024Mult::min()) / 2000);
+    CPPUNIT_ASSERT(min[0] < (maths::CPRNG::CXorShift1024Mult::max() - maths::CPRNG::CXorShift1024Mult::min()) / 2000);
+    CPPUNIT_ASSERT(max[0] > maths::CPRNG::CXorShift1024Mult::max() -
+                                (maths::CPRNG::CXorShift1024Mult::max() - maths::CPRNG::CXorShift1024Mult::min()) / 2000);
 
     // Test generate.
     maths::CPRNG::CXorShift1024Mult rng2 = rng1;
-    uint64_t samples1[50] = { 0u };
+    uint64_t samples1[50] = {0u};
     rng1.generate(&samples1[0], &samples1[50]);
-    uint64_t samples2[50] = { 0u };
-    for (std::size_t i = 0u; i < 50; ++i)
-    {
+    uint64_t samples2[50] = {0u};
+    for (std::size_t i = 0u; i < 50; ++i) {
         samples2[i] = rng2();
     }
     CPPUNIT_ASSERT(std::equal(&samples1[0], &samples1[50], &samples2[0]));
@@ -313,16 +288,14 @@ void CPRNGTest::testXorShift1024Mult(void)
     // Test distribution.
     {
         boost::random::mt19937_64 mt;
-        double p1[50] = { 0.0 };
-        double p2[50] = { 0.0 };
+        double p1[50] = {0.0};
+        double p2[50] = {0.0};
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m1;
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m2;
-        for (std::size_t t = 0u; t < 50; ++t)
-        {
+        for (std::size_t t = 0u; t < 50; ++t) {
             maths::CStatisticalTests::CCramerVonMises cvm1(50);
             maths::CStatisticalTests::CCramerVonMises cvm2(50);
-            for (std::size_t i = 0u; i < 5000; ++i)
-            {
+            for (std::size_t i = 0u; i < 5000; ++i) {
                 cvm1.addF(u01(rng1));
                 cvm2.addF(u01(mt));
             }
@@ -340,16 +313,14 @@ void CPRNGTest::testXorShift1024Mult(void)
     {
         boost::random::mt11213b mt;
         boost::math::normal_distribution<> n1008000(100.0, 8000.0);
-        double p1[50] = { 0.0 };
-        double p2[50] = { 0.0 };
+        double p1[50] = {0.0};
+        double p2[50] = {0.0};
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m1;
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m2;
-        for (std::size_t t = 0u; t < 50; ++t)
-        {
+        for (std::size_t t = 0u; t < 50; ++t) {
             maths::CStatisticalTests::CCramerVonMises cvm1(50);
             maths::CStatisticalTests::CCramerVonMises cvm2(50);
-            for (std::size_t i = 0u; i < 5000; ++i)
-            {
+            for (std::size_t i = 0u; i < 5000; ++i) {
                 cvm1.addF(boost::math::cdf(n1008000, norm(rng1)));
                 cvm2.addF(boost::math::cdf(n1008000, norm(mt)));
             }
@@ -368,12 +339,10 @@ void CPRNGTest::testXorShift1024Mult(void)
     // Test discard.
     maths::CPRNG::CXorShift1024Mult rng3 = rng1;
     rng1.discard(10);
-    for (std::size_t i = 0u; i < 10; ++i)
-    {
+    for (std::size_t i = 0u; i < 10; ++i) {
         rng3();
     }
-    for (std::size_t t = 0u; t < 500; ++t)
-    {
+    for (std::size_t t = 0u; t < 500; ++t) {
         CPPUNIT_ASSERT_EQUAL(rng1(), rng3());
     }
 
@@ -383,15 +352,13 @@ void CPRNGTest::testXorShift1024Mult(void)
     // offset, i.e. rng + n + jump == rng + jump + n.
     maths::CPRNG::CXorShift1024Mult rng4(rng1);
     maths::CPRNG::CXorShift1024Mult rng5(rng1);
-    std::size_t steps[] = { 10, 3, 19 };
-    for (std::size_t s = 0u; s < boost::size(steps); ++s)
-    {
+    std::size_t steps[] = {10, 3, 19};
+    for (std::size_t s = 0u; s < boost::size(steps); ++s) {
         rng4.jump();
         rng4.discard(steps[s]);
         rng5.discard(steps[s]);
         rng5.jump();
-        for (std::size_t t = 0u; t < 20; ++t)
-        {
+        for (std::size_t t = 0u; t < 20; ++t) {
             CPPUNIT_ASSERT_EQUAL(rng4(), rng5());
         }
     }
@@ -401,25 +368,17 @@ void CPRNGTest::testXorShift1024Mult(void)
     std::string state = rng1.toString();
     LOG_DEBUG("state = " << state);
     CPPUNIT_ASSERT(rng4.fromString(state));
-    for (std::size_t t = 0u; t < 500; ++t)
-    {
+    for (std::size_t t = 0u; t < 500; ++t) {
         CPPUNIT_ASSERT_EQUAL(rng1(), rng4());
     }
 }
 
-CppUnit::Test *CPRNGTest::suite(void)
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPRNGTest");
+CppUnit::Test* CPRNGTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPRNGTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CPRNGTest>(
-                                   "CPRNGTest::testSplitMix64",
-                                   &CPRNGTest::testSplitMix64) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CPRNGTest>(
-                                   "CPRNGTest::testXorOShiro128Plus",
-                                   &CPRNGTest::testXorOShiro128Plus) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CPRNGTest>(
-                                   "CPRNGTest::testXorShift1024Mult",
-                                   &CPRNGTest::testXorShift1024Mult) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPRNGTest>("CPRNGTest::testSplitMix64", &CPRNGTest::testSplitMix64));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPRNGTest>("CPRNGTest::testXorOShiro128Plus", &CPRNGTest::testXorOShiro128Plus));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPRNGTest>("CPRNGTest::testXorShift1024Mult", &CPRNGTest::testXorShift1024Mult));
 
     return suiteOfTests;
 }

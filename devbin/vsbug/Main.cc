@@ -17,9 +17,7 @@
 #include <iostream>
 #include <vector>
 
-
-int main(int, char **)
-{
+int main(int, char**) {
     const std::time_t startTime = 1346968800;
     const std::time_t bucketLength = 3600;
 
@@ -29,20 +27,14 @@ int main(int, char **)
     eventTimes.push_back(1347019162);
 
     std::time_t endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-    std::cout << "startTime = " << startTime
-              << ", endTime = " << endTime
-              << ", # events = " << eventTimes.size() << std::endl;
+    std::cout << "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size() << std::endl;
 
     {
         std::time_t offset = endTime - startTime;
         unsigned long i = 0;
-        for (std::time_t bucketStartTime = startTime;
-             bucketStartTime < endTime;
-             bucketStartTime += bucketLength)
-        {
+        for (std::time_t bucketStartTime = startTime; bucketStartTime < endTime; bucketStartTime += bucketLength) {
             std::time_t bucketEndTime = bucketStartTime + bucketLength;
-            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-            {
+            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 std::vector<std::time_t> temp;
                 // Comment out the next line to get the correct result
                 temp.push_back(eventTimes[i] + offset);
@@ -59,4 +51,3 @@ int main(int, char **)
 
     return 0;
 }
-

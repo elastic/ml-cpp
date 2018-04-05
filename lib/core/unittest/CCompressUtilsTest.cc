@@ -19,28 +19,20 @@
 
 #include <string>
 
+CppUnit::Test* CCompressUtilsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCompressUtilsTest");
 
-CppUnit::Test *CCompressUtilsTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCompressUtilsTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCompressUtilsTest>(
-                                   "CCompressUtilsTest::testEmptyAdd",
-                                   &CCompressUtilsTest::testEmptyAdd) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCompressUtilsTest>(
-                                   "CCompressUtilsTest::testOneAdd",
-                                   &CCompressUtilsTest::testOneAdd) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCompressUtilsTest>(
-                                   "CCompressUtilsTest::testManyAdds",
-                                   &CCompressUtilsTest::testManyAdds) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCompressUtilsTest>(
-                                   "CCompressUtilsTest::testLengthOnly",
-                                   &CCompressUtilsTest::testLengthOnly) );
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCompressUtilsTest>("CCompressUtilsTest::testEmptyAdd", &CCompressUtilsTest::testEmptyAdd));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressUtilsTest>("CCompressUtilsTest::testOneAdd", &CCompressUtilsTest::testOneAdd));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCompressUtilsTest>("CCompressUtilsTest::testManyAdds", &CCompressUtilsTest::testManyAdds));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCompressUtilsTest>("CCompressUtilsTest::testLengthOnly", &CCompressUtilsTest::testLengthOnly));
     return suiteOfTests;
 }
 
-void CCompressUtilsTest::testEmptyAdd(void)
-{
+void CCompressUtilsTest::testEmptyAdd() {
     ml::core::CCompressUtils compressor(false);
 
     std::string str;
@@ -59,8 +51,7 @@ void CCompressUtilsTest::testEmptyAdd(void)
     CPPUNIT_ASSERT_EQUAL(length, output.size());
 }
 
-void CCompressUtilsTest::testOneAdd(void)
-{
+void CCompressUtilsTest::testOneAdd() {
     ml::core::CCompressUtils compressor(false);
 
     std::string str("1234567890");
@@ -79,8 +70,7 @@ void CCompressUtilsTest::testOneAdd(void)
     CPPUNIT_ASSERT_EQUAL(length, output.size());
 }
 
-void CCompressUtilsTest::testManyAdds(void)
-{
+void CCompressUtilsTest::testManyAdds() {
     ml::core::CCompressUtils compressorMulti(false);
 
     std::string str1("1234567890");
@@ -97,8 +87,7 @@ void CCompressUtilsTest::testManyAdds(void)
     CPPUNIT_ASSERT(compressorMulti.compressedData(true, outputMulti));
     CPPUNIT_ASSERT(compressorMulti.compressedLength(true, lengthMulti));
 
-    LOG_INFO("Length of " << str1 << str2 << str3 <<
-             " compressed is " << lengthMulti);
+    LOG_INFO("Length of " << str1 << str2 << str3 << " compressed is " << lengthMulti);
 
     CPPUNIT_ASSERT(lengthMulti > 0);
     CPPUNIT_ASSERT_EQUAL(lengthMulti, outputMulti.size());
@@ -118,8 +107,7 @@ void CCompressUtilsTest::testManyAdds(void)
     CPPUNIT_ASSERT(outputMulti == outputSingle);
 }
 
-void CCompressUtilsTest::testLengthOnly(void)
-{
+void CCompressUtilsTest::testLengthOnly() {
     ml::core::CCompressUtils compressorFull(false);
 
     std::string str("qwertyuiopa1234sdfghjklzxcvbnm");
@@ -134,8 +122,7 @@ void CCompressUtilsTest::testLengthOnly(void)
     CPPUNIT_ASSERT(compressorFull.compressedData(true, outputFull));
     CPPUNIT_ASSERT(compressorFull.compressedLength(true, lengthFull));
 
-    LOG_INFO("Length of " << str << str << str <<
-             " compressed is " << lengthFull);
+    LOG_INFO("Length of " << str << str << str << " compressed is " << lengthFull);
 
     CPPUNIT_ASSERT(lengthFull > 0);
     CPPUNIT_ASSERT_EQUAL(lengthFull, outputFull.size());
@@ -156,4 +143,3 @@ void CCompressUtilsTest::testLengthOnly(void)
     CPPUNIT_ASSERT_EQUAL(lengthFull, lengthLengthOnly);
     CPPUNIT_ASSERT_EQUAL(size_t(0), outputLengthOnly.size());
 }
-

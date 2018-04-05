@@ -25,22 +25,17 @@
 
 using namespace ml;
 
-namespace
-{
-std::string print(const config::CDetectorEnumerator::TDetectorSpecificationVec &spec,
-                  const std::string &indent = std::string())
-{
+namespace {
+std::string print(const config::CDetectorEnumerator::TDetectorSpecificationVec& spec, const std::string& indent = std::string()) {
     std::ostringstream result;
-    for (std::size_t i = 0u; i < spec.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < spec.size(); ++i) {
         result << indent << spec[i].description() << "\n";
     }
     return result.str();
 }
 }
 
-void CDetectorEnumeratorTest::testAll(void)
-{
+void CDetectorEnumeratorTest::testAll() {
     LOG_DEBUG("");
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CDetectorEnumeratorTest::testAll  |");
@@ -226,13 +221,11 @@ void CDetectorEnumeratorTest::testAll(void)
     }
 }
 
-CppUnit::Test *CDetectorEnumeratorTest::suite(void)
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDetectorEnumeratorTest");
+CppUnit::Test* CDetectorEnumeratorTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectorEnumeratorTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CDetectorEnumeratorTest>(
-                                   "CDetectorEnumeratorTest::testAll",
-                                   &CDetectorEnumeratorTest::testAll) );
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDetectorEnumeratorTest>("CDetectorEnumeratorTest::testAll", &CDetectorEnumeratorTest::testAll));
 
     return suiteOfTests;
 }

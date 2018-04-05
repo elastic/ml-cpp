@@ -17,17 +17,12 @@
 
 #include <stddef.h>
 
-
-namespace ml
-{
-namespace vflib
-{
+namespace ml {
+namespace vflib {
 class CIncrementer;
 }
-namespace vfprog
-{
+namespace vfprog {
 class CIncrementer;
-
 
 //! \brief
 //! Class for measuring function call overhead.
@@ -42,43 +37,27 @@ class CIncrementer;
 //! b) To ensure that the object code of these loops is in the
 //!    intended program
 //!
-class CLooper
-{
-    public:
-        //! Loop calling the inlined incrementer
-        static size_t inlinedProgramCallLoop(CIncrementer &incrementer,
-                                             size_t count,
-                                             size_t val);
+class CLooper {
+public:
+    //! Loop calling the inlined incrementer
+    static size_t inlinedProgramCallLoop(CIncrementer& incrementer, size_t count, size_t val);
 
-        //! Loop calling the non-virtual incrementer
-        static size_t nonVirtualProgramCallLoop(CIncrementer &incrementer,
-                                                size_t count,
-                                                size_t val);
+    //! Loop calling the non-virtual incrementer
+    static size_t nonVirtualProgramCallLoop(CIncrementer& incrementer, size_t count, size_t val);
 
-        //! Loop calling the virtual incrementer
-        static size_t virtualProgramCallLoop(CIncrementer &incrementer,
-                                             size_t count,
-                                             size_t val);
+    //! Loop calling the virtual incrementer
+    static size_t virtualProgramCallLoop(CIncrementer& incrementer, size_t count, size_t val);
 
-        //! Loop calling the inlined incrementer
-        static size_t inlinedLibraryCallLoop(vflib::CIncrementer &incrementer,
-                                             size_t count,
-                                             size_t val);
+    //! Loop calling the inlined incrementer
+    static size_t inlinedLibraryCallLoop(vflib::CIncrementer& incrementer, size_t count, size_t val);
 
-        //! Loop calling the non-virtual incrementer
-        static size_t nonVirtualLibraryCallLoop(vflib::CIncrementer &incrementer,
-                                                size_t count,
-                                                size_t val);
+    //! Loop calling the non-virtual incrementer
+    static size_t nonVirtualLibraryCallLoop(vflib::CIncrementer& incrementer, size_t count, size_t val);
 
-        //! Loop calling the virtual incrementer
-        static size_t virtualLibraryCallLoop(vflib::CIncrementer &incrementer,
-                                             size_t count,
-                                             size_t val);
+    //! Loop calling the virtual incrementer
+    static size_t virtualLibraryCallLoop(vflib::CIncrementer& incrementer, size_t count, size_t val);
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_vfprog_CLooper_h
-

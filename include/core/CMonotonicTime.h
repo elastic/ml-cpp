@@ -19,11 +19,8 @@
 
 #include <stdint.h>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Get a time that should never decrease
@@ -62,28 +59,24 @@ namespace core
 //! For platforms using clock_gettime(), there is a further fallback to
 //! CLOCK_REALTIME in the event of CLOCK_MONOTONIC not being available.
 //!
-class CORE_EXPORT CMonotonicTime
-{
-    public:
-        //! Initialise any required scaling factors
-        CMonotonicTime(void);
+class CORE_EXPORT CMonotonicTime {
+public:
+    //! Initialise any required scaling factors
+    CMonotonicTime();
 
-        //! Get the number of milliseconds since some fixed point in the past
-        uint64_t milliseconds(void) const;
+    //! Get the number of milliseconds since some fixed point in the past
+    uint64_t milliseconds() const;
 
-        //! Get the number of nanoseconds since some fixed point in the past
-        uint64_t nanoseconds(void) const;
+    //! Get the number of nanoseconds since some fixed point in the past
+    uint64_t nanoseconds() const;
 
-    private:
-        //! Operating system specific scaling factors
-        uint64_t m_ScalingFactor1;
-        uint64_t m_ScalingFactor2;
-        uint64_t m_ScalingFactor3;
+private:
+    //! Operating system specific scaling factors
+    uint64_t m_ScalingFactor1;
+    uint64_t m_ScalingFactor2;
+    uint64_t m_ScalingFactor3;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CMonotonicTime_h
-

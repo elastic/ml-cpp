@@ -19,12 +19,8 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace categorize
-{
-
+namespace ml {
+namespace categorize {
 
 //! \brief
 //! Very simple command line parser.
@@ -36,36 +32,33 @@ namespace categorize
 //! Put in a class rather than main to allow testing.
 //! TODO make this generic.
 //!
-class CCmdLineParser
-{
-    public:
-        //! Parse the arguments and return options if appropriate.  Unamed
-        //! options are placed in a vector for further processing/validation
-        //! later on by the api::CFieldConfig class.
-        static bool parse(int argc,
-                          const char * const *argv,
-                          std::string &limitConfigFile,
-                          std::string &jobId,
-                          std::string &logProperties,
-                          std::string &logPipe,
-                          char &delimiter,
-                          bool &lengthEncodedInput,
-                          core_t::TTime &persistInterval,
-                          std::string &inputFileName,
-                          bool &isInputFileNamedPipe,
-                          std::string &outputFileName,
-                          bool &isOutputFileNamedPipe,
-                          std::string &restoreFileName,
-                          bool &isRestoreFileNamedPipe,
-                          std::string &persistFileName,
-                          bool &isPersistFileNamedPipe,
-                          std::string &categorizationFieldName);
+class CCmdLineParser {
+public:
+    //! Parse the arguments and return options if appropriate.  Unamed
+    //! options are placed in a vector for further processing/validation
+    //! later on by the api::CFieldConfig class.
+    static bool parse(int argc,
+                      const char* const* argv,
+                      std::string& limitConfigFile,
+                      std::string& jobId,
+                      std::string& logProperties,
+                      std::string& logPipe,
+                      char& delimiter,
+                      bool& lengthEncodedInput,
+                      core_t::TTime& persistInterval,
+                      std::string& inputFileName,
+                      bool& isInputFileNamedPipe,
+                      std::string& outputFileName,
+                      bool& isOutputFileNamedPipe,
+                      std::string& restoreFileName,
+                      bool& isRestoreFileNamedPipe,
+                      std::string& persistFileName,
+                      bool& isPersistFileNamedPipe,
+                      std::string& categorizationFieldName);
 
-    private:
-        static const std::string DESCRIPTION;
+private:
+    static const std::string DESCRIPTION;
 };
-
-
 }
 }
 

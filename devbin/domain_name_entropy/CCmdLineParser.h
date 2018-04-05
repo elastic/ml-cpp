@@ -20,12 +20,8 @@
 #include <string>
 #include <vector>
 
-
-namespace ml
-{
-namespace domain_name_entropy
-{
-
+namespace ml {
+namespace domain_name_entropy {
 
 //! \brief
 //! Very simple command line parser.
@@ -37,28 +33,20 @@ namespace domain_name_entropy
 //! Put in a class rather than main to allow testing.
 //! TODO make this generic.
 //!
-class CCmdLineParser
-{
-    public:
-        typedef std::vector<std::string> TStrVec;
+class CCmdLineParser {
+public:
+    typedef std::vector<std::string> TStrVec;
 
-    public:
-        //! Parse the arguments and return options if appropriate.  Unamed
-        //! options are placed in a vector for further processing/validation
-        //! later on by the api::CFieldConfig class.
-        static bool parse(int argc,
-                          const char * const *argv,
-                          std::string &csvFileName,
-                          std::string &domainNameField,
-                          std::string &timeField);
+public:
+    //! Parse the arguments and return options if appropriate.  Unamed
+    //! options are placed in a vector for further processing/validation
+    //! later on by the api::CFieldConfig class.
+    static bool parse(int argc, const char* const* argv, std::string& csvFileName, std::string& domainNameField, std::string& timeField);
 
-    private:
-        static const std::string DESCRIPTION;
+private:
+    static const std::string DESCRIPTION;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_domain_name_entropy_CCmdLineParser_h
-

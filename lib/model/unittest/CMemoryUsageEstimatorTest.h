@@ -18,14 +18,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMemoryUsageEstimatorTest : public CppUnit::TestFixture
-{
-    public:
-        void testEstimateLinear(void);
-        void testEstimateNonlinear(void);
-        void testPersist(void);
+class CMemoryUsageEstimatorTest : public CppUnit::TestFixture {
+public:
+    void testEstimateLinear();
+    void testEstimateNonlinear();
+    void testPersist();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CMemoryUsageEstimatorTest_h

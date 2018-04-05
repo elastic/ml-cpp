@@ -14,51 +14,40 @@
  */
 #include "CBlockingMessageQueueTest.h"
 
-#include <core/CLogger.h>
 #include <core/CBlockingMessageQueue.h>
+#include <core/CLogger.h>
 
 #include <vector>
 
+CppUnit::Test* CBlockingMessageQueueTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBlockingMessageQueueTest");
 
-CppUnit::Test *CBlockingMessageQueueTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBlockingMessageQueueTest");
-
-    suiteOfTests->addTest( new CppUnit::TestCaller<CBlockingMessageQueueTest>(
-                                   "CBlockingMessageQueueTest::testSendReceive",
-                                   &CBlockingMessageQueueTest::testSendReceive) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBlockingMessageQueueTest>("CBlockingMessageQueueTest::testSendReceive",
+                                                                             &CBlockingMessageQueueTest::testSendReceive));
 
     return suiteOfTests;
 }
 
-namespace
-{
-    class CReceiver
-    {
-        public:
-            void processMsg(const std::string &str, size_t /* backlog */)
-            {
-                m_Strings.push_back(str);
-                if ((m_Strings.size() % 1000) == 0)
-                {
-                    LOG_DEBUG("Received " << m_Strings.size() << " strings");
-                }
-            }
+namespace {
+class CReceiver {
+public:
+    void processMsg(const std::string& str, size_t /* backlog */) {
+        m_Strings.push_back(str);
+        if ((m_Strings.size() % 1000) == 0) {
+            LOG_DEBUG("Received " << m_Strings.size() << " strings");
+        }
+    }
 
-            size_t size(void) const
-            {
-                return m_Strings.size();
-            }
+    size_t size() const { return m_Strings.size(); }
 
-        private:
-            typedef std::vector<std::string> TStrVec;
+private:
+    using TStrVec = std::vector<std::string>;
 
-            TStrVec m_Strings;
-    };
+    TStrVec m_Strings;
+};
 }
 
-void CBlockingMessageQueueTest::testSendReceive(void)
-{
+void CBlockingMessageQueueTest::testSendReceive() {
     CReceiver receiver;
 
     static const size_t QUEUE_SIZE(100);
@@ -73,8 +62,7 @@ void CBlockingMessageQueueTest::testSendReceive(void)
 
     LOG_DEBUG("Sending " << TEST_SIZE << " strings");
 
-    for (size_t i = 0; i < TEST_SIZE; ++i)
-    {
+    for (size_t i = 0; i < TEST_SIZE; ++i) {
         queue.dispatchMsg("Test string");
     }
 
@@ -84,4 +72,3 @@ void CBlockingMessageQueueTest::testSendReceive(void)
 
     CPPUNIT_ASSERT_EQUAL(TEST_SIZE, receiver.size());
 }
-

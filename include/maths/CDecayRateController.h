@@ -16,8 +16,8 @@
 #ifndef INCLUDED_ml_maths_CDecayRateController_h
 #define INCLUDED_ml_maths_CDecayRateController_h
 
-#include <core/CoreTypes.h>
 #include <core/CSmallVector.h>
+#include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CPRNG.h>
@@ -25,15 +25,12 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 class CStatePersistInserter;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Manages the decay rate based on the data characteristics.
 //!
@@ -52,93 +49,90 @@ namespace maths
 //! and prediction error is large compared to the long term prediction
 //! error then the system has recently undergone some state change and
 //! we should re-learn the model parameters as fast as possible.
-class MATHS_EXPORT CDecayRateController
-{
-    public:
-        using TDouble1Vec = core::CSmallVector<double, 1>;
-        using TDouble1VecVec = std::vector<TDouble1Vec>;
-        using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-        using TMeanAccumulator1Vec = core::CSmallVector<TMeanAccumulator, 1>;
+class MATHS_EXPORT CDecayRateController {
+public:
+    using TDouble1Vec = core::CSmallVector<double, 1>;
+    using TDouble1VecVec = std::vector<TDouble1Vec>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator1Vec = core::CSmallVector<TMeanAccumulator, 1>;
 
-        //! Enumerates the type of model check we can perform.
-        enum EChecks
-        {
-            E_PredictionBias          = 0x1, //!< Check for prediction bias.
-            E_PredictionErrorIncrease = 0x2, //!< Check for recent increases
-                                             //! in the prediction errors.
-            E_PredictionErrorDecrease = 0x4  //!< Check for recent decreases
-                                             //! in the prediction errors.
-        };
+    //! Enumerates the type of model check we can perform.
+    enum EChecks {
+        E_PredictionBias = 0x1,          //!< Check for prediction bias.
+        E_PredictionErrorIncrease = 0x2, //!< Check for recent increases
+                                         //! in the prediction errors.
+        E_PredictionErrorDecrease = 0x4  //!< Check for recent decreases
+                                         //! in the prediction errors.
+    };
 
-    public:
-        CDecayRateController(void);
-        CDecayRateController(int checks, std::size_t dimension);
+public:
+    CDecayRateController();
+    CDecayRateController(int checks, std::size_t dimension);
 
-        //! Reset the errors.
-        void reset(void);
+    //! Reset the errors.
+    void reset();
 
-        //! Restore by reading state from \p traverser.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    //! Restore by reading state from \p traverser.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-        //! Persist by passing state to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    //! Persist by passing state to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-        //! Get the decay rate multiplier to apply and update the relevant
-        //! prediction errors.
-        double multiplier(const TDouble1Vec &prediction,
-                          const TDouble1VecVec &predictionErrors,
-                          core_t::TTime bucketLength,
-                          double learnRate,
-                          double decayRate);
+    //! Get the decay rate multiplier to apply and update the relevant
+    //! prediction errors.
+    double multiplier(const TDouble1Vec& prediction,
+                      const TDouble1VecVec& predictionErrors,
+                      core_t::TTime bucketLength,
+                      double learnRate,
+                      double decayRate);
 
-        //! Get the current multiplier.
-        double multiplier(void) const;
+    //! Get the current multiplier.
+    double multiplier() const;
 
-        //! Get the dimension of the time series model this controls.
-        std::size_t dimension(void) const;
+    //! Get the dimension of the time series model this controls.
+    std::size_t dimension() const;
 
-        //! Debug the memory used by this controller.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    //! Debug the memory used by this controller.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
-        //! Get the memory used by this controller.
-        std::size_t memoryUsage(void) const;
+    //! Get the memory used by this controller.
+    std::size_t memoryUsage() const;
 
-        //! Get a checksum of this object.
-        uint64_t checksum(uint64_t seed = 0) const;
+    //! Get a checksum of this object.
+    uint64_t checksum(uint64_t seed = 0) const;
 
-    private:
-        //! Get the count of residuals added so far.
-        double count(void) const;
+private:
+    //! Get the count of residuals added so far.
+    double count() const;
 
-        //! Get the change to apply to the decay rate multiplier.
-        double change(const double (&stats)[3], core_t::TTime bucketLength) const;
+    //! Get the change to apply to the decay rate multiplier.
+    double change(const double (&stats)[3], core_t::TTime bucketLength) const;
 
-    private:
-        //! The checks we perform to detect error conditions.
-        int m_Checks;
+private:
+    //! The checks we perform to detect error conditions.
+    int m_Checks;
 
-        //! The current target multiplier.
-        double m_Target;
+    //! The current target multiplier.
+    double m_Target;
 
-        //! The cumulative multiplier applied to the decay rate.
-        TMeanAccumulator m_Multiplier;
+    //! The cumulative multiplier applied to the decay rate.
+    TMeanAccumulator m_Multiplier;
 
-        //! A random number generator.
-        CPRNG::CXorOShiro128Plus m_Rng;
+    //! A random number generator.
+    CPRNG::CXorOShiro128Plus m_Rng;
 
-        //! The mean predicted value.
-        TMeanAccumulator1Vec m_PredictionMean;
+    //! The mean predicted value.
+    TMeanAccumulator1Vec m_PredictionMean;
 
-        //! The mean bias in the model predictions.
-        TMeanAccumulator1Vec m_Bias;
+    //! The mean bias in the model predictions.
+    TMeanAccumulator1Vec m_Bias;
 
-        //! The short term absolute errors in the model predictions.
-        TMeanAccumulator1Vec m_RecentAbsError;
+    //! The short term absolute errors in the model predictions.
+    TMeanAccumulator1Vec m_RecentAbsError;
 
-        //! The long term absolute errors in the model predictions.
-        TMeanAccumulator1Vec m_HistoricalAbsError;
+    //! The long term absolute errors in the model predictions.
+    TMeanAccumulator1Vec m_HistoricalAbsError;
 };
-
 }
 }
 

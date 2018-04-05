@@ -30,30 +30,23 @@
 using namespace ml;
 using namespace model;
 
+CppUnit::Test* CDynamicStringIdRegistryTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDynamicStringIdRegistryTest");
 
-CppUnit::Test *CDynamicStringIdRegistryTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDynamicStringIdRegistryTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDynamicStringIdRegistryTest>(
-           "CDynamicStringIdRegistryTest::testAddName",
-           &CDynamicStringIdRegistryTest::testAddName));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDynamicStringIdRegistryTest>(
-           "CDynamicStringIdRegistryTest::testPersist",
-           &CDynamicStringIdRegistryTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDynamicStringIdRegistryTest>("CDynamicStringIdRegistryTest::testAddName",
+                                                                                &CDynamicStringIdRegistryTest::testAddName));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDynamicStringIdRegistryTest>("CDynamicStringIdRegistryTest::testPersist",
+                                                                                &CDynamicStringIdRegistryTest::testPersist));
 
     return suiteOfTests;
 }
 
-void CDynamicStringIdRegistryTest::testAddName(void)
-{
+void CDynamicStringIdRegistryTest::testAddName() {
     LOG_DEBUG("*** testAddName ***");
 
     CResourceMonitor resourceMonitor;
-    CDynamicStringIdRegistry registry("person",
-                                      stat_t::E_NumberNewPeople,
-                                      stat_t::E_NumberNewPeopleNotAllowed,
-                                      stat_t::E_NumberNewPeopleRecycled);
+    CDynamicStringIdRegistry registry(
+        "person", stat_t::E_NumberNewPeople, stat_t::E_NumberNewPeopleNotAllowed, stat_t::E_NumberNewPeopleRecycled);
 
     bool personAdded = false;
     std::string person1("foo");
@@ -97,15 +90,12 @@ void CDynamicStringIdRegistryTest::testAddName(void)
     CPPUNIT_ASSERT(registry.isIdActive(2));
 }
 
-void CDynamicStringIdRegistryTest::testPersist(void)
-{
+void CDynamicStringIdRegistryTest::testPersist() {
     LOG_DEBUG("*** testPersist ***");
 
     CResourceMonitor resourceMonitor;
-    CDynamicStringIdRegistry registry("person",
-                                      stat_t::E_NumberNewPeople,
-                                      stat_t::E_NumberNewPeopleNotAllowed,
-                                      stat_t::E_NumberNewPeopleRecycled);
+    CDynamicStringIdRegistry registry(
+        "person", stat_t::E_NumberNewPeople, stat_t::E_NumberNewPeopleNotAllowed, stat_t::E_NumberNewPeopleRecycled);
 
     bool addedPerson = false;
     std::string person1("foo");
@@ -124,13 +114,9 @@ void CDynamicStringIdRegistryTest::testPersist(void)
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
-    CDynamicStringIdRegistry restoredRegistry("person",
-                                              stat_t::E_NumberNewPeople,
-                                              stat_t::E_NumberNewPeopleNotAllowed,
-                                              stat_t::E_NumberNewPeopleRecycled);
-    traverser.traverseSubLevel(boost::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser,
-                                           &restoredRegistry,
-                                           _1));
+    CDynamicStringIdRegistry restoredRegistry(
+        "person", stat_t::E_NumberNewPeople, stat_t::E_NumberNewPeopleNotAllowed, stat_t::E_NumberNewPeopleRecycled);
+    traverser.traverseSubLevel(boost::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser, &restoredRegistry, _1));
 
     std::string restoredXml;
     {

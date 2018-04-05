@@ -17,37 +17,27 @@
 #include <core/CLogger.h>
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 
-#include <math.h>
+namespace ml {
+namespace maths {
 
-
-namespace ml
-{
-namespace maths
-{
-
-double CBasicStatistics::mean(const TDoubleDoublePr &samples)
-{
+double CBasicStatistics::mean(const TDoubleDoublePr& samples) {
     return 0.5 * (samples.first + samples.second);
 }
 
-double CBasicStatistics::mean(const TDoubleVec &sample)
-{
-    return  std::accumulate(sample.begin(), sample.end(), 0.0)
-          / static_cast<double>(sample.size());
+double CBasicStatistics::mean(const TDoubleVec& sample) {
+    return std::accumulate(sample.begin(), sample.end(), 0.0) / static_cast<double>(sample.size());
 }
 
-double CBasicStatistics::median(const TDoubleVec &dataIn)
-{
-    if (dataIn.empty())
-    {
+double CBasicStatistics::median(const TDoubleVec& dataIn) {
+    if (dataIn.empty()) {
         return 0.0;
     }
 
     std::size_t size{dataIn.size()};
-    if (size == 1)
-    {
+    if (size == 1) {
         return dataIn[0];
     }
 
@@ -64,17 +54,14 @@ double CBasicStatistics::median(const TDoubleVec &dataIn)
     size_t index{size / 2};
     std::nth_element(data.begin(), data.begin() + index, data.end());
 
-    if (useMean)
-    {
+    if (useMean) {
         // Since the nth element is the second of the two we need to average,
         // the first element to be averaged will be the largest of all those
         // before the nth one in the vector.
         auto left = std::max_element(data.begin(), data.begin() + index);
 
         median = (*left + data[index]) / 2.0;
-    }
-    else
-    {
+    } else {
         median = data[index];
     }
 
@@ -83,7 +70,5 @@ double CBasicStatistics::median(const TDoubleVec &dataIn)
 
 const char CBasicStatistics::INTERNAL_DELIMITER(':');
 const char CBasicStatistics::EXTERNAL_DELIMITER(';');
-
 }
 }
-

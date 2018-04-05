@@ -16,9 +16,9 @@
 #include <maths/CConstantPrior.h>
 
 #include <core/CContainerPrinter.h>
-#include <core/Constants.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/CChecksum.h>
@@ -26,31 +26,23 @@
 
 #include <boost/bind.hpp>
 
+#include <cmath>
 #include <iomanip>
 #include <ios>
 #include <limits>
 #include <sstream>
 
-#include <math.h>
+namespace ml {
+namespace maths {
 
-namespace ml
-{
-namespace maths
-{
-
-namespace
-{
-typedef boost::optional<double> TOptionalDouble;
+namespace {
+using TOptionalDouble = boost::optional<double>;
 
 //! Set the constant, validating the input.
-void setConstant(double value, TOptionalDouble &result)
-{
-    if (CMathsFuncs::isNan(value))
-    {
+void setConstant(double value, TOptionalDouble& result) {
+    if (CMathsFuncs::isNan(value)) {
         LOG_ERROR("NaN constant");
-    }
-    else
-    {
+    } else {
         result.reset(value);
     }
 }
@@ -60,155 +52,112 @@ const std::string CONSTANT_TAG("a");
 
 const std::string EMPTY_STRING;
 
-const double LOG_TWO = ::log(2.0);
-
+const double LOG_TWO = std::log(2.0);
 }
 
-CConstantPrior::CConstantPrior(const TOptionalDouble &constant) :
-        CPrior(maths_t::E_DiscreteData, 0.0)
-{
-    if (constant)
-    {
+CConstantPrior::CConstantPrior(const TOptionalDouble& constant) : CPrior(maths_t::E_DiscreteData, 0.0) {
+    if (constant) {
         setConstant(*constant, m_Constant);
     }
 }
 
-CConstantPrior::CConstantPrior(core::CStateRestoreTraverser &traverser) :
-        CPrior(maths_t::E_DiscreteData, 0.0)
-{
+CConstantPrior::CConstantPrior(core::CStateRestoreTraverser& traverser) : CPrior(maths_t::E_DiscreteData, 0.0) {
     traverser.traverseSubLevel(boost::bind(&CConstantPrior::acceptRestoreTraverser, this, _1));
 }
 
-bool CConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
-{
-    do
-    {
-        const std::string &name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(CONSTANT_TAG,
-                               double constant,
-                               core::CStringUtils::stringToType(traverser.value(), constant),
-                               m_Constant.reset(constant))
-    }
-    while (traverser.next());
+bool CConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& name = traverser.name();
+        RESTORE_SETUP_TEARDOWN(
+            CONSTANT_TAG, double constant, core::CStringUtils::stringToType(traverser.value(), constant), m_Constant.reset(constant))
+    } while (traverser.next());
 
     return true;
 }
 
-CConstantPrior::EPrior CConstantPrior::type(void) const
-{
+CConstantPrior::EPrior CConstantPrior::type() const {
     return E_Constant;
 }
 
-CConstantPrior *CConstantPrior::clone(void) const
-{
+CConstantPrior* CConstantPrior::clone() const {
     return new CConstantPrior(*this);
 }
 
-void CConstantPrior::setToNonInformative(double /*offset*/,
-                                         double /*decayRate*/)
-{
+void CConstantPrior::setToNonInformative(double /*offset*/, double /*decayRate*/) {
     m_Constant.reset();
 }
 
-bool CConstantPrior::needsOffset(void) const
-{
+bool CConstantPrior::needsOffset() const {
     return false;
 }
 
-double CConstantPrior::adjustOffset(const TWeightStyleVec &/*weightStyle*/,
-                                    const TDouble1Vec &/*samples*/,
-                                    const TDouble4Vec1Vec &/*weights*/)
-{
+double
+CConstantPrior::adjustOffset(const TWeightStyleVec& /*weightStyle*/, const TDouble1Vec& /*samples*/, const TDouble4Vec1Vec& /*weights*/) {
     return 0.0;
 }
 
-double CConstantPrior::offset(void) const
-{
+double CConstantPrior::offset() const {
     return 0.0;
 }
 
-void CConstantPrior::addSamples(const TWeightStyleVec &/*weightStyle*/,
-                                const TDouble1Vec &samples,
-                                const TDouble4Vec1Vec &/*weights*/)
-{
-    if (m_Constant || samples.empty())
-    {
+void CConstantPrior::addSamples(const TWeightStyleVec& /*weightStyle*/, const TDouble1Vec& samples, const TDouble4Vec1Vec& /*weights*/) {
+    if (m_Constant || samples.empty()) {
         return;
     }
     setConstant(samples[0], m_Constant);
 }
 
-void CConstantPrior::propagateForwardsByTime(double /*time*/)
-{
+void CConstantPrior::propagateForwardsByTime(double /*time*/) {
 }
 
-CConstantPrior::TDoubleDoublePr
-CConstantPrior::marginalLikelihoodSupport(void) const
-{
-    return std::make_pair(boost::numeric::bounds<double>::lowest(),
-                          boost::numeric::bounds<double>::highest());
+CConstantPrior::TDoubleDoublePr CConstantPrior::marginalLikelihoodSupport() const {
+    return std::make_pair(boost::numeric::bounds<double>::lowest(), boost::numeric::bounds<double>::highest());
 }
 
-double CConstantPrior::marginalLikelihoodMean(void) const
-{
-    if (this->isNonInformative())
-    {
+double CConstantPrior::marginalLikelihoodMean() const {
+    if (this->isNonInformative()) {
         return 0.0;
     }
 
     return *m_Constant;
 }
 
-double CConstantPrior::marginalLikelihoodMode(const TWeightStyleVec &/*weightStyles*/,
-                                              const TDouble4Vec &/*weights*/) const
-{
+double CConstantPrior::marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/, const TDouble4Vec& /*weights*/) const {
     return this->marginalLikelihoodMean();
 }
 
-CConstantPrior::TDoubleDoublePr
-CConstantPrior::marginalLikelihoodConfidenceInterval(double /*percentage*/,
-                                                     const TWeightStyleVec &/*weightStyles*/,
-                                                     const TDouble4Vec &/*weights*/) const
-{
-    if (this->isNonInformative())
-    {
+CConstantPrior::TDoubleDoublePr CConstantPrior::marginalLikelihoodConfidenceInterval(double /*percentage*/,
+                                                                                     const TWeightStyleVec& /*weightStyles*/,
+                                                                                     const TDouble4Vec& /*weights*/) const {
+    if (this->isNonInformative()) {
         return this->marginalLikelihoodSupport();
     }
 
     return std::make_pair(*m_Constant, *m_Constant);
 }
 
-double CConstantPrior::marginalLikelihoodVariance(const TWeightStyleVec &/*weightStyles*/,
-                                                  const TDouble4Vec &/*weights*/) const
-{
+double CConstantPrior::marginalLikelihoodVariance(const TWeightStyleVec& /*weightStyles*/, const TDouble4Vec& /*weights*/) const {
     return this->isNonInformative() ? boost::numeric::bounds<double>::highest() : 0.0;
 }
 
-maths_t::EFloatingPointErrorStatus
-CConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                           const TDouble1Vec &samples,
-                                           const TDouble4Vec1Vec &weights,
-                                           double &result) const
-{
+maths_t::EFloatingPointErrorStatus CConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                                                              const TDouble1Vec& samples,
+                                                                              const TDouble4Vec1Vec& weights,
+                                                                              double& result) const {
     result = 0.0;
 
-    if (samples.empty())
-    {
+    if (samples.empty()) {
         LOG_ERROR("Can't compute likelihood for empty sample set");
         return maths_t::E_FpFailed;
     }
 
-    if (samples.size() != weights.size())
-    {
-        LOG_ERROR("Mismatch in samples '"
-                  << core::CContainerPrinter::print(samples)
-                  << "' and weights '"
-                  << core::CContainerPrinter::print(weights) << "'");
+    if (samples.size() != weights.size()) {
+        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                                          << core::CContainerPrinter::print(weights) << "'");
         return maths_t::E_FpFailed;
     }
 
-    if (this->isNonInformative())
-    {
+    if (this->isNonInformative()) {
         // The non-informative likelihood is improper and effectively
         // zero everywhere. We use minus max double because
         // log(0) = HUGE_VALUE, which causes problems for Windows.
@@ -223,10 +172,8 @@ CConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
 
     double numberSamples = 0.0;
 
-    for (std::size_t i = 0u; i < samples.size(); ++i)
-    {
-        if (samples[i] != *m_Constant)
-        {
+    for (std::size_t i = 0u; i < samples.size(); ++i) {
+        if (samples[i] != *m_Constant) {
             // Technically infinite, but just use minus max double.
             result = boost::numeric::bounds<double>::lowest();
             return maths_t::E_FpOverflowed;
@@ -239,58 +186,46 @@ CConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
     return maths_t::E_FpNoErrors;
 }
 
-void CConstantPrior::sampleMarginalLikelihood(std::size_t numberSamples,
-                                              TDouble1Vec &samples) const
-{
+void CConstantPrior::sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const {
     samples.clear();
 
-    if (this->isNonInformative())
-    {
+    if (this->isNonInformative()) {
         return;
     }
 
     samples.resize(numberSamples, *m_Constant);
 }
 
-bool CConstantPrior::minusLogJointCdf(const TWeightStyleVec &weightStyles,
-                                      const TDouble1Vec &samples,
-                                      const TDouble4Vec1Vec &weights,
-                                      double &lowerBound,
-                                      double &upperBound) const
-{
+bool CConstantPrior::minusLogJointCdf(const TWeightStyleVec& weightStyles,
+                                      const TDouble1Vec& samples,
+                                      const TDouble4Vec1Vec& weights,
+                                      double& lowerBound,
+                                      double& upperBound) const {
     lowerBound = upperBound = 0.0;
 
-    if (samples.empty())
-    {
+    if (samples.empty()) {
         LOG_ERROR("Can't compute c.d.f. for empty sample set");
         return false;
     }
 
     double numberSamples = 0.0;
-    try
-    {
-        for (std::size_t i = 0u; i < samples.size(); ++i)
-        {
+    try {
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
             numberSamples += maths_t::count(weightStyles, weights[i]);
         }
-    }
-    catch (const std::exception &e)
-    {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to compute c.d.f. " << e.what());
         return false;
     }
 
-    if (this->isNonInformative())
-    {
+    if (this->isNonInformative()) {
         // Note that -log(0.5) = log(2).
         lowerBound = upperBound = numberSamples * LOG_TWO;
         return true;
     }
 
-    for (std::size_t i = 0u; i < samples.size(); ++i)
-    {
-        if (samples[i] < *m_Constant)
-        {
+    for (std::size_t i = 0u; i < samples.size(); ++i) {
+        if (samples[i] < *m_Constant) {
             lowerBound = upperBound = core::constants::LOG_MAX_DOUBLE;
             return true;
         }
@@ -302,45 +237,36 @@ bool CConstantPrior::minusLogJointCdf(const TWeightStyleVec &weightStyles,
     return true;
 }
 
-bool CConstantPrior::minusLogJointCdfComplement(const TWeightStyleVec &weightStyles,
-                                                const TDouble1Vec &samples,
-                                                const TDouble4Vec1Vec &weights,
-                                                double &lowerBound,
-                                                double &upperBound) const
-{
+bool CConstantPrior::minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
+                                                const TDouble1Vec& samples,
+                                                const TDouble4Vec1Vec& weights,
+                                                double& lowerBound,
+                                                double& upperBound) const {
     lowerBound = upperBound = 0.0;
 
-    if (samples.empty())
-    {
+    if (samples.empty()) {
         LOG_ERROR("Can't compute c.d.f. for empty sample set");
         return false;
     }
 
     double numberSamples = 0.0;
-    try
-    {
-        for (std::size_t i = 0u; i < samples.size(); ++i)
-        {
+    try {
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
             numberSamples += maths_t::count(weightStyles, weights[i]);
         }
-    }
-    catch (const std::exception &e)
-    {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to compute c.d.f. " << e.what());
         return false;
     }
 
-    if (this->isNonInformative())
-    {
+    if (this->isNonInformative()) {
         // Note that -log(0.5) = log(2).
         lowerBound = upperBound = numberSamples * LOG_TWO;
         return true;
     }
 
-    for (std::size_t i = 0u; i < samples.size(); ++i)
-    {
-        if (samples[i] > *m_Constant)
-        {
+    for (std::size_t i = 0u; i < samples.size(); ++i) {
+        if (samples[i] > *m_Constant) {
             lowerBound = upperBound = core::constants::LOG_MAX_DOUBLE;
             return true;
         }
@@ -353,121 +279,93 @@ bool CConstantPrior::minusLogJointCdfComplement(const TWeightStyleVec &weightSty
 }
 
 bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation /*calculation*/,
-                                                    const TWeightStyleVec &/*weightStyles*/,
-                                                    const TDouble1Vec &samples,
-                                                    const TDouble4Vec1Vec &/*weights*/,
-                                                    double &lowerBound,
-                                                    double &upperBound,
-                                                    maths_t::ETail &tail) const
-{
+                                                    const TWeightStyleVec& /*weightStyles*/,
+                                                    const TDouble1Vec& samples,
+                                                    const TDouble4Vec1Vec& /*weights*/,
+                                                    double& lowerBound,
+                                                    double& upperBound,
+                                                    maths_t::ETail& tail) const {
     lowerBound = upperBound = 0.0;
     tail = maths_t::E_UndeterminedTail;
 
-    if (samples.empty())
-    {
+    if (samples.empty()) {
         LOG_ERROR("Can't compute probability for empty sample set");
         return false;
     }
 
     lowerBound = upperBound = 1.0;
 
-    if (this->isNonInformative())
-    {
+    if (this->isNonInformative()) {
         return true;
     }
 
     int tail_ = 0;
-    for (std::size_t i = 0u; i < samples.size(); ++i)
-    {
-        if (samples[i] != *m_Constant)
-        {
+    for (std::size_t i = 0u; i < samples.size(); ++i) {
+        if (samples[i] != *m_Constant) {
             lowerBound = upperBound = 0.0;
         }
-        if (samples[i] < *m_Constant)
-        {
+        if (samples[i] < *m_Constant) {
             tail_ = tail_ | maths_t::E_LeftTail;
-        }
-        else if (samples[i] > *m_Constant)
-        {
+        } else if (samples[i] > *m_Constant) {
             tail_ = tail_ | maths_t::E_RightTail;
         }
     }
 
-    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples)
-              << ", constant = " << *m_Constant
-              << ", lowerBound = " << lowerBound
-              << ", upperBound = " << upperBound
-              << ", tail = " << tail);
+    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples) << ", constant = " << *m_Constant << ", lowerBound = " << lowerBound
+                           << ", upperBound = " << upperBound << ", tail = " << tail);
 
     tail = static_cast<maths_t::ETail>(tail_);
     return true;
 }
 
-bool CConstantPrior::isNonInformative(void) const
-{
+bool CConstantPrior::isNonInformative() const {
     return !m_Constant;
 }
 
-void CConstantPrior::print(const std::string &indent,
-                           std::string &result) const
-{
-    result += core_t::LINE_ENDING + indent + "constant "
-              + (this->isNonInformative() ?
-                 std::string("non-informative") :
-                 core::CStringUtils::typeToString(*m_Constant));
+void CConstantPrior::print(const std::string& indent, std::string& result) const {
+    result += core_t::LINE_ENDING + indent + "constant " +
+              (this->isNonInformative() ? std::string("non-informative") : core::CStringUtils::typeToString(*m_Constant));
 }
 
-std::string CConstantPrior::printMarginalLikelihoodFunction(double /*weight*/) const
-{
+std::string CConstantPrior::printMarginalLikelihoodFunction(double /*weight*/) const {
     // The marginal likelihood is zero everywhere and infinity
     // at the constant so not particularly interesting and we don't
     // bother to define this function.
     return EMPTY_STRING;
 }
 
-std::string CConstantPrior::printJointDensityFunction(void) const
-{
+std::string CConstantPrior::printJointDensityFunction() const {
     // The prior is (arguably) Dirichlet with infinite concentration
     // at the constant so not particularly interesting and we don't
     // bother to define this function.
     return EMPTY_STRING;
 }
 
-uint64_t CConstantPrior::checksum(uint64_t seed) const
-{
+uint64_t CConstantPrior::checksum(uint64_t seed) const {
     seed = this->CPrior::checksum(seed);
     return CChecksum::calculate(seed, m_Constant);
 }
 
-void CConstantPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
-{
+void CConstantPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CConstantPrior");
 }
 
-std::size_t CConstantPrior::memoryUsage(void) const
-{
+std::size_t CConstantPrior::memoryUsage() const {
     return 0;
 }
 
-std::size_t CConstantPrior::staticSize(void) const
-{
+std::size_t CConstantPrior::staticSize() const {
     return sizeof(*this);
 }
 
-void CConstantPrior::acceptPersistInserter(core::CStatePersistInserter &inserter) const
-{
-    if (m_Constant)
-    {
-        inserter.insertValue(CONSTANT_TAG,
-                             *m_Constant,
-                             core::CIEEE754::E_DoublePrecision);
+void CConstantPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    if (m_Constant) {
+        inserter.insertValue(CONSTANT_TAG, *m_Constant, core::CIEEE754::E_DoublePrecision);
     }
 }
 
-CConstantPrior::TOptionalDouble CConstantPrior::constant(void) const
-{
+CConstantPrior::TOptionalDouble CConstantPrior::constant() const {
     return m_Constant;
 }
-
 }
 }

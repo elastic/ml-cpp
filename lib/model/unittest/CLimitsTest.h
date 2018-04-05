@@ -17,16 +17,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CLimitsTest : public CppUnit::TestFixture {
+public:
+    void testTrivial();
+    void testValid();
+    void testInvalid();
 
-class CLimitsTest : public CppUnit::TestFixture
-{
-    public:
-        void testTrivial(void);
-        void testValid(void);
-        void testInvalid(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CLimitsTest_h
-

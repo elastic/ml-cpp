@@ -19,52 +19,46 @@
 
 #include <string>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CXmlNode;
 class CXmlParser;
 }
 }
 
-class CXmlParserTest : public CppUnit::TestFixture
-{
-    public:
-        void testParse1File(void);
-        void testParse1String(void);
-        void testParse2(void);
-        void testNavigate(void);
-        void testParseXInclude(void);
-        void testParse3(void);
-        void testParse4(void);
-        void testParse5(void);
-        void testParse6(void);
-        void testConvert1(void);
-        void testConvert2(void);
-        void testConvert3(void);
-        void testConvert4(void);
-        void testAddNewChildNode(void);
-        void testSetRootNode(void);
-        void testDump(void);
-        void testMakeValidName(void);
-        void testChangeChild(void);
-        void testHugeDoc(void);
-        void testParseSpeed(void);
-        void testConvertSpeed(void);
-        void testComplexXPath(void);
+class CXmlParserTest : public CppUnit::TestFixture {
+public:
+    void testParse1File();
+    void testParse1String();
+    void testParse2();
+    void testNavigate();
+    void testParseXInclude();
+    void testParse3();
+    void testParse4();
+    void testParse5();
+    void testParse6();
+    void testConvert1();
+    void testConvert2();
+    void testConvert3();
+    void testConvert4();
+    void testAddNewChildNode();
+    void testSetRootNode();
+    void testDump();
+    void testMakeValidName();
+    void testChangeChild();
+    void testHugeDoc();
+    void testParseSpeed();
+    void testConvertSpeed();
+    void testComplexXPath();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
-    private:
-        static void testParse1(const ml::core::CXmlParser &parser);
+private:
+    static void testParse1(const ml::core::CXmlParser& parser);
 
-        static std::string fileToString(const std::string &fileName);
+    static std::string fileToString(const std::string& fileName);
 
-        static bool testAttribute(const ml::core::CXmlNode &node,
-                                  const std::string &key,
-                                  const std::string &expected);
+    static bool testAttribute(const ml::core::CXmlNode& node, const std::string& key, const std::string& expected);
 };
 
 #endif // INCLUDED_CXmlParserTest_h
-

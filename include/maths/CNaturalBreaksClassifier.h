@@ -27,15 +27,12 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 struct SDistributionRestoreParams;
 
 //! \brief This does online segmentation with fixed space by approximate
@@ -106,258 +103,228 @@ struct SDistributionRestoreParams;
 //! interface to this class is double precision. If floats are used
 //! they should be used for storage only and transparent to the rest
 //! of the code base.
-class MATHS_EXPORT CNaturalBreaksClassifier
-{
-    public:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<double> TDoubleVec;
-        typedef std::pair<double, double> TDoubleDoublePr;
-        typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TDoubleTuple;
-        typedef std::vector<TDoubleTuple> TDoubleTupleVec;
-        typedef CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator TTuple;
-        typedef std::vector<TTuple> TTupleVec;
-        typedef std::vector<CNaturalBreaksClassifier> TClassifierVec;
+class MATHS_EXPORT CNaturalBreaksClassifier {
+public:
+    using TSizeVec = std::vector<std::size_t>;
+    using TDoubleVec = std::vector<double>;
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+    using TDoubleTuple = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TDoubleTupleVec = std::vector<TDoubleTuple>;
+    using TTuple = CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator;
+    using TTupleVec = std::vector<TTuple>;
+    using TClassifierVec = std::vector<CNaturalBreaksClassifier>;
 
-    public:
-        //! The type of optimization object which it is possible
-        //! to target. In particular,
-        //!   -# Deviation is the square root of the total sample
-        //!      variation.
-        //!   -# Variation is the total sample variation, i.e. the
-        //!      sum of the square differences from the sample mean.
-        enum EObjective
-        {
-            E_TargetDeviation,
-            E_TargetVariation
-        };
+public:
+    //! The type of optimization object which it is possible
+    //! to target. In particular,
+    //!   -# Deviation is the square root of the total sample
+    //!      variation.
+    //!   -# Variation is the total sample variation, i.e. the
+    //!      sum of the square differences from the sample mean.
+    enum EObjective { E_TargetDeviation, E_TargetVariation };
 
-    public:
-        //! Create a new classifier with the specified space limit.
-        //!
-        //! \param[in] space The maximum space in numbers of tuples.
-        //! A tuple comprises three floats.
-        //! \param[in] decayRate The rate at which we data ages out
-        //! of the classifier.
-        //! \param[in] minimumCategoryCount The minimum permitted count
-        //! for a category.
-        //! \note This will store as much information about the points
-        //! subject to this constraint so will generally hold approximately
-        //! \p space tuples.
-        CNaturalBreaksClassifier(std::size_t space,
-                                 double decayRate = 0.0,
-                                 double minimumCategoryCount = MINIMUM_CATEGORY_COUNT);
+public:
+    //! Create a new classifier with the specified space limit.
+    //!
+    //! \param[in] space The maximum space in numbers of tuples.
+    //! A tuple comprises three floats.
+    //! \param[in] decayRate The rate at which we data ages out
+    //! of the classifier.
+    //! \param[in] minimumCategoryCount The minimum permitted count
+    //! for a category.
+    //! \note This will store as much information about the points
+    //! subject to this constraint so will generally hold approximately
+    //! \p space tuples.
+    CNaturalBreaksClassifier(std::size_t space, double decayRate = 0.0, double minimumCategoryCount = MINIMUM_CATEGORY_COUNT);
 
-        //! Create from part of a state document.
-        bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                    core::CStateRestoreTraverser &traverser);
+    //! Create from part of a state document.
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
 
-        //! Persist state by passing information to the supplied inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    //! Persist state by passing information to the supplied inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-        //! Get the count \p p percentile position.
-        double percentile(double p) const;
+    //! Get the count \p p percentile position.
+    double percentile(double p) const;
 
-        //! Get the total number of categories in the classifier.
-        std::size_t size(void) const;
+    //! Get the total number of categories in the classifier.
+    std::size_t size() const;
 
-        //! Split this classifier into the n-categories identified by
-        //! the categories function.
-        //!
-        //! \param[in] n The desired size of the split.
-        //! \param[in] p The minimum category size.
-        //! \param[out] result Filled in with the classifiers representing
-        //! the split.
-        //! \sa categories for details on the split.
-        bool split(std::size_t n, std::size_t p, TClassifierVec &result);
+    //! Split this classifier into the n-categories identified by
+    //! the categories function.
+    //!
+    //! \param[in] n The desired size of the split.
+    //! \param[in] p The minimum category size.
+    //! \param[out] result Filled in with the classifiers representing
+    //! the split.
+    //! \sa categories for details on the split.
+    bool split(std::size_t n, std::size_t p, TClassifierVec& result);
 
-        //! Split this classifier into the n-categories corresponding to
-        //! \p split.
-        //!
-        //! \param[in] split The desired partition.
-        //! \param[out] result Filled in with the classifiers representing
-        //! \p split if it is a valid partition and cleared otherwise.
-        //! \note \p split should be ordered and the maximum value should
-        //! be equal to the number of points in the classifier.
-        bool split(const TSizeVec &split, TClassifierVec &result);
+    //! Split this classifier into the n-categories corresponding to
+    //! \p split.
+    //!
+    //! \param[in] split The desired partition.
+    //! \param[out] result Filled in with the classifiers representing
+    //! \p split if it is a valid partition and cleared otherwise.
+    //! \note \p split should be ordered and the maximum value should
+    //! be equal to the number of points in the classifier.
+    bool split(const TSizeVec& split, TClassifierVec& result);
 
-        //! Get the minimum within class total deviation partition
-        //! of size at most \p n.
-        //!
-        //! \param[in] n The number of partitions.
-        //! \param[in] p The minimum category size.
-        //! \param[out] result Filled in with the indices at which to break.
-        bool naturalBreaks(std::size_t n, std::size_t p, TSizeVec &result);
+    //! Get the minimum within class total deviation partition
+    //! of size at most \p n.
+    //!
+    //! \param[in] n The number of partitions.
+    //! \param[in] p The minimum category size.
+    //! \param[out] result Filled in with the indices at which to break.
+    bool naturalBreaks(std::size_t n, std::size_t p, TSizeVec& result);
 
-        //! Get as many tuples as possible, but not more than \p n,
-        //! describing our best estimate of the categories in the data.
-        //!
-        //! \param[in] n The desired size for the partition.
-        //! \param[in] p The minimum category size.
-        //! \param[out] result Filled in with the minimum within class
-        //! total deviation partition of size at most n.
-        //! \param[in] append If true the categories are appended to
-        //! \p result.
-        //! \note This finds the optimum partition using a dynamic
-        //! programming approach in complexity \f$O(N^2n)\f$ where
-        //! \f$N\f$ the number of tuples and \f$n\f$ is the desired
-        //! size for the partition.
-        bool categories(std::size_t n,
-                        std::size_t p,
-                        TTupleVec &result,
-                        bool append = false);
+    //! Get as many tuples as possible, but not more than \p n,
+    //! describing our best estimate of the categories in the data.
+    //!
+    //! \param[in] n The desired size for the partition.
+    //! \param[in] p The minimum category size.
+    //! \param[out] result Filled in with the minimum within class
+    //! total deviation partition of size at most n.
+    //! \param[in] append If true the categories are appended to
+    //! \p result.
+    //! \note This finds the optimum partition using a dynamic
+    //! programming approach in complexity \f$O(N^2n)\f$ where
+    //! \f$N\f$ the number of tuples and \f$n\f$ is the desired
+    //! size for the partition.
+    bool categories(std::size_t n, std::size_t p, TTupleVec& result, bool append = false);
 
-        //! Get the categories corresponding to \p split.
-        //!
-        //! \param[in] split The desired partition.
-        //! \param[out] result Filled in with the categories corresponding
-        //! to \p split if it is a valid partition and cleared otherwise.
-        //! \note \p split should be ordered and the maximum value should
-        //! be equal to the number of points in the classifier.
-        bool categories(const TSizeVec &split, TTupleVec &result);
+    //! Get the categories corresponding to \p split.
+    //!
+    //! \param[in] split The desired partition.
+    //! \param[out] result Filled in with the categories corresponding
+    //! to \p split if it is a valid partition and cleared otherwise.
+    //! \note \p split should be ordered and the maximum value should
+    //! be equal to the number of points in the classifier.
+    bool categories(const TSizeVec& split, TTupleVec& result);
 
-        //! Add \p x to the classifier.
-        //!
-        //! \param[in] x A point to add to the classifier.
-        //! \param[in] count The count weight of this point.
-        void add(double x, double count = 1.0);
+    //! Add \p x to the classifier.
+    //!
+    //! \param[in] x A point to add to the classifier.
+    //! \param[in] count The count weight of this point.
+    void add(double x, double count = 1.0);
 
-        //! Merge \p other with this classifier.
-        //!
-        //! \param[in] other Another classifier to merge with this one.
-        void merge(const CNaturalBreaksClassifier &other);
+    //! Merge \p other with this classifier.
+    //!
+    //! \param[in] other Another classifier to merge with this one.
+    void merge(const CNaturalBreaksClassifier& other);
 
-        //! Set the rate at which information is aged out.
-        void decayRate(double decayRate);
+    //! Set the rate at which information is aged out.
+    void decayRate(double decayRate);
 
-        //! Propagate the clusters forwards by \p time.
-        void propagateForwardsByTime(double time);
+    //! Propagate the clusters forwards by \p time.
+    void propagateForwardsByTime(double time);
 
-        //! Check if we are currently buffering points.
-        bool buffering(void) const;
+    //! Check if we are currently buffering points.
+    bool buffering() const;
 
-        //! Get \p n samples of the distribution corresponding to the
-        //! categories we are maintaining.
-        //!
-        //! \param[in] numberSamples The desired number of samples.
-        //! \param[in] smallest The smallest permitted sample.
-        //! \param[in] largest The largest permitted sample.
-        //! \param[out] result Filled in with the samples of the distribution.
-        void sample(std::size_t numberSamples,
-                    double smallest,
-                    double largest,
-                    TDoubleVec &result) const;
+    //! Get \p n samples of the distribution corresponding to the
+    //! categories we are maintaining.
+    //!
+    //! \param[in] numberSamples The desired number of samples.
+    //! \param[in] smallest The smallest permitted sample.
+    //! \param[in] largest The largest permitted sample.
+    //! \param[out] result Filled in with the samples of the distribution.
+    void sample(std::size_t numberSamples, double smallest, double largest, TDoubleVec& result) const;
 
-        //! Print this classifier for debug.
-        std::string print(void) const;
+    //! Print this classifier for debug.
+    std::string print() const;
 
-        //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed = 0) const;
+    //! Get a checksum for this object.
+    uint64_t checksum(uint64_t seed = 0) const;
 
-        //! Get the memory used by this component
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    //! Get the memory used by this component
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
-        //! Get the memory used by this component
-        std::size_t memoryUsage(void) const;
+    //! Get the memory used by this component
+    std::size_t memoryUsage() const;
 
-        //! Get the minimum within class total deviation partition
-        //! of the categories \p categories with size at most \p n
-        //! subject to the constraint that no category contains fewer
-        //! than \p p values.
-        //!
-        //! \param[in] categories The categories to partition.
-        //! \param[in] n The number of partitions.
-        //! \param[in] p The minimum category size.
-        //! \param[in] target The optimization objective to target.
-        //! \param[out] result Filled in with the indices at which to
-        //! break.
-        //! \note This finds the optimum partition using a dynamic
-        //! programming approach in complexity \f$O(N^2n)\f$ where
-        //! \f$N\f$ the number of tuples and \f$n\f$ is the desired
-        //! size for the partition.
-        static bool naturalBreaks(const TTupleVec &categories,
-                                  std::size_t n,
-                                  std::size_t p,
-                                  EObjective target,
-                                  TSizeVec &result);
+    //! Get the minimum within class total deviation partition
+    //! of the categories \p categories with size at most \p n
+    //! subject to the constraint that no category contains fewer
+    //! than \p p values.
+    //!
+    //! \param[in] categories The categories to partition.
+    //! \param[in] n The number of partitions.
+    //! \param[in] p The minimum category size.
+    //! \param[in] target The optimization objective to target.
+    //! \param[out] result Filled in with the indices at which to
+    //! break.
+    //! \note This finds the optimum partition using a dynamic
+    //! programming approach in complexity \f$O(N^2n)\f$ where
+    //! \f$N\f$ the number of tuples and \f$n\f$ is the desired
+    //! size for the partition.
+    static bool naturalBreaks(const TTupleVec& categories, std::size_t n, std::size_t p, EObjective target, TSizeVec& result);
 
-        //! Double tuple version.
-        //!
-        //! \see naturalBreaks for more details.
-        static bool naturalBreaks(const TDoubleTupleVec &categories,
-                                  std::size_t n,
-                                  std::size_t p,
-                                  EObjective target,
-                                  TSizeVec &result);
+    //! Double tuple version.
+    //!
+    //! \see naturalBreaks for more details.
+    static bool naturalBreaks(const TDoubleTupleVec& categories, std::size_t n, std::size_t p, EObjective target, TSizeVec& result);
 
-    private:
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
+private:
+    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 
-    private:
-        //! Implementation called by naturalBreaks with explicit
-        //! tuple types.
-        template<typename TUPLE>
-        static bool naturalBreaksImpl(const std::vector<TUPLE> &categories,
-                                      std::size_t n,
-                                      std::size_t p,
-                                      EObjective target,
-                                      TSizeVec &result);
+private:
+    //! Implementation called by naturalBreaks with explicit
+    //! tuple types.
+    template<typename TUPLE>
+    static bool naturalBreaksImpl(const std::vector<TUPLE>& categories, std::size_t n, std::size_t p, EObjective target, TSizeVec& result);
 
-    private:
-        //! The minimum permitted size for the classifier.
-        static const std::size_t MINIMUM_SPACE;
+private:
+    //! The minimum permitted size for the classifier.
+    static const std::size_t MINIMUM_SPACE;
 
-        //! The maximum allowed size of the points buffer.
-        static const std::size_t MAXIMUM_BUFFER_SIZE;
+    //! The maximum allowed size of the points buffer.
+    static const std::size_t MAXIMUM_BUFFER_SIZE;
 
-    private:
-        //! Construct a new classifier with the specified space limit
-        //! \p space and categories \p categories.
-        CNaturalBreaksClassifier(std::size_t space,
-                                 double decayRate,
-                                 double minimumCategoryCount,
-                                 TTupleVec &categories);
+private:
+    //! Construct a new classifier with the specified space limit
+    //! \p space and categories \p categories.
+    CNaturalBreaksClassifier(std::size_t space, double decayRate, double minimumCategoryCount, TTupleVec& categories);
 
-        //! Reduce the number of tuples until we satisfy the space constraint.
-        void reduce(void);
+    //! Reduce the number of tuples until we satisfy the space constraint.
+    void reduce();
 
-        //! Get the indices of the closest categories.
-        TSizeSizePr closestPair(void) const;
+    //! Get the indices of the closest categories.
+    TSizeSizePr closestPair() const;
 
-        //! Get the total deviation of the specified class.
-        static double deviation(const TTuple &category);
+    //! Get the total deviation of the specified class.
+    static double deviation(const TTuple& category);
 
-        //! Get the total variation of the specified class.
-        static double variation(const TTuple &category);
+    //! Get the total variation of the specified class.
+    static double variation(const TTuple& category);
 
-        //! Wrapper to evaluate the specified object function.
-        static inline double objective(EObjective objective, const TTuple &category)
-        {
-            switch (objective)
-            {
-            case E_TargetDeviation: return deviation(category);
-            case E_TargetVariation: return variation(category);
-            }
+    //! Wrapper to evaluate the specified object function.
+    static inline double objective(EObjective objective, const TTuple& category) {
+        switch (objective) {
+        case E_TargetDeviation:
             return deviation(category);
+        case E_TargetVariation:
+            return variation(category);
         }
+        return deviation(category);
+    }
 
-    private:
-        //! The maximum space in doubles.
-        std::size_t m_Space;
+private:
+    //! The maximum space in doubles.
+    std::size_t m_Space;
 
-        //! The rate at which the categories lose information.
-        double m_DecayRate;
+    //! The rate at which the categories lose information.
+    double m_DecayRate;
 
-        //! The minimum permitted count for a category.
-        double m_MinimumCategoryCount;
+    //! The minimum permitted count for a category.
+    double m_MinimumCategoryCount;
 
-        //! The categories we are maintaining.
-        TTupleVec m_Categories;
+    //! The categories we are maintaining.
+    TTupleVec m_Categories;
 
-        //! A buffer of the points added while the space constraint is satisfied.
-        TDoubleDoublePrVec m_PointsBuffer;
+    //! A buffer of the points added while the space constraint is satisfied.
+    TDoubleDoublePrVec m_PointsBuffer;
 };
-
 }
 }
 

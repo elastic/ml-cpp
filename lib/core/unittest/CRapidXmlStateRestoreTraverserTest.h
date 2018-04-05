@@ -17,14 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CRapidXmlStateRestoreTraverserTest : public CppUnit::TestFixture {
+public:
+    void testRestore();
 
-class CRapidXmlStateRestoreTraverserTest : public CppUnit::TestFixture
-{
-    public:
-        void testRestore(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CRapidXmlStateRestoreTraverserTest_h
-

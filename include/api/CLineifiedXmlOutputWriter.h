@@ -24,11 +24,8 @@
 #include <sstream>
 #include <string>
 
-
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Write output data in XML format, one document per line
@@ -42,61 +39,54 @@ namespace api
 //! IMPLEMENTATION:\n
 //! Using RapidXml to do the heavy lifting.
 //!
-class API_EXPORT CLineifiedXmlOutputWriter : public COutputHandler
-{
-    public:
-        //! Constructor that causes output to be written to the internal string
-        //! stream
-        CLineifiedXmlOutputWriter(const std::string &rootName);
+class API_EXPORT CLineifiedXmlOutputWriter : public COutputHandler {
+public:
+    //! Constructor that causes output to be written to the internal string
+    //! stream
+    CLineifiedXmlOutputWriter(const std::string& rootName);
 
-        //! Constructor that causes output to be written to the specified stream
-        CLineifiedXmlOutputWriter(const std::string &rootName,
-                                  std::ostream &strmOut);
+    //! Constructor that causes output to be written to the specified stream
+    CLineifiedXmlOutputWriter(const std::string& rootName, std::ostream& strmOut);
 
-        //! Destructor flushes the stream
-        virtual ~CLineifiedXmlOutputWriter(void);
+    //! Destructor flushes the stream
+    virtual ~CLineifiedXmlOutputWriter();
 
-        //! Set field names - this function has no affect it always
-        //! returns true
-        virtual bool fieldNames(const TStrVec &fieldNames,
-                                const TStrVec &extraFieldNames);
+    //! Set field names - this function has no affect it always
+    //! returns true
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
-        //! Returns an empty vector
-        virtual const TStrVec &fieldNames(void) const;
+    //! Returns an empty vector
+    virtual const TStrVec& fieldNames() const;
 
-        // Bring the other overload of fieldNames() into scope
-        using COutputHandler::fieldNames;
+    // Bring the other overload of fieldNames() into scope
+    using COutputHandler::fieldNames;
 
-        //! Write the data row fields as an XML document
-        virtual bool writeRow(const TStrStrUMap &dataRowFields,
-                              const TStrStrUMap &overrideDataRowFields);
+    //! Write the data row fields as an XML document
+    virtual bool writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields);
 
-        // Bring the other overload of writeRow() into scope
-        using COutputHandler::writeRow;
+    // Bring the other overload of writeRow() into scope
+    using COutputHandler::writeRow;
 
-        //! Get the contents of the internal string stream - for use with the
-        //! zero argument constructor
-        std::string internalString(void) const;
+    //! Get the contents of the internal string stream - for use with the
+    //! zero argument constructor
+    std::string internalString() const;
 
-    private:
-        //! Name of the root element in which the fields to be output will be
-        //! nested
-        std::string                    m_RootName;
+private:
+    //! Name of the root element in which the fields to be output will be
+    //! nested
+    std::string m_RootName;
 
-        //! If we've been initialised without a specific stream, output is
-        //! written to this string stream
-        std::ostringstream             m_StringOutputBuf;
+    //! If we've been initialised without a specific stream, output is
+    //! written to this string stream
+    std::ostringstream m_StringOutputBuf;
 
-        //! Reference to the stream we're going to write to
-        std::ostream                   &m_OutStream;
+    //! Reference to the stream we're going to write to
+    std::ostream& m_OutStream;
 
-        //! XML node pool for efficiency
-        core::CXmlNodeWithChildrenPool m_Pool;
+    //! XML node pool for efficiency
+    core::CXmlNodeWithChildrenPool m_Pool;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_api_CLineifiedXmlOutputWriter_h
-

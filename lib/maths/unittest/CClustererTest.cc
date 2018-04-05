@@ -26,8 +26,7 @@
 
 using namespace ml;
 
-void CClustererTest::testIndexGenerator(void)
-{
+void CClustererTest::testIndexGenerator() {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CClustererTest::testIndexGenerator  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -37,10 +36,10 @@ void CClustererTest::testIndexGenerator(void)
     //   2) The highest index in the set is less than the
     //      maximum set size to date.
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<double> TDoubleVec;
-    typedef std::set<std::size_t, std::greater<std::size_t> > TSizeSet;
-    typedef TSizeSet::iterator TSizeSetItr;
+    using TSizeVec = std::vector<std::size_t>;
+    using TDoubleVec = std::vector<double>;
+    using TSizeSet = std::set<std::size_t, std::greater<std::size_t>>;
+    using TSizeSetItr = TSizeSet::iterator;
 
     test::CRandomNumbers rng;
 
@@ -50,8 +49,7 @@ void CClustererTest::testIndexGenerator(void)
     rng.generateUniformSamples(0.0, 1.0, numberOperations, tmp);
     TSizeVec nexts;
     nexts.reserve(tmp.size());
-    for (std::size_t i = 0u; i < tmp.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < tmp.size(); ++i) {
         nexts.push_back(static_cast<std::size_t>(tmp[i] + 0.5));
     }
 
@@ -60,26 +58,19 @@ void CClustererTest::testIndexGenerator(void)
     TSizeSet indices;
     std::size_t maxSetSize = 0u;
 
-    for (std::size_t i = 0u; i < numberOperations; ++i)
-    {
-        if (i % 1000 == 0)
-        {
+    for (std::size_t i = 0u; i < numberOperations; ++i) {
+        if (i % 1000 == 0) {
             LOG_DEBUG("maxSetSize = " << maxSetSize);
             LOG_DEBUG("indices = " << core::CContainerPrinter::print(indices));
         }
-        if (nexts[i] == 1)
-        {
+        if (nexts[i] == 1) {
             CPPUNIT_ASSERT(indices.insert(generator.next()).second);
             maxSetSize = std::max(maxSetSize, indices.size());
-            if (*indices.begin() >= maxSetSize)
-            {
-                LOG_DEBUG("index = " << *indices.begin()
-                          << ", maxSetSize = " << maxSetSize);
+            if (*indices.begin() >= maxSetSize) {
+                LOG_DEBUG("index = " << *indices.begin() << ", maxSetSize = " << maxSetSize);
             }
             CPPUNIT_ASSERT(*indices.begin() < maxSetSize);
-        }
-        else if (!indices.empty())
-        {
+        } else if (!indices.empty()) {
             TDoubleVec indexToErase;
             double max = static_cast<double>(indices.size()) - 1e-3;
             rng.generateUniformSamples(0.0, max, 1u, indexToErase);
@@ -92,13 +83,11 @@ void CClustererTest::testIndexGenerator(void)
     }
 }
 
-CppUnit::Test *CClustererTest::suite(void)
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CClustererTest");
+CppUnit::Test* CClustererTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CClustererTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CClustererTest>(
-                                   "CClustererTest::testIndexGenerator",
-                                   &CClustererTest::testIndexGenerator) );
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CClustererTest>("CClustererTest::testIndexGenerator", &CClustererTest::testIndexGenerator));
 
     return suiteOfTests;
 }

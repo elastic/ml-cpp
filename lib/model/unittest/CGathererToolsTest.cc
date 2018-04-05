@@ -20,25 +20,21 @@
 using namespace ml;
 using namespace model;
 
-namespace
-{
+namespace {
 const CGathererTools::CSumGatherer::TStrVec EMPTY_STR_VEC;
 const CGathererTools::CSumGatherer::TStoredStringPtrVec EMPTY_STR_PTR_VEC;
 }
 
-CppUnit::Test *CGathererToolsTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CGathererToolsTest");
+CppUnit::Test* CGathererToolsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CGathererToolsTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CGathererToolsTest>(
-                                   "CGathererToolsTest::testSumGathererIsRedundant",
-                                   &CGathererToolsTest::testSumGathererIsRedundant) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGathererToolsTest>("CGathererToolsTest::testSumGathererIsRedundant",
+                                                                      &CGathererToolsTest::testSumGathererIsRedundant));
 
     return suiteOfTests;
 }
 
-void CGathererToolsTest::testSumGathererIsRedundant(void)
-{
+void CGathererToolsTest::testSumGathererIsRedundant() {
     using TDouble1Vec = CGathererTools::CSumGatherer::TDouble1Vec;
 
     core_t::TTime bucketLength(100);

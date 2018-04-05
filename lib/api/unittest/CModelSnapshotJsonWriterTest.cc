@@ -28,29 +28,26 @@
 using namespace ml;
 using namespace api;
 
-CppUnit::Test *CModelSnapshotJsonWriterTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelSnapshotJsonWriterTest");
-    suiteOfTests->addTest( new CppUnit::TestCaller<CModelSnapshotJsonWriterTest>(
-                                   "CModelSnapshotJsonWriterTest::testWrite",
-                                   &CModelSnapshotJsonWriterTest::testWrite) );
+CppUnit::Test* CModelSnapshotJsonWriterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelSnapshotJsonWriterTest");
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelSnapshotJsonWriterTest>("CModelSnapshotJsonWriterTest::testWrite",
+                                                                                &CModelSnapshotJsonWriterTest::testWrite));
     return suiteOfTests;
 }
 
-void CModelSnapshotJsonWriterTest::testWrite(void)
-{
+void CModelSnapshotJsonWriterTest::testWrite() {
     std::ostringstream sstream;
 
     // The output writer won't close the JSON structures until is is destroyed
     {
         model::CResourceMonitor::SResults modelSizeStats{
-            10000, // bytes used
-            3, // # by fields
-            1, // # partition fields
-            150, // # over fields
-            4, // # allocation failures
+            10000,                     // bytes used
+            3,                         // # by fields
+            1,                         // # partition fields
+            150,                       // # over fields
+            4,                         // # allocation failures
             model_t::E_MemoryStatusOk, // memory status
-            core_t::TTime(1521046309) // bucket start time
+            core_t::TTime(1521046309)  // bucket start time
         };
 
         CModelSnapshotJsonWriter::SModelSnapshotReport report{
@@ -62,7 +59,7 @@ void CModelSnapshotJsonWriterTest::testWrite(void)
             modelSizeStats,
             "some normalizer state",
             core_t::TTime(1521046409), // last record time
-            core_t::TTime(1521040000) // last result time
+            core_t::TTime(1521040000)  // last result time
         };
 
         core::CJsonOutputStreamWrapper wrappedOutStream(sstream);
@@ -76,11 +73,11 @@ void CModelSnapshotJsonWriterTest::testWrite(void)
     CPPUNIT_ASSERT(arrayDoc.IsArray());
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
 
-    const rapidjson::Value &object = arrayDoc[rapidjson::SizeType(0)];
+    const rapidjson::Value& object = arrayDoc[rapidjson::SizeType(0)];
     CPPUNIT_ASSERT(object.IsObject());
 
     CPPUNIT_ASSERT(object.HasMember("model_snapshot"));
-    const rapidjson::Value &snapshot = object["model_snapshot"];
+    const rapidjson::Value& snapshot = object["model_snapshot"];
     CPPUNIT_ASSERT(snapshot.HasMember("job_id"));
     CPPUNIT_ASSERT_EQUAL(std::string("job"), std::string(snapshot["job_id"].GetString()));
     CPPUNIT_ASSERT(snapshot.HasMember("min_version"));
@@ -99,7 +96,7 @@ void CModelSnapshotJsonWriterTest::testWrite(void)
     CPPUNIT_ASSERT_EQUAL(int64_t(1521040000000), snapshot["latest_result_time_stamp"].GetInt64());
 
     CPPUNIT_ASSERT(snapshot.HasMember("model_size_stats"));
-    const rapidjson::Value &modelSizeStats = snapshot["model_size_stats"];
+    const rapidjson::Value& modelSizeStats = snapshot["model_size_stats"];
     CPPUNIT_ASSERT(modelSizeStats.HasMember("job_id"));
     CPPUNIT_ASSERT_EQUAL(std::string("job"), std::string(modelSizeStats["job_id"].GetString()));
     CPPUNIT_ASSERT(modelSizeStats.HasMember("model_bytes"));
@@ -119,7 +116,7 @@ void CModelSnapshotJsonWriterTest::testWrite(void)
     CPPUNIT_ASSERT(modelSizeStats.HasMember("log_time"));
 
     CPPUNIT_ASSERT(snapshot.HasMember("quantiles"));
-    const rapidjson::Value &quantiles = snapshot["quantiles"];
+    const rapidjson::Value& quantiles = snapshot["quantiles"];
     CPPUNIT_ASSERT(quantiles.HasMember("job_id"));
     CPPUNIT_ASSERT_EQUAL(std::string("job"), std::string(quantiles["job_id"].GetString()));
     CPPUNIT_ASSERT(quantiles.HasMember("quantile_state"));

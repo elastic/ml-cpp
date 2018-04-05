@@ -15,27 +15,24 @@
 #ifndef INCLUDED_ml_core_CStatistics_h
 #define INCLUDED_ml_core_CStatistics_h
 
-#include <core/ImportExport.h>
 #include <core/CNonCopyable.h>
 #include <core/CStat.h>
+#include <core/ImportExport.h>
 
 #include <boost/array.hpp>
 
-#include <map>
 #include <iosfwd>
+#include <map>
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace stat_t
-{
+namespace ml {
+namespace stat_t {
 
 //! Changing the order of these enumeration values will corrupt persisted model
 //! state, so don't.  Any new statistics should be added in the penultimate
 //! position in the enum, immediately before E_LastEnumStat.
-enum EStatTypes
-{
+enum EStatTypes {
     //! The number of new people not created in the data gatherer
     //! because there wasn't enough free resource
     E_NumberNewPeopleNotAllowed,
@@ -100,11 +97,9 @@ enum EStatTypes
     //! This MUST be last
     E_LastEnumStat
 };
-
 }
 
-namespace core
-{
+namespace core {
 
 class CStatisticsServer;
 class CStateRestoreTraverser;
@@ -122,39 +117,38 @@ class CStatePersistInserter;
 //! IMPLEMENTATION DECISIONS:\n
 //! A singleton class: there should only be one collection of global stats
 //!
-class CORE_EXPORT CStatistics : private CNonCopyable
-{
-    public:
-        //! Singleton pattern
-        static CStatistics &instance(void);
+class CORE_EXPORT CStatistics : private CNonCopyable {
+public:
+    //! Singleton pattern
+    static CStatistics& instance();
 
-        //! Provide access to the relevant stat from the collection
-        static CStat &stat(int index);
+    //! Provide access to the relevant stat from the collection
+    static CStat& stat(int index);
 
-        //! \name Persistence
-        //@{
-        //! Restore the static members of this class from persisted state
-        static bool staticsAcceptRestoreTraverser(CStateRestoreTraverser &traverser);
+    //! \name Persistence
+    //@{
+    //! Restore the static members of this class from persisted state
+    static bool staticsAcceptRestoreTraverser(CStateRestoreTraverser& traverser);
 
-        //! Persist the static members of this class
-        static void staticsAcceptPersistInserter(CStatePersistInserter &inserter);
-        //@}
+    //! Persist the static members of this class
+    static void staticsAcceptPersistInserter(CStatePersistInserter& inserter);
+    //@}
 
-    private:
-        typedef boost::array<CStat, stat_t::E_LastEnumStat> TStatArray;
+private:
+    using TStatArray = boost::array<CStat, stat_t::E_LastEnumStat>;
 
-    private:
-        //! Constructor of a Singleton is private
-        CStatistics(void);
+private:
+    //! Constructor of a Singleton is private
+    CStatistics();
 
-        //! The unique instance.
-        static CStatistics ms_Instance;
+    //! The unique instance.
+    static CStatistics ms_Instance;
 
-        //! Collection of statistics
-        TStatArray m_Stats;
+    //! Collection of statistics
+    TStatArray m_Stats;
 
-        //! Enabling printing out the current statistics.
-        friend CORE_EXPORT std::ostream &operator<<(std::ostream &o, const CStatistics &stats);
+    //! Enabling printing out the current statistics.
+    friend CORE_EXPORT std::ostream& operator<<(std::ostream& o, const CStatistics& stats);
 };
 
 } // core

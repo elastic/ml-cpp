@@ -17,19 +17,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CNamedPipeFactoryTest : public CppUnit::TestFixture
-{
-    public:
-        void testServerIsCppReader(void);
-        void testServerIsCReader(void);
-        void testServerIsCppWriter(void);
-        void testServerIsCWriter(void);
-        void testCancelBlock(void);
-        void testErrorIfRegularFile(void);
-        void testErrorIfSymlink(void);
+class CNamedPipeFactoryTest : public CppUnit::TestFixture {
+public:
+    void testServerIsCppReader();
+    void testServerIsCReader();
+    void testServerIsCppWriter();
+    void testServerIsCWriter();
+    void testCancelBlock();
+    void testErrorIfRegularFile();
+    void testErrorIfSymlink();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CNamedPipeFactoryTest_h
-

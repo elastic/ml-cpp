@@ -22,11 +22,8 @@
 
 #include <stdint.h>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Encapsulate interpretation of Windows function errors.
@@ -44,37 +41,31 @@ namespace core
 //! to explicitly initialise an object with a specific error
 //! code.
 //!
-class CORE_EXPORT CWindowsError
-{
-    public:
-        //! Initialise using the last error to occur.  This
-        //! is obtained GetLastError() on Windows.
-        CWindowsError(void);
+class CORE_EXPORT CWindowsError {
+public:
+    //! Initialise using the last error to occur.  This
+    //! is obtained GetLastError() on Windows.
+    CWindowsError();
 
-        //! Initialise using a specific error number
-        CWindowsError(uint32_t errorCode);
+    //! Initialise using a specific error number
+    CWindowsError(uint32_t errorCode);
 
-        //! Access the raw error code number
-        uint32_t errorCode(void) const;
+    //! Access the raw error code number
+    uint32_t errorCode() const;
 
-        //! Textual representation of the error
-        std::string errorString(void) const;
+    //! Textual representation of the error
+    std::string errorString() const;
 
-    private:
-        //! The error code
-        uint32_t m_ErrorCode;
+private:
+    //! The error code
+    uint32_t m_ErrorCode;
 
-    friend CORE_EXPORT std::ostream &operator<<(std::ostream &,
-                                                const CWindowsError &);
+    friend CORE_EXPORT std::ostream& operator<<(std::ostream&, const CWindowsError&);
 };
 
 //! Stream output prints textual representation of the error
-CORE_EXPORT std::ostream &operator<<(std::ostream &os,
-                                     const CWindowsError &windowsError);
-
-
+CORE_EXPORT std::ostream& operator<<(std::ostream& os, const CWindowsError& windowsError);
 }
 }
 
 #endif // INCLUDED_ml_core_CWindowsError_h
-

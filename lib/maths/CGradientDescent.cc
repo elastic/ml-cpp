@@ -20,34 +20,21 @@
 
 #include <maths/CLinearAlgebraTools.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
-CGradientDescent::CGradientDescent(double learnRate, double momentum) :
-        m_LearnRate(learnRate),
-        m_Momentum(momentum)
-{
+CGradientDescent::CGradientDescent(double learnRate, double momentum) : m_LearnRate(learnRate), m_Momentum(momentum) {
 }
 
-void CGradientDescent::learnRate(double learnRate)
-{
+void CGradientDescent::learnRate(double learnRate) {
     m_LearnRate = learnRate;
 }
 
-void CGradientDescent::momentum(double momentum)
-{
+void CGradientDescent::momentum(double momentum) {
     m_Momentum = momentum;
 }
 
-bool CGradientDescent::run(std::size_t n,
-                           const TVector &x0,
-                           const CFunction &f,
-                           const CGradient &gf,
-                           TVector &xBest,
-                           TDoubleVec &fi)
-{
+bool CGradientDescent::run(std::size_t n, const TVector& x0, const CFunction& f, const CGradient& gf, TVector& xBest, TDoubleVec& fi) {
     fi.clear();
     fi.reserve(n);
 
@@ -58,23 +45,19 @@ bool CGradientDescent::run(std::size_t n,
     CBasicStatistics::COrderStatisticsStack<double, 1> min;
     CBasicStatistics::SSampleMean<double>::TAccumulator scale;
 
-    for (std::size_t i = 0u; i < n; ++i)
-    {
+    for (std::size_t i = 0u; i < n; ++i) {
         double fx;
-        if (!f(x, fx))
-        {
+        if (!f(x, fx)) {
             LOG_ERROR("Bailing on iteration " << i);
             return false;
         }
 
-        if (min.add(fx))
-        {
+        if (min.add(fx)) {
             xBest = x;
         }
         fi.push_back(fx);
 
-        if (!gf(x, gfx))
-        {
+        if (!gf(x, gfx)) {
             LOG_ERROR("Bailing on iteration " << i);
             return false;
         }
@@ -93,41 +76,32 @@ bool CGradientDescent::run(std::size_t n,
     return true;
 }
 
-CGradientDescent::CFunction::~CFunction(void)
-{
+CGradientDescent::CFunction::~CFunction() {
 }
 
-CGradientDescent::CGradient::~CGradient(void)
-{
+CGradientDescent::CGradient::~CGradient() {
 }
 
-CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFunction &f, double eps) :
-        m_Eps(eps),
-        m_F(f)
-{}
+CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFunction& f, double eps) : m_Eps(eps), m_F(f) {
+}
 
-bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector &x, TVector &result) const
-{
-    if (x.dimension() != result.dimension())
-    {
+bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector& x, TVector& result) const {
+    if (x.dimension() != result.dimension()) {
         LOG_ERROR("Dimension mismatch");
         return false;
     }
 
     xShiftEps = x;
-    for (std::size_t i = 0u; i < x.dimension(); ++i)
-    {
+    for (std::size_t i = 0u; i < x.dimension(); ++i) {
         xShiftEps(i) -= m_Eps;
         double fMinusEps;
-        if (!m_F(xShiftEps, fMinusEps))
-        {
+        if (!m_F(xShiftEps, fMinusEps)) {
             LOG_ERROR("Failed to evaluate function at x - eps");
             return false;
         }
         xShiftEps(i) += 2.0 * m_Eps;
         double fPlusEps;
-        if (!m_F(xShiftEps, fPlusEps))
-        {
+        if (!m_F(xShiftEps, fPlusEps)) {
             LOG_ERROR("Failed to evaluate function at x + eps");
             return false;
         }
@@ -137,6 +111,5 @@ bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector &x, T
 
     return true;
 }
-
 }
 }

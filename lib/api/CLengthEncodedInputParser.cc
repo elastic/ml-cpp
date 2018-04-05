@@ -31,59 +31,41 @@
 #endif
 #include <string.h>
 
-
-namespace ml
-{
-namespace api
-{
-
+namespace ml {
+namespace api {
 
 // Initialise statics
 const size_t CLengthEncodedInputParser::WORK_BUFFER_SIZE(8192); // 8kB
 
-CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream &strmIn)
-    : CInputParser(),
-      m_StrmIn(strmIn),
-      m_WorkBuffer(0),
-      m_WorkBufferPtr(0),
-      m_WorkBufferEnd(0),
-      m_NoMoreRecords(false)
-{
+CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream& strmIn)
+    : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(0), m_WorkBufferPtr(0), m_WorkBufferEnd(0), m_NoMoreRecords(false) {
     // This test is not ideal because std::cin's stream buffer could have been
     // changed
-    if (strmIn.rdbuf() == std::cin.rdbuf())
-    {
+    if (strmIn.rdbuf() == std::cin.rdbuf()) {
         LOG_DEBUG("Length encoded input parser input is connected to stdin");
 
         int result = core::CSetMode::setBinaryMode(::fileno(stdin));
-        if (result == -1)
-        {
+        if (result == -1) {
             LOG_WARN("Cannot set the stdin to binary mode");
         }
-    }
-    else
-    {
+    } else {
         LOG_DEBUG("Length encoded input parser input is not connected to stdin");
     }
 }
 
-bool CLengthEncodedInputParser::readStream(const TReaderFunc &readerFunc)
-{
+bool CLengthEncodedInputParser::readStream(const TReaderFunc& readerFunc) {
     // Reset the record buffer pointers in case we're reading a new stream
     m_WorkBufferEnd = m_WorkBufferPtr;
     m_NoMoreRecords = false;
-    TStrVec &fieldNames = this->fieldNames();
+    TStrVec& fieldNames = this->fieldNames();
 
-    if (!this->gotFieldNames())
-    {
-        if (this->parseRecordFromStream<true>(fieldNames) == false)
-        {
+    if (!this->gotFieldNames()) {
+        if (this->parseRecordFromStream<true>(fieldNames) == false) {
             LOG_ERROR("Failed to parse length encoded header from stream");
             return false;
         }
 
-        if (fieldNames.empty())
-        {
+        if (fieldNames.empty()) {
             // If we parsed no field names at all, return true, as
             // completely empty input is technically valid
             LOG_INFO("Field names are empty")
@@ -99,30 +81,23 @@ bool CLengthEncodedInputParser::readStream(const TReaderFunc &readerFunc)
     // name - this avoids the need to repeatedly compute the same hashes
     TStrRefVec fieldValRefs;
     fieldValRefs.reserve(fieldNames.size());
-    for (TStrVecCItr iter = fieldNames.begin();
-         iter != fieldNames.end();
-         ++iter)
-    {
+    for (TStrVecCItr iter = fieldNames.begin(); iter != fieldNames.end(); ++iter) {
         fieldValRefs.push_back(boost::ref(recordFields[*iter]));
     }
 
-    while (!m_NoMoreRecords)
-    {
-        if (this->parseRecordFromStream<false>(fieldValRefs) == false)
-        {
+    while (!m_NoMoreRecords) {
+        if (this->parseRecordFromStream<false>(fieldValRefs) == false) {
             LOG_ERROR("Failed to parse length encoded data record from stream");
             return false;
         }
 
-        if (m_NoMoreRecords)
-        {
+        if (m_NoMoreRecords) {
             break;
         }
 
         this->gotData(true);
 
-        if (readerFunc(recordFields) == false)
-        {
+        if (readerFunc(recordFields) == false) {
             LOG_ERROR("Record handler function forced exit");
             return false;
         }
@@ -131,9 +106,8 @@ bool CLengthEncodedInputParser::readStream(const TReaderFunc &readerFunc)
     return true;
 }
 
-template <bool RESIZE_ALLOWED, typename STR_VEC>
-bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC &results)
-{
+template<bool RESIZE_ALLOWED, typename STR_VEC>
+bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
     // For maximum performance, read the stream in large chunks that can be
     // moved around by memcpy().  Using memcpy() is an order of magnitude faster
     // than the naive approach of checking and copying one character at a time.
@@ -141,18 +115,15 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC &results)
     // for the delimiter and then memcpy() to transfer data to the target
     // std::string, but sadly this is not the case for the Microsoft and Apache
     // STLs.
-    if (m_WorkBuffer.get() == 0)
-    {
+    if (m_WorkBuffer.get() == 0) {
         m_WorkBuffer.reset(new char[WORK_BUFFER_SIZE]);
         m_WorkBufferPtr = m_WorkBuffer.get();
         m_WorkBufferEnd = m_WorkBufferPtr;
     }
 
     uint32_t numFields(0);
-    if (this->parseUInt32FromStream(numFields) == false)
-    {
-        if (m_StrmIn.eof())
-        {
+    if (this->parseUInt32FromStream(numFields) == false) {
+        if (m_StrmIn.eof()) {
             // End-of-file is not an error at this point in the parsing
             m_NoMoreRecords = true;
             return true;
@@ -162,12 +133,9 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC &results)
         return false;
     }
 
-    if (results.size() != numFields)
-    {
-        if (RESIZE_ALLOWED)
-        {
-            if (numFields == 0)
-            {
+    if (results.size() != numFields) {
+        if (RESIZE_ALLOWED) {
+            if (numFields == 0) {
                 LOG_WARN("Number of fields is 0 in input");
             }
 
@@ -181,22 +149,16 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC &results)
             static_assert(!RESIZE_ALLOWED || !std::is_same<TVecValue, TStrRef>::value,
                           "RESIZE_ALLOWED must be false for reference vectors");
             std::string temp;
-            results.resize(numFields,
-                           typename STR_VEC::value_type(temp));
-        }
-        else
-        {
-            LOG_ERROR("Incorrect number of fields in input stream record: expected "
-                << results.size() << " but got " << numFields);
+            results.resize(numFields, typename STR_VEC::value_type(temp));
+        } else {
+            LOG_ERROR("Incorrect number of fields in input stream record: expected " << results.size() << " but got " << numFields);
             return false;
         }
     }
 
-    for (size_t index = 0; index < numFields; ++index)
-    {
+    for (size_t index = 0; index < numFields; ++index) {
         uint32_t length(0);
-        if (this->parseUInt32FromStream(length) == false)
-        {
+        if (this->parseUInt32FromStream(length) == false) {
             LOG_ERROR("Unable to read field length from input stream");
             return false;
         }
@@ -209,15 +171,12 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC &results)
         // which is unlikely, so assume corruption in this case.  See bug 1040
         // in Bugzilla for more details.
         static const uint32_t HIGH_BYTE_MASK(0xFF000000);
-        if ((length & HIGH_BYTE_MASK) != 0u)
-        {
-            LOG_ERROR("Parsed field length " << length
-                << " is suspiciously large - assuming corrupt input stream");
+        if ((length & HIGH_BYTE_MASK) != 0u) {
+            LOG_ERROR("Parsed field length " << length << " is suspiciously large - assuming corrupt input stream");
             return false;
         }
 
-        if (this->parseStringFromStream(length, results[index]) == false)
-        {
+        if (this->parseStringFromStream(length, results[index]) == false) {
             LOG_ERROR("Unable to read field data from input stream");
             return false;
         }
@@ -226,14 +185,11 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC &results)
     return true;
 }
 
-bool CLengthEncodedInputParser::parseUInt32FromStream(uint32_t &num)
-{
+bool CLengthEncodedInputParser::parseUInt32FromStream(uint32_t& num) {
     size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
-    if (avail < sizeof(uint32_t))
-    {
+    if (avail < sizeof(uint32_t)) {
         avail = this->refillBuffer();
-        if (avail < sizeof(uint32_t))
-        {
+        if (avail < sizeof(uint32_t)) {
             return false;
         }
     }
@@ -249,82 +205,62 @@ bool CLengthEncodedInputParser::parseUInt32FromStream(uint32_t &num)
     return true;
 }
 
-bool CLengthEncodedInputParser::parseStringFromStream(size_t length,
-                                                      std::string &str)
-{
-    if (length == 0)
-    {
+bool CLengthEncodedInputParser::parseStringFromStream(size_t length, std::string& str) {
+    if (length == 0) {
         str.clear();
         return true;
     }
 
     bool append(false);
     size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
-    do
-    {
-        if (avail == 0)
-        {
+    do {
+        if (avail == 0) {
             avail = this->refillBuffer();
-            if (avail == 0)
-            {
+            if (avail == 0) {
                 return false;
             }
         }
 
         size_t copyLen(std::min(length, avail));
-        if (append)
-        {
+        if (append) {
             str.append(m_WorkBufferPtr, copyLen);
-        }
-        else
-        {
+        } else {
             str.assign(m_WorkBufferPtr, copyLen);
             append = true;
         }
         m_WorkBufferPtr += copyLen;
         avail -= copyLen;
         length -= copyLen;
-    }
-    while (length > 0);
+    } while (length > 0);
 
     return true;
 }
 
-size_t CLengthEncodedInputParser::refillBuffer(void)
-{
+size_t CLengthEncodedInputParser::refillBuffer() {
     // NB: This assumes the buffer is allocated, which is OK for a private
     // method.  Callers are responsible for ensuring that the buffer isn't NULL
     // when calling this method.
 
     size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
-    if (m_StrmIn.eof())
-    {
+    if (m_StrmIn.eof()) {
         // We can't read any more data - whatever's available now won't change
         return avail;
     }
 
-    if (avail > 0)
-    {
+    if (avail > 0) {
         ::memcpy(m_WorkBuffer.get(), m_WorkBufferPtr, avail);
     }
 
     m_WorkBufferPtr = m_WorkBuffer.get();
-    m_StrmIn.read(m_WorkBuffer.get() + avail,
-                  static_cast<std::streamsize>(WORK_BUFFER_SIZE - avail));
-    if (m_StrmIn.bad())
-    {
+    m_StrmIn.read(m_WorkBuffer.get() + avail, static_cast<std::streamsize>(WORK_BUFFER_SIZE - avail));
+    if (m_StrmIn.bad()) {
         LOG_ERROR("Input stream is bad");
-    }
-    else
-    {
+    } else {
         avail += static_cast<size_t>(m_StrmIn.gcount());
     }
     m_WorkBufferEnd = m_WorkBufferPtr + avail;
 
     return avail;
 }
-
-
 }
 }
-

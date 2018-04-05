@@ -18,12 +18,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPriorTest : public CppUnit::TestFixture
-{
-    public:
-        void testExpectation(void);
+class CPriorTest : public CppUnit::TestFixture {
+public:
+    void testExpectation();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CPriorTest_h

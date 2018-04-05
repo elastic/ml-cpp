@@ -20,22 +20,20 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CEventRatePopulationDataGathererTest : public CppUnit::TestFixture {
+public:
+    void testAttributeCounts();
+    void testAttributeIndicator();
+    void testUniqueValueCounts();
+    void testCompressedLength();
+    void testRemovePeople();
+    void testRemoveAttributes();
+    void testPersistence();
 
-class CEventRatePopulationDataGathererTest : public CppUnit::TestFixture
-{
-    public:
-        void testAttributeCounts(void);
-        void testAttributeIndicator(void);
-        void testUniqueValueCounts(void);
-        void testCompressedLength(void);
-        void testRemovePeople(void);
-        void testRemoveAttributes(void);
-        void testPersistence(void);
+    static CppUnit::Test* suite();
 
-        static CppUnit::Test *suite(void);
-
-    private:
-        ml::model::CResourceMonitor m_ResourceMonitor;
+private:
+    ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
 #endif // INCLUDED_CEventRatePopulationDataGathererTest_h

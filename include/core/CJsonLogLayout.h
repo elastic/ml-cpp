@@ -24,10 +24,8 @@ class CJsonLogLayoutTest;
 // NB: log4cxx extensions have to go in the log4cxx namespace, hence cannot
 // stick to the convention of our code being in the ml namespace.  This
 // is due to use of (log4cxx mandated) macros in the implementation.
-namespace log4cxx
-{
-namespace helpers
-{
+namespace log4cxx {
+namespace helpers {
 
 //! \brief
 //! Output log messages as lineified JSON.
@@ -40,63 +38,56 @@ namespace helpers
 //! Violates several aspects of the Ml coding standards in order
 //! to work with log4cxx macros and other conventions.
 //!
-class CORE_EXPORT CJsonLogLayout : public Layout
-{
-    public:
-        DECLARE_LOG4CXX_OBJECT(CJsonLogLayout)
-        BEGIN_LOG4CXX_CAST_MAP()
-            LOG4CXX_CAST_ENTRY(CJsonLogLayout)
-            LOG4CXX_CAST_ENTRY_CHAIN(Layout)
-        END_LOG4CXX_CAST_MAP()
+class CORE_EXPORT CJsonLogLayout : public Layout {
+public:
+    DECLARE_LOG4CXX_OBJECT(CJsonLogLayout)
+    BEGIN_LOG4CXX_CAST_MAP()
+    LOG4CXX_CAST_ENTRY(CJsonLogLayout)
+    LOG4CXX_CAST_ENTRY_CHAIN(Layout)
+    END_LOG4CXX_CAST_MAP()
 
-        CJsonLogLayout(void);
+    CJsonLogLayout();
 
-        //! Accessors for location info (i.e. should file/line be included in
-        //! log output?
-        void locationInfo(bool locationInfo);
-        bool locationInfo(void) const;
+    //! Accessors for location info (i.e. should file/line be included in
+    //! log output?
+    void locationInfo(bool locationInfo);
+    bool locationInfo() const;
 
-        //! Accessors for whether MDC key-value pairs should be output.
-        void properties(bool properties);
-        bool properties(void) const;
+    //! Accessors for whether MDC key-value pairs should be output.
+    void properties(bool properties);
+    bool properties() const;
 
-        //! No options to activate.
-        void activateOptions(Pool &p);
+    //! No options to activate.
+    void activateOptions(Pool& p);
 
-        //! Set options.
-        virtual void setOption(const LogString &option,
-                               const LogString &value);
+    //! Set options.
+    virtual void setOption(const LogString& option, const LogString& value);
 
-        //! Formats a LoggingEvent as JSON.
-        virtual void format(LogString &output,
-                            const spi::LoggingEventPtr &event,
-                            Pool &p) const;
+    //! Formats a LoggingEvent as JSON.
+    virtual void format(LogString& output, const spi::LoggingEventPtr& event, Pool& p) const;
 
-        //! The CJsonLogLayout prints and does not ignore exceptions.
-        virtual bool ignoresThrowable(void) const;
+    //! The CJsonLogLayout prints and does not ignore exceptions.
+    virtual bool ignoresThrowable() const;
 
-    private:
-        //! Include location info by default
-        bool m_LocationInfo;
-        bool m_Properties;
+private:
+    //! Include location info by default
+    bool m_LocationInfo;
+    bool m_Properties;
 
-        static std::string cropPath(const std::string &filename);
+    static std::string cropPath(const std::string& filename);
 
-        // For unit testing
-        friend class ::CJsonLogLayoutTest;
+    // For unit testing
+    friend class ::CJsonLogLayoutTest;
 };
 
 LOG4CXX_PTR_DEF(CJsonLogLayout);
 
 } // end helpers
 
-namespace classes
-{
-extern const helpers::ClassRegistration &CJsonLogLayoutRegistration;
+namespace classes {
+extern const helpers::ClassRegistration& CJsonLogLayoutRegistration;
 }
 
 } // end log4cxx
 
-
 #endif // INCLUDED_ml_core_CJsonLogLayout_h
-

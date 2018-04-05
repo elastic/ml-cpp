@@ -15,52 +15,40 @@
 
 #include <model/CPartitioningFields.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
-CPartitioningFields::CPartitioningFields(const std::string &partitionFieldName,
-                                         const std::string &partitionFieldValue)
-{
+CPartitioningFields::CPartitioningFields(const std::string& partitionFieldName, const std::string& partitionFieldValue) {
     m_PartitioningFields.reserve(3);
     this->add(partitionFieldName, partitionFieldValue);
 }
 
-void CPartitioningFields::add(const std::string &fieldName, const std::string &fieldValue)
-{
+void CPartitioningFields::add(const std::string& fieldName, const std::string& fieldValue) {
     m_PartitioningFields.emplace_back(TStrCRef(fieldName), TStrCRef(fieldValue));
 }
 
-std::size_t CPartitioningFields::size(void) const
-{
+std::size_t CPartitioningFields::size() const {
     return m_PartitioningFields.size();
 }
 
-const CPartitioningFields::TStrCRefStrCRefPr &CPartitioningFields::operator[](std::size_t i) const
-{
+const CPartitioningFields::TStrCRefStrCRefPr& CPartitioningFields::operator[](std::size_t i) const {
     return m_PartitioningFields[i];
 }
 
-CPartitioningFields::TStrCRefStrCRefPr &CPartitioningFields::operator[](std::size_t i)
-{
+CPartitioningFields::TStrCRefStrCRefPr& CPartitioningFields::operator[](std::size_t i) {
     return m_PartitioningFields[i];
 }
 
-const CPartitioningFields::TStrCRefStrCRefPr &CPartitioningFields::back(void) const
-{
+const CPartitioningFields::TStrCRefStrCRefPr& CPartitioningFields::back() const {
     return m_PartitioningFields.back();
 }
 
-CPartitioningFields::TStrCRefStrCRefPr &CPartitioningFields::back(void)
-{
+CPartitioningFields::TStrCRefStrCRefPr& CPartitioningFields::back() {
     return m_PartitioningFields.back();
 }
 
-const std::string &CPartitioningFields::partitionFieldValue(void) const
-{
+const std::string& CPartitioningFields::partitionFieldValue() const {
     return m_PartitioningFields[0].second.get();
 }
-
 }
 }

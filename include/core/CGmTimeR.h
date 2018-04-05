@@ -20,12 +20,8 @@
 
 #include <time.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Portable wrapper for the gmtime_r() function.
@@ -38,16 +34,11 @@ namespace core
 //! gmtime_s() function with slightly different semantics to Unix's
 //! gmtime_r().
 //!
-class CORE_EXPORT CGmTimeR : private CNonInstantiatable
-{
-    public:
-        static struct tm *gmTimeR(const time_t *clock,
-                                  struct tm *result);
+class CORE_EXPORT CGmTimeR : private CNonInstantiatable {
+public:
+    static struct tm* gmTimeR(const time_t* clock, struct tm* result);
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CGmTimeR_h
-

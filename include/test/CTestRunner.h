@@ -22,11 +22,8 @@
 #include <string>
 #include <vector>
 
-
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
 //! \brief
 //! A class to wrap cppunit tests.
@@ -80,53 +77,46 @@ namespace test
 //! for interactive development where changes to the code are likely to
 //! alter the test results.
 //!
-class TEST_EXPORT CTestRunner : public CppUnit::TextTestRunner
-{
-    public:
-        //! Name of a file storing directories in which tests should be skipped
-        //! together with the previous test result
-        static const std::string SKIP_FILE_NAME;
+class TEST_EXPORT CTestRunner : public CppUnit::TextTestRunner {
+public:
+    //! Name of a file storing directories in which tests should be skipped
+    //! together with the previous test result
+    static const std::string SKIP_FILE_NAME;
 
-        //! Name of file storing results in XML format (to allow display by a
-        //! continuous integration system)
-        static const std::string XML_RESULT_FILE_NAME;
+    //! Name of file storing results in XML format (to allow display by a
+    //! continuous integration system)
+    static const std::string XML_RESULT_FILE_NAME;
 
-    public:
-        CTestRunner(int argc, const char **argv);
-        virtual ~CTestRunner(void);
+public:
+    CTestRunner(int argc, const char** argv);
+    virtual ~CTestRunner();
 
-        //! The command to run tests - DO NOT CALL run()
-        virtual bool runTests(void);
+    //! The command to run tests - DO NOT CALL run()
+    virtual bool runTests();
 
-    protected:
-        //! Time the unit tests
-        bool timeTests(const std::string &topPath,
-                       const std::string &testPath);
+protected:
+    //! Time the unit tests
+    bool timeTests(const std::string& topPath, const std::string& testPath);
 
-        //! Is the current directory listed in the skip file?  If so, did the
-        //! previously run tests pass?
-        bool checkSkipFile(const std::string &cwd,
-                           bool &passed) const;
+    //! Is the current directory listed in the skip file?  If so, did the
+    //! previously run tests pass?
+    bool checkSkipFile(const std::string& cwd, bool& passed) const;
 
-        //! Add the current directory to the skip file (if it exists) so that
-        //! tests for the same directory aren't re-run.
-        bool updateSkipFile(const std::string &cwd,
-                            bool passed) const;
+    //! Add the current directory to the skip file (if it exists) so that
+    //! tests for the same directory aren't re-run.
+    bool updateSkipFile(const std::string& cwd, bool passed) const;
 
-    private:
-        void processCmdLine(int argc, const char **argv);
+private:
+    void processCmdLine(int argc, const char** argv);
 
-    private:
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::iterator        TStrVecItr;
+private:
+    using TStrVec = std::vector<std::string>;
+    using TStrVecItr = TStrVec::iterator;
 
-        TStrVec            m_TestCases;
-        std::string        m_ExeName;
+    TStrVec m_TestCases;
+    std::string m_ExeName;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_test_CTestRunner_h
-

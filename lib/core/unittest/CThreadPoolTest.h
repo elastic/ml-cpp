@@ -17,14 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CThreadPoolTest : public CppUnit::TestFixture {
+public:
+    void testPool();
 
-class CThreadPoolTest : public CppUnit::TestFixture
-{
-    public:
-        void testPool(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CThreadPoolTest_h
-

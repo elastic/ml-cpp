@@ -17,14 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CProcessPriorityTest : public CppUnit::TestFixture {
+public:
+    void testReducePriority();
 
-class CProcessPriorityTest : public CppUnit::TestFixture
-{
-    public:
-        void testReducePriority(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CProcessPriorityTest_h
-

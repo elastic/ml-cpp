@@ -18,19 +18,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CQDigestTest : public CppUnit::TestFixture {
+public:
+    void testAdd();
+    void testMerge();
+    void testCdf();
+    void testSummary();
+    void testPropagateForwardByTime();
+    void testScale();
+    void testPersist();
 
-class CQDigestTest : public CppUnit::TestFixture
-{
-    public:
-        void testAdd(void);
-        void testMerge(void);
-        void testCdf(void);
-        void testSummary(void);
-        void testPropagateForwardByTime(void);
-        void testScale(void);
-        void testPersist(void);
-
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CQDigestTest_h

@@ -25,41 +25,29 @@
 
 #include <stdint.h>
 
-
-namespace
-{
+namespace {
 
 const int TEST_STAT = 0u;
 
-class CStatisticsTestRunner : public ml::core::CThread
-{
+class CStatisticsTestRunner : public ml::core::CThread {
 public:
-    CStatisticsTestRunner(void) : m_I(0), m_N(0)
-    {
-    }
+    CStatisticsTestRunner() : m_I(0), m_N(0) {}
 
-    void initialise(int i, int n)
-    {
+    void initialise(int i, int n) {
         m_N = n;
         m_I = i;
     }
 
 private:
-    virtual void run(void)
-    {
-        if (m_I < 6)
-        {
+    virtual void run() {
+        if (m_I < 6) {
             ml::core::CStatistics::stat(TEST_STAT + m_I).increment();
-        }
-        else
-        {
+        } else {
             ml::core::CStatistics::stat(TEST_STAT + m_I - m_N).decrement();
         }
     }
 
-    virtual void shutdown(void)
-    {
-    }
+    virtual void shutdown() {}
 
     int m_I;
     int m_N;
@@ -67,28 +55,21 @@ private:
 
 } // namespace
 
-CppUnit::Test *CStatisticsTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStatisticsTest");
+CppUnit::Test* CStatisticsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStatisticsTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CStatisticsTest>(
-                                   "CStatisticsTest::testStatistics",
-                                   &CStatisticsTest::testStatistics) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CStatisticsTest>(
-                                   "CStatisticsTest::testPersist",
-                                   &CStatisticsTest::testPersist) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>("CStatisticsTest::testStatistics", &CStatisticsTest::testStatistics));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>("CStatisticsTest::testPersist", &CStatisticsTest::testPersist));
 
     return suiteOfTests;
 }
 
-void CStatisticsTest::testStatistics(void)
-{
+void CStatisticsTest::testStatistics() {
     LOG_TRACE("Starting Statistics test");
-    ml::core::CStatistics &stats = ml::core::CStatistics::instance();
+    ml::core::CStatistics& stats = ml::core::CStatistics::instance();
 
     static const int N = 6;
-    for (int i = 0; i < N; i++)
-    {
+    for (int i = 0; i < N; i++) {
         CPPUNIT_ASSERT_EQUAL(uint64_t(0), stats.stat(TEST_STAT + i).value());
     }
 
@@ -102,28 +83,23 @@ void CStatisticsTest::testStatistics(void)
     CPPUNIT_ASSERT_EQUAL(uint64_t(0), stats.stat(TEST_STAT).value());
 
     CStatisticsTestRunner runners[N * 2];
-    for (int i = 0; i < N * 2; i++)
-    {
+    for (int i = 0; i < N * 2; i++) {
         runners[i].initialise(i, N);
     }
 
-    for (int i = 0; i < N * 2; i++)
-    {
+    for (int i = 0; i < N * 2; i++) {
         runners[i].start();
     }
 
-    for (int i = 0; i < N * 2; i++)
-    {
+    for (int i = 0; i < N * 2; i++) {
         runners[i].waitForFinish();
     }
 
-    for (int i = 0; i < N; i++)
-    {
+    for (int i = 0; i < N; i++) {
         CPPUNIT_ASSERT_EQUAL(uint64_t(0), stats.stat(TEST_STAT + i).value());
     }
 
-    for (int i = 0; i < 0x1000000; i++)
-    {
+    for (int i = 0; i < 0x1000000; i++) {
         stats.stat(TEST_STAT).increment();
     }
     CPPUNIT_ASSERT_EQUAL(uint64_t(0x1000000), stats.stat(TEST_STAT).value());
@@ -131,14 +107,12 @@ void CStatisticsTest::testStatistics(void)
     LOG_TRACE("Finished Statistics test");
 }
 
-void CStatisticsTest::testPersist(void)
-{
+void CStatisticsTest::testPersist() {
     LOG_DEBUG("Starting persist test");
-    ml::core::CStatistics &stats = ml::core::CStatistics::instance();
+    ml::core::CStatistics& stats = ml::core::CStatistics::instance();
 
     // Check that a save/restore with all zeros is Ok
-    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++)
-    {
+    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
         stats.stat(i).set(0);
     }
 
@@ -153,22 +127,18 @@ void CStatisticsTest::testPersist(void)
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origStaticsXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            &ml::core::CStatistics::staticsAcceptRestoreTraverser));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(&ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
 
-    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++)
-    {
+    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
         CPPUNIT_ASSERT_EQUAL(uint64_t(0), stats.stat(i).value());
     }
 
     // Set some other values and check that restore puts all to zero
-    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++)
-    {
+    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
         stats.stat(i).set(567 + (i * 3));
     }
-    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++)
-    {
+    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
         CPPUNIT_ASSERT_EQUAL(uint64_t(567 + (i * 3)), stats.stat(i).value());
     }
 
@@ -185,12 +155,10 @@ void CStatisticsTest::testPersist(void)
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origStaticsXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            &ml::core::CStatistics::staticsAcceptRestoreTraverser));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(&ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
 
-    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++)
-    {
+    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
         CPPUNIT_ASSERT_EQUAL(uint64_t(0), stats.stat(i).value());
     }
 
@@ -199,12 +167,10 @@ void CStatisticsTest::testPersist(void)
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(newStaticsXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            &ml::core::CStatistics::staticsAcceptRestoreTraverser));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(&ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
 
-    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++)
-    {
+    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
         CPPUNIT_ASSERT_EQUAL(uint64_t(567 + (i * 3)), stats.stat(i).value());
     }
 
@@ -213,12 +179,10 @@ void CStatisticsTest::testPersist(void)
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origStaticsXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            &ml::core::CStatistics::staticsAcceptRestoreTraverser));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(&ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
 
-    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++)
-    {
+    for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
         CPPUNIT_ASSERT_EQUAL(uint64_t(0), stats.stat(i).value());
     }
 
@@ -231,8 +195,7 @@ void CStatisticsTest::testPersist(void)
         regex.init("\n");
         regex.split(output, tokens);
     }
-    for (ml::core::CRegex::TStrVecCItr i = tokens.begin(); i != (tokens.end() - 1); ++i)
-    {
+    for (ml::core::CRegex::TStrVecCItr i = tokens.begin(); i != (tokens.end() - 1); ++i) {
         ml::core::CRegex regex;
         // Look for "name":"E.*"value": 0}
         regex.init(".*\"name\":\"E.*\"value\":0.*");

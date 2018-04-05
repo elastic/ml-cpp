@@ -19,20 +19,14 @@
 
 #include <stdlib.h>
 
-
-namespace
-{
-const char *CPP_SRC_HOME("CPP_SRC_HOME");
+namespace {
+const char* CPP_SRC_HOME("CPP_SRC_HOME");
 }
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
-
-std::string CResourceLocator::resourceDir(void)
-{
+std::string CResourceLocator::resourceDir() {
     // Look relative to the program that's running, assuming this directory layout:
     // $ES_HOME/plugin/<plugin name>/resources
     // $ES_HOME/plugin/<plugin name>/platform/<platform name>/bin
@@ -43,15 +37,12 @@ std::string CResourceLocator::resourceDir(void)
     // that does, but if neither exist return the production directory so the
     // error message is nicer for the end user.
     COsFileFuncs::TStat buf;
-    if (COsFileFuncs::stat(productionDir.c_str(), &buf) != 0)
-    {
-        const char *cppSrcHome(::getenv(CPP_SRC_HOME));
-        if (cppSrcHome != 0)
-        {
+    if (COsFileFuncs::stat(productionDir.c_str(), &buf) != 0) {
+        const char* cppSrcHome(::getenv(CPP_SRC_HOME));
+        if (cppSrcHome != 0) {
             std::string devDir(cppSrcHome);
             devDir += "/lib/core";
-            if (COsFileFuncs::stat(devDir.c_str(), &buf) == 0)
-            {
+            if (COsFileFuncs::stat(devDir.c_str(), &buf) == 0) {
                 return devDir;
             }
         }
@@ -60,8 +51,7 @@ std::string CResourceLocator::resourceDir(void)
     return productionDir;
 }
 
-std::string CResourceLocator::logDir(void)
-{
+std::string CResourceLocator::logDir() {
     // Look relative to the program that's running, assuming this directory layout:
     // $ES_HOME/logs
     // $ES_HOME/plugin/<plugin name>/platform/<platform name>/bin
@@ -69,8 +59,7 @@ std::string CResourceLocator::logDir(void)
     std::string productionDir(CProgName::progDir() + "/../../../../../logs");
 
     COsFileFuncs::TStat buf;
-    if (COsFileFuncs::stat(productionDir.c_str(), &buf) != 0)
-    {
+    if (COsFileFuncs::stat(productionDir.c_str(), &buf) != 0) {
         // Assume we're running as a unit test
         return ".";
     }
@@ -78,18 +67,13 @@ std::string CResourceLocator::logDir(void)
     return productionDir;
 }
 
-std::string CResourceLocator::cppRootDir(void)
-{
-    const char *cppSrcHome(::getenv(CPP_SRC_HOME));
-    if (cppSrcHome == 0)
-    {
+std::string CResourceLocator::cppRootDir() {
+    const char* cppSrcHome(::getenv(CPP_SRC_HOME));
+    if (cppSrcHome == 0) {
         // Assume we're in a unittest directory
         return "../../..";
     }
     return cppSrcHome;
 }
-
-
 }
 }
-

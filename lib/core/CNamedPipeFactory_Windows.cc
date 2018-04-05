@@ -23,96 +23,69 @@
 #include <fcntl.h>
 #include <io.h>
 
-
-namespace
-{
+namespace {
 
 //! fclose() doesn't check for NULL pointers, so wrap it for use as a shared_ptr
 //! deleter
-void safeFClose(FILE *file)
-{
-    if (file != 0)
-    {
+void safeFClose(FILE* file) {
+    if (file != 0) {
         ::fclose(file);
     }
 }
 
 //! On Windows ALL named pipes are under this path
 const std::string PIPE_PREFIX("\\\\.\\pipe\\");
-
 }
 
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 // Initialise static
 const char CNamedPipeFactory::TEST_CHAR('\n');
 
-
-CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::string &fileName)
-{
+CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::string& fileName) {
     TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, false);
-    if (handle == INVALID_HANDLE_VALUE)
-    {
+    if (handle == INVALID_HANDLE_VALUE) {
         return TIStreamP();
     }
-    typedef boost::iostreams::stream<boost::iostreams::file_descriptor_source> TFileDescriptorSourceStream;
-    return TIStreamP(new TFileDescriptorSourceStream(
-            boost::iostreams::file_descriptor_source(handle, boost::iostreams::close_handle)));
+    using TFileDescriptorSourceStream = boost::iostreams::stream<boost::iostreams::file_descriptor_source>;
+    return TIStreamP(new TFileDescriptorSourceStream(boost::iostreams::file_descriptor_source(handle, boost::iostreams::close_handle)));
 }
 
-CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string &fileName)
-{
+CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
     TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, true);
-    if (handle == INVALID_HANDLE_VALUE)
-    {
+    if (handle == INVALID_HANDLE_VALUE) {
         return TOStreamP();
     }
-    typedef boost::iostreams::stream<boost::iostreams::file_descriptor_sink> TFileDescriptorSinkStream;
-    return TOStreamP(new TFileDescriptorSinkStream(
-            boost::iostreams::file_descriptor_sink(handle, boost::iostreams::close_handle)));
+    using TFileDescriptorSinkStream = boost::iostreams::stream<boost::iostreams::file_descriptor_sink>;
+    return TOStreamP(new TFileDescriptorSinkStream(boost::iostreams::file_descriptor_sink(handle, boost::iostreams::close_handle)));
 }
 
-CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string &fileName)
-{
+CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string& fileName) {
     TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, false);
-    if (handle == INVALID_HANDLE_VALUE)
-    {
+    if (handle == INVALID_HANDLE_VALUE) {
         return TFileP();
     }
-    return TFileP(::fdopen(::_open_osfhandle(reinterpret_cast<intptr_t>(handle), _O_RDONLY),
-                           "rb"),
-                  safeFClose);
+    return TFileP(::fdopen(::_open_osfhandle(reinterpret_cast<intptr_t>(handle), _O_RDONLY), "rb"), safeFClose);
 }
 
-CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileWrite(const std::string &fileName)
-{
+CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileWrite(const std::string& fileName) {
     TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, true);
-    if (handle == INVALID_HANDLE_VALUE)
-    {
+    if (handle == INVALID_HANDLE_VALUE) {
         return TFileP();
     }
-    return TFileP(::fdopen(::_open_osfhandle(reinterpret_cast<intptr_t>(handle), 0),
-                           "wb"),
-                  safeFClose);
+    return TFileP(::fdopen(::_open_osfhandle(reinterpret_cast<intptr_t>(handle), 0), "wb"), safeFClose);
 }
 
-bool CNamedPipeFactory::isNamedPipe(const std::string &fileName)
-{
-    return fileName.length() > PIPE_PREFIX.length() &&
-           fileName.compare(0, PIPE_PREFIX.length(), PIPE_PREFIX) == 0;
+bool CNamedPipeFactory::isNamedPipe(const std::string& fileName) {
+    return fileName.length() > PIPE_PREFIX.length() && fileName.compare(0, PIPE_PREFIX.length(), PIPE_PREFIX) == 0;
 }
 
-std::string CNamedPipeFactory::defaultPath(void)
-{
+std::string CNamedPipeFactory::defaultPath() {
     return PIPE_PREFIX;
 }
 
-CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::string &fileName, bool forWrite)
-{
+CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
     // Size of named pipe buffer
     static const DWORD BUFFER_SIZE(4096);
 
@@ -128,10 +101,8 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
                                   forWrite ? 1 : BUFFER_SIZE,
                                   NMPWAIT_USE_DEFAULT_WAIT,
                                   0));
-    if (handle == INVALID_HANDLE_VALUE)
-    {
-        LOG_ERROR("Unable to create named pipe " << fileName <<
-                  ": " << CWindowsError());
+    if (handle == INVALID_HANDLE_VALUE) {
+        LOG_ERROR("Unable to create named pipe " << fileName << ": " << CWindowsError());
         return INVALID_HANDLE_VALUE;
     }
 
@@ -159,20 +130,16 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
     // JSON and it's easy to make them tolerate blank lines.
     bool sufferedShortLivedConnection(false);
     DWORD attempt(0);
-    do
-    {
+    do {
         ++attempt;
         // This call will block if there is no other connection to the named
         // pipe
-        if (ConnectNamedPipe(handle, 0) == FALSE)
-        {
+        if (ConnectNamedPipe(handle, 0) == FALSE) {
             // ERROR_PIPE_CONNECTED means the pipe was already connected so
             // there was no need to connect it again - not a problem
             DWORD errCode(GetLastError());
-            if (errCode != ERROR_PIPE_CONNECTED)
-            {
-                LOG_ERROR("Unable to connect named pipe " << fileName <<
-                          ": " << CWindowsError(errCode));
+            if (errCode != ERROR_PIPE_CONNECTED) {
+                LOG_ERROR("Unable to connect named pipe " << fileName << ": " << CWindowsError(errCode));
                 // Close the pipe (even though it was successfully opened) so
                 // that the net effect of this failed call is nothing
                 CloseHandle(handle);
@@ -187,26 +154,15 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
         // relies on the Java side of all connections tolerating an initial
         // blank line)
         DWORD bytesWritten(0);
-        if (WriteFile(handle,
-                      &TEST_CHAR,
-                      sizeof(TEST_CHAR),
-                      &bytesWritten,
-                      0) == FALSE || bytesWritten == 0)
-        {
+        if (WriteFile(handle, &TEST_CHAR, sizeof(TEST_CHAR), &bytesWritten, 0) == FALSE || bytesWritten == 0) {
             DisconnectNamedPipe(handle);
             sufferedShortLivedConnection = true;
-        }
-        else
-        {
+        } else {
             sufferedShortLivedConnection = false;
         }
-    }
-    while (sufferedShortLivedConnection);
+    } while (sufferedShortLivedConnection);
 
     return handle;
 }
-
-
 }
 }
-

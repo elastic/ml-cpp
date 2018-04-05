@@ -24,27 +24,24 @@
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 
-CppUnit::Test* CModelPlotDataJsonWriterTest::suite()
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelPlotDataJsonWriterTest");
+CppUnit::Test* CModelPlotDataJsonWriterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelPlotDataJsonWriterTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CModelPlotDataJsonWriterTest>(
-                                   "CModelPlotDataJsonWriterTest::testWriteFlat",
-                                   &CModelPlotDataJsonWriterTest::testWriteFlat) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelPlotDataJsonWriterTest>("CModelPlotDataJsonWriterTest::testWriteFlat",
+                                                                                &CModelPlotDataJsonWriterTest::testWriteFlat));
 
     return suiteOfTests;
 }
 
-void CModelPlotDataJsonWriterTest::testWriteFlat(void)
-{
+void CModelPlotDataJsonWriterTest::testWriteFlat() {
     std::ostringstream sstream;
 
     {
-        ml::core::CJsonOutputStreamWrapper outputStream (sstream);
+        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
         ml::api::CModelPlotDataJsonWriter writer(outputStream);
 
         ml::model::CModelPlotData plotData(1, "pName", "pValue", "", "bName", 300, 1);
-        plotData.get(ml::model_t::E_IndividualCountByBucketAndPerson, "bName") = ml::model::CModelPlotData::SByFieldData(1.0,  2.0, 3.0);
+        plotData.get(ml::model_t::E_IndividualCountByBucketAndPerson, "bName") = ml::model::CModelPlotData::SByFieldData(1.0, 2.0, 3.0);
 
         writer.writeFlat("job-id", plotData);
     }
@@ -52,14 +49,13 @@ void CModelPlotDataJsonWriterTest::testWriteFlat(void)
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str());
     CPPUNIT_ASSERT(!doc.HasParseError());
-    const rapidjson::Value &firstElement = doc[0];
+    const rapidjson::Value& firstElement = doc[0];
     CPPUNIT_ASSERT(firstElement.HasMember("model_plot"));
-    const rapidjson::Value &modelPlot = firstElement["model_plot"];
+    const rapidjson::Value& modelPlot = firstElement["model_plot"];
     CPPUNIT_ASSERT(modelPlot.HasMember("job_id"));
     CPPUNIT_ASSERT_EQUAL(std::string("job-id"), std::string(modelPlot["job_id"].GetString()));
     CPPUNIT_ASSERT(modelPlot.HasMember("model_feature"));
-    CPPUNIT_ASSERT_EQUAL(std::string("'count per bucket by person'"),
-        std::string(modelPlot["model_feature"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("'count per bucket by person'"), std::string(modelPlot["model_feature"].GetString()));
     CPPUNIT_ASSERT(modelPlot.HasMember("timestamp"));
     CPPUNIT_ASSERT_EQUAL(int64_t(1000), modelPlot["timestamp"].GetInt64());
     CPPUNIT_ASSERT(modelPlot.HasMember("partition_field_name"));

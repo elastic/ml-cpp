@@ -31,31 +31,26 @@
 #include <sstream>
 #include <string>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
-namespace printer_detail
-{
+namespace printer_detail {
 
-typedef boost::true_type true_;
-typedef boost::false_type false_;
+using true_ = boost::true_type;
+using false_ = boost::false_type;
 
 //! Auxiliary type used by has_const_iterator to test for a nested
 //! typedef.
 template<typename T, typename R = void>
-struct enable_if_has
-{
-    typedef R type;
+struct enable_if_has {
+    using type = R;
 };
 
 //! Auxiliary type used by has_print_function to test for a nested
 //! member function.
 template<typename T, T, typename R = void>
-struct enable_if_is
-{
-    typedef R type;
+struct enable_if_is {
+    using type = R;
 };
 
 //! \name Check For Nested "const_iterator"
@@ -72,15 +67,13 @@ struct enable_if_is
 //! 14.5.4/9 of the standard).
 //@{
 template<typename T, typename ENABLE = void>
-struct has_const_iterator
-{
-    typedef false_ value;
+struct has_const_iterator {
+    using value = false_;
 };
 
 template<typename T>
-struct has_const_iterator<T, typename enable_if_has<typename T::const_iterator>::type>
-{
-    typedef true_ value;
+struct has_const_iterator<T, typename enable_if_has<typename T::const_iterator>::type> {
+    using value = true_;
 };
 //@}
 
@@ -99,15 +92,13 @@ struct has_const_iterator<T, typename enable_if_has<typename T::const_iterator>:
 //! 14.5.4/9 of the standard).
 //@{
 template<typename T, typename U = void>
-struct has_print_function
-{
-    typedef false_ value;
+struct has_print_function {
+    using value = false_;
 };
 
 template<typename T>
-struct has_print_function<T, typename enable_if_is<std::string (T::*)(void) const, &T::print>::type>
-{
-    typedef true_ value;
+struct has_print_function<T, typename enable_if_is<std::string (T::*)() const, &T::print>::type> {
+    using value = true_;
 };
 //@}
 
@@ -120,65 +111,52 @@ struct has_print_function<T, typename enable_if_is<std::string (T::*)(void) cons
 //!
 //! \note Partial specializations can't be nested classes.
 //@{
-template<typename SELECTOR> class CLeafPrinter {};
+template<typename SELECTOR>
+class CLeafPrinter {};
 template<>
-class CLeafPrinter<false_>
-{
-    public:
-        static std::string print(const std::string &value)
-        {
-            return value;
-        }
+class CLeafPrinter<false_> {
+public:
+    static std::string print(const std::string& value) { return value; }
 
-        template<typename T>
-        static std::string print(const T &value)
-        {
-            // Use CStringUtils if possible: it's much faster but
-            // only supports fundamental types.
-            return print_(value, typename boost::is_arithmetic<T>::type());
-        }
+    template<typename T>
+    static std::string print(const T& value) {
+        // Use CStringUtils if possible: it's much faster but
+        // only supports fundamental types.
+        return print_(value, typename boost::is_arithmetic<T>::type());
+    }
 
-    private:
-        //! Fast CStringUtil implementation with bounds checking.
-        template<typename T>
-        inline static std::string print_(T value, true_/*is arithmetic*/)
-        {
-            // For signed types only.
-            if (value != T(0) && value == boost::numeric::bounds<T>::lowest())
-            {
-                return "\"min\"";
-            }
-            if (value == boost::numeric::bounds<T>::highest())
-            {
-                return "\"max\"";
-            }
-            return CStringUtils::typeToStringPretty(value);
+private:
+    //! Fast CStringUtil implementation with bounds checking.
+    template<typename T>
+    inline static std::string print_(T value, true_ /*is arithmetic*/) {
+        // For signed types only.
+        if (value != T(0) && value == boost::numeric::bounds<T>::lowest()) {
+            return "\"min\"";
         }
+        if (value == boost::numeric::bounds<T>::highest()) {
+            return "\"max\"";
+        }
+        return CStringUtils::typeToStringPretty(value);
+    }
 
-        //! Fast CStringUtil implementation.
-        inline static std::string print_(bool value, true_/*is arithmetic*/)
-        {
-            return CStringUtils::typeToStringPretty(value);
-        }
+    //! Fast CStringUtil implementation.
+    inline static std::string print_(bool value, true_ /*is arithmetic*/) { return CStringUtils::typeToStringPretty(value); }
 
-        //! Slow std::ostringstream stream implementation.
-        template<typename T>
-        inline static std::string print_(const T &value, false_/*is arithmetic*/)
-        {
-            std::ostringstream result;
-            result << value;
-            return result.str();
-        }
+    //! Slow std::ostringstream stream implementation.
+    template<typename T>
+    inline static std::string print_(const T& value, false_ /*is arithmetic*/) {
+        std::ostringstream result;
+        result << value;
+        return result.str();
+    }
 };
 template<>
-class CLeafPrinter<true_>
-{
-    public:
-        template<typename T>
-        static std::string print(const T &value)
-        {
-            return value.print();
-        }
+class CLeafPrinter<true_> {
+public:
+    template<typename T>
+    static std::string print(const T& value) {
+        return value.print();
+    }
 };
 //@}
 
@@ -190,29 +168,25 @@ class CLeafPrinter<true_>
 //!
 //! \note Partial specializations can't be nested classes.
 //@{
-template<typename SELECTOR, typename PRINTER> class CNodePrinter {};
+template<typename SELECTOR, typename PRINTER>
+class CNodePrinter {};
 template<typename PRINTER>
-class CNodePrinter<false_, PRINTER>
-{
-    public:
-        template<typename T>
-        static std::string print(const T &value)
-        {
-            return CLeafPrinter<typename has_print_function<T>::value>::print(value);
-        }
+class CNodePrinter<false_, PRINTER> {
+public:
+    template<typename T>
+    static std::string print(const T& value) {
+        return CLeafPrinter<typename has_print_function<T>::value>::print(value);
+    }
 };
 template<typename PRINTER>
-class CNodePrinter<true_, PRINTER>
-{
-    public:
-        template<typename T>
-        static std::string print(const T &value)
-        {
-            return PRINTER::print(value);
-        }
+class CNodePrinter<true_, PRINTER> {
+public:
+    template<typename T>
+    static std::string print(const T& value) {
+        return PRINTER::print(value);
+    }
 };
 //@}
-
 }
 
 //! \brief Prints STL compliant container objects and iterator ranges.
@@ -256,183 +230,151 @@ class CNodePrinter<true_, PRINTER>
 //! use of std::ostringstream and isn't too careful about copying
 //! strings to be really high performance and so this functionality
 //! is primarily intended for testing and debugging.
-class CORE_EXPORT CContainerPrinter : private CNonInstantiatable
-{
-    private:
-        //! Print a non associative container element for debug.
-        template<typename T>
-        static std::string printElement(const T &value)
-        {
-            using namespace printer_detail;
-            typedef typename boost::unwrap_reference<T>::type U;
-            typedef CNodePrinter<typename has_const_iterator<U>::value,
-                                 CContainerPrinter> Printer;
-            return Printer::print(boost::unwrap_ref(value));
+class CORE_EXPORT CContainerPrinter : private CNonInstantiatable {
+private:
+    //! Print a non associative container element for debug.
+    template<typename T>
+    static std::string printElement(const T& value) {
+        using namespace printer_detail;
+        using U = typename boost::unwrap_reference<T>::type;
+        using Printer = CNodePrinter<typename has_const_iterator<U>::value, CContainerPrinter>;
+        return Printer::print(boost::unwrap_ref(value));
+    }
+
+    //! Print a non associative element pointer to const for debug.
+    template<typename T>
+    static std::string printElement(const T* value) {
+        if (value == 0) {
+            return "\"null\"";
         }
+        std::ostringstream result;
+        result << printElement(boost::unwrap_ref(*value));
+        return result.str();
+    }
 
-        //! Print a non associative element pointer to const for debug.
-        template<typename T>
-        static std::string printElement(const T *value)
-        {
-            if (value == 0)
-            {
-                return "\"null\"";
-            }
-            std::ostringstream result;
-            result << printElement(boost::unwrap_ref(*value));
-            return result.str();
+    //! Print a non associative element pointer for debug.
+    template<typename T>
+    static std::string printElement(T* value) {
+        if (value == 0) {
+            return "\"null\"";
         }
+        std::ostringstream result;
+        result << printElement(boost::unwrap_ref(*value));
+        return result.str();
+    }
 
-        //! Print a non associative element pointer for debug.
-        template<typename T>
-        static std::string printElement(T *value)
-        {
-            if (value == 0)
-            {
-                return "\"null\"";
-            }
-            std::ostringstream result;
-            result << printElement(boost::unwrap_ref(*value));
-            return result.str();
+    //! Print a std::auto_ptr.
+    template<typename T>
+    static std::string printElement(const std::auto_ptr<T>& value) {
+        if (value.get() == 0) {
+            return "\"null\"";
         }
+        std::ostringstream result;
+        result << printElement(*value);
+        return result.str();
+    }
 
-        //! Print a std::auto_ptr.
-        template<typename T>
-        static std::string printElement(const std::auto_ptr<T> &value)
-        {
-            if (value.get() == 0)
-            {
-                return "\"null\"";
-            }
-            std::ostringstream result;
-            result << printElement(*value);
-            return result.str();
+    //! Print a CStoredStringPtr
+    static std::string printElement(const CStoredStringPtr& value) {
+        if (value == nullptr) {
+            return "\"null\"";
         }
+        return *value;
+    }
 
-        //! Print a CStoredStringPtr
-        static std::string printElement(const CStoredStringPtr &value)
-        {
-            if (value == nullptr)
-            {
-                return "\"null\"";
-            }
-            return *value;
+    //! Print a boost::shared_pointer.
+    template<typename T>
+    static std::string printElement(const boost::shared_ptr<T>& value) {
+        if (value == boost::shared_ptr<T>()) {
+            return "\"null\"";
         }
+        std::ostringstream result;
+        result << printElement(*value);
+        return result.str();
+    }
 
-        //! Print a boost::shared_pointer.
-        template<typename T>
-        static std::string printElement(const boost::shared_ptr<T> &value)
-        {
-            if (value == boost::shared_ptr<T>())
-            {
-                return "\"null\"";
-            }
-            std::ostringstream result;
-            result << printElement(*value);
-            return result.str();
+    // If you find yourself using some different smart pointer and
+    // it isn't printing please feel free to add an overload here.
+
+    //! Print a non associative (boost) optional element for debug.
+    template<typename T>
+    static std::string printElement(const boost::optional<T>& value) {
+        if (!value) {
+            return "\"null\"";
         }
+        std::ostringstream result;
+        result << printElement(boost::unwrap_ref(*value));
+        return result.str();
+    }
 
-        // If you find yourself using some different smart pointer and
-        // it isn't printing please feel free to add an overload here.
+    //! Print an associative container element for debug.
+    template<typename U, typename V>
+    static std::string printElement(const std::pair<U, V>& value) {
+        std::ostringstream result;
+        result << "(" << printElement(boost::unwrap_ref(value.first)) << ", " << printElement(boost::unwrap_ref(value.second)) << ")";
+        return result.str();
+    }
 
-        //! Print a non associative (boost) optional element for debug.
-        template<typename T>
-        static std::string printElement(const boost::optional<T> &value)
-        {
-            if (!value)
-            {
-                return "\"null\"";
-            }
-            std::ostringstream result;
-            result << printElement(boost::unwrap_ref(*value));
-            return result.str();
-        }
+    //! Print a string for debug (otherwise we split them into their
+    //! component characters since they have iterators).
+    static std::string printElement(const std::string& value) { return value; }
 
-        //! Print an associative container element for debug.
-        template<typename U, typename V>
-        static std::string printElement(const std::pair<U, V> &value)
-        {
-            std::ostringstream result;
-            result << "(" << printElement(boost::unwrap_ref(value.first))
-                   << ", " << printElement(boost::unwrap_ref(value.second)) << ")";
-            return result.str();
-        }
-
-        //! Print a string for debug (otherwise we split them into their
-        //! component characters since they have iterators).
-        static std::string printElement(const std::string &value)
-        {
-            return value;
-        }
-
+public:
+    //! Function object wrapper around printElement for use with STL.
+    class CElementPrinter {
     public:
-        //! Function object wrapper around printElement for use with STL.
-        class CElementPrinter
-        {
-            public:
-                template<typename T>
-                std::string operator()(const T &value)
-                {
-                    return printElement(value);
-                }
-        };
-
-        //! Print a range of values as defined by a start and end iterator
-        //! for debug. This assumes that ITR is a forward iterator, i.e.
-        //! it must implement prefix ++ and * operators.
-        template<typename ITR>
-        static std::string print(ITR begin, ITR end)
-        {
-            std::ostringstream result;
-
-            result << "[";
-            if (begin != end)
-            {
-                for (;;)
-                {
-                    result << printElement(*begin);
-                    if (++begin == end)
-                    {
-                        break;
-                    }
-                    result << ", ";
-                }
-            }
-            result << "]";
-
-            return result.str();
-        }
-
-        //! Print a STL compliant container for debug.
-        template<typename CONTAINER>
-        static std::string print(const CONTAINER &container)
-        {
-            return print(boost::unwrap_ref(container).begin(),
-                         boost::unwrap_ref(container).end());
-        }
-
-        //! Specialization for arrays.
-        template<typename T, std::size_t SIZE>
-        static std::string print(const T (&array)[SIZE])
-        {
-            return print(array, array + SIZE);
-        }
-
-        //! Print a pair for debug.
-        template<typename U, typename V>
-        static std::string print(const std::pair<U, V> &value)
-        {
-            return printElement(value);
-        }
-
-        //! Print an optional value for debug.
         template<typename T>
-        static std::string print(const boost::optional<T> &value)
-        {
+        std::string operator()(const T& value) {
             return printElement(value);
         }
-};
+    };
 
+    //! Print a range of values as defined by a start and end iterator
+    //! for debug. This assumes that ITR is a forward iterator, i.e.
+    //! it must implement prefix ++ and * operators.
+    template<typename ITR>
+    static std::string print(ITR begin, ITR end) {
+        std::ostringstream result;
+
+        result << "[";
+        if (begin != end) {
+            for (;;) {
+                result << printElement(*begin);
+                if (++begin == end) {
+                    break;
+                }
+                result << ", ";
+            }
+        }
+        result << "]";
+
+        return result.str();
+    }
+
+    //! Print a STL compliant container for debug.
+    template<typename CONTAINER>
+    static std::string print(const CONTAINER& container) {
+        return print(boost::unwrap_ref(container).begin(), boost::unwrap_ref(container).end());
+    }
+
+    //! Specialization for arrays.
+    template<typename T, std::size_t SIZE>
+    static std::string print(const T (&array)[SIZE]) {
+        return print(array, array + SIZE);
+    }
+
+    //! Print a pair for debug.
+    template<typename U, typename V>
+    static std::string print(const std::pair<U, V>& value) {
+        return printElement(value);
+    }
+
+    //! Print an optional value for debug.
+    template<typename T>
+    static std::string print(const boost::optional<T>& value) {
+        return printElement(value);
+    }
+};
 }
 }
 #endif // INCLUDED_ml_core_CContainerPrinter_h

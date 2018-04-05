@@ -17,15 +17,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CMonotonicTimeTest : public CppUnit::TestFixture {
+public:
+    void testMilliseconds();
+    void testNanoseconds();
 
-class CMonotonicTimeTest : public CppUnit::TestFixture
-{
-    public:
-        void testMilliseconds(void);
-        void testNanoseconds(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CMonotonicTimeTest_h
-

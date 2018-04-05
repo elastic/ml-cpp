@@ -18,11 +18,8 @@
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CReadWriteLock;
 
 //! \brief
@@ -34,22 +31,18 @@ class CReadWriteLock;
 //! IMPLEMENTATION DECISIONS:\n
 //! See Schmidt etc. for details.
 //!
-class CORE_EXPORT CScopedWriteLock : private CNonCopyable
-{
-    public:
-        //! Write lock specified read/write lock
-        CScopedWriteLock(CReadWriteLock &readWriteLock);
+class CORE_EXPORT CScopedWriteLock : private CNonCopyable {
+public:
+    //! Write lock specified read/write lock
+    CScopedWriteLock(CReadWriteLock& readWriteLock);
 
-        //! Unlock specified read/write lock
-        ~CScopedWriteLock(void);
+    //! Unlock specified read/write lock
+    ~CScopedWriteLock();
 
-    private:
-        CReadWriteLock &m_ReadWriteLock;
+private:
+    CReadWriteLock& m_ReadWriteLock;
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CScopedWriteLock_h
-

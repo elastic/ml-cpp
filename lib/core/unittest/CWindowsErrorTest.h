@@ -17,14 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CWindowsErrorTest : public CppUnit::TestFixture {
+public:
+    void testErrors();
 
-class CWindowsErrorTest : public CppUnit::TestFixture
-{
-    public:
-        void testErrors(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CWindowsErrorTest_h
-

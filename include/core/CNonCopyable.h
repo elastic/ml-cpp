@@ -17,12 +17,8 @@
 
 #include <core/ImportExport.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Equivalent to boost::noncopyable.
@@ -41,28 +37,20 @@ namespace core
 //! inlined.  This is the difference compared to boost::noncopyable,
 //! and what prevents Visual C++ warning C4275.
 //!
-class CORE_EXPORT CNonCopyable
-{
-    protected:
-        //! Inlined in the hope that the compiler will optimise it away
-        CNonCopyable(void)
-        {
-        }
+class CORE_EXPORT CNonCopyable {
+protected:
+    //! Inlined in the hope that the compiler will optimise it away
+    CNonCopyable() {}
 
-        //! Inlined in the hope that the compiler will optimise it away
-        ~CNonCopyable(void)
-        {
-        }
+    //! Inlined in the hope that the compiler will optimise it away
+    ~CNonCopyable() {}
 
-    private:
-        //! Prevent copying
-        CNonCopyable(const CNonCopyable &);
-        CNonCopyable &operator=(const CNonCopyable &);
+private:
+    //! Prevent copying
+    CNonCopyable(const CNonCopyable&);
+    CNonCopyable& operator=(const CNonCopyable&);
 };
-
-
 }
 }
 
 #endif // INCLUDED_ml_core_CNonCopyable_h
-

@@ -23,10 +23,8 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief A flat prefix tree that allows efficient string lookups
 //!
@@ -56,103 +54,96 @@ namespace core
 //! binary search on the first character, moving on to the node indicated by
 //! the characters next index, applying binary search on the second character,
 //! and so on.
-class CORE_EXPORT CFlatPrefixTree
-{
-    public:
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator TStrVecCItr;
-        typedef std::string::const_iterator TStrCItr;
-        typedef std::string::const_reverse_iterator TStrCRItr;
+class CORE_EXPORT CFlatPrefixTree {
+public:
+    using TStrVec = std::vector<std::string>;
+    using TStrVecCItr = TStrVec::const_iterator;
+    using TStrCItr = std::string::const_iterator;
+    using TStrCRItr = std::string::const_reverse_iterator;
 
-    private:
-        struct SNode
-        {
-            //! See CMemory.
-            static bool dynamicSizeAlwaysZero(void)
-            {
-                return true;
-            }
+private:
+    struct SNode {
+        //! See CMemory.
+        static bool dynamicSizeAlwaysZero() { return true; }
 
-            SNode(char c, char type, uint32_t next);
+        SNode(char c, char type, uint32_t next);
 
-            bool operator<(char rhs) const;
-            char s_Char;
-            char s_Type;
-            uint32_t s_Next;
-        };
+        bool operator<(char rhs) const;
+        char s_Char;
+        char s_Type;
+        uint32_t s_Next;
+    };
 
-        struct SDistinctChar
-        {
-            SDistinctChar(char c, char type, std::size_t start, std::size_t end);
+    struct SDistinctChar {
+        SDistinctChar(char c, char type, std::size_t start, std::size_t end);
 
-            char s_Char;
-            char s_Type;
-            std::size_t s_Start;
-            std::size_t s_End;
-        };
+        char s_Char;
+        char s_Type;
+        std::size_t s_Start;
+        std::size_t s_End;
+    };
 
-    private:
-        typedef std::vector<SNode> TNodeVec;
-        typedef TNodeVec::const_iterator TNodeVecCItr;
-        typedef std::vector<SDistinctChar> TDistinctCharVec;
+private:
+    using TNodeVec = std::vector<SNode>;
+    using TNodeVecCItr = TNodeVec::const_iterator;
+    using TDistinctCharVec = std::vector<SDistinctChar>;
 
-    public:
-        //! Default constructor.
-        CFlatPrefixTree(void);
+public:
+    //! Default constructor.
+    CFlatPrefixTree();
 
-        //! Builds the tree from a list of \p prefixes. The \p prefixes
-        //! vector is required to be lexicographically sorted.
-        //! Returns true if the tree was build successfully.
-        bool build(const TStrVec &prefixes);
+    //! Builds the tree from a list of \p prefixes. The \p prefixes
+    //! vector is required to be lexicographically sorted.
+    //! Returns true if the tree was build successfully.
+    bool build(const TStrVec& prefixes);
 
-        //! Returns true if the \p key starts with a prefix present in the tree.
-        bool matchesStart(const std::string &key) const;
+    //! Returns true if the \p key starts with a prefix present in the tree.
+    bool matchesStart(const std::string& key) const;
 
-        //! Returns true if the \p key fully matches a prefix present in the tree.
-        bool matchesFully(const std::string &key) const;
+    //! Returns true if the \p key fully matches a prefix present in the tree.
+    bool matchesFully(const std::string& key) const;
 
-        //! Returns true if the string described by \p start, \p end
-        //! starts with a prefix present in the tree.
-        bool matchesStart(TStrCItr start, TStrCItr end) const;
+    //! Returns true if the string described by \p start, \p end
+    //! starts with a prefix present in the tree.
+    bool matchesStart(TStrCItr start, TStrCItr end) const;
 
-        //! Returns true if the string described by \p start, \p end
-        //! fully matches a prefix present in the tree.
-        bool matchesFully(TStrCItr start, TStrCItr end) const;
+    //! Returns true if the string described by \p start, \p end
+    //! fully matches a prefix present in the tree.
+    bool matchesFully(TStrCItr start, TStrCItr end) const;
 
-        //! Returns true if the string described by \p start, \p end
-        //! starts with a prefix present in the tree.
-        bool matchesStart(TStrCRItr start, TStrCRItr end) const;
+    //! Returns true if the string described by \p start, \p end
+    //! starts with a prefix present in the tree.
+    bool matchesStart(TStrCRItr start, TStrCRItr end) const;
 
-        //! Returns true if the string described by \p start, \p end
-        //! fully matches a prefix present in the tree.
-        bool matchesFully(TStrCRItr start, TStrCRItr end) const;
+    //! Returns true if the string described by \p start, \p end
+    //! fully matches a prefix present in the tree.
+    bool matchesFully(TStrCRItr start, TStrCRItr end) const;
 
-        //! Clears the tree.
-        void clear(void);
+    //! Clears the tree.
+    void clear();
 
-        //! Pretty-prints the tree.
-        std::string print(void) const;
-    private:
-        //! The recursive building helper.
-        void buildRecursively(const TStrVec &prefixes,
-                              std::size_t prefixesStart,
-                              std::size_t prefixesEnd,
-                              std::size_t charPos);
+    //! Pretty-prints the tree.
+    std::string print() const;
 
-        //! Extracts the distinct characters and stores it in \p distinctChars
-        //! along with the start and end index in the \p prefixes vector.
-        void extractDistinctCharacters(const TStrVec &prefixes,
-                                       std::size_t prefixesStart,
-                                       std::size_t prefixesEnd,
-                                       std::size_t charPos,
-                                       TDistinctCharVec &distinctChars);
+private:
+    //! The recursive building helper.
+    void buildRecursively(const TStrVec& prefixes, std::size_t prefixesStart, std::size_t prefixesEnd, std::size_t charPos);
 
-        //! Implementation of the search algorithm.
-        template<typename ITR>
-        bool matches(ITR start, ITR end, bool requireFullMatch) const;
-    private:
-        //! The vector representing the trie tree.
-        TNodeVec m_FlatTree;
+    //! Extracts the distinct characters and stores it in \p distinctChars
+    //! along with the start and end index in the \p prefixes vector.
+    void extractDistinctCharacters(const TStrVec& prefixes,
+                                   std::size_t prefixesStart,
+                                   std::size_t prefixesEnd,
+                                   std::size_t charPos,
+                                   TDistinctCharVec& distinctChars);
+
+    //! Implementation of the search algorithm.
+    template<typename ITR>
+    bool matches(ITR start, ITR end, bool requireFullMatch) const;
+
+private:
+    //! The vector representing the trie tree.
+    TNodeVec m_FlatTree;
 };
 }
 }

@@ -17,35 +17,31 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CContainerThroughputTest : public CppUnit::TestFixture {
+public:
+    struct SContent {
+        SContent(size_t count);
 
-class CContainerThroughputTest : public CppUnit::TestFixture
-{
-    public:
-        struct SContent
-        {
-            SContent(size_t count);
+        size_t s_Size;
+        void* s_Ptr;
+        double s_Double;
+    };
 
-            size_t s_Size;
-            void   *s_Ptr;
-            double s_Double;
-        };
+public:
+    void testVector();
+    void testList();
+    void testDeque();
+    void testMap();
+    void testCircBuf();
+    void testMultiIndex();
 
-    public:
-        void testVector(void);
-        void testList(void);
-        void testDeque(void);
-        void testMap(void);
-        void testCircBuf(void);
-        void testMultiIndex(void);
+    void setUp();
 
-        void setUp(void);
+    static CppUnit::Test* suite();
 
-        static CppUnit::Test *suite();
-
-    private:
-        static const size_t FILL_SIZE;
-        static const size_t TEST_SIZE;
+private:
+    static const size_t FILL_SIZE;
+    static const size_t TEST_SIZE;
 };
 
 #endif // INCLUDED_CContainerThroughputTest_h
-

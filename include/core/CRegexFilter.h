@@ -22,12 +22,8 @@
 #include <string>
 #include <vector>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Filters strings based on a list of regular expressions
@@ -38,29 +34,27 @@ namespace core
 //! will iteratively apply each regex to the string until no
 //! match can be found and it will remove all matched substrings.
 //!
-class CORE_EXPORT CRegexFilter
-{
-    public:
-        typedef std::vector<CRegex> TRegexVec;
-        typedef std::vector<std::string> TStrVec;
+class CORE_EXPORT CRegexFilter {
+public:
+    using TRegexVec = std::vector<CRegex>;
+    using TStrVec = std::vector<std::string>;
 
-    public:
-        CRegexFilter(void);
+public:
+    CRegexFilter();
 
-        //! Configures the filter for the given \p regularExpressions.
-        bool configure(const TStrVec &regularExpressions);
+    //! Configures the filter for the given \p regularExpressions.
+    bool configure(const TStrVec& regularExpressions);
 
-        //! Applies the filter to \p target.
-        std::string apply(const std::string &target) const;
+    //! Applies the filter to \p target.
+    std::string apply(const std::string& target) const;
 
-        //! Returns true if the filter is empty.
-        bool empty(void) const;
-    private:
-        //! The regular expressions comprising the filter.
-        TRegexVec m_Regex;
+    //! Returns true if the filter is empty.
+    bool empty() const;
+
+private:
+    //! The regular expressions comprising the filter.
+    TRegexVec m_Regex;
 };
-
-
 }
 }
 

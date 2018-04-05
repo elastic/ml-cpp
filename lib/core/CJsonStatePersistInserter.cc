@@ -16,56 +16,39 @@
 
 #include <ostream>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-CJsonStatePersistInserter::CJsonStatePersistInserter(std::ostream &outputStream)
-    : m_WriteStream(outputStream),
-      m_Writer(m_WriteStream)
-{
+CJsonStatePersistInserter::CJsonStatePersistInserter(std::ostream& outputStream) : m_WriteStream(outputStream), m_Writer(m_WriteStream) {
     m_Writer.StartObject();
 }
 
-CJsonStatePersistInserter::~CJsonStatePersistInserter(void)
-{
+CJsonStatePersistInserter::~CJsonStatePersistInserter() {
     m_Writer.EndObject();
     m_WriteStream.Flush();
 }
 
-void CJsonStatePersistInserter::insertValue(const std::string &name,
-                                            const std::string &value)
-{
+void CJsonStatePersistInserter::insertValue(const std::string& name, const std::string& value) {
     m_Writer.String(name);
     m_Writer.String(value);
 }
 
-void CJsonStatePersistInserter::insertInteger(const std::string &name, size_t value)
-{
+void CJsonStatePersistInserter::insertInteger(const std::string& name, size_t value) {
     m_Writer.String(name);
     m_Writer.Uint64(value);
 }
 
-void CJsonStatePersistInserter::flush(void)
-{
+void CJsonStatePersistInserter::flush() {
     m_WriteStream.Flush();
 }
 
-void CJsonStatePersistInserter::newLevel(const std::string &name)
-{
+void CJsonStatePersistInserter::newLevel(const std::string& name) {
     m_Writer.String(name);
     m_Writer.StartObject();
 }
 
-void CJsonStatePersistInserter::endLevel(void)
-{
+void CJsonStatePersistInserter::endLevel() {
     m_Writer.EndObject();
 }
-
-
 }
 }
-

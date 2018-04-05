@@ -18,12 +18,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDetectorEnumeratorTest : public CppUnit::TestFixture
-{
-    public:
-        void testAll(void);
+class CDetectorEnumeratorTest : public CppUnit::TestFixture {
+public:
+    void testAll();
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite();
 };
 
 #endif // INCLUDED_CDetectorEnumeratorTest_h

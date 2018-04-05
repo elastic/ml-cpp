@@ -22,8 +22,7 @@
 
 using namespace ml;
 
-void CModelTest::testAll(void)
-{
+void CModelTest::testAll() {
     LOG_DEBUG("+-----------------------+");
     LOG_DEBUG("|  CModelTest::testAll  |");
     LOG_DEBUG("+-----------------------+");
@@ -53,18 +52,16 @@ void CModelTest::testAll(void)
         maths::CModelAddSamplesParams::TDouble2Vec4VecVec priorWeights(1, weights2);
         maths::CModelAddSamplesParams params;
         params.integer(true)
-              .propagationInterval(1.5)
-              .weightStyles(maths::CConstantWeights::SEASONAL_VARIANCE)
-              .trendWeights(trendWeights)
-              .priorWeights(priorWeights);
+            .propagationInterval(1.5)
+            .weightStyles(maths::CConstantWeights::SEASONAL_VARIANCE)
+            .trendWeights(trendWeights)
+            .priorWeights(priorWeights);
         CPPUNIT_ASSERT_EQUAL(maths_t::E_IntegerData, params.type());
         CPPUNIT_ASSERT_EQUAL(1.5, params.propagationInterval());
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(maths::CConstantWeights::SEASONAL_VARIANCE),
                              core::CContainerPrinter::print(params.weightStyles()));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(trendWeights),
-                             core::CContainerPrinter::print(params.trendWeights()));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(priorWeights),
-                             core::CContainerPrinter::print(params.priorWeights()));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(trendWeights), core::CContainerPrinter::print(params.trendWeights()));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(priorWeights), core::CContainerPrinter::print(params.priorWeights()));
     }
     {
         maths::CModelProbabilityParams::TDouble2Vec weight1(2, 0.4);
@@ -75,38 +72,33 @@ void CModelTest::testAll(void)
         CPPUNIT_ASSERT(!params.mostAnomalousCorrelate());
         CPPUNIT_ASSERT(params.coordinates().empty());
         params.addCalculation(maths_t::E_OneSidedAbove)
-              .addCalculation(maths_t::E_TwoSided)
-              .seasonalConfidenceInterval(50.0)
-              .addBucketEmpty(maths::CModelProbabilityParams::TBool2Vec{true, true})
-              .addBucketEmpty(maths::CModelProbabilityParams::TBool2Vec{false, true})
-              .weightStyles(maths::CConstantWeights::COUNT_VARIANCE)
-              .addWeights(weights1)
-              .addWeights(weights2)
-              .mostAnomalousCorrelate(1)
-              .addCoordinate(1)
-              .addCoordinate(0);
+            .addCalculation(maths_t::E_TwoSided)
+            .seasonalConfidenceInterval(50.0)
+            .addBucketEmpty(maths::CModelProbabilityParams::TBool2Vec{true, true})
+            .addBucketEmpty(maths::CModelProbabilityParams::TBool2Vec{false, true})
+            .weightStyles(maths::CConstantWeights::COUNT_VARIANCE)
+            .addWeights(weights1)
+            .addWeights(weights2)
+            .mostAnomalousCorrelate(1)
+            .addCoordinate(1)
+            .addCoordinate(0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), params.calculations());
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedAbove, params.calculation(0));
         CPPUNIT_ASSERT_EQUAL(maths_t::E_TwoSided, params.calculation(1));
         CPPUNIT_ASSERT_EQUAL(50.0, params.seasonalConfidenceInterval());
-        CPPUNIT_ASSERT_EQUAL(std::string("[[true, true], [false, true]]"),
-                             core::CContainerPrinter::print(params.bucketEmpty()));
+        CPPUNIT_ASSERT_EQUAL(std::string("[[true, true], [false, true]]"), core::CContainerPrinter::print(params.bucketEmpty()));
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(maths::CConstantWeights::COUNT_VARIANCE),
                              core::CContainerPrinter::print(params.weightStyles()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[[[0.4, 0.4]], [[0.7, 0.7]]]"),
-                             core::CContainerPrinter::print(params.weights()));
+        CPPUNIT_ASSERT_EQUAL(std::string("[[[0.4, 0.4]], [[0.7, 0.7]]]"), core::CContainerPrinter::print(params.weights()));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), *params.mostAnomalousCorrelate());
         CPPUNIT_ASSERT_EQUAL(std::string("[1, 0]"), core::CContainerPrinter::print(params.coordinates()));
     }
 }
 
-CppUnit::Test *CModelTest::suite(void)
-{
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelTest");
+CppUnit::Test* CModelTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CModelTest>(
-                                   "CModelTest::testAll",
-                                   &CModelTest::testAll) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelTest>("CModelTest::testAll", &CModelTest::testAll));
 
     return suiteOfTests;
 }
