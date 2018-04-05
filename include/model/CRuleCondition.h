@@ -38,7 +38,6 @@ class CAnomalyDetectorModel;
 //! that will be performed. The specified fieldName/fieldValue,
 //! when present, determines the series against which the
 //! condition is checked.
-<<<<<<< HEAD
 class MODEL_EXPORT CRuleCondition {
 public:
     using TPatternSetCRef = boost::reference_wrapper<const core::CPatternSet>;

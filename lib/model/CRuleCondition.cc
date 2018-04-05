@@ -141,7 +141,7 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
                                     core_t::TTime time) const {
     TDouble1Vec value;
     switch (m_Type) {
-    case E_Categorical:
+    case E_CategoricalMatch:
     case E_CategoricalComplement: {
         LOG_ERROR("Should never check numerical condition for categorical rule condition");
         return false;
