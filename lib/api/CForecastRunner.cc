@@ -324,10 +324,11 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
         atLeastOneSupportedFunction = atLeastOneSupportedFunction || prerequisites.s_IsSupportedFunction;
         totalMemoryUsage += prerequisites.s_MemoryUsageForDetector;
 
-        if (totalMemoryUsage >= MAX_FORECAST_MODEL_MEMORY && forecastJob.s_TemporaryFolder.empty())
+        if (totalMemoryUsage >= MAX_FORECAST_MODEL_MEMORY && forecastJob.s_TemporaryFolder.empty()) {
             // note: for now MAX_FORECAST_MODEL_MEMORY is a static limit, a user can not change it
             this->sendErrorMessage(forecastJob, ERROR_MEMORY_LIMIT);
-        return false;
+            return false;
+        }
     }
 
     if (totalMemoryUsage >= MAX_FORECAST_MODEL_PERSISTANCE_MEMORY) {

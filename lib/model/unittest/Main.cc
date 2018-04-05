@@ -25,6 +25,7 @@
 #include "CEventRateAnomalyDetectorTest.h"
 #include "CEventRateDataGathererTest.h"
 #include "CEventRateModelTest.h"
+#include "CEventRatePopulationDataGathererTest.h"
 #include "CEventRatePopulationModelTest.h"
 #include "CForecastModelPersistTest.h"
 #include "CFunctionTypesTest.h"
