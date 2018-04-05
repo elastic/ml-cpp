@@ -1,0 +1,51 @@
+#!/bin/bash
+#
+# ELASTICSEARCH CONFIDENTIAL
+#
+# Copyright (c) 2018 Elasticsearch BV. All Rights Reserved.
+#
+# Notice: this software, and all information contained
+# therein, is the exclusive property of Elasticsearch BV
+# and its licensors, if any, and is protected under applicable
+# domestic and foreign law, and international treaties.
+#
+# Reproduction, republication or distribution without the
+# express written consent of Elasticsearch BV is
+# strictly prohibited.
+#
+
+# The non-Windows part of ML C++ CI:
+#
+# 1. Build and unit test the Linux version of the C++
+# 2. Build the macOS version of the C++
+# 3. Upload the builds to the artifacts directory on S3 that
+#    subsequent Java builds will download the C++ components from
+#
+# The builds run in Docker containers that ensure OS dependencies
+# are appropriate given the support matrix.
+#
+# The macOS build cannot be unit tested as it is cross-compiled.
+
+set -e
+
+# Change directory to the directory containing this script
+cd `dirname $0`
+
+# Default to a snapshot build
+if [ -z "$SNAPSHOT" ] ; then
+    SNAPSHOT=yes
+fi
+
+# Remove any old builds
+rm -rf ../builds
+
+# Build and test Linux
+./docker_test.sh linux
+
+# Build macOS
+./docker_build.sh macosx
+
+# Upload
+cd ..
+./gradlew --info -b upload.gradle upload
+
