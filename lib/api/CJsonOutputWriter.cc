@@ -15,6 +15,7 @@
 
 #include <api/CJsonOutputWriter.h>
 
+#include <core/CScopedRapidJsonPoolAllocator.h>
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
 
@@ -345,6 +346,10 @@ const CJsonOutputWriter::TStrVec& CJsonOutputWriter::fieldNames() const {
 }
 
 bool CJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) {
+    using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter>;
+
+    TScopedAllocator scopedAllocator("CJsonOutputWriter::writeRow", m_Writer);
+
     rapidjson::Document doc = m_Writer.makeDoc();
 
     // Write all the fields to the document as strings
