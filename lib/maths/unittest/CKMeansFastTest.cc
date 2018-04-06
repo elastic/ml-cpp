@@ -369,7 +369,6 @@ void CKMeansFastTest::testClosestPoints() {
     // Check the obvious invariant that the closest point to each
     // centre is closer to that centre than any other.
 
-    using TVector2VecVec = std::vector<TVector2Vec>;
     using TVector4VecVec = std::vector<TVector4Vec>;
 
     test::CRandomNumbers rng;

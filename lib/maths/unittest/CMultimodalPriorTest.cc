@@ -181,8 +181,6 @@ void CMultimodalPriorTest::testPropagation() {
     // mean and the marginal likelihood confidence intervals increase
     // (due to influence of the prior uncertainty) after propagation.
 
-    using TDoubleDoublePr = std::pair<double, double>;
-
     double eps = 0.01;
 
     test::CRandomNumbers rng;

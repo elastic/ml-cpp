@@ -987,7 +987,6 @@ void CMemoryUsageTest::testStringClear() {
 
 void CMemoryUsageTest::testSharedPointer() {
     LOG_DEBUG("*** testSharedPointer ***");
-    using TIntVec = std::vector<int>;
     using TIntVecPtr = boost::shared_ptr<TIntVec>;
     using TIntVecPtrVec = std::vector<TIntVecPtr>;
     using TStrPtr = boost::shared_ptr<std::string>;
