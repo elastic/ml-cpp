@@ -110,8 +110,8 @@ int main(int argc, char** argv) {
     ml::config::CAutoconfigurer configurer(params, writer);
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code
-    ml::api::CCmdSkeleton skeleton(0, // no restoration at present
-                                   0, // no persistence at present
+    ml::api::CCmdSkeleton skeleton(nullptr, // no restoration at present
+                                   nullptr, // no persistence at present
                                    *inputParser,
                                    configurer);
     if (skeleton.ioLoop() == false) {
