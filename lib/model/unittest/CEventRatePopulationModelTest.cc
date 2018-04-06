@@ -394,7 +394,7 @@ void CEventRatePopulationModelTest::testFeatures() {
                     double count = model_t::offsetCountToZero(model_t::E_PopulationCountByBucketPersonAndAttribute,
                                                               static_cast<double>(count_.second));
                     TMathsModelPtr& model_ = expectedPopulationModels[cid];
-                    if (model_ == 0) {
+                    if (model_ == nullptr) {
                         model_.reset(models[0].second->clone(cid));
                     }
 
@@ -789,7 +789,7 @@ void CEventRatePopulationModelTest::testFrequency() {
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
 
     CEventRatePopulationModel* populationModel = dynamic_cast<CEventRatePopulationModel*>(model.get());
-    CPPUNIT_ASSERT(populationModel != 0);
+    CPPUNIT_ASSERT(populationModel);
 
     core_t::TTime time = startTime;
     for (const auto& message : messages) {
@@ -887,7 +887,7 @@ void CEventRatePopulationModelTest::testSampleRateWeight() {
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
     CEventRatePopulationModel* populationModel = dynamic_cast<CEventRatePopulationModel*>(model.get());
-    CPPUNIT_ASSERT(populationModel != 0);
+    CPPUNIT_ASSERT(populationModel);
 
     core_t::TTime time = startTime;
     for (const auto& message : messages) {
@@ -986,7 +986,7 @@ void CEventRatePopulationModelTest::testPeriodicity() {
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
     CEventRatePopulationModel* populationModel = dynamic_cast<CEventRatePopulationModel*>(model.get());
-    CPPUNIT_ASSERT(populationModel != 0);
+    CPPUNIT_ASSERT(populationModel);
 
     TStrDoubleMap personProbabilitiesWithoutPeriodicity;
     TStrDoubleMap personProbabilitiesWithPeriodicity;
@@ -1227,7 +1227,7 @@ void CEventRatePopulationModelTest::testPersistence() {
     CAnomalyDetectorModel::TModelPtr origModel(factory.makeModel(modelInitData));
 
     CEventRatePopulationModel* populationModel = dynamic_cast<CEventRatePopulationModel*>(origModel.get());
-    CPPUNIT_ASSERT(populationModel != 0);
+    CPPUNIT_ASSERT(populationModel);
 
     for (const auto& message : messages) {
         if (message.s_Time >= startTime + bucketLength) {
@@ -1255,7 +1255,7 @@ void CEventRatePopulationModelTest::testPersistence() {
     CAnomalyDetectorModel::TModelPtr restoredModel(factory.makeModel(modelInitData, traverser));
 
     populationModel = dynamic_cast<CEventRatePopulationModel*>(restoredModel.get());
-    CPPUNIT_ASSERT(populationModel != 0);
+    CPPUNIT_ASSERT(populationModel);
 
     // The XML representation of the new data gatherer should be the same as the
     // original
@@ -1373,7 +1373,7 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
     // Check the last value times of all the underlying models are the same
     const maths::CUnivariateTimeSeriesModel* timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
-    CPPUNIT_ASSERT(timeSeriesModel != 0);
+    CPPUNIT_ASSERT(timeSeriesModel);
 
     core_t::TTime time = timeSeriesModel->trend().lastValueTime();
     CPPUNIT_ASSERT_EQUAL(model_t::sampleTime(model_t::E_PopulationCountByBucketPersonAndAttribute, 200, bucketLength), time);

@@ -56,7 +56,7 @@ CAnomalyDetectorModel* CEventRatePopulationModelFactory::makeModel(const SModelI
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
-        return 0;
+        return nullptr;
     }
     const TFeatureVec& features = dataGatherer->features();
 
@@ -79,7 +79,7 @@ CAnomalyDetectorModel* CEventRatePopulationModelFactory::makeModel(const SModelI
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
-        return 0;
+        return nullptr;
     }
     const TFeatureVec& features = dataGatherer->features();
 

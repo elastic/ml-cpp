@@ -1055,8 +1055,8 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues, CEvent
         return false;
     }
 
-    const std::string* person = (fieldValues[0] == 0 && m_DataGatherer.useNull()) ? &EMPTY_STRING : fieldValues[0];
-    if (person == 0) {
+    const std::string* person = (fieldValues[0] == nullptr && m_DataGatherer.useNull()) ? &EMPTY_STRING : fieldValues[0];
+    if (person == nullptr) {
         // Just ignore: the "person" field wasn't present in the
         // record. Since all models in an aggregate share this
         // field we can't process this record further. Note that
@@ -1095,7 +1095,7 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues, CEvent
         }
         for (std::size_t j = 0u; allOk && i < m_FieldNames.size(); ++i, ++j) {
             model_t::EMetricCategory category = m_FieldMetricCategories[j];
-            if (fieldValues[i] == 0 ||
+            if (fieldValues[i] == nullptr ||
                 m_DataGatherer.extractMetricFromField(m_FieldNames[i], *fieldValues[i], statistics.first[category]) == false) {
                 allOk = false;
             }
@@ -1111,7 +1111,7 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues, CEvent
         }
     } else {
         TDouble1Vec value;
-        if (fieldValues[i] != 0 && m_DataGatherer.extractMetricFromField(m_FieldNames[i], *fieldValues[i], value) == true) {
+        if (fieldValues[i] != nullptr && m_DataGatherer.extractMetricFromField(m_FieldNames[i], *fieldValues[i], value) == true) {
             result.addValue(value);
         } else {
             result.addValue();
@@ -1145,10 +1145,10 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues, CEvent
         return false;
     }
 
-    const std::string* attribute = (fieldValues[1] == 0 && m_DataGatherer.useNull()) ? &EMPTY_STRING : fieldValues[1];
+    const std::string* attribute = (fieldValues[1] == nullptr && m_DataGatherer.useNull()) ? &EMPTY_STRING : fieldValues[1];
 
     if (m_DataGatherer.isPopulation()) {
-        if (attribute == 0) {
+        if (attribute == nullptr) {
             // Just ignore: the "by" field wasn't present in the
             // record. This doesn't necessarily stop us processing
             // the record by other models so we don't return false.

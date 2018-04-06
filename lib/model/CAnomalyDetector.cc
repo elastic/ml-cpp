@@ -113,10 +113,10 @@ CAnomalyDetector::CAnomalyDetector(int detectorIndex,
       m_ModelFactory(modelFactory),
       m_Model(makeModel(modelFactory, m_DataGatherer)),
       m_IsForPersistence(false) {
-    if (m_DataGatherer == 0) {
+    if (m_DataGatherer == nullptr) {
         LOG_ABORT("Failed to construct data gatherer for detector: " << this->description());
     }
-    if (m_Model == 0) {
+    if (m_Model == nullptr) {
         LOG_ABORT("Failed to construct model for detector: " << this->description());
     }
     limits.resourceMonitor().registerComponent(*this);

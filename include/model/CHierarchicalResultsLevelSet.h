@@ -90,7 +90,7 @@ protected:
     const T* personElement(const std::string& partitionFieldName, const std::string& personFieldName) const {
         TWord word = ms_Dictionary.word(partitionFieldName, personFieldName);
         TWordTypePrVecCItr i = element(m_PersonSet, word);
-        return (i != m_PersonSet.end() && i->first == word) ? &i->second : 0;
+        return (i != m_PersonSet.end() && i->first == word) ? &i->second : nullptr;
     }
 
     //! Get a leaf element.
@@ -102,7 +102,7 @@ protected:
                          const std::string& valueFieldName) const {
         TWord word = ms_Dictionary.word(partitionFieldName, personFieldName, functionName, valueFieldName);
         TWordTypePrVecCItr i = element(m_LeafSet, word);
-        return (i != m_LeafSet.end() && i->first == word) ? &i->second : 0;
+        return (i != m_LeafSet.end() && i->first == word) ? &i->second : nullptr;
     }
 
     //! Get the influencer bucket set.
@@ -241,7 +241,7 @@ private:
     static const T* element(const TWordTypePrVec& set, const std::string& name) {
         TWord word = ms_Dictionary.word(name);
         TWordTypePrVecCItr i = element(set, word);
-        return (i != set.end() && i->first == word) ? &i->second : 0;
+        return (i != set.end() && i->first == word) ? &i->second : nullptr;
     }
 
     //! Get the element corresponding to \p word if it exists

@@ -97,13 +97,13 @@ CModelFactory::TMathsModelPtr CModelFactory::defaultFeatureModel(model_t::EFeatu
                                                                      0, // identifier (unused).
                                                                      *trend,
                                                                      *prior,
-                                                                     controlDecayRate ? &controllers : 0,
+                                                                     controlDecayRate ? &controllers : nullptr,
                                                                      modelAnomalies && !model_t::isConstant(feature));
     }
 
     TMultivariatePriorPtr prior{this->defaultMultivariatePrior(feature)};
     return boost::make_shared<maths::CMultivariateTimeSeriesModel>(
-        params, *trend, *prior, controlDecayRate ? &controllers : 0, modelAnomalies && !model_t::isConstant(feature));
+        params, *trend, *prior, controlDecayRate ? &controllers : nullptr, modelAnomalies && !model_t::isConstant(feature));
 }
 
 const CModelFactory::TFeatureMultivariatePriorPtrPrVec& CModelFactory::defaultCorrelatePriors(const TFeatureVec& features) const {
