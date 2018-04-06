@@ -156,7 +156,7 @@ double CCalendarComponentAdaptiveBucketing::count(core_t::TTime time) const {
 }
 
 const TFloatMeanVarAccumulator* CCalendarComponentAdaptiveBucketing::value(core_t::TTime time) const {
-    const TFloatMeanVarAccumulator* result{0};
+    const TFloatMeanVarAccumulator* result{nullptr};
     if (this->initialized()) {
         std::size_t bucket{0};
         this->bucket(time, bucket);

@@ -106,21 +106,21 @@ operator()(const SDistributionRestoreParams& params, TPriorPtr& ptr, core::CStat
 void CPriorStateSerialiser::operator()(const CPrior& prior, core::CStatePersistInserter& inserter) const {
     std::string tagName;
 
-    if (dynamic_cast<const CConstantPrior*>(&prior) != 0) {
+    if (dynamic_cast<const CConstantPrior*>(&prior) != nullptr) {
         tagName = CONSTANT_TAG;
-    } else if (dynamic_cast<const CGammaRateConjugate*>(&prior) != 0) {
+    } else if (dynamic_cast<const CGammaRateConjugate*>(&prior) != nullptr) {
         tagName = GAMMA_TAG;
-    } else if (dynamic_cast<const CLogNormalMeanPrecConjugate*>(&prior) != 0) {
+    } else if (dynamic_cast<const CLogNormalMeanPrecConjugate*>(&prior) != nullptr) {
         tagName = LOG_NORMAL_TAG;
-    } else if (dynamic_cast<const CMultimodalPrior*>(&prior) != 0) {
+    } else if (dynamic_cast<const CMultimodalPrior*>(&prior) != nullptr) {
         tagName = MULTIMODAL_TAG;
-    } else if (dynamic_cast<const CMultinomialConjugate*>(&prior) != 0) {
+    } else if (dynamic_cast<const CMultinomialConjugate*>(&prior) != nullptr) {
         tagName = MULTINOMIAL_TAG;
-    } else if (dynamic_cast<const CNormalMeanPrecConjugate*>(&prior) != 0) {
+    } else if (dynamic_cast<const CNormalMeanPrecConjugate*>(&prior) != nullptr) {
         tagName = NORMAL_TAG;
-    } else if (dynamic_cast<const COneOfNPrior*>(&prior) != 0) {
+    } else if (dynamic_cast<const COneOfNPrior*>(&prior) != nullptr) {
         tagName = ONE_OF_N_TAG;
-    } else if (dynamic_cast<const CPoissonMeanConjugate*>(&prior) != 0) {
+    } else if (dynamic_cast<const CPoissonMeanConjugate*>(&prior) != nullptr) {
         tagName = POISSON_TAG;
     } else {
         LOG_ERROR("Prior distribution with type '" << typeid(prior).name() << "' has no defined field name");

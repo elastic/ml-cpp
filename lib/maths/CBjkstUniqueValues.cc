@@ -376,7 +376,7 @@ void CBjkstUniqueValues::remove(uint32_t value) {
 
 uint32_t CBjkstUniqueValues::number() const {
     const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
-    if (values == 0) {
+    if (values == nullptr) {
         try {
             const SSketch& sketch = boost::get<SSketch>(m_Sketch);
             return sketch.number();
@@ -389,7 +389,7 @@ uint64_t CBjkstUniqueValues::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MaxSize);
     seed = CChecksum::calculate(seed, m_NumberHashes);
     const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
-    if (values == 0) {
+    if (values == nullptr) {
         try {
             const SSketch& sketch = boost::get<SSketch>(m_Sketch);
             seed = CChecksum::calculate(seed, sketch.s_G);

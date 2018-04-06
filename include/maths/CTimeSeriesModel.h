@@ -57,7 +57,7 @@ public:
                                std::size_t id,
                                const CTimeSeriesDecompositionInterface& trend,
                                const CPrior& prior,
-                               const TDecayRateController2Ary* controllers = 0,
+                               const TDecayRateController2Ary* controllers = nullptr,
                                bool modelAnomalies = true);
     CUnivariateTimeSeriesModel(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);
     ~CUnivariateTimeSeriesModel();
@@ -453,7 +453,7 @@ public:
     CMultivariateTimeSeriesModel(const CModelParams& params,
                                  const CTimeSeriesDecompositionInterface& trend,
                                  const CMultivariatePrior& prior,
-                                 const TDecayRateController2Ary* controllers = 0,
+                                 const TDecayRateController2Ary* controllers = nullptr,
                                  bool modelAnomalies = true);
     CMultivariateTimeSeriesModel(const CMultivariateTimeSeriesModel& other);
     CMultivariateTimeSeriesModel(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser);

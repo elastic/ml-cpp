@@ -138,7 +138,7 @@ bool modelAcceptRestoreTraverser(const SDistributionRestoreParams& params,
         LOG_ERROR("No weight found");
         return false;
     }
-    if (model == 0) {
+    if (model == nullptr) {
         LOG_ERROR("No model found");
         return false;
     }
@@ -426,7 +426,7 @@ CMultivariateOneOfNPrior::TUnivariatePriorPtrDoublePr CMultivariateOneOfNPrior::
     for (const auto& model : m_Models) {
         if (model.second->participatesInModelSelection()) {
             TUnivariatePriorPtrDoublePr prior(model.second->univariate(marginalize, condition));
-            if (prior.first == 0) {
+            if (prior.first == nullptr) {
                 return TUnivariatePriorPtrDoublePr();
             }
             models.emplace_back(1.0, prior.first);
@@ -458,7 +458,7 @@ CMultivariateOneOfNPrior::TPriorPtrDoublePr CMultivariateOneOfNPrior::bivariate(
     for (const auto& model : m_Models) {
         if (model.second->participatesInModelSelection()) {
             TPriorPtrDoublePr prior(model.second->bivariate(marginalize, condition));
-            if (prior.first == 0) {
+            if (prior.first == nullptr) {
                 return TPriorPtrDoublePr();
             }
             models.emplace_back(1.0, prior.first);
