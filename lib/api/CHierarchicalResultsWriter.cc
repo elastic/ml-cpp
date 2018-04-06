@@ -407,7 +407,7 @@ void CHierarchicalResultsWriter::findParentProbabilities(const TNode& node, doub
     personProbability = node.probability();
     partitionProbability = node.probability();
 
-    for (const TNode* parent = node.s_Parent; parent != 0; parent = parent->s_Parent) {
+    for (const TNode* parent = node.s_Parent; parent != nullptr; parent = parent->s_Parent) {
         if (CHierarchicalResultsWriter::isPartition(*parent)) {
             partitionProbability = parent->probability();
             // This makes the assumption that partition will be higher than

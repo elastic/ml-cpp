@@ -37,7 +37,7 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc& readerFunc) {
     TStrStrUMap recordFields;
 
     TCharPSizePr beginLenPair(this->parseLine());
-    while (beginLenPair.first != 0) {
+    while (beginLenPair.first != nullptr) {
         if (m_Parser.parseBufferInSitu(beginLenPair.first, beginLenPair.second) == false) {
             LOG_ERROR("Failed to parse XML document");
             return false;

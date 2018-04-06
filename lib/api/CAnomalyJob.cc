@@ -212,7 +212,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
                                                                    m_DetectorKeys[i],
                                                                    partitionFieldValue,
                                                                    m_Limits.resourceMonitor());
-        if (detector == 0) {
+        if (detector == nullptr) {
             // There wasn't enough memory to create the detector
             continue;
         }
@@ -454,7 +454,7 @@ void CAnomalyJob::skipSampling(core_t::TTime endTime) {
 
     for (const auto& detector_ : m_Detectors) {
         model::CAnomalyDetector* detector(detector_.second.get());
-        if (detector == 0) {
+        if (detector == nullptr) {
             LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
             continue;
         }
@@ -496,7 +496,7 @@ void CAnomalyJob::flushAndResetResultsQueue(core_t::TTime startTime) {
 void CAnomalyJob::timeNow(core_t::TTime time) {
     for (const auto& detector_ : m_Detectors) {
         model::CAnomalyDetector* detector(detector_.second.get());
-        if (detector == 0) {
+        if (detector == nullptr) {
             LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
             continue;
         }
@@ -588,7 +588,7 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
 
     for (std::size_t i = 0u; i < iterators.size(); ++i) {
         model::CAnomalyDetector* detector(iterators[i]->second.get());
-        if (detector == 0) {
+        if (detector == nullptr) {
             LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(iterators[i]->first) << '\'');
             continue;
         }
@@ -641,7 +641,7 @@ void CAnomalyJob::outputInterimResults(core_t::TTime bucketStartTime) {
 
     for (const auto& detector_ : m_Detectors) {
         model::CAnomalyDetector* detector(detector_.second.get());
-        if (detector == 0) {
+        if (detector == nullptr) {
             LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
             continue;
         }
@@ -723,7 +723,7 @@ void CAnomalyJob::resetBuckets(const std::string& controlMessage) {
         while (time < bucketEnd) {
             for (const auto& detector_ : m_Detectors) {
                 model::CAnomalyDetector* detector = detector_.second.get();
-                if (detector == 0) {
+                if (detector == nullptr) {
                     LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
                     continue;
                 }
@@ -748,7 +748,7 @@ bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher, core_t::TTi
         decompressor.setStateRestoreSearch(ML_STATE_INDEX);
 
         core::CDataSearcher::TIStreamP strm(decompressor.search(1, 1));
-        if (strm == 0) {
+        if (strm == nullptr) {
             LOG_ERROR("Unable to connect to data store");
             return false;
         }
@@ -784,7 +784,7 @@ bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher, core_t::TTi
 
             for (const auto& detector_ : m_Detectors) {
                 model::CAnomalyDetector* detector(detector_.second.get());
-                if (detector == 0) {
+                if (detector == nullptr) {
                     LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
                     continue;
                 }
@@ -1043,7 +1043,7 @@ bool CAnomalyJob::backgroundPersistState(CBackgroundPersister& backgroundPersist
 
     for (const auto& detector_ : m_Detectors) {
         model::CAnomalyDetector* detector(detector_.second.get());
-        if (detector == 0) {
+        if (detector == nullptr) {
             LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
             continue;
         }
@@ -1102,7 +1102,7 @@ bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
         core_t::TTime snapshotTimestamp(core::CTimeUtils::now());
         const std::string snapShotId(core::CStringUtils::typeToString(snapshotTimestamp));
         core::CDataAdder::TOStreamP strm = compressor.addStreamed(ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE + '_' + snapShotId);
-        if (strm != 0) {
+        if (strm != nullptr) {
             // IMPORTANT - this method can run in a background thread while the
             // analytics carries on processing new buckets in the main thread.
             // Therefore, this method must NOT access any member variables whose
@@ -1123,7 +1123,7 @@ bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
 
                 for (const auto& detector_ : detectors) {
                     const model::CAnomalyDetector* detector(detector_.second.get());
-                    if (detector == 0) {
+                    if (detector == nullptr) {
                         LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
                         continue;
                     }
@@ -1183,7 +1183,7 @@ bool CAnomalyJob::periodicPersistState(CBackgroundPersister& persister) {
     // Make sure model size stats are up to date
     for (const auto& detector_ : m_Detectors) {
         model::CAnomalyDetector* detector = detector_.second.get();
-        if (detector == 0) {
+        if (detector == nullptr) {
             LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
             continue;
         }
@@ -1289,7 +1289,7 @@ void CAnomalyJob::refreshMemoryAndReport() {
     // usage report
     for (const auto& detector_ : m_Detectors) {
         model::CAnomalyDetector* detector = detector_.second.get();
-        if (detector == 0) {
+        if (detector == nullptr) {
             LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
             continue;
         }
@@ -1347,7 +1347,7 @@ const CAnomalyJob::TAnomalyDetectorPtr& CAnomalyJob::detectorForKey(bool isResto
         LOG_TRACE("Detector count " << m_Detectors.size())
 
         detector = this->makeDetector(key.identifier(), m_ModelConfig, m_Limits, partition, time, m_ModelConfig.factory(key));
-        if (detector == 0) {
+        if (detector == nullptr) {
             // This should never happen as CAnomalyDetectorUtils::makeDetector()
             // contracts to never return NULL
             LOG_ABORT("Failed to create anomaly detector for key '" << key.debug() << '\'');
@@ -1372,7 +1372,7 @@ void CAnomalyJob::pruneAllModels() {
 
     for (const auto& detector_ : m_Detectors) {
         model::CAnomalyDetector* detector = detector_.second.get();
-        if (detector == 0) {
+        if (detector == nullptr) {
             LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
             continue;
         }
@@ -1415,7 +1415,7 @@ void CAnomalyJob::populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec&
 const std::string* CAnomalyJob::fieldValue(const std::string& fieldName, const TStrStrUMap& dataRowFields) {
     TStrStrUMapCItr itr = fieldName.empty() ? dataRowFields.end() : dataRowFields.find(fieldName);
     const std::string& fieldValue(itr == dataRowFields.end() ? EMPTY_STRING : itr->second);
-    return !fieldName.empty() && fieldValue.empty() ? static_cast<const std::string*>(0) : &fieldValue;
+    return !fieldName.empty() && fieldValue.empty() ? static_cast<const std::string*>(nullptr) : &fieldValue;
 }
 
 void CAnomalyJob::addRecord(const TAnomalyDetectorPtr detector, core_t::TTime time, const TStrStrUMap& dataRowFields) {

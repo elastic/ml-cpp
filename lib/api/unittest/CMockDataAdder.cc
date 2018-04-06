@@ -37,7 +37,7 @@ bool CMockDataAdder::streamComplete(TOStreamP& strm, bool /*force*/) {
         if (i->second == strm) {
             LOG_TRACE("Found stream for " << i->first);
             std::ostringstream* ss = dynamic_cast<std::ostringstream*>(i->second.get());
-            if (ss != 0) {
+            if (ss != nullptr) {
                 const std::string& result = ss->str();
                 LOG_TRACE("Adding data: " << result);
                 m_Events[i->first].push_back('[' + result + ']');

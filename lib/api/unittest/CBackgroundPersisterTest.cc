@@ -165,7 +165,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
 
     ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
-    std::ostringstream* backgroundStream(0);
+    std::ostringstream* backgroundStream(nullptr);
     ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(backgroundStream = new std::ostringstream());
     ml::api::CSingleStreamDataAdder backgroundDataAdder(backgroundStreamPtr);
     // The 300 second persist interval is irrelevant here - we bypass the timer
@@ -178,7 +178,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
     std::string backgroundSnapshotId;
     std::string foregroundSnapshotId;
 
-    std::ostringstream* foregroundStream(0);
+    std::ostringstream* foregroundStream(nullptr);
     ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(foregroundStream = new std::ostringstream());
     {
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);

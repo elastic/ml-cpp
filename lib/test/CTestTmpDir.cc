@@ -35,9 +35,9 @@ std::string CTestTmpDir::tmpDir() {
     ::memset(&pwd, 0, sizeof(pwd));
     static const size_t BUFSIZE(16384);
     char buffer[BUFSIZE] = {'\0'};
-    struct passwd* result(0);
+    struct passwd* result(nullptr);
     ::getpwuid_r(::getuid(), &pwd, buffer, BUFSIZE, &result);
-    if (result == 0 || result->pw_name == 0) {
+    if (result == nullptr || result->pw_name == nullptr) {
         LOG_ERROR("Could not get current user name: " << ::strerror(errno));
         return "/tmp";
     }

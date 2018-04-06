@@ -36,9 +36,9 @@ CCsvInputParser::CCsvInputParser(const std::string& input, char separator)
     : CInputParser(),
       m_StringInputBuf(input),
       m_StrmIn(m_StringInputBuf),
-      m_WorkBuffer(0),
-      m_WorkBufferPtr(0),
-      m_WorkBufferEnd(0),
+      m_WorkBuffer(nullptr),
+      m_WorkBufferPtr(nullptr),
+      m_WorkBufferEnd(nullptr),
       m_NoMoreRecords(false),
       m_LineParser(separator) {
 }
@@ -46,9 +46,9 @@ CCsvInputParser::CCsvInputParser(const std::string& input, char separator)
 CCsvInputParser::CCsvInputParser(std::istream& strmIn, char separator)
     : CInputParser(),
       m_StrmIn(strmIn),
-      m_WorkBuffer(0),
-      m_WorkBufferPtr(0),
-      m_WorkBufferEnd(0),
+      m_WorkBuffer(nullptr),
+      m_WorkBufferPtr(nullptr),
+      m_WorkBufferEnd(nullptr),
       m_NoMoreRecords(false),
       m_LineParser(separator) {
 }
