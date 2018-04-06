@@ -48,7 +48,7 @@ const std::string CQDigest::N_TAG("b");
 const std::string CQDigest::NODE_TAG("c");
 
 CQDigest::CQDigest(uint64_t k, double decayRate)
-    : m_K(k), m_N(0u), m_Root(0), m_NodeAllocator(static_cast<std::size_t>(3 * m_K + 2)), m_DecayRate(decayRate) {
+    : m_K(k), m_N(0u), m_Root(nullptr), m_NodeAllocator(static_cast<std::size_t>(3 * m_K + 2)), m_DecayRate(decayRate) {
     m_Root = &m_NodeAllocator.create(CNode(0, 1, 0, 0));
 }
 
@@ -484,11 +484,11 @@ const std::string CQDigest::CNode::MAX_TAG("b");
 const std::string CQDigest::CNode::COUNT_TAG("c");
 
 CQDigest::CNode::CNode()
-    : m_Ancestor(0), m_Descendants(), m_Min(0xDEADBEEF), m_Max(0xDEADBEEF), m_Count(0xDEADBEEF), m_SubtreeCount(0xDEADBEEF) {
+    : m_Ancestor(nullptr), m_Descendants(), m_Min(0xDEADBEEF), m_Max(0xDEADBEEF), m_Count(0xDEADBEEF), m_SubtreeCount(0xDEADBEEF) {
 }
 
 CQDigest::CNode::CNode(uint32_t min, uint32_t max, uint64_t count, uint64_t subtreeCount)
-    : m_Ancestor(0), m_Descendants(), m_Min(min), m_Max(max), m_Count(count), m_SubtreeCount(subtreeCount) {
+    : m_Ancestor(nullptr), m_Descendants(), m_Min(min), m_Max(max), m_Count(count), m_SubtreeCount(subtreeCount) {
 }
 
 std::size_t CQDigest::CNode::size() const {
@@ -605,7 +605,7 @@ void CQDigest::CNode::postOrder(TNodePtrVec& nodes) const {
 CQDigest::CNode* CQDigest::CNode::expand(CNodeAllocator& allocator, const uint32_t& value) {
     if (m_Max >= value) {
         // No expansion necessary.
-        return 0;
+        return nullptr;
     }
 
     CNode* result = m_Count == 0 ? this : &allocator.create(CNode(m_Min, m_Max, 0, 0));
@@ -658,7 +658,7 @@ CQDigest::CNode& CQDigest::CNode::insert(CNodeAllocator& allocator, const CNode&
 CQDigest::CNode* CQDigest::CNode::compress(CNodeAllocator& allocator, uint64_t compressionFactor) {
     if (!m_Ancestor) {
         // The node is no longer in the q-digest.
-        return 0;
+        return nullptr;
     }
 
     // Warning this function zeros m_Ancestor copy up front.
@@ -671,7 +671,7 @@ CQDigest::CNode* CQDigest::CNode::compress(CNodeAllocator& allocator, uint64_t c
 
     // Check if we should compress this node.
     if (count >= compressionFactor) {
-        return 0;
+        return nullptr;
     }
 
     if (ancestor->isParent(*this)) {
@@ -872,7 +872,7 @@ CQDigest::CNode* CQDigest::CNode::sibling(const CNode& node) const {
         return *next;
     }
 
-    return 0;
+    return nullptr;
 }
 
 bool CQDigest::CNode::isSibling(const CNode& node) const {
@@ -891,7 +891,7 @@ bool CQDigest::CNode::isAncestor(const CNode& node) const {
 }
 
 bool CQDigest::CNode::isRoot() const {
-    return m_Ancestor == 0;
+    return m_Ancestor == nullptr;
 }
 
 bool CQDigest::CNode::isLeaf() const {
@@ -910,7 +910,7 @@ bool CQDigest::CNode::isLeftChild() const {
 void CQDigest::CNode::detach(CNodeAllocator& allocator) {
     m_Ancestor->removeDescendant(*this);
     m_Ancestor->takeDescendants(*this);
-    m_Ancestor = 0;
+    m_Ancestor = nullptr;
     allocator.release(*this);
 }
 

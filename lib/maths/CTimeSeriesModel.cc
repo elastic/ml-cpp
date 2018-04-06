@@ -506,14 +506,14 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CModelParams& param
       m_AnomalyModel(modelAnomalies ? boost::make_shared<CTimeSeriesAnomalyModel>(params.bucketLength(), params.decayRate())
                                     : TAnomalyModelPtr()),
       m_SlidingWindow(SLIDING_WINDOW_SIZE),
-      m_Correlations(0) {
+      m_Correlations(nullptr) {
     if (controllers) {
         m_Controllers = boost::make_shared<TDecayRateController2Ary>(*controllers);
     }
 }
 
 CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const SModelRestoreParams& params, core::CStateRestoreTraverser& traverser)
-    : CModel(params.s_Params), m_IsForecastable(false), m_SlidingWindow(SLIDING_WINDOW_SIZE), m_Correlations(0) {
+    : CModel(params.s_Params), m_IsForecastable(false), m_SlidingWindow(SLIDING_WINDOW_SIZE), m_Correlations(nullptr) {
     traverser.traverseSubLevel(boost::bind(&CUnivariateTimeSeriesModel::acceptRestoreTraverser, this, boost::cref(params), _1));
 }
 
@@ -1023,7 +1023,7 @@ uint64_t CUnivariateTimeSeriesModel::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Prior);
     seed = CChecksum::calculate(seed, m_AnomalyModel);
     seed = CChecksum::calculate(seed, m_SlidingWindow);
-    return CChecksum::calculate(seed, m_Correlations != 0);
+    return CChecksum::calculate(seed, m_Correlations != nullptr);
 }
 
 void CUnivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
@@ -1137,7 +1137,7 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
       m_Prior(other.m_Prior->clone()),
       m_AnomalyModel(other.m_AnomalyModel ? boost::make_shared<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel) : TAnomalyModelPtr()),
       m_SlidingWindow(other.m_SlidingWindow),
-      m_Correlations(0) {
+      m_Correlations(nullptr) {
     if (other.m_Controllers) {
         m_Controllers = boost::make_shared<TDecayRateController2Ary>(*other.m_Controllers);
     }
@@ -1525,7 +1525,7 @@ void CTimeSeriesCorrelations::removeTimeSeries(std::size_t id) {
         this->refreshLookup();
     }
     m_Correlations.removeVariables({id});
-    m_TimeSeriesModels[id] = 0;
+    m_TimeSeriesModels[id] = nullptr;
 }
 
 void CTimeSeriesCorrelations::addSamples(std::size_t id,
