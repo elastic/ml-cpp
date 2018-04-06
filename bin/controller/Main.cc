@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
     // requirements should always be very low.
 
     ml::core::CNamedPipeFactory::TIStreamP commandStream = ml::core::CNamedPipeFactory::openPipeStreamRead(commandPipe);
-    if (commandStream == 0) {
+    if (commandStream == nullptr) {
         LOG_FATAL("Could not open command pipe");
         cancellerThread.stop();
         return EXIT_FAILURE;
