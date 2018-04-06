@@ -248,6 +248,7 @@ void CForecastRunnerTest::testInsufficientData() {
     CPPUNIT_ASSERT(!doc.HasParseError());
     CPPUNIT_ASSERT_EQUAL(std::string("31"), std::string(forecastStats["forecast_id"].GetString()));
     CPPUNIT_ASSERT_EQUAL(std::string("finished"), std::string(forecastStats["forecast_status"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(1.0, forecastStats["forecast_progress"].GetDouble());
     CPPUNIT_ASSERT_EQUAL(ml::api::CForecastRunner::INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST,
                          std::string(forecastStats["forecast_messages"].GetArray()[0].GetString()));
     CPPUNIT_ASSERT_EQUAL((1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),
