@@ -761,7 +761,7 @@ void CXMeansOnline1d::decayRate(double decayRate) {
 }
 
 bool CXMeansOnline1d::hasCluster(std::size_t index) const {
-    return this->cluster(index) != 0;
+    return this->cluster(index) != nullptr;
 }
 
 bool CXMeansOnline1d::clusterCentre(std::size_t index, double& result) const {
@@ -1105,7 +1105,7 @@ const CXMeansOnline1d::CCluster* CXMeansOnline1d::cluster(std::size_t index) con
             return &m_Clusters[i];
         }
     }
-    return 0;
+    return nullptr;
 }
 
 double CXMeansOnline1d::minimumSplitCount() const {

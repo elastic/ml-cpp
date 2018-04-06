@@ -79,7 +79,7 @@ public:
     void mostCorrelated(TSizeSizePrVec& result) const;
 
     //! Get the \p n most correlated variables.
-    void mostCorrelated(std::size_t n, TSizeSizePrVec& correlates, TDoubleVec* pearson = 0) const;
+    void mostCorrelated(std::size_t n, TSizeSizePrVec& correlates, TDoubleVec* pearson = nullptr) const;
 
     //! Get the most correlated variables correlations.
     void correlations(TDoubleVec& result) const;

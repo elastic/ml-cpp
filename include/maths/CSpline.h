@@ -321,7 +321,7 @@ public:
     //! \param[out] c Filled in with the linear coefficient.
     //! \param[out] d Filled in with the constant.
     //! \note Null pointers are ignored.
-    void coefficients(TDoubleVec* a = 0, TDoubleVec* b = 0, TDoubleVec* c = 0, TDoubleVec* d = 0) const {
+    void coefficients(TDoubleVec* a = nullptr, TDoubleVec* b = nullptr, TDoubleVec* c = nullptr, TDoubleVec* d = nullptr) const {
         if (a)
             a->reserve(this->values().size());
         if (b)

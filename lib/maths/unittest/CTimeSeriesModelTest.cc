@@ -134,7 +134,7 @@ void reinitializePrior(double learnRate,
                        const maths::CMultivariateTimeSeriesModel& model,
                        TDecompositionPtr10Vec& trends,
                        maths::CMultivariatePrior& prior,
-                       TDecayRateController2Ary* controllers = 0) {
+                       TDecayRateController2Ary* controllers = nullptr) {
     prior.setToNonInformative(0.0, prior.decayRate());
     TDouble10Vec1Vec detrended_{TDouble10Vec(3)};
     for (const auto& value : model.slidingWindow()) {
@@ -1032,9 +1032,9 @@ void CTimeSeriesModelTest::testProbability() {
     LOG_DEBUG("Univariate");
     {
         maths::CUnivariateTimeSeriesModel models[]{
-            maths::CUnivariateTimeSeriesModel{params(bucketLength), 1, maths::CTimeSeriesDecompositionStub{}, univariateNormal(), 0, false},
+            maths::CUnivariateTimeSeriesModel{params(bucketLength), 1, maths::CTimeSeriesDecompositionStub{}, univariateNormal(), nullptr, false},
             maths::CUnivariateTimeSeriesModel{
-                params(bucketLength), 1, maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}, univariateNormal(), 0, false}};
+                params(bucketLength), 1, maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}, univariateNormal(), nullptr, false}};
 
         TDoubleVec samples;
         rng.generateNormalSamples(10.0, 4.0, 1000, samples);
@@ -1125,9 +1125,9 @@ void CTimeSeriesModelTest::testProbability() {
     {
         maths::CMultivariateTimeSeriesModel models[]{
             maths::CMultivariateTimeSeriesModel{
-                params(bucketLength), maths::CTimeSeriesDecompositionStub{}, multivariateNormal(), 0, false},
+                params(bucketLength), maths::CTimeSeriesDecompositionStub{}, multivariateNormal(), nullptr, false},
             maths::CMultivariateTimeSeriesModel{
-                params(bucketLength), maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}, multivariateNormal(), 0, false}};
+                params(bucketLength), maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}, multivariateNormal(), nullptr, false}};
 
         TDoubleVecVec samples;
         {
@@ -1751,7 +1751,7 @@ void CTimeSeriesModelTest::testAddSamplesWithCorrelations() {
         maths::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
         maths::CTimeSeriesCorrelations correlations{MINIMUM_SIGNIFICANT_CORRELATION, DECAY_RATE};
         maths::CNormalMeanPrecConjugate prior{univariateNormal()};
-        maths::CUnivariateTimeSeriesModel models[]{{params(bucketLength), 0, trend, prior, 0}, {params(bucketLength), 1, trend, prior, 0}};
+        maths::CUnivariateTimeSeriesModel models[]{{params(bucketLength), 0, trend, prior, nullptr}, {params(bucketLength), 1, trend, prior, nullptr}};
         models[0].modelCorrelations(correlations);
         models[1].modelCorrelations(correlations);
         CTimeSeriesCorrelateModelAllocator allocator;

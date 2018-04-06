@@ -261,7 +261,7 @@ double CCountMinSketch::fraction(uint32_t category) const {
 }
 
 bool CCountMinSketch::sketched() const {
-    return boost::get<SSketch>(&m_Sketch) != 0;
+    return boost::get<SSketch>(&m_Sketch) != nullptr;
 }
 
 uint64_t CCountMinSketch::checksum(uint64_t seed) const {
@@ -270,7 +270,7 @@ uint64_t CCountMinSketch::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_TotalCount);
 
     const TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
-    if (counts == 0) {
+    if (counts == nullptr) {
         try {
             const SSketch& sketch = boost::get<SSketch>(m_Sketch);
             seed = CChecksum::calculate(seed, sketch.s_Hashes);

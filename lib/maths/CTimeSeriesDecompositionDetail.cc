@@ -394,7 +394,7 @@ CTimeSeriesDecompositionDetail::SNewComponents::SNewComponents(core_t::TTime tim
 
 //////// CHandler ////////
 
-CTimeSeriesDecompositionDetail::CHandler::CHandler() : m_Mediator{0} {
+CTimeSeriesDecompositionDetail::CHandler::CHandler() : m_Mediator{nullptr} {
 }
 CTimeSeriesDecompositionDetail::CHandler::~CHandler() {
 }
@@ -670,7 +670,7 @@ CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ET
             TTimeCRng bucketLengths_(bucketLengths, a, b);
             return new CExpandingWindow(m_BucketLength, bucketLengths_, 336, m_DecayRate);
         }
-        return static_cast<CExpandingWindow*>(0);
+        return static_cast<CExpandingWindow*>(nullptr);
     };
 
     switch (test) {
@@ -679,7 +679,7 @@ CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ET
     case E_Long:
         return newWindow(LONG_BUCKET_LENGTHS);
     }
-    return 0;
+    return nullptr;
 }
 
 const TTimeVec CTimeSeriesDecompositionDetail::CPeriodicityTest::SHORT_BUCKET_LENGTHS{1, 5, 10, 30, 60, 300, 600, 1800, 3600};
@@ -700,7 +700,7 @@ CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(const CCalendarTest
     : m_Machine{other.m_Machine},
       m_DecayRate{other.m_DecayRate},
       m_LastMonth{other.m_LastMonth},
-      m_Test{other.m_Test ? new CCalendarCyclicTest(*other.m_Test) : 0} {
+      m_Test{other.m_Test ? new CCalendarCyclicTest(*other.m_Test) : nullptr} {
 }
 
 bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -882,7 +882,7 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(double decayRate, core_
       m_CalendarComponentSize{seasonalComponentSize / 3},
       m_Trend{decayRate},
       m_UsingTrendForPrediction{false},
-      m_Watcher{0} {
+      m_Watcher{nullptr} {
 }
 
 CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& other)
@@ -892,13 +892,13 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& othe
       m_SeasonalComponentSize{other.m_SeasonalComponentSize},
       m_CalendarComponentSize{other.m_CalendarComponentSize},
       m_Trend{other.m_Trend},
-      m_Seasonal{other.m_Seasonal ? new SSeasonal{*other.m_Seasonal} : 0},
-      m_Calendar{other.m_Calendar ? new SCalendar{*other.m_Calendar} : 0},
+      m_Seasonal{other.m_Seasonal ? new SSeasonal{*other.m_Seasonal} : nullptr},
+      m_Calendar{other.m_Calendar ? new SCalendar{*other.m_Calendar} : nullptr},
       m_MeanVarianceScale{other.m_MeanVarianceScale},
       m_Moments{other.m_Moments},
       m_MomentsMinusTrend{other.m_MomentsMinusTrend},
       m_UsingTrendForPrediction{other.m_UsingTrendForPrediction},
-      m_Watcher{0} {
+      m_Watcher{nullptr} {
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1466,7 +1466,7 @@ CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::CScopeNo
 }
 
 CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::~CScopeNotifyOnStateChange() {
-    m_Components.notifyOnNewComponents(0);
+    m_Components.notifyOnNewComponents(nullptr);
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::CScopeNotifyOnStateChange::changed() const {

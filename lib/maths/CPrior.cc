@@ -331,7 +331,7 @@ bool CPrior::CLogMarginalLikelihood::operator()(double x, double& result) const 
 ////////// CPrior::COffsetParameters Implementation //////////
 
 CPrior::COffsetParameters::COffsetParameters(CPrior& prior)
-    : m_Prior(&prior), m_WeightStyles(0), m_Samples(0), m_Weights(0), m_Resamples(0), m_ResamplesWeights(0) {
+    : m_Prior(&prior), m_WeightStyles(nullptr), m_Samples(nullptr), m_Weights(nullptr), m_Resamples(0), m_ResamplesWeights(0) {
 }
 
 void CPrior::COffsetParameters::samples(const maths_t::TWeightStyleVec& weightStyles,
