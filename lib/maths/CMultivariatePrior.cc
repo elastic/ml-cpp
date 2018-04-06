@@ -294,7 +294,7 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x, s
     boost::shared_ptr<CPrior> xMargin(this->univariate(xm, TSizeDoublePr10Vec()).first);
 
     if (x == y) {
-        return xMargin != 0 ? xMargin->printMarginalLikelihoodFunction() : std::string();
+        return xMargin != nullptr ? xMargin->printMarginalLikelihoodFunction() : std::string();
     }
 
     boost::shared_ptr<CPrior> yMargin(this->univariate(ym, TSizeDoublePr10Vec()).first);
