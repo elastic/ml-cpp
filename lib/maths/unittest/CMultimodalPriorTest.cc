@@ -88,10 +88,10 @@ CMultimodalPrior makePrior(const maths::CPrior* modePrior) {
     return makePrior(modePrior, 0.0);
 }
 CMultimodalPrior makePrior(double decayRate) {
-    return makePrior(0, decayRate);
+    return makePrior(nullptr, decayRate);
 }
 CMultimodalPrior makePrior() {
-    return makePrior(0, 0.0);
+    return makePrior(nullptr, 0.0);
 }
 
 test::CRandomNumbers RNG;

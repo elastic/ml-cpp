@@ -109,7 +109,7 @@ void COrderingsTest::testPtrOrdering() {
     LOG_DEBUG("|  COrderingsTest::testPtrOrdering  |");
     LOG_DEBUG("+-----------------------------------+");
 
-    const double* null = 0;
+    const double* null = nullptr;
     double one_(1.0);
     double two_(2.0);
     double hundred_(100.0);
@@ -166,7 +166,7 @@ void COrderingsTest::testLess() {
         CPPUNIT_ASSERT(less(one, big));
     }
     {
-        const double* null = 0;
+        const double* null = nullptr;
         double one_(1.0);
         double two_(2.0);
         double hundred_(100.0);

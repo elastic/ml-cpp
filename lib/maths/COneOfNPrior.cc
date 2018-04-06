@@ -999,7 +999,7 @@ bool COneOfNPrior::modelAcceptRestoreTraverser(const SDistributionRestoreParams&
         LOG_ERROR("No weight found");
         return false;
     }
-    if (model == 0) {
+    if (model == nullptr) {
         LOG_ERROR("No model found");
         return false;
     }

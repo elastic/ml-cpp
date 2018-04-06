@@ -90,7 +90,7 @@ public:
 
     //! A node of the k-d tree.
     struct SNode : public NODE_DATA {
-        SNode(SNode* parent, const POINT& point) : NODE_DATA(), s_Parent(parent), s_LeftChild(0), s_RightChild(0), s_Point(point) {}
+        SNode(SNode* parent, const POINT& point) : NODE_DATA(), s_Parent(parent), s_LeftChild(nullptr), s_RightChild(nullptr), s_Point(point) {}
 
         //! Check node invariants.
         bool checkInvariants(std::size_t dimension) const {
@@ -147,8 +147,8 @@ public:
         m_Dimension = points[0].dimension();
         m_Nodes.clear();
         m_Nodes.reserve(points.size());
-        this->buildRecursively(0, // Parent pointer
-                               0, // Split coordinate
+        this->buildRecursively(nullptr, // Parent pointer
+                               0,       // Split coordinate
                                points.begin(),
                                points.end());
     }
@@ -158,7 +158,7 @@ public:
 
     //! Branch and bound search for nearest neighbour of \p point.
     const POINT* nearestNeighbour(const POINT& point) const {
-        const POINT* nearest = 0;
+        const POINT* nearest = nullptr;
 
         if (m_Nodes.empty()) {
             return nearest;

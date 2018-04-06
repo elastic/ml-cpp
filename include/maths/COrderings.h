@@ -120,8 +120,8 @@ public:
 
         template<typename T>
         static inline bool less(const T* lhs, const T* rhs) {
-            bool lInitialized(lhs != 0);
-            bool rInitialized(rhs != 0);
+            bool lInitialized(lhs != nullptr);
+            bool rInitialized(rhs != nullptr);
             return lInitialized && rInitialized ? boost::unwrap_ref(*lhs) < boost::unwrap_ref(*rhs) : rInitialized < lInitialized;
         }
     };
@@ -139,8 +139,8 @@ public:
 
         template<typename T>
         static inline bool greater(const T* lhs, const T* rhs) {
-            bool lInitialized(lhs != 0);
-            bool rInitialized(rhs != 0);
+            bool lInitialized(lhs != nullptr);
+            bool rInitialized(rhs != nullptr);
             return lInitialized && rInitialized ? boost::unwrap_ref(*lhs) > boost::unwrap_ref(*rhs) : rInitialized > lInitialized;
         }
     };

@@ -698,7 +698,7 @@ public:
     }
 
     //! Check if the cluster identified by \p index exists.
-    virtual bool hasCluster(std::size_t index) const { return this->cluster(index) != 0; }
+    virtual bool hasCluster(std::size_t index) const { return this->cluster(index) != nullptr; }
 
     //! Get the centre of the cluster identified by \p index.
     virtual bool clusterCentre(std::size_t index, TPointPrecise& result) const {
@@ -992,7 +992,7 @@ protected:
                 return &m_Clusters[i];
             }
         }
-        return 0;
+        return nullptr;
     }
 
     //! Compute the minimum split count.
@@ -1106,7 +1106,7 @@ protected:
 
         using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1>;
 
-        CCluster* result = 0;
+        CCluster* result = nullptr;
         TMinAccumulator min;
         for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
             if (cluster.index() == m_Clusters[i].index()) {

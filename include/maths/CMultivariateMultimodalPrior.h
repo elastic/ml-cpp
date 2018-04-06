@@ -438,7 +438,7 @@ public:
 
         for (const auto& mode : m_Modes) {
             TUnivariatePriorPtrDoublePr prior(mode.s_Prior->univariate(marginalize, condition));
-            if (prior.first == 0) {
+            if (prior.first == nullptr) {
                 return TUnivariatePriorPtrDoublePr();
             }
             if (prior.first->isNonInformative()) {
@@ -489,7 +489,7 @@ public:
 
         for (const auto& mode : m_Modes) {
             TPriorPtrDoublePr prior(mode.s_Prior->bivariate(marginalize, condition));
-            if (prior.first == 0) {
+            if (prior.first == nullptr) {
                 return TPriorPtrDoublePr();
             }
             if (prior.first->isNonInformative()) {

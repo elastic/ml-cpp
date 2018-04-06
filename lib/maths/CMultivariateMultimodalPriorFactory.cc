@@ -88,7 +88,7 @@ bool CMultivariateMultimodalPriorFactory::restore(std::size_t dimension,
 #define FACTORY_ARGS params, traverser
     CREATE_PRIOR(dimension)
 #undef FACTORY_ARGS
-    return ptr != 0;
+    return ptr != nullptr;
 }
 
 #undef CREATE_PRIOR

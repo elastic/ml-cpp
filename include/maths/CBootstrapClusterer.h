@@ -707,7 +707,7 @@ private:
     //! This is intended for use with boost::filtered_graph.
     class CParityFilter {
     public:
-        CParityFilter() : m_Graph(0), m_Parities(0), m_Parity(false) {}
+        CParityFilter() : m_Graph(nullptr), m_Parities(nullptr), m_Parity(false) {}
         CParityFilter(const TGraph& graph, const TBoolVec& parities, bool parity)
             : m_Graph(&graph), m_Parities(&parities), m_Parity(parity) {}
 

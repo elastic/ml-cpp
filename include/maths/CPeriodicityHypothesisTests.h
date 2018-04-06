@@ -266,7 +266,7 @@ private:
         };
 
     public:
-        explicit CNestedHypotheses(TTestFunc test = 0);
+        explicit CNestedHypotheses(TTestFunc test = nullptr);
 
         //! Set the null hypothesis.
         CBuilder null(TTestFunc test);

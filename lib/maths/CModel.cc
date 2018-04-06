@@ -112,9 +112,9 @@ CModelAddSamplesParams::CModelAddSamplesParams()
     : m_Type(maths_t::E_MixedData),
       m_IsNonNegative(false),
       m_PropagationInterval(1.0),
-      m_WeightStyles(0),
-      m_TrendWeights(0),
-      m_PriorWeights(0) {
+      m_WeightStyles(nullptr),
+      m_TrendWeights(nullptr),
+      m_PriorWeights(nullptr) {
 }
 
 CModelAddSamplesParams& CModelAddSamplesParams::integer(bool integer) {
@@ -172,7 +172,7 @@ const CModelAddSamplesParams::TDouble2Vec4VecVec& CModelAddSamplesParams::priorW
 }
 
 CModelProbabilityParams::CModelProbabilityParams()
-    : m_Tag(0), m_SeasonalConfidenceInterval(DEFAULT_SEASONAL_CONFIDENCE_INTERVAL), m_WeightStyles(0), m_UpdateAnomalyModel(true) {
+    : m_Tag(0), m_SeasonalConfidenceInterval(DEFAULT_SEASONAL_CONFIDENCE_INTERVAL), m_WeightStyles(nullptr), m_UpdateAnomalyModel(true) {
 }
 
 CModelProbabilityParams& CModelProbabilityParams::tag(std::size_t tag) {

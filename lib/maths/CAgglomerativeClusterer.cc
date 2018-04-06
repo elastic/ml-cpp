@@ -383,7 +383,7 @@ void CAgglomerativeClusterer::run(EObjective objective, TNodeVec& tree) {
 ////// CNode //////
 
 CAgglomerativeClusterer::CNode::CNode(std::size_t index, double height)
-    : m_Parent(0), m_LeftChild(0), m_RightChild(0), m_Index(index), m_Height(height) {
+    : m_Parent(nullptr), m_LeftChild(nullptr), m_RightChild(nullptr), m_Index(index), m_Height(height) {
 }
 
 bool CAgglomerativeClusterer::CNode::addChild(CNode& child) {
