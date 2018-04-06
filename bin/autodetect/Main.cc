@@ -197,7 +197,7 @@ int main(int argc, char** argv) {
 
     using TScopedDataSearcherP = boost::scoped_ptr<ml::core::CDataSearcher>;
     TScopedDataSearcherP restoreSearcher;
-    if (ioMgr.restoreStream() != 0) {
+    if (ioMgr.restoreStream()) {
         // Check whether state is restored from a file, if so we assume that this is a debugging case
         // and therefore does not originate from X-Pack.
         if (!isRestoreFileNamedPipe) {
@@ -213,14 +213,14 @@ int main(int argc, char** argv) {
 
     using TScopedDataAdderP = boost::scoped_ptr<ml::core::CDataAdder>;
     TScopedDataAdderP persister;
-    if (ioMgr.persistStream() != 0) {
+    if (ioMgr.persistStream()) {
         persister.reset(new ml::api::CSingleStreamDataAdder(ioMgr.persistStream()));
     }
 
     using TScopedBackgroundPersisterP = boost::scoped_ptr<ml::api::CBackgroundPersister>;
     TScopedBackgroundPersisterP periodicPersister;
     if (persistInterval >= 0) {
-        if (persister == 0) {
+        if (persister == nullptr) {
             LOG_FATAL("Periodic persistence cannot be enabled using the 'persistInterval' argument "
                       "unless a place to persist to has been specified using the 'persist' argument");
             return EXIT_FAILURE;
