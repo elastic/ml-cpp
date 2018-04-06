@@ -19,7 +19,6 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStopWatch.h>
-#include <core/CUname.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CKMostCorrelated.h>
@@ -31,6 +30,7 @@
 
 #include <boost/range.hpp>
 
+#include <cstdlib>
 #include <vector>
 
 using namespace ml;
@@ -743,9 +743,12 @@ void CKMostCorrelatedTest::testScale() {
     LOG_DEBUG("exponent = " << exponent);
     double sdRatio = std::sqrt(maths::CBasicStatistics::variance(slope)) / maths::CBasicStatistics::mean(slope);
     LOG_DEBUG("sdRatio = " << sdRatio);
-    if (core::CUname::nodeName().compare(0, 3, "vm-") == 0) {
-        // Allow more leeway on a VM as non-linearity is most likely due to the
-        // VM stalling
+    // If $ML_KEEP_GOING is set then we're probably running in CI
+    const char* keepGoingEnvVar{std::getenv("ML_KEEP_GOING")};
+    bool likelyInCi = (keepGoingEnvVar != nullptr && *keepGoingEnvVar != '\0');
+    if (likelyInCi) {
+        // Allow more leeway when running in CI because CI is most likely running on
+        // a VM and in this case non-linearity is most likely due to the VM stalling
         CPPUNIT_ASSERT(exponent < 2.0);
         CPPUNIT_ASSERT(sdRatio < 0.75);
     } else {
