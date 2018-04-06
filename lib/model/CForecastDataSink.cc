@@ -147,6 +147,7 @@ void CForecastDataSink::writeFinalMessage(const std::string& message) {
     this->writeCommonStatsFields(doc);
     TStrVec messages{message};
     m_Writer.addStringArrayFieldToObj(MESSAGES, messages, doc);
+    m_Writer.addDoubleFieldToObj(PROGRESS, 1.0, doc);
     m_Writer.addStringFieldReferenceToObj(STATUS, STATUS_FINISHED, doc);
     this->push(true /*important, therefore flush*/, doc);
 }
