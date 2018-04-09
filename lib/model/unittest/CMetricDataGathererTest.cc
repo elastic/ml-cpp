@@ -65,7 +65,7 @@ std::size_t addPerson(const std::string& p, CDataGatherer& gatherer, CResourceMo
     for (std::size_t j = 0; j < numInfluencers; ++j) {
         person.push_back(&i);
     }
-    person.resize(gatherer.fieldsOfInterest().size(), 0);
+    person.resize(gatherer.fieldsOfInterest().size(), nullptr);
     CEventData result;
     gatherer.processFields(person, result, resourceMonitor);
     return *result.personId();
@@ -113,8 +113,8 @@ void addArrival(CDataGatherer& gatherer,
                 const std::string& influencer2) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
-    fieldValues.push_back(influencer1.empty() ? 0 : &influencer1);
-    fieldValues.push_back(influencer2.empty() ? 0 : &influencer2);
+    fieldValues.push_back(influencer1.empty() ? nullptr : &influencer1);
+    fieldValues.push_back(influencer2.empty() ? nullptr : &influencer2);
     std::string valueAsString(core::CStringUtils::typeToString(value));
     fieldValues.push_back(&valueAsString);
 

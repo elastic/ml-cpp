@@ -775,8 +775,8 @@ bool CEventRateBucketGatherer::processFields(const TStrCPtrVec& fieldValues, CEv
         return false;
     }
 
-    const std::string* person = (fieldValues[0] == 0 && m_DataGatherer.useNull()) ? &EMPTY_STRING : fieldValues[0];
-    if (person == 0) {
+    const std::string* person = (fieldValues[0] == nullptr && m_DataGatherer.useNull()) ? &EMPTY_STRING : fieldValues[0];
+    if (person == nullptr) {
         // Just ignore: the "person" field wasn't present in the
         // record. Note that we don't warn here since we'll permit
         // a small fraction of records to having missing field
@@ -846,9 +846,9 @@ bool CEventRateBucketGatherer::processFields(const TStrCPtrVec& fieldValues, CEv
     }
 
     if (m_DataGatherer.isPopulation()) {
-        const std::string* attribute = (fieldValues[1] == 0 && m_DataGatherer.useNull()) ? &EMPTY_STRING : fieldValues[1];
+        const std::string* attribute = (fieldValues[1] == nullptr && m_DataGatherer.useNull()) ? &EMPTY_STRING : fieldValues[1];
 
-        if (attribute == 0) {
+        if (attribute == nullptr) {
             // Just ignore: the "by" field wasn't present in the
             // record. This doesn't necessarily stop us processing
             // the record by other models so we don't return false.

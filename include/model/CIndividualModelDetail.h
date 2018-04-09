@@ -53,17 +53,17 @@ CIndividualModel::featureData(model_t::EFeature feature,
                               const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>& featureData) const {
     if (!this->bucketStatsAvailable(time)) {
         LOG_ERROR("No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
-        return 0;
+        return nullptr;
     }
 
     auto i = std::lower_bound(featureData.begin(), featureData.end(), feature, maths::COrderings::SFirstLess());
     if (i == featureData.end() || i->first != feature) {
         LOG_ERROR("No data for feature " << model_t::print(feature));
-        return 0;
+        return nullptr;
     }
 
     auto j = std::lower_bound(i->second.begin(), i->second.end(), pid, maths::COrderings::SFirstLess());
-    return (j != i->second.end() && j->first == pid) ? &j->second : 0;
+    return (j != i->second.end() && j->first == pid) ? &j->second : nullptr;
 }
 
 template<typename T, typename FILTER>

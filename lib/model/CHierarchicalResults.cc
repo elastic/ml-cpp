@@ -312,7 +312,7 @@ bool SResultSpec::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser
 }
 
 SNode::SNode()
-    : s_Parent(0),
+    : s_Parent(nullptr),
       s_AnnotatedProbability(1.0),
       s_Detector(-3),
       s_AggregationStyle(-1),
@@ -320,13 +320,13 @@ SNode::SNode()
       s_SmallestDescendantProbability(1.0),
       s_RawAnomalyScore(0.0),
       s_NormalizedAnomalyScore(0.0),
-      s_Model(0),
+      s_Model(nullptr),
       s_BucketStartTime(0),
       s_BucketLength(0) {
 }
 
 SNode::SNode(const SResultSpec& simpleSearch, SAnnotatedProbability& annotatedProbability)
-    : s_Parent(0),
+    : s_Parent(nullptr),
       s_Spec(simpleSearch),
       s_Detector(simpleSearch.s_Detector),
       s_AggregationStyle(-1),
@@ -334,7 +334,7 @@ SNode::SNode(const SResultSpec& simpleSearch, SAnnotatedProbability& annotatedPr
       s_SmallestDescendantProbability(1.0),
       s_RawAnomalyScore(0.0),
       s_NormalizedAnomalyScore(0.0),
-      s_Model(0),
+      s_Model(nullptr),
       s_BucketStartTime(0),
       s_BucketLength(0) {
     s_AnnotatedProbability.swap(annotatedProbability);
@@ -413,7 +413,7 @@ void SNode::acceptPersistInserter1(core::CStatePersistInserter& inserter, TNodeP
 }
 
 void SNode::acceptPersistInserter2(core::CStatePersistInserter& inserter, const TNodePtrSizeUMap& nodePointers) const {
-    if (s_Parent != 0) {
+    if (s_Parent != nullptr) {
         auto found = nodePointers.find(s_Parent);
         if (found == nodePointers.end()) {
             LOG_ERROR("Parent not in persistence hierarchy!");
@@ -561,7 +561,7 @@ void CHierarchicalResults::buildHierarchy() {
     // to the front of the deque (if there is one).
     auto simpleCountItr = m_Nodes.end();
     for (auto i = m_Nodes.begin(); i != m_Nodes.end(); ++i) {
-        i->s_Parent = 0;
+        i->s_Parent = nullptr;
         if (i->s_Spec.s_IsSimpleCount) {
             simpleCountItr = i;
         }
@@ -647,14 +647,14 @@ void CHierarchicalResults::createPivots() {
 
 const CHierarchicalResults::TNode* CHierarchicalResults::root() const {
     if (m_Nodes.empty()) {
-        return 0;
+        return nullptr;
     }
     if (m_Nodes.size() == 1) {
         return &m_Nodes.front();
     }
     const TNode& result = m_Nodes.back();
     if (isLeaf(result)) {
-        return 0;
+        return nullptr;
     }
     return &result;
 }
@@ -662,7 +662,7 @@ const CHierarchicalResults::TNode* CHierarchicalResults::root() const {
 const CHierarchicalResults::TNode* CHierarchicalResults::influencer(const TStoredStringPtr& influencerName,
                                                                     const TStoredStringPtr& influencerValue) const {
     auto i = m_PivotNodes.find({influencerName, influencerValue});
-    return i != m_PivotNodes.end() ? &i->second : 0;
+    return i != m_PivotNodes.end() ? &i->second : nullptr;
 }
 
 void CHierarchicalResults::bottomUpBreadthFirst(CHierarchicalResultsVisitor& visitor) const {

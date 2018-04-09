@@ -250,7 +250,7 @@ public:
         if (!this->isLeaf(node)) {
             bool willWriteAChild(false);
             for (size_t i = 0; i < node.s_Children.size(); ++i) {
-                CPPUNIT_ASSERT(node.s_Children[i] != 0);
+                CPPUNIT_ASSERT(node.s_Children[i] != nullptr);
                 willWriteAChild = this->shouldWriteResult(m_Limits, results, *node.s_Children[i], pivot);
                 if (willWriteAChild) {
                     break;
@@ -260,7 +260,7 @@ public:
         }
 
         if (!this->isRoot(node)) {
-            CPPUNIT_ASSERT(node.s_Parent != 0);
+            CPPUNIT_ASSERT(node.s_Parent != nullptr);
             if (isTypeForWhichWeWriteResults(*node.s_Parent, pivot)) {
                 CPPUNIT_ASSERT(this->shouldWriteResult(m_Limits, results, *node.s_Parent, pivot));
             }

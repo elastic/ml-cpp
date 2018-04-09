@@ -476,10 +476,10 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
 
 CProbabilityAndInfluenceCalculator::CProbabilityAndInfluenceCalculator(double cutoff)
     : m_Cutoff(cutoff),
-      m_InfluenceCalculator(0),
+      m_InfluenceCalculator(nullptr),
       m_ProbabilityTemplate(CModelTools::CProbabilityAggregator::E_Min),
       m_Probability(CModelTools::CProbabilityAggregator::E_Min),
-      m_ProbabilityCache(0) {
+      m_ProbabilityCache(nullptr) {
 }
 
 bool CProbabilityAndInfluenceCalculator::empty() const {
@@ -662,7 +662,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
         return;
     }
 
-    const std::string* influencerValue = 0;
+    const std::string* influencerValue = nullptr;
     if (influencerValues.empty()) {
         for (std::size_t i = 0u; i < params.s_PartitioningFields.size(); ++i) {
             if (params.s_PartitioningFields[i].first.get() == influencerName) {
@@ -699,7 +699,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
         return;
     }
 
-    const std::string* influencerValue = 0;
+    const std::string* influencerValue = nullptr;
     if (influencerValues.empty()) {
         for (std::size_t i = 0u; i < params.s_PartitioningFields.size(); ++i) {
             if (params.s_PartitioningFields[i].first.get() == influencerName) {
@@ -773,7 +773,7 @@ void CProbabilityAndInfluenceCalculator::commitInfluences(model_t::EFeature feat
 
 CProbabilityAndInfluenceCalculator::SParams::SParams(const CPartitioningFields& partitioningFields)
     : s_Feature(),
-      s_Model(0),
+      s_Model(nullptr),
       s_ElapsedTime(0),
       s_Count(0.0),
       s_Probability(1.0),
@@ -789,7 +789,7 @@ std::string CProbabilityAndInfluenceCalculator::SParams::describe() const {
 
 CProbabilityAndInfluenceCalculator::SCorrelateParams::SCorrelateParams(const CPartitioningFields& partitioningFields)
     : s_Feature(),
-      s_Model(0),
+      s_Model(nullptr),
       s_ElapsedTime(0),
       s_Probability(1.0),
       s_PartitioningFields(partitioningFields),
