@@ -159,7 +159,7 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
     if (m_HasPruningStarted == false) {
         // The longest we'll consider keeping priors for is 1M buckets.
         CAnomalyDetectorModel* model = m_Models.begin()->first;
-        if (model == 0) {
+        if (model == nullptr) {
             return false;
         }
         m_PruneWindowMaximum = model->defaultPruneWindow();

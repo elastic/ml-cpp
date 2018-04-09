@@ -244,7 +244,7 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
     return true;
 }
 
-CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache() : m_Prior(0), m_SmallestProbability(1.0) {
+CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache() : m_Prior(nullptr), m_SmallestProbability(1.0) {
 }
 
 CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(const maths::CMultinomialConjugate& prior)

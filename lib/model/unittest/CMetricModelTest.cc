@@ -97,7 +97,7 @@ void makeModel(CMetricModelFactory& factory,
                core_t::TTime bucketLength,
                CModelFactory::TDataGathererPtr& gatherer,
                CAnomalyDetectorModel::TModelPtr& model,
-               unsigned int* sampleCount = 0) {
+               unsigned int* sampleCount = nullptr) {
     factory.features(features);
     factory.bucketLength(bucketLength);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
@@ -115,7 +115,7 @@ void makeModel(CMetricModelFactory& factory,
 std::size_t addPerson(const std::string& p, const CModelFactory::TDataGathererPtr& gatherer, CResourceMonitor& resourceMonitor) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
-    person.resize(gatherer->fieldsOfInterest().size(), 0);
+    person.resize(gatherer->fieldsOfInterest().size(), nullptr);
     CEventData result;
     gatherer->processFields(person, result, resourceMonitor);
     return *result.personId();

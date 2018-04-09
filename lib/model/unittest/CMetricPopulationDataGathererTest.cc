@@ -108,7 +108,7 @@ void addArrival(const SMessage& message, CDataGatherer& gatherer, CResourceMonit
     fields.push_back(&message.s_Attribute);
     for (std::size_t i = 0u; i < message.s_Influences.size(); ++i) {
         if (message.s_Influences[i].empty()) {
-            fields.push_back(static_cast<std::string*>(0));
+            fields.push_back(static_cast<std::string*>(nullptr));
         } else {
             fields.push_back(&message.s_Influences[i]);
         }

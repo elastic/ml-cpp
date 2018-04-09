@@ -487,7 +487,7 @@ const maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::siz
 maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::size_t pid) {
     auto i = std::find_if(
         m_FeatureModels.begin(), m_FeatureModels.end(), [feature](const SFeatureModels& model) { return model.s_Feature == feature; });
-    return i != m_FeatureModels.end() && pid < i->s_Models.size() ? i->s_Models[pid].get() : 0;
+    return i != m_FeatureModels.end() && pid < i->s_Models.size() ? i->s_Models[pid].get() : nullptr;
 }
 
 void CIndividualModel::sampleCorrelateModels(const maths_t::TWeightStyleVec& weightStyles) {
