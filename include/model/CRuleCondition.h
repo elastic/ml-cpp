@@ -34,7 +34,7 @@ public:
     using TPatternSetCRef = boost::reference_wrapper<const core::CPatternSet>;
 
 public:
-    enum ERuleConditionType { E_Categorical, E_NumericalActual, E_NumericalTypical, E_NumericalDiffAbs, E_Time };
+    enum ERuleConditionType { E_CategoricalMatch, E_CategoricalComplement, E_NumericalActual, E_NumericalTypical, E_NumericalDiffAbs, E_Time };
 
     enum EConditionOperator { E_LT, E_LTE, E_GT, E_GTE };
 
@@ -67,6 +67,8 @@ public:
     void valueFilter(const core::CPatternSet& valueFilter);
 
     //! Is the condition categorical?
+    //! Categorical conditions are pattern match conditions i.e.
+    //! E_CategoricalMatch and E_CategoricalComplement
     bool isCategorical() const;
 
     //! Is the condition numerical?

@@ -64,7 +64,7 @@ void CRuleCondition::valueFilter(const core::CPatternSet& valueFilter) {
 }
 
 bool CRuleCondition::isCategorical() const {
-    return m_Type == E_Categorical;
+    return m_Type == E_CategoricalMatch || m_Type == E_CategoricalComplement;
 }
 
 bool CRuleCondition::isNumerical() const {
@@ -81,16 +81,19 @@ bool CRuleCondition::test(const CAnomalyDetectorModel& model,
     const CDataGatherer& gatherer = model.dataGatherer();
 
     if (this->isCategorical()) {
+        bool containsValue{false};
         if (m_FieldName == gatherer.partitionFieldName()) {
-            return m_ValueFilter.get().contains(gatherer.partitionFieldValue());
+            containsValue = m_ValueFilter.get().contains(gatherer.partitionFieldValue());
         } else if (m_FieldName == gatherer.personFieldName()) {
-            return m_ValueFilter.get().contains(gatherer.personName(pid));
+            containsValue = m_ValueFilter.get().contains(gatherer.personName(pid));
         } else if (m_FieldName == gatherer.attributeFieldName()) {
-            return m_ValueFilter.get().contains(gatherer.attributeName(cid));
+            containsValue = m_ValueFilter.get().contains(gatherer.attributeName(cid));
         } else {
             LOG_ERROR("Unexpected fieldName = " << m_FieldName);
             return false;
         }
+
+        return (m_Type == E_CategoricalComplement) ? !containsValue : containsValue;
     } else {
         if (m_FieldValue.empty() == false) {
             if (isScoped) {
@@ -129,7 +132,8 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
                                     core_t::TTime time) const {
     TDouble1Vec value;
     switch (m_Type) {
-    case E_Categorical: {
+    case E_CategoricalMatch:
+    case E_CategoricalComplement: {
         LOG_ERROR("Should never check numerical condition for categorical rule condition");
         return false;
     }
@@ -189,7 +193,11 @@ std::string CRuleCondition::print() const {
         result += ")";
     }
     result += " ";
+
     if (this->isCategorical()) {
+        if (m_Type == E_CategoricalComplement) {
+            result += "NOT ";
+        }
         result += "IN FILTER";
     } else {
         result += this->print(m_Condition.s_Op) + " " + core::CStringUtils::typeToString(m_Condition.s_Threshold);
@@ -199,7 +207,8 @@ std::string CRuleCondition::print() const {
 
 std::string CRuleCondition::print(ERuleConditionType type) const {
     switch (type) {
-    case E_Categorical:
+    case E_CategoricalMatch:
+    case E_CategoricalComplement:
         return "";
     case E_NumericalActual:
         return "ACTUAL";
