@@ -32,6 +32,8 @@ const std::string TARGET_FIELD_NAME("target_field_name");
 const std::string TARGET_FIELD_VALUE("target_field_value");
 const std::string TYPE("type");
 const std::string CATEGORICAL("categorical");
+const std::string CATEGORICAL_MATCH("categorical_match");
+const std::string CATEGORICAL_COMPLEMENT("categorical_complement");
 const std::string NUMERICAL_ACTUAL("numerical_actual");
 const std::string NUMERICAL_TYPICAL("numerical_typical");
 const std::string NUMERICAL_DIFF_ABS("numerical_diff_abs");
@@ -237,8 +239,10 @@ bool CDetectionRulesJsonParser::parseRuleConditionType(const rapidjson::Value& r
     }
 
     const std::string& type = ruleConditionObject[TYPE.c_str()].GetString();
-    if (type == CATEGORICAL) {
-        ruleCondition.type(model::CRuleCondition::E_Categorical);
+    if (type == CATEGORICAL_MATCH || type == CATEGORICAL){
+        ruleCondition.type(model::CRuleCondition::E_CategoricalMatch);
+    } else if (type == CATEGORICAL_COMPLEMENT) {
+        ruleCondition.type(model::CRuleCondition::E_CategoricalComplement);
     } else if (type == NUMERICAL_ACTUAL) {
         ruleCondition.type(model::CRuleCondition::E_NumericalActual);
     } else if (type == NUMERICAL_TYPICAL) {
