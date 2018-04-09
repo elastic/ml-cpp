@@ -38,7 +38,7 @@ CMultiFileDataAdder::TOStreamP CMultiFileDataAdder::addStreamed(const std::strin
 
 bool CMultiFileDataAdder::streamComplete(TOStreamP& strm, bool /*force*/) {
     std::ofstream* ofs(dynamic_cast<std::ofstream*>(strm.get()));
-    if (ofs == 0) {
+    if (ofs == nullptr) {
         return false;
     }
 

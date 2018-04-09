@@ -29,7 +29,7 @@ namespace api {
 const size_t CLengthEncodedInputParser::WORK_BUFFER_SIZE(8192); // 8kB
 
 CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream& strmIn)
-    : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(0), m_WorkBufferPtr(0), m_WorkBufferEnd(0), m_NoMoreRecords(false) {
+    : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(nullptr), m_WorkBufferPtr(nullptr), m_WorkBufferEnd(nullptr), m_NoMoreRecords(false) {
     // This test is not ideal because std::cin's stream buffer could have been
     // changed
     if (strmIn.rdbuf() == std::cin.rdbuf()) {
@@ -106,7 +106,7 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
     // for the delimiter and then memcpy() to transfer data to the target
     // std::string, but sadly this is not the case for the Microsoft and Apache
     // STLs.
-    if (m_WorkBuffer.get() == 0) {
+    if (m_WorkBuffer == nullptr) {
         m_WorkBuffer.reset(new char[WORK_BUFFER_SIZE]);
         m_WorkBufferPtr = m_WorkBuffer.get();
         m_WorkBufferEnd = m_WorkBufferPtr;

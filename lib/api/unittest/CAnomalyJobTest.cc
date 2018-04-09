@@ -1442,7 +1442,7 @@ void CAnomalyJobTest::testBucketSelection() {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, nullptr, 1000);
         CResultsScoreVisitor visitor(10);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1000);
@@ -1452,7 +1452,7 @@ void CAnomalyJobTest::testBucketSelection() {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, nullptr, 1000);
         CResultsScoreVisitor visitor(20);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1050);
@@ -1462,7 +1462,7 @@ void CAnomalyJobTest::testBucketSelection() {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, nullptr, 1000);
         CResultsScoreVisitor visitor(15);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1100);
@@ -1473,7 +1473,7 @@ void CAnomalyJobTest::testBucketSelection() {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, nullptr, 1000);
         CResultsScoreVisitor visitor(20);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1150);
@@ -1484,7 +1484,7 @@ void CAnomalyJobTest::testBucketSelection() {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, nullptr, 1000);
         CResultsScoreVisitor visitor(25);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1200);
@@ -1495,7 +1495,7 @@ void CAnomalyJobTest::testBucketSelection() {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, nullptr, 1000);
         CResultsScoreVisitor visitor(0);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1250);
@@ -1506,7 +1506,7 @@ void CAnomalyJobTest::testBucketSelection() {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, nullptr, 1000);
         CResultsScoreVisitor visitor(5);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1300);
@@ -1517,7 +1517,7 @@ void CAnomalyJobTest::testBucketSelection() {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, nullptr, 1000);
         CResultsScoreVisitor visitor(5);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1350);
@@ -1528,7 +1528,7 @@ void CAnomalyJobTest::testBucketSelection() {
         model::SAnnotatedProbability prob(1.0);
 
         model::CHierarchicalResults results;
-        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, 0, 1000);
+        results.addModelResult(0, false, "mean", model::function_t::E_IndividualMetricMean, "", "", "", "", "value", prob, nullptr, 1000);
         CResultsScoreVisitor visitor(1);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1400);

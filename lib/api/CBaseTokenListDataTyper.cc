@@ -169,7 +169,7 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
                                                   std::string& part2,
                                                   size_t& maxMatchingLength,
                                                   bool& wasCached) {
-    if (m_ReverseSearchCreator == 0) {
+    if (m_ReverseSearchCreator == nullptr) {
         LOG_ERROR("Cannot create reverse search - no reverse search creator");
 
         part1.clear();

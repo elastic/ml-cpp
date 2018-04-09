@@ -39,7 +39,7 @@ namespace {
 // for line buffering as a request for full buffering, so this doesn't do what
 // it says on the tin on all platforms.  However, it still has a beneficial
 // effect on unit test performance.)
-const int DO_NOT_USE_THIS_VARIABLE(::setvbuf(stderr, 0, _IOLBF, 16384));
+const int DO_NOT_USE_THIS_VARIABLE(::setvbuf(stderr, nullptr, _IOLBF, 16384));
 
 const std::string LIB_DIR("lib");
 const std::string BIN_DIR("bin");
@@ -164,7 +164,7 @@ bool CTestRunner::timeTests(const std::string& topPath, const std::string& testP
     CppUnit::TestResultCollector resultCollector;
 
     // m_eventManager is a protected member in the base class
-    if (m_eventManager != 0) {
+    if (m_eventManager != nullptr) {
         m_eventManager->addListener(&testTimer);
         m_eventManager->addListener(&resultCollector);
     } else {
@@ -181,7 +181,7 @@ bool CTestRunner::timeTests(const std::string& topPath, const std::string& testP
         }
     }
 
-    if (m_eventManager != 0) {
+    if (m_eventManager != nullptr) {
         std::ofstream xmlResultFile(XML_RESULT_FILE_NAME.c_str());
         if (xmlResultFile.is_open()) {
             CppUnit::XmlOutputter xmlOutputter(&resultCollector, xmlResultFile);

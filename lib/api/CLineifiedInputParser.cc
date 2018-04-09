@@ -19,7 +19,7 @@ const char CLineifiedInputParser::LINE_END('\n');
 const size_t CLineifiedInputParser::WORK_BUFFER_SIZE(131072); // 128kB
 
 CLineifiedInputParser::CLineifiedInputParser(std::istream& strmIn)
-    : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(0), m_WorkBufferCapacity(0), m_WorkBufferPtr(0), m_WorkBufferEnd(0) {
+    : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(nullptr), m_WorkBufferCapacity(0), m_WorkBufferPtr(nullptr), m_WorkBufferEnd(nullptr) {
 }
 
 CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine() {
@@ -30,7 +30,7 @@ CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine() {
     // for the delimiter and then memcpy() to transfer data to the target
     // std::string, but sadly this is not the case for the Microsoft and Apache
     // STLs.
-    if (m_WorkBuffer.get() == 0) {
+    if (m_WorkBuffer == nullptr) {
         m_WorkBuffer.reset(new char[WORK_BUFFER_SIZE]);
         m_WorkBufferCapacity = WORK_BUFFER_SIZE;
         m_WorkBufferPtr = m_WorkBuffer.get();
@@ -41,7 +41,7 @@ CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine() {
         size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
         if (avail > 0) {
             char* delimPtr(reinterpret_cast<char*>(::memchr(m_WorkBufferPtr, LINE_END, avail)));
-            if (delimPtr != 0) {
+            if (delimPtr) {
                 *delimPtr = '\0';
                 TCharPSizePr result(m_WorkBufferPtr, delimPtr - m_WorkBufferPtr);
                 m_WorkBufferPtr = delimPtr + 1;
@@ -82,7 +82,7 @@ CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine() {
         m_WorkBufferEnd += bytesRead;
     }
 
-    return TCharPSizePr(static_cast<char*>(0), 0);
+    return TCharPSizePr(static_cast<char*>(nullptr), 0);
 }
 
 void CLineifiedInputParser::resetBuffer() {
