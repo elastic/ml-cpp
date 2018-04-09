@@ -31,7 +31,7 @@ namespace core {
 const core_t::TTime CTimeUtils::MAX_CLOCK_DISCREPANCY(300);
 
 core_t::TTime CTimeUtils::now() {
-    return ::time(0);
+    return ::time(nullptr);
 }
 
 std::string CTimeUtils::toIso8601(core_t::TTime t) {
@@ -70,7 +70,7 @@ bool CTimeUtils::strptimeSilent(const std::string& format, const std::string& da
     ::memset(&t, 0, sizeof(struct tm));
 
     const char* ret(CStrPTime::strPTime(dateTime.c_str(), format.c_str(), &t));
-    if (ret == 0) {
+    if (ret == nullptr) {
         return false;
     }
 
@@ -147,10 +147,10 @@ bool CTimeUtils::isDateWord(const std::string& word) {
 
 // Initialise statics for the inner class CDateWordCache
 CFastMutex CTimeUtils::CDateWordCache::ms_InitMutex;
-volatile CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance(0);
+volatile CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance(nullptr);
 
 const CTimeUtils::CDateWordCache& CTimeUtils::CDateWordCache::instance() {
-    if (ms_Instance == 0) {
+    if (ms_Instance == nullptr) {
         CScopedFastLock lock(ms_InitMutex);
 
         // Even if we get into this code block in more than one thread, whatever
@@ -246,7 +246,7 @@ CTimeUtils::CDateWordCache::CDateWordCache() {
 }
 
 CTimeUtils::CDateWordCache::~CDateWordCache() {
-    ms_Instance = 0;
+    ms_Instance = nullptr;
 }
 }
 }

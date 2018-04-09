@@ -270,7 +270,7 @@ public:
 public:
     //! Default template.
     template<typename T>
-    static std::size_t dynamicSize(const T& t, typename boost::disable_if<typename boost::is_pointer<T>>::type* = 0) {
+    static std::size_t dynamicSize(const T& t, typename boost::disable_if<typename boost::is_pointer<T>>::type* = nullptr) {
         std::size_t mem = 0;
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
             mem += memory_detail::SMemoryDynamicSize<T>::dispatch(t);
@@ -280,8 +280,8 @@ public:
 
     //! Overload for pointer.
     template<typename T>
-    static std::size_t dynamicSize(const T& t, typename boost::enable_if<typename boost::is_pointer<T>>::type* = 0) {
-        if (t == 0) {
+    static std::size_t dynamicSize(const T& t, typename boost::enable_if<typename boost::is_pointer<T>>::type* = nullptr) {
+        if (t == nullptr) {
             return 0;
         }
         return staticSize(*t) + dynamicSize(*t);
@@ -650,7 +650,7 @@ public:
     static void dynamicSize(const char* name,
                             const T& t,
                             CMemoryUsage::TMemoryUsagePtr mem,
-                            typename boost::disable_if<typename boost::is_pointer<T>>::type* = 0) {
+                            typename boost::disable_if<typename boost::is_pointer<T>>::type* = nullptr) {
         memory_detail::SDebugMemoryDynamicSize<T>::dispatch(name, t, mem);
     }
 
@@ -659,8 +659,8 @@ public:
     static void dynamicSize(const char* name,
                             const T& t,
                             CMemoryUsage::TMemoryUsagePtr mem,
-                            typename boost::enable_if<typename boost::is_pointer<T>>::type* = 0) {
-        if (t != 0) {
+                            typename boost::enable_if<typename boost::is_pointer<T>>::type* = nullptr) {
+        if (t != nullptr) {
             mem->addItem("ptr", CMemory::staticSize(*t));
             memory_detail::SDebugMemoryDynamicSize<T>::dispatch(name, *t, mem);
         }

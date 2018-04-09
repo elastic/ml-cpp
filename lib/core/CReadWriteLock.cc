@@ -25,7 +25,7 @@ namespace core {
 CReadWriteLock::CReadWriteLock() {
     // Valgrind can complain if this is not initialised
     memset(&m_ReadWriteLock, 0x00, sizeof(m_ReadWriteLock));
-    int ret(pthread_rwlock_init(&m_ReadWriteLock, 0));
+    int ret(pthread_rwlock_init(&m_ReadWriteLock, nullptr));
     if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }

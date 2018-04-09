@@ -81,7 +81,7 @@ std::string CXmlNodeWithChildren::dump(size_t indent) const {
     // Now add children at next level of indenting
     for (TChildNodePVecCItr childIter = m_Children.begin(); childIter != m_Children.end(); ++childIter) {
         const CXmlNodeWithChildren* child = childIter->get();
-        if (child != 0) {
+        if (child != nullptr) {
             strRep += child->dump(indent + 1);
         }
     }
