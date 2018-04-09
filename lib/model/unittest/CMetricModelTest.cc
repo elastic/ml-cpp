@@ -687,8 +687,7 @@ void CMetricModelTest::testProbabilityCalculationForMetric() {
     CMetricModel& model = static_cast<CMetricModel&>(*model_.get());
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
-    TMinAccumulator minProbabilities(2u);
-
+    maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2u);
     test::CRandomNumbers rng;
 
     core_t::TTime time = startTime;
@@ -746,8 +745,7 @@ void CMetricModelTest::testProbabilityCalculationForMedian() {
     CMetricModel& model = static_cast<CMetricModel&>(*model_.get());
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
-    TMinAccumulator minProbabilities(2u);
-
+    maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2u);
     test::CRandomNumbers rng;
 
     core_t::TTime time = startTime;
@@ -1081,8 +1079,8 @@ void CMetricModelTest::testInfluence() {
             TDoubleVec samples;
             rng.generateNormalSamples(mean, variance, bucketCount, samples);
 
-            TMinAccumulator min;
-            TMaxAccumulator max;
+            maths::CBasicStatistics::SMin<TDoubleStrPr>::TAccumulator min;
+            maths::CBasicStatistics::SMax<TDoubleStrPr>::TAccumulator max;
             for (std::size_t j = 0u; j < samples.size(); ++j) {
                 addArrival(*gatherer, m_ResourceMonitor, time, "p", samples[j], TOptionalStr(influencerValues[j]));
                 min.add(TDoubleStrPr(samples[j], influencerValues[j]));
