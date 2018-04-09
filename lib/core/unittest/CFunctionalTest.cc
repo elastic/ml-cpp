@@ -28,7 +28,7 @@ void CFunctionalTest::testIsNull() {
 
     {
         double five = 5.0;
-        double* null = 0;
+        double* null = nullptr;
         const double* notNull = &five;
         CPPUNIT_ASSERT(isNull(null));
         CPPUNIT_ASSERT(!isNull(notNull));
@@ -51,7 +51,7 @@ void CFunctionalTest::testDereference() {
     double one(1.0);
     double two(2.0);
     double three(3.0);
-    const double* null_ = 0;
+    const double* null_ = nullptr;
 
     core::CFunctional::SDereference<core::CFunctional::SIsNull> derefIsNull;
     boost::optional<const double*> null(null_);

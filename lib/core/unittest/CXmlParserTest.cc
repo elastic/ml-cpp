@@ -749,7 +749,7 @@ void CXmlParserTest::testParseSpeed() {
         ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
         CPPUNIT_ASSERT(parser.toNodeHierarchy(nodePool, rootNodePtr));
 
-        CPPUNIT_ASSERT(rootNodePtr != 0);
+        CPPUNIT_ASSERT(rootNodePtr != nullptr);
 
         nodePool.recycle(rootNodePtr);
     }

@@ -366,7 +366,7 @@ private:
         TScopedIntPArray matrixArary;
         int** matrix;
         matrix = this->setupBerghelRoachMatrix(maxDist, dataArray, matrixArary);
-        if (matrix == 0) {
+        if (matrix == nullptr) {
             return 0;
         }
 

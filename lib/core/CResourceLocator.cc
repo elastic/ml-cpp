@@ -39,7 +39,7 @@ std::string CResourceLocator::resourceDir() {
     COsFileFuncs::TStat buf;
     if (COsFileFuncs::stat(productionDir.c_str(), &buf) != 0) {
         const char* cppSrcHome(::getenv(CPP_SRC_HOME));
-        if (cppSrcHome != 0) {
+        if (cppSrcHome != nullptr) {
             std::string devDir(cppSrcHome);
             devDir += "/lib/core";
             if (COsFileFuncs::stat(devDir.c_str(), &buf) == 0) {
@@ -69,7 +69,7 @@ std::string CResourceLocator::logDir() {
 
 std::string CResourceLocator::cppRootDir() {
     const char* cppSrcHome(::getenv(CPP_SRC_HOME));
-    if (cppSrcHome == 0) {
+    if (cppSrcHome == nullptr) {
         // Assume we're in a unittest directory
         return "../../..";
     }

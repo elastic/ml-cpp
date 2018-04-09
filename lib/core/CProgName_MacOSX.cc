@@ -25,7 +25,7 @@ namespace core {
 
 std::string CProgName::progName() {
     const char* progName(::getprogname());
-    if (progName == 0) {
+    if (progName == nullptr) {
         return std::string();
     }
 

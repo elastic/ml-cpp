@@ -45,7 +45,7 @@ bool installNoOpSigIoHandler() {
     sigemptyset(&sa.sa_mask);
     sa.sa_handler = &noOpHandler;
     sa.sa_flags = 0;
-    return ::sigaction(SIGIO, &sa, 0) == 0;
+    return ::sigaction(SIGIO, &sa, nullptr) == 0;
 }
 
 const bool SIGIO_HANDLER_INSTALLED(installNoOpSigIoHandler());
@@ -54,19 +54,21 @@ const bool SIGIO_HANDLER_INSTALLED(installNoOpSigIoHandler());
 namespace ml {
 namespace core {
 
-CThread::CThread() : m_ThreadId(0) {
+CThread::TThreadId CThread::UNALLOCATED_THREAD_ID{};
+
+CThread::CThread() : m_ThreadId(UNALLOCATED_THREAD_ID) {
 }
 
 CThread::~CThread() {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadId != 0) {
+    if (m_ThreadId != UNALLOCATED_THREAD_ID) {
         LOG_ERROR("Trying to destroy a running thread. Call 'stop' before destroying");
     }
 }
 
 bool CThread::start() {
-    TThreadId dummy(0);
+    TThreadId dummy(UNALLOCATED_THREAD_ID);
 
     return this->start(dummy);
 }
@@ -74,16 +76,16 @@ bool CThread::start() {
 bool CThread::start(TThreadId& threadId) {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadId != 0) {
+    if (m_ThreadId != UNALLOCATED_THREAD_ID) {
         LOG_ERROR("Thread already running");
         threadId = m_ThreadId;
         return false;
     }
 
-    int ret = pthread_create(&m_ThreadId, 0, &CThread::threadFunc, this);
+    int ret = pthread_create(&m_ThreadId, nullptr, &CThread::threadFunc, this);
     if (ret != 0) {
         LOG_ERROR("Cannot create thread: " << ::strerror(ret));
-        threadId = 0;
+        threadId = UNALLOCATED_THREAD_ID;
         return false;
     }
 
@@ -95,7 +97,7 @@ bool CThread::start(TThreadId& threadId) {
 bool CThread::stop() {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadId == 0) {
+    if (m_ThreadId == UNALLOCATED_THREAD_ID) {
         LOG_ERROR("Thread not running");
         return false;
     }
@@ -108,12 +110,12 @@ bool CThread::stop() {
     // Signal to running thread to shutdown
     this->shutdown();
 
-    int ret = pthread_join(m_ThreadId, 0);
+    int ret = pthread_join(m_ThreadId, nullptr);
     if (ret != 0) {
         LOG_ERROR("Error joining thread: " << ::strerror(ret));
     }
 
-    m_ThreadId = 0;
+    m_ThreadId = UNALLOCATED_THREAD_ID;
 
     return true;
 }
@@ -121,7 +123,7 @@ bool CThread::stop() {
 bool CThread::waitForFinish() {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadId == 0) {
+    if (m_ThreadId == UNALLOCATED_THREAD_ID) {
         LOG_ERROR("Thread not running");
         return false;
     }
@@ -131,12 +133,12 @@ bool CThread::waitForFinish() {
         return false;
     }
 
-    int ret = pthread_join(m_ThreadId, 0);
+    int ret = pthread_join(m_ThreadId, nullptr);
     if (ret != 0) {
         LOG_ERROR("Error joining thread: " << ::strerror(ret));
     }
 
-    m_ThreadId = 0;
+    m_ThreadId = UNALLOCATED_THREAD_ID;
 
     return true;
 }
@@ -144,13 +146,13 @@ bool CThread::waitForFinish() {
 bool CThread::isStarted() const {
     CScopedLock lock(m_IdMutex);
 
-    return (m_ThreadId != 0);
+    return (m_ThreadId != UNALLOCATED_THREAD_ID);
 }
 
 bool CThread::cancelBlockedIo() {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadId == 0) {
+    if (m_ThreadId == UNALLOCATED_THREAD_ID) {
         LOG_ERROR("Thread not running");
         return false;
     }
@@ -203,7 +205,7 @@ CThread::TThreadRet STDCALL CThread::threadFunc(void* obj) {
 
     instance->run();
 
-    return 0;
+    return nullptr;
 }
 }
 }
