@@ -656,8 +656,6 @@ void CMetricModelTest::testMultivariateSample() {
 void CMetricModelTest::testProbabilityCalculationForMetric() {
     LOG_DEBUG("*** testProbabilityCalculationForMetric ***");
 
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
-
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
     SModelParams params(bucketLength);
@@ -720,8 +718,6 @@ void CMetricModelTest::testProbabilityCalculationForMetric() {
 
 void CMetricModelTest::testProbabilityCalculationForMedian() {
     LOG_DEBUG("*** testProbabilityCalculationForMedian ***");
-
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(10);
@@ -1039,8 +1035,6 @@ void CMetricModelTest::testProbabilityCalculationForLatLong() {
 void CMetricModelTest::testInfluence() {
     LOG_DEBUG("*** testInfluence ***");
 
-    using TMinAccumulator = maths::CBasicStatistics::SMin<TDoubleStrPr>::TAccumulator;
-    using TMaxAccumulator = maths::CBasicStatistics::SMax<TDoubleStrPr>::TAccumulator;
     using TStrDoubleDoubleTr = core::CTriple<std::string, double, double>;
     using TStrDoubleDoubleTrVec = std::vector<TStrDoubleDoubleTr>;
     using TStrDoubleDoubleTrVecVec = std::vector<TStrDoubleDoubleTrVec>;

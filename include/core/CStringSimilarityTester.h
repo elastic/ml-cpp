@@ -222,7 +222,6 @@ public:
         // one go for efficiency.  Then the current and previous column
         // pointers alternate between pointing and the first and second half
         // of the memory block.
-        using TScopedSizeArray = boost::scoped_array<size_t>;
         TScopedSizeArray data(new size_t[(secondLen + 1) * 2]);
         size_t* currentCol(data.get());
         size_t* prevCol(currentCol + (secondLen + 1));

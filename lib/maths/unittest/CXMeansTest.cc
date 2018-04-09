@@ -117,8 +117,6 @@ void CXMeansTest::testCluster() {
 
     // Test basic accessors and checksum functionality of cluster.
 
-    using TDoubleVec = std::vector<double>;
-
     maths::CSampling::seed();
 
     test::CRandomNumbers rng;
@@ -183,8 +181,6 @@ void CXMeansTest::testImproveStructure() {
     LOG_DEBUG("+-------------------------------------+");
 
     // Test improve structure finds an obvious split of the data.
-
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CSampling::seed();
 
