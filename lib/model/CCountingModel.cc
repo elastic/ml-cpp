@@ -379,7 +379,7 @@ std::string CCountingModel::printCurrentBucket() const {
 }
 
 CMemoryUsageEstimator* CCountingModel::memoryUsageEstimator() const {
-    return 0;
+    return nullptr;
 }
 }
 }

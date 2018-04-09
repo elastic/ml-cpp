@@ -32,7 +32,7 @@ using TDoubleVec = std::vector<double>;
 std::size_t addPerson(const std::string& p, const CModelFactory::TDataGathererPtr& gatherer) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
-    person.resize(gatherer->fieldsOfInterest().size(), 0);
+    person.resize(gatherer->fieldsOfInterest().size(), nullptr);
     CEventData result;
     CResourceMonitor resourceMonitor;
     gatherer->processFields(person, result, resourceMonitor);

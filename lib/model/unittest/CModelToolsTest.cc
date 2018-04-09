@@ -191,7 +191,7 @@ void CModelToolsTest::testProbabilityCache() {
     core_t::TTime bucketLength{1800};
 
     maths::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
-    maths::CUnivariateTimeSeriesModel model{params(bucketLength), 0, trend, multimodal(), 0, false};
+    maths::CUnivariateTimeSeriesModel model{params(bucketLength), 0, trend, multimodal(), nullptr, false};
     test::CRandomNumbers rng;
 
     core_t::TTime time_{0};

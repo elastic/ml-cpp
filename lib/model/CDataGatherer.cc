@@ -733,7 +733,7 @@ bool CDataGatherer::determineMetricCategory(TMetricCategoryVec& fieldMetricCateg
 }
 
 bool CDataGatherer::extractCountFromField(const std::string& fieldName, const std::string* fieldValue, std::size_t& count) const {
-    if (fieldValue == 0) {
+    if (fieldValue == nullptr) {
         // Treat not present as explicit null
         count = EXPLICIT_NULL_SUMMARY_COUNT;
         return true;
@@ -873,7 +873,7 @@ bool CDataGatherer::restoreBucketGatherer(const std::string& summaryCountFieldNa
             CEventRateBucketGatherer* gatherer = new CEventRateBucketGatherer(
                 *this, summaryCountFieldName, personFieldName, attributeFieldName, valueFieldName, influenceFieldNames, traverser);
 
-            if (gatherer == 0) {
+            if (gatherer == nullptr) {
                 LOG_ERROR("Failed to create gatherer");
                 return false;
             }
@@ -881,7 +881,7 @@ bool CDataGatherer::restoreBucketGatherer(const std::string& summaryCountFieldNa
         } else if (name == CBucketGatherer::METRIC_BUCKET_GATHERER_TAG) {
             CMetricBucketGatherer* gatherer = new CMetricBucketGatherer(
                 *this, summaryCountFieldName, personFieldName, attributeFieldName, valueFieldName, influenceFieldNames, traverser);
-            if (gatherer == 0) {
+            if (gatherer == nullptr) {
                 LOG_ERROR("Failed to create gatherer");
                 return false;
             }

@@ -882,7 +882,7 @@ const maths::CModel* CEventRatePopulationModel::model(model_t::EFeature feature,
 maths::CModel* CEventRatePopulationModel::model(model_t::EFeature feature, std::size_t cid) {
     auto i = std::find_if(
         m_FeatureModels.begin(), m_FeatureModels.end(), [feature](const SFeatureModels& model) { return model.s_Feature == feature; });
-    return i != m_FeatureModels.end() && cid < i->s_Models.size() ? i->s_Models[cid].get() : 0;
+    return i != m_FeatureModels.end() && cid < i->s_Models.size() ? i->s_Models[cid].get() : nullptr;
 }
 
 bool CEventRatePopulationModel::correlates(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const {

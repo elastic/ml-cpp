@@ -1002,7 +1002,7 @@ void CMetricPopulationModelTest::testFrequency() {
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
 
     CMetricPopulationModel* populationModel = dynamic_cast<CMetricPopulationModel*>(model.get());
-    CPPUNIT_ASSERT(populationModel != 0);
+    CPPUNIT_ASSERT(populationModel);
 
     core_t::TTime time = startTime;
     for (const auto& message : messages) {
@@ -1101,7 +1101,7 @@ void CMetricPopulationModelTest::testSampleRateWeight() {
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
 
     CMetricPopulationModel* populationModel = dynamic_cast<CMetricPopulationModel*>(model.get());
-    CPPUNIT_ASSERT(populationModel != 0);
+    CPPUNIT_ASSERT(populationModel);
 
     core_t::TTime time = startTime;
     for (const auto& message : messages) {
@@ -1197,7 +1197,7 @@ void CMetricPopulationModelTest::testPeriodicity() {
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
     CMetricPopulationModel* populationModel = dynamic_cast<CMetricPopulationModel*>(model.get());
-    CPPUNIT_ASSERT(populationModel != 0);
+    CPPUNIT_ASSERT(populationModel);
 
     TStrDoubleMap personProbabilitiesWithoutPeriodicity;
     TStrDoubleMap personProbabilitiesWithPeriodicity;
@@ -1274,7 +1274,7 @@ void CMetricPopulationModelTest::testPersistence() {
     CAnomalyDetectorModel::TModelPtr origModel(factory.makeModel(modelInitData));
 
     CMetricPopulationModel* populationModel = dynamic_cast<CMetricPopulationModel*>(origModel.get());
-    CPPUNIT_ASSERT(populationModel != 0);
+    CPPUNIT_ASSERT(populationModel);
 
     for (std::size_t i = 0u; i < messages.size(); ++i) {
         if (messages[i].s_Time >= startTime + bucketLength) {
@@ -1301,7 +1301,7 @@ void CMetricPopulationModelTest::testPersistence() {
     CAnomalyDetectorModel::TModelPtr restoredModel(factory.makeModel(modelInitData, traverser));
 
     populationModel = dynamic_cast<CMetricPopulationModel*>(restoredModel.get());
-    CPPUNIT_ASSERT(populationModel != 0);
+    CPPUNIT_ASSERT(populationModel);
 
     // The XML representation of the new data gatherer should be the same as the
     // original

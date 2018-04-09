@@ -397,11 +397,11 @@ double CAnomalyDetectorModel::learnRate(model_t::EFeature feature) const {
 const CInfluenceCalculator* CAnomalyDetectorModel::influenceCalculator(model_t::EFeature feature, std::size_t iid) const {
     if (iid >= m_InfluenceCalculators.size()) {
         LOG_ERROR("Influencer identifier " << iid << " out of range");
-        return 0;
+        return nullptr;
     }
     const TFeatureInfluenceCalculatorCPtrPrVec& calculators{m_InfluenceCalculators[iid]};
     auto result = std::lower_bound(calculators.begin(), calculators.end(), feature, maths::COrderings::SFirstLess());
-    return result != calculators.end() && result->first == feature ? result->second.get() : 0;
+    return result != calculators.end() && result->first == feature ? result->second.get() : nullptr;
 }
 
 const CAnomalyDetectorModel::TDoubleVec& CAnomalyDetectorModel::personBucketCounts() const {

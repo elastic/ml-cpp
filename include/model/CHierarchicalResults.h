@@ -264,7 +264,7 @@ public:
 
     //! Add a dummy result for a simple count detector.
     void addSimpleCountResult(SAnnotatedProbability& annotatedProbability,
-                              const CAnomalyDetectorModel* model = 0,
+                              const CAnomalyDetectorModel* model = nullptr,
                               core_t::TTime bucketStartTime = 0);
 
     //! Add a simple search result.
@@ -312,7 +312,7 @@ public:
                         const std::string& personFieldValue,
                         const std::string& valueFieldName,
                         SAnnotatedProbability& annotatedProbability,
-                        const CAnomalyDetectorModel* model = 0,
+                        const CAnomalyDetectorModel* model = nullptr,
                         core_t::TTime bucketStartTime = 0);
 
     //! Add the influencer called \p name.

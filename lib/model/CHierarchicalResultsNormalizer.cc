@@ -235,13 +235,13 @@ CHierarchicalResultsNormalizer::ERestoreOutcome CHierarchicalResultsNormalizer::
 
             isBucketNormalizerRestored = true;
         } else {
-            TWordNormalizerPrVec* normalizerVec = 0;
+            TWordNormalizerPrVec* normalizerVec = nullptr;
             TDictionary::TUInt64Array hashArray;
             if (!this->parseCue(cue, normalizerVec, hashArray)) {
                 return E_Corrupt;
             }
 
-            if (normalizerVec != 0) {
+            if (normalizerVec != nullptr) {
                 if (!traverser.next()) {
                     LOG_ERROR("Cannot restore hierarchical normalizer - end of object reached when " << CAnomalyScore::MLKEY_ATTRIBUTE
                                                                                                      << " was expected");
@@ -289,23 +289,23 @@ const CAnomalyScore::CNormalizer& CHierarchicalResultsNormalizer::bucketNormaliz
 
 const CAnomalyScore::CNormalizer* CHierarchicalResultsNormalizer::influencerBucketNormalizer(const std::string& influencerFieldName) const {
     const TNormalizer* normalizer = this->influencerBucketElement(influencerFieldName);
-    return normalizer ? normalizer->s_Normalizer.get() : 0;
+    return normalizer ? normalizer->s_Normalizer.get() : nullptr;
 }
 
 const CAnomalyScore::CNormalizer* CHierarchicalResultsNormalizer::influencerNormalizer(const std::string& influencerFieldName) const {
     const TNormalizer* normalizer = this->influencerElement(influencerFieldName);
-    return normalizer ? normalizer->s_Normalizer.get() : 0;
+    return normalizer ? normalizer->s_Normalizer.get() : nullptr;
 }
 
 const CAnomalyScore::CNormalizer* CHierarchicalResultsNormalizer::partitionNormalizer(const std::string& partitionFieldName) const {
     const TNormalizer* normalizer = this->partitionElement(partitionFieldName);
-    return normalizer ? normalizer->s_Normalizer.get() : 0;
+    return normalizer ? normalizer->s_Normalizer.get() : nullptr;
 }
 
 const CAnomalyScore::CNormalizer* CHierarchicalResultsNormalizer::personNormalizer(const std::string& partitionFieldName,
                                                                                    const std::string& personFieldName) const {
     const TNormalizer* normalizer = this->personElement(partitionFieldName, personFieldName);
-    return normalizer ? normalizer->s_Normalizer.get() : 0;
+    return normalizer ? normalizer->s_Normalizer.get() : nullptr;
 }
 
 const CAnomalyScore::CNormalizer* CHierarchicalResultsNormalizer::leafNormalizer(const std::string& partitionFieldName,
@@ -313,13 +313,13 @@ const CAnomalyScore::CNormalizer* CHierarchicalResultsNormalizer::leafNormalizer
                                                                                  const std::string& functionName,
                                                                                  const std::string& valueFieldName) const {
     const TNormalizer* normalizer = this->leafElement(partitionFieldName, personFieldName, functionName, valueFieldName);
-    return normalizer ? normalizer->s_Normalizer.get() : 0;
+    return normalizer ? normalizer->s_Normalizer.get() : nullptr;
 }
 
 bool CHierarchicalResultsNormalizer::parseCue(const std::string& cue,
                                               TWordNormalizerPrVec*& normalizers,
                                               TDictionary::TUInt64Array& hashArray) {
-    normalizers = 0;
+    normalizers = nullptr;
     std::size_t hashStartPos = 0;
 
     if (cue.compare(0, INFLUENCER_BUCKET_CUE_PREFIX.length(), INFLUENCER_BUCKET_CUE_PREFIX) == 0) {
