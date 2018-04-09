@@ -122,7 +122,7 @@ CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams& para
     if (config_t::hasArgument(function)) {
         throw std::logic_error(std::string("No argument supplied for '") + config_t::print(function) + "'");
     }
-    std::fill_n(m_FieldStatistics, constants::NUMBER_FIELD_INDICES, static_cast<const CFieldStatistics*>(nullptr));
+    std::fill_n(m_FieldStatistics, constants::NUMBER_FIELD_INDICES, nullptr);
 }
 
 CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams& params,
@@ -143,7 +143,7 @@ CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams& para
     } else {
         m_FunctionFields[constants::ARGUMENT_INDEX] = argument;
     }
-    std::fill_n(m_FieldStatistics, constants::NUMBER_FIELD_INDICES, static_cast<const CFieldStatistics*>(nullptr));
+    std::fill_n(m_FieldStatistics, constants::NUMBER_FIELD_INDICES, nullptr);
 }
 
 void CDetectorSpecification::swap(CDetectorSpecification& other) {

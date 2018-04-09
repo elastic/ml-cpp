@@ -1415,7 +1415,7 @@ void CAnomalyJob::populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec&
 const std::string* CAnomalyJob::fieldValue(const std::string& fieldName, const TStrStrUMap& dataRowFields) {
     TStrStrUMapCItr itr = fieldName.empty() ? dataRowFields.end() : dataRowFields.find(fieldName);
     const std::string& fieldValue(itr == dataRowFields.end() ? EMPTY_STRING : itr->second);
-    return !fieldName.empty() && fieldValue.empty() ? static_cast<const std::string*>(nullptr) : &fieldValue;
+    return !fieldName.empty() && fieldValue.empty() ? nullptr : &fieldValue;
 }
 
 void CAnomalyJob::addRecord(const TAnomalyDetectorPtr detector, core_t::TTime time, const TStrStrUMap& dataRowFields) {
