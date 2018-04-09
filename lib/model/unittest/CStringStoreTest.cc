@@ -44,7 +44,7 @@ public:
     void uniques(TStrCPtrUSet& result) const { result.insert(m_UniquePtrs.begin(), m_UniquePtrs.end()); }
 
     void propagateLastThreadAssert() {
-        if (m_LastException != 0) {
+        if (m_LastException) {
             throw *m_LastException;
         }
     }

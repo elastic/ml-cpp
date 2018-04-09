@@ -772,7 +772,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
                 CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength, partitioningFields, 1, p));
                 std::string correlated;
                 if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
-                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0 &&
+                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr &&
                     !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
                     correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
                 }
@@ -865,7 +865,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
                 CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength, partitioningFields, 1, p));
                 std::string correlated;
                 if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
-                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0 &&
+                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr &&
                     !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
                     correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
                 }
@@ -974,7 +974,7 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
             CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength, partitioningFields, 1, p));
             std::string correlated;
             if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
-                p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0 && !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
+                p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr && !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
                 correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
             }
             probabilities[pid].add(TDoubleSizeStrTr(p.s_Probability, i, correlated));
@@ -2729,7 +2729,7 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules() {
     // Check the last value times of the underlying models are the same
     const maths::CUnivariateTimeSeriesModel* timeSeriesModel =
         dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0));
-    CPPUNIT_ASSERT(timeSeriesModel != 0);
+    CPPUNIT_ASSERT(timeSeriesModel);
 
     core_t::TTime time = timeSeriesModel->trend().lastValueTime();
     CPPUNIT_ASSERT_EQUAL(model_t::sampleTime(model_t::E_IndividualCountByBucketAndPerson, startTime, bucketLength), time);
