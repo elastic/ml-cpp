@@ -169,10 +169,11 @@ void COrdinalTest::testLess() {
             CPPUNIT_ASSERT(s1[i] < s1[j]);
         }
     }
+
     CPPUNIT_ASSERT(s1[2] < s2[1]);
-    CPPUNIT_ASSERT(!(s1[3] < s2[0]));
+    CPPUNIT_ASSERT(!(s2[1] < s1[2]));
     CPPUNIT_ASSERT(s2[0] < s1[3]);
-    CPPUNIT_ASSERT(!(s2[3] < s1[0]));
+    CPPUNIT_ASSERT(!(s1[3] < s2[0]));
 }
 
 void COrdinalTest::testIsNan() {

@@ -591,7 +591,6 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
     // people are removed.
 
     using TSizeVec = std::vector<std::size_t>;
-    using TStrVec = std::vector<std::string>;
     using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
     using TStrFeatureDataPr = std::pair<std::string, SMetricFeatureData>;
@@ -737,7 +736,6 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes() {
     // attributes are removed.
 
     using TSizeVec = std::vector<std::size_t>;
-    using TStrVec = std::vector<std::string>;
     using TStrFeatureDataPr = std::pair<std::string, SMetricFeatureData>;
     using TStrFeatureDataPrVec = std::vector<TStrFeatureDataPr>;
 

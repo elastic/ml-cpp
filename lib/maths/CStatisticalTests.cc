@@ -165,8 +165,6 @@ void CStatisticalTests::CCramerVonMises::acceptPersistInserter(core::CStatePersi
 }
 
 void CStatisticalTests::CCramerVonMises::addF(double f) {
-    using TDoubleVec = std::vector<double>;
-
     if (m_F.size() == m_Size) {
         TDoubleVec ff;
         ff.reserve(m_F.size() + 1);
