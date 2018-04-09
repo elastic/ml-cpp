@@ -52,33 +52,33 @@ void CRapidXmlParserTest::testParse2() {
     ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
 
     CPPUNIT_ASSERT(parser.toNodeHierarchy(rootNodePtr));
-    CPPUNIT_ASSERT(rootNodePtr != 0);
+    CPPUNIT_ASSERT(rootNodePtr != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("syslog_parser"), rootNodePtr->name());
     CPPUNIT_ASSERT_EQUAL(rootNodePtr->name(), parser.rootElementName());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& parseTree = rootNodePtr->children();
     CPPUNIT_ASSERT_EQUAL(size_t(1), parseTree.size());
-    CPPUNIT_ASSERT(parseTree[0] != 0);
+    CPPUNIT_ASSERT(parseTree[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("parsetree"), parseTree[0]->name());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& expression = parseTree[0]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(2), expression.size());
-    CPPUNIT_ASSERT(expression[0] != 0);
+    CPPUNIT_ASSERT(expression[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("expression"), expression[0]->name());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& descriptionAndRegexes = expression[0]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(2), descriptionAndRegexes.size());
-    CPPUNIT_ASSERT(descriptionAndRegexes[0] != 0);
+    CPPUNIT_ASSERT(descriptionAndRegexes[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("description"), descriptionAndRegexes[0]->name());
     CPPUNIT_ASSERT_EQUAL(std::string("Transport node error"), descriptionAndRegexes[0]->value());
-    CPPUNIT_ASSERT(descriptionAndRegexes[1] != 0);
+    CPPUNIT_ASSERT(descriptionAndRegexes[1] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("regexes"), descriptionAndRegexes[1]->name());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& varbind = descriptionAndRegexes[1]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(2), varbind.size());
-    CPPUNIT_ASSERT(varbind[0] != 0);
+    CPPUNIT_ASSERT(varbind[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("varbind"), varbind[0]->name());
-    CPPUNIT_ASSERT(varbind[1] != 0);
+    CPPUNIT_ASSERT(varbind[1] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("varbind"), varbind[1]->name());
 
     // Test attributes
@@ -214,37 +214,38 @@ void CRapidXmlParserTest::testParse1(const ml::core::CRapidXmlParser& parser) {
     ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
 
     CPPUNIT_ASSERT(parser.toNodeHierarchy(rootNodePtr));
-    CPPUNIT_ASSERT(rootNodePtr != 0);
+    CPPUNIT_ASSERT(rootNodePtr != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("ItemSearchResponse"), rootNodePtr->name());
     CPPUNIT_ASSERT_EQUAL(rootNodePtr->name(), parser.rootElementName());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& firstLevelChildren = rootNodePtr->children();
     CPPUNIT_ASSERT_EQUAL(size_t(2), firstLevelChildren.size());
-    CPPUNIT_ASSERT(firstLevelChildren[0] != 0);
+    CPPUNIT_ASSERT(firstLevelChildren[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("OperationRequest"), firstLevelChildren[0]->name());
-    CPPUNIT_ASSERT(firstLevelChildren[1] != 0);
+    CPPUNIT_ASSERT(firstLevelChildren[1] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("Items"), firstLevelChildren[1]->name());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& opReqChildren = firstLevelChildren[0]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(4), opReqChildren.size());
-    CPPUNIT_ASSERT(opReqChildren[0] != 0);
+    CPPUNIT_ASSERT(opReqChildren[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("HTTPHeaders"), opReqChildren[0]->name());
-    CPPUNIT_ASSERT(opReqChildren[1] != 0);
+    CPPUNIT_ASSERT(opReqChildren[1] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("RequestId"), opReqChildren[1]->name());
     CPPUNIT_ASSERT_EQUAL(std::string("18CZWZFXKSV8F601AGMF"), opReqChildren[1]->value());
-    CPPUNIT_ASSERT(opReqChildren[2] != 0);
+    CPPUNIT_ASSERT(opReqChildren[2] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("Arguments"), opReqChildren[2]->name());
-    CPPUNIT_ASSERT(opReqChildren[3] != 0);
+    CPPUNIT_ASSERT(opReqChildren[3] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("RequestProcessingTime"), opReqChildren[3]->name());
     CPPUNIT_ASSERT_EQUAL(std::string("1.05041599273682"), opReqChildren[3]->value());
 
     // Test CDATA
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& itemsChildren = firstLevelChildren[1]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(13), itemsChildren.size());
-    CPPUNIT_ASSERT(itemsChildren[3] != 0);
+
+    CPPUNIT_ASSERT(itemsChildren[3] != nullptr);
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& item3Children = itemsChildren[3]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(4), item3Children.size());
-    CPPUNIT_ASSERT(item3Children[0] != 0);
+    CPPUNIT_ASSERT(item3Children[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("msg"), item3Children[0]->name());
     CPPUNIT_ASSERT_EQUAL(std::string("\n\
             Invalid Date of Birth. <br /><i>This is a test validation message from the server </i>\n\
@@ -252,14 +253,14 @@ void CRapidXmlParserTest::testParse1(const ml::core::CRapidXmlParser& parser) {
                          item3Children[0]->value());
 
     // Test escaped ampersand
-    CPPUNIT_ASSERT(itemsChildren[10] != 0);
+    CPPUNIT_ASSERT(itemsChildren[10] != nullptr);
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& item10Children = itemsChildren[10]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(3), item10Children.size());
-    CPPUNIT_ASSERT(item10Children[2] != 0);
+    CPPUNIT_ASSERT(item10Children[2] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("ItemAttributes"), item10Children[2]->name());
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& itemAttributesChildren = item10Children[2]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(4), itemAttributesChildren.size());
-    CPPUNIT_ASSERT(itemAttributesChildren[1] != 0);
+    CPPUNIT_ASSERT(itemAttributesChildren[1] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("Manufacturer"), itemAttributesChildren[1]->name());
     CPPUNIT_ASSERT_EQUAL(std::string("William Morrow & Company"), itemAttributesChildren[1]->value());
 }
@@ -310,7 +311,7 @@ void CRapidXmlParserTest::testParseSpeed() {
         ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
         CPPUNIT_ASSERT(parser.toNodeHierarchy(nodePool, rootNodePtr));
 
-        CPPUNIT_ASSERT(rootNodePtr != 0);
+        CPPUNIT_ASSERT(rootNodePtr != nullptr);
 
         nodePool.recycle(rootNodePtr);
     }

@@ -18,7 +18,7 @@ const char* CProcess::STARTED_MSG("Process Started.");
 const char* CProcess::STOPPING_MSG("Process Shutting Down.");
 const char* CProcess::STOPPED_MSG("Process Exiting.");
 
-CProcess::CProcess() : m_IsService(false), m_Initialised(false), m_Running(false), m_MlMainFunc(0) {
+CProcess::CProcess() : m_IsService(false), m_Initialised(false), m_Running(false), m_MlMainFunc(nullptr) {
 }
 
 CProcess& CProcess::instance() {
@@ -39,7 +39,7 @@ CProcess::TPid CProcess::parentId() const {
 }
 
 bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char* argv[]) {
-    if (mlMain == 0) {
+    if (mlMain == nullptr) {
         LOG_ABORT("NULL mlMain() function passed");
     }
 

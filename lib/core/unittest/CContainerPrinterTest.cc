@@ -49,7 +49,7 @@ void CContainerPrinterTest::testAll() {
     std::map<double, double*> map;
     map.insert(std::make_pair(1.1, &three));
     map.insert(std::make_pair(3.3, &fivePointOne));
-    map.insert(std::make_pair(1.0, static_cast<double*>(0)));
+    map.insert(std::make_pair(1.0, static_cast<double*>(nullptr)));
     LOG_DEBUG("map = " << CContainerPrinter::print(map));
     CPPUNIT_ASSERT_EQUAL(std::string("[(1, \"null\"), (1.1, 3), (3.3, 5.1)]"), CContainerPrinter::print(map));
 

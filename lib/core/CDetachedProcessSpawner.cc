@@ -247,7 +247,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
     for (size_t index = 0; index < args.size(); ++index) {
         argv.push_back(const_cast<char*>(args[index].c_str()));
     }
-    argv.push_back(static_cast<char*>(0));
+    argv.push_back(static_cast<char*>(nullptr));
 
     posix_spawn_file_actions_t fileActions;
     if (setupFileActions(&fileActions) == false) {

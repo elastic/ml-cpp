@@ -278,7 +278,7 @@ bool CJsonStateRestoreTraverser::advance() {
 
 void CJsonStateRestoreTraverser::logError() {
     const char* error(rapidjson::GetParseError_En(m_Reader.GetParseErrorCode()));
-    LOG_ERROR("Error parsing JSON at offset " << m_Reader.GetErrorOffset() << ": " << ((error != 0) ? error : "No message"));
+    LOG_ERROR("Error parsing JSON at offset " << m_Reader.GetErrorOffset() << ": " << ((error != nullptr) ? error : "No message"));
     this->setBadState();
 }
 

@@ -246,7 +246,7 @@ private:
     //! Print a non associative element pointer for debug.
     template<typename T>
     static std::string printElement(T* value) {
-        if (value == 0) {
+        if (value == nullptr) {
             return "\"null\"";
         }
         std::ostringstream result;
@@ -257,7 +257,7 @@ private:
     //! Print a std::auto_ptr.
     template<typename T>
     static std::string printElement(const std::auto_ptr<T>& value) {
-        if (value.get() == 0) {
+        if (value.get() == nullptr) {
             return "\"null\"";
         }
         std::ostringstream result;

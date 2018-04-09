@@ -203,7 +203,7 @@ public:
     inline const_pointer address(const_reference r) { return &r; }
 
     // memory allocation
-    inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = 0) {
+    inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = nullptr) {
         ms_Allocated += cnt;
         return reinterpret_cast<pointer>(::operator new(cnt * sizeof(T)));
     }
@@ -1052,7 +1052,7 @@ void CMemoryUsageTest::testSharedPointer() {
 
 void CMemoryUsageTest::testRawPointer() {
     LOG_DEBUG("*** testRawPointer ***");
-    std::string* strPtr = 0;
+    std::string* strPtr = nullptr;
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), core::CMemory::dynamicSize(strPtr));
 
     std::string foo = "abcdefghijklmnopqrstuvwxyz";

@@ -15,13 +15,13 @@ namespace ml {
 namespace core {
 
 CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string& rootName)
-    : m_LevelParent(m_Doc.allocate_node(rapidxml::node_element, this->nameFromCache(rootName), 0, rootName.length())),
+    : m_LevelParent(m_Doc.allocate_node(rapidxml::node_element, this->nameFromCache(rootName), nullptr, rootName.length())),
       m_ApproxLen(12 + rootName.length() * 2) {
     m_Doc.append_node(m_LevelParent);
 }
 
 CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string& rootName, const TStrStrMap& rootAttributes)
-    : m_LevelParent(m_Doc.allocate_node(rapidxml::node_element, this->nameFromCache(rootName), 0, rootName.length())),
+    : m_LevelParent(m_Doc.allocate_node(rapidxml::node_element, this->nameFromCache(rootName), nullptr, rootName.length())),
       m_ApproxLen(12 + rootName.length() * 2) {
     m_Doc.append_node(m_LevelParent);
 
@@ -29,7 +29,7 @@ CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string& 
         const std::string& name = iter->first;
         const std::string& value = iter->second;
         m_LevelParent->append_attribute(m_Doc.allocate_attribute(m_Doc.allocate_string(name.c_str(), name.length()),
-                                                                 value.empty() ? 0 : m_Doc.allocate_string(value.c_str(), value.length()),
+                                                                 value.empty() ? nullptr : m_Doc.allocate_string(value.c_str(), value.length()),
                                                                  name.length(),
                                                                  value.length()));
 
@@ -40,8 +40,7 @@ CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string& 
 void CRapidXmlStatePersistInserter::insertValue(const std::string& name, const std::string& value) {
     m_LevelParent->append_node(m_Doc.allocate_node(rapidxml::node_element,
                                                    this->nameFromCache(name),
-                                                   value.empty() ? 0 : m_Doc.allocate_string(value.c_str(), value.length()),
-
+                                                   value.empty() ? nullptr : m_Doc.allocate_string(value.c_str(), value.length()),
                                                    name.length(),
                                                    value.length()));
 
@@ -65,7 +64,7 @@ void CRapidXmlStatePersistInserter::toXml(bool indent, std::string& xml) const {
 }
 
 void CRapidXmlStatePersistInserter::newLevel(const std::string& name) {
-    TCharRapidXmlNode* child(m_Doc.allocate_node(rapidxml::node_element, this->nameFromCache(name), 0, name.length()));
+    TCharRapidXmlNode* child(m_Doc.allocate_node(rapidxml::node_element, this->nameFromCache(name), nullptr, name.length()));
     m_LevelParent->append_node(child);
 
     m_ApproxLen += 5 + name.length() * 2;
@@ -76,7 +75,7 @@ void CRapidXmlStatePersistInserter::newLevel(const std::string& name) {
 
 void CRapidXmlStatePersistInserter::endLevel() {
     TCharRapidXmlNode* levelGrandParent(m_LevelParent->parent());
-    if (levelGrandParent == 0) {
+    if (levelGrandParent == nullptr) {
         LOG_ERROR("Logic error - ending more levels than have been started");
         return;
     }

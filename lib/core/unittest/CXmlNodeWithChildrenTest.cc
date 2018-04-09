@@ -121,7 +121,7 @@ void CXmlNodeWithChildrenTest::testParserToNodeHierarchy() {
 
     CPPUNIT_ASSERT(parser.toNodeHierarchy(rootNodePtr));
 
-    CPPUNIT_ASSERT(rootNodePtr != 0);
+    CPPUNIT_ASSERT(rootNodePtr != nullptr);
 
     std::string strRep(rootNodePtr->dump());
     LOG_DEBUG("Indented representation of XML node hierarchy is:\n" << strRep);
@@ -156,7 +156,7 @@ void CXmlNodeWithChildrenTest::testPerformanceNoPool() {
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
         CPPUNIT_ASSERT(parser.toNodeHierarchy(rootNodePtr));
-        CPPUNIT_ASSERT(rootNodePtr != 0);
+        CPPUNIT_ASSERT(rootNodePtr != nullptr);
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
@@ -179,7 +179,7 @@ void CXmlNodeWithChildrenTest::testPerformanceWithPool() {
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
         CPPUNIT_ASSERT(parser.toNodeHierarchy(pool, rootNodePtr));
-        CPPUNIT_ASSERT(rootNodePtr != 0);
+        CPPUNIT_ASSERT(rootNodePtr != nullptr);
         pool.recycle(rootNodePtr);
     }
 
