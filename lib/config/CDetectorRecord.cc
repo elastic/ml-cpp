@@ -137,7 +137,7 @@ void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec& s
     for (TStrSizeUMapCItr i = uniques.begin(); i != uniques.end(); ++i) {
         m_FieldSchema[i->second] = std::make_pair(i->first, i->second);
     }
-    m_FieldValueTable.resize(m_FieldSchema.size() + 1, 0);
+    m_FieldValueTable.resize(m_FieldSchema.size() + 1, nullptr);
     m_HashedFieldValueTable.resize(m_FieldSchema.size() + 1, HASHER(NULL_STRING));
     LOG_TRACE("field schema = " << core::CContainerPrinter::print(m_FieldSchema));
 
@@ -172,7 +172,7 @@ void CDetectorRecordDirectAddressTable::detectorRecords(core_t::TTime time,
 
     for (std::size_t i = 0u; i < m_FieldSchema.size(); ++i) {
         TStrStrUMapCItr j = fieldValues.find(m_FieldSchema[i].first);
-        m_FieldValueTable[i] = j != fieldValues.end() ? &j->second : 0;
+        m_FieldValueTable[i] = j != fieldValues.end() ? &j->second : nullptr;
         m_HashedFieldValueTable[i] = HASHER(m_FieldValueTable[i] ? *m_FieldValueTable[i] : NULL_STRING);
     }
 

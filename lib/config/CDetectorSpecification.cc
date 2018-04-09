@@ -117,12 +117,12 @@ CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams& para
       m_Penalties(2 * params.candidateBucketLengths().size()),
       m_PenaltyDescriptions(2 * params.candidateBucketLengths().size()),
       m_Id(id),
-      m_CountStatistics(0) {
+      m_CountStatistics(nullptr) {
     this->initializePenalties();
     if (config_t::hasArgument(function)) {
         throw std::logic_error(std::string("No argument supplied for '") + config_t::print(function) + "'");
     }
-    std::fill_n(m_FieldStatistics, constants::NUMBER_FIELD_INDICES, static_cast<const CFieldStatistics*>(0));
+    std::fill_n(m_FieldStatistics, constants::NUMBER_FIELD_INDICES, nullptr);
 }
 
 CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams& params,
@@ -136,14 +136,14 @@ CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams& para
       m_Penalties(2 * params.candidateBucketLengths().size()),
       m_PenaltyDescriptions(2 * params.candidateBucketLengths().size()),
       m_Id(id),
-      m_CountStatistics(0) {
+      m_CountStatistics(nullptr) {
     this->initializePenalties();
     if (!config_t::hasArgument(function)) {
         LOG_ERROR("Ignoring argument '" + argument + "' for '" + config_t::print(function) + "'");
     } else {
         m_FunctionFields[constants::ARGUMENT_INDEX] = argument;
     }
-    std::fill_n(m_FieldStatistics, constants::NUMBER_FIELD_INDICES, static_cast<const CFieldStatistics*>(0));
+    std::fill_n(m_FieldStatistics, constants::NUMBER_FIELD_INDICES, nullptr);
 }
 
 void CDetectorSpecification::swap(CDetectorSpecification& other) {

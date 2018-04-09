@@ -37,7 +37,7 @@ const TGetStatistics STATISTIC[] = {
 }
 
 CDetectorFieldRolePenalty::CDetectorFieldRolePenalty(const CAutoconfigurerParams& params) : CPenalty(params) {
-    std::fill_n(m_FieldRolePenalties, constants::NUMBER_FIELD_INDICES, static_cast<const CPenalty*>(0));
+    std::fill_n(m_FieldRolePenalties, constants::NUMBER_FIELD_INDICES, nullptr);
 }
 
 CDetectorFieldRolePenalty* CDetectorFieldRolePenalty::clone() const {

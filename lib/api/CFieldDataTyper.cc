@@ -215,7 +215,7 @@ bool CFieldDataTyper::restoreState(core::CDataSearcher& restoreSearcher, core_t:
         decompressor.setStateRestoreSearch(ML_STATE_INDEX);
 
         core::CDataSearcher::TIStreamP strm(decompressor.search(1, 1));
-        if (strm == 0) {
+        if (strm == nullptr) {
             LOG_ERROR("Unable to connect to data store");
             return false;
         }
@@ -339,7 +339,7 @@ bool CFieldDataTyper::doPersistState(const CDataTyper::TPersistFunc& dataTyperPe
 
         core::CDataAdder::TOStreamP strm = compressor.addStreamed(ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE);
 
-        if (strm == 0) {
+        if (strm == nullptr) {
             LOG_ERROR("Failed to create persistence stream");
             return false;
         }
