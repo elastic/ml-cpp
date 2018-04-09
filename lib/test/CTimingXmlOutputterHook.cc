@@ -41,7 +41,7 @@ void CTimingXmlOutputterHook::failTestAdded(CppUnit::XmlDocument* /*document*/,
                                             CppUnit::XmlElement* testElement,
                                             CppUnit::Test* test,
                                             CppUnit::TestFailure* /*failure*/) {
-    if (testElement == 0 || test == 0) {
+    if (testElement == nullptr || test == nullptr) {
         return;
     }
 
@@ -53,7 +53,7 @@ void CTimingXmlOutputterHook::failTestAdded(CppUnit::XmlDocument* /*document*/,
 void CTimingXmlOutputterHook::successfulTestAdded(CppUnit::XmlDocument* /*document*/,
                                                   CppUnit::XmlElement* testElement,
                                                   CppUnit::Test* test) {
-    if (testElement == 0 || test == 0) {
+    if (testElement == nullptr || test == nullptr) {
         return;
     }
 
@@ -66,7 +66,7 @@ void CTimingXmlOutputterHook::successfulTestAdded(CppUnit::XmlDocument* /*docume
 }
 
 void CTimingXmlOutputterHook::statisticsAdded(CppUnit::XmlDocument* /*document*/, CppUnit::XmlElement* statisticsElement) {
-    if (statisticsElement == 0) {
+    if (statisticsElement == nullptr) {
         return;
     }
 

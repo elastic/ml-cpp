@@ -37,7 +37,7 @@ bool CLineifiedJsonInputParser::readStream(const TReaderFunc& readerFunc) {
     TStrStrUMap recordFields;
 
     char* begin(this->parseLine().first);
-    while (begin != 0) {
+    while (begin != nullptr) {
         rapidjson::Document document;
         if (this->parseDocument(begin, document) == false) {
             LOG_ERROR("Failed to parse JSON document");
