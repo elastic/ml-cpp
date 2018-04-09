@@ -424,7 +424,6 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
     try {
         std::string valueStr(propTree.get<std::string>(TERMS_PROPERTY));
 
-        using TStrVec = core::CStringUtils::TStrVec;
         TStrVec tokens;
         std::string remainder;
         core::CStringUtils::tokenise(",", valueStr, tokens, remainder);
@@ -744,8 +743,6 @@ const std::string PER_PARTITION_NORMALIZATION_PROPERTY("perPartitionNormalizatio
 }
 
 bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptree& propertyTree) {
-    using TStrVec = std::vector<std::string>;
-
     bool result = true;
 
     for (const auto& property : propertyTree) {

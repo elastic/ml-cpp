@@ -121,7 +121,6 @@ void importData(ml::core_t::TTime firstTime,
                 ml::model::CAnomalyDetector& detector) {
     using TifstreamPtr = boost::shared_ptr<std::ifstream>;
     using TifstreamPtrVec = std::vector<TifstreamPtr>;
-    using TTimeVec = std::vector<ml::core_t::TTime>;
 
     TifstreamPtrVec ifss;
     for (std::size_t i = 0u; i < fileNames.size(); ++i) {

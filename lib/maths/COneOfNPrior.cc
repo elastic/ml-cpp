@@ -837,11 +837,11 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
     //   P(m) is the prior probability the data are from the m'th model.
 
     using TDoubleTailPr = std::pair<double, maths_t::ETail>;
-    using TMaxAccumulator = CBasicStatistics::SMax<TDoubleTailPr>::TAccumulator;
+    using TDoubleTailPrMaxAccumulator = CBasicStatistics::SMax<TDoubleTailPr>::TAccumulator;
 
     TDoubleSizePr5Vec logWeights = this->normalizedLogWeights();
 
-    TMaxAccumulator tail_;
+    TDoubleTailPrMaxAccumulator tail_;
     for (std::size_t i = 0u; i < logWeights.size(); ++i) {
         double weight = std::exp(logWeights[i].first);
         const CPrior& model = *m_Models[logWeights[i].second].second;

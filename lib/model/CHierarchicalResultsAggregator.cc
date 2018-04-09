@@ -296,7 +296,6 @@ void CHierarchicalResultsAggregator::detectorProbabilities(const TNode& node,
                                                            int& detector,
                                                            int& aggregation,
                                                            TDouble1Vec& probabilities) {
-    using TDouble1Vec = core::CSmallVector<double, 1>;
     using TIntDouble1VecFMap = boost::container::flat_map<int, TDouble1Vec>;
 
     int fallback{static_cast<int>(model_t::E_AggregatePeople)};

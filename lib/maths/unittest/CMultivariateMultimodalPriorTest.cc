@@ -388,8 +388,6 @@ void CMultivariateMultimodalPriorTest::testSplitAndMerge() {
 
     // Test clustering which changes over time.
 
-    using TDoubleVecVecVec = std::vector<TDoubleVecVec>;
-
     maths::CSampling::seed();
 
     test::CRandomNumbers rng;
