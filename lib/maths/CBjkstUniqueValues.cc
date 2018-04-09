@@ -572,10 +572,7 @@ void CBjkstUniqueValues::SSketch::remove(uint32_t value) {
 }
 
 uint32_t CBjkstUniqueValues::SSketch::number() const {
-    using TUInt32Vec = std::vector<uint32_t>;
-
     // This uses the median trick to reduce the error.
-
     TUInt32Vec estimates;
     estimates.reserve(s_Z.size());
     for (std::size_t i = 0u; i < s_Z.size(); ++i) {

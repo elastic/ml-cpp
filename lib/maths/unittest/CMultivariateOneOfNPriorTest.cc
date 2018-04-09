@@ -637,7 +637,6 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean() {
 
     using TSizeVec = std::vector<std::size_t>;
     using TSizeVecVec = std::vector<TSizeVec>;
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
 
     maths::CSampling::seed();

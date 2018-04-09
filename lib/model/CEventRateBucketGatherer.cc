@@ -599,8 +599,6 @@ bool restoreUniqueStrings(core::CStateRestoreTraverser& traverser, CUniqueString
 //! Persist influencer collections of unique strings.
 void persistInfluencerUniqueStrings(const CUniqueStringFeatureData::TStoredStringPtrWordSetUMap& map,
                                     core::CStatePersistInserter& inserter) {
-    using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
-
     if (!map.empty()) {
         // Order the map keys to ensure consistent persistence
         TStoredStringPtrVec keys;

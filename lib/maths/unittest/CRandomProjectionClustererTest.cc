@@ -256,7 +256,6 @@ void CRandomProjectionClustererTest::testNeighbourhoods() {
     // isn't perfect because we don't store the full points so are
     // computing distances projections.
 
-    using TVector = maths::CVector<double>;
     using TVectorVec = std::vector<TVector>;
 
     test::CRandomNumbers rng;

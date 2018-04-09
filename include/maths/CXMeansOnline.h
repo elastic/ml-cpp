@@ -787,8 +787,8 @@ public:
                 this->cluster(x, clusters, count);
             }
         } else {
-            using TSizeDoublePr = std::pair<double, std::size_t>;
-            using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<TSizeDoublePr, 2, std::greater<TSizeDoublePr>>;
+            using TDoubleSizePr = std::pair<double, std::size_t>;
+            using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 2, std::greater<TDoubleSizePr>>;
 
             TMaxAccumulator closest;
             for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
