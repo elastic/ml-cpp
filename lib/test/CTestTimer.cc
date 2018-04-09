@@ -17,7 +17,7 @@ void CTestTimer::startTest(CppUnit::Test* /* test */) {
 }
 
 void CTestTimer::endTest(CppUnit::Test* test) {
-    if (test == 0) {
+    if (test == nullptr) {
         LOG_ERROR("Unexpected NULL pointer");
         return;
     }

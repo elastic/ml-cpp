@@ -23,9 +23,9 @@ bool setUpIStream(const std::string& fileName, bool isFileNamedPipe, core::CName
     }
     if (isFileNamedPipe) {
         stream = core::CNamedPipeFactory::openPipeStreamRead(fileName);
-        return stream != 0 && !stream->bad();
+        return stream != nullptr && !stream->bad();
     }
-    std::ifstream* fileStream(0);
+    std::ifstream* fileStream(nullptr);
     stream.reset(fileStream = new std::ifstream(fileName.c_str()));
     return fileStream->is_open();
 }
@@ -37,9 +37,9 @@ bool setUpOStream(const std::string& fileName, bool isFileNamedPipe, core::CName
     }
     if (isFileNamedPipe) {
         stream = core::CNamedPipeFactory::openPipeStreamWrite(fileName);
-        return stream != 0 && !stream->bad();
+        return stream != nullptr && !stream->bad();
     }
-    std::ofstream* fileStream(0);
+    std::ofstream* fileStream(nullptr);
     stream.reset(fileStream = new std::ofstream(fileName.c_str()));
     return fileStream->is_open();
 }
@@ -71,9 +71,9 @@ CIoManager::CIoManager(const std::string& inputFileName,
 
     // Untie the standard streams so that if std::cin and std::cout are used as
     // the primary IO mechanism they don't ruin each others buffering.
-    std::cin.tie(0);
-    std::cout.tie(0);
-    std::cerr.tie(0);
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+    std::cerr.tie(nullptr);
 }
 
 CIoManager::~CIoManager() {
@@ -88,7 +88,7 @@ bool CIoManager::initIo() {
 }
 
 std::istream& CIoManager::inputStream() {
-    if (m_InputStream != 0) {
+    if (m_InputStream != nullptr) {
         return *m_InputStream;
     }
 
@@ -100,7 +100,7 @@ std::istream& CIoManager::inputStream() {
 }
 
 std::ostream& CIoManager::outputStream() {
-    if (m_OutputStream != 0) {
+    if (m_OutputStream != nullptr) {
         return *m_OutputStream;
     }
 

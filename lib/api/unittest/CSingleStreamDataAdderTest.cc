@@ -153,7 +153,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
 
     std::string origPersistedState;
     {
-        std::ostringstream* strm(0);
+        std::ostringstream* strm(nullptr);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
         ml::api::CSingleStreamDataAdder persister(ptr);
         CPPUNIT_ASSERT(firstProcessor->persistState(persister));
@@ -205,7 +205,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
     // Finally, persist the new detector state and compare the result
     std::string newPersistedState;
     {
-        std::ostringstream* strm(0);
+        std::ostringstream* strm(nullptr);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
         ml::api::CSingleStreamDataAdder persister(ptr);
         CPPUNIT_ASSERT(restoredFirstProcessor->persistState(persister));

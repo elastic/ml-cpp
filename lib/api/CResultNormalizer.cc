@@ -84,7 +84,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
     std::string partitionKey = m_ModelConfig.perPartitionNormalization() ? partition + partitionValue : partition;
 
     if (isValidRecord) {
-        const model::CAnomalyScore::CNormalizer* levelNormalizer = 0;
+        const model::CAnomalyScore::CNormalizer* levelNormalizer = nullptr;
         double score = probability > m_ModelConfig.maximumAnomalousProbability() ? 0.0 : maths::CTools::deviation(probability);
         if (level == ROOT_LEVEL) {
             levelNormalizer = &m_Normalizer.bucketNormalizer();
@@ -99,7 +99,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
         } else {
             LOG_ERROR("Unexpected   : " << level);
         }
-        if (levelNormalizer != 0) {
+        if (levelNormalizer != nullptr) {
             if (levelNormalizer->canNormalize() && levelNormalizer->normalize(score) == false) {
                 LOG_ERROR("Failed to normalize score " << score << " at level " << level << " with partition field name " << partition
                                                        << " and person field name " << person);
