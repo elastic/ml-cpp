@@ -155,7 +155,7 @@ struct STypeInfoLess {
 //! that we can't simply check if capacity > N because N is treated
 //! as a guideline.
 template<typename T, std::size_t N>
-static bool inplace(const CSmallVector<T, N>& t) {
+bool inplace(const CSmallVector<T, N>& t) {
     const char* address = reinterpret_cast<const char*>(&t);
     const char* storage = reinterpret_cast<const char*>(t.data());
     return storage >= address && storage < address + sizeof t;
