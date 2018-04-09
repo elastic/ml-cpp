@@ -39,13 +39,13 @@ void CHexUtilsTest::testHexOutput() {
         strm3 << ml::core::CHexUtils(noData, false, false);
 
         std::ostringstream strm4;
-        strm4 << ml::core::CHexUtils(0, 0);
+        strm4 << ml::core::CHexUtils(nullptr, 0);
 
         std::ostringstream strm5;
-        strm5 << ml::core::CHexUtils(0, 0, false);
+        strm5 << ml::core::CHexUtils(nullptr, 0, false);
 
         std::ostringstream strm6;
-        strm6 << ml::core::CHexUtils(0, 0, false, false);
+        strm6 << ml::core::CHexUtils(nullptr, 0, false, false);
 
         CPPUNIT_ASSERT(strm1.str() == strm4.str());
         CPPUNIT_ASSERT(strm2.str() == strm5.str());

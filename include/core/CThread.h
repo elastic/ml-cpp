@@ -88,6 +88,9 @@ private:
     //! static so that we can take its address like a free function
     static TThreadRet STDCALL threadFunc(void* obj);
 
+    //! The ID used for unallocated threads
+    static TThreadId UNALLOCATED_THREAD_ID;
+
 private:
     //! ID of the most recently started thread
     TThreadId m_ThreadId;

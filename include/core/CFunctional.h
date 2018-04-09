@@ -23,7 +23,7 @@ public:
     struct CORE_EXPORT SIsNull {
         template<typename T>
         bool operator()(const T* ptr) const {
-            return ptr == 0;
+            return ptr == nullptr;
         }
 
         template<typename T>
@@ -33,7 +33,7 @@ public:
 
         template<typename T>
         bool operator()(boost::shared_ptr<T>& ptr) const {
-            return ptr == 0;
+            return ptr == nullptr;
         }
     };
 

@@ -73,10 +73,10 @@ int** CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist, TScopedIntAr
     // Ensure that we don't suffer memory corruption due to an incorrect input
     if (maxDist <= 0) {
         LOG_ERROR("Programmatic error - maxDist too small " << maxDist);
-        return 0;
+        return nullptr;
     } else if (maxDist >= std::numeric_limits<int>::max() / 2) {
         LOG_ERROR("Programmatic error - maxDist too big " << maxDist);
-        return 0;
+        return nullptr;
     }
 
     int rows(maxDist * 2 + 1);

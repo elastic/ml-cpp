@@ -77,7 +77,7 @@ core_t::TTime CTimezone::localToUtc(struct tm& localTime) const {
 }
 
 bool CTimezone::utcToLocal(core_t::TTime utcTime, struct tm& localTime) const {
-    if (::localtime_r(&utcTime, &localTime) == 0) {
+    if (::localtime_r(&utcTime, &localTime) == nullptr) {
         return false;
     }
     return true;
