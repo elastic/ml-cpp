@@ -27,6 +27,7 @@
 #include <maths/CRestoreParams.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/CRandomNumbersDetail.h>
 
 using namespace ml;
 

@@ -27,6 +27,7 @@
 #include <maths/CXMeansOnline1d.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/CRandomNumbersDetail.h>
 #include <test/CTimeSeriesTestData.h>
 
 #include <boost/range.hpp>

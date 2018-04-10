@@ -24,6 +24,7 @@
 #include <config/CDataSummaryStatistics.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/CRandomNumbersDetail.h>
 
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/lognormal.hpp>

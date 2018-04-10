@@ -23,6 +23,7 @@
 #include <maths/CProbabilityCalibrator.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/CRandomNumbersDetail.h>
 
 #include "TestUtils.h"
 
