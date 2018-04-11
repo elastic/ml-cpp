@@ -30,7 +30,7 @@ CDelimiter::CDelimiter(const std::string& delimiter)
       m_Quote('\0'),
       m_Escape('\0') {
     if (!m_Valid) {
-        LOG_ERROR("Unable to set delimiter regex to " << delimiter);
+        LOG_ERROR(<< "Unable to set delimiter regex to " << delimiter);
     }
 }
 
@@ -41,11 +41,11 @@ CDelimiter::CDelimiter(const std::string& delimiter, const std::string& followin
       m_Quote('\0'),
       m_Escape('\0') {
     if (!m_Valid) {
-        LOG_ERROR("Unable to set delimiter regex to " << delimiter);
+        LOG_ERROR(<< "Unable to set delimiter regex to " << delimiter);
     }
 
     if (!m_HaveFollowingRegex) {
-        LOG_ERROR("Unable to set following regex to " << followingRegex);
+        LOG_ERROR(<< "Unable to set following regex to " << followingRegex);
     }
 }
 
@@ -130,7 +130,7 @@ void CDelimiter::tokenise(const std::string& str,
     exampleDelimiter.clear();
 
     if (!m_Valid) {
-        LOG_ERROR("Cannot tokenise using invalid delimiter");
+        LOG_ERROR(<< "Cannot tokenise using invalid delimiter");
         remainder.clear();
         return;
     }
@@ -183,8 +183,8 @@ void CDelimiter::tokenise(const std::string& str,
 
         // Check for stray quotes
         if (!expectingQuote && quotePos <= delimStartPos) {
-            LOG_WARN("String to be delimited does not conform to config:"
-                     " quote pos "
+            LOG_WARN(<< "String to be delimited does not conform to config:"
+                        " quote pos "
                      << quotePos << " delim pos " << delimStartPos);
         }
 

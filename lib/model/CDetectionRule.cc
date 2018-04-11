@@ -90,7 +90,7 @@ bool CDetectionRule::isInScope(const CAnomalyDetectorModel& model, std::size_t p
     } else if (m_TargetFieldName == gatherer.attributeFieldName()) {
         return m_TargetFieldValue == gatherer.attributeName(cid);
     } else {
-        LOG_ERROR("Unexpected targetFieldName = " << m_TargetFieldName);
+        LOG_ERROR(<< "Unexpected targetFieldName = " << m_TargetFieldName);
     }
     return false;
 }

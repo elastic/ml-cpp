@@ -78,7 +78,7 @@ CTimezone::CTimezone() {
     path += "/date_time_zonespec.csv";
     try {
         m_TimezoneDb.load_from_file(path);
-    } catch (std::exception& ex) { LOG_ERROR("Failed to load Boost timezone database from " << path << " : " << ex.what()); }
+    } catch (std::exception& ex) { LOG_ERROR(<< "Failed to load Boost timezone database from " << path << " : " << ex.what()); }
 }
 
 CTimezone::~CTimezone() {
@@ -106,7 +106,7 @@ bool CTimezone::timezoneName(const std::string& name) {
 
     m_Timezone = m_TimezoneDb.time_zone_from_region(name);
     if (m_Timezone == 0) {
-        LOG_ERROR("Unable to set timezone to " << name << " - operating system timezone settings will be used instead");
+        LOG_ERROR(<< "Unable to set timezone to " << name << " - operating system timezone settings will be used instead");
         m_Name.clear();
 
         return false;
@@ -173,7 +173,7 @@ core_t::TTime CTimezone::localToUtc(struct tm& localTime) const {
         localTime.tm_isdst = 0;
     } catch (std::exception& ex) {
         // Any other exception represents an error in the input
-        LOG_ERROR("Error converting local time to UTC : " << ex.what());
+        LOG_ERROR(<< "Error converting local time to UTC : " << ex.what());
         errno = EINVAL;
         return 0;
     }

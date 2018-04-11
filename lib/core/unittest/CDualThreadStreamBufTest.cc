@@ -94,7 +94,7 @@ void CDualThreadStreamBufTest::testThroughput() {
     inputThread.start();
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting REST buffer throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting REST buffer throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
@@ -114,12 +114,12 @@ void CDualThreadStreamBufTest::testThroughput() {
     inputThread.waitForFinish();
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished REST buffer throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished REST buffer throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
     CPPUNIT_ASSERT_EQUAL(totalDataSize, inputThread.totalData());
 
-    LOG_INFO("REST buffer throughput test with test size " << TEST_SIZE << " (total data transferred " << totalDataSize << " bytes) took "
-                                                           << (end - start) << " seconds");
+    LOG_INFO(<< "REST buffer throughput test with test size " << TEST_SIZE << " (total data transferred " << totalDataSize
+             << " bytes) took " << (end - start) << " seconds");
 }
 
 void CDualThreadStreamBufTest::testSlowConsumer() {
@@ -134,7 +134,7 @@ void CDualThreadStreamBufTest::testSlowConsumer() {
     inputThread.start();
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting REST buffer slow consumer test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting REST buffer slow consumer test at " << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
@@ -152,13 +152,13 @@ void CDualThreadStreamBufTest::testSlowConsumer() {
     inputThread.waitForFinish();
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished REST buffer slow consumer test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished REST buffer slow consumer test at " << ml::core::CTimeUtils::toTimeString(end));
 
     CPPUNIT_ASSERT_EQUAL(totalDataSize, inputThread.totalData());
 
     ml::core_t::TTime duration(end - start);
-    LOG_INFO("REST buffer slow consumer test with test size " << TEST_SIZE << ", " << numNewLines << " newlines per message and delay "
-                                                              << DELAY << "ms took " << duration << " seconds");
+    LOG_INFO(<< "REST buffer slow consumer test with test size " << TEST_SIZE << ", " << numNewLines << " newlines per message and delay "
+             << DELAY << "ms took " << duration << " seconds");
 
     ml::core_t::TTime delaySecs(static_cast<ml::core_t::TTime>((DELAY * numNewLines * TEST_SIZE) / 1000));
     CPPUNIT_ASSERT(duration >= delaySecs);
@@ -239,7 +239,7 @@ void CDualThreadStreamBufTest::testFatal() {
 
     inputThread.waitForFinish();
 
-    LOG_DEBUG("Total data written in fatal error test of size " << TEST_SIZE << " is " << totalDataWritten << " bytes");
+    LOG_DEBUG(<< "Total data written in fatal error test of size " << TEST_SIZE << " is " << totalDataWritten << " bytes");
 
     // The fatal error should have stopped the writer thread from writing all the data
     CPPUNIT_ASSERT(totalDataWritten >= BUFFER_CAPACITY);

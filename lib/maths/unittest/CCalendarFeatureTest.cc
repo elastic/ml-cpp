@@ -41,9 +41,9 @@ private:
 }
 
 void CCalendarFeatureTest::testInitialize() {
-    LOG_DEBUG("+----------------------------------------+");
-    LOG_DEBUG("|  CCalendarFeatureTest::testInitialize  |");
-    LOG_DEBUG("+----------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------+");
+    LOG_DEBUG(<< "|  CCalendarFeatureTest::testInitialize  |");
+    LOG_DEBUG(<< "+----------------------------------------+");
 
     // Check we get the expected features.
 
@@ -68,9 +68,9 @@ void CCalendarFeatureTest::testInitialize() {
 }
 
 void CCalendarFeatureTest::testComparison() {
-    LOG_DEBUG("+----------------------------------------+");
-    LOG_DEBUG("|  CCalendarFeatureTest::testComparison  |");
-    LOG_DEBUG("+----------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------+");
+    LOG_DEBUG(<< "|  CCalendarFeatureTest::testComparison  |");
+    LOG_DEBUG(<< "+----------------------------------------+");
 
     // Check some comparison invariants.
 
@@ -81,7 +81,7 @@ void CCalendarFeatureTest::testComparison() {
         times.push_back(time);
     }
 
-    LOG_DEBUG("times = " << core::CContainerPrinter::print(times));
+    LOG_DEBUG(<< "times = " << core::CContainerPrinter::print(times));
 
     TCalendarFeatureVec features;
 
@@ -105,9 +105,9 @@ void CCalendarFeatureTest::testComparison() {
 }
 
 void CCalendarFeatureTest::testOffset() {
-    LOG_DEBUG("+------------------------------------+");
-    LOG_DEBUG("|  CCalendarFeatureTest::testOffset  |");
-    LOG_DEBUG("+------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------+");
+    LOG_DEBUG(<< "|  CCalendarFeatureTest::testOffset  |");
+    LOG_DEBUG(<< "+------------------------------------+");
 
     // Check some properties of offset. Specifically,
     //    - offset(time + delta) = offset(time) + delta provided
@@ -118,7 +118,7 @@ void CCalendarFeatureTest::testOffset() {
     test::CRandomNumbers rng;
 
     core_t::TTime start = core::CTimeUtils::now() - 30000000;
-    LOG_DEBUG("start = " << start);
+    LOG_DEBUG(<< "start = " << start);
 
     TSizeVec times;
     rng.generateUniformSamples(0, 30000000, 1000, times);
@@ -153,7 +153,7 @@ void CCalendarFeatureTest::testOffset() {
 
     CScopeGMT gmt;
 
-    LOG_DEBUG("# tests = " << tests);
+    LOG_DEBUG(<< "# tests = " << tests);
     CPPUNIT_ASSERT(tests > 30000);
 
     core_t::TTime feb1st = 31 * DAY;
@@ -161,7 +161,7 @@ void CCalendarFeatureTest::testOffset() {
     core_t::TTime april1st = march1st + 31 * DAY;
     core_t::TTime may1st = april1st + 30 * DAY;
 
-    LOG_DEBUG("Test days since start of month");
+    LOG_DEBUG(<< "Test days since start of month");
     {
         maths::CCalendarFeature feature(maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, feb1st);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
@@ -177,7 +177,7 @@ void CCalendarFeatureTest::testOffset() {
         }
     }
 
-    LOG_DEBUG("Test days before end of month") {
+    LOG_DEBUG(<< "Test days before end of month") {
         maths::CCalendarFeature feature(maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, feb1st);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
             CPPUNIT_ASSERT_EQUAL(time - march1st - 3 * DAY, feature.offset(time));
@@ -192,7 +192,7 @@ void CCalendarFeatureTest::testOffset() {
         }
     }
 
-    LOG_DEBUG("Test day of week and week of month");
+    LOG_DEBUG(<< "Test day of week and week of month");
     {
         // Feb 1 1970 is a Sunday and April 1st 1970 is a Wednesday.
         maths::CCalendarFeature feature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH, feb1st);
@@ -210,7 +210,7 @@ void CCalendarFeatureTest::testOffset() {
         }
     }
 
-    LOG_DEBUG("Test day of week and week until end of month");
+    LOG_DEBUG(<< "Test day of week and week until end of month");
     {
         // Feb 1 1970 is a Sunday and April 31st 1970 is a Friday.
         maths::CCalendarFeature feature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH, feb1st);
@@ -230,15 +230,15 @@ void CCalendarFeatureTest::testOffset() {
 }
 
 void CCalendarFeatureTest::testPersist() {
-    LOG_DEBUG("+-------------------------------------+");
-    LOG_DEBUG("|  CCalendarFeatureTest::testPersist  |");
-    LOG_DEBUG("+-------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------+");
+    LOG_DEBUG(<< "|  CCalendarFeatureTest::testPersist  |");
+    LOG_DEBUG(<< "+-------------------------------------+");
 
     maths::CCalendarFeature::TCalendarFeature4Ary features = maths::CCalendarFeature::features(core::CTimeUtils::now());
 
     for (std::size_t i = 0u; i < 4; ++i) {
         std::string state = features[i].toDelimited();
-        LOG_DEBUG("state = " << state);
+        LOG_DEBUG(<< "state = " << state);
 
         maths::CCalendarFeature restored;
         restored.fromDelimited(state);

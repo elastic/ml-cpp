@@ -96,7 +96,7 @@ bool CSeasonalComponent::initialize(core_t::TTime startTime, core_t::TTime endTi
     this->clear();
 
     if (!m_Bucketing.initialize(this->maxSize())) {
-        LOG_ERROR("Bad input size: " << this->maxSize());
+        LOG_ERROR(<< "Bad input size: " << this->maxSize());
         return false;
     }
 

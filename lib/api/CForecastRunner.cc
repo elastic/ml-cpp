@@ -120,13 +120,13 @@ void CForecastRunner::forecastWorker() {
     SForecast forecastJob;
     while (!m_Shutdown) {
         if (this->tryGetJob(forecastJob)) {
-            LOG_INFO("Start forecasting from " << core::CTimeUtils::toIso8601(forecastJob.s_StartTime) << " to "
-                                               << core::CTimeUtils::toIso8601(forecastJob.forecastEnd()));
+            LOG_INFO(<< "Start forecasting from " << core::CTimeUtils::toIso8601(forecastJob.s_StartTime) << " to "
+                     << core::CTimeUtils::toIso8601(forecastJob.forecastEnd()));
 
             core::CStopWatch timer(true);
             uint64_t lastStatsUpdate = 0;
 
-            LOG_TRACE("about to create sink");
+            LOG_TRACE(<< "about to create sink");
             model::CForecastDataSink sink(m_JobId,
                                           forecastJob.s_ForecastId,
                                           forecastJob.s_CreateTime,
@@ -170,7 +170,7 @@ void CForecastRunner::forecastWorker() {
                     series.s_ToForecast.pop_back();
 
                     if (success == false) {
-                        LOG_DEBUG("Detector " << series.s_DetectorIndex << " failed to forecast");
+                        LOG_DEBUG(<< "Detector " << series.s_DetectorIndex << " failed to forecast");
                         ++failedForecasts;
                     }
 
@@ -196,7 +196,7 @@ void CForecastRunner::forecastWorker() {
 
             // important: reset the structure to decrease shared pointer reference counts
             forecastJob.reset();
-            LOG_INFO("Finished forecasting, wrote " << sink.numRecordsWritten() << " records");
+            LOG_INFO(<< "Finished forecasting, wrote " << sink.numRecordsWritten() << " records");
 
             // signal that job is done
             m_WorkCompleteCondition.notify_all();
@@ -254,7 +254,7 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
     // 1st loop over the detectors to check prerequisites
     for (const auto& detector : detectors) {
         if (detector.get() == nullptr) {
-            LOG_ERROR("Unexpected empty detector found");
+            LOG_ERROR(<< "Unexpected empty detector found");
             continue;
         }
 
@@ -300,7 +300,7 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
 
     for (const auto& detector : detectors) {
         if (detector.get() == nullptr) {
-            LOG_ERROR("Unexpected empty detector found");
+            LOG_ERROR(<< "Unexpected empty detector found");
             continue;
         }
 
@@ -352,12 +352,12 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         // note: this is not exposed on x-pack side
         forecastJob.s_BoundsPercentile = properties.get<double>("boundspercentile", 95.0);
     } catch (const std::exception& e) {
-        LOG_ERROR(ERROR_FORECAST_REQUEST_FAILED_TO_PARSE << e.what());
+        LOG_ERROR(<< ERROR_FORECAST_REQUEST_FAILED_TO_PARSE << e.what());
         return false;
     }
 
     if (forecastJob.s_ForecastId.empty()) {
-        LOG_ERROR(ERROR_NO_FORECAST_ID);
+        LOG_ERROR(<< ERROR_NO_FORECAST_ID);
         return false;
     }
 
@@ -379,7 +379,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
     // todo: refactor validation out from here
     core_t::TTime maxDuration = 8 * core::constants::WEEK;
     if (forecastJob.s_Duration > maxDuration) {
-        LOG_INFO(WARNING_DURATION_LIMIT);
+        LOG_INFO(<< WARNING_DURATION_LIMIT);
         forecastJob.s_Messages.insert(WARNING_DURATION_LIMIT);
         forecastJob.s_Duration = maxDuration;
     }
@@ -387,17 +387,17 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
     if (forecastJob.s_Duration == 0) {
         // only log
         forecastJob.s_Duration = core::constants::DAY;
-        LOG_INFO(INFO_DEFAULT_DURATION);
+        LOG_INFO(<< INFO_DEFAULT_DURATION);
     }
 
     if (expiresIn < -1l) {
         // only log
         expiresIn = DEFAULT_EXPIRY_TIME;
-        LOG_INFO(WARNING_INVALID_EXPIRY);
+        LOG_INFO(<< WARNING_INVALID_EXPIRY);
     } else if (expiresIn == -1l) {
         // only log
         expiresIn = DEFAULT_EXPIRY_TIME;
-        LOG_DEBUG(INFO_DEFAULT_EXPIRY);
+        LOG_DEBUG(<< INFO_DEFAULT_EXPIRY);
     }
 
     forecastJob.s_ExpiryTime = forecastJob.s_CreateTime + expiresIn;
@@ -406,7 +406,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
 }
 
 void CForecastRunner::sendScheduledMessage(const SForecast& forecastJob) const {
-    LOG_DEBUG("job passed forecast validation, scheduled for forecasting");
+    LOG_DEBUG(<< "job passed forecast validation, scheduled for forecasting");
     model::CForecastDataSink sink(m_JobId,
                                   forecastJob.s_ForecastId,
                                   forecastJob.s_CreateTime,
@@ -419,7 +419,7 @@ void CForecastRunner::sendScheduledMessage(const SForecast& forecastJob) const {
 }
 
 void CForecastRunner::sendErrorMessage(const SForecast& forecastJob, const std::string& message) const {
-    LOG_ERROR(message);
+    LOG_ERROR(<< message);
     this->sendMessage(&model::CForecastDataSink::writeErrorMessage, forecastJob, message);
 }
 

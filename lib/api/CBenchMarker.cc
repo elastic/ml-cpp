@@ -70,7 +70,7 @@ void CBenchMarker::addResult(const std::string& message, int type) {
     ++m_TotalMessages;
 
     if (!scored) {
-        LOG_TRACE("Message not included in scoring: " << message);
+        LOG_TRACE(<< "Message not included in scoring: " << message);
     }
 }
 
@@ -171,7 +171,7 @@ void CBenchMarker::dumpResults() const {
          << "Overall accuracy for scored messages " << (double(good) / double(m_ScoredMessages)) * 100.0 << '%' << core_t::LINE_ENDING
          << "Percentage of manual categories detected at all " << (double(usedTypes.size()) / double(observedActuals)) * 100.0 << '%';
 
-    LOG_DEBUG(strm.str());
+    LOG_DEBUG(<< strm.str());
 }
 }
 }

@@ -99,7 +99,7 @@ void CRapidJsonLineWriterTest::microBenchmark() {
         rapidjson::internal::dtoa(42.0, buffer);
     }
     uint64_t elapsed = stopWatch.stop();
-    LOG_INFO("Rapidjson dtoa " << runs << " runs took " << elapsed);
+    LOG_INFO(<< "Rapidjson dtoa " << runs << " runs took " << elapsed);
     stopWatch.reset();
     stopWatch.start();
     for (size_t i = 0; i < runs; ++i) {
@@ -119,7 +119,7 @@ void CRapidJsonLineWriterTest::microBenchmark() {
     }
 
     elapsed = stopWatch.stop();
-    LOG_INFO("snprintf " << runs << " runs took " << elapsed);
+    LOG_INFO(<< "snprintf " << runs << " runs took " << elapsed);
 }
 
 CppUnit::Test* CRapidJsonLineWriterTest::suite() {

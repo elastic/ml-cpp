@@ -103,7 +103,7 @@ bool restoreInfluencerPersonAttributeCounts(core::CStateRestoreTraverser& traver
         RESTORE_NO_ERROR(INFLUENCER_TAG, influence = traverser.value())
         if (name == COUNT_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), count) == false) {
-                LOG_ERROR("Failed to restore COUNT_TAG, got " << traverser.value());
+                LOG_ERROR(<< "Failed to restore COUNT_TAG, got " << traverser.value());
                 return false;
             }
             map[{{person, attribute}, CStringStore::influencers().get(influence)}] = count;
@@ -135,7 +135,7 @@ struct SBucketCountsPersister {
                 continue;
             }
             if (traverser.traverseSubLevel(boost::bind(&restorePersonAttributeCounts, _1, boost::ref(key), boost::ref(count))) == false) {
-                LOG_ERROR("Invalid person attribute count");
+                LOG_ERROR(<< "Invalid person attribute count");
                 continue;
             }
             bucketCounts[key] = count;
@@ -202,7 +202,7 @@ CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& o
       m_InfluencerCounts(other.m_InfluencerCounts),
       m_MultiBucketInfluencerCounts(other.m_MultiBucketInfluencerCounts) {
     if (!isForPersistence) {
-        LOG_ABORT("This constructor only creates clones for persistence");
+        LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
 }
 
@@ -212,7 +212,7 @@ bool CBucketGatherer::addEventData(CEventData& data) {
     if (time < this->earliestBucketStartTime()) {
         // Ignore records that are out of the latency window
         // Records in an incomplete first bucket will end up here
-        LOG_TRACE("Ignored = " << time);
+        LOG_TRACE(<< "Ignored = " << time);
         return false;
     }
 
@@ -229,11 +229,11 @@ bool CBucketGatherer::addEventData(CEventData& data) {
     if ((pid != CDynamicStringIdRegistry::INVALID_ID) && (cid != CDynamicStringIdRegistry::INVALID_ID)) {
         // Has the person/attribute been deleted from the gatherer?
         if (!m_DataGatherer.isPersonActive(pid)) {
-            LOG_DEBUG("Not adding value for deleted person " << pid);
+            LOG_DEBUG(<< "Not adding value for deleted person " << pid);
             return false;
         }
         if (m_DataGatherer.isPopulation() && !m_DataGatherer.isAttributeActive(cid)) {
-            LOG_DEBUG("Not adding value for deleted attribute " << cid);
+            LOG_DEBUG(<< "Not adding value for deleted attribute " << cid);
             return false;
         }
 
@@ -350,7 +350,7 @@ void CBucketGatherer::personNonZeroCounts(core_t::TTime time, TSizeUInt64PrVec& 
     result.clear();
 
     if (!this->dataAvailable(time)) {
-        LOG_ERROR("No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
+        LOG_ERROR(<< "No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
         return;
     }
 
@@ -436,21 +436,21 @@ bool CBucketGatherer::validateSampleTimes(core_t::TTime& startTime, core_t::TTim
     //      of the last sampled bucket
 
     if (!maths::CIntegerTools::aligned(startTime, this->bucketLength())) {
-        LOG_ERROR("Sample start time " << startTime << " is not bucket aligned");
-        LOG_ERROR("However, my bucketStart time is " << m_BucketStart);
+        LOG_ERROR(<< "Sample start time " << startTime << " is not bucket aligned");
+        LOG_ERROR(<< "However, my bucketStart time is " << m_BucketStart);
         return false;
     }
     if (!maths::CIntegerTools::aligned(endTime, this->bucketLength())) {
-        LOG_ERROR("Sample end time " << endTime << " is not bucket aligned");
+        LOG_ERROR(<< "Sample end time " << endTime << " is not bucket aligned");
         return false;
     }
     if (endTime <= startTime) {
-        LOG_ERROR("End time " << endTime << " is not greater than the start time " << startTime);
+        LOG_ERROR(<< "End time " << endTime << " is not greater than the start time " << startTime);
         return false;
     }
     for (/**/; startTime < endTime; startTime += this->bucketLength()) {
         if (!this->dataAvailable(startTime)) {
-            LOG_ERROR("No counts available at " << startTime << ", current bucket = " << this->printCurrentBucket());
+            LOG_ERROR(<< "No counts available at " << startTime << ", current bucket = " << this->printCurrentBucket());
             continue;
         }
         return true;
@@ -524,7 +524,7 @@ uint64_t CBucketGatherer::checksum() const {
         result = maths::CChecksum::calculate(result, personAttributeExplicitNulls);
     }
 
-    LOG_TRACE("checksum = " << result);
+    LOG_TRACE(<< "checksum = " << result);
 
     return result;
 }
@@ -551,16 +551,16 @@ void CBucketGatherer::clear() {
 
 bool CBucketGatherer::resetBucket(core_t::TTime bucketStart) {
     if (!maths::CIntegerTools::aligned(bucketStart, this->bucketLength())) {
-        LOG_ERROR("Bucket start time " << bucketStart << " is not bucket aligned");
+        LOG_ERROR(<< "Bucket start time " << bucketStart << " is not bucket aligned");
         return false;
     }
 
     if (!this->dataAvailable(bucketStart) || bucketStart >= this->currentBucketStartTime() + this->bucketLength()) {
-        LOG_WARN("No data available at " << bucketStart << ", current bucket = " << this->printCurrentBucket());
+        LOG_WARN(<< "No data available at " << bucketStart << ", current bucket = " << this->printCurrentBucket());
         return false;
     }
 
-    LOG_TRACE("Resetting bucket starting at " << bucketStart);
+    LOG_TRACE(<< "Resetting bucket starting at " << bucketStart);
     m_PersonAttributeCounts.get(bucketStart).clear();
     m_PersonAttributeExplicitNulls.get(bucketStart).clear();
     m_InfluencerCounts.get(bucketStart).clear();

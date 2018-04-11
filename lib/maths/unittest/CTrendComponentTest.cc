@@ -157,9 +157,9 @@ TDoubleVec switching(test::CRandomNumbers& rng, core_t::TTime bucketLength, core
 }
 
 void CTrendComponentTest::testValueAndVariance() {
-    LOG_DEBUG("+---------------------------------------------+");
-    LOG_DEBUG("|  CTrendComponentTest::testValueAndVariance  |");
-    LOG_DEBUG("+---------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------+");
+    LOG_DEBUG(<< "|  CTrendComponentTest::testValueAndVariance  |");
+    LOG_DEBUG(<< "+---------------------------------------------+");
 
     // Check that the prediction bias is small in the long run
     // and that the predicted variance approximately matches the
@@ -193,15 +193,15 @@ void CTrendComponentTest::testValueAndVariance() {
         component.propagateForwardsByTime(bucketLength);
     }
 
-    LOG_DEBUG("normalised error moments = " << normalisedResiduals);
+    LOG_DEBUG(<< "normalised error moments = " << normalisedResiduals);
     CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(normalisedResiduals)) < 0.5);
     CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::variance(normalisedResiduals) - 1.0) < 0.2);
 }
 
 void CTrendComponentTest::testDecayRate() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CTrendComponentTest::testDecayRate  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CTrendComponentTest::testDecayRate  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     // Test that the trend short range predictions approximately
     // match a regression model with the same decay rate.
@@ -246,7 +246,7 @@ void CTrendComponentTest::testDecayRate() {
     }
 
     double relativeError{maths::CBasicStatistics::mean(error) / std::fabs(maths::CBasicStatistics::mean(level))};
-    LOG_DEBUG("relative error = " << relativeError);
+    LOG_DEBUG(<< "relative error = " << relativeError);
 
     //file << "f  = " << core::CContainerPrinter::print(values) << ";" << std::endl;
     //file << "p  = " << core::CContainerPrinter::print(predictions) << ";" << std::endl;
@@ -254,9 +254,9 @@ void CTrendComponentTest::testDecayRate() {
 }
 
 void CTrendComponentTest::testForecast() {
-    LOG_DEBUG("+-------------------------------------+");
-    LOG_DEBUG("|  CTrendComponentTest::testForecast  |");
-    LOG_DEBUG("+-------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------+");
+    LOG_DEBUG(<< "|  CTrendComponentTest::testForecast  |");
+    LOG_DEBUG(<< "+-------------------------------------+");
 
     // Check the forecast errors for a variety of signals.
 
@@ -311,8 +311,8 @@ void CTrendComponentTest::testForecast() {
         //file << "fm = " << core::CContainerPrinter::print(forecastPredictions) << ";" << std::endl;
         //file << "fu = " << core::CContainerPrinter::print(forecastUpper) << ";" << std::endl;
 
-        LOG_DEBUG("error       = " << maths::CBasicStatistics::mean(meanError));
-        LOG_DEBUG("error @ 95% = " << maths::CBasicStatistics::mean(meanErrorAt95));
+        LOG_DEBUG(<< "error       = " << maths::CBasicStatistics::mean(meanError));
+        LOG_DEBUG(<< "error @ 95% = " << maths::CBasicStatistics::mean(meanErrorAt95));
 
         return std::make_pair(maths::CBasicStatistics::mean(meanError), maths::CBasicStatistics::mean(meanErrorAt95));
     };
@@ -320,28 +320,28 @@ void CTrendComponentTest::testForecast() {
     double error;
     double errorAt95;
 
-    LOG_DEBUG("Random Walk");
+    LOG_DEBUG(<< "Random Walk");
     {
         boost::tie(error, errorAt95) = testForecast(multiscaleRandomWalk, 0, 3000000);
         CPPUNIT_ASSERT(error < 0.16);
         CPPUNIT_ASSERT(errorAt95 < 0.001);
     }
 
-    LOG_DEBUG("Piecewise Linear");
+    LOG_DEBUG(<< "Piecewise Linear");
     {
         boost::tie(error, errorAt95) = testForecast(piecewiseLinear, 0, 3200000);
         CPPUNIT_ASSERT(error < 0.17);
         CPPUNIT_ASSERT(errorAt95 < 0.07);
     }
 
-    LOG_DEBUG("Staircase");
+    LOG_DEBUG(<< "Staircase");
     {
         boost::tie(error, errorAt95) = testForecast(staircase, 0, 2000000);
         CPPUNIT_ASSERT(error < 0.03);
         CPPUNIT_ASSERT(errorAt95 < 0.01);
     }
 
-    LOG_DEBUG("Switching");
+    LOG_DEBUG(<< "Switching");
     {
         boost::tie(error, errorAt95) = testForecast(switching, 0, 3000000);
         CPPUNIT_ASSERT(error < 0.06);
@@ -350,9 +350,9 @@ void CTrendComponentTest::testForecast() {
 }
 
 void CTrendComponentTest::testPersist() {
-    LOG_DEBUG("+------------------------------------+");
-    LOG_DEBUG("|  CTrendComponentTest::testPersist  |");
-    LOG_DEBUG("+------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------+");
+    LOG_DEBUG(<< "|  CTrendComponentTest::testPersist  |");
+    LOG_DEBUG(<< "+------------------------------------+");
 
     // Check that serialization is idempotent.
 
@@ -379,7 +379,7 @@ void CTrendComponentTest::testPersist() {
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("decomposition XML representation:\n" << origXml);
+    LOG_DEBUG(<< "decomposition XML representation:\n" << origXml);
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;

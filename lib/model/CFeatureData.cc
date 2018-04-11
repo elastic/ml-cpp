@@ -53,7 +53,7 @@ const TSizeVec& CFeatureDataIndexing::valueIndices(std::size_t dimension) {
     case 9:
         return sequence<9>();
     default:
-        LOG_ERROR("Unsupported dimension " << dimension);
+        LOG_ERROR(<< "Unsupported dimension " << dimension);
         break;
     }
     static const TSizeVec EMPTY;

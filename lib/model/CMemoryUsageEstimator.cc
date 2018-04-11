@@ -55,8 +55,8 @@ CMemoryUsageEstimator::TOptionalSize CMemoryUsageEstimator::estimate(const TSize
     for (std::size_t i = 0u; i < predictors.size(); ++i) {
         origin &= (predictors[i] == 0);
         if (predictors[i] - static_cast<size_t>(x0[i]) > this->maximumExtrapolation(static_cast<EComponent>(i))) {
-            LOG_TRACE("Sample too big for variance of predictor(" << i << "): " << predictors[i] << " > "
-                                                                  << this->maximumExtrapolation(static_cast<EComponent>(i)));
+            LOG_TRACE(<< "Sample too big for variance of predictor(" << i << "): " << predictors[i] << " > "
+                      << this->maximumExtrapolation(static_cast<EComponent>(i)));
             return TOptionalSize();
         }
     }
@@ -89,7 +89,7 @@ CMemoryUsageEstimator::TOptionalSize CMemoryUsageEstimator::estimate(const TSize
 }
 
 void CMemoryUsageEstimator::addValue(const TSizeArray& predictors, std::size_t memory) {
-    LOG_TRACE("Add Value for " << core::CContainerPrinter::print(predictors) << ": " << memory);
+    LOG_TRACE(<< "Add Value for " << core::CContainerPrinter::print(predictors) << ": " << memory);
 
     m_NumEstimatesSinceValue = 0;
 
@@ -131,7 +131,7 @@ bool CMemoryUsageEstimator::acceptRestoreTraverser(core::CStateRestoreTraverser&
         const std::string& name = traverser.name();
         if (name == VALUES_TAG) {
             if (!core::CPersistUtils::restore(VALUES_TAG, m_Values, traverser)) {
-                LOG_ERROR("Failed to restore values");
+                LOG_ERROR(<< "Failed to restore values");
                 return false;
             }
         }

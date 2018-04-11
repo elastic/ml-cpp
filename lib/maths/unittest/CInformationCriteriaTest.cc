@@ -49,9 +49,9 @@ double logfGaussian(const POINT& mean, const MATRIX& covariance, const POINT& x)
 }
 
 void CInformationCriteriaTest::testSphericalGaussian() {
-    LOG_DEBUG("+---------------------------------------------------+");
-    LOG_DEBUG("|  CInformationCriteriaTest::testSphericalGaussian  |");
-    LOG_DEBUG("+---------------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------------+");
+    LOG_DEBUG(<< "|  CInformationCriteriaTest::testSphericalGaussian  |");
+    LOG_DEBUG(<< "+---------------------------------------------------+");
 
     // Check that the information criterion values are the expected
     // values for the generating distribution.
@@ -65,8 +65,8 @@ void CInformationCriteriaTest::testSphericalGaussian() {
 
         TVector2 mean(boost::begin(mean_), boost::end(mean_));
         TMatrix2 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
-        LOG_DEBUG("mean = " << mean);
-        LOG_DEBUG("covariance = " << covariance);
+        LOG_DEBUG(<< "mean = " << mean);
+        LOG_DEBUG(<< "covariance = " << covariance);
 
         TVector2Vec samples;
         maths::CSampling::multivariateNormalSample(mean, covariance, 1000, samples);
@@ -83,14 +83,14 @@ void CInformationCriteriaTest::testSphericalGaussian() {
 
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_BIC> bic;
         bic.add(samples);
-        LOG_DEBUG("expected BIC  = " << expectedBIC);
-        LOG_DEBUG("BIC           = " << bic.calculate());
+        LOG_DEBUG(<< "expected BIC  = " << expectedBIC);
+        LOG_DEBUG(<< "BIC           = " << bic.calculate());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
 
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aic;
         aic.add(samples);
-        LOG_DEBUG("expected AICc = " << expectedAICc);
-        LOG_DEBUG("AICc          = " << aic.calculate());
+        LOG_DEBUG(<< "expected AICc = " << expectedAICc);
+        LOG_DEBUG(<< "AICc          = " << aic.calculate());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
     }
     {
@@ -100,8 +100,8 @@ void CInformationCriteriaTest::testSphericalGaussian() {
 
         TVector4 mean(boost::begin(mean_), boost::end(mean_));
         TMatrix4 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
-        LOG_DEBUG("mean = " << mean);
-        LOG_DEBUG("covariance = " << covariance);
+        LOG_DEBUG(<< "mean = " << mean);
+        LOG_DEBUG(<< "covariance = " << covariance);
 
         TVector4Vec samples;
         maths::CSampling::multivariateNormalSample(mean, covariance, 500, samples);
@@ -118,14 +118,14 @@ void CInformationCriteriaTest::testSphericalGaussian() {
 
         maths::CSphericalGaussianInfoCriterion<TVector4, maths::E_BIC> bic;
         bic.add(samples);
-        LOG_DEBUG("expected BIC = " << expectedBIC);
-        LOG_DEBUG("BIC          = " << bic.calculate());
+        LOG_DEBUG(<< "expected BIC = " << expectedBIC);
+        LOG_DEBUG(<< "BIC          = " << bic.calculate());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
 
         maths::CSphericalGaussianInfoCriterion<TVector4, maths::E_AICc> aic;
         aic.add(samples);
-        LOG_DEBUG("expected AICc = " << expectedAICc);
-        LOG_DEBUG("AICc          = " << aic.calculate());
+        LOG_DEBUG(<< "expected AICc = " << expectedAICc);
+        LOG_DEBUG(<< "AICc          = " << aic.calculate());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
     }
 
@@ -140,8 +140,8 @@ void CInformationCriteriaTest::testSphericalGaussian() {
 
         TVector2 mean(boost::begin(mean_), boost::end(mean_));
         TMatrix2 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
-        LOG_DEBUG("mean = " << mean);
-        LOG_DEBUG("covariance = " << covariance);
+        LOG_DEBUG(<< "mean = " << mean);
+        LOG_DEBUG(<< "covariance = " << covariance);
 
         TVector2Vec samples;
         maths::CSampling::multivariateNormalSample(mean, covariance, 1000, samples);
@@ -165,12 +165,12 @@ void CInformationCriteriaTest::testSphericalGaussian() {
             aic2.add(samples1);
             aic2.add(samples2);
 
-            LOG_DEBUG("1 cluster BIC = " << bic1.calculate());
-            LOG_DEBUG("2 cluster BIC = " << bic2.calculate());
+            LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
+            LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
             CPPUNIT_ASSERT(bic1.calculate() < bic2.calculate());
 
-            LOG_DEBUG("1 cluster AIC = " << aic1.calculate());
-            LOG_DEBUG("2 cluster AIC = " << aic2.calculate());
+            LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
+            LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
             CPPUNIT_ASSERT(aic1.calculate() < aic2.calculate());
         }
 
@@ -190,21 +190,21 @@ void CInformationCriteriaTest::testSphericalGaussian() {
             maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_BIC> bic2(clusters);
             maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aic2(clusters);
 
-            LOG_DEBUG("1 cluster BIC = " << bic1.calculate());
-            LOG_DEBUG("2 cluster BIC = " << bic2.calculate());
+            LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
+            LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
             CPPUNIT_ASSERT(bic1.calculate() < bic2.calculate());
 
-            LOG_DEBUG("1 cluster AIC = " << aic1.calculate());
-            LOG_DEBUG("2 cluster AIC = " << aic2.calculate());
+            LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
+            LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
             CPPUNIT_ASSERT(aic1.calculate() < aic2.calculate());
         }
     }
 }
 
 void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster() {
-    LOG_DEBUG("+-----------------------------------------------------------------------+");
-    LOG_DEBUG("|  CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster  |");
-    LOG_DEBUG("+-----------------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
 
     // The idea of this test is simply to check that we get the
     // same result working with clusters of points or their
@@ -223,11 +223,11 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster() {
         means.push_back(TVector2(boost::begin(means_[i]), boost::end(means_[i])));
     }
     TMatrix2 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
-    LOG_DEBUG("means = " << core::CContainerPrinter::print(means));
-    LOG_DEBUG("covariance = " << covariance);
+    LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means));
+    LOG_DEBUG(<< "covariance = " << covariance);
 
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("*** trial = " << t + 1 << " ***");
+        LOG_DEBUG(<< "*** trial = " << t + 1 << " ***");
 
         TVector2VecVec points(means.size());
         TSphericalCluster2VecVec clusters;
@@ -248,8 +248,8 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster() {
         bicPoints.add(points);
         maths::CSphericalGaussianInfoCriterion<TSphericalCluster2, maths::E_BIC> bicClusters;
         bicClusters.add(clusters);
-        LOG_DEBUG("BIC points  = " << bicPoints.calculate());
-        LOG_DEBUG("BIC clusters  = " << bicClusters.calculate());
+        LOG_DEBUG(<< "BIC points  = " << bicPoints.calculate());
+        LOG_DEBUG(<< "BIC clusters  = " << bicClusters.calculate());
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(bicPoints.calculate(), bicClusters.calculate(), 1e-10 * bicPoints.calculate());
 
@@ -257,16 +257,16 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster() {
         aicPoints.add(points);
         maths::CSphericalGaussianInfoCriterion<TSphericalCluster2, maths::E_AICc> aicClusters;
         aicClusters.add(clusters);
-        LOG_DEBUG("AICc points   = " << aicPoints.calculate());
-        LOG_DEBUG("AICc clusters = " << aicClusters.calculate());
+        LOG_DEBUG(<< "AICc points   = " << aicPoints.calculate());
+        LOG_DEBUG(<< "AICc clusters = " << aicClusters.calculate());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(aicPoints.calculate(), aicClusters.calculate(), 1e-10 * aicPoints.calculate());
     }
 }
 
 void CInformationCriteriaTest::testGaussian() {
-    LOG_DEBUG("+------------------------------------------+");
-    LOG_DEBUG("|  CInformationCriteriaTest::testGaussian  |");
-    LOG_DEBUG("+------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------+");
+    LOG_DEBUG(<< "|  CInformationCriteriaTest::testGaussian  |");
+    LOG_DEBUG(<< "+------------------------------------------+");
 
     maths::CSampling::seed();
 
@@ -276,8 +276,8 @@ void CInformationCriteriaTest::testGaussian() {
 
         TVector2 mean(boost::begin(mean_), boost::end(mean_));
         TMatrix2 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
-        LOG_DEBUG("mean = " << mean);
-        LOG_DEBUG("covariance = " << covariance);
+        LOG_DEBUG(<< "mean = " << mean);
+        LOG_DEBUG(<< "covariance = " << covariance);
 
         TVector2Vec samples;
         maths::CSampling::multivariateNormalSample(mean, covariance, 1000, samples);
@@ -294,14 +294,14 @@ void CInformationCriteriaTest::testGaussian() {
 
         maths::CGaussianInfoCriterion<TVector2, maths::E_BIC> bic;
         bic.add(samples);
-        LOG_DEBUG("expected BIC  = " << expectedBIC);
-        LOG_DEBUG("BIC           = " << bic.calculate());
+        LOG_DEBUG(<< "expected BIC  = " << expectedBIC);
+        LOG_DEBUG(<< "BIC           = " << bic.calculate());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
 
         maths::CGaussianInfoCriterion<TVector2, maths::E_AICc> aic;
         aic.add(samples);
-        LOG_DEBUG("expected AICc = " << expectedAICc);
-        LOG_DEBUG("AICc          = " << aic.calculate());
+        LOG_DEBUG(<< "expected AICc = " << expectedAICc);
+        LOG_DEBUG(<< "AICc          = " << aic.calculate());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
     }
     {
@@ -310,8 +310,8 @@ void CInformationCriteriaTest::testGaussian() {
 
         TVector4 mean(boost::begin(mean_), boost::end(mean_));
         TMatrix4 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
-        LOG_DEBUG("mean = " << mean);
-        LOG_DEBUG("covariance = " << covariance);
+        LOG_DEBUG(<< "mean = " << mean);
+        LOG_DEBUG(<< "covariance = " << covariance);
 
         TVector4Vec samples;
         maths::CSampling::multivariateNormalSample(mean, covariance, 500, samples);
@@ -328,14 +328,14 @@ void CInformationCriteriaTest::testGaussian() {
 
         maths::CGaussianInfoCriterion<TVector4, maths::E_BIC> bic;
         bic.add(samples);
-        LOG_DEBUG("expected BIC = " << expectedBIC);
-        LOG_DEBUG("BIC          = " << bic.calculate());
+        LOG_DEBUG(<< "expected BIC = " << expectedBIC);
+        LOG_DEBUG(<< "BIC          = " << bic.calculate());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
 
         maths::CGaussianInfoCriterion<TVector4, maths::E_AICc> aic;
         aic.add(samples);
-        LOG_DEBUG("expected AICc = " << expectedAICc);
-        LOG_DEBUG("AICc          = " << aic.calculate());
+        LOG_DEBUG(<< "expected AICc = " << expectedAICc);
+        LOG_DEBUG(<< "AICc          = " << aic.calculate());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
     }
 
@@ -349,8 +349,8 @@ void CInformationCriteriaTest::testGaussian() {
 
         TVector2 mean(boost::begin(mean_), boost::end(mean_));
         TMatrix2 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
-        LOG_DEBUG("mean = " << mean);
-        LOG_DEBUG("covariance = " << covariance);
+        LOG_DEBUG(<< "mean = " << mean);
+        LOG_DEBUG(<< "covariance = " << covariance);
 
         TVector2Vec samples;
         maths::CSampling::multivariateNormalSample(mean, covariance, 1000, samples);
@@ -374,12 +374,12 @@ void CInformationCriteriaTest::testGaussian() {
             aic2.add(samples1);
             aic2.add(samples2);
 
-            LOG_DEBUG("1 cluster BIC = " << bic1.calculate());
-            LOG_DEBUG("2 cluster BIC = " << bic2.calculate());
+            LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
+            LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
             CPPUNIT_ASSERT(bic1.calculate() < bic2.calculate());
 
-            LOG_DEBUG("1 cluster AIC = " << aic1.calculate());
-            LOG_DEBUG("2 cluster AIC = " << aic2.calculate());
+            LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
+            LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
             CPPUNIT_ASSERT(aic1.calculate() < aic2.calculate());
         }
 
@@ -399,21 +399,21 @@ void CInformationCriteriaTest::testGaussian() {
             maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_BIC> bic2(clusters);
             maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aic2(clusters);
 
-            LOG_DEBUG("1 cluster BIC = " << bic1.calculate());
-            LOG_DEBUG("2 cluster BIC = " << bic2.calculate());
+            LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
+            LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
             CPPUNIT_ASSERT(bic1.calculate() < bic2.calculate());
 
-            LOG_DEBUG("1 cluster AIC = " << aic1.calculate());
-            LOG_DEBUG("2 cluster AIC = " << aic2.calculate());
+            LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
+            LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
             CPPUNIT_ASSERT(aic1.calculate() < aic2.calculate());
         }
     }
 }
 
 void CInformationCriteriaTest::testGaussianWithSphericalCluster() {
-    LOG_DEBUG("+--------------------------------------------------------------+");
-    LOG_DEBUG("|  CInformationCriteriaTest::testGaussianWithSphericalCluster  |");
-    LOG_DEBUG("+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CInformationCriteriaTest::testGaussianWithSphericalCluster  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
 
     using TSphericalCluster2 = maths::CSphericalCluster<TVector2>::Type;
     using TSphericalCluster2Vec = std::vector<TSphericalCluster2>;
@@ -428,11 +428,11 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster() {
         means.push_back(TVector2(boost::begin(means_[i]), boost::end(means_[i])));
     }
     TMatrix2 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
-    LOG_DEBUG("means = " << core::CContainerPrinter::print(means));
-    LOG_DEBUG("covariance = " << covariance);
+    LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means));
+    LOG_DEBUG(<< "covariance = " << covariance);
 
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("*** trial = " << t + 1 << " ***");
+        LOG_DEBUG(<< "*** trial = " << t + 1 << " ***");
 
         TVector2VecVec points(means.size());
         TSphericalCluster2VecVec clusters;
@@ -453,8 +453,8 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster() {
         bicPoints.add(points);
         maths::CGaussianInfoCriterion<TSphericalCluster2, maths::E_BIC> bicClusters;
         bicClusters.add(clusters);
-        LOG_DEBUG("BIC points  = " << bicPoints.calculate());
-        LOG_DEBUG("BIC clusters  = " << bicClusters.calculate());
+        LOG_DEBUG(<< "BIC points  = " << bicPoints.calculate());
+        LOG_DEBUG(<< "BIC clusters  = " << bicClusters.calculate());
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(bicPoints.calculate(), bicClusters.calculate(), 2e-3 * bicPoints.calculate());
 
@@ -462,8 +462,8 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster() {
         aicPoints.add(points);
         maths::CGaussianInfoCriterion<TSphericalCluster2, maths::E_AICc> aicClusters;
         aicClusters.add(clusters);
-        LOG_DEBUG("AICc points   = " << aicPoints.calculate());
-        LOG_DEBUG("AICc clusters = " << aicClusters.calculate());
+        LOG_DEBUG(<< "AICc points   = " << aicPoints.calculate());
+        LOG_DEBUG(<< "AICc clusters = " << aicClusters.calculate());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(aicPoints.calculate(), aicClusters.calculate(), 2e-3 * aicPoints.calculate());
     }
 }

@@ -361,8 +361,8 @@ public:
             // Check the typeid before attempting the cast so we
             // don't use throw to handle failure, which is slow.
             if (feature.second.type() != typeid(T)) {
-                LOG_ERROR("Bad type for feature = " << model_t::print(feature.first) << ", expected " << typeid(T).name() << " got "
-                                                    << feature.second.type().name());
+                LOG_ERROR(<< "Bad type for feature = " << model_t::print(feature.first) << ", expected " << typeid(T).name() << " got "
+                          << feature.second.type().name());
                 succeeded = false;
                 continue;
             }

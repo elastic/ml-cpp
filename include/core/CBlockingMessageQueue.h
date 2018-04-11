@@ -71,7 +71,7 @@ public:
         CScopedLock lock(m_Mutex);
 
         if (m_Thread.start() == false) {
-            LOG_ERROR("Unable to initialise thread");
+            LOG_ERROR(<< "Unable to initialise thread");
             return false;
         }
 
@@ -102,7 +102,7 @@ public:
             pending = 0;
 
             // Should be fatal error
-            LOG_FATAL("Cannot dispatch to message queue.  Queue not initialised");
+            LOG_FATAL(<< "Cannot dispatch to message queue.  Queue not initialised");
             return;
         }
 

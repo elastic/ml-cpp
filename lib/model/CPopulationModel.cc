@@ -129,7 +129,7 @@ CPopulationModel::CPopulationModel(bool isForPersistence, const CPopulationModel
       m_DistinctPersonCounts(other.m_DistinctPersonCounts),
       m_PersonAttributeBucketCounts(other.m_PersonAttributeBucketCounts) {
     if (!isForPersistence) {
-        LOG_ABORT("This constructor only creates clones for persistence");
+        LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
 }
 
@@ -139,7 +139,7 @@ bool CPopulationModel::isPopulation() const {
 
 CPopulationModel::TOptionalUInt64 CPopulationModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR("No statistics at " << time);
+        LOG_ERROR(<< "No statistics at " << time);
         return TOptionalUInt64();
     }
 
@@ -155,7 +155,7 @@ CPopulationModel::TOptionalDouble CPopulationModel::baselineBucketCount(std::siz
 void CPopulationModel::currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const {
     result.clear();
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR("No statistics at " << time);
+        LOG_ERROR(<< "No statistics at " << time);
         return;
     }
 
@@ -213,8 +213,8 @@ uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
     hashActive(E_Attribute, gatherer, m_AttributeFirstBucketTimes, hashes);
     hashActive(E_Attribute, gatherer, m_AttributeLastBucketTimes, hashes);
 
-    LOG_TRACE("seed = " << seed);
-    LOG_TRACE("hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "seed = " << seed);
+    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
 
     return maths::CChecksum::calculate(seed, hashes);
 }
@@ -260,13 +260,13 @@ double CPopulationModel::sampleRateWeight(std::size_t pid, std::size_t cid) cons
     if (personCount <= 0.0) {
         return 1.0;
     }
-    LOG_TRACE("personCount = " << personCount);
+    LOG_TRACE(<< "personCount = " << personCount);
 
     double totalCount = counts.totalCount();
     double distinctPeopleCount =
         std::min(static_cast<double>(distinctPeople.number()), static_cast<double>(this->dataGatherer().numberActivePeople()));
     double meanPersonCount = totalCount / distinctPeopleCount;
-    LOG_TRACE("meanPersonCount = " << meanPersonCount);
+    LOG_TRACE(<< "meanPersonCount = " << meanPersonCount);
 
     return std::min(meanPersonCount / personCount, 1.0);
 }
@@ -338,8 +338,8 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
         // We batch people in CHUNK_SIZE (500) and create models in chunks
         // and test usage after each chunk.
         std::size_t numberToCreate = std::min(numberNewPeople, CHUNK_SIZE);
-        LOG_TRACE("Creating batch of " << numberToCreate << " people of remaining " << numberNewPeople << ". " << resourceLimit - ourUsage
-                                       << " free bytes remaining");
+        LOG_TRACE(<< "Creating batch of " << numberToCreate << " people of remaining " << numberNewPeople << ". "
+                  << resourceLimit - ourUsage << " free bytes remaining");
         this->createNewModels(numberToCreate, 0);
         numberExistingPeople += numberToCreate;
         numberNewPeople -= numberToCreate;
@@ -353,8 +353,8 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
         // We batch attributes in CHUNK_SIZE (500) and create models in chunks
         // and test usage after each chunk.
         std::size_t numberToCreate = std::min(numberNewAttributes, CHUNK_SIZE);
-        LOG_TRACE("Creating batch of " << numberToCreate << " attributes of remaining " << numberNewAttributes << ". "
-                                       << resourceLimit - ourUsage << " free bytes remaining");
+        LOG_TRACE(<< "Creating batch of " << numberToCreate << " attributes of remaining " << numberNewAttributes << ". "
+                  << resourceLimit - ourUsage << " free bytes remaining");
         this->createNewModels(0, numberToCreate);
         numberExistingAttributes += numberToCreate;
         numberNewAttributes -= numberToCreate;
@@ -365,14 +365,14 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
 
     if (numberNewPeople > 0) {
         resourceMonitor.acceptAllocationFailureResult(time);
-        LOG_DEBUG("Not enough memory to create person models");
+        LOG_DEBUG(<< "Not enough memory to create person models");
         core::CStatistics::instance().stat(stat_t::E_NumberMemoryLimitModelCreationFailures).increment(numberNewPeople);
         std::size_t toRemove = gatherer.numberPeople() - numberNewPeople;
         gatherer.removePeople(toRemove);
     }
     if (numberNewAttributes > 0) {
         resourceMonitor.acceptAllocationFailureResult(time);
-        LOG_DEBUG("Not enough memory to create attribute models");
+        LOG_DEBUG(<< "Not enough memory to create attribute models");
         core::CStatistics::instance().stat(stat_t::E_NumberMemoryLimitModelCreationFailures).increment(numberNewAttributes);
         std::size_t toRemove = gatherer.numberAttributes() - numberNewAttributes;
         gatherer.removeAttributes(toRemove);
@@ -474,8 +474,8 @@ void CPopulationModel::peopleAndAttributesToRemove(core_t::TTime time,
         if ((gatherer.isPersonActive(pid)) && (!CAnomalyDetectorModel::isTimeUnset(m_PersonLastBucketTimes[pid]))) {
             std::size_t bucketsSinceLastEvent = static_cast<std::size_t>((time - m_PersonLastBucketTimes[pid]) / gatherer.bucketLength());
             if (bucketsSinceLastEvent > maximumAge) {
-                LOG_TRACE(gatherer.personName(pid)
-                          << ", bucketsSinceLastEvent = " << bucketsSinceLastEvent << ", maximumAge = " << maximumAge);
+                LOG_TRACE(<< gatherer.personName(pid) << ", bucketsSinceLastEvent = " << bucketsSinceLastEvent
+                          << ", maximumAge = " << maximumAge);
                 peopleToRemove.push_back(pid);
             }
         }
@@ -486,8 +486,8 @@ void CPopulationModel::peopleAndAttributesToRemove(core_t::TTime time,
             std::size_t bucketsSinceLastEvent =
                 static_cast<std::size_t>((time - m_AttributeLastBucketTimes[cid]) / gatherer.bucketLength());
             if (bucketsSinceLastEvent > maximumAge) {
-                LOG_TRACE(gatherer.attributeName(cid)
-                          << ", bucketsSinceLastEvent = " << bucketsSinceLastEvent << ", maximumAge = " << maximumAge);
+                LOG_TRACE(<< gatherer.attributeName(cid) << ", bucketsSinceLastEvent = " << bucketsSinceLastEvent
+                          << ", maximumAge = " << maximumAge);
                 attributesToRemove.push_back(cid);
             }
         }

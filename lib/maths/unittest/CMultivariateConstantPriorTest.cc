@@ -38,9 +38,9 @@ TDouble10Vec4Vec1Vec singleUnitWeight(std::size_t dimension) {
 }
 
 void CMultivariateConstantPriorTest::testAddSamples() {
-    LOG_DEBUG("+--------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateConstantPriorTest::testAddSamples  |");
-    LOG_DEBUG("+--------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testAddSamples  |");
+    LOG_DEBUG(<< "+--------------------------------------------------+");
 
     // Test error cases.
 
@@ -64,9 +64,9 @@ void CMultivariateConstantPriorTest::testAddSamples() {
 }
 
 void CMultivariateConstantPriorTest::testMarginalLikelihood() {
-    LOG_DEBUG("+----------------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateConstantPriorTest::testMarginalLikelihood  |");
-    LOG_DEBUG("+----------------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testMarginalLikelihood  |");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
 
     // Check that the marginal likelihood is 0 for non informative, otherwise
     // either 0 or infinity depending on whether the value is equal to the
@@ -112,9 +112,9 @@ void CMultivariateConstantPriorTest::testMarginalLikelihood() {
 }
 
 void CMultivariateConstantPriorTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG("+--------------------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateConstantPriorTest::testMarginalLikelihoodMean  |");
-    LOG_DEBUG("+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testMarginalLikelihoodMean  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
 
     // Check that the marginal likelihood mean is 0 for non informative,
     // otherwise equal to the constant.
@@ -130,9 +130,9 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodMean() {
 }
 
 void CMultivariateConstantPriorTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG("+--------------------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateConstantPriorTest::testMarginalLikelihoodMode  |");
-    LOG_DEBUG("+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testMarginalLikelihoodMode  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
 
     // Check that the marginal likelihood mode is 0 for non informative,
     // otherwise equal to the constant.
@@ -150,9 +150,9 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodMode() {
 }
 
 void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance() {
-    LOG_DEBUG("+--------------------------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance  |");
-    LOG_DEBUG("+--------------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
 
     // Check that the marginal likelihood mode is infinite diagonal for
     // non informative, otherwise the zero matrix.
@@ -186,9 +186,9 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance() {
 }
 
 void CMultivariateConstantPriorTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG("+----------------------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateConstantPriorTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG("+----------------------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testSampleMarginalLikelihood  |");
+    LOG_DEBUG(<< "+----------------------------------------------------------------+");
 
     // Check we get zero samples for non-informative and sample of the
     // constant otherwise.
@@ -211,9 +211,9 @@ void CMultivariateConstantPriorTest::testSampleMarginalLikelihood() {
 }
 
 void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG("+----------------------------------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG("+----------------------------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+----------------------------------------------------------------------+");
 
     // Check we get one for non-informative and the constant and zero
     // otherwise.
@@ -230,7 +230,7 @@ void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples() {
         filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, COUNT_WEIGHT, samples[i], singleUnitWeight(2), lb, ub, tail);
         CPPUNIT_ASSERT_EQUAL(1.0, lb);
         CPPUNIT_ASSERT_EQUAL(1.0, ub);
-        LOG_DEBUG("tail = " << core::CContainerPrinter::print(tail));
+        LOG_DEBUG(<< "tail = " << core::CContainerPrinter::print(tail));
         CPPUNIT_ASSERT_EQUAL(std::string("[0, 0]"), core::CContainerPrinter::print(tail));
     }
 
@@ -244,19 +244,19 @@ void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples() {
         filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided, COUNT_WEIGHT, samples[i], singleUnitWeight(2), lb, ub, tail);
         CPPUNIT_ASSERT_EQUAL(i == 0 ? 1.0 : 0.0, lb);
         CPPUNIT_ASSERT_EQUAL(i == 0 ? 1.0 : 0.0, ub);
-        LOG_DEBUG("tail = " << core::CContainerPrinter::print(tail));
+        LOG_DEBUG(<< "tail = " << core::CContainerPrinter::print(tail));
         CPPUNIT_ASSERT_EQUAL(expectedTails[i], core::CContainerPrinter::print(tail));
     }
 }
 
 void CMultivariateConstantPriorTest::testPersist() {
-    LOG_DEBUG("+-----------------------------------------------+");
-    LOG_DEBUG("|  CMultivariateConstantPriorTest::testPersist  |");
-    LOG_DEBUG("+-----------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testPersist  |");
+    LOG_DEBUG(<< "+-----------------------------------------------+");
 
     // Check persistence is idempotent.
 
-    LOG_DEBUG("*** Non-informative ***");
+    LOG_DEBUG(<< "*** Non-informative ***");
     {
         maths::CMultivariateConstantPrior origFilter(3);
         uint64_t checksum = origFilter.checksum();
@@ -268,7 +268,7 @@ void CMultivariateConstantPriorTest::testPersist() {
             inserter.toXml(origXml);
         }
 
-        LOG_DEBUG("Constant XML representation:\n" << origXml);
+        LOG_DEBUG(<< "Constant XML representation:\n" << origXml);
 
         // Restore the XML into a new filter
         core::CRapidXmlParser parser;
@@ -277,7 +277,7 @@ void CMultivariateConstantPriorTest::testPersist() {
 
         maths::CMultivariateConstantPrior restoredFilter(3, traverser);
 
-        LOG_DEBUG("orig checksum = " << checksum << " restored checksum = " << restoredFilter.checksum());
+        LOG_DEBUG(<< "orig checksum = " << checksum << " restored checksum = " << restoredFilter.checksum());
         CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
 
         // The XML representation of the new filter should be the same as the original
@@ -290,7 +290,7 @@ void CMultivariateConstantPriorTest::testPersist() {
         CPPUNIT_ASSERT_EQUAL(origXml, newXml);
     }
 
-    LOG_DEBUG("*** Constant ***");
+    LOG_DEBUG(<< "*** Constant ***");
     {
         double constant[] = {1.2, 4.1, 1.0 / 3.0};
 
@@ -304,7 +304,7 @@ void CMultivariateConstantPriorTest::testPersist() {
             inserter.toXml(origXml);
         }
 
-        LOG_DEBUG("Constant XML representation:\n" << origXml);
+        LOG_DEBUG(<< "Constant XML representation:\n" << origXml);
 
         // Restore the XML into a new filter
         core::CRapidXmlParser parser;
@@ -313,7 +313,7 @@ void CMultivariateConstantPriorTest::testPersist() {
 
         maths::CMultivariateConstantPrior restoredFilter(3, traverser);
 
-        LOG_DEBUG("orig checksum = " << checksum << " restored checksum = " << restoredFilter.checksum());
+        LOG_DEBUG(<< "orig checksum = " << checksum << " restored checksum = " << restoredFilter.checksum());
         CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
 
         // The XML representation of the new filter should be the same as the original

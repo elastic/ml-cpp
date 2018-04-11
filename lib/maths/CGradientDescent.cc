@@ -39,7 +39,7 @@ bool CGradientDescent::run(std::size_t n, const TVector& x0, const CFunction& f,
     for (std::size_t i = 0u; i < n; ++i) {
         double fx;
         if (!f(x, fx)) {
-            LOG_ERROR("Bailing on iteration " << i);
+            LOG_ERROR(<< "Bailing on iteration " << i);
             return false;
         }
 
@@ -49,7 +49,7 @@ bool CGradientDescent::run(std::size_t n, const TVector& x0, const CFunction& f,
         fi.push_back(fx);
 
         if (!gf(x, gfx)) {
-            LOG_ERROR("Bailing on iteration " << i);
+            LOG_ERROR(<< "Bailing on iteration " << i);
             return false;
         }
         double norm = gfx.euclidean();
@@ -58,12 +58,12 @@ bool CGradientDescent::run(std::size_t n, const TVector& x0, const CFunction& f,
 
         m_PreviousStep *= m_Momentum;
         m_PreviousStep += gfx;
-        LOG_TRACE("gradient fx = " << gfx << ", step = " << m_PreviousStep);
+        LOG_TRACE(<< "gradient fx = " << gfx << ", step = " << m_PreviousStep);
 
         x += m_PreviousStep;
     }
 
-    LOG_TRACE("fi = " << core::CContainerPrinter::print(fi));
+    LOG_TRACE(<< "fi = " << core::CContainerPrinter::print(fi));
     return true;
 }
 
@@ -78,7 +78,7 @@ CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFu
 
 bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector& x, TVector& result) const {
     if (x.dimension() != result.dimension()) {
-        LOG_ERROR("Dimension mismatch");
+        LOG_ERROR(<< "Dimension mismatch");
         return false;
     }
 
@@ -87,13 +87,13 @@ bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector& x, T
         xShiftEps(i) -= m_Eps;
         double fMinusEps;
         if (!m_F(xShiftEps, fMinusEps)) {
-            LOG_ERROR("Failed to evaluate function at x - eps");
+            LOG_ERROR(<< "Failed to evaluate function at x - eps");
             return false;
         }
         xShiftEps(i) += 2.0 * m_Eps;
         double fPlusEps;
         if (!m_F(xShiftEps, fPlusEps)) {
-            LOG_ERROR("Failed to evaluate function at x + eps");
+            LOG_ERROR(<< "Failed to evaluate function at x + eps");
             return false;
         }
         xShiftEps(i) -= m_Eps;

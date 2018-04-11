@@ -17,8 +17,8 @@ CppUnit::Test* CShellArgQuoterTest::suite() {
 }
 
 void CShellArgQuoterTest::testQuote() {
-    LOG_DEBUG("\n"
-              "echo "
+    LOG_DEBUG(<< "\n"
+                 "echo "
               << ml::core::CShellArgQuoter::quote("")
               << "\n"
                  "echo "

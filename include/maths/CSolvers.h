@@ -165,8 +165,8 @@ private:
 
             double u = x + s;
             double fu = f(u);
-            LOG_TRACE("s = " << s << ", u = " << u)
-            LOG_TRACE("f(u) = " << fu << ", f(x) = " << fx);
+            LOG_TRACE(<< "s = " << s << ", u = " << u)
+            LOG_TRACE(<< "f(u) = " << fu << ", f(x) = " << fx);
 
             if (fu <= fx) {
                 u >= x ? a = x : b = x;
@@ -182,9 +182,9 @@ private:
                     fv = fu;
                 }
             }
-            LOG_TRACE("a = " << a << ", b = " << b);
-            LOG_TRACE("x = " << x << ", v = " << v << ", w = " << w);
-            LOG_TRACE("f(x) = " << fx << ", f(v) = " << fv << ", f(w) = " << fw);
+            LOG_TRACE(<< "a = " << a << ", b = " << b);
+            LOG_TRACE(<< "x = " << x << ", v = " << v << ", w = " << w);
+            LOG_TRACE(<< "f(x) = " << fx << ", f(v) = " << fv << ", f(w) = " << fw);
         } while (--n > 0);
 
         maxIterations -= n;
@@ -407,7 +407,7 @@ public:
             maxIterations = static_cast<std::size_t>(n);
             return;
         } catch (const std::exception& e) {
-            LOG_TRACE("Falling back to Brent's solver: " << e.what());
+            LOG_TRACE(<< "Falling back to Brent's solver: " << e.what());
             // Avoid compiler warning in the case of LOG_TRACE being compiled out
             static_cast<void>(&e);
         }
@@ -754,7 +754,7 @@ public:
         std::size_t n = p.size();
 
         if (n == 0) {
-            LOG_ERROR("Must provide points at which to evaluate function");
+            LOG_ERROR(<< "Must provide points at which to evaluate function");
             return false;
         }
 
@@ -765,8 +765,8 @@ public:
             fp[i] = fi;
             min.add(TDoubleSizePr(fi, i));
         }
-        LOG_TRACE("p    = " << core::CContainerPrinter::print(p));
-        LOG_TRACE("f(p) = " << core::CContainerPrinter::print(fp));
+        LOG_TRACE(<< "p    = " << core::CContainerPrinter::print(p));
+        LOG_TRACE(<< "f(p) = " << core::CContainerPrinter::print(fp));
 
         std::size_t i = min[0].second;
         std::size_t maxIterations = 5;
@@ -783,7 +783,7 @@ public:
                 fx = fp[i];
             }
         }
-        LOG_TRACE("x = " << x << " fx = " << fx);
+        LOG_TRACE(<< "x = " << x << " fx = " << fx);
         return true;
     }
 
@@ -859,28 +859,28 @@ public:
 
         CCompositeFunctions::CMinusConstant<F> f_(f, fc);
 
-        LOG_TRACE("a = " << a << ", x = " << x << ", b = " << b);
-        LOG_TRACE("f_(a) = " << fa - fc << ", f_(x) = " << fx - fc << ", f_(b) = " << fb - fc);
+        LOG_TRACE(<< "a = " << a << ", x = " << x << ", b = " << b);
+        LOG_TRACE(<< "f_(a) = " << fa - fc << ", f_(x) = " << fx - fc << ", f_(b) = " << fb - fc);
 
         const double eps = std::sqrt(std::numeric_limits<double>::epsilon()) * b;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
-        LOG_TRACE("eps = " << eps);
+        LOG_TRACE(<< "eps = " << eps);
 
         try {
             std::size_t n = maxIterations;
             solve(a, x, fa - fc, fx - fc, f_, n, equal, result.first);
-            LOG_TRACE("iterations = " << n);
+            LOG_TRACE(<< "iterations = " << n);
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed to find left end point: " << e.what());
+            LOG_ERROR(<< "Failed to find left end point: " << e.what());
             return false;
         }
 
         try {
             std::size_t n = maxIterations;
             solve(x, b, fx - fc, fb - fc, f_, n, equal, result.second);
-            LOG_TRACE("iterations = " << n);
+            LOG_TRACE(<< "iterations = " << n);
         } catch (std::exception& e) {
-            LOG_ERROR("Failed to find right end point: " << e.what());
+            LOG_ERROR(<< "Failed to find right end point: " << e.what());
             return false;
         }
 

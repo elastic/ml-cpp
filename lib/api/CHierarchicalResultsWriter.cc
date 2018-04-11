@@ -197,13 +197,13 @@ void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchica
         const std::string& attribute = *attributeProbability.s_Attribute;
         const TDouble1Vec& personAttributeValue = attributeProbability.s_CurrentBucketValue;
         if (personAttributeValue.empty()) {
-            LOG_ERROR("Failed to get current bucket value for " << attribute);
+            LOG_ERROR(<< "Failed to get current bucket value for " << attribute);
             continue;
         }
 
         const TDouble1Vec& attributeMean = attributeProbability.s_BaselineBucketMean;
         if (attributeMean.empty()) {
-            LOG_ERROR("Failed to get population mean for " << attribute);
+            LOG_ERROR(<< "Failed to get population mean for " << attribute);
             continue;
         }
 
@@ -347,9 +347,9 @@ void CHierarchicalResultsWriter::writePivotResult(const model::CHierarchicalResu
         return;
     }
 
-    LOG_TRACE("bucket start time " << m_BucketTime);
+    LOG_TRACE(<< "bucket start time " << m_BucketTime);
     if (!m_PivotWriterFunc(m_BucketTime, node, this->isRoot(node))) {
-        LOG_ERROR("Failed to write influencer result for " << node.s_Spec.print());
+        LOG_ERROR(<< "Failed to write influencer result for " << node.s_Spec.print());
         return;
     }
 }

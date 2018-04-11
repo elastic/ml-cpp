@@ -81,12 +81,12 @@ operator()(const SDistributionRestoreParams& params, TPriorPtr& ptr, core::CStat
             // Due to the way we divide large state into multiple chunks
             // this is not necessarily a problem - the unexpected element may be
             // marking the start of a new chunk
-            LOG_WARN("No prior distribution corresponds to node name " << traverser.name());
+            LOG_WARN(<< "No prior distribution corresponds to node name " << traverser.name());
         }
     } while (traverser.next());
 
     if (numResults != 1) {
-        LOG_ERROR("Expected 1 (got " << numResults << ") prior model tags");
+        LOG_ERROR(<< "Expected 1 (got " << numResults << ") prior model tags");
         ptr.reset();
         return false;
     }
@@ -114,7 +114,7 @@ void CPriorStateSerialiser::operator()(const CPrior& prior, core::CStatePersistI
     } else if (dynamic_cast<const CPoissonMeanConjugate*>(&prior) != nullptr) {
         tagName = POISSON_TAG;
     } else {
-        LOG_ERROR("Prior distribution with type '" << typeid(prior).name() << "' has no defined field name");
+        LOG_ERROR(<< "Prior distribution with type '" << typeid(prior).name() << "' has no defined field name");
         return;
     }
 
@@ -130,7 +130,7 @@ operator()(const SDistributionRestoreParams& params, TMultivariatePriorPtr& ptr,
         if (name == CMultivariatePrior::CONSTANT_TAG) {
             std::size_t dimension;
             if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::CONSTANT_TAG.length()), dimension) == false) {
-                LOG_ERROR("Bad dimension encoded in " << name);
+                LOG_ERROR(<< "Bad dimension encoded in " << name);
                 return false;
             }
             ptr.reset(new CMultivariateConstantPrior(dimension, traverser));
@@ -138,7 +138,7 @@ operator()(const SDistributionRestoreParams& params, TMultivariatePriorPtr& ptr,
         } else if (name.find(CMultivariatePrior::MULTIMODAL_TAG) != std::string::npos) {
             std::size_t dimension;
             if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::MULTIMODAL_TAG.length()), dimension) == false) {
-                LOG_ERROR("Bad dimension encoded in " << name);
+                LOG_ERROR(<< "Bad dimension encoded in " << name);
                 return false;
             }
             CMultivariateMultimodalPriorFactory::restore(dimension, params, ptr, traverser);
@@ -146,7 +146,7 @@ operator()(const SDistributionRestoreParams& params, TMultivariatePriorPtr& ptr,
         } else if (name.find(CMultivariatePrior::NORMAL_TAG) != std::string::npos) {
             std::size_t dimension;
             if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::NORMAL_TAG.length()), dimension) == false) {
-                LOG_ERROR("Bad dimension encoded in " << name);
+                LOG_ERROR(<< "Bad dimension encoded in " << name);
                 return false;
             }
             CMultivariateNormalConjugateFactory::restore(dimension, params, ptr, traverser);
@@ -154,7 +154,7 @@ operator()(const SDistributionRestoreParams& params, TMultivariatePriorPtr& ptr,
         } else if (name.find(CMultivariatePrior::ONE_OF_N_TAG) != std::string::npos) {
             std::size_t dimension;
             if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::ONE_OF_N_TAG.length()), dimension) == false) {
-                LOG_ERROR("Bad dimension encoded in " << name);
+                LOG_ERROR(<< "Bad dimension encoded in " << name);
                 return false;
             }
             CMultivariateOneOfNPriorFactory::restore(dimension, params, ptr, traverser);
@@ -163,12 +163,12 @@ operator()(const SDistributionRestoreParams& params, TMultivariatePriorPtr& ptr,
             // Due to the way we divide large state into multiple chunks
             // this is not necessarily a problem - the unexpected element may be
             // marking the start of a new chunk
-            LOG_WARN("No prior distribution corresponds to node name " << traverser.name());
+            LOG_WARN(<< "No prior distribution corresponds to node name " << traverser.name());
         }
     } while (traverser.next());
 
     if (numResults != 1) {
-        LOG_ERROR("Expected 1 (got " << numResults << ") prior model tags");
+        LOG_ERROR(<< "Expected 1 (got " << numResults << ") prior model tags");
         ptr.reset();
         return false;
     }

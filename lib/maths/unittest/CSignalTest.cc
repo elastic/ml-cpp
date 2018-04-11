@@ -25,7 +25,7 @@ using TSizeVec = std::vector<std::size_t>;
 std::string print(const maths::CSignal::TComplexVec& f) {
     std::ostringstream result;
     for (std::size_t i = 0u; i < f.size(); ++i) {
-        LOG_DEBUG(f[i].real() << " + " << f[i].imag() << 'i');
+        LOG_DEBUG(<< f[i].real() << " + " << f[i].imag() << 'i');
     }
     return result.str();
 }
@@ -46,9 +46,9 @@ void bruteForceDft(maths::CSignal::TComplexVec& f, double sign) {
 }
 
 void CSignalTest::testFFTVersusOctave() {
-    LOG_DEBUG("+------------------------------------+");
-    LOG_DEBUG("|  CSignalTest::testFFTVersusOctave  |");
-    LOG_DEBUG("+------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------+");
+    LOG_DEBUG(<< "|  CSignalTest::testFFTVersusOctave  |");
+    LOG_DEBUG(<< "+------------------------------------+");
 
     // Test versus values calculated using octave fft.
 
@@ -62,7 +62,7 @@ void CSignalTest::testFFTVersusOctave() {
         fx.push_back(maths::CSignal::TComplex(x[0][i], x[1][i]));
     }
 
-    LOG_DEBUG("*** Power of 2 Length ***");
+    LOG_DEBUG(<< "*** Power of 2 Length ***");
     {
         double expected[][2] = {// length 2
                                 {4007.1, -341.9},
@@ -100,23 +100,23 @@ void CSignalTest::testFFTVersusOctave() {
                                 {1629.0, -27167.0}};
 
         for (std::size_t i = 0u, l = 2u; l < fx.size(); i += l, l <<= 1) {
-            LOG_DEBUG("Testing length " << l);
+            LOG_DEBUG(<< "Testing length " << l);
 
             maths::CSignal::TComplexVec actual(fx.begin(), fx.begin() + l);
             maths::CSignal::fft(actual);
-            LOG_DEBUG(print(actual));
+            LOG_DEBUG(<< print(actual));
 
             double error = 0.0;
             for (std::size_t j = 0u; j < l; ++j) {
                 error += std::abs(actual[j] - maths::CSignal::TComplex(expected[i + j][0], expected[i + j][1]));
             }
             error /= static_cast<double>(l);
-            LOG_DEBUG("error = " << error);
+            LOG_DEBUG(<< "error = " << error);
             CPPUNIT_ASSERT(error < 0.2);
         }
     }
 
-    LOG_DEBUG("*** Arbitrary Length ***");
+    LOG_DEBUG(<< "*** Arbitrary Length ***");
     {
         double expected[][2] = {{18042.0, 755.0},    {961.0, 5635.6},    {-5261.8, 7542.2},   {-12814.0, 2250.2}, {-8248.5, 6620.5},
                                 {-21626.0, 3570.6},  {6551.5, -12732.0}, {6009.5, 10622.0},   {9954.0, -1224.2},  {-2871.5, 7073.6},
@@ -130,15 +130,15 @@ void CSignalTest::testFFTVersusOctave() {
             error += std::abs(actual[j] - maths::CSignal::TComplex(expected[j][0], expected[j][1]));
         }
         error /= static_cast<double>(actual.size());
-        LOG_DEBUG("error = " << error);
+        LOG_DEBUG(<< "error = " << error);
         CPPUNIT_ASSERT(error < 0.2);
     }
 }
 
 void CSignalTest::testIFFTVersusOctave() {
-    LOG_DEBUG("+-------------------------------------+");
-    LOG_DEBUG("|  CSignalTest::testIFFTVersusOctave  |");
-    LOG_DEBUG("+-------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------+");
+    LOG_DEBUG(<< "|  CSignalTest::testIFFTVersusOctave  |");
+    LOG_DEBUG(<< "+-------------------------------------+");
 
     // Test versus values calculated using octave ifft.
 
@@ -152,7 +152,7 @@ void CSignalTest::testIFFTVersusOctave() {
         fx.push_back(maths::CSignal::TComplex(x[0][i], x[1][i]));
     }
 
-    LOG_DEBUG("*** Powers of 2 Length ***");
+    LOG_DEBUG(<< "*** Powers of 2 Length ***");
     {
         double expected[][2] = {// length 2
                                 {2003.56, -170.93},
@@ -190,27 +190,27 @@ void CSignalTest::testIFFTVersusOctave() {
                                 {73.53, -196.49}};
 
         for (std::size_t i = 0u, l = 2u; l < fx.size(); i += l, l <<= 1) {
-            LOG_DEBUG("Testing length " << l);
+            LOG_DEBUG(<< "Testing length " << l);
 
             maths::CSignal::TComplexVec actual(fx.begin(), fx.begin() + l);
             maths::CSignal::ifft(actual);
-            LOG_DEBUG(print(actual));
+            LOG_DEBUG(<< print(actual));
 
             double error = 0.0;
             for (std::size_t j = 0u; j < l; ++j) {
                 error += std::abs(actual[j] - maths::CSignal::TComplex(expected[i + j][0], expected[i + j][1]));
             }
             error /= static_cast<double>(l);
-            LOG_DEBUG("error = " << error);
+            LOG_DEBUG(<< "error = " << error);
             CPPUNIT_ASSERT(error < 0.01);
         }
     }
 }
 
 void CSignalTest::testFFTRandomized() {
-    LOG_DEBUG("+----------------------------------+");
-    LOG_DEBUG("|  CSignalTest::testFFTRandomized  |");
-    LOG_DEBUG("+----------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------+");
+    LOG_DEBUG(<< "|  CSignalTest::testFFTRandomized  |");
+    LOG_DEBUG(<< "+----------------------------------+");
 
     // Test on randomized input versus brute force.
 
@@ -238,16 +238,16 @@ void CSignalTest::testFFTRandomized() {
         }
 
         if (i % 5 == 0 || error >= 1e-5) {
-            LOG_DEBUG("length = " << lengths[i] << ", error  = " << error);
+            LOG_DEBUG(<< "length = " << lengths[i] << ", error  = " << error);
         }
         CPPUNIT_ASSERT(error < 1e-5);
     }
 }
 
 void CSignalTest::testIFFTRandomized() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CSignalTest::testIFFTRandomized  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CSignalTest::testIFFTRandomized  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     // Test on randomized input versus brute force.
 
@@ -275,16 +275,16 @@ void CSignalTest::testIFFTRandomized() {
         }
 
         if (i % 5 == 0 || error >= 1e-5) {
-            LOG_DEBUG("length = " << lengths[i] << ", error  = " << error);
+            LOG_DEBUG(<< "length = " << lengths[i] << ", error  = " << error);
         }
         CPPUNIT_ASSERT(error < 1e-5);
     }
 }
 
 void CSignalTest::testFFTIFFTIdempotency() {
-    LOG_DEBUG("+---------------------------------------+");
-    LOG_DEBUG("|  CSignalTest::testFFTIFFTIdempotency  |");
-    LOG_DEBUG("+---------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------+");
+    LOG_DEBUG(<< "|  CSignalTest::testFFTIFFTIdempotency  |");
+    LOG_DEBUG(<< "+---------------------------------------+");
 
     // Test on randomized input that x = F(F^-1(x)).
 
@@ -312,16 +312,16 @@ void CSignalTest::testFFTIFFTIdempotency() {
         }
 
         if (i % 5 == 0 || error >= 1e-5) {
-            LOG_DEBUG("length = " << lengths[i] << ", error  = " << error);
+            LOG_DEBUG(<< "length = " << lengths[i] << ", error  = " << error);
         }
         CPPUNIT_ASSERT(error < 1e-5);
     }
 }
 
 void CSignalTest::testAutocorrelations() {
-    LOG_DEBUG("+-------------------------------------+");
-    LOG_DEBUG("|  CSignalTest::testAutocorrelations  |");
-    LOG_DEBUG("+-------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------+");
+    LOG_DEBUG(<< "|  CSignalTest::testAutocorrelations  |");
+    LOG_DEBUG(<< "+-------------------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -346,8 +346,8 @@ void CSignalTest::testAutocorrelations() {
         maths::CSignal::autocorrelations(values, actual);
 
         if (t % 10 == 0) {
-            LOG_DEBUG("expected = " << core::CContainerPrinter::print(expected));
-            LOG_DEBUG("actual   = " << core::CContainerPrinter::print(actual));
+            LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
+            LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
         }
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected), core::CContainerPrinter::print(actual));
     }

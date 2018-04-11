@@ -368,7 +368,7 @@ void doComputeInfluences(model_t::EFeature feature,
         double pi;
         bool conditional;
         if (!model.probability(params, time, influencedValue, pi, tail, conditional, mostAnomalousCorrelate)) {
-            LOG_ERROR("Failed to compute P(" << influencedValue[0] << " | influencer = " << core::CContainerPrinter::print(*i) << ")");
+            LOG_ERROR(<< "Failed to compute P(" << influencedValue[0] << " | influencer = " << core::CContainerPrinter::print(*i) << ")");
             continue;
         }
         pi = maths::CTools::truncate(pi, maths::CTools::smallestProbability(), 1.0);
@@ -376,10 +376,10 @@ void doComputeInfluences(model_t::EFeature feature,
 
         double influence = computeInfluence(logp, maths::CTools::fastLog(pi));
 
-        LOG_TRACE("log(p) = " << logp << ", tail = " << core::CContainerPrinter::print(tail)
-                              << ", v(i) = " << core::CContainerPrinter::print(influencedValue) << ", log(p(i)) = " << std::log(pi)
-                              << ", weight = " << core::CContainerPrinter::print(params.weights()) << ", influence = " << influence
-                              << ", influencer field value = " << i->first.get());
+        LOG_TRACE(<< "log(p) = " << logp << ", tail = " << core::CContainerPrinter::print(tail)
+                  << ", v(i) = " << core::CContainerPrinter::print(influencedValue) << ", log(p(i)) = " << std::log(pi)
+                  << ", weight = " << core::CContainerPrinter::print(params.weights()) << ", influence = " << influence
+                  << ", influencer field value = " << i->first.get());
 
         if (dimension == 1 && influence >= cutoff) {
             result.emplace_back(TStoredStringPtrStoredStringPtrPr(influencerName, canonical(i->first)), influence);
@@ -445,8 +445,8 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
         double pi;
         bool conditional;
         if (!model.probability(params, TTime2Vec1Vec{time}, influencedValue, pi, tail, conditional, mostAnomalousCorrelate)) {
-            LOG_ERROR("Failed to compute P(" << core::CContainerPrinter::print(influencedValue)
-                                             << " | influencer = " << core::CContainerPrinter::print(influence_) << ")");
+            LOG_ERROR(<< "Failed to compute P(" << core::CContainerPrinter::print(influencedValue)
+                      << " | influencer = " << core::CContainerPrinter::print(influence_) << ")");
             continue;
         }
         pi = maths::CTools::truncate(pi, maths::CTools::smallestProbability(), 1.0);
@@ -454,9 +454,9 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
 
         double influence = computeInfluence(logp, std::log(pi));
 
-        LOG_TRACE("log(p) = " << logp << ", v(i) = " << core::CContainerPrinter::print(influencedValue) << ", log(p(i)) = " << std::log(pi)
-                              << ", weight(i) = " << core::CContainerPrinter::print(params.weights()) << ", influence = " << influence
-                              << ", influencer field value = " << influence_.first.get());
+        LOG_TRACE(<< "log(p) = " << logp << ", v(i) = " << core::CContainerPrinter::print(influencedValue)
+                  << ", log(p(i)) = " << std::log(pi) << ", weight(i) = " << core::CContainerPrinter::print(params.weights())
+                  << ", influence = " << influence << ", influencer field value = " << influence_.first.get());
 
         if (includeCutoff || influence >= cutoff) {
             result.emplace_back(TStoredStringPtrStoredStringPtrPr(influencerName, canonical(influence_.first)), influence);
@@ -649,7 +649,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
                                                        SParams& params,
                                                        double weight) {
     if (!m_InfluenceCalculator) {
-        LOG_ERROR("No influence calculator plug-in: can't compute influence");
+        LOG_ERROR(<< "No influence calculator plug-in: can't compute influence");
         return;
     }
 
@@ -686,7 +686,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
                                                        SCorrelateParams& params,
                                                        double weight) {
     if (!m_InfluenceCalculator) {
-        LOG_ERROR("No influence calculator plug-in: can't compute influence");
+        LOG_ERROR(<< "No influence calculator plug-in: can't compute influence");
         return;
     }
 
@@ -727,7 +727,7 @@ bool CProbabilityAndInfluenceCalculator::calculate(double& probability, TStoredS
         return false;
     }
 
-    LOG_TRACE("probability = " << probability);
+    LOG_TRACE(<< "probability = " << probability);
 
     double logp = std::log(probability);
 
@@ -735,9 +735,9 @@ bool CProbabilityAndInfluenceCalculator::calculate(double& probability, TStoredS
     for (const auto& aggregator : m_InfluencerProbabilities) {
         double probability_;
         if (!aggregator.second.calculate(probability_)) {
-            LOG_ERROR("Couldn't calculate probability for influencer " << core::CContainerPrinter::print(aggregator.first));
+            LOG_ERROR(<< "Couldn't calculate probability for influencer " << core::CContainerPrinter::print(aggregator.first));
         }
-        LOG_TRACE("influence probability = " << probability_);
+        LOG_TRACE(<< "influence probability = " << probability_);
         double influence = CInfluenceCalculator::intersectionInfluence(logp, std::log(probability_));
         if (influence >= m_Cutoff) {
             influences.emplace_back(aggregator.first, influence);
@@ -749,14 +749,14 @@ bool CProbabilityAndInfluenceCalculator::calculate(double& probability, TStoredS
 }
 
 void CProbabilityAndInfluenceCalculator::commitInfluences(model_t::EFeature feature, double logp, double weight) {
-    LOG_TRACE("influences = " << core::CContainerPrinter::print(m_Influences));
+    LOG_TRACE(<< "influences = " << core::CContainerPrinter::print(m_Influences));
 
     for (const auto& influence : m_Influences) {
         CModelTools::CProbabilityAggregator& aggregator =
             m_InfluencerProbabilities.emplace(influence.first, m_ProbabilityTemplate).first->second;
         if (!model_t::isConstant(feature)) {
             double probability = std::exp(influence.second * logp);
-            LOG_TRACE("Adding = " << influence.first.second.get() << " " << probability);
+            LOG_TRACE(<< "Adding = " << influence.first.second.get() << " " << probability);
             aggregator.add(probability, weight);
         }
     }
@@ -849,7 +849,7 @@ void CLogProbabilityComplementInfluenceCalculator::computeInfluences(TParams& pa
         if (model_t::dimension(params.s_Feature) == 1) {
             std::sort(influencerValues.begin(), influencerValues.end(), CDecreasingValueInfluence(params.s_Tail[0]));
         }
-        LOG_TRACE("influencerValues = " << core::CContainerPrinter::print(influencerValues));
+        LOG_TRACE(<< "influencerValues = " << core::CContainerPrinter::print(influencerValues));
 
         doComputeInfluences(params.s_Feature,
                             CValueDifference(),
@@ -880,7 +880,7 @@ void CLogProbabilityComplementInfluenceCalculator::computeInfluences(TCorrelateP
             .weightStyles(params.s_ComputeProbabilityParams.weightStyles())
             .addWeights(params.s_ComputeProbabilityParams.weights()[correlate])
             .mostAnomalousCorrelate(correlate);
-        LOG_TRACE("influencerValues = " << core::CContainerPrinter::print(params.s_InfluencerValues));
+        LOG_TRACE(<< "influencerValues = " << core::CContainerPrinter::print(params.s_InfluencerValues));
         doComputeCorrelateInfluences(params.s_Feature,
                                      CValueDifference(),
                                      complementInfluence,
@@ -938,7 +938,7 @@ void CLogProbabilityInfluenceCalculator::computeInfluences(TParams& params) cons
         if (model_t::dimension(params.s_Feature) == 1) {
             std::sort(influencerValues.begin(), influencerValues.end(), CDecreasingValueInfluence(params.s_Tail[0]));
         }
-        LOG_TRACE("influencerValues = " << core::CContainerPrinter::print(influencerValues));
+        LOG_TRACE(<< "influencerValues = " << core::CContainerPrinter::print(influencerValues));
 
         doComputeInfluences(params.s_Feature,
                             CValueIntersection(),
@@ -970,7 +970,7 @@ void CLogProbabilityInfluenceCalculator::computeInfluences(TCorrelateParams& par
             .weightStyles(params.s_ComputeProbabilityParams.weightStyles())
             .addWeights(params.s_ComputeProbabilityParams.weights()[correlate])
             .mostAnomalousCorrelate(correlate);
-        LOG_TRACE("influencerValues = " << core::CContainerPrinter::print(params.s_InfluencerValues));
+        LOG_TRACE(<< "influencerValues = " << core::CContainerPrinter::print(params.s_InfluencerValues));
         doComputeCorrelateInfluences(params.s_Feature,
                                      CValueDifference(),
                                      intersectionInfluence,
@@ -1010,7 +1010,7 @@ void CMeanInfluenceCalculator::computeInfluences(TParams& params) const {
                       influencerValues.end(),
                       CDecreasingMeanInfluence(params.s_Tail[0], params.s_Value[0], params.s_Count));
         }
-        LOG_TRACE("influencerValues = " << core::CContainerPrinter::print(params.s_InfluencerValues));
+        LOG_TRACE(<< "influencerValues = " << core::CContainerPrinter::print(params.s_InfluencerValues));
         doComputeInfluences(params.s_Feature,
                             CMeanDifference(),
                             complementInfluence,
@@ -1041,7 +1041,7 @@ void CMeanInfluenceCalculator::computeInfluences(TCorrelateParams& params) const
             .weightStyles(params.s_ComputeProbabilityParams.weightStyles())
             .addWeights(params.s_ComputeProbabilityParams.weights()[correlate])
             .mostAnomalousCorrelate(correlate);
-        LOG_TRACE("influencerValues = " << core::CContainerPrinter::print(params.s_InfluencerValues));
+        LOG_TRACE(<< "influencerValues = " << core::CContainerPrinter::print(params.s_InfluencerValues));
         doComputeCorrelateInfluences(params.s_Feature,
                                      CMeanDifference(),
                                      complementInfluence,
@@ -1081,7 +1081,7 @@ void CVarianceInfluenceCalculator::computeInfluences(TParams& params) const {
                       influencerValues.end(),
                       CDecreasingVarianceInfluence(params.s_Tail[0], params.s_Value[0], params.s_Count));
         }
-        LOG_TRACE("influencerValues = " << core::CContainerPrinter::print(influencerValues));
+        LOG_TRACE(<< "influencerValues = " << core::CContainerPrinter::print(influencerValues));
 
         doComputeInfluences(params.s_Feature,
                             CVarianceDifference(),
@@ -1113,7 +1113,7 @@ void CVarianceInfluenceCalculator::computeInfluences(TCorrelateParams& params) c
             .weightStyles(params.s_ComputeProbabilityParams.weightStyles())
             .addWeights(params.s_ComputeProbabilityParams.weights()[correlate])
             .mostAnomalousCorrelate(correlate);
-        LOG_TRACE("influencerValues = " << core::CContainerPrinter::print(params.s_InfluencerValues));
+        LOG_TRACE(<< "influencerValues = " << core::CContainerPrinter::print(params.s_InfluencerValues));
         doComputeCorrelateInfluences(params.s_Feature,
                                      CVarianceDifference(),
                                      complementInfluence,

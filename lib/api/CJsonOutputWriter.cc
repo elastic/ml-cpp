@@ -81,7 +81,7 @@ const std::string QUANTILES("quantiles");
 double doubleFromDocument(const CJsonOutputWriter::TDocumentWeakPtr& weakDoc, const std::string& field) {
     CJsonOutputWriter::TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return 0.0;
     }
     return (*docPtr)[field].GetDouble();
@@ -163,7 +163,7 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults&
 
     if (results.s_ResultType == CHierarchicalResultsWriter::E_SimpleCountResult) {
         if (!results.s_CurrentRate) {
-            LOG_ERROR("Simple count detector has no current rate");
+            LOG_ERROR(<< "Simple count detector has no current rate");
             return false;
         }
 
@@ -298,7 +298,7 @@ void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
     TDocumentWeakPtr doc = m_Writer.makeStorableDoc();
     TDocumentPtr newDoc = doc.lock();
     if (!newDoc) {
-        LOG_ERROR("Failed to create new JSON document");
+        LOG_ERROR(<< "Failed to create new JSON document");
         return;
     }
     m_Writer.addStringFieldCopyToObj(INFLUENCER_FIELD_NAME, TIME_INFLUENCER, *newDoc);
@@ -387,7 +387,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
             TDocumentWeakPtr weakDoc = detectorIter->first;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
-                LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
 
@@ -416,7 +416,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
             TDocumentWeakPtr weakDoc = *influencerIter;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
-                LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
 
@@ -465,7 +465,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
             TDocumentWeakPtr weakDoc = *influencerIter;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
-                LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
 
@@ -490,7 +490,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
             TDocumentWeakPtr weakDoc = *partitionScoresIter;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
-                LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
 
@@ -518,7 +518,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim, core_t::TTime bucketTime, SB
 void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
@@ -549,7 +549,7 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
 void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
@@ -583,7 +583,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
             TDocumentWeakPtr nwDocPtr = m_NestedDocs[index];
             TDocumentPtr nDocPtr = nwDocPtr.lock();
             if (!nDocPtr) {
-                LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
             rapidjson::Value& docAsValue = *nDocPtr;
@@ -594,14 +594,14 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
 
         m_NestedDocs.clear();
     } else {
-        LOG_WARN("Expected some causes for a population anomaly but got none");
+        LOG_WARN(<< "Expected some causes for a population anomaly but got none");
     }
 }
 
 void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
@@ -641,7 +641,7 @@ void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredS
 
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
@@ -693,7 +693,7 @@ void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredS
 void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
@@ -727,7 +727,7 @@ void CJsonOutputWriter::addInfluencerFields(bool isBucketInfluencer,
                                             TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
@@ -749,7 +749,7 @@ void CJsonOutputWriter::addInfluencerFields(bool isBucketInfluencer,
 void CJsonOutputWriter::addPartitionScores(const CHierarchicalResultsWriter::TResults& results, TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
-        LOG_ERROR("Inconsistent program state. JSON document unavailable.");
+        LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
         return;
     }
 
@@ -779,7 +779,7 @@ void CJsonOutputWriter::persistNormalizer(const model::CHierarchicalResultsNorma
     m_Writer.EndObject();
 
     persistTime = core::CTimeUtils::now();
-    LOG_DEBUG("Wrote quantiles state at " << persistTime);
+    LOG_DEBUG(<< "Wrote quantiles state at " << persistTime);
 }
 
 void CJsonOutputWriter::pushAllocator(const std::string& allocatorName) {
@@ -795,7 +795,7 @@ void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SResult
     CModelSizeStatsJsonWriter::write(m_JobId, results, m_Writer);
     m_Writer.EndObject();
 
-    LOG_TRACE("Wrote memory usage results");
+    LOG_TRACE(<< "Wrote memory usage results");
 }
 
 void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd) {
@@ -813,7 +813,7 @@ void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId, core_t::TTi
 
     // this shouldn't hang in buffers, so flush
     m_Writer.flush();
-    LOG_TRACE("Wrote flush with ID " << flushId);
+    LOG_TRACE(<< "Wrote flush with ID " << flushId);
 }
 
 void CJsonOutputWriter::writeCategoryDefinition(int categoryId,

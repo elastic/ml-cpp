@@ -155,7 +155,7 @@ void CFieldDataTyperTest::testAll() {
     }
 
     std::string newJson;
-    LOG_DEBUG("origJson = " << origJson);
+    LOG_DEBUG(<< "origJson = " << origJson);
     {
         model::CLimits limits2;
         CFieldConfig config2("x", "y");
@@ -203,7 +203,7 @@ void CFieldDataTyperTest::testNodeReverseSearch() {
     }
 
     const std::string& output = outputStrm.str();
-    LOG_DEBUG("Output is: " << output);
+    LOG_DEBUG(<< "Output is: " << output);
 
     // Assert that the reverse search contains all expected tokens when
     // categorization is run end-to-end (obviously computation of categories and
@@ -240,7 +240,7 @@ void CFieldDataTyperTest::testPassOnControlMessages() {
     }
 
     const std::string& output = outputStrm.str();
-    LOG_DEBUG("Output is: " << output);
+    LOG_DEBUG(<< "Output is: " << output);
     CPPUNIT_ASSERT_EQUAL(std::string("[]"), output);
 }
 
@@ -266,7 +266,7 @@ void CFieldDataTyperTest::testHandleControlMessages() {
     }
 
     const std::string& output = outputStrm.str();
-    LOG_DEBUG("Output is: " << output);
+    LOG_DEBUG(<< "Output is: " << output);
     CPPUNIT_ASSERT_EQUAL(std::string::size_type(0), output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0}}"));
 }
 

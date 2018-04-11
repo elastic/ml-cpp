@@ -52,7 +52,7 @@ void CBaseTokenListDataTyper::dumpStats() const {
     // Type number is vector index plus one
     int typeNum(1);
     for (const auto& type : m_Types) {
-        LOG_DEBUG("Type=" << typeNum << '-' << type.numMatches() << ' ' << type.baseString());
+        LOG_DEBUG(<< "Type=" << typeNum << '-' << type.numMatches() << ' ' << type.baseString());
         ++typeNum;
     }
 }
@@ -111,13 +111,13 @@ int CBaseTokenListDataTyper::computeType(bool isDryRun, const TStrStrUMap& field
 
         double similarity(this->similarity(m_WorkTokenIds, workWeight, baseTokenIds, baseWeight));
 
-        LOG_TRACE(similarity << '-' << compType.baseString() << '|' << str);
+        LOG_TRACE(<< similarity << '-' << compType.baseString() << '|' << str);
 
         if (matchesSearch || similarity > m_UpperThreshold) {
             if (similarity <= m_LowerThreshold) {
                 // Not an ideal situation, but log at trace level to avoid
                 // excessive log file spam
-                LOG_TRACE("Reverse search match below threshold : " << similarity << '-' << compType.baseString() << '|' << str);
+                LOG_TRACE(<< "Reverse search match below threshold : " << similarity << '-' << compType.baseString() << '|' << str);
             }
 
             // This is a strong match, so accept it immediately and stop
@@ -170,7 +170,7 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
                                                   size_t& maxMatchingLength,
                                                   bool& wasCached) {
     if (m_ReverseSearchCreator == nullptr) {
-        LOG_ERROR("Cannot create reverse search - no reverse search creator");
+        LOG_ERROR(<< "Cannot create reverse search - no reverse search creator");
 
         part1.clear();
         part2.clear();
@@ -182,7 +182,7 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
     if (type < 1 || static_cast<size_t>(type) > m_Types.size()) {
         // -1 is a special case for a NULL/empty field
         if (type != -1) {
-            LOG_ERROR("Programmatic error - invalid type: " << type);
+            LOG_ERROR(<< "Programmatic error - invalid type: " << type);
 
             part1.clear();
             part2.clear();
@@ -209,7 +209,7 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
         if (m_ReverseSearchCreator->createNoUniqueTokenSearch(type, typeObj.baseString(), typeObj.maxMatchingStringLen(), part1, part2) ==
             false) {
             // More detail should have been logged by the failed call
-            LOG_ERROR("Could not create reverse search");
+            LOG_ERROR(<< "Could not create reverse search");
 
             part1.clear();
             part2.clear();
@@ -260,12 +260,12 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
 
     if (costedCommonUniqueTokenIds.empty()) {
         if (cheapestIter == rareIdsWithCost.end()) {
-            LOG_ERROR("Inconsistency - rareIdsWithCost is empty but "
-                      "commonUniqueTokenIds wasn't for "
+            LOG_ERROR(<< "Inconsistency - rareIdsWithCost is empty but "
+                         "commonUniqueTokenIds wasn't for "
                       << type);
         } else {
-            LOG_ERROR("No token was short enough to include in reverse search "
-                      "for "
+            LOG_ERROR(<< "No token was short enough to include in reverse search "
+                         "for "
                       << type << " - cheapest token was " << cheapestIter->second.first << " with cost " << cheapestCost);
         }
 
@@ -333,13 +333,13 @@ bool CBaseTokenListDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverse
             m_TokenIdLookup.push_back(CTokenInfoItem(traverser.value(), nextIndex));
         } else if (name == TOKEN_TYPE_COUNT_TAG) {
             if (m_TokenIdLookup.empty()) {
-                LOG_ERROR("Token type count precedes token string in " << traverser.value());
+                LOG_ERROR(<< "Token type count precedes token string in " << traverser.value());
                 return false;
             }
 
             size_t typeCount(0);
             if (core::CStringUtils::stringToType(traverser.value(), typeCount) == false) {
-                LOG_ERROR("Invalid token type count in " << traverser.value());
+                LOG_ERROR(<< "Invalid token type count in " << traverser.value());
                 return false;
             }
 

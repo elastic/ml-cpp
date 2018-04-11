@@ -18,9 +18,9 @@
 using namespace ml;
 
 void CClustererTest::testIndexGenerator() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CClustererTest::testIndexGenerator  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CClustererTest::testIndexGenerator  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     // We test the invariants that:
     //   1) It never produces duplicate index.
@@ -51,14 +51,14 @@ void CClustererTest::testIndexGenerator() {
 
     for (std::size_t i = 0u; i < numberOperations; ++i) {
         if (i % 1000 == 0) {
-            LOG_DEBUG("maxSetSize = " << maxSetSize);
-            LOG_DEBUG("indices = " << core::CContainerPrinter::print(indices));
+            LOG_DEBUG(<< "maxSetSize = " << maxSetSize);
+            LOG_DEBUG(<< "indices = " << core::CContainerPrinter::print(indices));
         }
         if (nexts[i] == 1) {
             CPPUNIT_ASSERT(indices.insert(generator.next()).second);
             maxSetSize = std::max(maxSetSize, indices.size());
             if (*indices.begin() >= maxSetSize) {
-                LOG_DEBUG("index = " << *indices.begin() << ", maxSetSize = " << maxSetSize);
+                LOG_DEBUG(<< "index = " << *indices.begin() << ", maxSetSize = " << maxSetSize);
             }
             CPPUNIT_ASSERT(*indices.begin() < maxSetSize);
         } else if (!indices.empty()) {

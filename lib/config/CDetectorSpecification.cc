@@ -130,7 +130,7 @@ CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams& para
       m_CountStatistics(nullptr) {
     this->initializePenalties();
     if (!config_t::hasArgument(function)) {
-        LOG_ERROR("Ignoring argument '" + argument + "' for '" + config_t::print(function) + "'");
+        LOG_ERROR(<< "Ignoring argument '" + argument + "' for '" + config_t::print(function) + "'");
     } else {
         m_FunctionFields[constants::ARGUMENT_INDEX] = argument;
     }
@@ -234,7 +234,7 @@ void CDetectorSpecification::scores(TParamScoresVec& result) const {
 }
 
 void CDetectorSpecification::applyPenalty(double penalty, const std::string& description) {
-    LOG_TRACE("penalty = " << penalty);
+    LOG_TRACE(<< "penalty = " << penalty);
     if (penalty == 1.0) {
         return;
     }
@@ -247,7 +247,7 @@ void CDetectorSpecification::applyPenalty(double penalty, const std::string& des
 }
 
 void CDetectorSpecification::applyPenalties(const TSizeVec& indices, const TDoubleVec& penalties, const TStrVec& descriptions) {
-    LOG_TRACE("penalties = " << core::CContainerPrinter::print(penalties));
+    LOG_TRACE(<< "penalties = " << core::CContainerPrinter::print(penalties));
     for (std::size_t i = 0u; i < indices.size(); ++i) {
         if (penalties[i] == 1.0) {
             continue;
@@ -257,11 +257,11 @@ void CDetectorSpecification::applyPenalties(const TSizeVec& indices, const TDoub
             m_PenaltyDescriptions[indices[i]].push_back(descriptions[i]);
         }
     }
-    LOG_TRACE("cumulative = " << core::CContainerPrinter::print(m_Penalties));
+    LOG_TRACE(<< "cumulative = " << core::CContainerPrinter::print(m_Penalties));
 }
 
 void CDetectorSpecification::refreshScores() {
-    LOG_TRACE("*** Refreshing scores ***");
+    LOG_TRACE(<< "*** Refreshing scores ***");
     this->initializePenalties();
     m_Penalty->penalize(*this);
     this->refreshIgnoreEmpty();

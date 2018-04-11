@@ -18,42 +18,42 @@ CReadWriteLock::CReadWriteLock() {
     memset(&m_ReadWriteLock, 0x00, sizeof(m_ReadWriteLock));
     int ret(pthread_rwlock_init(&m_ReadWriteLock, nullptr));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 
 CReadWriteLock::~CReadWriteLock() {
     int ret(pthread_rwlock_destroy(&m_ReadWriteLock));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 
 void CReadWriteLock::readLock() {
     int ret(pthread_rwlock_rdlock(&m_ReadWriteLock));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 
 void CReadWriteLock::readUnlock() {
     int ret(pthread_rwlock_unlock(&m_ReadWriteLock));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 
 void CReadWriteLock::writeLock() {
     int ret(pthread_rwlock_wrlock(&m_ReadWriteLock));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 
 void CReadWriteLock::writeUnlock() {
     int ret(pthread_rwlock_unlock(&m_ReadWriteLock));
     if (ret != 0) {
-        LOG_WARN(::strerror(ret));
+        LOG_WARN(<< ::strerror(ret));
     }
 }
 }

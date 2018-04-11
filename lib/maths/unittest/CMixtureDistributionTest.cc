@@ -25,9 +25,9 @@ using TLogNormalVec = std::vector<boost::math::lognormal_distribution<>>;
 using TGammaVec = std::vector<boost::math::gamma_distribution<>>;
 
 void CMixtureDistributionTest::testSupport() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CLogTDistributionTest::testSupport  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CLogTDistributionTest::testSupport  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     {
         boost::math::normal_distribution<> n1(0.0, 1.0);
@@ -56,9 +56,9 @@ void CMixtureDistributionTest::testSupport() {
 }
 
 void CMixtureDistributionTest::testMode() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CLogTDistributionTest::testMode  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CLogTDistributionTest::testMode  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     // The mode of the distribution should be at the maximum
     // of the distribution, i.e. p.d.f. derivative should be
@@ -67,13 +67,13 @@ void CMixtureDistributionTest::testMode() {
     const double eps = 1e-5;
 
     {
-        LOG_DEBUG("Mixture Two Normals");
+        LOG_DEBUG(<< "Mixture Two Normals");
 
         double means[][2] = {
             {0.0, 10.0}, {0.0, 9.0}, {0.0, 8.0}, {0.0, 7.0}, {0.0, 6.0}, {0.0, 5.0}, {0.0, 4.0}, {0.0, 3.0}, {0.0, 2.0}, {0.0, 1.0}};
 
         for (std::size_t i = 0u; i < boost::size(means); ++i) {
-            LOG_DEBUG("means = " << core::CContainerPrinter::print(means[i]));
+            LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means[i]));
             TDoubleVec weights;
             weights.push_back(0.6);
             weights.push_back(0.4);
@@ -93,7 +93,7 @@ void CMixtureDistributionTest::testMode() {
             double derivative = (pPlusEps - pMinusEps) / 2.0 / eps;
             double curvature = (pPlusEps - 2.0 * p + pMinusEps) / eps / eps;
 
-            LOG_DEBUG("x = " << x << ", df/dx = " << derivative << ", d^2f/dx^2 = " << curvature);
+            LOG_DEBUG(<< "x = " << x << ", df/dx = " << derivative << ", d^2f/dx^2 = " << curvature);
 
             // Gradient zero + curvature negative => maximum.
             CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, derivative, 1e-6);
@@ -102,7 +102,7 @@ void CMixtureDistributionTest::testMode() {
     }
 
     {
-        LOG_DEBUG("Mixture Three Normals");
+        LOG_DEBUG(<< "Mixture Three Normals");
         TDoubleVec weights;
         weights.push_back(0.4);
         weights.push_back(0.5);
@@ -125,14 +125,14 @@ void CMixtureDistributionTest::testMode() {
         double derivative = (pPlusEps - pMinusEps) / 2.0 / eps;
         double curvature = (pPlusEps - 2.0 * p + pMinusEps) / eps / eps;
 
-        LOG_DEBUG("x = " << x << ", df/dx = " << derivative << ", d^2f/dx^2 = " << curvature);
+        LOG_DEBUG(<< "x = " << x << ", df/dx = " << derivative << ", d^2f/dx^2 = " << curvature);
 
         // Gradient zero + curvature negative => maximum.
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, derivative, 1e-6);
         CPPUNIT_ASSERT(curvature < 0.0);
     }
     {
-        LOG_DEBUG("Mixture Two Log-Normals");
+        LOG_DEBUG(<< "Mixture Two Log-Normals");
         TDoubleVec weights;
         weights.push_back(0.6);
         weights.push_back(0.4);
@@ -152,7 +152,7 @@ void CMixtureDistributionTest::testMode() {
         double derivative = (pPlusEps - pMinusEps) / 2.0 / eps;
         double curvature = (pPlusEps - 2.0 * p + pMinusEps) / eps / eps;
 
-        LOG_DEBUG("x = " << x << ", df/dx = " << derivative << ", d^2f/dx^2 = " << curvature);
+        LOG_DEBUG(<< "x = " << x << ", df/dx = " << derivative << ", d^2f/dx^2 = " << curvature);
 
         // Gradient zero + curvature negative => maximum.
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, derivative, 1e-6);
@@ -161,9 +161,9 @@ void CMixtureDistributionTest::testMode() {
 }
 
 void CMixtureDistributionTest::testPdf() {
-    LOG_DEBUG("+-------------------------------------+");
-    LOG_DEBUG("|  CMixtureDistributionTest::testPdf  |");
-    LOG_DEBUG("+-------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------+");
+    LOG_DEBUG(<< "|  CMixtureDistributionTest::testPdf  |");
+    LOG_DEBUG(<< "+-------------------------------------+");
 
     // Check that the p.d.f. is the derivative of the c.d.f.
 
@@ -182,7 +182,7 @@ void CMixtureDistributionTest::testPdf() {
         CPPUNIT_ASSERT_EQUAL(boost::size(means), boost::size(variances));
 
         for (size_t i = 0u; i < boost::size(weights); ++i) {
-            LOG_DEBUG("*** Test Case " << i << " ***");
+            LOG_DEBUG(<< "*** Test Case " << i << " ***");
 
             TDoubleVec w;
             w.push_back(weights[i][0]);
@@ -201,8 +201,8 @@ void CMixtureDistributionTest::testPdf() {
                 double f = pdf(mixture, x);
                 double dFdx = (cdf(mixture, x + eps) - cdf(mixture, x - eps)) / 2.0 / eps;
 
-                LOG_DEBUG("percentile = " << p << "%"
-                                          << ", f = " << f << ", dF/dx = " << dFdx);
+                LOG_DEBUG(<< "percentile = " << p << "%"
+                          << ", f = " << f << ", dF/dx = " << dFdx);
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(f, dFdx, tolerance);
             }
@@ -211,9 +211,9 @@ void CMixtureDistributionTest::testPdf() {
 }
 
 void CMixtureDistributionTest::testCdf() {
-    LOG_DEBUG("+-------------------------------------+");
-    LOG_DEBUG("|  CMixtureDistributionTest::testCdf  |");
-    LOG_DEBUG("+-------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------+");
+    LOG_DEBUG(<< "|  CMixtureDistributionTest::testCdf  |");
+    LOG_DEBUG(<< "+-------------------------------------+");
 
     // The idea here is that the distribution should describe data
     // generated by a mixture of distributions.
@@ -230,7 +230,7 @@ void CMixtureDistributionTest::testCdf() {
     CRandomNumbers rng;
 
     for (std::size_t i = 0u; i < boost::size(weights); ++i) {
-        LOG_DEBUG("*** Test Case " << i << " ***");
+        LOG_DEBUG(<< "*** Test Case " << i << " ***");
 
         TDoubleVec samples1;
         rng.generateGammaSamples(
@@ -260,8 +260,8 @@ void CMixtureDistributionTest::testCdf() {
             double actualCdf = cdf(mixture, x);
             double expectedCdf = static_cast<double>(p) / 100;
 
-            LOG_DEBUG("percentile = " << p << "%"
-                                      << ", actual cdf = " << actualCdf << ", expected cdf = " << expectedCdf);
+            LOG_DEBUG(<< "percentile = " << p << "%"
+                      << ", actual cdf = " << actualCdf << ", expected cdf = " << expectedCdf);
 
             // No more than a 10% error in the sample percentile.
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCdf, actualCdf, 0.1 * expectedCdf);
@@ -270,9 +270,9 @@ void CMixtureDistributionTest::testCdf() {
 }
 
 void CMixtureDistributionTest::testQuantile() {
-    LOG_DEBUG("+------------------------------------------+");
-    LOG_DEBUG("|  CMixtureDistributionTest::testQuantile  |");
-    LOG_DEBUG("+------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------+");
+    LOG_DEBUG(<< "|  CMixtureDistributionTest::testQuantile  |");
+    LOG_DEBUG(<< "+------------------------------------------+");
 
     // Check that the quantile is the inverse of the c.d.f.
 
@@ -284,7 +284,7 @@ void CMixtureDistributionTest::testQuantile() {
     CPPUNIT_ASSERT_EQUAL(boost::size(locations), boost::size(scales));
 
     for (std::size_t i = 0u; i < boost::size(weights); ++i) {
-        LOG_DEBUG("*** Test " << i << " ***");
+        LOG_DEBUG(<< "*** Test " << i << " ***");
 
         TDoubleVec w;
         w.push_back(weights[i][0]);
@@ -302,7 +302,7 @@ void CMixtureDistributionTest::testQuantile() {
         for (unsigned int p = 1; p < 100; ++p) {
             double q = static_cast<double>(p) / 100.0;
             double f = cdf(mixture, quantile(mixture, q));
-            LOG_DEBUG("Error = " << std::fabs(q - f));
+            LOG_DEBUG(<< "Error = " << std::fabs(q - f));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(q, f, 1e-10);
         }
     }

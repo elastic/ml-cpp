@@ -170,7 +170,7 @@ void CRapidXmlParserTest::testConvert() {
     std::string converted;
     ml::core::CRapidXmlParser::convert(*root, converted);
 
-    LOG_DEBUG("Converted node hierarchy is:\n" << converted);
+    LOG_DEBUG(<< "Converted node hierarchy is:\n" << converted);
 
     CPPUNIT_ASSERT(converted.find("<root>") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("</root>") != std::string::npos);
@@ -287,7 +287,7 @@ bool CRapidXmlParserTest::testAttribute(const ml::core::CXmlNode& node, const st
     }
 
     if (actual != expected) {
-        LOG_ERROR(actual << ' ' << expected);
+        LOG_ERROR(<< actual << ' ' << expected);
         return false;
     }
 
@@ -300,7 +300,7 @@ void CRapidXmlParserTest::testParseSpeed() {
     std::string testString(CRapidXmlParserTest::fileToString("./testfiles/CXmlParser2.xml"));
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting parse speed test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting parse speed test at " << ml::core::CTimeUtils::toTimeString(start));
 
     ml::core::CXmlNodeWithChildrenPool nodePool;
 
@@ -317,9 +317,9 @@ void CRapidXmlParserTest::testParseSpeed() {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished parse speed test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished parse speed test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Parsing " << TEST_SIZE << " documents took " << (end - start) << " seconds");
+    LOG_INFO(<< "Parsing " << TEST_SIZE << " documents took " << (end - start) << " seconds");
 }
 
 void CRapidXmlParserTest::testConvertSpeed() {
@@ -330,7 +330,7 @@ void CRapidXmlParserTest::testConvertSpeed() {
     ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(CRapidXmlParserTest::makeTestNodeHierarchy());
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting convert speed test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting convert speed test at " << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::string converted;
@@ -338,7 +338,7 @@ void CRapidXmlParserTest::testConvertSpeed() {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished convert speed test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished convert speed test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Converting " << TEST_SIZE << " documents took " << (end - start) << " seconds");
+    LOG_INFO(<< "Converting " << TEST_SIZE << " documents took " << (end - start) << " seconds");
 }

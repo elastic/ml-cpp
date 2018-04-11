@@ -28,7 +28,7 @@ CSingleStreamDataAdder::TOStreamP CSingleStreamDataAdder::addStreamed(const std:
 
 bool CSingleStreamDataAdder::streamComplete(TOStreamP& stream, bool force) {
     if (stream != m_Stream) {
-        LOG_ERROR("Attempt to use the single stream data adder with multiple streams");
+        LOG_ERROR(<< "Attempt to use the single stream data adder with multiple streams");
         return false;
     }
 

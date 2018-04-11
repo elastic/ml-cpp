@@ -36,9 +36,9 @@ using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testInitialize() {
-    LOG_DEBUG("+-----------------------------------------------------------+");
-    LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testInitialize  |");
-    LOG_DEBUG("+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testInitialize  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     maths::CDiurnalTime time(0, 1, 101, 100);
     maths::CSeasonalComponentAdaptiveBucketing bucketing(time);
@@ -66,9 +66,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testInitialize() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testSwap() {
-    LOG_DEBUG("+-----------------------------------------------------+");
-    LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testSwap  |");
-    LOG_DEBUG("+-----------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testSwap  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------+");
 
     maths::CDiurnalTime time1(0, 0, 100, 100);
     maths::CSeasonalComponentAdaptiveBucketing bucketing1(time1, 0.05);
@@ -97,17 +97,17 @@ void CSeasonalComponentAdaptiveBucketingTest::testSwap() {
 
     bucketing1.swap(bucketing2);
 
-    LOG_DEBUG("checksum 1 = " << checksum1);
-    LOG_DEBUG("checksum 2 = " << checksum2);
+    LOG_DEBUG(<< "checksum 1 = " << checksum1);
+    LOG_DEBUG(<< "checksum 2 = " << checksum2);
 
     CPPUNIT_ASSERT_EQUAL(checksum1, bucketing2.checksum());
     CPPUNIT_ASSERT_EQUAL(checksum2, bucketing1.checksum());
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testRefine() {
-    LOG_DEBUG("+-------------------------------------------------------+");
-    LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testRefine  |");
-    LOG_DEBUG("+-------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testRefine  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -178,10 +178,10 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine() {
             maxError2.add(std::fabs(values2[i - 1] - y));
         }
 
-        LOG_DEBUG("mean error         = " << maths::CBasicStatistics::mean(meanError1));
-        LOG_DEBUG("max error          = " << maxError1[0]);
-        LOG_DEBUG("refined mean error = " << maths::CBasicStatistics::mean(meanError2));
-        LOG_DEBUG("refined max error  = " << maxError2[0]);
+        LOG_DEBUG(<< "mean error         = " << maths::CBasicStatistics::mean(meanError1));
+        LOG_DEBUG(<< "max error          = " << maxError1[0]);
+        LOG_DEBUG(<< "refined mean error = " << maths::CBasicStatistics::mean(meanError2));
+        LOG_DEBUG(<< "refined max error  = " << maxError2[0]);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError2) < 0.85 * maths::CBasicStatistics::mean(meanError1));
         CPPUNIT_ASSERT(maxError2[0] < 0.7 * maxError1[0]);
     }
@@ -210,9 +210,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine() {
         const TFloatVec& endpoints = bucketing.endpoints();
         TDoubleVec values = bucketing.values(5100);
         TDoubleVec variances = bucketing.variances();
-        LOG_DEBUG("endpoints = " << core::CContainerPrinter::print(endpoints));
-        LOG_DEBUG("values    = " << core::CContainerPrinter::print(values));
-        LOG_DEBUG("variances = " << core::CContainerPrinter::print(variances));
+        LOG_DEBUG(<< "endpoints = " << core::CContainerPrinter::print(endpoints));
+        LOG_DEBUG(<< "values    = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "variances = " << core::CContainerPrinter::print(variances));
 
         TMeanAccumulator meanError;
         TMeanAccumulator varianceError;
@@ -221,7 +221,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine() {
         for (std::size_t i = 1u; i < endpoints.size(); ++i) {
             double a = endpoints[i - 1];
             double b = endpoints[i];
-            LOG_DEBUG("bucket = [" << a << "," << b << "]");
+            LOG_DEBUG(<< "bucket = [" << a << "," << b << "]");
 
             a -= 50.0;
             b -= 50.0;
@@ -233,8 +233,8 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine() {
             double m_ = std::fabs(a) < std::fabs(b) ? 0.02 / 3.0 * std::pow(b, 3.0) * (1.0 - std::pow(a / b, 3.0)) / (b - a)
                                                     : 0.02 / 3.0 * std::pow(a, 3.0) * (std::pow(b / a, 3.0) - 1.0) / (b - a);
             double v_ = 9.0;
-            LOG_DEBUG("m = " << m << ", m_ = " << m_ << ", absolute error = " << std::fabs(m - m_));
-            LOG_DEBUG("v = " << v << ", v_ = " << v_ << ", relative error = " << std::fabs(v - v_) / v_);
+            LOG_DEBUG(<< "m = " << m << ", m_ = " << m_ << ", absolute error = " << std::fabs(m - m_));
+            LOG_DEBUG(<< "v = " << v << ", v_ = " << v_ << ", relative error = " << std::fabs(v - v_) / v_);
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(m_, m, 0.7);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(v_, v, 0.4 * v_);
@@ -252,7 +252,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine() {
                                                        : 0.02 / 3.0 * c * c * c * (1.0 - (a / c) * (a / c) * (a / c)) - m * (c - a);
                 double r = std::fabs(c) < std::fabs(b) ? 0.02 / 3.0 * b * b * b * (1.0 - (c / b) * (c / b) * (c / b)) - m * (b - c)
                                                        : 0.02 / 3.0 * c * c * c * ((b / c) * (b / c) * (b / c) - 1.0) - m * (b - c);
-                LOG_DEBUG("c = " << c << ", l = " << l << " r = " << r << ", error = " << std::fabs(l) + std::fabs(r));
+                LOG_DEBUG(<< "c = " << c << ", l = " << l << " r = " << r << ", error = " << std::fabs(l) + std::fabs(r));
                 avgError.add(std::fabs(l) + std::fabs(r));
             } else {
                 avgError.add(std::fabs((m_ - m) * (b - a)));
@@ -261,23 +261,23 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine() {
 
         double meanError_ = maths::CBasicStatistics::mean(meanError);
         double varianceError_ = maths::CBasicStatistics::mean(varianceError);
-        LOG_DEBUG("meanError = " << meanError_ << ", varianceError = " << varianceError_);
+        LOG_DEBUG(<< "meanError = " << meanError_ << ", varianceError = " << varianceError_);
 
         CPPUNIT_ASSERT(meanError_ < 0.09);
         CPPUNIT_ASSERT(varianceError_ < 0.21);
 
         double avgErrorMean = maths::CBasicStatistics::mean(avgError);
         double avgErrorStd = std::sqrt(maths::CBasicStatistics::variance(avgError));
-        LOG_DEBUG("avgErrorMean = " << avgErrorMean << ", avgErrorStd = " << avgErrorStd);
+        LOG_DEBUG(<< "avgErrorMean = " << avgErrorMean << ", avgErrorStd = " << avgErrorStd);
 
         CPPUNIT_ASSERT(avgErrorStd / avgErrorMean < 0.5);
     }
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
-    LOG_DEBUG("+------------------------------------------------------------------------+");
-    LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime  |");
-    LOG_DEBUG("+------------------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
 
     // Check no error is introduced by the aging process to
     // the bucket values and that the rate at which the total
@@ -301,7 +301,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
     for (std::size_t i = 0u; i < 20; ++i) {
         bucketing.propagateForwardsByTime(1.0);
         double count = bucketing.count();
-        LOG_DEBUG("count = " << count << ", lastCount = " << lastCount << " count/lastCount = " << count / lastCount);
+        LOG_DEBUG(<< "count = " << count << ", lastCount = " << lastCount << " count/lastCount = " << count / lastCount);
         CPPUNIT_ASSERT(count < lastCount);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.81873, count / lastCount, 5e-6);
         lastCount = count;
@@ -309,9 +309,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength() {
-    LOG_DEBUG("+--------------------------------------------------------------------+");
-    LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength  |");
-    LOG_DEBUG("+--------------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
 
     const double bucketLength = 3600.0;
     const double function[] = {0.0, 0.0, 10.0, 12.0, 11.0, 16.0, 15.0, 1.0, 0.0, 0.0, 0.0, 0.0};
@@ -358,24 +358,24 @@ void CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength() {
             double minimumShift = std::max(3000.0 - (endpoints1[j] - endpoints1[j - 1]), 0.0) / 2.0;
             minimumTotalError += minimumShift;
         }
-        LOG_DEBUG("minimumBucketLength1 = " << minimumBucketLength1);
-        LOG_DEBUG("minimumBucketLength2 = " << minimumBucketLength2);
+        LOG_DEBUG(<< "minimumBucketLength1 = " << minimumBucketLength1);
+        LOG_DEBUG(<< "minimumBucketLength2 = " << minimumBucketLength2);
         CPPUNIT_ASSERT(minimumBucketLength2[0] >= 3000.0);
 
         double totalError = 0.0;
         for (std::size_t j = 1u; j + 1 < endpoints1.size(); ++j) {
             totalError += std::fabs(endpoints2[j] - endpoints1[j]);
         }
-        LOG_DEBUG("minimumTotalError = " << minimumTotalError);
-        LOG_DEBUG("totalError        = " << totalError);
+        LOG_DEBUG(<< "minimumTotalError = " << minimumTotalError);
+        LOG_DEBUG(<< "totalError        = " << totalError);
         CPPUNIT_ASSERT(totalError <= 7.5 * minimumTotalError);
     }
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testUnintialized() {
-    LOG_DEBUG("+-------------------------------------------------------------+");
-    LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testUnintialized  |");
-    LOG_DEBUG("+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testUnintialized  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
 
     // Check that all the functions work and return the expected
     // values on an uninitialized bucketing.
@@ -421,15 +421,15 @@ void CSeasonalComponentAdaptiveBucketingTest::testUnintialized() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testKnots() {
-    LOG_DEBUG("+------------------------------------------------------+");
-    LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testKnots  |");
-    LOG_DEBUG("+------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testKnots  |");
+    LOG_DEBUG(<< "+------------------------------------------------------+");
 
     // Check prediction errors in values and variances.
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG("*** Values ***");
+    LOG_DEBUG(<< "*** Values ***");
     {
         maths::CDiurnalTime time(0, 0, 86400, 86400);
         maths::CSeasonalComponentAdaptiveBucketing bucketing(time, 0.1, 864.0);
@@ -450,26 +450,26 @@ void CSeasonalComponentAdaptiveBucketingTest::testKnots() {
             TDoubleVec values;
             TDoubleVec variances;
             bucketing.knots(static_cast<core_t::TTime>(86400 * (p + 1)), maths::CSplineTypes::E_Periodic, knots, values, variances);
-            LOG_DEBUG("knots  = " << core::CContainerPrinter::print(knots));
-            LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
+            LOG_DEBUG(<< "knots  = " << core::CContainerPrinter::print(knots));
+            LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
             TMeanAccumulator meanError;
             TMeanAccumulator meanValue;
             for (std::size_t i = 0u; i < knots.size(); ++i) {
                 double x = knots[i] / 864.0;
                 double expectedValue = 0.02 * (x - 50.0) * (x - 50.0);
-                LOG_DEBUG("expected = " << expectedValue << ", value = " << values[i]);
+                LOG_DEBUG(<< "expected = " << expectedValue << ", value = " << values[i]);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedValue, values[i], 15.0);
                 meanError.add(std::fabs(values[i] - expectedValue));
                 meanValue.add(std::fabs(expectedValue));
             }
-            LOG_DEBUG("meanError = " << maths::CBasicStatistics::mean(meanError));
-            LOG_DEBUG("meanValue = " << maths::CBasicStatistics::mean(meanValue));
+            LOG_DEBUG(<< "meanError = " << maths::CBasicStatistics::mean(meanError));
+            LOG_DEBUG(<< "meanValue = " << maths::CBasicStatistics::mean(meanValue));
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) / maths::CBasicStatistics::mean(meanValue) <
                            0.1 / std::sqrt(static_cast<double>(p + 1)));
         }
     }
-    LOG_DEBUG("*** Variances ***");
+    LOG_DEBUG(<< "*** Variances ***");
     {
         maths::CDiurnalTime time(0, 0, 86400, 86400);
         maths::CSeasonalComponentAdaptiveBucketing bucketing(time, 0.1, 864.0);
@@ -491,21 +491,21 @@ void CSeasonalComponentAdaptiveBucketingTest::testKnots() {
                 TDoubleVec values;
                 TDoubleVec variances;
                 bucketing.knots(static_cast<core_t::TTime>(86400 * (p + 1)), maths::CSplineTypes::E_Periodic, knots, values, variances);
-                LOG_DEBUG("knots     = " << core::CContainerPrinter::print(knots));
-                LOG_DEBUG("variances = " << core::CContainerPrinter::print(variances));
+                LOG_DEBUG(<< "knots     = " << core::CContainerPrinter::print(knots));
+                LOG_DEBUG(<< "variances = " << core::CContainerPrinter::print(variances));
 
                 TMeanAccumulator meanError;
                 TMeanAccumulator meanVariance;
                 for (std::size_t i = 0u; i < knots.size(); ++i) {
                     double x = knots[i] / 864.0;
                     double expectedVariance = 0.01 * (x - 50.0) * (x - 50.0);
-                    LOG_DEBUG("expected = " << expectedVariance << ", variance = " << variances[i]);
+                    LOG_DEBUG(<< "expected = " << expectedVariance << ", variance = " << variances[i]);
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVariance, variances[i], 15.0);
                     meanError.add(std::fabs(variances[i] - expectedVariance));
                     meanVariance.add(std::fabs(expectedVariance));
                 }
-                LOG_DEBUG("meanError    = " << maths::CBasicStatistics::mean(meanError));
-                LOG_DEBUG("meanVariance = " << maths::CBasicStatistics::mean(meanVariance));
+                LOG_DEBUG(<< "meanError    = " << maths::CBasicStatistics::mean(meanError));
+                LOG_DEBUG(<< "meanVariance = " << maths::CBasicStatistics::mean(meanVariance));
                 CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) / maths::CBasicStatistics::mean(meanVariance) < 0.2);
             }
         }
@@ -513,9 +513,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testKnots() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots() {
-    LOG_DEBUG("+-------------------------------------------------------------------+");
-    LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots  |");
-    LOG_DEBUG("+-------------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
 
     // Check prediction errors in values.
 
@@ -546,9 +546,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots() {
             TDoubleVec values;
             TDoubleVec variances;
             bucketing.knots(static_cast<core_t::TTime>(86400 * (p + 1)), maths::CSplineTypes::E_Periodic, knots, values, variances);
-            LOG_DEBUG("knots     = " << core::CContainerPrinter::print(knots));
-            LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
-            LOG_DEBUG("variances = " << core::CContainerPrinter::print(variances));
+            LOG_DEBUG(<< "knots     = " << core::CContainerPrinter::print(knots));
+            LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
+            LOG_DEBUG(<< "variances = " << core::CContainerPrinter::print(variances));
 
             TMeanAccumulator meanError;
             TMeanAccumulator meanValue;
@@ -557,22 +557,22 @@ void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots() {
                 double expectedValue =
                     10.0 * (std::min(static_cast<double>(p + 1) + x, 50.0) - std::max(static_cast<double>(p + 1) + x - 50.0, 0.0) +
                             10.0 * std::sin(boost::math::double_constants::two_pi * x));
-                LOG_DEBUG("expected = " << expectedValue << ", value = " << values[i]);
+                LOG_DEBUG(<< "expected = " << expectedValue << ", value = " << values[i]);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedValue, values[i], 70.0);
                 meanError.add(std::fabs(values[i] - expectedValue));
                 meanValue.add(std::fabs(expectedValue));
             }
-            LOG_DEBUG("meanError = " << maths::CBasicStatistics::mean(meanError));
-            LOG_DEBUG("meanValue = " << maths::CBasicStatistics::mean(meanValue));
+            LOG_DEBUG(<< "meanError = " << maths::CBasicStatistics::mean(meanError));
+            LOG_DEBUG(<< "meanValue = " << maths::CBasicStatistics::mean(meanValue));
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) / maths::CBasicStatistics::mean(meanValue) < 0.15);
         }
     }
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testShiftValue() {
-    LOG_DEBUG("+-----------------------------------------------------------+");
-    LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testShiftValue  |");
-    LOG_DEBUG("+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testShiftValue  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     // Test that applying a shift translates the predicted values
     // but doesn't alter the slope or predicted variances.
@@ -611,15 +611,15 @@ void CSeasonalComponentAdaptiveBucketingTest::testShiftValue() {
     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(variances1), core::CContainerPrinter::print(variances2));
 
     for (std::size_t i = 0u; i < values1.size(); ++i) {
-        LOG_DEBUG("values = " << values1[i] << " vs " << values2[i]);
+        LOG_DEBUG(<< "values = " << values1[i] << " vs " << values2[i]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(20.0 + values1[i], values2[i], 1e-6 * values1[i]);
     }
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testSlope() {
-    LOG_DEBUG("+------------------------------------------------------+");
-    LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testSlope  |");
-    LOG_DEBUG("+------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testSlope  |");
+    LOG_DEBUG(<< "+------------------------------------------------------+");
 
     // Test that the slope increases by the shift.
 
@@ -643,21 +643,21 @@ void CSeasonalComponentAdaptiveBucketingTest::testSlope() {
 
     double slopeBefore = bucketing.slope();
 
-    LOG_DEBUG("slope = " << slopeBefore);
+    LOG_DEBUG(<< "slope = " << slopeBefore);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(7.0, slopeBefore, 0.25);
 
     bucketing.shiftSlope(10.0);
 
     double slopeAfter = bucketing.slope();
 
-    LOG_DEBUG("slope = " << slopeAfter);
+    LOG_DEBUG(<< "slope = " << slopeAfter);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(slopeBefore + 10.0, slopeAfter, 1e-4);
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testPersist() {
-    LOG_DEBUG("+--------------------------------------------------------+");
-    LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testPersist  |");
-    LOG_DEBUG("+--------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testPersist  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------+");
 
     // Check that serialization is idempotent.
 
@@ -686,7 +686,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testPersist() {
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("Bucketing XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Bucketing XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
@@ -695,7 +695,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testPersist() {
     // Restore the XML into a new bucketing.
     maths::CSeasonalComponentAdaptiveBucketing restoredBucketing(decayRate + 0.1, minimumBucketLength, traverser);
 
-    LOG_DEBUG("orig checksum = " << checksum << " restored checksum = " << restoredBucketing.checksum());
+    LOG_DEBUG(<< "orig checksum = " << checksum << " restored checksum = " << restoredBucketing.checksum());
     CPPUNIT_ASSERT_EQUAL(checksum, restoredBucketing.checksum());
 
     // The XML representation of the new bucketing should be the
@@ -710,9 +710,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testPersist() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testUpgrade() {
-    LOG_DEBUG("+--------------------------------------------------------+");
-    LOG_DEBUG("|  CSeasonalComponentAdaptiveBucketingTest::testUpgrade  |");
-    LOG_DEBUG("+--------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testUpgrade  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------+");
 
     // Check we can validly upgrade existing state.
 
@@ -737,7 +737,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testUpgrade() {
     std::stringbuf buf;
     file >> &buf;
     std::string xml{buf.str()};
-    LOG_DEBUG("Saved state size = " << xml.size());
+    LOG_DEBUG(<< "Saved state size = " << xml.size());
 
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
@@ -761,16 +761,16 @@ void CSeasonalComponentAdaptiveBucketingTest::testUpgrade() {
 
     CPPUNIT_ASSERT_EQUAL(expectedBucketing.decayRate(), restoredBucketing.decayRate());
 
-    LOG_DEBUG("expected knots = " << core::CContainerPrinter::print(expectedKnots));
-    LOG_DEBUG("restored knots = " << core::CContainerPrinter::print(restoredKnots));
+    LOG_DEBUG(<< "expected knots = " << core::CContainerPrinter::print(expectedKnots));
+    LOG_DEBUG(<< "restored knots = " << core::CContainerPrinter::print(restoredKnots));
     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedKnots), core::CContainerPrinter::print(restoredKnots));
 
-    LOG_DEBUG("expected values = " << core::CContainerPrinter::print(expectedValues));
-    LOG_DEBUG("restored values = " << core::CContainerPrinter::print(restoredValues));
+    LOG_DEBUG(<< "expected values = " << core::CContainerPrinter::print(expectedValues));
+    LOG_DEBUG(<< "restored values = " << core::CContainerPrinter::print(restoredValues));
     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedValues), core::CContainerPrinter::print(restoredValues));
 
-    LOG_DEBUG("expected variances = " << core::CContainerPrinter::print(expectedVariances));
-    LOG_DEBUG("restored variances = " << core::CContainerPrinter::print(restoredVariances));
+    LOG_DEBUG(<< "expected variances = " << core::CContainerPrinter::print(expectedVariances));
+    LOG_DEBUG(<< "restored variances = " << core::CContainerPrinter::print(restoredVariances));
     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedVariances), core::CContainerPrinter::print(restoredVariances));
 }
 

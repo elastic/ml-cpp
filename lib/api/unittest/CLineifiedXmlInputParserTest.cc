@@ -59,7 +59,7 @@ public:
             str.append(block);
         }
 
-        LOG_DEBUG("Input size is " << str.length());
+        LOG_DEBUG(<< "Input size is " << str.length());
 
         return str;
     }
@@ -89,22 +89,22 @@ private:
 }
 
 void CLineifiedXmlInputParserTest::testThroughputArbitraryConformant() {
-    LOG_INFO("Testing using a standards-conformant XML parser assuming arbitrary fields in XML documents");
+    LOG_INFO(<< "Testing using a standards-conformant XML parser assuming arbitrary fields in XML documents");
     this->runTest<ml::core::CXmlParser>(false);
 }
 
 void CLineifiedXmlInputParserTest::testThroughputCommonConformant() {
-    LOG_INFO("Testing using a standards-conformant XML parser assuming all XML documents have the same fields");
+    LOG_INFO(<< "Testing using a standards-conformant XML parser assuming all XML documents have the same fields");
     this->runTest<ml::core::CXmlParser>(true);
 }
 
 void CLineifiedXmlInputParserTest::testThroughputArbitraryRapid() {
-    LOG_INFO("Testing using a rapid XML parser assuming arbitrary fields in XML documents");
+    LOG_INFO(<< "Testing using a rapid XML parser assuming arbitrary fields in XML documents");
     this->runTest<ml::core::CRapidXmlParser>(false);
 }
 
 void CLineifiedXmlInputParserTest::testThroughputCommonRapid() {
-    LOG_INFO("Testing using a rapid XML parser assuming all XML documents have the same fields");
+    LOG_INFO(<< "Testing using a rapid XML parser assuming all XML documents have the same fields");
     this->runTest<ml::core::CRapidXmlParser>(true);
 }
 
@@ -113,7 +113,7 @@ void CLineifiedXmlInputParserTest::runTest(bool allDocsSameStructure) {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 
-    LOG_DEBUG("Creating throughput test data");
+    LOG_DEBUG(<< "Creating throughput test data");
 
     std::ifstream ifs("testfiles/simple.txt");
     CPPUNIT_ASSERT(ifs.is_open());
@@ -134,14 +134,14 @@ void CLineifiedXmlInputParserTest::runTest(bool allDocsSameStructure) {
     CVisitor visitor;
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
     CPPUNIT_ASSERT_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
 
-    LOG_INFO("Parsing " << visitor.recordCount() << " records took " << (end - start) << " seconds");
+    LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took " << (end - start) << " seconds");
 }

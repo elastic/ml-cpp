@@ -153,7 +153,7 @@ double cdf(const CLogTDistribution& distribution, double x) {
     //   m is the location.
 
     if (CMathsFuncs::isNan(x)) {
-        LOG_ERROR("Bad argument x = " << x);
+        LOG_ERROR(<< "Bad argument x = " << x);
         return 0.0;
     } else if (x <= 0.0) {
         return 0.0;
@@ -174,7 +174,7 @@ double cdfComplement(const CLogTDistribution& distribution, double x) {
     // avoid cancellation errors.
 
     if (CMathsFuncs::isNan(x)) {
-        LOG_ERROR("Bad argument x = " << x);
+        LOG_ERROR(<< "Bad argument x = " << x);
         return 0.0;
     } else if (x <= 0.0) {
         return 1.0;

@@ -122,7 +122,7 @@ public:
         }
 
         if (CStringUtils::stringToType(value.value(), ret) == false) {
-            LOG_ERROR("Conversion error for " << xpath);
+            LOG_ERROR(<< "Conversion error for " << xpath);
             return false;
         }
 

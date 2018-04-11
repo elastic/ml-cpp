@@ -20,11 +20,11 @@ CppUnit::Test* CThreadPoolTest::suite() {
 namespace {
 
 void first_task() {
-    LOG_DEBUG("first task is running");
+    LOG_DEBUG(<< "first task is running");
 }
 
 void second_task() {
-    LOG_DEBUG("second task is running");
+    LOG_DEBUG(<< "second task is running");
 }
 }
 

@@ -31,7 +31,7 @@ public:
     void processMsg(const std::string& str, size_t /* backlog */) {
         m_Strings.push_back(str);
         if ((m_Strings.size() % 1000) == 0) {
-            LOG_DEBUG("Received " << m_Strings.size() << " strings");
+            LOG_DEBUG(<< "Received " << m_Strings.size() << " strings");
         }
 
         // Delay the processing if requested - this enables us to test
@@ -61,13 +61,13 @@ void CMessageQueueTest::testSendReceive() {
 
     static const size_t TEST_SIZE(10000);
 
-    LOG_DEBUG("Sending " << TEST_SIZE << " strings");
+    LOG_DEBUG(<< "Sending " << TEST_SIZE << " strings");
 
     for (size_t i = 0; i < TEST_SIZE; ++i) {
         queue.dispatchMsg("Test string");
     }
 
-    LOG_DEBUG("Sent all strings");
+    LOG_DEBUG(<< "Sent all strings");
 
     queue.stop();
 
@@ -86,20 +86,20 @@ void CMessageQueueTest::testTiming() {
 
     static const size_t TEST_SIZE(100);
 
-    LOG_DEBUG("Sending " << TEST_SIZE << " strings");
+    LOG_DEBUG(<< "Sending " << TEST_SIZE << " strings");
 
     for (size_t i = 0; i < TEST_SIZE; ++i) {
         queue.dispatchMsg("Test string");
     }
 
-    LOG_DEBUG("Sent all strings");
+    LOG_DEBUG(<< "Sent all strings");
 
     queue.stop();
 
     CPPUNIT_ASSERT_EQUAL(TEST_SIZE, receiver.size());
 
     double avgProcTimeSec(queue.rollingAverageProcessingTime());
-    LOG_DEBUG("Average processing time per item for the last " << NUM_TO_TIME << " items was " << avgProcTimeSec << " seconds");
+    LOG_DEBUG(<< "Average processing time per item for the last " << NUM_TO_TIME << " items was " << avgProcTimeSec << " seconds");
 
     // The high side tolerance is greater here, because although the sleep will
     // make up the bulk of the processing time, there is some other processing

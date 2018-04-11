@@ -67,7 +67,7 @@ public:
         try {
             return f(*this);
         } catch (const std::exception& e) {
-            LOG_ERROR("Restoration failed: " << e.what());
+            LOG_ERROR(<< "Restoration failed: " << e.what());
             level.setBadState();
             return false;
         }

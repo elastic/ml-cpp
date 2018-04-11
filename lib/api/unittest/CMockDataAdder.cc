@@ -14,7 +14,7 @@ CMockDataAdder::CMockDataAdder() {
 }
 
 CMockDataAdder::TOStreamP CMockDataAdder::addStreamed(const std::string& index, const std::string& /*id*/) {
-    LOG_TRACE("Add Streamed for index " << index);
+    LOG_TRACE(<< "Add Streamed for index " << index);
     if (m_Streams.find(index) == m_Streams.end()) {
         m_Streams[index] = TOStreamP(new std::ostringstream);
     }
@@ -22,15 +22,15 @@ CMockDataAdder::TOStreamP CMockDataAdder::addStreamed(const std::string& index, 
 }
 
 bool CMockDataAdder::streamComplete(TOStreamP& strm, bool /*force*/) {
-    LOG_TRACE("Stream complete");
+    LOG_TRACE(<< "Stream complete");
     bool found = false;
     for (TStrOStreamPMapItr i = m_Streams.begin(); i != m_Streams.end(); ++i) {
         if (i->second == strm) {
-            LOG_TRACE("Found stream for " << i->first);
+            LOG_TRACE(<< "Found stream for " << i->first);
             std::ostringstream* ss = dynamic_cast<std::ostringstream*>(i->second.get());
             if (ss != nullptr) {
                 const std::string& result = ss->str();
-                LOG_TRACE("Adding data: " << result);
+                LOG_TRACE(<< "Adding data: " << result);
                 m_Events[i->first].push_back('[' + result + ']');
                 found = true;
             }

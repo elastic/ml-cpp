@@ -76,7 +76,7 @@ maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TModeVec& mo
             return maths_t::E_FpOverflowed;
         }
 
-        LOG_TRACE("modeLogLikelihoods = " << core::CContainerPrinter::print(modeLogLikelihoods));
+        LOG_TRACE(<< "modeLogLikelihoods = " << core::CContainerPrinter::print(modeLogLikelihoods));
 
         double sampleLikelihood = 0.0;
         double Z = 0.0;
@@ -91,10 +91,10 @@ maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TModeVec& mo
         sampleLikelihood /= Z;
         result = (std::log(sampleLikelihood) + maxLogLikelihood);
 
-        LOG_TRACE("sample = " << core::CContainerPrinter::print(sample) << ", maxLogLikelihood = " << maxLogLikelihood
-                              << ", sampleLogLikelihood = " << result);
+        LOG_TRACE(<< "sample = " << core::CContainerPrinter::print(sample) << ", maxLogLikelihood = " << maxLogLikelihood
+                  << ", sampleLogLikelihood = " << result);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to compute likelihood: " << e.what());
+        LOG_ERROR(<< "Failed to compute likelihood: " << e.what());
         return maths_t::E_FpFailed;
     }
 
@@ -126,11 +126,11 @@ void sampleMarginalLikelihood(const TModeVec& modes, std::size_t numberSamples, 
 
     CSampling::TSizeVec sampling;
     CSampling::weightedSample(numberSamples, normalizedWeights, sampling);
-    LOG_TRACE("normalizedWeights = " << core::CContainerPrinter::print(normalizedWeights)
-                                     << ", sampling = " << core::CContainerPrinter::print(sampling));
+    LOG_TRACE(<< "normalizedWeights = " << core::CContainerPrinter::print(normalizedWeights)
+              << ", sampling = " << core::CContainerPrinter::print(sampling));
 
     if (sampling.size() != modes.size()) {
-        LOG_ERROR("Failed to sample marginal likelihood");
+        LOG_ERROR(<< "Failed to sample marginal likelihood");
         return;
     }
 
@@ -138,11 +138,11 @@ void sampleMarginalLikelihood(const TModeVec& modes, std::size_t numberSamples, 
     TDouble10Vec1Vec modeSamples;
     for (std::size_t i = 0u; i < modes.size(); ++i) {
         modes[i].s_Prior->sampleMarginalLikelihood(sampling[i], modeSamples);
-        LOG_TRACE("# modeSamples = " << modeSamples.size());
-        LOG_TRACE("modeSamples = " << core::CContainerPrinter::print(modeSamples));
+        LOG_TRACE(<< "# modeSamples = " << modeSamples.size());
+        LOG_TRACE(<< "modeSamples = " << core::CContainerPrinter::print(modeSamples));
         std::copy(modeSamples.begin(), modeSamples.end(), std::back_inserter(samples));
     }
-    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
+    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 }
 
 void print(const TModeVec& modes, const std::string& separator, std::string& result) {
@@ -165,7 +165,7 @@ void modeMergeCallback(std::size_t dimension,
                        std::size_t leftMergeIndex,
                        std::size_t rightMergeIndex,
                        std::size_t targetIndex) {
-    LOG_TRACE("Merging modes with indices " << leftMergeIndex << " " << rightMergeIndex);
+    LOG_TRACE(<< "Merging modes with indices " << leftMergeIndex << " " << rightMergeIndex);
 
     using TSizeSet = std::set<std::size_t>;
 
@@ -188,8 +188,8 @@ void modeMergeCallback(std::size_t dimension,
         nl = leftSamples.size();
         samples.insert(samples.end(), leftSamples.begin(), leftSamples.end());
     } else {
-        LOG_ERROR("Couldn't find mode for " << leftMergeIndex << " in " << printIndices(modes) << ", other index = " << rightMergeIndex
-                                            << ", merged index = " << targetIndex);
+        LOG_ERROR(<< "Couldn't find mode for " << leftMergeIndex << " in " << printIndices(modes) << ", other index = " << rightMergeIndex
+                  << ", merged index = " << targetIndex);
     }
 
     auto rightMode = std::find_if(modes.begin(), modes.end(), CSetTools::CIndexInSet(rightMergeIndex));
@@ -201,8 +201,8 @@ void modeMergeCallback(std::size_t dimension,
         nr = rightSamples.size();
         samples.insert(samples.end(), rightSamples.begin(), rightSamples.end());
     } else {
-        LOG_ERROR("Couldn't find mode for " << rightMergeIndex << " in " << printIndices(modes) << ", other index = " << leftMergeIndex
-                                            << ", merged index = " << targetIndex);
+        LOG_ERROR(<< "Couldn't find mode for " << rightMergeIndex << " in " << printIndices(modes) << ", other index = " << leftMergeIndex
+                  << ", merged index = " << targetIndex);
     }
 
     if (n > 0.0) {
@@ -213,8 +213,8 @@ void modeMergeCallback(std::size_t dimension,
         wr /= Z;
     }
 
-    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
-    LOG_TRACE("n = " << n << ", wl = " << wl << ", wr = " << wr);
+    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+    LOG_TRACE(<< "n = " << n << ", wl = " << wl << ", wr = " << wr);
 
     double ns = std::min(n, 4.0);
     double s = static_cast<double>(samples.size());
@@ -246,10 +246,10 @@ void modeMergeCallback(std::size_t dimension,
     modes.erase(std::remove_if(modes.begin(), modes.end(), CSetTools::CIndexInSet(mergedIndices)), modes.end());
 
     // Add the new mode.
-    LOG_TRACE("Creating mode with index " << targetIndex);
+    LOG_TRACE(<< "Creating mode with index " << targetIndex);
     modes.push_back(newMode);
 
-    LOG_TRACE("Merged modes");
+    LOG_TRACE(<< "Merged modes");
 }
 
 std::string debugWeights(const TModeVec& modes) {

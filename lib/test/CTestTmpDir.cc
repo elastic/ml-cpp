@@ -29,7 +29,7 @@ std::string CTestTmpDir::tmpDir() {
     struct passwd* result(nullptr);
     ::getpwuid_r(::getuid(), &pwd, buffer, BUFSIZE, &result);
     if (result == nullptr || result->pw_name == nullptr) {
-        LOG_ERROR("Could not get current user name: " << ::strerror(errno));
+        LOG_ERROR(<< "Could not get current user name: " << ::strerror(errno));
         return "/tmp";
     }
 
@@ -42,7 +42,7 @@ std::string CTestTmpDir::tmpDir() {
         boost::filesystem::path directoryPath(userSubdir);
         boost::filesystem::create_directories(directoryPath);
     } catch (std::exception& e) {
-        LOG_ERROR("Failed to create directory " << userSubdir << " - " << e.what());
+        LOG_ERROR(<< "Failed to create directory " << userSubdir << " - " << e.what());
         return "/tmp";
     }
 

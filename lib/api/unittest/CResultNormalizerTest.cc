@@ -44,7 +44,7 @@ void CResultNormalizerTest::testInitNormalizer() {
     CPPUNIT_ASSERT(inputParser.readStream(boost::bind(&ml::api::CResultNormalizer::handleRecord, &normalizer, _1)));
 
     std::string results(outputWriter.internalString());
-    LOG_DEBUG("Results:\n" << results);
+    LOG_DEBUG(<< "Results:\n" << results);
 
     // Results are new line separated so read all the docs into an  array
     std::vector<rapidjson::Document> resultDocs;

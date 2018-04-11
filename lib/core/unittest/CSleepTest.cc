@@ -26,7 +26,7 @@ void CSleepTest::testSleep() {
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
 
     ml::core_t::TTime diff(end - start);
-    LOG_DEBUG("During 7.5 second wait, the clock advanced by " << diff << " seconds");
+    LOG_DEBUG(<< "During 7.5 second wait, the clock advanced by " << diff << " seconds");
 
     // Clock time should be 7 or 8 seconds further ahead
     CPPUNIT_ASSERT(diff >= 7);

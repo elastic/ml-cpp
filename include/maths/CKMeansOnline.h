@@ -176,17 +176,17 @@ public:
     //! \param[in] k The desired size for the clustering.
     //! \param[out] result Filled in with the \p k means clustering.
     bool kmeans(std::size_t k, TSphericalClusterVecVec& result) {
-        LOG_TRACE("split");
+        LOG_TRACE(<< "split");
 
         result.clear();
 
         if (k == 0) {
-            LOG_ERROR("Bad request for zero categories");
+            LOG_ERROR(<< "Bad request for zero categories");
             return false;
         }
 
         this->reduce();
-        LOG_TRACE("raw clusters = " << this->print());
+        LOG_TRACE(<< "raw clusters = " << this->print());
 
         TSphericalClusterVec clusters;
         this->clusters(clusters);
@@ -207,7 +207,7 @@ public:
         result.clear();
 
         if (k == 0) {
-            LOG_ERROR("Bad request for zero categories");
+            LOG_ERROR(<< "Bad request for zero categories");
             return false;
         }
         if (clusters.empty()) {
@@ -247,7 +247,7 @@ public:
             }
         }
 
-        LOG_TRACE("result = " << core::CContainerPrinter::print(result));
+        LOG_TRACE(<< "result = " << core::CContainerPrinter::print(result));
 
         return true;
     }
@@ -297,7 +297,7 @@ public:
     //!
     //! \param[in] other Another clusterer to merge with this one.
     void merge(const CKMeansOnline& other) {
-        LOG_TRACE("Merge");
+        LOG_TRACE(<< "Merge");
 
         for (std::size_t i = 0u; i < other.m_PointsBuffer.size(); ++i) {
             m_Clusters.push_back(TFloatMeanAccumulatorDoublePr());
@@ -318,19 +318,19 @@ public:
     //! Propagate the clusters forwards by \p time.
     void propagateForwardsByTime(double time) {
         if (time < 0.0) {
-            LOG_ERROR("Can't propagate backwards in time");
+            LOG_ERROR(<< "Can't propagate backwards in time");
             return;
         }
 
         double alpha = std::exp(-m_DecayRate * time);
-        LOG_TRACE("alpha = " << alpha);
+        LOG_TRACE(<< "alpha = " << alpha);
 
         this->age(alpha);
     }
 
     //! Age by a factor \p alpha, which should be in the range (0, 1).
     void age(double alpha) {
-        LOG_TRACE("clusters = " << core::CContainerPrinter::print(m_Clusters));
+        LOG_TRACE(<< "clusters = " << core::CContainerPrinter::print(m_Clusters));
 
         for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
             m_Clusters[i].first.age(alpha);
@@ -340,7 +340,7 @@ public:
         // maintaining categories with low counts.
         m_Clusters.erase(std::remove_if(m_Clusters.begin(), m_Clusters.end(), CShouldDelete(m_MinimumCategoryCount)), m_Clusters.end());
 
-        LOG_TRACE("clusters = " << core::CContainerPrinter::print(m_Clusters));
+        LOG_TRACE(<< "clusters = " << core::CContainerPrinter::print(m_Clusters));
     }
 
     //! Get the current points buffer.
@@ -364,7 +364,7 @@ public:
 
         // See, for example, Effective C++ item 3.
         const_cast<CKMeansOnline*>(this)->reduce();
-        LOG_TRACE("categories = " << core::CContainerPrinter::print(m_Clusters));
+        LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(m_Clusters));
 
         TDoubleVec counts;
         counts.reserve(m_Clusters.size());
@@ -378,7 +378,7 @@ public:
         for (std::size_t i = 0u; i < counts.size(); ++i) {
             counts[i] /= Z;
         }
-        LOG_TRACE("weights = " << core::CContainerPrinter::print(counts) << ", Z = " << Z << ", n = " << numberSamples);
+        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(counts) << ", Z = " << Z << ", n = " << numberSamples);
 
         result.reserve(2 * numberSamples);
 
@@ -402,8 +402,8 @@ public:
             result.insert(result.end(), categorySamples.begin(), categorySamples.end());
             weights.insert(weights.end(), categorySamples.size(), ni);
         }
-        LOG_TRACE("samples = " << core::CContainerPrinter::print(result));
-        LOG_TRACE("weights = " << core::CContainerPrinter::print(weights));
+        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(result));
+        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
 
         TDoublePointVec final;
         final.reserve(static_cast<std::size_t>(std::ceil(std::accumulate(weights.begin(), weights.end(), 0.0))));
@@ -434,8 +434,8 @@ public:
         }
 
         result.swap(final);
-        LOG_TRACE("# samples = " << result.size());
-        LOG_TRACE("samples = " << core::CContainerPrinter::print(result));
+        LOG_TRACE(<< "# samples = " << result.size());
+        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(result));
     }
 
     //! Print this classifier for debug.
@@ -476,17 +476,17 @@ protected:
     //! Sanity check \p split.
     bool checkSplit(const TSizeVecVec& split) const {
         if (split.empty()) {
-            LOG_ERROR("Bad split = " << core::CContainerPrinter::print(split));
+            LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
             return false;
         }
         for (std::size_t i = 0u; i < split.size(); ++i) {
             if (split[i].empty()) {
-                LOG_ERROR("Bad split = " << core::CContainerPrinter::print(split));
+                LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
                 return false;
             }
             for (std::size_t j = 0u; j < split[i].size(); ++j) {
                 if (split[i][j] >= m_Clusters.size()) {
-                    LOG_ERROR("Bad split = " << core::CContainerPrinter::print(split));
+                    LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
                     return false;
                 }
             }
@@ -507,8 +507,8 @@ protected:
             return;
         }
 
-        LOG_TRACE("clusters = " << core::CContainerPrinter::print(m_Clusters));
-        LOG_TRACE("# clusters = " << m_Clusters.size());
+        LOG_TRACE(<< "clusters = " << core::CContainerPrinter::print(m_Clusters));
+        LOG_TRACE(<< "# clusters = " << m_Clusters.size());
 
         TSphericalClusterVecVec kclusters;
         {
@@ -529,8 +529,8 @@ protected:
             m_Clusters[i].second = variance(cluster);
         }
 
-        LOG_TRACE("reduced clusters = " << core::CContainerPrinter::print(m_Clusters));
-        LOG_TRACE("# reduced clusters = " << m_Clusters.size());
+        LOG_TRACE(<< "reduced clusters = " << core::CContainerPrinter::print(m_Clusters));
+        LOG_TRACE(<< "# reduced clusters = " << m_Clusters.size());
     }
 
     //! Add \p count copies of \p mx to the cluster \p cluster.

@@ -20,7 +20,7 @@ CStopWatch::CStopWatch(bool startRunning) : m_IsRunning(false), m_Start(0), m_Ac
 
 void CStopWatch::start() {
     if (m_IsRunning) {
-        LOG_ERROR("Stop watch already running");
+        LOG_ERROR(<< "Stop watch already running");
         return;
     }
 
@@ -30,7 +30,7 @@ void CStopWatch::start() {
 
 uint64_t CStopWatch::stop() {
     if (!m_IsRunning) {
-        LOG_ERROR("Stop watch not running");
+        LOG_ERROR(<< "Stop watch not running");
         return m_AccumulatedTime;
     }
 
@@ -43,7 +43,7 @@ uint64_t CStopWatch::stop() {
 
 uint64_t CStopWatch::lap() {
     if (!m_IsRunning) {
-        LOG_ERROR("Stop watch not running");
+        LOG_ERROR(<< "Stop watch not running");
         return m_AccumulatedTime;
     }
 
@@ -66,8 +66,8 @@ void CStopWatch::reset(bool startRunning) {
 uint64_t CStopWatch::calcDuration() {
     uint64_t current(m_MonotonicTime.milliseconds());
     if (current < m_Start) {
-        LOG_WARN("Monotonic timer has gone backwards - "
-                 "stop watch timings will be inaccurate");
+        LOG_WARN(<< "Monotonic timer has gone backwards - "
+                    "stop watch timings will be inaccurate");
         m_Start = current;
         return 0;
     }

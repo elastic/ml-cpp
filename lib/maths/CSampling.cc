@@ -79,7 +79,7 @@ void doUniformSample(RNG& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>&
 template<typename RNG>
 double doNormalSample(RNG& rng, double mean, double variance) {
     if (variance < 0.0) {
-        LOG_ERROR("Invalid variance " << variance);
+        LOG_ERROR(<< "Invalid variance " << variance);
         return mean;
     }
     boost::random::normal_distribution<double> normal(mean, std::sqrt(variance));
@@ -91,7 +91,7 @@ template<typename RNG>
 void doNormalSample(RNG& rng, double mean, double variance, std::size_t n, TDoubleVec& result) {
     result.clear();
     if (variance < 0.0) {
-        LOG_ERROR("Invalid variance " << variance);
+        LOG_ERROR(<< "Invalid variance " << variance);
         return;
     } else if (variance == 0.0) {
         result.resize(n, mean);
@@ -228,8 +228,8 @@ bool doMultivariateNormalSample(RNG& rng, const TDoubleVec& mean, const TDoubleV
     using TJacobiSvd = Eigen::JacobiSVD<CDenseMatrix<double>>;
 
     if (mean.size() != covariance.size()) {
-        LOG_ERROR("Incompatible mean and covariance: " << core::CContainerPrinter::print(mean) << ", "
-                                                       << core::CContainerPrinter::print(covariance));
+        LOG_ERROR(<< "Incompatible mean and covariance: " << core::CContainerPrinter::print(mean) << ", "
+                  << core::CContainerPrinter::print(covariance));
         return false;
     }
 
@@ -255,14 +255,14 @@ bool doMultivariateNormalSample(RNG& rng, const TDoubleVec& mean, const TDoubleV
     // as required.
 
     std::size_t d = mean.size();
-    LOG_TRACE("Dimension = " << d);
-    LOG_TRACE("mean = " << core::CContainerPrinter::print(mean));
+    LOG_TRACE(<< "Dimension = " << d);
+    LOG_TRACE(<< "mean = " << core::CContainerPrinter::print(mean));
 
     CDenseMatrix<double> C(d, d);
     for (std::size_t i = 0u; i < d; ++i) {
         C(i, i) = covariance[i][i];
         if (covariance[i].size() < d - i) {
-            LOG_ERROR("Bad covariance matrix: " << core::CContainerPrinter::print(covariance));
+            LOG_ERROR(<< "Bad covariance matrix: " << core::CContainerPrinter::print(covariance));
             return false;
         }
         for (std::size_t j = 0; j < i; ++j) {
@@ -270,7 +270,7 @@ bool doMultivariateNormalSample(RNG& rng, const TDoubleVec& mean, const TDoubleV
             C(j, i) = covariance[i][j];
         }
     }
-    LOG_TRACE("C =" << core_t::LINE_ENDING << ' ' << C);
+    LOG_TRACE(<< "C =" << core_t::LINE_ENDING << ' ' << C);
 
     TJacobiSvd svd(C, Eigen::ComputeThinU | Eigen::ComputeThinV);
 
@@ -283,10 +283,10 @@ bool doMultivariateNormalSample(RNG& rng, const TDoubleVec& mean, const TDoubleV
     for (std::size_t i = 0u; i < d; ++i) {
         stddevs.push_back(std::sqrt(std::max(S(i), 0.0)));
     }
-    LOG_TRACE("Singular values of C = " << S.transpose());
-    LOG_TRACE("stddevs = " << core::CContainerPrinter::print(stddevs));
-    LOG_TRACE("U =" << core_t::LINE_ENDING << ' ' << U);
-    LOG_TRACE("V =" << core_t::LINE_ENDING << ' ' << svd.matrixV());
+    LOG_TRACE(<< "Singular values of C = " << S.transpose());
+    LOG_TRACE(<< "stddevs = " << core::CContainerPrinter::print(stddevs));
+    LOG_TRACE(<< "U =" << core_t::LINE_ENDING << ' ' << U);
+    LOG_TRACE(<< "V =" << core_t::LINE_ENDING << ' ' << svd.matrixV());
 
     {
         samples.resize(n, mean);
@@ -683,7 +683,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
     using TDoubleSizePr = std::pair<double, std::size_t>;
     using TDoubleSizePrVec = std::vector<TDoubleSizePr>;
 
-    LOG_TRACE("Number samples = " << n);
+    LOG_TRACE(<< "Number samples = " << n);
 
     sampling.clear();
 
@@ -691,7 +691,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
 
     n = std::max(static_cast<std::size_t>(totalWeight * static_cast<double>(n) + 0.5), static_cast<std::size_t>(1u));
 
-    LOG_TRACE("totalWeight = " << totalWeight << ", n = " << n);
+    LOG_TRACE(<< "totalWeight = " << totalWeight << ", n = " << n);
 
     TUIntVec choices;
     TDoubleVec remainders[] = {TDoubleVec(), TDoubleVec()};
@@ -714,7 +714,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
     // floating point problems.
 
     if (std::fabs(totalRemainder) > 0.5) {
-        LOG_TRACE("ideal choice function = " << core::CContainerPrinter::print(choices));
+        LOG_TRACE(<< "ideal choice function = " << core::CContainerPrinter::print(choices));
 
         TDoubleSizePrVec candidates;
         for (std::size_t i = 0u; i < choices.size(); ++i) {
@@ -723,7 +723,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
             }
         }
         std::sort(candidates.begin(), candidates.end());
-        LOG_TRACE("candidates = " << core::CContainerPrinter::print(candidates));
+        LOG_TRACE(<< "candidates = " << core::CContainerPrinter::print(candidates));
 
         for (std::size_t i = 0u; i < candidates.size() && std::fabs(totalRemainder) > 0.5; ++i) {
             std::size_t j = candidates[i].second;
@@ -732,7 +732,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
             totalRemainder += remainders[choices[j]][j] - remainders[choice][j];
         }
     }
-    LOG_TRACE("choice function = " << core::CContainerPrinter::print(choices));
+    LOG_TRACE(<< "choice function = " << core::CContainerPrinter::print(choices));
 
     sampling.reserve(weights.size());
     for (std::size_t i = 0u; i < weights.size(); ++i) {
@@ -757,7 +757,7 @@ void CSampling::normalSampleQuantiles(double mean, double variance, std::size_t 
         boost::math::normal_distribution<> normal(mean, std::sqrt(variance));
         sampleQuantiles(normal, n, result);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to sample normal quantiles: " << e.what() << ", mean = " << mean << ", variance = " << variance);
+        LOG_ERROR(<< "Failed to sample normal quantiles: " << e.what() << ", mean = " << mean << ", variance = " << variance);
         result.clear();
     }
 }
@@ -772,7 +772,7 @@ void CSampling::gammaSampleQuantiles(double shape, double rate, std::size_t n, T
         boost::math::gamma_distribution<> gamma(shape, 1.0 / rate);
         sampleQuantiles(gamma, n, result);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to sample normal quantiles: " << e.what() << ", shape = " << shape << ", rate = " << rate);
+        LOG_ERROR(<< "Failed to sample normal quantiles: " << e.what() << ", shape = " << shape << ", rate = " << rate);
         result.clear();
     }
 }

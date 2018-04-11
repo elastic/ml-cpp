@@ -103,7 +103,7 @@ CMetricModel::CMetricModel(bool isForPersistence, const CMetricModel& other)
       m_CurrentBucketStats(0) // Not needed for persistence so minimally constructed
 {
     if (!isForPersistence) {
-        LOG_ABORT("This constructor only creates clones for persistence");
+        LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
 }
 
@@ -195,7 +195,7 @@ void CMetricModel::sample(core_t::TTime startTime, core_t::TTime endTime, CResou
     m_CurrentBucketStats.s_InterimCorrections.clear();
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
-        LOG_TRACE("Sampling [" << time << "," << time + bucketLength << ")");
+        LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
 
         gatherer.sampleNow(time);
         gatherer.featureData(time, bucketLength, m_CurrentBucketStats.s_FeatureData);
@@ -220,7 +220,7 @@ void CMetricModel::sample(core_t::TTime startTime, core_t::TTime endTime, CResou
             model_t::EFeature feature = featureData.first;
             TSizeFeatureDataPrVec& data = featureData.second;
             std::size_t dimension = model_t::dimension(feature);
-            LOG_TRACE(model_t::print(feature) << " data = " << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << " data = " << core::CContainerPrinter::print(data));
             this->applyFilter(model_t::E_XF_By, true, this->personFilter(), data);
 
             for (const auto& data_ : data) {
@@ -229,7 +229,7 @@ void CMetricModel::sample(core_t::TTime startTime, core_t::TTime endTime, CResou
 
                 maths::CModel* model = this->model(feature, pid);
                 if (!model) {
-                    LOG_ERROR("Missing model for " << this->personName(pid));
+                    LOG_ERROR(<< "Missing model for " << this->personName(pid));
                     continue;
                 }
 
@@ -258,10 +258,10 @@ void CMetricModel::sample(core_t::TTime startTime, core_t::TTime endTime, CResou
                                    ? this->params().s_MaximumUpdatesPerBucket / static_cast<double>(samples.size())
                                    : 1.0;
 
-                LOG_TRACE("Bucket = " << gatherer.printCurrentBucket(time) << ", feature = " << model_t::print(feature) << ", samples = "
-                                      << core::CContainerPrinter::print(samples) << ", isInteger = " << data_.second.s_IsInteger
-                                      << ", person = " << this->personName(pid) << ", count weight = " << count
-                                      << ", dimension = " << dimension << ", empty bucket weight = " << emptyBucketWeight);
+                LOG_TRACE(<< "Bucket = " << gatherer.printCurrentBucket(time) << ", feature = " << model_t::print(feature)
+                          << ", samples = " << core::CContainerPrinter::print(samples) << ", isInteger = " << data_.second.s_IsInteger
+                          << ", person = " << this->personName(pid) << ", count weight = " << count << ", dimension = " << dimension
+                          << ", empty bucket weight = " << emptyBucketWeight);
 
                 model->params().probabilityBucketEmpty(this->probabilityBucketEmpty(feature, pid));
 
@@ -312,14 +312,14 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     core_t::TTime bucketLength = gatherer.bucketLength();
 
     if (endTime != startTime + bucketLength) {
-        LOG_ERROR("Can only compute probability for single bucket");
+        LOG_ERROR(<< "Can only compute probability for single bucket");
         return false;
     }
 
     if (pid >= this->firstBucketTimes().size()) {
         // This is not necessarily an error: the person might have been added
         // only in an out of phase bucket so far
-        LOG_TRACE("No first time for person = " << gatherer.personName(pid));
+        LOG_TRACE(<< "No first time for person = " << gatherer.personName(pid));
         return false;
     }
 
@@ -345,7 +345,7 @@ bool CMetricModel::computeProbability(const std::size_t pid,
             continue;
         }
 
-        LOG_TRACE("Compute probability for " << data->print());
+        LOG_TRACE(<< "Compute probability for " << data->print());
 
         if (this->correlates(feature, pid, startTime)) {
             CProbabilityAndInfluenceCalculator::SCorrelateParams params(partitioningFields);
@@ -360,16 +360,16 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     }
 
     if (pJoint.empty()) {
-        LOG_TRACE("No samples in [" << startTime << "," << endTime << ")");
+        LOG_TRACE(<< "No samples in [" << startTime << "," << endTime << ")");
         return false;
     }
 
     double p;
     if (!pJoint.calculate(p, result.s_Influences)) {
-        LOG_ERROR("Failed to compute probability");
+        LOG_ERROR(<< "Failed to compute probability");
         return false;
     }
-    LOG_TRACE("probability(" << this->personName(pid) << ") = " << p);
+    LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
 
     resultBuilder.probability(p);
     resultBuilder.build();
@@ -400,8 +400,8 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
 
 #undef KEY
 
-    LOG_TRACE("seed = " << seed);
-    LOG_TRACE("hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "seed = " << seed);
+    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
 
     return maths::CChecksum::calculate(seed, hashes);
 }

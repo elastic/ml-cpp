@@ -97,7 +97,7 @@ void CFieldConfigTest::testValidClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -120,7 +120,7 @@ void CFieldConfigTest::testValidClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -145,7 +145,7 @@ void CFieldConfigTest::testValidClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -174,7 +174,7 @@ void CFieldConfigTest::testValidClauses() {
         CPPUNIT_ASSERT_EQUAL(size_t(1), config.influencerFieldNames().size());
         CPPUNIT_ASSERT_EQUAL(std::string("nationality"), config.influencerFieldNames().front());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -205,7 +205,7 @@ void CFieldConfigTest::testValidClauses() {
         CPPUNIT_ASSERT_EQUAL(std::string("MarketCap"), config.influencerFieldNames().front());
         CPPUNIT_ASSERT_EQUAL(std::string("nationality"), config.influencerFieldNames().back());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -233,7 +233,7 @@ void CFieldConfigTest::testValidClauses() {
         CPPUNIT_ASSERT(config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(2), fields.size());
@@ -270,7 +270,7 @@ void CFieldConfigTest::testValidClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(2), fields.size());
@@ -309,7 +309,7 @@ void CFieldConfigTest::testValidClauses() {
         CPPUNIT_ASSERT(config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(2), fields.size());
@@ -347,7 +347,7 @@ void CFieldConfigTest::testValidClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(2), fields.size());
@@ -385,7 +385,7 @@ void CFieldConfigTest::testValidClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(2), fields.size());
@@ -425,7 +425,7 @@ void CFieldConfigTest::testValidClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT_EQUAL(std::string("mycount"), config.summaryCountFieldName());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(3), fields.size());
@@ -776,7 +776,7 @@ void CFieldConfigTest::testValidPopulationClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -803,7 +803,7 @@ void CFieldConfigTest::testValidPopulationClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -830,7 +830,7 @@ void CFieldConfigTest::testValidPopulationClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -857,7 +857,7 @@ void CFieldConfigTest::testValidPopulationClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -887,7 +887,7 @@ void CFieldConfigTest::testValidPopulationClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(2), fields.size());
@@ -924,7 +924,7 @@ void CFieldConfigTest::testValidPopulationClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -951,7 +951,7 @@ void CFieldConfigTest::testValidPopulationClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -980,7 +980,7 @@ void CFieldConfigTest::testValidPopulationClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -1010,7 +1010,7 @@ void CFieldConfigTest::testValidPopulationClauses() {
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(2), fields.size());
@@ -1055,7 +1055,7 @@ void CFieldConfigTest::testCategorizationFieldWithFilters() {
     CPPUNIT_ASSERT(!config.havePartitionFields());
     CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-    LOG_DEBUG(config.debug());
+    LOG_DEBUG(<< config.debug());
 
     const std::string& categorizationFieldName = config.categorizationFieldName();
     CPPUNIT_ASSERT_EQUAL(std::string("message"), categorizationFieldName);
@@ -1083,7 +1083,7 @@ void CFieldConfigTest::testExcludeFrequentClauses() {
         CPPUNIT_ASSERT(config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_TRACE(config.debug());
+        LOG_TRACE(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -1116,7 +1116,7 @@ void CFieldConfigTest::testExcludeFrequentClauses() {
         CPPUNIT_ASSERT(config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_TRACE(config.debug());
+        LOG_TRACE(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -1149,7 +1149,7 @@ void CFieldConfigTest::testExcludeFrequentClauses() {
         CPPUNIT_ASSERT(config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_TRACE(config.debug());
+        LOG_TRACE(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -1182,7 +1182,7 @@ void CFieldConfigTest::testExcludeFrequentClauses() {
         CPPUNIT_ASSERT(config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_TRACE(config.debug());
+        LOG_TRACE(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -1228,7 +1228,7 @@ void CFieldConfigTest::testExcludeFrequentClauses() {
         CPPUNIT_ASSERT(config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_TRACE(config.debug());
+        LOG_TRACE(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -1258,7 +1258,7 @@ void CFieldConfigTest::testExcludeFrequentClauses() {
         CPPUNIT_ASSERT(config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_TRACE(config.debug());
+        LOG_TRACE(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(1), fields.size());
@@ -1492,7 +1492,7 @@ void CFieldConfigTest::testValidFile(TInitFromFileFunc initFunc, const std::stri
     CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
     CPPUNIT_ASSERT(config.categorizationFilters().empty());
 
-    LOG_DEBUG(config.debug());
+    LOG_DEBUG(<< config.debug());
 
     const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
     CPPUNIT_ASSERT_EQUAL(size_t(7), fields.size());
@@ -1602,7 +1602,7 @@ void CFieldConfigTest::testValidPopulationFile(TInitFromFileFunc initFunc, const
         CPPUNIT_ASSERT(!config.havePartitionFields());
         CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-        LOG_DEBUG(config.debug());
+        LOG_DEBUG(<< config.debug());
 
         const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
         CPPUNIT_ASSERT_EQUAL(size_t(2), fields.size());
@@ -1634,7 +1634,7 @@ void CFieldConfigTest::testDefaultCategorizationFieldFile(TInitFromFileFunc init
     CPPUNIT_ASSERT(!config.havePartitionFields());
     CPPUNIT_ASSERT(config.summaryCountFieldName().empty());
 
-    LOG_DEBUG(config.debug());
+    LOG_DEBUG(<< config.debug());
 
     const std::string& categorizationFieldName = config.categorizationFieldName();
     CPPUNIT_ASSERT_EQUAL(std::string("message"), categorizationFieldName);
@@ -1751,7 +1751,7 @@ void CFieldConfigTest::testSlashesFile(TInitFromFileFunc initFunc, const std::st
 
     CPPUNIT_ASSERT(initFunc(&config, fileName));
 
-    LOG_DEBUG(config.debug());
+    LOG_DEBUG(<< config.debug());
 
     const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
 
@@ -1765,7 +1765,7 @@ void CFieldConfigTest::testBracketPercentFile(TInitFromFileFunc initFunc, const 
 
     CPPUNIT_ASSERT(initFunc(&config, fileName));
 
-    LOG_DEBUG(config.debug());
+    LOG_DEBUG(<< config.debug());
 
     const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
 

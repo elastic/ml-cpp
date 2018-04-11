@@ -38,7 +38,7 @@ void setDecayRate(double value, double fallback, CFloatStorage& result) {
     if (CMathsFuncs::isFinite(value)) {
         result = value;
     } else {
-        LOG_ERROR("Invalid decay rate " << value);
+        LOG_ERROR(<< "Invalid decay rate " << value);
         result = fallback;
     }
 }
@@ -97,7 +97,7 @@ void CPrior::addSamples(const TWeightStyleVec& weightStyles, const TDouble1Vec& 
         for (const auto& weight : weights) {
             n += maths_t::countForUpdate(weightStyles, weight);
         }
-    } catch (const std::exception& e) { LOG_ERROR("Failed to extract sample counts: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to extract sample counts: " << e.what()); }
     this->addSamples(n);
 }
 
@@ -197,7 +197,7 @@ void CPrior::adjustOffsetResamples(double minimumSample, TDouble1Vec& resamples,
     std::size_t n = resamples.size();
     resamples.erase(std::remove_if(resamples.begin(), resamples.end(), std::not1(CMathsFuncs::SIsFinite())), resamples.end());
     if (resamples.size() != n) {
-        LOG_ERROR("Bad samples (" << this->debug() << ")");
+        LOG_ERROR(<< "Bad samples (" << this->debug() << ")");
         n = resamples.size();
     }
     for (std::size_t i = 0u; i < n; ++i) {
@@ -272,7 +272,7 @@ double CPrior::adjustOffsetWithCost(const TWeightStyleVec& weightStyles,
         }
         double likelihood;
         CSolvers::globalMinimize(trialOffsets, cost, offset, likelihood);
-        LOG_TRACE("samples = " << core::CContainerPrinter::print(samples) << ", offset = " << offset << ", likelihood = " << likelihood);
+        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples) << ", offset = " << offset << ", likelihood = " << likelihood);
     }
 
     apply(offset);
@@ -393,8 +393,8 @@ double CPrior::COffsetCost::computeCost(double offset) const {
         status =
             this->prior().jointLogMarginalLikelihood(TWeights::COUNT, this->resamples(), this->resamplesWeights(), resamplesLogLikelihood);
         if (status != maths_t::E_FpNoErrors) {
-            LOG_ERROR("Failed evaluating log-likelihood at "
-                      << offset << " for samples " << core::CContainerPrinter::print(this->resamples()) << " and weights "
+            LOG_ERROR(<< "Failed evaluating log-likelihood at " << offset << " for samples "
+                      << core::CContainerPrinter::print(this->resamples()) << " and weights "
                       << core::CContainerPrinter::print(this->resamplesWeights()) << ", the prior is " << this->prior().print()
                       << ": status " << status);
         }
@@ -402,9 +402,9 @@ double CPrior::COffsetCost::computeCost(double offset) const {
     double samplesLogLikelihood;
     status = this->prior().jointLogMarginalLikelihood(this->weightStyles(), this->samples(), this->weights(), samplesLogLikelihood);
     if (status != maths_t::E_FpNoErrors) {
-        LOG_ERROR("Failed evaluating log-likelihood at " << offset << " for " << core::CContainerPrinter::print(this->samples())
-                                                         << " and weights " << core::CContainerPrinter::print(this->weights())
-                                                         << ", the prior is " << this->prior().print() << ": status " << status);
+        LOG_ERROR(<< "Failed evaluating log-likelihood at " << offset << " for " << core::CContainerPrinter::print(this->samples())
+                  << " and weights " << core::CContainerPrinter::print(this->weights()) << ", the prior is " << this->prior().print()
+                  << ": status " << status);
     }
     return -(resamplesLogLikelihood + samplesLogLikelihood);
 }

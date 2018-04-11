@@ -142,13 +142,13 @@ void generateTestMessages(std::size_t dimension, core_t::TTime startTime, core_t
     for (std::size_t i = 0u; i < numberPeople; ++i) {
         people.push_back("p" + core::CStringUtils::typeToString(i));
     }
-    LOG_DEBUG("people = " << core::CContainerPrinter::print(people));
+    LOG_DEBUG(<< "people = " << core::CContainerPrinter::print(people));
 
     TStrVec attributes;
     for (std::size_t i = 0u; i < numberAttributes; ++i) {
         attributes.push_back("c" + core::CStringUtils::typeToString(i));
     }
-    LOG_DEBUG("attributes = " << core::CContainerPrinter::print(attributes));
+    LOG_DEBUG(<< "attributes = " << core::CContainerPrinter::print(attributes));
 
     double attributeRates[] = {10.0, 2.0, 15.0, 2.0, 1.0};
     double means[] = {5.0, 10.0, 7.0, 3.0, 15.0};
@@ -203,7 +203,7 @@ void generateTestMessages(std::size_t dimension, core_t::TTime startTime, core_t
         }
     }
 
-    LOG_DEBUG("# messages = " << messages.size());
+    LOG_DEBUG(<< "# messages = " << messages.size());
     std::sort(messages.begin(), messages.end());
 }
 
@@ -255,12 +255,12 @@ void processBucket(core_t::TTime time,
     model.sample(time, time + bucketLength, resourceMonitor);
     CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
     model.computeProbability(0 /*pid*/, time, time + bucketLength, partitioningFields, 1, probability);
-    LOG_DEBUG("influences = " << core::CContainerPrinter::print(probability.s_Influences));
+    LOG_DEBUG(<< "influences = " << core::CContainerPrinter::print(probability.s_Influences));
 }
 }
 
 void CMetricPopulationModelTest::testBasicAccessors() {
-    LOG_DEBUG("*** CMetricPopulationModelTest::testBasicAccessors ***");
+    LOG_DEBUG(<< "*** CMetricPopulationModelTest::testBasicAccessors ***");
 
     // Check that the correct data is read retrieved by the
     // basic model accessors.
@@ -276,7 +276,7 @@ void CMetricPopulationModelTest::testBasicAccessors() {
 
     TMessageVec messages;
     generateTestMessages(1, startTime, bucketLength, messages);
-    LOG_DEBUG("# messages = " << messages.size());
+    LOG_DEBUG(<< "# messages = " << messages.size());
 
     SModelParams params(bucketLength);
     CMetricPopulationModelFactory factory(params);
@@ -301,7 +301,7 @@ void CMetricPopulationModelTest::testBasicAccessors() {
         if (message.s_Time >= startTime + bucketLength) {
             model->sample(startTime, startTime + bucketLength, m_ResourceMonitor);
 
-            LOG_DEBUG("Testing bucket = [" << startTime << "," << startTime + bucketLength << ")");
+            LOG_DEBUG(<< "Testing bucket = [" << startTime << "," << startTime + bucketLength << ")");
 
             CPPUNIT_ASSERT_EQUAL(numberPeople, gatherer->numberActivePeople());
             CPPUNIT_ASSERT_EQUAL(numberAttributes, gatherer->numberActiveAttributes());
@@ -320,7 +320,7 @@ void CMetricPopulationModelTest::testBasicAccessors() {
                 CPPUNIT_ASSERT_EQUAL(j, cid);
             }
 
-            LOG_DEBUG("expected counts = " << core::CContainerPrinter::print(expectedBucketPersonCounts));
+            LOG_DEBUG(<< "expected counts = " << core::CContainerPrinter::print(expectedBucketPersonCounts));
 
             TSizeVec expectedCurrentBucketPersonIds;
 
@@ -343,9 +343,9 @@ void CMetricPopulationModelTest::testBasicAccessors() {
                                  core::CContainerPrinter::print(bucketPersonIds));
 
             if ((startTime / bucketLength) % 10 == 0) {
-                LOG_DEBUG("expected means = " << core::CContainerPrinter::print(expectedBucketMeans));
-                LOG_DEBUG("expected mins = " << core::CContainerPrinter::print(expectedBucketMins));
-                LOG_DEBUG("expected maxs = " << core::CContainerPrinter::print(expectedBucketMaxs));
+                LOG_DEBUG(<< "expected means = " << core::CContainerPrinter::print(expectedBucketMeans));
+                LOG_DEBUG(<< "expected mins = " << core::CContainerPrinter::print(expectedBucketMins));
+                LOG_DEBUG(<< "expected maxs = " << core::CContainerPrinter::print(expectedBucketMaxs));
             }
             for (std::size_t cid = 0u; cid < numberAttributes; ++cid) {
                 for (std::size_t pid = 0u; pid < numberPeople; ++pid) {
@@ -391,7 +391,7 @@ void CMetricPopulationModelTest::testBasicAccessors() {
 }
 
 void CMetricPopulationModelTest::testMinMaxAndMean() {
-    LOG_DEBUG("*** testMinMaxAndMean ***");
+    LOG_DEBUG(<< "*** testMinMaxAndMean ***");
 
     // We check that the correct data is read from the gatherer
     // into the model on sample.
@@ -493,7 +493,7 @@ void CMetricPopulationModelTest::testMinMaxAndMean() {
 
             for (std::size_t feature = 0u; feature < features.size(); ++feature) {
                 if ((startTime / bucketLength) % 10 == 0) {
-                    LOG_DEBUG("Testing priors for feature " << model_t::print(features[feature]));
+                    LOG_DEBUG(<< "Testing priors for feature " << model_t::print(features[feature]));
                 }
                 for (std::size_t cid = 0u; cid < numberAttributes; ++cid) {
                     if (expectedPopulationModels[feature].count(cid) > 0) {
@@ -537,7 +537,7 @@ void CMetricPopulationModelTest::testMinMaxAndMean() {
 }
 
 void CMetricPopulationModelTest::testVarp() {
-    LOG_DEBUG("*** testVarp ***");
+    LOG_DEBUG(<< "*** testVarp ***");
 
     core_t::TTime startTime(3600);
     core_t::TTime bucketLength(3600);
@@ -636,7 +636,7 @@ void CMetricPopulationModelTest::testVarp() {
 }
 
 void CMetricPopulationModelTest::testComputeProbability() {
-    LOG_DEBUG("*** testComputeProbability ***");
+    LOG_DEBUG(<< "*** testComputeProbability ***");
 
     maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
@@ -653,7 +653,7 @@ void CMetricPopulationModelTest::testComputeProbability() {
     model_t::EFeature features_[] = {model_t::E_PopulationMaxByPersonAndAttribute, model_t::E_PopulationMeanLatLongByPersonAndAttribute};
 
     for (std::size_t i = 0u; i < boost::size(features_); ++i) {
-        LOG_DEBUG("Testing " << model_t::print(features_[i]));
+        LOG_DEBUG(<< "Testing " << model_t::print(features_[i]));
 
         TMessageVec messages;
         generateTestMessages(model_t::dimension(features_[i]), startTime, bucketLength, messages);
@@ -675,7 +675,7 @@ void CMetricPopulationModelTest::testComputeProbability() {
             if (message.s_Time >= startTime + bucketLength) {
                 model->sample(startTime, startTime + bucketLength, m_ResourceMonitor);
 
-                LOG_DEBUG("Testing bucket " << bucket << " = [" << startTime << "," << startTime + bucketLength << ")");
+                LOG_DEBUG(<< "Testing bucket " << bucket << " = [" << startTime << "," << startTime + bucketLength << ")");
 
                 CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
                 SAnnotatedProbability annotatedProbability;
@@ -683,7 +683,7 @@ void CMetricPopulationModelTest::testComputeProbability() {
                     model->computeProbability(pid, startTime, startTime + bucketLength, partitioningFields, 2, annotatedProbability);
 
                     if ((startTime / bucketLength) % 10 == 0) {
-                        LOG_DEBUG("person = " << model->personName(pid) << ", probability = " << annotatedProbability.s_Probability);
+                        LOG_DEBUG(<< "person = " << model->personName(pid) << ", probability = " << annotatedProbability.s_Probability);
                     }
                     std::string person = model->personName(pid);
                     TDoubleStrPrVec attributes;
@@ -701,7 +701,7 @@ void CMetricPopulationModelTest::testComputeProbability() {
         }
 
         anomalies.sort();
-        LOG_DEBUG("Anomalies = " << anomalies.print());
+        LOG_DEBUG(<< "Anomalies = " << anomalies.print());
 
         TAnomalyVec orderedAnomalies;
         for (std::size_t j = 0u; j < anomalies.count(); ++j) {
@@ -709,7 +709,7 @@ void CMetricPopulationModelTest::testComputeProbability() {
         }
         std::sort(orderedAnomalies.begin(), orderedAnomalies.end());
 
-        LOG_DEBUG("orderedAnomalies = " << core::CContainerPrinter::print(orderedAnomalies));
+        LOG_DEBUG(<< "orderedAnomalies = " << core::CContainerPrinter::print(orderedAnomalies));
 
         std::string expectedAnomalies[] = {std::string("[12, p2, c0 c3]"),
                                            std::string("[15, p3, c0]"),
@@ -727,7 +727,7 @@ void CMetricPopulationModelTest::testComputeProbability() {
 }
 
 void CMetricPopulationModelTest::testPrune() {
-    LOG_DEBUG("*** testPrune ***");
+    LOG_DEBUG(<< "*** testPrune ***");
 
     // This test has four people and five attributes. We expect
     // person 2 and attributes 1, 2 and 5 to be deleted.
@@ -889,8 +889,8 @@ void CMetricPopulationModelTest::testPrune() {
     }
     expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
 
-    LOG_DEBUG("checksum          = " << model->checksum());
-    LOG_DEBUG("expected checksum = " << expectedModel->checksum());
+    LOG_DEBUG(<< "checksum          = " << model->checksum());
+    LOG_DEBUG(<< "expected checksum = " << expectedModel->checksum());
     CPPUNIT_ASSERT_EQUAL(expectedModel->checksum(), model->checksum());
 
     // Now check that we recycle the person and attribute slots.
@@ -908,8 +908,8 @@ void CMetricPopulationModelTest::testPrune() {
     model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
     expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
 
-    LOG_DEBUG("checksum          = " << model->checksum());
-    LOG_DEBUG("expected checksum = " << expectedModel->checksum());
+    LOG_DEBUG(<< "checksum          = " << model->checksum());
+    LOG_DEBUG(<< "expected checksum = " << expectedModel->checksum());
     CPPUNIT_ASSERT_EQUAL(expectedModel->checksum(), model->checksum());
 
     // Test that calling prune on a cloned model which has seen no new data does nothing
@@ -921,7 +921,7 @@ void CMetricPopulationModelTest::testPrune() {
 }
 
 void CMetricPopulationModelTest::testKey() {
-    LOG_DEBUG("*** testKey ***");
+    LOG_DEBUG(<< "*** testKey ***");
 
     function_t::EFunction countFunctions[] = {function_t::E_PopulationMetric,
                                               function_t::E_PopulationMetricMean,
@@ -951,8 +951,8 @@ void CMetricPopulationModelTest::testKey() {
 
                         CAnomalyDetectorModelConfig::TModelFactoryCPtr factory = config.factory(key);
 
-                        LOG_DEBUG("expected key = " << key);
-                        LOG_DEBUG("actual key   = " << factory->searchKey());
+                        LOG_DEBUG(<< "expected key = " << key);
+                        LOG_DEBUG(<< "actual key   = " << factory->searchKey());
                         CPPUNIT_ASSERT(key == factory->searchKey());
                     }
                 }
@@ -962,7 +962,7 @@ void CMetricPopulationModelTest::testKey() {
 }
 
 void CMetricPopulationModelTest::testFrequency() {
-    LOG_DEBUG("*** CMetricPopulationModelTest::testFrequency ***");
+    LOG_DEBUG(<< "*** CMetricPopulationModelTest::testFrequency ***");
 
     // Test we correctly compute frequencies for people and attributes.
 
@@ -986,7 +986,7 @@ void CMetricPopulationModelTest::testFrequency() {
     }
 
     std::sort(messages.begin(), messages.end());
-    LOG_DEBUG("# messages = " << messages.size());
+    LOG_DEBUG(<< "# messages = " << messages.size());
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
@@ -1016,32 +1016,32 @@ void CMetricPopulationModelTest::testFrequency() {
     {
         TMeanAccumulator meanError;
         for (std::size_t i = 0u; i < boost::size(people); ++i) {
-            LOG_DEBUG("*** person = " << people[i] << " ***");
+            LOG_DEBUG(<< "*** person = " << people[i] << " ***");
             std::size_t pid;
             CPPUNIT_ASSERT(gatherer->personId(people[i], pid));
-            LOG_DEBUG("frequency = " << populationModel->personFrequency(pid));
-            LOG_DEBUG("expected frequency = " << 1.0 / static_cast<double>(period[i]));
+            LOG_DEBUG(<< "frequency = " << populationModel->personFrequency(pid));
+            LOG_DEBUG(<< "expected frequency = " << 1.0 / static_cast<double>(period[i]));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 1.0 / static_cast<double>(period[i]), populationModel->personFrequency(pid), 0.1 / static_cast<double>(period[i]));
             meanError.add(std::fabs(populationModel->personFrequency(pid) - 1.0 / static_cast<double>(period[i])));
         }
-        LOG_DEBUG("error = " << maths::CBasicStatistics::mean(meanError));
+        LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(meanError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.002);
     }
     {
         for (std::size_t i = 0u; i < boost::size(attributes); ++i) {
-            LOG_DEBUG("*** attributes = " << attributes[i] << " ***");
+            LOG_DEBUG(<< "*** attributes = " << attributes[i] << " ***");
             std::size_t cid;
             CPPUNIT_ASSERT(populationGatherer.attributeId(attributes[i], cid));
-            LOG_DEBUG("frequency = " << populationModel->attributeFrequency(cid));
-            LOG_DEBUG("expected frequency = " << (10.0 - static_cast<double>(i)) / 10.0);
+            LOG_DEBUG(<< "frequency = " << populationModel->attributeFrequency(cid));
+            LOG_DEBUG(<< "expected frequency = " << (10.0 - static_cast<double>(i)) / 10.0);
             CPPUNIT_ASSERT_EQUAL((10.0 - static_cast<double>(i)) / 10.0, populationModel->attributeFrequency(cid));
         }
     }
 }
 
 void CMetricPopulationModelTest::testSampleRateWeight() {
-    LOG_DEBUG("*** CMetricPopulationModelTest::testSampleRateWeight ***");
+    LOG_DEBUG(<< "*** CMetricPopulationModelTest::testSampleRateWeight ***");
 
     // Test that we correctly compensate for heavy hitters.
 
@@ -1122,33 +1122,33 @@ void CMetricPopulationModelTest::testSampleRateWeight() {
     double expectedRateWeight = (static_cast<double>(boost::size(normal)) / static_cast<double>(boost::size(attributes)) +
                                  static_cast<double>(boost::size(heavyHitters))) /
                                 static_cast<double>(boost::size(people));
-    LOG_DEBUG("expectedRateWeight = " << expectedRateWeight);
+    LOG_DEBUG(<< "expectedRateWeight = " << expectedRateWeight);
 
     for (std::size_t i = 0u; i < boost::size(heavyHitters); ++i) {
-        LOG_DEBUG("*** person = " << people[heavyHitters[i]] << " ***");
+        LOG_DEBUG(<< "*** person = " << people[heavyHitters[i]] << " ***");
         std::size_t pid;
         CPPUNIT_ASSERT(gatherer->personId(people[heavyHitters[i]], pid));
         for (std::size_t cid = 0u; cid < boost::size(attributes); ++cid) {
             double sampleRateWeight = populationModel->sampleRateWeight(pid, cid);
-            LOG_DEBUG("attribute = " << populationModel->attributeName(cid) << ", sampleRateWeight = " << sampleRateWeight);
+            LOG_DEBUG(<< "attribute = " << populationModel->attributeName(cid) << ", sampleRateWeight = " << sampleRateWeight);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedRateWeight, sampleRateWeight, 0.15 * expectedRateWeight);
         }
     }
 
     for (std::size_t i = 0u; i < boost::size(normal); ++i) {
-        LOG_DEBUG("*** person = " << people[normal[i]] << " ***");
+        LOG_DEBUG(<< "*** person = " << people[normal[i]] << " ***");
         std::size_t pid;
         CPPUNIT_ASSERT(gatherer->personId(people[normal[i]], pid));
         for (std::size_t cid = 0u; cid < boost::size(attributes); ++cid) {
             double sampleRateWeight = populationModel->sampleRateWeight(pid, cid);
-            LOG_DEBUG("attribute = " << populationModel->attributeName(cid) << ", sampleRateWeight = " << sampleRateWeight);
+            LOG_DEBUG(<< "attribute = " << populationModel->attributeName(cid) << ", sampleRateWeight = " << sampleRateWeight);
             CPPUNIT_ASSERT_EQUAL(1.0, sampleRateWeight);
         }
     }
 }
 
 void CMetricPopulationModelTest::testPeriodicity() {
-    LOG_DEBUG("*** testPeriodicity ***");
+    LOG_DEBUG(<< "*** testPeriodicity ***");
 
     // Create a daily periodic population and check that the
     // periodicity is learned and compensated (approximately).
@@ -1240,15 +1240,15 @@ void CMetricPopulationModelTest::testPeriodicity() {
     for (std::size_t i = 0u; i < boost::size(people); ++i) {
         auto wo = personProbabilitiesWithoutPeriodicity.find(people[i]);
         auto w = personProbabilitiesWithPeriodicity.find(people[i]);
-        LOG_DEBUG("person = " << people[i]);
-        LOG_DEBUG("minimum probability with periodicity    = " << w->second);
-        LOG_DEBUG("minimum probability without periodicity = " << wo->second);
+        LOG_DEBUG(<< "person = " << people[i]);
+        LOG_DEBUG(<< "minimum probability with periodicity    = " << w->second);
+        LOG_DEBUG(<< "minimum probability without periodicity = " << wo->second);
         totalwo += wo->second;
         totalw += w->second;
     }
 
-    LOG_DEBUG("total minimum probability with periodicity    = " << totalw);
-    LOG_DEBUG("total minimum probability without periodicity = " << totalwo);
+    LOG_DEBUG(<< "total minimum probability with periodicity    = " << totalw);
+    LOG_DEBUG(<< "total minimum probability without periodicity = " << totalwo);
     CPPUNIT_ASSERT(totalw > 3.0 * totalwo);
 }
 
@@ -1291,7 +1291,7 @@ void CMetricPopulationModelTest::testPersistence() {
         inserter.toXml(origXml);
     }
 
-    LOG_TRACE("origXml = " << origXml);
+    LOG_TRACE(<< "origXml = " << origXml);
 
     // Restore the XML into a new data gatherer
     core::CRapidXmlParser parser;
@@ -1312,14 +1312,14 @@ void CMetricPopulationModelTest::testPersistence() {
         inserter.toXml(newXml);
     }
 
-    LOG_DEBUG("original checksum = " << origModel->checksum(false));
-    LOG_DEBUG("restored checksum = " << restoredModel->checksum(false));
+    LOG_DEBUG(<< "original checksum = " << origModel->checksum(false));
+    LOG_DEBUG(<< "restored checksum = " << restoredModel->checksum(false));
     CPPUNIT_ASSERT_EQUAL(origModel->checksum(false), restoredModel->checksum(false));
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
 void CMetricPopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
-    LOG_DEBUG("*** testIgnoreSamplingGivenDetectionRules ***");
+    LOG_DEBUG(<< "*** testIgnoreSamplingGivenDetectionRules ***");
 
     // Create 2 models, one of which has a skip sampling rule.
     // Feed the same data into both models then add extra data

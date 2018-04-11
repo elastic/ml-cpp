@@ -86,12 +86,12 @@ double match(const TDoubleVecVec& costs, TSizeSizePrVec& matching) {
 }
 
 void CAssignmentTest::testKuhnMunkres() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CAssignmentTest::testKuhnMunkres |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CAssignmentTest::testKuhnMunkres |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     {
-        LOG_DEBUG("test 1: bad input");
+        LOG_DEBUG(<< "test 1: bad input");
         const double test11[][5] = {
             {2.0, 1.0, 1.0, 2.0, 2.0},
             {1.0, 2.0, 2.0, 2.0, 2.0},
@@ -105,7 +105,7 @@ void CAssignmentTest::testKuhnMunkres() {
         CPPUNIT_ASSERT(!maths::CAssignment::kuhnMunkres(costs, matching));
     }
     {
-        LOG_DEBUG("test 2: 5x5");
+        LOG_DEBUG(<< "test 2: 5x5");
         const double test2[][5] = {{2.0, 1.0, 1.0, 2.0, 2.0},
                                    {1.0, 2.0, 2.0, 2.0, 2.0},
                                    {2.0, 2.0, 2.0, 1.0, 2.0},
@@ -117,11 +117,11 @@ void CAssignmentTest::testKuhnMunkres() {
         TSizeSizePrVec matching;
         CPPUNIT_ASSERT(maths::CAssignment::kuhnMunkres(costs, matching));
 
-        LOG_DEBUG("matching = " << core::CContainerPrinter::print(matching));
+        LOG_DEBUG(<< "matching = " << core::CContainerPrinter::print(matching));
         CPPUNIT_ASSERT_EQUAL(5.0, cost(costs, matching));
     }
     {
-        LOG_DEBUG("test 3: 5x4");
+        LOG_DEBUG(<< "test 3: 5x4");
         const double test3[][4] = {
             {2.0, 1.0, 1.0, 2.0}, {1.0, 2.0, 2.0, 2.0}, {2.0, 2.0, 2.0, 1.0}, {1.0, 1.0, 2.0, 2.0}, {2.0, 2.0, 2.0, 2.0}};
         TDoubleVecVec costs;
@@ -130,11 +130,11 @@ void CAssignmentTest::testKuhnMunkres() {
         TSizeSizePrVec matching;
         CPPUNIT_ASSERT(maths::CAssignment::kuhnMunkres(costs, matching));
 
-        LOG_DEBUG("matching = " << core::CContainerPrinter::print(matching));
+        LOG_DEBUG(<< "matching = " << core::CContainerPrinter::print(matching));
         CPPUNIT_ASSERT_EQUAL(4.0, cost(costs, matching));
     }
     {
-        LOG_DEBUG("test 4: 4x5");
+        LOG_DEBUG(<< "test 4: 4x5");
         const double test4[][5] = {
             {2.0, 1.0, 1.0, 2.0, 2.0},
             {1.0, 2.0, 2.0, 2.0, 2.0},
@@ -147,16 +147,16 @@ void CAssignmentTest::testKuhnMunkres() {
         TSizeSizePrVec matching;
         CPPUNIT_ASSERT(maths::CAssignment::kuhnMunkres(costs, matching));
 
-        LOG_DEBUG("matching = " << core::CContainerPrinter::print(matching));
+        LOG_DEBUG(<< "matching = " << core::CContainerPrinter::print(matching));
         CPPUNIT_ASSERT_EQUAL(4.0, cost(costs, matching));
     }
 
     test::CRandomNumbers rng;
 
     {
-        LOG_DEBUG("test 5: small random");
+        LOG_DEBUG(<< "test 5: small random");
         for (std::size_t i = 2u; i < 9; ++i) {
-            LOG_DEBUG("***" << i << "x" << i);
+            LOG_DEBUG(<< "***" << i << "x" << i);
             for (std::size_t test = 0u; test < 100; ++test) {
                 TDoubleVec samples;
                 rng.generateUniformSamples(0.1, 1000.0, i * i, samples);
@@ -165,19 +165,19 @@ void CAssignmentTest::testKuhnMunkres() {
                 fill(samples, costs);
 
                 if (test % 10 == 0) {
-                    LOG_DEBUG("costs = " << core::CContainerPrinter::print(costs));
+                    LOG_DEBUG(<< "costs = " << core::CContainerPrinter::print(costs));
                 }
 
                 TSizeSizePrVec expectedMatching;
                 double expectedCost = match(costs, expectedMatching);
                 if (test % 10 == 0) {
-                    LOG_DEBUG("expectedCost = " << expectedCost);
+                    LOG_DEBUG(<< "expectedCost = " << expectedCost);
                 }
 
                 TSizeSizePrVec matching;
                 maths::CAssignment::kuhnMunkres(costs, matching);
                 if (test % 10 == 0) {
-                    LOG_DEBUG("cost = " << cost(costs, matching));
+                    LOG_DEBUG(<< "cost = " << cost(costs, matching));
                 }
 
                 CPPUNIT_ASSERT_EQUAL(expectedCost, cost(costs, matching));
@@ -186,7 +186,7 @@ void CAssignmentTest::testKuhnMunkres() {
     }
 
     {
-        LOG_DEBUG("test 6: large");
+        LOG_DEBUG(<< "test 6: large");
 
         // Sanity check for non-square: if we embed a non-square
         // matrix in a larger non-square matrix whose additional
@@ -202,7 +202,7 @@ void CAssignmentTest::testKuhnMunkres() {
         CPPUNIT_ASSERT(maths::CAssignment::kuhnMunkres(costs, matching));
 
         double optimalCost = cost(costs, matching);
-        LOG_DEBUG("cost = " << optimalCost);
+        LOG_DEBUG(<< "cost = " << optimalCost);
 
         // Try some random permutations random permutations and check
         // we don't find a lower cost solution.
@@ -221,7 +221,7 @@ void CAssignmentTest::testKuhnMunkres() {
             lowestRandomCost = std::min(lowestRandomCost, cost);
         }
 
-        LOG_DEBUG("optimal cost = " << optimalCost << ", lowest random cost = " << lowestRandomCost);
+        LOG_DEBUG(<< "optimal cost = " << optimalCost << ", lowest random cost = " << lowestRandomCost);
         CPPUNIT_ASSERT(lowestRandomCost >= optimalCost);
 
         // Check adding higher cost row has no effect.
@@ -233,7 +233,7 @@ void CAssignmentTest::testKuhnMunkres() {
     }
 
     {
-        LOG_DEBUG("test 7: euler 345");
+        LOG_DEBUG(<< "test 7: euler 345");
         const double euler345[][15] = {{7, 53, 183, 439, 863, 497, 383, 563, 79, 973, 287, 63, 343, 169, 583},
                                        {627, 343, 773, 959, 943, 767, 473, 103, 699, 303, 957, 703, 583, 639, 913},
                                        {447, 283, 463, 29, 23, 487, 463, 993, 119, 883, 327, 493, 423, 159, 743},
@@ -259,7 +259,7 @@ void CAssignmentTest::testKuhnMunkres() {
 
         TSizeSizePrVec matching;
         maths::CAssignment::kuhnMunkres(costs, matching);
-        LOG_DEBUG("cost = " << 15000.0 - cost(costs, matching));
+        LOG_DEBUG(<< "cost = " << 15000.0 - cost(costs, matching));
         CPPUNIT_ASSERT_EQUAL(13938.0, 15000.0 - cost(costs, matching));
     }
 }
