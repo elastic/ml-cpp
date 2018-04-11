@@ -110,7 +110,7 @@ CEventRateModel::CEventRateModel(bool isForPersistence, const CEventRateModel& o
       m_CurrentBucketStats(0), // Not needed for persistence so minimally constructed
       m_ProbabilityPrior(other.m_ProbabilityPrior) {
     if (!isForPersistence) {
-        LOG_ABORT("This constructor only creates clones for persistence");
+        LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
 }
 
@@ -219,7 +219,7 @@ void CEventRateModel::sample(core_t::TTime startTime, core_t::TTime endTime, CRe
     this->currentBucketInterimCorrections().clear();
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
-        LOG_TRACE("Sampling [" << time << "," << time + bucketLength << ")");
+        LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
 
         gatherer.sampleNow(time);
         gatherer.featureData(time, bucketLength, m_CurrentBucketStats.s_FeatureData);
@@ -243,12 +243,12 @@ void CEventRateModel::sample(core_t::TTime startTime, core_t::TTime endTime, CRe
             model_t::EFeature feature = featureData.first;
             TSizeFeatureDataPrVec& data = featureData.second;
             std::size_t dimension = model_t::dimension(feature);
-            LOG_TRACE(model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
 
             if (feature == model_t::E_IndividualTotalBucketCountByPerson) {
                 for (const auto& data_ : data) {
                     if (data_.second.s_Count > 0) {
-                        LOG_TRACE("person = " << this->personName(data_.first));
+                        LOG_TRACE(<< "person = " << this->personName(data_.first));
                         m_ProbabilityPrior.addSamples(maths::CConstantWeights::COUNT,
                                                       TDouble1Vec{static_cast<double>(data_.first)},
                                                       maths::CConstantWeights::SINGLE_UNIT);
@@ -270,7 +270,7 @@ void CEventRateModel::sample(core_t::TTime startTime, core_t::TTime endTime, CRe
 
                 maths::CModel* model = this->model(feature, pid);
                 if (!model) {
-                    LOG_ERROR("Missing model for " << this->personName(pid));
+                    LOG_ERROR(<< "Missing model for " << this->personName(pid));
                     continue;
                 }
 
@@ -289,9 +289,9 @@ void CEventRateModel::sample(core_t::TTime startTime, core_t::TTime endTime, CRe
                 double derate = this->derate(pid, sampleTime);
                 double interval = (1.0 + (this->params().s_InitialDecayRateMultiplier - 1.0) * derate) * emptyBucketWeight;
 
-                LOG_TRACE("Bucket = " << this->printCurrentBucket() << ", feature = " << model_t::print(feature) << ", count = " << count
-                                      << ", person = " << this->personName(pid) << ", empty bucket weight = " << emptyBucketWeight
-                                      << ", derate = " << derate << ", interval = " << interval);
+                LOG_TRACE(<< "Bucket = " << this->printCurrentBucket() << ", feature = " << model_t::print(feature) << ", count = " << count
+                          << ", person = " << this->personName(pid) << ", empty bucket weight = " << emptyBucketWeight
+                          << ", derate = " << derate << ", interval = " << interval);
 
                 model->params().probabilityBucketEmpty(this->probabilityBucketEmpty(feature, pid));
 
@@ -330,14 +330,14 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     core_t::TTime bucketLength = gatherer.bucketLength();
 
     if (endTime != startTime + bucketLength) {
-        LOG_ERROR("Can only compute probability for single bucket");
+        LOG_ERROR(<< "Can only compute probability for single bucket");
         return false;
     }
 
     if (pid >= this->firstBucketTimes().size()) {
         // This is not necessarily an error: the person might have been added
         // only in an out of phase bucket so far
-        LOG_TRACE("No first time for person = " << gatherer.personName(pid));
+        LOG_TRACE(<< "No first time for person = " << gatherer.personName(pid));
         return false;
     }
 
@@ -374,7 +374,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
 
         addPersonProbability = true;
 
-        LOG_TRACE("Compute probability for " << data->print());
+        LOG_TRACE(<< "Compute probability for " << data->print());
 
         if (this->correlates(feature, pid, startTime)) {
             CProbabilityAndInfluenceCalculator::SCorrelateParams params(partitioningFields);
@@ -394,22 +394,22 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     if (addPersonProbability && count && *count != 0) {
         double p;
         if (m_Probabilities.lookup(pid, p)) {
-            LOG_TRACE("P(" << gatherer.personName(pid) << ") = " << p);
+            LOG_TRACE(<< "P(" << gatherer.personName(pid) << ") = " << p);
             pJoint.addProbability(p);
         }
     }
 
     if (pJoint.empty()) {
-        LOG_TRACE("No samples in [" << startTime << "," << endTime << ")");
+        LOG_TRACE(<< "No samples in [" << startTime << "," << endTime << ")");
         return false;
     }
 
     double p;
     if (!pJoint.calculate(p, result.s_Influences)) {
-        LOG_ERROR("Failed to compute probability");
+        LOG_ERROR(<< "Failed to compute probability");
         return false;
     }
-    LOG_TRACE("probability(" << this->personName(pid) << ") = " << p);
+    LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
 
     resultBuilder.probability(p);
     bool everSeenBefore = this->firstBucketTimes()[pid] != startTime;
@@ -440,8 +440,8 @@ uint64_t CEventRateModel::checksum(bool includeCurrentBucketStats) const {
         }
     }
 
-    LOG_TRACE("seed = " << seed);
-    LOG_TRACE("hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "seed = " << seed);
+    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
 
     return maths::CChecksum::calculate(seed, hashes);
 }

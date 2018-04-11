@@ -36,10 +36,10 @@ std::string print(const config::CDetectorEnumerator::TDetectorSpecificationVec& 
 }
 
 void CDetectorEnumeratorTest::testAll() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+------------------------------------+");
-    LOG_DEBUG("|  CDetectorEnumeratorTest::testAll  |");
-    LOG_DEBUG("+------------------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+------------------------------------+");
+    LOG_DEBUG(<< "|  CDetectorEnumeratorTest::testAll  |");
+    LOG_DEBUG(<< "+------------------------------------+");
 
     std::string empty;
     config::CAutoconfigurerParams params(empty, empty, false, false);
@@ -53,7 +53,7 @@ void CDetectorEnumeratorTest::testAll() {
 
     {
         enumerator.generate(spec);
-        LOG_DEBUG("1) detectors =\n" << print(spec, " "));
+        LOG_DEBUG(<< "1) detectors =\n" << print(spec, " "));
         std::string expected = "[low_|high_][non_zero_]count\n";
         CPPUNIT_ASSERT_EQUAL(expected, print(spec));
     }
@@ -62,7 +62,7 @@ void CDetectorEnumeratorTest::testAll() {
         enumerator.addCategoricalFunctionArgument("port");
         enumerator.addMetricFunctionArgument("bytes");
         enumerator.generate(spec);
-        LOG_DEBUG("2) detectors =\n" << print(spec, " "));
+        LOG_DEBUG(<< "2) detectors =\n" << print(spec, " "));
         std::string expected = "[low_|high_][non_zero_]count\n"
                                "[low_|high_]distinct_count(port)\n"
                                "[low_|high_]mean(bytes)\n";
@@ -73,7 +73,7 @@ void CDetectorEnumeratorTest::testAll() {
         enumerator.addByField("process");
         enumerator.addByField("parent_process");
         enumerator.generate(spec);
-        LOG_DEBUG("3) detectors =\n" << print(spec, " "));
+        LOG_DEBUG(<< "3) detectors =\n" << print(spec, " "));
         std::string expected = "[low_|high_][non_zero_]count\n"
                                "[low_|high_]distinct_count(port)\n"
                                "[low_|high_]mean(bytes)\n"
@@ -90,7 +90,7 @@ void CDetectorEnumeratorTest::testAll() {
         enumerator.addOverField("machine");
         enumerator.addOverField("person");
         enumerator.generate(spec);
-        LOG_DEBUG("4) detectors =\n" << print(spec, " "));
+        LOG_DEBUG(<< "4) detectors =\n" << print(spec, " "));
         std::string expected = "[low_|high_][non_zero_]count\n"
                                "[low_|high_]distinct_count(port)\n"
                                "[low_|high_]mean(bytes)\n"
@@ -216,7 +216,7 @@ void CDetectorEnumeratorTest::testAll() {
                                "[low_|high_]mean(bytes) by 'parent_process' over 'person' partition 'process'\n"
                                "[low_|high_]mean(bytes) by 'parent_process' over 'person' partition 'machine'\n"
                                "[low_|high_]mean(bytes) by 'parent_process' over 'person' partition 'data_centre'\n";
-        LOG_DEBUG("5) detectors =\n" << print(spec, " "));
+        LOG_DEBUG(<< "5) detectors =\n" << print(spec, " "));
         CPPUNIT_ASSERT_EQUAL(expected, print(spec));
     }
 }

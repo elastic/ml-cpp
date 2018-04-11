@@ -34,7 +34,7 @@ public:
     void processMsg(const std::string& str, size_t /* backlog */) {
         m_Strings.push_back(str);
         if ((m_Strings.size() % 1000) == 0) {
-            LOG_DEBUG("Received " << m_Strings.size() << " strings");
+            LOG_DEBUG(<< "Received " << m_Strings.size() << " strings");
         }
     }
 
@@ -60,13 +60,13 @@ void CBlockingMessageQueueTest::testSendReceive() {
     // size, so the message dispatch will probably block sometimes
     static const size_t TEST_SIZE(10000);
 
-    LOG_DEBUG("Sending " << TEST_SIZE << " strings");
+    LOG_DEBUG(<< "Sending " << TEST_SIZE << " strings");
 
     for (size_t i = 0; i < TEST_SIZE; ++i) {
         queue.dispatchMsg("Test string");
     }
 
-    LOG_DEBUG("Sent all strings");
+    LOG_DEBUG(<< "Sent all strings");
 
     queue.stop();
 

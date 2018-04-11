@@ -22,10 +22,10 @@
 using namespace ml;
 
 void CAutoconfigurerParamsTest::testDefaults() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+-------------------------------------------+");
-    LOG_DEBUG("|  CAutoconfigurerParamsTest::testDefaults  |");
-    LOG_DEBUG("+-------------------------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+-------------------------------------------+");
+    LOG_DEBUG(<< "|  CAutoconfigurerParamsTest::testDefaults  |");
+    LOG_DEBUG(<< "+-------------------------------------------+");
 
     config::CAutoconfigurerParams params("time", "", false, false);
     std::string actual = params.print();
@@ -73,15 +73,15 @@ void CAutoconfigurerParamsTest::testDefaults() {
         "  MinimumEntropyForInfoContent = 0.000001\n"
         "  LowDistinctCountForInfoContent = 500000.000000\n"
         "  MinimumDistinctCountForInfoContent = 5000.000000\n";
-    LOG_DEBUG("parameters =\n" << actual);
+    LOG_DEBUG(<< "parameters =\n" << actual);
     CPPUNIT_ASSERT_EQUAL(expected, actual);
 }
 
 void CAutoconfigurerParamsTest::testInit() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+---------------------------------------+");
-    LOG_DEBUG("|  CAutoconfigurerParamsTest::testInit  |");
-    LOG_DEBUG("+---------------------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+---------------------------------------+");
+    LOG_DEBUG(<< "|  CAutoconfigurerParamsTest::testInit  |");
+    LOG_DEBUG(<< "+---------------------------------------+");
 
     config::CAutoconfigurerParams params("time", "", false, false);
 
@@ -130,12 +130,12 @@ void CAutoconfigurerParamsTest::testInit() {
                            "  MinimumEntropyForInfoContent = 0.000001\n"
                            "  LowDistinctCountForInfoContent = 500000.000000\n"
                            "  MinimumDistinctCountForInfoContent = 5000.000000\n";
-    LOG_DEBUG("parameters =\n" << actual);
+    LOG_DEBUG(<< "parameters =\n" << actual);
     CPPUNIT_ASSERT_EQUAL(expected, actual);
 
     params.init("testfiles/badparameters.conf");
     actual = params.print();
-    LOG_DEBUG("parameters =\n" << actual);
+    LOG_DEBUG(<< "parameters =\n" << actual);
     CPPUNIT_ASSERT_EQUAL(expected, actual);
 }
 

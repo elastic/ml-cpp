@@ -45,7 +45,7 @@ void CCompressUtilsTest::testEmptyAdd() {
     CPPUNIT_ASSERT(compressor.compressedData(true, output));
     CPPUNIT_ASSERT(compressor.compressedLength(true, length));
 
-    LOG_INFO("Length of nothing compressed is " << length);
+    LOG_INFO(<< "Length of nothing compressed is " << length);
 
     CPPUNIT_ASSERT(length > 0);
     CPPUNIT_ASSERT_EQUAL(length, output.size());
@@ -64,7 +64,7 @@ void CCompressUtilsTest::testOneAdd() {
     CPPUNIT_ASSERT(compressor.compressedData(true, output));
     CPPUNIT_ASSERT(compressor.compressedLength(true, length));
 
-    LOG_INFO("Length of " << str << " compressed is " << length);
+    LOG_INFO(<< "Length of " << str << " compressed is " << length);
 
     CPPUNIT_ASSERT(length > 0);
     CPPUNIT_ASSERT_EQUAL(length, output.size());
@@ -87,7 +87,7 @@ void CCompressUtilsTest::testManyAdds() {
     CPPUNIT_ASSERT(compressorMulti.compressedData(true, outputMulti));
     CPPUNIT_ASSERT(compressorMulti.compressedLength(true, lengthMulti));
 
-    LOG_INFO("Length of " << str1 << str2 << str3 << " compressed is " << lengthMulti);
+    LOG_INFO(<< "Length of " << str1 << str2 << str3 << " compressed is " << lengthMulti);
 
     CPPUNIT_ASSERT(lengthMulti > 0);
     CPPUNIT_ASSERT_EQUAL(lengthMulti, outputMulti.size());
@@ -122,7 +122,7 @@ void CCompressUtilsTest::testLengthOnly() {
     CPPUNIT_ASSERT(compressorFull.compressedData(true, outputFull));
     CPPUNIT_ASSERT(compressorFull.compressedLength(true, lengthFull));
 
-    LOG_INFO("Length of " << str << str << str << " compressed is " << lengthFull);
+    LOG_INFO(<< "Length of " << str << str << str << " compressed is " << lengthFull);
 
     CPPUNIT_ASSERT(lengthFull > 0);
     CPPUNIT_ASSERT_EQUAL(lengthFull, outputFull.size());

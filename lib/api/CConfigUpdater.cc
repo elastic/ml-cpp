@@ -40,7 +40,7 @@ bool CConfigUpdater::update(const std::string& config) {
         std::istringstream strm(config);
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {
-        LOG_ERROR("Error parsing config from '" << config << "' : " << e.what());
+        LOG_ERROR(<< "Error parsing config from '" << config << "' : " << e.what());
         return false;
     }
 
@@ -50,33 +50,33 @@ bool CConfigUpdater::update(const std::string& config) {
 
         if (stanzaName == MODEL_DEBUG_CONFIG) {
             if (m_ModelConfig.configureModelPlot(subTree) == false) {
-                LOG_ERROR("Could not parse modelPlotConfig");
+                LOG_ERROR(<< "Could not parse modelPlotConfig");
                 return false;
             }
         } else if (stanzaName == DETECTOR_RULES) {
             std::string detectorIndexString = subTree.get(DETECTOR_INDEX, std::string());
             int detectorIndex;
             if (core::CStringUtils::stringToType(detectorIndexString, detectorIndex) == false) {
-                LOG_ERROR("Invalid detector index: " << detectorIndexString);
+                LOG_ERROR(<< "Invalid detector index: " << detectorIndexString);
                 return false;
             }
             std::string rulesJson = subTree.get(RULES_JSON, std::string());
             if (m_FieldConfig.parseRules(detectorIndex, rulesJson) == false) {
-                LOG_ERROR("Failed to update detector rules for detector: " << detectorIndex);
+                LOG_ERROR(<< "Failed to update detector rules for detector: " << detectorIndex);
                 return false;
             }
         } else if (stanzaName == FILTERS) {
             if (m_FieldConfig.updateFilters(subTree) == false) {
-                LOG_ERROR("Failed to update filters");
+                LOG_ERROR(<< "Failed to update filters");
                 return false;
             }
         } else if (stanzaName == SCHEDULED_EVENTS) {
             if (m_FieldConfig.updateScheduledEvents(subTree) == false) {
-                LOG_ERROR("Failed to update scheduled events");
+                LOG_ERROR(<< "Failed to update scheduled events");
                 return false;
             }
         } else {
-            LOG_WARN("Ignoring unknown update config stanza: " << stanzaName);
+            LOG_WARN(<< "Ignoring unknown update config stanza: " << stanzaName);
             return false;
         }
     }

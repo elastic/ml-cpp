@@ -32,7 +32,7 @@ template<typename T>
 void assertSize(const T& t) {
     std::size_t s = t.size();
     std::size_t c = t.capacity();
-    LOG_DEBUG("Size " << s << ", capacity " << c);
+    LOG_DEBUG(<< "Size " << s << ", capacity " << c);
     CPPUNIT_ASSERT(double(c) <= std::max(double(s) * RATIO, double(s) + TOLERANCE));
 }
 

@@ -68,7 +68,7 @@ CStatistics& CStatistics::instance() {
 
 CStat& CStatistics::stat(int index) {
     if (static_cast<std::size_t>(index) >= ms_Instance.m_Stats.size()) {
-        LOG_ABORT("Bad index " << index);
+        LOG_ABORT(<< "Bad index " << index);
     }
     return ms_Instance.m_Stats[index];
 }
@@ -101,12 +101,12 @@ bool CStatistics::staticsAcceptRestoreTraverser(CStateRestoreTraverser& traverse
         if (name == KEY_TAG) {
             value = 0;
             if (CStringUtils::stringToType(traverser.value(), key) == false) {
-                LOG_ERROR("Invalid key value in " << traverser.value());
+                LOG_ERROR(<< "Invalid key value in " << traverser.value());
                 return false;
             }
         } else if (name == VALUE_TAG) {
             if (CStringUtils::stringToType(traverser.value(), value) == false) {
-                LOG_ERROR("Invalid stat value in " << traverser.value());
+                LOG_ERROR(<< "Invalid stat value in " << traverser.value());
                 return false;
             }
             stat(key).set(value);

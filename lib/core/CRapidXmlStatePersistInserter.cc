@@ -37,10 +37,11 @@ CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string& 
     for (TStrStrMapCItr iter = rootAttributes.begin(); iter != rootAttributes.end(); ++iter) {
         const std::string& name = iter->first;
         const std::string& value = iter->second;
-        m_LevelParent->append_attribute(m_Doc.allocate_attribute(m_Doc.allocate_string(name.c_str(), name.length()),
-                                                                 value.empty() ? nullptr : m_Doc.allocate_string(value.c_str(), value.length()),
-                                                                 name.length(),
-                                                                 value.length()));
+        m_LevelParent->append_attribute(
+            m_Doc.allocate_attribute(m_Doc.allocate_string(name.c_str(), name.length()),
+                                     value.empty() ? nullptr : m_Doc.allocate_string(value.c_str(), value.length()),
+                                     name.length(),
+                                     value.length()));
 
         m_ApproxLen += 5 + name.length() + value.length();
     }
@@ -85,7 +86,7 @@ void CRapidXmlStatePersistInserter::newLevel(const std::string& name) {
 void CRapidXmlStatePersistInserter::endLevel() {
     TCharRapidXmlNode* levelGrandParent(m_LevelParent->parent());
     if (levelGrandParent == nullptr) {
-        LOG_ERROR("Logic error - ending more levels than have been started");
+        LOG_ERROR(<< "Logic error - ending more levels than have been started");
         return;
     }
 

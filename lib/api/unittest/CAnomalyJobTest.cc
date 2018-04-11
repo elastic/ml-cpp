@@ -103,7 +103,7 @@ public:
             std::size_t pid;
             const ml::model::CDataGatherer& gatherer = node.s_Model->dataGatherer();
             if (!gatherer.personId(*node.s_Spec.s_PersonFieldValue, pid)) {
-                LOG_ERROR("No identifier for '" << *node.s_Spec.s_PersonFieldValue << "'");
+                LOG_ERROR(<< "No identifier for '" << *node.s_Spec.s_PersonFieldValue << "'");
                 return;
             }
             for (std::size_t i = 0; i < node.s_AnnotatedProbability.s_AttributeProbabilities.size(); ++i) {
@@ -488,7 +488,7 @@ void CAnomalyJobTest::testOutOfPhase() {
 
     // The code is pretty verbose here, but executes quickly
     {
-        LOG_DEBUG("*** testing non-out-of-phase metric ***");
+        LOG_DEBUG(<< "*** testing non-out-of-phase metric ***");
         core_t::TTime bucketSize = 100;
         model::CLimits limits;
         api::CFieldConfig fieldConfig;
@@ -607,7 +607,7 @@ void CAnomalyJobTest::testOutOfPhase() {
         }
     }
     {
-        LOG_DEBUG("*** testing non-out-of-phase metric ***");
+        LOG_DEBUG(<< "*** testing non-out-of-phase metric ***");
         // Same as previous test but starting not on a bucket boundary
         core_t::TTime bucketSize = 100;
         model::CLimits limits;
@@ -713,7 +713,7 @@ void CAnomalyJobTest::testOutOfPhase() {
         job.finalise();
     }
     {
-        LOG_DEBUG("*** testing non-out-of-phase count ***");
+        LOG_DEBUG(<< "*** testing non-out-of-phase count ***");
         core_t::TTime bucketSize = 100;
         model::CLimits limits;
         api::CFieldConfig fieldConfig;
@@ -831,7 +831,7 @@ void CAnomalyJobTest::testOutOfPhase() {
         }
     }
     {
-        LOG_DEBUG("*** testing non-out-of-phase count ***");
+        LOG_DEBUG(<< "*** testing non-out-of-phase count ***");
         core_t::TTime bucketSize = 100;
         model::CLimits limits;
         api::CFieldConfig fieldConfig;
@@ -946,7 +946,7 @@ void CAnomalyJobTest::testOutOfPhase() {
     }
     // Now we come to the real meat and potatoes of the test, the out-of-phase buckets
     {
-        LOG_DEBUG("*** testing out-of-phase metric ***");
+        LOG_DEBUG(<< "*** testing out-of-phase metric ***");
         core_t::TTime bucketSize = 100;
         model::CLimits limits;
         api::CFieldConfig fieldConfig;
@@ -1017,7 +1017,7 @@ void CAnomalyJobTest::testOutOfPhase() {
         dataRows["time"] = "10499";
         dataRows["value"] = "5.0";
         CPPUNIT_ASSERT(job.handleRecord(dataRows));
-        LOG_DEBUG("Result time is " << (job.m_ResultsQueue.latestBucketEnd() - 49));
+        LOG_DEBUG(<< "Result time is " << (job.m_ResultsQueue.latestBucketEnd() - 49));
         {
             CSingleResultVisitor visitor;
             job.m_ResultsQueue.latest().topDownBreadthFirst(visitor);
@@ -1074,14 +1074,14 @@ void CAnomalyJobTest::testOutOfPhase() {
         dataRows["time"] = "10895";
         dataRows["value"] = "6.0";
         CPPUNIT_ASSERT(job.handleRecord(dataRows));
-        LOG_DEBUG("Result time is " << (job.m_ResultsQueue.latestBucketEnd()));
+        LOG_DEBUG(<< "Result time is " << (job.m_ResultsQueue.latestBucketEnd()));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10799), job.m_ResultsQueue.latestBucketEnd());
         {
             CSingleResultVisitor visitor;
             job.m_ResultsQueue.latest().topDownBreadthFirst(visitor);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(35.0, visitor.lastResults(), 0.005);
         }
-        LOG_DEBUG("Finalising job");
+        LOG_DEBUG(<< "Finalising job");
         job.finalise();
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10799), job.m_ResultsQueue.latestBucketEnd());
         {
@@ -1091,7 +1091,7 @@ void CAnomalyJobTest::testOutOfPhase() {
         }
     }
     {
-        LOG_DEBUG("*** testing out-of-phase metric ***");
+        LOG_DEBUG(<< "*** testing out-of-phase metric ***");
         core_t::TTime bucketSize = 100;
         model::CLimits limits;
         api::CFieldConfig fieldConfig;
@@ -1161,7 +1161,7 @@ void CAnomalyJobTest::testOutOfPhase() {
         dataRows["time"] = "10499";
         dataRows["value"] = "5.0";
         CPPUNIT_ASSERT(job.handleRecord(dataRows));
-        LOG_DEBUG("Result time is " << (job.m_ResultsQueue.latestBucketEnd() - 49));
+        LOG_DEBUG(<< "Result time is " << (job.m_ResultsQueue.latestBucketEnd() - 49));
         {
             CSingleResultVisitor visitor;
             job.m_ResultsQueue.latest().topDownBreadthFirst(visitor);
@@ -1218,14 +1218,14 @@ void CAnomalyJobTest::testOutOfPhase() {
         dataRows["time"] = "10895";
         dataRows["value"] = "6.0";
         CPPUNIT_ASSERT(job.handleRecord(dataRows));
-        LOG_DEBUG("Result time is " << (job.m_ResultsQueue.latestBucketEnd()));
+        LOG_DEBUG(<< "Result time is " << (job.m_ResultsQueue.latestBucketEnd()));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10799), job.m_ResultsQueue.latestBucketEnd());
         {
             CSingleResultVisitor visitor;
             job.m_ResultsQueue.latest().topDownBreadthFirst(visitor);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(35.0, visitor.lastResults(), 0.005);
         }
-        LOG_DEBUG("Finalising job");
+        LOG_DEBUG(<< "Finalising job");
         job.finalise();
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10799), job.m_ResultsQueue.latestBucketEnd());
         {
@@ -1235,7 +1235,7 @@ void CAnomalyJobTest::testOutOfPhase() {
         }
     }
     {
-        LOG_DEBUG("*** testing out-of-phase eventrate ***");
+        LOG_DEBUG(<< "*** testing out-of-phase eventrate ***");
         core_t::TTime bucketSize = 100;
         model::CLimits limits;
         api::CFieldConfig fieldConfig;
@@ -1353,7 +1353,7 @@ void CAnomalyJobTest::testOutOfPhase() {
         dataRows["time"] = "10499";
         dataRows["person"] = "Cara";
         CPPUNIT_ASSERT(job.handleRecord(dataRows));
-        LOG_DEBUG("Result time is " << (job.m_ResultsQueue.latestBucketEnd() - 49));
+        LOG_DEBUG(<< "Result time is " << (job.m_ResultsQueue.latestBucketEnd() - 49));
         {
             CMultiResultVisitor visitor;
             job.m_ResultsQueue.latest().topDownBreadthFirst(visitor);
@@ -1410,14 +1410,14 @@ void CAnomalyJobTest::testOutOfPhase() {
         dataRows["time"] = "10895";
         dataRows["person"] = "Cara";
         CPPUNIT_ASSERT(job.handleRecord(dataRows));
-        LOG_DEBUG("Result time is " << (job.m_ResultsQueue.latestBucketEnd()));
+        LOG_DEBUG(<< "Result time is " << (job.m_ResultsQueue.latestBucketEnd()));
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10799), job.m_ResultsQueue.latestBucketEnd());
         {
             CMultiResultVisitor visitor;
             job.m_ResultsQueue.latest().topDownBreadthFirst(visitor);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, visitor.lastResults(), 0.005);
         }
-        LOG_DEBUG("Finalising job");
+        LOG_DEBUG(<< "Finalising job");
         job.finalise();
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(10799), job.m_ResultsQueue.latestBucketEnd());
         {
@@ -1429,7 +1429,7 @@ void CAnomalyJobTest::testOutOfPhase() {
 }
 
 void CAnomalyJobTest::testBucketSelection() {
-    LOG_DEBUG("*** testBucketSelection ***");
+    LOG_DEBUG(<< "*** testBucketSelection ***");
     core_t::TTime bucketSize = 100;
     model::CLimits limits;
     api::CFieldConfig fieldConfig;
@@ -1455,7 +1455,7 @@ void CAnomalyJobTest::testBucketSelection() {
         CResultsScoreVisitor visitor(10);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1000);
-        LOG_DEBUG("Adding 10 at 1000");
+        LOG_DEBUG(<< "Adding 10 at 1000");
     }
     {
         model::SAnnotatedProbability prob(1.0);
@@ -1465,7 +1465,7 @@ void CAnomalyJobTest::testBucketSelection() {
         CResultsScoreVisitor visitor(20);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1050);
-        LOG_DEBUG("Adding 20 at 1050");
+        LOG_DEBUG(<< "Adding 20 at 1050");
     }
     {
         model::SAnnotatedProbability prob(1.0);
@@ -1475,7 +1475,7 @@ void CAnomalyJobTest::testBucketSelection() {
         CResultsScoreVisitor visitor(15);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1100);
-        LOG_DEBUG("Adding 15 at 1100");
+        LOG_DEBUG(<< "Adding 15 at 1100");
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(0), job.m_ResultsQueue.chooseResultTime(1100, bucketSize, results));
     }
     {
@@ -1486,7 +1486,7 @@ void CAnomalyJobTest::testBucketSelection() {
         CResultsScoreVisitor visitor(20);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1150);
-        LOG_DEBUG("Adding 20 at 1150");
+        LOG_DEBUG(<< "Adding 20 at 1150");
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(0), job.m_ResultsQueue.chooseResultTime(1150, bucketSize, results));
     }
     {
@@ -1497,7 +1497,7 @@ void CAnomalyJobTest::testBucketSelection() {
         CResultsScoreVisitor visitor(25);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1200);
-        LOG_DEBUG("Adding 25 at 1200");
+        LOG_DEBUG(<< "Adding 25 at 1200");
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(1100), job.m_ResultsQueue.chooseResultTime(1200, bucketSize, results));
     }
     {
@@ -1508,7 +1508,7 @@ void CAnomalyJobTest::testBucketSelection() {
         CResultsScoreVisitor visitor(0);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1250);
-        LOG_DEBUG("Adding 0 at 1250");
+        LOG_DEBUG(<< "Adding 0 at 1250");
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(0), job.m_ResultsQueue.chooseResultTime(1250, bucketSize, results));
     }
     {
@@ -1519,7 +1519,7 @@ void CAnomalyJobTest::testBucketSelection() {
         CResultsScoreVisitor visitor(5);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1300);
-        LOG_DEBUG("Adding 5 at 1300");
+        LOG_DEBUG(<< "Adding 5 at 1300");
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(1200), job.m_ResultsQueue.chooseResultTime(1300, bucketSize, results));
     }
     {
@@ -1530,7 +1530,7 @@ void CAnomalyJobTest::testBucketSelection() {
         CResultsScoreVisitor visitor(5);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1350);
-        LOG_DEBUG("Adding 5 at 1350");
+        LOG_DEBUG(<< "Adding 5 at 1350");
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(0), job.m_ResultsQueue.chooseResultTime(1350, bucketSize, results));
     }
     {
@@ -1541,13 +1541,13 @@ void CAnomalyJobTest::testBucketSelection() {
         CResultsScoreVisitor visitor(1);
         results.topDownBreadthFirst(visitor);
         job.m_ResultsQueue.push(results, 1400);
-        LOG_DEBUG("Adding 1 at 1400");
+        LOG_DEBUG(<< "Adding 1 at 1400");
         CPPUNIT_ASSERT_EQUAL(core_t::TTime(1300), job.m_ResultsQueue.chooseResultTime(1400, bucketSize, results));
     }
 }
 
 void CAnomalyJobTest::testModelPlot() {
-    LOG_DEBUG("*** testModelPlot ***");
+    LOG_DEBUG(<< "*** testModelPlot ***");
     {
         // Test non-overlapping buckets
         core_t::TTime bucketSize = 10000;
@@ -1609,7 +1609,7 @@ void CAnomalyJobTest::testModelPlot() {
         }
 
         std::string output = outputStrm.str();
-        LOG_TRACE("Output has yielded: " << output);
+        LOG_TRACE(<< "Output has yielded: " << output);
         core::CRegex regex;
         regex.init("\n");
         core::CRegex::TStrVec lines;
@@ -1717,7 +1717,7 @@ void CAnomalyJobTest::testModelPlot() {
         }
 
         std::string output = outputStrm.str();
-        LOG_TRACE("Output has yielded: " << output);
+        LOG_TRACE(<< "Output has yielded: " << output);
         core::CRegex regex;
         regex.init("\n");
         core::CRegex::TStrVec lines;
@@ -1732,7 +1732,7 @@ void CAnomalyJobTest::testModelPlot() {
 }
 
 void CAnomalyJobTest::testInterimResultEdgeCases() {
-    LOG_DEBUG("*** testInterimResultEdgeCases ***");
+    LOG_DEBUG(<< "*** testInterimResultEdgeCases ***");
 
     const char* logFile = "test.log";
 
@@ -1785,7 +1785,7 @@ void CAnomalyJobTest::testInterimResultEdgeCases() {
     CPPUNIT_ASSERT(log.is_open());
     char line[256];
     while (log.getline(line, 256)) {
-        LOG_DEBUG("Got '" << line << "'");
+        LOG_DEBUG(<< "Got '" << line << "'");
         CPPUNIT_ASSERT(false);
     }
     log.close();

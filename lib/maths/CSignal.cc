@@ -50,7 +50,7 @@ void radix2fft(TComplexVec& f) {
     for (uint64_t i = 0; i < f.size(); ++i) {
         uint64_t j = CIntegerTools::reverseBits(i) >> (64 - bits);
         if (j > i) {
-            LOG_TRACE(j << " -> " << i);
+            LOG_TRACE(<< j << " -> " << i);
             std::swap(f[i], f[j]);
         }
     }
@@ -91,7 +91,7 @@ void CSignal::fft(TComplexVec& f) {
     std::size_t p = CIntegerTools::nextPow2(n);
     std::size_t m = 1 << p;
 
-    LOG_TRACE("n = " << n << ", m = " << m);
+    LOG_TRACE(<< "n = " << n << ", m = " << m);
 
     if ((m >> 1) == n) {
         radix2fft(f);
@@ -99,7 +99,7 @@ void CSignal::fft(TComplexVec& f) {
         // We use Bluestein's trick to reformulate as a convolution
         // which can be computed by padding to a power of 2.
 
-        LOG_TRACE("Using Bluestein's trick");
+        LOG_TRACE(<< "Using Bluestein's trick");
 
         m = 2 * n - 1;
         p = CIntegerTools::nextPow2(m);

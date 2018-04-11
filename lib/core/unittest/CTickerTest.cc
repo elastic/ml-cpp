@@ -45,14 +45,14 @@ void CTickerTest::testTicker() {
 
     ml::core::CTicker<CReceiver> ticker(100, receiver);
 
-    LOG_DEBUG("About to start ticker");
+    LOG_DEBUG(<< "About to start ticker");
     CPPUNIT_ASSERT(ticker.start());
 
     ml::core::CSleep::sleep(1000);
 
     // Should receive 9 or 10 ticks
     size_t tickCount(receiver.ticks());
-    LOG_DEBUG("Received " << tickCount << " ticks");
+    LOG_DEBUG(<< "Received " << tickCount << " ticks");
 
     CPPUNIT_ASSERT(tickCount <= 10);
 

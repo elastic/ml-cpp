@@ -96,7 +96,7 @@ void CFlatPrefixTreeTest::testSimple() {
     CFlatPrefixTree prefixTree;
     CPPUNIT_ASSERT(prefixTree.build(prefixes));
 
-    LOG_TRACE("Tree: " << prefixTree.print());
+    LOG_TRACE(<< "Tree: " << prefixTree.print());
 
     for (std::size_t i = 0; i < prefixes.size(); ++i) {
         CPPUNIT_ASSERT(prefixTree.matchesStart(prefixes[i]));
@@ -123,7 +123,7 @@ void CFlatPrefixTreeTest::testLeafAndBranch() {
     CFlatPrefixTree prefixTree;
     CPPUNIT_ASSERT(prefixTree.build(prefixes));
 
-    LOG_TRACE("Tree: " << prefixTree.print());
+    LOG_TRACE(<< "Tree: " << prefixTree.print());
 
     for (std::size_t i = 0; i < prefixes.size(); ++i) {
         CPPUNIT_ASSERT(prefixTree.matchesStart(prefixes[i]));
@@ -139,7 +139,7 @@ void CFlatPrefixTreeTest::testMatchesStartGivenStringThatMatchesMoreThanAGivenPr
     CFlatPrefixTree prefixTree;
     CPPUNIT_ASSERT(prefixTree.build(prefixes));
 
-    LOG_TRACE("Tree: " << prefixTree.print());
+    LOG_TRACE(<< "Tree: " << prefixTree.print());
 
     CPPUNIT_ASSERT(prefixTree.matchesStart("h2 vh5"));
     CPPUNIT_ASSERT(prefixTree.matchesStart("h2 vh55daetrqt4"));
@@ -152,7 +152,7 @@ void CFlatPrefixTreeTest::testMatchesFullyGivenStringThatIsSubstringOfPrefix() {
     CFlatPrefixTree prefixTree;
     CPPUNIT_ASSERT(prefixTree.build(prefixes));
 
-    LOG_TRACE("Tree: " << prefixTree.print());
+    LOG_TRACE(<< "Tree: " << prefixTree.print());
 
     CPPUNIT_ASSERT(prefixTree.matchesFully("fo") == false);
 }

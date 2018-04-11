@@ -112,11 +112,11 @@ private:
             // Use our own string-to-type conversion, because what's built
             // into the boost::property_tree is too lax
             if (core::CStringUtils::stringToType(valueStr, value) == false) {
-                LOG_ERROR("Invalid value for setting " << iniPath << " : " << valueStr);
+                LOG_ERROR(<< "Invalid value for setting " << iniPath << " : " << valueStr);
                 return false;
             }
         } catch (boost::property_tree::ptree_error&) {
-            LOG_DEBUG("Using default value (" << defaultValue << ") for unspecified setting " << iniPath);
+            LOG_DEBUG(<< "Using default value (" << defaultValue << ") for unspecified setting " << iniPath);
             value = defaultValue;
         }
 

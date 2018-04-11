@@ -249,7 +249,7 @@ public:
                 if (i != m_Callbacks.end() && i->first.get() == x.type()) {
                     return (*i->second)(x);
                 }
-                LOG_ERROR("No callback registered for " << x.type().name());
+                LOG_ERROR(<< "No callback registered for " << x.type().name());
             }
             return 0;
         }
@@ -260,7 +260,7 @@ public:
         static std::size_t dynamicSizeCallback(const boost::any& any) {
             try {
                 return sizeof(T) + CMemory::dynamicSize(boost::any_cast<const T&>(any));
-            } catch (const std::exception& e) { LOG_ERROR("Failed to calculate size " << e.what()); }
+            } catch (const std::exception& e) { LOG_ERROR(<< "Failed to calculate size " << e.what()); }
             return 0;
         }
 
@@ -616,7 +616,7 @@ public:
                     (*i->second)(name, x, mem);
                     return;
                 }
-                LOG_ERROR("No callback registered for " << x.type().name());
+                LOG_ERROR(<< "No callback registered for " << x.type().name());
             }
         }
 
@@ -627,7 +627,7 @@ public:
             try {
                 mem->addItem(name, sizeof(T));
                 CMemoryDebug::dynamicSize(name, boost::any_cast<const T&>(any), mem);
-            } catch (const std::exception& e) { LOG_ERROR("Failed to calculate size " << e.what()); }
+            } catch (const std::exception& e) { LOG_ERROR(<< "Failed to calculate size " << e.what()); }
         }
 
         TTypeInfoDynamicSizeFuncPrVec m_Callbacks;

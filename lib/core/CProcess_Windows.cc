@@ -94,21 +94,21 @@ CProcess::TPid CProcess::id() const {
 
 CProcess::TPid CProcess::parentId() const {
     if (PPID == 0) {
-        LOG_ERROR("Failed to find parent process ID");
+        LOG_ERROR(<< "Failed to find parent process ID");
     }
     return PPID;
 }
 
 bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char* argv[]) {
     if (mlMain == 0) {
-        LOG_ABORT("NULL mlMain() function passed");
+        LOG_ABORT(<< "NULL mlMain() function passed");
     }
 
     if (argc <= 0) {
         // Arguments are invalid, but at this point it's debatable whether
         // logging will work if we're running as a service, as ServiceMain()
         // hasn't yet run.
-        LOG_ERROR("Windows service dispatcher received argc " << argc);
+        LOG_ERROR(<< "Windows service dispatcher received argc " << argc);
         return false;
     }
 
@@ -134,7 +134,7 @@ bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char* argv[]) {
         // We're supposed to be running as a service, but something's gone
         // wrong.  At this point it's debatable whether logging will work, as
         // ServiceMain() hasn't yet run.
-        LOG_ERROR("Windows service dispatcher failed " << CWindowsError(errCode));
+        LOG_ERROR(<< "Windows service dispatcher failed " << CWindowsError(errCode));
         return false;
     }
 
@@ -148,7 +148,7 @@ bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char* argv[]) {
     // log somewhere more sensible that STDERR.  (This prevents us spoiling the
     // output from --version and --help.)
     if (CLogger::instance().hasBeenReconfigured()) {
-        LOG_INFO(STOPPED_MSG);
+        LOG_INFO(<< STOPPED_MSG);
     }
 
     return success;
@@ -163,7 +163,7 @@ void CProcess::initialisationComplete(const TShutdownFunc& shutdownFunc) {
 
     if (!m_Initialised) {
         if (CLogger::instance().hasBeenReconfigured()) {
-            LOG_INFO(STARTED_MSG);
+            LOG_INFO(<< STARTED_MSG);
         }
         m_Initialised = true;
     }
@@ -180,7 +180,7 @@ void CProcess::initialisationComplete() {
 
     if (!m_Initialised) {
         if (CLogger::instance().hasBeenReconfigured()) {
-            LOG_INFO(STARTED_MSG);
+            LOG_INFO(<< STARTED_MSG);
         }
         m_Initialised = true;
     }
@@ -237,7 +237,7 @@ void WINAPI CProcess::serviceMain(DWORD argc, char* argv[]) {
         // to log somewhere more sensible that STDERR.  (This prevents us
         // spoiling the output from --version and --help.)
         if (CLogger::instance().hasBeenReconfigured()) {
-            LOG_INFO(STOPPED_MSG);
+            LOG_INFO(<< STOPPED_MSG);
         }
 
         // Update the service status to say we've stopped
@@ -315,7 +315,7 @@ void WINAPI CProcess::serviceCtrlHandler(DWORD ctrlType) {
 
 bool CProcess::shutdown() {
     if (CLogger::instance().hasBeenReconfigured()) {
-        LOG_INFO(STOPPING_MSG);
+        LOG_INFO(<< STOPPING_MSG);
     }
 
     CScopedFastLock lock(m_ShutdownFuncMutex);

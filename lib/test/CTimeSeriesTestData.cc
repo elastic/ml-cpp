@@ -90,7 +90,7 @@ bool CTimeSeriesTestData::parseCounter(const std::string& fileName, TTimeDoubleP
         } else {
             result.second = value - last;
             if (result.second < 0) {
-                LOG_WARN("Negative value " << value << "<" << last << "@" << result.first << " setting counter to 0 ");
+                LOG_WARN(<< "Negative value " << value << "<" << last << "@" << result.first << " setting counter to 0 ");
                 result.second = 0;
             }
         }
@@ -135,7 +135,7 @@ bool CTimeSeriesTestData::pad(const TTimeDoublePrVec& data, core_t::TTime minTim
     results.clear();
 
     if (minTime > maxTime) {
-        LOG_ERROR("Invalid bounds " << minTime << ">" << maxTime);
+        LOG_ERROR(<< "Invalid bounds " << minTime << ">" << maxTime);
         return false;
     }
 
@@ -148,7 +148,7 @@ bool CTimeSeriesTestData::pad(const TTimeDoublePrVec& data, core_t::TTime minTim
 
     for (const auto& datum : data) {
         if (dataMap.insert({datum.first, datum.second}).second == false) {
-            LOG_ERROR("Duplicate values " << datum.first);
+            LOG_ERROR(<< "Duplicate values " << datum.first);
             return false;
         }
     }
@@ -189,13 +189,13 @@ bool CTimeSeriesTestData::parse(const std::string& fileName,
     std::string tokenRegexString(regex);
     core::CRegex tokenRegex;
     if (tokenRegex.init(tokenRegexString) == false) {
-        LOG_ERROR("Regex error");
+        LOG_ERROR(<< "Regex error");
         return false;
     }
 
     std::ifstream inputStrm(fileName);
     if (inputStrm.is_open() == false) {
-        LOG_ERROR("Unable to read file " << fileName);
+        LOG_ERROR(<< "Unable to read file " << fileName);
         return false;
     }
 
@@ -208,7 +208,7 @@ bool CTimeSeriesTestData::parse(const std::string& fileName,
 
     // Must have more than 1 value
     if (results.empty()) {
-        LOG_ERROR("Zero values in file " << fileName);
+        LOG_ERROR(<< "Zero values in file " << fileName);
         return false;
     }
 
@@ -225,24 +225,24 @@ bool CTimeSeriesTestData::parseLine(const core::CRegex& tokenRegex,
                                     const std::string& line,
                                     std::vector<std::pair<core_t::TTime, T>>& results) {
     if (line.empty() || line.find_first_not_of(core::CStringUtils::WHITESPACE_CHARS) == std::string::npos) {
-        LOG_DEBUG("Ignoring blank line");
+        LOG_DEBUG(<< "Ignoring blank line");
         return true;
     }
 
     core::CRegex::TStrVec tokens;
     if (tokenRegex.tokenise(line, tokens) == false) {
-        LOG_ERROR("Regex error '" << tokenRegex.str() << "' " << line);
+        LOG_ERROR(<< "Regex error '" << tokenRegex.str() << "' " << line);
         return false;
     }
 
     core_t::TTime time(0);
     if (dateFormat.empty()) {
         if (core::CStringUtils::stringToType(tokens[0], time) == false) {
-            LOG_ERROR("Invalid test data '" << line << "'");
+            LOG_ERROR(<< "Invalid test data '" << line << "'");
             return false;
         }
     } else if (core::CTimeUtils::strptime(dateFormat, tokens[0], time) == false) {
-        LOG_ERROR("Invalid test data '" << line << "'");
+        LOG_ERROR(<< "Invalid test data '" << line << "'");
         return false;
     }
 
@@ -250,7 +250,7 @@ bool CTimeSeriesTestData::parseLine(const core::CRegex& tokenRegex,
     for (std::size_t i = 1u; i < tokens.size(); ++i) {
         double value(0.0);
         if (core::CStringUtils::stringToType(tokens[i], value) == false) {
-            LOG_ERROR("Invalid test data '" << line << "'");
+            LOG_ERROR(<< "Invalid test data '" << line << "'");
             return false;
         }
         add(value, results.back().second);

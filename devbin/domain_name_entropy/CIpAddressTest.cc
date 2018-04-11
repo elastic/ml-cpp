@@ -41,11 +41,11 @@ CIpAddressTest::CIpAddressTest(void) {
     // clang-format on
 
     if (m_Ipv4Regex.init(ipv4ReStr) == false) {
-        LOG_ERROR("Can not init regex :" << ipv4ReStr);
+        LOG_ERROR(<< "Can not init regex :" << ipv4ReStr);
     }
 
     if (m_Ipv6Regex.init(ipv6ReStr) == false) {
-        LOG_ERROR("Can not init regex :" << ipv6ReStr);
+        LOG_ERROR(<< "Can not init regex :" << ipv6ReStr);
     }
 }
 

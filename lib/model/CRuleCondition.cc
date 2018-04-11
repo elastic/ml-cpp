@@ -98,7 +98,7 @@ bool CRuleCondition::test(const CAnomalyDetectorModel& model,
         } else if (m_FieldName == gatherer.attributeFieldName()) {
             containsValue = m_ValueFilter.get().contains(gatherer.attributeName(cid));
         } else {
-            LOG_ERROR("Unexpected fieldName = " << m_FieldName);
+            LOG_ERROR(<< "Unexpected fieldName = " << m_FieldName);
             return false;
         }
 
@@ -143,7 +143,7 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
     switch (m_Type) {
     case E_CategoricalMatch:
     case E_CategoricalComplement: {
-        LOG_ERROR("Should never check numerical condition for categorical rule condition");
+        LOG_ERROR(<< "Should never check numerical condition for categorical rule condition");
         return false;
     }
     case E_NumericalActual: {
@@ -166,7 +166,7 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
             return false;
         }
         if (value.size() != typical.size()) {
-            LOG_ERROR("Cannot apply rule condition: cannot calculate difference between "
+            LOG_ERROR(<< "Cannot apply rule condition: cannot calculate difference between "
                       << "actual and typical values due to different dimensions.");
             return false;
         }
@@ -181,11 +181,11 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
     }
     }
     if (value.empty()) {
-        LOG_ERROR("Value for rule comparison could not be calculated");
+        LOG_ERROR(<< "Value for rule comparison could not be calculated");
         return false;
     }
     if (value.size() > 1) {
-        LOG_ERROR("Numerical rules do not support multivariate analysis");
+        LOG_ERROR(<< "Numerical rules do not support multivariate analysis");
         return false;
     }
 

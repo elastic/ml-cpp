@@ -54,7 +54,7 @@ bool CRapidXmlParser::parseStringIgnoreCdata(const std::string& xml) {
 std::string CRapidXmlParser::rootElementName() const {
     const TCharRapidXmlNode* root(m_Doc.first_node());
     if (root == nullptr) {
-        LOG_ERROR("Error getting root element");
+        LOG_ERROR(<< "Error getting root element");
         return std::string();
     }
 
@@ -66,7 +66,7 @@ bool CRapidXmlParser::rootElementAttributes(TStrStrMap& rootAttributes) const {
 
     const TCharRapidXmlNode* root(m_Doc.first_node());
     if (root == nullptr) {
-        LOG_ERROR("Error getting root element");
+        LOG_ERROR(<< "Error getting root element");
         return false;
     }
 
@@ -112,12 +112,12 @@ bool CRapidXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool& pool, CXmlNodeWi
 
     const TCharRapidXmlNode* root(m_Doc.first_node());
     if (root == nullptr) {
-        LOG_ERROR("Error getting root element");
+        LOG_ERROR(<< "Error getting root element");
         return false;
     }
 
     if (root->type() != rapidxml::node_element) {
-        LOG_ERROR("Node type " << root->type() << " not supported");
+        LOG_ERROR(<< "Node type " << root->type() << " not supported");
         return false;
     }
 
@@ -131,12 +131,12 @@ bool CRapidXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
 
     const TCharRapidXmlNode* root(m_Doc.first_node());
     if (root == nullptr) {
-        LOG_ERROR("Error getting root element");
+        LOG_ERROR(<< "Error getting root element");
         return false;
     }
 
     if (root->type() != rapidxml::node_element) {
-        LOG_ERROR("Node type " << root->type() << " not supported");
+        LOG_ERROR(<< "Node type " << root->type() << " not supported");
         return false;
     }
 
@@ -333,8 +333,8 @@ void CRapidXmlParser::convert(bool indent, const CXmlNodeWithChildren& root, std
     size_t approxLen(12 + nameLen * 2 + valueLen);
 
     // Root node
-    TCharRapidXmlNode* rootNode(
-        doc.allocate_node(rapidxml::node_element, root.name().c_str(), root.value().empty() ? nullptr : root.value().c_str(), nameLen, valueLen));
+    TCharRapidXmlNode* rootNode(doc.allocate_node(
+        rapidxml::node_element, root.name().c_str(), root.value().empty() ? nullptr : root.value().c_str(), nameLen, valueLen));
     doc.append_node(rootNode);
 
     const CXmlNode::TStrStrPrVec& attrs = root.attributes();
@@ -344,8 +344,8 @@ void CRapidXmlParser::convert(bool indent, const CXmlNodeWithChildren& root, std
         valueLen = attrIter->second.length();
         approxLen += 5 + nameLen + valueLen;
 
-        TCharRapidXmlAttribute* attr(
-            doc.allocate_attribute(attrIter->first.c_str(), attrIter->second.empty() ? nullptr : attrIter->second.c_str(), nameLen, valueLen));
+        TCharRapidXmlAttribute* attr(doc.allocate_attribute(
+            attrIter->first.c_str(), attrIter->second.empty() ? nullptr : attrIter->second.c_str(), nameLen, valueLen));
         rootNode->append_attribute(attr);
     }
 
@@ -382,8 +382,11 @@ void CRapidXmlParser::convertChildren(const CXmlNodeWithChildren& current,
             size_t valueLen(child->value().length());
             approxLen += 10 + nameLen * 2 + valueLen;
 
-            TCharRapidXmlNode* childNode(doc.allocate_node(
-                rapidxml::node_element, child->name().c_str(), child->value().empty() ? nullptr : child->value().c_str(), nameLen, valueLen));
+            TCharRapidXmlNode* childNode(doc.allocate_node(rapidxml::node_element,
+                                                           child->name().c_str(),
+                                                           child->value().empty() ? nullptr : child->value().c_str(),
+                                                           nameLen,
+                                                           valueLen));
             xmlNode.append_node(childNode);
 
             const CXmlNode::TStrStrPrVec& attrs = child->attributes();
@@ -415,7 +418,7 @@ bool CRapidXmlParser::parseBufferNonDestructive(const char* begin, size_t length
     if (this->parseBufferDestructive<FLAGS>(m_XmlBuf.get(), length) == false) {
         // Only log the full XML string at the debug level, so that it doesn't
         // get sent to the socket logger
-        LOG_DEBUG("XML that cannot be parsed is " << std::string(begin, length));
+        LOG_DEBUG(<< "XML that cannot be parsed is " << std::string(begin, length));
         return false;
     }
     return true;
@@ -428,7 +431,7 @@ bool CRapidXmlParser::parseBufferDestructive(char* begin, size_t length) {
     try {
         m_Doc.parse<FLAGS>(begin);
     } catch (rapidxml::parse_error& e) {
-        LOG_ERROR("Unable to parse XML of length " << length << ": " << e.what());
+        LOG_ERROR(<< "Unable to parse XML of length " << length << ": " << e.what());
         return false;
     }
 

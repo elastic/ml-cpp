@@ -107,7 +107,7 @@ void CExpandingWindow::initialize(core_t::TTime time) {
 
 void CExpandingWindow::propagateForwardsByTime(double time) {
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
-        LOG_ERROR("Bad propagation time " << time);
+        LOG_ERROR(<< "Bad propagation time " << time);
     }
     double factor = std::exp(-m_DecayRate * time);
     for (auto& value : m_BucketValues) {

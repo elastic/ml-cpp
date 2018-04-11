@@ -51,9 +51,9 @@ const core_t::TTime WEEK = core::constants::WEEK;
 }
 
 void CTrendTestsTest::testRandomizedPeriodicity() {
-    LOG_DEBUG("+----------------------------------------------+");
-    LOG_DEBUG("|  CTrendTestsTest::testRandomizedPeriodicity  |");
-    LOG_DEBUG("+----------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------+");
+    LOG_DEBUG(<< "|  CTrendTestsTest::testRandomizedPeriodicity  |");
+    LOG_DEBUG(<< "+----------------------------------------------+");
 
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
@@ -65,7 +65,7 @@ void CTrendTestsTest::testRandomizedPeriodicity() {
     TMeanAccumulator typeI;
     TMeanAccumulator typeII;
     for (std::size_t t = 0u; t < 5; ++t) {
-        LOG_DEBUG("*** test = " << t << " ***");
+        LOG_DEBUG(<< "*** test = " << t << " ***");
 
         core_t::TTime time = 0;
         core_t::TTime day = 0;
@@ -107,37 +107,37 @@ void CTrendTestsTest::testRandomizedPeriodicity() {
             time += HALF_HOUR;
         }
 
-        LOG_DEBUG("falsePositives = " << core::CContainerPrinter::print(falsePositives));
-        LOG_DEBUG("trueNegatives = " << core::CContainerPrinter::print(trueNegatives));
+        LOG_DEBUG(<< "falsePositives = " << core::CContainerPrinter::print(falsePositives));
+        LOG_DEBUG(<< "trueNegatives = " << core::CContainerPrinter::print(trueNegatives));
         for (std::size_t i = 0u; i < boost::size(falsePositives); ++i) {
             CPPUNIT_ASSERT(falsePositives[i] / trueNegatives[i] < 0.1);
             typeI.add(falsePositives[i] / trueNegatives[i]);
         }
-        LOG_DEBUG("truePositives = " << core::CContainerPrinter::print(truePositives));
-        LOG_DEBUG("falseNegatives = " << core::CContainerPrinter::print(falseNegatives));
+        LOG_DEBUG(<< "truePositives = " << core::CContainerPrinter::print(truePositives));
+        LOG_DEBUG(<< "falseNegatives = " << core::CContainerPrinter::print(falseNegatives));
         for (std::size_t i = 0u; i < boost::size(falsePositives); ++i) {
             CPPUNIT_ASSERT(falseNegatives[i] / truePositives[i] < 0.2);
             typeII.add(falseNegatives[i] / truePositives[i]);
         }
 
         for (std::size_t i = 0u; i < boost::size(timeToDetectionMoments); ++i) {
-            LOG_DEBUG("time to detect moments = " << timeToDetectionMoments[i]);
-            LOG_DEBUG("maximum time to detect = " << timeToDetectionMax[i][0]);
+            LOG_DEBUG(<< "time to detect moments = " << timeToDetectionMoments[i]);
+            LOG_DEBUG(<< "maximum time to detect = " << timeToDetectionMax[i][0]);
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(timeToDetectionMoments[i]) < 1.5 * DAY);
             CPPUNIT_ASSERT(std::sqrt(maths::CBasicStatistics::variance(timeToDetectionMoments[i])) < 5 * DAY);
             CPPUNIT_ASSERT(timeToDetectionMax[i][0] <= 27 * WEEK);
         }
     }
-    LOG_DEBUG("type I  = " << maths::CBasicStatistics::mean(typeI));
-    LOG_DEBUG("type II = " << maths::CBasicStatistics::mean(typeII));
+    LOG_DEBUG(<< "type I  = " << maths::CBasicStatistics::mean(typeI));
+    LOG_DEBUG(<< "type II = " << maths::CBasicStatistics::mean(typeII));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(typeI) < 0.015);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(typeII) < 0.05);
 }
 
 void CTrendTestsTest::testCalendarCyclic() {
-    LOG_DEBUG("+---------------------------------------+");
-    LOG_DEBUG("|  CTrendTestsTest::testCalendarCyclic  |");
-    LOG_DEBUG("+---------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------+");
+    LOG_DEBUG(<< "|  CTrendTestsTest::testCalendarCyclic  |");
+    LOG_DEBUG(<< "+---------------------------------------+");
 
     using TOptionalFeature = maths::CCalendarCyclicTest::TOptionalFeature;
 
@@ -145,7 +145,7 @@ void CTrendTestsTest::testCalendarCyclic() {
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG("Day of month");
+    LOG_DEBUG(<< "Day of month");
     {
         // Repeated error on the second day of the month.
 
@@ -179,7 +179,7 @@ void CTrendTestsTest::testCalendarCyclic() {
         }
     }
 
-    LOG_DEBUG("Days before end of month");
+    LOG_DEBUG(<< "Days before end of month");
     {
         // Repeated error on the last day of the month.
 
@@ -213,7 +213,7 @@ void CTrendTestsTest::testCalendarCyclic() {
         }
     }
 
-    LOG_DEBUG("Day of week week of month");
+    LOG_DEBUG(<< "Day of week week of month");
     {
         // Repeated error on first Monday of each month.
 
@@ -247,7 +247,7 @@ void CTrendTestsTest::testCalendarCyclic() {
         }
     }
 
-    LOG_DEBUG("Day of week weeks before end of month");
+    LOG_DEBUG(<< "Day of week weeks before end of month");
     {
         // Repeated error on last Friday of each month.
         core_t::TTime months[] = {
@@ -282,13 +282,13 @@ void CTrendTestsTest::testCalendarCyclic() {
 }
 
 void CTrendTestsTest::testPersist() {
-    LOG_DEBUG("+--------------------------------+");
-    LOG_DEBUG("|  CTrendTestsTest::testPersist  |");
-    LOG_DEBUG("+--------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------+");
+    LOG_DEBUG(<< "|  CTrendTestsTest::testPersist  |");
+    LOG_DEBUG(<< "+--------------------------------+");
 
     // Check that persistence is idempotent.
 
-    LOG_DEBUG("Test CRandomizedPeriodicityTest");
+    LOG_DEBUG(<< "Test CRandomizedPeriodicityTest");
     {
         maths::CRandomizedPeriodicityTest test;
         for (core_t::TTime t = 1400000000; t < 1400050000; t += 5000) {
@@ -312,7 +312,7 @@ void CTrendTestsTest::testPersist() {
         // Check that the static state is also preserved
         uint64_t origNextRandom = test.ms_Rng();
 
-        LOG_DEBUG("XML representation:\n" << origXml);
+        LOG_DEBUG(<< "XML representation:\n" << origXml);
 
         // Restore the XML into a new test
         maths::CRandomizedPeriodicityTest test2;
@@ -348,7 +348,7 @@ void CTrendTestsTest::testPersist() {
         CPPUNIT_ASSERT_EQUAL(origNextRandom, newNextRandom);
     }
 
-    LOG_DEBUG("Test CCalendarCyclicTest");
+    LOG_DEBUG(<< "Test CCalendarCyclicTest");
     {
         test::CRandomNumbers rng;
 
@@ -367,7 +367,7 @@ void CTrendTestsTest::testPersist() {
             inserter.toXml(origXml);
         }
 
-        LOG_DEBUG("XML representation:\n" << origXml);
+        LOG_DEBUG(<< "XML representation:\n" << origXml);
 
         maths::CCalendarCyclicTest restored(HALF_HOUR);
         {

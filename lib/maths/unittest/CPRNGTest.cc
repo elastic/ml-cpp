@@ -29,9 +29,9 @@
 using namespace ml;
 
 void CPRNGTest::testSplitMix64() {
-    LOG_DEBUG("+-----------------------------+");
-    LOG_DEBUG("|  CPRNGTest::testSplitMix64  |");
-    LOG_DEBUG("+-----------------------------+");
+    LOG_DEBUG(<< "+-----------------------------+");
+    LOG_DEBUG(<< "|  CPRNGTest::testSplitMix64  |");
+    LOG_DEBUG(<< "+-----------------------------+");
 
     maths::CPRNG::CSplitMix64 rng1;
 
@@ -46,7 +46,7 @@ void CPRNGTest::testSplitMix64() {
         min.add(x);
         max.add(x);
     }
-    LOG_DEBUG("min = " << min[0] << ", max = " << max[0]);
+    LOG_DEBUG(<< "min = " << min[0] << ", max = " << max[0]);
     CPPUNIT_ASSERT(min[0] < (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
     CPPUNIT_ASSERT(max[0] >
                    maths::CPRNG::CSplitMix64::max() - (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
@@ -80,10 +80,10 @@ void CPRNGTest::testSplitMix64() {
             m1.add(cvm1.pValue());
             m2.add(cvm2.pValue());
         }
-        LOG_DEBUG("p1 = " << core::CContainerPrinter::print(p1));
-        LOG_DEBUG("p2 = " << core::CContainerPrinter::print(p2));
-        LOG_DEBUG("m1 = " << maths::CBasicStatistics::mean(m1));
-        LOG_DEBUG("m2 = " << maths::CBasicStatistics::mean(m2));
+        LOG_DEBUG(<< "p1 = " << core::CContainerPrinter::print(p1));
+        LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
+        LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
+        LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) > 0.95 * maths::CBasicStatistics::mean(m2));
     }
     {
@@ -105,10 +105,10 @@ void CPRNGTest::testSplitMix64() {
             m1.add(cvm1.pValue());
             m2.add(cvm2.pValue());
         }
-        LOG_DEBUG("p1 = " << core::CContainerPrinter::print(p1));
-        LOG_DEBUG("p2 = " << core::CContainerPrinter::print(p2));
-        LOG_DEBUG("m1 = " << maths::CBasicStatistics::mean(m1));
-        LOG_DEBUG("m2 = " << maths::CBasicStatistics::mean(m2));
+        LOG_DEBUG(<< "p1 = " << core::CContainerPrinter::print(p1));
+        LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
+        LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
+        LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) > 0.95 * maths::CBasicStatistics::mean(m2));
     }
 
@@ -124,7 +124,7 @@ void CPRNGTest::testSplitMix64() {
 
     // Test serialization.
     std::string state = rng1.toString();
-    LOG_DEBUG("state = " << state);
+    LOG_DEBUG(<< "state = " << state);
     maths::CPRNG::CSplitMix64 rng4;
     CPPUNIT_ASSERT(rng4.fromString(state));
     for (std::size_t t = 0u; t < 500; ++t) {
@@ -133,9 +133,9 @@ void CPRNGTest::testSplitMix64() {
 }
 
 void CPRNGTest::testXorOShiro128Plus() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CPRNGTest::testXorOShiro128Plus  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CPRNGTest::testXorOShiro128Plus  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     maths::CPRNG::CXorOShiro128Plus rng1;
 
@@ -150,7 +150,7 @@ void CPRNGTest::testXorOShiro128Plus() {
         min.add(x);
         max.add(x);
     }
-    LOG_DEBUG("min = " << min[0] << ", max = " << max[0]);
+    LOG_DEBUG(<< "min = " << min[0] << ", max = " << max[0]);
     CPPUNIT_ASSERT(min[0] < (maths::CPRNG::CXorOShiro128Plus::max() - maths::CPRNG::CXorOShiro128Plus::min()) / 2000);
     CPPUNIT_ASSERT(max[0] > maths::CPRNG::CXorOShiro128Plus::max() -
                                 (maths::CPRNG::CXorOShiro128Plus::max() - maths::CPRNG::CXorOShiro128Plus::min()) / 2000);
@@ -184,10 +184,10 @@ void CPRNGTest::testXorOShiro128Plus() {
             m1.add(cvm1.pValue());
             m2.add(cvm2.pValue());
         }
-        LOG_DEBUG("p1 = " << core::CContainerPrinter::print(p1));
-        LOG_DEBUG("p2 = " << core::CContainerPrinter::print(p2));
-        LOG_DEBUG("m1 = " << maths::CBasicStatistics::mean(m1));
-        LOG_DEBUG("m2 = " << maths::CBasicStatistics::mean(m2));
+        LOG_DEBUG(<< "p1 = " << core::CContainerPrinter::print(p1));
+        LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
+        LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
+        LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) > 0.95 * maths::CBasicStatistics::mean(m2));
     }
     {
@@ -209,10 +209,10 @@ void CPRNGTest::testXorOShiro128Plus() {
             m1.add(cvm1.pValue());
             m2.add(cvm2.pValue());
         }
-        LOG_DEBUG("p1 = " << core::CContainerPrinter::print(p1));
-        LOG_DEBUG("p2 = " << core::CContainerPrinter::print(p2));
-        LOG_DEBUG("m1 = " << maths::CBasicStatistics::mean(m1));
-        LOG_DEBUG("m2 = " << maths::CBasicStatistics::mean(m2));
+        LOG_DEBUG(<< "p1 = " << core::CContainerPrinter::print(p1));
+        LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
+        LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
+        LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) > 0.95 * maths::CBasicStatistics::mean(m2));
     }
 
@@ -245,7 +245,7 @@ void CPRNGTest::testXorOShiro128Plus() {
 
     // Test serialization.
     std::string state = rng1.toString();
-    LOG_DEBUG("state = " << state);
+    LOG_DEBUG(<< "state = " << state);
     CPPUNIT_ASSERT(rng4.fromString(state));
     for (std::size_t t = 0u; t < 500; ++t) {
         CPPUNIT_ASSERT_EQUAL(rng1(), rng4());
@@ -253,9 +253,9 @@ void CPRNGTest::testXorOShiro128Plus() {
 }
 
 void CPRNGTest::testXorShift1024Mult() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CPRNGTest::testXorShift1024Mult  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CPRNGTest::testXorShift1024Mult  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     maths::CPRNG::CXorShift1024Mult rng1;
 
@@ -270,7 +270,7 @@ void CPRNGTest::testXorShift1024Mult() {
         min.add(x);
         max.add(x);
     }
-    LOG_DEBUG("min = " << min[0] << ", max = " << max[0]);
+    LOG_DEBUG(<< "min = " << min[0] << ", max = " << max[0]);
     CPPUNIT_ASSERT(min[0] < (maths::CPRNG::CXorShift1024Mult::max() - maths::CPRNG::CXorShift1024Mult::min()) / 2000);
     CPPUNIT_ASSERT(max[0] > maths::CPRNG::CXorShift1024Mult::max() -
                                 (maths::CPRNG::CXorShift1024Mult::max() - maths::CPRNG::CXorShift1024Mult::min()) / 2000);
@@ -304,10 +304,10 @@ void CPRNGTest::testXorShift1024Mult() {
             m1.add(cvm1.pValue());
             m2.add(cvm2.pValue());
         }
-        LOG_DEBUG("p1 = " << core::CContainerPrinter::print(p1));
-        LOG_DEBUG("p2 = " << core::CContainerPrinter::print(p2));
-        LOG_DEBUG("m1 = " << maths::CBasicStatistics::mean(m1));
-        LOG_DEBUG("m2 = " << maths::CBasicStatistics::mean(m2));
+        LOG_DEBUG(<< "p1 = " << core::CContainerPrinter::print(p1));
+        LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
+        LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
+        LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) > 0.95 * maths::CBasicStatistics::mean(m2));
     }
     {
@@ -329,10 +329,10 @@ void CPRNGTest::testXorShift1024Mult() {
             m1.add(cvm1.pValue());
             m2.add(cvm2.pValue());
         }
-        LOG_DEBUG("p1 = " << core::CContainerPrinter::print(p1));
-        LOG_DEBUG("p2 = " << core::CContainerPrinter::print(p2));
-        LOG_DEBUG("m1 = " << maths::CBasicStatistics::mean(m1));
-        LOG_DEBUG("m2 = " << maths::CBasicStatistics::mean(m2));
+        LOG_DEBUG(<< "p1 = " << core::CContainerPrinter::print(p1));
+        LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
+        LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
+        LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) > 0.95 * maths::CBasicStatistics::mean(m2));
     }
 
@@ -366,7 +366,7 @@ void CPRNGTest::testXorShift1024Mult() {
     // Test serialization.
     rng1();
     std::string state = rng1.toString();
-    LOG_DEBUG("state = " << state);
+    LOG_DEBUG(<< "state = " << state);
     CPPUNIT_ASSERT(rng4.fromString(state));
     for (std::size_t t = 0u; t < 500; ++t) {
         CPPUNIT_ASSERT_EQUAL(rng1(), rng4());

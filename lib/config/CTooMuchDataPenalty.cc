@@ -97,7 +97,7 @@ void CTooMuchDataPenalty::penaltyFor(const TUInt64Vec& bucketCounts,
 
     const CAutoconfigurerParams::TTimeVec& candidates = this->params().candidateBucketLengths();
 
-    LOG_TRACE("bucket counts = " << core::CContainerPrinter::print(bucketCounts));
+    LOG_TRACE(<< "bucket counts = " << core::CContainerPrinter::print(bucketCounts));
 
     TSizeVec indices;
     TDoubleVec penalties;

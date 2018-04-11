@@ -47,7 +47,7 @@ namespace {
 void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
                            std::string& snapshotIdOut,
                            size_t& numDocsOut) {
-    LOG_DEBUG("Persist complete with description: " << modelSnapshotReport.s_Description);
+    LOG_DEBUG(<< "Persist complete with description: " << modelSnapshotReport.s_Description);
     snapshotIdOut = modelSnapshotReport.s_SnapshotId;
     numDocsOut = modelSnapshotReport.s_NumDocs;
 }
@@ -124,9 +124,9 @@ void CBackgroundPersisterTest::testCategorizationOnlyPersist() {
         CPPUNIT_ASSERT(typer.periodicPersistState(backgroundPersister));
         CPPUNIT_ASSERT(backgroundPersister.startPersist());
 
-        LOG_DEBUG("Before waiting for the background persister to be idle");
+        LOG_DEBUG(<< "Before waiting for the background persister to be idle");
         CPPUNIT_ASSERT(backgroundPersister.waitForIdle());
-        LOG_DEBUG("After waiting for the background persister to be idle");
+        LOG_DEBUG(<< "After waiting for the background persister to be idle");
 
         // Now persist the processors' state in the foreground
         ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
@@ -204,7 +204,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
         ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, outputChainer, outputWriter);
 
         if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
-            LOG_DEBUG("Applying the categorization typer for anomaly detection");
+            LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
             firstProcessor = &typer;
         }
 
@@ -216,9 +216,9 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
         CPPUNIT_ASSERT(firstProcessor->periodicPersistState(backgroundPersister));
         CPPUNIT_ASSERT(backgroundPersister.startPersist());
 
-        LOG_DEBUG("Before waiting for the background persister to be idle");
+        LOG_DEBUG(<< "Before waiting for the background persister to be idle");
         CPPUNIT_ASSERT(backgroundPersister.waitForIdle());
-        LOG_DEBUG("After waiting for the background persister to be idle");
+        LOG_DEBUG(<< "After waiting for the background persister to be idle");
         backgroundSnapshotId = snapshotId;
 
         // Now persist the processors' state in the foreground

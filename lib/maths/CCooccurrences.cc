@@ -361,19 +361,19 @@ bool CCooccurrences::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
     do {
         const std::string& name = traverser.name();
         if (name == LENGTH_TAG && core::CStringUtils::stringToType(traverser.value(), m_Length) == false) {
-            LOG_ERROR("Invalid length in " << traverser.value());
+            LOG_ERROR(<< "Invalid length in " << traverser.value());
             return false;
         }
         if (name == OFFSET_TAG && core::CStringUtils::stringToType(traverser.value(), m_Offset) == false) {
-            LOG_ERROR("Invalid offset in " << traverser.value());
+            LOG_ERROR(<< "Invalid offset in " << traverser.value());
             return false;
         }
         if (core::CPersistUtils::restore(CURRENT_INDICATOR_TAG, m_CurrentIndicators, traverser) == false) {
-            LOG_ERROR("Invalid indicators in " << traverser.value());
+            LOG_ERROR(<< "Invalid indicators in " << traverser.value());
             return false;
         }
         if (core::CPersistUtils::restore(INDICATOR_TAG, m_Indicators, traverser) == false) {
-            LOG_ERROR("Invalid indicators in " << traverser.value());
+            LOG_ERROR(<< "Invalid indicators in " << traverser.value());
             return false;
         }
     } while (traverser.next());
@@ -389,7 +389,7 @@ void CCooccurrences::acceptPersistInserter(core::CStatePersistInserter& inserter
 
 void CCooccurrences::topNBySignificance(std::size_t X, std::size_t /*n*/, TSizeSizePrVec& /*top*/, TDoubleVec& /*significances*/) const {
     if (X >= m_Indicators.size()) {
-        LOG_ERROR("Unexpected event " << X);
+        LOG_ERROR(<< "Unexpected event " << X);
         return;
     }
 
@@ -464,7 +464,7 @@ void CCooccurrences::recycleEventStreams(const TSizeVec& recycle) {
 
 void CCooccurrences::add(std::size_t X) {
     if (X >= m_Indicators.size()) {
-        LOG_ERROR("Unexpected event " << X);
+        LOG_ERROR(<< "Unexpected event " << X);
         return;
     }
     m_CurrentIndicators.insert(X);

@@ -39,18 +39,18 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc& readerFunc) {
     TCharPSizePr beginLenPair(this->parseLine());
     while (beginLenPair.first != nullptr) {
         if (m_Parser.parseBufferInSitu(beginLenPair.first, beginLenPair.second) == false) {
-            LOG_ERROR("Failed to parse XML document");
+            LOG_ERROR(<< "Failed to parse XML document");
             return false;
         }
 
         if (m_Parser.navigateRoot() == false || m_Parser.navigateFirstChild() == false) {
-            LOG_ERROR("XML document has unexpected structure");
+            LOG_ERROR(<< "XML document has unexpected structure");
             return false;
         }
 
         if (m_AllDocsSameStructure) {
             if (this->decodeDocumentWithCommonFields(fieldNames, fieldValRefs, recordFields) == false) {
-                LOG_ERROR("Failed to decode XML document");
+                LOG_ERROR(<< "Failed to decode XML document");
                 return false;
             }
         } else {
@@ -58,7 +58,7 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc& readerFunc) {
         }
 
         if (readerFunc(recordFields) == false) {
-            LOG_ERROR("Record handler function forced exit");
+            LOG_ERROR(<< "Record handler function forced exit");
             return false;
         }
 
@@ -97,7 +97,7 @@ bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec& fieldName
             more = m_Parser.navigateNext();
         }
 
-        LOG_ERROR("Incorrect number of fields: expected " << fieldValRefs.size() << ", got " << i);
+        LOG_ERROR(<< "Incorrect number of fields: expected " << fieldValRefs.size() << ", got " << i);
         return false;
     }
 

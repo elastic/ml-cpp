@@ -48,7 +48,7 @@ void CRapidXmlStatePersistInserterTest::testPersist() {
     std::string xml;
     inserter.toXml(xml);
 
-    LOG_DEBUG("XML is: " << xml);
+    LOG_DEBUG(<< "XML is: " << xml);
 
     inserter.toXml(false, xml);
     CPPUNIT_ASSERT_EQUAL(std::string("<root attr1=\"attrVal1\" "

@@ -62,7 +62,7 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::opera
     result = 0.0;
     double logFx;
     if (!m_LogF(x, logFx)) {
-        LOG_ERROR("Failed to calculate likelihood at " << x);
+        LOG_ERROR(<< "Failed to calculate likelihood at " << x);
         return false;
     }
     logFx -= m_LogF0;
@@ -113,8 +113,8 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::leftTail(const LOGF& logf,
         n = iterations - n;
         CSolvers::solve(xl, xr, fl, fr, f, n, equal, result);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to find left root: " << e.what() << ", a = " << m_A << ", logf(x) = " << m_LogFx << ", logf(a) = " << logf(m_A)
-                                               << ", max deviation = " << (m_MaxDeviation.count() > 0 ? m_MaxDeviation[0] : 0.0));
+        LOG_ERROR(<< "Failed to find left root: " << e.what() << ", a = " << m_A << ", logf(x) = " << m_LogFx << ", logf(a) = " << logf(m_A)
+                  << ", max deviation = " << (m_MaxDeviation.count() > 0 ? m_MaxDeviation[0] : 0.0));
         return false;
     }
     return true;
@@ -155,7 +155,8 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::rightTail(const LOGF& logf,
         n = iterations - n;
         CSolvers::solve(xl, xr, fl, fr, f, n, equal, result);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to find right root: " << e.what() << ",b = " << m_B << ", logf(x) = " << m_LogFx << ", logf(b) = " << logf(m_B));
+        LOG_ERROR(<< "Failed to find right root: " << e.what() << ",b = " << m_B << ", logf(x) = " << m_LogFx
+                  << ", logf(b) = " << logf(m_B));
         return false;
     }
     return true;
@@ -171,7 +172,7 @@ double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF& logf
     CSmoothedKernel<const LOGF&> kernel(logf, m_LogFx, 3.0);
     for (std::size_t i = 0u; i < intervals.size(); ++i) {
         if (!CIntegration::gaussLegendre<CIntegration::OrderFour>(kernel, intervals[i].first, intervals[i].second, pIntervals[i])) {
-            LOG_ERROR("Couldn't integrate kernel over " << core::CContainerPrinter::print(intervals[i]));
+            LOG_ERROR(<< "Couldn't integrate kernel over " << core::CContainerPrinter::print(intervals[i]));
         }
     }
 
@@ -206,7 +207,7 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
         range.push_back(TDoubleDoublePr(quantile(modes[i], EPS), quantile(modes[i], 1.0 - EPS)));
     }
     std::sort(range.begin(), range.end(), COrderings::SFirstLess());
-    LOG_TRACE("range = " << core::CContainerPrinter::print(range));
+    LOG_TRACE(<< "range = " << core::CContainerPrinter::print(range));
     std::size_t left = 0u;
     for (std::size_t i = 1u; i < range.size(); ++i) {
         if (range[left].second < range[i].first) {
@@ -217,7 +218,7 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
         }
     }
     range.erase(range.begin() + left + 1, range.end());
-    LOG_TRACE("range = " << core::CContainerPrinter::print(range));
+    LOG_TRACE(<< "range = " << core::CContainerPrinter::print(range));
 
     double result = 0.0;
 
@@ -234,7 +235,7 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
         }
     }
 
-    LOG_TRACE("result = " << result);
+    LOG_TRACE(<< "result = " << result);
     return result;
 }
 
@@ -244,7 +245,7 @@ void CTools::spread(double a, double b, double separation, T& points) {
         return;
     }
     if (b <= a) {
-        LOG_ERROR("Bad interval [" << a << "," << b << "]");
+        LOG_ERROR(<< "Bad interval [" << a << "," << b << "]");
         return;
     }
 
@@ -280,7 +281,7 @@ void CTools::spread(double a, double b, double separation, T& points) {
     do {
         moved = false;
         bool forward = (iteration++ % 2 == 0);
-        LOG_TRACE((forward ? "forward" : "backward"));
+        LOG_TRACE(<< (forward ? "forward" : "backward"));
         CGroup last(forward ? 0 : n, points);
         for (std::size_t i = 1u; i <= n; ++i) {
             CGroup test(forward ? i : n - i, points);
@@ -298,7 +299,7 @@ void CTools::spread(double a, double b, double separation, T& points) {
         points[i] += a;
     }
 
-    LOG_TRACE("# iterations = " << iteration << " # points = " << n + 1);
+    LOG_TRACE(<< "# iterations = " << iteration << " # points = " << n + 1);
 }
 }
 }

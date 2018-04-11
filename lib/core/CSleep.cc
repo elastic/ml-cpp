@@ -29,7 +29,7 @@ void CSleep::sleep(uint32_t milliseconds) {
         struct timespec delay = {milliseconds / 1000, (milliseconds % 1000) * 1000000};
 
         if (::nanosleep(&delay, nullptr) < 0) {
-            LOG_WARN("nanosleep interrupted");
+            LOG_WARN(<< "nanosleep interrupted");
         }
     }
 }

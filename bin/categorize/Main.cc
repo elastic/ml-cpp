@@ -108,35 +108,35 @@ int main(int argc, char** argv) {
                               isPersistFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
-        LOG_FATAL("Could not reconfigure logging");
+        LOG_FATAL(<< "Could not reconfigure logging");
         return EXIT_FAILURE;
     }
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
-    LOG_DEBUG(ml::ver::CBuildInfo::fullInfo());
+    LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
     ml::core::CProcessPriority::reducePriority();
 
     if (ioMgr.initIo() == false) {
-        LOG_FATAL("Failed to initialise IO");
+        LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
     }
 
     if (jobId.empty()) {
-        LOG_FATAL("No job ID specified");
+        LOG_FATAL(<< "No job ID specified");
         return EXIT_FAILURE;
     }
 
     ml::model::CLimits limits;
     if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
-        LOG_FATAL("Ml limit config file '" << limitConfigFile << "' could not be loaded");
+        LOG_FATAL(<< "Ml limit config file '" << limitConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
     if (categorizationFieldName.empty()) {
-        LOG_FATAL("No categorization field name specified");
+        LOG_FATAL(<< "No categorization field name specified");
         return EXIT_FAILURE;
     }
     ml::api::CFieldConfig fieldConfig(categorizationFieldName);
@@ -167,8 +167,8 @@ int main(int argc, char** argv) {
     TScopedBackgroundPersisterP periodicPersister;
     if (persistInterval >= 0) {
         if (persister == nullptr) {
-            LOG_FATAL("Periodic persistence cannot be enabled using the 'persistInterval' argument "
-                      "unless a place to persist to has been specified using the 'persist' argument");
+            LOG_FATAL(<< "Periodic persistence cannot be enabled using the 'persistInterval' argument "
+                         "unless a place to persist to has been specified using the 'persist' argument");
             return EXIT_FAILURE;
         }
 
@@ -210,14 +210,14 @@ int main(int argc, char** argv) {
     outputWriter.finalise();
 
     if (!ioLoopSucceeded) {
-        LOG_FATAL("Ml categorization job failed");
+        LOG_FATAL(<< "Ml categorization job failed");
         return EXIT_FAILURE;
     }
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
-    LOG_DEBUG("Ml categorization job exiting");
+    LOG_DEBUG(<< "Ml categorization job exiting");
 
     return EXIT_SUCCESS;
 }

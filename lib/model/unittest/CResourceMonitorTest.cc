@@ -85,7 +85,7 @@ void CResourceMonitorTest::testMonitor() {
         CPPUNIT_ASSERT_EQUAL(mon.m_ByteLimitLow + 1024, mon.m_ByteLimitHigh);
         CPPUNIT_ASSERT(mon.m_ByteLimitHigh > mon.m_ByteLimitLow);
         CPPUNIT_ASSERT(mon.m_AllowAllocations);
-        LOG_DEBUG("Resource limit is: " << mon.m_ByteLimitHigh);
+        LOG_DEBUG(<< "Resource limit is: " << mon.m_ByteLimitHigh);
         if (sizeof(std::size_t) == 4) {
             // 32-bit platform
             CPPUNIT_ASSERT_EQUAL(std::size_t(1024ull * 1024 * 1024 / 2), mon.m_ByteLimitHigh);
@@ -347,26 +347,26 @@ void CResourceMonitorTest::testPruning() {
     CPPUNIT_ASSERT_EQUAL(false, monitor.m_HasPruningStarted);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MemoryStatusOk, monitor.m_MemoryStatus);
 
-    LOG_DEBUG("Saturating the pruner");
+    LOG_DEBUG(<< "Saturating the pruner");
     // Add enough data to saturate the pruner
     this->addTestData(bucket, BUCKET_LENGTH, 1100, 3, startOffset, detector, monitor);
 
-    LOG_DEBUG("Window is now: " << monitor.m_PruneWindow);
+    LOG_DEBUG(<< "Window is now: " << monitor.m_PruneWindow);
     CPPUNIT_ASSERT_EQUAL(true, monitor.m_HasPruningStarted);
     CPPUNIT_ASSERT(monitor.m_PruneWindow < std::size_t(1000));
     CPPUNIT_ASSERT_EQUAL(model_t::E_MemoryStatusSoftLimit, monitor.m_MemoryStatus);
     CPPUNIT_ASSERT_EQUAL(true, monitor.m_AllowAllocations);
 
-    LOG_DEBUG("Allowing pruner to relax");
+    LOG_DEBUG(<< "Allowing pruner to relax");
     // Add no new people and see that the window relaxes away from the minimum window
     this->addTestData(bucket, BUCKET_LENGTH, 100, 0, startOffset, detector, monitor);
-    LOG_DEBUG("Window is now: " << monitor.m_PruneWindow);
+    LOG_DEBUG(<< "Window is now: " << monitor.m_PruneWindow);
     std::size_t level = monitor.m_PruneWindow;
     CPPUNIT_ASSERT_EQUAL(model_t::E_MemoryStatusSoftLimit, monitor.m_MemoryStatus);
     CPPUNIT_ASSERT_EQUAL(true, monitor.m_AllowAllocations);
     CPPUNIT_ASSERT(monitor.totalMemory() < monitor.m_PruneThreshold);
 
-    LOG_DEBUG("Testing fine-grained control");
+    LOG_DEBUG(<< "Testing fine-grained control");
     // Check that the window keeps growing now
     this->addTestData(bucket, BUCKET_LENGTH, 50, 0, startOffset, detector, monitor);
     CPPUNIT_ASSERT(monitor.m_PruneWindow > level);

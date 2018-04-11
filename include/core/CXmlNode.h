@@ -101,7 +101,7 @@ public:
         }
 
         if (CStringUtils::stringToType(iter->second, value) == false) {
-            LOG_ERROR("Unable to convert " << iter->second);
+            LOG_ERROR(<< "Unable to convert " << iter->second);
             return false;
         }
 

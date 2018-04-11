@@ -33,7 +33,7 @@ CppUnit::Test* CResourceLocatorTest::suite() {
 
 void CResourceLocatorTest::testResourceDir() {
     std::string resourceDir(ml::core::CResourceLocator::resourceDir());
-    LOG_DEBUG("Resource directory is " << resourceDir);
+    LOG_DEBUG(<< "Resource directory is " << resourceDir);
 
     // It should contain the file ml-en.dict
     ml::core::COsFileFuncs::TStat buf;
@@ -42,7 +42,7 @@ void CResourceLocatorTest::testResourceDir() {
 
 void CResourceLocatorTest::testLogDir() {
     std::string logDir(ml::core::CResourceLocator::logDir());
-    LOG_DEBUG("Log directory is " << logDir);
+    LOG_DEBUG(<< "Log directory is " << logDir);
 
     // Don't assert on this as it will be non-essential once
     // we're an Elasticsearch plugin
@@ -50,7 +50,7 @@ void CResourceLocatorTest::testLogDir() {
 
 void CResourceLocatorTest::testSrcRootDir() {
     std::string cppRootDir(ml::core::CResourceLocator::cppRootDir());
-    LOG_DEBUG("C++ root directory is " << cppRootDir);
+    LOG_DEBUG(<< "C++ root directory is " << cppRootDir);
 
     // It should contain the file set_env.sh
     ml::core::COsFileFuncs::TStat buf;

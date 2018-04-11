@@ -103,7 +103,7 @@ void CLineifiedJsonOutputWriter::writeField(const std::string& name, const std::
     if (m_NumericFields.find(name) != m_NumericFields.end()) {
         double numericValue(0.0);
         if (core::CStringUtils::stringToType(value, numericValue) == false) {
-            LOG_WARN("Non-numeric value output in numeric JSON document");
+            LOG_WARN(<< "Non-numeric value output in numeric JSON document");
             // Write a 0 instead of returning
         }
         m_Writer.addDoubleFieldToObj(name, numericValue, doc);

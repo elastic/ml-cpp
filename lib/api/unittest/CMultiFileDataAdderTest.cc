@@ -54,7 +54,7 @@ using TStrVec = std::vector<std::string>;
 void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
                            std::string& snapshotIdOut,
                            size_t& numDocsOut) {
-    LOG_INFO("Persist complete with description: " << modelSnapshotReport.s_Description);
+    LOG_INFO(<< "Persist complete with description: " << modelSnapshotReport.s_Description);
     snapshotIdOut = modelSnapshotReport.s_SnapshotId;
     numDocsOut = modelSnapshotReport.s_NumDocs;
 }
@@ -226,7 +226,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         expectedOrigFilename += '/';
         expectedOrigFilename += ml::core::CDataAdder::makeCurrentDocId(origBaseDocId, 1 + index);
         expectedOrigFilename += ml::test::CMultiFileDataAdder::JSON_FILE_EXT;
-        LOG_DEBUG("Trying to open file: " << expectedOrigFilename);
+        LOG_DEBUG(<< "Trying to open file: " << expectedOrigFilename);
         std::ifstream origFile(expectedOrigFilename.c_str());
         CPPUNIT_ASSERT(origFile.is_open());
         std::string json((std::istreambuf_iterator<char>(origFile)), std::istreambuf_iterator<char>());

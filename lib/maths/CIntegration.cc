@@ -44,7 +44,7 @@ const double* CIntegration::CGaussLegendreQuadrature::weights(EOrder order) {
         return WEIGHTS10;
     }
 
-    LOG_ABORT("Unexpected enumeration value " << order);
+    LOG_ABORT(<< "Unexpected enumeration value " << order);
 }
 
 const double* CIntegration::CGaussLegendreQuadrature::abscissas(EOrder order) {
@@ -71,7 +71,7 @@ const double* CIntegration::CGaussLegendreQuadrature::abscissas(EOrder order) {
         return ABSCISSAS10;
     }
 
-    LOG_ABORT("Unexpected enumeration value " << order);
+    LOG_ABORT(<< "Unexpected enumeration value " << order);
 }
 
 const double CIntegration::CGaussLegendreQuadrature::WEIGHTS1[] = {2.0};

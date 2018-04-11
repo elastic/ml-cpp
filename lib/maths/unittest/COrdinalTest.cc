@@ -44,10 +44,10 @@ std::string precisePrint(T x) {
 }
 
 void COrdinalTest::testEqual() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+---------------------------+");
-    LOG_DEBUG("|  COrdinalTest::testEqual  |");
-    LOG_DEBUG("+---------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+---------------------------+");
+    LOG_DEBUG(<< "|  COrdinalTest::testEqual  |");
+    LOG_DEBUG(<< "+---------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -92,7 +92,7 @@ void COrdinalTest::testEqual() {
                             maths::COrdinal(int64_t(569817345679111268))};
     maths::COrdinal s2[] = {maths::COrdinal(uint64_t(569817345679111267)), maths::COrdinal(uint64_t(569817345679111268))};
     for (std::size_t i = 0u; i < boost::size(s1); ++i) {
-        LOG_DEBUG(s1[i] << " (as double " << precisePrint(s1[i].asDouble()) << ")");
+        LOG_DEBUG(<< s1[i] << " (as double " << precisePrint(s1[i].asDouble()) << ")");
         for (std::size_t j = 0u; j < i; ++j) {
             CPPUNIT_ASSERT(s1[i] != s1[j]);
         }
@@ -109,10 +109,10 @@ void COrdinalTest::testEqual() {
 }
 
 void COrdinalTest::testLess() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+--------------------------+");
-    LOG_DEBUG("|  COrdinalTest::testLess  |");
-    LOG_DEBUG("+--------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+--------------------------+");
+    LOG_DEBUG(<< "|  COrdinalTest::testLess  |");
+    LOG_DEBUG(<< "+--------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -170,7 +170,7 @@ void COrdinalTest::testLess() {
                             maths::COrdinal(int64_t(569817345679111268))};
     maths::COrdinal s2[] = {maths::COrdinal(uint64_t(569817345679111267)), maths::COrdinal(uint64_t(569817345679111268))};
     for (std::size_t i = 0u; i < boost::size(s1); ++i) {
-        LOG_DEBUG(s1[i] << " (as double " << precisePrint(s1[i].asDouble()) << ")");
+        LOG_DEBUG(<< s1[i] << " (as double " << precisePrint(s1[i].asDouble()) << ")");
         for (std::size_t j = 0u; j < i; ++j) {
             CPPUNIT_ASSERT(!(s1[i] < s1[j]));
         }
@@ -186,10 +186,10 @@ void COrdinalTest::testLess() {
 }
 
 void COrdinalTest::testIsNan() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+---------------------------+");
-    LOG_DEBUG("|  COrdinalTest::testIsNan  |");
-    LOG_DEBUG("+---------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+---------------------------+");
+    LOG_DEBUG(<< "|  COrdinalTest::testIsNan  |");
+    LOG_DEBUG(<< "+---------------------------+");
 
     maths::COrdinal nan;
     CPPUNIT_ASSERT(nan.isNan());
@@ -231,10 +231,10 @@ void COrdinalTest::testIsNan() {
 }
 
 void COrdinalTest::testAsDouble() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+------------------------------+");
-    LOG_DEBUG("|  COrdinalTest::testAsDouble  |");
-    LOG_DEBUG("+------------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+------------------------------+");
+    LOG_DEBUG(<< "|  COrdinalTest::testAsDouble  |");
+    LOG_DEBUG(<< "+------------------------------+");
 
     // Check that double conversion is as expected.
 
@@ -261,16 +261,16 @@ void COrdinalTest::testAsDouble() {
 
     for (std::size_t i = 0u; i < boost::size(s); ++i) {
         maths::COrdinal o(s[i]);
-        LOG_DEBUG(o << " (as double " << precisePrint(o.asDouble()) << ")");
+        LOG_DEBUG(<< o << " (as double " << precisePrint(o.asDouble()) << ")");
         CPPUNIT_ASSERT_EQUAL(static_cast<double>(s[i]), o.asDouble());
     }
 }
 
 void COrdinalTest::testHash() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+--------------------------+");
-    LOG_DEBUG("|  COrdinalTest::testHash  |");
-    LOG_DEBUG("+--------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+--------------------------+");
+    LOG_DEBUG(<< "|  COrdinalTest::testHash  |");
+    LOG_DEBUG(<< "+--------------------------+");
 
     // Test that hashing works over the full range of the distinct types.
 
@@ -297,9 +297,9 @@ void COrdinalTest::testHash() {
         doubleHashes.insert(doubleOrdinal.hash());
     }
 
-    LOG_DEBUG("# signed hashes   = " << signedHashes.size());
-    LOG_DEBUG("# unsigned hashes = " << unsignedHashes.size());
-    LOG_DEBUG("# double hashes   = " << doubleHashes.size());
+    LOG_DEBUG(<< "# signed hashes   = " << signedHashes.size());
+    LOG_DEBUG(<< "# unsigned hashes = " << unsignedHashes.size());
+    LOG_DEBUG(<< "# double hashes   = " << doubleHashes.size());
     CPPUNIT_ASSERT_EQUAL(std::size_t(100), signedHashes.size());
     CPPUNIT_ASSERT_EQUAL(std::size_t(100), unsignedHashes.size());
     CPPUNIT_ASSERT_EQUAL(std::size_t(100), doubleHashes.size());

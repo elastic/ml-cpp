@@ -83,7 +83,7 @@ CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine() {
         std::streamsize bytesRead(m_StrmIn.gcount());
         if (bytesRead == 0) {
             if (m_StrmIn.bad()) {
-                LOG_ERROR("Input stream is bad");
+                LOG_ERROR(<< "Input stream is bad");
             }
             // We needed to read more data and didn't get any, so stop
             break;

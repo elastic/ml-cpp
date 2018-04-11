@@ -149,8 +149,8 @@ TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double c
             double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
             return {ql, qu};
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", n = " << n << ", m = " << m << ", sd = " << sd
-                                                                 << ", confidence = " << confidence);
+            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what() << ", n = " << n << ", m = " << m << ", sd = " << sd
+                      << ", confidence = " << confidence);
         }
         return {m, m};
     }
@@ -181,7 +181,7 @@ TDoubleDoublePr CDecompositionComponent::variance(double offset, double n, doubl
             double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
             return std::make_pair(ql * v / (n - 1.0), qu * v / (n - 1.0));
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", n = " << n << ", confidence = " << confidence);
+            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what() << ", n = " << n << ", confidence = " << confidence);
         }
         return {v, v};
     }
@@ -333,10 +333,10 @@ void CDecompositionComponent::CPackedSplines::interpolate(const TDoubleVec& knot
     } else if (!varianceSpline.interpolate(knots, variances, boundary)) {
         this->swap(oldSpline);
     }
-    LOG_TRACE("types = " << core::CContainerPrinter::print(m_Types));
-    LOG_TRACE("knots = " << core::CContainerPrinter::print(m_Knots));
-    LOG_TRACE("values = " << core::CContainerPrinter::print(m_Values));
-    LOG_TRACE("curvatures = " << core::CContainerPrinter::print(m_Curvatures));
+    LOG_TRACE(<< "types = " << core::CContainerPrinter::print(m_Types));
+    LOG_TRACE(<< "knots = " << core::CContainerPrinter::print(m_Knots));
+    LOG_TRACE(<< "values = " << core::CContainerPrinter::print(m_Values));
+    LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
 }
 
 uint64_t CDecompositionComponent::CPackedSplines::checksum(uint64_t seed) const {

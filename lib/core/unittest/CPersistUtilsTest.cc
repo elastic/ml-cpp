@@ -159,21 +159,21 @@ void testPersistRestore(const T& collection, const T& initial = T()) {
         core::CJsonStatePersistInserter inserter(origSs);
         core::CPersistUtils::persist(tag, collection, inserter);
     }
-    LOG_TRACE("String data is: " << origSs.str());
-    LOG_TRACE(" - doing restore " << typeid(T).name());
+    LOG_TRACE(<< "String data is: " << origSs.str());
+    LOG_TRACE(<< " - doing restore " << typeid(T).name());
     T restored = initial;
     std::stringstream restoredSs;
     {
         core::CJsonStateRestoreTraverser traverser(origSs);
         CPPUNIT_ASSERT(core::CPersistUtils::restore(tag, restored, traverser));
     }
-    LOG_TRACE(" - doing persist again " << typeid(T).name());
+    LOG_TRACE(<< " - doing persist again " << typeid(T).name());
     {
         const T& restoredRef = restored;
         core::CJsonStatePersistInserter inserter(restoredSs);
         core::CPersistUtils::persist(tag, restoredRef, inserter);
     }
-    LOG_TRACE("String data is: " << restoredSs.str());
+    LOG_TRACE(<< "String data is: " << restoredSs.str());
 
     CPPUNIT_ASSERT_EQUAL(origSs.str(), restoredSs.str());
     CPPUNIT_ASSERT(compare(collection, restored));
@@ -190,14 +190,14 @@ void CPersistUtilsTest::testPersistContainers() {
         TDoubleVec collection;
         testPersistRestore(collection);
         TDoubleVec other;
-        LOG_DEBUG("The same: " << ::compare(collection, other));
+        LOG_DEBUG(<< "The same: " << ::compare(collection, other));
     }
     {
         TSizeDoubleMap collection;
         testPersistRestore(collection);
     }
 
-    LOG_DEBUG("*** vector ***");
+    LOG_DEBUG(<< "*** vector ***");
     {
         TDoubleVec collection;
         testPersistRestore(collection);
@@ -215,7 +215,7 @@ void CPersistUtilsTest::testPersistContainers() {
         collection.push_back(234.768);
         testPersistRestore(collection);
     }
-    LOG_DEBUG("*** map ***");
+    LOG_DEBUG(<< "*** map ***");
     {
         TSizeDoubleMap collection;
         testPersistRestore(collection);
@@ -230,7 +230,7 @@ void CPersistUtilsTest::testPersistContainers() {
         collection.insert(TSizeDoublePr(0, 1.678e-45));
         testPersistRestore(collection);
     }
-    LOG_DEBUG("*** set ***");
+    LOG_DEBUG(<< "*** set ***");
     {
         TIntSet collection;
         testPersistRestore(collection);
@@ -247,7 +247,7 @@ void CPersistUtilsTest::testPersistContainers() {
         collection.insert(1);
         testPersistRestore(collection);
     }
-    LOG_DEBUG("*** array ***");
+    LOG_DEBUG(<< "*** array ***");
     {
         boost::array<double, 5> collection;
         collection[0] = 1.2;
@@ -257,7 +257,7 @@ void CPersistUtilsTest::testPersistContainers() {
         collection[4] = 1.0 / 3.0;
         testPersistRestore(collection);
     }
-    LOG_DEBUG("*** uset ***");
+    LOG_DEBUG(<< "*** uset ***");
     {
         TSizeUSet set;
         set.insert(1);
@@ -271,7 +271,7 @@ void CPersistUtilsTest::testPersistContainers() {
         set.insert(4);
         testPersistRestore(set);
     }
-    LOG_DEBUG("*** nested ***") {
+    LOG_DEBUG(<< "*** nested ***") {
         TDoubleVecVec vec(3);
         vec[0].push_back(22.22);
         vec[0].push_back(3456245);
@@ -349,7 +349,7 @@ void CPersistUtilsTest::testPersistContainers() {
         collection[4].insert(0);
         testPersistRestore(collection);
     }
-    LOG_DEBUG("*** unordered_map ***");
+    LOG_DEBUG(<< "*** unordered_map ***");
     {
         TStrIntUMap map;
         map.reserve(5);
@@ -385,7 +385,7 @@ void CPersistUtilsTest::testPersistContainers() {
 
         testPersistRestore(map);
     }
-    LOG_DEBUG("*** circular_buffer ***");
+    LOG_DEBUG(<< "*** circular_buffer ***");
     {
         TSizeDoublePrBuf buf(5);
         buf.push_back(std::make_pair(44, 44.4));
@@ -393,7 +393,7 @@ void CPersistUtilsTest::testPersistContainers() {
         buf.push_back(std::make_pair(66667, 99.945));
         testPersistRestore(buf, TSizeDoublePrBuf(5));
     }
-    LOG_DEBUG("*** pod ***");
+    LOG_DEBUG(<< "*** pod ***");
     {
         int t = -9956;
         testPersistRestore(t);
@@ -406,7 +406,7 @@ void CPersistUtilsTest::testPersistContainers() {
         b = false;
         testPersistRestore(b);
     }
-    LOG_DEBUG("*** errors ***");
+    LOG_DEBUG(<< "*** errors ***");
     {
         std::string bad("dejk");
         TDoubleVec collection;
@@ -448,7 +448,7 @@ void CPersistUtilsTest::testPersistContainers() {
 void CPersistUtilsTest::testPersistIterators() {
     // Persist only a sub set of a collection
     {
-        LOG_DEBUG("*** vector range ***");
+        LOG_DEBUG(<< "*** vector range ***");
 
         TDoubleVec collection;
         for (int i = 0; i < 20; i++) {
@@ -459,7 +459,7 @@ void CPersistUtilsTest::testPersistIterators() {
         TDoubleVec::iterator end = collection.begin() + 10;
 
         std::string state = core::CPersistUtils::toString(begin, end);
-        LOG_DEBUG("state = " << state);
+        LOG_DEBUG(<< "state = " << state);
         CPPUNIT_ASSERT(begin == end);
         TDoubleVec restored;
         core::CPersistUtils::fromString(state, restored);
@@ -474,7 +474,7 @@ void CPersistUtilsTest::testPersistIterators() {
         TDoubleVec::iterator tenth = collection.begin() + 10;
 
         state = core::CPersistUtils::toString(fifth, tenth);
-        LOG_DEBUG("state = " << state);
+        LOG_DEBUG(<< "state = " << state);
         CPPUNIT_ASSERT(fifth == tenth);
         restored.clear();
         core::CPersistUtils::fromString(state, restored);
@@ -490,7 +490,7 @@ void CPersistUtilsTest::testPersistIterators() {
 void CPersistUtilsTest::testAppend() {
     // Persist only a sub set of a collection
     {
-        LOG_DEBUG("*** vector append ***");
+        LOG_DEBUG(<< "*** vector append ***");
 
         TDoubleVec source;
         for (int i = 0; i < 9; i++) {
@@ -498,7 +498,7 @@ void CPersistUtilsTest::testAppend() {
         }
 
         std::string state = core::CPersistUtils::toString(source);
-        LOG_DEBUG("state = " << state);
+        LOG_DEBUG(<< "state = " << state);
         TDoubleVec restored;
         core::CPersistUtils::fromString(state, restored);
         CPPUNIT_ASSERT(equal(source, restored));
@@ -512,7 +512,7 @@ void CPersistUtilsTest::testAppend() {
 
         state = core::CPersistUtils::toString(begin, end);
         CPPUNIT_ASSERT(begin == end);
-        LOG_DEBUG("state = " << state);
+        LOG_DEBUG(<< "state = " << state);
 
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true);
         CPPUNIT_ASSERT(equal(source, restored));
@@ -526,18 +526,18 @@ void CPersistUtilsTest::testAppend() {
 
         state = core::CPersistUtils::toString(begin, end);
         CPPUNIT_ASSERT(begin == end);
-        LOG_DEBUG("state = " << state);
+        LOG_DEBUG(<< "state = " << state);
 
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true);
         CPPUNIT_ASSERT(equal(source, restored));
     }
 
     {
-        LOG_DEBUG("*** map append ***");
+        LOG_DEBUG(<< "*** map append ***");
 
         TSizeDoubleMap collection;
         std::string state = core::CPersistUtils::toString(collection);
-        LOG_DEBUG("state = " << state);
+        LOG_DEBUG(<< "state = " << state);
 
         TSizeDoubleMap restored;
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true);
@@ -548,7 +548,7 @@ void CPersistUtilsTest::testAppend() {
         }
 
         state = core::CPersistUtils::toString(collection);
-        LOG_DEBUG("state = " << state);
+        LOG_DEBUG(<< "state = " << state);
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true);
         CPPUNIT_ASSERT(equal(collection, restored));
 
@@ -557,7 +557,7 @@ void CPersistUtilsTest::testAppend() {
 
         TSizeDoubleMap::iterator end = collection.end();
         state = core::CPersistUtils::toString(pr.first, end);
-        LOG_DEBUG("state = " << state);
+        LOG_DEBUG(<< "state = " << state);
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true);
         CPPUNIT_ASSERT(equal(collection, restored));
 
@@ -566,7 +566,7 @@ void CPersistUtilsTest::testAppend() {
 
         end = collection.end();
         state = core::CPersistUtils::toString(pr.first, end);
-        LOG_DEBUG("state = " << state);
+        LOG_DEBUG(<< "state = " << state);
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true);
         CPPUNIT_ASSERT(equal(collection, restored));
     }

@@ -66,9 +66,9 @@ void swap(CDictionary& lhs, CDictionary& rhs) {
 }
 
 void COrderingsTest::testOptionalOrdering() {
-    LOG_DEBUG("+----------------------------------------+");
-    LOG_DEBUG("|  COrderingsTest::testOptionalOrdering  |");
-    LOG_DEBUG("+----------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------+");
+    LOG_DEBUG(<< "|  COrderingsTest::testOptionalOrdering  |");
+    LOG_DEBUG(<< "+----------------------------------------+");
 
     TOptionalDouble null;
     TOptionalDouble one(1.0);
@@ -105,9 +105,9 @@ void COrderingsTest::testOptionalOrdering() {
 }
 
 void COrderingsTest::testPtrOrdering() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  COrderingsTest::testPtrOrdering  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  COrderingsTest::testPtrOrdering  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     const double* null = nullptr;
     double one_(1.0);
@@ -145,9 +145,9 @@ void COrderingsTest::testPtrOrdering() {
 }
 
 void COrderingsTest::testLess() {
-    LOG_DEBUG("+----------------------------+");
-    LOG_DEBUG("|  COrderingsTest::testLess  |");
-    LOG_DEBUG("+----------------------------+");
+    LOG_DEBUG(<< "+----------------------------+");
+    LOG_DEBUG(<< "|  COrderingsTest::testLess  |");
+    LOG_DEBUG(<< "+----------------------------+");
 
     maths::COrderings::SLess less;
 
@@ -212,9 +212,9 @@ void COrderingsTest::testLess() {
 }
 
 void COrderingsTest::testFirstLess() {
-    LOG_DEBUG("+---------------------------------+");
-    LOG_DEBUG("|  COrderingsTest::testFirstLess  |");
-    LOG_DEBUG("+---------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------+");
+    LOG_DEBUG(<< "|  COrderingsTest::testFirstLess  |");
+    LOG_DEBUG(<< "+---------------------------------+");
 
     maths::COrderings::SFirstLess less;
 
@@ -248,9 +248,9 @@ void COrderingsTest::testFirstLess() {
 }
 
 void COrderingsTest::testFirstGreater() {
-    LOG_DEBUG("+------------------------------------+");
-    LOG_DEBUG("|  COrderingsTest::testFirstGreater  |");
-    LOG_DEBUG("+------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------+");
+    LOG_DEBUG(<< "|  COrderingsTest::testFirstGreater  |");
+    LOG_DEBUG(<< "+------------------------------------+");
 
     maths::COrderings::SFirstGreater greater;
 
@@ -284,9 +284,9 @@ void COrderingsTest::testFirstGreater() {
 }
 
 void COrderingsTest::testSecondLess() {
-    LOG_DEBUG("+----------------------------------+");
-    LOG_DEBUG("|  COrderingsTest::testSecondLess  |");
-    LOG_DEBUG("+----------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------+");
+    LOG_DEBUG(<< "|  COrderingsTest::testSecondLess  |");
+    LOG_DEBUG(<< "+----------------------------------+");
 
     maths::COrderings::SSecondLess less;
 
@@ -322,9 +322,9 @@ void COrderingsTest::testSecondLess() {
 }
 
 void COrderingsTest::testSecondGreater() {
-    LOG_DEBUG("+-------------------------------------+");
-    LOG_DEBUG("|  COrderingsTest::testSecondGreater  |");
-    LOG_DEBUG("+-------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------+");
+    LOG_DEBUG(<< "|  COrderingsTest::testSecondGreater  |");
+    LOG_DEBUG(<< "+-------------------------------------+");
 
     maths::COrderings::SSecondGreater greater;
 
@@ -360,9 +360,9 @@ void COrderingsTest::testSecondGreater() {
 }
 
 void COrderingsTest::testDereference() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  COrderingsTest::testDereference  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  COrderingsTest::testDereference  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     using TDoubleVec = std::vector<double>;
     using TDoubleVecCItr = std::vector<double>::const_iterator;
@@ -378,15 +378,15 @@ void COrderingsTest::testDereference() {
     std::sort(iterators.begin(), iterators.end(), core::CFunctional::SDereference<maths::COrderings::SLess>());
     std::sort(boost::begin(values_), boost::end(values_));
     for (std::size_t i = 0u; i < boost::size(values); ++i) {
-        LOG_DEBUG("expected " << values_[i] << ", got " << *iterators[i]);
+        LOG_DEBUG(<< "expected " << values_[i] << ", got " << *iterators[i]);
         CPPUNIT_ASSERT_EQUAL(values_[i], *iterators[i]);
     }
 }
 
 void COrderingsTest::testLexicographicalCompare() {
-    LOG_DEBUG("+----------------------------------------------+");
-    LOG_DEBUG("|  COrderingsTest::testLexicographicalCompare  |");
-    LOG_DEBUG("+----------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------+");
+    LOG_DEBUG(<< "|  COrderingsTest::testLexicographicalCompare  |");
+    LOG_DEBUG(<< "+----------------------------------------------+");
 
     using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;
@@ -494,9 +494,9 @@ void COrderingsTest::testLexicographicalCompare() {
 }
 
 void COrderingsTest::testSimultaneousSort() {
-    LOG_DEBUG("+----------------------------------------+");
-    LOG_DEBUG("|  COrderingsTest::testSimultaneousSort  |");
-    LOG_DEBUG("+----------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------+");
+    LOG_DEBUG(<< "|  COrderingsTest::testSimultaneousSort  |");
+    LOG_DEBUG(<< "+----------------------------------------+");
 
     using TDoubleVec = std::vector<double>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
@@ -517,8 +517,8 @@ void COrderingsTest::testSimultaneousSort() {
         std::string expectedValues("[c, !, z, q, a, p]");
 
         maths::COrderings::simultaneousSort(keys, values);
-        LOG_DEBUG("keys = " << core::CContainerPrinter::print(keys));
-        LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
+        LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
+        LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
         CPPUNIT_ASSERT_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
         CPPUNIT_ASSERT_EQUAL(expectedValues, core::CContainerPrinter::print(values));
 
@@ -537,9 +537,9 @@ void COrderingsTest::testSimultaneousSort() {
         std::string expectedValues2("[(1.3, 1.9), (1.2, 10.1), (2.1, 1.1), (3.2, 12.9), (1.3, 6.2), (2, 1)]");
 
         maths::COrderings::simultaneousSort(keys, values1, values2);
-        LOG_DEBUG("keys = " << core::CContainerPrinter::print(keys));
-        LOG_DEBUG("values1 = " << core::CContainerPrinter::print(values1));
-        LOG_DEBUG("values2 = " << core::CContainerPrinter::print(values2));
+        LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
+        LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
+        LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
         CPPUNIT_ASSERT_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
         CPPUNIT_ASSERT_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
         CPPUNIT_ASSERT_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
@@ -563,16 +563,16 @@ void COrderingsTest::testSimultaneousSort() {
             TStrVec words(rawWords.begin() + i, rawWords.begin() + i + 5);
             values3.push_back(CDictionary(words));
         }
-        LOG_DEBUG("values3 = " << core::CContainerPrinter::print(values3));
+        LOG_DEBUG(<< "values3 = " << core::CContainerPrinter::print(values3));
         std::string expectedKeys("[0.1, 0.7, 0.9, 1.4, 4, 5.1, 7.1, 80]");
         std::string expectedValues1("[23, ;;, ~1, b4, pq, zz, a1, sss]");
         std::string expectedValues2("[(4.1, 1.1), (2.2, 1.1), (5.3, 3.9), (7.2, 22.9), (10.3, 13.2), (0.3, 16.2), (1, 1), (21.2, 11.1)]");
 
         maths::COrderings::simultaneousSort(keys, values1, values2, values3);
-        LOG_DEBUG("keys = " << core::CContainerPrinter::print(keys));
-        LOG_DEBUG("values1 = " << core::CContainerPrinter::print(values1));
-        LOG_DEBUG("values2 = " << core::CContainerPrinter::print(values2));
-        LOG_DEBUG("# copies = " << values3.front().ms_Copies);
+        LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
+        LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
+        LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
+        LOG_DEBUG(<< "# copies = " << values3.front().ms_Copies);
         CPPUNIT_ASSERT_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
         CPPUNIT_ASSERT_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
         CPPUNIT_ASSERT_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
@@ -581,10 +581,10 @@ void COrderingsTest::testSimultaneousSort() {
         }
 
         maths::COrderings::simultaneousSort(keys, values1, values2, values3);
-        LOG_DEBUG("keys = " << core::CContainerPrinter::print(keys));
-        LOG_DEBUG("values1 = " << core::CContainerPrinter::print(values1));
-        LOG_DEBUG("values2 = " << core::CContainerPrinter::print(values2));
-        LOG_DEBUG("# copies = " << values3.front().ms_Copies);
+        LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
+        LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
+        LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
+        LOG_DEBUG(<< "# copies = " << values3.front().ms_Copies);
         CPPUNIT_ASSERT_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
         CPPUNIT_ASSERT_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
         CPPUNIT_ASSERT_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
@@ -604,26 +604,26 @@ void COrderingsTest::testSimultaneousSort() {
 
         maths::COrderings::simultaneousSort(range1, range2);
 
-        LOG_DEBUG("values1 = " << core::CContainerPrinter::print(values1));
-        LOG_DEBUG("values2 = " << core::CContainerPrinter::print(values2));
+        LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
+        LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
         CPPUNIT_ASSERT_EQUAL(std::string("[5, 2, 3, 4, 1]"), core::CContainerPrinter::print(values1));
         CPPUNIT_ASSERT_EQUAL(std::string("[1, 5, 2, 3, 4]"), core::CContainerPrinter::print(values2));
 
         maths::COrderings::simultaneousSort(range2, range1, range3);
 
-        LOG_DEBUG("values1 = " << core::CContainerPrinter::print(values1));
-        LOG_DEBUG("values2 = " << core::CContainerPrinter::print(values2));
-        LOG_DEBUG("values3 = " << core::CContainerPrinter::print(values3));
+        LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
+        LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
+        LOG_DEBUG(<< "values3 = " << core::CContainerPrinter::print(values3));
         CPPUNIT_ASSERT_EQUAL(std::string("[5, 3, 4, 2, 1]"), core::CContainerPrinter::print(values1));
         CPPUNIT_ASSERT_EQUAL(std::string("[1, 2, 3, 5, 4]"), core::CContainerPrinter::print(values2));
         CPPUNIT_ASSERT_EQUAL(std::string("[4, 3, 3, 2, 5]"), core::CContainerPrinter::print(values3));
 
         maths::COrderings::simultaneousSort(range4, range1, range2, range3);
 
-        LOG_DEBUG("values1 = " << core::CContainerPrinter::print(values1));
-        LOG_DEBUG("values2 = " << core::CContainerPrinter::print(values2));
-        LOG_DEBUG("values3 = " << core::CContainerPrinter::print(values3));
-        LOG_DEBUG("values4 = " << core::CContainerPrinter::print(values4));
+        LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
+        LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
+        LOG_DEBUG(<< "values3 = " << core::CContainerPrinter::print(values3));
+        LOG_DEBUG(<< "values4 = " << core::CContainerPrinter::print(values4));
         CPPUNIT_ASSERT_EQUAL(std::string("[5, 3, 2, 4, 1]"), core::CContainerPrinter::print(values1));
         CPPUNIT_ASSERT_EQUAL(std::string("[1, 2, 5, 3, 4]"), core::CContainerPrinter::print(values2));
         CPPUNIT_ASSERT_EQUAL(std::string("[4, 3, 2, 3, 5]"), core::CContainerPrinter::print(values3));
@@ -646,7 +646,7 @@ void COrderingsTest::testSimultaneousSort() {
             }
 
             maths::COrderings::simultaneousSort(keys, values1, values2, values3, values4);
-            LOG_DEBUG("keys = " << core::CContainerPrinter::print(keys));
+            LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
 
             auto itr = expected.begin();
             for (std::size_t j = 0u; j < keys.size(); ++j, ++itr) {

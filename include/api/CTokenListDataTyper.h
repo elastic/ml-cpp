@@ -112,8 +112,8 @@ protected:
             this->considerToken(fields, nonHexPos, temp, tokenIds, tokenUniqueIds, totalWeight);
         }
 
-        LOG_TRACE(str << " tokenised to " << tokenIds.size() << " tokens with total weight " << totalWeight << ": "
-                      << SIdTranslater(*this, tokenIds, ' '));
+        LOG_TRACE(<< str << " tokenised to " << tokenIds.size() << " tokens with total weight " << totalWeight << ": "
+                  << SIdTranslater(*this, tokenIds, ' '));
     }
 
     //! Take a string token, convert it to a numeric ID and a weighting and

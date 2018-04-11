@@ -102,7 +102,7 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
                                   NMPWAIT_USE_DEFAULT_WAIT,
                                   0));
     if (handle == INVALID_HANDLE_VALUE) {
-        LOG_ERROR("Unable to create named pipe " << fileName << ": " << CWindowsError());
+        LOG_ERROR(<< "Unable to create named pipe " << fileName << ": " << CWindowsError());
         return INVALID_HANDLE_VALUE;
     }
 
@@ -139,7 +139,7 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
             // there was no need to connect it again - not a problem
             DWORD errCode(GetLastError());
             if (errCode != ERROR_PIPE_CONNECTED) {
-                LOG_ERROR("Unable to connect named pipe " << fileName << ": " << CWindowsError(errCode));
+                LOG_ERROR(<< "Unable to connect named pipe " << fileName << ": " << CWindowsError(errCode));
                 // Close the pipe (even though it was successfully opened) so
                 // that the net effect of this failed call is nothing
                 CloseHandle(handle);

@@ -46,16 +46,16 @@ std::string printBits(uint64_t x) {
 }
 
 void CIntegerToolsTest::testNextPow2() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CIntegerToolsTest::testNextPow2  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CIntegerToolsTest::testNextPow2  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), maths::CIntegerTools::nextPow2(0));
 
     test::CRandomNumbers rng;
 
     for (std::size_t test = 1u, shift = 1u; test < (std::numeric_limits<std::size_t>::max() >> 1) + 1; test <<= 1, ++shift) {
-        LOG_DEBUG("Testing shift = " << shift);
+        LOG_DEBUG(<< "Testing shift = " << shift);
 
         // Edge cases.
         CPPUNIT_ASSERT_EQUAL(shift, maths::CIntegerTools::nextPow2(test));
@@ -70,9 +70,9 @@ void CIntegerToolsTest::testNextPow2() {
 }
 
 void CIntegerToolsTest::testReverseBits() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CIntegerToolsTest::testReverseBits  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CIntegerToolsTest::testReverseBits  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -87,34 +87,34 @@ void CIntegerToolsTest::testReverseBits() {
         std::reverse(expected.begin(), expected.end());
         actual = printBits(maths::CIntegerTools::reverseBits(x));
         if (i % 500 == 0) {
-            LOG_DEBUG("expected = " << expected);
-            LOG_DEBUG("actual   = " << actual);
+            LOG_DEBUG(<< "expected = " << expected);
+            LOG_DEBUG(<< "actual   = " << actual);
         }
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
 }
 
 void CIntegerToolsTest::testGcd() {
-    LOG_DEBUG("+------------------------------+");
-    LOG_DEBUG("|  CIntegerToolsTest::testGcd  |");
-    LOG_DEBUG("+------------------------------+");
+    LOG_DEBUG(<< "+------------------------------+");
+    LOG_DEBUG(<< "|  CIntegerToolsTest::testGcd  |");
+    LOG_DEBUG(<< "+------------------------------+");
 
     // Construct a set of integers out of prime factors so we know
     // what the g.c.d. should be.
 
     std::size_t n1 = 3 * 17 * 29;
     std::size_t n2 = 5 * 17;
-    LOG_DEBUG("gcd = " << maths::CIntegerTools::gcd(n2, n1));
+    LOG_DEBUG(<< "gcd = " << maths::CIntegerTools::gcd(n2, n1));
     CPPUNIT_ASSERT_EQUAL(std::size_t(17), maths::CIntegerTools::gcd(n2, n1));
 
     n1 = 19 * 97;
     n2 = 5 * 7 * 97;
-    LOG_DEBUG("gcd = " << maths::CIntegerTools::gcd(n1, n2));
+    LOG_DEBUG(<< "gcd = " << maths::CIntegerTools::gcd(n1, n2));
     CPPUNIT_ASSERT_EQUAL(std::size_t(97), maths::CIntegerTools::gcd(n2, n1));
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG("--- gcd(a, b) ---");
+    LOG_DEBUG(<< "--- gcd(a, b) ---");
     std::size_t primes[] = {2, 3, 5, 7, 11, 13, 17, 19, 29, 97, 821, 5851, 7877};
     for (std::size_t i = 0u; i < 1000; ++i) {
         TSizeVec indices;
@@ -142,12 +142,12 @@ void CIntegerToolsTest::testGcd() {
         for (std::size_t j = split[0]; j < indices.size(); ++j) {
             big2 *= primes[indices[j]];
         }
-        LOG_DEBUG("big1 = " << big1 << ", big2 = " << big2 << " - expected gcd = " << bigGcd
-                            << ", gcd = " << maths::CIntegerTools::gcd(big1, big2));
+        LOG_DEBUG(<< "big1 = " << big1 << ", big2 = " << big2 << " - expected gcd = " << bigGcd
+                  << ", gcd = " << maths::CIntegerTools::gcd(big1, big2));
         CPPUNIT_ASSERT_EQUAL(bigGcd, maths::CIntegerTools::gcd(big1, big2));
     }
 
-    LOG_DEBUG("--- gcd(a, b, c) ---");
+    LOG_DEBUG(<< "--- gcd(a, b, c) ---");
     for (std::size_t i = 0u; i < 1000; ++i) {
         TSizeVec indices;
         rng.generateUniformSamples(0, 10, 9, indices);
@@ -175,30 +175,31 @@ void CIntegerToolsTest::testGcd() {
         for (std::size_t j = 6; j < indices.size(); ++j) {
             n[2] *= primes[indices[j]];
         }
-        LOG_DEBUG("n = " << core::CContainerPrinter::print(n) << " - expected gcd = " << gcd << ", gcd = " << maths::CIntegerTools::gcd(n));
+        LOG_DEBUG(<< "n = " << core::CContainerPrinter::print(n) << " - expected gcd = " << gcd
+                  << ", gcd = " << maths::CIntegerTools::gcd(n));
     }
 
-    LOG_DEBUG("--- gcd(a, b, c, d) ---");
+    LOG_DEBUG(<< "--- gcd(a, b, c, d) ---");
     TSizeVec n(4, 1);
     n[0] = 17 * 19 * 29;
     n[1] = 19 * 97;
     n[2] = 17 * 19 * 83;
     n[3] = 17 * 19 * 29 * 83;
-    LOG_DEBUG("n = " << core::CContainerPrinter::print(n) << " - expected gcd = 19"
-                     << ", gcd = " << maths::CIntegerTools::gcd(n));
+    LOG_DEBUG(<< "n = " << core::CContainerPrinter::print(n) << " - expected gcd = 19"
+              << ", gcd = " << maths::CIntegerTools::gcd(n));
     CPPUNIT_ASSERT_EQUAL(std::size_t(19), maths::CIntegerTools::gcd(n));
 }
 
 void CIntegerToolsTest::testBinomial() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CIntegerToolsTest::testBinomial  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CIntegerToolsTest::testBinomial  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     unsigned int n[] = {1u, 2u, 5u, 7u, 10u};
 
     for (std::size_t i = 0u; i < boost::size(n); ++i) {
         for (unsigned int j = 0u; j <= n[i]; ++j) {
-            LOG_DEBUG("j = " << j << ", n = " << n[i] << ", (n j) = " << maths::CIntegerTools::binomial(n[i], j));
+            LOG_DEBUG(<< "j = " << j << ", n = " << n[i] << ", (n j) = " << maths::CIntegerTools::binomial(n[i], j));
 
             double expected =
                 std::exp(boost::math::lgamma(static_cast<double>(n[i] + 1)) - boost::math::lgamma(static_cast<double>(n[i] - j + 1)) -

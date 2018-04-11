@@ -33,21 +33,21 @@ using TSizeVec = std::vector<std::size_t>;
 using namespace ml;
 
 void CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample() {
-    LOG_DEBUG("+-----------------------------------------------------------------------+");
-    LOG_DEBUG("|  CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample  |");
-    LOG_DEBUG("+-----------------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
 }
 
 void CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount() {
-    LOG_DEBUG("+-------------------------------------------------------------------+");
-    LOG_DEBUG("|  CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount  |");
-    LOG_DEBUG("+-------------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
 }
 
 void CCategoricalToolsTest::testExpectedDistinctCategories() {
-    LOG_DEBUG("+---------------------------------------------------------+");
-    LOG_DEBUG("|  CCategoricalToolsTest::testExpectedDistinctCategories  |");
-    LOG_DEBUG("+---------------------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CCategoricalToolsTest::testExpectedDistinctCategories  |");
+    LOG_DEBUG(<< "+---------------------------------------------------------+");
 
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
@@ -72,16 +72,15 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
                 samples.erase(std::unique(samples.begin(), samples.end()), samples.end());
                 expectedDistinctCategories.add(static_cast<double>(samples.size()));
             }
-            LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities));
-            LOG_DEBUG("expectedDistinctCategories = "
-                      << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
+            LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+            LOG_DEBUG(<< "expectedDistinctCategories = " << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
                       << std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) / static_cast<double>(nTrials)) << ")");
 
             double distinctCategories;
             maths::CCategoricalTools::expectedDistinctCategories(TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
                                                                  static_cast<double>(boost::size(probabilities)),
                                                                  distinctCategories);
-            LOG_DEBUG("distinctCategories = " << distinctCategories);
+            LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 maths::CBasicStatistics::mean(expectedDistinctCategories),
@@ -103,16 +102,15 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
                 samples.erase(std::unique(samples.begin(), samples.end()), samples.end());
                 expectedDistinctCategories.add(static_cast<double>(samples.size()));
             }
-            LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities));
-            LOG_DEBUG("expectedDistinctCategories = "
-                      << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
+            LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+            LOG_DEBUG(<< "expectedDistinctCategories = " << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
                       << std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) / static_cast<double>(nTrials)) << ")");
 
             double distinctCategories;
             maths::CCategoricalTools::expectedDistinctCategories(TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
                                                                  static_cast<double>(boost::size(probabilities)),
                                                                  distinctCategories);
-            LOG_DEBUG("distinctCategories = " << distinctCategories);
+            LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 maths::CBasicStatistics::mean(expectedDistinctCategories),
@@ -133,16 +131,15 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
                 samples.erase(std::unique(samples.begin(), samples.end()), samples.end());
                 expectedDistinctCategories.add(static_cast<double>(samples.size()));
             }
-            LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities));
-            LOG_DEBUG("expectedDistinctCategories = "
-                      << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
+            LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+            LOG_DEBUG(<< "expectedDistinctCategories = " << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
                       << std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) / static_cast<double>(nTrials)) << ")");
 
             double distinctCategories;
             maths::CCategoricalTools::expectedDistinctCategories(TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
                                                                  static_cast<double>(boost::size(probabilities)),
                                                                  distinctCategories);
-            LOG_DEBUG("distinctCategories = " << distinctCategories);
+            LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 maths::CBasicStatistics::mean(expectedDistinctCategories),
@@ -167,16 +164,15 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
                 samples.erase(std::unique(samples.begin(), samples.end()), samples.end());
                 expectedDistinctCategories.add(static_cast<double>(samples.size()));
             }
-            LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities));
-            LOG_DEBUG("expectedDistinctCategories = "
-                      << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
+            LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+            LOG_DEBUG(<< "expectedDistinctCategories = " << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
                       << std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) / static_cast<double>(nTrials)) << ")");
 
             double distinctCategories;
             maths::CCategoricalTools::expectedDistinctCategories(TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
                                                                  static_cast<double>(boost::size(probabilities)),
                                                                  distinctCategories);
-            LOG_DEBUG("distinctCategories = " << distinctCategories);
+            LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 maths::CBasicStatistics::mean(expectedDistinctCategories),
@@ -198,16 +194,15 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
                 samples.erase(std::unique(samples.begin(), samples.end()), samples.end());
                 expectedDistinctCategories.add(static_cast<double>(samples.size()));
             }
-            LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities));
-            LOG_DEBUG("expectedDistinctCategories = "
-                      << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
+            LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+            LOG_DEBUG(<< "expectedDistinctCategories = " << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
                       << std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) / static_cast<double>(nTrials)) << ")");
 
             double distinctCategories;
             maths::CCategoricalTools::expectedDistinctCategories(TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
                                                                  static_cast<double>(boost::size(probabilities)),
                                                                  distinctCategories);
-            LOG_DEBUG("distinctCategories = " << distinctCategories);
+            LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 maths::CBasicStatistics::mean(expectedDistinctCategories),
@@ -228,16 +223,15 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
                 samples.erase(std::unique(samples.begin(), samples.end()), samples.end());
                 expectedDistinctCategories.add(static_cast<double>(samples.size()));
             }
-            LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities));
-            LOG_DEBUG("expectedDistinctCategories = "
-                      << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
+            LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
+            LOG_DEBUG(<< "expectedDistinctCategories = " << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
                       << std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) / static_cast<double>(nTrials)) << ")");
 
             double distinctCategories;
             maths::CCategoricalTools::expectedDistinctCategories(TDoubleVec(boost::begin(probabilities), boost::end(probabilities)),
                                                                  static_cast<double>(boost::size(probabilities)),
                                                                  distinctCategories);
-            LOG_DEBUG("distinctCategories = " << distinctCategories);
+            LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 maths::CBasicStatistics::mean(expectedDistinctCategories),
@@ -266,15 +260,14 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
                     samples.erase(std::unique(samples.begin(), samples.end()), samples.end());
                     expectedDistinctCategories.add(static_cast<double>(samples.size()));
                 }
-                LOG_DEBUG("expectedDistinctCategories = "
-                          << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
-                          << std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) / static_cast<double>(nTrials))
-                          << ")");
+                LOG_DEBUG(
+                    << "expectedDistinctCategories = " << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
+                    << std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) / static_cast<double>(nTrials)) << ")");
 
                 double distinctCategories;
                 maths::CCategoricalTools::expectedDistinctCategories(
                     probabilities[i], static_cast<double>(categories.size()), distinctCategories);
-                LOG_DEBUG("distinctCategories = " << distinctCategories);
+                LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(
                     maths::CBasicStatistics::mean(expectedDistinctCategories),
@@ -300,15 +293,14 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
                     samples.erase(std::unique(samples.begin(), samples.end()), samples.end());
                     expectedDistinctCategories.add(static_cast<double>(samples.size()));
                 }
-                LOG_DEBUG("expectedDistinctCategories = "
-                          << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
-                          << std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) / static_cast<double>(nTrials))
-                          << ")");
+                LOG_DEBUG(
+                    << "expectedDistinctCategories = " << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
+                    << std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) / static_cast<double>(nTrials)) << ")");
 
                 double distinctCategories;
                 maths::CCategoricalTools::expectedDistinctCategories(
                     probabilities[i], static_cast<double>(categories.size()), distinctCategories);
-                LOG_DEBUG("distinctCategories = " << distinctCategories);
+                LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(
                     maths::CBasicStatistics::mean(expectedDistinctCategories),
@@ -338,15 +330,14 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
                     samples.erase(std::unique(samples.begin(), samples.end()), samples.end());
                     expectedDistinctCategories.add(static_cast<double>(samples.size()));
                 }
-                LOG_DEBUG("expectedDistinctCategories = "
-                          << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
-                          << std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) / static_cast<double>(nTrials))
-                          << ")");
+                LOG_DEBUG(
+                    << "expectedDistinctCategories = " << maths::CBasicStatistics::mean(expectedDistinctCategories) << " (deviation = "
+                    << std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) / static_cast<double>(nTrials)) << ")");
 
                 double distinctCategories;
                 maths::CCategoricalTools::expectedDistinctCategories(
                     probabilities[i], static_cast<double>(categories.size()), distinctCategories);
-                LOG_DEBUG("distinctCategories = " << distinctCategories);
+                LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(
                     maths::CBasicStatistics::mean(expectedDistinctCategories),
@@ -358,9 +349,9 @@ void CCategoricalToolsTest::testExpectedDistinctCategories() {
 }
 
 void CCategoricalToolsTest::testLogBinomialProbability() {
-    LOG_DEBUG("+-----------------------------------------------------+");
-    LOG_DEBUG("|  CCategoricalToolsTest::testLogBinomialProbability  |");
-    LOG_DEBUG("+-----------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------+");
+    LOG_DEBUG(<< "|  CCategoricalToolsTest::testLogBinomialProbability  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------+");
 
     // Test the calculation matches the boost::binomial_distribution.
 
@@ -369,7 +360,7 @@ void CCategoricalToolsTest::testLogBinomialProbability() {
 
     for (std::size_t i = 0u; i < boost::size(n); ++i) {
         for (std::size_t j = 0u; j < boost::size(p); ++j) {
-            LOG_DEBUG("n = " << n[i] << ", p = " << p[j]);
+            LOG_DEBUG(<< "n = " << n[i] << ", p = " << p[j]);
 
             boost::math::binomial_distribution<> binomial(n[i], p[j]);
             double median = boost::math::median(binomial);
@@ -381,7 +372,7 @@ void CCategoricalToolsTest::testLogBinomialProbability() {
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                      maths::CCategoricalTools::logBinomialProbability(
                                          static_cast<std::size_t>(n[i]), p[j], static_cast<std::size_t>(m), logpdf));
-                LOG_DEBUG("f(" << m << "), expected = " << pdf << ", actual = " << std::exp(logpdf));
+                LOG_DEBUG(<< "f(" << m << "), expected = " << pdf << ", actual = " << std::exp(logpdf));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, std::exp(logpdf), 1e-6 * pdf);
             }
             for (std::size_t f = 1u; f < 10; ++f) {
@@ -392,7 +383,7 @@ void CCategoricalToolsTest::testLogBinomialProbability() {
                 CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                      maths::CCategoricalTools::logBinomialProbability(
                                          static_cast<std::size_t>(n[i]), p[j], static_cast<std::size_t>(m), logpdf));
-                LOG_DEBUG("f(" << m << "), expected = " << pdf << ", actual = " << std::exp(logpdf));
+                LOG_DEBUG(<< "f(" << m << "), expected = " << pdf << ", actual = " << std::exp(logpdf));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, std::exp(logpdf), 1e-6 * pdf);
             }
         }
@@ -400,23 +391,23 @@ void CCategoricalToolsTest::testLogBinomialProbability() {
 }
 
 void CCategoricalToolsTest::testLogMultinomialProbability() {
-    LOG_DEBUG("+--------------------------------------------------------+");
-    LOG_DEBUG("|  CCategoricalToolsTest::testLogMultinomialProbability  |");
-    LOG_DEBUG("+--------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CCategoricalToolsTest::testLogMultinomialProbability  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------+");
 
     // Test:
     //   1) The two category case matches the binomial.
     //   2) The marginal matches the binomial.
 
-    LOG_DEBUG("");
-    LOG_DEBUG("*** Test two categories ***");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "*** Test two categories ***");
     {
         double n[] = {10, 100, 10000};
         double p[] = {0.1, 0.5, 0.9};
 
         for (std::size_t i = 0u; i < boost::size(n); ++i) {
             for (std::size_t j = 0u; j < boost::size(p); ++j) {
-                LOG_DEBUG("n = " << n[i] << ", p = " << p[j]);
+                LOG_DEBUG(<< "n = " << n[i] << ", p = " << p[j]);
 
                 boost::math::binomial_distribution<> binomial(n[i], p[j]);
                 double median = boost::math::median(binomial);
@@ -432,7 +423,7 @@ void CCategoricalToolsTest::testLogMultinomialProbability() {
                     ni.push_back(static_cast<std::size_t>(m));
                     ni.push_back(static_cast<std::size_t>(n[i] - m));
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::CCategoricalTools::logMultinomialProbability(pi, ni, logpdf));
-                    LOG_DEBUG("f(" << m << "), expected = " << pdf << ", actual = " << std::exp(logpdf));
+                    LOG_DEBUG(<< "f(" << m << "), expected = " << pdf << ", actual = " << std::exp(logpdf));
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, std::exp(logpdf), 1e-6 * pdf);
                 }
                 for (std::size_t f = 1u; f < 10; ++f) {
@@ -447,15 +438,15 @@ void CCategoricalToolsTest::testLogMultinomialProbability() {
                     ni.push_back(static_cast<std::size_t>(m));
                     ni.push_back(static_cast<std::size_t>(n[i] - m));
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::CCategoricalTools::logMultinomialProbability(pi, ni, logpdf));
-                    LOG_DEBUG("f(" << m << "), expected = " << pdf << ", actual = " << std::exp(logpdf));
+                    LOG_DEBUG(<< "f(" << m << "), expected = " << pdf << ", actual = " << std::exp(logpdf));
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, std::exp(logpdf), 1e-6 * pdf);
                 }
             }
         }
     }
 
-    LOG_DEBUG("");
-    LOG_DEBUG("*** test marginal ***");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "*** test marginal ***");
     {
         TDoubleVec pi;
         pi.push_back(0.1);
@@ -477,7 +468,7 @@ void CCategoricalToolsTest::testLogMultinomialProbability() {
 
             boost::math::binomial_distribution<> binomial(static_cast<double>(n), pi[0]);
             double pdf = boost::math::pdf(binomial, static_cast<double>(m));
-            LOG_DEBUG("f = " << pdf << ", marginal = " << marginal);
+            LOG_DEBUG(<< "f = " << pdf << ", marginal = " << marginal);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, marginal, 1e-6 * pdf);
         }
     }

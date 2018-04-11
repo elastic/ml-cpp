@@ -75,20 +75,20 @@ bool CXmlParser::parseFile(const std::string& fileName) {
 
     m_Doc = xmlParseFile(fileName.c_str());
     if (m_Doc == nullptr) {
-        LOG_ERROR("Unable to parse XML file " << fileName);
+        LOG_ERROR(<< "Unable to parse XML file " << fileName);
         return false;
     }
 
     // Resolve xincludes
     if (xmlXIncludeProcess(m_Doc) < 0) {
-        LOG_ERROR("Unable to parse XML file " << fileName);
+        LOG_ERROR(<< "Unable to parse XML file " << fileName);
         return false;
     }
 
     m_XPathContext = xmlXPathNewContext(m_Doc);
     if (m_XPathContext == nullptr) {
         this->destroy();
-        LOG_ERROR("Unable to parse XML file " << fileName);
+        LOG_ERROR(<< "Unable to parse XML file " << fileName);
         return false;
     }
 
@@ -114,10 +114,10 @@ bool CXmlParser::parseBuffer(const char* begin, size_t length) {
 
     m_Doc = xmlParseMemory(begin, static_cast<int>(length));
     if (m_Doc == nullptr) {
-        LOG_ERROR("Unable to parse XML of length " << length);
+        LOG_ERROR(<< "Unable to parse XML of length " << length);
         // Only log the full XML string at the debug level, so that it doesn't
         // get sent to the socket logger
-        LOG_DEBUG("XML that cannot be parsed is " << std::string(begin, length));
+        LOG_DEBUG(<< "XML that cannot be parsed is " << std::string(begin, length));
         return false;
     }
 
@@ -126,10 +126,10 @@ bool CXmlParser::parseBuffer(const char* begin, size_t length) {
     m_XPathContext = xmlXPathNewContext(m_Doc);
     if (m_XPathContext == nullptr) {
         this->destroy();
-        LOG_ERROR("Unable to parse XML of length " << length);
+        LOG_ERROR(<< "Unable to parse XML of length " << length);
         // Only log the full XML string at the debug level, so that it doesn't
         // get sent to the socket logger
-        LOG_DEBUG("XML that cannot be parsed is " << std::string(begin, length));
+        LOG_DEBUG(<< "XML that cannot be parsed is " << std::string(begin, length));
         return false;
     }
 
@@ -146,19 +146,19 @@ bool CXmlParser::parseBufferInSitu(char* begin, size_t length) {
 
 std::string CXmlParser::rootElementName() const {
     if (m_Doc == nullptr) {
-        LOG_ERROR("Cannot get root element for unparsed document");
+        LOG_ERROR(<< "Cannot get root element for unparsed document");
         return std::string();
     }
 
     xmlNode* root(xmlDocGetRootElement(m_Doc));
     if (root == nullptr) {
-        LOG_ERROR("Error getting root element");
+        LOG_ERROR(<< "Error getting root element");
         return std::string();
     }
 
     const char* name(reinterpret_cast<const char*>(root->name));
     if (name == nullptr) {
-        LOG_ERROR("Error getting root element name");
+        LOG_ERROR(<< "Error getting root element name");
         return std::string();
     }
 
@@ -168,7 +168,7 @@ std::string CXmlParser::rootElementName() const {
 bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, std::string& ret) const {
     CXmlNode value;
     if (this->evalXPathExpression(xpathExpr, value) == false) {
-        LOG_ERROR("Unable to eval " << xpathExpr);
+        LOG_ERROR(<< "Unable to eval " << xpathExpr);
         return false;
     }
 
@@ -185,7 +185,7 @@ bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, CXmlNode& ret
     }
 
     if (vec.size() != 1) {
-        LOG_ERROR("Return for " << xpathExpr << " must be single value, not " << vec.size());
+        LOG_ERROR(<< "Return for " << xpathExpr << " must be single value, not " << vec.size());
         return false;
     }
 
@@ -232,7 +232,7 @@ bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, TStrSet& ret)
 
     for (TXmlNodeVecItr itr = vec.begin(); itr != vec.end(); ++itr) {
         if (ret.insert(itr->value()).second == false) {
-            LOG_ERROR("Duplicate value " << itr->value());
+            LOG_ERROR(<< "Duplicate value " << itr->value());
             return false;
         }
     }
@@ -246,13 +246,13 @@ bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, TStrStrMap& r
     TXmlNodeVec values;
 
     if (this->evalXPathExpression(xpathExpr, values) == false) {
-        LOG_ERROR("Unable to evaluate xpath expression " << xpathExpr);
+        LOG_ERROR(<< "Unable to evaluate xpath expression " << xpathExpr);
         return false;
     }
 
     for (TXmlNodeVecCItr itr = values.begin(); itr != values.end(); ++itr) {
         if (ret.insert(TStrStrMap::value_type(itr->name(), itr->value())).second == false) {
-            LOG_ERROR("Inappropriate method call.  Tags for " << xpathExpr << " must be unique");
+            LOG_ERROR(<< "Inappropriate method call.  Tags for " << xpathExpr << " must be unique");
             return false;
         }
     }
@@ -264,19 +264,19 @@ bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, CXmlParser::T
     ret.clear();
 
     if (m_Doc == nullptr || m_XPathContext == nullptr) {
-        LOG_ERROR("Attempt to evaluate Xpath expression before ::parseFile is called");
+        LOG_ERROR(<< "Attempt to evaluate Xpath expression before ::parseFile is called");
         return false;
     }
 
     xmlXPathObject* xpathObj(xmlXPathEvalExpression(reinterpret_cast<const xmlChar*>(xpathExpr.c_str()), m_XPathContext));
     if (xpathObj == nullptr) {
-        LOG_ERROR("Unable to evaluate xpath expression " << xpathExpr);
+        LOG_ERROR(<< "Unable to evaluate xpath expression " << xpathExpr);
         return false;
     }
 
     if (xpathObj->type != XPATH_NODESET) {
         xmlXPathFreeObject(xpathObj);
-        LOG_ERROR("Unable to evaluate xpath expression " << xpathExpr << " " << xpathObj->type);
+        LOG_ERROR(<< "Unable to evaluate xpath expression " << xpathExpr << " " << xpathObj->type);
         return false;
     }
 
@@ -316,7 +316,7 @@ bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, CXmlParser::T
                 prop = prop->next;
             }
         } else {
-            LOG_ERROR("Node type " << type << " not supported");
+            LOG_ERROR(<< "Node type " << type << " not supported");
         }
     }
 
@@ -457,7 +457,7 @@ void CXmlParser::convert(size_t indentSpaces, const std::string& root, const TSt
         std::string attribute;
         size_t attrPos(tag.find(ATTRIBUTE_SEPARATOR));
         if (attrPos == 0) {
-            LOG_ERROR("Attribute separator found at position zero in tag " << tag);
+            LOG_ERROR(<< "Attribute separator found at position zero in tag " << tag);
             continue;
         }
 
@@ -472,9 +472,8 @@ void CXmlParser::convert(size_t indentSpaces, const std::string& root, const TSt
         if (!attribute.empty()) {
             size_t eqPos(attribute.find(ATTRIBUTE_EQUALS));
             if (eqPos == std::string::npos || eqPos == 0) {
-                LOG_ERROR("Attribute format does not contain '" << ATTRIBUTE_EQUALS << "' surrounded by name and value : " << attribute
-                                                                << core_t::LINE_ENDING << "Map key : " << itr->first << core_t::LINE_ENDING
-                                                                << "Map value : " << itr->second);
+                LOG_ERROR(<< "Attribute format does not contain '" << ATTRIBUTE_EQUALS << "' surrounded by name and value : " << attribute
+                          << core_t::LINE_ENDING << "Map key : " << itr->first << core_t::LINE_ENDING << "Map value : " << itr->second);
             } else {
                 xmlSetProp(childRep,
                            reinterpret_cast<const xmlChar*>(attribute.substr(0, eqPos).c_str()),
@@ -502,7 +501,7 @@ void CXmlParser::convert(size_t indentSpaces, const std::string& root, const TSt
 
 bool CXmlParser::convert(const std::string& root, const TStrStrMap& values) {
     if (m_Doc != nullptr) {
-        LOG_ERROR("convert requires an empty document");
+        LOG_ERROR(<< "convert requires an empty document");
         return false;
     }
 
@@ -523,7 +522,7 @@ bool CXmlParser::convert(const std::string& root, const TStrStrMap& values) {
     m_XPathContext = xmlXPathNewContext(m_Doc);
     if (m_XPathContext == nullptr) {
         this->destroy();
-        LOG_ERROR("Unable to convert to XML");
+        LOG_ERROR(<< "Unable to convert to XML");
         return false;
     }
 
@@ -547,18 +546,18 @@ bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool& pool, CXmlNodeWithChi
     rootNodePtr.reset();
 
     if (m_Doc == nullptr) {
-        LOG_ERROR("Attempt to convert to node hierarchy before ::parseFile is called");
+        LOG_ERROR(<< "Attempt to convert to node hierarchy before ::parseFile is called");
         return false;
     }
 
     const xmlNode* root(xmlDocGetRootElement(const_cast<xmlDoc*>(m_Doc)));
     if (root == nullptr) {
-        LOG_ERROR("Error getting root element");
+        LOG_ERROR(<< "Error getting root element");
         return false;
     }
 
     if (root->type != XML_ELEMENT_NODE) {
-        LOG_ERROR("Node type " << root->type << " not supported");
+        LOG_ERROR(<< "Node type " << root->type << " not supported");
         return false;
     }
 
@@ -581,18 +580,18 @@ bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
     rootNodePtr.reset();
 
     if (m_Doc == nullptr) {
-        LOG_ERROR("Attempt to convert to node hierarchy before ::parseFile is called");
+        LOG_ERROR(<< "Attempt to convert to node hierarchy before ::parseFile is called");
         return false;
     }
 
     const xmlNode* root(xmlDocGetRootElement(const_cast<xmlDoc*>(m_Doc)));
     if (root == nullptr) {
-        LOG_ERROR("Error getting root element");
+        LOG_ERROR(<< "Error getting root element");
         return false;
     }
 
     if (root->type != XML_ELEMENT_NODE) {
-        LOG_ERROR("Node type " << root->type << " not supported");
+        LOG_ERROR(<< "Node type " << root->type << " not supported");
         return false;
     }
 
@@ -710,7 +709,7 @@ bool CXmlParser::currentNodeValue(std::string& value) {
 
 bool CXmlParser::setRootNode(const std::string& root) {
     if (m_Doc != nullptr) {
-        LOG_ERROR("setRootNode requires an empty document");
+        LOG_ERROR(<< "setRootNode requires an empty document");
         return false;
     }
 
@@ -725,7 +724,7 @@ bool CXmlParser::setRootNode(const std::string& root) {
     m_XPathContext = xmlXPathNewContext(m_Doc);
     if (m_XPathContext == nullptr) {
         this->destroy();
-        LOG_ERROR("Unable to set root node");
+        LOG_ERROR(<< "Unable to set root node");
         return false;
     }
 
@@ -737,19 +736,20 @@ bool CXmlParser::setRootNode(const std::string& root) {
 
 bool CXmlParser::addNewChildNode(const std::string& name, const std::string& value) {
     if (m_Doc == nullptr) {
-        LOG_ERROR("Cannot add to uninitialised document");
+        LOG_ERROR(<< "Cannot add to uninitialised document");
         return false;
     }
 
     xmlNode* root(xmlDocGetRootElement(m_Doc));
     if (root == nullptr) {
-        LOG_ERROR("Error getting root element");
+        LOG_ERROR(<< "Error getting root element");
         return false;
     }
 
     // Note the namespace is NULL here
-    if (xmlNewTextChild(root, nullptr, reinterpret_cast<const xmlChar*>(name.c_str()), reinterpret_cast<const xmlChar*>(value.c_str())) == nullptr) {
-        LOG_ERROR("Unable to add new child to " << root);
+    if (xmlNewTextChild(root, nullptr, reinterpret_cast<const xmlChar*>(name.c_str()), reinterpret_cast<const xmlChar*>(value.c_str())) ==
+        nullptr) {
+        LOG_ERROR(<< "Unable to add new child to " << root);
         return false;
     }
 
@@ -761,13 +761,13 @@ bool CXmlParser::addNewChildNode(const std::string& name, const std::string& val
 
 bool CXmlParser::addNewChildNode(const std::string& name, const std::string& value, const TStrStrMap& attrs) {
     if (m_Doc == nullptr) {
-        LOG_ERROR("Cannot add to uninitialised document");
+        LOG_ERROR(<< "Cannot add to uninitialised document");
         return false;
     }
 
     xmlNode* root(xmlDocGetRootElement(m_Doc));
     if (root == nullptr) {
-        LOG_ERROR("Error getting root element");
+        LOG_ERROR(<< "Error getting root element");
         return false;
     }
 
@@ -775,7 +775,7 @@ bool CXmlParser::addNewChildNode(const std::string& name, const std::string& val
     xmlNode* child(
         xmlNewTextChild(root, nullptr, reinterpret_cast<const xmlChar*>(name.c_str()), reinterpret_cast<const xmlChar*>(value.c_str())));
     if (child == nullptr) {
-        LOG_ERROR("Unable to add new child to " << root);
+        LOG_ERROR(<< "Unable to add new child to " << root);
         return false;
     }
 
@@ -792,13 +792,13 @@ bool CXmlParser::addNewChildNode(const std::string& name, const std::string& val
 
 bool CXmlParser::changeChildNodeValue(const std::string& name, const std::string& newValue) {
     if (m_Doc == nullptr) {
-        LOG_ERROR("Cannot add to uninitialised document");
+        LOG_ERROR(<< "Cannot add to uninitialised document");
         return false;
     }
 
     xmlNode* root(xmlDocGetRootElement(m_Doc));
     if (root == nullptr) {
-        LOG_ERROR("Error getting root element");
+        LOG_ERROR(<< "Error getting root element");
         return false;
     }
 
@@ -841,9 +841,9 @@ bool CXmlParser::stringLatin1ToUtf8(std::string& str) {
     int ret =
         ::isolat1ToUTF8(reinterpret_cast<unsigned char*>(&buffer[0]), &outLen, reinterpret_cast<const unsigned char*>(str.c_str()), &inLen);
     if (ret == -1 || inLen < static_cast<int>(str.length())) {
-        LOG_ERROR("Failure converting Latin1 string to UTF-8"
-                  << core_t::LINE_ENDING << "Return code: " << ret << core_t::LINE_ENDING << "Remaining length: " << inLen
-                  << core_t::LINE_ENDING << "Original string: " << str << core_t::LINE_ENDING << "Result so far: " << &buffer[0]);
+        LOG_ERROR(<< "Failure converting Latin1 string to UTF-8" << core_t::LINE_ENDING << "Return code: " << ret << core_t::LINE_ENDING
+                  << "Remaining length: " << inLen << core_t::LINE_ENDING << "Original string: " << str << core_t::LINE_ENDING
+                  << "Result so far: " << &buffer[0]);
 
         return false;
     }
@@ -960,7 +960,7 @@ void CXmlParser::errorHandler(void* /* ctxt */, const char* msg, ...) {
     ::vsnprintf(errbuf, ERRBUF_SIZE, msg, args);
     va_end(args);
 
-    LOG_ERROR("XML error: " << errbuf);
+    LOG_ERROR(<< "XML error: " << errbuf);
 }
 }
 }

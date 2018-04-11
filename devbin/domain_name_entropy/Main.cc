@@ -56,27 +56,27 @@ int main(int argc, char** argv) {
 
     // This must be done from the program, and NOT a shared library, as each
     // program statically links its own version library.
-    LOG_INFO(ml::ver::CBuildInfo::fullInfo());
+    LOG_INFO(<< ml::ver::CBuildInfo::fullInfo());
 
     // Start
     CTopLevelDomainDb tldDb("./effective_tld_names.txt");
 
-    LOG_DEBUG("tldDb.init()");
+    LOG_DEBUG(<< "tldDb.init()");
     if (tldDb.init() == false) {
-        LOG_ERROR("Can not initialise TLD DB");
+        LOG_ERROR(<< "Can not initialise TLD DB");
         return EXIT_FAILURE;
     }
-    LOG_DEBUG("tldDb.init() done");
+    LOG_DEBUG(<< "tldDb.init() done");
 
     // Read in a CSV file
     CAddRegisteredDomainAndEntropyToCsv csvReader(tldDb, csvFileName, domainNameFieldName, timeFieldName, "entropy");
 
-    LOG_DEBUG("csvReader.init()");
+    LOG_DEBUG(<< "csvReader.init()");
     if (csvReader.init() == false) {
-        LOG_ERROR("Can not initialise reader");
+        LOG_ERROR(<< "Can not initialise reader");
         return EXIT_FAILURE;
     }
-    LOG_DEBUG("csvReader.init() done");
+    LOG_DEBUG(<< "csvReader.init() done");
 
     return EXIT_SUCCESS;
 }

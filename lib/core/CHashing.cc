@@ -126,7 +126,7 @@ CHashing::CUniversalHash::CFromString::CFromString(const char delimiter) : m_Del
 bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token, CUInt32UnrestrictedHash& hash) const {
     std::size_t delimPos = token.find(m_Delimiter);
     if (delimPos == std::string::npos) {
-        LOG_ERROR("Invalid hash state " << token);
+        LOG_ERROR(<< "Invalid hash state " << token);
         return false;
     }
 
@@ -134,12 +134,12 @@ bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token,
     uint32_t b;
     m_Token.assign(token, 0, delimPos);
     if (CStringUtils::stringToType(m_Token, a) == false) {
-        LOG_ERROR("Invalid multiplier in " << m_Token);
+        LOG_ERROR(<< "Invalid multiplier in " << m_Token);
         return false;
     }
     m_Token.assign(token, delimPos + 1, token.length() - delimPos);
     if (CStringUtils::stringToType(m_Token, b) == false) {
-        LOG_ERROR("Invalid offset in " << m_Token);
+        LOG_ERROR(<< "Invalid offset in " << m_Token);
         return false;
     }
     hash = CUInt32UnrestrictedHash(a, b);
@@ -149,12 +149,12 @@ bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token,
 bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token, CUInt32Hash& hash) const {
     std::size_t firstDelimPos = token.find(m_Delimiter);
     if (firstDelimPos == std::string::npos) {
-        LOG_ERROR("Invalid hash state " << token);
+        LOG_ERROR(<< "Invalid hash state " << token);
         return false;
     }
     std::size_t secondDelimPos = token.find(m_Delimiter, firstDelimPos + 1);
     if (secondDelimPos == std::string::npos) {
-        LOG_ERROR("Invalid hash state " << token);
+        LOG_ERROR(<< "Invalid hash state " << token);
         return false;
     }
 
@@ -163,17 +163,17 @@ bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token,
     uint32_t b;
     m_Token.assign(token, 0, firstDelimPos);
     if (CStringUtils::stringToType(m_Token, m) == false) {
-        LOG_ERROR("Invalid range in " << m_Token);
+        LOG_ERROR(<< "Invalid range in " << m_Token);
         return false;
     }
     m_Token.assign(token, firstDelimPos + 1, secondDelimPos - firstDelimPos - 1);
     if (CStringUtils::stringToType(m_Token, a) == false) {
-        LOG_ERROR("Invalid offset in " << m_Token);
+        LOG_ERROR(<< "Invalid offset in " << m_Token);
         return false;
     }
     m_Token.assign(token, secondDelimPos + 1, token.length() - secondDelimPos);
     if (CStringUtils::stringToType(m_Token, b) == false) {
-        LOG_ERROR("Invalid multiplier in " << m_Token);
+        LOG_ERROR(<< "Invalid multiplier in " << m_Token);
         return false;
     }
     hash = CUInt32Hash(m, a, b);
@@ -193,7 +193,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, uint32_t m, TUInt32
         std::generate_n(std::back_inserter(a), k, boost::bind(uniform1, boost::ref(ms_Generator)));
         for (std::size_t i = 0u; i < a.size(); ++i) {
             if (a[i] == 0) {
-                LOG_ERROR("Expected a in [1," << BIG_PRIME << ")");
+                LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
                 a[i] = 1u;
             }
         }
@@ -220,7 +220,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, TUInt32Unrestricted
         std::generate_n(std::back_inserter(a), k, boost::bind(uniform1, boost::ref(ms_Generator)));
         for (std::size_t i = 0u; i < a.size(); ++i) {
             if (a[i] == 0) {
-                LOG_ERROR("Expected a in [1," << BIG_PRIME << ")");
+                LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
                 a[i] = 1u;
             }
         }
@@ -253,7 +253,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, std::size_t n, uint
             std::generate_n(std::back_inserter(a.back()), n, boost::bind(uniform1, boost::ref(ms_Generator)));
             for (std::size_t j = 0u; j < a.back().size(); ++j) {
                 if ((a.back())[j] == 0) {
-                    LOG_ERROR("Expected a in [1," << BIG_PRIME << ")");
+                    LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
                     (a.back())[j] = 1u;
                 }
             }

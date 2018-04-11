@@ -289,8 +289,8 @@ protected:
                 continue;
             }
 
-            LOG_TRACE("Working on cluster at " << m_Clusters[i].centre());
-            LOG_TRACE("Cluster cost = " << m_Clusters[i].cost());
+            LOG_TRACE(<< "Working on cluster at " << m_Clusters[i].centre());
+            LOG_TRACE(<< "Cluster cost = " << m_Clusters[i].cost());
 
             points.reserve(m_Clusters[i].size());
             points.assign(m_Clusters[i].points().begin(), m_Clusters[i].points().end());
@@ -299,18 +299,18 @@ protected:
 
             for (std::size_t j = 0u; j < clusterSeeds; ++j) {
                 this->generateSeedCentres(points, 2, seedClusterCentres);
-                LOG_TRACE("seed centres = " << core::CContainerPrinter::print(seedClusterCentres));
+                LOG_TRACE(<< "seed centres = " << core::CContainerPrinter::print(seedClusterCentres));
 
                 kmeans.setCentres(seedClusterCentres);
                 kmeans.run(kmeansIterations);
 
                 const TPointVec& centres = kmeans.centres();
-                LOG_TRACE("centres = " << core::CContainerPrinter::print(centres));
+                LOG_TRACE(<< "centres = " << core::CContainerPrinter::print(centres));
                 clusterPoints.clear();
                 kmeans.clusters(clusterPoints);
 
                 double cost = COST(clusterPoints).calculate();
-                LOG_TRACE("cost = " << cost);
+                LOG_TRACE(<< "cost = " << cost);
 
                 if (cost < minCost) {
                     minCost = cost;
@@ -333,7 +333,7 @@ protected:
                 }
                 split = true;
             } else {
-                LOG_TRACE("Setting inactive = " << m_Clusters[i].checksum());
+                LOG_TRACE(<< "Setting inactive = " << m_Clusters[i].checksum());
                 m_Inactive.insert(m_Clusters[i].checksum());
             }
         }

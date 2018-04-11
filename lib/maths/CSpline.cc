@@ -28,17 +28,17 @@ namespace {
 //! consistent.
 bool checkTridiagonal(const TDoubleVec& a, const TDoubleVec& b, const TDoubleVec& c, const TDoubleVec& x) {
     if (a.size() + 1 != b.size()) {
-        LOG_ERROR("Lower diagonal and main diagonal inconsistent:"
+        LOG_ERROR(<< "Lower diagonal and main diagonal inconsistent:"
                   << " a = " << core::CContainerPrinter::print(a) << " b = " << core::CContainerPrinter::print(b));
         return false;
     }
     if (c.size() + 1 != b.size()) {
-        LOG_ERROR("Upper diagonal and main diagonal inconsistent:"
+        LOG_ERROR(<< "Upper diagonal and main diagonal inconsistent:"
                   << " b = " << core::CContainerPrinter::print(b) << " c = " << core::CContainerPrinter::print(c));
         return false;
     }
     if (b.size() != x.size()) {
-        LOG_ERROR("Dimension mismatch:"
+        LOG_ERROR(<< "Dimension mismatch:"
                   << " x = " << core::CContainerPrinter::print(x) << ", b = " << core::CContainerPrinter::print(b))
         return false;
     }
@@ -51,10 +51,10 @@ bool solveTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c, T
         return false;
     }
 
-    LOG_TRACE("a = " << core::CContainerPrinter::print(a));
-    LOG_TRACE("b = " << core::CContainerPrinter::print(b));
-    LOG_TRACE("c = " << core::CContainerPrinter::print(c));
-    LOG_TRACE("x = " << core::CContainerPrinter::print(x));
+    LOG_TRACE(<< "a = " << core::CContainerPrinter::print(a));
+    LOG_TRACE(<< "b = " << core::CContainerPrinter::print(b));
+    LOG_TRACE(<< "c = " << core::CContainerPrinter::print(c));
+    LOG_TRACE(<< "x = " << core::CContainerPrinter::print(x));
 
     // Solve using the (Llewellyn) Thomas algorithm.
     //
@@ -68,7 +68,7 @@ bool solveTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c, T
 
     // Eliminate the lower diagonal.
     if (b[0] == 0.0) {
-        LOG_ERROR("Badly conditioned: " << core::CContainerPrinter::print(b));
+        LOG_ERROR(<< "Badly conditioned: " << core::CContainerPrinter::print(b));
         return false;
     }
     c[0] = c[0] / b[0];
@@ -76,7 +76,7 @@ bool solveTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c, T
     for (std::size_t i = 1; i + 1 < n; ++i) {
         double m = (b[i] - a[i - 1] * c[i - 1]);
         if (m == 0.0) {
-            LOG_ERROR("Badly conditioned: " << core::CContainerPrinter::print(b));
+            LOG_ERROR(<< "Badly conditioned: " << core::CContainerPrinter::print(b));
             return false;
         }
         c[i] = c[i] / m;
@@ -84,7 +84,7 @@ bool solveTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c, T
     }
     double m = (b[n - 1] - a[n - 2] * c[n - 2]);
     if (m == 0.0) {
-        LOG_ERROR("Badly conditioned: " << core::CContainerPrinter::print(b));
+        LOG_ERROR(<< "Badly conditioned: " << core::CContainerPrinter::print(b));
         return false;
     }
     x[n - 1] = (x[n - 1] - a[n - 2] * x[n - 2]) / m;
@@ -94,7 +94,7 @@ bool solveTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c, T
         x[i] -= c[i] * x[i + 1];
     }
 
-    LOG_TRACE("x = " << core::CContainerPrinter::print(x));
+    LOG_TRACE(<< "x = " << core::CContainerPrinter::print(x));
 
     return true;
 }
@@ -121,18 +121,18 @@ bool solvePeturbedTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleV
     // points in the spline get too close which is handled
     // in the calling code.
 
-    LOG_TRACE("a = " << core::CContainerPrinter::print(a));
-    LOG_TRACE("b = " << core::CContainerPrinter::print(b));
-    LOG_TRACE("c = " << core::CContainerPrinter::print(c));
-    LOG_TRACE("u = " << core::CContainerPrinter::print(u));
-    LOG_TRACE("v = " << core::CContainerPrinter::print(v));
-    LOG_TRACE("x = " << core::CContainerPrinter::print(x));
+    LOG_TRACE(<< "a = " << core::CContainerPrinter::print(a));
+    LOG_TRACE(<< "b = " << core::CContainerPrinter::print(b));
+    LOG_TRACE(<< "c = " << core::CContainerPrinter::print(c));
+    LOG_TRACE(<< "u = " << core::CContainerPrinter::print(u));
+    LOG_TRACE(<< "v = " << core::CContainerPrinter::print(v));
+    LOG_TRACE(<< "x = " << core::CContainerPrinter::print(x));
 
     std::size_t n = x.size();
 
     // Eliminate the lower diagonal.
     if (b[0] == 0.0) {
-        LOG_ERROR("Badly conditioned: " << core::CContainerPrinter::print(b));
+        LOG_ERROR(<< "Badly conditioned: " << core::CContainerPrinter::print(b));
         return false;
     }
     c[0] = c[0] / b[0];
@@ -141,7 +141,7 @@ bool solvePeturbedTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleV
     for (std::size_t i = 1; i + 1 < n; ++i) {
         double m = (b[i] - a[i - 1] * c[i - 1]);
         if (m == 0.0) {
-            LOG_ERROR("Badly conditioned: " << core::CContainerPrinter::print(b));
+            LOG_ERROR(<< "Badly conditioned: " << core::CContainerPrinter::print(b));
             return false;
         }
         c[i] = c[i] / m;
@@ -150,7 +150,7 @@ bool solvePeturbedTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleV
     }
     double m = (b[n - 1] - a[n - 2] * c[n - 2]);
     if (m == 0.0) {
-        LOG_ERROR("Badly conditioned: " << core::CContainerPrinter::print(b));
+        LOG_ERROR(<< "Badly conditioned: " << core::CContainerPrinter::print(b));
         return false;
     }
     x[n - 1] = (x[n - 1] - a[n - 2] * x[n - 2]) / m;
@@ -174,7 +174,7 @@ bool solvePeturbedTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleV
         x[i] -= delta * u[i];
     }
 
-    LOG_TRACE("x = " << core::CContainerPrinter::print(x));
+    LOG_TRACE(<< "x = " << core::CContainerPrinter::print(x));
 
     return true;
 }

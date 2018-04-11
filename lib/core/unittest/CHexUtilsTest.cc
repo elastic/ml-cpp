@@ -68,7 +68,7 @@ void CHexUtilsTest::testHexOutput() {
         CPPUNIT_ASSERT(strm2.str() == strm3.str());
         CPPUNIT_ASSERT(strm5.str() == strm6.str());
 
-        LOG_DEBUG("Empty test output is:\n" << strm1.str());
+        LOG_DEBUG(<< "Empty test output is:\n" << strm1.str());
     }
 
     // Test random data
@@ -110,6 +110,6 @@ void CHexUtilsTest::testHexOutput() {
         CPPUNIT_ASSERT(strm2.str() != strm3.str());
         CPPUNIT_ASSERT(strm5.str() != strm6.str());
 
-        LOG_DEBUG("Random test output is:\n" << strm1.str());
+        LOG_DEBUG(<< "Random test output is:\n" << strm1.str());
     }
 }

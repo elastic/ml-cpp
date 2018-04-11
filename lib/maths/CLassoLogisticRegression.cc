@@ -124,7 +124,7 @@ void CLG(std::size_t maxIterations,
     using iterator = typename MATRIX::iterator;
 
     std::size_t d = x.columns();
-    LOG_DEBUG("d = " << d << ", n = " << y.size());
+    LOG_DEBUG(<< "d = " << d << ", n = " << y.size());
 
     // Initialize the regression parameters.
     beta.resize(d, 0.0);
@@ -153,8 +153,8 @@ void CLG(std::size_t maxIterations,
 
     for (std::size_t k = 0u; k < maxIterations; ++k) {
         rlast = r;
-        LOG_TRACE("numerator   = " << core::CContainerPrinter::print(num));
-        LOG_TRACE("denominator = " << core::CContainerPrinter::print(den));
+        LOG_TRACE(<< "numerator   = " << core::CContainerPrinter::print(num));
+        LOG_TRACE(<< "denominator = " << core::CContainerPrinter::print(den));
 
         for (std::size_t j = 0u; j < d; ++j) {
             double bj = beta[j];
@@ -186,10 +186,10 @@ void CLG(std::size_t maxIterations,
                 }
             }
         }
-        LOG_TRACE("r = " << core::CContainerPrinter::print(r));
-        LOG_TRACE("beta = " << core::CContainerPrinter::print(beta));
-        LOG_TRACE("delta = " << core::CContainerPrinter::print(delta));
-        LOG_TRACE("-log(likelihood) = " << logLikelihood(x, y, lambda, beta));
+        LOG_TRACE(<< "r = " << core::CContainerPrinter::print(r));
+        LOG_TRACE(<< "beta = " << core::CContainerPrinter::print(beta));
+        LOG_TRACE(<< "delta = " << core::CContainerPrinter::print(delta));
+        LOG_TRACE(<< "-log(likelihood) = " << logLikelihood(x, y, lambda, beta));
 
         ++numberIterations;
 
@@ -200,7 +200,7 @@ void CLG(std::size_t maxIterations,
             dsum += std::fabs(r[i] - rlast[i]);
             sum += std::fabs(r[i]);
         }
-        LOG_TRACE("sum |dr| = " << dsum << ", sum |r| = " << sum);
+        LOG_TRACE(<< "sum |dr| = " << dsum << ", sum |r| = " << sum);
         if (dsum < eps * (1.0 + sum)) {
             break;
         }
@@ -248,15 +248,15 @@ CCyclicCoordinateDescent::CCyclicCoordinateDescent(std::size_t maxIterations, do
 template<typename MATRIX>
 bool CCyclicCoordinateDescent::checkInputs(const MATRIX& x, const TDoubleVec& y, const TDoubleVec& lambda) {
     if (x.rows() == 0) {
-        LOG_ERROR("No training data");
+        LOG_ERROR(<< "No training data");
         return false;
     }
     if (x.rows() != y.size()) {
-        LOG_ERROR("Inconsistent training data |x| = " << x.rows() << ", |y| = " << y.size());
+        LOG_ERROR(<< "Inconsistent training data |x| = " << x.rows() << ", |y| = " << y.size());
         return false;
     }
     if (lambda.size() != x.columns()) {
-        LOG_ERROR("Inconsistent prior |lambda| = " << lambda.size() << ", D = " << x.columns());
+        LOG_ERROR(<< "Inconsistent prior |lambda| = " << lambda.size() << ", D = " << x.columns());
         return false;
     }
     return true;
@@ -302,7 +302,7 @@ bool CCyclicCoordinateDescent::runIncremental(const CDenseMatrix& x,
         return false;
     }
     if (beta.size() != lambda.size()) {
-        LOG_ERROR("Inconsistent seed parameter vector |beta| = " << beta.size() << ", D = " << lambda.size());
+        LOG_ERROR(<< "Inconsistent seed parameter vector |beta| = " << beta.size() << ", D = " << lambda.size());
         return false;
     }
 
@@ -330,7 +330,7 @@ bool CCyclicCoordinateDescent::runIncremental(const CSparseMatrix& x,
         return false;
     }
     if (beta.size() != lambda.size()) {
-        LOG_ERROR("Inconsistent seed parameter vector |beta| = " << beta.size() << ", D = " << lambda.size());
+        LOG_ERROR(<< "Inconsistent seed parameter vector |beta| = " << beta.size() << ", D = " << lambda.size());
         return false;
     }
 
@@ -372,7 +372,7 @@ bool CLogisticRegressionModel::operator()(const TDoubleVec& x, double& probabili
 
     std::size_t n = m_Beta.size();
     if (x.size() <= m_Beta[n - 1].first) {
-        LOG_ERROR("Invalid feature vector |x| = " << x.size() << ", D = " << m_Beta[n - 1].first + 1)
+        LOG_ERROR(<< "Invalid feature vector |x| = " << x.size() << ", D = " << m_Beta[n - 1].first + 1)
     }
     double r = -m_Beta0;
     for (std::size_t i = 0u; i < m_Beta.size(); ++i) {
@@ -429,7 +429,7 @@ void setupTrainingData(const TDoubleVecVec& x, const TDoubleVec& y, const TSizeU
     std::size_t n = x.size();
     std::size_t m = n - mask.size();
     std::size_t d = x[0].size();
-    LOG_TRACE("n = " << n << ", d = " << d);
+    LOG_TRACE(<< "n = " << n << ", d = " << d);
 
     TDoubleVecVec xTranspose(d + 1, TDoubleVec(m, 1.0));
     yMasked.reserve(m);
@@ -461,7 +461,7 @@ void setupTrainingData(const TSizeDoublePrVecVec& x,
 
     std::size_t n = x.size();
     std::size_t m = n - mask.size();
-    LOG_TRACE("n = " << n);
+    LOG_TRACE(<< "n = " << n);
 
     TSizeSizePrDoublePrVec xTranspose;
     yMasked.reserve(m);
@@ -505,16 +505,16 @@ bool learn(const MATRIX& x, const TDoubleVec& y, const TDoubleVec& lambda, TDoub
     std::size_t numberIterations;
     if (beta.empty()) {
         if (!clg.run(x, y, lambda, beta, numberIterations)) {
-            LOG_ERROR("Failed to solve for parameters");
+            LOG_ERROR(<< "Failed to solve for parameters");
             return false;
         }
     } else {
         if (!clg.runIncremental(x, y, lambda, beta, numberIterations)) {
-            LOG_ERROR("Failed to solve for parameters");
+            LOG_ERROR(<< "Failed to solve for parameters");
             return false;
         }
     }
-    LOG_TRACE("Solved for parameters using " << numberIterations << " iterations");
+    LOG_TRACE(<< "Solved for parameters using " << numberIterations << " iterations");
 
     return true;
 }
@@ -577,7 +577,7 @@ public:
     //! Add a 2-split of the training data.
     void addSplit(MATRIX& xTrain, TDoubleVec& yTrain, MATRIX& xTest, TDoubleVec& yTest) {
         if (xTrain.rows() != m_D || xTest.rows() != m_D) {
-            LOG_ERROR("Bad training data: |train| = " << xTrain.rows() << ", |test| = " << xTest.rows() << ", D = " << m_D);
+            LOG_ERROR(<< "Bad training data: |train| = " << xTrain.rows() << ", |test| = " << xTest.rows() << ", D = " << m_D);
             return;
         }
         ++m_Splits;
@@ -644,7 +644,7 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
     using TSizeVec = std::vector<std::size_t>;
 
     std::size_t n = m_X.size();
-    LOG_DEBUG("d = " << m_D << ", n = " << n);
+    LOG_DEBUG(<< "d = " << m_D << ", n = " << n);
 
     double lambda = std::sqrt(l22Norm(m_X) / 2.0);
     m_Lambda = lambda;
@@ -671,7 +671,7 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
         (m_Y[i] > 0.0 ? positive : negative).push_back(i);
     }
     if (positive.size() <= 1 || negative.size() <= 1) {
-        LOG_WARN("Can't cross-validate: insufficient " << (positive.size() <= 1 ? "" : "un") << "interesting examples provided");
+        LOG_WARN(<< "Can't cross-validate: insufficient " << (positive.size() <= 1 ? "" : "un") << "interesting examples provided");
         return;
     }
     for (std::size_t i = 0u, np = positive.size(), nn = negative.size(); i < 2; ++i) {
@@ -702,18 +702,18 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
     for (std::size_t i = 0u; i < boost::size(scales); ++i) {
         logLikelihoods[i] = objective(scales[i] * min);
     }
-    LOG_TRACE("log(L) = " << core::CContainerPrinter::print(logLikelihoods));
+    LOG_TRACE(<< "log(L) = " << core::CContainerPrinter::print(logLikelihoods));
 
     double* max = std::max_element(boost::begin(logLikelihoods), boost::end(logLikelihoods));
     ptrdiff_t a = std::max(max - logLikelihoods - 1, ptrdiff_t(0));
     ptrdiff_t b = std::min(max - logLikelihoods + 1, ptrdiff_t(7));
-    LOG_TRACE("a = " << a << ", b = " << b);
+    LOG_TRACE(<< "a = " << a << ", b = " << b);
 
     std::size_t maxIterations = boost::size(scales) / 2;
     double logLikelihood;
     CSolvers::maximize(
         scales[a] * lambda, scales[b] * lambda, logLikelihoods[a], logLikelihoods[b], objective, 0.0, maxIterations, lambda, logLikelihood);
-    LOG_TRACE("lambda = " << lambda << " log(L(lambda)) = " << logLikelihood);
+    LOG_TRACE(<< "lambda = " << lambda << " log(L(lambda)) = " << logLikelihood);
 
     m_Lambda = logLikelihood > *max ? lambda : scales[max - logLikelihoods] * min;
 }
@@ -755,7 +755,7 @@ bool CLassoLogisticRegression<STORAGE>::doLearn(CLogisticRegressionModel& result
 template<typename STORAGE>
 bool CLassoLogisticRegression<STORAGE>::sanityChecks() const {
     if (m_Y.empty()) {
-        LOG_WARN("No training data");
+        LOG_WARN(<< "No training data");
         return false;
     }
 
@@ -765,7 +765,7 @@ bool CLassoLogisticRegression<STORAGE>::sanityChecks() const {
         (m_Y[i] < 0.0 ? negative : positive) = true;
     }
     if (!negative || !positive) {
-        LOG_WARN("Only " << (negative ? "un" : "") << "interesting examples provided: problem is ill posed");
+        LOG_WARN(<< "Only " << (negative ? "un" : "") << "interesting examples provided: problem is ill posed");
         return false;
     }
     return true;
@@ -778,7 +778,7 @@ void CLassoLogisticRegressionDense::addTrainingData(const TDoubleVec& x, bool in
         this->d() = x.size();
     }
     if (x.size() != this->d()) {
-        LOG_ERROR("Ignoring inconsistent training data |x| = " << x.size() << ", D = " << this->x()[0].size());
+        LOG_ERROR(<< "Ignoring inconsistent training data |x| = " << x.size() << ", D = " << this->x()[0].size());
         return;
     }
     this->x().push_back(x);

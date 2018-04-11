@@ -28,7 +28,7 @@ using TDoubleRng = core::CVectorRange<TDoubleVec>;
 using TDoubleCRng = core::CVectorRange<const TDoubleVec>;
 
 void CVectorRangeTest::testCreation() {
-    LOG_DEBUG("*** CVectorRangeTest::testCreation ***");
+    LOG_DEBUG(<< "*** CVectorRangeTest::testCreation ***");
 
     {
         TDoubleVec values1{1.0, 0.1, 0.7, 9.8};
@@ -59,7 +59,7 @@ void CVectorRangeTest::testCreation() {
 }
 
 void CVectorRangeTest::testAccessors() {
-    LOG_DEBUG("*** CVectorRangeTest::testAccessors ***");
+    LOG_DEBUG(<< "*** CVectorRangeTest::testAccessors ***");
 
     TDoubleVec values{1.0, 0.1, 0.7, 9.8, 8.0};
 
@@ -90,7 +90,7 @@ void CVectorRangeTest::testAccessors() {
 }
 
 void CVectorRangeTest::testIterators() {
-    LOG_DEBUG("*** CVectorRangeTest::testIterators ***");
+    LOG_DEBUG(<< "*** CVectorRangeTest::testIterators ***");
 
     TDoubleVec values{1.0, 0.1, 0.7, 9.8, 8.0};
 
@@ -114,7 +114,7 @@ void CVectorRangeTest::testIterators() {
 }
 
 void CVectorRangeTest::testSizing() {
-    LOG_DEBUG("*** CVectorRangeTest::testSizing ***");
+    LOG_DEBUG(<< "*** CVectorRangeTest::testSizing ***");
 
     TDoubleVec values{1.0, 0.1, 0.7, 9.8, 8.0};
 
@@ -128,18 +128,18 @@ void CVectorRangeTest::testSizing() {
 
     CPPUNIT_ASSERT_EQUAL(values.max_size(), range11.max_size());
 
-    LOG_DEBUG("range capacity = " << range11.capacity());
+    LOG_DEBUG(<< "range capacity = " << range11.capacity());
     CPPUNIT_ASSERT_EQUAL(values.capacity() - values.size(), range11.capacity());
 
     range11.reserve(10);
-    LOG_DEBUG("new range capacity = " << range11.capacity());
+    LOG_DEBUG(<< "new range capacity = " << range11.capacity());
     CPPUNIT_ASSERT(range11.capacity() >= 10);
-    LOG_DEBUG("new values capacity = " << values.capacity());
+    LOG_DEBUG(<< "new values capacity = " << values.capacity());
     CPPUNIT_ASSERT(values.capacity() >= 15);
 }
 
 void CVectorRangeTest::testModifiers() {
-    LOG_DEBUG("*** CVectorRangeTest::testModifiers ***");
+    LOG_DEBUG(<< "*** CVectorRangeTest::testModifiers ***");
 
     TDoubleVec values1{1.0, 0.1, 0.7, 9.8, 8.0};
     TDoubleVec values2{2.0, 3.5, 8.1, 1.8};
@@ -205,23 +205,23 @@ void CVectorRangeTest::testModifiers() {
 }
 
 void CVectorRangeTest::testComparisons() {
-    LOG_DEBUG("*** CVectorRangeTest::testComparisons ***");
+    LOG_DEBUG(<< "*** CVectorRangeTest::testComparisons ***");
 
     TDoubleVec values1{1.0, 0.1, 0.7, 9.8, 8.0};
     TDoubleVec values2{1.2, 0.1, 0.7, 9.8, 18.0};
 
     TDoubleRng range103{values1, 0, 3};
     TDoubleRng range202{values2, 0, 2};
-    LOG_DEBUG("range103 = " << core::CContainerPrinter::print(range103));
-    LOG_DEBUG("range202 = " << core::CContainerPrinter::print(range202));
+    LOG_DEBUG(<< "range103 = " << core::CContainerPrinter::print(range103));
+    LOG_DEBUG(<< "range202 = " << core::CContainerPrinter::print(range202));
 
     CPPUNIT_ASSERT(range103 != range202);
     CPPUNIT_ASSERT(!(range103 == range202));
 
     TDoubleRng range114{values1, 1, 4};
     TDoubleRng range214{values2, 1, 4};
-    LOG_DEBUG("range114 = " << core::CContainerPrinter::print(range114));
-    LOG_DEBUG("range214 = " << core::CContainerPrinter::print(range214));
+    LOG_DEBUG(<< "range114 = " << core::CContainerPrinter::print(range114));
+    LOG_DEBUG(<< "range214 = " << core::CContainerPrinter::print(range214));
 
     CPPUNIT_ASSERT(range114 == range214);
     CPPUNIT_ASSERT(!(range114 < range214));

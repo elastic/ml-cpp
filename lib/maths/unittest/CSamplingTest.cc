@@ -123,9 +123,9 @@ double frobenius(const TDoubleVecVec& m) {
 }
 
 void CSamplingTest::testMultinomialSample() {
-    LOG_DEBUG("+----------------------------------------+");
-    LOG_DEBUG("|  CSamplingTest::testMultinomialSample  |");
-    LOG_DEBUG("+----------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------+");
+    LOG_DEBUG(<< "|  CSamplingTest::testMultinomialSample  |");
+    LOG_DEBUG(<< "+----------------------------------------+");
 
     using TSizeVecDoubleMap = std::map<TSizeVec, double>;
     using TSizeVecDoubleMapCItr = TSizeVecDoubleMap::const_iterator;
@@ -149,25 +149,25 @@ void CSamplingTest::testMultinomialSample() {
     double error = 0.0;
     double pTotal = 0.0;
     for (TSizeVecDoubleMapCItr pItr = empiricalProbabilities.begin(); pItr != empiricalProbabilities.end(); ++pItr) {
-        LOG_DEBUG("counts = " << core::CContainerPrinter::print(pItr->first));
+        LOG_DEBUG(<< "counts = " << core::CContainerPrinter::print(pItr->first));
         CPPUNIT_ASSERT_EQUAL(size_t(20), std::accumulate(pItr->first.begin(), pItr->first.end(), size_t(0)));
 
         double p = multinomialProbability(probabilities, pItr->first);
         double pe = pItr->second;
-        LOG_DEBUG("p  = " << p << ", pe = " << pe);
+        LOG_DEBUG(<< "p  = " << p << ", pe = " << pe);
         CPPUNIT_ASSERT(std::fabs(pe - p) < std::max(0.27 * p, 3e-5));
         error += std::fabs(pe - p);
         pTotal += p;
     }
 
-    LOG_DEBUG("pTotal = " << pTotal << ", error = " << error);
+    LOG_DEBUG(<< "pTotal = " << pTotal << ", error = " << error);
     CPPUNIT_ASSERT(error < 0.02 * pTotal);
 }
 
 void CSamplingTest::testMultivariateNormalSample() {
-    LOG_DEBUG("+-----------------------------------------------+");
-    LOG_DEBUG("|  CSamplingTest::testMultivariateNormalSample  |");
-    LOG_DEBUG("+-----------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------+");
+    LOG_DEBUG(<< "|  CSamplingTest::testMultivariateNormalSample  |");
+    LOG_DEBUG(<< "+-----------------------------------------------+");
 
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
@@ -196,12 +196,12 @@ void CSamplingTest::testMultivariateNormalSample() {
         for (std::size_t i = 0u; i < 3; ++i) {
             mean_.push_back(maths::CBasicStatistics::mean(mean[i]));
         }
-        LOG_DEBUG("actual mean = " << core::CContainerPrinter::print(m_));
-        LOG_DEBUG("sample mean = " << core::CContainerPrinter::print(mean_));
+        LOG_DEBUG(<< "actual mean = " << core::CContainerPrinter::print(m_));
+        LOG_DEBUG(<< "sample mean = " << core::CContainerPrinter::print(mean_));
         {
             TDoubleVec error = test_detail::minus(mean_, m_);
-            LOG_DEBUG("||error|| = " << test_detail::euclidean(error));
-            LOG_DEBUG("||m|| = " << test_detail::euclidean(m_));
+            LOG_DEBUG(<< "||error|| = " << test_detail::euclidean(error));
+            LOG_DEBUG(<< "||m|| = " << test_detail::euclidean(m_));
             CPPUNIT_ASSERT(test_detail::euclidean(error) < 0.02 * test_detail::euclidean(m_));
         }
 
@@ -211,15 +211,15 @@ void CSamplingTest::testMultivariateNormalSample() {
             test_detail::add(test_detail::outer(test_detail::minus(samples[i], mean_), test_detail::minus(samples[i], mean_)), covariance);
         }
         test_detail::divide(covariance, static_cast<double>(samples.size() - 1));
-        LOG_DEBUG("actual covariance = " << core::CContainerPrinter::print(covariance));
-        LOG_DEBUG("sample covariance = " << core::CContainerPrinter::print(covariance));
+        LOG_DEBUG(<< "actual covariance = " << core::CContainerPrinter::print(covariance));
+        LOG_DEBUG(<< "sample covariance = " << core::CContainerPrinter::print(covariance));
         {
             // The cast of the minus() function is necessary to avoid overload
             // ambiguity with std::minus (found via ADL if <functional> is
             // indirectly included)
             TDoubleVecVec error = test_detail::minus(covariance, C_);
-            LOG_DEBUG("||error|| = " << test_detail::frobenius(error));
-            LOG_DEBUG("||C|| = " << test_detail::frobenius(C_));
+            LOG_DEBUG(<< "||error|| = " << test_detail::frobenius(error));
+            LOG_DEBUG(<< "||C|| = " << test_detail::frobenius(C_));
             CPPUNIT_ASSERT(test_detail::frobenius(error) < 0.1 * test_detail::frobenius(C_));
         }
     }

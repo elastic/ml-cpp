@@ -106,7 +106,7 @@ private:
             }
 
             double n = norm(x[current]);
-            LOG_TRACE("i = " << i << ", current = " << current << ", x = " << print(x[current]) << ", norm = " << n);
+            LOG_TRACE(<< "i = " << i << ", current = " << current << ", x = " << print(x[current]) << ", norm = " << n);
 
             if (n != 0.0) {
                 divide(x[current], n);
@@ -129,8 +129,8 @@ private:
                 }
 
                 double n = norm(x[current]);
-                LOG_TRACE("i = " << i << ", current = " << current << ", x = " << print(x[current]) << ", norm = " << n
-                                 << ", eps = " << eps);
+                LOG_TRACE(<< "i = " << i << ", current = " << current << ", x = " << print(x[current]) << ", norm = " << n
+                          << ", eps = " << eps);
 
                 if (std::fabs(n) > eps) {
                     divide(x[current], n);
@@ -142,7 +142,7 @@ private:
                 erase(x, x.begin() + current, x.end());
             }
         } catch (const std::runtime_error& e) {
-            LOG_ERROR("Failed to construct basis: " << e.what());
+            LOG_ERROR(<< "Failed to construct basis: " << e.what());
             return false;
         }
         return true;

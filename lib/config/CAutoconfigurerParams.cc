@@ -207,7 +207,7 @@ private:
             return false;
         }
         if (!(*m_Constraint)(value_)) {
-            LOG_ERROR("'" << value_ << "' doesn't satisfy '" << m_Constraint->print() << "'");
+            LOG_ERROR(<< "'" << value_ << "' doesn't satisfy '" << m_Constraint->print() << "'");
             return false;
         }
         m_Value = value_;
@@ -244,7 +244,7 @@ private:
             }
         }
         if (!(*m_Constraint)(value_)) {
-            LOG_ERROR("'" << core::CContainerPrinter::print(value_) << "' doesn't satisfy '" << m_Constraint->print() << "'");
+            LOG_ERROR(<< "'" << core::CContainerPrinter::print(value_) << "' doesn't satisfy '" << m_Constraint->print() << "'");
             return false;
         }
         m_Value.swap(value_);
@@ -272,7 +272,7 @@ public:
             value_.push_back(remainder);
         }
         if (!(*m_Constraint)(value_)) {
-            LOG_ERROR("'" << core::CContainerPrinter::print(value_) << "' doesn't satisfy '" << m_Constraint->print() << "'");
+            LOG_ERROR(<< "'" << core::CContainerPrinter::print(value_) << "' doesn't satisfy '" << m_Constraint->print() << "'");
             return false;
         }
         m_Value.reset(TStrVec());
@@ -299,7 +299,7 @@ private:
             tokens.push_back(remainder);
         }
         if (tokens.size() % 2 != 0) {
-            LOG_ERROR("Unmatched field and type in '" << value << "'");
+            LOG_ERROR(<< "Unmatched field and type in '" << value << "'");
             return false;
         }
 
@@ -308,8 +308,8 @@ private:
         for (std::size_t i = 0u; i < tokens.size(); i += 2) {
             config_t::EUserDataType type;
             if (!this->fromString(core::CStringUtils::toLower(tokens[i + 1]), type)) {
-                LOG_ERROR("Couldn't interpret '" << tokens[i + 1] << "' as a data type:"
-                                                 << " ignoring field data type for '" << tokens[i] << "'");
+                LOG_ERROR(<< "Couldn't interpret '" << tokens[i + 1] << "' as a data type:"
+                          << " ignoring field data type for '" << tokens[i] << "'");
                 continue;
             }
             value_.push_back(std::make_pair(tokens[i], type));
@@ -359,14 +359,14 @@ private:
         for (std::size_t i = 0u; i < tokens.size(); ++i) {
             config_t::EFunctionCategory function;
             if (!this->fromString(core::CStringUtils::toLower(tokens[i]), function)) {
-                LOG_ERROR("Couldn't interpret '" << tokens[i] << "' as a function");
+                LOG_ERROR(<< "Couldn't interpret '" << tokens[i] << "' as a function");
                 return false;
             }
             value_.push_back(function);
         }
         std::sort(value_.begin(), value_.end());
         if (!(*m_Constraint)(value_)) {
-            LOG_ERROR("'" << core::CContainerPrinter::print(value_) << "' doesn't satisfy '" << m_Constraint->print() << "'");
+            LOG_ERROR(<< "'" << core::CContainerPrinter::print(value_) << "' doesn't satisfy '" << m_Constraint->print() << "'");
             return false;
         }
         m_Value.swap(value_);
@@ -399,7 +399,7 @@ void skipUtf8Bom(std::ifstream& strm) {
     std::ios_base::iostate origState(strm.rdstate());
     // The 3 bytes 0xEF, 0xBB, 0xBF form a UTF-8 byte order marker (BOM)
     if (strm.get() == 0xEF && strm.get() == 0xBB && strm.get() == 0xBF) {
-        LOG_DEBUG("Skipping UTF-8 BOM");
+        LOG_DEBUG(<< "Skipping UTF-8 BOM");
         return;
     }
     // Set the stream state back to how it was originally so subsequent
@@ -419,10 +419,10 @@ static bool processSetting(const boost::property_tree::ptree& propTree, const st
         // Use our own string-to-type conversion, because what's built
         // into the boost::property_tree is too lax.
         if (!parameter.fromString(value)) {
-            LOG_ERROR("Invalid value for setting '" << iniPath << "' : " << value);
+            LOG_ERROR(<< "Invalid value for setting '" << iniPath << "' : " << value);
             return false;
         }
-    } catch (boost::property_tree::ptree_error&) { LOG_INFO("Keeping default value for unspecified setting '" << iniPath << "'"); }
+    } catch (boost::property_tree::ptree_error&) { LOG_INFO(<< "Keeping default value for unspecified setting '" << iniPath << "'"); }
 
     return true;
 }
@@ -547,13 +547,13 @@ bool CAutoconfigurerParams::init(const std::string& file) {
     try {
         std::ifstream strm(file.c_str());
         if (!strm.is_open()) {
-            LOG_ERROR("Error opening file " << file);
+            LOG_ERROR(<< "Error opening file " << file);
             return false;
         }
         skipUtf8Bom(strm);
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {
-        LOG_ERROR("Error reading file " << file << " : " << e.what());
+        LOG_ERROR(<< "Error reading file " << file << " : " << e.what());
         return false;
     }
 
@@ -721,7 +721,7 @@ bool CAutoconfigurerParams::init(const std::string& file) {
         }
     }
     if (!result) {
-        LOG_ERROR("Error processing config file " << file);
+        LOG_ERROR(<< "Error processing config file " << file);
     }
     this->refreshPenaltyIndices();
     return result;

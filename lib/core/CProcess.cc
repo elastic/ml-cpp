@@ -49,7 +49,7 @@ CProcess::TPid CProcess::parentId() const {
 
 bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char* argv[]) {
     if (mlMain == nullptr) {
-        LOG_ABORT("NULL mlMain() function passed");
+        LOG_ABORT(<< "NULL mlMain() function passed");
     }
 
     m_MlMainFunc = mlMain;
@@ -67,7 +67,7 @@ bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char* argv[]) {
     // log somewhere more sensible that STDERR.  (This prevents us spoiling the
     // output from --version and --help.)
     if (CLogger::instance().hasBeenReconfigured()) {
-        LOG_INFO(STOPPED_MSG);
+        LOG_INFO(<< STOPPED_MSG);
     }
 
     return success;
@@ -82,7 +82,7 @@ void CProcess::initialisationComplete(const TShutdownFunc& shutdownFunc) {
 
     if (!m_Initialised) {
         if (CLogger::instance().hasBeenReconfigured()) {
-            LOG_INFO(STARTED_MSG);
+            LOG_INFO(<< STARTED_MSG);
         }
         m_Initialised = true;
     }
@@ -95,7 +95,7 @@ void CProcess::initialisationComplete() {
 
     if (!m_Initialised) {
         if (CLogger::instance().hasBeenReconfigured()) {
-            LOG_INFO(STARTED_MSG);
+            LOG_INFO(<< STARTED_MSG);
         }
         m_Initialised = true;
     }
@@ -111,7 +111,7 @@ bool CProcess::isRunning() const {
 
 bool CProcess::shutdown() {
     if (CLogger::instance().hasBeenReconfigured()) {
-        LOG_INFO(STOPPING_MSG);
+        LOG_INFO(<< STOPPING_MSG);
     }
 
     CScopedFastLock lock(m_ShutdownFuncMutex);

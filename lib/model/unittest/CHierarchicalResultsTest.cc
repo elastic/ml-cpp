@@ -73,7 +73,7 @@ public:
     CBreadthFirstCheck() : m_Layer(0), m_Layers(1, TNodeCPtrSet()) {}
 
     virtual void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
-        LOG_DEBUG("Visiting " << node.print());
+        LOG_DEBUG(<< "Visiting " << node.print());
 
         if (node.s_Children.empty()) {
             // Leaf
@@ -91,7 +91,7 @@ public:
                 break;
             }
         }
-        LOG_DEBUG("layer = " << layer);
+        LOG_DEBUG(<< "layer = " << layer);
 
         m_Layer = layer - 1;
         if (layer > m_Layers.size() - 1) {
@@ -106,15 +106,15 @@ public:
 
         using TNodeCPtrSetCItr = TNodeCPtrSet::const_iterator;
 
-        LOG_DEBUG("# layers = " << m_Layers.size());
+        LOG_DEBUG(<< "# layers = " << m_Layers.size());
         CPPUNIT_ASSERT_EQUAL(expectedLayers, m_Layers.size());
 
         for (std::size_t i = 0u; i < m_Layers.size(); ++i) {
-            LOG_DEBUG("Checking layer " << core::CContainerPrinter::print(m_Layers[i]));
+            LOG_DEBUG(<< "Checking layer " << core::CContainerPrinter::print(m_Layers[i]));
             for (TNodeCPtrSetCItr itr = m_Layers[i].begin(); itr != m_Layers[i].end(); ++itr) {
                 if ((*itr)->s_Parent) {
                     std::size_t p = this->layer((*itr)->s_Parent);
-                    LOG_DEBUG("layer = " << i << ", parent layer = " << p);
+                    LOG_DEBUG(<< "layer = " << i << ", parent layer = " << p);
                     CPPUNIT_ASSERT(p > i);
                 }
             }
@@ -130,7 +130,7 @@ private:
             }
         }
 
-        LOG_ERROR("Couldn't find node " << node->print());
+        LOG_ERROR(<< "Couldn't find node " << node->print());
         CPPUNIT_ASSERT(false);
 
         return 0;
@@ -149,7 +149,7 @@ public:
 
 public:
     virtual void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
-        LOG_DEBUG("Visiting " << node.print());
+        LOG_DEBUG(<< "Visiting " << node.print());
         for (std::size_t i = node.s_Children.size(); i > 0; --i) {
             CPPUNIT_ASSERT(!m_Children.empty());
             CPPUNIT_ASSERT_EQUAL(m_Children.back(), node.s_Children[i - 1]);
@@ -230,8 +230,8 @@ private:
 class CCheckScores : public model::CHierarchicalResultsVisitor {
 public:
     virtual void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
-        LOG_DEBUG(node.s_Spec.print() << " score = " << node.s_RawAnomalyScore
-                                      << ", expected score = " << maths::CTools::deviation(node.probability()));
+        LOG_DEBUG(<< node.s_Spec.print() << " score = " << node.s_RawAnomalyScore
+                  << ", expected score = " << maths::CTools::deviation(node.probability()));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CTools::deviation(node.probability()), node.s_RawAnomalyScore, 1e-10);
     }
 };
@@ -321,7 +321,7 @@ public:
 
         for (std::size_t i = 0u; i < this->leafSet().size(); ++i) {
             const SNodeProbabilities& probabilities = this->leafSet()[i].second;
-            LOG_DEBUG("leaf = " << probabilities.s_Name);
+            LOG_DEBUG(<< "leaf = " << probabilities.s_Name);
 
             std::vector<int> detectors;
             for (TIntDoubleVecMapCItr j = probabilities.s_Probabilities.begin(); j != probabilities.s_Probabilities.end(); ++j) {
@@ -332,7 +332,7 @@ public:
                 for (std::size_t k = 0u; k < j; ++k) {
                     double significance = maths::CStatisticalTests::twoSampleKS(probabilities.s_Probabilities.find(detectors[j])->second,
                                                                                 probabilities.s_Probabilities.find(detectors[k])->second);
-                    LOG_DEBUG(detectors[j] << " vs " << detectors[k] << ": significance = " << significance);
+                    LOG_DEBUG(<< detectors[j] << " vs " << detectors[k] << ": significance = " << significance);
                     CPPUNIT_ASSERT(significance > minimumSignificance);
                     meanSignificance.add(std::log(significance));
                 }
@@ -347,8 +347,8 @@ public:
 class CWriterFunc {
 public:
     bool operator()(ml::core_t::TTime time, const ml::model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
-        LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
-                  << node.s_Spec.print() << " initial score " << node.probability() << ", time:  " << time);
+        LOG_DEBUG(<< (isBucketInfluencer ? "BucketInfluencer" : "Influencer ") << node.s_Spec.print() << " initial score "
+                  << node.probability() << ", time:  " << time);
         return true;
     }
 };
@@ -416,7 +416,7 @@ void addResult(int detector,
 } // unnamed::
 
 void CHierarchicalResultsTest::testBreadthFirstVisit() {
-    LOG_DEBUG("*** testBreadthFirstVisit ***");
+    LOG_DEBUG(<< "*** testBreadthFirstVisit ***");
 
     model::CHierarchicalResults results;
 
@@ -481,7 +481,7 @@ void CHierarchicalResultsTest::testBreadthFirstVisit() {
 }
 
 void CHierarchicalResultsTest::testDepthFirstVisit() {
-    LOG_DEBUG("*** testDepthFirstVisit ***");
+    LOG_DEBUG(<< "*** testDepthFirstVisit ***");
 
     model::CHierarchicalResults results;
 
@@ -587,7 +587,7 @@ const std::string p35("p35");
 } // unnamed::
 
 void CHierarchicalResultsTest::testBuildHierarchy() {
-    LOG_DEBUG("*** testBuildHierarchy ***");
+    LOG_DEBUG(<< "*** testBuildHierarchy ***");
 
     static const std::string FUNC("mean");
     static const ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMean);
@@ -599,7 +599,7 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         results.buildHierarchy();
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nby:\n" << printer.result());
+        LOG_DEBUG(<< "\nby:\n" << printer.result());
         CPPUNIT_ASSERT_EQUAL(std::string("'false/false/mean/////': 1, 0"), printer.result());
     }
     {
@@ -609,7 +609,7 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         results.buildHierarchy();
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nby:\n" << printer.result());
+        LOG_DEBUG(<< "\nby:\n" << printer.result());
         CPPUNIT_ASSERT_EQUAL(std::string("'false/false////PF1//': 1, 0\n"
                                          "  'false/false/mean///PF1/p12/': 0.03, 0\n"
                                          "  'false/false/mean///PF1/p11/': 0.01, 0"),
@@ -624,7 +624,7 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         results.buildHierarchy();
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nover:\n" << printer.result());
+        LOG_DEBUG(<< "\nover:\n" << printer.result());
         CPPUNIT_ASSERT_EQUAL(std::string("'false/true//////': 1, 0\n"
                                          "  'false/false/mean///PF2/p22/': 0.03, 0\n"
                                          "  'false/true////PF1//': 1, 0\n"
@@ -643,7 +643,7 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         results.buildHierarchy();
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\npartition:\n" << printer.result());
+        LOG_DEBUG(<< "\npartition:\n" << printer.result());
         CPPUNIT_ASSERT_EQUAL(std::string("'false/false//PNF1////': 1, 0\n"
                                          "  'false/false/mean/PNF1/pn13///': 0.05, 0\n"
                                          "  'false/false/mean/PNF1/pn12///': 0.01, 0\n"
@@ -672,7 +672,7 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         results.buildHierarchy();
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\ncomplex:\n" << printer.result());
+        LOG_DEBUG(<< "\ncomplex:\n" << printer.result());
         CPPUNIT_ASSERT_EQUAL(std::string("'false/true//////': 1, 0\n"
                                          "  'false/true//PNF2////': 1, 0\n"
                                          "    'false/true/mean/PNF2/pn23///': 0.05, 0\n"
@@ -701,7 +701,7 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
 }
 
 void CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue() {
-    LOG_DEBUG("*** testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue ***");
+    LOG_DEBUG(<< "*** testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue ***");
 
     static const std::string FUNC("mean");
     static const ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMean);
@@ -756,7 +756,7 @@ void CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePerson
 }
 
 void CHierarchicalResultsTest::testBasicVisitor() {
-    LOG_DEBUG("*** testBasicVisitor ***");
+    LOG_DEBUG(<< "*** testBasicVisitor ***");
 
     static const std::string FUNC("max");
     static const ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
@@ -768,7 +768,7 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         results.buildHierarchy();
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nby:\n" << printer.result());
+        LOG_DEBUG(<< "\nby:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionedNodes().size());
@@ -781,7 +781,7 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         results.buildHierarchy();
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nby:\n" << printer.result());
+        LOG_DEBUG(<< "\nby:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionedNodes().size());
@@ -799,7 +799,7 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         results.buildHierarchy();
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nby:\n" << printer.result());
+        LOG_DEBUG(<< "\nby:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
 
@@ -833,7 +833,7 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         results.buildHierarchy();
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nover:\n" << printer.result());
+        LOG_DEBUG(<< "\nover:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionedNodes().size());
@@ -853,7 +853,7 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.personNodes()[2]->s_Children.size());
     }
     {
-        LOG_DEBUG("Clear...");
+        LOG_DEBUG(<< "Clear...");
         model::CHierarchicalResults results;
         addResult(1, true, FUNC, function, EMPTY_STRING, EMPTY_STRING, PF1, p11, EMPTY_STRING, 0.2, results);
         addResult(1, true, FUNC, function, EMPTY_STRING, EMPTY_STRING, PF1, p11, EMPTY_STRING, 0.3, results);
@@ -862,7 +862,7 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         results.buildHierarchy();
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nover:\n" << printer.result());
+        LOG_DEBUG(<< "\nover:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionedNodes().size());
@@ -892,7 +892,7 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         results.buildHierarchy();
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\npartition:\n" << printer.result());
+        LOG_DEBUG(<< "\npartition:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
 
@@ -935,7 +935,7 @@ void CHierarchicalResultsTest::testBasicVisitor() {
 }
 
 void CHierarchicalResultsTest::testAggregator() {
-    LOG_DEBUG("*** testAggregator ***");
+    LOG_DEBUG(<< "*** testAggregator ***");
 
     using TAnnotatedProbabilityVec = std::vector<model::SAnnotatedProbability>;
 
@@ -965,7 +965,7 @@ void CHierarchicalResultsTest::testAggregator() {
         results.bottomUpBreadthFirst(aggregator);
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nby:\n" << printer.result());
+        LOG_DEBUG(<< "\nby:\n" << printer.result());
         TDoubleVec probabilities(boost::begin(p_), boost::end(p_));
         attributeComputer(probabilities, score, probability);
         CPPUNIT_ASSERT(results.root());
@@ -989,7 +989,7 @@ void CHierarchicalResultsTest::testAggregator() {
         results.bottomUpBreadthFirst(aggregator);
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nover:\n" << printer.result());
+        LOG_DEBUG(<< "\nover:\n" << printer.result());
         TDoubleVec probabilities(boost::begin(p_), boost::end(p_));
         personComputer(probabilities, score, probability);
         CPPUNIT_ASSERT(results.root());
@@ -1031,7 +1031,7 @@ void CHierarchicalResultsTest::testAggregator() {
         results.bottomUpBreadthFirst(aggregator);
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\naggregates:\n" << printer.result());
+        LOG_DEBUG(<< "\naggregates:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
         TDoubleVec scores;
@@ -1047,11 +1047,11 @@ void CHierarchicalResultsTest::testAggregator() {
         addAggregateValues(0.5, 0.5, 5, boost::begin(rp2), boost::end(rp2), expectedScores, expectedProbabilities);
         addAggregateValues(0.5, 0.5, 5, boost::begin(rp3), boost::end(rp3), expectedScores, expectedProbabilities);
         maths::COrderings::simultaneousSort(expectedProbabilities, expectedScores);
-        LOG_DEBUG("expectedScores = " << core::CContainerPrinter::print(expectedScores));
-        LOG_DEBUG("scores         = " << core::CContainerPrinter::print(scores));
+        LOG_DEBUG(<< "expectedScores = " << core::CContainerPrinter::print(expectedScores));
+        LOG_DEBUG(<< "scores         = " << core::CContainerPrinter::print(scores));
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedScores), core::CContainerPrinter::print(scores));
-        LOG_DEBUG("expectedProbabilities = " << core::CContainerPrinter::print(expectedProbabilities));
-        LOG_DEBUG("probabilities         = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "expectedProbabilities = " << core::CContainerPrinter::print(expectedProbabilities));
+        LOG_DEBUG(<< "probabilities         = " << core::CContainerPrinter::print(probabilities));
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedProbabilities), core::CContainerPrinter::print(probabilities));
     }
 
@@ -1070,7 +1070,7 @@ void CHierarchicalResultsTest::testAggregator() {
         results.bottomUpBreadthFirst(aggregator);
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\npartition:\n" << printer.result());
+        LOG_DEBUG(<< "\npartition:\n" << printer.result());
         TDoubleVec probabilities(boost::begin(p_), boost::end(p_));
         partitionComputer(probabilities, score, probability);
         CPPUNIT_ASSERT(results.root());
@@ -1080,7 +1080,7 @@ void CHierarchicalResultsTest::testAggregator() {
 }
 
 void CHierarchicalResultsTest::testInfluence() {
-    LOG_DEBUG("*** testInfluence ***");
+    LOG_DEBUG(<< "*** testInfluence ***");
 
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CHierarchicalResultsAggregator aggregator(modelConfig);
@@ -1116,7 +1116,7 @@ void CHierarchicalResultsTest::testInfluence() {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         results.pivotsBottomUpBreadthFirst(printer);
-        LOG_DEBUG("\nby:\n" << printer.result());
+        LOG_DEBUG(<< "\nby:\n" << printer.result());
         CPPUNIT_ASSERT_EQUAL(std::string("'false/false////I//': 0.003600205, 0.02066228 pivot\n"
                                          "  'false/false////I/i2/': 0.003, 0.0251169 pivot\n"
                                          "  'false/false////I/i1/': 0.001801726, 0.04288765 pivot\n"
@@ -1162,7 +1162,7 @@ void CHierarchicalResultsTest::testInfluence() {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         results.pivotsBottomUpBreadthFirst(printer);
-        LOG_DEBUG("\ncomplex:\n" << printer.result());
+        LOG_DEBUG(<< "\ncomplex:\n" << printer.result());
         CPPUNIT_ASSERT_EQUAL(std::string("'false/false////I//': 0.006210884, 0.01130322 pivot\n"
                                          "  'false/false////I/i2/': 0.003110279, 0.0241695 pivot\n"
                                          "  'false/false////I/i1/': 0.00619034, 0.01134605 pivot\n"
@@ -1210,7 +1210,7 @@ void CHierarchicalResultsTest::testInfluence() {
         CPrinter writtenNodesOnlyPrinter(true);
         results.postorderDepthFirst(writtenNodesOnlyPrinter);
         results.pivotsBottomUpBreadthFirst(writtenNodesOnlyPrinter);
-        LOG_DEBUG("\nhigh p records with low p influencer:\n" << writtenNodesOnlyPrinter.result());
+        LOG_DEBUG(<< "\nhigh p records with low p influencer:\n" << writtenNodesOnlyPrinter.result());
         CPPUNIT_ASSERT_EQUAL(std::string("'false/false////I//': 0.001999, 0.038497 pivot\n"
                                          "  'false/false////I/i2/': 0.001, 0.07855711 pivot\n"
                                          "  'false/false////I/i1/': 0.01939367, 0.002530117 pivot\n"
@@ -1223,7 +1223,7 @@ void CHierarchicalResultsTest::testInfluence() {
 }
 
 void CHierarchicalResultsTest::testScores() {
-    LOG_DEBUG("*** testScores ***");
+    LOG_DEBUG(<< "*** testScores ***");
 
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CLimits limits;
@@ -1243,7 +1243,7 @@ void CHierarchicalResultsTest::testScores() {
         results.bottomUpBreadthFirst(finalizer);
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nby:\n" << printer.result());
+        LOG_DEBUG(<< "\nby:\n" << printer.result());
         results.bottomUpBreadthFirst(checkScores);
     }
     {
@@ -1255,7 +1255,7 @@ void CHierarchicalResultsTest::testScores() {
         results.bottomUpBreadthFirst(finalizer);
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nby:\n" << printer.result());
+        LOG_DEBUG(<< "\nby:\n" << printer.result());
         results.bottomUpBreadthFirst(checkScores);
     }
     {
@@ -1269,7 +1269,7 @@ void CHierarchicalResultsTest::testScores() {
         results.bottomUpBreadthFirst(finalizer);
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nover:\n" << printer.result());
+        LOG_DEBUG(<< "\nover:\n" << printer.result());
         results.bottomUpBreadthFirst(checkScores);
     }
     {
@@ -1283,7 +1283,7 @@ void CHierarchicalResultsTest::testScores() {
         results.bottomUpBreadthFirst(finalizer);
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\nover:\n" << printer.result());
+        LOG_DEBUG(<< "\nover:\n" << printer.result());
         results.bottomUpBreadthFirst(checkScores);
     }
 
@@ -1298,7 +1298,7 @@ void CHierarchicalResultsTest::testScores() {
         results.bottomUpBreadthFirst(finalizer);
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\npartition\n:" << printer.result());
+        LOG_DEBUG(<< "\npartition\n:" << printer.result());
         results.bottomUpBreadthFirst(checkScores);
     }
 
@@ -1325,13 +1325,13 @@ void CHierarchicalResultsTest::testScores() {
         results.bottomUpBreadthFirst(finalizer);
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\ncomplex:\n" << printer.result());
+        LOG_DEBUG(<< "\ncomplex:\n" << printer.result());
         results.bottomUpBreadthFirst(checkScores);
     }
 }
 
 void CHierarchicalResultsTest::testWriter() {
-    LOG_DEBUG("*** testWriter ***");
+    LOG_DEBUG(<< "*** testWriter ***");
 
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CLimits limits;
@@ -1396,13 +1396,13 @@ void CHierarchicalResultsTest::testWriter() {
         results.bottomUpBreadthFirst(aggregator);
         CPrinter printer;
         results.postorderDepthFirst(printer);
-        LOG_DEBUG("\ncomplex:\n" << printer.result());
+        LOG_DEBUG(<< "\ncomplex:\n" << printer.result());
         results.bottomUpBreadthFirst(writeConsistencyChecker);
     }
 }
 
 void CHierarchicalResultsTest::testNormalizer() {
-    LOG_DEBUG("*** testNormalizer ***");
+    LOG_DEBUG(<< "*** testNormalizer ***");
 
     using TNormalizerPtr = boost::shared_ptr<model::CAnomalyScore::CNormalizer>;
     using TStrNormalizerPtrMap = std::map<std::string, TNormalizerPtr>;
@@ -1464,7 +1464,7 @@ void CHierarchicalResultsTest::testNormalizer() {
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
 
-        LOG_DEBUG("** Iteration = " << i << " **");
+        LOG_DEBUG(<< "** Iteration = " << i << " **");
         TNodeCPtrSet nodes;
 
         TDoubleVec normalized;
@@ -1497,9 +1497,9 @@ void CHierarchicalResultsTest::testNormalizer() {
                 expectedNormalized.push_back(score);
             }
         }
-        LOG_DEBUG("* leaf *")
-        LOG_DEBUG("expectedNormalized = " << core::CContainerPrinter::print(expectedNormalized));
-        LOG_DEBUG("normalized         = " << core::CContainerPrinter::print(normalized));
+        LOG_DEBUG(<< "* leaf *")
+        LOG_DEBUG(<< "expectedNormalized = " << core::CContainerPrinter::print(expectedNormalized));
+        LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNormalized), core::CContainerPrinter::print(normalized));
 
         normalized.clear();
@@ -1531,9 +1531,9 @@ void CHierarchicalResultsTest::testNormalizer() {
                 expectedNormalized.push_back(score);
             }
         }
-        LOG_DEBUG("* person *")
-        LOG_DEBUG("expectedNormalized = " << core::CContainerPrinter::print(expectedNormalized));
-        LOG_DEBUG("normalized         = " << core::CContainerPrinter::print(normalized));
+        LOG_DEBUG(<< "* person *")
+        LOG_DEBUG(<< "expectedNormalized = " << core::CContainerPrinter::print(expectedNormalized));
+        LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNormalized), core::CContainerPrinter::print(normalized));
 
         normalized.clear();
@@ -1563,9 +1563,9 @@ void CHierarchicalResultsTest::testNormalizer() {
                 expectedNormalized.push_back(score);
             }
         }
-        LOG_DEBUG("* partition *")
-        LOG_DEBUG("expectedNormalized = " << core::CContainerPrinter::print(expectedNormalized));
-        LOG_DEBUG("normalized         = " << core::CContainerPrinter::print(normalized));
+        LOG_DEBUG(<< "* partition *")
+        LOG_DEBUG(<< "expectedNormalized = " << core::CContainerPrinter::print(expectedNormalized));
+        LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNormalized), core::CContainerPrinter::print(normalized));
 
         double probability = results.root()->probability();
@@ -1574,9 +1574,9 @@ void CHierarchicalResultsTest::testNormalizer() {
 
         expectedNormalizers.find(std::string("r"))->second->updateQuantiles(score);
         expectedNormalizers.find(std::string("r"))->second->normalize(score);
-        LOG_DEBUG("* root *");
-        LOG_DEBUG("expectedNormalized = " << results.root()->s_NormalizedAnomalyScore);
-        LOG_DEBUG("normalized         = " << score);
+        LOG_DEBUG(<< "* root *");
+        LOG_DEBUG(<< "expectedNormalized = " << results.root()->s_NormalizedAnomalyScore);
+        LOG_DEBUG(<< "normalized         = " << score);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(results.root()->s_NormalizedAnomalyScore, score, 1e-10);
     }
 
@@ -1585,7 +1585,7 @@ void CHierarchicalResultsTest::testNormalizer() {
     normalizer.toJson(123, "mykey", origJson, true);
     CPPUNIT_ASSERT(!origJson.empty());
 
-    LOG_DEBUG("JSON doc is:\n" << origJson);
+    LOG_DEBUG(<< "JSON doc is:\n" << origJson);
 
     model::CHierarchicalResultsNormalizer newNormalizerJson(modelConfig);
     std::stringstream stream(origJson);
@@ -1597,7 +1597,7 @@ void CHierarchicalResultsTest::testNormalizer() {
 }
 
 void CHierarchicalResultsTest::testDetectorEqualizing() {
-    LOG_DEBUG("*** testDetectorEqualizing ***");
+    LOG_DEBUG(<< "*** testDetectorEqualizing ***");
 
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     test::CRandomNumbers rng;
@@ -1673,7 +1673,7 @@ void CHierarchicalResultsTest::testDetectorEqualizing() {
         }
 
         double significance = probabilityGatherer.test(8e-7);
-        LOG_DEBUG("total significance = " << significance);
+        LOG_DEBUG(<< "total significance = " << significance);
 
         CPPUNIT_ASSERT(significance > 0.002);
 
@@ -1684,7 +1684,7 @@ void CHierarchicalResultsTest::testDetectorEqualizing() {
             inserter.toXml(origXml);
         }
 
-        LOG_DEBUG("aggregator XML representation:\n" << origXml);
+        LOG_DEBUG(<< "aggregator XML representation:\n" << origXml);
 
         model::CHierarchicalResultsAggregator restoredAggregator(modelConfig);
         {
@@ -1771,7 +1771,7 @@ void CHierarchicalResultsTest::testDetectorEqualizing() {
         }
 
         mostAnomalous.sort();
-        LOG_DEBUG("mostAnomalousBucket = " << mostAnomalous.print());
+        LOG_DEBUG(<< "mostAnomalousBucket = " << mostAnomalous.print());
         CPPUNIT_ASSERT_EQUAL(std::size_t(70), mostAnomalous[0].second);
         CPPUNIT_ASSERT(mostAnomalous[0].first / mostAnomalous[1].first < 100);
     }
@@ -1797,7 +1797,7 @@ void CHierarchicalResultsTest::testShouldWritePartition() {
     results.buildHierarchy();
     CPrinter printer;
     results.postorderDepthFirst(printer);
-    LOG_DEBUG("\nhierarchy:\n" << printer.result());
+    LOG_DEBUG(<< "\nhierarchy:\n" << printer.result());
 
     const ml::model::CHierarchicalResults::TNode* root = results.root();
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), root->s_Children.size());
@@ -1810,8 +1810,8 @@ void CHierarchicalResultsTest::testShouldWritePartition() {
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), extract.personNodes().size());
     CPPUNIT_ASSERT_EQUAL(std::size_t(3), extract.leafNodes().size());
 
-    LOG_DEBUG("Partition 1 child count " << extract.partitionNodes()[0]->s_Children.size());
-    LOG_DEBUG("Partition 2 child count " << extract.partitionNodes()[1]->s_Children.size());
+    LOG_DEBUG(<< "Partition 1 child count " << extract.partitionNodes()[0]->s_Children.size());
+    LOG_DEBUG(<< "Partition 2 child count " << extract.partitionNodes()[1]->s_Children.size());
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionNodes()[0]->s_Children.size());
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), extract.partitionNodes()[1]->s_Children.size());

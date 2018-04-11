@@ -99,8 +99,8 @@ void CRandomNumbers::generateRandomMultivariateNormals(const TSizeVec& sizes,
     points.resize(k);
     TDoubleVecVec pointsi;
     for (std::size_t i = 0u; i < k; ++i) {
-        LOG_TRACE("mean = " << means[i]);
-        LOG_TRACE("covariance = " << covariances[i]);
+        LOG_TRACE(<< "mean = " << means[i]);
+        LOG_TRACE(<< "covariance = " << covariances[i]);
         this->generateMultivariateNormalSamples(
             means[i].template toVector<TDoubleVec>(), covariances[i].template toVectors<TDoubleVecVec>(), sizes[i], pointsi);
         for (std::size_t j = 0u; j < pointsi.size(); ++j) {

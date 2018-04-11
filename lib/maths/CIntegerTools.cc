@@ -60,7 +60,7 @@ uint64_t CIntegerTools::reverseBits(uint64_t x) {
 
 double CIntegerTools::binomial(unsigned int n, unsigned int k) {
     if (n < k) {
-        LOG_ERROR("Bad coefficient : (n k) = (" << n << " " << k << ")");
+        LOG_ERROR(<< "Bad coefficient : (n k) = (" << n << " " << k << ")");
         return 0.0;
     }
 

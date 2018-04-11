@@ -200,7 +200,7 @@ void CJsonOutputWriterTest::testWriteNonAnomalousBucket() {
     using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter prettyPrinter(strbuf);
     arrayDoc.Accept(prettyPrinter);
-    LOG_DEBUG("Results:\n" << strbuf.GetString());
+    LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
 
     CPPUNIT_ASSERT(arrayDoc.IsArray());
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
@@ -241,7 +241,7 @@ void CJsonOutputWriterTest::testFlush() {
     using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter writer(strbuf);
     arrayDoc.Accept(writer);
-    LOG_DEBUG("Flush:\n" << strbuf.GetString());
+    LOG_DEBUG(<< "Flush:\n" << strbuf.GetString());
 
     const rapidjson::Value& flushWrapper = arrayDoc[rapidjson::SizeType(0)];
     CPPUNIT_ASSERT(flushWrapper.IsObject());
@@ -284,7 +284,7 @@ void CJsonOutputWriterTest::testWriteCategoryDefinition() {
     using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter writer(strbuf);
     arrayDoc.Accept(writer);
-    LOG_DEBUG("CategoryDefinition:\n" << strbuf.GetString());
+    LOG_DEBUG(<< "CategoryDefinition:\n" << strbuf.GetString());
 
     const rapidjson::Value& categoryWrapper = arrayDoc[rapidjson::SizeType(0)];
     CPPUNIT_ASSERT(categoryWrapper.IsObject());
@@ -771,7 +771,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
     using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter writer(strbuf);
     arrayDoc.Accept(writer);
-    LOG_DEBUG("Results:\n" << strbuf.GetString());
+    LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
 
     CPPUNIT_ASSERT(arrayDoc.IsArray());
     // There are 3 buckets and 3 record arrays in the order: r1, b1, r2, b2, r3, b3
@@ -1579,7 +1579,7 @@ void CJsonOutputWriterTest::testLimitedRecordsWriteHelper(bool isInterim) {
     using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter writer(strbuf);
     arrayDoc.Accept(writer);
-    LOG_DEBUG("Results:\n" << strbuf.GetString());
+    LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
 
     CPPUNIT_ASSERT(arrayDoc.IsArray());
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(6), arrayDoc.Size());
@@ -1765,7 +1765,7 @@ void CJsonOutputWriterTest::testWriteInfluencers() {
     using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
     TStringBufferPrettyWriter writer(strbuf);
     doc.Accept(writer);
-    LOG_DEBUG("influencers:\n" << strbuf.GetString());
+    LOG_DEBUG(<< "influencers:\n" << strbuf.GetString());
 
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(2), doc.Size());
 
@@ -1885,7 +1885,7 @@ void CJsonOutputWriterTest::testWriteInfluencersWithLimit() {
     TStringBufferPrettyWriter writer(strbuf);
     doc.Accept(writer);
 
-    LOG_DEBUG("limited write influencers:\n" << strbuf.GetString());
+    LOG_DEBUG(<< "limited write influencers:\n" << strbuf.GetString());
 
     const rapidjson::Value& influencers = doc[rapidjson::SizeType(1)]["influencers"];
     CPPUNIT_ASSERT(influencers.IsArray());
@@ -2032,7 +2032,7 @@ void CJsonOutputWriterTest::testWriteWithInfluences() {
         using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
         TStringBufferPrettyWriter writer(strbuf);
         doc.Accept(writer);
-        LOG_DEBUG("Results:\n" << strbuf.GetString());
+        LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
     }
 
     CPPUNIT_ASSERT(doc[rapidjson::SizeType(1)].HasMember("bucket"));
@@ -2160,7 +2160,7 @@ void CJsonOutputWriterTest::testPartitionScores() {
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
 
-    LOG_DEBUG(sstream.str());
+    LOG_DEBUG(<< sstream.str());
 
     const rapidjson::Value& bucketWrapper = doc[rapidjson::SizeType(0)];
     CPPUNIT_ASSERT(bucketWrapper.HasMember("bucket"));
@@ -2211,7 +2211,7 @@ void CJsonOutputWriterTest::testReportMemoryUsage() {
         writer.endOutputBatch(false, 1ul);
     }
 
-    LOG_DEBUG(sstream.str());
+    LOG_DEBUG(<< sstream.str());
 
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
@@ -2325,7 +2325,7 @@ void CJsonOutputWriterTest::testWriteScheduledEvent() {
         using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
         TStringBufferPrettyWriter writer(strbuf);
         doc.Accept(writer);
-        LOG_DEBUG("Results:\n" << strbuf.GetString());
+        LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
     }
 
     CPPUNIT_ASSERT(doc.IsArray());
@@ -2501,7 +2501,7 @@ void CJsonOutputWriterTest::testThroughputHelper(bool useScopedAllocator) {
     static const size_t TEST_SIZE(75000);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         if (useScopedAllocator) {
@@ -2538,7 +2538,7 @@ void CJsonOutputWriterTest::testThroughputHelper(bool useScopedAllocator) {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Writing " << TEST_SIZE << " records took " << (end - start) << " seconds");
+    LOG_INFO(<< "Writing " << TEST_SIZE << " records took " << (end - start) << " seconds");
 }

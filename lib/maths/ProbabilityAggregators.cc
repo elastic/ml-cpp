@@ -61,7 +61,7 @@ bool deviation(double p, double& result) {
         boost::math::normal_distribution<> normal(0.0, 1.0);
         result = square(boost::math::quantile(normal, p / 2.0));
         return true;
-    } catch (const std::exception& e) { LOG_ERROR("Unable to compute quantile: " << e.what() << ", probability = " << p); }
+    } catch (const std::exception& e) { LOG_ERROR(<< "Unable to compute quantile: " << e.what() << ", probability = " << p); }
     return false;
 }
 
@@ -304,7 +304,7 @@ bool CJointProbabilityOfLessLikelySamples::fromDelimited(const std::string& valu
         return true;
     }
 
-    LOG_ERROR("Failed to initialize joint probability from " << value);
+    LOG_ERROR(<< "Failed to initialize joint probability from " << value);
 
     return false;
 }
@@ -410,13 +410,14 @@ bool CJointProbabilityOfLessLikelySamples::calculate(double& result) const {
     try {
         result = boost::math::gamma_q(m_NumberSamples / 2.0, m_Distance / 2.0);
     } catch (const std::exception& e) {
-        LOG_ERROR("Unable to compute probability: " << e.what() << ", m_NumberSamples = " << m_NumberSamples
-                                                    << ", m_Distance = " << m_Distance);
+        LOG_ERROR(<< "Unable to compute probability: " << e.what() << ", m_NumberSamples = " << m_NumberSamples
+                  << ", m_Distance = " << m_Distance);
         return false;
     }
 
     if (!(result >= 0.0 && result <= 1.0)) {
-        LOG_ERROR("Invalid joint probability = " << result << ", m_NumberSamples = " << m_NumberSamples << ", m_Distance = " << m_Distance);
+        LOG_ERROR(<< "Invalid joint probability = " << result << ", m_NumberSamples = " << m_NumberSamples
+                  << ", m_Distance = " << m_Distance);
     }
 
     result = CTools::truncate(result, 0.0, 1.0);
@@ -444,14 +445,14 @@ bool CJointProbabilityOfLessLikelySamples::averageProbability(double& result) co
         boost::math::normal_distribution<> normal(0.0, 1.0);
         result = 2.0 * boost::math::cdf(normal, -std::sqrt(m_Distance / m_NumberSamples));
     } catch (const std::exception& e) {
-        LOG_ERROR("Unable to compute probability: " << e.what() << ", m_NumberSamples = " << m_NumberSamples
-                                                    << ", m_Distance = " << m_Distance);
+        LOG_ERROR(<< "Unable to compute probability: " << e.what() << ", m_NumberSamples = " << m_NumberSamples
+                  << ", m_Distance = " << m_Distance);
         return false;
     }
 
     if (!(result >= 0.0 && result <= 1.0)) {
-        LOG_ERROR("Invalid average probability = " << result << ", m_NumberSamples = " << m_NumberSamples
-                                                   << ", m_Distance = " << m_Distance);
+        LOG_ERROR(<< "Invalid average probability = " << result << ", m_NumberSamples = " << m_NumberSamples
+                  << ", m_Distance = " << m_Distance);
     }
 
     result = CTools::truncate(result, 0.0, 1.0);
@@ -588,7 +589,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double& result
     // (we want 1 d.p. of precision).
     double probability;
     if (this->calculate(probability) && probability > 10.0 * boost::numeric::bounds<double>::smallest()) {
-        LOG_TRACE("probability = " << probability);
+        LOG_TRACE(<< "probability = " << probability);
         result = std::log(probability);
         return true;
     }
@@ -653,12 +654,12 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double& result
 
         bound = (s - 1.0) * logx - x + logSum - boost::math::lgamma(s);
 
-        LOG_TRACE("s = " << s << ", x = " << x << ", p = " << p << ", m = " << m << ", b1 = " << b1 << ", b2 = " << b2
-                         << ", log(sum) = " << logSum << ", bound = " << bound);
-    } catch (const std::exception& e) { LOG_ERROR("Failed computing bound: " << e.what() << ", s = " << s << ", x = " << x); }
+        LOG_TRACE(<< "s = " << s << ", x = " << x << ", p = " << p << ", m = " << m << ", b1 = " << b1 << ", b2 = " << b2
+                  << ", log(sum) = " << logSum << ", bound = " << bound);
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed computing bound: " << e.what() << ", s = " << s << ", x = " << x); }
 
     result = std::min(bound, 0.0);
-    LOG_TRACE("result = " << result);
+    LOG_TRACE(<< "result = " << result);
 
     return true;
 }
@@ -725,7 +726,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double& result
     // use the "exact" value. Note that we want 1 d.p. of precision.
     double probability;
     if (this->calculate(probability) && probability > 10.0 * boost::numeric::bounds<double>::smallest()) {
-        LOG_TRACE("probability = " << probability);
+        LOG_TRACE(<< "probability = " << probability);
         result = std::log(probability);
         return true;
     }
@@ -762,11 +763,12 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double& result
 
         bound = (s - 1.0) * std::log(x) - x + logSum - boost::math::lgamma(s);
 
-        LOG_TRACE("s = " << s << ", x = " << x << ", b1 = " << b1 << ", b2 = " << b2 << ", log(sum) = " << logSum << ", bound = " << bound);
-    } catch (const std::exception& e) { LOG_ERROR("Failed computing bound: " << e.what() << ", s = " << s << ", x = " << x); }
+        LOG_TRACE(<< "s = " << s << ", x = " << x << ", b1 = " << b1 << ", b2 = " << b2 << ", log(sum) = " << logSum
+                  << ", bound = " << bound);
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed computing bound: " << e.what() << ", s = " << s << ", x = " << x); }
 
     result = std::min(bound, 0.0);
-    LOG_TRACE("result = " << result);
+    LOG_TRACE(<< "result = " << result);
 
     return true;
 }
@@ -779,7 +781,7 @@ CProbabilityOfExtremeSample::CProbabilityOfExtremeSample() : m_NumberSamples(0.0
 bool CProbabilityOfExtremeSample::fromDelimited(const std::string& value) {
     std::size_t i = value.find_first_of(DELIMITER);
     if (!core::CStringUtils::stringToType(value.substr(0, i), m_NumberSamples)) {
-        LOG_ERROR("Failed to extract number samples from " << value);
+        LOG_ERROR(<< "Failed to extract number samples from " << value);
         return false;
     }
     return m_MinValue.fromDelimited(value.substr(i + 1));
@@ -830,7 +832,7 @@ CLogProbabilityOfMFromNExtremeSamples::CLogProbabilityOfMFromNExtremeSamples(std
 bool CLogProbabilityOfMFromNExtremeSamples::fromDelimited(const std::string& value) {
     std::size_t i = value.find_first_of(DELIMITER);
     if (!core::CStringUtils::stringToType(value.substr(0, i), m_NumberSamples)) {
-        LOG_ERROR("Failed to extract number samples from " << value);
+        LOG_ERROR(<< "Failed to extract number samples from " << value);
         return false;
     }
     return m_MinValues.fromDelimited(value.substr(i + 1));
@@ -884,7 +886,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
     std::size_t M = m_MinValues.count();
     std::size_t N = m_NumberSamples;
 
-    LOG_TRACE("M = " << M << ", N = " << N);
+    LOG_TRACE(<< "M = " << M << ", N = " << N);
 
     double logc = 0.0;
 
@@ -901,7 +903,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
 
     for (std::size_t m = 1u; m < M; ++m) {
         double p = m_MinValues[M - m];
-        LOG_TRACE("p(" << m << ") = " << p);
+        LOG_TRACE(<< "p(" << m << ") = " << p);
 
         logc -= std::log(2.0 * static_cast<double>(N - M + m));
 
@@ -912,7 +914,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
             coeffs[i] /= index;
             sum += coeffs[i] * powOneMinusX(p / 2.0, index);
         }
-        LOG_TRACE("sum = " << sum);
+        LOG_TRACE(<< "sum = " << sum);
 
         // Re-normalize the "c" term before adding. Note that somewhat
         // surprisingly 1 / logLargestCoeff can be infinity, because
@@ -922,7 +924,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
         // use the fact that c * (1 - p)^(N - M + m) won't overflow.
         double q = CTools::truncate(powOneMinusX(p, static_cast<double>(N - M + m)), 0.0, 1.0);
         coeffs.push_back(-sum - q * std::exp(logc - logLargestCoeff));
-        LOG_TRACE("c(0) = " << coeffs.back());
+        LOG_TRACE(<< "c(0) = " << coeffs.back());
 
         // Re-normalize the coefficients if they aren't all identically zero.
         double cmax = 0.0;
@@ -932,12 +934,12 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
             }
         }
         if (cmax > 0.0) {
-            LOG_TRACE("cmax = " << cmax);
+            LOG_TRACE(<< "cmax = " << cmax);
             for (std::size_t i = 0u; i < coeffs.size(); ++i) {
                 coeffs[i] /= cmax;
             }
             logLargestCoeff += std::log(cmax);
-            LOG_TRACE("logLargestCoeff = " << logLargestCoeff);
+            LOG_TRACE(<< "logLargestCoeff = " << logLargestCoeff);
         }
     }
 
@@ -953,18 +955,18 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
             coeffs[i] /= cmax;
         }
     }
-    LOG_TRACE("coeffs = " << core::CContainerPrinter::print(coeffs));
+    LOG_TRACE(<< "coeffs = " << core::CContainerPrinter::print(coeffs));
 
     double pM = m_MinValues[0];
-    LOG_TRACE("p(" << M << ") = " << pM);
+    LOG_TRACE(<< "p(" << M << ") = " << pM);
 
     double pMin = oneMinusPowOneMinusX(pM, static_cast<double>(N));
-    LOG_TRACE("1 - (1 - p(" << M << "))^" << N << " = " << pMin);
+    LOG_TRACE(<< "1 - (1 - p(" << M << "))^" << N << " = " << pMin);
 
     if (M > 1) {
         double logScale = static_cast<double>(M) * std::log(2.0) + boost::math::lgamma(static_cast<double>(N + 1)) -
                           boost::math::lgamma(static_cast<double>(N - M + 1)) + logLargestCoeff;
-        LOG_TRACE("log(scale) = " << logScale);
+        LOG_TRACE(<< "log(scale) = " << logScale);
 
         double sum = 0.0;
         double positive = 0.0;
@@ -975,13 +977,13 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
             double index = static_cast<double>(coeffs.size() - i);
             double c = coeffs[i] / index;
             double p = oneMinusPowOneMinusX(pM / 2.0, index);
-            LOG_TRACE("term(" << index << ") = " << (c * p) << " (c(" << index << ") = " << c << ", 1 - (1 - p(M)/2)^" << index << " = "
-                              << p << ")");
+            LOG_TRACE(<< "term(" << index << ") = " << (c * p) << " (c(" << index << ") = " << c << ", 1 - (1 - p(M)/2)^" << index << " = "
+                      << p << ")");
             terms.push_back(c * p);
             sum += std::fabs(c * p);
             (c * p < 0.0 ? negative : positive) += std::fabs(c * p);
         }
-        LOG_TRACE("negative = " << negative << ", positive = " << positive);
+        LOG_TRACE(<< "negative = " << negative << ", positive = " << positive);
 
         if (sum == 0.0) {
             result = std::log(pMin);
@@ -997,7 +999,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
             double logPMin = std::log(pMin);
             if (logPMin - logScale > core::constants::LOG_MAX_DOUBLE) {
                 for (std::size_t i = 0u; i < terms.size(); ++i) {
-                    LOG_TRACE("remainder(" << i << ") = " << std::fabs(terms[i]));
+                    LOG_TRACE(<< "remainder(" << i << ") = " << std::fabs(terms[i]));
                     result += std::fabs(terms[i]);
                 }
                 result = std::log(result * pMin / sum);
@@ -1010,7 +1012,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
                     }
                 } else {
                     pMin /= std::exp(logScale);
-                    LOG_TRACE("pMin = " << pMin);
+                    LOG_TRACE(<< "pMin = " << pMin);
                     for (std::size_t i = 0u; i < terms.size(); ++i) {
                         double remainder = std::fabs(terms[i]) * pMin / sum + terms[i];
                         result += remainder;
@@ -1019,13 +1021,13 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
                     }
                 }
 
-                LOG_TRACE("result = " << result << ", condition = " << condition);
+                LOG_TRACE(<< "result = " << result << ", condition = " << condition);
 
                 if (result <= 0.0 || condition > PRECISION * result) {
                     // Whoops we've lost all our precision. Fall back to numerical
                     // integration (note this caps M <= 10 so the runtime doesn't
                     // blow up).
-                    LOG_TRACE("Falling back to numerical integration");
+                    LOG_TRACE(<< "Falling back to numerical integration");
                     CNumericalLogProbabilityOfMFromNExtremeSamples numerical(m_MinValues, N);
                     result = numerical.calculate();
                 } else {
@@ -1049,21 +1051,20 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
                 minValues << " " << m_MinValues[j];
             }
             minValues << "]";
-            LOG_ERROR("Invalid log(extreme probability) = " << result << ", m_NumberSamples = " << m_NumberSamples << ", m_MinValues = "
-                                                            << minValues.str() << ", coeffs = " << core::CContainerPrinter::print(coeffs)
-                                                            << ", log(max{coeffs}) = " << logLargestCoeff << ", pM = " << pM
-                                                            << ", pMin = " << pMin);
+            LOG_ERROR(<< "Invalid log(extreme probability) = " << result << ", m_NumberSamples = " << m_NumberSamples
+                      << ", m_MinValues = " << minValues.str() << ", coeffs = " << core::CContainerPrinter::print(coeffs)
+                      << ", log(max{coeffs}) = " << logLargestCoeff << ", pM = " << pM << ", pMin = " << pMin);
             result = 0.0;
         } else {
             break;
         }
-        LOG_TRACE("Falling back to numerical integration");
+        LOG_TRACE(<< "Falling back to numerical integration");
         CNumericalLogProbabilityOfMFromNExtremeSamples numerical(m_MinValues, N);
         result = numerical.calculate();
     }
 
     result = std::min(result, 0.0);
-    LOG_TRACE("result = " << result);
+    LOG_TRACE(<< "result = " << result);
 
     return true;
 }

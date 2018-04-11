@@ -88,7 +88,7 @@ public:
             str += m_EncodedDataBlock;
         }
 
-        LOG_DEBUG("Input size is " << str.length());
+        LOG_DEBUG(<< "Input size is " << str.length());
 
         return str;
     }
@@ -128,7 +128,7 @@ public:
         // Check the field names
         CPPUNIT_ASSERT_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
         for (ml::api::CCsvInputParser::TStrStrUMapCItr iter = dataRowFields.begin(); iter != dataRowFields.end(); ++iter) {
-            LOG_DEBUG("Field " << iter->first << " is " << iter->second);
+            LOG_DEBUG(<< "Field " << iter->first << " is " << iter->second);
             CPPUNIT_ASSERT(std::find(m_ExpectedFieldNames.begin(), m_ExpectedFieldNames.end(), iter->first) != m_ExpectedFieldNames.end());
         }
 
@@ -209,7 +209,7 @@ void CLengthEncodedInputParserTest::testThroughput() {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 
-    LOG_DEBUG("Creating throughput test data");
+    LOG_DEBUG(<< "Creating throughput test data");
 
     std::ifstream ifs("testfiles/simple.txt");
     CPPUNIT_ASSERT(ifs.is_open());
@@ -230,16 +230,16 @@ void CLengthEncodedInputParserTest::testThroughput() {
     CVisitor visitor;
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
     CPPUNIT_ASSERT_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
 
-    LOG_INFO("Parsing " << visitor.recordCount() << " records took " << (end - start) << " seconds");
+    LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took " << (end - start) << " seconds");
 }
 
 void CLengthEncodedInputParserTest::testCorruptStreamDetection() {
@@ -257,6 +257,6 @@ void CLengthEncodedInputParserTest::testCorruptStreamDetection() {
 
     CVisitor visitor;
 
-    LOG_INFO("Expect the next parse to report a suspiciously long length");
+    LOG_INFO(<< "Expect the next parse to report a suspiciously long length");
     CPPUNIT_ASSERT(!parser.readStream(std::ref(visitor)));
 }

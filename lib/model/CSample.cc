@@ -50,13 +50,13 @@ bool CSample::SFromString::operator()(const std::string& token, CSample& value) 
 
     if (!core::CStringUtils::stringToType(tokens[0], value.m_Time) || !core::CStringUtils::stringToType(tokens[1], value.m_VarianceScale) ||
         !core::CStringUtils::stringToType(tokens[2], value.m_Count)) {
-        LOG_ERROR("Cannot parse as sample: " << token);
+        LOG_ERROR(<< "Cannot parse as sample: " << token);
         return false;
     }
     for (std::size_t i = 3u; i < tokens.size(); ++i) {
         double vi;
         if (!core::CStringUtils::stringToType(tokens[i], vi)) {
-            LOG_ERROR("Cannot parse as sample: " << token);
+            LOG_ERROR(<< "Cannot parse as sample: " << token);
             return false;
         }
         value.m_Value.push_back(vi);

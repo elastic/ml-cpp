@@ -386,7 +386,7 @@ void CDataCountStatisticsDirectAddressTable::build(const TDetectorSpecificationV
         m_DetectorSchema[id] = index;
     }
 
-    LOG_DEBUG("There are " << m_DataCountStatistics.size() << " sets of count statistics");
+    LOG_DEBUG(<< "There are " << m_DataCountStatistics.size() << " sets of count statistics");
 }
 
 void CDataCountStatisticsDirectAddressTable::pruneUnsed(const TDetectorSpecificationVec& specs) {
