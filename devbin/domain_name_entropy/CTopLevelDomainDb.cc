@@ -34,13 +34,13 @@ bool CTopLevelDomainDb::init(void) {
     core::CTextFileWatcher watcher;
 
     if (watcher.init(m_EffectiveTldNamesFileName, "\r?\n", core::CTextFileWatcher::E_Start) == false) {
-        LOG_ERROR("Can not open " << m_EffectiveTldNamesFileName);
+        LOG_ERROR(<< "Can not open " << m_EffectiveTldNamesFileName);
         return false;
     }
 
     std::string remainder;
     if (watcher.readAllLines(boost::bind(&CTopLevelDomainDb::readLine, this, _1), remainder) == false) {
-        LOG_ERROR("Error reading " << m_EffectiveTldNamesFileName);
+        LOG_ERROR(<< "Error reading " << m_EffectiveTldNamesFileName);
         return false;
     }
 
@@ -77,14 +77,14 @@ A domain is said to match a rule if, when the domain and rule are both split, an
     // Is it an exception?
     if (trimmedLine.front() == '!') {
         if (trimmedLine.size() < 2) {
-            LOG_WARN(trimmedLine << " not valid - ignoring.");
+            LOG_WARN(<< trimmedLine << " not valid - ignoring.");
             return true;
         }
 
         // Hash without first '!' character
         if (m_EffectiveTldNamesExceptions.insert(trimmedLine.substr(1, std::string::npos)).second == false) {
             // Benign warning
-            LOG_WARN("Inconsistency in " << m_EffectiveTldNamesFileName << " duplicate " << trimmedLine);
+            LOG_WARN(<< "Inconsistency in " << m_EffectiveTldNamesFileName << " duplicate " << trimmedLine);
         }
         return true;
     }
@@ -92,14 +92,14 @@ A domain is said to match a rule if, when the domain and rule are both split, an
     // Is it a wildcard?
     if (trimmedLine.front() == '*') {
         if (trimmedLine.size() < 2) {
-            LOG_WARN(trimmedLine << " not valid - ignoring.");
+            LOG_WARN(<< trimmedLine << " not valid - ignoring.");
             return true;
         }
 
         // Hash without first '*.' character
         if (m_EffectiveTldNamesWildcards.insert(trimmedLine.substr(2, std::string::npos)).second == false) {
             // Benign warning
-            LOG_WARN("Inconsistency in " << m_EffectiveTldNamesFileName << " duplicate " << trimmedLine);
+            LOG_WARN(<< "Inconsistency in " << m_EffectiveTldNamesFileName << " duplicate " << trimmedLine);
         }
         return true;
     }
@@ -107,7 +107,7 @@ A domain is said to match a rule if, when the domain and rule are both split, an
     // Normal insert
     if (m_EffectiveTldNames.insert(trimmedLine).second == false) {
         // Benign warning
-        LOG_WARN("Inconsistency in " << m_EffectiveTldNamesFileName << " duplicate " << trimmedLine);
+        LOG_WARN(<< "Inconsistency in " << m_EffectiveTldNamesFileName << " duplicate " << trimmedLine);
     }
 
     return true;
@@ -119,7 +119,7 @@ bool CTopLevelDomainDb::registeredDomainName(const std::string& host, std::strin
     std::string suffix;
 
     this->splitHostName(host, subDomain, domain, suffix);
-    //LOG_DEBUG(host << " sub:" << subDomain << " dom:" << domain << " suf:" << suffix);
+    //LOG_DEBUG(<< host << " sub:" << subDomain << " dom:" << domain << " suf:" << suffix);
 
     // Be strict here to comply with rules.
     // The caller can choose to use the host name instead of the domain
@@ -134,7 +134,7 @@ bool CTopLevelDomainDb::registeredDomainName(const std::string& host, std::strin
 
 void CTopLevelDomainDb::splitHostName(const std::string& host, std::string& subDomain, std::string& domain, std::string& suffix) const {
     if (m_EffectiveTldNames.empty()) {
-        LOG_ERROR("No rules. Call ::init to initialize object.");
+        LOG_ERROR(<< "No rules. Call ::init to initialize object.");
     }
 
     bool isPunyCode = false;
@@ -143,7 +143,7 @@ void CTopLevelDomainDb::splitHostName(const std::string& host, std::string& subD
         isPunyCode = true;
 
         // Translate puny_code to idna as lookup file is in idna
-        LOG_FATAL("NOT HANDLED YET");
+        LOG_FATAL(<< "NOT HANDLED YET");
     }
 
     // First do all of this in lower cass
@@ -153,7 +153,7 @@ void CTopLevelDomainDb::splitHostName(const std::string& host, std::string& subD
 
     // Trasnlate back to ascii
     if (isPunyCode) {
-        LOG_FATAL("NOT HANDLED YET");
+        LOG_FATAL(<< "NOT HANDLED YET");
     }
 }
 
@@ -194,7 +194,7 @@ Some examples:
             // Force an extra interation
             pos = str.find(PERIOD, pos);
             if (pos == std::string::npos) {
-                LOG_WARN("Unexpected domain for exception rule: '" << str);
+                LOG_WARN(<< "Unexpected domain for exception rule: '" << str);
             }
 
             pos = pos + PERIOD.size();

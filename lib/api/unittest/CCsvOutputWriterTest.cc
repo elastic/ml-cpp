@@ -114,25 +114,25 @@ void CCsvOutputWriterTest::testAdd() {
 
     std::string output(writer.internalString());
 
-    LOG_DEBUG("Output is:\n" << output);
+    LOG_DEBUG(<< "Output is:\n" << output);
 
     for (ml::api::CCsvOutputWriter::TStrVecCItr iter = fieldNames.begin(); iter != fieldNames.end(); ++iter) {
-        LOG_DEBUG("Checking output contains '" << *iter << "'");
+        LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
         CPPUNIT_ASSERT(output.find(*iter) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrVecCItr iter = mlFieldNames.begin(); iter != mlFieldNames.end(); ++iter) {
-        LOG_DEBUG("Checking output contains '" << *iter << "'");
+        LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
         CPPUNIT_ASSERT(output.find(*iter) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = originalFields.begin(); iter != originalFields.end(); ++iter) {
-        LOG_DEBUG("Checking output contains '" << iter->second << "'");
+        LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
         CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = mlFields.begin(); iter != mlFields.end(); ++iter) {
-        LOG_DEBUG("Checking output contains '" << iter->second << "'");
+        LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
         CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
     }
 }
@@ -213,31 +213,31 @@ void CCsvOutputWriterTest::testOverwrite() {
 
     std::string output(writer.internalString());
 
-    LOG_DEBUG("Output is:\n" << output);
+    LOG_DEBUG(<< "Output is:\n" << output);
 
     for (ml::api::CCsvOutputWriter::TStrVecCItr iter = fieldNames.begin(); iter != fieldNames.end(); ++iter) {
-        LOG_DEBUG("Checking output contains '" << *iter << "'");
+        LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
         CPPUNIT_ASSERT(output.find(*iter) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrVecCItr iter = mlFieldNames.begin(); iter != mlFieldNames.end(); ++iter) {
-        LOG_DEBUG("Checking output contains '" << *iter << "'");
+        LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
         CPPUNIT_ASSERT(output.find(*iter) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = originalFields.begin(); iter != originalFields.end(); ++iter) {
         // The Ml fields should override the originals
         if (mlFields.find(iter->first) == mlFields.end()) {
-            LOG_DEBUG("Checking output contains '" << iter->second << "'");
+            LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
             CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
         } else {
-            LOG_DEBUG("Checking output does not contain '" << iter->second << "'");
+            LOG_DEBUG(<< "Checking output does not contain '" << iter->second << "'");
             CPPUNIT_ASSERT(output.find(iter->second) == std::string::npos);
         }
     }
 
     for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = mlFields.begin(); iter != mlFields.end(); ++iter) {
-        LOG_DEBUG("Checking output contains '" << iter->second << "'");
+        LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
         CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
     }
 }
@@ -320,7 +320,7 @@ void CCsvOutputWriterTest::testThroughput() {
     static const size_t TEST_SIZE(75000);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     CPPUNIT_ASSERT(writer.fieldNames(fieldNames, mlFieldNames));
 
@@ -329,9 +329,9 @@ void CCsvOutputWriterTest::testThroughput() {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Writing " << TEST_SIZE << " records took " << (end - start) << " seconds");
+    LOG_INFO(<< "Writing " << TEST_SIZE << " records took " << (end - start) << " seconds");
 }
 
 void CCsvOutputWriterTest::testExcelQuoting() {
@@ -361,7 +361,7 @@ void CCsvOutputWriterTest::testExcelQuoting() {
 
     std::string output(writer.internalString());
 
-    LOG_DEBUG("Output is:\n" << output);
+    LOG_DEBUG(<< "Output is:\n" << output);
 
     CPPUNIT_ASSERT_EQUAL(std::string("no_special,"
                                      "contains_quote,"
@@ -409,7 +409,7 @@ void CCsvOutputWriterTest::testNonExcelQuoting() {
 
     std::string output(writer.internalString());
 
-    LOG_DEBUG("Output is:\n" << output);
+    LOG_DEBUG(<< "Output is:\n" << output);
 
     CPPUNIT_ASSERT_EQUAL(std::string("no_special,"
                                      "contains_quote,"

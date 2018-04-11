@@ -157,7 +157,7 @@ void CMemoryUsage::compress() {
         TStrSizeMap itemsByName;
         for (TMemoryUsagePtrListCItr i = m_Children.begin(); i != m_Children.end(); ++i) {
             itemsByName[(*i)->m_Description.s_Name]++;
-            LOG_TRACE("Item " << (*i)->m_Description.s_Name << " : " << itemsByName[(*i)->m_Description.s_Name]);
+            LOG_TRACE(<< "Item " << (*i)->m_Description.s_Name << " : " << itemsByName[(*i)->m_Description.s_Name]);
         }
 
         for (TStrSizeMapCItr i = itemsByName.begin(); i != itemsByName.end(); ++i) {
@@ -172,7 +172,7 @@ void CMemoryUsage::compress() {
 
                 TMemoryUsagePtrListItr j = m_Children.begin();
                 while ((j = std::find_if(j, m_Children.end(), comparison)) != m_Children.end()) {
-                    LOG_TRACE("Trying to remove " << *j);
+                    LOG_TRACE(<< "Trying to remove " << *j);
                     (*firstChild)->m_Description.s_Memory += (*j)->usage();
                     (*firstChild)->m_Description.s_Unused += (*j)->unusage();
                     delete *j;

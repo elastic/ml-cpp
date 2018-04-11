@@ -63,7 +63,7 @@ CThread::~CThread() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadId != UNALLOCATED_THREAD_ID) {
-        LOG_ERROR("Trying to destroy a running thread. Call 'stop' before destroying");
+        LOG_ERROR(<< "Trying to destroy a running thread. Call 'stop' before destroying");
     }
 }
 
@@ -77,14 +77,14 @@ bool CThread::start(TThreadId& threadId) {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadId != UNALLOCATED_THREAD_ID) {
-        LOG_ERROR("Thread already running");
+        LOG_ERROR(<< "Thread already running");
         threadId = m_ThreadId;
         return false;
     }
 
     int ret = pthread_create(&m_ThreadId, nullptr, &CThread::threadFunc, this);
     if (ret != 0) {
-        LOG_ERROR("Cannot create thread: " << ::strerror(ret));
+        LOG_ERROR(<< "Cannot create thread: " << ::strerror(ret));
         threadId = UNALLOCATED_THREAD_ID;
         return false;
     }
@@ -98,12 +98,12 @@ bool CThread::stop() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadId == UNALLOCATED_THREAD_ID) {
-        LOG_ERROR("Thread not running");
+        LOG_ERROR(<< "Thread not running");
         return false;
     }
 
     if (pthread_self() == m_ThreadId) {
-        LOG_ERROR("Can't stop own thread");
+        LOG_ERROR(<< "Can't stop own thread");
         return false;
     }
 
@@ -112,7 +112,7 @@ bool CThread::stop() {
 
     int ret = pthread_join(m_ThreadId, nullptr);
     if (ret != 0) {
-        LOG_ERROR("Error joining thread: " << ::strerror(ret));
+        LOG_ERROR(<< "Error joining thread: " << ::strerror(ret));
     }
 
     m_ThreadId = UNALLOCATED_THREAD_ID;
@@ -124,18 +124,18 @@ bool CThread::waitForFinish() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadId == UNALLOCATED_THREAD_ID) {
-        LOG_ERROR("Thread not running");
+        LOG_ERROR(<< "Thread not running");
         return false;
     }
 
     if (pthread_self() == m_ThreadId) {
-        LOG_ERROR("Can't stop own thread");
+        LOG_ERROR(<< "Can't stop own thread");
         return false;
     }
 
     int ret = pthread_join(m_ThreadId, nullptr);
     if (ret != 0) {
-        LOG_ERROR("Error joining thread: " << ::strerror(ret));
+        LOG_ERROR(<< "Error joining thread: " << ::strerror(ret));
     }
 
     m_ThreadId = UNALLOCATED_THREAD_ID;
@@ -153,12 +153,12 @@ bool CThread::cancelBlockedIo() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadId == UNALLOCATED_THREAD_ID) {
-        LOG_ERROR("Thread not running");
+        LOG_ERROR(<< "Thread not running");
         return false;
     }
 
     if (pthread_self() == m_ThreadId) {
-        LOG_ERROR("Can't cancel blocked IO in own thread");
+        LOG_ERROR(<< "Can't cancel blocked IO in own thread");
         return false;
     }
 
@@ -168,7 +168,7 @@ bool CThread::cancelBlockedIo() {
     if (ret != 0) {
         // Don't report an error if the thread has already exited
         if (ret != ESRCH) {
-            LOG_ERROR("Error cancelling blocked IO in thread: " << ::strerror(ret));
+            LOG_ERROR(<< "Error cancelling blocked IO in thread: " << ::strerror(ret));
             return false;
         }
     }
@@ -178,7 +178,7 @@ bool CThread::cancelBlockedIo() {
 
 bool CThread::cancelBlockedIo(TThreadId threadId) {
     if (pthread_self() == threadId) {
-        LOG_ERROR("Can't cancel blocked IO in own thread");
+        LOG_ERROR(<< "Can't cancel blocked IO in own thread");
         return false;
     }
 
@@ -188,7 +188,7 @@ bool CThread::cancelBlockedIo(TThreadId threadId) {
     if (ret != 0) {
         // Don't report an error if the thread has already exited
         if (ret != ESRCH) {
-            LOG_ERROR("Error cancelling blocked IO in thread " << threadId << ": " << ::strerror(ret));
+            LOG_ERROR(<< "Error cancelling blocked IO in thread " << threadId << ": " << ::strerror(ret));
             return false;
         }
     }

@@ -966,7 +966,7 @@ void CSampleQueueTest::testPersistence() {
         queue.acceptPersistInserter(inserter);
         inserter.toXml(origXml);
     }
-    LOG_DEBUG("XML:\n" << origXml);
+    LOG_DEBUG(<< "XML:\n" << origXml);
 
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
@@ -1034,20 +1034,20 @@ void CSampleQueueTest::testQualityOfSamplesGivenConstantRate() {
         meanMinVariance.add(varianceMin[0]);
         meanMaxVariance.add(varianceMax[0]);
 
-        LOG_DEBUG("Results for run: " << runId);
-        LOG_DEBUG("Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
-        LOG_DEBUG("Variance of variance scale = " << maths::CBasicStatistics::variance(varianceStat));
-        LOG_DEBUG("Top min variance scale = " << varianceMin.print());
-        LOG_DEBUG("Top max variance scale = " << varianceMax.print());
+        LOG_DEBUG(<< "Results for run: " << runId);
+        LOG_DEBUG(<< "Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
+        LOG_DEBUG(<< "Variance of variance scale = " << maths::CBasicStatistics::variance(varianceStat));
+        LOG_DEBUG(<< "Top min variance scale = " << varianceMin.print());
+        LOG_DEBUG(<< "Top max variance scale = " << varianceMax.print());
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(varianceStat) > 0.98);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(varianceStat) < 1.01);
         CPPUNIT_ASSERT(maths::CBasicStatistics::variance(varianceStat) < 0.0025);
         CPPUNIT_ASSERT(varianceMin[0] > 0.85);
         CPPUNIT_ASSERT(varianceMax[0] < 1.12);
     }
-    LOG_DEBUG("Mean queue size = " << maths::CBasicStatistics::mean(meanQueueSize));
-    LOG_DEBUG("Mean min variance = " << maths::CBasicStatistics::mean(meanMinVariance));
-    LOG_DEBUG("Mean max variance = " << maths::CBasicStatistics::mean(meanMaxVariance));
+    LOG_DEBUG(<< "Mean queue size = " << maths::CBasicStatistics::mean(meanQueueSize));
+    LOG_DEBUG(<< "Mean min variance = " << maths::CBasicStatistics::mean(meanMinVariance));
+    LOG_DEBUG(<< "Mean max variance = " << maths::CBasicStatistics::mean(meanMaxVariance));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMinVariance) > 0.90);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMaxVariance) < 1.1);
 }
@@ -1097,20 +1097,20 @@ void CSampleQueueTest::testQualityOfSamplesGivenVariableRate() {
         meanMinVariance.add(varianceMin[0]);
         meanMaxVariance.add(varianceMax[0]);
 
-        LOG_DEBUG("Results for run: " << runId);
-        LOG_DEBUG("Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
-        LOG_DEBUG("Variance of variance scale = " << maths::CBasicStatistics::variance(varianceStat));
-        LOG_DEBUG("Top min variance scale = " << varianceMin.print());
-        LOG_DEBUG("Top max variance scale = " << varianceMax.print());
+        LOG_DEBUG(<< "Results for run: " << runId);
+        LOG_DEBUG(<< "Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
+        LOG_DEBUG(<< "Variance of variance scale = " << maths::CBasicStatistics::variance(varianceStat));
+        LOG_DEBUG(<< "Top min variance scale = " << varianceMin.print());
+        LOG_DEBUG(<< "Top max variance scale = " << varianceMax.print());
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(varianceStat) > 0.97);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(varianceStat) < 1.01);
         CPPUNIT_ASSERT(maths::CBasicStatistics::variance(varianceStat) < 0.0065);
         CPPUNIT_ASSERT(varianceMin[0] > 0.74);
         CPPUNIT_ASSERT(varianceMax[0] < 1.26);
     }
-    LOG_DEBUG("Mean queue size = " << maths::CBasicStatistics::mean(meanQueueSize));
-    LOG_DEBUG("Mean min variance = " << maths::CBasicStatistics::mean(meanMinVariance));
-    LOG_DEBUG("Mean max variance = " << maths::CBasicStatistics::mean(meanMaxVariance));
+    LOG_DEBUG(<< "Mean queue size = " << maths::CBasicStatistics::mean(meanQueueSize));
+    LOG_DEBUG(<< "Mean min variance = " << maths::CBasicStatistics::mean(meanMinVariance));
+    LOG_DEBUG(<< "Mean max variance = " << maths::CBasicStatistics::mean(meanMaxVariance));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMinVariance) > 0.82);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMaxVariance) < 1.16);
 }
@@ -1146,10 +1146,10 @@ void CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder
         varianceMax.add(samples[i].varianceScale());
     }
 
-    LOG_DEBUG("Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
-    LOG_DEBUG("Variance of variance scale = " << maths::CBasicStatistics::variance(varianceStat));
-    LOG_DEBUG("Min variance scale = " << varianceMin[0]);
-    LOG_DEBUG("Max variance scale = " << varianceMax[0]);
+    LOG_DEBUG(<< "Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
+    LOG_DEBUG(<< "Variance of variance scale = " << maths::CBasicStatistics::variance(varianceStat));
+    LOG_DEBUG(<< "Min variance scale = " << varianceMin[0]);
+    LOG_DEBUG(<< "Max variance scale = " << varianceMax[0]);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(varianceStat) >= 0.999);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(varianceStat) <= 1.0);
     CPPUNIT_ASSERT(maths::CBasicStatistics::variance(varianceStat) <= 0.0001);

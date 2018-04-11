@@ -52,7 +52,7 @@ estimate(CMemoryUsageEstimator& estimator, std::size_t people, std::size_t attri
 }
 
 void CMemoryUsageEstimatorTest::testEstimateLinear() {
-    LOG_DEBUG("Running estimator test estimate linear");
+    LOG_DEBUG(<< "Running estimator test estimate linear");
 
     CMemoryUsageEstimator estimator;
 
@@ -106,7 +106,7 @@ void CMemoryUsageEstimatorTest::testEstimateLinear() {
 }
 
 void CMemoryUsageEstimatorTest::testEstimateNonlinear() {
-    LOG_DEBUG("Running estimator test estimate non-linear");
+    LOG_DEBUG(<< "Running estimator test estimate non-linear");
 
     {
         // intercept = 356
@@ -149,13 +149,13 @@ void CMemoryUsageEstimatorTest::testEstimateNonlinear() {
 
         CMemoryUsageEstimator::TOptionalSize mem = estimate(estimator, 25, 35, 45);
         std::size_t actual = pScale * 25 * 25 + aScale * 35 * 35 + cScale * 45 * 45;
-        LOG_DEBUG("actual = " << actual << ", estimated = " << mem.get());
+        LOG_DEBUG(<< "actual = " << actual << ", estimated = " << mem.get());
         CPPUNIT_ASSERT(static_cast<double>(actual - mem.get()) / static_cast<double>(actual) < 0.15);
     }
 }
 
 void CMemoryUsageEstimatorTest::testPersist() {
-    LOG_DEBUG("Running estimator test persist");
+    LOG_DEBUG(<< "Running estimator test persist");
 
     CMemoryUsageEstimator origEstimator;
     {
@@ -164,7 +164,7 @@ void CMemoryUsageEstimatorTest::testPersist() {
             core::CRapidXmlStatePersistInserter inserter("root");
             origEstimator.acceptPersistInserter(inserter);
             inserter.toXml(origXml);
-            LOG_DEBUG("origXml = " << origXml);
+            LOG_DEBUG(<< "origXml = " << origXml);
         }
 
         // Restore the XML into a new data gatherer
@@ -201,7 +201,7 @@ void CMemoryUsageEstimatorTest::testPersist() {
             core::CRapidXmlStatePersistInserter inserter("root");
             origEstimator.acceptPersistInserter(inserter);
             inserter.toXml(origXml);
-            LOG_DEBUG("origXml = " << origXml);
+            LOG_DEBUG(<< "origXml = " << origXml);
         }
 
         // Restore the XML into a new data gatherer

@@ -135,11 +135,11 @@ bool modelAcceptRestoreTraverser(const SDistributionRestoreParams& params,
     } while (traverser.next());
 
     if (!gotWeight) {
-        LOG_ERROR("No weight found");
+        LOG_ERROR(<< "No weight found");
         return false;
     }
     if (model == nullptr) {
-        LOG_ERROR("No model found");
+        LOG_ERROR(<< "No model found");
         return false;
     }
 
@@ -185,7 +185,7 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
                                                    double decayRate)
     : CMultivariatePrior(dataType, decayRate), m_Dimension(dimension) {
     if (models.empty()) {
-        LOG_ERROR("Can't initialize one-of-n with no models!");
+        LOG_ERROR(<< "Can't initialize one-of-n with no models!");
         return;
     }
 
@@ -203,7 +203,7 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
                                                    double decayRate)
     : CMultivariatePrior(dataType, decayRate), m_Dimension(dimension) {
     if (models.empty()) {
-        LOG_ERROR("Can't initialize mixed model with no models!");
+        LOG_ERROR(<< "Can't initialize mixed model with no models!");
         return;
     }
 
@@ -331,8 +331,8 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec& weightStyles,
         maths_t::EFloatingPointErrorStatus status =
             use ? model.second->jointLogMarginalLikelihood(weightStyles, samples, weights, logLikelihood) : maths_t::E_FpOverflowed;
         if (status & maths_t::E_FpFailed) {
-            LOG_ERROR("Failed to compute log-likelihood");
-            LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed to compute log-likelihood");
+            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
         } else {
             if (!(status & maths_t::E_FpOverflowed)) {
                 logLikelihood += model.second->unmarginalizedParameters() * penalty;
@@ -356,12 +356,12 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec& weightStyles,
             add(maths_t::count(m_Dimension, weightStyles, weight), n);
         }
     } catch (std::exception& e) {
-        LOG_ERROR("Failed to add samples: " << e.what());
+        LOG_ERROR(<< "Failed to add samples: " << e.what());
         return;
     }
 
     if (!isNonInformative && maxLogLikelihood.count() > 0) {
-        LOG_TRACE("logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
+        LOG_TRACE(<< "logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
 
         // The idea here is to limit the amount which extreme samples
         // affect model selection, particularly early on in the model
@@ -387,16 +387,16 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec& weightStyles,
     }
 
     if (this->badWeights()) {
-        LOG_ERROR("Update failed (" << this->debugWeights() << ")");
-        LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR("weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "Update failed (" << this->debugWeights() << ")");
+        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
         this->setToNonInformative(this->offsetMargin(), this->decayRate());
     }
 }
 
 void CMultivariateOneOfNPrior::propagateForwardsByTime(double time) {
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
-        LOG_ERROR("Bad propagation time " << time);
+        LOG_ERROR(<< "Bad propagation time " << time);
         return;
     }
 
@@ -413,7 +413,7 @@ void CMultivariateOneOfNPrior::propagateForwardsByTime(double time) {
 
     this->numberSamples(this->numberSamples() * alpha);
 
-    LOG_TRACE("numberSamples = " << this->numberSamples());
+    LOG_TRACE(<< "numberSamples = " << this->numberSamples());
 }
 
 CMultivariateOneOfNPrior::TUnivariatePriorPtrDoublePr CMultivariateOneOfNPrior::univariate(const TSize10Vec& marginalize,
@@ -597,7 +597,7 @@ maths_t::EFloatingPointErrorStatus CMultivariateOneOfNPrior::jointLogMarginalLik
     result = 0.0;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute likelihood for empty sample set");
+        LOG_ERROR(<< "Can't compute likelihood for empty sample set");
         return maths_t::E_FpFailed;
     }
     if (!this->check(samples, weights)) {
@@ -642,16 +642,16 @@ maths_t::EFloatingPointErrorStatus CMultivariateOneOfNPrior::jointLogMarginalLik
 
     maths_t::EFloatingPointErrorStatus status = CMathsFuncs::fpStatus(result);
     if (status & maths_t::E_FpFailed) {
-        LOG_ERROR("Failed to compute log likelihood (" << this->debugWeights() << ")");
-        LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR("weights = " << core::CContainerPrinter::print(weights));
-        LOG_ERROR("logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
-        LOG_ERROR("maxLogLikelihood = " << maxLogLikelihood[0]);
+        LOG_ERROR(<< "Failed to compute log likelihood (" << this->debugWeights() << ")");
+        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
+        LOG_ERROR(<< "maxLogLikelihood = " << maxLogLikelihood[0]);
     } else if (status & maths_t::E_FpOverflowed) {
-        LOG_ERROR("Log likelihood overflowed for (" << this->debugWeights() << ")");
-        LOG_TRACE("likelihoods = " << core::CContainerPrinter::print(logLikelihoods));
-        LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
-        LOG_TRACE("weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "Log likelihood overflowed for (" << this->debugWeights() << ")");
+        LOG_TRACE(<< "likelihoods = " << core::CContainerPrinter::print(logLikelihoods));
+        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
     }
     return status;
 }
@@ -675,10 +675,10 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
 
     CSampling::TSizeVec sampling;
     CSampling::weightedSample(numberSamples, weights, sampling);
-    LOG_TRACE("weights = " << core::CContainerPrinter::print(weights) << ", sampling = " << core::CContainerPrinter::print(sampling));
+    LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights) << ", sampling = " << core::CContainerPrinter::print(sampling));
 
     if (sampling.size() != m_Models.size()) {
-        LOG_ERROR("Failed to sample marginal likelihood");
+        LOG_ERROR(<< "Failed to sample marginal likelihood");
         return;
     }
 
@@ -697,7 +697,7 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
             samples.push_back(CTools::truncate(sample, support.first, support.second));
         }
     }
-    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
+    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 }
 
 bool CMultivariateOneOfNPrior::isNonInformative() const {

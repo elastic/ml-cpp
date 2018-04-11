@@ -62,7 +62,7 @@ CStateDecompressor::CDechunkFilter::CDechunkFilter(CDataSearcher& searcher)
 
 std::streamsize CStateDecompressor::CDechunkFilter::read(char* s, std::streamsize n) {
     if (m_EndOfStream) {
-        LOG_TRACE("EOS -1");
+        LOG_TRACE(<< "EOS -1");
         return -1;
     }
     // return number of bytes read, -1 for EOF
@@ -70,15 +70,15 @@ std::streamsize CStateDecompressor::CDechunkFilter::read(char* s, std::streamsiz
     while (bytesDone < n) {
         if (!m_IStream) {
             // Get a new input stream
-            LOG_TRACE("Getting new stream, for document number " << m_CurrentDocNum);
+            LOG_TRACE(<< "Getting new stream, for document number " << m_CurrentDocNum);
 
             m_IStream = m_Searcher.search(m_CurrentDocNum, 1);
             if (!m_IStream) {
-                LOG_ERROR("Unable to connect to data store");
+                LOG_ERROR(<< "Unable to connect to data store");
                 return this->endOfStream(s, n, bytesDone);
             }
             if (m_IStream->bad()) {
-                LOG_ERROR("Error connecting to data store");
+                LOG_ERROR(<< "Error connecting to data store");
                 return this->endOfStream(s, n, bytesDone);
             }
 
@@ -86,7 +86,7 @@ std::streamsize CStateDecompressor::CDechunkFilter::read(char* s, std::streamsiz
                 m_EndOfStream = true;
                 // This is not fatal - we just didn't find the given document number
                 // Presume that we have finished
-                LOG_TRACE("No more documents to find");
+                LOG_TRACE(<< "No more documents to find");
                 return this->endOfStream(s, n, bytesDone);
             }
 
@@ -104,19 +104,19 @@ std::streamsize CStateDecompressor::CDechunkFilter::read(char* s, std::streamsiz
         }
 
         if ((m_IStream) && (m_IStream->eof())) {
-            LOG_TRACE("Stream EOF");
+            LOG_TRACE(<< "Stream EOF");
             m_IStream.reset();
             ++m_CurrentDocNum;
         }
     }
-    LOG_TRACE("Returning " << bytesDone << ": " << std::string(s, bytesDone));
+    LOG_TRACE(<< "Returning " << bytesDone << ": " << std::string(s, bytesDone));
     return bytesDone;
 }
 
 bool CStateDecompressor::CDechunkFilter::parseNext() {
     if (m_Reader->HasParseError()) {
         const char* error(rapidjson::GetParseError_En(m_Reader->GetParseErrorCode()));
-        LOG_ERROR("Error parsing JSON at offset " << m_Reader->GetErrorOffset() << ": " << ((error != nullptr) ? error : "No message"));
+        LOG_ERROR(<< "Error parsing JSON at offset " << m_Reader->GetErrorOffset() << ": " << ((error != nullptr) ? error : "No message"));
         return false;
     }
 
@@ -129,7 +129,7 @@ bool CStateDecompressor::CDechunkFilter::readHeader() {
     m_Reader->IterativeParseInit();
 
     if (this->parseNext() == false) {
-        LOG_ERROR("Failed to find valid JSON");
+        LOG_ERROR(<< "Failed to find valid JSON");
         m_Initialised = false;
         m_IStream.reset();
         ++m_CurrentDocNum;
@@ -151,7 +151,7 @@ bool CStateDecompressor::CDechunkFilter::readHeader() {
     }
     // If we are here, we have got an empty document from downstream,
     // so the stream is finished
-    LOG_TRACE("Failed to find 'compressed' data array!");
+    LOG_TRACE(<< "Failed to find 'compressed' data array!");
     m_Initialised = false;
     m_IStream.reset();
     ++m_CurrentDocNum;
@@ -176,24 +176,24 @@ void CStateDecompressor::CDechunkFilter::handleRead(char* s, std::streamsize n, 
     while (bytesDone < n && this->parseNext()) {
         m_BufferOffset = 0;
         if (m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayEnd) {
-            LOG_TRACE("Come to end of array");
+            LOG_TRACE(<< "Come to end of array");
             if (this->parseNext() && m_Handler.s_Type == SRapidJsonHandler::E_TokenKey &&
                 CStateCompressor::END_OF_STREAM_ATTRIBUTE.compare(0,
                                                                   CStateCompressor::END_OF_STREAM_ATTRIBUTE.length(),
                                                                   m_Handler.s_CompressedChunk,
                                                                   m_Handler.s_CompressedChunkLength) == 0) {
-                LOG_DEBUG("Explicit end-of-stream marker found in document with index " << m_CurrentDocNum);
+                LOG_DEBUG(<< "Explicit end-of-stream marker found in document with index " << m_CurrentDocNum);
 
                 // Read the value of the CStateCompressor::END_OF_STREAM_ATTRIBUTE field and the closing brace
                 if (this->parseNext() && m_Handler.s_Type != SRapidJsonHandler::E_TokenBool) {
-                    LOG_ERROR("Expecting bool value to follow  " << CStateCompressor::END_OF_STREAM_ATTRIBUTE << ", got "
-                                                                 << m_Handler.s_Type);
+                    LOG_ERROR(<< "Expecting bool value to follow  " << CStateCompressor::END_OF_STREAM_ATTRIBUTE << ", got "
+                              << m_Handler.s_Type);
                 }
 
                 while (m_NestedLevel > 0) {
                     if (this->parseNext() && m_Handler.s_Type != SRapidJsonHandler::E_TokenObjectEnd) {
-                        LOG_ERROR("Expecting end object to follow " << CStateCompressor::END_OF_STREAM_ATTRIBUTE << ", got "
-                                                                    << m_Handler.s_Type);
+                        LOG_ERROR(<< "Expecting end object to follow " << CStateCompressor::END_OF_STREAM_ATTRIBUTE << ", got "
+                                  << m_Handler.s_Type);
                     }
 
                     --m_NestedLevel;
@@ -230,7 +230,7 @@ std::streamsize CStateDecompressor::CDechunkFilter::endOfStream(char* s, std::st
         return toCopy;
     }
 
-    LOG_TRACE("Returning " << bytesDone << " of " << n << " bytes");
+    LOG_TRACE(<< "Returning " << bytesDone << " of " << n << " bytes");
 
     return (bytesDone == 0) ? -1 : bytesDone;
 }

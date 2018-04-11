@@ -108,7 +108,7 @@ bool CAdaptiveBucketing::initialized() const {
 
 bool CAdaptiveBucketing::initialize(double a, double b, std::size_t n) {
     if (n == 0) {
-        LOG_ERROR("Must have at least one bucket");
+        LOG_ERROR(<< "Must have at least one bucket");
         return false;
     }
 
@@ -198,7 +198,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     using TMinAccumulator = CBasicStatistics::SMin<TDoubleSizePr>::TAccumulator;
     using TMaxAccumulator = CBasicStatistics::SMax<TDoubleSizePr>::TAccumulator;
 
-    LOG_TRACE("refining at " << time);
+    LOG_TRACE(<< "refining at " << time);
 
     std::size_t n{m_Endpoints.size()};
     if (n < 2) {
@@ -215,7 +215,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     for (std::size_t i = 0u; i < n; ++i) {
         values.emplace_back(this->count(i), this->predict(i, time, m_Centres[i]));
     }
-    LOG_TRACE("values = " << core::CContainerPrinter::print(values));
+    LOG_TRACE(<< "values = " << core::CContainerPrinter::print(values));
 
     // Compute the function range in each bucket, imposing periodic
     // boundary conditions at the start and end of the interval.
@@ -264,13 +264,13 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         averagingErrors.push_back(error);
         totalAveragingError += error;
     }
-    LOG_TRACE("averagingErrors = " << core::CContainerPrinter::print(averagingErrors));
-    LOG_TRACE("totalAveragingError = " << totalAveragingError);
+    LOG_TRACE(<< "averagingErrors = " << core::CContainerPrinter::print(averagingErrors));
+    LOG_TRACE(<< "totalAveragingError = " << totalAveragingError);
 
     double n_{static_cast<double>(n)};
     double step{(1 - n_ * EPS) * totalAveragingError / n_};
     TFloatVec endpoints{m_Endpoints};
-    LOG_TRACE("step = " << step);
+    LOG_TRACE(<< "step = " << step);
 
     // If all the function values are identical then the end points
     // should be equidistant. We check step in case of underflow.
@@ -314,8 +314,8 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
                 double x{h * e_ / averagingErrors[i]};
                 m_Endpoints[j] = endpoints[j] + alpha * (ai + x - endpoints[j]);
                 force += (ai + x) - endpoints[j];
-                LOG_TRACE("interval averaging error = " << e << ", a(i) = " << ai << ", x = " << x << ", endpoint " << endpoints[j]
-                                                        << " -> " << ai + x);
+                LOG_TRACE(<< "interval averaging error = " << e << ", a(i) = " << ai << ", x = " << x << ", endpoint " << endpoints[j]
+                          << " -> " << ai + x);
                 ++j;
             }
         }
@@ -328,7 +328,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         // and "b" so that the total interval is unchanged.
         m_Endpoints[0] = a;
         m_Endpoints[n] = b;
-        LOG_TRACE("refinedEndpoints = " << core::CContainerPrinter::print(m_Endpoints));
+        LOG_TRACE(<< "refinedEndpoints = " << core::CContainerPrinter::print(m_Endpoints));
 
         m_LpForce.add(force);
         m_Force.add(std::fabs(force));
@@ -350,7 +350,7 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
     for (std::size_t i = 0u; i < n; ++i) {
         if (this->count(i) > 0.0) {
             double wide{3.0 * (m_Endpoints[n] - m_Endpoints[0]) / static_cast<double>(n)};
-            LOG_TRACE("period " << m_Endpoints[n] - m_Endpoints[0] << ", # buckets = " << n << ", wide = " << wide);
+            LOG_TRACE(<< "period " << m_Endpoints[n] - m_Endpoints[0] << ", # buckets = " << n << ", wide = " << wide);
 
             // We get two points for each wide bucket but at most
             // one third of the buckets can be wide. In this case
@@ -457,7 +457,7 @@ bool CAdaptiveBucketing::bucket(core_t::TTime time, std::size_t& result) const {
     std::size_t i(std::upper_bound(m_Endpoints.begin(), m_Endpoints.end(), t) - m_Endpoints.begin());
     std::size_t n{m_Endpoints.size()};
     if (t < m_Endpoints[0] || i == n) {
-        LOG_ERROR("t = " << t << " out of range [" << m_Endpoints[0] << "," << m_Endpoints[n - 1] << ")");
+        LOG_ERROR(<< "t = " << t << " out of range [" << m_Endpoints[0] << "," << m_Endpoints[n - 1] << ")");
         return false;
     }
 

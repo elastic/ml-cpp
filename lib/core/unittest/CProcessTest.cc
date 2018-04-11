@@ -30,7 +30,7 @@ void CProcessTest::testPids() {
     ml::core::CProcess::TPid pid = process.id();
     ml::core::CProcess::TPid ppid = process.parentId();
 
-    LOG_DEBUG("PID = " << pid << " and parent PID = " << ppid);
+    LOG_DEBUG(<< "PID = " << pid << " and parent PID = " << ppid);
 
     CPPUNIT_ASSERT(pid != 0);
     CPPUNIT_ASSERT(ppid != 0);

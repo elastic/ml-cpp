@@ -1525,7 +1525,7 @@ const std::string& outputFunctionName(EFeature feature) {
         return model::CAnomalyDetector::INFO_CONTENT_NAME;
     case E_PopulationAttributeTotalCountByPerson:
     case E_PopulationUniquePersonCountByAttribute:
-        LOG_ERROR("Unexpected feature " << print(feature));
+        LOG_ERROR(<< "Unexpected feature " << print(feature));
         break;
 
     // Population metric features
@@ -1572,7 +1572,7 @@ const std::string& outputFunctionName(EFeature feature) {
     case E_PeersHighInfoContentByBucketPersonAndAttribute:
         return model::CAnomalyDetector::INFO_CONTENT_NAME;
     case E_PeersAttributeTotalCountByPerson:
-        LOG_ERROR("Unexpected feature " << print(feature));
+        LOG_ERROR(<< "Unexpected feature " << print(feature));
         break;
 
     // Peers metric features

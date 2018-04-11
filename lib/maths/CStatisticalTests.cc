@@ -86,7 +86,7 @@ double CStatisticalTests::leftTailFTest(double x, double d1, double d2) {
         boost::math::fisher_f_distribution<> F(d1, d2);
         return boost::math::cdf(F, x);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to compute significance " << e.what() << " d1 = " << d1 << ", d2 = " << d2 << ", x = " << x);
+        LOG_ERROR(<< "Failed to compute significance " << e.what() << " d1 = " << d1 << ", d2 = " << d2 << ", x = " << x);
     }
     return 1.0;
 }
@@ -102,7 +102,7 @@ double CStatisticalTests::rightTailFTest(double x, double d1, double d2) {
         boost::math::fisher_f_distribution<> F(d1, d2);
         return boost::math::cdf(boost::math::complement(F, x));
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to compute significance " << e.what() << " d1 = " << d1 << ", d2 = " << d2 << ", x = " << x);
+        LOG_ERROR(<< "Failed to compute significance " << e.what() << " d1 = " << d1 << ", d2 = " << d2 << ", x = " << x);
     }
     return 1.0;
 }
@@ -138,7 +138,7 @@ double CStatisticalTests::twoSampleKS(TDoubleVec x, TDoubleVec y) {
 
     double neff = std::sqrt(static_cast<double>(nx) * static_cast<double>(ny) / static_cast<double>(nx + ny));
     double result = significance((neff + 0.12 + 0.11 / neff) * D);
-    LOG_TRACE("nx = " << nx << ", ny = " << ny << ", D = " << D << ", significance = " << result);
+    LOG_TRACE(<< "nx = " << nx << ", ny = " << ny << ", D = " << D << ", significance = " << result);
     return result;
 }
 
@@ -211,10 +211,10 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
     for (std::size_t i = 0u; i < 16; ++i) {
         tt[i] = alpha * T_VALUES[row][i] + beta * T_VALUES[row - 1][i];
     }
-    LOG_TRACE("n = " << m_Size + 1 << ", tt = " << core::CContainerPrinter::print(tt));
+    LOG_TRACE(<< "n = " << m_Size + 1 << ", tt = " << core::CContainerPrinter::print(tt));
 
     double t = CBasicStatistics::mean(m_T);
-    LOG_TRACE("t = " << t);
+    LOG_TRACE(<< "t = " << t);
 
     if (t == 0.0) {
         return 1.0;
@@ -238,7 +238,7 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
         double c = b / (b - a) * std::log((fb) / (fa)) + std::log(fa);
 
         double p = 1.0 - std::exp(-m / t + c);
-        LOG_TRACE("p = 1.0 - exp(" << -m << " / T + " << c << ") = " << p);
+        LOG_TRACE(<< "p = 1.0 - exp(" << -m << " / T + " << c << ") = " << p);
         return p;
     }
 
@@ -252,7 +252,7 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
     double m = 1.0 / (a - b) * std::log((1.0 - fb) / (1.0 - fa));
     double c = a / (a - b) * std::log((1.0 - fb) / (1.0 - fa)) + std::log(1.0 - fa);
     double p = std::exp(-m * t + c);
-    LOG_TRACE("p = exp(" << -m << " T + " << c << ") = " << p);
+    LOG_TRACE(<< "p = exp(" << -m << " T + " << c << ") = " << p);
 
     return p;
 }

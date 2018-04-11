@@ -325,7 +325,7 @@ void CTokenListDataTyperTest::testPersist() {
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("Typer XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Typer XML representation:\n" << origXml);
 
     // Restore the XML into a new typer
     TTokenListDataTyperKeepsFields restoredTyper(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
@@ -361,7 +361,7 @@ void CTokenListDataTyperTest::testLongReverseSearch() {
             longMessage.append(20, char('a' + j));
         }
     }
-    LOG_DEBUG("Long message is: " << longMessage);
+    LOG_DEBUG(<< "Long message is: " << longMessage);
 
     // Only 1 message so must be type 1
     int type = typer.computeType(false, longMessage, longMessage.length());
@@ -377,10 +377,10 @@ void CTokenListDataTyperTest::testLongReverseSearch() {
     CPPUNIT_ASSERT(typer.createReverseSearch(type, terms, regex, maxMatchingLength, wasCached));
 
     CPPUNIT_ASSERT(!wasCached);
-    LOG_DEBUG("Terms length: " << terms.length());
-    LOG_TRACE("Terms: " << terms);
-    LOG_DEBUG("Regex length: " << regex.length());
-    LOG_TRACE("Regex: " << regex);
+    LOG_DEBUG(<< "Terms length: " << terms.length());
+    LOG_TRACE(<< "Terms: " << terms);
+    LOG_DEBUG(<< "Regex length: " << regex.length());
+    LOG_TRACE(<< "Regex: " << regex);
     CPPUNIT_ASSERT(terms.length() + regex.length() <= 10000);
     CPPUNIT_ASSERT_EQUAL(longMessage.length() * 11 / 10, maxMatchingLength);
 
@@ -439,7 +439,7 @@ void CTokenListDataTyperTest::testPreTokenisedPerformance() {
     {
         TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
-        LOG_DEBUG("Before test with inline tokenisation");
+        LOG_DEBUG(<< "Before test with inline tokenisation");
 
         stopWatch.start();
         for (size_t count = 0; count < TEST_SIZE; ++count) {
@@ -450,8 +450,8 @@ void CTokenListDataTyperTest::testPreTokenisedPerformance() {
         }
         inlineTokenisationTime = stopWatch.stop();
 
-        LOG_DEBUG("After test with inline tokenisation");
-        LOG_DEBUG("Inline tokenisation test took " << inlineTokenisationTime << "ms");
+        LOG_DEBUG(<< "After test with inline tokenisation");
+        LOG_DEBUG(<< "Inline tokenisation test took " << inlineTokenisationTime << "ms");
     }
 
     stopWatch.reset();
@@ -464,7 +464,7 @@ void CTokenListDataTyperTest::testPreTokenisedPerformance() {
     {
         TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
-        LOG_DEBUG("Before test with pre-tokenisation");
+        LOG_DEBUG(<< "Before test with pre-tokenisation");
 
         stopWatch.start();
         for (size_t count = 0; count < TEST_SIZE; ++count) {
@@ -477,8 +477,8 @@ void CTokenListDataTyperTest::testPreTokenisedPerformance() {
         }
         preTokenisationTime = stopWatch.stop();
 
-        LOG_DEBUG("After test with pre-tokenisation");
-        LOG_DEBUG("Pre-tokenisation test took " << preTokenisationTime << "ms");
+        LOG_DEBUG(<< "After test with pre-tokenisation");
+        LOG_DEBUG(<< "Pre-tokenisation test took " << preTokenisationTime << "ms");
     }
 
     CPPUNIT_ASSERT(preTokenisationTime <= inlineTokenisationTime);

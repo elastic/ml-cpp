@@ -189,7 +189,7 @@ CFieldConfig::CFieldConfig(const std::string& fieldName,
 
 bool CFieldConfig::initFromCmdLine(const std::string& configFile, const TStrVec& tokens) {
     if (tokens.empty() && configFile.empty()) {
-        LOG_ERROR("Neither a fieldname clause nor a field config file was specified");
+        LOG_ERROR(<< "Neither a fieldname clause nor a field config file was specified");
         return false;
     }
 
@@ -198,7 +198,7 @@ bool CFieldConfig::initFromCmdLine(const std::string& configFile, const TStrVec&
     }
 
     if (!configFile.empty()) {
-        LOG_ERROR("Cannot specify both a fieldname clause and a field config file");
+        LOG_ERROR(<< "Cannot specify both a fieldname clause and a field config file");
         return false;
     }
 
@@ -206,7 +206,7 @@ bool CFieldConfig::initFromCmdLine(const std::string& configFile, const TStrVec&
 }
 
 bool CFieldConfig::initFromFile(const std::string& configFile) {
-    LOG_DEBUG("Reading config file " << configFile);
+    LOG_DEBUG(<< "Reading config file " << configFile);
 
     m_FieldOptions.clear();
     m_FieldNameSuperset.clear();
@@ -220,14 +220,14 @@ bool CFieldConfig::initFromFile(const std::string& configFile) {
     try {
         std::ifstream strm(configFile.c_str());
         if (!strm.is_open()) {
-            LOG_ERROR("Error opening config file " << configFile);
+            LOG_ERROR(<< "Error opening config file " << configFile);
             return false;
         }
         model::CLimits::skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {
-        LOG_ERROR("Error reading config file " << configFile << ": " << e.what());
+        LOG_ERROR(<< "Error reading config file " << configFile << ": " << e.what());
         return false;
     }
 
@@ -239,7 +239,7 @@ bool CFieldConfig::initFromFile(const std::string& configFile) {
         const std::string& value = level1Iter->second.data();
         if (level1Key.length() > DETECTOR_PREFIX.length() && level1Key.compare(0, DETECTOR_PREFIX.length(), DETECTOR_PREFIX) == 0) {
             if (this->processDetector(propTree, level1Key, value, handledConfigs) == false) {
-                LOG_ERROR("Error reading config file " << configFile);
+                LOG_ERROR(<< "Error reading config file " << configFile);
                 return false;
             }
         } else if (level1Key.length() > CATEGORIZATION_FILTER_PREFIX.length() &&
@@ -254,7 +254,7 @@ bool CFieldConfig::initFromFile(const std::string& configFile) {
                    level1Key.compare(0, SCHEDULED_EVENT_PREFIX.length(), SCHEDULED_EVENT_PREFIX) == 0) {
             this->processScheduledEvent(propTree, level1Key, value, handledScheduledEvents);
         } else {
-            LOG_ERROR("Invalid setting " << level1Key << " = " << value << " in config file " << configFile);
+            LOG_ERROR(<< "Invalid setting " << level1Key << " = " << value << " in config file " << configFile);
             return false;
         }
     }
@@ -282,10 +282,10 @@ bool CFieldConfig::tokenise(const std::string& clause, TStrVec& copyTokens) {
             }
 
             copyTokens.push_back(token);
-            LOG_TRACE(token);
+            LOG_TRACE(<< token);
         }
     } catch (boost::escaped_list_error& e) {
-        LOG_ERROR("Cannot parse clause " << clause << ": " << e.what());
+        LOG_ERROR(<< "Cannot parse clause " << clause << ": " << e.what());
         return false;
     }
 
@@ -317,7 +317,7 @@ void CFieldConfig::retokenise(const TStrVec& tokens, TStrVec& copyTokens) {
     }
 
     for (const auto& copyToken : copyTokens) {
-        LOG_DEBUG(copyToken);
+        LOG_DEBUG(<< copyToken);
     }
 }
 
@@ -326,9 +326,9 @@ bool CFieldConfig::findLastByOverTokens(const TStrVec& copyTokens, std::size_t& 
         if (copyTokens[index].length() == BY_TOKEN.length() &&
             core::CStrCaseCmp::strCaseCmp(copyTokens[index].c_str(), BY_TOKEN.c_str()) == 0) {
             if (lastByTokenIndex != copyTokens.size()) {
-                LOG_ERROR("Multiple '" << copyTokens[lastByTokenIndex] << "' tokens in analysis clause - tokens "
-                                       << core::CStringUtils::typeToString(1 + lastByTokenIndex) << " and "
-                                       << core::CStringUtils::typeToString(1 + index));
+                LOG_ERROR(<< "Multiple '" << copyTokens[lastByTokenIndex] << "' tokens in analysis clause - tokens "
+                          << core::CStringUtils::typeToString(1 + lastByTokenIndex) << " and "
+                          << core::CStringUtils::typeToString(1 + index));
                 return false;
             }
 
@@ -338,9 +338,9 @@ bool CFieldConfig::findLastByOverTokens(const TStrVec& copyTokens, std::size_t& 
         if (copyTokens[index].length() == OVER_TOKEN.length() &&
             core::CStrCaseCmp::strCaseCmp(copyTokens[index].c_str(), OVER_TOKEN.c_str()) == 0) {
             if (lastOverTokenIndex != copyTokens.size()) {
-                LOG_ERROR("Multiple '" << copyTokens[lastOverTokenIndex] << "' tokens in analysis clause - tokens "
-                                       << core::CStringUtils::typeToString(1 + lastOverTokenIndex) << " and "
-                                       << core::CStringUtils::typeToString(1 + index));
+                LOG_ERROR(<< "Multiple '" << copyTokens[lastOverTokenIndex] << "' tokens in analysis clause - tokens "
+                          << core::CStringUtils::typeToString(1 + lastOverTokenIndex) << " and "
+                          << core::CStringUtils::typeToString(1 + index));
                 return false;
             }
 
@@ -357,24 +357,24 @@ bool CFieldConfig::validateByOverField(const TStrVec& copyTokens,
                                        std::string& fieldName) {
     if (thisIndex != copyTokens.size()) {
         if (thisIndex == 0) {
-            LOG_ERROR("Analysis clause begins with a '" << copyTokens[thisIndex] << "' token");
+            LOG_ERROR(<< "Analysis clause begins with a '" << copyTokens[thisIndex] << "' token");
             return false;
         }
 
         if (thisIndex + 1 == copyTokens.size() || thisIndex + 1 == otherIndex) {
-            LOG_ERROR("No field name follows the '" << copyTokens[thisIndex] << "' token in the analysis clause");
+            LOG_ERROR(<< "No field name follows the '" << copyTokens[thisIndex] << "' token in the analysis clause");
             return false;
         }
 
         if (thisIndex + 2 < copyTokens.size() && thisIndex + 2 < otherIndex) {
-            LOG_ERROR("Only one field name may follow the '" << copyTokens[thisIndex] << "' token in the analysis clause");
+            LOG_ERROR(<< "Only one field name may follow the '" << copyTokens[thisIndex] << "' token in the analysis clause");
             return false;
         }
 
         fieldName = copyTokens[thisIndex + 1];
         for (const auto& clashingName : clashingNames) {
             if (fieldName == clashingName) {
-                LOG_ERROR("The '" << copyTokens[thisIndex] << "' field cannot be " << fieldName);
+                LOG_ERROR(<< "The '" << copyTokens[thisIndex] << "' field cannot be " << fieldName);
                 return false;
             }
         }
@@ -389,7 +389,7 @@ std::string CFieldConfig::findParameter(const std::string& parameter, TStrVec& c
         std::size_t equalPos = token.find('=');
         if (equalPos == parameter.length() && core::CStrCaseCmp::strNCaseCmp(parameter.c_str(), token.c_str(), equalPos) == 0) {
             std::string value(token, equalPos + 1, token.length() - equalPos);
-            LOG_TRACE("Found parameter " << parameter << " : " << value);
+            LOG_TRACE(<< "Found parameter " << parameter << " : " << value);
             copyTokens.erase(iter);
             return value;
         }
@@ -411,7 +411,7 @@ bool CFieldConfig::initFromClause(const TStrVec& tokens) {
     TStrVec copyTokens;
     this->retokenise(tokens, copyTokens);
     if (copyTokens.empty()) {
-        LOG_ERROR("No fields specified for analysis");
+        LOG_ERROR(<< "No fields specified for analysis");
         return false;
     }
 
@@ -440,7 +440,7 @@ bool CFieldConfig::addOptions(const CFieldOptions& options) {
     using TFieldOptionsMIndexItrBoolPr = std::pair<TFieldOptionsMIndexItr, bool>;
     TFieldOptionsMIndexItrBoolPr result(m_FieldOptions.insert(options));
     if (result.second == false) {
-        LOG_ERROR("Duplicate config found: " << options << core_t::LINE_ENDING << "It clashes with config " << *result.first);
+        LOG_ERROR(<< "Duplicate config found: " << options << core_t::LINE_ENDING << "It clashes with config " << *result.first);
         return false;
     }
 
@@ -480,7 +480,7 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
     std::string useNullStr = this->findParameter(USE_NULL_OPTION, copyTokens);
     bool useNull(false);
     if (!useNullStr.empty() && core::CStringUtils::stringToType(useNullStr, useNull) == false) {
-        LOG_ERROR("Cannot convert usenull value to boolean: " << useNullStr);
+        LOG_ERROR(<< "Cannot convert usenull value to boolean: " << useNullStr);
         return false;
     }
 
@@ -516,15 +516,15 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
     bool overExcludeFrequent(false);
     if (this->decipherExcludeFrequentSetting(excludeFrequentString, hasByField, isPopulation, byExcludeFrequent, overExcludeFrequent) ==
         false) {
-        LOG_ERROR("Unknown setting for excludefrequent: " << excludeFrequentString);
+        LOG_ERROR(<< "Unknown setting for excludefrequent: " << excludeFrequentString);
         return false;
     }
 
     int tokenNum(0);
     size_t stop(std::min(lastByTokenIndex, lastOverTokenIndex));
     if (stop > 1 && !allowMultipleFunctions) {
-        LOG_ERROR("Only one analysis function is allowed in this context but " << core::CStringUtils::typeToString(stop)
-                                                                               << " were specified");
+        LOG_ERROR(<< "Only one analysis function is allowed in this context but " << core::CStringUtils::typeToString(stop)
+                  << " were specified");
         return false;
     }
 
@@ -533,7 +533,7 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
         std::string fieldName;
         if (this->parseFieldString(!summaryCountFieldName.empty(), isPopulation, hasByField, copyTokens[index], function, fieldName) ==
             false) {
-            LOG_ERROR("Failed to process token '" << copyTokens[index] << "'");
+            LOG_ERROR(<< "Failed to process token '" << copyTokens[index] << "'");
 
             // External error reporting is done within parseFieldString() so
             // don't do it again here
@@ -557,8 +557,8 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
         using TFieldOptionsMIndexItrBoolPr = std::pair<TFieldOptionsMIndexItr, bool>;
         TFieldOptionsMIndexItrBoolPr result(optionsIndex.insert(options));
         if (result.second == false) {
-            LOG_ERROR("Token " << core::CStringUtils::typeToString(options.configKey())
-                               << " in the analysis clause is a duplicate of token " << result.first->configKey());
+            LOG_ERROR(<< "Token " << core::CStringUtils::typeToString(options.configKey())
+                      << " in the analysis clause is a duplicate of token " << result.first->configKey());
             return false;
         }
 
@@ -626,13 +626,13 @@ bool CFieldConfig::processDetector(const boost::property_tree::ptree& propTree,
     // Here we pull out the "1" in "detector.1.clause"
     size_t sepPos(key.rfind(SUFFIX_SEPARATOR));
     if (sepPos == std::string::npos || sepPos <= DETECTOR_PREFIX.length() || sepPos == key.length() - 1) {
-        LOG_ERROR("Unrecognised configuration option " << key << " = " << value);
+        LOG_ERROR(<< "Unrecognised configuration option " << key << " = " << value);
         return false;
     }
     std::string configKeyString(key, DETECTOR_PREFIX.length(), sepPos - DETECTOR_PREFIX.length());
     int configKey;
     if (core::CStringUtils::stringToType(configKeyString, configKey) == false) {
-        LOG_ERROR("Cannot convert config key to integer: " << configKeyString);
+        LOG_ERROR(<< "Cannot convert config key to integer: " << configKeyString);
         return false;
     }
 
@@ -710,19 +710,19 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
     // etc.
     std::string regexStr("([^()]+)(?:\\((.*)\\))?");
     if (!regex.init(regexStr)) {
-        LOG_FATAL("Unable to init regex " << regexStr);
+        LOG_FATAL(<< "Unable to init regex " << regexStr);
         return false;
     }
 
     core::CRegex::TStrVec tokens;
 
     if (regex.tokenise(str, tokens) == false) {
-        LOG_ERROR("Unable to parse a function from " << str);
+        LOG_ERROR(<< "Unable to parse a function from " << str);
         return false;
     }
 
     if (tokens.size() != 2) {
-        LOG_INFO("Got wrong number of tokens:: " << tokens.size());
+        LOG_INFO(<< "Got wrong number of tokens:: " << tokens.size());
         return false;
     }
 
@@ -798,7 +798,7 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
         argumentRequired = true;
     } else if (outerToken == FUNCTION_METRIC) {
         if (haveSummaryCountField) {
-            LOG_ERROR("Function " << outerToken << "() cannot be used with a summary count field");
+            LOG_ERROR(<< "Function " << outerToken << "() cannot be used with a summary count field");
             return false;
         }
 
@@ -883,13 +883,13 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
         // contained brackets then there's probably been a typo because a metric
         // name should not be followed by brackets
         if (str.find('(') != std::string::npos) {
-            LOG_ERROR(outerToken << "() is not a known function");
+            LOG_ERROR(<< outerToken << "() is not a known function");
             return false;
         }
 
         if (haveSummaryCountField) {
-            LOG_ERROR("Implicit function metric() cannot be "
-                      "used with a summary count field");
+            LOG_ERROR(<< "Implicit function metric() cannot be "
+                         "used with a summary count field");
             return false;
         }
 
@@ -903,32 +903,32 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
 
     // Validate
     if (model::function_t::isPopulation(function) && !isPopulation) {
-        LOG_ERROR("Function " << outerToken << "() requires an 'over' field");
+        LOG_ERROR(<< "Function " << outerToken << "() requires an 'over' field");
         return false;
     }
 
     if (isPopulation && !model::function_t::isPopulation(function)) {
-        LOG_ERROR("Function " << outerToken << "() cannot be used with an 'over' field");
+        LOG_ERROR(<< "Function " << outerToken << "() cannot be used with an 'over' field");
         return false;
     }
 
     if (byFieldRequired && !hasByField) {
-        LOG_ERROR("Function " << outerToken << "() requires a 'by' field");
+        LOG_ERROR(<< "Function " << outerToken << "() requires a 'by' field");
         return false;
     }
 
     if (byFieldInvalid && hasByField) {
-        LOG_ERROR("Function " << outerToken << "() cannot be used with a 'by' field");
+        LOG_ERROR(<< "Function " << outerToken << "() cannot be used with a 'by' field");
         return false;
     }
 
     if (argumentRequired && innerToken.empty()) {
-        LOG_ERROR("Function " << outerToken << "() requires an argument");
+        LOG_ERROR(<< "Function " << outerToken << "() requires an argument");
         return false;
     }
 
     if (argumentInvalid && !innerToken.empty()) {
-        LOG_ERROR("Function " << outerToken << "() does not take an argument");
+        LOG_ERROR(<< "Function " << outerToken << "() does not take an argument");
         return false;
     }
 
@@ -989,7 +989,7 @@ bool CFieldConfig::decipherExcludeFrequentSetting(const std::string& excludeFreq
         } else {
             if (excludeFrequentString.length() != NONE_TOKEN.length() ||
                 core::CStrCaseCmp::strCaseCmp(excludeFrequentString.c_str(), NONE_TOKEN.c_str()) != 0) {
-                LOG_ERROR("Unexpected excludeFrequent value = " << excludeFrequentString);
+                LOG_ERROR(<< "Unexpected excludeFrequent value = " << excludeFrequentString);
                 return false;
             }
         }
@@ -1023,7 +1023,7 @@ const CFieldConfig::TStrDetectionRulePrVec& CFieldConfig::scheduledEvents() cons
 }
 
 void CFieldConfig::influencerFieldNames(TStrVec influencers) {
-    LOG_DEBUG("Set influencers : " << core::CContainerPrinter::print(influencers));
+    LOG_DEBUG(<< "Set influencers : " << core::CContainerPrinter::print(influencers));
     std::for_each(influencers.begin(), influencers.end(), boost::bind(&CFieldConfig::seenField, this, _1));
     m_Influencers.swap(influencers);
 }
@@ -1031,13 +1031,13 @@ void CFieldConfig::influencerFieldNames(TStrVec influencers) {
 void CFieldConfig::addInfluencerFieldName(const std::string& influencer, bool quiet) {
     if (influencer.empty()) {
         if (!quiet) {
-            LOG_WARN("Ignoring blank influencer field");
+            LOG_WARN(<< "Ignoring blank influencer field");
         }
         return;
     }
 
     if (std::find(m_Influencers.begin(), m_Influencers.end(), influencer) == m_Influencers.end()) {
-        LOG_TRACE("Add influencer : " << influencer);
+        LOG_TRACE(<< "Add influencer : " << influencer);
         this->seenField(influencer);
         m_Influencers.push_back(influencer);
     }
@@ -1049,7 +1049,7 @@ void CFieldConfig::sortInfluencers() {
 
 void CFieldConfig::addCategorizationFilter(const std::string& filter) {
     if (filter.empty()) {
-        LOG_WARN("Ignoring blank categorization filter");
+        LOG_WARN(<< "Ignoring blank categorization filter");
         return;
     }
 
@@ -1057,7 +1057,7 @@ void CFieldConfig::addCategorizationFilter(const std::string& filter) {
     this->tokenise(filter, tokens);
 
     if (tokens.size() != 1) {
-        LOG_ERROR("Unexpected number of tokens: " << tokens.size() << "; ignoring categorization filter: " << filter);
+        LOG_ERROR(<< "Unexpected number of tokens: " << tokens.size() << "; ignoring categorization filter: " << filter);
         return;
     }
 
@@ -1068,7 +1068,7 @@ bool CFieldConfig::processFilter(const std::string& key, const std::string& valu
     // expected format is filter.<filterId>=[json, array]
     size_t sepPos(key.find(SUFFIX_SEPARATOR));
     if (sepPos == std::string::npos) {
-        LOG_ERROR("Unrecognised filter key: " + key);
+        LOG_ERROR(<< "Unrecognised filter key: " + key);
         return false;
     }
     std::string filterId = key.substr(sepPos + 1);
@@ -1095,14 +1095,14 @@ bool CFieldConfig::processScheduledEvent(const boost::property_tree::ptree& prop
     // description may contain a '.'
     size_t sepPos(key.find(SUFFIX_SEPARATOR, SCHEDULED_EVENT_PREFIX.length() + 1));
     if (sepPos == std::string::npos || sepPos == key.length() - 1) {
-        LOG_ERROR("Unrecognised configuration option " << key << " = " << value);
+        LOG_ERROR(<< "Unrecognised configuration option " << key << " = " << value);
         return false;
     }
 
     std::string indexString(key, SCHEDULED_EVENT_PREFIX.length(), sepPos - SCHEDULED_EVENT_PREFIX.length());
     int indexKey;
     if (core::CStringUtils::stringToType(indexString, indexKey) == false) {
-        LOG_ERROR("Cannot convert config key to integer: " << indexString);
+        LOG_ERROR(<< "Cannot convert config key to integer: " << indexString);
         return false;
     }
 
@@ -1125,7 +1125,7 @@ bool CFieldConfig::processScheduledEvent(const boost::property_tree::ptree& prop
     }
 
     if (detectionRules.size() != 1) {
-        LOG_ERROR("Scheduled events must have exactly 1 rule");
+        LOG_ERROR(<< "Scheduled events must have exactly 1 rule");
         return false;
     }
 
@@ -1451,7 +1451,7 @@ const std::string& CFieldConfig::CFieldOptions::terseFunctionName() const {
         return FUNCTION_TIME_OF_WEEK;
     }
 
-    LOG_ERROR("Unexpected function = " << m_Function);
+    LOG_ERROR(<< "Unexpected function = " << m_Function);
     return EMPTY_STRING;
 }
 
@@ -1635,7 +1635,7 @@ const std::string& CFieldConfig::CFieldOptions::verboseFunctionName() const {
         return FUNCTION_TIME_OF_WEEK;
     }
 
-    LOG_ERROR("Unexpected function = " << m_Function);
+    LOG_ERROR(<< "Unexpected function = " << m_Function);
     return EMPTY_STRING;
 }
 

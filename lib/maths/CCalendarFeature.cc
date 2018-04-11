@@ -72,7 +72,7 @@ CCalendarFeature::CCalendarFeature(uint16_t feature, core_t::TTime time) : m_Fea
         dayOfMonth -= 1;
         this->initialize(feature, dayOfWeek, dayOfMonth, month, year);
     } else {
-        LOG_ERROR("Invalid time: " << time);
+        LOG_ERROR(<< "Invalid time: " << time);
     }
 }
 
@@ -91,7 +91,7 @@ CCalendarFeature::TCalendarFeature4Ary CCalendarFeature::features(core_t::TTime 
             i->initialize(feature, dayOfWeek, dayOfMonth, month, year);
         }
     } else {
-        LOG_ERROR("Invalid time: " << time);
+        LOG_ERROR(<< "Invalid time: " << time);
     }
     return result;
 }
@@ -115,7 +115,7 @@ void CCalendarFeature::initialize(uint16_t feature, int dayOfWeek, int dayOfMont
         m_Value = static_cast<uint16_t>(8 * ((lastDayInMonth(year, month) - dayOfMonth) / 7) + dayOfWeek);
         break;
     default:
-        LOG_ERROR("Invalid feature: " << feature);
+        LOG_ERROR(<< "Invalid feature: " << feature);
         break;
     }
 }
@@ -175,11 +175,11 @@ core_t::TTime CCalendarFeature::offset(core_t::TTime time) const {
             return DAY * (dayOfMonth - dayOfMonth_) + secondsSinceMidnight;
         }
         default:
-            LOG_ERROR("Invalid feature: '" << m_Feature << "'");
+            LOG_ERROR(<< "Invalid feature: '" << m_Feature << "'");
             break;
         }
     } else {
-        LOG_ERROR("Invalid time: '" << time << "'");
+        LOG_ERROR(<< "Invalid time: '" << time << "'");
     }
     return 0;
 }

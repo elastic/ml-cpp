@@ -36,8 +36,8 @@ inline bool check(const TWeightStyleVec& weightStyles, const core::CSmallVector<
     if (weightStyles.size() == weights.size()) {
         return true;
     }
-    LOG_ERROR("Mismatch in weight styles '" << core::CContainerPrinter::print(weightStyles) << "' and weights '"
-                                            << core::CContainerPrinter::print(weights) << "'");
+    LOG_ERROR(<< "Mismatch in weight styles '" << core::CContainerPrinter::print(weightStyles) << "' and weights '"
+              << core::CContainerPrinter::print(weights) << "'");
     return false;
 }
 

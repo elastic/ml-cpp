@@ -71,8 +71,8 @@ TDoubleDoublePr confidenceInterval(double confidence, double variance) {
             double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
             return {ql, qu};
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", variance = " << variance
-                                                                 << ", confidence = " << confidence);
+            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what() << ", variance = " << variance
+                      << ", confidence = " << confidence);
         }
     }
     return {0.0, 0.0};
@@ -281,11 +281,11 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
                                         double minimumScale,
                                         TDouble3VecVec& result) {
     if (endTime < startTime) {
-        LOG_ERROR("Bad forecast range: [" << startTime << "," << endTime << "]");
+        LOG_ERROR(<< "Bad forecast range: [" << startTime << "," << endTime << "]");
         return;
     }
     if (confidence < 0.0 || confidence >= 100.0) {
-        LOG_ERROR("Bad confidence interval: " << confidence << "%");
+        LOG_ERROR(<< "Bad confidence interval: " << confidence << "%");
         return;
     }
 
@@ -370,8 +370,8 @@ TDoubleDoublePr CTimeSeriesDecomposition::scale(core_t::TTime time, double varia
     if (m_Components.usingTrendForPrediction()) {
         bias *= (components + 1.0) / std::max(components, 1.0);
     }
-    LOG_TRACE("mean = " << mean << " variance = " << variance << " bias = " << bias
-                        << " scale = " << core::CContainerPrinter::print(scale));
+    LOG_TRACE(<< "mean = " << mean << " variance = " << variance << " bias = " << bias
+              << " scale = " << core::CContainerPrinter::print(scale));
 
     scale *= m_Components.meanVarianceScale() / mean;
     scale = TVector2x1{1.0} + bias * (scale - TVector2x1{1.0});

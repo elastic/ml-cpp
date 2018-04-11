@@ -51,9 +51,9 @@ const core_t::TTime WEEK{core::constants::WEEK};
 }
 
 void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
-    LOG_DEBUG("+----------------------------------------------------+");
-    LOG_DEBUG("|  CPeriodicityHypothesisTestsTest::testNonPeriodic  |");
-    LOG_DEBUG("+----------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------+");
+    LOG_DEBUG(<< "|  CPeriodicityHypothesisTestsTest::testNonPeriodic  |");
+    LOG_DEBUG(<< "+----------------------------------------------------+");
 
     // Test a variety of synthetic non-periodic signals.
 
@@ -72,7 +72,7 @@ void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
 
     for (std::size_t test = 0u; test < 50; ++test) {
         if (test % 10 == 0) {
-            LOG_DEBUG("test " << test << " / 50");
+            LOG_DEBUG(<< "test " << test << " / 50");
         }
         for (auto window : windows) {
             for (auto bucketLength : bucketLengths) {
@@ -99,7 +99,7 @@ void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
 
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                 if (result.periodic()) {
-                    LOG_DEBUG("result = " << result.print());
+                    LOG_DEBUG(<< "result = " << result.print());
                 }
                 FP += result.periodic() ? 1.0 : 0.0;
                 TN += result.periodic() ? 0.0 : 1.0;
@@ -107,19 +107,19 @@ void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
         }
     }
 
-    LOG_DEBUG("True negative rate = " << TN / (FP + TN));
+    LOG_DEBUG(<< "True negative rate = " << TN / (FP + TN));
     CPPUNIT_ASSERT(TN / (FP + TN) > 0.995);
 }
 
 void CPeriodicityHypothesisTestsTest::testDiurnal() {
-    LOG_DEBUG("+------------------------------------------------+");
-    LOG_DEBUG("|  CPeriodicityHypothesisTestsTest::testDiurnal  |");
-    LOG_DEBUG("+------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------+");
+    LOG_DEBUG(<< "|  CPeriodicityHypothesisTestsTest::testDiurnal  |");
+    LOG_DEBUG(<< "+------------------------------------------------+");
 
     // Test the recall for a variety of synthetic periodic signals
     // and for a number of real data examples.
 
-    LOG_DEBUG("Random diurnal");
+    LOG_DEBUG(<< "Random diurnal");
     {
         TTimeVec windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
         TTimeVec bucketLengths{TEN_MINS, HALF_HOUR};
@@ -142,7 +142,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
 
         for (std::size_t test = 0u; test < 100; ++test) {
             if (test % 10 == 0) {
-                LOG_DEBUG("test " << test << " / 100");
+                LOG_DEBUG(<< "test " << test << " / 100");
             }
             for (std::size_t i = 0u; i < windows.size(); ++i) {
                 core_t::TTime window{windows[i]};
@@ -171,7 +171,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
 
                     maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                     if (result.print() != expected[index[0]]) {
-                        LOG_DEBUG("result = " << result.print() << " expected " << expected[index[0]]);
+                        LOG_DEBUG(<< "result = " << result.print() << " expected " << expected[index[0]]);
                     }
                     TP += result.print() == expected[index[0]] ? 1.0 : 0.0;
                     FN += result.print() == expected[index[0]] ? 0.0 : 1.0;
@@ -179,12 +179,12 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
             }
         }
 
-        LOG_DEBUG("Recall = " << TP / (TP + FN));
+        LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
         CPPUNIT_ASSERT(TP / (TP + FN) > 0.99);
     }
 
-    LOG_DEBUG("");
-    LOG_DEBUG("*** Spikey: daily ***");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "*** Spikey: daily ***");
     {
         TTimeDoublePrVec timeseries;
         core_t::TTime startTime;
@@ -193,7 +193,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
             "testfiles/spikey_data.csv", timeseries, startTime, endTime, test::CTimeSeriesTestData::CSV_UNIX_REGEX));
         CPPUNIT_ASSERT(!timeseries.empty());
 
-        LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
+        LOG_DEBUG(<< "timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
 
         TTimeVec lastTests{timeseries[0].first, timeseries[0].first};
         TTimeVec windows{4 * DAY, 14 * DAY};
@@ -217,8 +217,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         }
     }
 
-    LOG_DEBUG("");
-    LOG_DEBUG("*** Diurnal: daily and weekends ***");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "*** Diurnal: daily and weekends ***");
     {
         TTimeDoublePrVec timeseries;
         core_t::TTime startTime;
@@ -227,7 +227,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
             "testfiles/diurnal.csv", timeseries, startTime, endTime, test::CTimeSeriesTestData::CSV_UNIX_REGEX));
         CPPUNIT_ASSERT(!timeseries.empty());
 
-        LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
+        LOG_DEBUG(<< "timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
 
         core_t::TTime lastTest{timeseries[0].first};
         core_t::TTime window{14 * DAY};
@@ -248,8 +248,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         }
     }
 
-    LOG_DEBUG("");
-    LOG_DEBUG("*** Switching: no periods ***");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "*** Switching: no periods ***");
     {
         TTimeDoublePrVec timeseries;
         core_t::TTime startTime;
@@ -262,7 +262,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
                                                         test::CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT));
         CPPUNIT_ASSERT(!timeseries.empty());
 
-        LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
+        LOG_DEBUG(<< "timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
 
         core_t::TTime lastTest{timeseries[0].first};
         core_t::TTime window{14 * DAY};
@@ -283,8 +283,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         }
     }
 
-    LOG_DEBUG("");
-    LOG_DEBUG("*** Diurnal: daily, weekly and weekends ***");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "*** Diurnal: daily, weekly and weekends ***");
     {
         TTimeDoublePrVec timeseries;
         core_t::TTime startTime;
@@ -297,7 +297,7 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
                                                         test::CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT));
         CPPUNIT_ASSERT(!timeseries.empty());
 
-        LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
+        LOG_DEBUG(<< "timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
 
         core_t::TTime lastTest{timeseries[0].first};
         core_t::TTime window{14 * DAY};
@@ -321,9 +321,9 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
 }
 
 void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
-    LOG_DEBUG("+---------------------------------------------------+");
-    LOG_DEBUG("|  CPeriodicityHypothesisTestsTest::testNonDiurnal  |");
-    LOG_DEBUG("+---------------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------------+");
+    LOG_DEBUG(<< "|  CPeriodicityHypothesisTestsTest::testNonDiurnal  |");
+    LOG_DEBUG(<< "+---------------------------------------------------+");
 
     // Test the recall for periods in the range [DAY / 5, 5 * DAY].
 
@@ -343,7 +343,7 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
 
     for (std::size_t test = 0u; test < 100; ++test) {
         if (test % 10 == 0) {
-            LOG_DEBUG("test " << test << " / 100");
+            LOG_DEBUG(<< "test " << test << " / 100");
         }
         for (std::size_t i = 0u; i < windows.size(); ++i) {
             core_t::TTime window{windows[i]};
@@ -387,7 +387,7 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
 
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                 if (result.print() != expected.print()) {
-                    LOG_DEBUG("result = " << result.print() << " expected " << expected.print());
+                    LOG_DEBUG(<< "result = " << result.print() << " expected " << expected.print());
                 }
                 TP += result.print() == expected.print() ? 1.0 : 0.0;
                 FN += result.print() == expected.print() ? 0.0 : 1.0;
@@ -395,18 +395,18 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
         }
     }
 
-    LOG_DEBUG("Recall = " << TP / (TP + FN));
+    LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
     CPPUNIT_ASSERT(TP / (TP + FN) > 0.99);
 }
 
 void CPeriodicityHypothesisTestsTest::testWithSparseData() {
-    LOG_DEBUG("+-----------------------------------------------------------+");
-    LOG_DEBUG("|  CPeriodicityHypothesisTestsTest::testTestWithSparseData  |");
-    LOG_DEBUG("+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CPeriodicityHypothesisTestsTest::testTestWithSparseData  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG("Daily Periodic") {
+    LOG_DEBUG(<< "Daily Periodic") {
         maths::CPeriodicityHypothesisTests hypotheses;
         hypotheses.initialize(HALF_HOUR, WEEK, DAY);
 
@@ -422,13 +422,13 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
             }
             if (t > 3) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
-                LOG_DEBUG("result = " << result.print());
+                LOG_DEBUG(<< "result = " << result.print());
                 CPPUNIT_ASSERT_EQUAL(std::string("{ 'daily' }"), result.print());
             }
         }
     }
 
-    LOG_DEBUG("Daily Not Periodic") {
+    LOG_DEBUG(<< "Daily Not Periodic") {
         maths::CPeriodicityHypothesisTests hypotheses;
         hypotheses.initialize(HALF_HOUR, WEEK, DAY);
 
@@ -446,12 +446,12 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
             }
 
             maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
-            LOG_DEBUG("result = " << result.print());
+            LOG_DEBUG(<< "result = " << result.print());
             CPPUNIT_ASSERT_EQUAL(std::string("{ }"), result.print());
         }
     }
 
-    LOG_DEBUG("Weekly") {
+    LOG_DEBUG(<< "Weekly") {
         maths::CPeriodicityHypothesisTests hypotheses;
         hypotheses.initialize(HOUR, 2 * WEEK, WEEK);
 
@@ -474,13 +474,13 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
 
             if (t >= 2) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
-                LOG_DEBUG("result = " << result.print());
+                LOG_DEBUG(<< "result = " << result.print());
                 CPPUNIT_ASSERT_EQUAL(std::string("{ 'daily' 'weekly' }"), result.print());
             }
         }
     }
 
-    LOG_DEBUG("Weekly Not Periodic") {
+    LOG_DEBUG(<< "Weekly Not Periodic") {
         maths::CPeriodicityHypothesisTests hypotheses;
         hypotheses.initialize(HOUR, 4 * WEEK, WEEK);
 
@@ -504,16 +504,16 @@ void CPeriodicityHypothesisTestsTest::testWithSparseData() {
             }
 
             maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
-            LOG_DEBUG("result = " << result.print());
+            LOG_DEBUG(<< "result = " << result.print());
             CPPUNIT_ASSERT_EQUAL(std::string("{ }"), result.print());
         }
     }
 }
 
 void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
-    LOG_DEBUG("+-------------------------------------------------------+");
-    LOG_DEBUG("|  CPeriodicityHypothesisTestsTest::testTestForPeriods  |");
-    LOG_DEBUG("+-------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CPeriodicityHypothesisTestsTest::testTestForPeriods  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------+");
 
     // Test the ability to correctly find and test for periodic
     // signals without being told the periods to test a-priori.
@@ -535,7 +535,7 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
 
     for (std::size_t test = 0u; test < 100; ++test) {
         if (test % 10 == 0) {
-            LOG_DEBUG("test " << test << " / 100");
+            LOG_DEBUG(<< "test " << test << " / 100");
         }
         for (std::size_t i = 0u; i < windows.size(); ++i) {
             core_t::TTime window{windows[i]};
@@ -583,7 +583,7 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
                 maths::CPeriodicityHypothesisTestsConfig config;
                 maths::CPeriodicityHypothesisTestsResult result{maths::testForPeriods(config, startTime, bucketLength, values)};
                 if (result.print() != expected.print()) {
-                    LOG_DEBUG("result = " << result.print() << " expected " << expected.print());
+                    LOG_DEBUG(<< "result = " << result.print() << " expected " << expected.print());
                 }
 
                 TP[0] += result.print() == expected.print() ? 1.0 : 0.0;
@@ -604,9 +604,9 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
         }
     }
 
-    LOG_DEBUG("Recall at 0% error = " << TP[0] / (TP[0] + FN[0]));
-    LOG_DEBUG("Recall at 1% error = " << TP[1] / (TP[1] + FN[1]));
-    LOG_DEBUG("Recall at 5% error = " << TP[2] / (TP[2] + FN[2]));
+    LOG_DEBUG(<< "Recall at 0% error = " << TP[0] / (TP[0] + FN[0]));
+    LOG_DEBUG(<< "Recall at 1% error = " << TP[1] / (TP[1] + FN[1]));
+    LOG_DEBUG(<< "Recall at 5% error = " << TP[2] / (TP[2] + FN[2]));
     CPPUNIT_ASSERT(TP[0] / (TP[0] + FN[0]) > 0.91);
     CPPUNIT_ASSERT(TP[1] / (TP[1] + FN[1]) > 0.99);
     CPPUNIT_ASSERT(TP[2] / (TP[2] + FN[2]) > 0.99);

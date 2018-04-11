@@ -83,7 +83,7 @@ public:
             return;
         }
 
-        LOG_DEBUG("Got anomaly @ " << node.s_BucketStartTime << ": " << node.probability());
+        LOG_DEBUG(<< "Got anomaly @ " << node.s_BucketStartTime << ": " << node.probability());
 
         ml::model::SAnnotatedProbability::TAttributeProbability1Vec& attributes = node.s_AnnotatedProbability.s_AttributeProbabilities;
 
@@ -95,8 +95,8 @@ public:
     }
 
     bool operator()(ml::core_t::TTime time, const ml::model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
-        LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
-                  << node.s_Spec.print() << " initial score " << node.probability() << ", time:  " << time);
+        LOG_DEBUG(<< (isBucketInfluencer ? "BucketInfluencer" : "Influencer ") << node.s_Spec.print() << " initial score "
+                  << node.probability() << ", time:  " << time);
 
         return true;
     }
@@ -427,7 +427,7 @@ void CResourceLimitTest::testLargeAllocations() {
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
 
-        LOG_DEBUG("Testing for 1st time");
+        LOG_DEBUG(<< "Testing for 1st time");
         model.test(time);
         CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
         CPPUNIT_ASSERT_EQUAL(std::size_t(400), model.getNewPeople());
@@ -440,7 +440,7 @@ void CResourceLimitTest::testLargeAllocations() {
         // This should add enough people to go over the memory limit
         ::addPersonData(1000, 3000, time, *gatherer, resourceMonitor);
 
-        LOG_DEBUG("Testing for 2nd time");
+        LOG_DEBUG(<< "Testing for 2nd time");
         model.test(time);
         CPPUNIT_ASSERT_EQUAL(std::size_t(2000), model.getNewPeople());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
@@ -451,7 +451,7 @@ void CResourceLimitTest::testLargeAllocations() {
         time += BUCKET_LENGTH;
         ::addPersonData(4400, 4410, time, *gatherer, resourceMonitor);
 
-        LOG_DEBUG("Testing for 3rd time");
+        LOG_DEBUG(<< "Testing for 3rd time");
         model.test(time);
         CPPUNIT_ASSERT_EQUAL(std::size_t(2010), model.getNewPeople());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
@@ -500,7 +500,7 @@ void CResourceLimitTest::testLargeAllocations() {
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
 
-        LOG_DEBUG("Testing for 1st time");
+        LOG_DEBUG(<< "Testing for 1st time");
         model.test(time);
         CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
         CPPUNIT_ASSERT_EQUAL(std::size_t(400), model.getNewPeople());
@@ -513,7 +513,7 @@ void CResourceLimitTest::testLargeAllocations() {
         // This should add enough people to go over the memory limit
         ::addPersonMetricData(900, 4400, time, *gatherer, resourceMonitor);
 
-        LOG_DEBUG("Testing for 2nd time");
+        LOG_DEBUG(<< "Testing for 2nd time");
         model.test(time);
         CPPUNIT_ASSERT_EQUAL(std::size_t(1400), model.getNewPeople());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
@@ -524,7 +524,7 @@ void CResourceLimitTest::testLargeAllocations() {
         time += BUCKET_LENGTH;
         ::addPersonMetricData(4400, 4410, time, *gatherer, resourceMonitor);
 
-        LOG_DEBUG("Testing for 3rd time");
+        LOG_DEBUG(<< "Testing for 3rd time");
         model.test(time);
         CPPUNIT_ASSERT_EQUAL(std::size_t(1410), model.getNewPeople());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
@@ -556,12 +556,12 @@ void CResourceLimitTest::importCsvDataWithLimiter(core_t::TTime firstTime,
     std::size_t i = 0;
     while (std::getline(*ifs, line)) {
         if (i == limitCutoff) {
-            LOG_INFO("Setting Limit cuttoff now");
+            LOG_INFO(<< "Setting Limit cuttoff now");
             resourceMonitor.m_ByteLimitHigh = 0;
             resourceMonitor.m_ByteLimitLow = 0;
         }
 
-        LOG_TRACE("Got string: " << line);
+        LOG_TRACE(<< "Got string: " << line);
         core::CRegex::TStrVec tokens;
         regex.split(line, tokens);
 

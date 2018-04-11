@@ -151,14 +151,14 @@ public:
             if (allocator && (rawAllocator = allocator.get())) {
                 break;
             } else {
-                LOG_ERROR("Invalid JSON memory allocator encountered. Removing.");
+                LOG_ERROR(<< "Invalid JSON memory allocator encountered. Removing.");
                 m_JsonPoolAllocators.pop();
             }
         }
 
         // shouldn't ever happen as it indicates that the default allocator is invalid
         if (!rawAllocator) {
-            LOG_ERROR("No viable JSON memory allocator encountered. Recreating.");
+            LOG_ERROR(<< "No viable JSON memory allocator encountered. Recreating.");
             allocator = boost::make_shared<CRapidJsonPoolAllocator>();
             m_JsonPoolAllocators.push(allocator);
         }
@@ -343,7 +343,7 @@ public:
     //! \p fieldName must outlive \p obj or memory corruption will occur.
     void addDoubleFieldToObj(const std::string& fieldName, double value, TValue& obj) const {
         if (!(boost::math::isfinite)(value)) {
-            LOG_ERROR("Adding " << value << " to the \"" << fieldName << "\" field of a JSON document");
+            LOG_ERROR(<< "Adding " << value << " to the \"" << fieldName << "\" field of a JSON document");
             // Don't return - make a best effort to add the value
             // Some writers derived from this class may defend themselves by converting to 0
         }
@@ -469,7 +469,7 @@ private:
     template<typename NUMBER>
     void checkArrayNumberFinite(NUMBER val, const std::string& fieldName, bool& considerLogging) const {
         if (considerLogging && !(boost::math::isfinite)(val)) {
-            LOG_ERROR("Adding " << val << " to the \"" << fieldName << "\" array in a JSON document");
+            LOG_ERROR(<< "Adding " << val << " to the \"" << fieldName << "\" array in a JSON document");
             // Don't return - make a best effort to add the value
             // Some writers derived from this class may defend themselves by converting to 0
             considerLogging = false;

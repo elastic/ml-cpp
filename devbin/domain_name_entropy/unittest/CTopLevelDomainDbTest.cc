@@ -51,7 +51,7 @@ void testDomainSplit(const std::string& subDomainExpected,
 
     tldDb.splitHostName(hostName, subDomain, domain, suffix);
 
-    LOG_DEBUG(hostName << ":" << subDomain << ":" << domain << ":" << suffix);
+    LOG_DEBUG(<< hostName << ":" << subDomain << ":" << domain << ":" << suffix);
 
     CPPUNIT_ASSERT_EQUAL(subDomainExpected, subDomain);
     CPPUNIT_ASSERT_EQUAL(domainExpected, domain);

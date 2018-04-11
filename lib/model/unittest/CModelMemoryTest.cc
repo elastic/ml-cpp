@@ -98,7 +98,7 @@ void CModelMemoryTest::testOnlineEventRateModel() {
     std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
 
-    LOG_DEBUG("Memory used by model: " << model.memoryUsage());
+    LOG_DEBUG(<< "Memory used by model: " << model.memoryUsage());
 
     core_t::TTime time = startTime;
     for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
@@ -109,12 +109,12 @@ void CModelMemoryTest::testOnlineEventRateModel() {
 
         time += bucketLength;
     }
-    LOG_INFO("Sizeof model now: " << model.memoryUsage());
+    LOG_INFO(<< "Sizeof model now: " << model.memoryUsage());
     CPPUNIT_ASSERT(model.memoryUsage() > startMemoryUsage);
 
     core::CMemoryUsage memoryUsage;
     model.debugMemoryUsage(&memoryUsage);
-    LOG_DEBUG("Debug sizeof model: " << memoryUsage.usage());
+    LOG_DEBUG(<< "Debug sizeof model: " << memoryUsage.usage());
     CPPUNIT_ASSERT_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 
@@ -151,7 +151,7 @@ void CModelMemoryTest::testOnlineMetricModel() {
     std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
 
-    LOG_DEBUG("Memory used by model: " << model.memoryUsage() << " / " << core::CMemory::dynamicSize(model));
+    LOG_DEBUG(<< "Memory used by model: " << model.memoryUsage() << " / " << core::CMemory::dynamicSize(model));
 
     test::CRandomNumbers rng;
 
@@ -167,12 +167,12 @@ void CModelMemoryTest::testOnlineMetricModel() {
 
         time += bucketLength;
     }
-    LOG_INFO("Sizeof model now: " << model.memoryUsage());
+    LOG_INFO(<< "Sizeof model now: " << model.memoryUsage());
     CPPUNIT_ASSERT(model.memoryUsage() > startMemoryUsage);
 
     core::CMemoryUsage memoryUsage;
     model.debugMemoryUsage(&memoryUsage);
-    LOG_DEBUG("Debug sizeof model: " << memoryUsage.usage());
+    LOG_DEBUG(<< "Debug sizeof model: " << memoryUsage.usage());
     CPPUNIT_ASSERT_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 

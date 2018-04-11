@@ -39,7 +39,7 @@ namespace {
 
 template<typename T>
 void generate(test::CRandomNumbers& rng, std::size_t n, std::size_t d, std::vector<T>& x) {
-    LOG_DEBUG("n = " << n << ", d = " << d);
+    LOG_DEBUG(<< "n = " << n << ", d = " << d);
 
     TDoubleVec components;
     rng.generateUniformSamples(0.0, 10.0, n * d, components);
@@ -51,16 +51,16 @@ void generate(test::CRandomNumbers& rng, std::size_t n, std::size_t d, std::vect
 }
 
 void debug(const TDoubleVecVec& x) {
-    LOG_DEBUG("x =");
+    LOG_DEBUG(<< "x =");
     for (std::size_t i = 0u; i < x.size(); ++i) {
-        LOG_DEBUG("  " << core::CContainerPrinter::print(x[i]));
+        LOG_DEBUG(<< "  " << core::CContainerPrinter::print(x[i]));
     }
 }
 
 void debug(const TVector4Vec& x) {
-    LOG_DEBUG("x =");
+    LOG_DEBUG(<< "x =");
     for (std::size_t i = 0u; i < x.size(); ++i) {
-        LOG_DEBUG("  " << x[i]);
+        LOG_DEBUG(<< "  " << x[i]);
     }
 }
 
@@ -99,21 +99,21 @@ const TDoubleVec& subtract(TDoubleVec& x, const TDoubleVec& y) {
 }
 
 void CGramSchmidtTest::testOrthogonality() {
-    LOG_DEBUG("+---------------------------------------+");
-    LOG_DEBUG("|  CGramSchmidtTest::testOrthogonality  |");
-    LOG_DEBUG("+---------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------+");
+    LOG_DEBUG(<< "|  CGramSchmidtTest::testOrthogonality  |");
+    LOG_DEBUG(<< "+---------------------------------------+");
 
     test::CRandomNumbers rng;
 
     {
-        LOG_DEBUG("*** Test vector ***");
+        LOG_DEBUG(<< "*** Test vector ***");
 
         TDoubleVecVec x;
         for (std::size_t t = 0u; t < 50; ++t) {
             std::size_t d = t / 5 + 5;
             std::size_t n = t / 5 + 2;
 
-            LOG_DEBUG("n = " << n << ", d = " << d);
+            LOG_DEBUG(<< "n = " << n << ", d = " << d);
 
             generate(rng, n, d, x);
             maths::CGramSchmidt::basis(x);
@@ -124,7 +124,7 @@ void CGramSchmidtTest::testOrthogonality() {
                 for (std::size_t j = i + 1; j < x.size(); ++j) {
                     double xiDotxj = inner(x[i], x[j]);
                     if (t % 10 == 0) {
-                        LOG_DEBUG("x(i)' x(j) = " << xiDotxj);
+                        LOG_DEBUG(<< "x(i)' x(j) = " << xiDotxj);
                     }
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, xiDotxj, 1e-10);
                 }
@@ -133,7 +133,7 @@ void CGramSchmidtTest::testOrthogonality() {
     }
 
     {
-        LOG_DEBUG("*** Test CVectorNx1 ***");
+        LOG_DEBUG(<< "*** Test CVectorNx1 ***");
 
         TVector4Vec x;
         for (std::size_t t = 0u; t < 50; ++t) {
@@ -146,7 +146,7 @@ void CGramSchmidtTest::testOrthogonality() {
                 for (std::size_t j = i + 1; j < x.size(); ++j) {
                     double xiDotxj = x[i].inner(x[j]);
                     if (t % 10 == 0) {
-                        LOG_DEBUG("x(i)' x(j) = " << xiDotxj);
+                        LOG_DEBUG(<< "x(i)' x(j) = " << xiDotxj);
                     }
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, xiDotxj, 1e-10);
                 }
@@ -156,21 +156,21 @@ void CGramSchmidtTest::testOrthogonality() {
 }
 
 void CGramSchmidtTest::testNormalisation() {
-    LOG_DEBUG("+---------------------------------------+");
-    LOG_DEBUG("|  CGramSchmidtTest::testNormalisation  |");
-    LOG_DEBUG("+---------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------+");
+    LOG_DEBUG(<< "|  CGramSchmidtTest::testNormalisation  |");
+    LOG_DEBUG(<< "+---------------------------------------+");
 
     test::CRandomNumbers rng;
 
     {
-        LOG_DEBUG("*** Test vector ***");
+        LOG_DEBUG(<< "*** Test vector ***");
 
         TDoubleVecVec x;
         for (std::size_t t = 0u; t < 50; ++t) {
             std::size_t d = t / 5 + 5;
             std::size_t n = t / 5 + 2;
 
-            LOG_DEBUG("n = " << n << ", d = " << d);
+            LOG_DEBUG(<< "n = " << n << ", d = " << d);
 
             generate(rng, n, d, x);
             maths::CGramSchmidt::basis(x);
@@ -180,7 +180,7 @@ void CGramSchmidtTest::testNormalisation() {
             for (std::size_t i = 0u; i < x.size(); ++i) {
                 double normxi = std::sqrt(inner(x[i], x[i]));
                 if (t % 10 == 0) {
-                    LOG_DEBUG("|| x(i) || = " << normxi);
+                    LOG_DEBUG(<< "|| x(i) || = " << normxi);
                 }
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, normxi, 1e-15);
             }
@@ -188,7 +188,7 @@ void CGramSchmidtTest::testNormalisation() {
     }
 
     {
-        LOG_DEBUG("*** Test CVectorNx1 ***");
+        LOG_DEBUG(<< "*** Test CVectorNx1 ***");
 
         TVector4Vec x;
         for (std::size_t t = 0u; t < 50; ++t) {
@@ -201,7 +201,7 @@ void CGramSchmidtTest::testNormalisation() {
                 for (std::size_t j = i + 1; j < x.size(); ++j) {
                     double normxi = x[i].euclidean();
                     if (t % 10 == 0) {
-                        LOG_DEBUG("|| x(i) || = " << normxi);
+                        LOG_DEBUG(<< "|| x(i) || = " << normxi);
                     }
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, normxi, 1e-15);
                 }
@@ -211,14 +211,14 @@ void CGramSchmidtTest::testNormalisation() {
 }
 
 void CGramSchmidtTest::testSpan() {
-    LOG_DEBUG("+------------------------------+");
-    LOG_DEBUG("|  CGramSchmidtTest::testSpan  |");
-    LOG_DEBUG("+------------------------------+");
+    LOG_DEBUG(<< "+------------------------------+");
+    LOG_DEBUG(<< "|  CGramSchmidtTest::testSpan  |");
+    LOG_DEBUG(<< "+------------------------------+");
 
     test::CRandomNumbers rng;
 
     {
-        LOG_DEBUG("*** Test vector ***");
+        LOG_DEBUG(<< "*** Test vector ***");
 
         TDoubleVecVec x;
         TDoubleVecVec basis;
@@ -226,7 +226,7 @@ void CGramSchmidtTest::testSpan() {
             std::size_t d = t / 5 + 5;
             std::size_t n = t / 5 + 2;
 
-            LOG_DEBUG("n = " << n << ", d = " << d);
+            LOG_DEBUG(<< "n = " << n << ", d = " << d);
 
             generate(rng, n, d, x);
             basis = x;
@@ -241,15 +241,15 @@ void CGramSchmidtTest::testSpan() {
                 }
 
                 if (t % 10 == 0) {
-                    LOG_DEBUG("x(i)       = " << core::CContainerPrinter::print(x[i]));
-                    LOG_DEBUG("projection = " << core::CContainerPrinter::print(r));
+                    LOG_DEBUG(<< "x(i)       = " << core::CContainerPrinter::print(x[i]));
+                    LOG_DEBUG(<< "projection = " << core::CContainerPrinter::print(r));
                 }
 
                 subtract(r, x[i]);
                 double normr = std::sqrt(inner(r, r));
 
                 if (t % 10 == 0) {
-                    LOG_DEBUG("|| r || = " << normr);
+                    LOG_DEBUG(<< "|| r || = " << normr);
                 }
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, normr, 1e-12);
@@ -258,7 +258,7 @@ void CGramSchmidtTest::testSpan() {
     }
 
     {
-        LOG_DEBUG("*** Test CVectorNx1 ***");
+        LOG_DEBUG(<< "*** Test CVectorNx1 ***");
 
         TVector4Vec x;
         TVector4Vec basis;
@@ -276,15 +276,15 @@ void CGramSchmidtTest::testSpan() {
                 }
 
                 if (t % 10 == 0) {
-                    LOG_DEBUG("x(i)       = " << x[i]);
-                    LOG_DEBUG("projection = " << r);
+                    LOG_DEBUG(<< "x(i)       = " << x[i]);
+                    LOG_DEBUG(<< "projection = " << r);
                 }
 
                 r -= x[i];
                 double normr = r.euclidean();
 
                 if (t % 10 == 0) {
-                    LOG_DEBUG("|| r || = " << normr);
+                    LOG_DEBUG(<< "|| r || = " << normr);
                 }
 
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, normr, 1e-12);
@@ -294,18 +294,18 @@ void CGramSchmidtTest::testSpan() {
 }
 
 void CGramSchmidtTest::testEdgeCases() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CGramSchmidtTest::testEdgeCases  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CGramSchmidtTest::testEdgeCases  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     {
-        LOG_DEBUG("*** Test zero vector ***");
+        LOG_DEBUG(<< "*** Test zero vector ***");
 
         double x_[][5] = {{0.0, 0.0, 0.0, 0.0, 0.0}, {1.0, 3.0, 4.0, 0.0, 6.0}, {0.4, 0.3, 0.6, 1.0, 7.0}};
         std::size_t p[] = {0, 1, 2};
 
         do {
-            LOG_DEBUG("permutation = " << core::CContainerPrinter::print(p));
+            LOG_DEBUG(<< "permutation = " << core::CContainerPrinter::print(p));
 
             TDoubleVecVec x;
             for (std::size_t i = 0u; i < boost::size(p); ++i) {
@@ -319,8 +319,8 @@ void CGramSchmidtTest::testEdgeCases() {
         } while (std::next_permutation(p, p + boost::size(p)));
     }
     {
-        LOG_DEBUG("");
-        LOG_DEBUG("*** Test degenerate ***");
+        LOG_DEBUG(<< "");
+        LOG_DEBUG(<< "*** Test degenerate ***");
 
         double x_[][4] = {
             {1.0, 1.0, 1.0, 1.0}, {-1.0, 2.3, 1.0, 0.03}, {1.0, 1.0, 1.0, 1.0}, {-1.0, 2.3, 1.0, 0.03}, {-4.0, 0.3, 1.4, 1.03}};
@@ -328,7 +328,7 @@ void CGramSchmidtTest::testEdgeCases() {
         std::size_t p[] = {0, 1, 2, 3, 4};
 
         do {
-            LOG_DEBUG("permutation = " << core::CContainerPrinter::print(p));
+            LOG_DEBUG(<< "permutation = " << core::CContainerPrinter::print(p));
 
             TDoubleVecVec x;
             for (std::size_t i = 0u; i < boost::size(p); ++i) {

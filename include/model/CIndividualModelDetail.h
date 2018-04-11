@@ -31,7 +31,7 @@ void CIndividualModel::currentBucketPersonIds(core_t::TTime time, const T& featu
     result.clear();
 
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR("No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
+        LOG_ERROR(<< "No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
         return;
     }
 
@@ -52,13 +52,13 @@ CIndividualModel::featureData(model_t::EFeature feature,
                               core_t::TTime time,
                               const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>& featureData) const {
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR("No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
+        LOG_ERROR(<< "No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
         return nullptr;
     }
 
     auto i = std::lower_bound(featureData.begin(), featureData.end(), feature, maths::COrderings::SFirstLess());
     if (i == featureData.end() || i->first != feature) {
-        LOG_ERROR("No data for feature " << model_t::print(feature));
+        LOG_ERROR(<< "No data for feature " << model_t::print(feature));
         return nullptr;
     }
 
@@ -84,7 +84,7 @@ void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
         gatherer.featureData(time, bucketLength, featureData);
         for (auto& feature_ : featureData) {
             T& data = feature_.second;
-            LOG_TRACE(model_t::print(feature_.first) << " data = " << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature_.first) << " data = " << core::CContainerPrinter::print(data));
             this->applyFilter(model_t::E_XF_By, false, filter, data);
         }
     }
@@ -101,10 +101,10 @@ bool CIndividualModel::addProbabilityAndInfluences(std::size_t pid,
                                         1.0, // attribute probability
                                         params,
                                         builder)) {
-        LOG_ERROR("Failed to compute P(" << params.describe() << ", person = " << this->personName(pid) << ")");
+        LOG_ERROR(<< "Failed to compute P(" << params.describe() << ", person = " << this->personName(pid) << ")");
         return false;
     } else {
-        LOG_TRACE("P(" << params.describe() << ", person = " << this->personName(pid) << ") = " << params.s_Probability);
+        LOG_TRACE(<< "P(" << params.describe() << ", person = " << this->personName(pid) << ") = " << params.s_Probability);
     }
 
     if (!influences.empty()) {

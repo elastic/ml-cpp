@@ -46,7 +46,7 @@ void CCompressedDictionaryTest::testAll() {
     std::string word3("word3");
 
     for (std::size_t i = 0u; i < numberTests; ++i) {
-        LOG_DEBUG("Collision test = " << i);
+        LOG_DEBUG(<< "Collision test = " << i);
 
         rng.generateWords(wordLength, numberWords, words);
 

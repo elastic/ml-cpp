@@ -122,17 +122,17 @@ void CAnomalyJobLimitTest::testAccuracy() {
         //limits.resourceMonitor().m_ByteLimitLow = 90000;
 
         {
-            LOG_TRACE("Setting up job");
+            LOG_TRACE(<< "Setting up job");
             api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             std::ifstream inputStrm("testfiles/resource_accuracy.csv");
             CPPUNIT_ASSERT(inputStrm.is_open());
             api::CCsvInputParser parser(inputStrm);
 
-            LOG_TRACE("Reading file");
+            LOG_TRACE(<< "Reading file");
             CPPUNIT_ASSERT(parser.readStream(boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
 
-            LOG_TRACE("Checking results");
+            LOG_TRACE(<< "Checking results");
 
             CPPUNIT_ASSERT_EQUAL(uint64_t(18630), job.numRecordsHandled());
         }
@@ -162,26 +162,26 @@ void CAnomalyJobLimitTest::testAccuracy() {
             limits.resourceMonitor().m_ByteLimitHigh = nonLimitedUsage / 10;
             limits.resourceMonitor().m_ByteLimitLow = limits.resourceMonitor().m_ByteLimitHigh - 1024;
 
-            LOG_TRACE("Setting up job");
+            LOG_TRACE(<< "Setting up job");
             api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             std::ifstream inputStrm("testfiles/resource_accuracy.csv");
             CPPUNIT_ASSERT(inputStrm.is_open());
             api::CCsvInputParser parser(inputStrm);
 
-            LOG_TRACE("Reading file");
+            LOG_TRACE(<< "Reading file");
             CPPUNIT_ASSERT(parser.readStream(boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
 
-            LOG_TRACE("Checking results");
+            LOG_TRACE(<< "Checking results");
 
             CPPUNIT_ASSERT_EQUAL(uint64_t(18630), job.numRecordsHandled());
         }
-        LOG_TRACE(outputStrm.str());
+        LOG_TRACE(<< outputStrm.str());
 
         // TODO this limit must be tightened once there is more granular control
         // over the model memory creation
         std::size_t limitedUsage = limits.resourceMonitor().totalMemory();
-        LOG_DEBUG("Non-limited usage: " << nonLimitedUsage << "; limited: " << limitedUsage);
+        LOG_DEBUG(<< "Non-limited usage: " << nonLimitedUsage << "; limited: " << limitedUsage);
         CPPUNIT_ASSERT(limitedUsage < nonLimitedUsage);
     }
 }
@@ -208,16 +208,16 @@ void CAnomalyJobLimitTest::testLimit() {
 
         model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(3600);
 
-        LOG_TRACE("Setting up job");
+        LOG_TRACE(<< "Setting up job");
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition.csv");
         CPPUNIT_ASSERT(inputStrm.is_open());
         api::CCsvInputParser parser(inputStrm);
 
-        LOG_TRACE("Reading file");
+        LOG_TRACE(<< "Reading file");
         CPPUNIT_ASSERT(parser.readStream(boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
-        LOG_TRACE("Checking results");
+        LOG_TRACE(<< "Checking results");
         CPPUNIT_ASSERT_EQUAL(uint64_t(1176), job.numRecordsHandled());
     }
 
@@ -252,14 +252,14 @@ void CAnomalyJobLimitTest::testLimit() {
         //::CMockOutputWriter resultsHandler;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        LOG_TRACE("Setting up job");
+        LOG_TRACE(<< "Setting up job");
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition_first8.csv");
         CPPUNIT_ASSERT(inputStrm.is_open());
         api::CCsvInputParser parser(inputStrm);
 
-        LOG_TRACE("Reading file");
+        LOG_TRACE(<< "Reading file");
         CPPUNIT_ASSERT(parser.readStream(boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
         // Now turn on the resource limiting
         limits.resourceMonitor().m_ByteLimitHigh = 0;
@@ -270,9 +270,9 @@ void CAnomalyJobLimitTest::testLimit() {
         CPPUNIT_ASSERT(inputStrm2.is_open());
         api::CCsvInputParser parser2(inputStrm2);
 
-        LOG_TRACE("Reading second file");
+        LOG_TRACE(<< "Reading second file");
         CPPUNIT_ASSERT(parser2.readStream(boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
-        LOG_TRACE("Checking results");
+        LOG_TRACE(<< "Checking results");
         CPPUNIT_ASSERT_EQUAL(uint64_t(1180), job.numRecordsHandled());
     }
 

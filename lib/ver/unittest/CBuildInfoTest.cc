@@ -31,10 +31,10 @@ CppUnit::Test* CBuildInfoTest::suite() {
 
 void CBuildInfoTest::testFullInfo(void) {
     std::string fullInfo(ml::ver::CBuildInfo::fullInfo());
-    LOG_DEBUG(fullInfo);
+    LOG_DEBUG(<< fullInfo);
 
     std::string currentYear(ml::core::CTimeUtils::toIso8601(ml::core::CTimeUtils::now()), 0, 4);
-    LOG_DEBUG("Current year is " << currentYear);
+    LOG_DEBUG(<< "Current year is " << currentYear);
 
     CPPUNIT_ASSERT(fullInfo.find("ml_test") != std::string::npos);
     CPPUNIT_ASSERT(fullInfo.find("Version") != std::string::npos);

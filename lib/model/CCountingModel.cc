@@ -53,7 +53,7 @@ CCountingModel::CCountingModel(const SModelParams& params, const TDataGathererPt
 CCountingModel::CCountingModel(bool isForPersistence, const CCountingModel& other)
     : CAnomalyDetectorModel(isForPersistence, other), m_StartTime(0), m_MeanCounts(other.m_MeanCounts) {
     if (!isForPersistence) {
-        LOG_ABORT("This constructor only creates clones for persistence");
+        LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
 }
 
@@ -70,18 +70,18 @@ bool CCountingModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
         if (name == WINDOW_BUCKET_COUNT_TAG) {
             double count;
             if (core::CStringUtils::stringToType(traverser.value(), count) == false) {
-                LOG_ERROR("Invalid bucket count in " << traverser.value());
+                LOG_ERROR(<< "Invalid bucket count in " << traverser.value());
                 return false;
             }
             this->windowBucketCount(count);
         } else if (name == PERSON_BUCKET_COUNT_TAG) {
             if (core::CPersistUtils::restore(name, this->personBucketCounts(), traverser) == false) {
-                LOG_ERROR("Invalid bucket counts in " << traverser.value());
+                LOG_ERROR(<< "Invalid bucket counts in " << traverser.value());
                 return false;
             }
         } else if (name == MEAN_COUNT_TAG) {
             if (core::CPersistUtils::restore(name, m_MeanCounts, traverser) == false) {
-                LOG_ERROR("Invalid mean counts");
+                LOG_ERROR(<< "Invalid mean counts");
                 return false;
             }
         } else if (name == INTERIM_BUCKET_CORRECTOR_TAG) {
@@ -116,7 +116,7 @@ bool CCountingModel::isMetric() const {
 
 CCountingModel::TOptionalUInt64 CCountingModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR("No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
+        LOG_ERROR(<< "No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
         return TOptionalUInt64();
     }
 
@@ -151,7 +151,7 @@ void CCountingModel::currentBucketPersonIds(core_t::TTime time, TSizeVec& result
     result.clear();
 
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR("No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
+        LOG_ERROR(<< "No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
         return;
     }
 
@@ -339,7 +339,7 @@ void CCountingModel::createUpdateNewModels(core_t::TTime /*time*/, CResourceMoni
     std::size_t numberExistingPeople = m_MeanCounts.size();
     numberNewPeople = numberNewPeople > numberExistingPeople ? numberNewPeople - numberExistingPeople : 0;
     if (numberNewPeople > 0) {
-        LOG_TRACE("Creating " << numberNewPeople << " new people");
+        LOG_TRACE(<< "Creating " << numberNewPeople << " new people");
         this->createNewModels(numberNewPeople, 0);
     }
 }

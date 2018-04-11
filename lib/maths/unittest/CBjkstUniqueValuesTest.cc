@@ -45,9 +45,9 @@ uint8_t trailingZeros(uint32_t x) {
 }
 
 void CBjkstUniqueValuesTest::testTrailingZeros() {
-    LOG_DEBUG("+---------------------------------------------+");
-    LOG_DEBUG("|  CBjkstUniqueValuesTest::testTrailingZeros  |");
-    LOG_DEBUG("+---------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------+");
+    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testTrailingZeros  |");
+    LOG_DEBUG(<< "+---------------------------------------------+");
 
     uint32_t n = 1;
     for (uint8_t i = 0; i < 32; n <<= 1, ++i) {
@@ -66,9 +66,9 @@ void CBjkstUniqueValuesTest::testTrailingZeros() {
 }
 
 void CBjkstUniqueValuesTest::testNumber() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CBjkstUniqueValuesTest::testNumber  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testNumber  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     // Test the approximation errors.
 
@@ -104,7 +104,7 @@ void CBjkstUniqueValuesTest::testNumber() {
         double e6 = static_cast<double>(approxUniqueValues6.number());
         double error6 = std::fabs(e6 - n) / std::max(e6, n);
 
-        LOG_DEBUG("error5 = " << error5 << ", error6 = " << error6);
+        LOG_DEBUG(<< "error5 = " << error5 << ", error6 = " << error6);
         CPPUNIT_ASSERT(error5 < 0.35);
         CPPUNIT_ASSERT(error6 < 0.30);
 
@@ -122,8 +122,8 @@ void CBjkstUniqueValuesTest::testNumber() {
     totalError5 /= static_cast<double>(numberTests);
     totalError6 /= static_cast<double>(numberTests);
 
-    LOG_DEBUG("totalError5 = " << totalError5 << ", largeErrorCount5 = " << largeError5Count);
-    LOG_DEBUG("totalError6 = " << totalError6 << ", largeErrorCount6 = " << largeError6Count);
+    LOG_DEBUG(<< "totalError5 = " << totalError5 << ", largeErrorCount5 = " << largeError5Count);
+    LOG_DEBUG(<< "totalError6 = " << totalError6 << ", largeErrorCount6 = " << largeError6Count);
 
     CPPUNIT_ASSERT(totalError5 < 0.07);
     CPPUNIT_ASSERT(largeError5Count < 80);
@@ -133,9 +133,9 @@ void CBjkstUniqueValuesTest::testNumber() {
 }
 
 void CBjkstUniqueValuesTest::testRemove() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CBjkstUniqueValuesTest::testRemove  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testRemove  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     // Check that our error is controlled if we add and remove
     // categories. Note because compression is an irreversible
@@ -155,7 +155,7 @@ void CBjkstUniqueValuesTest::testRemove() {
     TMeanAccumulator meanRelativeErrorAfterRemove;
 
     for (std::size_t t = 0u; t < numberTests; ++t) {
-        LOG_DEBUG("*** test = " << t + 1 << " ***");
+        LOG_DEBUG(<< "*** test = " << t + 1 << " ***");
 
         maths::CBjkstUniqueValues sketch(2, 150);
         TUInt32Set unique;
@@ -164,8 +164,8 @@ void CBjkstUniqueValuesTest::testRemove() {
             sketch.add(category);
             unique.insert(category);
         }
-        LOG_DEBUG("exact  = " << unique.size());
-        LOG_DEBUG("approx = " << sketch.number());
+        LOG_DEBUG(<< "exact  = " << unique.size());
+        LOG_DEBUG(<< "approx = " << sketch.number());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             static_cast<double>(unique.size()), static_cast<double>(sketch.number()), 0.3 * static_cast<double>(unique.size()));
         meanRelativeErrorBeforeRemove.add(std::fabs(static_cast<double>(unique.size()) - static_cast<double>(sketch.number())) /
@@ -177,25 +177,25 @@ void CBjkstUniqueValuesTest::testRemove() {
             sketch.remove(category);
             unique.erase(category);
         }
-        LOG_DEBUG("exact  = " << unique.size());
-        LOG_DEBUG("approx = " << sketch.number());
+        LOG_DEBUG(<< "exact  = " << unique.size());
+        LOG_DEBUG(<< "approx = " << sketch.number());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             static_cast<double>(unique.size()), static_cast<double>(sketch.number()), 0.25 * static_cast<double>(unique.size()));
         meanRelativeErrorAfterRemove.add(std::fabs(static_cast<double>(unique.size()) - static_cast<double>(sketch.number())) /
                                          static_cast<double>(unique.size()));
     }
 
-    LOG_DEBUG("meanRelativeErrorBeforeRemove = " << maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove));
-    LOG_DEBUG("meanRelativeErrorAfterRemove  = " << maths::CBasicStatistics::mean(meanRelativeErrorAfterRemove));
+    LOG_DEBUG(<< "meanRelativeErrorBeforeRemove = " << maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove));
+    LOG_DEBUG(<< "meanRelativeErrorAfterRemove  = " << maths::CBasicStatistics::mean(meanRelativeErrorAfterRemove));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove) < 0.05);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanRelativeErrorAfterRemove) <
                    1.3 * maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove));
 }
 
 void CBjkstUniqueValuesTest::testSwap() {
-    LOG_DEBUG("+------------------------------------+");
-    LOG_DEBUG("|  CBjkstUniqueValuesTest::testSwap  |");
-    LOG_DEBUG("+------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------+");
+    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testSwap  |");
+    LOG_DEBUG(<< "+------------------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -229,10 +229,10 @@ void CBjkstUniqueValuesTest::testSwap() {
     uint64_t checksum2 = sketch2.checksum();
     uint64_t checksum3 = sketch3.checksum();
     uint64_t checksum4 = sketch4.checksum();
-    LOG_DEBUG("checksum1 = " << checksum1);
-    LOG_DEBUG("checksum2 = " << checksum2);
-    LOG_DEBUG("checksum3 = " << checksum3);
-    LOG_DEBUG("checksum4 = " << checksum4);
+    LOG_DEBUG(<< "checksum1 = " << checksum1);
+    LOG_DEBUG(<< "checksum2 = " << checksum2);
+    LOG_DEBUG(<< "checksum3 = " << checksum3);
+    LOG_DEBUG(<< "checksum4 = " << checksum4);
 
     sketch1.swap(sketch2);
     CPPUNIT_ASSERT_EQUAL(checksum2, sketch1.checksum());
@@ -256,9 +256,9 @@ void CBjkstUniqueValuesTest::testSwap() {
 }
 
 void CBjkstUniqueValuesTest::testSmall() {
-    LOG_DEBUG("+-------------------------------------+");
-    LOG_DEBUG("|  CBjkstUniqueValuesTest::testSmall  |");
-    LOG_DEBUG("+-------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------+");
+    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testSmall  |");
+    LOG_DEBUG(<< "+-------------------------------------+");
 
     // Test that there is zero error for small distinct
     // counts. This is managed by switching to use a sketch
@@ -281,27 +281,27 @@ void CBjkstUniqueValuesTest::testSmall() {
         meanRelativeError.add(0.0);
     }
 
-    LOG_DEBUG("# categories = " << sketch.number());
+    LOG_DEBUG(<< "# categories = " << sketch.number());
     for (std::size_t i = 100u; i < categories.size(); ++i) {
         uint32_t category = static_cast<uint32_t>(categories[i]);
         sketch.add(category);
         unique.insert(category);
-        LOG_DEBUG("exact  = " << unique.size());
-        LOG_DEBUG("approx = " << sketch.number());
+        LOG_DEBUG(<< "exact  = " << unique.size());
+        LOG_DEBUG(<< "approx = " << sketch.number());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             static_cast<double>(unique.size()), static_cast<double>(sketch.number()), 0.15 * static_cast<double>(unique.size()));
         meanRelativeError.add(std::fabs(static_cast<double>(unique.size()) - static_cast<double>(sketch.number())) /
                               static_cast<double>(unique.size()));
     }
 
-    LOG_DEBUG("meanRelativeError = " << maths::CBasicStatistics::mean(meanRelativeError));
+    LOG_DEBUG(<< "meanRelativeError = " << maths::CBasicStatistics::mean(meanRelativeError));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanRelativeError) < 0.05);
 }
 
 void CBjkstUniqueValuesTest::testPersist() {
-    LOG_DEBUG("+---------------------------------------+");
-    LOG_DEBUG("|  CBjkstUniqueValuesTest::testPersist  |");
-    LOG_DEBUG("+---------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------+");
+    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testPersist  |");
+    LOG_DEBUG(<< "+---------------------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -319,7 +319,7 @@ void CBjkstUniqueValuesTest::testPersist() {
         origSketch.acceptPersistInserter(inserter);
         inserter.toXml(origXml);
     }
-    LOG_DEBUG("original sketch XML = " << origXml);
+    LOG_DEBUG(<< "original sketch XML = " << origXml);
 
     // Restore the XML into a new sketch.
     {
@@ -328,7 +328,7 @@ void CBjkstUniqueValuesTest::testPersist() {
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CBjkstUniqueValues restoredSketch(traverser);
 
-        LOG_DEBUG("orig checksum = " << origSketch.checksum() << ", new checksum = " << restoredSketch.checksum());
+        LOG_DEBUG(<< "orig checksum = " << origSketch.checksum() << ", new checksum = " << restoredSketch.checksum());
         CPPUNIT_ASSERT_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::string newXml;
@@ -349,7 +349,7 @@ void CBjkstUniqueValuesTest::testPersist() {
         origSketch.acceptPersistInserter(inserter);
         inserter.toXml(origXml);
     }
-    LOG_DEBUG("original sketch XML = " << origXml);
+    LOG_DEBUG(<< "original sketch XML = " << origXml);
 
     // Restore the XML into a new sketch.
     {
@@ -358,7 +358,7 @@ void CBjkstUniqueValuesTest::testPersist() {
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CBjkstUniqueValues restoredSketch(traverser);
 
-        LOG_DEBUG("orig checksum = " << origSketch.checksum() << ", new checksum = " << restoredSketch.checksum());
+        LOG_DEBUG(<< "orig checksum = " << origSketch.checksum() << ", new checksum = " << restoredSketch.checksum());
         CPPUNIT_ASSERT_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::string newXml;

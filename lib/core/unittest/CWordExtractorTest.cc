@@ -35,8 +35,8 @@ void CWordExtractorTest::testWordExtract() {
 
         ml::core::CWordExtractor::extractWordsFromMessage(message, words);
 
-        LOG_DEBUG("Message: " << message);
-        LOG_DEBUG("Words: " << words);
+        LOG_DEBUG(<< "Message: " << message);
+        LOG_DEBUG(<< "Words: " << words);
 
         CPPUNIT_ASSERT_EQUAL(std::string("Failed to Rollback"), words);
     }
@@ -47,8 +47,8 @@ void CWordExtractorTest::testWordExtract() {
 
         ml::core::CWordExtractor::extractWordsFromMessage(message, words);
 
-        LOG_DEBUG("Message: " << message);
-        LOG_DEBUG("Words: " << words);
+        LOG_DEBUG(<< "Message: " << message);
+        LOG_DEBUG(<< "Words: " << words);
 
         CPPUNIT_ASSERT_EQUAL(std::string("Found corresponding"), words);
     }
@@ -58,8 +58,8 @@ void CWordExtractorTest::testWordExtract() {
 
         ml::core::CWordExtractor::extractWordsFromMessage(message, words);
 
-        LOG_DEBUG("Message: " << message);
-        LOG_DEBUG("Words: " << words);
+        LOG_DEBUG(<< "Message: " << message);
+        LOG_DEBUG(<< "Words: " << words);
 
         CPPUNIT_ASSERT_EQUAL(std::string("which is more than the configured time of seconds Stack trace"), words);
     }
@@ -72,25 +72,25 @@ void CWordExtractorTest::testMinConsecutive() {
 
         ml::core::CWordExtractor::extractWordsFromMessage(2, message, words);
 
-        LOG_DEBUG("Min consecutive: 2");
-        LOG_DEBUG("Message: " << message);
-        LOG_DEBUG("Words: " << words);
+        LOG_DEBUG(<< "Min consecutive: 2");
+        LOG_DEBUG(<< "Message: " << message);
+        LOG_DEBUG(<< "Words: " << words);
 
         CPPUNIT_ASSERT_EQUAL(std::string("Failed to Rollback"), words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 
-        LOG_DEBUG("Min consecutive: 3");
-        LOG_DEBUG("Message: " << message);
-        LOG_DEBUG("Words: " << words);
+        LOG_DEBUG(<< "Min consecutive: 3");
+        LOG_DEBUG(<< "Message: " << message);
+        LOG_DEBUG(<< "Words: " << words);
 
         CPPUNIT_ASSERT_EQUAL(std::string("Failed to Rollback"), words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(4, message, words);
 
-        LOG_DEBUG("Min consecutive: 4");
-        LOG_DEBUG("Message: " << message);
-        LOG_DEBUG("Words: " << words);
+        LOG_DEBUG(<< "Min consecutive: 4");
+        LOG_DEBUG(<< "Message: " << message);
+        LOG_DEBUG(<< "Words: " << words);
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), words);
     }
@@ -100,25 +100,25 @@ void CWordExtractorTest::testMinConsecutive() {
 
         ml::core::CWordExtractor::extractWordsFromMessage(2, message, words);
 
-        LOG_DEBUG("Min consecutive: 2");
-        LOG_DEBUG("Message: " << message);
-        LOG_DEBUG("Words: " << words);
+        LOG_DEBUG(<< "Min consecutive: 2");
+        LOG_DEBUG(<< "Message: " << message);
+        LOG_DEBUG(<< "Words: " << words);
 
         CPPUNIT_ASSERT_EQUAL(std::string("which is more than the configured time seconds Stack trace"), words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 
-        LOG_DEBUG("Min consecutive: 3");
-        LOG_DEBUG("Message: " << message);
-        LOG_DEBUG("Words: " << words);
+        LOG_DEBUG(<< "Min consecutive: 3");
+        LOG_DEBUG(<< "Message: " << message);
+        LOG_DEBUG(<< "Words: " << words);
 
         CPPUNIT_ASSERT_EQUAL(std::string("which is more than the configured time seconds Stack trace"), words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(4, message, words);
 
-        LOG_DEBUG("Min consecutive: 4");
-        LOG_DEBUG("Message: " << message);
-        LOG_DEBUG("Words: " << words);
+        LOG_DEBUG(<< "Min consecutive: 4");
+        LOG_DEBUG(<< "Message: " << message);
+        LOG_DEBUG(<< "Words: " << words);
 
         CPPUNIT_ASSERT_EQUAL(std::string("which is more than the configured time"), words);
     }
@@ -129,25 +129,25 @@ void CWordExtractorTest::testMinConsecutive() {
 
         ml::core::CWordExtractor::extractWordsFromMessage(2, message, words);
 
-        LOG_DEBUG("Min consecutive: 2");
-        LOG_DEBUG("Message: " << message);
-        LOG_DEBUG("Words: " << words);
+        LOG_DEBUG(<< "Min consecutive: 2");
+        LOG_DEBUG(<< "Message: " << message);
+        LOG_DEBUG(<< "Words: " << words);
 
         CPPUNIT_ASSERT_EQUAL(std::string("Output threshold breached for at position using application on channel"), words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 
-        LOG_DEBUG("Min consecutive: 3");
-        LOG_DEBUG("Message: " << message);
-        LOG_DEBUG("Words: " << words);
+        LOG_DEBUG(<< "Min consecutive: 3");
+        LOG_DEBUG(<< "Message: " << message);
+        LOG_DEBUG(<< "Words: " << words);
 
         CPPUNIT_ASSERT_EQUAL(std::string("Output threshold breached for"), words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(4, message, words);
 
-        LOG_DEBUG("Min consecutive: 4");
-        LOG_DEBUG("Message: " << message);
-        LOG_DEBUG("Words: " << words);
+        LOG_DEBUG(<< "Min consecutive: 4");
+        LOG_DEBUG(<< "Message: " << message);
+        LOG_DEBUG(<< "Words: " << words);
 
         CPPUNIT_ASSERT_EQUAL(std::string("Output threshold breached for"), words);
     }

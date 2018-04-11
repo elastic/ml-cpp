@@ -88,7 +88,7 @@ void CPenalty::penalize(CDetectorSpecification& spec) const {
         return;
     }
     for (std::size_t i = 0u; i < m_Penalties.size(); ++i) {
-        LOG_TRACE("Applying '" << m_Penalties[i]->name() << "' to " << spec.description());
+        LOG_TRACE(<< "Applying '" << m_Penalties[i]->name() << "' to " << spec.description());
         m_Penalties[i]->penalize(spec);
         if (spec.score() == 0.0) {
             break;

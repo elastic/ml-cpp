@@ -190,7 +190,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     static inline bool restore(core::CStateRestoreTraverser& traverser,
                                maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
         if (stat.fromDelimited(traverser.value()) == false) {
-            LOG_ERROR("Invalid statistic in " << traverser.value());
+            LOG_ERROR(<< "Invalid statistic in " << traverser.value());
             return false;
         }
         return true;
@@ -198,7 +198,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     //! Restore a mean statistic.
     static bool restore(core::CStateRestoreTraverser& traverser, TMeanAccumulator& stat) {
         if (stat.fromDelimited(traverser.value()) == false) {
-            LOG_ERROR("Invalid mean in " << traverser.value());
+            LOG_ERROR(<< "Invalid mean in " << traverser.value());
             return false;
         }
         return true;
@@ -206,7 +206,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     //! Restore a variance statistic.
     static bool restore(core::CStateRestoreTraverser& traverser, TVarianceAccumulator& stat) {
         if (stat.fromDelimited(traverser.value()) == false) {
-            LOG_ERROR("Invalid variance in " << traverser.value());
+            LOG_ERROR(<< "Invalid variance in " << traverser.value());
             return false;
         }
         return true;

@@ -51,7 +51,7 @@ bool CResultNormalizer::initNormalizer(const std::string& stateFileName) {
     std::ifstream inputStream(stateFileName.c_str());
     model::CHierarchicalResultsNormalizer::ERestoreOutcome outcome(m_Normalizer.fromJsonStream(inputStream));
     if (outcome != model::CHierarchicalResultsNormalizer::E_Ok) {
-        LOG_ERROR("Failed to restore JSON state for quantiles");
+        LOG_ERROR(<< "Failed to restore JSON state for quantiles");
         return false;
     }
     return true;
@@ -69,7 +69,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
         extraFieldNames.push_back(NORMALIZED_SCORE_NAME);
 
         if (m_OutputHandler.fieldNames(fieldNames, extraFieldNames) == false) {
-            LOG_ERROR("Unable to set field names for output");
+            LOG_ERROR(<< "Unable to set field names for output");
             return false;
         }
         m_WriteFieldNames = false;
@@ -106,16 +106,16 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
         } else if (level == INFLUENCER_LEVEL) {
             levelNormalizer = m_Normalizer.influencerNormalizer(person);
         } else {
-            LOG_ERROR("Unexpected   : " << level);
+            LOG_ERROR(<< "Unexpected   : " << level);
         }
         if (levelNormalizer != nullptr) {
             if (levelNormalizer->canNormalize() && levelNormalizer->normalize(score) == false) {
-                LOG_ERROR("Failed to normalize score " << score << " at level " << level << " with partition field name " << partition
-                                                       << " and person field name " << person);
+                LOG_ERROR(<< "Failed to normalize score " << score << " at level " << level << " with partition field name " << partition
+                          << " and person field name " << person);
             }
         } else {
-            LOG_ERROR("No normalizer available"
-                      " at level '"
+            LOG_ERROR(<< "No normalizer available"
+                         " at level '"
                       << level << "' with partition field name '" << partition << "' and person field name '" << person << "'");
         }
 
@@ -125,7 +125,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
     }
 
     if (m_OutputHandler.writeRow(dataRowFields, m_OutputFields) == false) {
-        LOG_ERROR("Unable to write normalized output");
+        LOG_ERROR(<< "Unable to write normalized output");
         return false;
     }
 

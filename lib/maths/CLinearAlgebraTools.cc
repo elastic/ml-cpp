@@ -143,19 +143,19 @@ public:
         if (numberIntervals == 0) {
             result.push_back(mean);
         } else {
-            LOG_TRACE("# intervals = " << numberIntervals);
+            LOG_TRACE(<< "# intervals = " << numberIntervals);
             result.reserve(rank * numberIntervals);
             double scale = std::sqrt(static_cast<double>(rank));
-            LOG_TRACE("scale = " << scale)
+            LOG_TRACE(<< "scale = " << scale)
 
             for (std::size_t i = 0u; i < rank; ++i) {
                 VECTOR_PRECISE u(fromDenseVector(covariance.matrixU().col(i)));
                 try {
                     double variance = covariance.singularValues()(i);
                     boost::math::normal_distribution<> normal(0.0, std::sqrt(variance));
-                    LOG_TRACE("[U]_{.i} = " << covariance.matrixU().col(i).transpose())
-                    LOG_TRACE("variance = " << variance);
-                    LOG_TRACE("u = " << u);
+                    LOG_TRACE(<< "[U]_{.i} = " << covariance.matrixU().col(i).transpose())
+                    LOG_TRACE(<< "variance = " << variance);
+                    LOG_TRACE(<< "u = " << u);
 
                     double lastPartialExpectation = 0.0;
                     for (std::size_t j = 1u; j < numberIntervals; ++j) {
@@ -164,13 +164,13 @@ public:
                         double partialExpectation = -variance * CTools::safePdf(normal, xq);
                         double dx = scale * static_cast<double>(numberIntervals) * (partialExpectation - lastPartialExpectation);
                         lastPartialExpectation = partialExpectation;
-                        LOG_TRACE("dx = " << dx);
+                        LOG_TRACE(<< "dx = " << dx);
                         result.push_back(mean + dx * u);
                     }
                     double dx = -scale * static_cast<double>(numberIntervals) * lastPartialExpectation;
-                    LOG_TRACE("dx = " << dx);
+                    LOG_TRACE(<< "dx = " << dx);
                     result.push_back(mean + dx * u);
-                } catch (const std::exception& e) { LOG_ERROR("Failed to sample eigenvector " << u << ": " << e.what()); }
+                } catch (const std::exception& e) { LOG_ERROR(<< "Failed to sample eigenvector " << u << ": " << e.what()); }
             }
         }
     }

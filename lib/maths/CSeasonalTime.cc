@@ -256,13 +256,13 @@ bool CSeasonalTimeStateSerializer::acceptRestoreTraverser(TSeasonalTimePtr& resu
             result->fromString(traverser.value());
             ++numResults;
         } else {
-            LOG_ERROR("No seasonal time corresponds to name " << traverser.name());
+            LOG_ERROR(<< "No seasonal time corresponds to name " << traverser.name());
             return false;
         }
     } while (traverser.next());
 
     if (numResults != 1) {
-        LOG_ERROR("Expected 1 (got " << numResults << ") seasonal time tags");
+        LOG_ERROR(<< "Expected 1 (got " << numResults << ") seasonal time tags");
         result.reset();
         return false;
     }
@@ -276,7 +276,7 @@ void CSeasonalTimeStateSerializer::acceptPersistInserter(const CSeasonalTime& ti
     } else if (dynamic_cast<const CGeneralPeriodTime*>(&time) != nullptr) {
         inserter.insertValue(ARBITRARY_PERIOD_TIME_TAG, time.toString());
     } else {
-        LOG_ERROR("Seasonal time with type " << typeid(time).name() << " has no defined name");
+        LOG_ERROR(<< "Seasonal time with type " << typeid(time).name() << " has no defined name");
     }
 }
 }

@@ -40,7 +40,7 @@ void add(std::size_t p,
          std::size_t a,
          std::size_t b,
          CDetectorEnumerator::TDetectorSpecificationVec& result) {
-    LOG_TRACE("a = " << a << " b = " << b);
+    LOG_TRACE(<< "a = " << a << " b = " << b);
     if (a == b) {
         return;
     }
@@ -48,7 +48,7 @@ void add(std::size_t p,
     for (std::size_t i = 0u; i < p; ++i) {
         for (std::size_t j = a; j < b; ++j) {
             const TStrVec& ci = candidates[i];
-            LOG_TRACE("candidates = " << core::CContainerPrinter::print(ci));
+            LOG_TRACE(<< "candidates = " << core::CContainerPrinter::print(ci));
 
             for (std::size_t k = 0u; k < ci.size(); ++k) {
                 if (result[j].canAddPartitioning(indices[i], ci[k])) {
@@ -129,7 +129,7 @@ void CDetectorEnumerator::generateNoPartitioning(TDetectorSpecificationVec& resu
             } else {
                 result.push_back(CDetectorSpecification(m_Params, function, id));
             }
-        } catch (std::exception& e) { LOG_ERROR("Bad detector: " << e.what()); }
+        } catch (std::exception& e) { LOG_ERROR(<< "Bad detector: " << e.what()); }
     }
 }
 
@@ -147,7 +147,7 @@ void CDetectorEnumerator::addOnePartitioning(std::size_t a, std::size_t b, TDete
                     result.push_back(CDetectorSpecification(m_Params, function, id));
                     result.back().addPartitioning(constants::BY_INDEX, m_CandidateRareByFields[j]);
                 }
-            } catch (std::exception& e) { LOG_ERROR("Bad detector: " << e.what()); }
+            } catch (std::exception& e) { LOG_ERROR(<< "Bad detector: " << e.what()); }
         }
     }
 }

@@ -80,7 +80,7 @@ public:
     CFloatStorage(int value) : m_Value(float(value)) {
 #ifdef CFLOATSTORAGE_BOUNDS_CHECK
         if (value > MAX_PRECISE_INTEGER_FLOAT || -value < MAX_PRECISE_INTEGER_FLOAT) {
-            LOG_WARN("Loss of precision assigning int " << value << " to float");
+            LOG_WARN(<< "Loss of precision assigning int " << value << " to float");
         }
 #endif // CFLOATSTORAGE_BOUNDS_CHECK
     }
@@ -141,12 +141,12 @@ private:
     void set(double value) {
 #ifdef CFLOATSTORAGE_BOUNDS_CHECK
         if (value > std::numeric_limits<float>::max() || -value > std::numeric_limits<float>::max()) {
-            LOG_WARN("Value overflows float " << value);
+            LOG_WARN(<< "Value overflows float " << value);
         }
         if (value < std::numeric_limits<float>::min() && -value < std::numeric_limits<float>::min()) {
-            LOG_WARN("Value underflows float " << value);
+            LOG_WARN(<< "Value underflows float " << value);
         } else if (value < 100 * std::numeric_limits<float>::min() && -value < 100 * std::numeric_limits<float>::min()) {
-            LOG_WARN("Less than 3 s.f. precision retained for " << value);
+            LOG_WARN(<< "Less than 3 s.f. precision retained for " << value);
         }
 #endif // CFLOATSTORAGE_BOUNDS_CHECK
         m_Value = static_cast<float>(value);

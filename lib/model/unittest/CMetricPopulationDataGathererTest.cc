@@ -139,7 +139,7 @@ const std::string EMPTY_STRING;
 } // unnamed::
 
 void CMetricPopulationDataGathererTest::testMean() {
-    LOG_DEBUG("*** CMetricPopulationDataGathererTest::testMean ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testMean ***");
 
     // Test that we correctly sample the bucket means.
 
@@ -167,7 +167,7 @@ void CMetricPopulationDataGathererTest::testMean() {
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0u; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
-            LOG_DEBUG("Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
+            LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec tmp;
             gatherer.featureData(bucketStart, bucketLength, tmp);
@@ -201,7 +201,7 @@ void CMetricPopulationDataGathererTest::testMean() {
 }
 
 void CMetricPopulationDataGathererTest::testMin() {
-    LOG_DEBUG("*** CMetricPopulationDataGathererTest::testMin ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testMin ***");
 
     // Test that we correctly sample the bucket minimums.
 
@@ -228,7 +228,7 @@ void CMetricPopulationDataGathererTest::testMin() {
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0u; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
-            LOG_DEBUG("Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
+            LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec tmp;
             gatherer.featureData(bucketStart, bucketLength, tmp);
@@ -262,7 +262,7 @@ void CMetricPopulationDataGathererTest::testMin() {
 }
 
 void CMetricPopulationDataGathererTest::testMax() {
-    LOG_DEBUG("*** CMetricPopulationDataGathererTest::testMax ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testMax ***");
 
     // Test that we correctly sample the bucket maximums.
 
@@ -289,7 +289,7 @@ void CMetricPopulationDataGathererTest::testMax() {
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0u; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
-            LOG_DEBUG("Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
+            LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec tmp;
             gatherer.featureData(bucketStart, bucketLength, tmp);
@@ -323,7 +323,7 @@ void CMetricPopulationDataGathererTest::testMax() {
 }
 
 void CMetricPopulationDataGathererTest::testSum() {
-    LOG_DEBUG("*** CMetricPopulationDataGathererTest::testSum ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testSum ***");
 
     // Test that we correctly sample the bucket sums.
 
@@ -346,7 +346,7 @@ void CMetricPopulationDataGathererTest::testSum() {
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0u; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
-            LOG_DEBUG("Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
+            LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec tmp;
             gatherer.featureData(bucketStart, bucketLength, tmp);
@@ -375,7 +375,7 @@ void CMetricPopulationDataGathererTest::testSum() {
 }
 
 void CMetricPopulationDataGathererTest::testSampleCount() {
-    LOG_DEBUG("*** CMetricPopulationDataGathererTest::testSampleCount ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testSampleCount ***");
 
     // Test that we set sensible sample counts for each attribute.
 
@@ -419,7 +419,7 @@ void CMetricPopulationDataGathererTest::testSampleCount() {
 
         if (messages[i].s_Time >= bucketStart + bucketLength) {
             gatherer.sampleNow(bucketStart);
-            LOG_DEBUG(gatherer.effectiveSampleCount(0));
+            LOG_DEBUG(<< gatherer.effectiveSampleCount(0));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedSampleCounts[bucket], gatherer.effectiveSampleCount(0), tolerance);
             ++bucket;
         }
@@ -433,7 +433,7 @@ void CMetricPopulationDataGathererTest::testSampleCount() {
 }
 
 void CMetricPopulationDataGathererTest::testFeatureData() {
-    LOG_DEBUG("*** CMetricPopulationDataGathererTest::testFeatureData ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testFeatureData ***");
 
     // Test we correctly sample the mean, minimum and maximum statistics.
 
@@ -478,7 +478,7 @@ void CMetricPopulationDataGathererTest::testFeatureData() {
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0u; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
-            LOG_DEBUG("Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
+            LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
 
             gatherer.sampleNow(bucketStart);
 
@@ -594,7 +594,7 @@ void CMetricPopulationDataGathererTest::testFeatureData() {
 }
 
 void CMetricPopulationDataGathererTest::testRemovePeople() {
-    LOG_DEBUG("*** CMetricPopulationDataGathererTest::testRemovePeople ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testRemovePeople ***");
 
     // Check that all the state is correctly updated when some
     // people are removed.
@@ -637,7 +637,7 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0u; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
-            LOG_DEBUG("Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
+            LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
             gatherer.sampleNow(bucketStart);
             bucketStart += bucketLength;
         }
@@ -662,7 +662,7 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
             expectedPersonNames.push_back(gatherer.personName(i));
             expectedPersonIds.push_back(i);
         } else {
-            LOG_DEBUG("Removing " << gatherer.personName(i));
+            LOG_DEBUG(<< "Removing " << gatherer.personName(i));
         }
     }
 
@@ -677,9 +677,9 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
             }
         }
     }
-    LOG_DEBUG("expectedNonZeroCounts = " << core::CContainerPrinter::print(expectedNonZeroCounts));
+    LOG_DEBUG(<< "expectedNonZeroCounts = " << core::CContainerPrinter::print(expectedNonZeroCounts));
 
-    LOG_DEBUG("Expected");
+    LOG_DEBUG(<< "Expected");
     TStrFeatureDataPrVec expectedFeatureData;
     {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
@@ -691,8 +691,8 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
                     std::string key = model_t::print(featureData[i].first) + " " + gatherer.personName(data[j].first.first) + " " +
                                       gatherer.attributeName(data[j].first.second);
                     expectedFeatureData.push_back(TStrFeatureDataPr(key, data[j].second));
-                    LOG_DEBUG("  " << key);
-                    LOG_DEBUG("  " << data[j].second.print());
+                    LOG_DEBUG(<< "  " << key);
+                    LOG_DEBUG(<< "  " << data[j].second.print());
                 }
             }
         }
@@ -714,11 +714,11 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
         const std::string& name = gatherer.personName(nonZeroCounts[i].first);
         actualNonZeroCounts[name] = nonZeroCounts[i].second;
     }
-    LOG_DEBUG("actualNonZeroCounts = " << core::CContainerPrinter::print(actualNonZeroCounts));
+    LOG_DEBUG(<< "actualNonZeroCounts = " << core::CContainerPrinter::print(actualNonZeroCounts));
 
     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNonZeroCounts), core::CContainerPrinter::print(actualNonZeroCounts));
 
-    LOG_DEBUG("Actual");
+    LOG_DEBUG(<< "Actual");
     TStrFeatureDataPrVec actualFeatureData;
     {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
@@ -729,8 +729,8 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
                 std::string key = model_t::print(featureData[i].first) + " " + gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
                 actualFeatureData.push_back(TStrFeatureDataPr(key, data[j].second));
-                LOG_DEBUG("  " << key);
-                LOG_DEBUG("    " << data[j].second.print());
+                LOG_DEBUG(<< "  " << key);
+                LOG_DEBUG(<< "    " << data[j].second.print());
             }
         }
     }
@@ -739,7 +739,7 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
 }
 
 void CMetricPopulationDataGathererTest::testRemoveAttributes() {
-    LOG_DEBUG("*** CMetricPopulationDataGathererTest::testRemoveAttributes ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testRemoveAttributes ***");
 
     // Check that all the state is correctly updated when some
     // attributes are removed.
@@ -779,7 +779,7 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes() {
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0u; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
-            LOG_DEBUG("Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
+            LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
             gatherer.sampleNow(bucketStart);
             bucketStart += bucketLength;
         }
@@ -804,13 +804,13 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes() {
             expectedAttributeIds.push_back(i);
             expectedSampleCounts.push_back(gatherer.effectiveSampleCount(i));
         } else {
-            LOG_DEBUG("Removing " << gatherer.attributeName(i));
+            LOG_DEBUG(<< "Removing " << gatherer.attributeName(i));
         }
     }
 
     std::string expectedFeatureData;
     {
-        LOG_DEBUG("Expected");
+        LOG_DEBUG(<< "Expected");
         TStrFeatureDataPrVec expected;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
@@ -821,8 +821,8 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes() {
                     std::string key = model_t::print(featureData[i].first) + " " + gatherer.personName(data[j].first.first) + " " +
                                       gatherer.attributeName(data[j].first.second);
                     expected.push_back(TStrFeatureDataPr(key, data[j].second));
-                    LOG_DEBUG("  " << key);
-                    LOG_DEBUG("    " << data[j].second.print());
+                    LOG_DEBUG(<< "  " << key);
+                    LOG_DEBUG(<< "    " << data[j].second.print());
                 }
             }
         }
@@ -847,7 +847,7 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes() {
 
     std::string actualFeatureData;
     {
-        LOG_DEBUG("Actual");
+        LOG_DEBUG(<< "Actual");
         TStrFeatureDataPrVec actual;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
@@ -857,8 +857,8 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes() {
                 std::string key = model_t::print(featureData[i].first) + " " + gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
                 actual.push_back(TStrFeatureDataPr(key, data[j].second));
-                LOG_DEBUG("  " << key);
-                LOG_DEBUG("    " << data[j].second.print());
+                LOG_DEBUG(<< "  " << key);
+                LOG_DEBUG(<< "    " << data[j].second.print());
             }
         }
         actualFeatureData = core::CContainerPrinter::print(actual);
@@ -868,7 +868,7 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes() {
 }
 
 void CMetricPopulationDataGathererTest::testInfluenceStatistics() {
-    LOG_DEBUG("*** CMetricPopulationDataGathererTest::testInfluenceStatistics ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testInfluenceStatistics ***");
 
     using TDoubleDoublePr = std::pair<double, double>;
     using TStrDoubleDoublePrPr = std::pair<std::string, TDoubleDoublePr>;
@@ -952,12 +952,12 @@ void CMetricPopulationDataGathererTest::testInfluenceStatistics() {
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0u, b = 0u; i < boost::size(data); ++i) {
         if (data[i].s_Time >= bucketStart + bucketLength) {
-            LOG_DEBUG("*** processing bucket ***");
+            LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(bucketStart, bucketLength, featureData);
             for (std::size_t j = 0u; j < featureData.size(); ++j) {
                 model_t::EFeature feature = featureData[j].first;
-                LOG_DEBUG("feature = " << model_t::print(feature));
+                LOG_DEBUG(<< "feature = " << model_t::print(feature));
 
                 const TSizeSizePrFeatureDataPrVec& data_ = featureData[j].second;
                 for (std::size_t k = 0u; k < data_.size(); ++k) {
@@ -972,8 +972,8 @@ void CMetricPopulationDataGathererTest::testInfluenceStatistics() {
                     }
                     std::sort(statistics.begin(), statistics.end(), maths::COrderings::SFirstLess());
 
-                    LOG_DEBUG("statistics = " << core::CContainerPrinter::print(statistics));
-                    LOG_DEBUG("expected   = " << *expected);
+                    LOG_DEBUG(<< "statistics = " << core::CContainerPrinter::print(statistics));
+                    LOG_DEBUG(<< "expected   = " << *expected);
                     CPPUNIT_ASSERT_EQUAL(*(expected++), core::CContainerPrinter::print(statistics));
                 }
             }
@@ -986,7 +986,7 @@ void CMetricPopulationDataGathererTest::testInfluenceStatistics() {
 }
 
 void CMetricPopulationDataGathererTest::testPersistence() {
-    LOG_DEBUG("*** CMetricPopulationDataGathererTest::testPersistence ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testPersistence ***");
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -1020,7 +1020,7 @@ void CMetricPopulationDataGathererTest::testPersistence() {
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0u; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
-            LOG_DEBUG("Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
+            LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", " << bucketStart + bucketLength << ")");
             origDataGatherer.sampleNow(bucketStart);
             bucketStart += bucketLength;
         }
@@ -1034,8 +1034,8 @@ void CMetricPopulationDataGathererTest::testPersistence() {
         origDataGatherer.acceptPersistInserter(inserter);
         inserter.toXml(origXml);
     }
-    //LOG_DEBUG("origXml = " << origXml);
-    LOG_DEBUG("origXml length = " << origXml.length() << ", # tabs " << std::count_if(origXml.begin(), origXml.end(), isSpace));
+    //LOG_DEBUG(<< "origXml = " << origXml);
+    LOG_DEBUG(<< "origXml length = " << origXml.length() << ", # tabs " << std::count_if(origXml.begin(), origXml.end(), isSpace));
 
     std::size_t length = origXml.length() - std::count_if(origXml.begin(), origXml.end(), isSpace);
     CPPUNIT_ASSERT(length < 645000);
@@ -1067,14 +1067,14 @@ void CMetricPopulationDataGathererTest::testPersistence() {
         restoredDataGatherer.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    //LOG_DEBUG("newXml = " << newXml);
-    LOG_DEBUG("newXml length = " << newXml.length() << ", # tabs " << std::count_if(newXml.begin(), newXml.end(), isSpace));
+    //LOG_DEBUG(<< "newXml = " << newXml);
+    LOG_DEBUG(<< "newXml length = " << newXml.length() << ", # tabs " << std::count_if(newXml.begin(), newXml.end(), isSpace));
 
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
 void CMetricPopulationDataGathererTest::testReleaseMemory() {
-    LOG_DEBUG("*** CMetricPopulationDataGathererTest::testReleaseMemory ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testReleaseMemory ***");
 
     const core_t::TTime startTime = 1373932800;
     const core_t::TTime bucketLength = 3600;

@@ -232,8 +232,8 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time, doub
             double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
             return {ql, qu};
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", prediction = " << prediction
-                                                                 << ", variance = " << variance << ", confidence = " << confidence);
+            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what() << ", prediction = " << prediction
+                      << ", variance = " << variance << ", confidence = " << confidence);
         }
     }
 
@@ -255,7 +255,7 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::variance(double confidence) co
             double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
             return {ql * variance / df, qu * variance / df};
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", df = " << df << ", confidence = " << confidence);
+            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what() << ", df = " << df << ", confidence = " << confidence);
         }
     }
 
@@ -270,11 +270,11 @@ void CTrendComponent::forecast(core_t::TTime startTime,
     result.clear();
 
     if (endTime < startTime) {
-        LOG_ERROR("Bad forecast range: [" << startTime << "," << endTime << "]");
+        LOG_ERROR(<< "Bad forecast range: [" << startTime << "," << endTime << "]");
         return;
     }
     if (confidence < 0.0 || confidence >= 100.0) {
-        LOG_ERROR("Bad confidence interval: " << confidence << "%");
+        LOG_ERROR(<< "Bad confidence interval: " << confidence << "%");
         return;
     }
 
@@ -283,7 +283,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
     core_t::TTime steps{(endTime - startTime) / step};
     result.resize(steps, TDouble3Vec(3));
 
-    LOG_TRACE("forecasting = " << this->print());
+    LOG_TRACE(<< "forecasting = " << this->print());
 
     TDoubleVec factors(this->factors(step));
 
@@ -298,10 +298,10 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         modelCovariances[i] /= std::max(m_Models[i].s_Regression.count(), 1.0);
         residualVariances[i] = std::pow(CBasicStatistics::mean(m_Models[i].s_ResidualMoments), 2.0) +
                                CBasicStatistics::variance(m_Models[i].s_ResidualMoments);
-        LOG_TRACE("params      = " << core::CContainerPrinter::print(models[i]));
-        LOG_TRACE("covariances = " << modelCovariances[i].toDelimited())
+        LOG_TRACE(<< "params      = " << core::CContainerPrinter::print(models[i]));
+        LOG_TRACE(<< "covariances = " << modelCovariances[i].toDelimited())
     }
-    LOG_TRACE("long time variance = " << CBasicStatistics::variance(m_ValueMoments));
+    LOG_TRACE(<< "long time variance = " << CBasicStatistics::variance(m_ValueMoments));
 
     TDoubleVec variances(NUMBER_MODELS + 1);
     for (core_t::TTime time = startTime; time < endTime; time += step) {
@@ -338,8 +338,8 @@ void CTrendComponent::forecast(core_t::TTime startTime,
             ql = boost::math::quantile(normal, (100.0 - confidence) / 200.0);
             qu = boost::math::quantile(normal, (100.0 + confidence) / 200.0);
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", variance = " << variance
-                                                                 << ", confidence = " << confidence);
+            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what() << ", variance = " << variance
+                      << ", confidence = " << confidence);
         }
 
         result[pillar][0] = prediction + ql;

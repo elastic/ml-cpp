@@ -161,7 +161,7 @@ void CTimeUtilsTest::testStrptime() {
 
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
         CPPUNIT_ASSERT_EQUAL(expected, actual);
-        LOG_DEBUG(actual);
+        LOG_DEBUG(<< actual);
     }
     {
         std::string dateTime("Fri Oct 31  3:15:00 AM GMT 08");
@@ -173,7 +173,7 @@ void CTimeUtilsTest::testStrptime() {
 
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
         CPPUNIT_ASSERT_EQUAL(expected, actual);
-        LOG_DEBUG(actual);
+        LOG_DEBUG(<< actual);
     }
     {
         std::string dateTime("Tue Jun 23  17:24:55 2009");
@@ -185,7 +185,7 @@ void CTimeUtilsTest::testStrptime() {
 
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
         CPPUNIT_ASSERT_EQUAL(expected, actual);
-        LOG_DEBUG(actual);
+        LOG_DEBUG(<< actual);
     }
     {
         std::string dateTime("Tue Jun 23  17:24:55 BST 2009");
@@ -197,7 +197,7 @@ void CTimeUtilsTest::testStrptime() {
 
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
         CPPUNIT_ASSERT_EQUAL(expected, actual);
-        LOG_DEBUG(actual);
+        LOG_DEBUG(<< actual);
     }
     {
         // This time is in summer, but explicitly specifies a GMT offset of 0,
@@ -211,7 +211,7 @@ void CTimeUtilsTest::testStrptime() {
 
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
         CPPUNIT_ASSERT_EQUAL(expected, actual);
-        LOG_DEBUG(actual);
+        LOG_DEBUG(<< actual);
 
         std::string badDateTime1("Tue Jun 23  17:24:55 2009");
         CPPUNIT_ASSERT(!ml::core::CTimeUtils::strptime(format, badDateTime1, actual));
@@ -228,13 +228,14 @@ void CTimeUtilsTest::testStrptime() {
         ml::core_t::TTime actual(0);
 
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        LOG_DEBUG(actual);
+        LOG_DEBUG(<< actual);
 
         // This test is only approximate (assuming leap year with leap second), so
         // print a warning too
         CPPUNIT_ASSERT(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
         char buf[128] = {'\0'};
-        LOG_WARN("If the following date is not within the last year then something is wrong: " << ml::core::CCTimeR::cTimeR(&actual, buf));
+        LOG_WARN(<< "If the following date is not within the last year then something is wrong: "
+                 << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
         CPPUNIT_ASSERT(actual <= ml::core::CTimeUtils::now() + ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
@@ -248,13 +249,14 @@ void CTimeUtilsTest::testStrptime() {
         ml::core_t::TTime actual(0);
 
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        LOG_DEBUG(actual);
+        LOG_DEBUG(<< actual);
 
         // This test is only approximate (assuming leap year with leap second), so
         // print a warning too
         CPPUNIT_ASSERT(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
         char buf[128] = {'\0'};
-        LOG_WARN("If the following date is not within the last year then something is wrong: " << ml::core::CCTimeR::cTimeR(&actual, buf));
+        LOG_WARN(<< "If the following date is not within the last year then something is wrong: "
+                 << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
         CPPUNIT_ASSERT(actual <= ml::core::CTimeUtils::now() + ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
@@ -268,13 +270,14 @@ void CTimeUtilsTest::testStrptime() {
         ml::core_t::TTime actual(0);
 
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        LOG_DEBUG(actual);
+        LOG_DEBUG(<< actual);
 
         // This test is only approximate (assuming leap year with leap second), so
         // print a warning too
         CPPUNIT_ASSERT(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
         char buf[128] = {'\0'};
-        LOG_WARN("If the following date is not within the last year then something is wrong: " << ml::core::CCTimeR::cTimeR(&actual, buf));
+        LOG_WARN(<< "If the following date is not within the last year then something is wrong: "
+                 << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
         CPPUNIT_ASSERT(actual <= ml::core::CTimeUtils::now() + ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
@@ -403,7 +406,7 @@ void CTimeUtilsTest::testTimezone() {
 void CTimeUtilsTest::testDateWords() {
     // These tests assume they're being run in an English speaking country
 
-    LOG_DEBUG("Checking day of week abbreviations");
+    LOG_DEBUG(<< "Checking day of week abbreviations");
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Mon"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Tue"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Wed"));
@@ -412,7 +415,7 @@ void CTimeUtilsTest::testDateWords() {
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Sat"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Sun"));
 
-    LOG_DEBUG("Checking full days of week");
+    LOG_DEBUG(<< "Checking full days of week");
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Monday"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Tuesday"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Wednesday"));
@@ -421,7 +424,7 @@ void CTimeUtilsTest::testDateWords() {
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Saturday"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Sunday"));
 
-    LOG_DEBUG("Checking non-days of week");
+    LOG_DEBUG(<< "Checking non-days of week");
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Money"));
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Tues"));
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Wedding"));
@@ -433,7 +436,7 @@ void CTimeUtilsTest::testDateWords() {
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Dave"));
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Hello"));
 
-    LOG_DEBUG("Checking month abbreviations");
+    LOG_DEBUG(<< "Checking month abbreviations");
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Jan"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Feb"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Mar"));
@@ -447,7 +450,7 @@ void CTimeUtilsTest::testDateWords() {
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Nov"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Dec"));
 
-    LOG_DEBUG("Checking full months");
+    LOG_DEBUG(<< "Checking full months");
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("January"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("February"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("March"));
@@ -461,7 +464,7 @@ void CTimeUtilsTest::testDateWords() {
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("November"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("December"));
 
-    LOG_DEBUG("Checking non-months");
+    LOG_DEBUG(<< "Checking non-months");
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Jane"));
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Febrile"));
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Market"));
@@ -478,11 +481,11 @@ void CTimeUtilsTest::testDateWords() {
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Chair"));
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Laptop"));
 
-    LOG_DEBUG("Checking time zones");
+    LOG_DEBUG(<< "Checking time zones");
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("GMT"));
     CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("UTC"));
 
-    LOG_DEBUG("Checking space");
+    LOG_DEBUG(<< "Checking space");
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord(""));
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord(" "));
     CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("\t"));

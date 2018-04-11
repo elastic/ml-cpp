@@ -73,14 +73,14 @@ std::string versionNumber() {
 }
 
 void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport) {
-    LOG_INFO("Persist complete with description: " << modelSnapshotReport.s_Description);
+    LOG_INFO(<< "Persist complete with description: " << modelSnapshotReport.s_Description);
     persistedNormalizerState = modelSnapshotReport.s_NormalizerState;
 }
 
 bool writeNormalizerState(const std::string& outputFileName) {
     std::ofstream out(outputFileName);
     if (!out.is_open()) {
-        LOG_ERROR("Failed to open normalizer state output file " << outputFileName);
+        LOG_ERROR(<< "Failed to open normalizer state output file " << outputFileName);
         return false;
     }
 
@@ -112,13 +112,13 @@ bool persistCategorizerStateToFile(const std::string& outputFileName) {
         std::ofstream* out = nullptr;
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(out = new std::ofstream(outputFileName));
         if (!out->is_open()) {
-            LOG_ERROR("Failed to open categorizer state output file " << outputFileName);
+            LOG_ERROR(<< "Failed to open categorizer state output file " << outputFileName);
             return false;
         }
 
         ml::api::CSingleStreamDataAdder persister(ptr);
         if (!typer.persistState(persister)) {
-            LOG_ERROR("Error persisting state to " << outputFileName);
+            LOG_ERROR(<< "Error persisting state to " << outputFileName);
             return false;
         }
     }
@@ -135,7 +135,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
     // Open the input and output files
     std::ifstream inputStrm(inputFilename);
     if (!inputStrm.is_open()) {
-        LOG_ERROR("Cannot open input file " << inputFilename);
+        LOG_ERROR(<< "Cannot open input file " << inputFilename);
         return false;
     }
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
@@ -145,7 +145,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
     ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
     if (!fieldConfig.initFromFile(configFileName)) {
-        LOG_ERROR("Failed to init field config from " << configFileName);
+        LOG_ERROR(<< "Failed to init field config from " << configFileName);
         return false;
     }
 
@@ -174,7 +174,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
     }
 
     if (!parser->readStream(boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1))) {
-        LOG_ERROR("Failed to processs input");
+        LOG_ERROR(<< "Failed to processs input");
         return false;
     }
 
@@ -183,13 +183,13 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         std::ofstream* out = nullptr;
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(out = new std::ofstream(outputFileName));
         if (!out->is_open()) {
-            LOG_ERROR("Failed to open state output file " << outputFileName);
+            LOG_ERROR(<< "Failed to open state output file " << outputFileName);
             return false;
         }
 
         ml::api::CSingleStreamDataAdder persister(ptr);
         if (!origJob.persistState(persister)) {
-            LOG_ERROR("Error persisting state to " << outputFileName);
+            LOG_ERROR(<< "Error persisting state to " << outputFileName);
             return false;
         }
     }
@@ -242,59 +242,59 @@ int main(int /*argc*/, char** /*argv*/) {
 
     std::string version = versionNumber();
     if (version.empty()) {
-        LOG_ERROR("Cannot get version number");
+        LOG_ERROR(<< "Cannot get version number");
         return EXIT_FAILURE;
     }
-    LOG_INFO("Saving model state for version: " << version);
+    LOG_INFO(<< "Saving model state for version: " << version);
 
     bool persisted = persistByDetector(version);
     if (!persisted) {
-        LOG_ERROR("Failed to persist state for by detector");
+        LOG_ERROR(<< "Failed to persist state for by detector");
         return EXIT_FAILURE;
     }
 
     if (persistedNormalizerState.empty()) {
-        LOG_ERROR("Normalizer state not persisted");
+        LOG_ERROR(<< "Normalizer state not persisted");
         return EXIT_FAILURE;
     }
     if (!writeNormalizerState("../unittest/testfiles/state/" + version + "/normalizer_state.json")) {
-        LOG_ERROR("Error writing normalizer state file");
+        LOG_ERROR(<< "Error writing normalizer state file");
         return EXIT_FAILURE;
     }
 
     persisted = persistOverDetector(version);
     if (!persisted) {
-        LOG_ERROR("Failed to persist state for over detector");
+        LOG_ERROR(<< "Failed to persist state for over detector");
         return EXIT_FAILURE;
     }
 
     persisted = persistPartitionDetector(version);
     if (!persisted) {
-        LOG_ERROR("Failed to persist state for partition detector");
+        LOG_ERROR(<< "Failed to persist state for partition detector");
         return EXIT_FAILURE;
     }
 
     persisted = persistDcDetector(version);
     if (!persisted) {
-        LOG_ERROR("Failed to persist state for DC detector");
+        LOG_ERROR(<< "Failed to persist state for DC detector");
         return EXIT_FAILURE;
     }
 
     persisted = persistCountDetector(version);
     if (!persisted) {
-        LOG_ERROR("Failed to persist state for count detector");
+        LOG_ERROR(<< "Failed to persist state for count detector");
         return EXIT_FAILURE;
     }
 
     persisted = persistCategorizerStateToFile("../unittest/testfiles/state/" + version + "/categorizer_state.json");
     if (!persisted) {
-        LOG_ERROR("Failed to persist categorizer state");
+        LOG_ERROR(<< "Failed to persist categorizer state");
         return EXIT_FAILURE;
     }
 
-    LOG_INFO("Written state files:");
+    LOG_INFO(<< "Written state files:");
     for (const auto& stateFile : persistedStateFiles) {
-        LOG_INFO("\t" << stateFile)
+        LOG_INFO(<< "\t" << stateFile)
     }
 
     return EXIT_SUCCESS;

@@ -91,7 +91,7 @@ void COutputChainerTest::testChaining() {
 
     while (line.length() == 0 || line.find(modelSizeString) != std::string::npos) {
         std::getline(reReadStrm, line);
-        LOG_DEBUG("Read line: " << line);
+        LOG_DEBUG(<< "Read line: " << line);
     }
 
     // The first character of "line" will either be "[" or ","

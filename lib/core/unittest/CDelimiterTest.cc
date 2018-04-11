@@ -49,7 +49,7 @@ void CDelimiterTest::testSimpleTokenise() {
                          "Oct 12, 2008 8:39:04 AM org.apache.tomcat.util.http.Parameters processParameters\n"
                          "WARNING: Parameters: Invalid chunk ignored.\n");
 
-    LOG_DEBUG("Input data:\n" << testData << '\n');
+    LOG_DEBUG(<< "Input data:\n" << testData << '\n');
 
     ml::core::CDelimiter delimiter("\n", "\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+", true);
 
@@ -60,8 +60,8 @@ void CDelimiterTest::testSimpleTokenise() {
 
     std::ostringstream strm1;
     std::copy(delimited.begin(), delimited.end(), TStrOStreamItr(strm1, "\n"));
-    LOG_DEBUG("First output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm1.str());
-    LOG_DEBUG("First remainder:\n" << remainder << '\n');
+    LOG_DEBUG(<< "First output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm1.str());
+    LOG_DEBUG(<< "First remainder:\n" << remainder << '\n');
 
     CPPUNIT_ASSERT_EQUAL(size_t(4), delimited.size());
     CPPUNIT_ASSERT(remainder.size() > 0);
@@ -72,8 +72,8 @@ void CDelimiterTest::testSimpleTokenise() {
 
     std::ostringstream strm2;
     std::copy(delimited.begin(), delimited.end(), TStrOStreamItr(strm2, "\n"));
-    LOG_DEBUG("Second output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm2.str());
-    LOG_DEBUG("Second remainder:\n" << remainder << '\n');
+    LOG_DEBUG(<< "Second output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm2.str());
+    LOG_DEBUG(<< "Second remainder:\n" << remainder << '\n');
 
     CPPUNIT_ASSERT_EQUAL(size_t(5), delimited.size());
     CPPUNIT_ASSERT_EQUAL(size_t(0), remainder.size());
@@ -92,7 +92,7 @@ void CDelimiterTest::testRegexTokenise() {
                          "Oct 12, 2008 8:39:04 AM org.apache.tomcat.util.http.Parameters processParameters\n"
                          "WARNING: Parameters: Invalid chunk ignored.\n");
 
-    LOG_DEBUG("Input data:\n" << testData << '\n');
+    LOG_DEBUG(<< "Input data:\n" << testData << '\n');
 
     // Regex matches line terminator for either Windows or Unix text
     ml::core::CDelimiter delimiter("\r?\n", "\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+", true);
@@ -104,8 +104,8 @@ void CDelimiterTest::testRegexTokenise() {
 
     std::ostringstream strm1;
     std::copy(delimited.begin(), delimited.end(), TStrOStreamItr(strm1, "\n"));
-    LOG_DEBUG("First output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm1.str());
-    LOG_DEBUG("First remainder:\n" << remainder << '\n');
+    LOG_DEBUG(<< "First output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm1.str());
+    LOG_DEBUG(<< "First remainder:\n" << remainder << '\n');
 
     CPPUNIT_ASSERT_EQUAL(size_t(4), delimited.size());
     CPPUNIT_ASSERT(remainder.size() > 0);
@@ -116,8 +116,8 @@ void CDelimiterTest::testRegexTokenise() {
 
     std::ostringstream strm2;
     std::copy(delimited.begin(), delimited.end(), TStrOStreamItr(strm2, "\n"));
-    LOG_DEBUG("Second output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm2.str());
-    LOG_DEBUG("Second remainder:\n" << remainder << '\n');
+    LOG_DEBUG(<< "Second output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm2.str());
+    LOG_DEBUG(<< "Second remainder:\n" << remainder << '\n');
 
     CPPUNIT_ASSERT_EQUAL(size_t(5), delimited.size());
     CPPUNIT_ASSERT_EQUAL(size_t(0), remainder.size());
@@ -129,7 +129,7 @@ void CDelimiterTest::testQuotedTokenise() {
                          "\"\",\"\",0x0000000000000000,0x0000000000000000,\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
                          "\"\",\"\",\"\",\"\",\"\",\"\"");
 
-    LOG_DEBUG("Input data:\n" << testData << '\n');
+    LOG_DEBUG(<< "Input data:\n" << testData << '\n');
 
     ml::core::CDelimiter delimiter(",");
     delimiter.quote('"');
@@ -143,7 +143,7 @@ void CDelimiterTest::testQuotedTokenise() {
 
     std::ostringstream strm;
     std::copy(delimited.begin(), delimited.end(), TStrOStreamItr(strm, "\n"));
-    LOG_DEBUG("Quoted output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm.str());
+    LOG_DEBUG(<< "Quoted output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm.str());
 
     // 40 fields (most blank)
     CPPUNIT_ASSERT_EQUAL(size_t(40), delimited.size());
@@ -157,7 +157,7 @@ void CDelimiterTest::testQuotedEscapedTokenise() {
                          "one\",\"\",\"\",\"\",\"\",0x0000000000000000,0x0000000000000000,\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\\\"start\","
                          "\"\",\"\",\"end\\\"\",\"\",\"\",\"\",\"\",\"\",\"\\\"both\\\"\",\"\",\"\"");
 
-    LOG_DEBUG("Input data:\n" << testData << '\n');
+    LOG_DEBUG(<< "Input data:\n" << testData << '\n');
 
     ml::core::CDelimiter delimiter(",");
     delimiter.quote('"');
@@ -171,7 +171,7 @@ void CDelimiterTest::testQuotedEscapedTokenise() {
 
     std::ostringstream strm;
     std::copy(delimited.begin(), delimited.end(), TStrOStreamItr(strm, "\n"));
-    LOG_DEBUG("Quoted output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm.str());
+    LOG_DEBUG(<< "Quoted output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm.str());
 
     // 40 fields (most blank)
     CPPUNIT_ASSERT_EQUAL(size_t(40), delimited.size());
@@ -182,7 +182,7 @@ void CDelimiterTest::testInvalidQuotedTokenise() {
     // an infinite loop
     std::string testData("4/26/2011 4:19,aaa.bbbbbb@cc.ddddd.com,\"64222\",\"/some_action.do?param1=foo&param2=Sljahfej+kfejhafef/3931nfV");
 
-    LOG_DEBUG("Input data:\n" << testData << '\n');
+    LOG_DEBUG(<< "Input data:\n" << testData << '\n');
 
     ml::core::CDelimiter delimiter(",");
     delimiter.quote('"');
@@ -207,7 +207,7 @@ void CDelimiterTest::testQuoteEqualsEscapeTokenise() {
         "Pane?__a=1&data={\"\"pid\"\":34,\"\"data\"\":[\"\"a.163624624.35636.13135\"\",true,false]}&__user=6625141\",(9999),yetuth-atrat,"
         "info,client-to-server,0,0x0,192.168.0.0-192.168.255.255,Some Country,0,application/x-javascript");
 
-    LOG_DEBUG("Input data:\n" << testData << '\n');
+    LOG_DEBUG(<< "Input data:\n" << testData << '\n');
 
     ml::core::CDelimiter delimiter(",");
     delimiter.quote('"', '"');
@@ -221,7 +221,7 @@ void CDelimiterTest::testQuoteEqualsEscapeTokenise() {
 
     std::ostringstream strm;
     std::copy(delimited.begin(), delimited.end(), TStrOStreamItr(strm, "\n"));
-    LOG_DEBUG("Quoted output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm.str());
+    LOG_DEBUG(<< "Quoted output data:\nNumber of lines = " << delimited.size() << "\nLines are:\n" << strm.str());
 
     // 42 fields - in particular, the JSON data at index 31 in the vector should
     // still contain commas and double quotes

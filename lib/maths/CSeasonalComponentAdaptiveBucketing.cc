@@ -231,7 +231,7 @@ double CSeasonalComponentAdaptiveBucketing::decayRate() const {
 
 void CSeasonalComponentAdaptiveBucketing::propagateForwardsByTime(double time, bool meanRevert) {
     if (time < 0.0) {
-        LOG_ERROR("Can't propagate bucketing backwards in time");
+        LOG_ERROR(<< "Can't propagate bucketing backwards in time");
     } else if (this->initialized()) {
         double factor{std::exp(-this->CAdaptiveBucketing::decayRate() * time)};
         this->CAdaptiveBucketing::age(factor);
@@ -399,7 +399,7 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& endpoints) {
     std::size_t m{m_Buckets.size()};
     std::size_t n{endpoints.size()};
     if (m + 1 != n) {
-        LOG_ERROR("Inconsistent end points and regressions");
+        LOG_ERROR(<< "Inconsistent end points and regressions");
         return;
     }
 
@@ -420,9 +420,9 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& endpoints) {
         std::size_t l = std::upper_bound(endpoints.begin(), endpoints.end(), yl) - endpoints.begin();
         l = CTools::truncate(l, std::size_t(1), r);
 
-        LOG_TRACE("interval = [" << yl << "," << yr << "]");
-        LOG_TRACE("l = " << l << ", r = " << r);
-        LOG_TRACE("[x(l), x(r)] = [" << endpoints[l - 1] << "," << endpoints[r] << "]");
+        LOG_TRACE(<< "interval = [" << yl << "," << yr << "]");
+        LOG_TRACE(<< "l = " << l << ", r = " << r);
+        LOG_TRACE(<< "[x(l), x(r)] = [" << endpoints[l - 1] << "," << endpoints[r] << "]");
 
         double xl{endpoints[l - 1]};
         double xr{endpoints[l]};
@@ -491,10 +491,10 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& endpoints) {
         }
     }
 
-    LOG_TRACE("old endpoints   = " << core::CContainerPrinter::print(endpoints));
-    LOG_TRACE("old centres     = " << core::CContainerPrinter::print(m_Centres));
-    LOG_TRACE("new endpoints   = " << core::CContainerPrinter::print(m_Endpoints));
-    LOG_TRACE("new centres     = " << core::CContainerPrinter::print(centres));
+    LOG_TRACE(<< "old endpoints   = " << core::CContainerPrinter::print(endpoints));
+    LOG_TRACE(<< "old centres     = " << core::CContainerPrinter::print(m_Centres));
+    LOG_TRACE(<< "new endpoints   = " << core::CContainerPrinter::print(m_Endpoints));
+    LOG_TRACE(<< "new centres     = " << core::CContainerPrinter::print(centres));
     m_Buckets.swap(buckets);
     m_Centres.swap(centres);
 }

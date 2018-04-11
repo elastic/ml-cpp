@@ -42,7 +42,7 @@ CppUnit::Test* CDynamicStringIdRegistryTest::suite() {
 }
 
 void CDynamicStringIdRegistryTest::testAddName() {
-    LOG_DEBUG("*** testAddName ***");
+    LOG_DEBUG(<< "*** testAddName ***");
 
     CResourceMonitor resourceMonitor;
     CDynamicStringIdRegistry registry(
@@ -91,7 +91,7 @@ void CDynamicStringIdRegistryTest::testAddName() {
 }
 
 void CDynamicStringIdRegistryTest::testPersist() {
-    LOG_DEBUG("*** testPersist ***");
+    LOG_DEBUG(<< "*** testPersist ***");
 
     CResourceMonitor resourceMonitor;
     CDynamicStringIdRegistry registry(
@@ -109,7 +109,7 @@ void CDynamicStringIdRegistryTest::testPersist() {
         registry.acceptPersistInserter(inserter);
         inserter.toXml(origXml);
     }
-    LOG_TRACE("Original XML:\n" << origXml);
+    LOG_TRACE(<< "Original XML:\n" << origXml);
 
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
@@ -124,7 +124,7 @@ void CDynamicStringIdRegistryTest::testPersist() {
         restoredRegistry.acceptPersistInserter(inserter);
         inserter.toXml(restoredXml);
     }
-    LOG_TRACE("Restored XML:\n" << restoredXml);
+    LOG_TRACE(<< "Restored XML:\n" << restoredXml);
 
     CPPUNIT_ASSERT_EQUAL(restoredXml, origXml);
 }

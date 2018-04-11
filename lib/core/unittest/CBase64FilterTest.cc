@@ -50,7 +50,7 @@ public:
             return -1;
         }
         std::streamsize toCopy = std::min(std::streamsize(m_Data.size() - m_Read), n);
-        LOG_TRACE("Read " << toCopy << ": " << std::string(m_Data.c_str() + m_Read, toCopy));
+        LOG_TRACE(<< "Read " << toCopy << ": " << std::string(m_Data.c_str() + m_Read, toCopy));
         memcpy(s, m_Data.c_str() + m_Read, toCopy);
         m_Read += toCopy;
         return toCopy;

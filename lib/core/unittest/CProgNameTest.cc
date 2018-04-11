@@ -30,7 +30,7 @@ CppUnit::Test* CProgNameTest::suite() {
 void CProgNameTest::testProgName() {
     std::string progName(ml::core::CProgName::progName());
 
-    LOG_DEBUG("Current program name is " << progName);
+    LOG_DEBUG(<< "Current program name is " << progName);
 
     CPPUNIT_ASSERT_EQUAL(std::string("ml_test"), progName);
 }
@@ -38,7 +38,7 @@ void CProgNameTest::testProgName() {
 void CProgNameTest::testProgDir() {
     std::string progDir(ml::core::CProgName::progDir());
 
-    LOG_DEBUG("Current program directory is " << progDir);
+    LOG_DEBUG(<< "Current program directory is " << progDir);
 
     ml::core::CRegex expectedPathRegex;
     CPPUNIT_ASSERT(expectedPathRegex.init(".+[\\\\/]lib[\\\\/]core[\\\\/]unittest$"));

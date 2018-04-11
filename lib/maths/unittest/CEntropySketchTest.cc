@@ -31,9 +31,9 @@
 using namespace ml;
 
 void CEntropySketchTest::testAll() {
-    LOG_DEBUG("+---------------------------------------+");
-    LOG_DEBUG("|  CBjkstUniqueValuesTest::testPersist  |");
-    LOG_DEBUG("+---------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------+");
+    LOG_DEBUG(<< "|  CBjkstUniqueValuesTest::testPersist  |");
+    LOG_DEBUG(<< "+---------------------------------------+");
 
     using TSizeVec = std::vector<std::size_t>;
     using TSizeDoubleUMap = boost::unordered_map<std::size_t, double>;
@@ -73,7 +73,7 @@ void CEntropySketchTest::testAll() {
                 h -= j->second * std::log(j->second);
             }
             if (t % 30 == 0) {
-                LOG_DEBUG("H_approx = " << ha << ", H_exact = " << h);
+                LOG_DEBUG(<< "H_approx = " << ha << ", H_exact = " << h);
             }
 
             meanError[i].add(std::fabs(ha - h) / h);
@@ -89,9 +89,9 @@ void CEntropySketchTest::testAll() {
     double maxMaxErrors[] = {0.14, 0.11, 0.08};
     double maxMeanErrors[] = {0.05, 0.04, 0.03};
     for (std::size_t i = 0u; i < 3; ++i) {
-        LOG_DEBUG("max error  = " << maxError[i][0]);
-        LOG_DEBUG("mean error = " << maths::CBasicStatistics::mean(meanError[i]));
-        LOG_DEBUG("large deviations = " << core::CContainerPrinter::print(epsDeviations[i]));
+        LOG_DEBUG(<< "max error  = " << maxError[i][0]);
+        LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError[i]));
+        LOG_DEBUG(<< "large deviations = " << core::CContainerPrinter::print(epsDeviations[i]));
         CPPUNIT_ASSERT(maxError[i][0] < maxMaxErrors[i]);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError[i]) < maxMeanErrors[i]);
         // Test additive approximation bounds.

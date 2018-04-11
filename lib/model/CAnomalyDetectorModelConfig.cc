@@ -198,7 +198,7 @@ CAnomalyDetectorModelConfig::TTimeVec CAnomalyDetectorModelConfig::multipleBucke
         core_t::TTime t = 0;
         if (core::CStringUtils::stringToType(*itr, t)) {
             if ((t <= bucketLength) || (t % bucketLength != 0)) {
-                LOG_ERROR("MultipleBucketLength " << t << " must be a multiple of " << bucketLength);
+                LOG_ERROR(<< "MultipleBucketLength " << t << " must be a multiple of " << bucketLength);
                 return TTimeVec();
             }
             multiBuckets.push_back(t);
@@ -220,21 +220,21 @@ bool CAnomalyDetectorModelConfig::aggregationStyleParams(model_t::EAggregationSt
     switch (param) {
     case model_t::E_JointProbabilityWeight:
         if (value < 0.0 || value > 1.0) {
-            LOG_ERROR("joint probability weight " << value << " out of in range [0,1]");
+            LOG_ERROR(<< "joint probability weight " << value << " out of in range [0,1]");
             return false;
         }
         m_AggregationStyleParams[style][model_t::E_JointProbabilityWeight] = value;
         break;
     case model_t::E_ExtremeProbabilityWeight:
         if (value < 0.0 || value > 1.0) {
-            LOG_ERROR("extreme probability weight " << value << " out of in range [0,1]");
+            LOG_ERROR(<< "extreme probability weight " << value << " out of in range [0,1]");
             return false;
         }
         m_AggregationStyleParams[style][model_t::E_ExtremeProbabilityWeight] = value;
         break;
     case model_t::E_MinExtremeSamples:
         if (value < 1.0 || value > 10.0) {
-            LOG_ERROR("min extreme samples " << value << " out of in range [0,10]");
+            LOG_ERROR(<< "min extreme samples " << value << " out of in range [0,10]");
             return false;
         }
         m_AggregationStyleParams[style][model_t::E_MinExtremeSamples] = value;
@@ -243,7 +243,7 @@ bool CAnomalyDetectorModelConfig::aggregationStyleParams(model_t::EAggregationSt
         break;
     case model_t::E_MaxExtremeSamples:
         if (value < 1.0 || value > 10.0) {
-            LOG_ERROR("max extreme samples " << value << " out of in range [0,10]");
+            LOG_ERROR(<< "max extreme samples " << value << " out of in range [0,10]");
             return false;
         }
         m_AggregationStyleParams[style][model_t::E_MaxExtremeSamples] = value;
@@ -257,14 +257,14 @@ bool CAnomalyDetectorModelConfig::aggregationStyleParams(model_t::EAggregationSt
 void CAnomalyDetectorModelConfig::maximumAnomalousProbability(double probability) {
     double minimum = 100 * maths::MINUSCULE_PROBABILITY;
     if (probability < minimum || probability > 1.0) {
-        LOG_INFO("Maximum anomalous probability " << probability << " out of range [" << minimum << "," << 1.0 << "] truncating");
+        LOG_INFO(<< "Maximum anomalous probability " << probability << " out of range [" << minimum << "," << 1.0 << "] truncating");
     }
     m_MaximumAnomalousProbability = maths::CTools::truncate(probability, minimum, 1.0);
 }
 
 bool CAnomalyDetectorModelConfig::noisePercentile(double percentile) {
     if (percentile < 0.0 || percentile > 100.0) {
-        LOG_ERROR("Noise percentile " << percentile << " out of range [0, 100]");
+        LOG_ERROR(<< "Noise percentile " << percentile << " out of range [0, 100]");
         return false;
     }
     m_NoisePercentile = percentile;
@@ -273,7 +273,7 @@ bool CAnomalyDetectorModelConfig::noisePercentile(double percentile) {
 
 bool CAnomalyDetectorModelConfig::noiseMultiplier(double multiplier) {
     if (multiplier <= 0.0) {
-        LOG_ERROR("Noise multiplier must be positive");
+        LOG_ERROR(<< "Noise multiplier must be positive");
         return false;
     }
     m_NoiseMultiplier = multiplier;
@@ -282,33 +282,33 @@ bool CAnomalyDetectorModelConfig::noiseMultiplier(double multiplier) {
 
 bool CAnomalyDetectorModelConfig::normalizedScoreKnotPoints(const TDoubleDoublePrVec& points) {
     if (points.empty()) {
-        LOG_ERROR("Must provide at least two know points");
+        LOG_ERROR(<< "Must provide at least two know points");
         return false;
     }
     if (points[0].first != 0.0 && points[0].second != 0.0) {
-        LOG_ERROR("First knot point must be (0,0)");
+        LOG_ERROR(<< "First knot point must be (0,0)");
         return false;
     }
     if (points.back().first != 100.0 && points.back().second != 100.0) {
-        LOG_ERROR("Last knot point must be (100,100)");
+        LOG_ERROR(<< "Last knot point must be (100,100)");
         return false;
     }
     for (std::size_t i = 0u; i < points.size(); i += 2) {
         if (points[i].first < 0.0 || points[i].first > 100.0) {
-            LOG_ERROR("Unexpected value " << points[i].first << " for percentile");
+            LOG_ERROR(<< "Unexpected value " << points[i].first << " for percentile");
             return false;
         }
         if (points[i].second < 0.0 || points[i].second > 100.0) {
-            LOG_ERROR("Unexpected value " << points[i].second << " for score");
+            LOG_ERROR(<< "Unexpected value " << points[i].second << " for score");
             return false;
         }
     }
     if (!boost::algorithm::is_sorted(points.begin(), points.end(), maths::COrderings::SFirstLess())) {
-        LOG_ERROR("Percentiles must be monotonic increasing " << core::CContainerPrinter::print(points));
+        LOG_ERROR(<< "Percentiles must be monotonic increasing " << core::CContainerPrinter::print(points));
         return false;
     }
     if (!boost::algorithm::is_sorted(points.begin(), points.end(), maths::COrderings::SSecondLess())) {
-        LOG_ERROR("Scores must be monotonic increasing " << core::CContainerPrinter::print(points));
+        LOG_ERROR(<< "Scores must be monotonic increasing " << core::CContainerPrinter::print(points));
         return false;
     }
 
@@ -324,24 +324,24 @@ bool CAnomalyDetectorModelConfig::init(const std::string& configFile) {
 }
 
 bool CAnomalyDetectorModelConfig::init(const std::string& configFile, boost::property_tree::ptree& propTree) {
-    LOG_DEBUG("Reading config file " << configFile);
+    LOG_DEBUG(<< "Reading config file " << configFile);
 
     try {
         std::ifstream strm(configFile.c_str());
         if (!strm.is_open()) {
-            LOG_ERROR("Error opening config file " << configFile);
+            LOG_ERROR(<< "Error opening config file " << configFile);
             return false;
         }
         CLimits::skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {
-        LOG_ERROR("Error reading config file " << configFile << " : " << e.what());
+        LOG_ERROR(<< "Error reading config file " << configFile << " : " << e.what());
         return false;
     }
 
     if (this->init(propTree) == false) {
-        LOG_ERROR("Error reading config file " << configFile);
+        LOG_ERROR(<< "Error reading config file " << configFile);
         return false;
     }
 
@@ -360,16 +360,16 @@ bool CAnomalyDetectorModelConfig::init(const boost::property_tree::ptree& propTr
 
         if (stanzaName == MODEL_STANZA) {
             if (this->processStanza(propertyTree) == false) {
-                LOG_ERROR("Error reading model config stanza: " << MODEL_STANZA);
+                LOG_ERROR(<< "Error reading model config stanza: " << MODEL_STANZA);
                 result = false;
             }
         } else if (stanzaName == ANOMALY_SCORE_STANZA) {
             if (this->processStanza(propertyTree) == false) {
-                LOG_ERROR("Error reading model config stanza: " << ANOMALY_SCORE_STANZA);
+                LOG_ERROR(<< "Error reading model config stanza: " << ANOMALY_SCORE_STANZA);
                 result = false;
             }
         } else {
-            LOG_WARN("Ignoring unknown model config stanza: " << stanzaName);
+            LOG_WARN(<< "Ignoring unknown model config stanza: " << stanzaName);
         }
     }
 
@@ -377,25 +377,25 @@ bool CAnomalyDetectorModelConfig::init(const boost::property_tree::ptree& propTr
 }
 
 bool CAnomalyDetectorModelConfig::configureModelPlot(const std::string& modelPlotConfigFile) {
-    LOG_DEBUG("Reading model plot config file " << modelPlotConfigFile);
+    LOG_DEBUG(<< "Reading model plot config file " << modelPlotConfigFile);
 
     boost::property_tree::ptree propTree;
     try {
         std::ifstream strm(modelPlotConfigFile.c_str());
         if (!strm.is_open()) {
-            LOG_ERROR("Error opening model plot config file " << modelPlotConfigFile);
+            LOG_ERROR(<< "Error opening model plot config file " << modelPlotConfigFile);
             return false;
         }
         CLimits::skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {
-        LOG_ERROR("Error reading model plot config file " << modelPlotConfigFile << " : " << e.what());
+        LOG_ERROR(<< "Error reading model plot config file " << modelPlotConfigFile << " : " << e.what());
         return false;
     }
 
     if (this->configureModelPlot(propTree) == false) {
-        LOG_ERROR("Error reading model plot config file " << modelPlotConfigFile);
+        LOG_ERROR(<< "Error reading model plot config file " << modelPlotConfigFile);
         return false;
     }
 
@@ -412,11 +412,11 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
     try {
         std::string valueStr(propTree.get<std::string>(BOUNDS_PERCENTILE_PROPERTY));
         if (core::CStringUtils::stringToType(valueStr, m_ModelPlotBoundsPercentile) == false) {
-            LOG_ERROR("Cannot parse as double: " << valueStr);
+            LOG_ERROR(<< "Cannot parse as double: " << valueStr);
             return false;
         }
     } catch (boost::property_tree::ptree_error&) {
-        LOG_ERROR("Error reading model debug config. Property '" << BOUNDS_PERCENTILE_PROPERTY << "' is missing");
+        LOG_ERROR(<< "Error reading model debug config. Property '" << BOUNDS_PERCENTILE_PROPERTY << "' is missing");
         return false;
     }
 
@@ -434,7 +434,7 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
             m_ModelPlotTerms.insert(tokens[i]);
         }
     } catch (boost::property_tree::ptree_error&) {
-        LOG_ERROR("Error reading model debug config. Property '" << TERMS_PROPERTY << "' is missing");
+        LOG_ERROR(<< "Error reading model debug config. Property '" << TERMS_PROPERTY << "' is missing");
         return false;
     }
 
@@ -606,7 +606,7 @@ CAnomalyDetectorModelConfig::factory(int identifier,
 
     TFactoryTypeFactoryPtrMapCItr prototype = m_Factories.find(factory);
     if (prototype == m_Factories.end()) {
-        LOG_ABORT("No factory for features = " << core::CContainerPrinter::print(features));
+        LOG_ABORT(<< "No factory for features = " << core::CContainerPrinter::print(features));
     }
 
     TModelFactoryPtr result(prototype->second->clone());
@@ -663,7 +663,7 @@ bool CAnomalyDetectorModelConfig::multivariateByFields() const {
 
 void CAnomalyDetectorModelConfig::modelPlotBoundsPercentile(double percentile) {
     if (percentile < 0.0 || percentile >= 100.0) {
-        LOG_ERROR("Bad confidence interval");
+        LOG_ERROR(<< "Bad confidence interval");
         return;
     }
     m_ModelPlotBoundsPercentile = percentile;
@@ -753,7 +753,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         if (propName == ONLINE_LEARN_RATE_PROPERTY) {
             double learnRate = DEFAULT_LEARN_RATE;
             if (core::CStringUtils::stringToType(propValue, learnRate) == false || learnRate <= 0.0) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -765,7 +765,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == DECAY_RATE_PROPERTY) {
             double decayRate = DEFAULT_DECAY_RATE;
             if (core::CStringUtils::stringToType(propValue, decayRate) == false || decayRate <= 0.0) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -777,7 +777,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == INITIAL_DECAY_RATE_MULTIPLIER_PROPERTY) {
             double multiplier = DEFAULT_INITIAL_DECAY_RATE_MULTIPLIER;
             if (core::CStringUtils::stringToType(propValue, multiplier) == false || multiplier < 1.0) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -788,7 +788,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == MAXIMUM_UPDATES_PER_BUCKET_PROPERTY) {
             double maximumUpdatesPerBucket;
             if (core::CStringUtils::stringToType(propValue, maximumUpdatesPerBucket) == false || maximumUpdatesPerBucket < 0.0) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -800,7 +800,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             int totalProbabilityCalcSamplingSize;
             if (core::CStringUtils::stringToType(propValue, totalProbabilityCalcSamplingSize) == false ||
                 totalProbabilityCalcSamplingSize <= 0) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -810,7 +810,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == INDIVIDUAL_MODE_FRACTION_PROPERTY) {
             double fraction;
             if (core::CStringUtils::stringToType(propValue, fraction) == false || fraction < 0.0 || fraction > 1.0) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -824,7 +824,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == POPULATION_MODE_FRACTION_PROPERTY) {
             double fraction;
             if (core::CStringUtils::stringToType(propValue, fraction) == false || fraction < 0.0 || fraction > 1.0) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -838,7 +838,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == PEERS_MODE_FRACTION_PROPERTY) {
             double fraction;
             if (core::CStringUtils::stringToType(propValue, fraction) == false || fraction < 0.0 || fraction > 1.0) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -849,7 +849,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == COMPONENT_SIZE_PROPERTY) {
             int componentSize;
             if (core::CStringUtils::stringToType(propValue, componentSize) == false || componentSize < 0) {
-                LOG_ERROR("Invalid value of property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value of property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -859,7 +859,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == SAMPLE_COUNT_FACTOR_PROPERTY) {
             int factor;
             if (core::CStringUtils::stringToType(propValue, factor) == false || factor < 0) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -869,7 +869,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == PRUNE_WINDOW_SCALE_MINIMUM) {
             double factor;
             if (core::CStringUtils::stringToType(propValue, factor) == false) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -879,7 +879,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == PRUNE_WINDOW_SCALE_MAXIMUM) {
             double factor;
             if (core::CStringUtils::stringToType(propValue, factor) == false) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -898,7 +898,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
             std::size_t n = model_t::NUMBER_AGGREGATION_STYLES * model_t::NUMBER_AGGREGATION_PARAMS;
             if (strings.size() != n) {
-                LOG_ERROR("Expected " << n << " values for " << propName);
+                LOG_ERROR(<< "Expected " << n << " values for " << propName);
                 result = false;
                 continue;
             }
@@ -906,7 +906,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 for (std::size_t k = 0u; k < model_t::NUMBER_AGGREGATION_PARAMS; ++k, ++l) {
                     double value;
                     if (core::CStringUtils::stringToType(strings[l], value) == false) {
-                        LOG_ERROR("Unexpected value " << strings[l] << " in property " << propName);
+                        LOG_ERROR(<< "Unexpected value " << strings[l] << " in property " << propName);
                         result = false;
                         continue;
                     }
@@ -918,7 +918,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == MAXIMUM_ANOMALOUS_PROBABILITY_PROPERTY) {
             double probability;
             if (core::CStringUtils::stringToType(propValue, probability) == false) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -926,14 +926,14 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == NOISE_PERCENTILE_PROPERTY) {
             double percentile;
             if (core::CStringUtils::stringToType(propValue, percentile) == false || this->noisePercentile(percentile) == false) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
         } else if (propName == NOISE_MULTIPLIER_PROPERTY) {
             double multiplier;
             if (core::CStringUtils::stringToType(propValue, multiplier) == false || this->noiseMultiplier(multiplier) == false) {
-                LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
+                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
@@ -948,7 +948,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 strings.push_back(remainder);
             }
             if (strings.empty() || (strings.size() % 2) != 0) {
-                LOG_ERROR("Expected even number of values for property " << propName << " " << core::CContainerPrinter::print(strings));
+                LOG_ERROR(<< "Expected even number of values for property " << propName << " " << core::CContainerPrinter::print(strings));
                 result = false;
                 continue;
             }
@@ -960,12 +960,12 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 double rate;
                 double score;
                 if (core::CStringUtils::stringToType(strings[j], rate) == false) {
-                    LOG_ERROR("Unexpected value " << strings[j] << " for rate in property " << propName);
+                    LOG_ERROR(<< "Unexpected value " << strings[j] << " for rate in property " << propName);
                     result = false;
                     continue;
                 }
                 if (core::CStringUtils::stringToType(strings[j + 1], score) == false) {
-                    LOG_ERROR("Unexpected value " << strings[j + 1] << " for score in property " << propName);
+                    LOG_ERROR(<< "Unexpected value " << strings[j + 1] << " for score in property " << propName);
                     result = false;
                     continue;
                 }
@@ -976,7 +976,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
         } else if (propName == PER_PARTITION_NORMALIZATION_PROPERTY) {
 
         } else {
-            LOG_WARN("Ignoring unknown property " << propName);
+            LOG_WARN(<< "Ignoring unknown property " << propName);
         }
     }
 

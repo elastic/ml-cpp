@@ -32,10 +32,10 @@ using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 
 void CDataSemanticsTest::testBinary() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+----------------------------------+");
-    LOG_DEBUG("|  CDataSemanticsTest::testBinary  |");
-    LOG_DEBUG("+----------------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+----------------------------------+");
+    LOG_DEBUG(<< "|  CDataSemanticsTest::testBinary  |");
+    LOG_DEBUG(<< "+----------------------------------+");
 
     // Try a numeric and non-numeric example of a binary variable.
 
@@ -58,10 +58,10 @@ void CDataSemanticsTest::testBinary() {
 }
 
 void CDataSemanticsTest::testNonNumericCategorical() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+-------------------------------------------------+");
-    LOG_DEBUG("|  CDataSemanticsTest::testNonNumericCategorical  |");
-    LOG_DEBUG("+-------------------------------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+-------------------------------------------------+");
+    LOG_DEBUG(<< "|  CDataSemanticsTest::testNonNumericCategorical  |");
+    LOG_DEBUG(<< "+-------------------------------------------------+");
 
     // Test we identify non-numerical non-binary data as categorical.
 
@@ -69,7 +69,7 @@ void CDataSemanticsTest::testNonNumericCategorical() {
 
     TStrVec categories;
     rng.generateWords(10, 100, categories);
-    LOG_DEBUG("categories = " << core::CContainerPrinter::print(categories));
+    LOG_DEBUG(<< "categories = " << core::CContainerPrinter::print(categories));
 
     TSizeVec samples;
     rng.generateUniformSamples(0, categories.size(), 1000, samples);
@@ -86,10 +86,10 @@ void CDataSemanticsTest::testNonNumericCategorical() {
 }
 
 void CDataSemanticsTest::testNumericCategorical() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+----------------------------------------------+");
-    LOG_DEBUG("|  CDataSemanticsTest::testNumericCategorical  |");
-    LOG_DEBUG("+----------------------------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+----------------------------------------------+");
+    LOG_DEBUG(<< "|  CDataSemanticsTest::testNumericCategorical  |");
+    LOG_DEBUG(<< "+----------------------------------------------+");
 
     // Test plausible http status code distribution is correctly
     // identified as categorical.
@@ -109,15 +109,15 @@ void CDataSemanticsTest::testNumericCategorical() {
         semantics.add(core::CStringUtils::typeToString(static_cast<unsigned int>(status[i])));
     }
     semantics.computeType();
-    LOG_DEBUG("type = " << semantics.type());
+    LOG_DEBUG(<< "type = " << semantics.type());
     CPPUNIT_ASSERT_EQUAL(config_t::E_Categorical, semantics.type());
 }
 
 void CDataSemanticsTest::testInteger() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CDataSemanticsTest::testInteger  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CDataSemanticsTest::testInteger  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     // Test a variety of uni- and multi-modal distributions.
 
@@ -125,65 +125,65 @@ void CDataSemanticsTest::testInteger() {
 
     TDoubleVec samples;
     {
-        LOG_DEBUG("*** uniform ***");
+        LOG_DEBUG(<< "*** uniform ***");
 
         rng.generateUniformSamples(0.0, 25.0, 500, samples);
 
         config::CDataSemantics semantics;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             if (i % 10 == 0) {
-                LOG_DEBUG("    adding " << static_cast<int>(samples[i]));
+                LOG_DEBUG(<< "    adding " << static_cast<int>(samples[i]));
             }
             semantics.add(core::CStringUtils::typeToString(static_cast<int>(samples[i])));
             //if ((i + 1) % 500 == 0)
             //{
             //    semantics.computeType();
-            //    LOG_DEBUG("  type = " << semantics.type());
+            //    LOG_DEBUG(<< "  type = " << semantics.type());
             //    CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveInteger, semantics.type());
             //}
         }
         semantics.computeType();
-        LOG_DEBUG("  type = " << semantics.type());
+        LOG_DEBUG(<< "  type = " << semantics.type());
         CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveInteger, semantics.type());
     }
     {
-        LOG_DEBUG("*** normal ***");
+        LOG_DEBUG(<< "*** normal ***");
 
         rng.generateNormalSamples(-10.0, 100.0, 500, samples);
 
         config::CDataSemantics semantics;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             if (i % 10 == 0) {
-                LOG_DEBUG("    adding " << static_cast<int>(samples[i]));
+                LOG_DEBUG(<< "    adding " << static_cast<int>(samples[i]));
             }
             semantics.add(core::CStringUtils::typeToString(static_cast<int>(samples[i])));
             if ((i + 1) % 100 == 0) {
                 semantics.computeType();
-                LOG_DEBUG("  type = " << semantics.type());
+                LOG_DEBUG(<< "  type = " << semantics.type());
                 CPPUNIT_ASSERT_EQUAL(config_t::E_Integer, semantics.type());
             }
         }
     }
     {
-        LOG_DEBUG("*** log-normal ***");
+        LOG_DEBUG(<< "*** log-normal ***");
 
         rng.generateLogNormalSamples(0.1, 2.0, 500, samples);
 
         config::CDataSemantics semantics;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             if (i % 10 == 0) {
-                LOG_DEBUG("    adding " << static_cast<int>(samples[i]));
+                LOG_DEBUG(<< "    adding " << static_cast<int>(samples[i]));
             }
             semantics.add(core::CStringUtils::typeToString(static_cast<int>(samples[i])));
             if ((i + 1) % 100 == 0) {
                 semantics.computeType();
-                LOG_DEBUG("  type = " << semantics.type());
+                LOG_DEBUG(<< "  type = " << semantics.type());
                 CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveInteger, semantics.type());
             }
         }
     }
     {
-        LOG_DEBUG("*** mixture ***");
+        LOG_DEBUG(<< "*** mixture ***");
 
         TDoubleVec modeSamples;
         rng.generateNormalSamples(-100.0, 1000.0, 40, modeSamples);
@@ -197,12 +197,12 @@ void CDataSemanticsTest::testInteger() {
         config::CDataSemantics semantics;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             if (i % 2 == 0) {
-                LOG_DEBUG("    adding " << static_cast<int>(samples[i]));
+                LOG_DEBUG(<< "    adding " << static_cast<int>(samples[i]));
             }
             semantics.add(core::CStringUtils::typeToString(static_cast<int>(samples[i])));
             if ((i + 1) % 10 == 0) {
                 semantics.computeType();
-                LOG_DEBUG("  type = " << semantics.type());
+                LOG_DEBUG(<< "  type = " << semantics.type());
                 if (i > 30) {
                     CPPUNIT_ASSERT_EQUAL(config_t::E_Integer, semantics.type());
                 }
@@ -212,10 +212,10 @@ void CDataSemanticsTest::testInteger() {
 }
 
 void CDataSemanticsTest::testReal() {
-    LOG_DEBUG("");
-    LOG_DEBUG("+--------------------------------+");
-    LOG_DEBUG("|  CDataSemanticsTest::testReal  |");
-    LOG_DEBUG("+--------------------------------+");
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "+--------------------------------+");
+    LOG_DEBUG(<< "|  CDataSemanticsTest::testReal  |");
+    LOG_DEBUG(<< "+--------------------------------+");
 
     // Test a variety of uni- and multi-modal distributions.
 
@@ -223,61 +223,61 @@ void CDataSemanticsTest::testReal() {
 
     TDoubleVec samples;
     {
-        LOG_DEBUG("*** uniform ***");
+        LOG_DEBUG(<< "*** uniform ***");
 
         rng.generateUniformSamples(0.0, 10.0, 500, samples);
 
         config::CDataSemantics semantics;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             if (i % 10 == 0) {
-                LOG_DEBUG("    adding " << samples[i]);
+                LOG_DEBUG(<< "    adding " << samples[i]);
             }
             semantics.add(core::CStringUtils::typeToString(samples[i]));
             if ((i + 1) % 50 == 0) {
                 semantics.computeType();
-                LOG_DEBUG("  type = " << semantics.type());
+                LOG_DEBUG(<< "  type = " << semantics.type());
                 CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveReal, semantics.type());
             }
         }
     }
     {
-        LOG_DEBUG("*** normal ***");
+        LOG_DEBUG(<< "*** normal ***");
 
         rng.generateNormalSamples(-10.0, 100.0, 500, samples);
 
         config::CDataSemantics semantics;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             if (i % 10 == 0) {
-                LOG_DEBUG("    adding " << samples[i]);
+                LOG_DEBUG(<< "    adding " << samples[i]);
             }
             semantics.add(core::CStringUtils::typeToString(samples[i]));
             if ((i + 1) % 50 == 0) {
                 semantics.computeType();
-                LOG_DEBUG("  type = " << semantics.type());
+                LOG_DEBUG(<< "  type = " << semantics.type());
                 CPPUNIT_ASSERT_EQUAL(config_t::E_Real, semantics.type());
             }
         }
     }
     {
-        LOG_DEBUG("*** log-normal ***");
+        LOG_DEBUG(<< "*** log-normal ***");
 
         rng.generateLogNormalSamples(0.1, 1.5, 500, samples);
 
         config::CDataSemantics semantics;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             if (i % 10 == 0) {
-                LOG_DEBUG("    adding " << samples[i]);
+                LOG_DEBUG(<< "    adding " << samples[i]);
             }
             semantics.add(core::CStringUtils::typeToString(samples[i]));
             if ((i + 1) % 50 == 0) {
                 semantics.computeType();
-                LOG_DEBUG("  type = " << semantics.type());
+                LOG_DEBUG(<< "  type = " << semantics.type());
                 CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveReal, semantics.type());
             }
         }
     }
     {
-        LOG_DEBUG("*** mixture ***");
+        LOG_DEBUG(<< "*** mixture ***");
 
         TDoubleVec modeSamples;
         rng.generateNormalSamples(-100.0, 1000.0, 20, modeSamples);
@@ -290,11 +290,11 @@ void CDataSemanticsTest::testReal() {
 
         config::CDataSemantics semantics;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
-            LOG_DEBUG("    adding " << samples[i]);
+            LOG_DEBUG(<< "    adding " << samples[i]);
             semantics.add(core::CStringUtils::typeToString(samples[i]));
             if ((i + 1) % 5 == 0) {
                 semantics.computeType();
-                LOG_DEBUG("  type = " << semantics.type());
+                LOG_DEBUG(<< "  type = " << semantics.type());
                 if (i > 25) {
                     CPPUNIT_ASSERT_EQUAL(config_t::E_Real, semantics.type());
                 }

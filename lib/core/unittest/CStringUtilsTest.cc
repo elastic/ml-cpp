@@ -279,13 +279,13 @@ void CStringUtilsTest::testTypeToStringPrecise() {
 
 void CStringUtilsTest::testTypeToStringPretty() {
     // This doesn't assert because the format differs between operating systems
-    LOG_DEBUG("1.0 -> " << ml::core::CStringUtils::typeToStringPretty(1.0));
-    LOG_DEBUG("0.123456 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456));
-    LOG_DEBUG("0.123456e10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456e10));
-    LOG_DEBUG("0.123456e-10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456e-10));
-    LOG_DEBUG("0.123456787654321e-10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456787654321e-10));
-    LOG_DEBUG("0.00000000012345678765432123456 -> " << ml::core::CStringUtils::typeToStringPretty(0.00000000012345678765432123456));
-    LOG_DEBUG("123456787654321.23456 -> " << ml::core::CStringUtils::typeToStringPretty(123456787654321.23456));
+    LOG_DEBUG(<< "1.0 -> " << ml::core::CStringUtils::typeToStringPretty(1.0));
+    LOG_DEBUG(<< "0.123456 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456));
+    LOG_DEBUG(<< "0.123456e10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456e10));
+    LOG_DEBUG(<< "0.123456e-10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456e-10));
+    LOG_DEBUG(<< "0.123456787654321e-10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456787654321e-10));
+    LOG_DEBUG(<< "0.00000000012345678765432123456 -> " << ml::core::CStringUtils::typeToStringPretty(0.00000000012345678765432123456));
+    LOG_DEBUG(<< "123456787654321.23456 -> " << ml::core::CStringUtils::typeToStringPretty(123456787654321.23456));
 }
 
 void CStringUtilsTest::testStringToType() {
@@ -474,10 +474,10 @@ void CStringUtilsTest::testTokeniser(const std::string& delim, const std::string
 
     ml::core::CStringUtils::tokenise(delim, str, tokens, remainder);
 
-    LOG_DEBUG(str << " DELIM = '" << delim << "' REMAINDER = '" << remainder << "'");
+    LOG_DEBUG(<< str << " DELIM = '" << delim << "' REMAINDER = '" << remainder << "'");
 
     for (ml::core::CStringUtils::TStrVecItr itr = tokens.begin(); itr != tokens.end(); ++itr) {
-        LOG_DEBUG("'" << *itr << "'");
+        LOG_DEBUG(<< "'" << *itr << "'");
     }
 
     // Tokenise using strtok
@@ -490,9 +490,9 @@ void CStringUtilsTest::testTokeniser(const std::string& delim, const std::string
     // so the delimiters for this test have to be one character
     char* brk = nullptr;
     for (char* line = ml::core::CStrTokR::strTokR(test, delim.c_str(), &brk); line != nullptr;
-        line = ml::core::CStrTokR::strTokR(nullptr, delim.c_str(), &brk)) {
+         line = ml::core::CStrTokR::strTokR(nullptr, delim.c_str(), &brk)) {
         strtokVec.push_back(line);
-        LOG_DEBUG("'" << line << "'");
+        LOG_DEBUG(<< "'" << line << "'");
     }
 
     free(test);
@@ -547,7 +547,7 @@ void CStringUtilsTest::testTrim() {
 }
 
 void CStringUtilsTest::testJoin() {
-    LOG_DEBUG("*** testJoin ***")
+    LOG_DEBUG(<< "*** testJoin ***")
     using namespace ml;
     using namespace core;
     using TStrVec = std::vector<std::string>;
@@ -555,33 +555,33 @@ void CStringUtilsTest::testJoin() {
 
     TStrVec strVec;
 
-    LOG_DEBUG("Test empty container")
+    LOG_DEBUG(<< "Test empty container")
     CPPUNIT_ASSERT_EQUAL(std::string(""), CStringUtils::join(strVec, std::string(",")));
 
-    LOG_DEBUG("Test container has empty strings")
+    LOG_DEBUG(<< "Test container has empty strings")
     strVec.push_back(std::string());
     strVec.push_back(std::string());
     CPPUNIT_ASSERT_EQUAL(std::string(","), CStringUtils::join(strVec, std::string(",")));
 
-    LOG_DEBUG("Test container has empty strings and delimiter is also empty")
+    LOG_DEBUG(<< "Test container has empty strings and delimiter is also empty")
     CPPUNIT_ASSERT_EQUAL(std::string(""), CStringUtils::join(strVec, std::string("")));
 
     strVec.clear();
 
-    LOG_DEBUG("Test only one item")
+    LOG_DEBUG(<< "Test only one item")
     strVec.push_back(std::string("aaa"));
     CPPUNIT_ASSERT_EQUAL(std::string("aaa"), CStringUtils::join(strVec, std::string(",")));
 
-    LOG_DEBUG("Test three items")
+    LOG_DEBUG(<< "Test three items")
     strVec.push_back(std::string("bbb"));
     strVec.push_back(std::string("ccc"));
 
     CPPUNIT_ASSERT_EQUAL(std::string("aaa,bbb,ccc"), CStringUtils::join(strVec, std::string(",")));
 
-    LOG_DEBUG("Test delimiter has more than one characters")
+    LOG_DEBUG(<< "Test delimiter has more than one characters")
     CPPUNIT_ASSERT_EQUAL(std::string("aaa::bbb::ccc"), CStringUtils::join(strVec, std::string("::")));
 
-    LOG_DEBUG("Test set instead of vector")
+    LOG_DEBUG(<< "Test set instead of vector")
     TStrSet strSet;
     strSet.insert(std::string("aaa"));
     strSet.insert(std::string("bbb"));
@@ -663,7 +663,7 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), common);
 
-        LOG_DEBUG("Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Hello world");
@@ -673,7 +673,7 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), common);
 
-        LOG_DEBUG("Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Hello world");
@@ -683,7 +683,7 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("Hello "), common);
 
-        LOG_DEBUG("Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Hello world");
@@ -693,7 +693,7 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("ello"), common);
 
-        LOG_DEBUG("Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("abc");
@@ -703,7 +703,7 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), common);
 
-        LOG_DEBUG("Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("abc xyz defgv hij");
@@ -713,7 +713,7 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(" defg"), common);
 
-        LOG_DEBUG("Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Source LOTS on 13080:742 has shut down.");
@@ -723,7 +723,7 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(" has shut down."), common);
 
-        LOG_DEBUG("Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("No filter list defined for .");
@@ -733,7 +733,7 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("No filter list defined for "), common);
 
-        LOG_DEBUG("Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
 }
 
@@ -746,7 +746,7 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), common);
 
-        LOG_DEBUG("Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Hello world");
@@ -756,7 +756,7 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), common);
 
-        LOG_DEBUG("Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Hello world");
@@ -766,7 +766,7 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("Hello "), common);
 
-        LOG_DEBUG("Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Hello world");
@@ -776,7 +776,7 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("ello"), common);
 
-        LOG_DEBUG("Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("abc");
@@ -786,7 +786,7 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), common);
 
-        LOG_DEBUG("Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("abc xyz defgv hij");
@@ -796,7 +796,7 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("abc  defg hij"), common);
 
-        LOG_DEBUG("Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Source LOTS on 13080:742 has shut down.");
@@ -806,7 +806,7 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("Source T on 13080:2 has shut down."), common);
 
-        LOG_DEBUG("Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("No filter list defined for .");
@@ -816,7 +816,7 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("No filter list defined for ."), common);
 
-        LOG_DEBUG("Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
     }
 }
 
@@ -835,7 +835,7 @@ void CStringUtilsTest::testPerformance() {
     ml::core::CStopWatch stopWatch;
 
     {
-        LOG_DEBUG("Before CStringUtils::typeToString integer test");
+        LOG_DEBUG(<< "Before CStringUtils::typeToString integer test");
 
         stopWatch.start();
         for (size_t count = 0; count < TEST_SIZE; ++count) {
@@ -843,28 +843,28 @@ void CStringUtilsTest::testPerformance() {
             ml::core::CStringUtils::stringToType(result, count);
         }
         uint64_t timeMs(stopWatch.stop());
-        LOG_DEBUG("After CStringUtils::typeToString integer test");
-        LOG_DEBUG("CStringUtils::typeToString integer test took " << timeMs << "ms");
+        LOG_DEBUG(<< "After CStringUtils::typeToString integer test");
+        LOG_DEBUG(<< "CStringUtils::typeToString integer test took " << timeMs << "ms");
     }
 
     stopWatch.reset();
 
     {
-        LOG_DEBUG("Before boost::lexical_cast integer test");
+        LOG_DEBUG(<< "Before boost::lexical_cast integer test");
         stopWatch.start();
         for (size_t count = 0; count < TEST_SIZE; ++count) {
             std::string result(boost::lexical_cast<std::string>(count));
             count = boost::lexical_cast<size_t>(result);
         }
         uint64_t timeMs(stopWatch.stop());
-        LOG_DEBUG("After boost::lexical_cast integer test");
-        LOG_DEBUG("boost::lexical_cast integer test took " << timeMs << "ms");
+        LOG_DEBUG(<< "After boost::lexical_cast integer test");
+        LOG_DEBUG(<< "boost::lexical_cast integer test took " << timeMs << "ms");
     }
 
     stopWatch.reset();
 
     {
-        LOG_DEBUG("Before CStringUtils::typeToString floating point test");
+        LOG_DEBUG(<< "Before CStringUtils::typeToString floating point test");
 
         stopWatch.start();
         for (double count = 0.0; count < TEST_SIZE_D; count += 1.41) {
@@ -872,22 +872,22 @@ void CStringUtilsTest::testPerformance() {
             ml::core::CStringUtils::stringToType(result, count);
         }
         uint64_t timeMs(stopWatch.stop());
-        LOG_DEBUG("After CStringUtils::typeToString floating point test");
-        LOG_DEBUG("CStringUtils::typeToString floating point test took " << timeMs << "ms");
+        LOG_DEBUG(<< "After CStringUtils::typeToString floating point test");
+        LOG_DEBUG(<< "CStringUtils::typeToString floating point test took " << timeMs << "ms");
     }
 
     stopWatch.reset();
 
     {
-        LOG_DEBUG("Before boost::lexical_cast floating point test");
+        LOG_DEBUG(<< "Before boost::lexical_cast floating point test");
         stopWatch.start();
         for (double count = 0.0; count < TEST_SIZE_D; count += 1.41) {
             std::string result(boost::lexical_cast<std::string>(count));
             count = boost::lexical_cast<double>(result);
         }
         uint64_t timeMs(stopWatch.stop());
-        LOG_DEBUG("After boost::lexical_cast floating point test");
-        LOG_DEBUG("boost::lexical_cast floating point test took " << timeMs << "ms");
+        LOG_DEBUG(<< "After boost::lexical_cast floating point test");
+        LOG_DEBUG(<< "boost::lexical_cast floating point test took " << timeMs << "ms");
     }
 }
 

@@ -69,7 +69,7 @@ void CDualThreadStreamBuf::signalEndOfFile() {
     if (this->pptr() > this->pbase()) {
         // Swapping the write buffer should wake up the reader thread
         if (this->swapWriteBuffer() == false) {
-            LOG_ERROR("Failed to swap write buffer on setting end-of-file");
+            LOG_ERROR(<< "Failed to swap write buffer on setting end-of-file");
         }
     } else {
         // We don't need to swap the write buffer, but we do need to wake up
@@ -133,7 +133,7 @@ int CDualThreadStreamBuf::sync() {
     if (this->pptr() > this->pbase()) {
         // Swapping the write buffer should wake up the reader thread
         if (this->swapWriteBuffer() == false) {
-            LOG_ERROR("Failed to swap write buffer on sync");
+            LOG_ERROR(<< "Failed to swap write buffer on sync");
             return -1;
         }
     }
@@ -191,7 +191,7 @@ int CDualThreadStreamBuf::pbackfail(int c) {
         // should be retained.  Because this class does not support seeking, we
         // can't support this requirement either.  This effectively means we
         // don't reliably support sungetc().
-        LOG_ERROR("pbackfail() not implemented for argument EOF");
+        LOG_ERROR(<< "pbackfail() not implemented for argument EOF");
         return c;
     }
 
@@ -230,7 +230,7 @@ std::streamsize CDualThreadStreamBuf::xsputn(const char* s, std::streamsize n) {
     std::streamsize ret(0);
 
     if (m_Eof) {
-        LOG_ERROR("Inconsistency - trying to add data to stream buffer after end-of-file");
+        LOG_ERROR(<< "Inconsistency - trying to add data to stream buffer after end-of-file");
         return ret;
     }
 
@@ -287,12 +287,12 @@ std::streampos CDualThreadStreamBuf::seekoff(std::streamoff off, std::ios_base::
     std::streampos pos(static_cast<std::streampos>(-1));
 
     if (off != 0) {
-        LOG_ERROR("Seeking not supported on stream buffer");
+        LOG_ERROR(<< "Seeking not supported on stream buffer");
         return pos;
     }
 
     if (way != std::ios_base::cur) {
-        LOG_ERROR("Seeking from beginning or end not supported on stream buffer");
+        LOG_ERROR(<< "Seeking from beginning or end not supported on stream buffer");
         return pos;
     }
 
@@ -305,7 +305,7 @@ std::streampos CDualThreadStreamBuf::seekoff(std::streamoff off, std::ios_base::
         pos = static_cast<std::streampos>(m_WriteBytesSwapped);
         pos += (this->pptr() - this->pbase());
     } else {
-        LOG_ERROR("Unexpected mode for seek on stream buffer: " << which);
+        LOG_ERROR(<< "Unexpected mode for seek on stream buffer: " << which);
     }
 
     return pos;
@@ -351,8 +351,8 @@ bool CDualThreadStreamBuf::swapReadBuffer() {
     char* end(m_IntermediateBufferEnd);
     if (begin >= end) {
         if (!m_Eof) {
-            LOG_ERROR("Inconsistency - intermediate buffer empty after wait "
-                      "when not at end-of-file: begin = "
+            LOG_ERROR(<< "Inconsistency - intermediate buffer empty after wait "
+                         "when not at end-of-file: begin = "
                       << static_cast<void*>(begin) << " end = " << static_cast<void*>(end));
         }
         return false;

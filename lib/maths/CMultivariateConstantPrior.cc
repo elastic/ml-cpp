@@ -52,9 +52,9 @@ public:
 //! Set the constant, validating the input.
 void setConstant(std::size_t dimension, const TDouble10Vec& value, TOptionalDouble10Vec& result) {
     if (value.size() != dimension) {
-        LOG_ERROR("Unexpected dimension: " << value.size() << " != " << dimension);
+        LOG_ERROR(<< "Unexpected dimension: " << value.size() << " != " << dimension);
     } else if (CMathsFuncs::isNan(value)) {
-        LOG_ERROR("NaN constant");
+        LOG_ERROR(<< "NaN constant");
     } else {
         result.reset(value);
     }
@@ -126,7 +126,7 @@ CMultivariateConstantPrior::TUnivariatePriorPtrDoublePr CMultivariateConstantPri
     TSize10Vec i1;
     this->remainingVariables(marginalize, condition, i1);
     if (i1.size() != 1) {
-        LOG_ERROR("Invalid variables for computing univariate distribution: "
+        LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
                   << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
                   << ", condition '" << core::CContainerPrinter::print(condition) << "'");
         return TUnivariatePriorPtrDoublePr();
@@ -149,7 +149,7 @@ CMultivariateConstantPrior::TPriorPtrDoublePr CMultivariateConstantPrior::bivari
     TSize10Vec i1;
     this->remainingVariables(marginalize, condition, i1);
     if (i1.size() != 2) {
-        LOG_ERROR("Invalid variables for computing univariate distribution: "
+        LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
                   << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
                   << ", condition '" << core::CContainerPrinter::print(condition) << "'");
         return TPriorPtrDoublePr();
@@ -208,13 +208,13 @@ maths_t::EFloatingPointErrorStatus CMultivariateConstantPrior::jointLogMarginalL
     result = 0.0;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute likelihood for empty sample set");
+        LOG_ERROR(<< "Can't compute likelihood for empty sample set");
         return maths_t::E_FpFailed;
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
-                                          << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                  << core::CContainerPrinter::print(weights) << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -235,7 +235,7 @@ maths_t::EFloatingPointErrorStatus CMultivariateConstantPrior::jointLogMarginalL
 
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         if (samples[i].size() != m_Dimension) {
-            LOG_ERROR("Unexpected dimension: " << samples[i].size() << " != " << m_Dimension);
+            LOG_ERROR(<< "Unexpected dimension: " << samples[i].size() << " != " << m_Dimension);
             continue;
         }
         if (!std::equal(samples[i].begin(), samples[i].end(), m_Constant->begin())) {

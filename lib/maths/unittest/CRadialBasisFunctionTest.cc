@@ -65,9 +65,9 @@ private:
 }
 
 void CRadialBasisFunctionTest::testDerivative() {
-    LOG_DEBUG("+--------------------------------------------+");
-    LOG_DEBUG("|  CRadialBasisFunctionTest::testDerivative  |");
-    LOG_DEBUG("+--------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------+");
+    LOG_DEBUG(<< "|  CRadialBasisFunctionTest::testDerivative  |");
+    LOG_DEBUG(<< "+--------------------------------------------+");
 
     const double a = 0.0;
     const double b = 10.0;
@@ -76,11 +76,11 @@ void CRadialBasisFunctionTest::testDerivative() {
 
     const double eps = 1e-3;
 
-    LOG_DEBUG("*** Gaussian ***");
+    LOG_DEBUG(<< "*** Gaussian ***");
 
     for (std::size_t i = 0u; i < boost::size(centres); ++i) {
         for (std::size_t j = 0u; j < boost::size(scales); ++j) {
-            LOG_DEBUG("centre = " << centres[i] << ", scale = " << scales[j]);
+            LOG_DEBUG(<< "centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CGaussianBasisFunction gaussian;
             for (std::size_t k = 0u; k < 10; ++k) {
@@ -95,11 +95,11 @@ void CRadialBasisFunctionTest::testDerivative() {
         }
     }
 
-    LOG_DEBUG("*** Inverse Quadratic ***");
+    LOG_DEBUG(<< "*** Inverse Quadratic ***");
 
     for (std::size_t i = 0u; i < boost::size(centres); ++i) {
         for (std::size_t j = 0u; j < boost::size(scales); ++j) {
-            LOG_DEBUG("centre = " << centres[i] << ", scale = " << scales[j]);
+            LOG_DEBUG(<< "centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CInverseQuadraticBasisFunction inverseQuadratic;
             for (std::size_t k = 0u; k < 10; ++k) {
@@ -118,9 +118,9 @@ void CRadialBasisFunctionTest::testDerivative() {
 }
 
 void CRadialBasisFunctionTest::testMean() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CRadialBasisFunctionTest::testMean  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CRadialBasisFunctionTest::testMean  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     const double a = 0.0;
     const double b = 10.0;
@@ -129,11 +129,11 @@ void CRadialBasisFunctionTest::testMean() {
 
     const double eps = 1e-3;
 
-    LOG_DEBUG("*** Gaussian ***");
+    LOG_DEBUG(<< "*** Gaussian ***");
 
     for (std::size_t i = 0u; i < boost::size(centres); ++i) {
         for (std::size_t j = 0u; j < boost::size(scales); ++j) {
-            LOG_DEBUG("centre = " << centres[i] << ", scale = " << scales[j]);
+            LOG_DEBUG(<< "centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CGaussianBasisFunction gaussian;
             CValueAdaptor f(gaussian, centres[i], scales[j]);
@@ -148,16 +148,16 @@ void CRadialBasisFunctionTest::testMean() {
             expectedMean /= (b - a);
 
             double mean = gaussian.mean(a, b, centres[i], scales[j]);
-            LOG_DEBUG("expectedMean = " << expectedMean << ", mean = " << mean);
+            LOG_DEBUG(<< "expectedMean = " << expectedMean << ", mean = " << mean);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean, mean, eps * mean);
         }
     }
 
-    LOG_DEBUG("*** Inverse Quadratic ***");
+    LOG_DEBUG(<< "*** Inverse Quadratic ***");
 
     for (std::size_t i = 0u; i < boost::size(centres); ++i) {
         for (std::size_t j = 0u; j < boost::size(scales); ++j) {
-            LOG_DEBUG("centre = " << centres[i] << ", scale = " << scales[j]);
+            LOG_DEBUG(<< "centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CInverseQuadraticBasisFunction inverseQuadratic;
             CValueAdaptor f(inverseQuadratic, centres[i], scales[j]);
@@ -172,16 +172,16 @@ void CRadialBasisFunctionTest::testMean() {
             expectedMean /= (b - a);
 
             double mean = inverseQuadratic.mean(a, b, centres[i], scales[j]);
-            LOG_DEBUG("expectedMean = " << expectedMean << ", mean = " << mean);
+            LOG_DEBUG(<< "expectedMean = " << expectedMean << ", mean = " << mean);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean, mean, eps * mean);
         }
     }
 }
 
 void CRadialBasisFunctionTest::testMeanSquareDerivative() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CRadialBasisFunctionTest::testMean  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CRadialBasisFunctionTest::testMean  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     const double a = 0.0;
     const double b = 10.0;
@@ -190,11 +190,11 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative() {
 
     const double eps = 1e-3;
 
-    LOG_DEBUG("*** Gaussian ***");
+    LOG_DEBUG(<< "*** Gaussian ***");
 
     for (std::size_t i = 0u; i < boost::size(centres); ++i) {
         for (std::size_t j = 0u; j < boost::size(scales); ++j) {
-            LOG_DEBUG("centre = " << centres[i] << ", scale = " << scales[j]);
+            LOG_DEBUG(<< "centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CGaussianBasisFunction gaussian;
             CSquareDerivativeAdaptor f(gaussian, centres[i], scales[j]);
@@ -209,16 +209,16 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative() {
             expectedMean /= (b - a);
 
             double mean = gaussian.meanSquareDerivative(a, b, centres[i], scales[j]);
-            LOG_DEBUG("expectedMean = " << expectedMean << ", mean = " << mean);
+            LOG_DEBUG(<< "expectedMean = " << expectedMean << ", mean = " << mean);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean, mean, eps * mean);
         }
     }
 
-    LOG_DEBUG("*** Inverse Quadratic ***");
+    LOG_DEBUG(<< "*** Inverse Quadratic ***");
 
     for (std::size_t i = 0u; i < boost::size(centres); ++i) {
         for (std::size_t j = 0u; j < boost::size(scales); ++j) {
-            LOG_DEBUG("centre = " << centres[i] << ", scale = " << scales[j]);
+            LOG_DEBUG(<< "centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CInverseQuadraticBasisFunction inverseQuadratic;
             CSquareDerivativeAdaptor f(inverseQuadratic, centres[i], scales[j]);
@@ -233,16 +233,16 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative() {
             expectedMean /= (b - a);
 
             double mean = inverseQuadratic.meanSquareDerivative(a, b, centres[i], scales[j]);
-            LOG_DEBUG("expectedMean = " << expectedMean << ", mean = " << mean);
+            LOG_DEBUG(<< "expectedMean = " << expectedMean << ", mean = " << mean);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean, mean, eps * mean);
         }
     }
 }
 
 void CRadialBasisFunctionTest::testProduct() {
-    LOG_DEBUG("+-----------------------------------------+");
-    LOG_DEBUG("|  CRadialBasisFunctionTest::testProduct  |");
-    LOG_DEBUG("+-----------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------+");
+    LOG_DEBUG(<< "|  CRadialBasisFunctionTest::testProduct  |");
+    LOG_DEBUG(<< "+-----------------------------------------+");
 
     const double a = 0.0;
     const double b = 10.0;
@@ -251,14 +251,14 @@ void CRadialBasisFunctionTest::testProduct() {
 
     const double eps = 1e-3;
 
-    LOG_DEBUG("*** Gaussian ***");
+    LOG_DEBUG(<< "*** Gaussian ***");
 
     for (std::size_t i = 0u; i < boost::size(centres); ++i) {
         for (std::size_t j = 0u; j < boost::size(centres); ++j) {
             for (std::size_t k = 0u; k < boost::size(scales); ++k) {
                 for (std::size_t l = 0u; l < boost::size(scales); ++l) {
-                    LOG_DEBUG("centre1 = " << centres[i] << ", centre2 = " << centres[j] << ", scale1 = " << scales[k]
-                                           << ", scale2 = " << scales[l]);
+                    LOG_DEBUG(<< "centre1 = " << centres[i] << ", centre2 = " << centres[j] << ", scale1 = " << scales[k]
+                              << ", scale2 = " << scales[l]);
 
                     maths::CGaussianBasisFunction gaussian;
                     CValueAdaptor f1(gaussian, centres[i], scales[k]);
@@ -275,21 +275,21 @@ void CRadialBasisFunctionTest::testProduct() {
                     expectedProduct /= (b - a);
 
                     double product = gaussian.product(a, b, centres[i], centres[j], scales[k], scales[l]);
-                    LOG_DEBUG("expectedMean = " << expectedProduct << ", mean = " << product);
+                    LOG_DEBUG(<< "expectedMean = " << expectedProduct << ", mean = " << product);
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProduct, product, eps * product);
                 }
             }
         }
     }
 
-    LOG_DEBUG("*** Inverse Quadratic ***");
+    LOG_DEBUG(<< "*** Inverse Quadratic ***");
 
     for (std::size_t i = 0u; i < boost::size(centres); ++i) {
         for (std::size_t j = 0u; j < boost::size(centres); ++j) {
             for (std::size_t k = 0u; k < boost::size(scales); ++k) {
                 for (std::size_t l = 0u; l < boost::size(scales); ++l) {
-                    LOG_DEBUG("centre1 = " << centres[i] << ", centre2 = " << centres[j] << ", scale1 = " << scales[k]
-                                           << ", scale2 = " << scales[l]);
+                    LOG_DEBUG(<< "centre1 = " << centres[i] << ", centre2 = " << centres[j] << ", scale1 = " << scales[k]
+                              << ", scale2 = " << scales[l]);
 
                     maths::CInverseQuadraticBasisFunction inverseQuadratic;
                     CValueAdaptor f1(inverseQuadratic, centres[i], scales[k]);
@@ -306,7 +306,7 @@ void CRadialBasisFunctionTest::testProduct() {
                     expectedProduct /= (b - a);
 
                     double product = inverseQuadratic.product(a, b, centres[i], centres[j], scales[k], scales[l]);
-                    LOG_DEBUG("expectedProduct = " << expectedProduct << ", product = " << product);
+                    LOG_DEBUG(<< "expectedProduct = " << expectedProduct << ", product = " << product);
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProduct, product, eps * product);
                 }
             }

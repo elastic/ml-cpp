@@ -77,7 +77,7 @@ public:
     virtual bool initialise(std::size_t numberProjections, std::size_t dimension) {
         m_Dimension = dimension;
         if (!this->generateProjections(numberProjections)) {
-            LOG_ERROR("Failed to generate projections");
+            LOG_ERROR(<< "Failed to generate projections");
             return false;
         }
         return true;
@@ -127,7 +127,7 @@ protected:
             }
 
             if (!CGramSchmidt::basis(projection)) {
-                LOG_ERROR("Failed to construct basis");
+                LOG_ERROR(<< "Failed to construct basis");
                 return false;
             }
         }
@@ -164,7 +164,7 @@ protected:
             }
 
             if (!CGramSchmidt::basis(extension)) {
-                LOG_ERROR("Failed to construct basis");
+                LOG_ERROR(<< "Failed to construct basis");
                 return false;
             }
 
@@ -348,7 +348,7 @@ protected:
         TSizeVec sij;
 
         for (std::size_t i = 0u; i < b; ++i) {
-            LOG_TRACE("projection " << i);
+            LOG_TRACE(<< "projection " << i);
             P = m_ProjectedData[i];
 
             // Create a lookup of points to their indices.
@@ -363,17 +363,17 @@ protected:
             clusterer.run();
             const TClusterVec& clusters = clusterer.clusters();
             double ni = static_cast<double>(clusters.size());
-            LOG_TRACE("# clusters = " << ni);
+            LOG_TRACE(<< "# clusters = " << ni);
 
             for (std::size_t j = 0u; j < clusters.size(); ++j) {
                 const TVectorNx1Vec& points = clusters[j].points();
-                LOG_TRACE("# points = " << points.size());
+                LOG_TRACE(<< "# points = " << points.size());
 
                 // Compute the number of points to sample from this cluster.
                 std::size_t nij = points.size();
                 double wij = static_cast<double>(nij) / static_cast<double>(n);
                 std::size_t nsij = static_cast<std::size_t>(std::max(m_Compression * wij * ni, 1.0));
-                LOG_TRACE("wij = " << wij << ", nsij = " << nsij);
+                LOG_TRACE(<< "wij = " << wij << ", nsij = " << nsij);
 
                 // Compute the cluster sample mean and covariance matrix.
                 TSampleCovariancesNxN covariances;
@@ -407,11 +407,11 @@ protected:
                     for (std::size_t k = 0u; k < pij.size(); ++k) {
                         pij[k] /= Zij;
                     }
-                    LOG_TRACE("pij = " << core::CContainerPrinter::print(pij));
+                    LOG_TRACE(<< "pij = " << core::CContainerPrinter::print(pij));
 
                     // Sample the cluster.
                     CSampling::categoricalSampleWithoutReplacement(this->rng(), pij, nsij, sij);
-                    LOG_TRACE("sij = " << core::CContainerPrinter::print(sij));
+                    LOG_TRACE(<< "sij = " << core::CContainerPrinter::print(sij));
 
                     // Save the relevant data for the i'th clustering.
                     for (std::size_t k = 0u; k < nsij; ++k) {
@@ -433,7 +433,7 @@ protected:
     void neighbourhoods(const TSizeUSet& I, TSizeVecVec& H) const {
         using TVectorSizeUMap = boost::unordered_map<TVector, std::size_t, SHashVector>;
 
-        LOG_TRACE("I = " << core::CContainerPrinter::print(I));
+        LOG_TRACE(<< "I = " << core::CContainerPrinter::print(I));
         std::size_t b = m_ProjectedData.size();
         std::size_t n = m_ProjectedData[0].size();
 
@@ -447,7 +447,7 @@ protected:
                     concat(N * j + k) = m_ProjectedData[j][i](k);
                 }
             }
-            LOG_TRACE("concat = " << concat);
+            LOG_TRACE(<< "concat = " << concat);
             S.push_back(concat);
         }
         TVectorSizeUMap lookup(S.size());
@@ -466,13 +466,13 @@ protected:
             }
             const TVector* nn = samples.nearestNeighbour(concat);
             if (!nn) {
-                LOG_ERROR("No nearest neighbour of " << concat);
+                LOG_ERROR(<< "No nearest neighbour of " << concat);
                 continue;
             }
-            LOG_TRACE("nn = " << *nn);
+            LOG_TRACE(<< "nn = " << *nn);
             H[lookup[*nn]].push_back(i);
         }
-        LOG_TRACE("H = " << core::CContainerPrinter::print(H));
+        LOG_TRACE(<< "H = " << core::CContainerPrinter::print(H));
     }
 
     //! Compute the similarities between neighbourhoods.
@@ -497,8 +497,8 @@ protected:
             const TDoubleVec& Wi = W[i];
             const TVectorNx1Vec& Mi = M[i];
             const TSvdNxNVec& Ci = C[i];
-            LOG_TRACE("W(i) = " << core::CContainerPrinter::print(Wi));
-            LOG_TRACE("M(i) = " << core::CContainerPrinter::print(Mi));
+            LOG_TRACE(<< "W(i) = " << core::CContainerPrinter::print(Wi));
+            LOG_TRACE(<< "M(i) = " << core::CContainerPrinter::print(Mi));
 
             std::size_t nci = Mi.size();
             std::fill_n(Pi.begin(), h, TVector(nci));
@@ -507,7 +507,7 @@ protected:
             // a given cluster.
             for (std::size_t c = 0u; c < nci; ++c) {
                 double wic = std::log(Wi[c]) - 0.5 * this->logDeterminant(Ci[c]);
-                LOG_TRACE("  w(" << i << "," << c << ") = " << wic);
+                LOG_TRACE(<< "  w(" << i << "," << c << ") = " << wic);
                 for (std::size_t j = 0u; j < h; ++j) {
                     std::size_t hj = H[j].size();
                     Pi[j](c) = static_cast<double>(hj) * wic;
@@ -515,7 +515,7 @@ protected:
                         TEigenVectorNx1 x = toDenseVector(X[H[j][k]] - Mi[c]);
                         Pi[j](c) -= 0.5 * x.transpose() * Ci[c].solve(x);
                     }
-                    LOG_TRACE("    P(" << j << "," << c << ") = " << Pi[j](c));
+                    LOG_TRACE(<< "    P(" << j << "," << c << ") = " << Pi[j](c));
                 }
             }
             for (std::size_t j = 0u; j < h; ++j) {
@@ -528,7 +528,7 @@ protected:
                 for (std::size_t c = 0u; c < nci; ++c) {
                     Pi[j](c) /= Z;
                 }
-                LOG_TRACE("  P(" << j << ") = " << Pi[j]);
+                LOG_TRACE(<< "  P(" << j << ") = " << Pi[j]);
             }
 
             // Compute the similarities.
@@ -572,7 +572,7 @@ protected:
             heights.push_back(TDoubleTuple());
             heights.back().add(tree[i].height());
         }
-        LOG_TRACE("heights = " << core::CContainerPrinter::print(heights));
+        LOG_TRACE(<< "heights = " << core::CContainerPrinter::print(heights));
 
         TSizeVec splits;
         if (CNaturalBreaksClassifier::naturalBreaks(heights,
@@ -581,7 +581,7 @@ protected:
                                                     CNaturalBreaksClassifier::E_TargetDeviation,
                                                     splits)) {
             double height = CBasicStatistics::mean(heights[splits[0] - 1]);
-            LOG_TRACE("split = " << core::CContainerPrinter::print(splits) << ", height = " << height);
+            LOG_TRACE(<< "split = " << core::CContainerPrinter::print(splits) << ", height = " << height);
             const TNode& root = tree.back();
             root.clusteringAt(height, result);
             for (std::size_t i = 0u; i < result.size(); ++i) {
@@ -593,7 +593,7 @@ protected:
                 ri.erase(ri.begin(), ri.begin() + n);
             }
         } else {
-            LOG_ERROR("Failed to cluster " << core::CContainerPrinter::print(heights));
+            LOG_ERROR(<< "Failed to cluster " << core::CContainerPrinter::print(heights));
         }
     }
 

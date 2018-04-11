@@ -52,7 +52,7 @@ CDynamicStringIdRegistry::CDynamicStringIdRegistry(bool isForPersistence, const 
       m_FreeUids(other.m_FreeUids),
       m_RecycledUids(other.m_RecycledUids) {
     if (!isForPersistence) {
-        LOG_ABORT("This constructor only creates clones for persistence");
+        LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
 }
 
@@ -113,7 +113,7 @@ CDynamicStringIdRegistry::addName(const std::string& name, core_t::TTime time, C
         // In this case we can only deal with existing people
         TWordSizeUMapCItr itr = m_Uids.find(m_Dictionary.word(name));
         if (itr == m_Uids.end()) {
-            LOG_TRACE("Can't add new " << m_NameType << " - allocations not allowed");
+            LOG_TRACE(<< "Can't add new " << m_NameType << " - allocations not allowed");
             resourceMonitor.acceptAllocationFailureResult(time);
             core::CStatistics::stat(m_AddNotAllowedStat).increment();
             return INVALID_ID;
@@ -126,10 +126,10 @@ CDynamicStringIdRegistry::addName(const std::string& name, core_t::TTime time, C
         addedPerson = true;
         core::CStatistics::stat(m_AddedStat).increment();
     } else if (id == newId) {
-        LOG_TRACE("Recycling " << id << " for " << m_NameType << " " << name);
+        LOG_TRACE(<< "Recycling " << id << " for " << m_NameType << " " << name);
         m_Names[id] = CStringStore::names().get(name);
         if (m_FreeUids.empty()) {
-            LOG_ERROR("Unexpectedly missing free " << m_NameType << " entry for " << id);
+            LOG_ERROR(<< "Unexpectedly missing free " << m_NameType << " entry for " << id);
         } else {
             m_FreeUids.pop_back();
         }
@@ -156,7 +156,7 @@ void CDynamicStringIdRegistry::recycleNames(const TSizeVec& namesToRemove, const
     for (std::size_t i = 0u; i < namesToRemove.size(); ++i) {
         std::size_t id = namesToRemove[i];
         if (id >= m_Names.size()) {
-            LOG_ERROR("Unexpected " << m_NameType << " identifier " << id);
+            LOG_ERROR(<< "Unexpected " << m_NameType << " identifier " << id);
             continue;
         }
         m_FreeUids.push_back(id);
@@ -177,18 +177,18 @@ bool CDynamicStringIdRegistry::checkInvariants() const {
 
     bool result = true;
     if (m_Uids.size() > m_Names.size()) {
-        LOG_ERROR("Unexpected extra " << (m_Uids.size() - m_Names.size()) << " " << m_NameType << " uids");
+        LOG_ERROR(<< "Unexpected extra " << (m_Uids.size() - m_Names.size()) << " " << m_NameType << " uids");
         result = false;
     }
 
     TSizeUSet uniqueIds;
     for (TWordSizeUMapCItr i = m_Uids.begin(); i != m_Uids.end(); ++i) {
         if (!uniqueIds.insert(i->second).second) {
-            LOG_ERROR("Duplicate id " << i->second);
+            LOG_ERROR(<< "Duplicate id " << i->second);
             result = false;
         }
         if (i->second > m_Names.size()) {
-            LOG_ERROR(m_NameType << " id " << i->second << " out of range [0, " << m_Names.size() << ")");
+            LOG_ERROR(<< m_NameType << " id " << i->second << " out of range [0, " << m_Names.size() << ")");
             result = false;
         }
     }
@@ -268,7 +268,7 @@ bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTravers
 
     for (std::size_t id = 0; id < m_Names.size(); ++id) {
         if (std::binary_search(m_FreeUids.begin(), m_FreeUids.end(), id, std::greater<std::size_t>())) {
-            LOG_TRACE("Restore ignoring free " << m_NameType << " name " << *m_Names[id] << " = id " << id);
+            LOG_TRACE(<< "Restore ignoring free " << m_NameType << " name " << *m_Names[id] << " = id " << id);
         } else {
             m_Uids[m_Dictionary.word(*m_Names[id])] = id;
         }

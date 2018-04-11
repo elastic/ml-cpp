@@ -44,7 +44,7 @@ void CStateRestoreTraverser::CAutoLevel::setBadState() {
 CStateRestoreTraverser::CAutoLevel::~CAutoLevel() {
     if (m_Descended && !m_BadState) {
         if (m_Traverser.ascend() == false) {
-            LOG_ERROR("Inconsistency - could not ascend following previous descend");
+            LOG_ERROR(<< "Inconsistency - could not ascend following previous descend");
             m_Traverser.setBadState();
         }
     }

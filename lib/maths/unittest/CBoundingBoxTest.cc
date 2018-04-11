@@ -59,9 +59,9 @@ bool closerToX(const TBoundingBox4& bb, const TVector4& x, const TVector4& y) {
 }
 
 void CBoundingBoxTest::testAdd() {
-    LOG_DEBUG("+-----------------------------+");
-    LOG_DEBUG("|  CBoundingBoxTest::testAdd  |");
-    LOG_DEBUG("+-----------------------------+");
+    LOG_DEBUG(<< "+-----------------------------+");
+    LOG_DEBUG(<< "|  CBoundingBoxTest::testAdd  |");
+    LOG_DEBUG(<< "+-----------------------------+");
 
     double points[][2] = {{-1.0, 5.0}, {2.0, 20.0}, {10.0, 4.0}, {-10.0, -3.0}, {200.0, 50.0}};
 
@@ -108,9 +108,9 @@ void CBoundingBoxTest::testAdd() {
 }
 
 void CBoundingBoxTest::testCloserTo() {
-    LOG_DEBUG("+----------------------------------+");
-    LOG_DEBUG("|  CBoundingBoxTest::testCloserTo  |");
-    LOG_DEBUG("+----------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------+");
+    LOG_DEBUG(<< "|  CBoundingBoxTest::testCloserTo  |");
+    LOG_DEBUG(<< "+----------------------------------+");
 
     const std::size_t n = 1000;
 
@@ -134,12 +134,12 @@ void CBoundingBoxTest::testCloserTo() {
             TVector2 y2(&probes[j + 2], &probes[j + 4]);
             bool closer = closerToX(bb, y1, y2);
             if (closer) {
-                LOG_DEBUG("bb = " << bb.print() << " is closer to " << y1 << " than " << y2);
+                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y1 << " than " << y2);
             }
             CPPUNIT_ASSERT_EQUAL(closer, bb.closerToX(y1, y2));
             closer = closerToX(bb, y2, y1);
             if (closer) {
-                LOG_DEBUG("bb = " << bb.print() << " is closer to " << y2 << " than " << y1);
+                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y2 << " than " << y1);
             }
             CPPUNIT_ASSERT_EQUAL(closer, bb.closerToX(y2, y1));
         }
@@ -157,12 +157,12 @@ void CBoundingBoxTest::testCloserTo() {
             TVector4 y2(&probes[j + 4], &probes[j + 8]);
             bool closer = closerToX(bb, y1, y2);
             if (closer) {
-                LOG_DEBUG("bb = " << bb.print() << " is closer to " << y1 << " than " << y2);
+                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y1 << " than " << y2);
             }
             CPPUNIT_ASSERT_EQUAL(closer, bb.closerToX(y1, y2));
             closer = closerToX(bb, y2, y1);
             if (closer) {
-                LOG_DEBUG("bb = " << bb.print() << " is closer to " << y2 << " than " << y1);
+                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y2 << " than " << y1);
             }
             CPPUNIT_ASSERT_EQUAL(closer, bb.closerToX(y2, y1));
         }

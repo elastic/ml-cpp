@@ -78,12 +78,12 @@ public:
             const std::string& name = traverser.name();
             if (name == VALUE_TAG) {
                 if (CMetricStatisticWrappers::restore(traverser, m_Value) == false) {
-                    LOG_ERROR("Invalid statistic in " << traverser.value());
+                    LOG_ERROR(<< "Invalid statistic in " << traverser.value());
                     return false;
                 }
             } else if (name == TIME_TAG) {
                 if (m_Time.fromDelimited(traverser.value()) == false) {
-                    LOG_ERROR("Invalid time in " << traverser.value());
+                    LOG_ERROR(<< "Invalid time in " << traverser.value());
                     return false;
                 }
             }

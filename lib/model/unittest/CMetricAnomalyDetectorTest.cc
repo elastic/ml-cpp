@@ -109,8 +109,8 @@ public:
     }
 
     bool operator()(ml::core_t::TTime time, const ml::model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
-        LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
-                  << node.s_Spec.print() << " initial score " << node.probability() << ", time:  " << time);
+        LOG_DEBUG(<< (isBucketInfluencer ? "BucketInfluencer" : "Influencer ") << node.s_Spec.print() << " initial score "
+                  << node.probability() << ", time:  " << time);
 
         return true;
     }
@@ -185,7 +185,7 @@ void importCsvData(core_t::TTime firstTime,
     core_t::TTime lastBucketTime = firstTime;
 
     while (std::getline(*ifs, line)) {
-        LOG_TRACE("Got string: " << line);
+        LOG_TRACE(<< "Got string: " << line);
         core::CRegex::TStrVec tokens;
         regex.split(line, tokens);
 
@@ -278,14 +278,14 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
         TDoubleVec anomalyFactors(writer.anomalyFactors());
         TDoubleVec anomalyRates(writer.anomalyRates());
 
-        LOG_DEBUG("bucket length = " << BUCKET_LENGTHS[i]);
-        LOG_DEBUG("high anomalies in = " << core::CContainerPrinter::print(highAnomalyTimes));
-        LOG_DEBUG("high anomaly factors = " << core::CContainerPrinter::print(highAnomalyFactors));
-        LOG_DEBUG("anomaly factors = " << core::CContainerPrinter::print(anomalyFactors));
-        LOG_DEBUG("anomaly rates = " << core::CContainerPrinter::print(anomalyRates));
+        LOG_DEBUG(<< "bucket length = " << BUCKET_LENGTHS[i]);
+        LOG_DEBUG(<< "high anomalies in = " << core::CContainerPrinter::print(highAnomalyTimes));
+        LOG_DEBUG(<< "high anomaly factors = " << core::CContainerPrinter::print(highAnomalyFactors));
+        LOG_DEBUG(<< "anomaly factors = " << core::CContainerPrinter::print(anomalyFactors));
+        LOG_DEBUG(<< "anomaly rates = " << core::CContainerPrinter::print(anomalyRates));
 
         for (std::size_t j = 0u; j < highAnomalyTimes.size(); ++j) {
-            LOG_DEBUG("Testing " << core::CContainerPrinter::print(highAnomalyTimes[j]) << ' ' << highAnomalyFactors[j]);
+            LOG_DEBUG(<< "Testing " << core::CContainerPrinter::print(highAnomalyTimes[j]) << ' ' << highAnomalyFactors[j]);
             CPPUNIT_ASSERT(doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0]) ||
                            doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1]));
         }
@@ -293,7 +293,7 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
         if (!anomalyFactors.empty()) {
             double signal = std::accumulate(highAnomalyFactors.begin(), highAnomalyFactors.end(), 0.0);
             double noise = std::accumulate(anomalyFactors.begin(), anomalyFactors.end(), 0.0);
-            LOG_DEBUG("S/N = " << (signal / noise));
+            LOG_DEBUG(<< "S/N = " << (signal / noise));
             CPPUNIT_ASSERT(signal / noise > 100.0);
         }
 
@@ -310,7 +310,7 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
         if (maxStep < orderedAnomalyRates.size()) {
             partitionRate = 0.5 * (orderedAnomalyRates[maxStep] + orderedAnomalyRates[maxStep - 1]);
         }
-        LOG_DEBUG("partition rate = " << partitionRate);
+        LOG_DEBUG(<< "partition rate = " << partitionRate);
 
         // Compute the ratio of noise in the two rate channels.
         for (std::size_t j = 0u; j < anomalyFactors.size(); ++j) {
@@ -318,7 +318,7 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
         }
     }
 
-    LOG_DEBUG("high rate noise = " << highRateNoise << ", low rate noise = " << lowRateNoise);
+    LOG_DEBUG(<< "high rate noise = " << highRateNoise << ", low rate noise = " << lowRateNoise);
 
     // We don't have significantly more noise in the low rate channel.
     CPPUNIT_ASSERT(std::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.2);
@@ -354,7 +354,7 @@ void CMetricAnomalyDetectorTest::testPersist() {
         inserter.toXml(origXml);
     }
 
-    LOG_TRACE("Event rate detector XML representation:\n" << origXml);
+    LOG_TRACE(<< "Event rate detector XML representation:\n" << origXml);
 
     // Restore the XML into a new detector
     model::CAnomalyDetector restoredDetector(1, // identifier
@@ -407,8 +407,8 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
         TDoubleVec highAnomalyFactors(writer.highAnomalyFactors());
 
-        LOG_DEBUG("high anomalies in = " << core::CContainerPrinter::print(highAnomalyTimes));
-        LOG_DEBUG("high anomaly factors = " << core::CContainerPrinter::print(highAnomalyFactors));
+        LOG_DEBUG(<< "high anomalies in = " << core::CContainerPrinter::print(highAnomalyTimes));
+        LOG_DEBUG(<< "high anomaly factors = " << core::CContainerPrinter::print(highAnomalyFactors));
 
         // expect there to be 2 anomalies
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), highAnomalyTimes.size());
@@ -436,8 +436,8 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
         TDoubleVec highAnomalyFactors(writer.highAnomalyFactors());
 
-        LOG_DEBUG("high anomalies in = " << core::CContainerPrinter::print(highAnomalyTimes));
-        LOG_DEBUG("high anomaly factors = " << core::CContainerPrinter::print(highAnomalyFactors));
+        LOG_DEBUG(<< "high anomalies in = " << core::CContainerPrinter::print(highAnomalyTimes));
+        LOG_DEBUG(<< "high anomaly factors = " << core::CContainerPrinter::print(highAnomalyFactors));
 
         // expect there to be 1 anomaly
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), highAnomalyTimes.size());

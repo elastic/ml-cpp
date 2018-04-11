@@ -49,7 +49,7 @@ public:
             // We have no choice but to throw because this is
             // invoked inside a boost root finding function.
 
-            LOG_ERROR("Failed to evaluate c.d.f. at " << x);
+            LOG_ERROR(<< "Failed to evaluate c.d.f. at " << x);
             throw std::runtime_error("Failed to evaluate c.d.f.");
         }
 
@@ -153,7 +153,7 @@ bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculat
     double lowerBound, upperBound;
     maths_t::ETail tail;
     if (!m_Prior->probabilityOfLessLikelySamples(calculation, weightStyles, samples_, weights, lowerBound, upperBound, tail)) {
-        LOG_ERROR("Failed computing probability of less likely samples");
+        LOG_ERROR(<< "Failed computing probability of less likely samples");
         return false;
     }
 
@@ -189,7 +189,7 @@ bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage, d
 
         CSolvers::solve(bracket.first, bracket.second, fBracket.first, fBracket.second, cdf, maxIterations, equal, result);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to compute quantile: " << e.what() << ", quantile = " << percentage);
+        LOG_ERROR(<< "Failed to compute quantile: " << e.what() << ", quantile = " << percentage);
         return false;
     }
 
@@ -207,7 +207,7 @@ bool CPriorTestInterface::marginalLikelihoodMeanForTest(double& result) const {
 
     double a, b;
     if (!this->marginalLikelihoodQuantileForTest(0.001, eps, a) || !this->marginalLikelihoodQuantileForTest(99.999, eps, b)) {
-        LOG_ERROR("Unable to compute mean likelihood");
+        LOG_ERROR(<< "Unable to compute mean likelihood");
         return false;
     }
 
@@ -245,7 +245,7 @@ bool CPriorTestInterface::marginalLikelihoodVarianceForTest(double& result) cons
 
     double a, b;
     if (!this->marginalLikelihoodQuantileForTest(0.001, eps, a) || !this->marginalLikelihoodQuantileForTest(99.999, eps, b)) {
-        LOG_ERROR("Unable to compute mean likelihood");
+        LOG_ERROR(<< "Unable to compute mean likelihood");
         return false;
     }
 

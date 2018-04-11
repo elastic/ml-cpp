@@ -161,7 +161,7 @@ void CLogger::logEnvironment() const {
             env += *envPtr;
         }
     }
-    LOG_INFO(env);
+    LOG_INFO(<< env);
 }
 
 log4cxx::LoggerPtr CLogger::logger() {
@@ -243,13 +243,13 @@ bool CLogger::reconfigure(const std::string& pipeName, const std::string& proper
 
 bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
     if (m_Reconfigured) {
-        LOG_ERROR("Cannot log to a named pipe after logger reconfiguration");
+        LOG_ERROR(<< "Cannot log to a named pipe after logger reconfiguration");
         return false;
     }
 
     m_PipeFile = CNamedPipeFactory::openPipeFileWrite(pipeName);
     if (m_PipeFile == nullptr) {
-        LOG_ERROR("Cannot log to named pipe " << pipeName << " as it could not be opened for writing");
+        LOG_ERROR(<< "Cannot log to named pipe " << pipeName << " as it could not be opened for writing");
         return false;
     }
 
@@ -262,7 +262,7 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
         return false;
     }
 
-    LOG_DEBUG("Logger is logging to named pipe " << pipeName);
+    LOG_DEBUG(<< "Logger is logging to named pipe " << pipeName);
 
     return true;
 }
@@ -282,7 +282,7 @@ bool CLogger::reconfigureLogJson() {
 bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
     COsFileFuncs::TStat statBuf;
     if (COsFileFuncs::stat(propertiesFile.c_str(), &statBuf) != 0) {
-        LOG_ERROR("Unable to access properties file " << propertiesFile << " for logger re-initialisation: " << ::strerror(errno));
+        LOG_ERROR(<< "Unable to access properties file " << propertiesFile << " for logger re-initialisation: " << ::strerror(errno));
         return false;
     }
 
@@ -295,7 +295,7 @@ bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
         log4cxx::helpers::InputStreamPtr inputStream(new log4cxx::helpers::FileInputStream(propertiesFile));
         props.load(inputStream);
     } catch (const log4cxx::helpers::Exception& e) {
-        LOG_ERROR("Unable to read from properties file " << propertiesFile << " for logger re-initialisation: " << e.what());
+        LOG_ERROR(<< "Unable to read from properties file " << propertiesFile << " for logger re-initialisation: " << e.what());
         return false;
     }
 
@@ -306,7 +306,7 @@ bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
         return false;
     }
 
-    LOG_DEBUG("Logger re-initialised using properties file " << propertiesFile);
+    LOG_DEBUG(<< "Logger re-initialised using properties file " << propertiesFile);
 
     return true;
 }
@@ -331,7 +331,7 @@ bool CLogger::reconfigureFromProps(log4cxx::helpers::Properties& props) {
         }
     } catch (log4cxx::helpers::Exception& e) {
         if (m_Logger != nullptr) {
-            LOG_ERROR("Failed to reinitialise logger: " << e.what());
+            LOG_ERROR(<< "Failed to reinitialise logger: " << e.what());
         } else {
             // We can't use the log macros if the pointer to the logger is NULL
             std::cerr << "Failed to reinitialise logger: " << e.what() << std::endl;
@@ -344,7 +344,7 @@ bool CLogger::reconfigureFromProps(log4cxx::helpers::Properties& props) {
 
     // Start the new log file off with "uname -a" information so we know what
     // hardware problems occurred on
-    LOG_DEBUG("uname -a: " << CUname::all());
+    LOG_DEBUG(<< "uname -a: " << CUname::all());
 
     return true;
 }

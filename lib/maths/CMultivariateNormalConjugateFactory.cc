@@ -50,7 +50,7 @@ public:
         ptr.reset(CFactory<5>::make(FACTORY_ARGS));                                                                                        \
         break;                                                                                                                             \
     default:                                                                                                                               \
-        LOG_ERROR("Unsupported dimension " << N);                                                                                          \
+        LOG_ERROR(<< "Unsupported dimension " << N);                                                                                       \
         break;                                                                                                                             \
     }
 

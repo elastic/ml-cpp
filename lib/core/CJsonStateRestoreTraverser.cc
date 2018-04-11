@@ -137,7 +137,7 @@ bool CJsonStateRestoreTraverser::ascend() {
     // If we're trying to ascend above the root level then something has gone
     // wrong
     if (m_DesiredLevel == 0) {
-        LOG_ERROR("Inconsistency - trying to ascend above JSON root");
+        LOG_ERROR(<< "Inconsistency - trying to ascend above JSON root");
         return false;
     }
 
@@ -157,9 +157,9 @@ bool CJsonStateRestoreTraverser::ascend() {
 }
 
 void CJsonStateRestoreTraverser::debug() const {
-    LOG_DEBUG("Current: name = " << this->currentName() << " value = " << this->currentValue() << " level = " << this->currentLevel()
-                                 << ", Next: name = " << this->nextName() << " value = " << this->nextValue()
-                                 << " level = " << this->nextLevel() << " is array of objects = " << m_IsArrayOfObjects);
+    LOG_DEBUG(<< "Current: name = " << this->currentName() << " value = " << this->currentValue() << " level = " << this->currentLevel()
+              << ", Next: name = " << this->nextName() << " value = " << this->nextValue() << " level = " << this->nextLevel()
+              << " is array of objects = " << m_IsArrayOfObjects);
 }
 
 size_t CJsonStateRestoreTraverser::currentLevel() const {
@@ -251,11 +251,11 @@ bool CJsonStateRestoreTraverser::start() {
     // object, but we don't store it
     if (m_Handler.s_Type != SRapidJsonHandler::E_TokenObjectStart) {
         if (m_IsArrayOfObjects && m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayEnd && this->isEof()) {
-            LOG_DEBUG("JSON document is an empty array");
+            LOG_DEBUG(<< "JSON document is an empty array");
             return false;
         }
 
-        LOG_ERROR("JSON state must be object at root" << m_Handler.s_Type);
+        LOG_ERROR(<< "JSON state must be object at root" << m_Handler.s_Type);
         return false;
     }
 
@@ -275,7 +275,7 @@ bool CJsonStateRestoreTraverser::advance() {
         }
 
         if (m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayStart) {
-            LOG_ERROR("JSON state should not contain arrays");
+            LOG_ERROR(<< "JSON state should not contain arrays");
             this->skipArray();
         } else if (m_Handler.s_Type != SRapidJsonHandler::E_TokenKey) {
             keepGoing = false;
@@ -287,7 +287,7 @@ bool CJsonStateRestoreTraverser::advance() {
 
 void CJsonStateRestoreTraverser::logError() {
     const char* error(rapidjson::GetParseError_En(m_Reader.GetParseErrorCode()));
-    LOG_ERROR("Error parsing JSON at offset " << m_Reader.GetErrorOffset() << ": " << ((error != nullptr) ? error : "No message"));
+    LOG_ERROR(<< "Error parsing JSON at offset " << m_Reader.GetErrorOffset() << ": " << ((error != nullptr) ? error : "No message"));
     this->setBadState();
 }
 

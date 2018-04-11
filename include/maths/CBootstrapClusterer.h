@@ -218,13 +218,13 @@ protected:
     template<typename CLUSTERER>
     std::size_t bootstrapClusters(std::size_t b, CLUSTERER& clusterer, TPointVec& points, TSizeVecVecVec& result) {
         std::size_t n = points.size();
-        LOG_TRACE("# points = " << n);
+        LOG_TRACE(<< "# points = " << n);
 
         result.clear();
         result.reserve(b);
         result.push_back(TSizeVecVec());
         clusterer.cluster(points, result.back());
-        LOG_TRACE("Run 1: # clusters = " << result.back().size());
+        LOG_TRACE(<< "Run 1: # clusters = " << result.back().size());
 
         TSizeVec sampling;
         TPointVec bootstrapPoints;
@@ -235,7 +235,7 @@ protected:
             sampling.clear();
             CSampling::uniformSample(m_Rng, 0, n, n, sampling);
             std::sort(sampling.begin(), sampling.end());
-            LOG_TRACE("# samples = " << sampling.size());
+            LOG_TRACE(<< "# samples = " << sampling.size());
 
             bootstrapPoints.clear();
             for (std::size_t j = 0u; j < n; ++j) {
@@ -249,7 +249,7 @@ protected:
                     (result.back())[j][k] = sampling[(result.back())[j][k]];
                 }
             }
-            LOG_TRACE("Run " << i + 1 << ": # clusters = " << result.back().size());
+            LOG_TRACE(<< "Run " << i + 1 << ": # clusters = " << result.back().size());
         }
 
         m_Offsets.clear();
@@ -336,7 +336,7 @@ protected:
                 }
             }
         }
-        LOG_TRACE("ambiguous = " << core::CContainerPrinter::print(ambiguous));
+        LOG_TRACE(<< "ambiguous = " << core::CContainerPrinter::print(ambiguous));
 
         TDoubleSizePrVec consistent;
         for (TSizeSizePrUSetCItr i = ambiguous.begin(); i != ambiguous.end(); ++i) {
@@ -358,7 +358,7 @@ protected:
             }
             std::sort(consistent.begin(), consistent.end(), COrderings::SSecondLess());
             consistent.erase(std::unique(consistent.begin(), consistent.end(), SSecondEqual()), consistent.end());
-            LOG_TRACE("consistent = " << core::CContainerPrinter::print(consistent));
+            LOG_TRACE(<< "consistent = " << core::CContainerPrinter::print(consistent));
 
             for (std::size_t k = 0u; k < consistent.size(); ++k) {
                 boost::put(boost::edge_weight, graph, boost::add_edge(u, consistent[k].second, graph).first, consistent[k].first);
@@ -384,13 +384,13 @@ protected:
         // Find the maximum connected components.
         TSizeVec components(boost::num_vertices(graph));
         std::size_t n = boost::connected_components(graph, &components[0]);
-        LOG_TRACE("# vertices = " << components.size());
-        LOG_TRACE("Connected components = " << n);
+        LOG_TRACE(<< "# vertices = " << components.size());
+        LOG_TRACE(<< "Connected components = " << n);
 
         // Find components which aren't easily separable. These will
         // be the voting population.
         n = this->thickets(n, graph, components);
-        LOG_TRACE("thickets = " << n);
+        LOG_TRACE(<< "thickets = " << n);
 
         // Build a map from voters to point indices.
         TSizeSizeUMapVec voters(n);
@@ -423,7 +423,7 @@ protected:
                 }
             }
             if (cmax == 0) {
-                LOG_ERROR("Failed to find cluster for " << points[i]);
+                LOG_ERROR(<< "Failed to find cluster for " << points[i]);
                 continue;
             }
 
@@ -453,7 +453,7 @@ protected:
         TGraph component(1);
 
         for (std::size_t i = 0u; i < n; ++i) {
-            LOG_TRACE("component = " << i);
+            LOG_TRACE(<< "component = " << i);
 
             // Extract the component vertices.
             inverse.clear();
@@ -476,14 +476,14 @@ protected:
             // Find the partitions of the component which are difficult
             // to separate (by removing edges).
             if (this->separate(component, parities)) {
-                LOG_TRACE("Separated component");
-                LOG_TRACE("parities = " << core::CContainerPrinter::print(parities.begin(), parities.begin() + Vi));
+                LOG_TRACE(<< "Separated component");
+                LOG_TRACE(<< "parities = " << core::CContainerPrinter::print(parities.begin(), parities.begin() + Vi));
                 for (std::size_t j = 0u; j < Vi; ++j) {
                     if (parities[j]) {
                         components[inverse[j]] = n;
                     }
                 }
-                LOG_TRACE("components = " << core::CContainerPrinter::print(components));
+                LOG_TRACE(<< "components = " << core::CContainerPrinter::print(components));
                 ++n;
             }
         }
@@ -548,10 +548,11 @@ protected:
             std::size_t C = std::max(i * (D - std::min(D, i - 1)), (i * (V - i)) - std::min(i * (V - i), (V * (V - 1)) / 2 - E));
             bound = std::min(bound, weights[C] / static_cast<double>(i * (V - i)));
         }
-        LOG_TRACE("bound = " << bound << " threshold = " << threshold);
+        LOG_TRACE(<< "bound = " << bound << " threshold = " << threshold);
 
         if (bound >= threshold) {
-            LOG_TRACE("Short circuit: D = " << D << ", V = " << V << ", bound = " << bound << ", threshold = " << SEPARATION_THRESHOLD * p);
+            LOG_TRACE(<< "Short circuit: D = " << D << ", V = " << V << ", bound = " << bound
+                      << ", threshold = " << SEPARATION_THRESHOLD * p);
             return false;
         }
 
@@ -622,7 +623,7 @@ protected:
     //! \return True if the cut should split \p graph and false
     //! otherwise.
     bool cutSearch(std::size_t u, std::size_t v, const TGraph& graph, double threshold, double& cost, TBoolVec& parities) const {
-        LOG_TRACE("Seed edge = (" << u << "," << v << ")");
+        LOG_TRACE(<< "Seed edge = (" << u << "," << v << ")");
 
         std::size_t V = boost::num_vertices(graph);
 
@@ -641,11 +642,11 @@ protected:
 
         while (state.s_A + 1 < V) {
             if (!this->findNext(parities, graph, state)) {
-                LOG_TRACE("The positive subgraph is already disconnected");
+                LOG_TRACE(<< "The positive subgraph is already disconnected");
 
                 TSizeVec components;
                 std::size_t c = this->positiveSubgraphConnected(graph, parities, components);
-                LOG_TRACE("components = " << core::CContainerPrinter::print(components));
+                LOG_TRACE(<< "components = " << core::CContainerPrinter::print(components));
 
                 // Find the smallest component.
                 TSizeVec sizes(c, 0);
@@ -655,8 +656,8 @@ protected:
                     }
                 }
                 std::size_t smallest = static_cast<std::size_t>(std::min_element(sizes.begin(), sizes.end()) - sizes.begin());
-                LOG_TRACE("sizes = " << core::CContainerPrinter::print(sizes));
-                LOG_TRACE("smallest = " << smallest);
+                LOG_TRACE(<< "sizes = " << core::CContainerPrinter::print(sizes));
+                LOG_TRACE(<< "smallest = " << smallest);
 
                 // Add all its vertices to the "to visit" set.
                 std::size_t n = state.s_ToVisit.size();
@@ -691,8 +692,8 @@ protected:
         cost = lowestCost;
         parities.swap(best);
 
-        LOG_TRACE("Best cut = " << bestCut << ", |A| = " << bestA << ", |B| = " << V - bestA << ", cost = " << cost
-                                << ", threshold = " << threshold);
+        LOG_TRACE(<< "Best cut = " << bestCut << ", |A| = " << bestA << ", |B| = " << V - bestA << ", cost = " << cost
+                  << ", threshold = " << threshold);
 
         return cost < threshold;
     }
@@ -776,7 +777,7 @@ private:
     //! set sizes \f$|A|\f$ and \f$V - |A|\f$.
     void visit(std::size_t next, const TGraph& graph, TBoolVec& parities, SCutState& state) const {
         std::size_t u = state.s_ToVisit[next];
-        LOG_TRACE("Visiting " << u);
+        LOG_TRACE(<< "Visiting " << u);
 
         parities[u] = false;
         state.s_ToVisit.erase(state.s_ToVisit.begin() + next);
@@ -889,7 +890,7 @@ public:
                 }
 
                 if (k == points.size()) {
-                    LOG_ERROR("Didn't find point " << clusterPoints[j]);
+                    LOG_ERROR(<< "Didn't find point " << clusterPoints[j]);
                     continue;
                 }
 

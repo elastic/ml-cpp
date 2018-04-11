@@ -485,14 +485,14 @@ public:
     static bool
     fromString(const std::string& state, const F& stringFunc, boost::array<T, N>& collection, const char delimiter = DELIMITER) {
         if (state.empty()) {
-            LOG_ERROR("Unexpected number of elements 0"
+            LOG_ERROR(<< "Unexpected number of elements 0"
                       << ", expected " << N);
             return false;
         }
 
         std::size_t n = std::count(state.begin(), state.end(), delimiter) + 1;
         if (n != N) {
-            LOG_ERROR("Unexpected number of elements " << n << ", expected " << N);
+            LOG_ERROR(<< "Unexpected number of elements " << n << ", expected " << N);
             return false;
         }
 
@@ -576,7 +576,7 @@ public:
         std::size_t n = std::count(state.begin(), state.end(), delimiter) + 1;
         std::size_t N = std::distance(begin, end);
         if (n != N) {
-            LOG_ERROR("Unexpected number of elements " << n << ", expected " << N);
+            LOG_ERROR(<< "Unexpected number of elements " << n << ", expected " << N);
             return false;
         }
 
@@ -591,7 +591,7 @@ private:
         if (delimPos == std::string::npos) {
             T element;
             if (stringFunc(state, element) == false) {
-                LOG_ERROR("Invalid state " << state);
+                LOG_ERROR(<< "Invalid state " << state);
                 return false;
             }
             *inserter = element;
@@ -611,7 +611,7 @@ private:
         {
             T element;
             if (stringFunc(token, element) == false) {
-                LOG_ERROR("Invalid element 0 : element " << token << " in " << state);
+                LOG_ERROR(<< "Invalid element 0 : element " << token << " in " << state);
                 return false;
             }
             *inserter = element;
@@ -630,7 +630,7 @@ private:
 
             T element;
             if (stringFunc(token, element) == false) {
-                LOG_ERROR("Invalid element " << i << " : element " << token << " in " << state);
+                LOG_ERROR(<< "Invalid element " << i << " : element " << token << " in " << state);
                 return false;
             }
             *inserter = element;
@@ -819,7 +819,7 @@ public:
         bool ret = true;
         if (traverser.name() == tag) {
             if (!traverser.hasSubLevel()) {
-                LOG_ERROR("SubLevel mismatch in restore, at " << traverser.name());
+                LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
                 return false;
             }
             ret = traverser.traverseSubLevel(boost::bind(&newLevel<A, B>, boost::ref(t), _1));
@@ -831,23 +831,23 @@ private:
     template<typename A, typename B>
     static bool newLevel(std::pair<A, B>& t, CStateRestoreTraverser& traverser) {
         if (traverser.name() != FIRST_TAG) {
-            LOG_ERROR("Tag mismatch at " << traverser.name() << ", expected " << FIRST_TAG);
+            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected " << FIRST_TAG);
             return false;
         }
         if (!restore(FIRST_TAG, t.first, traverser)) {
-            LOG_ERROR("Restore error at " << traverser.name() << ": " << traverser.value());
+            LOG_ERROR(<< "Restore error at " << traverser.name() << ": " << traverser.value());
             return false;
         }
         if (!traverser.next()) {
-            LOG_ERROR("Restore error at " << traverser.name() << ": " << traverser.value());
+            LOG_ERROR(<< "Restore error at " << traverser.name() << ": " << traverser.value());
             return false;
         }
         if (traverser.name() != SECOND_TAG) {
-            LOG_ERROR("Tag mismatch at " << traverser.name() << ", expected " << SECOND_TAG);
+            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected " << SECOND_TAG);
             return false;
         }
         if (!restore(SECOND_TAG, t.second, traverser)) {
-            LOG_ERROR("Restore error at " << traverser.name() << ": " << traverser.value());
+            LOG_ERROR(<< "Restore error at " << traverser.name() << ": " << traverser.value());
             return false;
         }
         return true;
@@ -881,14 +881,14 @@ private:
                 if (traverser.name() == SIZE_TAG) {
                     std::size_t size = 0;
                     if (!core::CStringUtils::stringToType(traverser.value(), size)) {
-                        LOG_WARN("Failed to determine size: " << traverser.value());
+                        LOG_WARN(<< "Failed to determine size: " << traverser.value());
                     } else {
                         reserve(container, size);
                     }
                 } else {
                     TValueType value;
                     if (!restore(FIRST_TAG, value, traverser)) {
-                        LOG_ERROR("Restoration error at " << traverser.name());
+                        LOG_ERROR(<< "Restoration error at " << traverser.name());
                         return false;
                     }
                     container.insert(container.end(), value);
@@ -905,7 +905,7 @@ private:
                 TValueType value;
                 if (traverser.name() == FIRST_TAG) {
                     if (!restore(FIRST_TAG, value, traverser)) {
-                        LOG_ERROR("Restoration error at " << traverser.name());
+                        LOG_ERROR(<< "Restoration error at " << traverser.name());
                         return false;
                     }
                     *(i++) = value;
@@ -930,7 +930,7 @@ private:
         bool ret = true;
         if (traverser.name() == tag) {
             if (!traverser.hasSubLevel()) {
-                LOG_ERROR("SubLevel mismatch in restore, at " << traverser.name());
+                LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
                 return false;
             }
             ret = traverser.traverseSubLevel(boost::bind<bool>(SSubLevel(), boost::ref(container), _1));
@@ -948,7 +948,7 @@ public:
         bool ret = true;
         if (traverser.name() == tag) {
             if (!traverser.hasSubLevel()) {
-                LOG_ERROR("SubLevel mismatch in restore, at " << traverser.name());
+                LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
                 return false;
             }
             ret = traverser.traverseSubLevel(boost::bind(&subLevel<T>, boost::ref(t), _1));

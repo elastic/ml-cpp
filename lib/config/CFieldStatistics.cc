@@ -60,7 +60,7 @@ void CFieldStatistics::maybeStartCapturingTypeStatistics() {
 
             config_t::EDataType type = m_Semantics.type();
 
-            LOG_DEBUG("Classified '" << m_FieldName << "' as " << config_t::print(type));
+            LOG_DEBUG(<< "Classified '" << m_FieldName << "' as " << config_t::print(type));
             if (config_t::isCategorical(type)) {
                 m_SummaryStatistics = CCategoricalDataSummaryStatistics(*summary, this->params().numberOfMostFrequentFieldsCounts());
                 this->replayBuffer();

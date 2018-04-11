@@ -289,7 +289,7 @@ bool CMultinomialConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser&
             // Categories have been split across multiple fields b0, b1, etc
             if (core::CPersistUtils::fromString(
                     traverser.value(), m_Categories, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true) == false) {
-                LOG_ERROR("Invalid categories in split " << traverser.value());
+                LOG_ERROR(<< "Invalid categories in split " << traverser.value());
                 return false;
             }
             continue;
@@ -299,7 +299,7 @@ bool CMultinomialConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser&
             if (core::CPersistUtils::fromString(
                     traverser.value(), m_Concentrations, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true) ==
                 false) {
-                LOG_ERROR("Invalid concentrations in split " << traverser.value());
+                LOG_ERROR(<< "Invalid concentrations in split " << traverser.value());
                 return false;
             }
             continue;
@@ -360,8 +360,8 @@ void CMultinomialConjugate::addSamples(const TWeightStyleVec& weightStyles, cons
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
-                                          << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                  << core::CContainerPrinter::print(weights) << "'");
         return;
     }
 
@@ -394,12 +394,12 @@ void CMultinomialConjugate::addSamples(const TWeightStyleVec& weightStyles, cons
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         double x = samples[i];
         if (CMathsFuncs::isNan(x)) {
-            LOG_ERROR("Discarding " << x);
+            LOG_ERROR(<< "Discarding " << x);
             continue;
         }
         double n = maths_t::countForUpdate(weightStyles, weights[i]);
         if (!CMathsFuncs::isFinite(n)) {
-            LOG_ERROR("Bad count weight " << n);
+            LOG_ERROR(<< "Bad count weight " << n);
             continue;
         }
 
@@ -422,14 +422,15 @@ void CMultinomialConjugate::addSamples(const TWeightStyleVec& weightStyles, cons
         m_Concentrations[category] += n;
     }
 
-    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples) << ", m_NumberAvailableCategories = " << m_NumberAvailableCategories
-                           << ", m_Categories = " << core::CContainerPrinter::print(m_Categories) << ", m_Concentrations = "
-                           << core::CContainerPrinter::print(m_Concentrations) << ", m_TotalConcentration = " << m_TotalConcentration);
+    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples) << ", m_NumberAvailableCategories = "
+              << m_NumberAvailableCategories << ", m_Categories = " << core::CContainerPrinter::print(m_Categories)
+              << ", m_Concentrations = " << core::CContainerPrinter::print(m_Concentrations)
+              << ", m_TotalConcentration = " << m_TotalConcentration);
 }
 
 void CMultinomialConjugate::propagateForwardsByTime(double time) {
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
-        LOG_ERROR("Can't propagate model backwards in time");
+        LOG_ERROR(<< "Can't propagate model backwards in time");
         return;
     }
 
@@ -463,8 +464,8 @@ void CMultinomialConjugate::propagateForwardsByTime(double time) {
 
     this->numberSamples(this->numberSamples() * factor);
 
-    LOG_TRACE("factor = " << factor << ", m_Concentrations = " << core::CContainerPrinter::print(m_Concentrations)
-                          << ", m_TotalConcentration = " << m_TotalConcentration << ", numberSamples = " << this->numberSamples());
+    LOG_TRACE(<< "factor = " << factor << ", m_Concentrations = " << core::CContainerPrinter::print(m_Concentrations)
+              << ", m_TotalConcentration = " << m_TotalConcentration << ", numberSamples = " << this->numberSamples());
 }
 
 CMultinomialConjugate::TDoubleDoublePr CMultinomialConjugate::marginalLikelihoodSupport() const {
@@ -567,9 +568,9 @@ CMultinomialConjugate::TDoubleDoublePr CMultinomialConjugate::marginalLikelihood
                                 static_cast<ptrdiff_t>(quantiles.size()) - 1);
         x2 = m_Categories[i2];
     }
-    LOG_TRACE("x1 = " << x1 << ", x2 = " << x2)
-    LOG_TRACE("quantiles = " << core::CContainerPrinter::print(quantiles));
-    LOG_TRACE("            " << core::CContainerPrinter::print(m_Categories));
+    LOG_TRACE(<< "x1 = " << x1 << ", x2 = " << x2)
+    LOG_TRACE(<< "quantiles = " << core::CContainerPrinter::print(quantiles));
+    LOG_TRACE(<< "            " << core::CContainerPrinter::print(m_Categories));
 
     return std::make_pair(x1, x2);
 }
@@ -581,13 +582,13 @@ maths_t::EFloatingPointErrorStatus CMultinomialConjugate::jointLogMarginalLikeli
     result = 0.0;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute likelihood for empty sample set");
+        LOG_ERROR(<< "Can't compute likelihood for empty sample set");
         return maths_t::E_FpFailed;
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
-                                          << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                  << core::CContainerPrinter::print(weights) << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -635,7 +636,7 @@ maths_t::EFloatingPointErrorStatus CMultinomialConjugate::jointLogMarginalLikeli
     }
 
     try {
-        LOG_TRACE("# samples = " << numberSamples << ", total concentration = " << m_TotalConcentration);
+        LOG_TRACE(<< "# samples = " << numberSamples << ", total concentration = " << m_TotalConcentration);
 
         result = boost::math::lgamma(numberSamples + 1.0) + boost::math::lgamma(m_TotalConcentration) -
                  boost::math::lgamma(m_TotalConcentration + numberSamples);
@@ -643,29 +644,29 @@ maths_t::EFloatingPointErrorStatus CMultinomialConjugate::jointLogMarginalLikeli
         for (TDoubleDoubleMapCItr countItr = categoryCounts.begin(); countItr != categoryCounts.end(); ++countItr) {
             double category = countItr->first;
             double count = countItr->second;
-            LOG_TRACE("category = " << category << ", count = " << count);
+            LOG_TRACE(<< "category = " << category << ", count = " << count);
 
             result -= boost::math::lgamma(countItr->second + 1.0);
 
             std::size_t index = std::lower_bound(m_Categories.begin(), m_Categories.end(), category) - m_Categories.begin();
             if (index < m_Categories.size() && m_Categories[index] == category) {
-                LOG_TRACE("concentration = " << m_Concentrations[index]);
+                LOG_TRACE(<< "concentration = " << m_Concentrations[index]);
                 result += boost::math::lgamma(m_Concentrations[index] + count) - boost::math::lgamma(m_Concentrations[index]);
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR("Unable to compute joint log likelihood: " << e.what() << ", samples = " << core::CContainerPrinter::print(samples)
-                                                             << ", categories = " << core::CContainerPrinter::print(m_Categories)
-                                                             << ", concentrations = " << core::CContainerPrinter::print(m_Concentrations));
+        LOG_ERROR(<< "Unable to compute joint log likelihood: " << e.what() << ", samples = " << core::CContainerPrinter::print(samples)
+                  << ", categories = " << core::CContainerPrinter::print(m_Categories)
+                  << ", concentrations = " << core::CContainerPrinter::print(m_Concentrations));
         return maths_t::E_FpFailed;
     }
 
-    LOG_TRACE("result = " << result);
+    LOG_TRACE(<< "result = " << result);
 
     maths_t::EFloatingPointErrorStatus status = CMathsFuncs::fpStatus(result);
     if (status & maths_t::E_FpFailed) {
-        LOG_ERROR("samples = " << core::CContainerPrinter::print(samples));
-        LOG_ERROR("weights = " << core::CContainerPrinter::print(weights));
+        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
     }
     return status;
 }
@@ -690,7 +691,7 @@ void CMultinomialConjugate::sampleMarginalLikelihood(std::size_t numberSamples, 
     // We handle this by rounding the number of samples to the
     // nearest integer to n * Sum_i{ p(i) }.
 
-    LOG_TRACE("Number samples = " << numberSamples);
+    LOG_TRACE(<< "Number samples = " << numberSamples);
 
     TDoubleVec probabilities;
     probabilities.reserve(m_Categories.size());
@@ -703,7 +704,7 @@ void CMultinomialConjugate::sampleMarginalLikelihood(std::size_t numberSamples, 
     CSampling::weightedSample(numberSamples, probabilities, sampling);
 
     if (sampling.size() != m_Categories.size()) {
-        LOG_ERROR("Failed to sample marginal likelihood");
+        LOG_ERROR(<< "Failed to sample marginal likelihood");
         return;
     }
 
@@ -711,7 +712,7 @@ void CMultinomialConjugate::sampleMarginalLikelihood(std::size_t numberSamples, 
     for (std::size_t i = 0u; i < m_Categories.size(); ++i) {
         std::fill_n(std::back_inserter(samples), sampling[i], m_Categories[i]);
     }
-    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
+    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 }
 
 bool CMultinomialConjugate::minusLogJointCdf(const TWeightStyleVec& weightStyles,
@@ -722,7 +723,7 @@ bool CMultinomialConjugate::minusLogJointCdf(const TWeightStyleVec& weightStyles
     lowerBound = upperBound = 0.0;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute distribution for empty sample set");
+        LOG_ERROR(<< "Can't compute distribution for empty sample set");
         return false;
     }
 
@@ -812,7 +813,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
     tail = maths_t::E_UndeterminedTail;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute distribution for empty sample set");
+        LOG_ERROR(<< "Can't compute distribution for empty sample set");
         return false;
     }
 
@@ -853,8 +854,8 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         }
 
         if (!jointLowerBound.calculate(lowerBound) || !jointUpperBound.calculate(upperBound)) {
-            LOG_ERROR("Unable to compute probability for " << core::CContainerPrinter::print(samples) << ": " << jointLowerBound << ", "
-                                                           << jointUpperBound);
+            LOG_ERROR(<< "Unable to compute probability for " << core::CContainerPrinter::print(samples) << ": " << jointLowerBound << ", "
+                      << jointUpperBound);
             return false;
         }
         tail = maths_t::E_LeftTail;
@@ -943,7 +944,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
             }
         }
         std::sort(pCategories.begin(), pCategories.end());
-        LOG_TRACE("p = " << core::CContainerPrinter::print(pCategories));
+        LOG_TRACE(<< "p = " << core::CContainerPrinter::print(pCategories));
 
         double pl = 0.0;
         {
@@ -975,7 +976,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         }
 
         std::size_t nSamples = detail::numberPriorSamples(m_TotalConcentration);
-        LOG_TRACE("n = " << nSamples);
+        LOG_TRACE(<< "n = " << nSamples);
         if (nSamples > 1) {
             // Extract the indices of the categories we want.
             TSizeVec categoryIndices;
@@ -1002,8 +1003,8 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                     double a = m_Concentrations[j];
                     double b = m_TotalConcentration - m_Concentrations[j];
                     detail::generateBetaSamples(a, b, nSamples, marginalSamples);
-                    LOG_TRACE("E[p] = " << pCategories[i].get<0>() << ", mean = " << CBasicStatistics::mean(marginalSamples)
-                                        << ", samples = " << marginalSamples);
+                    LOG_TRACE(<< "E[p] = " << pCategories[i].get<0>() << ", mean = " << CBasicStatistics::mean(marginalSamples)
+                              << ", samples = " << marginalSamples);
 
                     TMeanAccumulator pAcc;
                     for (std::size_t k = 0u; k < marginalSamples.size(); ++k) {
@@ -1017,8 +1018,8 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                         double pr_ = pCategories[r].get<1>();
                         double alpha = std::min((fr - fl == 0.0) ? 0.0 : (x.get<0>() - fl) / (fr - fl), 1.0);
                         double px = (1.0 - alpha) * pl_ + alpha * pr_;
-                        LOG_TRACE("E[p(l)] = " << fl << ", P(l) = " << pl_ << ", E[p(r)] = " << fr << ", P(r) = " << pr_
-                                               << ", alpha = " << alpha << ", p = " << px);
+                        LOG_TRACE(<< "E[p(l)] = " << fl << ", P(l) = " << pl_ << ", E[p(r)] = " << fr << ", P(r) = " << pr_
+                                  << ", alpha = " << alpha << ", p = " << px);
 
                         pAcc.add(px);
                     }
@@ -1027,8 +1028,8 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
             }
         }
 
-        LOG_TRACE("pCategories = " << core::CContainerPrinter::print(pCategories));
-        LOG_TRACE("P(U) = " << pU << ", P(l) = " << pl);
+        LOG_TRACE(<< "pCategories = " << core::CContainerPrinter::print(pCategories));
+        LOG_TRACE(<< "P(U) = " << pU << ", P(l) = " << pl);
 
         // We can use radix sort to reorder the probabilities in O(n).
         // To understand the following loop note that on each iteration
@@ -1042,7 +1043,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
             }
         }
 
-        LOG_TRACE("pCategories = " << core::CContainerPrinter::print(pCategories));
+        LOG_TRACE(<< "pCategories = " << core::CContainerPrinter::print(pCategories));
 
         if (samples.size() == 1) {
             // No special aggregation is required if there is a single sample.
@@ -1069,7 +1070,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
             categoryCounts[x] += n;
         }
 
-        LOG_TRACE("categoryCounts = " << core::CContainerPrinter::print(categoryCounts));
+        LOG_TRACE(<< "categoryCounts = " << core::CContainerPrinter::print(categoryCounts));
 
         CJointProbabilityOfLessLikelySamples jointLowerBound;
         CJointProbabilityOfLessLikelySamples jointUpperBound;
@@ -1077,7 +1078,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         for (TDoubleDoubleMapCItr countItr = categoryCounts.begin(); countItr != categoryCounts.end(); ++countItr) {
             double category = countItr->first;
             double count = countItr->second;
-            LOG_TRACE("category = " << category << ", count = " << count);
+            LOG_TRACE(<< "category = " << category << ", count = " << count);
 
             std::size_t index = std::lower_bound(m_Categories.begin(), m_Categories.end(), category) - m_Categories.begin();
 
@@ -1092,12 +1093,12 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         }
 
         if (!jointLowerBound.calculate(lowerBound) || !jointUpperBound.calculate(upperBound)) {
-            LOG_ERROR("Unable to compute probability for " << core::CContainerPrinter::print(samples) << ": " << jointLowerBound << ", "
-                                                           << jointUpperBound);
+            LOG_ERROR(<< "Unable to compute probability for " << core::CContainerPrinter::print(samples) << ": " << jointLowerBound << ", "
+                      << jointUpperBound);
             return false;
         }
 
-        LOG_TRACE("probability = [" << lowerBound << ", " << upperBound << "]");
+        LOG_TRACE(<< "probability = [" << lowerBound << ", " << upperBound << "]");
     } break;
 
     case maths_t::E_OneSidedAbove: {
@@ -1118,8 +1119,8 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         }
 
         if (!jointLowerBound.calculate(lowerBound) || !jointUpperBound.calculate(upperBound)) {
-            LOG_ERROR("Unable to compute probability for " << core::CContainerPrinter::print(samples) << ": " << jointLowerBound << ", "
-                                                           << jointUpperBound);
+            LOG_ERROR(<< "Unable to compute probability for " << core::CContainerPrinter::print(samples) << ": " << jointLowerBound << ", "
+                      << jointUpperBound);
             return false;
         }
         tail = maths_t::E_RightTail;
@@ -1242,8 +1243,8 @@ void CMultinomialConjugate::removeCategories(TDoubleVec categoriesToRemove) {
     m_Categories.erase(m_Categories.begin() + end, m_Categories.end());
     m_Concentrations.erase(m_Concentrations.begin() + end, m_Concentrations.end());
     m_TotalConcentration = std::accumulate(m_Concentrations.begin(), m_Concentrations.end(), 0.0);
-    LOG_TRACE("categories     = " << core::CContainerPrinter::print(m_Categories));
-    LOG_TRACE("concentrations = " << core::CContainerPrinter::print(m_Concentrations));
+    LOG_TRACE(<< "categories     = " << core::CContainerPrinter::print(m_Categories));
+    LOG_TRACE(<< "concentrations = " << core::CContainerPrinter::print(m_Concentrations));
 
     this->numberSamples(m_TotalConcentration);
 }
@@ -1333,7 +1334,7 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
             }
         }
         std::sort(pCategories.begin(), pCategories.end());
-        LOG_TRACE("pCategories = " << core::CContainerPrinter::print(pCategories));
+        LOG_TRACE(<< "pCategories = " << core::CContainerPrinter::print(pCategories));
 
         // Get the index of largest probability less than or equal to P(U).
         double pl = 0.0;
@@ -1364,8 +1365,8 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
             }
         }
 
-        LOG_TRACE("pCategories = " << core::CContainerPrinter::print(pCategories));
-        LOG_TRACE("P(U) = " << pU << ", P(l) = " << pl);
+        LOG_TRACE(<< "pCategories = " << core::CContainerPrinter::print(pCategories));
+        LOG_TRACE(<< "P(U) = " << pU << ", P(l) = " << pl);
 
         lowerBounds.resize(pCategories.size(), 0.0);
         upperBounds.resize(pCategories.size(), 0.0);
@@ -1373,7 +1374,7 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
         double p = 0.0;
         double pLast = -1.0;
         std::size_t n = detail::numberPriorSamples(m_TotalConcentration);
-        LOG_TRACE("n = " << n);
+        LOG_TRACE(<< "n = " << n);
         for (std::size_t i = 0u; i < pCategories.size(); ++i) {
             std::size_t j = pCategories[i].get<2>();
 
@@ -1389,8 +1390,8 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
                 double a = m_Concentrations[j];
                 double b = m_TotalConcentration - m_Concentrations[j];
                 detail::generateBetaSamples(a, b, n, samples);
-                LOG_TRACE("E[p] = " << pCategories[i].get<0>() << ", mean = " << CBasicStatistics::mean(samples)
-                                    << ", samples = " << core::CContainerPrinter::print(samples));
+                LOG_TRACE(<< "E[p] = " << pCategories[i].get<0>() << ", mean = " << CBasicStatistics::mean(samples)
+                          << ", samples = " << core::CContainerPrinter::print(samples));
 
                 TMeanAccumulator pAcc;
                 for (std::size_t k = 0u; k < samples.size(); ++k) {
@@ -1404,8 +1405,8 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
                     double pr_ = pCategories[r].get<1>();
                     double alpha = std::min((fr - fl == 0.0) ? 0.0 : (x.get<0>() - fl) / (fr - fl), 1.0);
                     double px = (1.0 - alpha) * pl_ + alpha * pr_;
-                    LOG_TRACE("E[p(l)] = " << fl << ", P(l) = " << pl_ << ", E[p(r)] = " << fr << ", P(r) = " << pr_
-                                           << ", alpha = " << alpha << ", p = " << px);
+                    LOG_TRACE(<< "E[p(l)] = " << fl << ", P(l) = " << pl_ << ", E[p(r)] = " << fr << ", P(r) = " << pr_
+                              << ", alpha = " << alpha << ", p = " << px);
 
                     pAcc.add(px);
                 }
@@ -1413,7 +1414,7 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
                 pLast = pCategories[i].get<0>();
             }
 
-            LOG_TRACE("p = " << p);
+            LOG_TRACE(<< "p = " << p);
             lowerBounds[j] = p + (p >= pU ? pU : 0.0);
             upperBounds[j] = p + pU;
         }
@@ -1472,10 +1473,10 @@ CMultinomialConjugate::TDoubleDoublePrVec CMultinomialConjugate::confidenceInter
 }
 
 bool CMultinomialConjugate::equalTolerance(const CMultinomialConjugate& rhs, const TEqualWithTolerance& equal) const {
-    LOG_DEBUG(m_NumberAvailableCategories << " " << rhs.m_NumberAvailableCategories);
-    LOG_DEBUG(core::CContainerPrinter::print(m_Categories) << " " << core::CContainerPrinter::print(rhs.m_Categories));
-    LOG_DEBUG(core::CContainerPrinter::print(m_Concentrations) << " " << core::CContainerPrinter::print(rhs.m_Concentrations));
-    LOG_DEBUG(m_TotalConcentration << " " << rhs.m_TotalConcentration);
+    LOG_DEBUG(<< m_NumberAvailableCategories << " " << rhs.m_NumberAvailableCategories);
+    LOG_DEBUG(<< core::CContainerPrinter::print(m_Categories) << " " << core::CContainerPrinter::print(rhs.m_Categories));
+    LOG_DEBUG(<< core::CContainerPrinter::print(m_Concentrations) << " " << core::CContainerPrinter::print(rhs.m_Concentrations));
+    LOG_DEBUG(<< m_TotalConcentration << " " << rhs.m_TotalConcentration);
 
     return m_NumberAvailableCategories == rhs.m_NumberAvailableCategories && m_Categories == rhs.m_Categories &&
            std::equal(m_Concentrations.begin(), m_Concentrations.end(), rhs.m_Concentrations.begin(), equal) &&

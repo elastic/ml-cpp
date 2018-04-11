@@ -85,25 +85,25 @@ int main(int argc, char** argv) {
     ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
-        LOG_FATAL("Could not reconfigure logging");
+        LOG_FATAL(<< "Could not reconfigure logging");
         return EXIT_FAILURE;
     }
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
-    LOG_DEBUG(ml::ver::CBuildInfo::fullInfo());
+    LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
     ml::core::CProcessPriority::reducePriority();
 
     if (ioMgr.initIo() == false) {
-        LOG_FATAL("Failed to initialise IO");
+        LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
     }
 
     ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSpan);
     if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false) {
-        LOG_FATAL("Ml model config file '" << modelConfigFile << "' could not be loaded");
+        LOG_FATAL(<< "Ml model config file '" << modelConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
     modelConfig.perPartitionNormalization(perPartitionNormalization);
@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
     // Restore state
     if (!quantilesStateFile.empty()) {
         if (normalizer.initNormalizer(quantilesStateFile) == false) {
-            LOG_FATAL("Failed to initialize normalizer");
+            LOG_FATAL(<< "Failed to initialize normalizer");
             return EXIT_FAILURE;
         }
         if (deleteStateFiles) {
@@ -142,14 +142,14 @@ int main(int argc, char** argv) {
 
     // Now handle the numbers to be normalised from stdin
     if (inputParser->readStream(boost::bind(&ml::api::CResultNormalizer::handleRecord, &normalizer, _1)) == false) {
-        LOG_FATAL("Failed to handle input to be normalized");
+        LOG_FATAL(<< "Failed to handle input to be normalized");
         return EXIT_FAILURE;
     }
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
-    LOG_DEBUG("Ml normalizer exiting");
+    LOG_DEBUG(<< "Ml normalizer exiting");
 
     return EXIT_SUCCESS;
 }

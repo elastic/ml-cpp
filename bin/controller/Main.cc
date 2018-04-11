@@ -99,12 +99,12 @@ int main(int argc, char** argv) {
     if (cancellerThread.start() == false) {
         // This log message will probably never been seen as it will go to the
         // real stderr of this process rather than the log pipe...
-        LOG_FATAL("Could not start blocking call canceller thread");
+        LOG_FATAL(<< "Could not start blocking call canceller thread");
         return EXIT_FAILURE;
     }
 
     if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(logPipe) == false) {
-        LOG_FATAL("Could not reconfigure logging");
+        LOG_FATAL(<< "Could not reconfigure logging");
         cancellerThread.stop();
         return EXIT_FAILURE;
     }
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
-    LOG_INFO(ml::ver::CBuildInfo::fullInfo());
+    LOG_INFO(<< ml::ver::CBuildInfo::fullInfo());
 
     // Unlike other programs we DON'T reduce the process priority here, because
     // the controller is critical to the overall system.  Also its resource
@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
 
     ml::core::CNamedPipeFactory::TIStreamP commandStream = ml::core::CNamedPipeFactory::openPipeStreamRead(commandPipe);
     if (commandStream == nullptr) {
-        LOG_FATAL("Could not open command pipe");
+        LOG_FATAL(<< "Could not open command pipe");
         cancellerThread.stop();
         return EXIT_FAILURE;
     }
@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
     // permitted programs
     const std::string& progDir = ml::core::CProgName::progDir();
     if (ml::core::COsFileFuncs::chdir(progDir.c_str()) == -1) {
-        LOG_FATAL("Could not change directory to '" << progDir << "': " << ::strerror(errno));
+        LOG_FATAL(<< "Could not change directory to '" << progDir << "': " << ::strerror(errno));
         cancellerThread.stop();
         return EXIT_FAILURE;
     }
@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
-    LOG_INFO("Ml controller exiting");
+    LOG_INFO(<< "Ml controller exiting");
 
     return EXIT_SUCCESS;
 }

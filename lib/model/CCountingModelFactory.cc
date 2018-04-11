@@ -47,7 +47,7 @@ CCountingModelFactory* CCountingModelFactory::clone() const {
 CAnomalyDetectorModel* CCountingModelFactory::makeModel(const SModelInitializationData& initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
-        LOG_ERROR("NULL data gatherer");
+        LOG_ERROR(<< "NULL data gatherer");
         return nullptr;
     }
     return new CCountingModel(this->modelParams(), dataGatherer);
@@ -57,7 +57,7 @@ CAnomalyDetectorModel* CCountingModelFactory::makeModel(const SModelInitializati
                                                         core::CStateRestoreTraverser& traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
-        LOG_ERROR("NULL data gatherer");
+        LOG_ERROR(<< "NULL data gatherer");
         return nullptr;
     }
     return new CCountingModel(this->modelParams(), dataGatherer, traverser);

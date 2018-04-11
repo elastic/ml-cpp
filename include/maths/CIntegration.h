@@ -289,13 +289,13 @@ public:
                                       double tolerance,
                                       double& result) {
         if (intervals.size() != fIntervals.size()) {
-            LOG_ERROR("Inconsistent intervals and function integrals: " << core::CContainerPrinter::print(intervals) << " "
-                                                                        << core::CContainerPrinter::print(fIntervals));
+            LOG_ERROR(<< "Inconsistent intervals and function integrals: " << core::CContainerPrinter::print(intervals) << " "
+                      << core::CContainerPrinter::print(fIntervals));
             return false;
         }
 
         result += std::accumulate(fIntervals.begin(), fIntervals.end(), 0.0);
-        LOG_TRACE("initial = " << result);
+        LOG_TRACE(<< "initial = " << result);
 
         TDoubleVec corrections;
         corrections.reserve(fIntervals.size());
@@ -354,12 +354,12 @@ public:
                             }
                         }
                     } else {
-                        LOG_ERROR("Couldn't integrate f over [" << aj << "," << aj + dj << "]");
+                        LOG_ERROR(<< "Couldn't integrate f over [" << aj << "," << aj + dj << "]");
                         return false;
                     }
                 }
 
-                LOG_TRACE("fjNew = " << fjNew << ", fjOld = " << fjOld);
+                LOG_TRACE(<< "fjNew = " << fjNew << ", fjOld = " << fjOld);
                 double correction = fjNew - fjOld;
                 if (i + 1 < refinements) {
                     corrections[j] = std::fabs(correction);
@@ -468,7 +468,7 @@ public:
             TVectorDoubleMap ordered;
 
             for (unsigned int l = ORDER > DIMENSION ? ORDER - DIMENSION : 0; l < ORDER; ++l) {
-                LOG_TRACE("order = " << l);
+                LOG_TRACE(<< "order = " << l);
                 std::size_t d = 0u;
                 TUIntVec indices(DIMENSION, 1);
                 indices[0] = l + 1;
@@ -476,16 +476,16 @@ public:
 
                 double sign = (ORDER - l - 1) % 2 == 1 ? -1.0 : 1.0;
                 double scale = sign * CIntegerTools::binomial(DIMENSION - 1, DIMENSION + l - ORDER);
-                LOG_TRACE("scale = " << scale);
+                LOG_TRACE(<< "scale = " << scale);
 
                 do {
-                    LOG_TRACE("indices = " << core::CContainerPrinter::print(indices));
+                    LOG_TRACE(<< "indices = " << core::CContainerPrinter::print(indices));
 
                     unsigned int n = 1u;
                     for (std::size_t i = 0u; i < indices.size(); ++i) {
                         n *= indices[i];
                     }
-                    LOG_TRACE("Number of points = " << n);
+                    LOG_TRACE(<< "Number of points = " << n);
 
                     TDoubleVec weights(n, 1.0);
                     TVectorVec points(n, TVector(0.0));
@@ -499,8 +499,8 @@ public:
                             points[i](j) = a[k];
                         }
                     }
-                    LOG_TRACE("weights = " << core::CContainerPrinter::print(weights));
-                    LOG_TRACE("points =  " << core::CContainerPrinter::print(points));
+                    LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
+                    LOG_TRACE(<< "points =  " << core::CContainerPrinter::print(points));
                     for (std::size_t i = 0u; i < n; ++i) {
                         ordered[points[i]] += scale * weights[i];
                     }
@@ -552,11 +552,11 @@ public:
         result = T();
 
         if (a.size() != static_cast<std::size_t>(DIMENSION)) {
-            LOG_ERROR("Bad lower limits: " << core::CContainerPrinter::print(a));
+            LOG_ERROR(<< "Bad lower limits: " << core::CContainerPrinter::print(a));
             return false;
         }
         if (b.size() != static_cast<std::size_t>(DIMENSION)) {
-            LOG_ERROR("Bad upper limits: " << core::CContainerPrinter::print(b));
+            LOG_ERROR(<< "Bad upper limits: " << core::CContainerPrinter::print(b));
             return false;
         }
 

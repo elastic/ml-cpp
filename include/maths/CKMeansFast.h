@@ -376,7 +376,7 @@ public:
         try {
             m_Points.postorderDepthFirst(SDataPropagator());
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed to set up k-d tree state: " << e.what());
+            LOG_ERROR(<< "Failed to set up k-d tree state: " << e.what());
             return false;
         }
         return true;
@@ -492,14 +492,14 @@ public:
         result.reserve(k);
 
         std::size_t n = points.size();
-        LOG_TRACE("# points = " << n);
+        LOG_TRACE(<< "# points = " << n);
 
         TSizeVec centre;
         CSampling::uniformSample(m_Rng, 0, n, 1, centre);
-        LOG_TRACE("centre = " << centre[0]);
+        LOG_TRACE(<< "centre = " << centre[0]);
 
         result.push_back(points[centre[0]]);
-        LOG_TRACE("centres to date = " << core::CContainerPrinter::print(result));
+        LOG_TRACE(<< "centres to date = " << core::CContainerPrinter::print(result));
 
         TDoubleVec distances;
         TPointVec centres_;
@@ -518,10 +518,10 @@ public:
             }
 
             centre[0] = CSampling::categoricalSample(m_Rng, distances);
-            LOG_TRACE("centre = " << centre[0]);
+            LOG_TRACE(<< "centre = " << centre[0]);
 
             result.push_back(points[centre[0]]);
-            LOG_TRACE("centres to date = " << core::CContainerPrinter::print(result));
+            LOG_TRACE(<< "centres to date = " << core::CContainerPrinter::print(result));
         }
     }
 

@@ -33,9 +33,9 @@
 using namespace ml;
 
 void CProbabilityCalibratorTest::testCalibration() {
-    LOG_DEBUG("+-----------------------------------------------+");
-    LOG_DEBUG("|  CProbabilityCalibratorTest::testCalibration  |");
-    LOG_DEBUG("+-----------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------+");
+    LOG_DEBUG(<< "|  CProbabilityCalibratorTest::testCalibration  |");
+    LOG_DEBUG(<< "+-----------------------------------------------+");
 
     using TDoubleVec = std::vector<double>;
     using CLogNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate>;
@@ -51,7 +51,7 @@ void CProbabilityCalibratorTest::testCalibration() {
     test::CRandomNumbers rng;
 
     {
-        LOG_DEBUG("*** log-normal ***");
+        LOG_DEBUG(<< "*** log-normal ***");
         TDoubleVec samples;
         rng.generateLogNormalSamples(2.0, 0.9, 5000u, samples);
 
@@ -99,15 +99,15 @@ void CProbabilityCalibratorTest::testCalibration() {
                 maxCalibratedError = std::max(maxCalibratedError, calibrated);
             }
 
-            LOG_DEBUG("totalRawError =        " << rawError << ", maxRawError =        " << maxRawError);
-            LOG_DEBUG("totalCalibratedError = " << calibratedError << ", maxCalibratedError = " << maxCalibratedError);
+            LOG_DEBUG(<< "totalRawError =        " << rawError << ", maxRawError =        " << maxRawError);
+            LOG_DEBUG(<< "totalCalibratedError = " << calibratedError << ", maxCalibratedError = " << maxCalibratedError);
             CPPUNIT_ASSERT((rawError - calibratedError) / rawError > improvements[i]);
             CPPUNIT_ASSERT((maxRawError - maxCalibratedError) / maxRawError > maxImprovements[i]);
         }
     }
 
     {
-        LOG_DEBUG("*** multimode ***");
+        LOG_DEBUG(<< "*** multimode ***");
 
         TDoubleVec samples1;
         rng.generateNormalSamples(5.0, 1.0, 4500u, samples1);
@@ -164,8 +164,8 @@ void CProbabilityCalibratorTest::testCalibration() {
                 maxCalibratedError = std::max(maxCalibratedError, calibrated);
             }
 
-            LOG_DEBUG("totalRawError =        " << rawError << ", maxRawError =        " << maxRawError);
-            LOG_DEBUG("totalCalibratedError = " << calibratedError << ", maxCalibratedError = " << maxCalibratedError);
+            LOG_DEBUG(<< "totalRawError =        " << rawError << ", maxRawError =        " << maxRawError);
+            LOG_DEBUG(<< "totalCalibratedError = " << calibratedError << ", maxCalibratedError = " << maxCalibratedError);
             CPPUNIT_ASSERT((rawError - calibratedError) / rawError >= improvements[i]);
             CPPUNIT_ASSERT((maxRawError - maxCalibratedError) / maxRawError >= maxImprovements[i]);
         }

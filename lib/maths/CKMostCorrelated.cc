@@ -213,7 +213,7 @@ void CKMostCorrelated::addVariables(std::size_t n) {
 }
 
 void CKMostCorrelated::removeVariables(const TSizeVec& remove) {
-    LOG_TRACE("removing = " << core::CContainerPrinter::print(remove));
+    LOG_TRACE(<< "removing = " << core::CContainerPrinter::print(remove));
     for (std::size_t i = 0u; i < remove.size(); ++i) {
         if (remove[i] < m_Moments.size()) {
             m_Moments[remove[i]] = TMeanVarAccumulator();
@@ -230,7 +230,7 @@ bool CKMostCorrelated::changed() const {
 
 void CKMostCorrelated::add(std::size_t X, double x) {
     if (X >= m_Moments.size()) {
-        LOG_ERROR("Invalid variable " << X);
+        LOG_ERROR(<< "Invalid variable " << X);
         return;
     }
 
@@ -268,7 +268,7 @@ void CKMostCorrelated::capture() {
     m_CurrentProjected.clear();
 
     if (m_Projections.empty()) {
-        LOG_TRACE("# projections = " << m_Projected.size());
+        LOG_TRACE(<< "# projections = " << m_Projected.size());
 
         // For existing indices in the "most correlated" collection
         // compute the updated statistics.
@@ -287,7 +287,7 @@ void CKMostCorrelated::capture() {
                 ++i;
             }
         }
-        LOG_TRACE("# projections = " << m_Projected.size());
+        LOG_TRACE(<< "# projections = " << m_Projected.size());
 
         // Find the "most correlated" collection for the current
         // projections.
@@ -298,7 +298,7 @@ void CKMostCorrelated::capture() {
         std::size_t n = add.size();
         std::size_t desired = 2 * m_K;
         std::size_t added = N < desired ? std::min(desired - N, n) : 0;
-        LOG_TRACE("N = " << N << ", n = " << n << ", desired = " << desired << ", added = " << added);
+        LOG_TRACE(<< "N = " << N << ", n = " << n << ", desired = " << desired << ", added = " << added);
 
         if (added > 0) {
             m_MostCorrelated.insert(m_MostCorrelated.end(), add.end() - added, add.end());
@@ -308,7 +308,7 @@ void CKMostCorrelated::capture() {
             // do so at random with probability proportional to 1 - absolute
             // correlation.
 
-            LOG_TRACE("add = " << core::CContainerPrinter::print(add));
+            LOG_TRACE(<< "add = " << core::CContainerPrinter::print(add));
 
             std::size_t vunerable = std::max(m_K, N - 3 * n);
 
@@ -324,7 +324,7 @@ void CKMostCorrelated::capture() {
                 for (std::size_t i = 0u; i < p.size(); ++i) {
                     p[i] /= Z;
                 }
-                LOG_TRACE("p = " << core::CContainerPrinter::print(p));
+                LOG_TRACE(<< "p = " << core::CContainerPrinter::print(p));
 
                 TSizeVec replace;
                 CSampling::categoricalSampleWithoutReplacement(m_Rng, p, n - added, replace);
@@ -378,7 +378,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
     std::size_t N = m_MostCorrelated.size();
     std::size_t V = m_Projected.size();
     std::size_t desired = 2 * m_K;
-    LOG_TRACE("N = " << N << ", V = " << V << ", desired = " << desired);
+    LOG_TRACE(<< "N = " << N << ", V = " << V << ", desired = " << desired);
     if (V == 1) {
         return;
     }
@@ -392,12 +392,12 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
 
     std::size_t replace =
         std::max(static_cast<std::size_t>(REPLACE_FRACTION * static_cast<double>(desired) + 0.5), std::max(desired - N, std::size_t(1)));
-    LOG_TRACE("replace = " << replace);
+    LOG_TRACE(<< "replace = " << replace);
 
     TMaxCorrelationAccumulator mostCorrelated(replace);
 
     if (10 * replace > V * (V - 1)) {
-        LOG_TRACE("Exhaustive search");
+        LOG_TRACE(<< "Exhaustive search");
 
         for (TSizeVectorPackedBitVectorPrUMapCItr x = m_Projected.begin(); x != m_Projected.end(); ++x) {
             std::size_t X = x->first;
@@ -411,7 +411,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
             }
         }
     } else {
-        LOG_TRACE("Nearest neighbour search");
+        LOG_TRACE(<< "Nearest neighbour search");
 
         // 1) Build an r-tree,
         // 2) Lookup up V / replace nearest neighbours of each point
@@ -441,10 +441,10 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
         for (TSizeVectorPackedBitVectorPrUMapCItr i = m_Projected.begin(); i != m_Projected.end(); ++i) {
             points.emplace_back(i->second.first.to<double>().toBoostArray(), i->first);
         }
-        LOG_TRACE("# points = " << points.size());
+        LOG_TRACE(<< "# points = " << points.size());
 
         unsigned int k = static_cast<unsigned int>(replace / V + 1);
-        LOG_TRACE("k = " << k);
+        LOG_TRACE(<< "k = " << k);
 
         // The nearest neighbour search is very slow compared with
         // the search over the smallest correlation box predicate
@@ -495,13 +495,13 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
                     }
                 }
             }
-            LOG_TRACE("# seeds = " << mostCorrelated.count());
-            LOG_TRACE("seed most correlated = " << mostCorrelated);
+            LOG_TRACE(<< "# seeds = " << mostCorrelated.count());
+            LOG_TRACE(<< "seed most correlated = " << mostCorrelated);
 
             for (std::size_t i = 0u; i < points.size(); ++i) {
                 const SCorrelation& biggest = mostCorrelated.biggest();
                 double threshold = biggest.distance(amax);
-                LOG_TRACE("threshold = " << threshold);
+                LOG_TRACE(<< "threshold = " << threshold);
 
                 std::size_t X = points[i].second;
                 const TVectorPackedBitVectorPr& px = m_Projected.at(X);
@@ -524,7 +524,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
                                    bgi::satisfies(CPairNotIn(lookup, X)),
                                std::back_inserter(nearest));
                 }
-                LOG_TRACE("# candidates = " << nearest.size());
+                LOG_TRACE(<< "# candidates = " << nearest.size());
 
                 for (std::size_t j = 0u; j < nearest.size(); ++j) {
                     std::size_t n = mostCorrelated.count();
@@ -545,14 +545,14 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
                 }
             }
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed to compute most correlated " << e.what());
+            LOG_ERROR(<< "Failed to compute most correlated " << e.what());
             return;
         }
     }
 
     mostCorrelated.sort();
     result.assign(mostCorrelated.begin(), mostCorrelated.end());
-    LOG_TRACE("most correlated " << core::CContainerPrinter::print(result));
+    LOG_TRACE(<< "most correlated " << core::CContainerPrinter::print(result));
 }
 
 void CKMostCorrelated::nextProjection() {
@@ -617,17 +617,17 @@ bool CKMostCorrelated::SCorrelation::acceptRestoreTraverser(core::CStateRestoreT
         const std::string& name = traverser.name();
         if (name == CORRELATION_TAG) {
             if (s_Correlation.fromDelimited(traverser.value()) == false) {
-                LOG_ERROR("Invalid correlation in " << traverser.value());
+                LOG_ERROR(<< "Invalid correlation in " << traverser.value());
                 return false;
             }
         } else if (name == X_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), s_X) == false) {
-                LOG_ERROR("Invalid variable in " << traverser.value());
+                LOG_ERROR(<< "Invalid variable in " << traverser.value());
                 return false;
             }
         } else if (name == Y_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), s_Y) == false) {
-                LOG_ERROR("Invalid variable in " << traverser.value());
+                LOG_ERROR(<< "Invalid variable in " << traverser.value());
                 return false;
             }
         }

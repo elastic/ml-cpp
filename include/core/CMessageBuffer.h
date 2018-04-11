@@ -50,7 +50,7 @@ public:
         CScopedLock lock(m_Mutex);
 
         if (m_Thread.start() == false) {
-            LOG_ERROR("Unable to initialise thread");
+            LOG_ERROR(<< "Unable to initialise thread");
             return false;
         }
 

@@ -58,7 +58,7 @@ int64_t CTimeUtils::toEpochMs(core_t::TTime t) {
 
 bool CTimeUtils::strptime(const std::string& format, const std::string& dateTime, core_t::TTime& preTime) {
     if (CTimeUtils::strptimeSilent(format, dateTime, preTime) == false) {
-        LOG_ERROR("Unable to convert " << dateTime << " to " << format);
+        LOG_ERROR(<< "Unable to convert " << dateTime << " to " << format);
         return false;
     }
 
@@ -123,7 +123,7 @@ void CTimeUtils::toStringCommon(core_t::TTime t, const std::string& format, std:
 
     CTimezone& tz = CTimezone::instance();
     if (tz.utcToLocal(t, out) == false) {
-        LOG_ERROR("Cannot convert time " << t << " : " << ::strerror(errno));
+        LOG_ERROR(<< "Cannot convert time " << t << " : " << ::strerror(errno));
         result.clear();
         return;
     }
@@ -133,7 +133,7 @@ void CTimeUtils::toStringCommon(core_t::TTime t, const std::string& format, std:
 
     size_t ret(CStrFTime::strFTime(buf, SIZE, format.c_str(), &out));
     if (ret == 0) {
-        LOG_ERROR("Cannot convert time " << t << " : " << ::strerror(errno));
+        LOG_ERROR(<< "Cannot convert time " << t << " : " << ::strerror(errno));
         result.clear();
         return;
     }

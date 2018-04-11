@@ -391,7 +391,7 @@ void CXmlParserTest::testConvert1() {
     std::string xml;
     ml::core::CXmlParser::convert("test_convert", values, xml);
 
-    LOG_DEBUG(xml);
+    LOG_DEBUG(<< xml);
 
     ml::core::CXmlParser parser;
 
@@ -440,7 +440,7 @@ void CXmlParserTest::testConvert3() {
     std::string xml;
     ml::core::CXmlParser::convert("test_convert", values, xml);
 
-    LOG_DEBUG(xml);
+    LOG_DEBUG(<< xml);
 
     ml::core::CXmlParser parser;
 
@@ -468,7 +468,7 @@ void CXmlParserTest::testConvert4() {
     std::string converted;
     ml::core::CXmlParser::convert(*root, converted);
 
-    LOG_DEBUG("Converted node hierarchy is:\n" << converted);
+    LOG_DEBUG(<< "Converted node hierarchy is:\n" << converted);
 
     CPPUNIT_ASSERT(converted.find("<root>") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("</root>") != std::string::npos);
@@ -620,7 +620,7 @@ bool CXmlParserTest::testAttribute(const ml::core::CXmlNode& node, const std::st
     }
 
     if (actual != expected) {
-        LOG_ERROR(actual << ' ' << expected);
+        LOG_ERROR(<< actual << ' ' << expected);
         return false;
     }
 
@@ -645,7 +645,7 @@ void CXmlParserTest::testChangeChild() {
     CPPUNIT_ASSERT(parser.addNewChildNode("name2", "value2"));
     CPPUNIT_ASSERT(parser.addNewChildNode("name3", "value3"));
 
-    LOG_DEBUG(parser.dumpToString());
+    LOG_DEBUG(<< parser.dumpToString());
 
     std::string value;
 
@@ -659,7 +659,7 @@ void CXmlParserTest::testChangeChild() {
     // Change each of the values in turn, checking state after each change
     CPPUNIT_ASSERT(parser.changeChildNodeValue("name2", "changed2"));
 
-    LOG_DEBUG(parser.dumpToString());
+    LOG_DEBUG(<< parser.dumpToString());
 
     CPPUNIT_ASSERT(parser.evalXPathExpression("/root/name1", value));
     CPPUNIT_ASSERT_EQUAL(std::string("value1"), value);
@@ -670,7 +670,7 @@ void CXmlParserTest::testChangeChild() {
 
     CPPUNIT_ASSERT(parser.changeChildNodeValue("name1", "changed1"));
 
-    LOG_DEBUG(parser.dumpToString());
+    LOG_DEBUG(<< parser.dumpToString());
 
     CPPUNIT_ASSERT(parser.evalXPathExpression("/root/name1", value));
     CPPUNIT_ASSERT_EQUAL(std::string("changed1"), value);
@@ -681,7 +681,7 @@ void CXmlParserTest::testChangeChild() {
 
     CPPUNIT_ASSERT(parser.changeChildNodeValue("name3", "changed3"));
 
-    LOG_DEBUG(parser.dumpToString());
+    LOG_DEBUG(<< parser.dumpToString());
 
     CPPUNIT_ASSERT(parser.evalXPathExpression("/root/name1", value));
     CPPUNIT_ASSERT_EQUAL(std::string("changed1"), value);
@@ -711,7 +711,7 @@ void CXmlParserTest::testHugeDoc() {
     ofs << "</nodes>" << std::endl;
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting huge XPath test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting huge XPath test at " << ml::core::CTimeUtils::toTimeString(start));
 
     ml::core::CXmlParser parser;
     ml::core::CXmlParser::TStrSet valueSet;
@@ -723,11 +723,11 @@ void CXmlParserTest::testHugeDoc() {
     CPPUNIT_ASSERT(parser.evalXPathExpression("/nodes/node", valueSet));
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished huge XPath test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished huge XPath test at " << ml::core::CTimeUtils::toTimeString(end));
 
     CPPUNIT_ASSERT_EQUAL(NUM_NODES, valueSet.size());
 
-    LOG_INFO("Applying an XPath to a node set with " << NUM_NODES << " nodes took " << (end - start) << " seconds");
+    LOG_INFO(<< "Applying an XPath to a node set with " << NUM_NODES << " nodes took " << (end - start) << " seconds");
 
     ::remove(fileName.c_str());
 }
@@ -738,7 +738,7 @@ void CXmlParserTest::testParseSpeed() {
     std::string testString(CXmlParserTest::fileToString("./testfiles/CXmlParser2.xml"));
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting parse speed test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting parse speed test at " << ml::core::CTimeUtils::toTimeString(start));
 
     ml::core::CXmlNodeWithChildrenPool nodePool;
 
@@ -755,9 +755,9 @@ void CXmlParserTest::testParseSpeed() {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished parse speed test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished parse speed test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Parsing " << TEST_SIZE << " documents took " << (end - start) << " seconds");
+    LOG_INFO(<< "Parsing " << TEST_SIZE << " documents took " << (end - start) << " seconds");
 }
 
 void CXmlParserTest::testConvertSpeed() {
@@ -768,7 +768,7 @@ void CXmlParserTest::testConvertSpeed() {
     ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(CRapidXmlParserTest::makeTestNodeHierarchy());
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting convert speed test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting convert speed test at " << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::string converted;
@@ -776,9 +776,9 @@ void CXmlParserTest::testConvertSpeed() {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished convert speed test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished convert speed test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Converting " << TEST_SIZE << " documents took " << (end - start) << " seconds");
+    LOG_INFO(<< "Converting " << TEST_SIZE << " documents took " << (end - start) << " seconds");
 }
 
 void CXmlParserTest::testComplexXPath() {

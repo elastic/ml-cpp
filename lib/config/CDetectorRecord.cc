@@ -139,7 +139,7 @@ void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec& s
     }
     m_FieldValueTable.resize(m_FieldSchema.size() + 1, nullptr);
     m_HashedFieldValueTable.resize(m_FieldSchema.size() + 1, HASHER(NULL_STRING));
-    LOG_TRACE("field schema = " << core::CContainerPrinter::print(m_FieldSchema));
+    LOG_TRACE(<< "field schema = " << core::CContainerPrinter::print(m_FieldSchema));
 
     m_DetectorFieldSchema.resize(size + 1);
     for (std::size_t i = 0u; i < specs.size(); ++i) {
@@ -148,7 +148,7 @@ void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec& s
             const CDetectorSpecification::TOptionalStr& field = ((specs[i]).*FIELDS[j])();
             entry[constants::CFieldIndices::ALL[j]] = field ? uniques[*field] : m_FieldSchema.size();
         }
-        LOG_TRACE("Fields for " << specs[i].description() << " = " << core::CContainerPrinter::print(entry));
+        LOG_TRACE(<< "Fields for " << specs[i].description() << " = " << core::CContainerPrinter::print(entry));
         m_DetectorFieldSchema[specs[i].id()] = entry;
     }
 }

@@ -33,7 +33,7 @@ bool readFromSystemFile(const std::string& fileName, std::string& content) {
     // system files.
     int fd = ::open(fileName.c_str(), O_RDONLY);
     if (fd == -1) {
-        LOG_INFO("Could not open " << fileName << ": " << ::strerror(errno));
+        LOG_INFO(<< "Could not open " << fileName << ": " << ::strerror(errno));
         return false;
     }
 
@@ -41,12 +41,12 @@ bool readFromSystemFile(const std::string& fileName, std::string& content) {
     ::close(fd);
 
     if (bytesRead < 0) {
-        LOG_ERROR("Error reading from " << fileName << ": " << ::strerror(errno));
+        LOG_ERROR(<< "Error reading from " << fileName << ": " << ::strerror(errno));
         return false;
     }
 
     if (bytesRead == 0) {
-        LOG_WARN("Read nothing from " << fileName);
+        LOG_WARN(<< "Read nothing from " << fileName);
         return false;
     }
 
@@ -78,7 +78,7 @@ void CProcessPriorityTest::testReducePriority() {
     }
     if (readFromSystemFile("/proc/self/oom_adj", content) == true) {
         if (readFromOneOrOther) {
-            LOG_DEBUG("oom_score_adj 667 corresponds to oom_adj " << content << " on kernel " << ml::core::CUname::release());
+            LOG_DEBUG(<< "oom_score_adj 667 corresponds to oom_adj " << content << " on kernel " << ml::core::CUname::release());
             int oomAdj = 0;
             CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(content, oomAdj));
             // For the kernel versions that support both, there's variation in

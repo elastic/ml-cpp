@@ -112,7 +112,7 @@ bool CCategoryExamplesCollector::acceptRestoreTraverser(core::CStateRestoreTrave
         const std::string& name = traverser.name();
         if (name == EXAMPLES_BY_CATEGORY_TAG) {
             if (traverser.traverseSubLevel(boost::bind(&CCategoryExamplesCollector::restoreExamples, this, _1)) == false) {
-                LOG_ERROR("Error restoring examples by category");
+                LOG_ERROR(<< "Error restoring examples by category");
                 return false;
             }
         }
@@ -128,7 +128,7 @@ bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser& t
         const std::string& name = traverser.name();
         if (name == CATEGORY_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), category) == false) {
-                LOG_ERROR("Error restoring category: " << traverser.value());
+                LOG_ERROR(<< "Error restoring category: " << traverser.value());
                 return false;
             }
         } else if (name == EXAMPLE_TAG) {
@@ -136,7 +136,7 @@ bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser& t
         }
     } while (traverser.next());
 
-    LOG_TRACE("Restoring examples for category " << category << ": " << core::CContainerPrinter::print(examples));
+    LOG_TRACE(<< "Restoring examples for category " << category << ": " << core::CContainerPrinter::print(examples));
     m_ExamplesByCategory[category].swap(examples);
 
     return true;

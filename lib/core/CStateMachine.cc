@@ -59,16 +59,16 @@ CStateMachine::create(const TStrVec& alphabet, const TStrVec& states, const TSiz
     CStateMachine result;
 
     if (state >= states.size()) {
-        LOG_ERROR("Invalid initial state: " << state);
+        LOG_ERROR(<< "Invalid initial state: " << state);
         return result;
     }
     if (alphabet.empty() || alphabet.size() != transitionFunction.size()) {
-        LOG_ERROR("Bad alphabet: " << core::CContainerPrinter::print(alphabet));
+        LOG_ERROR(<< "Bad alphabet: " << core::CContainerPrinter::print(alphabet));
         return result;
     }
     for (const auto& function : transitionFunction) {
         if (states.size() != function.size()) {
-            LOG_ERROR("Bad transition function row: " << core::CContainerPrinter::print(function));
+            LOG_ERROR(<< "Bad transition function row: " << core::CContainerPrinter::print(function));
             return result;
         }
     }
@@ -116,11 +116,11 @@ bool CStateMachine::apply(std::size_t symbol) {
     const TSizeVecVec& table = ms_Machines[m_Machine].s_TransitionFunction;
 
     if (symbol >= table.size()) {
-        LOG_ERROR("Bad symbol " << symbol << " not in alphabet [" << table.size() << "]");
+        LOG_ERROR(<< "Bad symbol " << symbol << " not in alphabet [" << table.size() << "]");
         return false;
     }
     if (m_State >= table[symbol].size()) {
-        LOG_ERROR("Bad state " << m_State << " not in states [" << table[symbol].size() << "]");
+        LOG_ERROR(<< "Bad state " << m_State << " not in states [" << table[symbol].size() << "]");
         return false;
     }
 
@@ -205,7 +205,7 @@ const CStateMachine::SMachine& CStateMachine::CMachineDeque::operator[](std::siz
         }
         pos -= machines.size();
     }
-    LOG_ABORT("Invalid index '" << pos << "'");
+    LOG_ABORT(<< "Invalid index '" << pos << "'");
 }
 
 std::size_t CStateMachine::CMachineDeque::size() const {

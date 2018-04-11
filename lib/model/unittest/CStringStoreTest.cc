@@ -114,9 +114,9 @@ void CStringStoreTest::testStringStore() {
     strings.emplace_back("Palermo");
     strings.emplace_back("Focaccino");
 
-    LOG_DEBUG("*** CStringStoreTest ***");
+    LOG_DEBUG(<< "*** CStringStoreTest ***");
     {
-        LOG_DEBUG("Testing basic insert");
+        LOG_DEBUG(<< "Testing basic insert");
         core::CStoredStringPtr pG = CStringStore::names().get("Gragnano");
         CPPUNIT_ASSERT(pG);
         CPPUNIT_ASSERT_EQUAL(std::string("Gragnano"), *pG);
@@ -134,7 +134,7 @@ void CStringStoreTest::testStringStore() {
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), CStringStore::names().m_Strings.size());
 
     {
-        LOG_DEBUG("Testing multi-threaded");
+        LOG_DEBUG(<< "Testing multi-threaded");
 
         using TThreadPtr = boost::shared_ptr<CStringThread>;
         using TThreadVec = std::vector<TThreadPtr>;
@@ -170,7 +170,7 @@ void CStringStoreTest::testStringStore() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), CStringStore::names().m_Strings.size());
     }
     {
-        LOG_DEBUG("Testing multi-threaded string duplication rate");
+        LOG_DEBUG(<< "Testing multi-threaded string duplication rate");
 
         TStrVec lotsOfStrings;
         for (std::size_t i = 0u; i < 1000; ++i) {
@@ -200,7 +200,7 @@ void CStringStoreTest::testStringStore() {
         for (std::size_t i = 0; i < threads.size(); ++i) {
             threads[i]->uniques(uniques);
         }
-        LOG_DEBUG("unique counts = " << uniques.size());
+        LOG_DEBUG(<< "unique counts = " << uniques.size());
         CPPUNIT_ASSERT(uniques.size() < 20000);
 
         // Tidy up
@@ -216,7 +216,7 @@ void CStringStoreTest::testMemUsage() {
     std::string longStr("much much longer than the short string");
 
     std::size_t origMemUse = CStringStore::names().memoryUsage();
-    LOG_DEBUG("Original memory usage: " << origMemUse);
+    LOG_DEBUG(<< "Original memory usage: " << origMemUse);
     CPPUNIT_ASSERT(origMemUse > 0);
 
     std::size_t inUseMemUse{0};
@@ -225,7 +225,7 @@ void CStringStoreTest::testMemUsage() {
         core::CStoredStringPtr longPtr = CStringStore::names().get(longStr);
 
         inUseMemUse = CStringStore::names().memoryUsage();
-        LOG_DEBUG("Memory usage with in-use pointers: " << inUseMemUse);
+        LOG_DEBUG(<< "Memory usage with in-use pointers: " << inUseMemUse);
         CPPUNIT_ASSERT(inUseMemUse > origMemUse + shortStr.length() + longStr.length());
 
         // This pruning should have no effect, as there are external pointers to
@@ -241,7 +241,7 @@ void CStringStoreTest::testMemUsage() {
     // There are no external references, so this should remove values
     CStringStore::names().pruneNotThreadSafe();
     std::size_t prunedMemUse = CStringStore::names().memoryUsage();
-    LOG_DEBUG("Pruned memory usage: " << prunedMemUse);
+    LOG_DEBUG(<< "Pruned memory usage: " << prunedMemUse);
     CPPUNIT_ASSERT(prunedMemUse < inUseMemUse - shortStr.length() - longStr.length());
 
     CStringStore::names().clearEverythingTestOnly();

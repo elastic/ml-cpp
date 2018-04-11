@@ -275,7 +275,7 @@ void CNamedPipeFactoryTest::testErrorIfSymlink() {
     // It's impossible to create a symlink to a named pipe on Windows - they
     // live under \\.\pipe\ and it's not possible to symlink to this part of
     // the file system
-    LOG_DEBUG("symlink test not relevant to Windows");
+    LOG_DEBUG(<< "symlink test not relevant to Windows");
 #else
     static const char* TEST_SYMLINK_NAME = "test_symlink";
 

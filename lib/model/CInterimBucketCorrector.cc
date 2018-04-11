@@ -117,7 +117,7 @@ bool CInterimBucketCorrector::acceptRestoreTraverser(core::CStateRestoreTraverse
             m_CountTrend.swap(restored);
         } else if (name == COUNT_MEAN_TAG) {
             if (m_CountMean.fromDelimited(traverser.value()) == false) {
-                LOG_ERROR("Invalid count mean in " << traverser.value());
+                LOG_ERROR(<< "Invalid count mean in " << traverser.value());
                 return false;
             }
         }

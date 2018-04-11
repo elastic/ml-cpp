@@ -254,7 +254,7 @@ void handleEvent(const CDataGatherer::TStrCPtrVec& fields,
 }
 
 void testModelWithValueField(model_t::EFeature feature, TSizeVecVecVec& fields, TStrVec& strings, CResourceMonitor& resourceMonitor) {
-    LOG_DEBUG("  *** testing feature " << model_t::print(feature));
+    LOG_DEBUG(<< "  *** testing feature " << model_t::print(feature));
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -292,7 +292,7 @@ void testModelWithValueField(model_t::EFeature feature, TSizeVecVecVec& fields, 
         SAnnotatedProbability annotatedProbability;
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         model->computeProbability(0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields, 1, annotatedProbability);
-        LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
         if (i == anomalousBucket) {
             CPPUNIT_ASSERT(annotatedProbability.s_Probability < 0.001);
         } else {
@@ -308,7 +308,7 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 } // unnamed::
 
 void CEventRateModelTest::testOnlineCountSample() {
-    LOG_DEBUG("*** testOnlineCountSample ***");
+    LOG_DEBUG(<< "*** testOnlineCountSample ***");
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -330,7 +330,7 @@ void CEventRateModelTest::testOnlineCountSample() {
     TUInt64Vec expectedEventCounts(rawEventCounts());
     generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
     core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-    LOG_DEBUG("startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
+    LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
 
     std::size_t i = 0u, j = 0u;
     for (core_t::TTime bucketStartTime = startTime; bucketStartTime < endTime; bucketStartTime += bucketLength, ++j) {
@@ -342,7 +342,7 @@ void CEventRateModelTest::testOnlineCountSample() {
             count += 1.0;
         }
 
-        LOG_DEBUG("Bucket count = " << count);
+        LOG_DEBUG(<< "Bucket count = " << count);
 
         model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
@@ -375,8 +375,8 @@ void CEventRateModelTest::testOnlineCountSample() {
         inserter.toXml(origXml);
     }
 
-    LOG_TRACE("origXml = " << origXml);
-    LOG_DEBUG("origXml size = " << origXml.size());
+    LOG_TRACE(<< "origXml = " << origXml);
+    LOG_DEBUG(<< "origXml size = " << origXml.size());
     CPPUNIT_ASSERT(origXml.size() < 41000);
 
     // Restore the XML into a new filter
@@ -395,14 +395,14 @@ void CEventRateModelTest::testOnlineCountSample() {
         inserter.toXml(newXml);
     }
 
-    LOG_DEBUG("original checksum = " << model->checksum(false));
-    LOG_DEBUG("restored checksum = " << restoredModelPtr->checksum(false));
+    LOG_DEBUG(<< "original checksum = " << model->checksum(false));
+    LOG_DEBUG(<< "restored checksum = " << restoredModelPtr->checksum(false));
     CPPUNIT_ASSERT_EQUAL(model->checksum(false), restoredModelPtr->checksum(false));
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
 void CEventRateModelTest::testOnlineNonZeroCountSample() {
-    LOG_DEBUG("*** testOnlineNonZeroCountSample ***");
+    LOG_DEBUG(<< "*** testOnlineNonZeroCountSample ***");
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -425,7 +425,7 @@ void CEventRateModelTest::testOnlineNonZeroCountSample() {
     TUInt64Vec expectedEventCounts = rawEventCounts();
     generateSporadicEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
     core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-    LOG_DEBUG("startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
+    LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
 
     std::size_t i = 0u, j = 0u;
     for (core_t::TTime bucketStartTime = startTime; bucketStartTime < endTime; bucketStartTime += bucketLength) {
@@ -437,7 +437,7 @@ void CEventRateModelTest::testOnlineNonZeroCountSample() {
             count += 1.0;
         }
 
-        LOG_DEBUG("Bucket count = " << count);
+        LOG_DEBUG(<< "Bucket count = " << count);
 
         model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
@@ -468,7 +468,7 @@ void CEventRateModelTest::testOnlineNonZeroCountSample() {
 }
 
 void CEventRateModelTest::testOnlineRare() {
-    LOG_DEBUG("*** testOnlineRare ***");
+    LOG_DEBUG(<< "*** testOnlineRare ***");
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -508,7 +508,7 @@ void CEventRateModelTest::testOnlineRare() {
         SAnnotatedProbability annotatedProbability;
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength, partitioningFields, 0, annotatedProbability));
-        LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
     }
 
@@ -526,8 +526,8 @@ void CEventRateModelTest::testOnlineRare() {
         inserter.toXml(origXml);
     }
 
-    LOG_TRACE("origXml = " << origXml);
-    LOG_DEBUG("size = " << origXml.size());
+    LOG_TRACE(<< "origXml = " << origXml);
+    LOG_DEBUG(<< "size = " << origXml.size());
     CPPUNIT_ASSERT(origXml.size() < 21000);
 
     // Restore the XML into a new filter
@@ -550,7 +550,7 @@ void CEventRateModelTest::testOnlineRare() {
 }
 
 void CEventRateModelTest::testOnlineProbabilityCalculation() {
-    LOG_DEBUG("*** testOnlineProbabilityCalculation ***");
+    LOG_DEBUG(<< "*** testOnlineProbabilityCalculation ***");
 
     using TDoubleSizePr = std::pair<double, std::size_t>;
     using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr>;
@@ -576,7 +576,7 @@ void CEventRateModelTest::testOnlineProbabilityCalculation() {
     expectedEventCounts[anomalousBucket] *= 3;
     generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
     core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-    LOG_DEBUG("startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
+    LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
 
     std::size_t i = 0u, j = 0u;
     for (core_t::TTime bucketStartTime = startTime; bucketStartTime < endTime; bucketStartTime += bucketLength, ++j) {
@@ -588,25 +588,25 @@ void CEventRateModelTest::testOnlineProbabilityCalculation() {
             count += 1.0;
         }
 
-        LOG_DEBUG("bucket count = " << count);
+        LOG_DEBUG(<< "bucket count = " << count);
 
         model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
         SAnnotatedProbability p;
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         CPPUNIT_ASSERT(model->computeProbability(0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields, 1, p));
-        LOG_DEBUG("probability = " << p.s_Probability);
+        LOG_DEBUG(<< "probability = " << p.s_Probability);
         minProbabilities.add(TDoubleSizePr(p.s_Probability, j));
     }
 
     minProbabilities.sort();
-    LOG_DEBUG("minProbabilities = " << core::CContainerPrinter::print(minProbabilities));
+    LOG_DEBUG(<< "minProbabilities = " << core::CContainerPrinter::print(minProbabilities));
     CPPUNIT_ASSERT_EQUAL(anomalousBucket, minProbabilities[0].second);
     CPPUNIT_ASSERT(minProbabilities[0].first / minProbabilities[1].first < 0.1);
 }
 
 void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount() {
-    LOG_DEBUG("*** testOnlineProbabilityCalculationForLowNonZeroCount ***");
+    LOG_DEBUG(<< "*** testOnlineProbabilityCalculationForLowNonZeroCount ***");
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(100);
@@ -628,7 +628,7 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount() {
 
     core_t::TTime time = startTime;
     for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
-        LOG_DEBUG("Writing " << bucketCounts[i] << " values");
+        LOG_DEBUG(<< "Writing " << bucketCounts[i] << " values");
 
         for (std::size_t j = 0u; j < bucketCounts[i]; ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p1");
@@ -640,21 +640,21 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount() {
         if (model->computeProbability(0 /*pid*/, time, time + bucketLength, partitioningFields, 0, p) == false) {
             continue;
         }
-        LOG_DEBUG("probability = " << p.s_Probability);
+        LOG_DEBUG(<< "probability = " << p.s_Probability);
         if (*model->currentBucketCount(0, time) > 0) {
             probabilities.push_back(p.s_Probability);
         }
         time += bucketLength;
     }
 
-    LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
     CPPUNIT_ASSERT_EQUAL(std::size_t(11), probabilities.size());
     CPPUNIT_ASSERT(probabilities[lowNonZeroCountBucket] < 0.06);
     CPPUNIT_ASSERT(probabilities[highNonZeroCountBucket] > 0.9);
 }
 
 void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount() {
-    LOG_DEBUG("*** testOnlineProbabilityCalculationForHighNonZeroCount ***");
+    LOG_DEBUG(<< "*** testOnlineProbabilityCalculationForHighNonZeroCount ***");
 
     core_t::TTime startTime(0);
     core_t::TTime bucketLength(100);
@@ -676,7 +676,7 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount() 
 
     core_t::TTime time = startTime;
     for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
-        LOG_DEBUG("Writing " << bucketCounts[i] << " values");
+        LOG_DEBUG(<< "Writing " << bucketCounts[i] << " values");
 
         for (std::size_t j = 0u; j < bucketCounts[i]; ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p1");
@@ -688,21 +688,21 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount() 
         if (model->computeProbability(0 /*pid*/, time, time + bucketLength, partitioningFields, 1, p) == false) {
             continue;
         }
-        LOG_DEBUG("probability = " << p.s_Probability);
+        LOG_DEBUG(<< "probability = " << p.s_Probability);
         if (*model->currentBucketCount(0, time) > 0) {
             probabilities.push_back(p.s_Probability);
         }
         time += bucketLength;
     }
 
-    LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities));
+    LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
     CPPUNIT_ASSERT_EQUAL(std::size_t(11), probabilities.size());
     CPPUNIT_ASSERT(probabilities[lowNonZeroCountBucket] < 0.06);
     CPPUNIT_ASSERT(probabilities[highNonZeroCountBucket] > 0.9);
 }
 
 void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
-    LOG_DEBUG("*** testOnlineCorrelatedNoTrend ***");
+    LOG_DEBUG(<< "*** testOnlineCorrelatedNoTrend ***");
 
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
@@ -742,7 +742,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(model_.get());
         CPPUNIT_ASSERT(model);
 
-        LOG_DEBUG("Test correlation anomalies");
+        LOG_DEBUG(<< "Test correlation anomalies");
 
         std::size_t anomalyBuckets[] = {100, 160, 190, b};
         double anomalies[][4] = {{-5.73, 4.29, 0.0, 0.0}, {0.0, 0.0, 89.99, 15.38}, {-7.73, 5.59, 52.99, 9.03}};
@@ -800,8 +800,8 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
             inserter.toXml(origXml);
         }
 
-        LOG_TRACE("origXml = " << origXml);
-        LOG_DEBUG("size = " << origXml.size());
+        LOG_TRACE(<< "origXml = " << origXml);
+        LOG_DEBUG(<< "size = " << origXml.size());
         CPPUNIT_ASSERT(origXml.size() < 151000);
 
         core::CRapidXmlParser parser;
@@ -820,7 +820,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
         CPPUNIT_ASSERT_EQUAL(origXml, newXml);
     }
     {
-        LOG_DEBUG("Test marginal anomalies");
+        LOG_DEBUG(<< "Test marginal anomalies");
 
         SModelParams params(bucketLength);
         params.s_DecayRate = 0.001;
@@ -888,7 +888,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend() {
 }
 
 void CEventRateModelTest::testOnlineCorrelatedTrend() {
-    LOG_DEBUG("*** testOnlineCorrelatedTrend ***");
+    LOG_DEBUG(<< "*** testOnlineCorrelatedTrend ***");
 
     // FIXME
     return;
@@ -945,7 +945,7 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
 
     core_t::TTime time = startTime;
     for (std::size_t i = 0u, anomaly = 0u; i < b; ++i) {
-        LOG_DEBUG(i << ") processing bucket [" << time << ", " << time + bucketLength << ")");
+        LOG_DEBUG(<< i << ") processing bucket [" << time << ", " << time + bucketLength << ")");
 
         std::size_t hour1 = static_cast<std::size_t>((time / 3600) % 24);
         std::size_t hour2 = (hour1 + 1) % 24;
@@ -974,7 +974,8 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
             CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength, partitioningFields, 1, p));
             std::string correlated;
             if (p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
-                p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr && !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
+                p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != nullptr &&
+                !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
                 correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
             }
             probabilities[pid].add(TDoubleSizeStrTr(p.s_Probability, i, correlated));
@@ -984,7 +985,7 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
 
     std::string expected[] = {"[(1950,p2), (2700,p2)]", "[(1950,p1), (2700,p1)]", "[(2400,p4), (2700,p4)]", "[(2400,p3), (2700,p3)]"};
     for (std::size_t i = 0u; i < boost::size(probabilities); ++i) {
-        LOG_DEBUG(probabilities[i].print());
+        LOG_DEBUG(<< probabilities[i].print());
         std::string actual[2];
         for (std::size_t j = 0u; j < 2; ++j) {
             actual[j] =
@@ -996,7 +997,7 @@ void CEventRateModelTest::testOnlineCorrelatedTrend() {
 }
 
 void CEventRateModelTest::testPrune() {
-    LOG_DEBUG("*** testPrune ***");
+    LOG_DEBUG(<< "*** testPrune ***");
 
     using TUInt64VecVec = std::vector<TUInt64Vec>;
     using TEventDataVec = std::vector<CEventData>;
@@ -1099,8 +1100,8 @@ void CEventRateModelTest::testPrune() {
     }
     expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
 
-    LOG_DEBUG("checksum          = " << model->checksum());
-    LOG_DEBUG("expected checksum = " << expectedModel->checksum());
+    LOG_DEBUG(<< "checksum          = " << model->checksum());
+    LOG_DEBUG(<< "expected checksum = " << expectedModel->checksum());
     CPPUNIT_ASSERT_EQUAL(expectedModel->checksum(), model->checksum());
 
     // Now check that we recycle the person slots.
@@ -1120,8 +1121,8 @@ void CEventRateModelTest::testPrune() {
     model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
     expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
 
-    LOG_DEBUG("checksum          = " << model->checksum());
-    LOG_DEBUG("expected checksum = " << expectedModel->checksum());
+    LOG_DEBUG(<< "checksum          = " << model->checksum());
+    LOG_DEBUG(<< "expected checksum = " << expectedModel->checksum());
     CPPUNIT_ASSERT_EQUAL(expectedModel->checksum(), model->checksum());
 
     // Test that calling prune on a cloned model which has seen no new data does nothing.
@@ -1155,8 +1156,8 @@ void CEventRateModelTest::testKey() {
 
                     CAnomalyDetectorModelConfig::TModelFactoryCPtr factory = config.factory(key);
 
-                    LOG_DEBUG("expected key = " << key);
-                    LOG_DEBUG("actual key   = " << factory->searchKey());
+                    LOG_DEBUG(<< "expected key = " << key);
+                    LOG_DEBUG(<< "actual key   = " << factory->searchKey());
                     CPPUNIT_ASSERT(key == factory->searchKey());
                 }
             }
@@ -1170,7 +1171,7 @@ void CEventRateModelTest::testModelsWithValueFields() {
     // Create some models with attribute conditional data and
     // check that the values vary accordingly
 
-    LOG_DEBUG("*** testModelsValueFields ***");
+    LOG_DEBUG(<< "*** testModelsValueFields ***");
     {
         // check E_PopulationUniqueCountByBucketPersonAndAttribute
         std::size_t anomalousBucket = 20;
@@ -1288,7 +1289,7 @@ void CEventRateModelTest::testModelsWithValueFields() {
 }
 
 void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
-    LOG_DEBUG("*** testCountProbabilityCalculationWithInfluence ***");
+    LOG_DEBUG(<< "*** testCountProbabilityCalculationWithInfluence ***");
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -1317,7 +1318,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
         expectedEventCounts.back() *= 3;
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-        LOG_DEBUG("startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
+        LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
@@ -1330,7 +1331,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
                 count += 1.0;
             }
 
-            LOG_DEBUG("Bucket count = " << count);
+            LOG_DEBUG(<< "Bucket count = " << count);
 
             model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
@@ -1338,8 +1339,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
             CPPUNIT_ASSERT(
                 model->computeProbability(0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields, 1, annotatedProbability));
-            LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG("influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+            LOG_DEBUG(<< "influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1370,7 +1371,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
         expectedEventCounts.back() *= 3;
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-        LOG_DEBUG("startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
+        LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
@@ -1386,7 +1387,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
                 count += 1.0;
             }
 
-            LOG_DEBUG("Bucket count = " << count);
+            LOG_DEBUG(<< "Bucket count = " << count);
 
             model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
@@ -1394,8 +1395,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
             CPPUNIT_ASSERT(
                 model->computeProbability(0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields, 1, annotatedProbability));
-            LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG("influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+            LOG_DEBUG(<< "influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1430,7 +1431,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
         expectedEventCounts.back() *= 6;
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-        LOG_DEBUG("startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
+        LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
@@ -1446,7 +1447,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
                 count += 1.0;
             }
 
-            LOG_DEBUG("Bucket count = " << count);
+            LOG_DEBUG(<< "Bucket count = " << count);
 
             model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
@@ -1454,8 +1455,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
             CPPUNIT_ASSERT(
                 model->computeProbability(0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields, 1, annotatedProbability));
-            LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG("influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+            LOG_DEBUG(<< "influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1492,7 +1493,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
         expectedEventCounts.back() *= 3;
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-        LOG_DEBUG("startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
+        LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
@@ -1511,7 +1512,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
                 count += 1.0;
             }
 
-            LOG_DEBUG("Bucket count = " << count);
+            LOG_DEBUG(<< "Bucket count = " << count);
 
             model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
@@ -1519,8 +1520,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
             CPPUNIT_ASSERT(
                 model->computeProbability(0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields, 1, annotatedProbability));
-            LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG("influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+            LOG_DEBUG(<< "influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1554,7 +1555,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
         expectedEventCounts.back() *= 3;
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-        LOG_DEBUG("startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
+        LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
@@ -1576,7 +1577,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
                 count += 1.0;
             }
 
-            LOG_DEBUG("Bucket count = " << count);
+            LOG_DEBUG(<< "Bucket count = " << count);
 
             model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
@@ -1584,8 +1585,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
             CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
             CPPUNIT_ASSERT(
                 model->computeProbability(0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields, 1, annotatedProbability));
-            LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG("influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+            LOG_DEBUG(<< "influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1603,7 +1604,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
 }
 
 void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence() {
-    LOG_DEBUG("*** testCountProbabilityCalculationWithInfluence ***");
+    LOG_DEBUG(<< "*** testCountProbabilityCalculationWithInfluence ***");
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -1632,7 +1633,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
         TUInt64Vec expectedEventCounts = rawEventCounts();
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-        LOG_DEBUG("startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
+        LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
@@ -1646,7 +1647,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
             }
             if (i == eventTimes.size()) {
                 // Generate anomaly
-                LOG_DEBUG("Generating anomaly");
+                LOG_DEBUG(<< "Generating anomaly");
                 for (std::size_t k = 0; k < 20; k++) {
                     std::stringstream ss;
                     ss << uniqueValue << "_" << k;
@@ -1654,7 +1655,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
                 }
             }
 
-            LOG_DEBUG("Bucket count = " << count);
+            LOG_DEBUG(<< "Bucket count = " << count);
 
             model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
@@ -1662,8 +1663,8 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
             CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
             CPPUNIT_ASSERT(
                 model->computeProbability(0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields, 1, annotatedProbability));
-            LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG("influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+            LOG_DEBUG(<< "influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1694,7 +1695,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
         TUInt64Vec expectedEventCounts = rawEventCounts();
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-        LOG_DEBUG("startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
+        LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
@@ -1708,7 +1709,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
             }
             if (i == eventTimes.size()) {
                 // Generate anomaly
-                LOG_DEBUG("Generating anomaly");
+                LOG_DEBUG(<< "Generating anomaly");
                 for (std::size_t k = 1; k < 20; k++) {
                     std::stringstream ss;
                     ss << uniqueValue << "_" << k;
@@ -1721,7 +1722,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
                 }
             }
 
-            LOG_DEBUG("Bucket count = " << count);
+            LOG_DEBUG(<< "Bucket count = " << count);
 
             model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
@@ -1729,8 +1730,8 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
             CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
             CPPUNIT_ASSERT(
                 model->computeProbability(0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields, 1, annotatedProbability));
-            LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG("influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+            LOG_DEBUG(<< "influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1765,7 +1766,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
         TUInt64Vec expectedEventCounts = rawEventCounts();
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-        LOG_DEBUG("startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
+        LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
@@ -1779,7 +1780,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
             }
             if (i == eventTimes.size()) {
                 // Generate anomaly
-                LOG_DEBUG("Generating anomaly");
+                LOG_DEBUG(<< "Generating anomaly");
                 for (std::size_t k = 1; k < 20; k++) {
                     std::stringstream ss;
                     ss << uniqueValue << "_" << k;
@@ -1791,7 +1792,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
                 }
             }
 
-            LOG_DEBUG("Bucket count = " << count);
+            LOG_DEBUG(<< "Bucket count = " << count);
 
             model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
@@ -1799,8 +1800,8 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
             CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
             CPPUNIT_ASSERT(
                 model->computeProbability(0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields, 1, annotatedProbability));
-            LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG("influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+            LOG_DEBUG(<< "influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1834,7 +1835,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
         TUInt64Vec expectedEventCounts = rawEventCounts();
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-        LOG_DEBUG("startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
+        LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
@@ -1854,7 +1855,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
             }
             if (i == eventTimes.size()) {
                 // Generate anomaly
-                LOG_DEBUG("Generating anomaly");
+                LOG_DEBUG(<< "Generating anomaly");
                 for (std::size_t k = 1; k < 22; k++) {
                     std::stringstream ss1;
                     ss1 << uniqueValue << "_" << k;
@@ -1866,9 +1867,9 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
                     const std::string inf1(ss2.str());
                     ss2 << "_another";
                     const std::string inf2(ss2.str());
-                    LOG_DEBUG("Inf1 = " << inf1);
-                    LOG_DEBUG("Inf2 = " << inf2);
-                    LOG_DEBUG("Value = " << ss1.str());
+                    LOG_DEBUG(<< "Inf1 = " << inf1);
+                    LOG_DEBUG(<< "Inf2 = " << inf2);
+                    LOG_DEBUG(<< "Value = " << ss1.str());
                     addArrival(*gatherer,
                                m_ResourceMonitor,
                                eventTimes[i - 1],
@@ -1879,7 +1880,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
                 }
             }
 
-            LOG_DEBUG("Bucket count = " << count);
+            LOG_DEBUG(<< "Bucket count = " << count);
 
             model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
@@ -1887,8 +1888,8 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
             CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
             CPPUNIT_ASSERT(
                 model->computeProbability(0 /*pid*/, bucketStartTime, bucketEndTime, partitioningFields, 1, annotatedProbability));
-            LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-            LOG_DEBUG("influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+            LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+            LOG_DEBUG(<< "influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
             CPPUNIT_ASSERT(annotatedProbability.s_Probability);
             lastInfluencersResult = annotatedProbability.s_Influences;
         }
@@ -1906,7 +1907,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence()
 }
 
 void CEventRateModelTest::testOnlineRareWithInfluence() {
-    LOG_DEBUG("*** testOnlineRareWithInfluence ***");
+    LOG_DEBUG(<< "*** testOnlineRareWithInfluence ***");
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
@@ -1955,8 +1956,8 @@ void CEventRateModelTest::testOnlineRareWithInfluence() {
         SAnnotatedProbability annotatedProbability;
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength, partitioningFields, 1, annotatedProbability));
-        LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-        LOG_DEBUG("influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
+        LOG_DEBUG(<< "probability = " << annotatedProbability.s_Probability);
+        LOG_DEBUG(<< "influencers = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
         lastInfluencersResult = annotatedProbability.s_Influences;
         probabilities.push_back(annotatedProbability.s_Probability);
     }
@@ -1969,7 +1970,7 @@ void CEventRateModelTest::testOnlineRareWithInfluence() {
     CPPUNIT_ASSERT(probabilities[3] > 50.0 * probabilities[4]);
 
     // Expect the influence for this anomaly to be "INF1":"inf2"
-    LOG_DEBUG(core::CContainerPrinter::print(lastInfluencersResult));
+    LOG_DEBUG(<< core::CContainerPrinter::print(lastInfluencersResult));
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), lastInfluencersResult.size());
     CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.75);
     CPPUNIT_ASSERT_EQUAL(std::string("IF1"), *lastInfluencersResult[0].first.first);
@@ -2001,7 +2002,7 @@ void CEventRateModelTest::testOnlineRareWithInfluence() {
 }
 
 void CEventRateModelTest::testSkipSampling() {
-    LOG_DEBUG("*** testSkipSampling ***");
+    LOG_DEBUG(<< "*** testSkipSampling ***");
 
     core_t::TTime startTime(100);
     std::size_t bucketLength(100);
@@ -2043,7 +2044,7 @@ void CEventRateModelTest::testSkipSampling() {
     addArrival(*gathererWithGap, m_ResourceMonitor, 200, "p1");
     addArrival(*gathererWithGap, m_ResourceMonitor, 200, "p2");
     modelWithGap->skipSampling(1000);
-    LOG_DEBUG("Calling sample over skipped interval should do nothing except print some ERRORs");
+    LOG_DEBUG(<< "Calling sample over skipped interval should do nothing except print some ERRORs");
     modelWithGap->sample(200, 1000, m_ResourceMonitor);
 
     // Check prune does not remove people because last seen times are updated by adding gap duration
@@ -2085,7 +2086,7 @@ void CEventRateModelTest::testSkipSampling() {
 }
 
 void CEventRateModelTest::testExplicitNulls() {
-    LOG_DEBUG("*** testExplicitNulls ***");
+    LOG_DEBUG(<< "*** testExplicitNulls ***");
 
     core_t::TTime startTime(100);
     std::size_t bucketLength(100);
@@ -2164,7 +2165,7 @@ void CEventRateModelTest::testExplicitNulls() {
 }
 
 void CEventRateModelTest::testInterimCorrections() {
-    LOG_DEBUG("*** testInterimCorrections ***");
+    LOG_DEBUG(<< "*** testInterimCorrections ***");
 
     core_t::TTime startTime(3600);
     core_t::TTime bucketLength(3600);
@@ -2223,12 +2224,12 @@ void CEventRateModelTest::testInterimCorrections() {
     TDouble1Vec p2Baseline = model->baselineBucketMean(model_t::E_IndividualCountByBucketAndPerson, 1, 0, type, NO_CORRELATES, now);
     TDouble1Vec p3Baseline = model->baselineBucketMean(model_t::E_IndividualCountByBucketAndPerson, 2, 0, type, NO_CORRELATES, now);
 
-    LOG_DEBUG("p1 probability = " << annotatedProbability1.s_Probability);
-    LOG_DEBUG("p2 probability = " << annotatedProbability2.s_Probability);
-    LOG_DEBUG("p3 probability = " << annotatedProbability3.s_Probability);
-    LOG_DEBUG("p1 baseline = " << p1Baseline[0]);
-    LOG_DEBUG("p2 baseline = " << p2Baseline[0]);
-    LOG_DEBUG("p3 baseline = " << p3Baseline[0]);
+    LOG_DEBUG(<< "p1 probability = " << annotatedProbability1.s_Probability);
+    LOG_DEBUG(<< "p2 probability = " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "p3 probability = " << annotatedProbability3.s_Probability);
+    LOG_DEBUG(<< "p1 baseline = " << p1Baseline[0]);
+    LOG_DEBUG(<< "p2 baseline = " << p2Baseline[0]);
+    LOG_DEBUG(<< "p3 baseline = " << p3Baseline[0]);
 
     CPPUNIT_ASSERT(annotatedProbability1.s_Probability > 0.05);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability < 0.05);
@@ -2256,12 +2257,12 @@ void CEventRateModelTest::testInterimCorrections() {
     p2Baseline = model->baselineBucketMean(model_t::E_IndividualCountByBucketAndPerson, 1, 0, type, NO_CORRELATES, now);
     p3Baseline = model->baselineBucketMean(model_t::E_IndividualCountByBucketAndPerson, 2, 0, type, NO_CORRELATES, now);
 
-    LOG_DEBUG("p1 probability = " << annotatedProbability1.s_Probability);
-    LOG_DEBUG("p2 probability = " << annotatedProbability2.s_Probability);
-    LOG_DEBUG("p3 probability = " << annotatedProbability3.s_Probability);
-    LOG_DEBUG("p1 baseline = " << p1Baseline[0]);
-    LOG_DEBUG("p2 baseline = " << p2Baseline[0]);
-    LOG_DEBUG("p3 baseline = " << p3Baseline[0]);
+    LOG_DEBUG(<< "p1 probability = " << annotatedProbability1.s_Probability);
+    LOG_DEBUG(<< "p2 probability = " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "p3 probability = " << annotatedProbability3.s_Probability);
+    LOG_DEBUG(<< "p1 baseline = " << p1Baseline[0]);
+    LOG_DEBUG(<< "p2 baseline = " << p2Baseline[0]);
+    LOG_DEBUG(<< "p3 baseline = " << p3Baseline[0]);
 
     CPPUNIT_ASSERT(annotatedProbability1.s_Probability > 0.75);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.9);
@@ -2272,7 +2273,7 @@ void CEventRateModelTest::testInterimCorrections() {
 }
 
 void CEventRateModelTest::testInterimCorrectionsWithCorrelations() {
-    LOG_DEBUG("*** testInterimCorrectionsWithCorrelations ***");
+    LOG_DEBUG(<< "*** testInterimCorrectionsWithCorrelations ***");
 
     core_t::TTime startTime(3600);
     core_t::TTime bucketLength(3600);
@@ -2334,12 +2335,12 @@ void CEventRateModelTest::testInterimCorrectionsWithCorrelations() {
     TDouble1Vec p3Baseline = model->baselineBucketMean(
         model_t::E_IndividualCountByBucketAndPerson, 2, 0, type, annotatedProbability3.s_AttributeProbabilities[0].s_Correlated, now);
 
-    LOG_DEBUG("p1 probability = " << annotatedProbability1.s_Probability);
-    LOG_DEBUG("p2 probability = " << annotatedProbability2.s_Probability);
-    LOG_DEBUG("p3 probability = " << annotatedProbability3.s_Probability);
-    LOG_DEBUG("p1 baseline = " << p1Baseline[0]);
-    LOG_DEBUG("p2 baseline = " << p2Baseline[0]);
-    LOG_DEBUG("p3 baseline = " << p3Baseline[0]);
+    LOG_DEBUG(<< "p1 probability = " << annotatedProbability1.s_Probability);
+    LOG_DEBUG(<< "p2 probability = " << annotatedProbability2.s_Probability);
+    LOG_DEBUG(<< "p3 probability = " << annotatedProbability3.s_Probability);
+    LOG_DEBUG(<< "p1 baseline = " << p1Baseline[0]);
+    LOG_DEBUG(<< "p2 baseline = " << p2Baseline[0]);
+    LOG_DEBUG(<< "p3 baseline = " << p3Baseline[0]);
 
     CPPUNIT_ASSERT(annotatedProbability1.s_Probability > 0.7);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.7);
@@ -2350,7 +2351,7 @@ void CEventRateModelTest::testInterimCorrectionsWithCorrelations() {
 }
 
 void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored() {
-    LOG_DEBUG("*** testSummaryCountZeroRecordsAreIgnored ***");
+    LOG_DEBUG(<< "*** testSummaryCountZeroRecordsAreIgnored ***");
 
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);
@@ -2409,7 +2410,7 @@ void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored() {
 }
 
 void CEventRateModelTest::testComputeProbabilityGivenDetectionRule() {
-    LOG_DEBUG("*** testComputeProbabilityGivenDetectionRule ***");
+    LOG_DEBUG(<< "*** testComputeProbabilityGivenDetectionRule ***");
 
     CRuleCondition condition;
     condition.type(CRuleCondition::E_NumericalActual);
@@ -2456,7 +2457,7 @@ void CEventRateModelTest::testComputeProbabilityGivenDetectionRule() {
 }
 
 void CEventRateModelTest::testDecayRateControl() {
-    LOG_DEBUG("*** testDecayRateControl ***");
+    LOG_DEBUG(<< "*** testDecayRateControl ***");
 
     core_t::TTime startTime = 0;
     core_t::TTime bucketLength = 1800;
@@ -2470,7 +2471,7 @@ void CEventRateModelTest::testDecayRateControl() {
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG("*** Test anomaly ***");
+    LOG_DEBUG(<< "*** Test anomaly ***");
     {
         // Test we don't adapt the decay rate if there is a short-lived
         // anomaly. We should get essentially identical prediction errors
@@ -2495,7 +2496,7 @@ void CEventRateModelTest::testDecayRateControl() {
         model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
         for (core_t::TTime t = 0; t < 4 * core::constants::WEEK; t += bucketLength) {
             if (t % core::constants::WEEK == 0) {
-                LOG_DEBUG("week " << t / core::constants::WEEK + 1);
+                LOG_DEBUG(<< "week " << t / core::constants::WEEK + 1);
             }
 
             TDoubleVec rate;
@@ -2513,13 +2514,13 @@ void CEventRateModelTest::testDecayRateControl() {
                 std::fabs(referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0] -
                           referenceModel->baselineBucketMean(feature, 0, 0, type, NO_CORRELATES, t + bucketLength / 2)[0]));
         }
-        LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
-        LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
+        LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
+        LOG_DEBUG(<< "reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             maths::CBasicStatistics::mean(meanReferencePredictionError), maths::CBasicStatistics::mean(meanPredictionError), 0.05);
     }
 
-    LOG_DEBUG("*** Test step change ***");
+    LOG_DEBUG(<< "*** Test step change ***");
     {
         // Test a step change in a stable signal is detected and we get a
         // significant reduction in the prediction error.
@@ -2543,7 +2544,7 @@ void CEventRateModelTest::testDecayRateControl() {
         model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
         for (core_t::TTime t = 0; t < 10 * core::constants::WEEK; t += bucketLength) {
             if (t % core::constants::WEEK == 0) {
-                LOG_DEBUG("week " << t / core::constants::WEEK + 1);
+                LOG_DEBUG(<< "week " << t / core::constants::WEEK + 1);
             }
 
             double rate = 10.0 *
@@ -2564,13 +2565,13 @@ void CEventRateModelTest::testDecayRateControl() {
                 std::fabs(referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0] -
                           referenceModel->baselineBucketMean(feature, 0, 0, type, NO_CORRELATES, t + bucketLength / 2)[0]));
         }
-        LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
-        LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
+        LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
+        LOG_DEBUG(<< "reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanPredictionError) <
                        0.94 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 
-    LOG_DEBUG("*** Test unmodelled cyclic component ***");
+    LOG_DEBUG(<< "*** Test unmodelled cyclic component ***");
     {
         // This modulates the event rate using a sine with period 10 weeks
         // effectively there are significant "manoeuvres" in the event rate
@@ -2596,7 +2597,7 @@ void CEventRateModelTest::testDecayRateControl() {
         model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
         for (core_t::TTime t = 0; t < 20 * core::constants::WEEK; t += bucketLength) {
             if (t % core::constants::WEEK == 0) {
-                LOG_DEBUG("week " << t / core::constants::WEEK + 1);
+                LOG_DEBUG(<< "week " << t / core::constants::WEEK + 1);
             }
 
             double rate = 10.0 *
@@ -2618,15 +2619,15 @@ void CEventRateModelTest::testDecayRateControl() {
                 std::fabs(referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0] -
                           referenceModel->baselineBucketMean(feature, 0, 0, type, NO_CORRELATES, t + bucketLength / 2)[0]));
         }
-        LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
-        LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
+        LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
+        LOG_DEBUG(<< "reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanPredictionError) <
                        0.7 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 }
 
 void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules() {
-    LOG_DEBUG("*** testIgnoreSamplingGivenDetectionRules ***");
+    LOG_DEBUG(<< "*** testIgnoreSamplingGivenDetectionRules ***");
 
     // Create 2 models, one of which has a skip sampling rule.
     // Feed the same data into both models then add extra data

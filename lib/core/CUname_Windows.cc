@@ -39,26 +39,26 @@ bool queryKernelVersion(uint16_t& major, uint16_t& minor, uint16_t& build) {
     DWORD handle(0);
     DWORD size(GetFileVersionInfoSize(KERNEL32_DLL, &handle));
     if (size == 0) {
-        LOG_ERROR("Error getting file version info size for " << KERNEL32_DLL << " - error code : " << CWindowsError());
+        LOG_ERROR(<< "Error getting file version info size for " << KERNEL32_DLL << " - error code : " << CWindowsError());
         return false;
     }
 
     using TScopedCharArray = boost::scoped_array<char>;
     TScopedCharArray buffer(new char[size]);
     if (GetFileVersionInfo(KERNEL32_DLL, handle, size, buffer.get()) == FALSE) {
-        LOG_ERROR("Error getting file version info for " << KERNEL32_DLL << " - error code : " << CWindowsError());
+        LOG_ERROR(<< "Error getting file version info for " << KERNEL32_DLL << " - error code : " << CWindowsError());
         return false;
     }
 
     UINT len(0);
     VS_FIXEDFILEINFO* fixedFileInfo(0);
     if (VerQueryValue(buffer.get(), "\\", reinterpret_cast<void**>(&fixedFileInfo), &len) == FALSE) {
-        LOG_ERROR("Error querying fixed file info for " << KERNEL32_DLL << " - error code : " << CWindowsError());
+        LOG_ERROR(<< "Error querying fixed file info for " << KERNEL32_DLL << " - error code : " << CWindowsError());
         return false;
     }
 
     if (len < sizeof(VS_FIXEDFILEINFO)) {
-        LOG_ERROR("Too little data returned for VS_FIXEDFILEINFO - "
+        LOG_ERROR(<< "Too little data returned for VS_FIXEDFILEINFO - "
                   << "expected " << sizeof(VS_FIXEDFILEINFO) << " bytes, got " << len);
         return false;
     }
@@ -80,7 +80,7 @@ std::string CUname::nodeName() {
     DWORD size(0);
     BOOL res(GetComputerNameEx(ComputerNameDnsHostname, 0, &size));
     if (res != FALSE || GetLastError() != ERROR_MORE_DATA) {
-        LOG_ERROR("Error getting computer name length - error code : " << CWindowsError());
+        LOG_ERROR(<< "Error getting computer name length - error code : " << CWindowsError());
         return std::string();
     }
 
@@ -89,7 +89,7 @@ std::string CUname::nodeName() {
 
     res = GetComputerNameEx(ComputerNameDnsHostname, &buffer[0], &size);
     if (res == FALSE) {
-        LOG_ERROR("Error getting computer name - error code : " << CWindowsError());
+        LOG_ERROR(<< "Error getting computer name - error code : " << CWindowsError());
         return std::string();
     }
 
@@ -172,8 +172,8 @@ std::string CUname::machine() {
         result = "unknown";
         break;
     default:
-        LOG_ERROR("Unexpected result from GetNativeSystemInfo() : "
-                  "wProcessorArchitecture = "
+        LOG_ERROR(<< "Unexpected result from GetNativeSystemInfo() : "
+                     "wProcessorArchitecture = "
                   << systemInfo.wProcessorArchitecture);
         break;
     }

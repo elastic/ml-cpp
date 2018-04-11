@@ -30,12 +30,12 @@ void CToolsTest::testDataGatherers() {
 }
 
 void CToolsTest::testProbabilityAggregator() {
-    LOG_DEBUG("****** CToolsTest::testProbabilityAggregator ******");
+    LOG_DEBUG(<< "****** CToolsTest::testProbabilityAggregator ******");
 
     // Test a variety of min aggregations.
 
     {
-        LOG_DEBUG("joint");
+        LOG_DEBUG(<< "joint");
         CModelTools::CProbabilityAggregator actual(CModelTools::CProbabilityAggregator::E_Min);
         CPPUNIT_ASSERT(actual.empty());
         actual.add(maths::CJointProbabilityOfLessLikelySamples());
@@ -58,12 +58,12 @@ void CToolsTest::testProbabilityAggregator() {
             CPPUNIT_ASSERT(actual.calculate(pi));
             double pe;
             expected.calculate(pe);
-            LOG_DEBUG("pe = " << pe << " pi = " << pi);
+            LOG_DEBUG(<< "pe = " << pe << " pi = " << pi);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(pe, pi, 1e-10);
         }
     }
     {
-        LOG_DEBUG("extreme");
+        LOG_DEBUG(<< "extreme");
         CModelTools::CProbabilityAggregator actual(CModelTools::CProbabilityAggregator::E_Min);
         CPPUNIT_ASSERT(actual.empty());
         actual.add(maths::CProbabilityOfExtremeSample());
@@ -86,12 +86,12 @@ void CToolsTest::testProbabilityAggregator() {
             CPPUNIT_ASSERT(actual.calculate(pi));
             double pe;
             expected.calculate(pe);
-            LOG_DEBUG("pe = " << pe << " pi = " << pi);
+            LOG_DEBUG(<< "pe = " << pe << " pi = " << pi);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(pe, pi, 1e-10);
         }
     }
     {
-        LOG_DEBUG("minimum");
+        LOG_DEBUG(<< "minimum");
         CModelTools::CProbabilityAggregator actual(CModelTools::CProbabilityAggregator::E_Min);
         CPPUNIT_ASSERT(actual.empty());
         actual.add(maths::CJointProbabilityOfLessLikelySamples());
@@ -118,12 +118,12 @@ void CToolsTest::testProbabilityAggregator() {
             double pj, pe;
             joint.calculate(pj);
             extreme.calculate(pe);
-            LOG_DEBUG("pj = " << pj << " pe = " << pe << " pi = " << pi);
+            LOG_DEBUG(<< "pj = " << pj << " pe = " << pe << " pi = " << pi);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(std::min(pj, pe), pi, 1e-10);
         }
     }
     {
-        LOG_DEBUG("sum");
+        LOG_DEBUG(<< "sum");
         CModelTools::CProbabilityAggregator actual(CModelTools::CProbabilityAggregator::E_Sum);
         CPPUNIT_ASSERT(actual.empty());
         actual.add(maths::CJointProbabilityOfLessLikelySamples(), 0.5);
@@ -150,7 +150,7 @@ void CToolsTest::testProbabilityAggregator() {
             double pj, pe;
             joint.calculate(pj);
             extreme.calculate(pe);
-            LOG_DEBUG("pj = " << pj << " pe = " << pe << " pi = " << pi);
+            LOG_DEBUG(<< "pj = " << pj << " pe = " << pe << " pi = " << pi);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(std::sqrt(pj) * std::sqrt(pe), pi, 1e-10);
         }
     }

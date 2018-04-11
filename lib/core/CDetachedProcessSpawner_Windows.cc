@@ -61,13 +61,13 @@ public:
     bool terminatePid(CProcess::TPid pid) {
         HANDLE handle = this->handleForPid(pid);
         if (handle == INVALID_HANDLE_VALUE) {
-            LOG_ERROR("Will not attempt to kill process " << pid << ": not a child process");
+            LOG_ERROR(<< "Will not attempt to kill process " << pid << ": not a child process");
             return false;
         }
 
         UINT exitCode = 0;
         if (TerminateProcess(handle, exitCode) == FALSE) {
-            LOG_ERROR("Failed to kill process " << pid << ": " << CWindowsError());
+            LOG_ERROR(<< "Failed to kill process " << pid << ": " << CWindowsError());
             return false;
         }
 
@@ -106,7 +106,7 @@ protected:
     }
 
     virtual void shutdown() {
-        LOG_DEBUG("Shutting down spawned process tracker thread");
+        LOG_DEBUG(<< "Shutting down spawned process tracker thread");
         CScopedLock lock(m_Mutex);
         m_Shutdown = true;
         m_Condition.signal();
@@ -146,13 +146,13 @@ private:
 CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec& permittedProcessPaths)
     : m_PermittedProcessPaths(permittedProcessPaths), m_TrackerThread(boost::make_shared<detail::CTrackerThread>()) {
     if (m_TrackerThread->start() == false) {
-        LOG_ERROR("Failed to start spawned process tracker thread");
+        LOG_ERROR(<< "Failed to start spawned process tracker thread");
     }
 }
 
 CDetachedProcessSpawner::~CDetachedProcessSpawner() {
     if (m_TrackerThread->stop() == false) {
-        LOG_ERROR("Failed to stop spawned process tracker thread");
+        LOG_ERROR(<< "Failed to stop spawned process tracker thread");
     }
 }
 
@@ -163,7 +163,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args, CProcess::TPid& childPid) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(), processPath) == m_PermittedProcessPaths.end()) {
-        LOG_ERROR("Spawning process '" << processPath << "' is not permitted");
+        LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
         return false;
     }
 
@@ -212,7 +212,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
                           0,
                           &startupInfo,
                           &processInformation) == FALSE) {
-            LOG_ERROR("Failed to spawn '" << processPath << "': " << CWindowsError());
+            LOG_ERROR(<< "Failed to spawn '" << processPath << "': " << CWindowsError());
             return false;
         }
 
@@ -220,7 +220,7 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
         m_TrackerThread->addPid(childPid, processInformation.hProcess);
     }
 
-    LOG_DEBUG("Spawned '" << processPath << "' with PID " << childPid);
+    LOG_DEBUG(<< "Spawned '" << processPath << "' with PID " << childPid);
 
     CloseHandle(processInformation.hThread);
 

@@ -32,7 +32,7 @@ CThread::~CThread() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadHandle != INVALID_HANDLE_VALUE) {
-        LOG_ERROR("Trying to destroy a running thread. Call 'stop' before destroying");
+        LOG_ERROR(<< "Trying to destroy a running thread. Call 'stop' before destroying");
     }
 }
 
@@ -46,7 +46,7 @@ bool CThread::start(TThreadId& threadId) {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadHandle != INVALID_HANDLE_VALUE) {
-        LOG_ERROR("Thread already running");
+        LOG_ERROR(<< "Thread already running");
         threadId = m_ThreadId;
         return false;
     }
@@ -63,7 +63,7 @@ bool CThread::start(TThreadId& threadId) {
     // valid handle if _beginthreadex() did not return an error.
     uintptr_t handle(_beginthreadex(0, 0, &CThread::threadFunc, this, 0, 0));
     if (handle == 0) {
-        LOG_ERROR("Cannot create thread: " << ::strerror(errno));
+        LOG_ERROR(<< "Cannot create thread: " << ::strerror(errno));
         threadId = 0;
         return false;
     }
@@ -79,12 +79,12 @@ bool CThread::stop() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadHandle == INVALID_HANDLE_VALUE) {
-        LOG_ERROR("Thread not running");
+        LOG_ERROR(<< "Thread not running");
         return false;
     }
 
     if (GetCurrentThreadId() == m_ThreadId) {
-        LOG_ERROR("Can't stop own thread");
+        LOG_ERROR(<< "Can't stop own thread");
         return false;
     }
 
@@ -97,7 +97,7 @@ bool CThread::stop() {
         // To match pthread behaviour, we won't report an error for joining a
         // thread that's already stopped
         if (errCode != ERROR_INVALID_HANDLE) {
-            LOG_ERROR("Error joining thread: " << CWindowsError(errCode));
+            LOG_ERROR(<< "Error joining thread: " << CWindowsError(errCode));
         }
     }
 
@@ -112,12 +112,12 @@ bool CThread::waitForFinish() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadHandle == INVALID_HANDLE_VALUE) {
-        LOG_ERROR("Thread not running");
+        LOG_ERROR(<< "Thread not running");
         return false;
     }
 
     if (GetCurrentThreadId() == m_ThreadId) {
-        LOG_ERROR("Can't stop own thread");
+        LOG_ERROR(<< "Can't stop own thread");
         return false;
     }
 
@@ -127,7 +127,7 @@ bool CThread::waitForFinish() {
         // To match pthread behaviour, we won't report an error for joining a
         // thread that's already stopped
         if (errCode != ERROR_INVALID_HANDLE) {
-            LOG_ERROR("Error joining thread: " << CWindowsError(errCode));
+            LOG_ERROR(<< "Error joining thread: " << CWindowsError(errCode));
         }
     }
 
@@ -148,12 +148,12 @@ bool CThread::cancelBlockedIo() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadHandle == INVALID_HANDLE_VALUE) {
-        LOG_ERROR("Thread not running");
+        LOG_ERROR(<< "Thread not running");
         return false;
     }
 
     if (GetCurrentThreadId() == m_ThreadId) {
-        LOG_ERROR("Can't cancel blocked IO in own thread");
+        LOG_ERROR(<< "Can't cancel blocked IO in own thread");
         return false;
     }
 
@@ -162,7 +162,7 @@ bool CThread::cancelBlockedIo() {
 
         // Don't report an error if there is no blocking call to cancel
         if (errCode != ERROR_NOT_FOUND) {
-            LOG_ERROR("Error cancelling blocked IO in thread: " << CWindowsError(errCode));
+            LOG_ERROR(<< "Error cancelling blocked IO in thread: " << CWindowsError(errCode));
             return false;
         }
     }
@@ -172,7 +172,7 @@ bool CThread::cancelBlockedIo() {
 
 bool CThread::cancelBlockedIo(TThreadId threadId) {
     if (GetCurrentThreadId() == threadId) {
-        LOG_ERROR("Can't cancel blocked IO in own thread");
+        LOG_ERROR(<< "Can't cancel blocked IO in own thread");
         return false;
     }
 
@@ -180,7 +180,7 @@ bool CThread::cancelBlockedIo(TThreadId threadId) {
     // Note inconsistency in Win32 thread function return codes here - the error
     // return is NULL rather than INVALID_HANDLE_VALUE!
     if (threadHandle == 0) {
-        LOG_ERROR("Error cancelling blocked IO in thread " << threadId << ": " << CWindowsError());
+        LOG_ERROR(<< "Error cancelling blocked IO in thread " << threadId << ": " << CWindowsError());
         return false;
     }
 
@@ -189,7 +189,7 @@ bool CThread::cancelBlockedIo(TThreadId threadId) {
 
         // Don't report an error if there is no blocking call to cancel
         if (errCode != ERROR_NOT_FOUND) {
-            LOG_ERROR("Error cancelling blocked IO in thread " << threadId << ": " << CWindowsError(errCode));
+            LOG_ERROR(<< "Error cancelling blocked IO in thread " << threadId << ": " << CWindowsError(errCode));
             CloseHandle(threadHandle);
             return false;
         }
