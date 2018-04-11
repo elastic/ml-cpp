@@ -21,6 +21,7 @@
 class CForecastModelPersistTest : public CppUnit::TestFixture {
 public:
     void testPersistAndRestore();
+    void testPersistAndRestoreEmpty();
 
     static CppUnit::Test* suite();
 };

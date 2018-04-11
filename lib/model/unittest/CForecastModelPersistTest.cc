@@ -119,11 +119,31 @@ void CForecastModelPersistTest::testPersistAndRestore() {
     std::remove(persistedModels.c_str());
 }
 
+void CForecastModelPersistTest::testPersistAndRestoreEmpty() {
+    core_t::TTime bucketLength{1800};
+    double minimumSeasonalVarianceScale = 0.2;
+    SModelParams params{bucketLength};
+
+    CForecastModelPersist::CPersist persister(ml::test::CTestTmpDir::tmpDir());
+    std::string persistedModels = persister.finalizePersistAndGetFile();
+    {
+        CForecastModelPersist::CRestore restorer(params, minimumSeasonalVarianceScale, persistedModels);
+        CForecastModelPersist::TMathsModelPtr restoredModel;
+        std::string restoredByFieldValue;
+        model_t::EFeature restoredFeature;
+
+        CPPUNIT_ASSERT(!restorer.nextModel(restoredModel, restoredFeature, restoredByFieldValue));
+    }
+    std::remove(persistedModels.c_str());
+}
+
 CppUnit::Test* CForecastModelPersistTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CForecastModelPersistTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastModelPersistTest>("CForecastModelPersistTest::testPersistAndRestore",
                                                                              &CForecastModelPersistTest::testPersistAndRestore));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastModelPersistTest>("CForecastModelPersistTest::testPersistAndRestoreEmpty",
+                                                                             &CForecastModelPersistTest::testPersistAndRestoreEmpty));
 
     return suiteOfTests;
 }

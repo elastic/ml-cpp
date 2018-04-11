@@ -38,23 +38,22 @@ static const std::string MODEL_TAG("model");
 static const std::string BY_FIELD_VALUE_TAG("by_field_value");
 }
 
-CForecastModelPersist::CPersist::CPersist(const std::string& temporaryPath)
-    : m_FileName(temporaryPath), m_OutStream(), m_PersistInserter() {
+CForecastModelPersist::CPersist::CPersist(const std::string& temporaryPath) : m_FileName(temporaryPath), m_OutStream(), m_ModelCount(0) {
     m_FileName /= boost::filesystem::unique_path("forecast-persist-%%%%-%%%%-%%%%-%%%%");
     m_OutStream.open(m_FileName.string());
-    m_PersistInserter.reset(new core::CJsonStatePersistInserter(m_OutStream));
+    m_OutStream << "[";
 }
 
 void CForecastModelPersist::CPersist::addModel(const maths::CModel* model,
                                                const model_t::EFeature feature,
                                                const std::string& byFieldValue) {
-    if (!m_PersistInserter) {
-        LOG_ERROR("Internal error: Can not add model to an already closed stream.");
-        return;
+    if (m_ModelCount++ > 0) {
+        m_OutStream << ",";
     }
 
-    m_PersistInserter->insertLevel(FORECAST_MODEL_PERSIST_TAG,
-                                   boost::bind<void>(CForecastModelPersist::CPersist::persistOneModel, _1, model, feature, byFieldValue));
+    core::CJsonStatePersistInserter inserter(m_OutStream);
+    inserter.insertLevel(FORECAST_MODEL_PERSIST_TAG,
+                         boost::bind<void>(CForecastModelPersist::CPersist::persistOneModel, _1, model, feature, byFieldValue));
 }
 
 void CForecastModelPersist::CPersist::persistOneModel(core::CStatePersistInserter& inserter,
@@ -68,8 +67,7 @@ void CForecastModelPersist::CPersist::persistOneModel(core::CStatePersistInserte
 }
 
 const std::string& CForecastModelPersist::CPersist::finalizePersistAndGetFile() {
-    // destruct m_PersistInserter to force close it
-    m_PersistInserter.reset();
+    m_OutStream << "]";
     m_OutStream.close();
     return m_FileName.string();
 }
@@ -82,7 +80,7 @@ CForecastModelPersist::CRestore::CRestore(const SModelParams& modelParams, doubl
 }
 
 bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model, model_t::EFeature& feature, std::string& byFieldValue) {
-    if (m_RestoreTraverser.isEof()) {
+    if (m_RestoreTraverser.isEof() || m_RestoreTraverser.name().empty()) {
         return false;
     }
 
@@ -109,8 +107,8 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model, model_t::
     }
 
     model.reset(originalModel->cloneForForecast());
+    m_RestoreTraverser.nextObject();
 
-    m_RestoreTraverser.next();
     return true;
 }
 

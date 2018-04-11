@@ -74,8 +74,8 @@ public:
         //! the actual file where it models are persisted to
         std::ofstream m_OutStream;
 
-        //! the persist inserter
-        std::unique_ptr<core::CJsonStatePersistInserter> m_PersistInserter;
+        //! number of models persisted
+        size_t m_ModelCount;
     };
 
     class CRestore final {
