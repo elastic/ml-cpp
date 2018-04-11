@@ -14,7 +14,6 @@
 #include <maths/CBjkstUniqueValues.h>
 
 #include <test/CRandomNumbers.h>
-#include <test/CRandomNumbersDetail.h>
 
 using namespace ml;
 using namespace maths;
