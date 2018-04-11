@@ -24,6 +24,7 @@
 #include <boost/ref.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <algorithm>
 #include <vector>
 
 namespace ml {
