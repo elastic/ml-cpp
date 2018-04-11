@@ -118,17 +118,17 @@ private:
                 const std::string& name = traverser.name();
                 if (name == SAMPLE_TAG) {
                     if (traverser.traverseSubLevel(boost::bind(&TMetricPartialStatistic::restore, &s_Statistic, _1)) == false) {
-                        LOG_ERROR("Invalid sample value");
+                        LOG_ERROR(<< "Invalid sample value");
                         return false;
                     }
                 } else if (name == SAMPLE_START_TAG) {
                     if (core::CStringUtils::stringToType(traverser.value(), s_Start) == false) {
-                        LOG_ERROR("Invalid attribute identifier in " << traverser.value());
+                        LOG_ERROR(<< "Invalid attribute identifier in " << traverser.value());
                         return false;
                     }
                 } else if (name == SAMPLE_END_TAG) {
                     if (core::CStringUtils::stringToType(traverser.value(), s_End) == false) {
-                        LOG_ERROR("Invalid attribute identifier in " << traverser.value());
+                        LOG_ERROR(<< "Invalid attribute identifier in " << traverser.value());
                         return false;
                     }
                 }
@@ -297,7 +297,7 @@ public:
             if (name == SUB_SAMPLE_TAG) {
                 SSubSample subSample(m_Dimension, 0);
                 if (traverser.traverseSubLevel(boost::bind(&SSubSample::acceptRestoreTraverser, &subSample, _1)) == false) {
-                    LOG_ERROR("Invalid sub-sample in " << traverser.value());
+                    LOG_ERROR(<< "Invalid sub-sample in " << traverser.value());
                     return false;
                 }
                 this->resizeIfFull();

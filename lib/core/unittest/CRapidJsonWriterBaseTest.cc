@@ -74,7 +74,7 @@ void CRapidJsonWriterBaseTest::testAddFields() {
     std::string printedDoc(strm.str());
     ml::core::CStringUtils::trimWhitespace(printedDoc);
 
-    LOG_DEBUG("Printed doc is: " << printedDoc);
+    LOG_DEBUG(<< "Printed doc is: " << printedDoc);
 
     std::string expectedDoc("{"
                             "\"str\":\"hello\","

@@ -57,25 +57,25 @@ void CRegression::CLeastSquaresOnline<N, T>::shiftAbscissa(double dx) {
     for (std::size_t i = 1u; i < 2 * N - 2; ++i) {
         d[i] = d[i - 1] * dx;
     }
-    LOG_TRACE("d = " << core::CContainerPrinter::print(d));
+    LOG_TRACE(<< "d = " << core::CContainerPrinter::print(d));
 
-    LOG_TRACE("S(before) " << CBasicStatistics::mean(m_S));
+    LOG_TRACE(<< "S(before) " << CBasicStatistics::mean(m_S));
     for (std::size_t i = 2 * N - 2; i > 0; --i) {
-        LOG_TRACE("i = " << i);
+        LOG_TRACE(<< "i = " << i);
         for (std::size_t j = 0u; j < i; ++j) {
             double bij = CCategoricalTools::binomialCoefficient(i, j) * d[i - j - 1];
-            LOG_TRACE("bij = " << bij);
+            LOG_TRACE(<< "bij = " << bij);
             CBasicStatistics::moment<0>(m_S)(i) += bij * CBasicStatistics::mean(m_S)(j);
             if (i >= N) {
                 continue;
             }
             std::size_t yi = i + 2 * N - 1;
             std::size_t yj = j + 2 * N - 1;
-            LOG_TRACE("yi = " << yi << ", yj = " << yj);
+            LOG_TRACE(<< "yi = " << yi << ", yj = " << yj);
             CBasicStatistics::moment<0>(m_S)(yi) += bij * CBasicStatistics::mean(m_S)(yj);
         }
     }
-    LOG_TRACE("S(after) = " << CBasicStatistics::mean(m_S));
+    LOG_TRACE(<< "S(after) = " << CBasicStatistics::mean(m_S));
 }
 
 template<std::size_t N, typename T>
@@ -169,13 +169,13 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n, MATRIX& x
     for (std::size_t i = 0u; i < n; ++i) {
         y(i) = CBasicStatistics::mean(m_S)(i + 2 * N - 1);
     }
-    LOG_TRACE("S = " << CBasicStatistics::mean(m_S));
-    LOG_TRACE("x =\n" << x);
-    LOG_TRACE("y =\n" << y);
+    LOG_TRACE(<< "S = " << CBasicStatistics::mean(m_S));
+    LOG_TRACE(<< "x =\n" << x);
+    LOG_TRACE(<< "y =\n" << y);
 
     Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(), Eigen::ComputeFullU | Eigen::ComputeFullV);
     if (x_.singularValues()(0) > maxCondition * x_.singularValues()(n - 1)) {
-        LOG_TRACE("singular values = " << x_.singularValues());
+        LOG_TRACE(<< "singular values = " << x_.singularValues());
         return false;
     }
 
@@ -201,7 +201,7 @@ bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n, MATRIX& 
     this->gramian(n, x);
     Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(), Eigen::ComputeFullU | Eigen::ComputeFullV);
     if (x_.singularValues()(0) > maxCondition * x_.singularValues()(n - 1)) {
-        LOG_TRACE("singular values = " << x_.singularValues());
+        LOG_TRACE(<< "singular values = " << x_.singularValues());
         return false;
     }
 

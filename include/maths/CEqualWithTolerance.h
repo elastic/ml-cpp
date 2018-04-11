@@ -101,7 +101,7 @@ public:
         case 7: // absolute | relative
             return (norm(difference) <= m_AbsoluteEps) || (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
         }
-        LOG_ERROR("Unexpected tolerance type " << m_ToleranceType);
+        LOG_ERROR(<< "Unexpected tolerance type " << m_ToleranceType);
         return false;
     }
 

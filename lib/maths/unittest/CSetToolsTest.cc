@@ -25,13 +25,13 @@ using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 
 void CSetToolsTest::testInplaceSetDifference() {
-    LOG_DEBUG("+-------------------------------------------+");
-    LOG_DEBUG("|  CSetToolsTest::testInplaceSetDifference  |");
-    LOG_DEBUG("+-------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------+");
+    LOG_DEBUG(<< "|  CSetToolsTest::testInplaceSetDifference  |");
+    LOG_DEBUG(<< "+-------------------------------------------+");
 
     // Test some edge cases.
     {
-        LOG_DEBUG("Edge cases");
+        LOG_DEBUG(<< "Edge cases");
 
         double a[] = {1.0, 1.1, 1.2, 3.4, 7.8};
         TDoubleVec A(boost::begin(a), boost::end(a));
@@ -45,8 +45,8 @@ void CSetToolsTest::testInplaceSetDifference() {
             std::set_difference(A.begin(), A.end(), left.begin(), left.end(), std::back_inserter(expected));
             TDoubleVec test = A;
             maths::CSetTools::inplace_set_difference(test, left.begin(), left.end());
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(A) << ", B = " << core::CContainerPrinter::print(left)
-                             << ", A - B = " << core::CContainerPrinter::print(test));
+            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A) << ", B = " << core::CContainerPrinter::print(left)
+                      << ", A - B = " << core::CContainerPrinter::print(test));
             CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected), core::CContainerPrinter::print(test));
 
             TDoubleVec right;
@@ -57,13 +57,13 @@ void CSetToolsTest::testInplaceSetDifference() {
             std::set_difference(A.begin(), A.end(), right.begin(), right.end(), std::back_inserter(expected));
             test = A;
             maths::CSetTools::inplace_set_difference(test, right.begin(), right.end());
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(A) << ", B = " << core::CContainerPrinter::print(right)
-                             << ", A - B = " << core::CContainerPrinter::print(test));
+            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A) << ", B = " << core::CContainerPrinter::print(right)
+                      << ", A - B = " << core::CContainerPrinter::print(test));
             CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected), core::CContainerPrinter::print(test));
         }
     }
 
-    LOG_DEBUG("Random");
+    LOG_DEBUG(<< "Random");
 
     test::CRandomNumbers rng;
 
@@ -85,14 +85,14 @@ void CSetToolsTest::testInplaceSetDifference() {
         std::set_difference(A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(expected));
 
         if ((t + 1) % 10 == 0) {
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(A));
-            LOG_DEBUG("B = " << core::CContainerPrinter::print(B));
+            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A));
+            LOG_DEBUG(<< "B = " << core::CContainerPrinter::print(B));
         }
 
         maths::CSetTools::inplace_set_difference(A, B.begin(), B.end());
 
         if ((t + 1) % 10 == 0) {
-            LOG_DEBUG("A - B = " << core::CContainerPrinter::print(A));
+            LOG_DEBUG(<< "A - B = " << core::CContainerPrinter::print(A));
         }
 
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected), core::CContainerPrinter::print(A));
@@ -100,12 +100,12 @@ void CSetToolsTest::testInplaceSetDifference() {
 }
 
 void CSetToolsTest::testSetSizes() {
-    LOG_DEBUG("+-------------------------------+");
-    LOG_DEBUG("|  CSetToolsTest::testSetSizes  |");
-    LOG_DEBUG("+-------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------+");
+    LOG_DEBUG(<< "|  CSetToolsTest::testSetSizes  |");
+    LOG_DEBUG(<< "+-------------------------------+");
 
     {
-        LOG_DEBUG("Edge cases");
+        LOG_DEBUG(<< "Edge cases");
 
         double a[] = {1.0, 1.1, 1.2, 3.4, 7.8};
         TDoubleVec A(boost::begin(a), boost::end(a));
@@ -118,8 +118,8 @@ void CSetToolsTest::testSetSizes() {
             TDoubleVec expected;
             std::set_intersection(A.begin(), A.end(), left.begin(), left.end(), std::back_inserter(expected));
             std::size_t test = maths::CSetTools::setIntersectSize(A.begin(), A.end(), left.begin(), left.end());
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(A) << ", B = " << core::CContainerPrinter::print(left)
-                             << ", |A ^ B| = " << test);
+            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A) << ", B = " << core::CContainerPrinter::print(left)
+                      << ", |A ^ B| = " << test);
             CPPUNIT_ASSERT_EQUAL(expected.size(), test);
 
             TDoubleVec right;
@@ -129,20 +129,20 @@ void CSetToolsTest::testSetSizes() {
             expected.clear();
             std::set_intersection(A.begin(), A.end(), right.begin(), right.end(), std::back_inserter(expected));
             test = maths::CSetTools::setIntersectSize(A.begin(), A.end(), right.begin(), right.end());
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(A) << ", B = " << core::CContainerPrinter::print(right)
-                             << ", |A ^ B| = " << test);
+            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A) << ", B = " << core::CContainerPrinter::print(right)
+                      << ", |A ^ B| = " << test);
             CPPUNIT_ASSERT_EQUAL(expected.size(), test);
 
             expected.clear();
             std::set_union(left.begin(), left.end(), right.begin(), right.end(), std::back_inserter(expected));
             test = maths::CSetTools::setUnionSize(left.begin(), left.end(), right.begin(), right.end());
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(left) << ", B = " << core::CContainerPrinter::print(right)
-                             << ", |A U B| = " << test);
+            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(left) << ", B = " << core::CContainerPrinter::print(right)
+                      << ", |A U B| = " << test);
             CPPUNIT_ASSERT_EQUAL(expected.size(), test);
         }
     }
 
-    LOG_DEBUG("Random");
+    LOG_DEBUG(<< "Random");
 
     test::CRandomNumbers rng;
 
@@ -164,14 +164,14 @@ void CSetToolsTest::testSetSizes() {
         std::set_intersection(A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(expected));
 
         if ((t + 1) % 10 == 0) {
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(A));
-            LOG_DEBUG("B = " << core::CContainerPrinter::print(B));
+            LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A));
+            LOG_DEBUG(<< "B = " << core::CContainerPrinter::print(B));
         }
 
         std::size_t test = maths::CSetTools::setIntersectSize(A.begin(), A.end(), B.begin(), B.end());
 
         if ((t + 1) % 10 == 0) {
-            LOG_DEBUG("|A ^ B| = " << test);
+            LOG_DEBUG(<< "|A ^ B| = " << test);
         }
 
         CPPUNIT_ASSERT_EQUAL(expected.size(), test);
@@ -182,7 +182,7 @@ void CSetToolsTest::testSetSizes() {
         test = maths::CSetTools::setUnionSize(A.begin(), A.end(), B.begin(), B.end());
 
         if ((t + 1) % 10 == 0) {
-            LOG_DEBUG("|A U B| = " << test);
+            LOG_DEBUG(<< "|A U B| = " << test);
         }
 
         CPPUNIT_ASSERT_EQUAL(expected.size(), test);
@@ -190,12 +190,12 @@ void CSetToolsTest::testSetSizes() {
 }
 
 void CSetToolsTest::testJaccard() {
-    LOG_DEBUG("+------------------------------+");
-    LOG_DEBUG("|  CSetToolsTest::testJaccard  |");
-    LOG_DEBUG("+------------------------------+");
+    LOG_DEBUG(<< "+------------------------------+");
+    LOG_DEBUG(<< "|  CSetToolsTest::testJaccard  |");
+    LOG_DEBUG(<< "+------------------------------+");
 
     {
-        LOG_DEBUG("Edge cases");
+        LOG_DEBUG(<< "Edge cases");
 
         double A[] = {0.0, 1.2, 3.2};
         double B[] = {0.0, 1.2, 3.2, 5.1};
@@ -206,7 +206,7 @@ void CSetToolsTest::testJaccard() {
         CPPUNIT_ASSERT_EQUAL(0.0, maths::CSetTools::jaccard(A, A + 3, B + 3, B + 4));
     }
 
-    LOG_DEBUG("Random");
+    LOG_DEBUG(<< "Random");
 
     test::CRandomNumbers rng;
 
@@ -234,20 +234,20 @@ void CSetToolsTest::testJaccard() {
         double actual = maths::CSetTools::jaccard(A.begin(), A.end(), B.begin(), B.end());
 
         if ((t + 1) % 10 == 0) {
-            LOG_DEBUG("Jaccard expected = " << expected);
-            LOG_DEBUG("Jaccard actual   = " << actual);
+            LOG_DEBUG(<< "Jaccard expected = " << expected);
+            LOG_DEBUG(<< "Jaccard actual   = " << actual);
         }
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
 }
 
 void CSetToolsTest::testOverlap() {
-    LOG_DEBUG("+------------------------------+");
-    LOG_DEBUG("|  CSetToolsTest::testOverlap  |");
-    LOG_DEBUG("+------------------------------+");
+    LOG_DEBUG(<< "+------------------------------+");
+    LOG_DEBUG(<< "|  CSetToolsTest::testOverlap  |");
+    LOG_DEBUG(<< "+------------------------------+");
 
     {
-        LOG_DEBUG("Edge cases");
+        LOG_DEBUG(<< "Edge cases");
 
         double A[] = {0.0, 1.2, 3.2};
         double B[] = {0.0, 1.2, 3.2, 5.1};
@@ -258,7 +258,7 @@ void CSetToolsTest::testOverlap() {
         CPPUNIT_ASSERT_EQUAL(0.0, maths::CSetTools::overlap(A, A + 3, B + 3, B + 4));
     }
 
-    LOG_DEBUG("Random");
+    LOG_DEBUG(<< "Random");
 
     test::CRandomNumbers rng;
 
@@ -285,8 +285,8 @@ void CSetToolsTest::testOverlap() {
         double actual = maths::CSetTools::overlap(A.begin(), A.end(), B.begin(), B.end());
 
         if ((t + 1) % 10 == 0) {
-            LOG_DEBUG("Overlap expected = " << expected);
-            LOG_DEBUG("Overlap actual   = " << actual);
+            LOG_DEBUG(<< "Overlap expected = " << expected);
+            LOG_DEBUG(<< "Overlap actual   = " << actual);
         }
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }

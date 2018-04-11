@@ -88,7 +88,7 @@ void generateTestMessages(test::CRandomNumbers& rng, core_t::TTime time, core_t:
     using TUIntVec = std::vector<unsigned int>;
     using TDoubleVec = std::vector<double>;
 
-    LOG_DEBUG("bucket = [" << time << ", " << time + bucketLength << ")");
+    LOG_DEBUG(<< "bucket = [" << time << ", " << time + bucketLength << ")");
 
     TStrVec categories = allCategories();
     TStrVec people = allPeople();
@@ -112,7 +112,7 @@ void generateTestMessages(test::CRandomNumbers& rng, core_t::TTime time, core_t:
     for (std::size_t i = a; i < b; ++i) {
         bucketPeople.push_back(i);
     }
-    LOG_DEBUG("bucketPeople = " << core::CContainerPrinter::print(bucketPeople));
+    LOG_DEBUG(<< "bucketPeople = " << core::CContainerPrinter::print(bucketPeople));
 
     for (std::size_t i = 0u; i < categories.size(); ++i) {
         TDoubleVec offsets;
@@ -125,7 +125,7 @@ void generateTestMessages(test::CRandomNumbers& rng, core_t::TTime time, core_t:
     }
 
     std::sort(messages.begin(), messages.end());
-    LOG_DEBUG("Generated " << messages.size() << " messages");
+    LOG_DEBUG(<< "Generated " << messages.size() << " messages");
 }
 
 const TSizeSizePrFeatureDataPrVec& extract(const TFeatureSizeSizePrFeatureDataPrVecPrVec& featureData, model_t::EFeature feature) {
@@ -195,7 +195,7 @@ const std::string EMPTY_STRING;
 }
 
 void CEventRatePopulationDataGathererTest::testAttributeCounts() {
-    LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testAttributeCounts ***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testAttributeCounts ***");
 
     // We check that we correctly sample the unique people per
     // attribute and (attribute, person) pair counts.
@@ -298,8 +298,8 @@ void CEventRatePopulationDataGathererTest::testAttributeCounts() {
         attributeIds.push_back(cid);
         CPPUNIT_ASSERT_EQUAL(expectedAttributeOrder[categories[i]], cid);
     }
-    LOG_DEBUG("attribute ids = " << core::CContainerPrinter::print(attributeIds));
-    LOG_DEBUG("expected attribute ids = " << core::CContainerPrinter::print(expectedAttributeOrder));
+    LOG_DEBUG(<< "attribute ids = " << core::CContainerPrinter::print(attributeIds));
+    LOG_DEBUG(<< "expected attribute ids = " << core::CContainerPrinter::print(expectedAttributeOrder));
 
     TStrVec people = allPeople();
     TSizeVec peopleIds;
@@ -309,12 +309,12 @@ void CEventRatePopulationDataGathererTest::testAttributeCounts() {
         peopleIds.push_back(pid);
         CPPUNIT_ASSERT_EQUAL(expectedPeopleOrder[people[i]], pid);
     }
-    LOG_DEBUG("people ids = " << core::CContainerPrinter::print(peopleIds));
-    LOG_DEBUG("expected people ids = " << core::CContainerPrinter::print(expectedPeopleOrder));
+    LOG_DEBUG(<< "people ids = " << core::CContainerPrinter::print(peopleIds));
+    LOG_DEBUG(<< "expected people ids = " << core::CContainerPrinter::print(expectedPeopleOrder));
 }
 
 void CEventRatePopulationDataGathererTest::testAttributeIndicator() {
-    LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testAttributeIndicator ***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testAttributeIndicator ***");
 
     // We check that we correctly sample the (attribute, person)
     // indicator.
@@ -383,7 +383,7 @@ void CEventRatePopulationDataGathererTest::testAttributeIndicator() {
 }
 
 void CEventRatePopulationDataGathererTest::testUniqueValueCounts() {
-    LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testUniqueAttributeCounts ***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testUniqueAttributeCounts ***");
 
     // We check that we correctly sample the unique counts
     // of values per person.
@@ -461,7 +461,7 @@ void CEventRatePopulationDataGathererTest::testUniqueValueCounts() {
 }
 
 void CEventRatePopulationDataGathererTest::testCompressedLength() {
-    LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testCompressedLength ***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testCompressedLength ***");
 
     // We check that we correctly sample the compressed length of unique
     // values per person.
@@ -538,8 +538,8 @@ void CEventRatePopulationDataGathererTest::testCompressedLength() {
             CPPUNIT_ASSERT(compressor.compressedLength(true, length));
             expectedBucketCompressedLengthPerPerson[key] = length;
         }
-        LOG_DEBUG("Time " << time << " bucketCompressedLengthPerPerson "
-                          << core::CContainerPrinter::print(bucketCompressedLengthPerPerson));
+        LOG_DEBUG(<< "Time " << time << " bucketCompressedLengthPerPerson "
+                  << core::CContainerPrinter::print(bucketCompressedLengthPerPerson));
         CPPUNIT_ASSERT_EQUAL(expectedBucketCompressedLengthPerPerson.size(), bucketCompressedLengthPerPerson.size());
         for (TSizeSizePrFeatureDataPrVec::const_iterator j = bucketCompressedLengthPerPerson.begin();
              j != bucketCompressedLengthPerPerson.end();
@@ -554,7 +554,7 @@ void CEventRatePopulationDataGathererTest::testCompressedLength() {
 }
 
 void CEventRatePopulationDataGathererTest::testRemovePeople() {
-    LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testRemovePeople ***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testRemovePeople ***");
 
     using TStrSizeMap = std::map<std::string, std::size_t>;
     using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
@@ -599,7 +599,7 @@ void CEventRatePopulationDataGathererTest::testRemovePeople() {
     peopleToRemove.push_back(4u);
 
     std::size_t numberPeople = gatherer.numberActivePeople();
-    LOG_DEBUG("numberPeople = " << numberPeople);
+    LOG_DEBUG(<< "numberPeople = " << numberPeople);
     CPPUNIT_ASSERT_EQUAL(numberPeople, gatherer.numberOverFieldValues());
     TStrVec expectedPersonNames;
     TSizeVec expectedPersonIds;
@@ -608,7 +608,7 @@ void CEventRatePopulationDataGathererTest::testRemovePeople() {
             expectedPersonNames.push_back(gatherer.personName(i));
             expectedPersonIds.push_back(i);
         } else {
-            LOG_DEBUG("Removing " << gatherer.personName(i));
+            LOG_DEBUG(<< "Removing " << gatherer.personName(i));
         }
     }
 
@@ -623,11 +623,11 @@ void CEventRatePopulationDataGathererTest::testRemovePeople() {
             }
         }
     }
-    LOG_DEBUG("expectedNonZeroCounts = " << core::CContainerPrinter::print(expectedNonZeroCounts));
+    LOG_DEBUG(<< "expectedNonZeroCounts = " << core::CContainerPrinter::print(expectedNonZeroCounts));
 
     std::string expectedFeatureData;
     {
-        LOG_DEBUG("Expected");
+        LOG_DEBUG(<< "Expected");
         TStrFeatureDataPrVec expected;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart - bucketLength, bucketLength, featureData);
@@ -638,7 +638,7 @@ void CEventRatePopulationDataGathererTest::testRemovePeople() {
                     std::string key = model_t::print(featureData[i].first) + " " + gatherer.personName(data[j].first.first) + " " +
                                       gatherer.attributeName(data[j].first.second);
                     expected.push_back(TStrFeatureDataPr(key, data[j].second));
-                    LOG_DEBUG("  " << key << " = " << data[j].second.s_Count);
+                    LOG_DEBUG(<< "  " << key << " = " << data[j].second.s_Count);
                 }
             }
         }
@@ -661,13 +661,13 @@ void CEventRatePopulationDataGathererTest::testRemovePeople() {
         const std::string& name = gatherer.personName(nonZeroCounts[i].first);
         actualNonZeroCounts[name] = static_cast<size_t>(nonZeroCounts[i].second);
     }
-    LOG_DEBUG("actualNonZeroCounts = " << core::CContainerPrinter::print(actualNonZeroCounts));
+    LOG_DEBUG(<< "actualNonZeroCounts = " << core::CContainerPrinter::print(actualNonZeroCounts));
 
     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNonZeroCounts), core::CContainerPrinter::print(actualNonZeroCounts));
 
     std::string actualFeatureData;
     {
-        LOG_DEBUG("Actual");
+        LOG_DEBUG(<< "Actual");
         TStrFeatureDataPrVec actual;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart - bucketLength, bucketLength, featureData);
@@ -677,7 +677,7 @@ void CEventRatePopulationDataGathererTest::testRemovePeople() {
                 std::string key = model_t::print(featureData[i].first) + " " + gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
                 actual.push_back(TStrFeatureDataPr(key, data[j].second));
-                LOG_DEBUG("  " << key << " = " << data[j].second.s_Count);
+                LOG_DEBUG(<< "  " << key << " = " << data[j].second.s_Count);
             }
         }
         actualFeatureData = core::CContainerPrinter::print(actual);
@@ -687,7 +687,7 @@ void CEventRatePopulationDataGathererTest::testRemovePeople() {
 }
 
 void CEventRatePopulationDataGathererTest::testRemoveAttributes() {
-    LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testRemoveAttributes ***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testRemoveAttributes ***");
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -730,7 +730,7 @@ void CEventRatePopulationDataGathererTest::testRemoveAttributes() {
     attributesToRemove.push_back(15u);
 
     std::size_t numberAttributes = gatherer.numberActiveAttributes();
-    LOG_DEBUG("numberAttributes = " << numberAttributes);
+    LOG_DEBUG(<< "numberAttributes = " << numberAttributes);
     CPPUNIT_ASSERT_EQUAL(numberAttributes, gatherer.numberByFieldValues());
     TStrVec expectedAttributeNames;
     TSizeVec expectedAttributeIds;
@@ -739,13 +739,13 @@ void CEventRatePopulationDataGathererTest::testRemoveAttributes() {
             expectedAttributeNames.push_back(gatherer.attributeName(i));
             expectedAttributeIds.push_back(i);
         } else {
-            LOG_DEBUG("Removing " << gatherer.attributeName(i));
+            LOG_DEBUG(<< "Removing " << gatherer.attributeName(i));
         }
     }
 
     std::string expectedFeatureData;
     {
-        LOG_DEBUG("Expected");
+        LOG_DEBUG(<< "Expected");
         TStrFeatureDataPrVec expected;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
@@ -756,7 +756,7 @@ void CEventRatePopulationDataGathererTest::testRemoveAttributes() {
                     std::string key = model_t::print(featureData[i].first) + " " + gatherer.personName(data[j].first.first) + " " +
                                       gatherer.attributeName(data[j].first.second);
                     expected.push_back(TStrFeatureDataPr(key, data[j].second));
-                    LOG_DEBUG("  " << key << " = " << data[j].second.s_Count);
+                    LOG_DEBUG(<< "  " << key << " = " << data[j].second.s_Count);
                 }
             }
         }
@@ -774,7 +774,7 @@ void CEventRatePopulationDataGathererTest::testRemoveAttributes() {
 
     std::string actualFeatureData;
     {
-        LOG_DEBUG("Actual");
+        LOG_DEBUG(<< "Actual");
         TStrFeatureDataPrVec actual;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
@@ -784,7 +784,7 @@ void CEventRatePopulationDataGathererTest::testRemoveAttributes() {
                 std::string key = model_t::print(featureData[i].first) + " " + gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
                 actual.push_back(TStrFeatureDataPr(key, data[j].second));
-                LOG_DEBUG("  " << key << " = " << data[j].second.s_Count);
+                LOG_DEBUG(<< "  " << key << " = " << data[j].second.s_Count);
             }
         }
         actualFeatureData = core::CContainerPrinter::print(actual);
@@ -800,7 +800,7 @@ bool isSpace(const char x) {
 }
 
 void CEventRatePopulationDataGathererTest::testPersistence() {
-    LOG_DEBUG("*** CEventRatePopulationDataGathererTest::testPersistence ***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testPersistence ***");
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -842,8 +842,8 @@ void CEventRatePopulationDataGathererTest::testPersistence() {
             inserter.toXml(origXml);
         }
 
-        LOG_DEBUG("origXml = " << origXml);
-        LOG_DEBUG("length = " << origXml.length() << ", # tabs " << std::count_if(origXml.begin(), origXml.end(), isSpace));
+        LOG_DEBUG(<< "origXml = " << origXml);
+        LOG_DEBUG(<< "length = " << origXml.length() << ", # tabs " << std::count_if(origXml.begin(), origXml.end(), isSpace));
 
         // Restore the XML into a new data gatherer
         core::CRapidXmlParser parser;
@@ -926,8 +926,8 @@ void CEventRatePopulationDataGathererTest::testPersistence() {
             inserter.toXml(origXml);
         }
 
-        LOG_DEBUG("origXml = " << origXml);
-        LOG_DEBUG("length = " << origXml.length() << ", # tabs " << std::count_if(origXml.begin(), origXml.end(), isSpace));
+        LOG_DEBUG(<< "origXml = " << origXml);
+        LOG_DEBUG(<< "length = " << origXml.length() << ", # tabs " << std::count_if(origXml.begin(), origXml.end(), isSpace));
 
         // Restore the XML into a new data gatherer
         core::CRapidXmlParser parser;

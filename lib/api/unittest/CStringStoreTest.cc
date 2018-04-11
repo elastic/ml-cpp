@@ -48,12 +48,12 @@ core_t::TTime
 playData(core_t::TTime start, core_t::TTime span, int numBuckets, int numPeople, int numPartitions, int anomaly, api::CAnomalyJob& job) {
     std::string people[] = {"Elgar", "Holst", "Delius", "Vaughan Williams", "Bliss", "Warlock", "Walton"};
     if (numPeople > 7) {
-        LOG_ERROR("Too many people: " << numPeople);
+        LOG_ERROR(<< "Too many people: " << numPeople);
         return start;
     }
     std::string partitions[] = {"tuba", "flute", "violin", "triangle", "jew's harp"};
     if (numPartitions > 5) {
-        LOG_ERROR("Too many partitions: " << numPartitions);
+        LOG_ERROR(<< "Too many partitions: " << numPartitions);
         return start;
     }
     std::stringstream ss;
@@ -123,7 +123,7 @@ void CStringStoreTest::testPersonStringPruning() {
     CMockDataAdder adder;
     CMockSearcher searcher(adder);
 
-    LOG_DEBUG("Setting up job");
+    LOG_DEBUG(<< "Setting up job");
     // Test that the stringstore entries are pruned correctly on persist/restore
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
@@ -132,7 +132,7 @@ void CStringStoreTest::testPersonStringPruning() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
-        LOG_TRACE("Setting up job");
+        LOG_TRACE(<< "Setting up job");
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -171,7 +171,7 @@ void CStringStoreTest::testPersonStringPruning() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), countBuckets("records", outputStrm.str() + "]"));
     }
 
-    LOG_DEBUG("Restoring job");
+    LOG_DEBUG(<< "Restoring job");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
@@ -209,7 +209,7 @@ void CStringStoreTest::testPersonStringPruning() {
         job.finalise();
         CPPUNIT_ASSERT(job.persistState(adder));
     }
-    LOG_DEBUG("Restoring job again");
+    LOG_DEBUG(<< "Restoring job again");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
@@ -248,7 +248,7 @@ void CStringStoreTest::testPersonStringPruning() {
         job.finalise();
         CPPUNIT_ASSERT(job.persistState(adder));
     }
-    LOG_DEBUG("Restoring yet again");
+    LOG_DEBUG(<< "Restoring yet again");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
@@ -303,7 +303,7 @@ void CStringStoreTest::testAttributeStringPruning() {
     CMockDataAdder adder;
     CMockSearcher searcher(adder);
 
-    LOG_DEBUG("Setting up job");
+    LOG_DEBUG(<< "Setting up job");
     // Test that the stringstore entries are pruned correctly on persist/restore
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
@@ -312,7 +312,7 @@ void CStringStoreTest::testAttributeStringPruning() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
-        LOG_TRACE("Setting up job");
+        LOG_TRACE(<< "Setting up job");
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
@@ -329,7 +329,7 @@ void CStringStoreTest::testAttributeStringPruning() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
-        LOG_DEBUG(core::CContainerPrinter::print(model::CStringStore::names().m_Strings));
+        LOG_DEBUG(<< core::CContainerPrinter::print(model::CStringStore::names().m_Strings));
         CPPUNIT_ASSERT(this->nameExists("count"));
         CPPUNIT_ASSERT(this->nameExists("distinct_count"));
         CPPUNIT_ASSERT(this->nameExists("notes"));
@@ -348,7 +348,7 @@ void CStringStoreTest::testAttributeStringPruning() {
         wrappedOutputStream.syncFlush();
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), countBuckets("records", outputStrm.str() + "]"));
     }
-    LOG_DEBUG("Restoring job");
+    LOG_DEBUG(<< "Restoring job");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
@@ -387,7 +387,7 @@ void CStringStoreTest::testAttributeStringPruning() {
         job.finalise();
         CPPUNIT_ASSERT(job.persistState(adder));
     }
-    LOG_DEBUG("Restoring job again");
+    LOG_DEBUG(<< "Restoring job again");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
@@ -427,7 +427,7 @@ void CStringStoreTest::testAttributeStringPruning() {
         job.finalise();
         CPPUNIT_ASSERT(job.persistState(adder));
     }
-    LOG_DEBUG("Restoring yet again");
+    LOG_DEBUG(<< "Restoring yet again");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
@@ -481,7 +481,7 @@ void CStringStoreTest::testInfluencerStringPruning() {
     CMockDataAdder adder;
     CMockSearcher searcher(adder);
 
-    LOG_DEBUG("Setting up job");
+    LOG_DEBUG(<< "Setting up job");
     // Test that the stringstore entries are pruned correctly on persist/restore
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
@@ -490,7 +490,7 @@ void CStringStoreTest::testInfluencerStringPruning() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
-        LOG_TRACE("Setting up job");
+        LOG_TRACE(<< "Setting up job");
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
@@ -498,11 +498,11 @@ void CStringStoreTest::testInfluencerStringPruning() {
 
         // Play in a few buckets with influencers, and see that they stick around for
         // 3 buckets
-        LOG_DEBUG("Running 20 buckets");
+        LOG_DEBUG(<< "Running 20 buckets");
         time = playData(time, BUCKET_SPAN, 20, 7, 5, 99, job);
 
-        LOG_TRACE(core::CContainerPrinter::print(model::CStringStore::names().m_Strings));
-        LOG_TRACE(core::CContainerPrinter::print(model::CStringStore::influencers().m_Strings));
+        LOG_TRACE(<< core::CContainerPrinter::print(model::CStringStore::names().m_Strings));
+        LOG_TRACE(<< core::CContainerPrinter::print(model::CStringStore::influencers().m_Strings));
 
         CPPUNIT_ASSERT(this->influencerExists("Delius"));
         CPPUNIT_ASSERT(this->influencerExists("Walton"));
@@ -533,7 +533,7 @@ void CStringStoreTest::testInfluencerStringPruning() {
         CPPUNIT_ASSERT(this->nameExists("max"));
         CPPUNIT_ASSERT(this->nameExists("notes"));
 
-        LOG_DEBUG("Running 3 buckets");
+        LOG_DEBUG(<< "Running 3 buckets");
         time = playData(time, BUCKET_SPAN, 3, 3, 2, 99, job);
 
         CPPUNIT_ASSERT(this->influencerExists("Delius"));
@@ -550,7 +550,7 @@ void CStringStoreTest::testInfluencerStringPruning() {
         CPPUNIT_ASSERT(this->influencerExists("jew's harp"));
 
         // They should be purged after 3 buckets
-        LOG_DEBUG("Running 2 buckets");
+        LOG_DEBUG(<< "Running 2 buckets");
         time = playData(time, BUCKET_SPAN, 2, 3, 2, 99, job);
         CPPUNIT_ASSERT(this->influencerExists("Delius"));
         CPPUNIT_ASSERT(!this->influencerExists("Walton"));
@@ -566,7 +566,7 @@ void CStringStoreTest::testInfluencerStringPruning() {
         CPPUNIT_ASSERT(!this->influencerExists("jew's harp"));
 
         // Most should reappear
-        LOG_DEBUG("Running 1 bucket");
+        LOG_DEBUG(<< "Running 1 bucket");
         time = playData(time, BUCKET_SPAN, 1, 6, 3, 99, job);
         CPPUNIT_ASSERT(this->influencerExists("Delius"));
         CPPUNIT_ASSERT(!this->influencerExists("Walton"));

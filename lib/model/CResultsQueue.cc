@@ -26,7 +26,7 @@ CResultsQueue::CResultsQueue(std::size_t delayBuckets, core_t::TTime bucketLengt
 void CResultsQueue::push(const CHierarchicalResults& result, core_t::TTime time) {
     if (m_Results.latestBucketEnd() + 1 - m_Results.bucketLength() == 0) {
         m_Results.reset(time - m_Results.bucketLength());
-        LOG_TRACE("Resetting results queue. Queue's latestBucketEnd is " << m_Results.latestBucketEnd());
+        LOG_TRACE(<< "Resetting results queue. Queue's latestBucketEnd is " << m_Results.latestBucketEnd());
     }
     m_Results.push(result, time);
 }
@@ -71,7 +71,7 @@ CResultsQueue::chooseResultTime(core_t::TTime bucketStartTime, core_t::TTime buc
     }
 
     // Select the correct bucket to use
-    LOG_TRACE("Asking for queue items at " << (bucketStartTime - bucketLength) << " and " << (bucketStartTime - (bucketLength / 2)));
+    LOG_TRACE(<< "Asking for queue items at " << (bucketStartTime - bucketLength) << " and " << (bucketStartTime - (bucketLength / 2)));
 
     core_t::TTime resultsTime = 0;
     const model::CHierarchicalResults::TNode* node = m_Results.get(bucketStartTime - bucketLength).root();
@@ -89,7 +89,7 @@ CResultsQueue::chooseResultTime(core_t::TTime bucketStartTime, core_t::TTime buc
         r3 = results.root()->s_NormalizedAnomalyScore;
     }
 
-    LOG_TRACE("Testing results " << r1 << ", " << r2 << ", " << r3);
+    LOG_TRACE(<< "Testing results " << r1 << ", " << r2 << ", " << r3);
 
     if (m_LastResultsIndex == 0) {
         // With 3 clear buckets to look at, start choosing

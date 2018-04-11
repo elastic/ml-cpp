@@ -42,7 +42,7 @@ void CJsonStatePersistInserterTest::testPersist() {
     std::string json(strm.str());
     ml::core::CStringUtils::trimWhitespace(json);
 
-    LOG_DEBUG("JSON is: " << json);
+    LOG_DEBUG(<< "JSON is: " << json);
 
     CPPUNIT_ASSERT_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"), json);
 }

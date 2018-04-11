@@ -37,7 +37,7 @@ namespace {
 void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
                            std::string& snapshotIdOut,
                            size_t& numDocsOut) {
-    LOG_DEBUG("Persist complete with description: " << modelSnapshotReport.s_Description);
+    LOG_DEBUG(<< "Persist complete with description: " << modelSnapshotReport.s_Description);
     snapshotIdOut = modelSnapshotReport.s_SnapshotId;
     numDocsOut = modelSnapshotReport.s_NumDocs;
 }
@@ -74,7 +74,7 @@ CppUnit::Test* CRestorePreviousStateTest::suite() {
 
 void CRestorePreviousStateTest::testRestoreDetectorBy() {
     for (const auto& version : BWC_VERSIONS) {
-        LOG_INFO("Test restoring state from version " << version.s_Version);
+        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/by_detector_state.json",
                                            "testfiles/new_mlfields.conf",
                                            version.s_DetectorRestoreIsSymmetric,
@@ -84,7 +84,7 @@ void CRestorePreviousStateTest::testRestoreDetectorBy() {
 
 void CRestorePreviousStateTest::testRestoreDetectorOver() {
     for (const auto& version : BWC_VERSIONS) {
-        LOG_INFO("Test restoring state from version " << version.s_Version);
+        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/over_detector_state.json",
                                            "testfiles/new_mlfields_over.conf",
                                            version.s_DetectorRestoreIsSymmetric,
@@ -94,7 +94,7 @@ void CRestorePreviousStateTest::testRestoreDetectorOver() {
 
 void CRestorePreviousStateTest::testRestoreDetectorPartition() {
     for (const auto& version : BWC_VERSIONS) {
-        LOG_INFO("Test restoring state from version " << version.s_Version);
+        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/partition_detector_state.json",
                                            "testfiles/new_mlfields_partition.conf",
                                            version.s_DetectorRestoreIsSymmetric,
@@ -104,7 +104,7 @@ void CRestorePreviousStateTest::testRestoreDetectorPartition() {
 
 void CRestorePreviousStateTest::testRestoreDetectorDc() {
     for (const auto& version : BWC_VERSIONS) {
-        LOG_INFO("Test restoring state from version " << version.s_Version);
+        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/dc_detector_state.json",
                                            "testfiles/new_persist_dc.conf",
                                            version.s_DetectorRestoreIsSymmetric,
@@ -114,7 +114,7 @@ void CRestorePreviousStateTest::testRestoreDetectorDc() {
 
 void CRestorePreviousStateTest::testRestoreDetectorCount() {
     for (const auto& version : BWC_VERSIONS) {
-        LOG_INFO("Test restoring state from version " << version.s_Version);
+        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/count_detector_state.json",
                                            "testfiles/new_persist_count.conf",
                                            version.s_DetectorRestoreIsSymmetric,
@@ -133,7 +133,7 @@ void CRestorePreviousStateTest::testRestoreNormalizer() {
 
 void CRestorePreviousStateTest::testRestoreCategorizer() {
     for (const auto& version : BWC_VERSIONS) {
-        LOG_INFO("Test restoring state from version " << version.s_Version);
+        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         categorizerRestoreHelper("testfiles/state/" + version.s_Version + "/categorizer_state.json",
                                  version.s_CategorizerRestoreIsSymmetric);
     }
@@ -269,6 +269,6 @@ std::string CRestorePreviousStateTest::stripDocIds(const std::string& persistedS
     }
 
     std::string strippedText = output.str();
-    LOG_TRACE("Stripped:" << strippedText << ml::core_t::LINE_ENDING);
+    LOG_TRACE(<< "Stripped:" << strippedText << ml::core_t::LINE_ENDING);
     return strippedText;
 }

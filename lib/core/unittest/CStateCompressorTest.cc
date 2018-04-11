@@ -68,9 +68,9 @@ public:
         CPPUNIT_ASSERT_EQUAL(m_CurrentStream, strm);
         std::ostringstream* ss = dynamic_cast<std::ostringstream*>(m_CurrentStream.get());
         CPPUNIT_ASSERT(ss);
-        LOG_TRACE(ss->str());
+        LOG_TRACE(<< ss->str());
         m_Data[m_CurrentDocNum] = ss->str();
-        LOG_TRACE(m_Data[m_CurrentDocNum]);
+        LOG_TRACE(<< m_Data[m_CurrentDocNum]);
         return true;
     }
 
@@ -139,7 +139,7 @@ void CStateCompressorTest::testForApiNoKey() {
     std::string ref(referenceStream.str());
     std::string restored;
     {
-        LOG_DEBUG("Restoring data");
+        LOG_DEBUG(<< "Restoring data");
         CMockDataSearcher mockKvSearcher(mockKvAdder);
         ml::core::CStateDecompressor decompressor(mockKvSearcher);
         decompressor.setStateRestoreSearch("1", "");
@@ -149,8 +149,8 @@ void CStateCompressorTest::testForApiNoKey() {
         restored.assign(std::istreambuf_iterator<char>(*istrm), eos);
     }
 
-    LOG_DEBUG("Size: " << restored.size());
-    LOG_DEBUG("Reference size: " << ref.size());
+    LOG_DEBUG(<< "Size: " << restored.size());
+    LOG_DEBUG(<< "Reference size: " << ref.size());
 
     CPPUNIT_ASSERT_EQUAL(ref.size(), restored.size());
 }
@@ -180,7 +180,7 @@ void CStateCompressorTest::testStreaming() {
         // data is streamed, not read all at once
         std::size_t lastAskedFor = 0;
         ::CMockDataSearcher mockKvSearcher(mockKvAdder);
-        LOG_TRACE("After compression, there are " << mockKvSearcher.totalDocs() << " docs, asked for " << mockKvSearcher.askedFor());
+        LOG_TRACE(<< "After compression, there are " << mockKvSearcher.totalDocs() << " docs, asked for " << mockKvSearcher.askedFor());
         ml::core::CStateDecompressor decompressor(mockKvSearcher);
         decompressor.setStateRestoreSearch("1", "");
         TIStreamP istrm = decompressor.search(1, 1);
@@ -216,7 +216,7 @@ void CStateCompressorTest::testStreaming() {
         CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
         while (traverser.next()) {};
-        LOG_TRACE("Asked for: " << mockKvSearcher.askedFor());
+        LOG_TRACE(<< "Asked for: " << mockKvSearcher.askedFor());
         CPPUNIT_ASSERT_EQUAL(mockKvSearcher.askedFor(), mockKvAdder.data().size());
     }
 }
@@ -254,13 +254,13 @@ void CStateCompressorTest::testChunking() {
                     decompressed.assign(std::istreambuf_iterator<char>(*strm), eos);
                 }
             } catch (std::exception& e) {
-                LOG_DEBUG("Error in test case " << i << " / " << j << ": " << e.what());
-                LOG_DEBUG("String is: " << ss.str());
+                LOG_DEBUG(<< "Error in test case " << i << " / " << j << ": " << e.what());
+                LOG_DEBUG(<< "String is: " << ss.str());
                 CPPUNIT_ASSERT(false);
             }
             CPPUNIT_ASSERT_EQUAL(ss.str(), decompressed);
         }
-        LOG_DEBUG("Done chunk size " << i);
+        LOG_DEBUG(<< "Done chunk size " << i);
     }
 
     // Do a really big string test
@@ -287,8 +287,8 @@ void CStateCompressorTest::testChunking() {
                 decompressed.assign(std::istreambuf_iterator<char>(*strm), eos);
             }
         } catch (std::exception& e) {
-            LOG_DEBUG("Error in test case " << e.what());
-            LOG_DEBUG("String is: " << ss.str());
+            LOG_DEBUG(<< "Error in test case " << e.what());
+            LOG_DEBUG(<< "String is: " << ss.str());
             CPPUNIT_ASSERT(false);
         }
         CPPUNIT_ASSERT_EQUAL(ss.str(), decompressed);

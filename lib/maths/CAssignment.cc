@@ -132,12 +132,12 @@ bool CAssignment::kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matchi
     std::size_t m = costs[0].size();
     for (std::size_t i = 1u; i < costs.size(); ++i) {
         if (costs[i].size() != m) {
-            LOG_ERROR("Irregular cost matrix");
+            LOG_ERROR(<< "Irregular cost matrix");
             return false;
         }
     }
     std::size_t N = std::max(n, m);
-    LOG_TRACE("N = " << N);
+    LOG_TRACE(<< "N = " << N);
 
     // Initialize the potential function with the minimum cost
     // edge incident on each column and row.
@@ -157,8 +157,8 @@ bool CAssignment::kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matchi
         }
         rowPotential[i] = min;
     }
-    LOG_TRACE("row potential = " << core::CContainerPrinter::print(rowPotential));
-    LOG_TRACE("column potential = " << core::CContainerPrinter::print(columnPotential));
+    LOG_TRACE(<< "row potential = " << core::CContainerPrinter::print(rowPotential));
+    LOG_TRACE(<< "column potential = " << core::CContainerPrinter::print(columnPotential));
 
     // An initial matching candidate matching (note that this
     // may not be complete).
@@ -181,11 +181,11 @@ bool CAssignment::kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matchi
     TDoubleVec minSlackValueByColumn(N, MAXIMUM_COST);
 
     while (unmatched > 0) {
-        LOG_TRACE("matchColumnByRow = " << core::CContainerPrinter::print(matchColumnByRow));
-        LOG_TRACE("matchRowByColumn = " << core::CContainerPrinter::print(matchRowByColumn));
-        LOG_TRACE("unmatched = " << unmatched);
+        LOG_TRACE(<< "matchColumnByRow = " << core::CContainerPrinter::print(matchColumnByRow));
+        LOG_TRACE(<< "matchRowByColumn = " << core::CContainerPrinter::print(matchRowByColumn));
+        LOG_TRACE(<< "unmatched = " << unmatched);
 
-        LOG_TRACE("*** Initialize augmenting path ***");
+        LOG_TRACE(<< "*** Initialize augmenting path ***");
 
         // Find an unmatched row. We look for the augmenting
         // path which matches this row in the loop below.
@@ -196,9 +196,9 @@ bool CAssignment::kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matchi
                 break;
             }
         }
-        LOG_TRACE("pivot = " << pivot);
+        LOG_TRACE(<< "pivot = " << pivot);
         if (pivot == N) {
-            LOG_ERROR("Bad pivot: costs = " << core::CContainerPrinter::print(costs));
+            LOG_ERROR(<< "Bad pivot: costs = " << core::CContainerPrinter::print(costs));
             return false;
         }
 
@@ -217,9 +217,9 @@ bool CAssignment::kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matchi
              minSlackRow,
              minSlackColumn,
              minSlackValue);
-        LOG_TRACE("committedRows = " << core::CContainerPrinter::print(committedRows));
-        LOG_TRACE("minSlackRowByColumn = " << core::CContainerPrinter::print(minSlackRowByColumn));
-        LOG_TRACE("minSlackValueByColumn = " << core::CContainerPrinter::print(minSlackValueByColumn));
+        LOG_TRACE(<< "committedRows = " << core::CContainerPrinter::print(committedRows));
+        LOG_TRACE(<< "minSlackRowByColumn = " << core::CContainerPrinter::print(minSlackRowByColumn));
+        LOG_TRACE(<< "minSlackValueByColumn = " << core::CContainerPrinter::print(minSlackValueByColumn));
 
         // Search for an augmenting path following zero slack
         // edges. In each iteration the minimum potential is
@@ -230,11 +230,12 @@ bool CAssignment::kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matchi
         // the matching is updated to include the augmenting
         // path and the search reinitialized.
 
-        LOG_TRACE("*** Search for augmenting path ***");
+        LOG_TRACE(<< "*** Search for augmenting path ***");
 
         std::size_t check = 0u;
         for (/**/; check < N; ++check) {
-            LOG_TRACE(" minSlackValue = " << minSlackValue << ", minSlackRow = " << minSlackRow << ", minSlackColumn = " << minSlackColumn);
+            LOG_TRACE(<< " minSlackValue = " << minSlackValue << ", minSlackRow = " << minSlackRow
+                      << ", minSlackColumn = " << minSlackColumn);
 
             // Checking greater than zero here is important since
             // due to non-associativity of floating point arithmetic
@@ -254,8 +255,8 @@ bool CAssignment::kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matchi
                         columnPotential[j] -= adjustment;
                     }
                 }
-                LOG_TRACE(" rowPotential = " << core::CContainerPrinter::print(rowPotential));
-                LOG_TRACE(" columnPotential = " << core::CContainerPrinter::print(columnPotential));
+                LOG_TRACE(<< " rowPotential = " << core::CContainerPrinter::print(rowPotential));
+                LOG_TRACE(<< " columnPotential = " << core::CContainerPrinter::print(columnPotential));
             }
 
             parentRowByCommittedColumn[minSlackColumn] = minSlackRow;
@@ -274,15 +275,15 @@ bool CAssignment::kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matchi
                     }
                 }
                 if (check == N) {
-                    LOG_ERROR("Bad augmenting path: costs = " << core::CContainerPrinter::print(costs));
+                    LOG_ERROR(<< "Bad augmenting path: costs = " << core::CContainerPrinter::print(costs));
                     return false;
                 }
                 --unmatched;
 
                 break;
             } else {
-                LOG_TRACE(" pivot = " << pivot);
-                LOG_TRACE(" parentRowByCommittedColumn = " << core::CContainerPrinter::print(parentRowByCommittedColumn));
+                LOG_TRACE(<< " pivot = " << pivot);
+                LOG_TRACE(<< " parentRowByCommittedColumn = " << core::CContainerPrinter::print(parentRowByCommittedColumn));
 
                 // Grow the path to include the pivot row.
                 grow(costs,
@@ -296,13 +297,13 @@ bool CAssignment::kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matchi
                      minSlackRow,
                      minSlackColumn,
                      minSlackValue);
-                LOG_TRACE(" committedRows = " << core::CContainerPrinter::print(committedRows));
-                LOG_TRACE(" minSlackRowByColumn = " << core::CContainerPrinter::print(minSlackRowByColumn));
-                LOG_TRACE(" minSlackValueByColumn = " << core::CContainerPrinter::print(minSlackValueByColumn));
+                LOG_TRACE(<< " committedRows = " << core::CContainerPrinter::print(committedRows));
+                LOG_TRACE(<< " minSlackRowByColumn = " << core::CContainerPrinter::print(minSlackRowByColumn));
+                LOG_TRACE(<< " minSlackValueByColumn = " << core::CContainerPrinter::print(minSlackValueByColumn));
             }
         }
         if (check == N) {
-            LOG_ERROR("Failed to find path: costs " << core::CContainerPrinter::print(costs));
+            LOG_ERROR(<< "Failed to find path: costs " << core::CContainerPrinter::print(costs));
             return false;
         }
 

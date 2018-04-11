@@ -22,9 +22,9 @@ using namespace ml;
 using namespace handy_typedefs;
 
 void CDecayRateControllerTest::testLowCov() {
-    LOG_DEBUG("+----------------------------------------+");
-    LOG_DEBUG("|  CDecayRateControllerTest::testLowCov  |");
-    LOG_DEBUG("+----------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------+");
+    LOG_DEBUG(<< "|  CDecayRateControllerTest::testLowCov  |");
+    LOG_DEBUG(<< "+----------------------------------------+");
 
     // Supply small but biased errors so we increase the decay
     // rate to its maximum then gradually reduce the error to
@@ -38,21 +38,21 @@ void CDecayRateControllerTest::testLowCov() {
         double multiplier{controller.multiplier({10000.0}, {{1.0}}, 3600, 1.0, 0.0005)};
         decayRate *= multiplier;
     }
-    LOG_DEBUG("Controlled decay = " << decayRate);
+    LOG_DEBUG(<< "Controlled decay = " << decayRate);
     CPPUNIT_ASSERT(decayRate > 0.0005);
 
     for (std::size_t i = 0u; i < 1000; ++i) {
         double multiplier{controller.multiplier({10000.0}, {{0.0}}, 3600, 1.0, 0.0005)};
         decayRate *= multiplier;
     }
-    LOG_DEBUG("Controlled decay = " << decayRate);
+    LOG_DEBUG(<< "Controlled decay = " << decayRate);
     CPPUNIT_ASSERT(decayRate < 0.0005);
 }
 
 void CDecayRateControllerTest::testOrderedErrors() {
-    LOG_DEBUG("+-----------------------------------------------+");
-    LOG_DEBUG("|  CDecayRateControllerTest::testOrderedErrors  |");
-    LOG_DEBUG("+-----------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------+");
+    LOG_DEBUG(<< "|  CDecayRateControllerTest::testOrderedErrors  |");
+    LOG_DEBUG(<< "+-----------------------------------------------+");
 
     // Test that if we add a number of ordered samples, such
     // that overall they don't have bias, the decay rate is
@@ -71,14 +71,14 @@ void CDecayRateControllerTest::testOrderedErrors() {
         double multiplier{controller.multiplier({100.0}, predictionErrors, 3600, 1.0, 0.0005)};
         decayRate *= multiplier;
     }
-    LOG_DEBUG("Controlled decay = " << decayRate);
+    LOG_DEBUG(<< "Controlled decay = " << decayRate);
     CPPUNIT_ASSERT(decayRate <= 0.0005);
 }
 
 void CDecayRateControllerTest::testPersist() {
-    LOG_DEBUG("+-----------------------------------------+");
-    LOG_DEBUG("|  CDecayRateControllerTest::testPersist  |");
-    LOG_DEBUG("+-----------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------+");
+    LOG_DEBUG(<< "|  CDecayRateControllerTest::testPersist  |");
+    LOG_DEBUG(<< "+-----------------------------------------+");
 
     using TDoubleVec = std::vector<double>;
 
@@ -101,8 +101,8 @@ void CDecayRateControllerTest::testPersist() {
         origController.acceptPersistInserter(inserter);
         inserter.toXml(origXml);
     }
-    LOG_TRACE("Controller XML = " << origXml);
-    LOG_TRACE("Controller XML size = " << origXml.size());
+    LOG_TRACE(<< "Controller XML = " << origXml);
+    LOG_TRACE(<< "Controller XML size = " << origXml.size());
 
     // Restore the XML into a new sketch.
     {
@@ -113,7 +113,7 @@ void CDecayRateControllerTest::testPersist() {
         CPPUNIT_ASSERT_EQUAL(
             true, traverser.traverseSubLevel(boost::bind(&maths::CDecayRateController::acceptRestoreTraverser, &restoredController, _1)));
 
-        LOG_DEBUG("orig checksum = " << origController.checksum() << ", new checksum = " << restoredController.checksum());
+        LOG_DEBUG(<< "orig checksum = " << origController.checksum() << ", new checksum = " << restoredController.checksum());
         CPPUNIT_ASSERT_EQUAL(origController.checksum(), restoredController.checksum());
     }
 }

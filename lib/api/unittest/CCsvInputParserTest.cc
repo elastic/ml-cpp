@@ -112,7 +112,7 @@ public:
             CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(fieldIter->second, timeVal));
         } else {
             CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(m_TimeFormat, fieldIter->second, timeVal));
-            LOG_DEBUG("Converted " << fieldIter->second << " to " << timeVal << " using format " << m_TimeFormat);
+            LOG_DEBUG(<< "Converted " << fieldIter->second << " to " << timeVal << " using format " << m_TimeFormat);
         }
         CPPUNIT_ASSERT_EQUAL(m_ExpectedTimes[m_RecordCount], timeVal);
 
@@ -278,23 +278,23 @@ void CCsvInputParserTest::testThroughput() {
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         input += restOfFile;
     }
-    LOG_DEBUG("Input size is " << input.length());
+    LOG_DEBUG(<< "Input size is " << input.length());
 
     ml::api::CCsvInputParser parser(input);
 
     CVisitor visitor;
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
     CPPUNIT_ASSERT_EQUAL(recordsPerBlock * TEST_SIZE, visitor.recordCount());
 
-    LOG_INFO("Parsing " << visitor.recordCount() << " records took " << (end - start) << " seconds");
+    LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took " << (end - start) << " seconds");
 }
 
 void CCsvInputParserTest::testDateParse() {

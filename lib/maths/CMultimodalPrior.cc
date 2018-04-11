@@ -251,8 +251,8 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec& weightStyles_, const TD
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
-                                          << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                  << core::CContainerPrinter::print(weights) << "'");
         return;
     }
 
@@ -307,7 +307,7 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec& weightStyles_, const TD
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             double x = samples[i];
             if (!CMathsFuncs::isFinite(x)) {
-                LOG_ERROR("Discarding " << x);
+                LOG_ERROR(<< "Discarding " << x);
                 continue;
             }
             if (hasSeasonalScale) {
@@ -331,7 +331,7 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec& weightStyles_, const TD
             for (const auto& cluster : clusters) {
                 auto k = std::find_if(m_Modes.begin(), m_Modes.end(), CSetTools::CIndexInSet(cluster.first));
                 if (k == m_Modes.end()) {
-                    LOG_TRACE("Creating mode with index " << cluster.first);
+                    LOG_TRACE(<< "Creating mode with index " << cluster.first);
                     m_Modes.emplace_back(cluster.first, m_SeedPrior);
                     k = m_Modes.end() - 1;
                 }
@@ -346,12 +346,12 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec& weightStyles_, const TD
             }
             this->addSamples(n);
         }
-    } catch (const std::exception& e) { LOG_ERROR("Failed to update likelihood: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to update likelihood: " << e.what()); }
 }
 
 void CMultimodalPrior::propagateForwardsByTime(double time) {
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
-        LOG_ERROR("Bad propagation time " << time);
+        LOG_ERROR(<< "Bad propagation time " << time);
         return;
     }
 
@@ -373,7 +373,7 @@ void CMultimodalPrior::propagateForwardsByTime(double time) {
     }
 
     this->numberSamples(this->numberSamples() * std::exp(-this->decayRate() * time));
-    LOG_TRACE("numberSamples = " << this->numberSamples());
+    LOG_TRACE(<< "numberSamples = " << this->numberSamples());
 }
 
 TDoubleDoublePr CMultimodalPrior::marginalLikelihoodSupport() const {
@@ -432,13 +432,13 @@ maths_t::EFloatingPointErrorStatus CMultimodalPrior::jointLogMarginalLikelihood(
     result = 0.0;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute likelihood for empty sample set");
+        LOG_ERROR(<< "Can't compute likelihood for empty sample set");
         return maths_t::E_FpFailed;
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
-                                          << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                  << core::CContainerPrinter::print(weights) << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -551,7 +551,7 @@ bool CMultimodalPrior::checkInvariants(const std::string& tag) const {
     bool result = true;
 
     if (m_Modes.size() != m_Clusterer->numberClusters()) {
-        LOG_ERROR(tag << "# modes = " << m_Modes.size() << ", # clusters = " << m_Clusterer->numberClusters());
+        LOG_ERROR(<< tag << "# modes = " << m_Modes.size() << ", # clusters = " << m_Clusterer->numberClusters());
         result = false;
     }
 
@@ -559,7 +559,7 @@ bool CMultimodalPrior::checkInvariants(const std::string& tag) const {
     double modeSamples = 0.0;
     for (const auto& mode : m_Modes) {
         if (!m_Clusterer->hasCluster(mode.s_Index)) {
-            LOG_ERROR(tag << "Expected cluster for = " << mode.s_Index);
+            LOG_ERROR(<< tag << "Expected cluster for = " << mode.s_Index);
             result = false;
         }
         modeSamples += mode.s_Prior->numberSamples();
@@ -567,7 +567,7 @@ bool CMultimodalPrior::checkInvariants(const std::string& tag) const {
 
     CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance | CToleranceTypes::E_RelativeTolerance, 1e-3);
     if (!equal(modeSamples, numberSamples)) {
-        LOG_ERROR(tag << "Sum mode samples = " << modeSamples << ", total samples = " << numberSamples);
+        LOG_ERROR(<< tag << "Sum mode samples = " << modeSamples << ", total samples = " << numberSamples);
         result = false;
     }
 
@@ -593,7 +593,7 @@ CMultimodalPrior::CModeSplitCallback::CModeSplitCallback(CMultimodalPrior& prior
 
 void CMultimodalPrior::CModeSplitCallback::
 operator()(std::size_t sourceIndex, std::size_t leftSplitIndex, std::size_t rightSplitIndex) const {
-    LOG_TRACE("Splitting mode with index " << sourceIndex);
+    LOG_TRACE(<< "Splitting mode with index " << sourceIndex);
 
     TModeVec& modes = m_Prior->m_Modes;
 
@@ -609,23 +609,23 @@ operator()(std::size_t sourceIndex, std::size_t leftSplitIndex, std::size_t righ
         pLeft /= Z;
         pRight /= Z;
     }
-    LOG_TRACE("# samples = " << numberSamples << ", pLeft = " << pLeft << ", pRight = " << pRight);
+    LOG_TRACE(<< "# samples = " << numberSamples << ", pLeft = " << pLeft << ", pRight = " << pRight);
 
     // Create the child modes.
 
-    LOG_TRACE("Creating mode with index " << leftSplitIndex);
+    LOG_TRACE(<< "Creating mode with index " << leftSplitIndex);
     modes.emplace_back(leftSplitIndex, m_Prior->m_SeedPrior);
     {
         TDoubleVec samples;
         if (!m_Prior->m_Clusterer->sample(leftSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
-            LOG_ERROR("Couldn't find cluster for " << leftSplitIndex);
+            LOG_ERROR(<< "Couldn't find cluster for " << leftSplitIndex);
         }
-        LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
+        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 
         double nl = pLeft * numberSamples;
         double ns = std::min(nl, 4.0);
         double n = static_cast<double>(samples.size());
-        LOG_TRACE("# left = " << nl);
+        LOG_TRACE(<< "# left = " << nl);
 
         double seedWeight = ns / n;
         TDouble4Vec1Vec weights(samples.size(), TDouble4Vec{seedWeight});
@@ -635,23 +635,23 @@ operator()(std::size_t sourceIndex, std::size_t leftSplitIndex, std::size_t righ
         if (weight > 0.0) {
             weights.assign(weights.size(), TDouble4Vec{weight});
             modes.back().s_Prior->addSamples(TWeights::COUNT, samples, weights);
-            LOG_TRACE(modes.back().s_Prior->print());
+            LOG_TRACE(<< modes.back().s_Prior->print());
         }
     }
 
-    LOG_TRACE("Creating mode with index " << rightSplitIndex);
+    LOG_TRACE(<< "Creating mode with index " << rightSplitIndex);
     modes.emplace_back(rightSplitIndex, m_Prior->m_SeedPrior);
     {
         TDoubleVec samples;
         if (!m_Prior->m_Clusterer->sample(rightSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
-            LOG_ERROR("Couldn't find cluster for " << rightSplitIndex)
+            LOG_ERROR(<< "Couldn't find cluster for " << rightSplitIndex)
         }
-        LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
+        LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 
         double nr = pRight * numberSamples;
         double ns = std::min(nr, 4.0);
         double n = static_cast<double>(samples.size());
-        LOG_TRACE("# right = " << nr);
+        LOG_TRACE(<< "# right = " << nr);
 
         double seedWeight = ns / n;
         TDouble4Vec1Vec weights(samples.size(), TDouble4Vec{seedWeight});
@@ -661,15 +661,15 @@ operator()(std::size_t sourceIndex, std::size_t leftSplitIndex, std::size_t righ
         if (weight > 0.0) {
             weights.assign(weights.size(), TDouble4Vec{weight});
             modes.back().s_Prior->addSamples(TWeights::COUNT, samples, weights);
-            LOG_TRACE(modes.back().s_Prior->print());
+            LOG_TRACE(<< modes.back().s_Prior->print());
         }
     }
 
     if (!m_Prior->checkInvariants("SPLIT: ")) {
-        LOG_ERROR("# samples = " << numberSamples << ", # modes = " << modes.size() << ", pLeft = " << pLeft << ", pRight = " << pRight);
+        LOG_ERROR(<< "# samples = " << numberSamples << ", # modes = " << modes.size() << ", pLeft = " << pLeft << ", pRight = " << pRight);
     }
 
-    LOG_TRACE("Split mode");
+    LOG_TRACE(<< "Split mode");
 }
 
 ////////// CMultimodalPrior::CModeMergeCallback Implementation //////////
@@ -679,7 +679,7 @@ CMultimodalPrior::CModeMergeCallback::CModeMergeCallback(CMultimodalPrior& prior
 
 void CMultimodalPrior::CModeMergeCallback::
 operator()(std::size_t leftMergeIndex, std::size_t rightMergeIndex, std::size_t targetIndex) const {
-    LOG_TRACE("Merging modes with indices " << leftMergeIndex << " " << rightMergeIndex);
+    LOG_TRACE(<< "Merging modes with indices " << leftMergeIndex << " " << rightMergeIndex);
 
     TModeVec& modes = m_Prior->m_Modes;
 
@@ -702,7 +702,7 @@ operator()(std::size_t leftMergeIndex, std::size_t rightMergeIndex, std::size_t 
         nl = leftSamples.size();
         samples.insert(samples.end(), leftSamples.begin(), leftSamples.end());
     } else {
-        LOG_ERROR("Couldn't find mode for " << leftMergeIndex);
+        LOG_ERROR(<< "Couldn't find mode for " << leftMergeIndex);
     }
 
     auto rightMode = std::find_if(modes.begin(), modes.end(), CSetTools::CIndexInSet(rightMergeIndex));
@@ -714,7 +714,7 @@ operator()(std::size_t leftMergeIndex, std::size_t rightMergeIndex, std::size_t 
         nr = rightSamples.size();
         samples.insert(samples.end(), rightSamples.begin(), rightSamples.end());
     } else {
-        LOG_ERROR("Couldn't find mode for " << rightMergeIndex);
+        LOG_ERROR(<< "Couldn't find mode for " << rightMergeIndex);
     }
 
     if (n > 0.0) {
@@ -725,8 +725,8 @@ operator()(std::size_t leftMergeIndex, std::size_t rightMergeIndex, std::size_t 
         wr /= Z;
     }
 
-    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples));
-    LOG_TRACE("n = " << n << ", wl = " << wl << ", wr = " << wr);
+    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
+    LOG_TRACE(<< "n = " << n << ", wl = " << wl << ", wr = " << wr);
 
     double ns = std::min(n, 4.0);
     double s = static_cast<double>(samples.size());
@@ -753,12 +753,12 @@ operator()(std::size_t leftMergeIndex, std::size_t rightMergeIndex, std::size_t 
     modes.erase(std::remove_if(modes.begin(), modes.end(), CSetTools::CIndexInSet(mergedIndices)), modes.end());
 
     // Add the new mode.
-    LOG_TRACE("Creating mode with index " << targetIndex);
+    LOG_TRACE(<< "Creating mode with index " << targetIndex);
     modes.push_back(newMode);
 
     m_Prior->checkInvariants("MERGE: ");
 
-    LOG_TRACE("Merged modes");
+    LOG_TRACE(<< "Merged modes");
 }
 }
 }

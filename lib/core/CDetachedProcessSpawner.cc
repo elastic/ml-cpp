@@ -98,7 +98,7 @@ public:
 
     bool terminatePid(CProcess::TPid pid) {
         if (!this->havePid(pid)) {
-            LOG_ERROR("Will not attempt to kill process " << pid << ": not a child process");
+            LOG_ERROR(<< "Will not attempt to kill process " << pid << ": not a child process");
             return false;
         }
 
@@ -106,10 +106,10 @@ public:
             // Don't log an error if the process exited normally in between
             // checking whether it was our child process and killing it
             if (errno != ESRCH) {
-                LOG_ERROR("Failed to kill process " << pid << ": " << ::strerror(errno));
+                LOG_ERROR(<< "Failed to kill process " << pid << ": " << ::strerror(errno));
             } else {
                 // But log at debug in case there's a bug in this area
-                LOG_DEBUG("No such process while trying to kill PID " << pid);
+                LOG_DEBUG(<< "No such process while trying to kill PID " << pid);
             }
             return false;
         }
@@ -147,7 +147,7 @@ protected:
     }
 
     virtual void shutdown() {
-        LOG_DEBUG("Shutting down spawned process tracker thread");
+        LOG_DEBUG(<< "Shutting down spawned process tracker thread");
         CScopedLock lock(m_Mutex);
         m_Shutdown = true;
         m_Condition.signal();
@@ -175,21 +175,21 @@ private:
                     if (signal == SIGTERM) {
                         // We expect this when a job is force-closed, so log
                         // at a lower level
-                        LOG_INFO("Child process with PID " << pid << " was terminated by signal " << signal);
+                        LOG_INFO(<< "Child process with PID " << pid << " was terminated by signal " << signal);
                     } else {
                         // This should never happen if the system is working
                         // normally - possible reasons are the Linux OOM
                         // killer, manual intervention and bugs that cause
                         // access violations
-                        LOG_ERROR("Child process with PID " << pid << " was terminated by signal " << signal);
+                        LOG_ERROR(<< "Child process with PID " << pid << " was terminated by signal " << signal);
                     }
                 } else {
                     int exitCode = WEXITSTATUS(status);
                     if (exitCode == 0) {
                         // This is the happy case
-                        LOG_DEBUG("Child process with PID " << pid << " has exited");
+                        LOG_DEBUG(<< "Child process with PID " << pid << " has exited");
                     } else {
-                        LOG_WARN("Child process with PID " << pid << " has exited with exit code " << exitCode);
+                        LOG_WARN(<< "Child process with PID " << pid << " has exited with exit code " << exitCode);
                     }
                 }
                 m_Pids.erase(pid);
@@ -208,13 +208,13 @@ private:
 CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec& permittedProcessPaths)
     : m_PermittedProcessPaths(permittedProcessPaths), m_TrackerThread(boost::make_shared<detail::CTrackerThread>()) {
     if (m_TrackerThread->start() == false) {
-        LOG_ERROR("Failed to start spawned process tracker thread");
+        LOG_ERROR(<< "Failed to start spawned process tracker thread");
     }
 }
 
 CDetachedProcessSpawner::~CDetachedProcessSpawner() {
     if (m_TrackerThread->stop() == false) {
-        LOG_ERROR("Failed to stop spawned process tracker thread");
+        LOG_ERROR(<< "Failed to stop spawned process tracker thread");
     }
 }
 
@@ -225,12 +225,12 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
 
 bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args, CProcess::TPid& childPid) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(), processPath) == m_PermittedProcessPaths.end()) {
-        LOG_ERROR("Spawning process '" << processPath << "' is not permitted");
+        LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
         return false;
     }
 
     if (::access(processPath.c_str(), X_OK) != 0) {
-        LOG_ERROR("Cannot execute '" << processPath << "': " << ::strerror(errno));
+        LOG_ERROR(<< "Cannot execute '" << processPath << "': " << ::strerror(errno));
         return false;
     }
 
@@ -251,12 +251,12 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
 
     posix_spawn_file_actions_t fileActions;
     if (setupFileActions(&fileActions) == false) {
-        LOG_ERROR("Failed to set up file actions prior to spawn of '" << processPath << "': " << ::strerror(errno));
+        LOG_ERROR(<< "Failed to set up file actions prior to spawn of '" << processPath << "': " << ::strerror(errno));
         return false;
     }
     posix_spawnattr_t spawnAttributes;
     if (::posix_spawnattr_init(&spawnAttributes) != 0) {
-        LOG_ERROR("Failed to set up spawn attributes prior to spawn of '" << processPath << "': " << ::strerror(errno));
+        LOG_ERROR(<< "Failed to set up spawn attributes prior to spawn of '" << processPath << "': " << ::strerror(errno));
         return false;
     }
     ::posix_spawnattr_setflags(&spawnAttributes, POSIX_SPAWN_SETPGROUP);
@@ -273,14 +273,14 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
         ::posix_spawnattr_destroy(&spawnAttributes);
 
         if (err != 0) {
-            LOG_ERROR("Failed to spawn '" << processPath << "': " << ::strerror(err));
+            LOG_ERROR(<< "Failed to spawn '" << processPath << "': " << ::strerror(err));
             return false;
         }
 
         m_TrackerThread->addPid(childPid);
     }
 
-    LOG_DEBUG("Spawned '" << processPath << "' with PID " << childPid);
+    LOG_DEBUG(<< "Spawned '" << processPath << "' with PID " << childPid);
 
     return true;
 }

@@ -13,7 +13,7 @@ namespace core {
 #define RESTORE(tag, restore)                                                                                                              \
     if (name == tag) {                                                                                                                     \
         if ((restore) == false) {                                                                                                          \
-            LOG_ERROR("Failed to restore " #tag ", got " << traverser.value());                                                            \
+            LOG_ERROR(<< "Failed to restore " #tag ", got " << traverser.value());                                                         \
             return false;                                                                                                                  \
         }                                                                                                                                  \
         continue;                                                                                                                          \
@@ -22,7 +22,7 @@ namespace core {
 #define RESTORE_BUILT_IN(tag, target)                                                                                                      \
     if (name == tag) {                                                                                                                     \
         if (core::CStringUtils::stringToType(traverser.value(), target) == false) {                                                        \
-            LOG_ERROR("Failed to restore " #tag ", got " << traverser.value());                                                            \
+            LOG_ERROR(<< "Failed to restore " #tag ", got " << traverser.value());                                                         \
             return false;                                                                                                                  \
         }                                                                                                                                  \
         continue;                                                                                                                          \
@@ -32,7 +32,7 @@ namespace core {
     if (name == tag) {                                                                                                                     \
         int value;                                                                                                                         \
         if (core::CStringUtils::stringToType(traverser.value(), value) == false) {                                                         \
-            LOG_ERROR("Failed to restore " #tag ", got " << traverser.value());                                                            \
+            LOG_ERROR(<< "Failed to restore " #tag ", got " << traverser.value());                                                         \
             return false;                                                                                                                  \
         }                                                                                                                                  \
         target = (value != 0);                                                                                                             \
@@ -43,7 +43,7 @@ namespace core {
     if (name == tag) {                                                                                                                     \
         setup;                                                                                                                             \
         if ((restore) == false) {                                                                                                          \
-            LOG_ERROR("Failed to restore " #tag ", got " << traverser.value());                                                            \
+            LOG_ERROR(<< "Failed to restore " #tag ", got " << traverser.value());                                                         \
             return false;                                                                                                                  \
         }                                                                                                                                  \
         teardown;                                                                                                                          \

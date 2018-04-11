@@ -106,7 +106,7 @@ double computeWinsorisationWeight(const CPrior& prior, double derate, double sca
         return 1.0;
     }
 
-    LOG_TRACE("sample = " << value << " min(F, 1-F) = " << f << ", weight = " << result);
+    LOG_TRACE(<< "sample = " << value << " min(F, 1-F) = " << f << ", weight = " << result);
 
     return result;
 }
@@ -426,8 +426,8 @@ void CTimeSeriesAnomalyModel::probability(const CModelProbabilityParams& params,
             double pGivenAnomalous{(pl + pu) / 2.0};
             double pScore{CTools::deviation(probability)};
             double pScoreGivenAnomalous{CTools::deviation(pGivenAnomalous)};
-            LOG_TRACE("features = " << features << " score(.) = " << pScore << " score(.|anomalous) = " << pScoreGivenAnomalous
-                                    << " p = " << probability);
+            LOG_TRACE(<< "features = " << features << " score(.) = " << pScore << " score(.|anomalous) = " << pScoreGivenAnomalous
+                      << " p = " << probability);
             probability =
                 std::min(CTools::inverseDeviation((1.0 - alpha) * pScore + alpha * pScoreGivenAnomalous), LARGEST_ANOMALOUS_PROBABILITY);
         }
@@ -642,7 +642,7 @@ CUnivariateTimeSeriesModel::EUpdateResult CUnivariateTimeSeriesModel::addSamples
                 prediction, errors[E_TrendControl], this->params().bucketLength(), this->params().learnRate(), this->params().decayRate());
             if (multiplier != 1.0) {
                 m_Trend->decayRate(multiplier * m_Trend->decayRate());
-                LOG_TRACE("trend decay rate = " << m_Trend->decayRate());
+                LOG_TRACE(<< "trend decay rate = " << m_Trend->decayRate());
             }
         }
         {
@@ -652,7 +652,7 @@ CUnivariateTimeSeriesModel::EUpdateResult CUnivariateTimeSeriesModel::addSamples
                 prediction, errors[E_PriorControl], this->params().bucketLength(), this->params().learnRate(), this->params().decayRate());
             if (multiplier != 1.0) {
                 m_Prior->decayRate(multiplier * m_Prior->decayRate());
-                LOG_TRACE("prior decay rate = " << m_Prior->decayRate());
+                LOG_TRACE(<< "prior decay rate = " << m_Prior->decayRate());
             }
         }
     }
@@ -890,9 +890,9 @@ bool CUnivariateTimeSeriesModel::probability(const CModelProbabilityParams& para
         double pl, pu;
         maths_t::ETail tail_;
         if (m_Prior->probabilityOfLessLikelySamples(params.calculation(0), params.weightStyles(), sample, weights, pl, pu, tail_)) {
-            LOG_TRACE("P(" << sample << " | weight = " << weights << ", time = " << time << ") = " << (pl + pu) / 2.0);
+            LOG_TRACE(<< "P(" << sample << " | weight = " << weights << ", time = " << time << ") = " << (pl + pu) / 2.0);
         } else {
-            LOG_ERROR("Failed to compute P(" << sample << " | weight = " << weights << ", time = " << time << ")");
+            LOG_ERROR(<< "Failed to compute P(" << sample << " | weight = " << weights << ", time = " << time << ")");
             return false;
         }
         probability = correctForEmptyBucket(
@@ -945,12 +945,12 @@ bool CUnivariateTimeSeriesModel::probability(const CModelProbabilityParams& para
 
                 if (correlationDistributionModels[i].first->probabilityOfLessLikelySamples(
                         params.calculation(0), params.weightStyles(), sample, weights, variable, pli, pui, ti)) {
-                    LOG_TRACE("Marginal P(" << sample << " | weight = " << weights << ", coordinate = " << variable
-                                            << ") = " << (pli[0][0] + pui[0][0]) / 2.0);
-                    LOG_TRACE("Conditional P(" << sample << " | weight = " << weights << ", coordinate = " << variable
-                                               << ") = " << (pli[1][0] + pui[1][0]) / 2.0);
+                    LOG_TRACE(<< "Marginal P(" << sample << " | weight = " << weights << ", coordinate = " << variable
+                              << ") = " << (pli[0][0] + pui[0][0]) / 2.0);
+                    LOG_TRACE(<< "Conditional P(" << sample << " | weight = " << weights << ", coordinate = " << variable
+                              << ") = " << (pli[1][0] + pui[1][0]) / 2.0);
                 } else {
-                    LOG_ERROR("Failed to compute P(" << sample << " | weight = " << weights << ", coordinate = " << variable << ")");
+                    LOG_ERROR(<< "Failed to compute P(" << sample << " | weight = " << weights << ", coordinate = " << variable << ")");
                     continue;
                 }
 
@@ -1139,7 +1139,7 @@ CUnivariateTimeSeriesModel::EUpdateResult CUnivariateTimeSeriesModel::updateTren
                                                                                   const TDouble2Vec4VecVec& weights) {
     for (const auto& sample : samples) {
         if (sample.second.size() != 1) {
-            LOG_ERROR("Dimension mismatch: '" << sample.second.size() << " != 1'");
+            LOG_ERROR(<< "Dimension mismatch: '" << sample.second.size() << " != 1'");
             return E_Failure;
         }
     }
@@ -1316,8 +1316,8 @@ void CTimeSeriesCorrelations::processSamples(const maths_t::TWeightStyleVec& wei
                 multivariateWeights[j1][w][indices[1]] = samples2->s_Weights[j2][w];
             }
         }
-        LOG_TRACE("correlate samples = " << core::CContainerPrinter::print(multivariateSamples)
-                                         << ", correlate weights = " << core::CContainerPrinter::print(multivariateWeights));
+        LOG_TRACE(<< "correlate samples = " << core::CContainerPrinter::print(multivariateSamples)
+                  << ", correlate weights = " << core::CContainerPrinter::print(multivariateWeights));
 
         prior->dataType(samples1->s_Type == maths_t::E_IntegerData || samples2->s_Type == maths_t::E_IntegerData
                             ? maths_t::E_IntegerData
@@ -1325,8 +1325,8 @@ void CTimeSeriesCorrelations::processSamples(const maths_t::TWeightStyleVec& wei
         prior->addSamples(weightStyles, multivariateSamples, multivariateWeights);
         prior->propagateForwardsByTime(std::min(samples1->s_Interval, samples2->s_Interval));
         prior->decayRate(std::sqrt(samples1->s_Multiplier * samples2->s_Multiplier) * prior->decayRate());
-        LOG_TRACE("correlation prior:" << core_t::LINE_ENDING << prior->print());
-        LOG_TRACE("decayRate = " << prior->decayRate());
+        LOG_TRACE(<< "correlation prior:" << core_t::LINE_ENDING << prior->print());
+        LOG_TRACE(<< "decayRate = " << prior->decayRate());
     }
 
     m_Correlations.capture();
@@ -1342,15 +1342,15 @@ void CTimeSeriesCorrelations::refresh(const CTimeSeriesCorrelateModelAllocator& 
         TDoubleVec correlationCoeffs;
         m_Correlations.mostCorrelated(
             static_cast<std::size_t>(1.2 * static_cast<double>(allocator.maxNumberCorrelations())), correlated, &correlationCoeffs);
-        LOG_TRACE("correlated = " << core::CContainerPrinter::print(correlated));
-        LOG_TRACE("correlationCoeffs = " << core::CContainerPrinter::print(correlationCoeffs));
+        LOG_TRACE(<< "correlated = " << core::CContainerPrinter::print(correlated));
+        LOG_TRACE(<< "correlationCoeffs = " << core::CContainerPrinter::print(correlationCoeffs));
 
         ptrdiff_t cutoff{std::upper_bound(correlationCoeffs.begin(),
                                           correlationCoeffs.end(),
                                           0.5 * m_MinimumSignificantCorrelation,
                                           [](double lhs, double rhs) { return std::fabs(lhs) > std::fabs(rhs); }) -
                          correlationCoeffs.begin()};
-        LOG_TRACE("cutoff = " << cutoff);
+        LOG_TRACE(<< "cutoff = " << cutoff);
 
         correlated.erase(correlated.begin() + cutoff, correlated.end());
         if (correlated.empty()) {
@@ -1571,15 +1571,15 @@ bool CTimeSeriesCorrelations::correlationModels(std::size_t id,
             std::swap(variable[0], variable[1]);
         }
         if (i == m_CorrelationDistributionModels.end()) {
-            LOG_ERROR("Unexpectedly missing prior for correlation (" << id << "," << correlate << ")");
+            LOG_ERROR(<< "Unexpectedly missing prior for correlation (" << id << "," << correlate << ")");
             continue;
         }
         if (std::fabs(i->second.second) < m_MinimumSignificantCorrelation) {
-            LOG_TRACE("Correlation " << i->second.second << " is too small to model");
+            LOG_TRACE(<< "Correlation " << i->second.second << " is too small to model");
             continue;
         }
         if (i->second.first->numberSamples() < MINIMUM_CORRELATE_PRIOR_SAMPLE_COUNT) {
-            LOG_TRACE("Too few samples in correlate model");
+            LOG_TRACE(<< "Too few samples in correlate model");
             continue;
         }
         correlated[end] = correlate;
@@ -1712,7 +1712,7 @@ CMultivariateTimeSeriesModel::EUpdateResult CMultivariateTimeSeriesModel::addSam
 
     for (auto& sample : samples) {
         if (sample.second.size() != dimension) {
-            LOG_ERROR("Unexpected sample dimension: '" << sample.second.size() << " != " << this->dimension() << "' discarding");
+            LOG_ERROR(<< "Unexpected sample dimension: '" << sample.second.size() << " != " << this->dimension() << "' discarding");
             continue;
         }
         core_t::TTime time{sample.first};
@@ -1773,7 +1773,7 @@ CMultivariateTimeSeriesModel::EUpdateResult CMultivariateTimeSeriesModel::addSam
                 for (const auto& trend : m_Trend) {
                     trend->decayRate(multiplier * trend->decayRate());
                 }
-                LOG_TRACE("trend decay rate = " << m_Trend[0]->decayRate());
+                LOG_TRACE(<< "trend decay rate = " << m_Trend[0]->decayRate());
             }
         }
         {
@@ -1783,7 +1783,7 @@ CMultivariateTimeSeriesModel::EUpdateResult CMultivariateTimeSeriesModel::addSam
                 prediction, errors[E_PriorControl], this->params().bucketLength(), this->params().learnRate(), this->params().decayRate())};
             if (multiplier != 1.0) {
                 m_Prior->decayRate(multiplier * m_Prior->decayRate());
-                LOG_TRACE("prior decay rate = " << m_Prior->decayRate());
+                LOG_TRACE(<< "prior decay rate = " << m_Prior->decayRate());
             }
         }
     }
@@ -1948,7 +1948,7 @@ bool CMultivariateTimeSeriesModel::forecast(core_t::TTime /*startTime*/,
                                             const TDouble2Vec& /*maximum*/,
                                             const TForecastPushDatapointFunc& /*forecastPushDataPointFunc*/,
                                             std::string& messageOut) {
-    LOG_DEBUG(forecast::ERROR_MULTIVARIATE);
+    LOG_DEBUG(<< forecast::ERROR_MULTIVARIATE);
     messageOut = forecast::ERROR_MULTIVARIATE;
     return false;
 }
@@ -1997,7 +1997,7 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
         maths_t::EProbabilityCalculation calculation = params.calculation(i);
         coordinate[0] = coordinates[i];
         if (!m_Prior->probabilityOfLessLikelySamples(calculation, params.weightStyles(), sample, weights, coordinate, pls, pus, tail_)) {
-            LOG_ERROR("Failed to compute P(" << sample << " | weight = " << weights << ")");
+            LOG_ERROR(<< "Failed to compute P(" << sample << " | weight = " << weights << ")");
             return false;
         }
         pl_[0].add(correctForEmptyBucket(calculation, value[0], bucketEmpty, probabilityBucketEmpty, pls[0][0]));
@@ -2173,7 +2173,7 @@ CMultivariateTimeSeriesModel::EUpdateResult CMultivariateTimeSeriesModel::update
 
     for (const auto& sample : samples) {
         if (sample.second.size() != dimension) {
-            LOG_ERROR("Dimension mismatch: '" << sample.second.size() << " != " << m_Trend.size() << "'");
+            LOG_ERROR(<< "Dimension mismatch: '" << sample.second.size() << " != " << m_Trend.size() << "'");
             return E_Failure;
         }
     }

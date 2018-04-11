@@ -136,7 +136,7 @@ CMetricPopulationModel::CMetricPopulationModel(bool isForPersistence, const CMet
       m_Probabilities(0.05),   // Not needed for persistence so minimally construct
       m_MemoryEstimator(other.m_MemoryEstimator) {
     if (!isForPersistence) {
-        LOG_ABORT("This constructor only creates clones for persistence");
+        LOG_ABORT(<< "This constructor only creates clones for persistence");
     }
 
     m_FeatureModels.reserve(m_FeatureModels.size());
@@ -265,7 +265,7 @@ void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime, cor
             model_t::EFeature feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
-            LOG_TRACE(model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
             this->applyFilters(false, this->personFilter(), this->attributeFilter(), data);
         }
     }
@@ -282,7 +282,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime, core_t::TTime endTi
     this->currentBucketInterimCorrections().clear();
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
-        LOG_TRACE("Sampling [" << time << "," << time + bucketLength << ")");
+        LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
 
         gatherer.sampleNow(time);
 
@@ -314,7 +314,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime, core_t::TTime endTi
             std::size_t dimension = model_t::dimension(feature);
             TSizeSizePrFeatureDataPrVec& data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
-            LOG_TRACE(model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
             this->applyFilters(true, this->personFilter(), this->attributeFilter(), data);
 
             TSizeValuesAndWeightsUMap attributes;
@@ -345,7 +345,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime, core_t::TTime endTi
 
                 maths::CModel* model{this->model(feature, cid)};
                 if (!model) {
-                    LOG_ERROR("Missing model for " << this->attributeName(cid));
+                    LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
 
@@ -361,8 +361,8 @@ void CMetricPopulationModel::sample(core_t::TTime startTime, core_t::TTime endTi
                     continue;
                 }
 
-                LOG_TRACE("Adding " << CDataGatherer::extractData(data_) << " for person = " << gatherer.personName(pid)
-                                    << " and attribute = " << gatherer.attributeName(cid));
+                LOG_TRACE(<< "Adding " << CDataGatherer::extractData(data_) << " for person = " << gatherer.personName(pid)
+                          << " and attribute = " << gatherer.attributeName(cid));
 
                 SValuesAndWeights& attribute = attributes[cid];
 
@@ -377,7 +377,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime, core_t::TTime endTi
                 double updatesPerBucket = this->params().s_MaximumUpdatesPerBucket;
                 double countWeight = this->sampleRateWeight(pid, cid) * this->learnRate(feature) *
                                      (updatesPerBucket > 0.0 && n > 0 ? updatesPerBucket / static_cast<double>(n) : 1.0);
-                LOG_TRACE("countWeight = " << countWeight);
+                LOG_TRACE(<< "countWeight = " << countWeight);
 
                 for (const auto& sample : samples) {
                     if (sample.time() < cutoff) {
@@ -452,8 +452,8 @@ void CMetricPopulationModel::prune(std::size_t maximumAge) {
     std::sort(peopleToRemove.begin(), peopleToRemove.end());
     std::sort(attributesToRemove.begin(), attributesToRemove.end());
 
-    LOG_DEBUG("Removing people {" << this->printPeople(peopleToRemove, 20) << '}');
-    LOG_DEBUG("Removing attributes {" << this->printAttributes(attributesToRemove, 20) << '}');
+    LOG_DEBUG(<< "Removing people {" << this->printPeople(peopleToRemove, 20) << '}');
+    LOG_DEBUG(<< "Removing attributes {" << this->printAttributes(attributesToRemove, 20) << '}');
 
     // Stop collecting for these people/attributes and add them
     // to the free list.
@@ -482,11 +482,11 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
     core_t::TTime bucketLength = gatherer.bucketLength();
 
     if (endTime != startTime + bucketLength) {
-        LOG_ERROR("Can only compute probability for single bucket");
+        LOG_ERROR(<< "Can only compute probability for single bucket");
         return false;
     }
     if (pid > gatherer.numberPeople()) {
-        LOG_TRACE("No person for pid = " << pid);
+        LOG_TRACE(<< "No person for pid = " << pid);
         return false;
     }
 
@@ -502,7 +502,7 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                                                function_t::function(gatherer.features()),
                                                gatherer.numberActivePeople());
 
-    LOG_TRACE("computeProbability(" << gatherer.personName(pid) << ")");
+    LOG_TRACE(<< "computeProbability(" << gatherer.personName(pid) << ")");
 
     CProbabilityAndInfluenceCalculator pJoint(this->params().s_InfluenceCutoff);
     pJoint.addAggregator(maths::CJointProbabilityOfLessLikelySamples());
@@ -516,7 +516,7 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
         if (model_t::isCategorical(feature)) {
             continue;
         }
-        LOG_TRACE("feature = " << model_t::print(feature));
+        LOG_TRACE(<< "feature = " << model_t::print(feature));
 
         const TSizeSizePrFeatureDataPrVec& featureData = this->featureData(feature, startTime);
         TSizeSizePr range = personRange(featureData, pid);
@@ -528,8 +528,8 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
 
             const TOptionalSample& bucket = CDataGatherer::extractData(featureData[j]).s_BucketValue;
             if (!bucket) {
-                LOG_ERROR("Expected a value for feature = " << model_t::print(feature) << ", person = " << gatherer.personName(pid)
-                                                            << ", attribute = " << gatherer.attributeName(cid));
+                LOG_ERROR(<< "Expected a value for feature = " << model_t::print(feature) << ", person = " << gatherer.personName(pid)
+                          << ", attribute = " << gatherer.attributeName(cid));
                 continue;
             }
 
@@ -556,8 +556,8 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                                           params.s_Tail,
                                           type,
                                           mostAnomalousCorrelate)) {
-                    LOG_TRACE("P(" << params.describe() << ", attribute = " << gatherer.attributeName(cid)
-                                   << ", person = " << this->personName(pid) << ") = " << params.s_Probability);
+                    LOG_TRACE(<< "P(" << params.describe() << ", attribute = " << gatherer.attributeName(cid)
+                              << ", person = " << this->personName(pid) << ") = " << params.s_Probability);
                     const auto& influenceValues = CDataGatherer::extractData(featureData[j]).s_InfluenceValues;
                     for (std::size_t k = 0u; k < influenceValues.size(); ++k) {
                         if (const CInfluenceCalculator* influenceCalculator = this->influenceCalculator(feature, k)) {
@@ -574,24 +574,24 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                                                           NO_CORRELATED_ATTRIBUTES,
                                                           NO_CORRELATES);
                 } else {
-                    LOG_ERROR("Failed to compute P(" << params.describe() << ", attribute = " << gatherer.attributeName(cid)
-                                                     << ", person = " << this->personName(pid) << ")");
+                    LOG_ERROR(<< "Failed to compute P(" << params.describe() << ", attribute = " << gatherer.attributeName(cid)
+                              << ", person = " << this->personName(pid) << ")");
                 }
             }
         }
     }
 
     if (pJoint.empty()) {
-        LOG_TRACE("No samples in [" << startTime << "," << endTime << ")");
+        LOG_TRACE(<< "No samples in [" << startTime << "," << endTime << ")");
         return false;
     }
 
     double p;
     if (!pJoint.calculate(p, result.s_Influences)) {
-        LOG_ERROR("Failed to compute probability of " << this->personName(pid));
+        LOG_ERROR(<< "Failed to compute probability of " << this->personName(pid));
         return false;
     }
-    LOG_TRACE("probability(" << this->personName(pid) << ") = " << p);
+    LOG_TRACE(<< "probability(" << this->personName(pid) << ") = " << p);
     resultBuilder.probability(p);
     resultBuilder.build();
 
@@ -657,8 +657,8 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
         }
     }
 
-    LOG_TRACE("seed = " << seed);
-    LOG_TRACE("hashes = " << core::CContainerPrinter::print(hashes));
+    LOG_TRACE(<< "seed = " << seed);
+    LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
 
     return maths::CChecksum::calculate(seed, hashes);
 }
@@ -708,8 +708,8 @@ CMetricPopulationModel::CModelDetailsViewPtr CMetricPopulationModel::details() c
 const TSizeSizePrFeatureDataPrVec& CMetricPopulationModel::featureData(model_t::EFeature feature, core_t::TTime time) const {
     static const TSizeSizePrFeatureDataPrVec EMPTY;
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR("No statistics at " << time << ", current bucket = [" << m_CurrentBucketStats.s_StartTime << ","
-                                      << m_CurrentBucketStats.s_StartTime + this->bucketLength() << ")");
+        LOG_ERROR(<< "No statistics at " << time << ", current bucket = [" << m_CurrentBucketStats.s_StartTime << ","
+                  << m_CurrentBucketStats.s_StartTime + this->bucketLength() << ")");
         return EMPTY;
     }
     auto result = m_CurrentBucketStats.s_FeatureData.find(feature);

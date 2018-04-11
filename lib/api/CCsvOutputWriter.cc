@@ -26,8 +26,8 @@ CCsvOutputWriter::CCsvOutputWriter(bool outputMessages, bool outputHeader, char 
       m_Escape(escape),
       m_Separator(separator) {
     if (m_Separator == QUOTE || m_Separator == m_Escape || m_Separator == RECORD_END) {
-        LOG_ERROR("CSV output writer will not generate parsable output because "
-                  "separator character ("
+        LOG_ERROR(<< "CSV output writer will not generate parsable output because "
+                     "separator character ("
                   << m_Separator
                   << ") is the same as "
                      "the quote, escape and/or record end characters");
@@ -37,8 +37,8 @@ CCsvOutputWriter::CCsvOutputWriter(bool outputMessages, bool outputHeader, char 
 CCsvOutputWriter::CCsvOutputWriter(std::ostream& strmOut, bool outputMessages, bool outputHeader, char escape, char separator)
     : m_StrmOut(strmOut), m_OutputMessages(outputMessages), m_OutputHeader(outputHeader), m_Escape(escape), m_Separator(separator) {
     if (m_Separator == QUOTE || m_Separator == m_Escape || m_Separator == RECORD_END) {
-        LOG_ERROR("CSV output writer will not generate parsable output because "
-                  "separator character ("
+        LOG_ERROR(<< "CSV output writer will not generate parsable output because "
+                     "separator character ("
                   << m_Separator
                   << ") is the same as "
                      "the quote, escape and/or record end characters");
@@ -69,7 +69,7 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
     m_Hashes.clear();
 
     if (m_FieldNames.empty()) {
-        LOG_ERROR("Attempt to set empty field names");
+        LOG_ERROR(<< "Attempt to set empty field names");
         return false;
     }
 
@@ -97,7 +97,7 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
     if (m_OutputMessages) {
         for (TStrStrPrSetCItr msgIter = m_Messages.begin(); msgIter != m_Messages.end(); ++msgIter) {
             m_StrmOut << msgIter->first << '=' << msgIter->second << RECORD_END;
-            LOG_DEBUG("Forwarded " << msgIter->first << '=' << msgIter->second);
+            LOG_DEBUG(<< "Forwarded " << msgIter->first << '=' << msgIter->second);
         }
 
         // Only output each message once
@@ -119,7 +119,7 @@ const COutputHandler::TStrVec& CCsvOutputWriter::fieldNames() const {
 
 bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) {
     if (m_FieldNames.empty()) {
-        LOG_ERROR("Attempt to write data before field names");
+        LOG_ERROR(<< "Attempt to write data before field names");
         return false;
     }
 
@@ -136,8 +136,8 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrU
     if (fieldValueIter == overrideDataRowFields.end()) {
         fieldValueIter = dataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
         if (fieldValueIter == dataRowFields.end()) {
-            LOG_ERROR("Data fields to be written do not include a value for "
-                      "field "
+            LOG_ERROR(<< "Data fields to be written do not include a value for "
+                         "field "
                       << *fieldNameIter);
             return false;
         }
@@ -152,8 +152,8 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrU
         if (fieldValueIter == overrideDataRowFields.end()) {
             fieldValueIter = dataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
             if (fieldValueIter == dataRowFields.end()) {
-                LOG_ERROR("Data fields to be written do not include a value for "
-                          "field "
+                LOG_ERROR(<< "Data fields to be written do not include a value for "
+                             "field "
                           << *fieldNameIter);
                 return false;
             }

@@ -32,7 +32,7 @@ using TOptionalDouble = boost::optional<double>;
 //! Set the constant, validating the input.
 void setConstant(double value, TOptionalDouble& result) {
     if (CMathsFuncs::isNan(value)) {
-        LOG_ERROR("NaN constant");
+        LOG_ERROR(<< "NaN constant");
     } else {
         result.reset(value);
     }
@@ -138,13 +138,13 @@ maths_t::EFloatingPointErrorStatus CConstantPrior::jointLogMarginalLikelihood(co
     result = 0.0;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute likelihood for empty sample set");
+        LOG_ERROR(<< "Can't compute likelihood for empty sample set");
         return maths_t::E_FpFailed;
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR("Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
-                                          << core::CContainerPrinter::print(weights) << "'");
+        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+                  << core::CContainerPrinter::print(weights) << "'");
         return maths_t::E_FpFailed;
     }
 
@@ -195,7 +195,7 @@ bool CConstantPrior::minusLogJointCdf(const TWeightStyleVec& weightStyles,
     lowerBound = upperBound = 0.0;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute c.d.f. for empty sample set");
+        LOG_ERROR(<< "Can't compute c.d.f. for empty sample set");
         return false;
     }
 
@@ -205,7 +205,7 @@ bool CConstantPrior::minusLogJointCdf(const TWeightStyleVec& weightStyles,
             numberSamples += maths_t::count(weightStyles, weights[i]);
         }
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to compute c.d.f. " << e.what());
+        LOG_ERROR(<< "Failed to compute c.d.f. " << e.what());
         return false;
     }
 
@@ -236,7 +236,7 @@ bool CConstantPrior::minusLogJointCdfComplement(const TWeightStyleVec& weightSty
     lowerBound = upperBound = 0.0;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute c.d.f. for empty sample set");
+        LOG_ERROR(<< "Can't compute c.d.f. for empty sample set");
         return false;
     }
 
@@ -246,7 +246,7 @@ bool CConstantPrior::minusLogJointCdfComplement(const TWeightStyleVec& weightSty
             numberSamples += maths_t::count(weightStyles, weights[i]);
         }
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to compute c.d.f. " << e.what());
+        LOG_ERROR(<< "Failed to compute c.d.f. " << e.what());
         return false;
     }
 
@@ -280,7 +280,7 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
     tail = maths_t::E_UndeterminedTail;
 
     if (samples.empty()) {
-        LOG_ERROR("Can't compute probability for empty sample set");
+        LOG_ERROR(<< "Can't compute probability for empty sample set");
         return false;
     }
 
@@ -302,8 +302,8 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
         }
     }
 
-    LOG_TRACE("samples = " << core::CContainerPrinter::print(samples) << ", constant = " << *m_Constant << ", lowerBound = " << lowerBound
-                           << ", upperBound = " << upperBound << ", tail = " << tail);
+    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples) << ", constant = " << *m_Constant
+              << ", lowerBound = " << lowerBound << ", upperBound = " << upperBound << ", tail = " << tail);
 
     tail = static_cast<maths_t::ETail>(tail_);
     return true;

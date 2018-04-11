@@ -124,7 +124,7 @@ void CStateMachineTest::testBasics() {
     randomMachines(5, machines);
 
     for (std::size_t m = 0u; m < machines.size(); ++m) {
-        LOG_DEBUG("machine " << m);
+        LOG_DEBUG(<< "machine " << m);
         for (std::size_t i = 0u; i < machines[m].s_Alphabet.size(); ++i) {
             for (std::size_t j = 0u; j < machines[m].s_States.size(); ++j) {
                 core::CStateMachine sm = core::CStateMachine::create(machines[m].s_Alphabet,
@@ -138,7 +138,7 @@ void CStateMachineTest::testBasics() {
 
                 const std::string& newState = machines[m].s_States[sm.state()];
 
-                LOG_DEBUG("  " << oldState << " -> " << newState);
+                LOG_DEBUG(<< "  " << oldState << " -> " << newState);
                 CPPUNIT_ASSERT_EQUAL(machines[m].s_States[machines[m].s_TransitionFunction[i][j]], sm.printState(sm.state()));
             }
         }
@@ -162,7 +162,7 @@ void CStateMachineTest::testPersist() {
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("State machine XML representation:\n" << origXml);
+    LOG_DEBUG(<< "State machine XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
@@ -193,7 +193,7 @@ void CStateMachineTest::testMultithreaded() {
     TMachineVec machines;
     randomMachines(100, machines);
 
-    LOG_DEBUG("# machines = " << machines.size());
+    LOG_DEBUG(<< "# machines = " << machines.size());
 
     std::sort(machines.begin(), machines.end());
     machines.erase(std::unique(machines.begin(), machines.end()), machines.end());

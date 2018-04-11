@@ -47,13 +47,13 @@ operator()(const STimeSeriesDecompositionRestoreParams& params, TDecompositionPt
             result.reset(new CTimeSeriesDecompositionStub());
             ++numResults;
         } else {
-            LOG_ERROR("No decomposition corresponds to name " << traverser.name());
+            LOG_ERROR(<< "No decomposition corresponds to name " << traverser.name());
             return false;
         }
     } while (traverser.next());
 
     if (numResults != 1) {
-        LOG_ERROR("Expected 1 (got " << numResults << ") decomposition tags");
+        LOG_ERROR(<< "Expected 1 (got " << numResults << ") decomposition tags");
         result.reset();
         return false;
     }
@@ -71,7 +71,7 @@ void CTimeSeriesDecompositionStateSerialiser::operator()(const CTimeSeriesDecomp
     } else if (dynamic_cast<const CTimeSeriesDecompositionStub*>(&decomposition) != nullptr) {
         inserter.insertValue(TIME_SERIES_DECOMPOSITION_STUB_TAG, "");
     } else {
-        LOG_ERROR("Decomposition with type '" << typeid(decomposition).name() << "' has no defined name");
+        LOG_ERROR(<< "Decomposition with type '" << typeid(decomposition).name() << "' has no defined name");
     }
 }
 }

@@ -194,8 +194,8 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
             (*stats_[0])[d].add(predictionError[d] + tolerance, weight);
             (*stats_[1])[d].add(std::fabs(predictionError[d] + tolerance), weight);
             (*stats_[2])[d].add(std::fabs(predictionError[d] + tolerance), weight);
-            LOG_TRACE("stats = " << core::CContainerPrinter::print(stats_));
-            LOG_TRACE("predictions = " << CBasicStatistics::mean(m_PredictionMean));
+            LOG_TRACE(<< "stats = " << core::CContainerPrinter::print(stats_));
+            LOG_TRACE(<< "predictions = " << CBasicStatistics::mean(m_PredictionMean));
         }
     }
 

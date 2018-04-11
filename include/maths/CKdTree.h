@@ -81,13 +81,14 @@ public:
 
     //! A node of the k-d tree.
     struct SNode : public NODE_DATA {
-        SNode(SNode* parent, const POINT& point) : NODE_DATA(), s_Parent(parent), s_LeftChild(nullptr), s_RightChild(nullptr), s_Point(point) {}
+        SNode(SNode* parent, const POINT& point)
+            : NODE_DATA(), s_Parent(parent), s_LeftChild(nullptr), s_RightChild(nullptr), s_Point(point) {}
 
         //! Check node invariants.
         bool checkInvariants(std::size_t dimension) const {
             if (s_Parent) {
                 if (s_Parent->s_LeftChild != this && s_Parent->s_RightChild != this) {
-                    LOG_ERROR("Not parent's child");
+                    LOG_ERROR(<< "Not parent's child");
                     return false;
                 }
             }
@@ -95,11 +96,11 @@ public:
             std::size_t coordinate = this->depth() % dimension;
             CCoordinateLess less(coordinate);
             if (s_LeftChild && less(s_Point, s_LeftChild->s_Point)) {
-                LOG_ERROR("parent = " << s_Point << ", left child = " << s_LeftChild->s_Point << ", coordinate = " << coordinate);
+                LOG_ERROR(<< "parent = " << s_Point << ", left child = " << s_LeftChild->s_Point << ", coordinate = " << coordinate);
                 return false;
             }
             if (s_RightChild && less(s_RightChild->s_Point, s_Point)) {
-                LOG_ERROR("parent = " << s_Point << ", right child = " << s_RightChild->s_Point << ", coordinate = " << coordinate);
+                LOG_ERROR(<< "parent = " << s_Point << ", right child = " << s_RightChild->s_Point << ", coordinate = " << coordinate);
                 return false;
             }
             return true;

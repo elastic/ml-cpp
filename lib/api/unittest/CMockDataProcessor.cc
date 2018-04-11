@@ -27,14 +27,14 @@ bool CMockDataProcessor::handleRecord(const TStrStrUMap& dataRowFields) {
         }
 
         if (m_OutputHandler.fieldNames(fieldNames) == false) {
-            LOG_ERROR("Unable to set field names for output:\n" << this->debugPrintRecord(dataRowFields));
+            LOG_ERROR(<< "Unable to set field names for output:\n" << this->debugPrintRecord(dataRowFields));
             return false;
         }
         m_WriteFieldNames = false;
     }
 
     if (m_OutputHandler.writeRow(dataRowFields, m_FieldOverrides) == false) {
-        LOG_ERROR("Unable to write output");
+        LOG_ERROR(<< "Unable to write output");
         return false;
     }
 

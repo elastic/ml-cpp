@@ -66,7 +66,7 @@ CIoManager::CIoManager(const std::string& inputFileName,
     // functionality is NOT synchronised.
     bool wasSynchronised(std::ios::sync_with_stdio(false));
     if (wasSynchronised) {
-        LOG_TRACE("C++ streams no longer synchronised with C stdio");
+        LOG_TRACE(<< "C++ streams no longer synchronised with C stdio");
     }
 
     // Untie the standard streams so that if std::cin and std::cout are used as
@@ -93,7 +93,7 @@ std::istream& CIoManager::inputStream() {
     }
 
     if (!m_IoInitialised) {
-        LOG_ERROR("Accessing input stream before IO is initialised");
+        LOG_ERROR(<< "Accessing input stream before IO is initialised");
     }
 
     return std::cin;
@@ -105,7 +105,7 @@ std::ostream& CIoManager::outputStream() {
     }
 
     if (!m_IoInitialised) {
-        LOG_ERROR("Accessing output stream before IO is initialised");
+        LOG_ERROR(<< "Accessing output stream before IO is initialised");
     }
 
     return std::cout;
@@ -113,7 +113,7 @@ std::ostream& CIoManager::outputStream() {
 
 core::CNamedPipeFactory::TIStreamP CIoManager::restoreStream() {
     if (!m_IoInitialised) {
-        LOG_ERROR("Accessing restore stream before IO is initialised");
+        LOG_ERROR(<< "Accessing restore stream before IO is initialised");
     }
 
     return m_RestoreStream;
@@ -121,7 +121,7 @@ core::CNamedPipeFactory::TIStreamP CIoManager::restoreStream() {
 
 core::CNamedPipeFactory::TOStreamP CIoManager::persistStream() {
     if (!m_IoInitialised) {
-        LOG_ERROR("Accessing persist stream before IO is initialised");
+        LOG_ERROR(<< "Accessing persist stream before IO is initialised");
     }
 
     return m_PersistStream;

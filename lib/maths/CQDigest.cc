@@ -61,7 +61,7 @@ bool CQDigest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
         if (name == NODE_TAG) {
             CNode node;
             if (traverser.traverseSubLevel(boost::bind(&CNode::acceptRestoreTraverser, &node, _1)) == false) {
-                LOG_ERROR("Failed to restore NODE_TAG, got " << traverser.value());
+                LOG_ERROR(<< "Failed to restore NODE_TAG, got " << traverser.value());
             }
             if (nodeCount++ == 0) {
                 m_Root = &m_NodeAllocator.create(node);
@@ -76,7 +76,7 @@ bool CQDigest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
 }
 
 void CQDigest::add(uint32_t value, uint64_t n) {
-    LOG_TRACE("Adding = " << value);
+    LOG_TRACE(<< "Adding = " << value);
 
     m_N += n;
 
@@ -127,7 +127,7 @@ void CQDigest::merge(const CQDigest& digest) {
 
 void CQDigest::propagateForwardsByTime(double time) {
     if (time < 0.0) {
-        LOG_ERROR("Can't propagate quantiles backwards in time");
+        LOG_ERROR(<< "Can't propagate quantiles backwards in time");
         return;
     }
 
@@ -144,7 +144,7 @@ bool CQDigest::scale(double factor) {
     using TUInt32UInt32UInt64TrVec = std::vector<TUInt32UInt32UInt64Tr>;
 
     if (factor <= 0.0) {
-        LOG_ERROR("Scaling factor must be positive");
+        LOG_ERROR(<< "Scaling factor must be positive");
         return false;
     }
 
@@ -181,7 +181,7 @@ bool CQDigest::scale(double factor) {
         uint32_t span = max - min + 1;
         uint64_t count = node.get<2>() / span;
         uint64_t remainder = node.get<2>() - count * span;
-        LOG_TRACE("min = " << min << ", max = " << max << ", count = " << count << ", remainder = " << remainder);
+        LOG_TRACE(<< "min = " << min << ", max = " << max << ", count = " << count << ", remainder = " << remainder);
 
         if (count > 0) {
             for (uint32_t j = 0u; j < span; ++j) {
@@ -210,7 +210,7 @@ void CQDigest::clear() {
     // Reset root to its initial state and sanity check total count.
     m_Root = &m_NodeAllocator.create(CNode(0, 1, 0, 0));
     if (m_N != 0) {
-        LOG_ERROR("Inconsistency - sum of node counts did not equal N");
+        LOG_ERROR(<< "Inconsistency - sum of node counts did not equal N");
         m_N = 0;
     }
 }
@@ -219,7 +219,7 @@ bool CQDigest::quantile(double q, uint32_t& result) const {
     result = 0u;
 
     if (m_N == 0) {
-        LOG_ERROR("Can't compute quantiles on empty set");
+        LOG_ERROR(<< "Can't compute quantiles on empty set");
         return false;
     }
 
@@ -234,7 +234,7 @@ bool CQDigest::quantile(double q, uint32_t& result) const {
 bool CQDigest::quantileSublevelSetSupremum(double f, uint32_t& result) const {
     result = 0;
     if (m_N == 0) {
-        LOG_ERROR("Can't compute level set for empty set");
+        LOG_ERROR(<< "Can't compute level set for empty set");
         return false;
     }
     if (f <= 0.0) {
@@ -275,7 +275,7 @@ double CQDigest::cdfQuantile(double n, double p, double q) {
         boost::math::beta_distribution<> beta(a, b);
         return boost::math::quantile(beta, q);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to calculate c.d.f. quantile: " << e.what() << ", n = " << n << ", p = " << p << ", q = " << q);
+        LOG_ERROR(<< "Failed to calculate c.d.f. quantile: " << e.what() << ", n = " << n << ", p = " << p << ", q = " << q);
     }
     return p;
 }
@@ -285,7 +285,7 @@ bool CQDigest::cdf(uint32_t x, double confidence, double& lowerBound, double& up
     upperBound = 0.0;
 
     if (m_N == 0) {
-        LOG_ERROR("Can't compute c.d.f. for empty set");
+        LOG_ERROR(<< "Can't compute c.d.f. for empty set");
         return false;
     }
 
@@ -331,10 +331,10 @@ void CQDigest::pdf(uint32_t x, double confidence, double& lowerBound, double& up
     lowerBound = std::max(supremumLowerBound - infimumUpperBound, 0.0) / std::max(static_cast<double>(supremum - infimum), 1.0);
     upperBound = std::max(supremumUpperBound - infimumLowerBound, 0.0) / std::max(static_cast<double>(supremum - infimum), 1.0);
 
-    LOG_TRACE("x = " << x << ", supremum = " << supremum << ", infimum = " << infimum << ", cdf(supremum) = [" << supremumLowerBound << ","
-                     << supremumUpperBound << "]"
-                     << ", cdf(infimum) = [" << infimumLowerBound << "," << infimumUpperBound << "]"
-                     << ", pdf = [" << lowerBound << "," << upperBound << "]");
+    LOG_TRACE(<< "x = " << x << ", supremum = " << supremum << ", infimum = " << infimum << ", cdf(supremum) = [" << supremumLowerBound
+              << "," << supremumUpperBound << "]"
+              << ", cdf(infimum) = [" << infimumLowerBound << "," << infimumUpperBound << "]"
+              << ", pdf = [" << lowerBound << "," << upperBound << "]");
 }
 
 void CQDigest::sublevelSetSupremum(uint32_t x, uint32_t& result) const {
@@ -374,7 +374,7 @@ void CQDigest::summary(TUInt32UInt64PrVec& result) const {
     }
 
     if (result.back().second != m_N) {
-        LOG_ERROR("Got " << result.back().second << " expected " << m_N);
+        LOG_ERROR(<< "Got " << result.back().second << " expected " << m_N);
     }
 }
 
@@ -402,12 +402,12 @@ bool CQDigest::checkInvariants() const {
     //   2) The node invariants are satisfied.
 
     if (m_Root->size() > 3 * m_K) {
-        LOG_ERROR("|Q| = " << m_Root->size() << " 3k = " << 3 * m_K);
+        LOG_ERROR(<< "|Q| = " << m_Root->size() << " 3k = " << 3 * m_K);
         return false;
     }
 
     if (m_Root->subtreeCount() != m_N) {
-        LOG_ERROR("Bad count: " << m_Root->subtreeCount() << ", n = " << m_N);
+        LOG_ERROR(<< "Bad count: " << m_Root->subtreeCount() << ", n = " << m_N);
         return false;
     }
 
@@ -437,7 +437,7 @@ void CQDigest::compress() {
             return;
         }
     }
-    LOG_ERROR("Failed to compress tree");
+    LOG_ERROR(<< "Failed to compress tree");
 }
 
 bool CQDigest::compress(TNodePtrVec& compress) {
@@ -741,19 +741,19 @@ bool CQDigest::CNode::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
         const std::string& name = traverser.name();
         if (name == MIN_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), m_Min) == false) {
-                LOG_ERROR("Invalid min in " << traverser.value());
+                LOG_ERROR(<< "Invalid min in " << traverser.value());
                 return false;
             }
         }
         if (name == MAX_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), m_Max) == false) {
-                LOG_ERROR("Invalid max in " << traverser.value());
+                LOG_ERROR(<< "Invalid max in " << traverser.value());
                 return false;
             }
         }
         if (name == COUNT_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), m_Count) == false) {
-                LOG_ERROR("Invalid count in " << traverser.value());
+                LOG_ERROR(<< "Invalid count in " << traverser.value());
                 return false;
             }
             m_SubtreeCount = m_Count;
@@ -780,7 +780,7 @@ bool CQDigest::CNode::checkInvariants(uint64_t compressionFactor) const {
     uint32_t span(this->span());
     uint32_t spanMinusOne(span - 1);
     if ((span | spanMinusOne) != (span ^ spanMinusOne)) {
-        LOG_ERROR("Bad span: " << this->print());
+        LOG_ERROR(<< "Bad span: " << this->print());
         return false;
     }
 
@@ -789,15 +789,15 @@ bool CQDigest::CNode::checkInvariants(uint64_t compressionFactor) const {
 
     for (std::size_t i = 0u; i < m_Descendants.size(); ++i) {
         if (m_Descendants[i]->m_Ancestor != this) {
-            LOG_ERROR("Bad connectivity: " << this->print() << " -> " << m_Descendants[i]->print() << " <- "
-                                           << m_Descendants[i]->m_Ancestor->print());
+            LOG_ERROR(<< "Bad connectivity: " << this->print() << " -> " << m_Descendants[i]->print() << " <- "
+                      << m_Descendants[i]->m_Ancestor->print());
         }
         if (!this->isAncestor(*m_Descendants[i])) {
-            LOG_ERROR("Bad connectivity: " << this->print() << " -> " << m_Descendants[i]->print());
+            LOG_ERROR(<< "Bad connectivity: " << this->print() << " -> " << m_Descendants[i]->print());
             return false;
         }
         if (i + 1u < m_Descendants.size() && !postLess(m_Descendants[i], m_Descendants[i + 1u])) {
-            LOG_ERROR("Bad order: " << m_Descendants[i]->print() << " >= " << m_Descendants[i + 1u]->print());
+            LOG_ERROR(<< "Bad order: " << m_Descendants[i]->print() << " >= " << m_Descendants[i + 1u]->print());
             return false;
         }
         if (!m_Descendants[i]->checkInvariants(compressionFactor)) {
@@ -807,12 +807,12 @@ bool CQDigest::CNode::checkInvariants(uint64_t compressionFactor) const {
     }
 
     if (subtreeCount != m_SubtreeCount) {
-        LOG_ERROR("Bad subtree count: expected " << subtreeCount << " got " << m_SubtreeCount);
+        LOG_ERROR(<< "Bad subtree count: expected " << subtreeCount << " got " << m_SubtreeCount);
         return false;
     }
 
     if (!this->isLeaf() && !this->isRoot() && m_Count > compressionFactor) {
-        LOG_ERROR("Bad count: " << m_Count << ", floor(n/k) = " << compressionFactor);
+        LOG_ERROR(<< "Bad count: " << m_Count << ", floor(n/k) = " << compressionFactor);
         return false;
     }
 
@@ -820,7 +820,7 @@ bool CQDigest::CNode::checkInvariants(uint64_t compressionFactor) const {
         const CNode* sibling = m_Ancestor->sibling(*this);
         uint64_t count = m_Count + (sibling ? sibling->count() : 0ull) + (m_Ancestor->isParent(*this) ? m_Ancestor->count() : 0ull);
         if (count < compressionFactor) {
-            LOG_ERROR("Bad triple count: " << count << ", floor(n/k) = " << compressionFactor);
+            LOG_ERROR(<< "Bad triple count: " << count << ", floor(n/k) = " << compressionFactor);
             return false;
         }
     }
@@ -987,7 +987,7 @@ CQDigest::CNode& CQDigest::CNodeAllocator::create(const CNode& node) {
             m_Nodes.push_back(TNodeVec());
             m_Nodes.back().reserve(size);
             m_FreeNodes.push_back(TNodePtrVec());
-            LOG_TRACE("Added new block " << m_Nodes.size());
+            LOG_TRACE(<< "Added new block " << m_Nodes.size());
         }
 
         TNodeVec& nodes = m_Nodes.back();
@@ -1005,7 +1005,7 @@ CQDigest::CNode& CQDigest::CNodeAllocator::create(const CNode& node) {
 void CQDigest::CNodeAllocator::release(CNode& node) {
     std::size_t block = this->findBlock(node);
     if (block >= m_FreeNodes.size()) {
-        LOG_ABORT("Bad block address = " << block << ", max = " << m_FreeNodes.size() - 1u);
+        LOG_ABORT(<< "Bad block address = " << block << ", max = " << m_FreeNodes.size() - 1u);
     }
 
     m_FreeNodes[block].push_back(&node);
@@ -1016,7 +1016,7 @@ void CQDigest::CNodeAllocator::release(CNode& node) {
 
         // Remove the block if none of its nodes are in use.
         if (m_FreeNodes[block].size() > nodeItr->size()) {
-            LOG_TRACE("Removing block " << block);
+            LOG_TRACE(<< "Removing block " << block);
             m_FreeNodes.erase(m_FreeNodes.begin() + block);
             m_Nodes.erase(nodeItr);
         }

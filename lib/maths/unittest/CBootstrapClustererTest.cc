@@ -92,9 +92,9 @@ void connect(const TSizeVec& U, const TSizeVec& V, TGraph& graph) {
 }
 
 void CBootstrapClustererTest::testFacade() {
-    LOG_DEBUG("+---------------------------------------+");
-    LOG_DEBUG("|  CBootstrapClustererTest::testFacade  |");
-    LOG_DEBUG("+---------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------+");
+    LOG_DEBUG(<< "|  CBootstrapClustererTest::testFacade  |");
+    LOG_DEBUG(<< "+---------------------------------------+");
 
     // Check that clustering by facade produces the sample result.
 
@@ -103,7 +103,7 @@ void CBootstrapClustererTest::testFacade() {
     std::size_t improveStructureKmeansIterations = 3;
 
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("Trial " << t);
+        LOG_DEBUG(<< "Trial " << t);
 
         double m1_[] = {2.0, 2.0};
         double v1_[] = {4.0, 2.0, 4.0};
@@ -163,9 +163,9 @@ void CBootstrapClustererTest::testFacade() {
 }
 
 void CBootstrapClustererTest::testBuildClusterGraph() {
-    LOG_DEBUG("+--------------------------------------------------+");
-    LOG_DEBUG("|  CBootstrapClustererTest::testBuildClusterGraph  |");
-    LOG_DEBUG("+--------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------+");
+    LOG_DEBUG(<< "|  CBootstrapClustererTest::testBuildClusterGraph  |");
+    LOG_DEBUG(<< "+--------------------------------------------------+");
 
     // Test we get the graph edges we expect for different overlap
     // thresholds.
@@ -241,7 +241,7 @@ void CBootstrapClustererTest::testBuildClusterGraph() {
                                           "15: [4]\n")};
 
     for (std::size_t i = 0u; i < boost::size(overlaps); ++i) {
-        LOG_DEBUG("*** overlap threshold = " << overlaps[i] << " ***");
+        LOG_DEBUG(<< "*** overlap threshold = " << overlaps[i] << " ***");
 
         TGraph graph;
         TBootstrapClustererForTest2 clusterer(overlaps[i], 1.0);
@@ -263,15 +263,15 @@ void CBootstrapClustererTest::testBuildClusterGraph() {
             rep += ": " + core::CContainerPrinter::print(adjacent) + "\n";
         }
 
-        LOG_DEBUG("Overlap graph " << rep);
+        LOG_DEBUG(<< "Overlap graph " << rep);
         CPPUNIT_ASSERT_EQUAL(expected[i], rep);
     }
 }
 
 void CBootstrapClustererTest::testCutSearch() {
-    LOG_DEBUG("+------------------------------------------+");
-    LOG_DEBUG("|  CBootstrapClustererTest::testCutSearch  |");
-    LOG_DEBUG("+------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------+");
+    LOG_DEBUG(<< "|  CBootstrapClustererTest::testCutSearch  |");
+    LOG_DEBUG(<< "+------------------------------------------+");
 
     // Test we generally find the sparsest cut in a graph with two cliques.
 
@@ -299,8 +299,8 @@ void CBootstrapClustererTest::testCutSearch() {
         rng.generateUniformSamples(k, v, connections[t], V);
         connect(U, V, graph);
 
-        LOG_DEBUG("split = " << splits[t] << ":" << 20 - splits[t]);
-        LOG_DEBUG("# connections = " << connections[t]);
+        LOG_DEBUG(<< "split = " << splits[t] << ":" << 20 - splits[t]);
+        LOG_DEBUG(<< "# connections = " << connections[t]);
 
         TBootstrapClustererForTest2 clusterer(0.3, 3.0);
 
@@ -308,22 +308,22 @@ void CBootstrapClustererTest::testCutSearch() {
         TBoolVec parities;
         clusterer.cutSearch(0, 1, graph, 0.0, cost, parities);
 
-        LOG_DEBUG("cost = " << cost << ", parities = " << core::CContainerPrinter::print(parities));
+        LOG_DEBUG(<< "cost = " << cost << ", parities = " << core::CContainerPrinter::print(parities));
 
         double sparsestCut = static_cast<double>(connections[t]) / static_cast<double>(20 - splits[t]) / static_cast<double>(splits[t]);
 
-        LOG_DEBUG("sparsest = " << sparsestCut);
+        LOG_DEBUG(<< "sparsest = " << sparsestCut);
         quality.add(cost - sparsestCut);
     }
 
-    LOG_DEBUG("quality = " << 1.0 - maths::CBasicStatistics::mean(quality));
+    LOG_DEBUG(<< "quality = " << 1.0 - maths::CBasicStatistics::mean(quality));
     CPPUNIT_ASSERT(1.0 - maths::CBasicStatistics::mean(quality) > 0.98);
 }
 
 void CBootstrapClustererTest::testSeparate() {
-    LOG_DEBUG("+-----------------------------------------+");
-    LOG_DEBUG("|  CBootstrapClustererTest::testSeparate  |");
-    LOG_DEBUG("+-----------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------+");
+    LOG_DEBUG(<< "|  CBootstrapClustererTest::testSeparate  |");
+    LOG_DEBUG(<< "+-----------------------------------------+");
 
     // Test we separate a graph with three cliques when we can.
 
@@ -360,14 +360,14 @@ void CBootstrapClustererTest::testSeparate() {
 
         std::size_t e = boost::num_edges(graph);
 
-        LOG_DEBUG("split = " << splits1[t] << ":" << splits2[t] << ":" << v - splits2[t]);
-        LOG_DEBUG("# connections = " << connections[2 * t] << " " << connections[2 * t + 1]);
+        LOG_DEBUG(<< "split = " << splits1[t] << ":" << splits2[t] << ":" << v - splits2[t]);
+        LOG_DEBUG(<< "# connections = " << connections[2 * t] << " " << connections[2 * t + 1]);
 
         TBootstrapClustererForTest2 clusterer(0.3, 3.0);
 
         TBoolVec parities;
         bool separable = clusterer.separate(graph, parities);
-        LOG_DEBUG("parities = " << core::CContainerPrinter::print(parities));
+        LOG_DEBUG(<< "parities = " << core::CContainerPrinter::print(parities));
 
         double a = 0.0;
         double b = 0.0;
@@ -381,7 +381,7 @@ void CBootstrapClustererTest::testSeparate() {
                 cut += 1.0;
             }
         }
-        LOG_DEBUG("cost = " << cut / (a * b))
+        LOG_DEBUG(<< "cost = " << cut / (a * b))
 
         double sparsestCut =
             std::min(static_cast<double>(connections[2 * t]) / static_cast<double>(k[0]) / static_cast<double>(v - k[0]),
@@ -389,22 +389,22 @@ void CBootstrapClustererTest::testSeparate() {
 
         double threshold = 0.1 * static_cast<double>(2 * e) / static_cast<double>(v * (v - 1));
 
-        LOG_DEBUG("sparsest = " << sparsestCut << " need " << threshold << " to separate");
+        LOG_DEBUG(<< "sparsest = " << sparsestCut << " need " << threshold << " to separate");
 
         errors += static_cast<std::size_t>((sparsestCut < threshold) != separable);
         quality.add(cut / (a * b) - sparsestCut);
     }
 
-    LOG_DEBUG("errors = " << errors);
-    LOG_DEBUG("quality = " << 1.0 - maths::CBasicStatistics::mean(quality));
+    LOG_DEBUG(<< "errors = " << errors);
+    LOG_DEBUG(<< "quality = " << 1.0 - maths::CBasicStatistics::mean(quality));
     CPPUNIT_ASSERT(errors < 4);
     CPPUNIT_ASSERT(1.0 - maths::CBasicStatistics::mean(quality) > 0.99);
 }
 
 void CBootstrapClustererTest::testThickets() {
-    LOG_DEBUG("+-----------------------------------------+");
-    LOG_DEBUG("|  CBootstrapClustererTest::testThickets  |");
-    LOG_DEBUG("+-----------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------+");
+    LOG_DEBUG(<< "|  CBootstrapClustererTest::testThickets  |");
+    LOG_DEBUG(<< "+-----------------------------------------+");
 
     // Test we find the correct thickets in a graph with two
     // components and three cliques.
@@ -450,8 +450,8 @@ void CBootstrapClustererTest::testThickets() {
         rng.generateUniformSamples(k[0], k[1], connections[t], V);
         connect(U, V, graph);
 
-        LOG_DEBUG("split = " << splits1[t] << ":" << splits2[t] << ":" << v - splits2[t]);
-        LOG_DEBUG("# connections = " << connections[t]);
+        LOG_DEBUG(<< "split = " << splits1[t] << ":" << splits2[t] << ":" << v - splits2[t]);
+        LOG_DEBUG(<< "# connections = " << connections[t]);
 
         TSizeVec components(v);
         std::size_t c = boost::connected_components(graph, &components[0]);
@@ -459,7 +459,7 @@ void CBootstrapClustererTest::testThickets() {
         TBootstrapClustererForTest2 clusterer(0.3, 3.0);
 
         c = clusterer.thickets(c, graph, components);
-        LOG_DEBUG("components = " << core::CContainerPrinter::print(components));
+        LOG_DEBUG(<< "components = " << core::CContainerPrinter::print(components));
 
         error += std::abs(3 - static_cast<int>(c));
         if (c == 3) {
@@ -478,16 +478,16 @@ void CBootstrapClustererTest::testThickets() {
         }
     }
 
-    LOG_DEBUG("error = " << error);
-    LOG_DEBUG("mean Jaccard = " << maths::CBasicStatistics::mean(meanJaccard));
+    LOG_DEBUG(<< "error = " << error);
+    LOG_DEBUG(<< "mean Jaccard = " << maths::CBasicStatistics::mean(meanJaccard));
     CPPUNIT_ASSERT(error < 2);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanJaccard) > 0.99);
 }
 
 void CBootstrapClustererTest::testNonConvexClustering() {
-    LOG_DEBUG("+----------------------------------------------------+");
-    LOG_DEBUG("|  CBootstrapClustererTest::testNonConvexClustering  |");
-    LOG_DEBUG("+----------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------+");
+    LOG_DEBUG(<< "|  CBootstrapClustererTest::testNonConvexClustering  |");
+    LOG_DEBUG(<< "+----------------------------------------------------+");
 
     // Check the improvement in clustering when the underlying
     // assumptions of x-means (specifically cluster convexness
@@ -544,7 +544,7 @@ void CBootstrapClustererTest::testNonConvexClustering() {
     TVector2SizeUMap lookup;
     TDoubleVec noise;
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("Trial " << t);
+        LOG_DEBUG(<< "Trial " << t);
 
         flatPoints.clear();
         lookup.clear();
@@ -588,7 +588,7 @@ void CBootstrapClustererTest::testNonConvexClustering() {
             }
             jaccard.push_back(jmax);
         }
-        LOG_DEBUG("# clusters bootstrap = " << bootstrap.size() << ", Jaccard bootstrap = " << core::CContainerPrinter::print(jaccard));
+        LOG_DEBUG(<< "# clusters bootstrap = " << bootstrap.size() << ", Jaccard bootstrap = " << core::CContainerPrinter::print(jaccard));
         numberClustersBootstrap.add(static_cast<double>(bootstrap.size()));
         jaccardBootstrapToPerfect.add(jaccard);
 
@@ -615,15 +615,15 @@ void CBootstrapClustererTest::testNonConvexClustering() {
             }
             jaccard.push_back(jmax);
         }
-        LOG_DEBUG("# clusters vanilla   = " << vanilla.size() << ", Jaccard vanilla   = " << core::CContainerPrinter::print(jaccard));
+        LOG_DEBUG(<< "# clusters vanilla   = " << vanilla.size() << ", Jaccard vanilla   = " << core::CContainerPrinter::print(jaccard));
         numberClustersVanilla.add(static_cast<double>(vanilla.size()));
         jaccardVanillaToPerfect.add(jaccard);
     }
 
-    LOG_DEBUG("Jaccard bootstrap to perfect = " << maths::CBasicStatistics::mean(jaccardBootstrapToPerfect));
-    LOG_DEBUG("Jaccard vanilla to perfect   = " << maths::CBasicStatistics::mean(jaccardVanillaToPerfect));
-    LOG_DEBUG("# clusters bootstrap = " << maths::CBasicStatistics::mean(numberClustersBootstrap));
-    LOG_DEBUG("# clusters vanilla   = " << maths::CBasicStatistics::mean(numberClustersVanilla));
+    LOG_DEBUG(<< "Jaccard bootstrap to perfect = " << maths::CBasicStatistics::mean(jaccardBootstrapToPerfect));
+    LOG_DEBUG(<< "Jaccard vanilla to perfect   = " << maths::CBasicStatistics::mean(jaccardVanillaToPerfect));
+    LOG_DEBUG(<< "# clusters bootstrap = " << maths::CBasicStatistics::mean(numberClustersBootstrap));
+    LOG_DEBUG(<< "# clusters vanilla   = " << maths::CBasicStatistics::mean(numberClustersVanilla));
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, maths::CBasicStatistics::mean(jaccardBootstrapToPerfect), 0.1);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, maths::CBasicStatistics::mean(numberClustersBootstrap), 0.6);
@@ -631,9 +631,9 @@ void CBootstrapClustererTest::testNonConvexClustering() {
 }
 
 void CBootstrapClustererTest::testClusteringStability() {
-    LOG_DEBUG("+----------------------------------------------------+");
-    LOG_DEBUG("|  CBootstrapClustererTest::testClusteringStability  |");
-    LOG_DEBUG("+----------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------+");
+    LOG_DEBUG(<< "|  CBootstrapClustererTest::testClusteringStability  |");
+    LOG_DEBUG(<< "+----------------------------------------------------+");
 
     // Test that when we think there is sufficient certainty
     // to create clusters the assignment of points to clusters
@@ -676,7 +676,7 @@ void CBootstrapClustererTest::testClusteringStability() {
     TSizeVecVec clusterCounts(perfect.size(), TSizeVec(points.size(), 0));
 
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("Trial " << t);
+        LOG_DEBUG(<< "Trial " << t);
 
         rng.random_shuffle(points1.begin(), points1.end());
         rng.random_shuffle(points2.begin(), points2.end());
@@ -696,7 +696,7 @@ void CBootstrapClustererTest::testClusteringStability() {
                                 3.0, // the degree of connection between overlapping clusters
                                 bootstrapClusters);
 
-        LOG_DEBUG("# clusters = " << bootstrapClusters.size());
+        LOG_DEBUG(<< "# clusters = " << bootstrapClusters.size());
         if (bootstrapClusters.size() > 1) {
             bootstrap.resize(bootstrapClusters.size());
             for (std::size_t i = 0u; i < bootstrapClusters.size(); ++i) {
@@ -709,7 +709,7 @@ void CBootstrapClustererTest::testClusteringStability() {
                 std::sort(bootstrap[i].begin(), bootstrap[i].end());
             }
 
-            LOG_DEBUG("clusters = " << core::CContainerPrinter::print(bootstrap));
+            LOG_DEBUG(<< "clusters = " << core::CContainerPrinter::print(bootstrap));
             for (std::size_t i = 0u; i < bootstrap.size(); ++i) {
                 double Jmax = 0.0;
                 std::size_t cluster = 0;
@@ -733,11 +733,11 @@ void CBootstrapClustererTest::testClusteringStability() {
         }
     }
 
-    LOG_DEBUG("consistency = " << core::CContainerPrinter::print(consistency));
+    LOG_DEBUG(<< "consistency = " << core::CContainerPrinter::print(consistency));
 
     TMeanAccumulator meanConsistency;
     meanConsistency.add(consistency);
-    LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanConsistency));
+    LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanConsistency));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanConsistency) > 0.95);
 }
 

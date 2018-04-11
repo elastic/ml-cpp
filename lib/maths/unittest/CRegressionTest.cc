@@ -56,9 +56,9 @@ using TDoubleArray4 = boost::array<double, 4>;
 }
 
 void CRegressionTest::testInvariants() {
-    LOG_DEBUG("+----------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testInvariants |");
-    LOG_DEBUG("+----------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testInvariants |");
+    LOG_DEBUG(<< "+----------------------------------+");
 
     // Test at (local) minimum of quadratic residuals.
 
@@ -95,8 +95,8 @@ void CRegressionTest::testInvariants() {
         double residual = squareResidual(params, xs, ys);
 
         if (t % 10 == 0) {
-            LOG_DEBUG("params   = " << core::CContainerPrinter::print(params));
-            LOG_DEBUG("residual = " << residual);
+            LOG_DEBUG(<< "params   = " << core::CContainerPrinter::print(params));
+            LOG_DEBUG(<< "residual = " << residual);
         }
 
         TDoubleVec delta;
@@ -110,7 +110,7 @@ void CRegressionTest::testInvariants() {
             double residualj = squareResidual(sum(params, deltaj), xs, ys);
 
             if (t % 10 == 0) {
-                LOG_DEBUG("  delta residual " << residualj);
+                LOG_DEBUG(<< "  delta residual " << residualj);
             }
 
             CPPUNIT_ASSERT(residualj > residual);
@@ -119,9 +119,9 @@ void CRegressionTest::testInvariants() {
 }
 
 void CRegressionTest::testFit() {
-    LOG_DEBUG("+----------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testFit  |");
-    LOG_DEBUG("+----------------------------+");
+    LOG_DEBUG(<< "+----------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testFit  |");
+    LOG_DEBUG(<< "+----------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -153,7 +153,7 @@ void CRegressionTest::testFit() {
             CPPUNIT_ASSERT(ls.parameters(params));
 
             if (t % 10 == 0) {
-                LOG_DEBUG("params = " << core::CContainerPrinter::print(params));
+                LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
             }
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(intercept, params[0], 1.3);
@@ -162,8 +162,8 @@ void CRegressionTest::testFit() {
             slopeError.add(std::fabs(params[1] - slope));
         }
 
-        LOG_DEBUG("intercept error = " << interceptError);
-        LOG_DEBUG("slope error = " << slopeError);
+        LOG_DEBUG(<< "intercept error = " << interceptError);
+        LOG_DEBUG(<< "slope error = " << slopeError);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(interceptError) < 0.35);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(slopeError) < 0.04);
     }
@@ -190,8 +190,8 @@ void CRegressionTest::testFit() {
             TDoubleArray3 params;
             ls.parameters(params);
 
-            LOG_DEBUG("curve  = " << core::CContainerPrinter::print(curve));
-            LOG_DEBUG("params = " << core::CContainerPrinter::print(params));
+            LOG_DEBUG(<< "curve  = " << core::CContainerPrinter::print(curve));
+            LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
             for (std::size_t i = 0u; i < curve.size(); ++i) {
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(curve[i], params[i], 0.03 * curve[i]);
             }
@@ -200,9 +200,9 @@ void CRegressionTest::testFit() {
 }
 
 void CRegressionTest::testShiftAbscissa() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testShiftAbscissa  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testShiftAbscissa  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     // Test shifting the abscissa is equivalent to updating
     // with shifted X-values.
@@ -230,12 +230,12 @@ void CRegressionTest::testShiftAbscissa() {
         TDoubleArray2 paramss;
         lss.parameters(paramss);
 
-        LOG_DEBUG("params 1 = " << core::CContainerPrinter::print(params1));
+        LOG_DEBUG(<< "params 1 = " << core::CContainerPrinter::print(params1));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(intercept, params1[0], 1e-3 * intercept);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(slope, params1[1], 1e-3 * slope);
 
-        LOG_DEBUG("params 2 = " << core::CContainerPrinter::print(params2));
-        LOG_DEBUG("params s = " << core::CContainerPrinter::print(paramss));
+        LOG_DEBUG(<< "params 2 = " << core::CContainerPrinter::print(params2));
+        LOG_DEBUG(<< "params s = " << core::CContainerPrinter::print(paramss));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(paramss[0], params2[0], 1e-3 * paramss[0]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(paramss[1], params2[1], 1e-3 * paramss[1]);
     }
@@ -264,15 +264,15 @@ void CRegressionTest::testShiftAbscissa() {
         TDoubleArray3 paramss;
         lss.parameters(paramss);
 
-        LOG_DEBUG(core::CContainerPrinter::print(params1));
+        LOG_DEBUG(<< core::CContainerPrinter::print(params1));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(intercept, params1[0], 2e-3 * intercept);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(slope, params1[1], 2e-3 * slope);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(curvature, params1[2], 2e-3 * curvature);
 
-        LOG_DEBUG(core::CContainerPrinter::print(params2));
-        LOG_DEBUG(core::CContainerPrinter::print(paramss));
-        LOG_DEBUG("params 2 = " << core::CContainerPrinter::print(params2));
-        LOG_DEBUG("params s = " << core::CContainerPrinter::print(paramss));
+        LOG_DEBUG(<< core::CContainerPrinter::print(params2));
+        LOG_DEBUG(<< core::CContainerPrinter::print(paramss));
+        LOG_DEBUG(<< "params 2 = " << core::CContainerPrinter::print(params2));
+        LOG_DEBUG(<< "params s = " << core::CContainerPrinter::print(paramss));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(paramss[0], params2[0], 1e-3 * paramss[0]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(paramss[1], params2[1], 1e-3 * paramss[1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(paramss[2], params2[2], 1e-3 * paramss[2]);
@@ -280,9 +280,9 @@ void CRegressionTest::testShiftAbscissa() {
 }
 
 void CRegressionTest::testShiftOrdinate() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testShiftOrdinate  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testShiftOrdinate  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     // Test that translating the regression by a some delta
     // produces the desired translation and no change to any
@@ -301,8 +301,8 @@ void CRegressionTest::testShiftOrdinate() {
     TDoubleArray4 params2;
     regression.parameters(params2);
 
-    LOG_DEBUG("parameters 1 = " << core::CContainerPrinter::print(params1));
-    LOG_DEBUG("parameters 2 = " << core::CContainerPrinter::print(params2));
+    LOG_DEBUG(<< "parameters 1 = " << core::CContainerPrinter::print(params1));
+    LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1000.0 + params1[0], params2[0], 1e-6 * std::fabs(params1[0]));
     CPPUNIT_ASSERT_DOUBLES_EQUAL(params1[1], params2[1], 1e-6 * std::fabs(params1[1]));
@@ -311,9 +311,9 @@ void CRegressionTest::testShiftOrdinate() {
 }
 
 void CRegressionTest::testShiftGradient() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testShiftGradient  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testShiftGradient  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     // Test that translating the regression by a some delta
     // produces the desired translation and no change to any
@@ -332,8 +332,8 @@ void CRegressionTest::testShiftGradient() {
     TDoubleArray4 params2;
     regression.parameters(params2);
 
-    LOG_DEBUG("parameters 1 = " << core::CContainerPrinter::print(params1));
-    LOG_DEBUG("parameters 2 = " << core::CContainerPrinter::print(params2));
+    LOG_DEBUG(<< "parameters 1 = " << core::CContainerPrinter::print(params1));
+    LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
     CPPUNIT_ASSERT_DOUBLES_EQUAL(params1[0], params2[0], 1e-6 * std::fabs(params1[0]));
     CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0 + params1[1], params2[1], 1e-6 * std::fabs(params1[1]));
@@ -342,9 +342,9 @@ void CRegressionTest::testShiftGradient() {
 }
 
 void CRegressionTest::testAge() {
-    LOG_DEBUG("+----------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testAge  |");
-    LOG_DEBUG("+----------------------------+");
+    LOG_DEBUG(<< "+----------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testAge  |");
+    LOG_DEBUG(<< "+----------------------------+");
 
     // Test that the regression is mean reverting.
 
@@ -364,12 +364,12 @@ void CRegressionTest::testAge() {
         TDoubleArray2 lastParams;
 
         ls.parameters(params);
-        LOG_DEBUG("params(0) = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params(0) = " << core::CContainerPrinter::print(params));
 
         lastParams = params;
         ls.age(exp(-0.01), true);
         ls.parameters(params);
-        LOG_DEBUG("params(0.01) = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params(0.01) = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT(params[0] > lastParams[0]);
         CPPUNIT_ASSERT(params[0] < 105.0);
         CPPUNIT_ASSERT(params[1] < lastParams[0]);
@@ -378,7 +378,7 @@ void CRegressionTest::testAge() {
         lastParams = params;
         ls.age(exp(-0.49), true);
         ls.parameters(params);
-        LOG_DEBUG("params(0.5) = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params(0.5) = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT(params[0] > lastParams[0]);
         CPPUNIT_ASSERT(params[0] < 105.0);
         CPPUNIT_ASSERT(params[1] < lastParams[0]);
@@ -387,7 +387,7 @@ void CRegressionTest::testAge() {
         lastParams = params;
         ls.age(exp(-0.5), true);
         ls.parameters(params);
-        LOG_DEBUG("params(1.0) = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params(1.0) = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT(params[0] > lastParams[0]);
         CPPUNIT_ASSERT(params[0] < 105.0);
         CPPUNIT_ASSERT(params[1] < lastParams[0]);
@@ -396,7 +396,7 @@ void CRegressionTest::testAge() {
         lastParams = params;
         ls.age(exp(-4.0), true);
         ls.parameters(params);
-        LOG_DEBUG("params(5.0) = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params(5.0) = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT(params[0] > lastParams[0]);
         CPPUNIT_ASSERT(params[0] < 105.0);
         CPPUNIT_ASSERT(params[1] < lastParams[0]);
@@ -415,12 +415,12 @@ void CRegressionTest::testAge() {
         TDoubleArray3 lastParams;
 
         ls.parameters(params);
-        LOG_DEBUG("params(0) = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params(0) = " << core::CContainerPrinter::print(params));
 
         lastParams = params;
         ls.age(exp(-0.01), true);
         ls.parameters(params);
-        LOG_DEBUG("params(0.01) = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params(0.01) = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT(params[0] > lastParams[0]);
         CPPUNIT_ASSERT(params[0] < 775.0);
         CPPUNIT_ASSERT(params[1] < lastParams[0]);
@@ -431,7 +431,7 @@ void CRegressionTest::testAge() {
         lastParams = params;
         ls.age(exp(-0.49), true);
         ls.parameters(params);
-        LOG_DEBUG("params(0.5) = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params(0.5) = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT(params[0] > lastParams[0]);
         CPPUNIT_ASSERT(params[0] < 775.0);
         CPPUNIT_ASSERT(params[1] < lastParams[0]);
@@ -442,7 +442,7 @@ void CRegressionTest::testAge() {
         lastParams = params;
         ls.age(exp(-0.5), true);
         ls.parameters(params);
-        LOG_DEBUG("params(1.0) = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params(1.0) = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT(params[0] > lastParams[0]);
         CPPUNIT_ASSERT(params[0] < 775.0);
         CPPUNIT_ASSERT(params[1] < lastParams[0]);
@@ -453,7 +453,7 @@ void CRegressionTest::testAge() {
         lastParams = params;
         ls.age(exp(-4.0), true);
         ls.parameters(params);
-        LOG_DEBUG("params(5.0) = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params(5.0) = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT(params[0] > lastParams[0]);
         CPPUNIT_ASSERT(params[0] < 775.0);
         CPPUNIT_ASSERT(params[1] < lastParams[0]);
@@ -464,9 +464,9 @@ void CRegressionTest::testAge() {
 }
 
 void CRegressionTest::testPrediction() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testPrediction  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testPrediction  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     // Check we get successive better predictions of a power
     // series function, i.e. x -> sin(x), using higher order
@@ -521,7 +521,8 @@ void CRegressionTest::testPrediction() {
         double y4 = params4[3] * (x - x0) * (x - x0) * (x - x0) + params4[2] * (x - x0) * (x - x0) + params4[1] * (x - x0) + params4[0];
 
         if (i % 10 == 0) {
-            LOG_DEBUG("y = " << y << ", m = " << maths::CBasicStatistics::mean(m) << ", y2 = " << y2 << ", y3 = " << y3 << ", y4 = " << y4);
+            LOG_DEBUG(<< "y = " << y << ", m = " << maths::CBasicStatistics::mean(m) << ", y2 = " << y2 << ", y3 = " << y3
+                      << ", y4 = " << y4);
         }
 
         em.add((y - maths::CBasicStatistics::mean(m)) * (y - maths::CBasicStatistics::mean(m)));
@@ -530,17 +531,17 @@ void CRegressionTest::testPrediction() {
         e4.add((y - y4) * (y - y4));
     }
 
-    LOG_DEBUG("em = " << maths::CBasicStatistics::mean(em) << ", e2 = " << maths::CBasicStatistics::mean(e2)
-                      << ", e3 = " << maths::CBasicStatistics::mean(e3) << ", e4 = " << maths::CBasicStatistics::mean(e4));
+    LOG_DEBUG(<< "em = " << maths::CBasicStatistics::mean(em) << ", e2 = " << maths::CBasicStatistics::mean(e2)
+              << ", e3 = " << maths::CBasicStatistics::mean(e3) << ", e4 = " << maths::CBasicStatistics::mean(e4));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e2) < 0.27 * maths::CBasicStatistics::mean(em));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e3) < 0.08 * maths::CBasicStatistics::mean(em));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e4) < 0.025 * maths::CBasicStatistics::mean(em));
 }
 
 void CRegressionTest::testCombination() {
-    LOG_DEBUG("+------------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testCombination  |");
-    LOG_DEBUG("+------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testCombination  |");
+    LOG_DEBUG(<< "+------------------------------------+");
 
     // Test that we can combine regressions on two subsets of
     // the points to get the same result as the regression on
@@ -585,10 +586,10 @@ void CRegressionTest::testCombination() {
     TDoubleArray3 paramsAPlusB;
     lsAPlusB.parameters(paramsAPlusB);
 
-    LOG_DEBUG("params A     = " << core::CContainerPrinter::print(paramsA));
-    LOG_DEBUG("params B     = " << core::CContainerPrinter::print(paramsB));
-    LOG_DEBUG("params       = " << core::CContainerPrinter::print(params));
-    LOG_DEBUG("params A + B = " << core::CContainerPrinter::print(paramsAPlusB));
+    LOG_DEBUG(<< "params A     = " << core::CContainerPrinter::print(paramsA));
+    LOG_DEBUG(<< "params B     = " << core::CContainerPrinter::print(paramsB));
+    LOG_DEBUG(<< "params       = " << core::CContainerPrinter::print(params));
+    LOG_DEBUG(<< "params A + B = " << core::CContainerPrinter::print(paramsAPlusB));
 
     for (std::size_t i = 0u; i < params.size(); ++i) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[i], paramsAPlusB[i], 5e-3 * std::fabs(params[i]));
@@ -596,9 +597,9 @@ void CRegressionTest::testCombination() {
 }
 
 void CRegressionTest::testSingular() {
-    LOG_DEBUG("+---------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testSingular  |");
-    LOG_DEBUG("+---------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testSingular  |");
+    LOG_DEBUG(<< "+---------------------------------+");
 
     // Test that we get the highest order polynomial regression
     // available for the points added at any time. In particular,
@@ -611,7 +612,7 @@ void CRegressionTest::testSingular() {
 
         TDoubleArray3 params;
         regression.parameters(params);
-        LOG_DEBUG("params = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[0], 1.0, 1e-6);
         CPPUNIT_ASSERT_EQUAL(params[1], 0.0);
         CPPUNIT_ASSERT_EQUAL(params[2], 0.0);
@@ -619,16 +620,16 @@ void CRegressionTest::testSingular() {
         regression.add(1.0, 2.0);
 
         regression.parameters(params);
-        LOG_DEBUG("params = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[0], 1.0, 1e-6);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[1], 1.0, 1e-6);
         CPPUNIT_ASSERT_EQUAL(params[2], 0.0);
 
         regression.add(2.0, 3.0);
 
-        LOG_DEBUG(regression.print());
+        LOG_DEBUG(<< regression.print());
         regression.parameters(params);
-        LOG_DEBUG("params = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[0], 1.0, 5e-6);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[1], 1.0, 5e-6);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[2], 0.0, 5e-6);
@@ -639,7 +640,7 @@ void CRegressionTest::testSingular() {
 
         TDoubleArray3 params;
         regression.parameters(params);
-        LOG_DEBUG("params = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[0], 1.0, 1e-6);
         CPPUNIT_ASSERT_EQUAL(params[1], 0.0);
         CPPUNIT_ASSERT_EQUAL(params[2], 0.0);
@@ -647,16 +648,16 @@ void CRegressionTest::testSingular() {
         regression.add(1.0, 2.0);
 
         regression.parameters(params);
-        LOG_DEBUG("params = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[0], 1.0, 1e-6);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[1], 1.0, 1e-6);
         CPPUNIT_ASSERT_EQUAL(params[2], 0.0);
 
         regression.add(2.0, 5.0);
 
-        LOG_DEBUG(regression.print());
+        LOG_DEBUG(<< regression.print());
         regression.parameters(params);
-        LOG_DEBUG("params = " << core::CContainerPrinter::print(params));
+        LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[0], 1.0, 5e-6);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[1], 0.0, 5e-6);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[2], 1.0, 5e-6);
@@ -672,7 +673,7 @@ void CRegressionTest::testSingular() {
 
         TDoubleArray4 params3;
         regression3.parameters(params3);
-        LOG_DEBUG("params3 = " << core::CContainerPrinter::print(params3));
+        LOG_DEBUG(<< "params3 = " << core::CContainerPrinter::print(params3));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[0], 1.5, 5e-6);
         CPPUNIT_ASSERT_EQUAL(params3[1], 0.0);
         CPPUNIT_ASSERT_EQUAL(params3[2], 0.0);
@@ -684,9 +685,9 @@ void CRegressionTest::testSingular() {
 
         TDoubleArray2 params1;
         regression1.parameters(params1);
-        LOG_DEBUG("params1 = " << core::CContainerPrinter::print(params3));
+        LOG_DEBUG(<< "params1 = " << core::CContainerPrinter::print(params3));
         regression3.parameters(params3);
-        LOG_DEBUG("params3 = " << core::CContainerPrinter::print(params3));
+        LOG_DEBUG(<< "params3 = " << core::CContainerPrinter::print(params3));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[0], 1.5, 5e-6);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[1], params1[1], 1e-6);
         CPPUNIT_ASSERT_EQUAL(params3[2], 0.0);
@@ -697,9 +698,9 @@ void CRegressionTest::testSingular() {
 
         TDoubleArray3 params2;
         regression2.parameters(params2);
-        LOG_DEBUG("params2 = " << core::CContainerPrinter::print(params2));
+        LOG_DEBUG(<< "params2 = " << core::CContainerPrinter::print(params2));
         regression3.parameters(params3);
-        LOG_DEBUG("params3 = " << core::CContainerPrinter::print(params3));
+        LOG_DEBUG(<< "params3 = " << core::CContainerPrinter::print(params3));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[0], 1.5, 5e-6);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[1], params2[1], 1e-6);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[2], params2[2], 1e-6);
@@ -707,9 +708,9 @@ void CRegressionTest::testSingular() {
 
         regression3.add(1.5, 1.5 + 2.0 * 1.5 + 1.1 * 1.5 * 1.5 + 3.3 * 1.5 * 1.5 * 1.5);
 
-        LOG_DEBUG(regression3.print());
+        LOG_DEBUG(<< regression3.print());
         regression3.parameters(params3);
-        LOG_DEBUG("params3 = " << core::CContainerPrinter::print(params3));
+        LOG_DEBUG(<< "params3 = " << core::CContainerPrinter::print(params3));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[0], 1.5, 5e-5);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[1], 2.0, 5e-5);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[2], 1.1, 5e-5);
@@ -718,9 +719,9 @@ void CRegressionTest::testSingular() {
 }
 
 void CRegressionTest::testScale() {
-    LOG_DEBUG("+------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testScale  |");
-    LOG_DEBUG("+------------------------------+");
+    LOG_DEBUG(<< "+------------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testScale  |");
+    LOG_DEBUG(<< "+------------------------------+");
 
     // Test that scale reduces the count in the regression statistic
 
@@ -731,20 +732,20 @@ void CRegressionTest::testScale() {
         regression.add(x, 5.0 + 0.3 * x);
     }
 
-    LOG_DEBUG("statistic = " << regression.statistic());
+    LOG_DEBUG(<< "statistic = " << regression.statistic());
     TDoubleArray2 params1;
     regression.parameters(params1);
     CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(regression.statistic()), 20.0);
 
     maths::CRegression::CLeastSquaresOnline<1, double> regression2 = regression.scaled(0.5);
-    LOG_DEBUG("statistic = " << regression2.statistic());
+    LOG_DEBUG(<< "statistic = " << regression2.statistic());
     TDoubleArray2 params2;
     regression2.parameters(params2);
     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(params1), core::CContainerPrinter::print(params2));
     CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(regression2.statistic()), 10.0);
 
     maths::CRegression::CLeastSquaresOnline<1, double> regression3 = regression2.scaled(0.5);
-    LOG_DEBUG("statistic = " << regression3.statistic());
+    LOG_DEBUG(<< "statistic = " << regression3.statistic());
     TDoubleArray2 params3;
     regression3.parameters(params3);
     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(params1), core::CContainerPrinter::print(params3));
@@ -769,9 +770,9 @@ private:
 };
 
 void CRegressionTest::testMean() {
-    LOG_DEBUG("+-----------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testMean  |");
-    LOG_DEBUG("+-----------------------------+");
+    LOG_DEBUG(<< "+-----------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testMean  |");
+    LOG_DEBUG(<< "+-----------------------------+");
 
     // Test that the mean agrees with the numeric integration
     // of the regression.
@@ -789,16 +790,16 @@ void CRegressionTest::testMean() {
         maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(CRegressionPrediction<3>(regression), 10.0, 15.0, expected);
         expected /= 5.0;
         double actual = regression.mean(10.0, 15.0);
-        LOG_DEBUG("expected = " << expected);
-        LOG_DEBUG("actual   = " << actual);
+        LOG_DEBUG(<< "expected = " << expected);
+        LOG_DEBUG(<< "actual   = " << actual);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-6);
 
         // Test interval spanning 0.0.
         maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(CRegressionPrediction<3>(regression), -3.0, 0.0, expected);
         expected /= 3.0;
         actual = regression.mean(-3.0, 0.0);
-        LOG_DEBUG("expected = " << expected);
-        LOG_DEBUG("actual   = " << actual);
+        LOG_DEBUG(<< "expected = " << expected);
+        LOG_DEBUG(<< "actual   = " << actual);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-6);
 
         // Test zero length interval.
@@ -806,16 +807,16 @@ void CRegressionTest::testMean() {
             CRegressionPrediction<3>(regression), -3.0, -3.0 + 1e-7, expected);
         expected /= 1e-7;
         actual = regression.mean(-3.0, -3.0);
-        LOG_DEBUG("expected = " << expected);
-        LOG_DEBUG("actual   = " << actual);
+        LOG_DEBUG(<< "expected = " << expected);
+        LOG_DEBUG(<< "actual   = " << actual);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-6);
     }
 }
 
 void CRegressionTest::testCovariances() {
-    LOG_DEBUG("+------------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testCovariances  |");
-    LOG_DEBUG("+------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testCovariances  |");
+    LOG_DEBUG(<< "+------------------------------------+");
 
     // Test the covariance matrix of the regression parameters
     // agree with the observed sample covariances of independent
@@ -828,7 +829,7 @@ void CRegressionTest::testCovariances() {
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG("linear");
+    LOG_DEBUG(<< "linear");
     {
         double n = 75.0;
         double variance = 16.0;
@@ -854,12 +855,12 @@ void CRegressionTest::testCovariances() {
         TMatrix2 actual;
         regression.covariances(variance, actual);
 
-        LOG_DEBUG("expected = " << expected);
-        LOG_DEBUG("actual   = " << actual);
+        LOG_DEBUG(<< "expected = " << expected);
+        LOG_DEBUG(<< "actual   = " << actual);
         CPPUNIT_ASSERT((actual - expected).frobenius() / expected.frobenius() < 0.05);
     }
 
-    LOG_DEBUG("quadratic");
+    LOG_DEBUG(<< "quadratic");
     {
         double n = 75.0;
         double variance = 16.0;
@@ -885,16 +886,16 @@ void CRegressionTest::testCovariances() {
         TMatrix3 actual;
         regression.covariances(variance, actual);
 
-        LOG_DEBUG("expected = " << expected);
-        LOG_DEBUG("actual   = " << actual);
+        LOG_DEBUG(<< "expected = " << expected);
+        LOG_DEBUG(<< "actual   = " << actual);
         CPPUNIT_ASSERT((actual - expected).frobenius() / expected.frobenius() < 0.095);
     }
 }
 
 void CRegressionTest::testParameters() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testParameters  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testParameters  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     maths::CRegression::CLeastSquaresOnline<3, double> regression;
 
@@ -911,16 +912,16 @@ void CRegressionTest::testParameters() {
         TDoubleArray4 params2;
         regression2.parameters(params2);
 
-        LOG_DEBUG("params 1 = " << core::CContainerPrinter::print(params1));
-        LOG_DEBUG("params 2 = " << core::CContainerPrinter::print(params2));
+        LOG_DEBUG(<< "params 1 = " << core::CContainerPrinter::print(params1));
+        LOG_DEBUG(<< "params 2 = " << core::CContainerPrinter::print(params2));
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(params2), core::CContainerPrinter::print(params1));
     }
 }
 
 void CRegressionTest::testPersist() {
-    LOG_DEBUG("+--------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testPersist  |");
-    LOG_DEBUG("+--------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testPersist  |");
+    LOG_DEBUG(<< "+--------------------------------+");
 
     // Test that persistence is idempotent.
 
@@ -938,7 +939,7 @@ void CRegressionTest::testPersist() {
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("Regression XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Regression XML representation:\n" << origXml);
 
     // Restore the XML into a new regression.
     core::CRapidXmlParser parser;
@@ -961,9 +962,9 @@ void CRegressionTest::testPersist() {
 }
 
 void CRegressionTest::testParameterProcess() {
-    LOG_DEBUG("+-----------------------------------------+");
-    LOG_DEBUG("|  CRegressionTest::testParameterProcess  |");
-    LOG_DEBUG("+-----------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------+");
+    LOG_DEBUG(<< "|  CRegressionTest::testParameterProcess  |");
+    LOG_DEBUG(<< "+-----------------------------------------+");
 
     // Approximately test the variance predicted by the regression
     // parameter process is an unbiased estimator. This is done by
@@ -988,7 +989,7 @@ void CRegressionTest::testParameterProcess() {
     TMeanAccumulator error;
 
     for (std::size_t test = 0u; test < boost::size(variances); ++test) {
-        LOG_DEBUG("variance = " << variances[test]);
+        LOG_DEBUG(<< "variance = " << variances[test]);
 
         TMeanAccumulator actual;
         TMeanAccumulator estimate;
@@ -1041,14 +1042,14 @@ void CRegressionTest::testParameterProcess() {
 
             double interval = std::accumulate(intervals, intervals + 5, 0.0);
             if (run % 5 == 0) {
-                LOG_DEBUG("  " << maths::CBasicStatistics::variance(moments) << " vs " << parameterProcess.predictionVariance(interval));
+                LOG_DEBUG(<< "  " << maths::CBasicStatistics::variance(moments) << " vs " << parameterProcess.predictionVariance(interval));
             }
             actual.add(maths::CBasicStatistics::variance(moments));
             estimate.add(parameterProcess.predictionVariance(interval));
         }
 
-        LOG_DEBUG("actual   = " << maths::CBasicStatistics::mean(actual));
-        LOG_DEBUG("estimate = " << maths::CBasicStatistics::mean(estimate));
+        LOG_DEBUG(<< "actual   = " << maths::CBasicStatistics::mean(actual));
+        LOG_DEBUG(<< "estimate = " << maths::CBasicStatistics::mean(estimate));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             maths::CBasicStatistics::mean(actual), maths::CBasicStatistics::mean(estimate), 0.25 * maths::CBasicStatistics::mean(actual));
 
@@ -1056,7 +1057,7 @@ void CRegressionTest::testParameterProcess() {
                   maths::CBasicStatistics::mean(actual));
     }
 
-    LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
+    LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
     CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(error)) < 0.08);
 }
 

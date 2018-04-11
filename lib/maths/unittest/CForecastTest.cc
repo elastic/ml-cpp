@@ -74,9 +74,9 @@ void mockSink(maths::SErrorBar errorBar, TErrorBarVec& prediction) {
 }
 
 void CForecastTest::testDailyNoLongTermTrend() {
-    LOG_DEBUG("+-------------------------------------------+");
-    LOG_DEBUG("|  CForecastTest::testDailyNoLongTermTrend  |");
-    LOG_DEBUG("+-------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------+");
+    LOG_DEBUG(<< "|  CForecastTest::testDailyNoLongTermTrend  |");
+    LOG_DEBUG(<< "+-------------------------------------------+");
 
     core_t::TTime bucketLength{600};
     TDoubleVec y{0.0,  2.0,   2.0,   4.0,  8.0,  10.0, 15.0, 20.0, 120.0, 120.0, 110.0, 100.0,
@@ -95,9 +95,9 @@ void CForecastTest::testDailyNoLongTermTrend() {
 }
 
 void CForecastTest::testDailyConstantLongTermTrend() {
-    LOG_DEBUG("+-------------------------------------------------+");
-    LOG_DEBUG("|  CForecastTest::testDailyConstantLongTermTrend  |");
-    LOG_DEBUG("+-------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------+");
+    LOG_DEBUG(<< "|  CForecastTest::testDailyConstantLongTermTrend  |");
+    LOG_DEBUG(<< "+-------------------------------------------------+");
 
     core_t::TTime bucketLength{3600};
     TDoubleVec y{0.0,   2.0,   2.0,  4.0,  8.0,  10.0, 15.0, 20.0, 80.0, 100.0, 110.0, 120.0,
@@ -112,9 +112,9 @@ void CForecastTest::testDailyConstantLongTermTrend() {
 }
 
 void CForecastTest::testDailyVaryingLongTermTrend() {
-    LOG_DEBUG("+------------------------------------------------+");
-    LOG_DEBUG("|  CForecastTest::testDailyVaryingLongTermTrend  |");
-    LOG_DEBUG("+------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------+");
+    LOG_DEBUG(<< "|  CForecastTest::testDailyVaryingLongTermTrend  |");
+    LOG_DEBUG(<< "+------------------------------------------------+");
 
     core_t::TTime bucketLength{3600};
     double day{86400.0};
@@ -136,9 +136,9 @@ void CForecastTest::testDailyVaryingLongTermTrend() {
 }
 
 void CForecastTest::testComplexNoLongTermTrend() {
-    LOG_DEBUG("+---------------------------------------------+");
-    LOG_DEBUG("|  CForecastTest::testComplexNoLongTermTrend  |");
-    LOG_DEBUG("+---------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------+");
+    LOG_DEBUG(<< "|  CForecastTest::testComplexNoLongTermTrend  |");
+    LOG_DEBUG(<< "+---------------------------------------------+");
 
     core_t::TTime bucketLength{3600};
     TDoubleVec y{0.0,   10.0,  20.0, 20.0, 30.0, 40.0, 50.0, 60.0, 80.0, 100.0, 110.0, 120.0,
@@ -155,9 +155,9 @@ void CForecastTest::testComplexNoLongTermTrend() {
 }
 
 void CForecastTest::testComplexConstantLongTermTrend() {
-    LOG_DEBUG("+---------------------------------------------------+");
-    LOG_DEBUG("|  CForecastTest::testComplexConstantLongTermTrend  |");
-    LOG_DEBUG("+---------------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------------+");
+    LOG_DEBUG(<< "|  CForecastTest::testComplexConstantLongTermTrend  |");
+    LOG_DEBUG(<< "+---------------------------------------------------+");
 
     core_t::TTime bucketLength{3600};
     TDoubleVec y{0.0,   10.0,  20.0, 20.0, 30.0, 40.0, 50.0, 60.0, 80.0, 100.0, 110.0, 120.0,
@@ -174,9 +174,9 @@ void CForecastTest::testComplexConstantLongTermTrend() {
 }
 
 void CForecastTest::testComplexVaryingLongTermTrend() {
-    LOG_DEBUG("+--------------------------------------------------+");
-    LOG_DEBUG("|  CForecastTest::testComplexVaryingLongTermTrend  |");
-    LOG_DEBUG("+--------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------+");
+    LOG_DEBUG(<< "|  CForecastTest::testComplexVaryingLongTermTrend  |");
+    LOG_DEBUG(<< "+--------------------------------------------------+");
 
     core_t::TTime bucketLength{3600};
     double day{86400.0};
@@ -203,9 +203,9 @@ void CForecastTest::testComplexVaryingLongTermTrend() {
 }
 
 void CForecastTest::testNonNegative() {
-    LOG_DEBUG("+----------------------------------+");
-    LOG_DEBUG("|  CForecastTest::testNonNegative  |");
-    LOG_DEBUG("+----------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------+");
+    LOG_DEBUG(<< "|  CForecastTest::testNonNegative  |");
+    LOG_DEBUG(<< "+----------------------------------+");
 
     core_t::TTime bucketLength{1800};
 
@@ -216,7 +216,7 @@ void CForecastTest::testNonNegative() {
     maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{decayRateControllers()};
     maths::CUnivariateTimeSeriesModel model(params(bucketLength), TAG, trend, prior, &controllers);
 
-    LOG_DEBUG("*** learn ***");
+    LOG_DEBUG(<< "*** learn ***");
 
     //std::ofstream file;
     //file.open("results.m");
@@ -244,7 +244,7 @@ void CForecastTest::testNonNegative() {
         }
     }
 
-    LOG_DEBUG("*** forecast ***");
+    LOG_DEBUG(<< "*** forecast ***");
 
     TErrorBarVec prediction;
     core_t::TTime start{time};
@@ -275,7 +275,7 @@ void CForecastTest::testNonNegative() {
     }
 
     double percentageOutOfBounds{100.0 * static_cast<double>(outOfBounds) / static_cast<double>(count)};
-    LOG_DEBUG("% out of bounds = " << percentageOutOfBounds);
+    LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
 
     //file << "actual = " << core::CContainerPrinter::print(actual) << ";\n";
     //file << "ly = " << core::CContainerPrinter::print(ly) << ";\n";
@@ -286,9 +286,9 @@ void CForecastTest::testNonNegative() {
 }
 
 void CForecastTest::testFinancialIndex() {
-    LOG_DEBUG("+-------------------------------------+");
-    LOG_DEBUG("|  CForecastTest::testFinancialIndex  |");
-    LOG_DEBUG("+-------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------+");
+    LOG_DEBUG(<< "|  CForecastTest::testFinancialIndex  |");
+    LOG_DEBUG(<< "+-------------------------------------+");
 
     core_t::TTime bucketLength{1800};
 
@@ -299,14 +299,14 @@ void CForecastTest::testFinancialIndex() {
         test::CTimeSeriesTestData::parse("testfiles/financial_index.csv", timeseries, startTime, endTime, "^([0-9]+),([0-9\\.]+)"));
     CPPUNIT_ASSERT(!timeseries.empty());
 
-    LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
+    LOG_DEBUG(<< "timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
 
     maths::CTimeSeriesDecomposition trend(0.012, bucketLength);
     maths::CNormalMeanPrecConjugate prior = maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
     maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{decayRateControllers()};
     maths::CUnivariateTimeSeriesModel model(params(bucketLength), TAG, trend, prior, &controllers);
 
-    LOG_DEBUG("*** learn ***");
+    LOG_DEBUG(<< "*** learn ***");
 
     //std::ofstream file;
     //file.open("results.m");
@@ -329,7 +329,7 @@ void CForecastTest::testFinancialIndex() {
         //actual.push_back(timeseries[i].second);
     }
 
-    LOG_DEBUG("*** forecast ***");
+    LOG_DEBUG(<< "*** forecast ***");
 
     TErrorBarVec prediction;
     core_t::TTime start{timeseries[n].first};
@@ -354,8 +354,8 @@ void CForecastTest::testFinancialIndex() {
     }
 
     double percentageOutOfBounds{100.0 * static_cast<double>(outOfBounds) / static_cast<double>(count)};
-    LOG_DEBUG("% out of bounds = " << percentageOutOfBounds);
-    LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
+    LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
+    LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
 
     //file << "actual = " << core::CContainerPrinter::print(actual) << ";\n";
     //file << "ly = " << core::CContainerPrinter::print(ly) << ";\n";
@@ -401,7 +401,7 @@ void CForecastTest::test(TTrend trend,
     //TDoubleVec my;
     //TDoubleVec uy;
 
-    LOG_DEBUG("*** learn ***");
+    LOG_DEBUG(<< "*** learn ***");
 
     test::CRandomNumbers rng;
 
@@ -431,7 +431,7 @@ void CForecastTest::test(TTrend trend,
         }
     }
 
-    LOG_DEBUG("*** forecast ***");
+    LOG_DEBUG(<< "*** forecast ***");
 
     TErrorBarVec prediction;
     core_t::TTime start{time};
@@ -462,8 +462,8 @@ void CForecastTest::test(TTrend trend,
     }
 
     double percentageOutOfBounds{100.0 * static_cast<double>(outOfBounds) / static_cast<double>(count)};
-    LOG_DEBUG("% out of bounds = " << percentageOutOfBounds);
-    LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
+    LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
+    LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
 
     //file << "actual = " << core::CContainerPrinter::print(actual) << ";\n";
     //file << "ly = " << core::CContainerPrinter::print(ly) << ";\n";

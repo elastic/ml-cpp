@@ -94,12 +94,12 @@ public:
                 ptr.reset(CXMeansOnlineFactory::restore<T, N>(params, splitFunc, mergeFunc, traverser));
                 ++numResults;
             } else {
-                LOG_ERROR("No clusterer corresponds to node name " << traverser.name());
+                LOG_ERROR(<< "No clusterer corresponds to node name " << traverser.name());
             }
         } while (traverser.next());
 
         if (numResults != 1) {
-            LOG_ERROR("Expected 1 (got " << numResults << ") clusterer tags");
+            LOG_ERROR(<< "Expected 1 (got " << numResults << ") clusterer tags");
             ptr.reset();
             return false;
         }

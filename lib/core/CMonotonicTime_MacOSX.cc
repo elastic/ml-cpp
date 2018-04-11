@@ -17,7 +17,7 @@ CMonotonicTime::CMonotonicTime() : m_ScalingFactor1(1), m_ScalingFactor2(1000000
     if (::mach_timebase_info(&info) != 0) {
         // Assume numerator and denominator for nanoseconds are both 1 (which is
         // true on a 2010 MacBook Pro)
-        LOG_ERROR("Failed to get time base info");
+        LOG_ERROR(<< "Failed to get time base info");
     } else {
         m_ScalingFactor1 = info.numer;
         m_ScalingFactor2 *= info.denom;

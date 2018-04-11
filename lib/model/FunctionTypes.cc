@@ -114,7 +114,7 @@ bool isIndividual(EFunction function) {
         return false;
     }
 
-    LOG_ERROR("Unexpected function = " << static_cast<int>(function));
+    LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
     return false;
 }
 
@@ -213,7 +213,7 @@ bool isPopulation(EFunction function) {
         return false;
     }
 
-    LOG_ERROR("Unexpected function = " << static_cast<int>(function));
+    LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
     return false;
 }
 
@@ -310,7 +310,7 @@ bool isPeers(EFunction function) {
         return true;
     }
 
-    LOG_ERROR("Unexpected function = " << static_cast<int>(function));
+    LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
     return false;
 }
 
@@ -413,7 +413,7 @@ bool isMetric(EFunction function) {
         return false;
     }
 
-    LOG_ERROR("Unexpected function = " << static_cast<int>(function));
+    LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
     return false;
 }
 
@@ -521,7 +521,7 @@ bool isForecastSupported(EFunction function) {
         return false;
     }
 
-    LOG_ERROR("Unexpected function = " << static_cast<int>(function));
+    LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
     return false;
 }
 
@@ -1308,7 +1308,7 @@ const TFeatureFunctionVecMap FUNCTIONS_BY_FEATURE = buildFeatureFunctionMap();
 //! Get the function with the fewest features.
 EFunction mostSpecific(const TFunctionVec& functions) {
     if (functions.empty()) {
-        LOG_ABORT("No functions specified");
+        LOG_ABORT(<< "No functions specified");
     }
 
     EFunction result = functions[0];
@@ -1500,13 +1500,13 @@ const TFeatureVec& features(EFunction function) {
         return PEERS_TIME_OF_WEEK_FEATURES;
     }
 
-    LOG_ERROR("Unexpected function = " << static_cast<int>(function));
+    LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
     return EMPTY_FEATURES;
 }
 
 EFunction function(const TFeatureVec& features) {
     if (features.empty()) {
-        LOG_ERROR("No features default to '" << print(E_IndividualCount) << "'");
+        LOG_ERROR(<< "No features default to '" << print(E_IndividualCount) << "'");
         return E_IndividualCount;
     }
 
@@ -1516,13 +1516,13 @@ EFunction function(const TFeatureVec& features) {
     for (/**/; candidates.empty() && i < features.size(); ++i) {
         TFeatureFunctionVecMapCItr functionsItr = FUNCTIONS_BY_FEATURE.find(features[i]);
         if (functionsItr == FUNCTIONS_BY_FEATURE.end()) {
-            LOG_WARN("No functions for feature " << model_t::print(features[i]))
+            LOG_WARN(<< "No functions for feature " << model_t::print(features[i]))
             continue;
         }
         candidates = functionsItr->second;
     }
 
-    LOG_TRACE("candidate " << core::CContainerPrinter::print(candidates));
+    LOG_TRACE(<< "candidate " << core::CContainerPrinter::print(candidates));
     TFunctionVec fallback = candidates;
 
     TFunctionVec tmp;
@@ -1530,11 +1530,11 @@ EFunction function(const TFeatureVec& features) {
     for (/**/; !candidates.empty() && i < features.size(); ++i) {
         TFeatureFunctionVecMapCItr functionsItr = FUNCTIONS_BY_FEATURE.find(features[i]);
         if (functionsItr == FUNCTIONS_BY_FEATURE.end()) {
-            LOG_WARN("No functions for feature " << model_t::print(features[i]))
+            LOG_WARN(<< "No functions for feature " << model_t::print(features[i]))
             continue;
         }
 
-        LOG_TRACE("candidate = " << core::CContainerPrinter::print(functionsItr->second));
+        LOG_TRACE(<< "candidate = " << core::CContainerPrinter::print(functionsItr->second));
         std::set_intersection(
             candidates.begin(), candidates.end(), functionsItr->second.begin(), functionsItr->second.end(), std::back_inserter(tmp));
         candidates.swap(tmp);
@@ -1543,7 +1543,7 @@ EFunction function(const TFeatureVec& features) {
 
     if (candidates.empty()) {
         EFunction result = mostSpecific(fallback);
-        LOG_ERROR("Inconsistent features " << core::CContainerPrinter::print(features) << " defaulting to '" << print(result) << "'");
+        LOG_ERROR(<< "Inconsistent features " << core::CContainerPrinter::print(features) << " defaulting to '" << print(result) << "'");
         return result;
     }
 
@@ -1726,7 +1726,7 @@ const std::string& name(EFunction function) {
         return detail::TIME_OF_WEEK;
     }
 
-    LOG_ERROR("Unexpected function = " << static_cast<int>(function));
+    LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
     return detail::UNEXPECTED_FUNCTION;
 }
 
@@ -1906,7 +1906,7 @@ std::string print(EFunction function) {
         return "peers time-of-week";
     }
 
-    LOG_ERROR("Unexpected function = " << static_cast<int>(function));
+    LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
     return "-";
 }
 

@@ -175,7 +175,7 @@ void aggregateLayer(ITR beginLayer, ITR endLayer, CHierarchicalResults& results,
     newLayer.reserve(aggregation.size());
 
     for (const auto& children : aggregation) {
-        LOG_TRACE("aggregating = " << core::CContainerPrinter::print(children.second));
+        LOG_TRACE(<< "aggregating = " << core::CContainerPrinter::print(children.second));
         if (children.second.size() > 1) {
             SNode& aggregate = (results.*newNode)();
             bool population = false;
@@ -407,7 +407,7 @@ void SNode::acceptPersistInserter2(core::CStatePersistInserter& inserter, const 
     if (s_Parent != nullptr) {
         auto found = nodePointers.find(s_Parent);
         if (found == nodePointers.end()) {
-            LOG_ERROR("Parent not in persistence hierarchy!");
+            LOG_ERROR(<< "Parent not in persistence hierarchy!");
             return;
         }
         core::CPersistUtils::persist(PARENT_TAG, found->second, inserter);
@@ -416,7 +416,7 @@ void SNode::acceptPersistInserter2(core::CStatePersistInserter& inserter, const 
     for (const auto& child : s_Children) {
         auto found = nodePointers.find(child);
         if (found == nodePointers.end()) {
-            LOG_ERROR("Child not in persistence hierarchy!");
+            LOG_ERROR(<< "Child not in persistence hierarchy!");
             return;
         }
         core::CPersistUtils::persist(CHILD_TAG, found->second, inserter);
@@ -450,23 +450,23 @@ bool SNode::acceptRestoreTraverser2(core::CStateRestoreTraverser& traverser, con
         std::size_t index = 0;
         if (name == PARENT_TAG) {
             if (!core::CPersistUtils::restore(PARENT_TAG, index, traverser)) {
-                LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
+                LOG_ERROR(<< "Restore error for " << traverser.name() << " / " << traverser.value());
                 return false;
             }
             auto found = nodePointers.find(index);
             if (found == nodePointers.end()) {
-                LOG_ERROR("Parent not in persistence hierarchy!");
+                LOG_ERROR(<< "Parent not in persistence hierarchy!");
                 return false;
             }
             s_Parent = found->second;
         } else if (name == CHILD_TAG) {
             if (!core::CPersistUtils::restore(CHILD_TAG, index, traverser)) {
-                LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
+                LOG_ERROR(<< "Restore error for " << traverser.name() << " / " << traverser.value());
                 return false;
             }
             auto found = nodePointers.find(index);
             if (found == nodePointers.end()) {
-                LOG_ERROR("Parent not in persistence hierarchy!");
+                LOG_ERROR(<< "Parent not in persistence hierarchy!");
                 return false;
             }
             s_Children.push_back(found->second);
@@ -567,34 +567,34 @@ void CHierarchicalResults::buildHierarchy() {
     TNodePtrVec layer;
     TNodePtrVec newLayer;
 
-    LOG_TRACE("Distinct values of the person field");
+    LOG_TRACE(<< "Distinct values of the person field");
     {
         aggregateLayer<SPersonValueLess>(m_Nodes.begin(), m_Nodes.end(), *this, &CHierarchicalResults::newNode, layer);
-        LOG_TRACE("layer = " << core::CContainerPrinter::print(layer));
+        LOG_TRACE(<< "layer = " << core::CContainerPrinter::print(layer));
     }
 
-    LOG_TRACE("Distinct person field names");
+    LOG_TRACE(<< "Distinct person field names");
     {
         newLayer.reserve(layer.size());
         aggregateLayer<SPersonNameLess>(layer.begin(), layer.end(), *this, &CHierarchicalResults::newNode, newLayer);
         newLayer.swap(layer);
-        LOG_TRACE("layer = " << core::CContainerPrinter::print(layer));
+        LOG_TRACE(<< "layer = " << core::CContainerPrinter::print(layer));
     }
 
-    LOG_TRACE("Distinct partition field values");
+    LOG_TRACE(<< "Distinct partition field values");
     {
         newLayer.reserve(layer.size());
         aggregateLayer<SPartitionValueLess>(layer.begin(), layer.end(), *this, &CHierarchicalResults::newNode, newLayer);
         newLayer.swap(layer);
-        LOG_TRACE("layer = " << core::CContainerPrinter::print(layer));
+        LOG_TRACE(<< "layer = " << core::CContainerPrinter::print(layer));
     }
 
-    LOG_TRACE("Distinct partition field names");
+    LOG_TRACE(<< "Distinct partition field names");
     {
         newLayer.reserve(layer.size());
         aggregateLayer<SPartitionNameLess>(layer.begin(), layer.end(), *this, &CHierarchicalResults::newNode, newLayer);
         newLayer.swap(layer);
-        LOG_TRACE("layer = " << core::CContainerPrinter::print(layer));
+        LOG_TRACE(<< "layer = " << core::CContainerPrinter::print(layer));
     }
 
     if (layer.size() > 1) {
@@ -606,17 +606,17 @@ void CHierarchicalResults::buildHierarchy() {
             population |= layer[i]->s_Spec.s_IsPopulation;
         }
         root.s_Spec.s_IsPopulation = population;
-        LOG_TRACE("root = " << root.print());
+        LOG_TRACE(<< "root = " << root.print());
     }
 
-    LOG_TRACE("Propagating influences");
+    LOG_TRACE(<< "Propagating influences");
 
     CCommonInfluencePropagator influencePropagator;
     this->bottomUpBreadthFirst(influencePropagator);
 }
 
 void CHierarchicalResults::createPivots() {
-    LOG_TRACE("Creating pivots");
+    LOG_TRACE(<< "Creating pivots");
 
     for (const auto& node : m_Nodes) {
         const auto& parentInfluences = node.s_Parent->s_AnnotatedProbability.s_Influences;
@@ -786,11 +786,11 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
                                /**/)
         if (name == NODES_2_TAG) {
             if (nodesFullyRestored > m_Nodes.size()) {
-                LOG_ERROR("Invalid restore index for node: " << nodesFullyRestored);
+                LOG_ERROR(<< "Invalid restore index for node: " << nodesFullyRestored);
             }
             if (traverser.traverseSubLevel(boost::bind(
                     &SNode::acceptRestoreTraverser2, boost::ref(m_Nodes[nodesFullyRestored]), _1, boost::cref(nodePointers))) == false) {
-                LOG_ERROR("Failed to restore node");
+                LOG_ERROR(<< "Failed to restore node");
                 return false;
             }
             ++nodesFullyRestored;
@@ -800,13 +800,13 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
         RESTORE_NO_ERROR(PIVOT_VALUE_TAG, influencerValue = CStringStore::influencers().get(traverser.value()))
         if (name == PIVOT_NODES_1_TAG) {
             if (!influencerName || !influencerValue) {
-                LOG_ERROR("Invalid influencers for node");
+                LOG_ERROR(<< "Invalid influencers for node");
                 return false;
             }
             SNode& node = m_PivotNodes[TStoredStringPtrStoredStringPtrPr(influencerName, influencerValue)];
             if (traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser1, boost::ref(node), _1, boost::ref(nodePointers))) ==
                 false) {
-                LOG_ERROR("Failed to restore pivot node");
+                LOG_ERROR(<< "Failed to restore pivot node");
                 return false;
             }
             influencerName = core::CStoredStringPtr();
@@ -814,13 +814,13 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
             continue;
         } else if (name == PIVOT_NODES_2_TAG) {
             if (!influencerName || !influencerValue) {
-                LOG_ERROR("Invalid influencers for node");
+                LOG_ERROR(<< "Invalid influencers for node");
                 return false;
             }
             SNode& node = m_PivotNodes[TStoredStringPtrStoredStringPtrPr(influencerName, influencerValue)];
             if (traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser2, boost::ref(node), _1, boost::cref(nodePointers))) ==
                 false) {
-                LOG_ERROR("Failed to restore pivot node");
+                LOG_ERROR(<< "Failed to restore pivot node");
                 return false;
             }
             influencerName = core::CStoredStringPtr();
@@ -829,13 +829,13 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
         }
         if (name == PIVOT_ROOT_NODES_1_TAG) {
             if (!influencerName) {
-                LOG_ERROR("Invalid influencer for node");
+                LOG_ERROR(<< "Invalid influencer for node");
                 return false;
             }
             SNode& node = m_PivotRootNodes[influencerName];
             if (traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser1, boost::ref(node), _1, boost::ref(nodePointers))) ==
                 false) {
-                LOG_ERROR("Failed to restore pivot node");
+                LOG_ERROR(<< "Failed to restore pivot node");
                 return false;
             }
             influencerName = core::CStoredStringPtr();
@@ -843,13 +843,13 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
         }
         if (name == PIVOT_ROOT_NODES_2_TAG) {
             if (!influencerName) {
-                LOG_ERROR("Invalid influencer for node");
+                LOG_ERROR(<< "Invalid influencer for node");
                 return false;
             }
             SNode& node = m_PivotRootNodes[influencerName];
             if (traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser2, boost::ref(node), _1, boost::cref(nodePointers))) ==
                 false) {
-                LOG_ERROR("Failed to restore pivot node");
+                LOG_ERROR(<< "Failed to restore pivot node");
                 return false;
             }
             influencerName = core::CStoredStringPtr();

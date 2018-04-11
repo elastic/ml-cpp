@@ -71,9 +71,9 @@ public:
     CBucketQueue(std::size_t latencyBuckets, core_t::TTime bucketLength, core_t::TTime latestBucketStart, T initial = T())
         : m_Queue(latencyBuckets + 1), m_LatestBucketEnd(latestBucketStart + bucketLength - 1), m_BucketLength(bucketLength) {
         this->fill(initial);
-        LOG_TRACE("Queue created :");
-        LOG_TRACE("Bucket length = " << m_BucketLength);
-        LOG_TRACE("LatestBucketEnd = " << m_LatestBucketEnd);
+        LOG_TRACE(<< "Queue created :");
+        LOG_TRACE(<< "Bucket length = " << m_BucketLength);
+        LOG_TRACE(<< "LatestBucketEnd = " << m_LatestBucketEnd);
     }
 
     //! Pushed an item to the queue and moves the time forward
@@ -84,7 +84,7 @@ public:
     //! \param[in] time The time to which the item corresponds.
     void push(const T& item, core_t::TTime time) {
         if (time <= m_LatestBucketEnd) {
-            LOG_ERROR("Push was called with early time = " << time << ", latest bucket end time = " << m_LatestBucketEnd);
+            LOG_ERROR(<< "Push was called with early time = " << time << ", latest bucket end time = " << m_LatestBucketEnd);
             return;
         }
         m_LatestBucketEnd += m_BucketLength;
@@ -95,7 +95,7 @@ public:
     //! internally and from clients that perform restoration of the queue.
     void push(const T& item) {
         m_Queue.push_front(item);
-        LOG_TRACE("Queue after push -> " << core::CContainerPrinter::print(*this));
+        LOG_TRACE(<< "Queue after push -> " << core::CContainerPrinter::print(*this));
     }
 
     //! Returns the item in the queue that corresponds to the bucket
@@ -184,21 +184,21 @@ public:
         do {
             if (traverser.name() == INDEX_TAG) {
                 if (core::CStringUtils::stringToType(traverser.value(), i) == false) {
-                    LOG_ERROR("Bad index in " << traverser.value());
+                    LOG_ERROR(<< "Bad index in " << traverser.value());
                     return false;
                 }
             } else if (traverser.name() == BUCKET_TAG) {
                 if (i >= m_Queue.size()) {
-                    LOG_WARN("Bucket queue is smaller on restore than on persist: " << i << " >= " << m_Queue.size()
-                                                                                    << ".  Extra buckets will be ignored.");
+                    LOG_WARN(<< "Bucket queue is smaller on restore than on persist: " << i << " >= " << m_Queue.size()
+                             << ".  Extra buckets will be ignored.");
                     // Restore into a temporary
                     T dummy;
                     if (!(core::CPersistUtils::restore(BUCKET_TAG, dummy, traverser))) {
-                        LOG_ERROR("Invalid bucket");
+                        LOG_ERROR(<< "Invalid bucket");
                     }
                 } else {
                     if (!(core::CPersistUtils::restore(BUCKET_TAG, m_Queue[i], traverser))) {
-                        LOG_ERROR("Invalid bucket");
+                        LOG_ERROR(<< "Invalid bucket");
                         return false;
                     }
                 }
@@ -224,25 +224,25 @@ private:
         do {
             if (traverser.name() == INDEX_TAG) {
                 if (core::CStringUtils::stringToType(traverser.value(), i) == false) {
-                    LOG_DEBUG("Bad index in " << traverser.value());
+                    LOG_DEBUG(<< "Bad index in " << traverser.value());
                     return false;
                 }
             } else if (traverser.name() == BUCKET_TAG) {
                 if (i >= m_Queue.size()) {
-                    LOG_WARN("Bucket queue is smaller on restore than on persist: " << i << " >= " << m_Queue.size()
-                                                                                    << ".  Extra buckets will be ignored.");
+                    LOG_WARN(<< "Bucket queue is smaller on restore than on persist: " << i << " >= " << m_Queue.size()
+                             << ".  Extra buckets will be ignored.");
                     if (traverser.hasSubLevel()) {
                         // Restore into a temporary
                         T dummy = initial;
                         if (traverser.traverseSubLevel(boost::bind<bool>(bucketRestore, dummy, _1)) == false) {
-                            LOG_ERROR("Invalid bucket");
+                            LOG_ERROR(<< "Invalid bucket");
                         }
                     }
                 } else {
                     m_Queue[i] = initial;
                     if (traverser.hasSubLevel()) {
                         if (traverser.traverseSubLevel(boost::bind<bool>(bucketRestore, boost::ref(m_Queue[i]), _1)) == false) {
-                            LOG_ERROR("Invalid bucket");
+                            LOG_ERROR(<< "Invalid bucket");
                             return false;
                         }
                     }
@@ -262,13 +262,13 @@ private:
     //! Get the index of the bucket containing \p time.
     std::size_t index(core_t::TTime time) const {
         if (m_BucketLength == 0) {
-            LOG_ERROR("Invalid bucketLength for queue!");
+            LOG_ERROR(<< "Invalid bucketLength for queue!");
             return 0;
         }
         std::size_t index = static_cast<std::size_t>((m_LatestBucketEnd - time) / m_BucketLength);
         std::size_t size = this->size();
         if (index >= size) {
-            LOG_ERROR("Time " << time << " is out of range. Returning earliest bucket index.");
+            LOG_ERROR(<< "Time " << time << " is out of range. Returning earliest bucket index.");
             return size - 1;
         }
         return index;

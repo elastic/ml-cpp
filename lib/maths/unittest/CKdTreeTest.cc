@@ -36,9 +36,9 @@ std::string print(const T& t) {
 }
 
 void CKdTreeTest::testBuild() {
-    LOG_DEBUG("+--------------------------+");
-    LOG_DEBUG("|  CKdTreeTest::testBuild  |");
-    LOG_DEBUG("+--------------------------+");
+    LOG_DEBUG(<< "+--------------------------+");
+    LOG_DEBUG(<< "|  CKdTreeTest::testBuild  |");
+    LOG_DEBUG(<< "+--------------------------+");
 
     const std::size_t numberTests = 200;
 
@@ -74,9 +74,9 @@ void CKdTreeTest::testBuild() {
 }
 
 void CKdTreeTest::testNearestNeighbour() {
-    LOG_DEBUG("+-------------------------------------+");
-    LOG_DEBUG("|  CKdTreeTest::testNearestNeighbour  |");
-    LOG_DEBUG("+-------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------+");
+    LOG_DEBUG(<< "|  CKdTreeTest::testNearestNeighbour  |");
+    LOG_DEBUG(<< "+-------------------------------------+");
 
     const std::size_t numberTests = 200;
 
@@ -103,7 +103,7 @@ void CKdTreeTest::testNearestNeighbour() {
         }
 
         if (i % 10 == 0) {
-            LOG_DEBUG("*** Test " << i << " ***");
+            LOG_DEBUG(<< "*** Test " << i << " ***");
         }
         for (std::size_t j = 0u; j < tests.size(); ++j) {
             using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<TDoubleVector2Pr, 1, maths::COrderings::SFirstLess>;
@@ -116,8 +116,8 @@ void CKdTreeTest::testNearestNeighbour() {
             const TVector2* nearest = kdTree.nearestNeighbour(tests[j]);
             CPPUNIT_ASSERT(nearest);
             if (i % 10 == 0) {
-                LOG_DEBUG("Expected nearest = " << expectedNearest[0].second << ", expected distance = " << expectedNearest[0].first);
-                LOG_DEBUG("Nearest          = " << *nearest << ", actual distance   = " << (tests[j] - *nearest).euclidean());
+                LOG_DEBUG(<< "Expected nearest = " << expectedNearest[0].second << ", expected distance = " << expectedNearest[0].first);
+                LOG_DEBUG(<< "Nearest          = " << *nearest << ", actual distance   = " << (tests[j] - *nearest).euclidean());
             }
             CPPUNIT_ASSERT_EQUAL(print(expectedNearest[0].second), print(*nearest));
         }

@@ -64,7 +64,7 @@ void CAnomalyScoreTest::testComputeScores() {
                          p1,
                          overallScore,
                          overallProbability);
-        LOG_DEBUG("1) score 1 = " << overallScore);
+        LOG_DEBUG(<< "1) score 1 = " << overallScore);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.078557, overallScore, 5e-7);
 
         TDoubleVec p2(1u, 0.02);
@@ -76,7 +76,7 @@ void CAnomalyScoreTest::testComputeScores() {
                          p2,
                          overallScore,
                          overallProbability);
-        LOG_DEBUG("1) score 2 = " << overallScore);
+        LOG_DEBUG(<< "1) score 2 = " << overallScore);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.002405, overallScore, 5e-7);
 
         TDoubleVec p3(1u, 0.1);
@@ -88,7 +88,7 @@ void CAnomalyScoreTest::testComputeScores() {
                          p3,
                          overallScore,
                          overallProbability);
-        LOG_DEBUG("1) score 3 = " << overallScore);
+        LOG_DEBUG(<< "1) score 3 = " << overallScore);
         CPPUNIT_ASSERT_EQUAL(0.0, overallScore);
     }
 
@@ -105,7 +105,7 @@ void CAnomalyScoreTest::testComputeScores() {
                          probabilities,
                          overallScore,
                          overallProbability);
-        LOG_DEBUG("2) score = " << overallScore);
+        LOG_DEBUG(<< "2) score = " << overallScore);
         CPPUNIT_ASSERT_EQUAL(0.0, overallScore);
     }
 
@@ -138,9 +138,9 @@ void CAnomalyScoreTest::testComputeScores() {
         CPPUNIT_ASSERT(extremeProbabilityCalculator.calculate(extremeProbability));
         extremeProbability = std::exp(extremeProbability);
 
-        LOG_DEBUG("3) probabilities = " << core::CContainerPrinter::print(p));
-        LOG_DEBUG("   joint probability = " << jointProbability << ", extreme probability = " << extremeProbability
-                                            << ", overallScore = " << overallScore);
+        LOG_DEBUG(<< "3) probabilities = " << core::CContainerPrinter::print(p));
+        LOG_DEBUG(<< "   joint probability = " << jointProbability << ", extreme probability = " << extremeProbability
+                  << ", overallScore = " << overallScore);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.318231, overallScore, 5e-7);
     }
@@ -175,9 +175,9 @@ void CAnomalyScoreTest::testComputeScores() {
         CPPUNIT_ASSERT(extremeProbabilityCalculator.calculate(extremeProbability));
         extremeProbability = std::exp(extremeProbability);
 
-        LOG_DEBUG("4) probabilities = " << core::CContainerPrinter::print(probabilities));
-        LOG_DEBUG("   joint probability = " << jointProbability << ", extreme probability = " << extremeProbability
-                                            << ", overallScore = " << overallScore);
+        LOG_DEBUG(<< "4) probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "   joint probability = " << jointProbability << ", extreme probability = " << extremeProbability
+                  << ", overallScore = " << overallScore);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.137591, overallScore, 5e-7);
     }
@@ -212,9 +212,9 @@ void CAnomalyScoreTest::testComputeScores() {
         CPPUNIT_ASSERT(extremeProbabilityCalculator.calculate(extremeProbability));
         extremeProbability = std::exp(extremeProbability);
 
-        LOG_DEBUG("5) probabilities = " << core::CContainerPrinter::print(probabilities));
-        LOG_DEBUG("   joint probability = " << jointProbability << ", extreme probability = " << extremeProbability
-                                            << ", overallScore = " << overallScore);
+        LOG_DEBUG(<< "5) probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "   joint probability = " << jointProbability << ", extreme probability = " << extremeProbability
+                  << ", overallScore = " << overallScore);
 
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.029413, overallScore, 5e-7);
     }
@@ -234,8 +234,8 @@ void CAnomalyScoreTest::testComputeScores() {
                          overallScore,
                          overallProbability);
 
-        LOG_DEBUG("6) probabilities = " << core::CContainerPrinter::print(probabilities));
-        LOG_DEBUG("   overallScore = " << overallScore);
+        LOG_DEBUG(<< "6) probabilities = " << core::CContainerPrinter::print(probabilities));
+        LOG_DEBUG(<< "   overallScore = " << overallScore);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(86.995953, overallScore, 5e-7);
     }
 }
@@ -280,12 +280,12 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles() {
             totalError += error;
             numberSamples += 1.0;
 
-            LOG_DEBUG("trueQuantile = " << trueQuantile << ", lowerBound = " << lowerBound << ", upperBound = " << upperBound);
+            LOG_DEBUG(<< "trueQuantile = " << trueQuantile << ", lowerBound = " << lowerBound << ", upperBound = " << upperBound);
             CPPUNIT_ASSERT(error < 0.02);
         }
     }
 
-    LOG_DEBUG("meanError = " << totalError / numberSamples);
+    LOG_DEBUG(<< "meanError = " << totalError / numberSamples);
     CPPUNIT_ASSERT(totalError / numberSamples < 0.0043);
 }
 
@@ -330,7 +330,7 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy() {
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         double sample = samples[i];
         normalizer.normalize(sample);
-        LOG_DEBUG(i << ") raw = " << samples[i] << ", normalized = " << sample);
+        LOG_DEBUG(<< i << ") raw = " << samples[i] << ", normalized = " << sample);
 
         //raw << " " << samples[i];
         //normalized << " " << sample[0];
@@ -338,7 +338,7 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy() {
         if (maxScores.size() < boost::size(largeAnomalyTimes)) {
             maxScores.insert(TDoubleSizeMap::value_type(sample, i));
         } else if (sample > maxScores.begin()->first) {
-            LOG_DEBUG("normalized = " << sample << " removing " << maxScores.begin()->first);
+            LOG_DEBUG(<< "normalized = " << sample << " removing " << maxScores.begin()->first);
             maxScores.erase(maxScores.begin());
             maxScores.insert(TDoubleSizeMap::value_type(sample, i));
         }
@@ -350,7 +350,7 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy() {
     //f.open("scores.m");
     //f << raw.str() << "\n" << normalized.str();
 
-    LOG_DEBUG("maxScores = " << core::CContainerPrinter::print(maxScores));
+    LOG_DEBUG(<< "maxScores = " << core::CContainerPrinter::print(maxScores));
 
     TSizeVec times;
 
@@ -359,7 +359,7 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy() {
     }
     std::sort(times.begin(), times.end());
 
-    LOG_DEBUG("times = " << core::CContainerPrinter::print(times));
+    LOG_DEBUG(<< "times = " << core::CContainerPrinter::print(times));
 
     CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(largeAnomalyTimes), core::CContainerPrinter::print(times));
 }
@@ -394,11 +394,11 @@ void CAnomalyScoreTest::testNormalizeScoresLargeScore() {
         scores.push_back(sample);
     }
     std::sort(scores.begin(), scores.end());
-    LOG_DEBUG("scores = " << core::CContainerPrinter::print(scores));
+    LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
 
     for (std::size_t i = 0u; i + 1 < boost::size(anomalies); ++i) {
         double uplift = scores[i] - 100.0 * anomalies[i] / anomalies[boost::size(anomalies) - 1];
-        LOG_DEBUG("uplift = " << uplift);
+        LOG_DEBUG(<< "uplift = " << uplift);
         CPPUNIT_ASSERT(uplift > 5.0);
         CPPUNIT_ASSERT(uplift < 13.0);
     }
@@ -422,7 +422,7 @@ void CAnomalyScoreTest::testNormalizeScoresNearZero() {
                                     std::string("[1.14, 1.04, 1, 1.04, 1.09]")};
 
     for (std::size_t i = 0u; i < boost::size(nonZeroCounts); ++i) {
-        LOG_DEBUG("non-zero count = " << nonZeroCounts[i]);
+        LOG_DEBUG(<< "non-zero count = " << nonZeroCounts[i]);
 
         TDoubleVec samples(500u, 0.0);
         for (std::size_t j = 0u; j < nonZeroCounts[i]; ++j) {
@@ -447,7 +447,7 @@ void CAnomalyScoreTest::testNormalizeScoresNearZero() {
             normalizer.normalize(sample);
             maxScores.push_back(sample);
         }
-        LOG_DEBUG("maxScores = " << core::CContainerPrinter::print(maxScores));
+        LOG_DEBUG(<< "maxScores = " << core::CContainerPrinter::print(maxScores));
 
         CPPUNIT_ASSERT_EQUAL(expectedScores[i], core::CContainerPrinter::print(maxScores));
     }
@@ -465,7 +465,7 @@ void CAnomalyScoreTest::testNormalizeScoresOrdering() {
     rng.generateUniformSamples(0.0, 50.0, n, allScores);
 
     for (std::size_t i = 200u; i <= n; i += 200) {
-        LOG_DEBUG("*** " << i << " ***");
+        LOG_DEBUG(<< "*** " << i << " ***");
 
         TDoubleVec scores(&allScores[0], &allScores[i]);
 
@@ -483,7 +483,7 @@ void CAnomalyScoreTest::testNormalizeScoresOrdering() {
         maths::COrderings::simultaneousSort(scores, normalizedScores);
         for (std::size_t j = 1u; j < normalizedScores.size(); ++j) {
             if (normalizedScores[j] - normalizedScores[j - 1] < -0.01) {
-                LOG_DEBUG(normalizedScores[j] << " " << normalizedScores[j - 1]);
+                LOG_DEBUG(<< normalizedScores[j] << " " << normalizedScores[j - 1]);
             }
             CPPUNIT_ASSERT(normalizedScores[j] - normalizedScores[j - 1] > -0.01);
         }

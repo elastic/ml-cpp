@@ -346,7 +346,7 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec& result) con
         weights.reserve(n);
         modes.reserve(n);
         for (std::size_t i = 0u; i < n; ++i) {
-            LOG_TRACE("weight = " << clusters[i].count() << ", mean = " << clusters[i].centre() << ", sd = " << clusters[i].spread());
+            LOG_TRACE(<< "weight = " << clusters[i].count() << ", mean = " << clusters[i].centre() << ", sd = " << clusters[i].spread());
             weights.push_back(clusters[i].count());
             modes.push_back(boost::math::normal_distribution<>(clusters[i].centre(), clusters[i].spread()));
         }
@@ -360,7 +360,7 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec& result) con
         for (std::size_t i = 0u; i < boost::size(QUANTILES); ++i) {
             pillars.push_back(maths::quantile(gmm, QUANTILES[i]));
         }
-        LOG_TRACE("pillars = " << core::CContainerPrinter::print(pillars));
+        LOG_TRACE(<< "pillars = " << core::CContainerPrinter::print(pillars));
 
         result.reserve(10 * boost::size(QUANTILES));
         for (std::size_t i = 1u; i < pillars.size(); ++i) {
@@ -372,7 +372,7 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec& result) con
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to compute density chart: " << e.what());
+        LOG_ERROR(<< "Failed to compute density chart: " << e.what());
         return false;
     }
     return true;

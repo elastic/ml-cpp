@@ -67,9 +67,9 @@ bool restore(const maths::SDistributionRestoreParams& params, core::CRapidXmlSta
 }
 
 void CXMeansOnlineTest::testCluster() {
-    LOG_DEBUG("+----------------------------------+");
-    LOG_DEBUG("|  CXMeansOnlineTest::testCluster  |");
-    LOG_DEBUG("+----------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansOnlineTest::testCluster  |");
+    LOG_DEBUG(<< "+----------------------------------+");
 
     // Test the core functionality of cluster.
 
@@ -97,17 +97,17 @@ void CXMeansOnlineTest::testCluster() {
         cluster.add(TPoint(x1[i]), c1[i]);
         moments.add(TPoint(x1[i]), TPoint(c1[i]));
     }
-    LOG_DEBUG("count  = " << cluster.count());
-    LOG_DEBUG("centre = " << cluster.centre());
-    LOG_DEBUG("spread = " << cluster.spread());
-    LOG_DEBUG("weight = " << cluster.weight(maths_t::E_ClustersFractionWeight));
+    LOG_DEBUG(<< "count  = " << cluster.count());
+    LOG_DEBUG(<< "centre = " << cluster.centre());
+    LOG_DEBUG(<< "spread = " << cluster.spread());
+    LOG_DEBUG(<< "weight = " << cluster.weight(maths_t::E_ClustersFractionWeight));
 
     double expectedCount = maths::CBasicStatistics::count(moments);
     TPoint expectedCentre = maths::CBasicStatistics::mean(moments);
     double expectedSpread = std::sqrt(maths::CBasicStatistics::maximumLikelihoodCovariances(moments).trace() / 2.0);
-    LOG_DEBUG("expected count  = " << expectedCount);
-    LOG_DEBUG("expected centre = " << expectedCentre);
-    LOG_DEBUG("expected spread = " << expectedSpread);
+    LOG_DEBUG(<< "expected count  = " << expectedCount);
+    LOG_DEBUG(<< "expected centre = " << expectedCentre);
+    LOG_DEBUG(<< "expected spread = " << expectedSpread);
     CPPUNIT_ASSERT_EQUAL(expectedCount, cluster.count());
     CPPUNIT_ASSERT((cluster.centre() - expectedCentre).euclidean() < 1e-10);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedSpread, cluster.spread(), 0.05 * expectedSpread);
@@ -115,10 +115,10 @@ void CXMeansOnlineTest::testCluster() {
     CPPUNIT_ASSERT_EQUAL(expectedCount, cluster.weight(maths_t::E_ClustersFractionWeight));
 
     cluster.propagateForwardsByTime(5.0);
-    LOG_DEBUG("centre = " << cluster.centre());
-    LOG_DEBUG("spread = " << cluster.spread());
-    LOG_DEBUG("count  = " << cluster.count());
-    LOG_DEBUG("weight = " << cluster.weight(maths_t::E_ClustersFractionWeight));
+    LOG_DEBUG(<< "centre = " << cluster.centre());
+    LOG_DEBUG(<< "spread = " << cluster.spread());
+    LOG_DEBUG(<< "count  = " << cluster.count());
+    LOG_DEBUG(<< "weight = " << cluster.weight(maths_t::E_ClustersFractionWeight));
     CPPUNIT_ASSERT(cluster.count() < expectedCount);
     CPPUNIT_ASSERT((cluster.centre() - expectedCentre).euclidean() < 1e-10);
     CPPUNIT_ASSERT(cluster.spread() >= expectedSpread);
@@ -127,7 +127,7 @@ void CXMeansOnlineTest::testCluster() {
 
     TPointVec samples;
     cluster.sample(10, samples);
-    LOG_DEBUG("samples = " << core::CContainerPrinter::print(samples));
+    LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
 
     TCovariances2 sampleMoments;
     for (std::size_t i = 0u; i < samples.size(); ++i) {
@@ -135,8 +135,8 @@ void CXMeansOnlineTest::testCluster() {
     }
     TPoint sampleCentre = maths::CBasicStatistics::mean(sampleMoments);
     double sampleSpread = std::sqrt(maths::CBasicStatistics::covariances(sampleMoments).trace() / 2.0);
-    LOG_DEBUG("sample centre = " << sampleCentre);
-    LOG_DEBUG("sample spread = " << sampleSpread);
+    LOG_DEBUG(<< "sample centre = " << sampleCentre);
+    LOG_DEBUG(<< "sample spread = " << sampleSpread);
     CPPUNIT_ASSERT((sampleCentre - cluster.centre()).euclidean() < 1e-10);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(cluster.spread(), sampleSpread, 0.1);
 
@@ -153,7 +153,7 @@ void CXMeansOnlineTest::testCluster() {
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("Cluster XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Cluster XML representation:\n" << origXml);
 
     // Restore the XML into a new cluster.
     core::CRapidXmlParser parser;
@@ -185,8 +185,8 @@ void CXMeansOnlineTest::testCluster() {
     spreads.push_back(split->first.spread());
     spreads.push_back(split->second.spread());
     maths::COrderings::simultaneousSort(centres, spreads);
-    LOG_DEBUG("centres = " << core::CContainerPrinter::print(centres));
-    LOG_DEBUG("spreads = " << core::CContainerPrinter::print(spreads));
+    LOG_DEBUG(<< "centres = " << core::CContainerPrinter::print(centres));
+    LOG_DEBUG(<< "spreads = " << core::CContainerPrinter::print(spreads));
     double expectedCentres[][2] = {{2.25, 2.1125}, {10.64, 10.75}};
     CPPUNIT_ASSERT((centres[0] - TPoint(expectedCentres[0])).euclidean() < 1e-5);
     CPPUNIT_ASSERT((centres[1] - TPoint(expectedCentres[1])).euclidean() < 1e-5);
@@ -219,9 +219,9 @@ void CXMeansOnlineTest::testCluster() {
 }
 
 void CXMeansOnlineTest::testClusteringVanilla() {
-    LOG_DEBUG("+--------------------------------------------+");
-    LOG_DEBUG("|  CXMeansOnlineTest::testClusteringVanilla  |");
-    LOG_DEBUG("+--------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansOnlineTest::testClusteringVanilla  |");
+    LOG_DEBUG(<< "+--------------------------------------------+");
 
     // This tests that the chance of splitting data with a single
     // cluster is low and that we accurately find a small number
@@ -235,7 +235,7 @@ void CXMeansOnlineTest::testClusteringVanilla() {
     double covariances[][2][2] = {{{10, 2}, {2, 15}}, {{30, 8}, {8, 15}}, {{20, -11}, {-11, 25}}};
 
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("*** test " << t << " ***");
+        LOG_DEBUG(<< "*** test " << t << " ***");
 
         TDoubleVec mean(&means[0][0], &means[0][2]);
         TDoubleVecVec covariance;
@@ -253,7 +253,7 @@ void CXMeansOnlineTest::testClusteringVanilla() {
         }
         double s = static_cast<double>(samples.size());
         double c = static_cast<double>(n) / s;
-        LOG_DEBUG("# clusters = " << c);
+        LOG_DEBUG(<< "# clusters = " << c);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, c, 1.0 / s);
     }
 
@@ -264,7 +264,7 @@ void CXMeansOnlineTest::testClusteringVanilla() {
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanCovError;
 
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("*** test " << t << " ***");
+        LOG_DEBUG(<< "*** test " << t << " ***");
 
         TDoubleVecVec samples;
         TPointVec centres;
@@ -291,11 +291,11 @@ void CXMeansOnlineTest::testClusteringVanilla() {
         }
 
         const TXMeans2ForTest::TClusterVec& clusters = clusterer.clusters();
-        LOG_DEBUG("# clusters = " << clusters.size());
+        LOG_DEBUG(<< "# clusters = " << clusters.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(3), clusters.size());
 
         for (std::size_t i = 0u; i < clusters.size(); ++i) {
-            LOG_DEBUG("moments = " << maths::CBasicStatistics::print(clusters[i].covariances()));
+            LOG_DEBUG(<< "moments = " << maths::CBasicStatistics::print(clusters[i].covariances()));
 
             maths::CBasicStatistics::COrderStatisticsStack<double, 1> meanError;
             maths::CBasicStatistics::COrderStatisticsStack<double, 1> covError;
@@ -308,8 +308,8 @@ void CXMeansOnlineTest::testClusteringVanilla() {
                                  .frobenius() /
                              maths::CBasicStatistics::covariances(expectedMoments[j]).frobenius());
             }
-            LOG_DEBUG("mean error = " << meanError[0]);
-            LOG_DEBUG("covariance error = " << covError[0]);
+            LOG_DEBUG(<< "mean error = " << meanError[0]);
+            LOG_DEBUG(<< "covariance error = " << covError[0]);
             CPPUNIT_ASSERT(meanError[0] < 0.034);
             CPPUNIT_ASSERT(covError[0] < 0.39);
             meanMeanError.add(meanError[0]);
@@ -317,16 +317,16 @@ void CXMeansOnlineTest::testClusteringVanilla() {
         }
     }
 
-    LOG_DEBUG("mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
-    LOG_DEBUG("mean cov error = " << maths::CBasicStatistics::mean(meanCovError));
+    LOG_DEBUG(<< "mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
+    LOG_DEBUG(<< "mean cov error = " << maths::CBasicStatistics::mean(meanCovError));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMeanError) < 0.005);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanCovError) < 0.06);
 }
 
 void CXMeansOnlineTest::testClusteringWithOutliers() {
-    LOG_DEBUG("+-------------------------------------------------+");
-    LOG_DEBUG("|  CXMeansOnlineTest::testClusteringWithOutliers  |");
-    LOG_DEBUG("+-------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansOnlineTest::testClusteringWithOutliers  |");
+    LOG_DEBUG(<< "+-------------------------------------------------+");
 
     // Test that we are still able to find significant clusters
     // in the presence of a small number of significant outliers.
@@ -351,7 +351,7 @@ void CXMeansOnlineTest::testClusteringWithOutliers() {
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanCovError;
 
     for (std::size_t t = 0u; t < 10; ++t) {
-        LOG_DEBUG("*** test " << t << " ***");
+        LOG_DEBUG(<< "*** test " << t << " ***");
 
         TDoubleVecVec samples;
         TPointVec centres;
@@ -385,11 +385,11 @@ void CXMeansOnlineTest::testClusteringWithOutliers() {
         }
 
         const TXMeans2ForTest::TClusterVec& clusters = clusterer.clusters();
-        LOG_DEBUG("# clusters = " << clusters.size());
+        LOG_DEBUG(<< "# clusters = " << clusters.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), clusters.size());
 
         for (std::size_t i = 0u; i < clusters.size(); ++i) {
-            LOG_DEBUG("moments = " << maths::CBasicStatistics::print(clusters[i].covariances()));
+            LOG_DEBUG(<< "moments = " << maths::CBasicStatistics::print(clusters[i].covariances()));
 
             maths::CBasicStatistics::COrderStatisticsStack<double, 1> meanError;
             maths::CBasicStatistics::COrderStatisticsStack<double, 1> covError;
@@ -403,8 +403,8 @@ void CXMeansOnlineTest::testClusteringWithOutliers() {
                              maths::CBasicStatistics::covariances(expectedMoments[j]).frobenius());
             }
 
-            LOG_DEBUG("meanError = " << meanError[0]);
-            LOG_DEBUG("covError  = " << covError[0]);
+            LOG_DEBUG(<< "meanError = " << meanError[0]);
+            LOG_DEBUG(<< "covError  = " << covError[0]);
             CPPUNIT_ASSERT(meanError[0] < 0.06);
             CPPUNIT_ASSERT(covError[0] < 0.2);
             meanMeanError.add(meanError[0]);
@@ -412,16 +412,16 @@ void CXMeansOnlineTest::testClusteringWithOutliers() {
         }
     }
 
-    LOG_DEBUG("mean meanError = " << maths::CBasicStatistics::mean(meanMeanError));
-    LOG_DEBUG("mean covError  = " << maths::CBasicStatistics::mean(meanCovError));
+    LOG_DEBUG(<< "mean meanError = " << maths::CBasicStatistics::mean(meanMeanError));
+    LOG_DEBUG(<< "mean covError  = " << maths::CBasicStatistics::mean(meanCovError));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMeanError) < 0.03);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanCovError) < 0.07);
 }
 
 void CXMeansOnlineTest::testManyClusters() {
-    LOG_DEBUG("+---------------------------------------+");
-    LOG_DEBUG("|  CXMeansOnlineTest::testManyClusters  |");
-    LOG_DEBUG("+---------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansOnlineTest::testManyClusters  |");
+    LOG_DEBUG(<< "+---------------------------------------+");
 
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
@@ -463,10 +463,10 @@ void CXMeansOnlineTest::testManyClusters() {
         lgenerating[i] /= Z;
         differentialEntropy.add(-std::log(lgenerating[i]));
     }
-    LOG_DEBUG("differentialEntropy = " << maths::CBasicStatistics::mean(differentialEntropy));
+    LOG_DEBUG(<< "differentialEntropy = " << maths::CBasicStatistics::mean(differentialEntropy));
 
     for (std::size_t t = 0u; t < 5; ++t) {
-        LOG_DEBUG("*** test " << t << " ***");
+        LOG_DEBUG(<< "*** test " << t << " ***");
 
         rng.random_shuffle(samples.begin(), samples.end());
 
@@ -477,7 +477,7 @@ void CXMeansOnlineTest::testManyClusters() {
         }
 
         const TXMeans2ForTest::TClusterVec& clusters = clusterer.clusters();
-        LOG_DEBUG("# clusters = " << clusters.size());
+        LOG_DEBUG(<< "# clusters = " << clusters.size());
 
         TMeanAccumulator loss;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
@@ -493,15 +493,15 @@ void CXMeansOnlineTest::testManyClusters() {
             l /= Z;
             loss.add(std::log(lgenerating[i]) - std::log(l));
         }
-        LOG_DEBUG("loss = " << maths::CBasicStatistics::mean(loss));
+        LOG_DEBUG(<< "loss = " << maths::CBasicStatistics::mean(loss));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(loss) < 0.02 * maths::CBasicStatistics::mean(differentialEntropy));
     }
 }
 
 void CXMeansOnlineTest::testAdaption() {
-    LOG_DEBUG("+-----------------------------------+");
-    LOG_DEBUG("|  CXMeansOnlineTest::testAdaption  |");
-    LOG_DEBUG("+-----------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansOnlineTest::testAdaption  |");
+    LOG_DEBUG(<< "+-----------------------------------+");
 
     // Test a case where the cluster pattern changes over time.
     // Specifically, the data set starts with one cluster then
@@ -525,7 +525,7 @@ void CXMeansOnlineTest::testAdaption() {
         }
     }
 
-    LOG_DEBUG("Clusters Split and Merge") {
+    LOG_DEBUG(<< "Clusters Split and Merge") {
         std::size_t n[][4] = {{200, 0, 0, 0}, {100, 100, 0, 0}, {0, 0, 300, 300}};
 
         TCovariances2 totalCovariances;
@@ -548,14 +548,14 @@ void CXMeansOnlineTest::testAdaption() {
                 samples.insert(samples.end(), samples_.begin(), samples_.end());
             }
             rng.random_shuffle(samples.begin(), samples.end());
-            LOG_DEBUG("# samples = " << samples.size());
+            LOG_DEBUG(<< "# samples = " << samples.size());
 
             for (std::size_t j = 0u; j < samples.size(); ++j) {
                 clusterer.add(TPoint(samples[j]));
             }
 
             const TXMeans2ForTest::TClusterVec& clusters = clusterer.clusters();
-            LOG_DEBUG("# clusters = " << clusters.size());
+            LOG_DEBUG(<< "# clusters = " << clusters.size());
 
             for (std::size_t j = 0u; j < clusters.size(); ++j) {
                 maths::CBasicStatistics::COrderStatisticsStack<double, 1> meanError;
@@ -582,8 +582,8 @@ void CXMeansOnlineTest::testAdaption() {
                     }
                 }
 
-                LOG_DEBUG("mean error = " << meanError[0]);
-                LOG_DEBUG("cov error  = " << covError[0]);
+                LOG_DEBUG(<< "mean error = " << meanError[0]);
+                LOG_DEBUG(<< "cov error  = " << covError[0]);
                 CPPUNIT_ASSERT(meanError[0] < 0.04);
                 CPPUNIT_ASSERT(covError[0] < 0.2);
 
@@ -592,17 +592,17 @@ void CXMeansOnlineTest::testAdaption() {
             }
         }
 
-        LOG_DEBUG("mean meanError = " << maths::CBasicStatistics::mean(meanMeanError));
-        LOG_DEBUG("mean covError  = " << maths::CBasicStatistics::mean(meanCovError));
+        LOG_DEBUG(<< "mean meanError = " << maths::CBasicStatistics::mean(meanMeanError));
+        LOG_DEBUG(<< "mean covError  = " << maths::CBasicStatistics::mean(meanCovError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMeanError) < 0.01);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanCovError) < 0.1);
     }
 }
 
 void CXMeansOnlineTest::testLargeHistory() {
-    LOG_DEBUG("+---------------------------------------+");
-    LOG_DEBUG("|  CXMeansOnlineTest::testLargeHistory  |");
-    LOG_DEBUG("+---------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansOnlineTest::testLargeHistory  |");
+    LOG_DEBUG(<< "+---------------------------------------+");
 
     // If we get a lot of history, because we detect that the system
     // is stable and reduce the decay rate then we should also reduce
@@ -646,9 +646,9 @@ void CXMeansOnlineTest::testLargeHistory() {
 }
 
 void CXMeansOnlineTest::testLatLongData() {
-    LOG_DEBUG("+--------------------------------------+");
-    LOG_DEBUG("|  CXMeansOnlineTest::testLatLongData  |");
-    LOG_DEBUG("+--------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansOnlineTest::testLatLongData  |");
+    LOG_DEBUG(<< "+--------------------------------------+");
 
     using TTimeDoubleVecPr = std::pair<core_t::TTime, TDoubleVec>;
     using TTimeDoubleVecPrVec = std::vector<TTimeDoubleVecPr>;
@@ -659,7 +659,7 @@ void CXMeansOnlineTest::testLatLongData() {
         test::CTimeSeriesTestData::parse("testfiles/lat_lng.csv", timeseries, test::CTimeSeriesTestData::CSV_UNIX_BIVALUED_REGEX));
     CPPUNIT_ASSERT(!timeseries.empty());
 
-    LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
+    LOG_DEBUG(<< "timeseries = " << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10) << " ...");
 
     std::size_t n = timeseries.size();
 
@@ -705,15 +705,15 @@ void CXMeansOnlineTest::testLatLongData() {
         }
     }
 
-    LOG_DEBUG("gaussian log(L)  = " << maths::CBasicStatistics::mean(LLR));
-    LOG_DEBUG("clustered log(L) = " << maths::CBasicStatistics::mean(LLC));
+    LOG_DEBUG(<< "gaussian log(L)  = " << maths::CBasicStatistics::mean(LLR));
+    LOG_DEBUG(<< "clustered log(L) = " << maths::CBasicStatistics::mean(LLC));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(LLC) < 0.6 * maths::CBasicStatistics::mean(LLR));
 }
 
 void CXMeansOnlineTest::testPersist() {
-    LOG_DEBUG("+----------------------------------+");
-    LOG_DEBUG("|  CXMeansOnlineTest::testPersist  |");
-    LOG_DEBUG("+----------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------+");
+    LOG_DEBUG(<< "|  CXMeansOnlineTest::testPersist  |");
+    LOG_DEBUG(<< "+----------------------------------+");
 
     // Check that persistence is idempotent.
 
@@ -749,7 +749,7 @@ void CXMeansOnlineTest::testPersist() {
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("Clusterer XML representation:\n" << origXml);
+    LOG_DEBUG(<< "Clusterer XML representation:\n" << origXml);
 
     // Restore the XML into a new clusterer.
     maths::SDistributionRestoreParams params(maths_t::E_ContinuousData,

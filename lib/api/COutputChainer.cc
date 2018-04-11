@@ -34,7 +34,7 @@ bool COutputChainer::fieldNames(const TStrVec& fieldNames, const TStrVec& extraF
     m_WorkRecordFields.clear();
 
     if (m_FieldNames.empty()) {
-        LOG_ERROR("Attempt to set empty field names");
+        LOG_ERROR(<< "Attempt to set empty field names");
         return false;
     }
 
@@ -58,7 +58,7 @@ const COutputHandler::TStrVec& COutputChainer::fieldNames() const {
 
 bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) {
     if (m_FieldNames.empty()) {
-        LOG_ERROR("Attempt to output data before field names");
+        LOG_ERROR(<< "Attempt to output data before field names");
         return false;
     }
 
@@ -74,7 +74,7 @@ bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMa
         if (fieldValueIter == overrideDataRowFields.end()) {
             fieldValueIter = dataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
             if (fieldValueIter == dataRowFields.end()) {
-                LOG_ERROR("Output fields do not include a value for field " << *fieldNameIter);
+                LOG_ERROR(<< "Output fields do not include a value for field " << *fieldNameIter);
                 return false;
             }
         }
@@ -86,8 +86,8 @@ bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMa
     }
 
     if (m_DataProcessor.handleRecord(m_WorkRecordFields) == false) {
-        LOG_ERROR("Chained data processor function returned false for record:" << core_t::LINE_ENDING
-                                                                               << CDataProcessor::debugPrintRecord(m_WorkRecordFields));
+        LOG_ERROR(<< "Chained data processor function returned false for record:" << core_t::LINE_ENDING
+                  << CDataProcessor::debugPrintRecord(m_WorkRecordFields));
         return false;
     }
 

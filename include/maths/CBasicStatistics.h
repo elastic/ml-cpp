@@ -1464,7 +1464,7 @@ struct SCovariancesLedoitWolf<CVectorNx1<T, N>> {
             bn += pow2(((ci - m).outer() - s).frobenius()) / d / z;
         }
         bn = std::min(bn, dn);
-        LOG_TRACE("m = " << mn << ", d = " << dn << ", b = " << bn);
+        LOG_TRACE(<< "m = " << mn << ", d = " << dn << ", b = " << bn);
 
         covariances.s_Covariances = CVectorNx1<U, N>{bn / dn * mn}.diagonal() + (U{1} - bn / dn) * covariances.s_Covariances;
     }

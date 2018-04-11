@@ -62,7 +62,7 @@ void populateJob(TGenerateRecord generateRecord, ml::api::CAnomalyJob& job, std:
 }
 
 void CForecastRunnerTest::testSummaryCount() {
-    LOG_INFO("*** test forecast on summary count ***");
+    LOG_INFO(<< "*** test forecast on summary count ***");
 
     std::stringstream outputStrm;
     {
@@ -126,7 +126,7 @@ void CForecastRunnerTest::testSummaryCount() {
 }
 
 void CForecastRunnerTest::testPopulation() {
-    LOG_INFO("*** test forecast on population ***");
+    LOG_INFO(<< "*** test forecast on population ***");
 
     std::stringstream outputStrm;
     {
@@ -167,7 +167,7 @@ void CForecastRunnerTest::testPopulation() {
 }
 
 void CForecastRunnerTest::testRare() {
-    LOG_INFO("*** test forecast on rare ***");
+    LOG_INFO(<< "*** test forecast on rare ***");
 
     std::stringstream outputStrm;
     {
@@ -208,7 +208,7 @@ void CForecastRunnerTest::testRare() {
 }
 
 void CForecastRunnerTest::testInsufficientData() {
-    LOG_INFO("*** test insufficient data ***");
+    LOG_INFO(<< "*** test insufficient data ***");
 
     std::stringstream outputStrm;
     {

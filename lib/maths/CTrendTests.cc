@@ -228,12 +228,12 @@ void CRandomizedPeriodicityTest::add(core_t::TTime time, double value) {
     resample(time);
 
     if (time >= m_DayRefreshedProjections + DAY_RESAMPLE_INTERVAL) {
-        LOG_TRACE("Updating day statistics");
+        LOG_TRACE(<< "Updating day statistics");
         updateStatistics(m_DayProjections, m_DayStatistics);
         m_DayRefreshedProjections = CIntegerTools::floor(time, DAY_RESAMPLE_INTERVAL);
     }
     if (time >= m_WeekRefreshedProjections + WEEK_RESAMPLE_INTERVAL) {
-        LOG_TRACE("Updating week statistics");
+        LOG_TRACE(<< "Updating week statistics");
         updateStatistics(m_WeekProjections, m_WeekStatistics);
         m_WeekRefreshedProjections = CIntegerTools::floor(time, WEEK_RESAMPLE_INTERVAL);
     }
@@ -263,11 +263,11 @@ bool CRandomizedPeriodicityTest::test() const {
         double nd = CBasicStatistics::count(m_DayStatistics);
         if (nd >= 1.0) {
             TVector2 S = CBasicStatistics::mean(m_DayStatistics);
-            LOG_TRACE("Day test statistic, S = " << S << ", n = " << nd);
+            LOG_TRACE(<< "Day test statistic, S = " << S << ", n = " << nd);
             double ratio =
                 S(0) == S(1) ? 1.0 : (S(0) == 0.0 ? boost::numeric::bounds<double>::highest() : static_cast<double>(S(1) / S(0)));
             double significance = CStatisticalTests::rightTailFTest(ratio, nd, nd);
-            LOG_TRACE("Daily significance = " << significance);
+            LOG_TRACE(<< "Daily significance = " << significance);
             if (significance < SIGNIFICANCE) {
                 return true;
             }
@@ -276,16 +276,16 @@ bool CRandomizedPeriodicityTest::test() const {
         double nw = CBasicStatistics::count(m_WeekStatistics);
         if (nw >= 1.0) {
             TVector2 S = CBasicStatistics::mean(m_WeekStatistics);
-            LOG_TRACE("Week test statistic, S = " << S);
+            LOG_TRACE(<< "Week test statistic, S = " << S);
             double ratio =
                 S(0) == S(1) ? 1.0 : (S(0) == 0.0 ? boost::numeric::bounds<double>::highest() : static_cast<double>(S(1) / S(0)));
             double significance = CStatisticalTests::rightTailFTest(ratio, nw, nw);
-            LOG_TRACE("Weekly significance = " << significance);
+            LOG_TRACE(<< "Weekly significance = " << significance);
             if (significance < SIGNIFICANCE) {
                 return true;
             }
         }
-    } catch (const std::exception& e) { LOG_ERROR("Failed to test for periodicity: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to test for periodicity: " << e.what()); }
 
     return false;
 }
@@ -321,7 +321,7 @@ void CRandomizedPeriodicityTest::updateStatistics(TVector2NMeanAccumulator& proj
 
     if (CBasicStatistics::count(projections) > 0.0) {
         const TVector2N& mean = CBasicStatistics::mean(projections);
-        LOG_TRACE("mean = " << mean);
+        LOG_TRACE(<< "mean = " << mean);
 
         TVector2MeanAccumulator statistic;
         for (std::size_t i = 0u; i < N; ++i) {
@@ -332,7 +332,7 @@ void CRandomizedPeriodicityTest::updateStatistics(TVector2NMeanAccumulator& proj
         }
         statistics += statistic;
         statistics.age(1.0 - ALPHA);
-        LOG_TRACE("statistics = " << statistics);
+        LOG_TRACE(<< "statistics = " << statistics);
     }
 
     projections = TVector2NMeanAccumulator();
@@ -342,7 +342,7 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime time) {
     if (time >= ms_DayResampled.load(std::memory_order_acquire) + DAY_RESAMPLE_INTERVAL) {
         core::CScopedLock lock(ms_Lock);
 
-        LOG_TRACE("Updating daily random projections at " << time);
+        LOG_TRACE(<< "Updating daily random projections at " << time);
         if (time >= ms_DayResampled.load(std::memory_order_relaxed) + DAY_RESAMPLE_INTERVAL) {
             resample(DAY, DAY_RESAMPLE_INTERVAL, ms_DayPeriodicProjections, ms_DayRandomProjections);
             ms_DayResampled.store(CIntegerTools::floor(time, DAY_RESAMPLE_INTERVAL), std::memory_order_release);
@@ -352,7 +352,7 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime time) {
     if (time >= ms_WeekResampled.load(std::memory_order_acquire) + WEEK_RESAMPLE_INTERVAL) {
         core::CScopedLock lock(ms_Lock);
 
-        LOG_TRACE("Updating weekly random projections at " << time);
+        LOG_TRACE(<< "Updating weekly random projections at " << time);
         if (time >= ms_WeekResampled.load(std::memory_order_relaxed) + WEEK_RESAMPLE_INTERVAL) {
             resample(WEEK, WEEK_RESAMPLE_INTERVAL, ms_WeekPeriodicProjections, ms_WeekRandomProjections);
             ms_WeekResampled.store(CIntegerTools::floor(time, WEEK_RESAMPLE_INTERVAL), std::memory_order_release);
@@ -420,7 +420,7 @@ void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& ins
 
 void CCalendarCyclicTest::propagateForwardsByTime(double time) {
     if (!CMathsFuncs::isFinite(time) || time < 0.0) {
-        LOG_ERROR("Bad propagation time " << time);
+        LOG_ERROR(<< "Bad propagation time " << time);
         return;
     }
     m_ErrorQuantiles.age(std::exp(-m_DecayRate * time));
@@ -548,7 +548,7 @@ double CCalendarCyclicTest::significance(double n, double x) const {
     try {
         boost::math::binomial binom(n, 1.0 - LARGE_ERROR_PERCENTILE / 100.0);
         return std::min(2.0 * CTools::safeCdfComplement(binom, x - 1.0), 1.0);
-    } catch (const std::exception& e) { LOG_ERROR("Failed to calculate significance: " << e.what() << " n = " << n << " x = " << x); }
+    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to calculate significance: " << e.what() << " n = " << n << " x = " << x); }
     return 1.0;
 }
 

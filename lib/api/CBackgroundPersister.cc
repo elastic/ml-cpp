@@ -145,8 +145,8 @@ bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcess
 
 bool CBackgroundPersister::startBackgroundPersist() {
     if (this->isBusy()) {
-        LOG_WARN("Cannot start background persist as a previous "
-                 "persist is still in progress");
+        LOG_WARN(<< "Cannot start background persist as a previous "
+                    "persist is still in progress");
         return false;
     }
     return this->startBackgroundPersist(core::CTimeUtils::now());
@@ -163,9 +163,9 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate() {
     if (this->isBusy()) {
         m_PeriodicPersistInterval += PERSIST_INTERVAL_INCREMENT;
 
-        LOG_WARN("Periodic persist is due at "
-                 << due << " but previous persist started at " << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime)
-                 << " is still in progress - increased persistence interval to " << m_PeriodicPersistInterval << " seconds");
+        LOG_WARN(<< "Periodic persist is due at " << due << " but previous persist started at "
+                 << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime) << " is still in progress - increased persistence interval to "
+                 << m_PeriodicPersistInterval << " seconds");
 
         return false;
     }
@@ -176,7 +176,7 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate() {
 bool CBackgroundPersister::startBackgroundPersist(core_t::TTime timeOfPersistence) {
     bool backgroundPersistSetupOk = m_FirstProcessorPeriodicPersistFunc(*this);
     if (!backgroundPersistSetupOk) {
-        LOG_ERROR("Failed to create background persistence functions");
+        LOG_ERROR(<< "Failed to create background persistence functions");
         // It's possible that some functions were added before the failure, so
         // remove these
         this->clear();
@@ -185,10 +185,10 @@ bool CBackgroundPersister::startBackgroundPersist(core_t::TTime timeOfPersistenc
 
     m_LastPeriodicPersistTime = timeOfPersistence;
 
-    LOG_INFO("Background persist starting background thread");
+    LOG_INFO(<< "Background persist starting background thread");
 
     if (this->startPersist() == false) {
-        LOG_ERROR("Failed to start background persistence");
+        LOG_ERROR(<< "Failed to start background persistence");
         this->clear();
         return false;
     }

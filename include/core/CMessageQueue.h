@@ -79,7 +79,7 @@ public:
         CScopedLock lock(m_Mutex);
 
         if (m_Thread.start() == false) {
-            LOG_ERROR("Unable to initialise thread");
+            LOG_ERROR(<< "Unable to initialise thread");
             return false;
         }
 
@@ -110,7 +110,7 @@ public:
             pending = 0;
 
             // Should be fatal error
-            LOG_FATAL("Cannot dispatch to message queue.  Queue not initialised");
+            LOG_FATAL(<< "Cannot dispatch to message queue.  Queue not initialised");
             return;
         }
 
@@ -139,7 +139,7 @@ public:
     //! negative return value indicates an error.
     double rollingAverageProcessingTime() const {
         if (NUM_TO_TIME == 0) {
-            LOG_ERROR("Message queue timing is not switched on");
+            LOG_ERROR(<< "Message queue timing is not switched on");
 
             return -1.0;
         }
@@ -151,9 +151,9 @@ public:
         }
 
         if (m_Readings.front() > m_Readings.back()) {
-            LOG_ERROR("Time to process last " << NUM_TO_TIME << " messages is negative (-" << (m_Readings.front() - m_Readings.back())
-                                              << "ms).  "
-                                                 "Maybe the system clock has been put back?");
+            LOG_ERROR(<< "Time to process last " << NUM_TO_TIME << " messages is negative (-" << (m_Readings.front() - m_Readings.back())
+                      << "ms).  "
+                         "Maybe the system clock has been put back?");
             return -1.0;
         }
 
