@@ -64,12 +64,13 @@ CAnomalyDetectorModel* CMetricPopulationModelFactory::makeModel(const SModelInit
         influenceCalculators.push_back(this->defaultInfluenceCalculators(name, features));
     }
 
-    return new CMetricPopulationModel(this->modelParams(),
-                                      dataGatherer,
-                                      this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false),
-                                      this->defaultCorrelatePriors(features),
-                                      this->defaultCorrelates(features),
-                                      influenceCalculators);
+    return new CMetricPopulationModel(
+        this->modelParams(),
+        dataGatherer,
+        this->defaultFeatureModels(features, dataGatherer->bucketLength(), this->minimumSeasonalVarianceScale(), false),
+        this->defaultCorrelatePriors(features),
+        this->defaultCorrelates(features),
+        influenceCalculators);
 }
 
 CAnomalyDetectorModel* CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initData,
@@ -282,6 +283,10 @@ void CMetricPopulationModelFactory::features(const TFeatureVec& features) {
 
 void CMetricPopulationModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) {
     m_BucketResultsDelay = bucketResultsDelay;
+}
+
+double CMetricPopulationModelFactory::minimumSeasonalVarianceScale() const {
+    return 1.0;
 }
 
 CMetricPopulationModelFactory::TStrCRefVec CMetricPopulationModelFactory::partitioningFields() const {

@@ -959,7 +959,8 @@ bool CHierarchicalResultsVisitor::isPopulation(const TNode& node) {
 
 const CHierarchicalResultsVisitor::TNode* CHierarchicalResultsVisitor::nearestAncestorForWhichWeWriteResults(const TNode& node) {
     const TNode* result = &node;
-    for (result = result->s_Parent; result && !isTypeForWhichWeWriteResults(*result, false); result = result->s_Parent) {}
+    for (result = result->s_Parent; result && !isTypeForWhichWeWriteResults(*result, false); result = result->s_Parent) {
+    }
     return result;
 }
 

@@ -17,6 +17,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 TARGET=$(OBJS_DIR)/libMlModel$(DYNAMIC_LIB_EXT)
 
 USE_BOOST=1
+USE_BOOST_FILESYSTEM_LIBS=1
 USE_RAPIDJSON=1
 USE_EIGEN=1
 
@@ -47,6 +48,7 @@ CEventRatePopulationModel.cc \
 CEventRatePopulationModelFactory.cc \
 CFeatureData.cc \
 CForecastDataSink.cc \
+CForecastModelPersist.cc \
 CGathererTools.cc \
 CHierarchicalResults.cc \
 CHierarchicalResultsAggregator.cc \
