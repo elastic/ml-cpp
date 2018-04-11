@@ -34,11 +34,13 @@ void CModelTest::testAll() {
         double learnRate{0.5};
         double decayRate{0.001};
         double minimumSeasonalVarianceScale{0.3};
-        maths::CModelParams params(bucketLength, learnRate, decayRate, minimumSeasonalVarianceScale);
+        maths::CModelParams params(bucketLength, learnRate, decayRate,
+                                   minimumSeasonalVarianceScale);
         CPPUNIT_ASSERT_EQUAL(bucketLength, params.bucketLength());
         CPPUNIT_ASSERT_EQUAL(learnRate, params.learnRate());
         CPPUNIT_ASSERT_EQUAL(decayRate, params.decayRate());
-        CPPUNIT_ASSERT_EQUAL(minimumSeasonalVarianceScale, params.minimumSeasonalVarianceScale());
+        CPPUNIT_ASSERT_EQUAL(minimumSeasonalVarianceScale,
+                             params.minimumSeasonalVarianceScale());
         CPPUNIT_ASSERT_EQUAL(0.0, params.probabilityBucketEmpty());
         params.probabilityBucketEmpty(0.2);
         CPPUNIT_ASSERT_EQUAL(0.2, params.probabilityBucketEmpty());
@@ -60,8 +62,10 @@ void CModelTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(1.5, params.propagationInterval());
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(maths::CConstantWeights::SEASONAL_VARIANCE),
                              core::CContainerPrinter::print(params.weightStyles()));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(trendWeights), core::CContainerPrinter::print(params.trendWeights()));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(priorWeights), core::CContainerPrinter::print(params.priorWeights()));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(trendWeights),
+                             core::CContainerPrinter::print(params.trendWeights()));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(priorWeights),
+                             core::CContainerPrinter::print(params.priorWeights()));
     }
     {
         maths::CModelProbabilityParams::TDouble2Vec weight1(2, 0.4);
@@ -86,19 +90,23 @@ void CModelTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedAbove, params.calculation(0));
         CPPUNIT_ASSERT_EQUAL(maths_t::E_TwoSided, params.calculation(1));
         CPPUNIT_ASSERT_EQUAL(50.0, params.seasonalConfidenceInterval());
-        CPPUNIT_ASSERT_EQUAL(std::string("[[true, true], [false, true]]"), core::CContainerPrinter::print(params.bucketEmpty()));
+        CPPUNIT_ASSERT_EQUAL(std::string("[[true, true], [false, true]]"),
+                             core::CContainerPrinter::print(params.bucketEmpty()));
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(maths::CConstantWeights::COUNT_VARIANCE),
                              core::CContainerPrinter::print(params.weightStyles()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[[[0.4, 0.4]], [[0.7, 0.7]]]"), core::CContainerPrinter::print(params.weights()));
+        CPPUNIT_ASSERT_EQUAL(std::string("[[[0.4, 0.4]], [[0.7, 0.7]]]"),
+                             core::CContainerPrinter::print(params.weights()));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), *params.mostAnomalousCorrelate());
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 0]"), core::CContainerPrinter::print(params.coordinates()));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1, 0]"),
+                             core::CContainerPrinter::print(params.coordinates()));
     }
 }
 
 CppUnit::Test* CModelTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelTest>("CModelTest::testAll", &CModelTest::testAll));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelTest>(
+        "CModelTest::testAll", &CModelTest::testAll));
 
     return suiteOfTests;
 }

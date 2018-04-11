@@ -80,7 +80,8 @@ size_t CStringCache::CStrHash::operator()(const std::string& str) const {
 }
 
 // Caller is responsible for ensuring that str is not NULL and end > str
-inline CStringCache::CCharPHash::CCharPHash(const char* str, const char* end) : m_Hash(0) {
+inline CStringCache::CCharPHash::CCharPHash(const char* str, const char* end)
+    : m_Hash(0) {
     // It is essential that the result of this hash matches that of the method
     // above
     size_t hash(*str);
@@ -95,11 +96,13 @@ inline size_t CStringCache::CCharPHash::operator()(const char*) const {
     return m_Hash;
 }
 
-inline CStringCache::CCharPStrEqual::CCharPStrEqual(size_t length) : m_Length(length) {
+inline CStringCache::CCharPStrEqual::CCharPStrEqual(size_t length)
+    : m_Length(length) {
 }
 
 // Caller is responsible for ensuring that lhs is not NULL
-inline bool CStringCache::CCharPStrEqual::operator()(const char* lhs, const std::string& rhs) const {
+inline bool CStringCache::CCharPStrEqual::
+operator()(const char* lhs, const std::string& rhs) const {
     return m_Length == rhs.length() && ::memcmp(lhs, rhs.data(), m_Length) == 0;
 }
 }

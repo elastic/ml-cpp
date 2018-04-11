@@ -41,12 +41,15 @@ const std::string ELLIPSIS(3, '.');
 
 const size_t CCategoryExamplesCollector::MAX_EXAMPLE_LENGTH(1000);
 
-CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples) : m_MaxExamples(maxExamples) {
+CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples)
+    : m_MaxExamples(maxExamples) {
 }
 
-CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples, core::CStateRestoreTraverser& traverser)
+CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples,
+                                                       core::CStateRestoreTraverser& traverser)
     : m_MaxExamples(maxExamples) {
-    traverser.traverseSubLevel(boost::bind(&CCategoryExamplesCollector::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(
+        boost::bind(&CCategoryExamplesCollector::acceptRestoreTraverser, this, _1));
 }
 
 bool CCategoryExamplesCollector::add(std::size_t category, const std::string& example) {
@@ -60,12 +63,14 @@ bool CCategoryExamplesCollector::add(std::size_t category, const std::string& ex
     return examplesForCategory.insert(truncateExample(example)).second;
 }
 
-std::size_t CCategoryExamplesCollector::numberOfExamplesForCategory(std::size_t category) const {
+std::size_t
+CCategoryExamplesCollector::numberOfExamplesForCategory(std::size_t category) const {
     auto iterator = m_ExamplesByCategory.find(category);
     return (iterator == m_ExamplesByCategory.end()) ? 0 : iterator->second.size();
 }
 
-const CCategoryExamplesCollector::TStrSet& CCategoryExamplesCollector::examples(std::size_t category) const {
+const CCategoryExamplesCollector::TStrSet&
+CCategoryExamplesCollector::examples(std::size_t category) const {
     auto iterator = m_ExamplesByCategory.find(category);
     if (iterator == m_ExamplesByCategory.end()) {
         return EMPTY_EXAMPLES;
@@ -90,10 +95,10 @@ void CCategoryExamplesCollector::acceptPersistInserter(core::CStatePersistInsert
     std::sort(orderedData.begin(), orderedData.end());
 
     for (const auto& exampleByCategory : orderedData) {
-        inserter.insertLevel(
-            EXAMPLES_BY_CATEGORY_TAG,
-            boost::bind(
-                &CCategoryExamplesCollector::persistExamples, this, exampleByCategory.first, boost::cref(*exampleByCategory.second), _1));
+        inserter.insertLevel(EXAMPLES_BY_CATEGORY_TAG,
+                             boost::bind(&CCategoryExamplesCollector::persistExamples,
+                                         this, exampleByCategory.first,
+                                         boost::cref(*exampleByCategory.second), _1));
     }
 }
 
@@ -111,7 +116,8 @@ bool CCategoryExamplesCollector::acceptRestoreTraverser(core::CStateRestoreTrave
     do {
         const std::string& name = traverser.name();
         if (name == EXAMPLES_BY_CATEGORY_TAG) {
-            if (traverser.traverseSubLevel(boost::bind(&CCategoryExamplesCollector::restoreExamples, this, _1)) == false) {
+            if (traverser.traverseSubLevel(boost::bind(
+                    &CCategoryExamplesCollector::restoreExamples, this, _1)) == false) {
                 LOG_ERROR(<< "Error restoring examples by category");
                 return false;
             }
@@ -136,7 +142,8 @@ bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser& t
         }
     } while (traverser.next());
 
-    LOG_TRACE(<< "Restoring examples for category " << category << ": " << core::CContainerPrinter::print(examples));
+    LOG_TRACE(<< "Restoring examples for category " << category << ": "
+              << core::CContainerPrinter::print(examples));
     m_ExamplesByCategory[category].swap(examples);
 
     return true;
@@ -151,7 +158,8 @@ std::string CCategoryExamplesCollector::truncateExample(std::string example) {
         size_t replacePos(MAX_EXAMPLE_LENGTH - ELLIPSIS.length());
 
         // Ensure truncation doesn't result in a partial UTF-8 character
-        while (replacePos > 0 && core::CStringUtils::utf8ByteType(example[replacePos]) == -1) {
+        while (replacePos > 0 &&
+               core::CStringUtils::utf8ByteType(example[replacePos]) == -1) {
             --replacePos;
         }
         example.replace(replacePos, example.length() - replacePos, ELLIPSIS);

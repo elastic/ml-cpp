@@ -129,7 +129,8 @@ CWordDictionary::CWordDictionary() {
                 continue;
             }
             if (sepPos == 0) {
-                LOG_ERROR(<< "Found part-of-speech separator with no preceding word: " << word);
+                LOG_ERROR(
+                    << "Found part-of-speech separator with no preceding word: " << word);
                 continue;
             }
             if (sepPos + 1 >= word.length()) {
@@ -139,7 +140,8 @@ CWordDictionary::CWordDictionary() {
             char partOfSpeechCode(word[sepPos + 1]);
             EPartOfSpeech partOfSpeech(partOfSpeechFromCode(partOfSpeechCode));
             if (partOfSpeech == E_NotInDictionary) {
-                LOG_ERROR(<< "Unknown part-of-speech code (" << partOfSpeechCode << ") for word: " << word);
+                LOG_ERROR(<< "Unknown part-of-speech code (" << partOfSpeechCode
+                          << ") for word: " << word);
                 continue;
             }
             word.erase(sepPos);
@@ -167,8 +169,10 @@ size_t CWordDictionary::CStrHashIgnoreCase::operator()(const std::string& str) c
     return hash;
 }
 
-bool CWordDictionary::CStrEqualIgnoreCase::operator()(const std::string& lhs, const std::string& rhs) const {
-    return lhs.length() == rhs.length() && CStrCaseCmp::strCaseCmp(lhs.c_str(), rhs.c_str()) == 0;
+bool CWordDictionary::CStrEqualIgnoreCase::
+operator()(const std::string& lhs, const std::string& rhs) const {
+    return lhs.length() == rhs.length() &&
+           CStrCaseCmp::strCaseCmp(lhs.c_str(), rhs.c_str()) == 0;
 }
 }
 }

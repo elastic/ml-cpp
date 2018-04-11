@@ -23,10 +23,12 @@
 #include <model/CStringStore.h>
 
 CppUnit::Test* CHierarchicalResultsLevelSetTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsLevelSetTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CHierarchicalResultsLevelSetTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsLevelSetTest>(
-        "CHierarchicalResultsLevelSetTest::testElementsWithPerPartitionNormalisation",
+        "CHierarchicalResultsLevelSetTest::"
+        "testElementsWithPerPartitionNormalisation",
         &CHierarchicalResultsLevelSetTest::testElementsWithPerPartitionNormalisation));
 
     return suiteOfTests;
@@ -42,21 +44,30 @@ class CTestNodeFactory {
 public:
     CTestNodeFactory() {}
 
-    TestNode make(const std::string& name1, const std::string& name2, const std::string& name3, const std::string& name4) const {
+    TestNode make(const std::string& name1,
+                  const std::string& name2,
+                  const std::string& name3,
+                  const std::string& name4) const {
         return make(name1 + ' ' + name2 + ' ' + name3 + ' ' + name4);
     }
 
-    TestNode make(const std::string& name1, const std::string& name2) const { return make(name1 + ' ' + name2); }
+    TestNode make(const std::string& name1, const std::string& name2) const {
+        return make(name1 + ' ' + name2);
+    }
 
     TestNode make(const std::string& name) const { return TestNode(name); }
 };
 
-class CConcreteHierarchicalResultsLevelSet : public ml::model::CHierarchicalResultsLevelSet<TestNode> {
+class CConcreteHierarchicalResultsLevelSet
+    : public ml::model::CHierarchicalResultsLevelSet<TestNode> {
 public:
-    CConcreteHierarchicalResultsLevelSet(const TestNode& root) : ml::model::CHierarchicalResultsLevelSet<TestNode>(root) {}
+    CConcreteHierarchicalResultsLevelSet(const TestNode& root)
+        : ml::model::CHierarchicalResultsLevelSet<TestNode>(root) {}
 
     //! Visit a node.
-    virtual void visit(const ml::model::CHierarchicalResults& /*results*/, const TNode& /*node*/, bool /*pivot*/) {}
+    virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
+                       const TNode& /*node*/,
+                       bool /*pivot*/) {}
 
     // make public
     using ml::model::CHierarchicalResultsLevelSet<TestNode>::elements;
@@ -72,14 +83,18 @@ void CHierarchicalResultsLevelSetTest::testElementsWithPerPartitionNormalisation
     // different to other empty string pointers.  (In general, if you need
     // a pointer to an empty string call CStringStore::getEmpty() instead of
     // doing this.)
-    ml::core::CStoredStringPtr UNSET = ml::core::CStoredStringPtr::makeStoredString(std::string());
+    ml::core::CStoredStringPtr UNSET =
+        ml::core::CStoredStringPtr::makeStoredString(std::string());
     ml::core::CStoredStringPtr PARTITION_A = ml::model::CStringStore::names().get("pA");
     ml::core::CStoredStringPtr PARTITION_B = ml::model::CStringStore::names().get("pB");
     ml::core::CStoredStringPtr PARTITION_C = ml::model::CStringStore::names().get("pC");
 
-    ml::core::CStoredStringPtr PARTITION_VALUE_1 = ml::model::CStringStore::names().get("v1");
-    ml::core::CStoredStringPtr PARTITION_VALUE_2 = ml::model::CStringStore::names().get("v2");
-    ml::core::CStoredStringPtr PARTITION_VALUE_3 = ml::model::CStringStore::names().get("v3");
+    ml::core::CStoredStringPtr PARTITION_VALUE_1 =
+        ml::model::CStringStore::names().get("v1");
+    ml::core::CStoredStringPtr PARTITION_VALUE_2 =
+        ml::model::CStringStore::names().get("v2");
+    ml::core::CStoredStringPtr PARTITION_VALUE_3 =
+        ml::model::CStringStore::names().get("v3");
 
     TestNode root("root");
 

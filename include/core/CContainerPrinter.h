@@ -140,7 +140,9 @@ private:
     }
 
     //! Fast CStringUtil implementation.
-    inline static std::string print_(bool value, true_ /*is arithmetic*/) { return CStringUtils::typeToStringPretty(value); }
+    inline static std::string print_(bool value, true_ /*is arithmetic*/) {
+        return CStringUtils::typeToStringPretty(value);
+    }
 
     //! Slow std::ostringstream stream implementation.
     template<typename T>
@@ -311,7 +313,8 @@ private:
     template<typename U, typename V>
     static std::string printElement(const std::pair<U, V>& value) {
         std::ostringstream result;
-        result << "(" << printElement(boost::unwrap_ref(value.first)) << ", " << printElement(boost::unwrap_ref(value.second)) << ")";
+        result << "(" << printElement(boost::unwrap_ref(value.first)) << ", "
+               << printElement(boost::unwrap_ref(value.second)) << ")";
         return result.str();
     }
 
@@ -354,7 +357,8 @@ public:
     //! Print a STL compliant container for debug.
     template<typename CONTAINER>
     static std::string print(const CONTAINER& container) {
-        return print(boost::unwrap_ref(container).begin(), boost::unwrap_ref(container).end());
+        return print(boost::unwrap_ref(container).begin(),
+                     boost::unwrap_ref(container).end());
     }
 
     //! Specialization for arrays.

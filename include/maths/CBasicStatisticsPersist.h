@@ -122,7 +122,8 @@ bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std:
         }
 
         if (!basic_statistics_detail::stringToType(token, s_Moments[index++])) {
-            LOG_ERROR(<< "Invalid moment " << index << " : element " << token << " in " << str);
+            LOG_ERROR(<< "Invalid moment " << index << " : element " << token
+                      << " in " << str);
             return false;
         }
 
@@ -187,8 +188,8 @@ bool CBasicStatistics::SSampleCovariances<T, N>::fromDelimited(std::string str) 
 
 template<typename T, std::size_t N>
 std::string CBasicStatistics::SSampleCovariances<T, N>::toDelimited() const {
-    return s_Count.toDelimited() + CLinearAlgebra::DELIMITER + s_Mean.toDelimited() + CLinearAlgebra::DELIMITER +
-           s_Covariances.toDelimited();
+    return s_Count.toDelimited() + CLinearAlgebra::DELIMITER + s_Mean.toDelimited() +
+           CLinearAlgebra::DELIMITER + s_Covariances.toDelimited();
 }
 
 template<typename T, std::size_t N>
@@ -235,7 +236,8 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(c
     m_Statistics[--m_UnusedCount] = statistic;
 
     while (delimPos != value.size()) {
-        std::size_t nextDelimPos{std::min(value.find(INTERNAL_DELIMITER, delimPos + 1), value.size())};
+        std::size_t nextDelimPos{
+            std::min(value.find(INTERNAL_DELIMITER, delimPos + 1), value.size())};
         statistic_.assign(value, delimPos + 1, nextDelimPos - delimPos - 1);
         if (basic_statistics_detail::stringToType(statistic_, statistic) == false) {
             LOG_ERROR(<< "Invalid statistic '" << statistic_ << "' in '" << value << "'");
@@ -249,7 +251,8 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(c
 }
 
 template<typename T, typename CONTAINER, typename LESS>
-std::string CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited() const {
+std::string
+CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited() const {
     if (this->count() == 0) {
         return std::string{};
     }
@@ -263,7 +266,8 @@ std::string CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimi
 }
 
 template<typename T, typename CONTAINER, typename LESS>
-uint64_t CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(uint64_t seed) const {
+uint64_t
+CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(uint64_t seed) const {
     if (this->count() == 0) {
         return seed;
     }

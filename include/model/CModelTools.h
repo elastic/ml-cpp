@@ -67,7 +67,8 @@ public:
     using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
     using TTimeDouble2VecPr = std::pair<core_t::TTime, TDouble2Vec>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-    using TStoredStringPtrStoredStringPtrPr = std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
+    using TStoredStringPtrStoredStringPtrPr =
+        std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
     using TSampleVec = std::vector<CSample>;
 
     //! \brief De-duplicates nearly equal values.
@@ -85,7 +86,8 @@ public:
         struct MODEL_EXPORT SDuplicateValueHash {
             std::size_t operator()(const TTimeDouble2VecPr& value) const;
         };
-        using TTimeDouble2VecPrSizeUMap = boost::unordered_map<TTimeDouble2VecPr, std::size_t, SDuplicateValueHash>;
+        using TTimeDouble2VecPrSizeUMap =
+            boost::unordered_map<TTimeDouble2VecPr, std::size_t, SDuplicateValueHash>;
 
     private:
         //! Quantize \p value.
@@ -113,15 +115,17 @@ public:
     //! \brief Hashes a string pointer pair.
     struct MODEL_EXPORT SStoredStringPtrStoredStringPtrPrHash {
         std::size_t operator()(const TStoredStringPtrStoredStringPtrPr& target) const {
-            return static_cast<std::size_t>(core::CHashing::hashCombine(static_cast<uint64_t>(s_Hasher(*target.first)),
-                                                                        static_cast<uint64_t>(s_Hasher(*target.second))));
+            return static_cast<std::size_t>(core::CHashing::hashCombine(
+                static_cast<uint64_t>(s_Hasher(*target.first)),
+                static_cast<uint64_t>(s_Hasher(*target.second))));
         }
         core::CHashing::CMurmurHash2String s_Hasher;
     };
 
     //! \brief Compares two string pointer pairs.
     struct MODEL_EXPORT SStoredStringPtrStoredStringPtrPrEqual {
-        std::size_t operator()(const TStoredStringPtrStoredStringPtrPr& lhs, const TStoredStringPtrStoredStringPtrPr& rhs) const {
+        std::size_t operator()(const TStoredStringPtrStoredStringPtrPr& lhs,
+                               const TStoredStringPtrStoredStringPtrPr& rhs) const {
             return *lhs.first == *rhs.first && *lhs.second == *rhs.second;
         }
     };
@@ -136,7 +140,8 @@ public:
     //! aggregation styles.
     class MODEL_EXPORT CProbabilityAggregator {
     public:
-        using TAggregator = boost::variant<maths::CJointProbabilityOfLessLikelySamples, maths::CProbabilityOfExtremeSample>;
+        using TAggregator =
+            boost::variant<maths::CJointProbabilityOfLessLikelySamples, maths::CProbabilityOfExtremeSample>;
         using TAggregatorDoublePr = std::pair<TAggregator, double>;
         using TAggregatorDoublePrVec = std::vector<TAggregatorDoublePr>;
 
@@ -168,10 +173,8 @@ public:
         TAggregatorDoublePrVec m_Aggregators;
     };
 
-    using TStoredStringPtrStoredStringPtrPrProbabilityAggregatorUMap = boost::unordered_map<TStoredStringPtrStoredStringPtrPr,
-                                                                                            CProbabilityAggregator,
-                                                                                            SStoredStringPtrStoredStringPtrPrHash,
-                                                                                            SStoredStringPtrStoredStringPtrPrEqual>;
+    using TStoredStringPtrStoredStringPtrPrProbabilityAggregatorUMap =
+        boost::unordered_map<TStoredStringPtrStoredStringPtrPr, CProbabilityAggregator, SStoredStringPtrStoredStringPtrPrHash, SStoredStringPtrStoredStringPtrPrEqual>;
 
     //! Wraps up the calculation of less likely probabilities for a
     //! multinomial distribution.
@@ -299,7 +302,8 @@ public:
         };
 
         using TFeatureSizePr = std::pair<model_t::EFeature, std::size_t>;
-        using TFeatureSizePrProbabilityCacheUMap = boost::unordered_map<TFeatureSizePr, SProbabilityCache>;
+        using TFeatureSizePrProbabilityCacheUMap =
+            boost::unordered_map<TFeatureSizePr, SProbabilityCache>;
 
     private:
         //! The maximum relative error we'll tolerate in the probability.

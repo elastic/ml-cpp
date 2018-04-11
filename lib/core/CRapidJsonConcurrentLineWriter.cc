@@ -18,7 +18,8 @@
 namespace ml {
 namespace core {
 
-CRapidJsonConcurrentLineWriter::CRapidJsonConcurrentLineWriter(CJsonOutputStreamWrapper& outStream) : m_OutputStreamWrapper(outStream) {
+CRapidJsonConcurrentLineWriter::CRapidJsonConcurrentLineWriter(CJsonOutputStreamWrapper& outStream)
+    : m_OutputStreamWrapper(outStream) {
     m_OutputStreamWrapper.acquireBuffer(*this, m_StringBuffer);
 }
 

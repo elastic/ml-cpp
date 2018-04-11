@@ -123,12 +123,17 @@ protected:
     //! respectively, in \p data if it exists. Returns the end of the
     //! vector if it doesn't.
     template<typename T>
-    static typename T::const_iterator find(const T& data, std::size_t pid, std::size_t cid);
+    static typename T::const_iterator
+    find(const T& data, std::size_t pid, std::size_t cid);
 
     //! Extract the bucket value for count feature data.
-    static inline TDouble1Vec extractValue(model_t::EFeature /*feature*/, const std::pair<TSizeSizePr, SEventRateFeatureData>& data);
+    static inline TDouble1Vec
+    extractValue(model_t::EFeature /*feature*/,
+                 const std::pair<TSizeSizePr, SEventRateFeatureData>& data);
     //! Extract the bucket value for metric feature data.
-    static inline TDouble1Vec extractValue(model_t::EFeature feature, const std::pair<TSizeSizePr, SMetricFeatureData>& data);
+    static inline TDouble1Vec
+    extractValue(model_t::EFeature feature,
+                 const std::pair<TSizeSizePr, SMetricFeatureData>& data);
     //@}
 
 public:
@@ -151,10 +156,14 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleOutOfPhase(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sampleOutOfPhase(core_t::TTime startTime,
+                                  core_t::TTime endTime,
+                                  CResourceMonitor& resourceMonitor);
 
     //! Update the rates for \p feature and \p people.
-    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
+    virtual void sample(core_t::TTime startTime,
+                        core_t::TTime endTime,
+                        CResourceMonitor& resourceMonitor) = 0;
     //@}
 
     //! Get the checksum of this model.
@@ -187,7 +196,10 @@ protected:
     //! \brief A key for the partial bucket corrections map.
     class MODEL_EXPORT CCorrectionKey {
     public:
-        CCorrectionKey(model_t::EFeature feature, std::size_t pid, std::size_t cid, std::size_t correlated = 0);
+        CCorrectionKey(model_t::EFeature feature,
+                       std::size_t pid,
+                       std::size_t cid,
+                       std::size_t correlated = 0);
         bool operator==(const CCorrectionKey& rhs) const;
         std::size_t hash() const;
 
@@ -200,9 +212,12 @@ protected:
 
     //! \brief A hasher for the partial bucket corrections map key.
     struct MODEL_EXPORT CHashCorrectionKey {
-        std::size_t operator()(const CCorrectionKey& key) const { return key.hash(); }
+        std::size_t operator()(const CCorrectionKey& key) const {
+            return key.hash();
+        }
     };
-    using TCorrectionKeyDouble1VecUMap = boost::unordered_map<CCorrectionKey, TDouble1Vec, CHashCorrectionKey>;
+    using TCorrectionKeyDouble1VecUMap =
+        boost::unordered_map<CCorrectionKey, TDouble1Vec, CHashCorrectionKey>;
 
 protected:
     //! Persist state by passing information to the supplied inserter.
@@ -229,10 +244,12 @@ protected:
     virtual void updateRecycledModels() = 0;
 
     //! Update the correlation models.
-    virtual void refreshCorrelationModels(std::size_t resourceLimit, CResourceMonitor& resourceMonitor) = 0;
+    virtual void refreshCorrelationModels(std::size_t resourceLimit,
+                                          CResourceMonitor& resourceMonitor) = 0;
 
     //! Clear out large state objects for people/attributes that are pruned.
-    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
+    virtual void
+    clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
 
     //! Correct \p baseline with \p corrections for interim results.
     void correctBaselineForInterim(model_t::EFeature feature,
@@ -249,7 +266,10 @@ protected:
     //! Remove heavy hitting people and attributes from the feature
     //! data if necessary.
     template<typename T, typename PERSON_FILTER, typename ATTRIBUTE_FILTER>
-    void applyFilters(bool updateStatistics, const PERSON_FILTER& personFilter, const ATTRIBUTE_FILTER& attributeFilter, T& data) const;
+    void applyFilters(bool updateStatistics,
+                      const PERSON_FILTER& personFilter,
+                      const ATTRIBUTE_FILTER& attributeFilter,
+                      T& data) const;
 
     //! Get the first time each attribute was seen.
     const TTimeVec& attributeFirstBucketTimes() const;
@@ -257,8 +277,10 @@ protected:
     const TTimeVec& attributeLastBucketTimes() const;
 
     //! Get the people and attributes to remove if any.
-    void
-    peopleAndAttributesToRemove(core_t::TTime time, std::size_t maximumAge, TSizeVec& peopleToRemove, TSizeVec& attributesToRemove) const;
+    void peopleAndAttributesToRemove(core_t::TTime time,
+                                     std::size_t maximumAge,
+                                     TSizeVec& peopleToRemove,
+                                     TSizeVec& attributesToRemove) const;
 
     //! Remove the \p people.
     void removePeople(const TSizeVec& peopleToRemove);

@@ -19,14 +19,15 @@
 #include <core/CResourceLocator.h>
 
 CppUnit::Test* CResourceLocatorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceLocatorTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CResourceLocatorTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CResourceLocatorTest>("CResourceLocatorTest::testResourceDir", &CResourceLocatorTest::testResourceDir));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CResourceLocatorTest>("CResourceLocatorTest::testLogDir", &CResourceLocatorTest::testLogDir));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CResourceLocatorTest>("CResourceLocatorTest::testSrcRootDir", &CResourceLocatorTest::testSrcRootDir));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLocatorTest>(
+        "CResourceLocatorTest::testResourceDir", &CResourceLocatorTest::testResourceDir));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLocatorTest>(
+        "CResourceLocatorTest::testLogDir", &CResourceLocatorTest::testLogDir));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLocatorTest>(
+        "CResourceLocatorTest::testSrcRootDir", &CResourceLocatorTest::testSrcRootDir));
 
     return suiteOfTests;
 }
@@ -37,7 +38,8 @@ void CResourceLocatorTest::testResourceDir() {
 
     // It should contain the file ml-en.dict
     ml::core::COsFileFuncs::TStat buf;
-    CPPUNIT_ASSERT_EQUAL(0, ml::core::COsFileFuncs::stat((resourceDir + "/ml-en.dict").c_str(), &buf));
+    CPPUNIT_ASSERT_EQUAL(
+        0, ml::core::COsFileFuncs::stat((resourceDir + "/ml-en.dict").c_str(), &buf));
 }
 
 void CResourceLocatorTest::testLogDir() {
@@ -54,5 +56,6 @@ void CResourceLocatorTest::testSrcRootDir() {
 
     // It should contain the file set_env.sh
     ml::core::COsFileFuncs::TStat buf;
-    CPPUNIT_ASSERT_EQUAL(0, ml::core::COsFileFuncs::stat((cppRootDir + "/set_env.sh").c_str(), &buf));
+    CPPUNIT_ASSERT_EQUAL(
+        0, ml::core::COsFileFuncs::stat((cppRootDir + "/set_env.sh").c_str(), &buf));
 }

@@ -19,9 +19,11 @@
 #include <boost/threadpool.hpp>
 
 CppUnit::Test* CThreadPoolTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CThreadPoolTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CThreadPoolTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadPoolTest>("CThreadPoolTest::testPool", &CThreadPoolTest::testPool));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadPoolTest>(
+        "CThreadPoolTest::testPool", &CThreadPoolTest::testPool));
 
     return suiteOfTests;
 }

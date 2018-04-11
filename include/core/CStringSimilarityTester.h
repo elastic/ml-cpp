@@ -89,8 +89,11 @@ public:
 
     //! Calculate how similar two strings are in the case where
     //! we already know their individual compressed lengths
-    bool
-    similarity(const std::string& first, size_t firstCompLength, const std::string& second, size_t secondCompLength, double& result) const;
+    bool similarity(const std::string& first,
+                    size_t firstCompLength,
+                    const std::string& second,
+                    size_t secondCompLength,
+                    double& result) const;
 
     //! Remove those characters from a string that cause a provided
     //! predicate to return true (can be used with ctype.h functions
@@ -100,7 +103,8 @@ public:
         std::string stripped;
         stripped.reserve(original.size());
 
-        std::remove_copy_if(original.begin(), original.end(), std::back_inserter(stripped), excludePred);
+        std::remove_copy_if(original.begin(), original.end(),
+                            std::back_inserter(stripped), excludePred);
 
         return stripped;
     }
@@ -108,8 +112,12 @@ public:
     //! Calculate how similar two strings are, excluding
     //! certain characters
     template<typename PREDICATE>
-    bool similarityEx(const std::string& first, const std::string& second, PREDICATE excludePred, double& result) const {
-        return this->similarity(this->strippedString(first, excludePred), this->strippedString(second, excludePred), result);
+    bool similarityEx(const std::string& first,
+                      const std::string& second,
+                      PREDICATE excludePred,
+                      double& result) const {
+        return this->similarity(this->strippedString(first, excludePred),
+                                this->strippedString(second, excludePred), result);
     }
 
     //! Find the length of the compressed version of a string - note
@@ -119,8 +127,11 @@ public:
     //! Calculate the Levenshtein distance between two strings,
     //! excluding certain characters
     template<typename STRINGLIKE, typename PREDICATE>
-    size_t levenshteinDistanceEx(const STRINGLIKE& first, const STRINGLIKE& second, PREDICATE excludePred) const {
-        return this->levenshteinDistance(this->strippedString(first, excludePred), this->strippedString(second, excludePred));
+    size_t levenshteinDistanceEx(const STRINGLIKE& first,
+                                 const STRINGLIKE& second,
+                                 PREDICATE excludePred) const {
+        return this->levenshteinDistance(this->strippedString(first, excludePred),
+                                         this->strippedString(second, excludePred));
     }
 
     //! Calculate the Levenshtein distance between two strings or
@@ -200,7 +211,8 @@ public:
     //! TODO - It may be possible to apply some of the lesser optimisations
     //! from section 2 of Ukkonen's paper to this algorithm.
     template<typename PAIRCONTAINER>
-    size_t weightedEditDistance(const PAIRCONTAINER& first, const PAIRCONTAINER& second) const {
+    size_t
+    weightedEditDistance(const PAIRCONTAINER& first, const PAIRCONTAINER& second) const {
         // This is similar to the levenshteinDistanceSimple() method below,
         // but adding the concept of different costs for each element.  If
         // you are trying to understand this method, you should first make
@@ -238,7 +250,8 @@ public:
         // Populate the left column
         currentCol[0] = 0;
         for (size_t downMinusOne = 0; downMinusOne < secondLen; ++downMinusOne) {
-            currentCol[downMinusOne + 1] = currentCol[downMinusOne] + second[downMinusOne].second;
+            currentCol[downMinusOne + 1] = currentCol[downMinusOne] +
+                                           second[downMinusOne].second;
         }
 
         // Calculate the other entries in the matrix
@@ -266,8 +279,11 @@ public:
                 // OR
                 //    No extra cost in the case where the corresponding
                 //    elements are equal
-                size_t option3(prevCol[downMinusOne] +
-                               ((first[acrossMinusOne].first == second[downMinusOne].first) ? 0 : std::max(firstCost, secondCost)));
+                size_t option3(
+                    prevCol[downMinusOne] +
+                    ((first[acrossMinusOne].first == second[downMinusOne].first)
+                         ? 0
+                         : std::max(firstCost, secondCost)));
 
                 // Take the cheapest option of the 3
                 currentCol[downMinusOne + 1] = std::min(std::min(option1, option2), option3);
@@ -284,7 +300,8 @@ private:
     //! assumes that first.size() > 0 and second.size() > 0.  However,
     //! it's best if second.size() >= first.size() in addition.
     template<typename STRINGLIKE>
-    size_t levenshteinDistanceSimple(const STRINGLIKE& first, const STRINGLIKE& second) const {
+    size_t
+    levenshteinDistanceSimple(const STRINGLIKE& first, const STRINGLIKE& second) const {
         // This method implements the simple algorithm for calculating
         // Levenshtein distance.
         //
@@ -338,7 +355,8 @@ private:
                     size_t option3(prevCol[downMinusOne]);
 
                     // Take the cheapest option of the 3
-                    currentCol[downMinusOne + 1] = std::min(std::min(option1, option2), option3) + 1;
+                    currentCol[downMinusOne + 1] =
+                        std::min(std::min(option1, option2), option3) + 1;
                 }
             }
         }
@@ -352,7 +370,8 @@ private:
     //! This private method assumes that first.size() > 0 and
     //! second.size() >= first.size().
     template<typename STRINGLIKE>
-    size_t berghelRoachEditDistance(const STRINGLIKE& first, const STRINGLIKE& second) const {
+    size_t
+    berghelRoachEditDistance(const STRINGLIKE& first, const STRINGLIKE& second) const {
         // We need to do the calculation using signed variables
         int shortLen(static_cast<int>(first.size()));
         int maxDist(static_cast<int>(second.size()));
@@ -401,7 +420,8 @@ private:
     //! Helper function for the Berghel-Roach edit distance algorithm.  This
     //! is called f(k, p) in http://berghel.net/publications/asm/asm.pdf
     template<typename STRINGLIKE>
-    void calcDist(const STRINGLIKE& first, const STRINGLIKE& second, int row, int column, int** matrix) const {
+    void
+    calcDist(const STRINGLIKE& first, const STRINGLIKE& second, int row, int column, int** matrix) const {
         // 1) Substitution
         int option1(matrix[row][column - 1] + 1);
 
@@ -415,7 +435,8 @@ private:
         int option3(matrix[row + 1][column - 1] + 1);
 
         int t(std::max(std::max(option1, option2), option3));
-        int limit(std::min(static_cast<int>(first.size()), static_cast<int>(second.size()) - row));
+        int limit(std::min(static_cast<int>(first.size()),
+                           static_cast<int>(second.size()) - row));
         while (t < limit && first[t] == second[t + row]) {
             ++t;
         }
@@ -424,7 +445,8 @@ private:
 
     //! Setup the matrices needed for the Berghel-Roach method of
     //! calculating edit distance
-    static int** setupBerghelRoachMatrix(int longLen, TScopedIntArray& data, TScopedIntPArray& matrix);
+    static int**
+    setupBerghelRoachMatrix(int longLen, TScopedIntArray& data, TScopedIntPArray& matrix);
 
 private:
     //! Required for initialisation of the Berghel-Roach matrix (don't call

@@ -147,7 +147,8 @@ private:
     //! Compute the penalty based on a detector's field's statistics.
     //!
     //! \note No-op unless a derived class overrides it.
-    virtual void penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const;
+    virtual void
+    penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const;
 
     //! Compute a penalty based a complete detector specification.
     //!

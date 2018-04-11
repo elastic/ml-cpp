@@ -18,10 +18,12 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 
 CppUnit::Test* CRapidXmlStatePersistInserterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidXmlStatePersistInserterTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CRapidXmlStatePersistInserterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlStatePersistInserterTest>("CRapidXmlStatePersistInserterTest::testPersist",
-                                                                                     &CRapidXmlStatePersistInserterTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlStatePersistInserterTest>(
+        "CRapidXmlStatePersistInserterTest::testPersist",
+        &CRapidXmlStatePersistInserterTest::testPersist));
 
     return suiteOfTests;
 }
@@ -51,8 +53,10 @@ void CRapidXmlStatePersistInserterTest::testPersist() {
     LOG_DEBUG(<< "XML is: " << xml);
 
     inserter.toXml(false, xml);
-    CPPUNIT_ASSERT_EQUAL(std::string("<root attr1=\"attrVal1\" "
-                                     "attr2=\"attrVal2\"><level1A>a</level1A><level1B>25</level1B><level1C><level2A>3.14</"
-                                     "level2A><level2B>z</level2B></level1C></root>"),
-                         xml);
+    CPPUNIT_ASSERT_EQUAL(
+        std::string("<root attr1=\"attrVal1\" "
+                    "attr2=\"attrVal2\"><level1A>a</level1A><level1B>25</"
+                    "level1B><level1C><level2A>3.14</"
+                    "level2A><level2B>z</level2B></level1C></root>"),
+        xml);
 }

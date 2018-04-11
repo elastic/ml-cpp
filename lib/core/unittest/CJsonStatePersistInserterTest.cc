@@ -21,10 +21,12 @@
 #include <sstream>
 
 CppUnit::Test* CJsonStatePersistInserterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonStatePersistInserterTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CJsonStatePersistInserterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonStatePersistInserterTest>("CJsonStatePersistInserterTest::testPersist",
-                                                                                 &CJsonStatePersistInserterTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonStatePersistInserterTest>(
+        "CJsonStatePersistInserterTest::testPersist",
+        &CJsonStatePersistInserterTest::testPersist));
 
     return suiteOfTests;
 }
@@ -53,5 +55,8 @@ void CJsonStatePersistInserterTest::testPersist() {
 
     LOG_DEBUG(<< "JSON is: " << json);
 
-    CPPUNIT_ASSERT_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"), json);
+    CPPUNIT_ASSERT_EQUAL(
+        std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{"
+                    "\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
+        json);
 }

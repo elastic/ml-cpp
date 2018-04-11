@@ -28,18 +28,13 @@ namespace core {
 const size_t CDualThreadStreamBuf::DEFAULT_BUFFER_CAPACITY(65536);
 
 CDualThreadStreamBuf::CDualThreadStreamBuf(size_t bufferCapacity)
-    : m_WriteBuffer(new char[bufferCapacity]),
-      m_WriteBufferCapacity(bufferCapacity),
-      m_ReadBuffer(new char[bufferCapacity]),
-      m_ReadBufferCapacity(bufferCapacity),
+    : m_WriteBuffer(new char[bufferCapacity]), m_WriteBufferCapacity(bufferCapacity),
+      m_ReadBuffer(new char[bufferCapacity]), m_ReadBufferCapacity(bufferCapacity),
       m_IntermediateBuffer(new char[bufferCapacity]),
       m_IntermediateBufferCapacity(bufferCapacity),
-      m_IntermediateBufferEnd(m_IntermediateBuffer.get()),
-      m_ReadBytesSwapped(0),
-      m_WriteBytesSwapped(0),
-      m_IntermediateBufferCondition(m_IntermediateBufferMutex),
-      m_Eof(false),
-      m_FatalError(false) {
+      m_IntermediateBufferEnd(m_IntermediateBuffer.get()), m_ReadBytesSwapped(0),
+      m_WriteBytesSwapped(0), m_IntermediateBufferCondition(m_IntermediateBufferMutex),
+      m_Eof(false), m_FatalError(false) {
     // Initialise write buffer pointers to indicate an empty buffer
     char* begin(m_WriteBuffer.get());
     char* end(begin + m_WriteBufferCapacity);
@@ -230,7 +225,8 @@ std::streamsize CDualThreadStreamBuf::xsputn(const char* s, std::streamsize n) {
     std::streamsize ret(0);
 
     if (m_Eof) {
-        LOG_ERROR(<< "Inconsistency - trying to add data to stream buffer after end-of-file");
+        LOG_ERROR(<< "Inconsistency - trying to add data to stream buffer "
+                     "after end-of-file");
         return ret;
     }
 
@@ -283,7 +279,9 @@ int CDualThreadStreamBuf::overflow(int c) {
     return ret;
 }
 
-std::streampos CDualThreadStreamBuf::seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which) {
+std::streampos CDualThreadStreamBuf::seekoff(std::streamoff off,
+                                             std::ios_base::seekdir way,
+                                             std::ios_base::openmode which) {
     std::streampos pos(static_cast<std::streampos>(-1));
 
     if (off != 0) {
@@ -292,7 +290,8 @@ std::streampos CDualThreadStreamBuf::seekoff(std::streamoff off, std::ios_base::
     }
 
     if (way != std::ios_base::cur) {
-        LOG_ERROR(<< "Seeking from beginning or end not supported on stream buffer");
+        LOG_ERROR(
+            << "Seeking from beginning or end not supported on stream buffer");
         return pos;
     }
 
@@ -353,7 +352,8 @@ bool CDualThreadStreamBuf::swapReadBuffer() {
         if (!m_Eof) {
             LOG_ERROR(<< "Inconsistency - intermediate buffer empty after wait "
                          "when not at end-of-file: begin = "
-                      << static_cast<void*>(begin) << " end = " << static_cast<void*>(end));
+                      << static_cast<void*>(begin)
+                      << " end = " << static_cast<void*>(end));
         }
         return false;
     }

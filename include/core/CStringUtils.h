@@ -72,7 +72,8 @@ public:
 
     //! For types other than double, default conversions are precise
     template<typename T>
-    static std::string typeToStringPrecise(const T& type, CIEEE754::EPrecision /*precision*/) {
+    static std::string
+    typeToStringPrecise(const T& type, CIEEE754::EPrecision /*precision*/) {
         return CStringUtils::_typeToString(type);
     }
 
@@ -110,7 +111,8 @@ public:
     //! Joins the strings in the range with the \p delimiter.
     //! ITR must be a forward iterator that dereferences to std::string.
     template<typename ITR>
-    static void join(ITR begin, ITR end, const std::string& delimiter, std::string& output) {
+    static void
+    join(ITR begin, ITR end, const std::string& delimiter, std::string& output) {
         if (begin == end) {
             return;
         }
@@ -142,11 +144,13 @@ public:
     static std::string normaliseWhitespace(const std::string& str);
 
     //! Find and replace a string within another string
-    static size_t replace(const std::string& from, const std::string& to, std::string& str);
+    static size_t
+    replace(const std::string& from, const std::string& to, std::string& str);
 
     //! Find and replace the first occurrence (only) of a string within
     //! another string
-    static size_t replaceFirst(const std::string& from, const std::string& to, std::string& str);
+    static size_t
+    replaceFirst(const std::string& from, const std::string& to, std::string& str);
 
     //! Escape a specified set of characters in a string
     static void escape(char escape, const std::string& toEscape, std::string& str);
@@ -157,13 +161,16 @@ public:
     //! Tokenise a std::string based on a delimiter.
     //! This does NOT behave like strtok - it matches
     //! the entire delimiter not just characters in it
-    static void tokenise(const std::string& delim, const std::string& str, TStrVec& tokens, std::string& remainder);
+    static void
+    tokenise(const std::string& delim, const std::string& str, TStrVec& tokens, std::string& remainder);
 
     //! Find the longest common substring of two strings
-    static std::string longestCommonSubstr(const std::string& str1, const std::string& str2);
+    static std::string
+    longestCommonSubstr(const std::string& str1, const std::string& str2);
 
     //! Find the longest common subsequence of two strings
-    static std::string longestCommonSubsequence(const std::string& str1, const std::string& str2);
+    static std::string
+    longestCommonSubsequence(const std::string& str1, const std::string& str2);
 
     //! Convert between wide and narrow strings.
     //! There's currently no clever processing here for character set

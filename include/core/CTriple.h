@@ -40,19 +40,24 @@ namespace core {
 //! meaning it can be used as a boost::unordered_map key provided the
 //! underlying types can be hashed using a boost::hasher.
 template<typename T1, typename T2, typename T3>
-class CTriple : private boost::equality_comparable<CTriple<T1, T2, T3>, boost::partially_ordered<CTriple<T1, T2, T3>>> {
+class CTriple
+    : private boost::equality_comparable<CTriple<T1, T2, T3>, boost::partially_ordered<CTriple<T1, T2, T3>>> {
 public:
     //! See CMemory.
     static bool dynamicSizeAlwaysZero() {
-        return memory_detail::SDynamicSizeAlwaysZero<T1>::value() && memory_detail::SDynamicSizeAlwaysZero<T2>::value() &&
+        return memory_detail::SDynamicSizeAlwaysZero<T1>::value() &&
+               memory_detail::SDynamicSizeAlwaysZero<T2>::value() &&
                memory_detail::SDynamicSizeAlwaysZero<T3>::value();
     }
 
 public:
     CTriple() : first(), second(), third() {}
-    CTriple(const T1& first_, const T2& second_, const T3& third_) : first(first_), second(second_), third(third_) {}
+    CTriple(const T1& first_, const T2& second_, const T3& third_)
+        : first(first_), second(second_), third(third_) {}
 
-    bool operator==(const CTriple& other) const { return first == other.first && second == other.second && third == other.third; }
+    bool operator==(const CTriple& other) const {
+        return first == other.first && second == other.second && third == other.third;
+    }
 
     bool operator<(const CTriple& other) const {
         if (first == other.first) {

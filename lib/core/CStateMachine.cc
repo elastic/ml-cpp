@@ -51,8 +51,10 @@ void CStateMachine::expectedNumberMachines(std::size_t number) {
     ms_Machines.capacity(number);
 }
 
-CStateMachine
-CStateMachine::create(const TStrVec& alphabet, const TStrVec& states, const TSizeVecVec& transitionFunction, std::size_t state) {
+CStateMachine CStateMachine::create(const TStrVec& alphabet,
+                                    const TStrVec& states,
+                                    const TSizeVecVec& transitionFunction,
+                                    std::size_t state) {
     // Validate that the alphabet, states, transition function,
     // and initial state are consistent.
 
@@ -68,7 +70,8 @@ CStateMachine::create(const TStrVec& alphabet, const TStrVec& states, const TSiz
     }
     for (const auto& function : transitionFunction) {
         if (states.size() != function.size()) {
-            LOG_ERROR(<< "Bad transition function row: " << core::CContainerPrinter::print(function));
+            LOG_ERROR(<< "Bad transition function row: "
+                      << core::CContainerPrinter::print(function));
             return result;
         }
     }
@@ -120,7 +123,8 @@ bool CStateMachine::apply(std::size_t symbol) {
         return false;
     }
     if (m_State >= table[symbol].size()) {
-        LOG_ERROR(<< "Bad state " << m_State << " not in states [" << table[symbol].size() << "]");
+        LOG_ERROR(<< "Bad state " << m_State << " not in states ["
+                  << table[symbol].size() << "]");
         return false;
     }
 
@@ -147,7 +151,8 @@ std::string CStateMachine::printSymbol(std::size_t symbol) const {
 }
 
 uint64_t CStateMachine::checksum() const {
-    return CHashing::hashCombine(static_cast<uint64_t>(m_Machine), static_cast<uint64_t>(m_State));
+    return CHashing::hashCombine(static_cast<uint64_t>(m_Machine),
+                                 static_cast<uint64_t>(m_State));
 }
 
 std::size_t CStateMachine::numberMachines() {
@@ -160,7 +165,8 @@ void CStateMachine::clear() {
     ms_Machines.clear();
 }
 
-std::size_t CStateMachine::find(std::size_t begin, std::size_t end, const SLookupMachine& machine) {
+std::size_t
+CStateMachine::find(std::size_t begin, std::size_t end, const SLookupMachine& machine) {
     for (std::size_t i = begin; i < end; ++i) {
         if (machine == ms_Machines[i]) {
             return i;
@@ -172,24 +178,31 @@ std::size_t CStateMachine::find(std::size_t begin, std::size_t end, const SLooku
 CStateMachine::CStateMachine() : m_Machine(BAD_MACHINE), m_State(0) {
 }
 
-CStateMachine::SMachine::SMachine(const TStrVec& alphabet, const TStrVec& states, const TSizeVecVec& transitionFunction)
+CStateMachine::SMachine::SMachine(const TStrVec& alphabet,
+                                  const TStrVec& states,
+                                  const TSizeVecVec& transitionFunction)
     : s_Alphabet(alphabet), s_States(states), s_TransitionFunction(transitionFunction) {
 }
 
 CStateMachine::SMachine::SMachine(const SMachine& other)
-    : s_Alphabet(other.s_Alphabet), s_States(other.s_States), s_TransitionFunction(other.s_TransitionFunction) {
+    : s_Alphabet(other.s_Alphabet), s_States(other.s_States),
+      s_TransitionFunction(other.s_TransitionFunction) {
 }
 
-CStateMachine::SLookupMachine::SLookupMachine(const TStrVec& alphabet, const TStrVec& states, const TSizeVecVec& transitionFunction)
+CStateMachine::SLookupMachine::SLookupMachine(const TStrVec& alphabet,
+                                              const TStrVec& states,
+                                              const TSizeVecVec& transitionFunction)
     : s_Alphabet(alphabet), s_States(states), s_TransitionFunction(transitionFunction) {
 }
 
 bool CStateMachine::SLookupMachine::operator==(const SMachine& rhs) const {
-    return boost::unwrap_ref(s_TransitionFunction) == rhs.s_TransitionFunction && boost::unwrap_ref(s_Alphabet) == rhs.s_Alphabet &&
+    return boost::unwrap_ref(s_TransitionFunction) == rhs.s_TransitionFunction &&
+           boost::unwrap_ref(s_Alphabet) == rhs.s_Alphabet &&
            boost::unwrap_ref(s_States) == rhs.s_States;
 }
 
-CStateMachine::CMachineDeque::CMachineDeque() : m_Capacity(DEFAULT_CAPACITY), m_NumberMachines(0) {
+CStateMachine::CMachineDeque::CMachineDeque()
+    : m_Capacity(DEFAULT_CAPACITY), m_NumberMachines(0) {
     m_Machines.push_back(TMachineVec());
     m_Machines.back().reserve(m_Capacity);
 }
@@ -198,7 +211,8 @@ void CStateMachine::CMachineDeque::capacity(std::size_t capacity) {
     m_Capacity = capacity;
 }
 
-const CStateMachine::SMachine& CStateMachine::CMachineDeque::operator[](std::size_t pos) const {
+const CStateMachine::SMachine& CStateMachine::CMachineDeque::
+operator[](std::size_t pos) const {
     for (const auto& machines : m_Machines) {
         if (pos < machines.size()) {
             return machines[pos];

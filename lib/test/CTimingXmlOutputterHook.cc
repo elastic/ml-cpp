@@ -33,7 +33,9 @@ const std::string TOTAL_ELAPSED_TIME_TAG("TotalElapsedTime");
 const std::string AVERAGE_TEST_CASE_TIME_TAG("AverageTestCaseTime");
 }
 
-CTimingXmlOutputterHook::CTimingXmlOutputterHook(const CTestTimer& testTimer, const std::string& topPath, const std::string& testPath)
+CTimingXmlOutputterHook::CTimingXmlOutputterHook(const CTestTimer& testTimer,
+                                                 const std::string& topPath,
+                                                 const std::string& testPath)
     : m_TestTimer(testTimer), m_TopPath(topPath), m_TestPath(testPath) {
 }
 
@@ -62,16 +64,20 @@ void CTimingXmlOutputterHook::successfulTestAdded(CppUnit::XmlDocument* /*docume
     testElement->elementFor(NAME_TAG)->setContent(m_TopPath + '.' + m_TestPath + '.' + testName);
 
     testElement->addElement(new CppUnit::XmlElement(TEST_PATH_TAG, m_TestPath + '/' + testName));
-    testElement->addElement(new CppUnit::XmlElement(TIME_TAG, this->toSecondsStr(m_TestTimer.timeForTest(testName))));
+    testElement->addElement(new CppUnit::XmlElement(
+        TIME_TAG, this->toSecondsStr(m_TestTimer.timeForTest(testName))));
 }
 
-void CTimingXmlOutputterHook::statisticsAdded(CppUnit::XmlDocument* /*document*/, CppUnit::XmlElement* statisticsElement) {
+void CTimingXmlOutputterHook::statisticsAdded(CppUnit::XmlDocument* /*document*/,
+                                              CppUnit::XmlElement* statisticsElement) {
     if (statisticsElement == nullptr) {
         return;
     }
 
-    statisticsElement->addElement(new CppUnit::XmlElement(TOTAL_ELAPSED_TIME_TAG, this->toSecondsStr(m_TestTimer.totalTime())));
-    statisticsElement->addElement(new CppUnit::XmlElement(AVERAGE_TEST_CASE_TIME_TAG, this->toSecondsStr(m_TestTimer.averageTime())));
+    statisticsElement->addElement(new CppUnit::XmlElement(
+        TOTAL_ELAPSED_TIME_TAG, this->toSecondsStr(m_TestTimer.totalTime())));
+    statisticsElement->addElement(new CppUnit::XmlElement(
+        AVERAGE_TEST_CASE_TIME_TAG, this->toSecondsStr(m_TestTimer.averageTime())));
 }
 
 std::string CTimingXmlOutputterHook::toSecondsStr(uint64_t ms) {

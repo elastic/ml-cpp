@@ -31,12 +31,14 @@ double CIEEE754::round(double value, EPrecision precision) {
     switch (precision) {
     case E_HalfPrecision: {
         static const double PRECISION = 2048.0;
-        mantissa = mantissa < 0.0 ? std::ceil(mantissa * PRECISION - 0.5) / PRECISION : std::floor(mantissa * PRECISION + 0.5) / PRECISION;
+        mantissa = mantissa < 0.0 ? std::ceil(mantissa * PRECISION - 0.5) / PRECISION
+                                  : std::floor(mantissa * PRECISION + 0.5) / PRECISION;
         break;
     }
     case E_SinglePrecision: {
         static const double PRECISION = 16777216.0;
-        mantissa = mantissa < 0.0 ? std::ceil(mantissa * PRECISION - 0.5) / PRECISION : std::floor(mantissa * PRECISION + 0.5) / PRECISION;
+        mantissa = mantissa < 0.0 ? std::ceil(mantissa * PRECISION - 0.5) / PRECISION
+                                  : std::floor(mantissa * PRECISION + 0.5) / PRECISION;
         break;
     }
     case E_DoublePrecision:

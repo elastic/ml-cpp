@@ -61,6 +61,7 @@ int main(int argc, char** argv) {
     bool isOutputFileNamedPipe(false);
     bool verbose(false);
     bool writeDetectorConfigs(false);
+    // clang-format off
     if (ml::autoconfig::CCmdLineParser::parse(argc,
                                               argv,
                                               logProperties,
@@ -76,12 +77,14 @@ int main(int argc, char** argv) {
                                               isOutputFileNamedPipe,
                                               verbose,
                                               writeDetectorConfigs) == false) {
+        // clang-format on
         return EXIT_FAILURE;
     }
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
+                              outputFileName, isOutputFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL(<< "Could not reconfigure logging");
@@ -121,8 +124,7 @@ int main(int argc, char** argv) {
     // The skeleton avoids the need to duplicate a lot of boilerplate code
     ml::api::CCmdSkeleton skeleton(nullptr, // no restoration at present
                                    nullptr, // no persistence at present
-                                   *inputParser,
-                                   configurer);
+                                   *inputParser, configurer);
     if (skeleton.ioLoop() == false) {
         LOG_FATAL(<< "Ml autoconfig failed");
         return EXIT_FAILURE;

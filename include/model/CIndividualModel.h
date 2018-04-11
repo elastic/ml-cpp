@@ -60,7 +60,8 @@ public:
     using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
     using TFeatureSizeSizeTriple = core::CTriple<model_t::EFeature, std::size_t, std::size_t>;
-    using TFeatureSizeSizeTripleDouble1VecUMap = boost::unordered_map<TFeatureSizeSizeTriple, TDouble1Vec>;
+    using TFeatureSizeSizeTripleDouble1VecUMap =
+        boost::unordered_map<TFeatureSizeSizeTriple, TDouble1Vec>;
     using TFeatureMathsModelPtrPr = std::pair<model_t::EFeature, TMathsModelPtr>;
     using TFeatureMathsModelPtrPrVec = std::vector<TFeatureMathsModelPtrPr>;
     using TFeatureMathsModelPtrVecPr = std::pair<model_t::EFeature, TMathsModelPtrVec>;
@@ -121,7 +122,9 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
+    virtual void sampleBucketStatistics(core_t::TTime startTime,
+                                        core_t::TTime endTime,
+                                        CResourceMonitor& resourceMonitor) = 0;
 
     //! Sample any state needed by computeProbablity for the out-
     //! of-phase bucket in the time interval [\p startTime, \p endTime]
@@ -129,7 +132,9 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleOutOfPhase(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sampleOutOfPhase(core_t::TTime startTime,
+                                  core_t::TTime endTime,
+                                  CResourceMonitor& resourceMonitor);
 
     //! Update the model with features samples from the time interval
     //! [\p startTime, \p endTime].
@@ -137,7 +142,9 @@ public:
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
-    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
+    virtual void sample(core_t::TTime startTime,
+                        core_t::TTime endTime,
+                        CResourceMonitor& resourceMonitor) = 0;
 
     //! Prune any person models which haven't been updated for a
     //! specified period.
@@ -147,10 +154,11 @@ public:
     //! \name Probability
     //@{
     //! Clears \p probability and \p attributeProbabilities.
-    virtual bool computeTotalProbability(const std::string& person,
-                                         std::size_t numberAttributeProbabilities,
-                                         TOptionalDouble& probability,
-                                         TAttributeProbability1Vec& attributeProbabilities) const;
+    virtual bool
+    computeTotalProbability(const std::string& person,
+                            std::size_t numberAttributeProbabilities,
+                            TOptionalDouble& probability,
+                            TAttributeProbability1Vec& attributeProbabilities) const;
     //@}
 
     //! Get the checksum of this model.
@@ -176,8 +184,10 @@ public:
 protected:
     using TStrCRefDouble1VecDouble1VecPrPr = std::pair<TStrCRef, TDouble1VecDouble1VecPr>;
     using TStrCRefDouble1VecDouble1VecPrPrVec = std::vector<TStrCRefDouble1VecDouble1VecPrPr>;
-    using TStrCRefDouble1VecDouble1VecPrPrVecVec = std::vector<TStrCRefDouble1VecDouble1VecPrPrVec>;
-    using TStrCRefDouble1VecDouble1VecPrPrVecVecVec = std::vector<TStrCRefDouble1VecDouble1VecPrPrVecVec>;
+    using TStrCRefDouble1VecDouble1VecPrPrVecVec =
+        std::vector<TStrCRefDouble1VecDouble1VecPrPrVec>;
+    using TStrCRefDouble1VecDouble1VecPrPrVecVecVec =
+        std::vector<TStrCRefDouble1VecDouble1VecPrPrVecVec>;
 
 protected:
     //! Persist state by passing information to the supplied inserter.
@@ -205,20 +215,23 @@ protected:
     void refreshCorrelationModels(std::size_t resourceLimit, CResourceMonitor& resourceMonitor);
 
     //! Clear out large state objects for people that are pruned.
-    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
+    virtual void
+    clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
 
     //! Get the person unique identifiers which have a feature value
     //! in the bucketing time interval including \p time.
     template<typename T>
-    void currentBucketPersonIds(core_t::TTime time, const T& featureData, TSizeVec& result) const;
+    void
+    currentBucketPersonIds(core_t::TTime time, const T& featureData, TSizeVec& result) const;
 
     //! Get the value of the \p feature of the person identified
     //! by \p pid for the bucketing interval containing \p time.
     template<typename T>
-    const T* featureData(model_t::EFeature feature,
-                         std::size_t pid,
-                         core_t::TTime time,
-                         const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>& featureData) const;
+    const T*
+    featureData(model_t::EFeature feature,
+                std::size_t pid,
+                core_t::TTime time,
+                const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>& featureData) const;
 
     //! Sample the bucket statistics and write the results in to
     //! \p featureData.

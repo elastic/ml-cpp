@@ -158,7 +158,8 @@ public:
     CMixtureDistribution() {}
 
     //! \note The length of \p weights should match \p modes.
-    CMixtureDistribution(const TDoubleVec& weights, const TModeVec& modes) : m_Weights(weights), m_Modes(modes) {
+    CMixtureDistribution(const TDoubleVec& weights, const TModeVec& modes)
+        : m_Weights(weights), m_Modes(modes) {
         std::size_t w = m_Weights.size();
         if (w != m_Modes.size()) {
             LOG_ERROR(<< "# weights = " << w << ", # modes = " << m_Modes.size());
@@ -174,7 +175,8 @@ public:
             LOG_ERROR(<< "Expected non-zero weight sum");
         }
         for (std::size_t i = 0u; i < w; ++i) {
-            m_Weights[i] = weightSum == 0.0 ? 1.0 / static_cast<double>(w) : m_Weights[i] / weightSum;
+            m_Weights[i] = weightSum == 0.0 ? 1.0 / static_cast<double>(w)
+                                            : m_Weights[i] / weightSum;
         }
     }
 
@@ -192,9 +194,10 @@ public:
     std::string print() const {
         std::string result;
         for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
-            result += ' ' + core::CStringUtils::typeToStringPretty(m_Weights[i]) + '/' +
-                      core::CStringUtils::typeToStringPretty(mean(m_Modes[i])) + '/' +
-                      core::CStringUtils::typeToStringPretty(standard_deviation(m_Modes[i]));
+            result +=
+                ' ' + core::CStringUtils::typeToStringPretty(m_Weights[i]) + '/' +
+                core::CStringUtils::typeToStringPretty(mean(m_Modes[i])) + '/' +
+                core::CStringUtils::typeToStringPretty(standard_deviation(m_Modes[i]));
         }
         result += (m_Weights.empty() ? "" : " ");
         return result;
@@ -214,7 +217,8 @@ public:
     using result_type = double;
 
 public:
-    CPdfAdpater(const CMixtureDistribution<T>& distribution) : m_Distribution(&distribution) {}
+    CPdfAdpater(const CMixtureDistribution<T>& distribution)
+        : m_Distribution(&distribution) {}
 
     double operator()(double x) const { return pdf(*m_Distribution, x); }
 
@@ -231,17 +235,21 @@ mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T>& distribut
     const TModeVec& modes = distribution.modes();
 
     if (modes.empty()) {
-        return mixture_detail::TDoubleDoublePr(boost::numeric::bounds<double>::lowest(), boost::numeric::bounds<double>::highest());
+        return mixture_detail::TDoubleDoublePr(boost::numeric::bounds<double>::lowest(),
+                                               boost::numeric::bounds<double>::highest());
     }
 
-    mixture_detail::TDoubleDoublePr result(boost::numeric::bounds<double>::highest(), boost::numeric::bounds<double>::lowest());
+    mixture_detail::TDoubleDoublePr result(boost::numeric::bounds<double>::highest(),
+                                           boost::numeric::bounds<double>::lowest());
 
     for (std::size_t i = 0u; i < modes.size(); ++i) {
         try {
             mixture_detail::TDoubleDoublePr modeSupport = support(modes[i]);
             result.first = std::min(result.first, modeSupport.first);
             result.second = std::max(result.second, modeSupport.second);
-        } catch (const std::exception& e) { LOG_ERROR(<< "Failed to compute support for mode: " << e.what()); }
+        } catch (const std::exception& e) {
+            LOG_ERROR(<< "Failed to compute support for mode: " << e.what());
+        }
     }
 
     return result;
@@ -319,14 +327,17 @@ double pdf(const CMixtureDistribution<T>& distribution, double x) {
         if (x >= ms.first && x <= ms.second) {
             try {
                 double fx = pdf(modes[i], x);
-                LOG_TRACE(<< "x = " << x << ", w(" << i << ") = " << weights[i] << ", f(x, " << i << ") " << fx);
+                LOG_TRACE(<< "x = " << x << ", w(" << i << ") = " << weights[i]
+                          << ", f(x, " << i << ") " << fx);
                 result += weights[i] * fx;
             } catch (const std::exception& e) {
-                LOG_ERROR(<< "Failed to compute f(x) for mode at " << x << ": " << e.what());
+                LOG_ERROR(<< "Failed to compute f(x) for mode at " << x << ": "
+                          << e.what());
                 throw e;
             }
         } else {
-            LOG_TRACE(<< "x = " << x << ", support = (" << ms.first << "," << ms.second << ")");
+            LOG_TRACE(<< "x = " << x << ", support = (" << ms.first << ","
+                      << ms.second << ")");
         }
     }
 
@@ -361,14 +372,17 @@ double cdf(const CMixtureDistribution<T>& distribution, double x) {
         } else if (x >= ms.first) {
             try {
                 double fx = cdf(modes[i], x);
-                LOG_TRACE(<< "x = " << x << ", w(" << i << ") = " << weights[i] << ", f(x, " << i << ") " << fx);
+                LOG_TRACE(<< "x = " << x << ", w(" << i << ") = " << weights[i]
+                          << ", f(x, " << i << ") " << fx);
                 result += weights[i] * fx;
             } catch (const std::exception& e) {
-                LOG_ERROR(<< "Failed to compute f(x) for mode at " << x << ": " << e.what());
+                LOG_ERROR(<< "Failed to compute f(x) for mode at " << x << ": "
+                          << e.what());
                 throw e;
             }
         } else {
-            LOG_TRACE(<< "x = " << x << ", support = (" << ms.first << "," << ms.second << ")");
+            LOG_TRACE(<< "x = " << x << ", support = (" << ms.first << ","
+                      << ms.second << ")");
         }
     }
 
@@ -403,14 +417,17 @@ double cdfComplement(const CMixtureDistribution<T>& distribution, double x) {
         } else if (x < ms.second) {
             try {
                 double fx = cdf(complement(modes[i], x));
-                LOG_TRACE(<< "x = " << x << ", w(" << i << ") = " << weights[i] << ", f(x, " << i << ") " << fx);
+                LOG_TRACE(<< "x = " << x << ", w(" << i << ") = " << weights[i]
+                          << ", f(x, " << i << ") " << fx);
                 result += weights[i] * fx;
             } catch (const std::exception& e) {
-                LOG_ERROR(<< "Failed to compute f(x) for mode at " << x << ": " << e.what());
+                LOG_ERROR(<< "Failed to compute f(x) for mode at " << x << ": "
+                          << e.what());
                 throw e;
             }
         } else {
-            LOG_TRACE(<< "x = " << x << ", support = (" << ms.first << "," << ms.second << ")");
+            LOG_TRACE(<< "x = " << x << ", support = (" << ms.first << ","
+                      << ms.second << ")");
         }
     }
 
@@ -426,7 +443,8 @@ public:
     using result_type = double;
 
 public:
-    CCdfAdapter(const CMixtureDistribution<T>& distribution) : m_Distribution(&distribution) {}
+    CCdfAdapter(const CMixtureDistribution<T>& distribution)
+        : m_Distribution(&distribution) {}
 
     double operator()(const double x) const { return cdf(*m_Distribution, x); }
 
@@ -479,19 +497,25 @@ double quantile(const CMixtureDistribution<T>& distribution, const double q) {
                   << ", (f(a),f(b)) = [" << fa << "," << fb << "]");
 
         std::size_t maxIterations = MAX_ITERATIONS;
-        if ((f0 < 0 && !CSolvers::rightBracket(a, b, fa, fb, fq, maxIterations, s.first, s.second)) ||
-            (f0 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, fq, maxIterations, s.first, s.second))) {
-            LOG_ERROR(<< "Unable to bracket quantile = " << q << ", (a,b) = (" << a << "," << b << ")"
+        if ((f0 < 0 && !CSolvers::rightBracket(a, b, fa, fb, fq, maxIterations,
+                                               s.first, s.second)) ||
+            (f0 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, fq, maxIterations,
+                                               s.first, s.second))) {
+            LOG_ERROR(<< "Unable to bracket quantile = " << q << ", (a,b) = ("
+                      << a << "," << b << ")"
                       << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
             result = std::fabs(fa) < std::fabs(fb) ? a : b;
         } else {
             LOG_TRACE(<< "(a,b) = (" << a << "," << b << ")"
                       << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
             maxIterations = MAX_ITERATIONS - maxIterations;
-            CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance,
-                                              std::min(std::numeric_limits<double>::epsilon() * b, EPS * q / std::max(fa, fb)));
+            CEqualWithTolerance<double> equal(
+                CToleranceTypes::E_AbsoluteTolerance,
+                std::min(std::numeric_limits<double>::epsilon() * b,
+                         EPS * q / std::max(fa, fb)));
             CSolvers::solve(a, b, fa, fb, fq, maxIterations, equal, result);
-            LOG_TRACE(<< "q = " << q << ", x = " << result << ", f(x) = " << fq(result) << ", iterations = " << maxIterations);
+            LOG_TRACE(<< "q = " << q << ", x = " << result << ", f(x) = " << fq(result)
+                      << ", iterations = " << maxIterations);
         }
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute quantile " << q);

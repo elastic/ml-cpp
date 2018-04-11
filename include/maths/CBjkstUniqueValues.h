@@ -138,7 +138,8 @@ private:
         void swap(SSketch& other);
 
         //! Create by traversing a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser, std::size_t numberHashes);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
+                                    std::size_t numberHashes);
 
         //! Convert to a node tree.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

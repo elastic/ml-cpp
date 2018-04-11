@@ -165,7 +165,8 @@ public:
     //! \tparam V The type of range of \p g. This must have a meaningful default
     //! constructor, support multiplication by a double and addition.
     template<EOrder ORDER, typename F, typename G, typename U, typename V>
-    static bool productGaussLegendre(const F& f, const G& g, double a, double b, U& productIntegral, U& fIntegral, V& gIntegral) {
+    static bool
+    productGaussLegendre(const F& f, const G& g, double a, double b, U& productIntegral, U& fIntegral, V& gIntegral) {
         productIntegral = U();
         fIntegral = U();
         gIntegral = V();
@@ -180,7 +181,8 @@ public:
         for (unsigned int i = 0; i < ORDER; ++i) {
             U fx;
             V gx;
-            if (!f(centre + range * abscissas[i], fx) || !g(centre + range * abscissas[i], gx)) {
+            if (!f(centre + range * abscissas[i], fx) ||
+                !g(centre + range * abscissas[i], gx)) {
                 return false;
             }
             double weight = weights[i];
@@ -218,7 +220,8 @@ public:
     //! where f is filled in with the value of the function at x and returning
     //! false means that the function could not be evaluated at x.
     template<EOrder ORDER, typename F>
-    static bool logGaussLegendre(const F& function, double a, double b, double& result) {
+    static bool
+    logGaussLegendre(const F& function, double a, double b, double& result) {
         result = 0.0;
 
         if (b <= a) {
@@ -289,7 +292,8 @@ public:
                                       double tolerance,
                                       double& result) {
         if (intervals.size() != fIntervals.size()) {
-            LOG_ERROR(<< "Inconsistent intervals and function integrals: " << core::CContainerPrinter::print(intervals) << " "
+            LOG_ERROR(<< "Inconsistent intervals and function integrals: "
+                      << core::CContainerPrinter::print(intervals) << " "
                       << core::CContainerPrinter::print(fIntervals));
             return false;
         }
@@ -339,7 +343,8 @@ public:
                 double fjNew = 0.0;
 
                 double aj = intervals[j].first;
-                double dj = (intervals[j].second - intervals[j].first) / static_cast<double>(splitsPerRefinement);
+                double dj = (intervals[j].second - intervals[j].first) /
+                            static_cast<double>(splitsPerRefinement);
                 for (std::size_t k = 0u; k < splitsPerRefinement; ++k, aj += dj) {
                     double df;
                     if (CIntegration::gaussLegendre<ORDER>(f, aj, aj + dj, df)) {
@@ -354,7 +359,8 @@ public:
                             }
                         }
                     } else {
-                        LOG_ERROR(<< "Couldn't integrate f over [" << aj << "," << aj + dj << "]");
+                        LOG_ERROR(<< "Couldn't integrate f over [" << aj << ","
+                                  << aj + dj << "]");
                         return false;
                     }
                 }
@@ -363,7 +369,8 @@ public:
                 double correction = fjNew - fjOld;
                 if (i + 1 < refinements) {
                     corrections[j] = std::fabs(correction);
-                    corrections.resize(corrections.size() + splitsPerRefinement - 1, std::fabs(correction));
+                    corrections.resize(corrections.size() + splitsPerRefinement - 1,
+                                       std::fabs(correction));
                 }
 
                 result += correction;
@@ -409,7 +416,8 @@ public:
 
     public:
         static const CSparseGaussLegendreQuadrature& instance() {
-            const CSparseGaussLegendreQuadrature* tmp = ms_Instance.load(std::memory_order_acquire);
+            const CSparseGaussLegendreQuadrature* tmp =
+                ms_Instance.load(std::memory_order_acquire);
             if (!tmp) {
                 core::CScopedFastLock scopedLock(CIntegration::ms_Mutex);
                 tmp = ms_Instance.load(std::memory_order_relaxed);
@@ -467,7 +475,8 @@ public:
 
             TVectorDoubleMap ordered;
 
-            for (unsigned int l = ORDER > DIMENSION ? ORDER - DIMENSION : 0; l < ORDER; ++l) {
+            for (unsigned int l = ORDER > DIMENSION ? ORDER - DIMENSION : 0;
+                 l < ORDER; ++l) {
                 LOG_TRACE(<< "order = " << l);
                 std::size_t d = 0u;
                 TUIntVec indices(DIMENSION, 1);
@@ -475,7 +484,8 @@ public:
                 TUIntVec stop(DIMENSION, l + 1);
 
                 double sign = (ORDER - l - 1) % 2 == 1 ? -1.0 : 1.0;
-                double scale = sign * CIntegerTools::binomial(DIMENSION - 1, DIMENSION + l - ORDER);
+                double scale = sign * CIntegerTools::binomial(DIMENSION - 1,
+                                                              DIMENSION + l - ORDER);
                 LOG_TRACE(<< "scale = " << scale);
 
                 do {
@@ -490,7 +500,8 @@ public:
                     TDoubleVec weights(n, 1.0);
                     TVectorVec points(n, TVector(0.0));
                     for (unsigned int i = 0u; i < n; ++i) {
-                        for (unsigned int i_ = i, j = 0u; j < indices.size(); i_ /= indices[j], ++j) {
+                        for (unsigned int i_ = i, j = 0u; j < indices.size();
+                             i_ /= indices[j], ++j) {
                             EOrder order = static_cast<EOrder>(indices[j]);
                             const double* w = CGaussLegendreQuadrature::weights(order);
                             const double* a = CGaussLegendreQuadrature::abscissas(order);
@@ -544,7 +555,8 @@ public:
     //! \tparam T The type of range of \p f. This must have a meaningful
     //! default constructor, support multiplication by a double and addition.
     template<EOrder ORDER, EDimension DIMENSION, typename F, typename T>
-    static bool sparseGaussLegendre(const F& function, const TDoubleVec& a, const TDoubleVec& b, T& result) {
+    static bool
+    sparseGaussLegendre(const F& function, const TDoubleVec& a, const TDoubleVec& b, T& result) {
         using TSparseQuadrature = CSparseGaussLegendreQuadrature<ORDER, DIMENSION>;
         using TVector = typename TSparseQuadrature::TVector;
         using TVectorVec = typename TSparseQuadrature::TVectorVec;
@@ -646,7 +658,8 @@ private:
 };
 
 template<CIntegration::EOrder O, CIntegration::EDimension D>
-std::atomic<const CIntegration::CSparseGaussLegendreQuadrature<O, D>*> CIntegration::CSparseGaussLegendreQuadrature<O, D>::ms_Instance;
+std::atomic<const CIntegration::CSparseGaussLegendreQuadrature<O, D>*>
+    CIntegration::CSparseGaussLegendreQuadrature<O, D>::ms_Instance;
 }
 }
 

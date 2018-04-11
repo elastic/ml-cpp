@@ -49,7 +49,8 @@ void CStatisticalTestsTest::testCramerVonMises() {
     // are correct if the random variable and the distribution
     // function are perfectly matched.
 
-    const std::size_t n[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50, 100, 200, 500};
+    const std::size_t n[] = {2,  3,  4,  5,  6,  7,   8,   9,  10,
+                             15, 20, 30, 40, 50, 100, 200, 500};
 
     test::CRandomNumbers rng;
 
@@ -76,8 +77,9 @@ void CStatisticalTestsTest::testCramerVonMises() {
             double meanError = 0.0;
             for (std::size_t j = 0; j < 21; ++j) {
                 double percentile = static_cast<double>(j) / 20.0;
-                double pp =
-                    static_cast<double>(std::lower_bound(p.begin(), p.end(), percentile) - p.begin()) / static_cast<double>(p.size());
+                double pp = static_cast<double>(std::lower_bound(p.begin(), p.end(), percentile) -
+                                                p.begin()) /
+                            static_cast<double>(p.size());
                 LOG_DEBUG(<< "percentile = " << percentile << ", p value percentile = " << pp
                           << ", error = " << std::fabs(pp - percentile));
                 meanError += std::fabs(pp - percentile);
@@ -107,8 +109,9 @@ void CStatisticalTestsTest::testCramerVonMises() {
             double meanError = 0.0;
             for (std::size_t j = 0; j < 21; ++j) {
                 double percentile = static_cast<double>(j) / 20.0;
-                double pp =
-                    static_cast<double>(std::lower_bound(p.begin(), p.end(), percentile) - p.begin()) / static_cast<double>(p.size());
+                double pp = static_cast<double>(std::lower_bound(p.begin(), p.end(), percentile) -
+                                                p.begin()) /
+                            static_cast<double>(p.size());
                 LOG_DEBUG(<< "percentile = " << percentile << ", p value percentile = " << pp
                           << ", error = " << std::fabs(pp - percentile));
                 meanError += std::fabs(pp - percentile);
@@ -174,12 +177,13 @@ void CStatisticalTestsTest::testPersist() {
 }
 
 CppUnit::Test* CStatisticalTestsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStatisticalTestsTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CStatisticalTestsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>("CStatisticalTestsTest::testCramerVonMises",
-                                                                         &CStatisticalTestsTest::testCramerVonMises));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStatisticalTestsTest>("CStatisticalTestsTest::testPersist", &CStatisticalTestsTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>(
+        "CStatisticalTestsTest::testCramerVonMises", &CStatisticalTestsTest::testCramerVonMises));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>(
+        "CStatisticalTestsTest::testPersist", &CStatisticalTestsTest::testPersist));
 
     return suiteOfTests;
 }

@@ -50,7 +50,9 @@ public:
     //!
     //! \note The current bucket statistics are left default initialized
     //! and so must be sampled for before this model can be used.
-    CCountingModel(const SModelParams& params, const TDataGathererPtr& dataGatherer, core::CStateRestoreTraverser& traverser);
+    CCountingModel(const SModelParams& params,
+                   const TDataGathererPtr& dataGatherer,
+                   core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
@@ -112,7 +114,10 @@ public:
     //! \param[in] pid The identifier of the person of interest.
     //! \param[in] cid Ignored.
     //! \param[in] time The time of interest.
-    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
+    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature,
+                                           std::size_t pid,
+                                           std::size_t cid,
+                                           core_t::TTime time) const;
 
     //! Get the mean bucket count or the reference model mean bucket
     //! count if one is defined for the person identified by \p pid.
@@ -150,7 +155,9 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sampleBucketStatistics(core_t::TTime startTime,
+                                        core_t::TTime endTime,
+                                        CResourceMonitor& resourceMonitor);
 
     //! This samples the bucket statistics, and any state needed
     //! by computeProbablity, in the time interval [\p startTime,
@@ -159,7 +166,9 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleOutOfPhase(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sampleOutOfPhase(core_t::TTime startTime,
+                                  core_t::TTime endTime,
+                                  CResourceMonitor& resourceMonitor);
 
     //! This samples the bucket statistics, in the time interval
     //! [\p startTime, \p endTime].
@@ -167,7 +176,8 @@ public:
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
-    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void
+    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! No-op.
     virtual void prune(std::size_t maximumAge);
@@ -184,10 +194,11 @@ public:
                                     SAnnotatedProbability& result) const;
 
     //! Sets \p probability to 1.
-    virtual bool computeTotalProbability(const std::string& person,
-                                         std::size_t numberAttributeProbabilities,
-                                         TOptionalDouble& probability,
-                                         TAttributeProbability1Vec& attributeProbabilities) const;
+    virtual bool
+    computeTotalProbability(const std::string& person,
+                            std::size_t numberAttributeProbabilities,
+                            TOptionalDouble& probability,
+                            TAttributeProbability1Vec& attributeProbabilities) const;
     //@}
 
     //! Get the checksum of this model.
@@ -231,7 +242,8 @@ protected:
 
 private:
     //! Get the scheduled events that match at sampleTime.
-    SModelParams::TStrDetectionRulePrVec checkScheduledEvents(core_t::TTime sampleTime) const;
+    SModelParams::TStrDetectionRulePrVec
+    checkScheduledEvents(core_t::TTime sampleTime) const;
 
     //! Check for scheduled events and append the descriptions of
     //! matched events to the scheduled event descriptions.

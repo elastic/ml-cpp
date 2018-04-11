@@ -77,7 +77,8 @@ public:
 
     //! Set field names, adding extra field names if they're not already
     //! present - this is only allowed once
-    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) = 0;
+    virtual bool
+    fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) = 0;
 
     //! Get field names
     virtual const TStrVec& fieldNames() const = 0;
@@ -90,13 +91,15 @@ public:
     //! original field values.  Where the same field is present in both
     //! overrideDataRowFields and dataRowFields, the value in
     //! overrideDataRowFields will be written.
-    virtual bool writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) = 0;
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields) = 0;
 
     //! Perform any final processing once all input data has been seen.
     virtual void finalise();
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
+    virtual bool
+    restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
 
     //! Persist current state
     virtual bool persistState(core::CDataAdder& persister);

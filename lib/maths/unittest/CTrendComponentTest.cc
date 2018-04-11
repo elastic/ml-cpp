@@ -45,7 +45,10 @@ using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumula
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 using TRegression = maths::CRegression::CLeastSquaresOnline<2, double>;
 
-TDoubleVec multiscaleRandomWalk(test::CRandomNumbers& rng, core_t::TTime bucketLength, core_t::TTime start, core_t::TTime end) {
+TDoubleVec multiscaleRandomWalk(test::CRandomNumbers& rng,
+                                core_t::TTime bucketLength,
+                                core_t::TTime start,
+                                core_t::TTime end) {
     TDoubleVecVec noise(4);
 
     core_t::TTime buckets{(end - start) / bucketLength + 1};
@@ -74,7 +77,10 @@ TDoubleVec multiscaleRandomWalk(test::CRandomNumbers& rng, core_t::TTime bucketL
     return result;
 }
 
-TDoubleVec piecewiseLinear(test::CRandomNumbers& rng, core_t::TTime bucketLength, core_t::TTime start, core_t::TTime end) {
+TDoubleVec piecewiseLinear(test::CRandomNumbers& rng,
+                           core_t::TTime bucketLength,
+                           core_t::TTime start,
+                           core_t::TTime end) {
     core_t::TTime buckets{(end - start) / bucketLength + 1};
 
     TDoubleVec knots;
@@ -104,7 +110,10 @@ TDoubleVec piecewiseLinear(test::CRandomNumbers& rng, core_t::TTime bucketLength
     return result;
 }
 
-TDoubleVec staircase(test::CRandomNumbers& rng, core_t::TTime bucketLength, core_t::TTime start, core_t::TTime end) {
+TDoubleVec staircase(test::CRandomNumbers& rng,
+                     core_t::TTime bucketLength,
+                     core_t::TTime start,
+                     core_t::TTime end) {
     core_t::TTime buckets{(end - start) / bucketLength + 1};
 
     TDoubleVec knots;
@@ -134,7 +143,10 @@ TDoubleVec staircase(test::CRandomNumbers& rng, core_t::TTime bucketLength, core
     return result;
 }
 
-TDoubleVec switching(test::CRandomNumbers& rng, core_t::TTime bucketLength, core_t::TTime start, core_t::TTime end) {
+TDoubleVec switching(test::CRandomNumbers& rng,
+                     core_t::TTime bucketLength,
+                     core_t::TTime start,
+                     core_t::TTime end) {
     core_t::TTime buckets{(end - start) / bucketLength + 1};
 
     TDoubleVec knots;
@@ -183,8 +195,9 @@ void CTrendComponentTest::testValueAndVariance() {
     TDoubleVec values(multiscaleRandomWalk(rng, bucketLength, start, end));
 
     maths::CTrendComponent component{0.012};
-    maths::CDecayRateController controller(
-        maths::CDecayRateController::E_PredictionBias | maths::CDecayRateController::E_PredictionErrorIncrease, 1);
+    maths::CDecayRateController controller(maths::CDecayRateController::E_PredictionBias |
+                                               maths::CDecayRateController::E_PredictionErrorIncrease,
+                                           1);
 
     TMeanVarAccumulator normalisedResiduals;
     for (core_t::TTime time = start; time < end; time += bucketLength) {
@@ -197,7 +210,9 @@ void CTrendComponentTest::testValueAndVariance() {
         }
 
         component.add(time, value);
-        controller.multiplier({prediction}, {{values[(time - start) / bucketLength] - prediction}}, bucketLength, 1.0, 0.012);
+        controller.multiplier({prediction},
+                              {{values[(time - start) / bucketLength] - prediction}},
+                              bucketLength, 1.0, 0.012);
         component.decayRate(0.012 * controller.multiplier());
         component.propagateForwardsByTime(bucketLength);
     }
@@ -230,8 +245,9 @@ void CTrendComponentTest::testDecayRate() {
 
     maths::CTrendComponent component{0.012};
     TRegression regression;
-    maths::CDecayRateController controller(
-        maths::CDecayRateController::E_PredictionBias | maths::CDecayRateController::E_PredictionErrorIncrease, 1);
+    maths::CDecayRateController controller(maths::CDecayRateController::E_PredictionBias |
+                                               maths::CDecayRateController::E_PredictionErrorIncrease,
+                                           1);
 
     TMeanAccumulator error;
     TMeanAccumulator level;
@@ -245,7 +261,9 @@ void CTrendComponentTest::testDecayRate() {
         error.add(std::fabs(prediction - expectedPrediction));
         level.add(value);
 
-        controller.multiplier({prediction}, {{values[(time - start) / bucketLength] - prediction}}, bucketLength, 1.0, 0.012);
+        controller.multiplier({prediction},
+                              {{values[(time - start) / bucketLength] - prediction}},
+                              bucketLength, 1.0, 0.012);
         component.decayRate(0.012 * controller.multiplier());
         component.propagateForwardsByTime(bucketLength);
         regression.age(std::exp(-0.012 * controller.multiplier() * 600.0 / 86400.0));
@@ -254,7 +272,8 @@ void CTrendComponentTest::testDecayRate() {
         //expectedPredictions.push_back(expectedPrediction);
     }
 
-    double relativeError{maths::CBasicStatistics::mean(error) / std::fabs(maths::CBasicStatistics::mean(level))};
+    double relativeError{maths::CBasicStatistics::mean(error) /
+                         std::fabs(maths::CBasicStatistics::mean(level))};
     LOG_DEBUG(<< "relative error = " << relativeError);
 
     //file << "f  = " << core::CContainerPrinter::print(values) << ";" << std::endl;
@@ -284,7 +303,9 @@ void CTrendComponentTest::testForecast() {
 
         maths::CTrendComponent component{0.012};
         maths::CDecayRateController controller(
-            maths::CDecayRateController::E_PredictionBias | maths::CDecayRateController::E_PredictionErrorIncrease, 1);
+            maths::CDecayRateController::E_PredictionBias |
+                maths::CDecayRateController::E_PredictionErrorIncrease,
+            1);
 
         core_t::TTime time{0};
         for (/**/; time < end; time += bucketLength) {
@@ -292,7 +313,9 @@ void CTrendComponentTest::testForecast() {
             component.propagateForwardsByTime(bucketLength);
 
             double prediction{maths::CBasicStatistics::mean(component.value(time, 0.0))};
-            controller.multiplier({prediction}, {{values[time / bucketLength] - prediction}}, bucketLength, 0.3, 0.012);
+            controller.multiplier({prediction},
+                                  {{values[time / bucketLength] - prediction}},
+                                  bucketLength, 0.3, 0.012);
             component.decayRate(0.012 * controller.multiplier());
             //predictions.push_back(prediction);
         }
@@ -306,8 +329,11 @@ void CTrendComponentTest::testForecast() {
         TMeanAccumulator meanErrorAt95;
         for (auto& errorbar : forecast) {
             core_t::TTime bucket{(time - start) / bucketLength};
-            meanError.add(std::fabs((values[bucket] - errorbar[1]) / std::fabs(values[bucket])));
-            meanErrorAt95.add(std::max(std::max(values[bucket] - errorbar[2], errorbar[0] - values[bucket]), 0.0) /
+            meanError.add(std::fabs((values[bucket] - errorbar[1]) /
+                                    std::fabs(values[bucket])));
+            meanErrorAt95.add(std::max(std::max(values[bucket] - errorbar[2],
+                                                errorbar[0] - values[bucket]),
+                                       0.0) /
                               std::fabs(values[bucket]));
             //forecastLower.push_back(errorbar[0]);
             //forecastPredictions.push_back(errorbar[1]);
@@ -323,7 +349,8 @@ void CTrendComponentTest::testForecast() {
         LOG_DEBUG(<< "error       = " << maths::CBasicStatistics::mean(meanError));
         LOG_DEBUG(<< "error @ 95% = " << maths::CBasicStatistics::mean(meanErrorAt95));
 
-        return std::make_pair(maths::CBasicStatistics::mean(meanError), maths::CBasicStatistics::mean(meanErrorAt95));
+        return std::make_pair(maths::CBasicStatistics::mean(meanError),
+                              maths::CBasicStatistics::mean(meanErrorAt95));
     };
 
     double error;
@@ -396,7 +423,8 @@ void CTrendComponentTest::testPersist() {
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::CTrendComponent restoredComponent{0.1};
-    traverser.traverseSubLevel(boost::bind(&maths::CTrendComponent::acceptRestoreTraverser, &restoredComponent, _1));
+    traverser.traverseSubLevel(boost::bind(
+        &maths::CTrendComponent::acceptRestoreTraverser, &restoredComponent, _1));
 
     CPPUNIT_ASSERT_EQUAL(origComponent.checksum(), restoredComponent.checksum());
 
@@ -410,16 +438,17 @@ void CTrendComponentTest::testPersist() {
 }
 
 CppUnit::Test* CTrendComponentTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTrendComponentTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CTrendComponentTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testValueAndVariance",
-                                                                       &CTrendComponentTest::testValueAndVariance));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testDecayRate", &CTrendComponentTest::testDecayRate));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testForecast", &CTrendComponentTest::testForecast));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testPersist", &CTrendComponentTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
+        "CTrendComponentTest::testValueAndVariance", &CTrendComponentTest::testValueAndVariance));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
+        "CTrendComponentTest::testDecayRate", &CTrendComponentTest::testDecayRate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
+        "CTrendComponentTest::testForecast", &CTrendComponentTest::testForecast));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
+        "CTrendComponentTest::testPersist", &CTrendComponentTest::testPersist));
 
     return suiteOfTests;
 }

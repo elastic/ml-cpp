@@ -63,10 +63,13 @@ public:
     static int64_t toEpochMs(core_t::TTime t);
     //! strptime interface
     //! NOTE: the time returned here is a UTC value
-    static bool strptime(const std::string& format, const std::string& dateTime, core_t::TTime& preTime);
+    static bool
+    strptime(const std::string& format, const std::string& dateTime, core_t::TTime& preTime);
 
     //! Same strptime interface as above, but doesn't print any error messages
-    static bool strptimeSilent(const std::string& format, const std::string& dateTime, core_t::TTime& preTime);
+    static bool strptimeSilent(const std::string& format,
+                               const std::string& dateTime,
+                               core_t::TTime& preTime);
 
     //! Is a given word a day of the week name, month name, or timezone
     //! abbreviation in the current locale?  Input should be trimmed of
@@ -75,7 +78,8 @@ public:
 
 private:
     //! Factor out common code from the three string conversion methods
-    static void toStringCommon(core_t::TTime t, const std::string& format, std::string& result);
+    static void
+    toStringCommon(core_t::TTime t, const std::string& format, std::string& result);
 
 private:
     //! Class to cache date words so that we don't have to repeatedly use

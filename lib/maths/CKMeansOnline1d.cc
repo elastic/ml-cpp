@@ -50,18 +50,24 @@ namespace detail {
 //! \brief Orders two normals by their means.
 struct SNormalMeanLess {
 public:
-    bool operator()(const CNormalMeanPrecConjugate& lhs, const CNormalMeanPrecConjugate& rhs) const {
+    bool operator()(const CNormalMeanPrecConjugate& lhs,
+                    const CNormalMeanPrecConjugate& rhs) const {
         return lhs.marginalLikelihoodMean() < rhs.marginalLikelihoodMean();
     }
-    bool operator()(double lhs, const CNormalMeanPrecConjugate& rhs) const { return lhs < rhs.marginalLikelihoodMean(); }
-    bool operator()(const CNormalMeanPrecConjugate& lhs, double rhs) const { return lhs.marginalLikelihoodMean() < rhs; }
+    bool operator()(double lhs, const CNormalMeanPrecConjugate& rhs) const {
+        return lhs < rhs.marginalLikelihoodMean();
+    }
+    bool operator()(const CNormalMeanPrecConjugate& lhs, double rhs) const {
+        return lhs.marginalLikelihoodMean() < rhs;
+    }
 };
 
 //! Get the log of the likelihood that \p point is from \p normal.
-double logLikelihoodFromCluster(const TDouble1Vec& sample, const CNormalMeanPrecConjugate& normal) {
+double logLikelihoodFromCluster(const TDouble1Vec& sample,
+                                const CNormalMeanPrecConjugate& normal) {
     double likelihood;
-    maths_t::EFloatingPointErrorStatus status =
-        normal.jointLogMarginalLikelihood(CConstantWeights::COUNT, sample, CConstantWeights::SINGLE_UNIT, likelihood);
+    maths_t::EFloatingPointErrorStatus status = normal.jointLogMarginalLikelihood(
+        CConstantWeights::COUNT, sample, CConstantWeights::SINGLE_UNIT, likelihood);
     if (status & maths_t::E_FpFailed) {
         LOG_ERROR(<< "Unable to compute probability for: " << sample[0]);
         return core::constants::LOG_MIN_DOUBLE - 1.0;
@@ -85,11 +91,14 @@ CKMeansOnline1d::CKMeansOnline1d(TNormalVec& clusters) {
     m_Clusters.assign(clusters.begin(), clusters.end());
 }
 
-CKMeansOnline1d::CKMeansOnline1d(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser) {
-    traverser.traverseSubLevel(boost::bind(&CKMeansOnline1d::acceptRestoreTraverser, this, boost::cref(params), _1));
+CKMeansOnline1d::CKMeansOnline1d(const SDistributionRestoreParams& params,
+                                 core::CStateRestoreTraverser& traverser) {
+    traverser.traverseSubLevel(boost::bind(&CKMeansOnline1d::acceptRestoreTraverser,
+                                           this, boost::cref(params), _1));
 }
 
-bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser) {
+bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                             core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
         if (name == CLUSTER_TAG) {
@@ -107,7 +116,8 @@ std::string CKMeansOnline1d::persistenceTag() const {
 
 void CKMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-        inserter.insertLevel(CLUSTER_TAG, boost::bind(&CNormalMeanPrecConjugate::acceptPersistInserter, &m_Clusters[i], _1));
+        inserter.insertLevel(CLUSTER_TAG, boost::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
+                                                      &m_Clusters[i], _1));
     }
 }
 
@@ -165,7 +175,8 @@ void CKMeansOnline1d::cluster(const double& point, TSizeDoublePr2Vec& result, do
         return;
     }
 
-    auto rightCluster = std::lower_bound(m_Clusters.begin(), m_Clusters.end(), point, detail::SNormalMeanLess());
+    auto rightCluster = std::lower_bound(m_Clusters.begin(), m_Clusters.end(),
+                                         point, detail::SNormalMeanLess());
 
     if (rightCluster == m_Clusters.end()) {
         --rightCluster;

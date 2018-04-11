@@ -137,7 +137,9 @@ private:
     using TLogCharLogStrMapCItr = TLogCharLogStrMap::const_iterator;
 
     //! Replace Ml specific mappings in a single string
-    void massageString(const TLogCharLogStrMap& mappings, const log4cxx::LogString& oldStr, log4cxx::LogString& newStr) const;
+    void massageString(const TLogCharLogStrMap& mappings,
+                       const log4cxx::LogString& oldStr,
+                       log4cxx::LogString& newStr) const;
 
     //! Helper for other reconfiguration methods
     bool reconfigureFromProps(log4cxx::helpers::Properties& props);

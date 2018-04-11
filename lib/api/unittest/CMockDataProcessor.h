@@ -50,7 +50,8 @@ public:
     virtual void finalise();
 
     //! Restore previously saved state
-    virtual bool restoreState(ml::core::CDataSearcher& restoreSearcher, ml::core_t::TTime& completeToTime);
+    virtual bool restoreState(ml::core::CDataSearcher& restoreSearcher,
+                              ml::core_t::TTime& completeToTime);
 
     //! Persist current state
     virtual bool persistState(ml::core::CDataAdder& persister);

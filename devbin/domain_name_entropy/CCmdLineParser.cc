@@ -23,8 +23,9 @@
 namespace ml {
 namespace domain_name_entropy {
 
-const std::string CCmdLineParser::DESCRIPTION = "Usage: domain_name_entropy [options]\n"
-                                                "Options:";
+const std::string CCmdLineParser::DESCRIPTION =
+    "Usage: domain_name_entropy [options]\n"
+    "Options:";
 
 bool CCmdLineParser::parse(int argc,
                            const char* const* argv,
@@ -33,14 +34,21 @@ bool CCmdLineParser::parse(int argc,
                            std::string& timeField) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
-        desc.add_options()("help", "Display this information and exit")("version", "Display version information and exit")(
-            "csvfilename", boost::program_options::value<std::string>(), "Csv file name string")(
-            "domainfieldname", boost::program_options::value<std::string>(), "Domain field name string")(
-            "timefieldname", boost::program_options::value<std::string>(), "Time field name string");
+        desc.add_options()("help", "Display this information and exit")(
+            "version", "Display version information and exit")(
+            "csvfilename", boost::program_options::value<std::string>(),
+            "Csv file name string")("domainfieldname",
+                                    boost::program_options::value<std::string>(),
+                                    "Domain field name string")(
+            "timefieldname", boost::program_options::value<std::string>(),
+            "Time field name string");
 
         boost::program_options::variables_map vm;
         boost::program_options::parsed_options parsed =
-            boost::program_options::command_line_parser(argc, argv).options(desc).allow_unregistered().run();
+            boost::program_options::command_line_parser(argc, argv)
+                .options(desc)
+                .allow_unregistered()
+                .run();
         boost::program_options::store(parsed, vm);
 
         if (vm.count("help") > 0) {

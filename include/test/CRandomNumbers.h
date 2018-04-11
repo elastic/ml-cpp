@@ -57,8 +57,10 @@ public:
     //! \brief Generate random samples from the specified distribution
     //! using a custom random number generator.
     template<typename RNG, typename Distribution, typename Container>
-    static void
-    generateSamples(RNG& randomNumberGenerator, const Distribution& distribution, std::size_t numberSamples, Container& samples);
+    static void generateSamples(RNG& randomNumberGenerator,
+                                const Distribution& distribution,
+                                std::size_t numberSamples,
+                                Container& samples);
 
     //! Shuffle the elements of a sequence using a random number generator.
     //!
@@ -100,11 +102,16 @@ public:
 
     //! Generate Student's t random samples with the specified degrees
     //! freedom using the default random number generator.
-    void generateStudentsSamples(double degreesFreedom, std::size_t numberSamples, TDoubleVec& samples);
+    void generateStudentsSamples(double degreesFreedom,
+                                 std::size_t numberSamples,
+                                 TDoubleVec& samples);
 
     //! Generate log-normal random samples with the specified location
     //! and scale using the default random number generator.
-    void generateLogNormalSamples(double location, double squareScale, std::size_t numberSamples, TDoubleVec& samples);
+    void generateLogNormalSamples(double location,
+                                  double squareScale,
+                                  std::size_t numberSamples,
+                                  TDoubleVec& samples);
 
     //! Generate uniform random samples in the interval [a,b) using
     //! the default random number generator.
@@ -127,7 +134,9 @@ public:
 
     //! Generate random samples from a Diriclet distribution with
     //! concentration parameters \p concentrations.
-    void generateDirichletSamples(const TDoubleVec& concentrations, std::size_t numberSamples, TDoubleVecVec& samples);
+    void generateDirichletSamples(const TDoubleVec& concentrations,
+                                  std::size_t numberSamples,
+                                  TDoubleVecVec& samples);
 
     //! Generate a collection of random words of specified length using
     //! the default random number generator.
@@ -145,10 +154,11 @@ public:
     //! matrix for each cluster.
     //! \param[out] points Filled in with the samples from each cluster.
     template<typename T, std::size_t N>
-    void generateRandomMultivariateNormals(const TSizeVec& sizes,
-                                           std::vector<maths::CVectorNx1<T, N>>& means,
-                                           std::vector<maths::CSymmetricMatrixNxN<T, N>>& covariances,
-                                           std::vector<std::vector<maths::CVectorNx1<T, N>>>& points);
+    void
+    generateRandomMultivariateNormals(const TSizeVec& sizes,
+                                      std::vector<maths::CVectorNx1<T, N>>& means,
+                                      std::vector<maths::CSymmetricMatrixNxN<T, N>>& covariances,
+                                      std::vector<std::vector<maths::CVectorNx1<T, N>>>& points);
 
     //! Get a uniform generator in the range [0, n). This can be used
     //! in conjunction with std::random_shuffle if you want a seeded

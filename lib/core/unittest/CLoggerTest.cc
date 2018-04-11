@@ -40,12 +40,16 @@ const char* TEST_PIPE_NAME = "testfiles/testpipe";
 CppUnit::Test* CLoggerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLoggerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testLogging", &CLoggerTest::testLogging));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testReconfiguration", &CLoggerTest::testReconfiguration));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testSetLevel", &CLoggerTest::testSetLevel));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testLogEnvironment", &CLoggerTest::testLogEnvironment));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testNonAsciiJsonLogging", &CLoggerTest::testNonAsciiJsonLogging));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
+        "CLoggerTest::testLogging", &CLoggerTest::testLogging));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
+        "CLoggerTest::testReconfiguration", &CLoggerTest::testReconfiguration));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
+        "CLoggerTest::testSetLevel", &CLoggerTest::testSetLevel));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
+        "CLoggerTest::testLogEnvironment", &CLoggerTest::testLogEnvironment));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
+        "CLoggerTest::testNonAsciiJsonLogging", &CLoggerTest::testNonAsciiJsonLogging));
 
     return suiteOfTests;
 }
@@ -60,9 +64,8 @@ void CLoggerTest::testLogging() {
     LOG_INFO(<< "Info " << std::boolalpha << true);
     LOG_AT_LEVEL("INFO", << "Dynamic INFO " << false);
     LOG_WARN(<< "Warn " << t);
-    LOG_AT_LEVEL("WARN",
-                 "Dynamic WARN "
-                     << "abc");
+    LOG_AT_LEVEL("WARN", "Dynamic WARN "
+                             << "abc");
     LOG_ERROR(<< "Error " << 1000 << ' ' << 0.23124F);
     LOG_AT_LEVEL("ERROR", << "Dynamic ERROR");
     LOG_FATAL(<< "Fatal - application to handle exit");
@@ -79,7 +82,8 @@ void CLoggerTest::testReconfiguration() {
 
     LOG_DEBUG(<< "Starting logger reconfiguration test");
 
-    LOG_TRACE(<< "This shouldn't be seen because the hardcoded default log level is DEBUG");
+    LOG_TRACE(<< "This shouldn't be seen because the hardcoded default log "
+                 "level is DEBUG");
     CPPUNIT_ASSERT(!logger.hasBeenReconfigured());
 
     CPPUNIT_ASSERT(!logger.reconfigureFromFile("nonexistantfile"));
@@ -91,7 +95,8 @@ void CLoggerTest::testReconfiguration() {
     // with the level set to TRACE rather than DEBUG
     CPPUNIT_ASSERT(logger.reconfigureFromFile("testfiles/log4cxx.properties"));
 
-    LOG_TRACE(<< "This should be seen because the reconfigured log level is TRACE");
+    LOG_TRACE(
+        << "This should be seen because the reconfigured log level is TRACE");
     CPPUNIT_ASSERT(logger.hasBeenReconfigured());
 }
 
@@ -151,14 +156,16 @@ void CLoggerTest::testSetLevel() {
 }
 
 void CLoggerTest::testNonAsciiJsonLogging() {
-    std::vector<std::string> messages{"Non-iso8859-15: 编码", "Non-ascii: üaöä", "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
+    std::vector<std::string> messages{"Non-iso8859-15: 编码", "Non-ascii: üaöä",
+                                      "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
 
     std::ostringstream loggedData;
     std::thread reader([&loggedData] {
         // wait a bit so that pipe has been created
         ml::core::CSleep::sleep(200);
         std::ifstream strm(TEST_PIPE_NAME);
-        std::copy(std::istreambuf_iterator<char>(strm), std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(loggedData));
+        std::copy(std::istreambuf_iterator<char>(strm), std::istreambuf_iterator<char>(),
+                  std::ostreambuf_iterator<char>(loggedData));
     });
 
     ml::core::CLogger& logger = ml::core::CLogger::instance();

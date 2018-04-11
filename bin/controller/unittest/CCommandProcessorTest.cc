@@ -36,7 +36,9 @@ const std::string OUTPUT_FILE("slogan1.txt");
 const std::string INPUT_FILE1("testfiles\\slogan1.txt");
 const std::string INPUT_FILE2("testfiles\\slogan2.txt");
 const char* winDir(::getenv("windir"));
-const std::string PROCESS_PATH(winDir != 0 ? std::string(winDir) + "\\System32\\cmd" : std::string("C:\\Windows\\System32\\cmd"));
+const std::string
+    PROCESS_PATH(winDir != 0 ? std::string(winDir) + "\\System32\\cmd"
+                             : std::string("C:\\Windows\\System32\\cmd"));
 const std::string PROCESS_ARGS1[] = {"/C", "copy " + INPUT_FILE1 + " ."};
 const std::string PROCESS_ARGS2[] = {"/C", "del " + INPUT_FILE2};
 #else
@@ -51,18 +53,21 @@ const std::string SLOGAN2("You know, for search!");
 }
 
 CppUnit::Test* CCommandProcessorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCommandProcessorTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CCommandProcessorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testStartPermitted",
-                                                                         &CCommandProcessorTest::testStartPermitted));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testStartNonPermitted",
-                                                                         &CCommandProcessorTest::testStartNonPermitted));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testStartNonExistent",
-                                                                         &CCommandProcessorTest::testStartNonExistent));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testKillDisallowed",
-                                                                         &CCommandProcessorTest::testKillDisallowed));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testInvalidVerb", &CCommandProcessorTest::testInvalidVerb));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>(
+        "CCommandProcessorTest::testStartPermitted", &CCommandProcessorTest::testStartPermitted));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>(
+        "CCommandProcessorTest::testStartNonPermitted",
+        &CCommandProcessorTest::testStartNonPermitted));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>(
+        "CCommandProcessorTest::testStartNonExistent",
+        &CCommandProcessorTest::testStartNonExistent));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>(
+        "CCommandProcessorTest::testKillDisallowed", &CCommandProcessorTest::testKillDisallowed));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>(
+        "CCommandProcessorTest::testInvalidVerb", &CCommandProcessorTest::testInvalidVerb));
 
     return suiteOfTests;
 }
@@ -101,7 +106,8 @@ void CCommandProcessorTest::testStartPermitted() {
 }
 
 void CCommandProcessorTest::testStartNonPermitted() {
-    ml::controller::CCommandProcessor::TStrVec permittedPaths(1, "some other process");
+    ml::controller::CCommandProcessor::TStrVec permittedPaths(
+        1, "some other process");
     ml::controller::CCommandProcessor processor(permittedPaths);
 
     std::string command(ml::controller::CCommandProcessor::START);
@@ -128,7 +134,8 @@ void CCommandProcessorTest::testStartNonPermitted() {
 }
 
 void CCommandProcessorTest::testStartNonExistent() {
-    ml::controller::CCommandProcessor::TStrVec permittedPaths(1, "some other process");
+    ml::controller::CCommandProcessor::TStrVec permittedPaths(
+        1, "some other process");
     ml::controller::CCommandProcessor processor(permittedPaths);
 
     std::string command(ml::controller::CCommandProcessor::START);
@@ -146,13 +153,15 @@ void CCommandProcessorTest::testKillDisallowed() {
 
     std::string command(ml::controller::CCommandProcessor::KILL);
     command += '\t';
-    command += ml::core::CStringUtils::typeToString(ml::core::CProcess::instance().id());
+    command +=
+        ml::core::CStringUtils::typeToString(ml::core::CProcess::instance().id());
 
     CPPUNIT_ASSERT(!processor.handleCommand(command));
 }
 
 void CCommandProcessorTest::testInvalidVerb() {
-    ml::controller::CCommandProcessor::TStrVec permittedPaths(1, "some other process");
+    ml::controller::CCommandProcessor::TStrVec permittedPaths(
+        1, "some other process");
     ml::controller::CCommandProcessor processor(permittedPaths);
 
     std::string command("drive");

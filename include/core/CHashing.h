@@ -86,8 +86,9 @@ public:
             uint32_t operator()(uint32_t x) const {
                 // Note by construction:
                 //   a * x + b < p^2 + p < 2^64
-                return static_cast<uint32_t>(((static_cast<uint64_t>(m_A) * x + static_cast<uint64_t>(m_B)) % BIG_PRIME) %
-                                             static_cast<uint64_t>(m_M));
+                return static_cast<uint32_t>(
+                    ((static_cast<uint64_t>(m_A) * x + static_cast<uint64_t>(m_B)) % BIG_PRIME) %
+                    static_cast<uint64_t>(m_M));
             }
 
             //! Print the hash function for debug.
@@ -124,7 +125,8 @@ public:
             uint32_t operator()(uint32_t x) const {
                 // Note by construction:
                 //   a * x + b < p^2 + p < 2^64
-                return static_cast<uint32_t>((static_cast<uint64_t>(m_A) * x + static_cast<uint64_t>(m_B)) % BIG_PRIME);
+                return static_cast<uint32_t>(
+                    (static_cast<uint64_t>(m_A) * x + static_cast<uint64_t>(m_B)) % BIG_PRIME);
             }
 
             //! Print the hash function for debug.
@@ -172,8 +174,10 @@ public:
                 //   (a(1) * x(1)) mod p + a(2) * x(2) + b
                 //     < p^2 + 2*p
                 //     < 2^64
-                uint64_t h = (static_cast<uint64_t>(m_A[0]) * x1) % BIG_PRIME + static_cast<uint64_t>(m_A[1]) * x2;
-                return static_cast<uint32_t>(((h + static_cast<uint64_t>(m_B)) % BIG_PRIME) % static_cast<uint64_t>(m_M));
+                uint64_t h = (static_cast<uint64_t>(m_A[0]) * x1) % BIG_PRIME +
+                             static_cast<uint64_t>(m_A[1]) * x2;
+                return static_cast<uint32_t>(((h + static_cast<uint64_t>(m_B)) % BIG_PRIME) %
+                                             static_cast<uint64_t>(m_M));
             }
 
             //! \note This is implemented inline in contravention to
@@ -190,7 +194,8 @@ public:
                 for (std::size_t i = 1u; i < x.size(); ++i) {
                     h = (h % BIG_PRIME + static_cast<uint64_t>(m_A[i]) * x[i]);
                 }
-                return static_cast<uint32_t>(((h + static_cast<uint64_t>(m_B)) % BIG_PRIME) % static_cast<uint64_t>(m_M));
+                return static_cast<uint32_t>(((h + static_cast<uint64_t>(m_B)) % BIG_PRIME) %
+                                             static_cast<uint64_t>(m_M));
             }
 
             //! Print the hash function for debug.
@@ -287,7 +292,8 @@ public:
         //! \param n The size of vectors to hash.
         //! \param m The range of the hash functions.
         //! \param result Filled in with the sampled hash functions.
-        static void generateHashes(std::size_t k, std::size_t n, uint32_t m, TUInt32VecHashVec& result);
+        static void
+        generateHashes(std::size_t k, std::size_t n, uint32_t m, TUInt32VecHashVec& result);
 
     private:
         //! Our random number generator for sampling hash function.
@@ -385,7 +391,8 @@ public:
     //!
     //! \note This is significantly faster than boost::hash<std::string>
     //! and has better distributions.
-    class CORE_EXPORT CMurmurHash2String : public std::unary_function<std::string, std::size_t> {
+    class CORE_EXPORT CMurmurHash2String
+        : public std::unary_function<std::string, std::size_t> {
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
@@ -395,7 +402,9 @@ public:
         CMurmurHash2String(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
 
         std::size_t operator()(const std::string& key) const;
-        std::size_t operator()(TStrCRef key) const { return this->operator()(key.get()); }
+        std::size_t operator()(TStrCRef key) const {
+            return this->operator()(key.get());
+        }
         std::size_t operator()(const CStoredStringPtr& key) const {
             if (key) {
                 return this->operator()(*key);
@@ -412,7 +421,8 @@ public:
     //! example would be where the hash value somehow affects data that is
     //! visible outside the program, such as state persisted to a data
     //! store.  This is also immune to endianness issues.
-    class CORE_EXPORT CSafeMurmurHash2String64 : public std::unary_function<std::string, uint64_t> {
+    class CORE_EXPORT CSafeMurmurHash2String64
+        : public std::unary_function<std::string, uint64_t> {
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
@@ -422,7 +432,9 @@ public:
         CSafeMurmurHash2String64(uint64_t seed = 0x5bd1e995) : m_Seed(seed) {}
 
         uint64_t operator()(const std::string& key) const;
-        std::size_t operator()(TStrCRef key) const { return this->operator()(key.get()); }
+        std::size_t operator()(TStrCRef key) const {
+            return this->operator()(key.get());
+        }
         std::size_t operator()(const CStoredStringPtr& key) const {
             if (key) {
                 return this->operator()(*key);
@@ -447,7 +459,8 @@ namespace hash_detail {
 template<std::size_t>
 struct SMurmurHashForArchitecture {
     static std::size_t hash(const void* key, int length, std::size_t seed) {
-        return static_cast<std::size_t>(CHashing::murmurHash32(key, length, static_cast<uint32_t>(seed)));
+        return static_cast<std::size_t>(
+            CHashing::murmurHash32(key, length, static_cast<uint32_t>(seed)));
     }
 };
 
@@ -464,14 +477,17 @@ struct SMurmurHashForArchitecture<8> {
 
 template<typename T>
 inline std::size_t CHashing::CMurmurHash2BT<T>::operator()(const T& key) const {
-    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(&key, static_cast<int>(sizeof(key)), m_Seed);
+    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(
+        &key, static_cast<int>(sizeof(key)), m_Seed);
 }
 
 inline std::size_t CHashing::CMurmurHash2String::operator()(const std::string& key) const {
-    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(key.data(), static_cast<int>(key.size()), m_Seed);
+    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(
+        key.data(), static_cast<int>(key.size()), m_Seed);
 }
 
-inline uint64_t CHashing::CSafeMurmurHash2String64::operator()(const std::string& key) const {
+inline uint64_t CHashing::CSafeMurmurHash2String64::
+operator()(const std::string& key) const {
     return CHashing::safeMurmurHash64(key.data(), static_cast<int>(key.size()), m_Seed);
 }
 }

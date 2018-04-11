@@ -40,13 +40,16 @@ class CIncrementer;
 class VFLIB_EXPORT CLooper {
 public:
     //! Loop calling the inlined incrementer
-    static size_t inlinedLibraryCallLoop(CIncrementer& incrementer, size_t count, size_t val);
+    static size_t
+    inlinedLibraryCallLoop(CIncrementer& incrementer, size_t count, size_t val);
 
     //! Loop calling the non-virtual incrementer
-    static size_t nonVirtualLibraryCallLoop(CIncrementer& incrementer, size_t count, size_t val);
+    static size_t
+    nonVirtualLibraryCallLoop(CIncrementer& incrementer, size_t count, size_t val);
 
     //! Loop calling the virtual incrementer
-    static size_t virtualLibraryCallLoop(CIncrementer& incrementer, size_t count, size_t val);
+    static size_t
+    virtualLibraryCallLoop(CIncrementer& incrementer, size_t count, size_t val);
 };
 }
 }

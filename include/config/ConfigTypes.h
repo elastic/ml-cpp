@@ -36,7 +36,15 @@ CONFIG_EXPORT
 std::ostream& operator<<(std::ostream& o, EUserDataType type);
 
 //! Enumeration of the data types we understand.
-enum EDataType { E_UndeterminedType, E_Binary, E_Categorical, E_PositiveInteger, E_Integer, E_PositiveReal, E_Real };
+enum EDataType {
+    E_UndeterminedType,
+    E_Binary,
+    E_Categorical,
+    E_PositiveInteger,
+    E_Integer,
+    E_PositiveReal,
+    E_Real
+};
 
 //! Check if the type is categorical.
 CONFIG_EXPORT
@@ -59,7 +67,18 @@ CONFIG_EXPORT
 std::ostream& operator<<(std::ostream& o, EDataType type);
 
 //! Enumeration of the top-level functions we'll consider configuring.
-enum EFunctionCategory { E_Count, E_Rare, E_DistinctCount, E_InfoContent, E_Mean, E_Min, E_Max, E_Sum, E_Varp, E_Median };
+enum EFunctionCategory {
+    E_Count,
+    E_Rare,
+    E_DistinctCount,
+    E_InfoContent,
+    E_Mean,
+    E_Min,
+    E_Max,
+    E_Sum,
+    E_Varp,
+    E_Median
+};
 
 //! Check if the function takes an argument.
 CONFIG_EXPORT
@@ -93,7 +112,8 @@ bool hasDoAndDontIgnoreEmptyVersions(EFunctionCategory function);
 //! Get the prefix of the function corresponding to \p ignoreEmpty
 //! and \p isPopulation.
 CONFIG_EXPORT
-const std::string& ignoreEmptyVersionName(EFunctionCategory function, bool ignoreEmpty, bool isPopulation);
+const std::string&
+ignoreEmptyVersionName(EFunctionCategory function, bool ignoreEmpty, bool isPopulation);
 
 //! Get a string for the function function.
 CONFIG_EXPORT

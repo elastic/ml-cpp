@@ -40,11 +40,16 @@ public:
 
 public:
     //! Create a new non-informative multivariate normal prior.
-    static TPriorPtr nonInformative(std::size_t dimension, maths_t::EDataType dataType, double decayRate, const TPriorPtrVec& models);
+    static TPriorPtr nonInformative(std::size_t dimension,
+                                    maths_t::EDataType dataType,
+                                    double decayRate,
+                                    const TPriorPtrVec& models);
 
     //! Create reading state from its state document representation.
-    static bool
-    restore(std::size_t dimension, const SDistributionRestoreParams& params, TPriorPtr& ptr, core::CStateRestoreTraverser& traverser);
+    static bool restore(std::size_t dimension,
+                        const SDistributionRestoreParams& params,
+                        TPriorPtr& ptr,
+                        core::CStateRestoreTraverser& traverser);
 };
 }
 }

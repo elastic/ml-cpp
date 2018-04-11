@@ -75,7 +75,8 @@ public:
 private:
     using TTimeStrPr = std::pair<core_t::TTime, std::string>;
     using TTimeStrPrVec = std::vector<TTimeStrPr>;
-    using TDataSummaryStatistics = boost::variant<CDataSummaryStatistics, CCategoricalDataSummaryStatistics, CNumericDataSummaryStatistics>;
+    using TDataSummaryStatistics =
+        boost::variant<CDataSummaryStatistics, CCategoricalDataSummaryStatistics, CNumericDataSummaryStatistics>;
 
 private:
     //! The auto-configuration parameters.

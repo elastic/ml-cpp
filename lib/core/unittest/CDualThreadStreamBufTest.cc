@@ -29,16 +29,17 @@
 #include <string.h>
 
 CppUnit::Test* CDualThreadStreamBufTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDualThreadStreamBufTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CDualThreadStreamBufTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testThroughput",
-                                                                            &CDualThreadStreamBufTest::testThroughput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testSlowConsumer",
-                                                                            &CDualThreadStreamBufTest::testSlowConsumer));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testPutback", &CDualThreadStreamBufTest::testPutback));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testFatal", &CDualThreadStreamBufTest::testFatal));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
+        "CDualThreadStreamBufTest::testThroughput", &CDualThreadStreamBufTest::testThroughput));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
+        "CDualThreadStreamBufTest::testSlowConsumer", &CDualThreadStreamBufTest::testSlowConsumer));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
+        "CDualThreadStreamBufTest::testPutback", &CDualThreadStreamBufTest::testPutback));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
+        "CDualThreadStreamBufTest::testFatal", &CDualThreadStreamBufTest::testFatal));
 
     return suiteOfTests;
 }
@@ -48,7 +49,8 @@ namespace {
 class CInputThread : public ml::core::CThread {
 public:
     CInputThread(ml::core::CDualThreadStreamBuf& buffer, uint32_t delay = 0, size_t fatalAfter = 0)
-        : m_Buffer(buffer), m_Delay(delay), m_FatalAfter(fatalAfter), m_TotalData(0) {}
+        : m_Buffer(buffer), m_Delay(delay), m_FatalAfter(fatalAfter),
+          m_TotalData(0) {}
 
     size_t totalData() const { return m_TotalData; }
 
@@ -78,19 +80,20 @@ private:
     size_t m_TotalData;
 };
 
-const char* DATA("According to the most recent Wikipedia definition \"Predictive "
-                 "analytics encompasses a variety of statistical techniques from "
-                 "modeling, machine learning, data mining and game theory that ... "
-                 "exploit patterns found in historical and transactional data to "
-                 "identify risks and opportunities.\"\n"
-                 "In applications such as credit scoring, predictive analytics "
-                 "identifies patterns and relationships in huge volumes of data, hidden "
-                 "to human analysis, that presages an undesirable outcome.  Many "
-                 "vendors refer to their ability to project a ramp in a single metric, "
-                 "say CPU utilization, as predictive analytics.  As most users know, "
-                 "these capabilities are of limited value in that single metrics are "
-                 "rarely the cause of cataclysmic failures.  Rather it is the impact of "
-                 "change between components that causes failure in complex IT systems.\n");
+const char* DATA(
+    "According to the most recent Wikipedia definition \"Predictive "
+    "analytics encompasses a variety of statistical techniques from "
+    "modeling, machine learning, data mining and game theory that ... "
+    "exploit patterns found in historical and transactional data to "
+    "identify risks and opportunities.\"\n"
+    "In applications such as credit scoring, predictive analytics "
+    "identifies patterns and relationships in huge volumes of data, hidden "
+    "to human analysis, that presages an undesirable outcome.  Many "
+    "vendors refer to their ability to project a ramp in a single metric, "
+    "say CPU utilization, as predictive analytics.  As most users know, "
+    "these capabilities are of limited value in that single metrics are "
+    "rarely the cause of cataclysmic failures.  Rather it is the impact of "
+    "change between components that causes failure in complex IT systems.\n");
 }
 
 void CDualThreadStreamBufTest::testThroughput() {
@@ -103,7 +106,8 @@ void CDualThreadStreamBufTest::testThroughput() {
     inputThread.start();
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Starting REST buffer throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting REST buffer throughput test at "
+             << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
@@ -116,19 +120,21 @@ void CDualThreadStreamBufTest::testThroughput() {
         }
     }
 
-    CPPUNIT_ASSERT_EQUAL(static_cast<std::streampos>(totalDataSize), buf.pubseekoff(0, std::ios_base::cur, std::ios_base::out));
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::streampos>(totalDataSize),
+                         buf.pubseekoff(0, std::ios_base::cur, std::ios_base::out));
 
     buf.signalEndOfFile();
 
     inputThread.waitForFinish();
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Finished REST buffer throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished REST buffer throughput test at "
+             << ml::core::CTimeUtils::toTimeString(end));
 
     CPPUNIT_ASSERT_EQUAL(totalDataSize, inputThread.totalData());
 
-    LOG_INFO(<< "REST buffer throughput test with test size " << TEST_SIZE << " (total data transferred " << totalDataSize
-             << " bytes) took " << (end - start) << " seconds");
+    LOG_INFO(<< "REST buffer throughput test with test size " << TEST_SIZE << " (total data transferred "
+             << totalDataSize << " bytes) took " << (end - start) << " seconds");
 }
 
 void CDualThreadStreamBufTest::testSlowConsumer() {
@@ -143,7 +149,8 @@ void CDualThreadStreamBufTest::testSlowConsumer() {
     inputThread.start();
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Starting REST buffer slow consumer test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting REST buffer slow consumer test at "
+             << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
@@ -161,15 +168,18 @@ void CDualThreadStreamBufTest::testSlowConsumer() {
     inputThread.waitForFinish();
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Finished REST buffer slow consumer test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished REST buffer slow consumer test at "
+             << ml::core::CTimeUtils::toTimeString(end));
 
     CPPUNIT_ASSERT_EQUAL(totalDataSize, inputThread.totalData());
 
     ml::core_t::TTime duration(end - start);
-    LOG_INFO(<< "REST buffer slow consumer test with test size " << TEST_SIZE << ", " << numNewLines << " newlines per message and delay "
+    LOG_INFO(<< "REST buffer slow consumer test with test size " << TEST_SIZE
+             << ", " << numNewLines << " newlines per message and delay "
              << DELAY << "ms took " << duration << " seconds");
 
-    ml::core_t::TTime delaySecs(static_cast<ml::core_t::TTime>((DELAY * numNewLines * TEST_SIZE) / 1000));
+    ml::core_t::TTime delaySecs(
+        static_cast<ml::core_t::TTime>((DELAY * numNewLines * TEST_SIZE) / 1000));
     CPPUNIT_ASSERT(duration >= delaySecs);
     static const ml::core_t::TTime TOLERANCE(3);
     CPPUNIT_ASSERT(duration <= delaySecs + TOLERANCE);
@@ -248,7 +258,8 @@ void CDualThreadStreamBufTest::testFatal() {
 
     inputThread.waitForFinish();
 
-    LOG_DEBUG(<< "Total data written in fatal error test of size " << TEST_SIZE << " is " << totalDataWritten << " bytes");
+    LOG_DEBUG(<< "Total data written in fatal error test of size " << TEST_SIZE
+              << " is " << totalDataWritten << " bytes");
 
     // The fatal error should have stopped the writer thread from writing all the data
     CPPUNIT_ASSERT(totalDataWritten >= BUFFER_CAPACITY);

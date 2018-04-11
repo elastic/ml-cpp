@@ -159,8 +159,8 @@ void CToolsTest::testProbabilityAggregator() {
 CppUnit::Test* CToolsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CToolsTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CToolsTest>("CToolsTest::testProbabilityAggregator", &CToolsTest::testProbabilityAggregator));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CToolsTest>(
+        "CToolsTest::testProbabilityAggregator", &CToolsTest::testProbabilityAggregator));
 
     return suiteOfTests;
 }

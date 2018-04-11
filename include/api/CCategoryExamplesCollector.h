@@ -47,7 +47,8 @@ public:
 
 public:
     CCategoryExamplesCollector(std::size_t maxExamples);
-    CCategoryExamplesCollector(std::size_t maxExamples, core::CStateRestoreTraverser& traverser);
+    CCategoryExamplesCollector(std::size_t maxExamples,
+                               core::CStateRestoreTraverser& traverser);
 
     //! Adds the example to the category if the example is a new
     //! distinct example and if there are less than the maximum
@@ -73,7 +74,9 @@ private:
     using TSizeStrSetUMap = boost::unordered_map<std::size_t, TStrSet>;
 
 private:
-    void persistExamples(std::size_t category, const TStrSet& examples, core::CStatePersistInserter& inserter) const;
+    void persistExamples(std::size_t category,
+                         const TStrSet& examples,
+                         core::CStatePersistInserter& inserter) const;
     bool restoreExamples(core::CStateRestoreTraverser& traverser);
 
     //! Truncate long examples to MAX_EXAMPLE_LENGTH bytes, appending an

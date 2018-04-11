@@ -18,9 +18,11 @@
 #include <core/CWindowsError.h>
 
 CppUnit::Test* CWindowsErrorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CWindowsErrorTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CWindowsErrorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWindowsErrorTest>("CWindowsErrorTest::testErrors", &CWindowsErrorTest::testErrors));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CWindowsErrorTest>(
+        "CWindowsErrorTest::testErrors", &CWindowsErrorTest::testErrors));
 
     return suiteOfTests;
 }

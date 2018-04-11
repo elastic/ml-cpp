@@ -20,10 +20,11 @@
 #include <vector>
 
 CppUnit::Test* CBlockingMessageQueueTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBlockingMessageQueueTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CBlockingMessageQueueTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBlockingMessageQueueTest>("CBlockingMessageQueueTest::testSendReceive",
-                                                                             &CBlockingMessageQueueTest::testSendReceive));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBlockingMessageQueueTest>(
+        "CBlockingMessageQueueTest::testSendReceive", &CBlockingMessageQueueTest::testSendReceive));
 
     return suiteOfTests;
 }

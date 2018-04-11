@@ -35,7 +35,8 @@ using namespace core;
 using TOStringStreamConcurrentWrapper = CConcurrentWrapper<std::ostringstream>;
 
 // a low capacity wrapper with only 5 buckets for the queue, the 3 controls the wakeup of threads
-using TOStringStreamLowCapacityConcurrentWrapper = CConcurrentWrapper<std::ostringstream, 5, 3>;
+using TOStringStreamLowCapacityConcurrentWrapper =
+    CConcurrentWrapper<std::ostringstream, 5, 3>;
 
 void CConcurrentWrapperTest::testBasic() {
 
@@ -52,7 +53,8 @@ void CConcurrentWrapperTest::testBasic() {
             o << " world 2\n";
         });
     }
-    CPPUNIT_ASSERT_EQUAL(std::string("Hello 1 world 1\nHello 2 world 2\n"), stringStream.str());
+    CPPUNIT_ASSERT_EQUAL(std::string("Hello 1 world 1\nHello 2 world 2\n"),
+                         stringStream.str());
 }
 
 namespace {
@@ -68,7 +70,9 @@ void task(CConcurrentWrapper<std::ostringstream>& sink, int i, std::chrono::micr
     });
 }
 
-void taskLowCapacityQueue(TOStringStreamLowCapacityConcurrentWrapper& sink, int i, std::chrono::microseconds pause) {
+void taskLowCapacityQueue(TOStringStreamLowCapacityConcurrentWrapper& sink,
+                          int i,
+                          std::chrono::microseconds pause) {
     sink([i, pause](std::ostream& o) {
         o << "ta";
         std::this_thread::sleep_for(pause);
@@ -88,7 +92,8 @@ void CConcurrentWrapperTest::testThreads() {
 
         boost::threadpool::pool tp(10);
         for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.schedule(boost::bind(task, boost::ref(wrappedStringStream), i, std::chrono::microseconds(0)));
+            tp.schedule(boost::bind(task, boost::ref(wrappedStringStream), i,
+                                    std::chrono::microseconds(0)));
         }
 
         tp.wait();
@@ -114,7 +119,8 @@ void CConcurrentWrapperTest::testThreadsSlow() {
 
         boost::threadpool::pool tp(2);
         for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.schedule(boost::bind(task, boost::ref(wrappedStringStream), i, std::chrono::microseconds(50)));
+            tp.schedule(boost::bind(task, boost::ref(wrappedStringStream), i,
+                                    std::chrono::microseconds(50)));
         }
 
         tp.wait();
@@ -141,7 +147,8 @@ void CConcurrentWrapperTest::testThreadsSlowLowCapacity() {
         boost::threadpool::pool tp(2);
 
         for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.schedule(boost::bind(taskLowCapacityQueue, boost::ref(wrappedStringStream), i, std::chrono::microseconds(50)));
+            tp.schedule(boost::bind(taskLowCapacityQueue, boost::ref(wrappedStringStream),
+                                    i, std::chrono::microseconds(50)));
         }
 
         tp.wait();
@@ -168,7 +175,8 @@ void CConcurrentWrapperTest::testThreadsLowCapacity() {
         boost::threadpool::pool tp(8);
 
         for (size_t i = 0; i < MESSAGES; ++i) {
-            tp.schedule(boost::bind(taskLowCapacityQueue, boost::ref(wrappedStringStream), i, std::chrono::microseconds(0)));
+            tp.schedule(boost::bind(taskLowCapacityQueue, boost::ref(wrappedStringStream),
+                                    i, std::chrono::microseconds(0)));
         }
 
         tp.wait();
@@ -196,20 +204,23 @@ void CConcurrentWrapperTest::testMemoryDebug() {
 }
 
 CppUnit::Test* CConcurrentWrapperTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CConcurrentWrapperTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CConcurrentWrapperTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CConcurrentWrapperTest>("CConcurrentWrapperTest::testBasic", &CConcurrentWrapperTest::testBasic));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CConcurrentWrapperTest>("CConcurrentWrapperTest::testThreads", &CConcurrentWrapperTest::testThreads));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>("CConcurrentWrapperTest::testThreadsSlow",
-                                                                          &CConcurrentWrapperTest::testThreadsSlow));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>("CConcurrentWrapperTest::testThreadsSlowLowCapacity",
-                                                                          &CConcurrentWrapperTest::testThreadsSlowLowCapacity));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>("CConcurrentWrapperTest::testThreadsLowCapacity",
-                                                                          &CConcurrentWrapperTest::testThreadsLowCapacity));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>("CConcurrentWrapperTest::testMemoryDebug",
-                                                                          &CConcurrentWrapperTest::testMemoryDebug));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
+        "CConcurrentWrapperTest::testBasic", &CConcurrentWrapperTest::testBasic));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
+        "CConcurrentWrapperTest::testThreads", &CConcurrentWrapperTest::testThreads));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
+        "CConcurrentWrapperTest::testThreadsSlow", &CConcurrentWrapperTest::testThreadsSlow));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
+        "CConcurrentWrapperTest::testThreadsSlowLowCapacity",
+        &CConcurrentWrapperTest::testThreadsSlowLowCapacity));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
+        "CConcurrentWrapperTest::testThreadsLowCapacity",
+        &CConcurrentWrapperTest::testThreadsLowCapacity));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
+        "CConcurrentWrapperTest::testMemoryDebug", &CConcurrentWrapperTest::testMemoryDebug));
 
     return suiteOfTests;
 }

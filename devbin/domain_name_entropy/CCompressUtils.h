@@ -63,7 +63,12 @@ public:
     bool compressedStringLength(bool finish, size_t& length);
 
 private:
-    enum EState { E_Uninitialized, E_Compressing, E_Uncompressing, E_IsFinished };
+    enum EState {
+        E_Uninitialized,
+        E_Compressing,
+        E_Uncompressing,
+        E_IsFinished
+    };
 
     EState m_State;
 

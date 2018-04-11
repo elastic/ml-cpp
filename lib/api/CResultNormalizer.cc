@@ -25,8 +25,10 @@ namespace api {
 
 // Initialise statics
 const std::string CResultNormalizer::LEVEL("level");
-const std::string CResultNormalizer::PARTITION_FIELD_NAME("partition_field_name");
-const std::string CResultNormalizer::PARTITION_FIELD_VALUE("partition_field_value");
+const std::string
+    CResultNormalizer::PARTITION_FIELD_NAME("partition_field_name");
+const std::string
+    CResultNormalizer::PARTITION_FIELD_VALUE("partition_field_value");
 const std::string CResultNormalizer::PERSON_FIELD_NAME("person_field_name");
 const std::string CResultNormalizer::FUNCTION_NAME("function_name");
 const std::string CResultNormalizer::VALUE_FIELD_NAME("value_field_name");
@@ -39,9 +41,9 @@ const std::string CResultNormalizer::BUCKET_INFLUENCER_LEVEL("inflb");
 const std::string CResultNormalizer::INFLUENCER_LEVEL("infl");
 const std::string CResultNormalizer::ZERO("0");
 
-CResultNormalizer::CResultNormalizer(const model::CAnomalyDetectorModelConfig& modelConfig, COutputHandler& outputHandler)
-    : m_ModelConfig(modelConfig),
-      m_OutputHandler(outputHandler),
+CResultNormalizer::CResultNormalizer(const model::CAnomalyDetectorModelConfig& modelConfig,
+                                     COutputHandler& outputHandler)
+    : m_ModelConfig(modelConfig), m_OutputHandler(outputHandler),
       m_WriteFieldNames(true),
       m_OutputFieldNormalizedScore(m_OutputFields[NORMALIZED_SCORE_NAME]),
       m_Normalizer(m_ModelConfig) {
@@ -49,7 +51,8 @@ CResultNormalizer::CResultNormalizer(const model::CAnomalyDetectorModelConfig& m
 
 bool CResultNormalizer::initNormalizer(const std::string& stateFileName) {
     std::ifstream inputStream(stateFileName.c_str());
-    model::CHierarchicalResultsNormalizer::ERestoreOutcome outcome(m_Normalizer.fromJsonStream(inputStream));
+    model::CHierarchicalResultsNormalizer::ERestoreOutcome outcome(
+        m_Normalizer.fromJsonStream(inputStream));
     if (outcome != model::CHierarchicalResultsNormalizer::E_Ok) {
         LOG_ERROR(<< "Failed to restore JSON state for quantiles");
         return false;
@@ -85,20 +88,27 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
 
     bool isValidRecord(false);
     if (m_ModelConfig.perPartitionNormalization()) {
-        isValidRecord = parseDataFields(dataRowFields, level, partition, partitionValue, person, function, valueFieldName, probability);
+        isValidRecord = parseDataFields(dataRowFields, level, partition, partitionValue,
+                                        person, function, valueFieldName, probability);
     } else {
-        isValidRecord = parseDataFields(dataRowFields, level, partition, person, function, valueFieldName, probability);
+        isValidRecord = parseDataFields(dataRowFields, level, partition, person,
+                                        function, valueFieldName, probability);
     }
 
-    std::string partitionKey = m_ModelConfig.perPartitionNormalization() ? partition + partitionValue : partition;
+    std::string partitionKey = m_ModelConfig.perPartitionNormalization()
+                                   ? partition + partitionValue
+                                   : partition;
 
     if (isValidRecord) {
         const model::CAnomalyScore::CNormalizer* levelNormalizer = nullptr;
-        double score = probability > m_ModelConfig.maximumAnomalousProbability() ? 0.0 : maths::CTools::deviation(probability);
+        double score = probability > m_ModelConfig.maximumAnomalousProbability()
+                           ? 0.0
+                           : maths::CTools::deviation(probability);
         if (level == ROOT_LEVEL) {
             levelNormalizer = &m_Normalizer.bucketNormalizer();
         } else if (level == LEAF_LEVEL) {
-            levelNormalizer = m_Normalizer.leafNormalizer(partitionKey, person, function, valueFieldName);
+            levelNormalizer = m_Normalizer.leafNormalizer(partitionKey, person,
+                                                          function, valueFieldName);
         } else if (level == PARTITION_LEVEL) {
             levelNormalizer = m_Normalizer.partitionNormalizer(partitionKey);
         } else if (level == BUCKET_INFLUENCER_LEVEL) {
@@ -110,16 +120,19 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
         }
         if (levelNormalizer != nullptr) {
             if (levelNormalizer->canNormalize() && levelNormalizer->normalize(score) == false) {
-                LOG_ERROR(<< "Failed to normalize score " << score << " at level " << level << " with partition field name " << partition
+                LOG_ERROR(<< "Failed to normalize score " << score << " at level "
+                          << level << " with partition field name " << partition
                           << " and person field name " << person);
             }
         } else {
             LOG_ERROR(<< "No normalizer available"
                          " at level '"
-                      << level << "' with partition field name '" << partition << "' and person field name '" << person << "'");
+                      << level << "' with partition field name '" << partition
+                      << "' and person field name '" << person << "'");
         }
 
-        m_OutputFieldNormalizedScore = (score > 0.0) ? core::CStringUtils::typeToStringPretty(score) : ZERO;
+        m_OutputFieldNormalizedScore =
+            (score > 0.0) ? core::CStringUtils::typeToStringPretty(score) : ZERO;
     } else {
         m_OutputFieldNormalizedScore.clear();
     }
@@ -139,8 +152,10 @@ bool CResultNormalizer::parseDataFields(const TStrStrUMap& dataRowFields,
                                         std::string& function,
                                         std::string& valueFieldName,
                                         double& probability) {
-    return this->parseDataField(dataRowFields, LEVEL, level) && this->parseDataField(dataRowFields, PARTITION_FIELD_NAME, partition) &&
-           this->parseDataField(dataRowFields, PERSON_FIELD_NAME, person) && this->parseDataField(dataRowFields, FUNCTION_NAME, function) &&
+    return this->parseDataField(dataRowFields, LEVEL, level) &&
+           this->parseDataField(dataRowFields, PARTITION_FIELD_NAME, partition) &&
+           this->parseDataField(dataRowFields, PERSON_FIELD_NAME, person) &&
+           this->parseDataField(dataRowFields, FUNCTION_NAME, function) &&
            this->parseDataField(dataRowFields, VALUE_FIELD_NAME, valueFieldName) &&
            this->parseDataField(dataRowFields, PROBABILITY_NAME, probability);
 }
@@ -153,9 +168,11 @@ bool CResultNormalizer::parseDataFields(const TStrStrUMap& dataRowFields,
                                         std::string& function,
                                         std::string& valueFieldName,
                                         double& probability) {
-    return this->parseDataField(dataRowFields, LEVEL, level) && this->parseDataField(dataRowFields, PARTITION_FIELD_NAME, partition) &&
+    return this->parseDataField(dataRowFields, LEVEL, level) &&
+           this->parseDataField(dataRowFields, PARTITION_FIELD_NAME, partition) &&
            this->parseDataField(dataRowFields, PARTITION_FIELD_VALUE, partitionValue) &&
-           this->parseDataField(dataRowFields, PERSON_FIELD_NAME, person) && this->parseDataField(dataRowFields, FUNCTION_NAME, function) &&
+           this->parseDataField(dataRowFields, PERSON_FIELD_NAME, person) &&
+           this->parseDataField(dataRowFields, FUNCTION_NAME, function) &&
            this->parseDataField(dataRowFields, VALUE_FIELD_NAME, valueFieldName) &&
            this->parseDataField(dataRowFields, PROBABILITY_NAME, probability);
 }

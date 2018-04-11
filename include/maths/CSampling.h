@@ -91,13 +91,15 @@ public:
 
         //! Writes the mersenne_twister_engine to a std::ostream.
         template<class CHAR, class TRAITS>
-        friend std::basic_ostream<CHAR, TRAITS>& operator<<(std::basic_ostream<CHAR, TRAITS>& o, const CRandomNumberGenerator& g) {
+        friend std::basic_ostream<CHAR, TRAITS>&
+        operator<<(std::basic_ostream<CHAR, TRAITS>& o, const CRandomNumberGenerator& g) {
             return o << g.m_Rng;
         }
 
         //! Reads a mersenne_twister_engine from a std::istream.
         template<class CHAR, class TRAITS>
-        friend std::basic_istream<CHAR, TRAITS>& operator>>(std::basic_istream<CHAR, TRAITS>& i, CRandomNumberGenerator& g) {
+        friend std::basic_istream<CHAR, TRAITS>&
+        operator>>(std::basic_istream<CHAR, TRAITS>& i, CRandomNumberGenerator& g) {
             return i >> g.m_Rng;
         }
 
@@ -134,13 +136,15 @@ public:
     //!
     //! Sample uniformly from a specified range
     //@{
-#define UNIFORM_SAMPLE(TYPE)                                                                                                               \
-    static TYPE uniformSample(TYPE a, TYPE b);                                                                                             \
-    static TYPE uniformSample(CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b);                                                              \
-    static TYPE uniformSample(CPRNG::CXorShift1024Mult& rng, TYPE a, TYPE b);                                                              \
-    static void uniformSample(TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result);                                                   \
-    static void uniformSample(CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result);                    \
-    static void uniformSample(CPRNG::CXorShift1024Mult& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result);
+#define UNIFORM_SAMPLE(TYPE)                                                             \
+    static TYPE uniformSample(TYPE a, TYPE b);                                           \
+    static TYPE uniformSample(CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b);            \
+    static TYPE uniformSample(CPRNG::CXorShift1024Mult& rng, TYPE a, TYPE b);            \
+    static void uniformSample(TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result); \
+    static void uniformSample(CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b,             \
+                              std::size_t n, std::vector<TYPE>& result);                 \
+    static void uniformSample(CPRNG::CXorShift1024Mult& rng, TYPE a, TYPE b,             \
+                              std::size_t n, std::vector<TYPE>& result);
     UNIFORM_SAMPLE(std::size_t)
     UNIFORM_SAMPLE(std::ptrdiff_t)
     UNIFORM_SAMPLE(double)
@@ -161,15 +165,24 @@ public:
 
     //! Get \p n normal samples with mean and variance \p mean and
     //! \p variance, respectively.
-    static void normalSample(double mean, double variance, std::size_t n, TDoubleVec& result);
+    static void
+    normalSample(double mean, double variance, std::size_t n, TDoubleVec& result);
 
     //! Get \p n normal samples with mean and variance \p mean and
     //! \p variance, respectively, using \p rng.
-    static void normalSample(CPRNG::CXorOShiro128Plus& rng, double mean, double variance, std::size_t n, TDoubleVec& result);
+    static void normalSample(CPRNG::CXorOShiro128Plus& rng,
+                             double mean,
+                             double variance,
+                             std::size_t n,
+                             TDoubleVec& result);
 
     //! Get \p n normal samples with mean and variance \p mean and
     //! \p variance, respectively, using \p rng.
-    static void normalSample(CPRNG::CXorShift1024Mult& rng, double mean, double variance, std::size_t n, TDoubleVec& result);
+    static void normalSample(CPRNG::CXorShift1024Mult& rng,
+                             double mean,
+                             double variance,
+                             std::size_t n,
+                             TDoubleVec& result);
 
     //! Get \p n samples of a \f$\chi^2\f$ random variable with \p f
     //! degrees of freedom.
@@ -177,11 +190,13 @@ public:
 
     //! Get \p n samples of a \f$\chi^2\f$ random variable with \p f
     //! degrees of freedom using \p rng.
-    static void chiSquaredSample(CPRNG::CXorOShiro128Plus& rng, double f, std::size_t n, TDoubleVec& result);
+    static void
+    chiSquaredSample(CPRNG::CXorOShiro128Plus& rng, double f, std::size_t n, TDoubleVec& result);
 
     //! Get \p n samples of a \f$\chi^2\f$ random variable with \p f
     //! degrees of freedom using \p rng.
-    static void chiSquaredSample(CPRNG::CXorShift1024Mult& rng, double f, std::size_t n, TDoubleVec& result);
+    static void
+    chiSquaredSample(CPRNG::CXorShift1024Mult& rng, double f, std::size_t n, TDoubleVec& result);
 
     //! \name Multivariate Normal Sampling
     //@{
@@ -193,7 +208,10 @@ public:
     //! \param[in] n The number of samples to generate.
     //! \param[out] samples Filled in with IID samples of the
     //! multivariate normal.
-    static bool multivariateNormalSample(const TDoubleVec& mean, const TDoubleVecVec& covariance, std::size_t n, TDoubleVecVec& samples);
+    static bool multivariateNormalSample(const TDoubleVec& mean,
+                                         const TDoubleVecVec& covariance,
+                                         std::size_t n,
+                                         TDoubleVecVec& samples);
 
     //! Overload of multivariate normal sample using \p rng
     static bool multivariateNormalSample(CPRNG::CXorOShiro128Plus& rng,
@@ -209,21 +227,18 @@ public:
                                          std::size_t n,
                                          TDoubleVecVec& samples);
 
-#define MULTIVARIATE_NORMAL_SAMPLE(N)                                                                                                      \
-    static void multivariateNormalSample(const CVectorNx1<double, N>& mean,                                                                \
-                                         const CSymmetricMatrixNxN<double, N>& covariance,                                                 \
-                                         std::size_t n,                                                                                    \
-                                         std::vector<CVectorNx1<double, N>>& samples);                                                     \
-    static void multivariateNormalSample(CPRNG::CXorOShiro128Plus& rng,                                                                    \
-                                         const CVectorNx1<double, N>& mean,                                                                \
-                                         const CSymmetricMatrixNxN<double, N>& covariance,                                                 \
-                                         std::size_t n,                                                                                    \
-                                         std::vector<CVectorNx1<double, N>>& samples);                                                     \
-    static void multivariateNormalSample(CPRNG::CXorShift1024Mult& rng,                                                                    \
-                                         const CVectorNx1<double, N>& mean,                                                                \
-                                         const CSymmetricMatrixNxN<double, N>& covariance,                                                 \
-                                         std::size_t n,                                                                                    \
-                                         std::vector<CVectorNx1<double, N>>& samples)
+#define MULTIVARIATE_NORMAL_SAMPLE(N)                                                        \
+    static void multivariateNormalSample(                                                    \
+        const CVectorNx1<double, N>& mean, const CSymmetricMatrixNxN<double, N>& covariance, \
+        std::size_t n, std::vector<CVectorNx1<double, N>>& samples);                         \
+    static void multivariateNormalSample(                                                    \
+        CPRNG::CXorOShiro128Plus& rng, const CVectorNx1<double, N>& mean,                    \
+        const CSymmetricMatrixNxN<double, N>& covariance, std::size_t n,                     \
+        std::vector<CVectorNx1<double, N>>& samples);                                        \
+    static void multivariateNormalSample(                                                    \
+        CPRNG::CXorShift1024Mult& rng, const CVectorNx1<double, N>& mean,                    \
+        const CSymmetricMatrixNxN<double, N>& covariance, std::size_t n,                     \
+        std::vector<CVectorNx1<double, N>>& samples)
     MULTIVARIATE_NORMAL_SAMPLE(2);
     MULTIVARIATE_NORMAL_SAMPLE(3);
     MULTIVARIATE_NORMAL_SAMPLE(4);
@@ -243,43 +258,59 @@ public:
 
     //! Generate a sample from a categorical distribution with
     //! category probabilities \p probabilities using \p rng.
-    static std::size_t categoricalSample(CPRNG::CXorOShiro128Plus& rng, TDoubleVec& probabilities);
+    static std::size_t
+    categoricalSample(CPRNG::CXorOShiro128Plus& rng, TDoubleVec& probabilities);
 
     //! Generate a sample from a categorical distribution with
     //! category probabilities \p probabilities using \p rng.
-    static std::size_t categoricalSample(CPRNG::CXorShift1024Mult& rng, TDoubleVec& probabilities);
+    static std::size_t
+    categoricalSample(CPRNG::CXorShift1024Mult& rng, TDoubleVec& probabilities);
 
     //! Generate \p n samples from a categorical distribution
     //! with category probabilities \p probabilities assuming
     //! the values are replaced between draws.
-    static void categoricalSampleWithReplacement(TDoubleVec& probabilities, std::size_t n, TSizeVec& result);
+    static void categoricalSampleWithReplacement(TDoubleVec& probabilities,
+                                                 std::size_t n,
+                                                 TSizeVec& result);
 
     //! Generate \p n samples from a categorical distribution
     //! with category probabilities \p probabilities using \p rng
     //! assuming the values are replaced between draws.
-    static void categoricalSampleWithReplacement(CPRNG::CXorOShiro128Plus& rng, TDoubleVec& probabilities, std::size_t n, TSizeVec& result);
+    static void categoricalSampleWithReplacement(CPRNG::CXorOShiro128Plus& rng,
+                                                 TDoubleVec& probabilities,
+                                                 std::size_t n,
+                                                 TSizeVec& result);
 
     //! Generate \p n samples from a categorical distribution
     //! with category probabilities \p probabilities using \p rng
     //! assuming the values are replaced between draws.
-    static void categoricalSampleWithReplacement(CPRNG::CXorShift1024Mult& rng, TDoubleVec& probabilities, std::size_t n, TSizeVec& result);
+    static void categoricalSampleWithReplacement(CPRNG::CXorShift1024Mult& rng,
+                                                 TDoubleVec& probabilities,
+                                                 std::size_t n,
+                                                 TSizeVec& result);
 
     //! Generate \p n samples from a categorical distribution
     //! with category probabilities \p probabilities assuming
     //! the values are *not* replaced between draws.
-    static void categoricalSampleWithoutReplacement(TDoubleVec& probabilities, std::size_t n, TSizeVec& result);
+    static void categoricalSampleWithoutReplacement(TDoubleVec& probabilities,
+                                                    std::size_t n,
+                                                    TSizeVec& result);
 
     //! Generate \p n samples from a categorical distribution
     //! with category probabilities \p probabilities using \p rng
     //! assuming the values are *not* replaced between draws.
-    static void
-    categoricalSampleWithoutReplacement(CPRNG::CXorOShiro128Plus& rng, TDoubleVec& probabilities, std::size_t n, TSizeVec& result);
+    static void categoricalSampleWithoutReplacement(CPRNG::CXorOShiro128Plus& rng,
+                                                    TDoubleVec& probabilities,
+                                                    std::size_t n,
+                                                    TSizeVec& result);
 
     //! Generate \p n samples from a categorical distribution
     //! with category probabilities \p probabilities using \p rng
     //! assuming the values are *not* replaced between draws.
-    static void
-    categoricalSampleWithoutReplacement(CPRNG::CXorShift1024Mult& rng, TDoubleVec& probabilities, std::size_t n, TSizeVec& result);
+    static void categoricalSampleWithoutReplacement(CPRNG::CXorShift1024Mult& rng,
+                                                    TDoubleVec& probabilities,
+                                                    std::size_t n,
+                                                    TSizeVec& result);
 
     //! Generate samples from a multinomial distribution with number
     //! of trials \p n and category probabilities \p probabilities.
@@ -303,7 +334,10 @@ public:
     //! are zero.
     //! \param[in] sorted Set to true if the probabilities are
     //! already sorted in descending order.
-    static void multinomialSampleFast(TDoubleVec& probabilities, std::size_t n, TSizeVec& sample, bool sorted = false);
+    static void multinomialSampleFast(TDoubleVec& probabilities,
+                                      std::size_t n,
+                                      TSizeVec& sample,
+                                      bool sorted = false);
 
     //! Generate samples according to the multinomial distribution
     //! with number of trials \p n and category probabilities
@@ -320,7 +354,8 @@ public:
     //! \param[out] sample Filled in with the counts of each category
     //! in \p probabilities. This sample includes zeros explicitly,
     //! contrast with multinomialSampleFast.
-    static void multinomialSampleStable(TDoubleVec probabilities, std::size_t n, TSizeVec& sample);
+    static void
+    multinomialSampleStable(TDoubleVec probabilities, std::size_t n, TSizeVec& sample);
     //@}
 
     //! Sample a random permutation of the value [\p first, \p last).
@@ -372,15 +407,18 @@ public:
     //! \param n The total number of samples required.
     //! \param weights The weights with which to sample.
     //! \param sampling Filled in with the weighted sampling.
-    static void weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVec& sampling);
+    static void
+    weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVec& sampling);
 
     //! Sample the expectation of the normal distribution with \p mean
     //! and \p variance on the \p n quantile intervals.
-    static void normalSampleQuantiles(double mean, double variance, std::size_t n, TDoubleVec& result);
+    static void
+    normalSampleQuantiles(double mean, double variance, std::size_t n, TDoubleVec& result);
 
     //! Sample the expectation of the gamma distribution with \p shape
     //! and \p rate on the \p n quantile intervals.
-    static void gammaSampleQuantiles(double shape, double rate, std::size_t n, TDoubleVec& result);
+    static void
+    gammaSampleQuantiles(double shape, double rate, std::size_t n, TDoubleVec& result);
 
 private:
     //! \brief A uniform generator on the interval [0, n).

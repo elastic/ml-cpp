@@ -79,7 +79,10 @@ public:
     //! \param[in] currentCount The total count in the bucket of interest.
     //! \param[in] modes The modes that map to the given \p values.
     //! \param[in] values The values to be corrected.
-    TDouble10Vec corrections(core_t::TTime time, std::size_t currentCount, const TDouble10Vec& modes, const TDouble10Vec& values) const;
+    TDouble10Vec corrections(core_t::TTime time,
+                             std::size_t currentCount,
+                             const TDouble10Vec& modes,
+                             const TDouble10Vec& values) const;
 
     //! Get the memory used by the corrector
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;

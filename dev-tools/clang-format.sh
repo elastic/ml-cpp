@@ -22,4 +22,20 @@ if [ -z "$CPP_SRC_HOME" ] ; then
     exit 1
 fi
 
+# Ensure clang-format is available
+which clang-format > /dev/null 2>&1
+
+if [ $? != 0 ] ; then
+    echo "ERROR: The clang-format code formatter is not available. Exiting."
+    exit 1;
+fi
+
+CLANG_FORMAT_MAJOR_VERSION=6
+CLANG_FORMAT_VERSION=$(expr "`clang-format --version`" : ".* \(${CLANG_FORMAT_MAJOR_VERSION}.[0-9].[0-9]\) ")
+
+if [ -z ${CLANG_FORMAT_VERSION} ]; then
+    echo "ERROR: Require clang-format major version ${CLANG_FORMAT_MAJOR_VERSION}"
+    exit 2
+fi
+
 find $CPP_SRC_HOME \( -name 3rd_party -o -name build-setup \) -prune -o \( -name \*.cc -o -name \*.h \) -exec clang-format -i {} \;

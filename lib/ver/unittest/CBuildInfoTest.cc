@@ -24,7 +24,8 @@
 CppUnit::Test* CBuildInfoTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBuildInfoTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBuildInfoTest>("CBuildInfoTest::testFullInfo", &CBuildInfoTest::testFullInfo));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBuildInfoTest>(
+        "CBuildInfoTest::testFullInfo", &CBuildInfoTest::testFullInfo));
 
     return suiteOfTests;
 }
@@ -33,7 +34,8 @@ void CBuildInfoTest::testFullInfo(void) {
     std::string fullInfo(ml::ver::CBuildInfo::fullInfo());
     LOG_DEBUG(<< fullInfo);
 
-    std::string currentYear(ml::core::CTimeUtils::toIso8601(ml::core::CTimeUtils::now()), 0, 4);
+    std::string currentYear(
+        ml::core::CTimeUtils::toIso8601(ml::core::CTimeUtils::now()), 0, 4);
     LOG_DEBUG(<< "Current year is " << currentYear);
 
     CPPUNIT_ASSERT(fullInfo.find("ml_test") != std::string::npos);

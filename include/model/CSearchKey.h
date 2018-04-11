@@ -90,7 +90,8 @@ public:
     //!
     //! \note This is intended for map lookups when one doesn't want
     //! to copy the strings.
-    using TStrCRefKeyCRefPr = std::pair<boost::reference_wrapper<const std::string>, boost::reference_wrapper<const CSearchKey>>;
+    using TStrCRefKeyCRefPr =
+        std::pair<boost::reference_wrapper<const std::string>, boost::reference_wrapper<const CSearchKey>>;
 
 public:
     //! If the "by" field name is "count" then the key represents
@@ -226,8 +227,12 @@ std::ostream& operator<<(std::ostream& strm, const CSearchKey& key);
 //! Hashes a (string, search key) pair.
 class CStrKeyPrHash {
 public:
-    std::size_t operator()(const CSearchKey::TStrKeyPr& key) const { return this->hash(key); }
-    std::size_t operator()(const CSearchKey::TStrCRefKeyCRefPr& key) const { return this->hash(key); }
+    std::size_t operator()(const CSearchKey::TStrKeyPr& key) const {
+        return this->hash(key);
+    }
+    std::size_t operator()(const CSearchKey::TStrCRefKeyCRefPr& key) const {
+        return this->hash(key);
+    }
 
 private:
     template<typename T>
@@ -242,10 +247,19 @@ private:
 //! Checks if two (string, search key) pairs are equal.
 class CStrKeyPrEqual {
 public:
-    bool operator()(const CSearchKey::TStrKeyPr& lhs, const CSearchKey::TStrKeyPr& rhs) const { return this->equal(lhs, rhs); }
-    bool operator()(const CSearchKey::TStrCRefKeyCRefPr& lhs, const CSearchKey::TStrKeyPr& rhs) const { return this->equal(lhs, rhs); }
-    bool operator()(const CSearchKey::TStrKeyPr& lhs, const CSearchKey::TStrCRefKeyCRefPr& rhs) const { return this->equal(lhs, rhs); }
-    bool operator()(const CSearchKey::TStrCRefKeyCRefPr& lhs, const CSearchKey::TStrCRefKeyCRefPr& rhs) const {
+    bool operator()(const CSearchKey::TStrKeyPr& lhs, const CSearchKey::TStrKeyPr& rhs) const {
+        return this->equal(lhs, rhs);
+    }
+    bool operator()(const CSearchKey::TStrCRefKeyCRefPr& lhs,
+                    const CSearchKey::TStrKeyPr& rhs) const {
+        return this->equal(lhs, rhs);
+    }
+    bool operator()(const CSearchKey::TStrKeyPr& lhs,
+                    const CSearchKey::TStrCRefKeyCRefPr& rhs) const {
+        return this->equal(lhs, rhs);
+    }
+    bool operator()(const CSearchKey::TStrCRefKeyCRefPr& lhs,
+                    const CSearchKey::TStrCRefKeyCRefPr& rhs) const {
         return this->equal(lhs, rhs);
     }
 

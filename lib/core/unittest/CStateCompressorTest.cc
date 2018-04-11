@@ -65,7 +65,8 @@ void insert1stLevel(ml::core::CStatePersistInserter& inserter, std::size_t n) {
 
 class CMockDataAdder : public ml::core::CDataAdder {
 public:
-    CMockDataAdder(std::size_t maxDocSize) : m_CurrentDocNum(0), m_MaxDocumentSize(maxDocSize) {}
+    CMockDataAdder(std::size_t maxDocSize)
+        : m_CurrentDocNum(0), m_MaxDocumentSize(maxDocSize) {}
 
     virtual TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) {
         ++m_CurrentDocNum;
@@ -75,7 +76,8 @@ public:
 
     virtual bool streamComplete(TOStreamP& strm, bool /*force*/) {
         CPPUNIT_ASSERT_EQUAL(m_CurrentStream, strm);
-        std::ostringstream* ss = dynamic_cast<std::ostringstream*>(m_CurrentStream.get());
+        std::ostringstream* ss =
+            dynamic_cast<std::ostringstream*>(m_CurrentStream.get());
         CPPUNIT_ASSERT(ss);
         LOG_TRACE(<< ss->str());
         m_Data[m_CurrentDocNum] = ss->str();
@@ -189,7 +191,8 @@ void CStateCompressorTest::testStreaming() {
         // data is streamed, not read all at once
         std::size_t lastAskedFor = 0;
         ::CMockDataSearcher mockKvSearcher(mockKvAdder);
-        LOG_TRACE(<< "After compression, there are " << mockKvSearcher.totalDocs() << " docs, asked for " << mockKvSearcher.askedFor());
+        LOG_TRACE(<< "After compression, there are " << mockKvSearcher.totalDocs()
+                  << " docs, asked for " << mockKvSearcher.askedFor());
         ml::core::CStateDecompressor decompressor(mockKvSearcher);
         decompressor.setStateRestoreSearch("1", "");
         TIStreamP istrm = decompressor.search(1, 1);
@@ -305,14 +308,15 @@ void CStateCompressorTest::testChunking() {
 }
 
 CppUnit::Test* CStateCompressorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStateCompressorTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CStateCompressorTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testForApiNoKey", &CStateCompressorTest::testForApiNoKey));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testStreaming", &CStateCompressorTest::testStreaming));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testChunking", &CStateCompressorTest::testChunking));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>(
+        "CStateCompressorTest::testForApiNoKey", &CStateCompressorTest::testForApiNoKey));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>(
+        "CStateCompressorTest::testStreaming", &CStateCompressorTest::testStreaming));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>(
+        "CStateCompressorTest::testChunking", &CStateCompressorTest::testChunking));
 
     return suiteOfTests;
 }

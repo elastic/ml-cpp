@@ -62,6 +62,7 @@ int main(int argc, char** argv) {
     bool deleteStateFiles(false);
     bool writeCsv(false);
     bool perPartitionNormalization(false);
+    // clang-format off
     if (ml::normalize::CCmdLineParser::parse(argc,
                                              argv,
                                              modelConfigFile,
@@ -77,12 +78,14 @@ int main(int argc, char** argv) {
                                              deleteStateFiles,
                                              writeCsv,
                                              perPartitionNormalization) == false) {
+        // clang-format on
         return EXIT_FAILURE;
     }
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
+                              outputFileName, isOutputFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL(<< "Could not reconfigure logging");
@@ -101,7 +104,8 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSpan);
+    ml::model::CAnomalyDetectorModelConfig modelConfig =
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSpan);
     if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false) {
         LOG_FATAL(<< "Ml model config file '" << modelConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
@@ -114,7 +118,8 @@ int main(int argc, char** argv) {
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
     } else {
-        inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA));
+        inputParser.reset(new ml::api::CCsvInputParser(
+            ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA));
     }
 
     using TScopedOutputHandlerP = boost::scoped_ptr<ml::api::COutputHandler>;
@@ -123,7 +128,9 @@ int main(int argc, char** argv) {
         outputWriter.reset(new ml::api::CCsvOutputWriter(ioMgr.outputStream()));
     } else {
         outputWriter.reset(new ml::api::CLineifiedJsonOutputWriter(
-            {ml::api::CResultNormalizer::PROBABILITY_NAME, ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME}, ioMgr.outputStream()));
+            {ml::api::CResultNormalizer::PROBABILITY_NAME,
+             ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME},
+            ioMgr.outputStream()));
     }
 
     // This object will do the work
@@ -141,7 +148,8 @@ int main(int argc, char** argv) {
     }
 
     // Now handle the numbers to be normalised from stdin
-    if (inputParser->readStream(boost::bind(&ml::api::CResultNormalizer::handleRecord, &normalizer, _1)) == false) {
+    if (inputParser->readStream(boost::bind(&ml::api::CResultNormalizer::handleRecord,
+                                            &normalizer, _1)) == false) {
         LOG_FATAL(<< "Failed to handle input to be normalized");
         return EXIT_FAILURE;
     }

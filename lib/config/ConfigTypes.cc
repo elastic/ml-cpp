@@ -21,7 +21,8 @@ namespace ml {
 namespace config_t {
 namespace {
 
-const std::string USER_DATA_TYPE_NAMES[] = {std::string("categorical"), std::string("numeric")};
+const std::string USER_DATA_TYPE_NAMES[] = {std::string("categorical"),
+                                            std::string("numeric")};
 
 const std::string DATA_TYPE_NAMES[] = {std::string("<undetermined>"),
                                        std::string("binary"),
@@ -42,11 +43,13 @@ const std::string FUNCTION_CATEGORY_NAMES[] = {std::string("count"),
                                                std::string("varp"),
                                                std::string("median")};
 
-const std::string IGNORE_EMPTY_VERSION_NAMES[][2] = {{std::string("n/a"), std::string("n/a")},
-                                                     {std::string("count"), std::string("non_zero_count")},
-                                                     {std::string("sum"), std::string("non_null_sum")}};
+const std::string IGNORE_EMPTY_VERSION_NAMES[][2] = {
+    {std::string("n/a"), std::string("n/a")},
+    {std::string("count"), std::string("non_zero_count")},
+    {std::string("sum"), std::string("non_null_sum")}};
 
-const std::string SIDE_NAME[] = {std::string("high"), std::string("low"), std::string("both"), std::string("<unknown>")};
+const std::string SIDE_NAME[] = {std::string("high"), std::string("low"),
+                                 std::string("both"), std::string("<unknown>")};
 }
 
 const std::string& print(EUserDataType type) {
@@ -236,7 +239,8 @@ bool hasDoAndDontIgnoreEmptyVersions(EFunctionCategory function) {
     return true;
 }
 
-const std::string& ignoreEmptyVersionName(EFunctionCategory function, bool ignoreEmpty, bool isPopulation) {
+const std::string&
+ignoreEmptyVersionName(EFunctionCategory function, bool ignoreEmpty, bool isPopulation) {
     std::size_t index = 0u;
     switch (function) {
     case E_Count:

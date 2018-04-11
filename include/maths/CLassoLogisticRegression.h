@@ -52,7 +52,9 @@ public:
     void swap(CDenseMatrix& other);
 
     //! Get the number of rows.
-    std::size_t rows() const { return m_Elements.empty() ? 0 : m_Elements[0].size(); }
+    std::size_t rows() const {
+        return m_Elements.empty() ? 0 : m_Elements[0].size();
+    }
     //! Get the number of columns.
     std::size_t columns() const { return m_Elements.size(); }
     //! Get the beginning of the rows present for the j'th column.
@@ -60,7 +62,9 @@ public:
     //! Get the end of the rows present for the j'th column.
     iterator endRows(std::size_t j) const { return m_Elements[j].end(); }
     //! Get the row represented by the j'th column row iterator.
-    std::size_t row(iterator itr, std::size_t j) const { return itr - m_Elements[j].begin(); }
+    std::size_t row(iterator itr, std::size_t j) const {
+        return itr - m_Elements[j].begin();
+    }
     //! Get the element represented by the iterator.
     double element(iterator itr) const { return *itr; }
 
@@ -90,14 +94,18 @@ public:
     std::size_t columns() const { return m_Columns; }
     //! Get the beginning of the rows present for the j'th column.
     iterator beginRows(std::size_t j) const {
-        return std::lower_bound(m_Elements.begin(), m_Elements.end(), TSizeSizePr(j, size_t(0)), COrderings::SFirstLess());
+        return std::lower_bound(m_Elements.begin(), m_Elements.end(),
+                                TSizeSizePr(j, size_t(0)), COrderings::SFirstLess());
     }
     //! Get the end of the rows present for the j'th column.
     iterator endRows(std::size_t j) const {
-        return std::upper_bound(m_Elements.begin(), m_Elements.end(), TSizeSizePr(j, m_Rows), COrderings::SFirstLess());
+        return std::upper_bound(m_Elements.begin(), m_Elements.end(),
+                                TSizeSizePr(j, m_Rows), COrderings::SFirstLess());
     }
     //! Get the row represented by the j'th column row iterator.
-    std::size_t row(iterator itr, std::size_t /*j*/) const { return itr->first.second; }
+    std::size_t row(iterator itr, std::size_t /*j*/) const {
+        return itr->first.second;
+    }
     //! Get the element represented by the iterator.
     double element(iterator itr) const { return itr->second; }
 
@@ -151,7 +159,11 @@ public:
     //! regression.
     //! \param[out] numberIterations The number of iterations of
     //! the main optimization loop used.
-    bool run(const CDenseMatrix& x, const TDoubleVec& y, const TDoubleVec& lambda, TDoubleVec& beta, std::size_t& numberIterations);
+    bool run(const CDenseMatrix& x,
+             const TDoubleVec& y,
+             const TDoubleVec& lambda,
+             TDoubleVec& beta,
+             std::size_t& numberIterations);
 
     //! Compute the regression parameters for sparse feature vectors.
     //!
@@ -162,7 +174,11 @@ public:
     //! regression.
     //! \param[out] numberIterations The number of iterations of
     //! the main optimization loop used.
-    bool run(const CSparseMatrix& x, const TDoubleVec& y, const TDoubleVec& lambda, TDoubleVec& beta, std::size_t& numberIterations);
+    bool run(const CSparseMatrix& x,
+             const TDoubleVec& y,
+             const TDoubleVec& lambda,
+             TDoubleVec& beta,
+             std::size_t& numberIterations);
 
     //! Compute the regression parameters for dense feature vectors
     //! using the input value of beta to initialize the optimization
@@ -175,8 +191,11 @@ public:
     //! regression.
     //! \param[out] numberIterations The number of iterations of
     //! the main optimization loop used.
-    bool
-    runIncremental(const CDenseMatrix& x, const TDoubleVec& y, const TDoubleVec& lambda, TDoubleVec& beta, std::size_t& numberIterations);
+    bool runIncremental(const CDenseMatrix& x,
+                        const TDoubleVec& y,
+                        const TDoubleVec& lambda,
+                        TDoubleVec& beta,
+                        std::size_t& numberIterations);
 
     //! Compute the regression parameters for sparse feature vectors
     //! using the input value of beta to initialize the optimization
@@ -189,13 +208,17 @@ public:
     //! regression.
     //! \param[out] numberIterations The number of iterations of
     //! the main optimization loop used.
-    bool
-    runIncremental(const CSparseMatrix& x, const TDoubleVec& y, const TDoubleVec& lambda, TDoubleVec& beta, std::size_t& numberIterations);
+    bool runIncremental(const CSparseMatrix& x,
+                        const TDoubleVec& y,
+                        const TDoubleVec& lambda,
+                        TDoubleVec& beta,
+                        std::size_t& numberIterations);
 
 private:
     //! Check the validity of the training data and the prior parameters.
     template<typename MATRIX>
-    static bool checkInputs(const MATRIX& x, const TDoubleVec& y, const TDoubleVec& lambda);
+    static bool
+    checkInputs(const MATRIX& x, const TDoubleVec& y, const TDoubleVec& lambda);
 
 private:
     //! The maximum number of iterations of the main loop.
@@ -346,7 +369,8 @@ using TSparseStorage = std::vector<std::vector<std::pair<std::size_t, double>>>;
 //! IMPLEMENTATION DECISIONS:\n
 //! This uses a dense encoding of the feature vector for the case that
 //! they are small and mostly non-zero.
-class MATHS_EXPORT CLassoLogisticRegressionDense : public CLassoLogisticRegression<TDenseStorage> {
+class MATHS_EXPORT CLassoLogisticRegressionDense
+    : public CLassoLogisticRegression<TDenseStorage> {
 public:
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TSizeDoublePrVec = std::vector<TSizeDoublePr>;

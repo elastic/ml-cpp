@@ -49,7 +49,12 @@ namespace model {
 class MODEL_EXPORT CMemoryUsageEstimator {
 public:
     //! Enumeration of the components included in the memory estimate.
-    enum EComponent { E_People = 0, E_Attributes, E_Correlations, E_NumberPredictors };
+    enum EComponent {
+        E_People = 0,
+        E_Attributes,
+        E_Correlations,
+        E_NumberPredictors
+    };
     using TSizeArray = boost::array<std::size_t, E_NumberPredictors>;
     using TOptionalSize = boost::optional<std::size_t>;
 

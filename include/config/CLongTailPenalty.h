@@ -56,14 +56,17 @@ private:
     virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 
     //! Compute the penalty for a by field and optionally a partition.
-    void penaltyFor(const CByAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltyFor(const CByAndPartitionDataCountStatistics& stats,
+                    CDetectorSpecification& spec) const;
 
     //! Compute the penalty for a by, over and optionally a partition field.
-    void penaltyFor(const CByOverAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltyFor(const CByOverAndPartitionDataCountStatistics& stats,
+                    CDetectorSpecification& spec) const;
 
     //! Extract the tail and total counts from \p counts.
     template<typename STATS, typename MAP>
-    void extractTailCounts(const MAP& counts, TSizeUInt64UMap& totals, TSizeUInt64UMap& tail) const;
+    void
+    extractTailCounts(const MAP& counts, TSizeUInt64UMap& totals, TSizeUInt64UMap& tail) const;
 
     //! Compute the penalty for the rare counts and total counts \p rares
     //! and \p totals, respectively.

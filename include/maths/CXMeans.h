@@ -71,16 +71,20 @@ public:
     //! points for stable comparison.
     class CCluster {
     public:
-        CCluster() : m_Cost(std::numeric_limits<double>::max()), m_Checksum(0) {}
+        CCluster()
+            : m_Cost(std::numeric_limits<double>::max()), m_Checksum(0) {}
 
         //! Check for equality using checksum and then points if the
         //! checksum is ambiguous.
-        bool operator==(const CCluster& other) const { return m_Checksum == other.m_Checksum && m_Points == other.m_Points; }
+        bool operator==(const CCluster& other) const {
+            return m_Checksum == other.m_Checksum && m_Points == other.m_Points;
+        }
 
         //! Total ordering by checksum breaking ties using expensive
         //! comparison on all points.
         bool operator<(const CCluster& rhs) const {
-            return COrderings::lexicographical_compare(m_Checksum, m_Points, rhs.m_Checksum, rhs.m_Points);
+            return COrderings::lexicographical_compare(m_Checksum, m_Points,
+                                                       rhs.m_Checksum, rhs.m_Points);
         }
 
         //! Get the number of points in the cluster.
@@ -122,7 +126,8 @@ public:
     using TClusterVec = std::vector<CCluster>;
 
 public:
-    CXMeans(std::size_t kmax) : m_Kmax(kmax), m_MinCost(std::numeric_limits<double>::max()) {
+    CXMeans(std::size_t kmax)
+        : m_Kmax(kmax), m_MinCost(std::numeric_limits<double>::max()) {
         m_BestCentres.reserve(m_Kmax);
         m_Clusters.reserve(m_Kmax);
     }
@@ -165,9 +170,11 @@ public:
     //! \param[in] improveStructureKmeansIterations The number
     //! of iterations of Lloyd's algorithm to use in k-means for
     //! a single round of improve structure.
-    void
-    run(std::size_t improveParamsKmeansIterations, std::size_t improveStructureClusterSeeds, std::size_t improveStructureKmeansIterations) {
-        while (this->improveStructure(improveStructureClusterSeeds, improveStructureKmeansIterations)) {
+    void run(std::size_t improveParamsKmeansIterations,
+             std::size_t improveStructureClusterSeeds,
+             std::size_t improveStructureKmeansIterations) {
+        while (this->improveStructure(improveStructureClusterSeeds,
+                                      improveStructureKmeansIterations)) {
             this->improveParams(improveParamsKmeansIterations);
         }
         this->polish(10 * improveParamsKmeansIterations);
@@ -218,8 +225,8 @@ protected:
             CCluster& cluster = newClusters.back();
             cluster.centre(newCentres[i]);
             cluster.points(newClusterPoints[i]);
-            typename TClusterCPtrVec::const_iterator j =
-                std::lower_bound(oldClusters.begin(), oldClusters.end(), &cluster, COrderings::SPtrLess());
+            typename TClusterCPtrVec::const_iterator j = std::lower_bound(
+                oldClusters.begin(), oldClusters.end(), &cluster, COrderings::SPtrLess());
             if (j != oldClusters.end() && **j == cluster) {
                 cluster.cost((*j)->cost());
                 preserved.insert(cluster.checksum());
@@ -284,7 +291,8 @@ protected:
 
         bool split = false;
 
-        for (std::size_t i = 0u, n = m_Clusters.size(); i < n && m_Clusters.size() < m_Kmax; ++i) {
+        for (std::size_t i = 0u, n = m_Clusters.size();
+             i < n && m_Clusters.size() < m_Kmax; ++i) {
             if (m_Inactive.count(m_Clusters[i].checksum()) > 0) {
                 continue;
             }
@@ -299,7 +307,8 @@ protected:
 
             for (std::size_t j = 0u; j < clusterSeeds; ++j) {
                 this->generateSeedCentres(points, 2, seedClusterCentres);
-                LOG_TRACE(<< "seed centres = " << core::CContainerPrinter::print(seedClusterCentres));
+                LOG_TRACE(<< "seed centres = "
+                          << core::CContainerPrinter::print(seedClusterCentres));
 
                 kmeans.setCentres(seedClusterCentres);
                 kmeans.run(kmeansIterations);

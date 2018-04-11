@@ -99,6 +99,7 @@ int main(int argc, char** argv) {
     std::string multipleBucketspans;
     bool perPartitionNormalization(false);
     TStrVec clauseTokens;
+    // clang-format off
     if (ml::autodetect::CCmdLineParser::parse(argc,
                                               argv,
                                               limitConfigFile,
@@ -134,19 +135,15 @@ int main(int argc, char** argv) {
                                               multipleBucketspans,
                                               perPartitionNormalization,
                                               clauseTokens) == false) {
+        // clang-format on
         return EXIT_FAILURE;
     }
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName,
-                              isInputFileNamedPipe,
-                              outputFileName,
-                              isOutputFileNamedPipe,
-                              restoreFileName,
-                              isRestoreFileNamedPipe,
-                              persistFileName,
-                              isPersistFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName,
+                              isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+                              persistFileName, isPersistFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL(<< "Could not reconfigure logging");
@@ -178,20 +175,27 @@ int main(int argc, char** argv) {
 
     ml::api::CFieldConfig fieldConfig;
 
-    ml::model_t::ESummaryMode summaryMode(summaryCountFieldName.empty() ? ml::model_t::E_None : ml::model_t::E_Manual);
-    ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-        bucketSpan, summaryMode, summaryCountFieldName, latency, bucketResultsDelay, multivariateByFields, multipleBucketspans);
+    ml::model_t::ESummaryMode summaryMode(
+        summaryCountFieldName.empty() ? ml::model_t::E_None : ml::model_t::E_Manual);
+    ml::model::CAnomalyDetectorModelConfig modelConfig =
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig(
+            bucketSpan, summaryMode, summaryCountFieldName, latency,
+            bucketResultsDelay, multivariateByFields, multipleBucketspans);
     modelConfig.perPartitionNormalization(perPartitionNormalization);
-    modelConfig.detectionRules(ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(fieldConfig.detectionRules()));
-    modelConfig.scheduledEvents(ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(fieldConfig.scheduledEvents()));
+    modelConfig.detectionRules(ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(
+        fieldConfig.detectionRules()));
+    modelConfig.scheduledEvents(ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(
+        fieldConfig.scheduledEvents()));
 
     if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false) {
         LOG_FATAL(<< "Ml model config file '" << modelConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
-    if (!modelPlotConfigFile.empty() && modelConfig.configureModelPlot(modelPlotConfigFile) == false) {
-        LOG_FATAL(<< "Ml model plot config file '" << modelPlotConfigFile << "' could not be loaded");
+    if (!modelPlotConfigFile.empty() &&
+        modelConfig.configureModelPlot(modelPlotConfigFile) == false) {
+        LOG_FATAL(<< "Ml model plot config file '" << modelPlotConfigFile
+                  << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
@@ -221,8 +225,10 @@ int main(int argc, char** argv) {
     TScopedBackgroundPersisterP periodicPersister;
     if (persistInterval >= 0) {
         if (persister == nullptr) {
-            LOG_FATAL(<< "Periodic persistence cannot be enabled using the 'persistInterval' argument "
-                         "unless a place to persist to has been specified using the 'persist' argument");
+            LOG_FATAL(<< "Periodic persistence cannot be enabled using the "
+                         "'persistInterval' argument "
+                         "unless a place to persist to has been specified "
+                         "using the 'persist' argument");
             return EXIT_FAILURE;
         }
 
@@ -246,6 +252,7 @@ int main(int argc, char** argv) {
     }
 
     // The anomaly job knows how to detect anomalies
+    // clang-format off
     ml::api::CAnomalyJob job(jobId,
                              limits,
                              fieldConfig,
@@ -257,10 +264,12 @@ int main(int argc, char** argv) {
                              timeField,
                              timeFormat,
                              maxAnomalyRecords);
+    // clang-format on
 
     if (!quantilesStateFile.empty()) {
         if (job.initNormalizer(quantilesStateFile) == false) {
-            LOG_FATAL(<< "Failed to restore quantiles and initialize normalizer");
+            LOG_FATAL(
+                << "Failed to restore quantiles and initialize normalizer");
             return EXIT_FAILURE;
         }
         if (deleteStateFiles) {
@@ -276,7 +285,8 @@ int main(int argc, char** argv) {
     ml::api::CJsonOutputWriter fieldDataTyperOutputWriter(jobId, wrappedOutputStream);
 
     // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, outputChainer, fieldDataTyperOutputWriter);
+    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, outputChainer,
+                                   fieldDataTyperOutputWriter);
 
     if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
         LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
@@ -284,12 +294,13 @@ int main(int argc, char** argv) {
     }
 
     if (periodicPersister != nullptr) {
-        periodicPersister->firstProcessorPeriodicPersistFunc(
-            boost::bind(&ml::api::CDataProcessor::periodicPersistState, firstProcessor, _1));
+        periodicPersister->firstProcessorPeriodicPersistFunc(boost::bind(
+            &ml::api::CDataProcessor::periodicPersistState, firstProcessor, _1));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code
-    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), persister.get(), *inputParser, *firstProcessor);
+    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), persister.get(),
+                                   *inputParser, *firstProcessor);
     bool ioLoopSucceeded(skeleton.ioLoop());
 
     // Unfortunately we cannot rely on destruction to finalise the output writer

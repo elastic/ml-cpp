@@ -44,7 +44,8 @@ public:
 
     //! Interpolate using the p'th power between (a, p(a)) and
     //! (b, p(b)) at x.
-    static double powInterpolate(double p, double a, double b, double pa, double pb, double x);
+    static double
+    powInterpolate(double p, double a, double b, double pa, double pb, double x);
 
     //! Logarithmically interpolate the penalties (a, p(a)) and
     //! (b, p(b)) at x.

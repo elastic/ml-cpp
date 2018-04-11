@@ -64,7 +64,8 @@ struct MODEL_EXPORT SModelParams {
     double minimumCategoryCount() const;
 
     //! Get the parameters supplied when restoring distribution models.
-    maths::SDistributionRestoreParams distributionRestoreParams(maths_t::EDataType dataType) const;
+    maths::SDistributionRestoreParams
+    distributionRestoreParams(maths_t::EDataType dataType) const;
 
     //! Get a checksum for an object of this class.
     uint64_t checksum(uint64_t seed) const;

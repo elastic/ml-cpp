@@ -40,9 +40,12 @@ const std::string CForecastDataSink::DETECTOR_INDEX("detector_index");
 const std::string CForecastDataSink::FORECAST_ID("forecast_id");
 const std::string CForecastDataSink::FORECAST_ALIAS("forecast_alias");
 const std::string CForecastDataSink::MODEL_FORECAST("model_forecast");
-const std::string CForecastDataSink::MODEL_FORECAST_STATS("model_forecast_request_stats");
-const std::string CForecastDataSink::PARTITION_FIELD_NAME("partition_field_name");
-const std::string CForecastDataSink::PARTITION_FIELD_VALUE("partition_field_value");
+const std::string
+    CForecastDataSink::MODEL_FORECAST_STATS("model_forecast_request_stats");
+const std::string
+    CForecastDataSink::PARTITION_FIELD_NAME("partition_field_name");
+const std::string
+    CForecastDataSink::PARTITION_FIELD_VALUE("partition_field_value");
 const std::string CForecastDataSink::FEATURE("model_feature");
 const std::string CForecastDataSink::BY_FIELD_NAME("by_field_name");
 const std::string CForecastDataSink::BY_FIELD_VALUE("by_field_value");
@@ -50,7 +53,8 @@ const std::string CForecastDataSink::LOWER("forecast_lower");
 const std::string CForecastDataSink::UPPER("forecast_upper");
 const std::string CForecastDataSink::PREDICTION("forecast_prediction");
 const std::string CForecastDataSink::BUCKET_SPAN("bucket_span");
-const std::string CForecastDataSink::PROCESSED_RECORD_COUNT("processed_record_count");
+const std::string
+    CForecastDataSink::PROCESSED_RECORD_COUNT("processed_record_count");
 const std::string CForecastDataSink::CREATE_TIME("forecast_create_timestamp");
 const std::string CForecastDataSink::TIMESTAMP("timestamp");
 const std::string CForecastDataSink::START_TIME("forecast_start_timestamp");
@@ -67,11 +71,13 @@ using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<core::CRapidJsonCon
 CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(model_t::EFeature feature,
                                                                 TMathsModelPtr&& forecastModel,
                                                                 const std::string& byFieldValue)
-    : s_Feature(feature), s_ForecastModel(std::move(forecastModel)), s_ByFieldValue(byFieldValue) {
+    : s_Feature(feature), s_ForecastModel(std::move(forecastModel)),
+      s_ByFieldValue(byFieldValue) {
 }
 
 CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(SForecastModelWrapper&& other)
-    : s_Feature(other.s_Feature), s_ForecastModel(std::move(other.s_ForecastModel)), s_ByFieldValue(std::move(other.s_ByFieldValue)) {
+    : s_Feature(other.s_Feature), s_ForecastModel(std::move(other.s_ForecastModel)),
+      s_ByFieldValue(std::move(other.s_ByFieldValue)) {
 }
 
 CForecastDataSink::SForecastResultSeries::SForecastResultSeries()
@@ -95,19 +101,16 @@ CForecastDataSink::CForecastDataSink(const std::string& jobId,
                                      core_t::TTime expiryTime,
                                      size_t memoryUsage,
                                      core::CJsonOutputStreamWrapper& outStream)
-    : m_JobId(jobId),
-      m_ForecastId(forecastId),
-      m_ForecastAlias(forecastAlias),
-      m_Writer(outStream),
-      m_NumRecordsWritten(0),
-      m_CreateTime(createTime),
-      m_StartTime(startTime),
-      m_EndTime(endTime),
-      m_ExpiryTime(expiryTime),
+    : m_JobId(jobId), m_ForecastId(forecastId), m_ForecastAlias(forecastAlias),
+      m_Writer(outStream), m_NumRecordsWritten(0), m_CreateTime(createTime),
+      m_StartTime(startTime), m_EndTime(endTime), m_ExpiryTime(expiryTime),
       m_MemoryUsage(memoryUsage) {
 }
 
-void CForecastDataSink::writeStats(const double progress, uint64_t runtime, const TStrUMap& messages, bool successful) {
+void CForecastDataSink::writeStats(const double progress,
+                                   uint64_t runtime,
+                                   const TStrUMap& messages,
+                                   bool successful) {
     TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
 
     rapidjson::Document doc = m_Writer.makeDoc();
@@ -221,7 +224,8 @@ void CForecastDataSink::push(const maths::SErrorBar errorBar,
     m_Writer.addIntFieldToObj(BUCKET_SPAN, errorBar.s_BucketLength, doc);
     if (!partitionFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME, partitionFieldName, doc);
-        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE, partitionFieldValue, doc, true);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE,
+                                         partitionFieldValue, doc, true);
     }
     if (!byFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(BY_FIELD_NAME, byFieldName, doc);

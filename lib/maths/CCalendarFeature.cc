@@ -29,8 +29,10 @@ namespace ml {
 namespace maths {
 
 namespace {
-const int LAST_DAY_IN_MONTH[] = {30, 27, 30, 29, 30, 29, 30, 30, 29, 30, 29, 30};
-const std::string DAYS[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+const int LAST_DAY_IN_MONTH[] = {30, 27, 30, 29, 30, 29,
+                                 30, 30, 29, 30, 29, 30};
+const std::string DAYS[] = {"Sunday",   "Monday", "Tuesday", "Wednesday",
+                            "Thursday", "Friday", "Saturday"};
 
 const int DAY = core::constants::DAY;
 
@@ -54,21 +56,24 @@ int dayOfFirst(int dayOfMonth, int dayOfWeek) {
 //! Print the day or week count.
 std::string print_(int count, bool suffix) {
     static const std::string suffix_[] = {"th", "st", "nd", "rd", "th"};
-    return core::CStringUtils::typeToString(count) + (suffix ? suffix_[count < 20 ? std::min(count, 4) : std::min(count % 10, 4)] : "");
+    return core::CStringUtils::typeToString(count) +
+           (suffix ? suffix_[count < 20 ? std::min(count, 4) : std::min(count % 10, 4)] : "");
 }
 }
 
 CCalendarFeature::CCalendarFeature() : m_Feature(INVALID), m_Value(INVALID) {
 }
 
-CCalendarFeature::CCalendarFeature(uint16_t feature, core_t::TTime time) : m_Feature(INVALID), m_Value(INVALID) {
+CCalendarFeature::CCalendarFeature(uint16_t feature, core_t::TTime time)
+    : m_Feature(INVALID), m_Value(INVALID) {
     int dayOfWeek{};
     int dayOfMonth{};
     int dayOfYear{};
     int month{};
     int year{};
     int secondsSinceMidnight{};
-    if (core::CTimezone::instance().dateFields(time, dayOfWeek, dayOfMonth, dayOfYear, month, year, secondsSinceMidnight)) {
+    if (core::CTimezone::instance().dateFields(time, dayOfWeek, dayOfMonth, dayOfYear,
+                                               month, year, secondsSinceMidnight)) {
         dayOfMonth -= 1;
         this->initialize(feature, dayOfWeek, dayOfMonth, month, year);
     } else {
@@ -84,7 +89,8 @@ CCalendarFeature::TCalendarFeature4Ary CCalendarFeature::features(core_t::TTime 
     int month{};
     int year{};
     int secondsSinceMidnight{};
-    if (core::CTimezone::instance().dateFields(time, dayOfWeek, dayOfMonth, dayOfYear, month, year, secondsSinceMidnight)) {
+    if (core::CTimezone::instance().dateFields(time, dayOfWeek, dayOfMonth, dayOfYear,
+                                               month, year, secondsSinceMidnight)) {
         dayOfMonth -= 1;
         auto i = result.begin();
         for (uint16_t feature = BEGIN_FEATURES; feature < END_FEATURES; ++feature, ++i) {
@@ -112,7 +118,8 @@ void CCalendarFeature::initialize(uint16_t feature, int dayOfWeek, int dayOfMont
         break;
     case DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH:
         m_Feature = feature;
-        m_Value = static_cast<uint16_t>(8 * ((lastDayInMonth(year, month) - dayOfMonth) / 7) + dayOfWeek);
+        m_Value = static_cast<uint16_t>(
+            8 * ((lastDayInMonth(year, month) - dayOfMonth) / 7) + dayOfWeek);
         break;
     default:
         LOG_ERROR(<< "Invalid feature: " << feature);
@@ -152,13 +159,16 @@ core_t::TTime CCalendarFeature::offset(core_t::TTime time) const {
     int month{};
     int year{};
     int secondsSinceMidnight{};
-    if (core::CTimezone::instance().dateFields(time, dayOfWeek, dayOfMonth, dayOfYear, month, year, secondsSinceMidnight)) {
+    if (core::CTimezone::instance().dateFields(time, dayOfWeek, dayOfMonth, dayOfYear,
+                                               month, year, secondsSinceMidnight)) {
         dayOfMonth -= 1;
         switch (m_Feature) {
         case DAYS_SINCE_START_OF_MONTH:
             return DAY * (dayOfMonth - static_cast<int>(m_Value)) + secondsSinceMidnight;
         case DAYS_BEFORE_END_OF_MONTH:
-            return DAY * (dayOfMonth - (lastDayInMonth(year, month) - static_cast<int>(m_Value))) + secondsSinceMidnight;
+            return DAY * (dayOfMonth -
+                          (lastDayInMonth(year, month) - static_cast<int>(m_Value))) +
+                   secondsSinceMidnight;
         case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH: {
             int dayOfFirst_ = dayOfFirst(dayOfMonth, dayOfWeek);
             int dayOfWeek_ = static_cast<int>(m_Value) % 8;
@@ -171,7 +181,8 @@ core_t::TTime CCalendarFeature::offset(core_t::TTime time) const {
             int dayOfLast_ = (lastDayInMonth_ + dayOfFirst(dayOfMonth, dayOfWeek)) % 7;
             int dayOfWeek_ = static_cast<int>(m_Value) % 8;
             int weeksToEndOfMonth_ = static_cast<int>(m_Value) / 8;
-            int dayOfMonth_ = lastDayInMonth_ - (7 * weeksToEndOfMonth_ + (7 + dayOfLast_ - dayOfWeek_) % 7);
+            int dayOfMonth_ = lastDayInMonth_ - (7 * weeksToEndOfMonth_ +
+                                                 (7 + dayOfLast_ - dayOfWeek_) % 7);
             return DAY * (dayOfMonth - dayOfMonth_) + secondsSinceMidnight;
         }
         default:
@@ -203,7 +214,8 @@ std::string CCalendarFeature::print() const {
     case DAYS_SINCE_START_OF_MONTH:
         return print_(static_cast<int>(m_Value) + 1, true) + " day of month";
     case DAYS_BEFORE_END_OF_MONTH:
-        return print_(static_cast<int>(m_Value), false) + " days before end of month";
+        return print_(static_cast<int>(m_Value), false) +
+               " days before end of month";
     case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH: {
         int dayOfWeek_ = static_cast<int>(m_Value) % 8;
         int weekOfMonth_ = static_cast<int>(m_Value) / 8;

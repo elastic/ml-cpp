@@ -53,13 +53,17 @@ std::set<std::string> getUniqueValues(const std::string& key, const std::string&
         if (p1 != nullptr) {
             size_t j = 0;
             while (true) {
-                rapidjson::Value* p2 = rapidjson::Pointer("/" + std::to_string(i) + "/records/" + std::to_string(j)).Get(doc);
+                rapidjson::Value* p2 = rapidjson::Pointer("/" + std::to_string(i) + "/records/" +
+                                                          std::to_string(j))
+                                           .Get(doc);
                 if (p2 != nullptr) {
                     size_t k = 0;
                     while (true) {
-                        rapidjson::Value* p3 = rapidjson::Pointer("/" + std::to_string(i) + "/records/" + std::to_string(j) + "/causes/" +
-                                                                  std::to_string(k) + "/" + key)
-                                                   .Get(doc);
+                        rapidjson::Value* p3 =
+                            rapidjson::Pointer("/" + std::to_string(i) + "/records/" +
+                                               std::to_string(j) + "/causes/" +
+                                               std::to_string(k) + "/" + key)
+                                .Get(doc);
 
                         if (p3 != nullptr) {
                             values.insert(p3->GetString());
@@ -83,12 +87,13 @@ std::set<std::string> getUniqueValues(const std::string& key, const std::string&
 }
 
 CppUnit::Test* CAnomalyJobLimitTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnomalyJobLimitTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CAnomalyJobLimitTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CAnomalyJobLimitTest>("CAnomalyJobLimitTest::testLimit", &CAnomalyJobLimitTest::testLimit));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CAnomalyJobLimitTest>("CAnomalyJobLimitTest::testAccuracy", &CAnomalyJobLimitTest::testAccuracy));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobLimitTest>(
+        "CAnomalyJobLimitTest::testLimit", &CAnomalyJobLimitTest::testLimit));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobLimitTest>(
+        "CAnomalyJobLimitTest::testAccuracy", &CAnomalyJobLimitTest::testAccuracy));
     return suiteOfTests;
 }
 
@@ -113,7 +118,8 @@ void CAnomalyJobLimitTest::testAccuracy() {
 
         CPPUNIT_ASSERT(fieldConfig.initFromClause(clause));
 
-        model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(3600);
+        model::CAnomalyDetectorModelConfig modelConfig =
+            model::CAnomalyDetectorModelConfig::defaultConfig(3600);
         std::stringstream outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
@@ -130,7 +136,8 @@ void CAnomalyJobLimitTest::testAccuracy() {
             api::CCsvInputParser parser(inputStrm);
 
             LOG_TRACE(<< "Reading file");
-            CPPUNIT_ASSERT(parser.readStream(boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+            CPPUNIT_ASSERT(parser.readStream(
+                boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
 
             LOG_TRACE(<< "Checking results");
 
@@ -152,7 +159,8 @@ void CAnomalyJobLimitTest::testAccuracy() {
 
         CPPUNIT_ASSERT(fieldConfig.initFromClause(clause));
 
-        model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(3600);
+        model::CAnomalyDetectorModelConfig modelConfig =
+            model::CAnomalyDetectorModelConfig::defaultConfig(3600);
         model::CLimits limits;
 
         std::stringstream outputStrm;
@@ -160,7 +168,8 @@ void CAnomalyJobLimitTest::testAccuracy() {
             core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
             limits.resourceMonitor().m_ByteLimitHigh = nonLimitedUsage / 10;
-            limits.resourceMonitor().m_ByteLimitLow = limits.resourceMonitor().m_ByteLimitHigh - 1024;
+            limits.resourceMonitor().m_ByteLimitLow =
+                limits.resourceMonitor().m_ByteLimitHigh - 1024;
 
             LOG_TRACE(<< "Setting up job");
             api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
@@ -170,7 +179,8 @@ void CAnomalyJobLimitTest::testAccuracy() {
             api::CCsvInputParser parser(inputStrm);
 
             LOG_TRACE(<< "Reading file");
-            CPPUNIT_ASSERT(parser.readStream(boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+            CPPUNIT_ASSERT(parser.readStream(
+                boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
 
             LOG_TRACE(<< "Checking results");
 
@@ -206,17 +216,20 @@ void CAnomalyJobLimitTest::testLimit() {
 
         CPPUNIT_ASSERT(fieldConfig.initFromClause(clause));
 
-        model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(3600);
+        model::CAnomalyDetectorModelConfig modelConfig =
+            model::CAnomalyDetectorModelConfig::defaultConfig(3600);
 
         LOG_TRACE(<< "Setting up job");
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition.csv");
+        std::ifstream inputStrm(
+            "testfiles/resource_limits_3_2over_3partition.csv");
         CPPUNIT_ASSERT(inputStrm.is_open());
         api::CCsvInputParser parser(inputStrm);
 
         LOG_TRACE(<< "Reading file");
-        CPPUNIT_ASSERT(parser.readStream(boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+        CPPUNIT_ASSERT(parser.readStream(
+            boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
         LOG_TRACE(<< "Checking results");
         CPPUNIT_ASSERT_EQUAL(uint64_t(1176), job.numRecordsHandled());
     }
@@ -247,7 +260,8 @@ void CAnomalyJobLimitTest::testLimit() {
 
         CPPUNIT_ASSERT(fieldConfig.initFromClause(clause));
 
-        model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(3600);
+        model::CAnomalyDetectorModelConfig modelConfig =
+            model::CAnomalyDetectorModelConfig::defaultConfig(3600);
 
         //::CMockOutputWriter resultsHandler;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -255,23 +269,27 @@ void CAnomalyJobLimitTest::testLimit() {
         LOG_TRACE(<< "Setting up job");
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition_first8.csv");
+        std::ifstream inputStrm(
+            "testfiles/resource_limits_3_2over_3partition_first8.csv");
         CPPUNIT_ASSERT(inputStrm.is_open());
         api::CCsvInputParser parser(inputStrm);
 
         LOG_TRACE(<< "Reading file");
-        CPPUNIT_ASSERT(parser.readStream(boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+        CPPUNIT_ASSERT(parser.readStream(
+            boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
         // Now turn on the resource limiting
         limits.resourceMonitor().m_ByteLimitHigh = 0;
         limits.resourceMonitor().m_ByteLimitLow = 0;
         limits.resourceMonitor().m_AllowAllocations = false;
 
-        std::ifstream inputStrm2("testfiles/resource_limits_3_2over_3partition_last1169.csv");
+        std::ifstream inputStrm2(
+            "testfiles/resource_limits_3_2over_3partition_last1169.csv");
         CPPUNIT_ASSERT(inputStrm2.is_open());
         api::CCsvInputParser parser2(inputStrm2);
 
         LOG_TRACE(<< "Reading second file");
-        CPPUNIT_ASSERT(parser2.readStream(boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+        CPPUNIT_ASSERT(parser2.readStream(
+            boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
         LOG_TRACE(<< "Checking results");
         CPPUNIT_ASSERT_EQUAL(uint64_t(1180), job.numRecordsHandled());
     }

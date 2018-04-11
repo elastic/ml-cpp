@@ -76,7 +76,8 @@ public:
     using COutputHandler::fieldNames;
 
     //! Write the data row fields as a JSON object
-    virtual bool writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields);
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields);
 
     // Bring the other overload of writeRow() into scope
     using COutputHandler::writeRow;
@@ -87,7 +88,9 @@ public:
 
 private:
     //! Write a single field to the document
-    void writeField(const std::string& name, const std::string& value, rapidjson::Document& doc) const;
+    void writeField(const std::string& name,
+                    const std::string& value,
+                    rapidjson::Document& doc) const;
 
 private:
     //! Which output fields are numeric?

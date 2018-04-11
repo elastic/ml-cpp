@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
     std::string persistFileName;
     bool isPersistFileNamedPipe(false);
     std::string categorizationFieldName;
+    // clang-format off
     if (ml::categorize::CCmdLineParser::parse(argc,
                                               argv,
                                               limitConfigFile,
@@ -93,19 +94,15 @@ int main(int argc, char** argv) {
                                               persistFileName,
                                               isPersistFileNamedPipe,
                                               categorizationFieldName) == false) {
+        // clang-format on
         return EXIT_FAILURE;
     }
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName,
-                              isInputFileNamedPipe,
-                              outputFileName,
-                              isOutputFileNamedPipe,
-                              restoreFileName,
-                              isRestoreFileNamedPipe,
-                              persistFileName,
-                              isPersistFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName,
+                              isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+                              persistFileName, isPersistFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL(<< "Could not reconfigure logging");
@@ -167,8 +164,10 @@ int main(int argc, char** argv) {
     TScopedBackgroundPersisterP periodicPersister;
     if (persistInterval >= 0) {
         if (persister == nullptr) {
-            LOG_FATAL(<< "Periodic persistence cannot be enabled using the 'persistInterval' argument "
-                         "unless a place to persist to has been specified using the 'persist' argument");
+            LOG_FATAL(<< "Periodic persistence cannot be enabled using the "
+                         "'persistInterval' argument "
+                         "unless a place to persist to has been specified "
+                         "using the 'persist' argument");
             return EXIT_FAILURE;
         }
 
@@ -193,14 +192,17 @@ int main(int argc, char** argv) {
     ml::api::CJsonOutputWriter outputWriter(jobId, wrappedOutputStream);
 
     // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, nullOutput, outputWriter, periodicPersister.get());
+    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, nullOutput,
+                                   outputWriter, periodicPersister.get());
 
     if (periodicPersister != nullptr) {
-        periodicPersister->firstProcessorPeriodicPersistFunc(boost::bind(&ml::api::CFieldDataTyper::periodicPersistState, &typer, _1));
+        periodicPersister->firstProcessorPeriodicPersistFunc(boost::bind(
+            &ml::api::CFieldDataTyper::periodicPersistState, &typer, _1));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code
-    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), persister.get(), *inputParser, typer);
+    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), persister.get(),
+                                   *inputParser, typer);
     bool ioLoopSucceeded(skeleton.ioLoop());
 
     // Unfortunately we cannot rely on destruction to finalise the output writer

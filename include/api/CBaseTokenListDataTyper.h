@@ -74,7 +74,8 @@ public:
 public:
     //! Shared pointer to reverse search creator that we're will function
     //! after being shallow copied
-    using TTokenListReverseSearchCreatorIntfCPtr = boost::shared_ptr<const CTokenListReverseSearchCreatorIntf>;
+    using TTokenListReverseSearchCreatorIntfCPtr =
+        boost::shared_ptr<const CTokenListReverseSearchCreatorIntf>;
 
     //! Used to associate tokens with weightings:
     //! first -> token ID
@@ -90,7 +91,9 @@ public:
     //! Used for stream output of token IDs translated back to the original
     //! tokens
     struct API_EXPORT SIdTranslater {
-        SIdTranslater(const CBaseTokenListDataTyper& typer, const TSizeSizePrVec& tokenIds, char separator);
+        SIdTranslater(const CBaseTokenListDataTyper& typer,
+                      const TSizeSizePrVec& tokenIds,
+                      char separator);
 
         const CBaseTokenListDataTyper& s_Typer;
         const TSizeSizePrVec& s_TokenIds;
@@ -112,7 +115,8 @@ public:
     //! than the length of the passed string, because the passed string may
     //! have the date stripped out of it.  Field names/values are available
     //! to the type computation.
-    virtual int computeType(bool dryRun, const TStrStrUMap& fields, const std::string& str, size_t rawStringLen);
+    virtual int
+    computeType(bool dryRun, const TStrStrUMap& fields, const std::string& str, size_t rawStringLen);
 
     // Bring the other overload of computeType() into scope
     using CDataTyper::computeType;
@@ -121,7 +125,11 @@ public:
     //! that are classified as the given type.  Note that the reverse search
     //! is only approximate - it may select more records than have actually
     //! been classified as the returned type.
-    virtual bool createReverseSearch(int type, std::string& part1, std::string& part2, size_t& maxMatchingLength, bool& wasCached);
+    virtual bool createReverseSearch(int type,
+                                     std::string& part1,
+                                     std::string& part2,
+                                     size_t& maxMatchingLength,
+                                     bool& wasCached);
 
     //! Has the data typer's state changed?
     virtual bool hasChanged() const;
@@ -147,11 +155,16 @@ protected:
 
     //! Take a string token, convert it to a numeric ID and a weighting and
     //! add these to the provided data structures.
-    virtual void
-    tokenToIdAndWeight(const std::string& token, TSizeSizePrVec& tokenIds, TSizeSizeMap& tokenUniqueIds, size_t& totalWeight) = 0;
+    virtual void tokenToIdAndWeight(const std::string& token,
+                                    TSizeSizePrVec& tokenIds,
+                                    TSizeSizeMap& tokenUniqueIds,
+                                    size_t& totalWeight) = 0;
 
     //! Compute similarity between two vectors
-    virtual double similarity(const TSizeSizePrVec& left, size_t leftWeight, const TSizeSizePrVec& right, size_t rightWeight) const = 0;
+    virtual double similarity(const TSizeSizePrVec& left,
+                              size_t leftWeight,
+                              const TSizeSizePrVec& right,
+                              size_t rightWeight) const = 0;
 
     //! Used to hold statistics about the types we compute:
     //! first -> count of matches
@@ -233,22 +246,24 @@ private:
 
     using TTokenMIndex = boost::multi_index::multi_index_container<
         CTokenInfoItem,
-        boost::multi_index::indexed_by<
-            boost::multi_index::random_access<>,
-            boost::multi_index::hashed_unique<boost::multi_index::tag<SToken>,
-                                              BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CTokenInfoItem, std::string, str)>>>;
+        boost::multi_index::indexed_by<boost::multi_index::random_access<>,
+                                       boost::multi_index::hashed_unique<boost::multi_index::tag<SToken>, BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CTokenInfoItem, std::string, str)>>>;
 
 private:
     //! Used by deferred persistence functions
-    static void
-    acceptPersistInserter(const TTokenMIndex& tokenIdLookup, const TTokenListTypeVec& types, core::CStatePersistInserter& inserter);
+    static void acceptPersistInserter(const TTokenMIndex& tokenIdLookup,
+                                      const TTokenListTypeVec& types,
+                                      core::CStatePersistInserter& inserter);
 
     //! Given a string containing comma separated pre-tokenised input, add
     //! the tokens to the working data structures in the same way as if they
     //! had been determined by the tokeniseString() method.  The result of
     //! the tokenisation is returned in \p tokenIds, \p tokenUniqueIds and
     //! \p totalWeight.  Any previous content of these variables is wiped.
-    bool addPretokenisedTokens(const std::string& tokensCsv, TSizeSizePrVec& tokenIds, TSizeSizeMap& tokenUniqueIds, size_t& totalWeight);
+    bool addPretokenisedTokens(const std::string& tokensCsv,
+                               TSizeSizePrVec& tokenIds,
+                               TSizeSizeMap& tokenUniqueIds,
+                               size_t& totalWeight);
 
 private:
     //! Reference to the object we'll use to create reverse searches
@@ -293,7 +308,8 @@ private:
     friend API_EXPORT std::ostream& operator<<(std::ostream&, const SIdTranslater&);
 };
 
-API_EXPORT std::ostream& operator<<(std::ostream& strm, const CBaseTokenListDataTyper::SIdTranslater& translator);
+API_EXPORT std::ostream&
+operator<<(std::ostream& strm, const CBaseTokenListDataTyper::SIdTranslater& translator);
 }
 }
 

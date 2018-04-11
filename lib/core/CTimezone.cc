@@ -53,7 +53,8 @@ bool CTimezone::timezoneName(const std::string& name) {
     CScopedFastLock lock(m_Mutex);
 
     if (CSetEnv::setEnv("TZ", name.c_str(), 1) != 0) {
-        LOG_ERROR(<< "Unable to set TZ environment variable to " << name << " : " << ::strerror(errno));
+        LOG_ERROR(<< "Unable to set TZ environment variable to " << name
+                  << " : " << ::strerror(errno));
 
         return false;
     }
@@ -115,7 +116,8 @@ bool CTimezone::dateFields(core_t::TTime utcTime,
         monthsSinceJanuary = result.tm_mon;
         daysSinceJanuary1st = result.tm_yday;
         yearsSince1900 = result.tm_year;
-        secondsSinceMidnight = 3600 * result.tm_hour + 60 * result.tm_min + result.tm_sec;
+        secondsSinceMidnight = 3600 * result.tm_hour + 60 * result.tm_min +
+                               result.tm_sec;
         return true;
     }
 

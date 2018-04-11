@@ -31,10 +31,11 @@
 #include <fstream>
 
 CppUnit::Test* COutputChainerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COutputChainerTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("COutputChainerTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<COutputChainerTest>("COutputChainerTest::testChaining", &COutputChainerTest::testChaining));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutputChainerTest>(
+        "COutputChainerTest::testChaining", &COutputChainerTest::testChaining));
 
     return suiteOfTests;
 }
@@ -43,7 +44,8 @@ void COutputChainerTest::testChaining() {
     static const ml::core_t::TTime BUCKET_SIZE(3600);
 
     std::string inputFileName("testfiles/big_ascending.txt");
-    std::string outputFileName(ml::test::CTestTmpDir::tmpDir() + "/chainerOutput.txt");
+    std::string outputFileName(ml::test::CTestTmpDir::tmpDir() +
+                               "/chainerOutput.txt");
 
     {
         // Open the input and output files
@@ -60,18 +62,12 @@ void COutputChainerTest::testChaining() {
         ml::api::CFieldConfig fieldConfig;
         CPPUNIT_ASSERT(fieldConfig.initFromFile("testfiles/new_mlfields.conf"));
 
-        ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+        ml::model::CAnomalyDetectorModelConfig modelConfig =
+            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
-        ml::api::CAnomalyJob job("job",
-                                 limits,
-                                 fieldConfig,
-                                 modelConfig,
-                                 wrappedOutputStream,
+        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
                                  ml::api::CAnomalyJob::TPersistCompleteFunc(),
-                                 nullptr,
-                                 -1,
-                                 "time",
-                                 "%d/%b/%Y:%T %z");
+                                 nullptr, -1, "time", "%d/%b/%Y:%T %z");
 
         ml::api::COutputChainer outputChainer(job);
 
@@ -79,7 +75,8 @@ void COutputChainerTest::testChaining() {
 
         ml::api::CLineifiedJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStream(boost::bind(&CMockDataProcessor::handleRecord, &mockProcessor, _1)));
+        CPPUNIT_ASSERT(parser.readStream(
+            boost::bind(&CMockDataProcessor::handleRecord, &mockProcessor, _1)));
     }
 
     // Check the results by re-reading the output file
@@ -87,7 +84,8 @@ void COutputChainerTest::testChaining() {
     std::string line;
     std::string modelSizeString("\"model_bytes\":");
 
-    std::string expectedLineStart("{\"bucket\":{\"job_id\":\"job\",\"timestamp\":1431853200000,");
+    std::string expectedLineStart(
+        "{\"bucket\":{\"job_id\":\"job\",\"timestamp\":1431853200000,");
 
     while (line.length() == 0 || line.find(modelSizeString) != std::string::npos) {
         std::getline(reReadStrm, line);

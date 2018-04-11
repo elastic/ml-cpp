@@ -45,12 +45,13 @@ std::string printIndices(const TModeVec& modes) {
 }
 }
 
-maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TModeVec& modes,
-                                                              const maths_t::TWeightStyleVec& weightStyles,
-                                                              const TDouble10Vec1Vec& sample,
-                                                              const TDouble10Vec4Vec1Vec& weights,
-                                                              TSizeDoublePr3Vec& modeLogLikelihoods,
-                                                              double& result) {
+maths_t::EFloatingPointErrorStatus
+jointLogMarginalLikelihood(const TModeVec& modes,
+                           const maths_t::TWeightStyleVec& weightStyles,
+                           const TDouble10Vec1Vec& sample,
+                           const TDouble10Vec4Vec1Vec& weights,
+                           TSizeDoublePr3Vec& modeLogLikelihoods,
+                           double& result) {
     try {
         // We re-normalize so that the maximum log likelihood is one
         // to avoid underflow.
@@ -59,8 +60,8 @@ maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TModeVec& mo
 
         for (std::size_t i = 0u; i < modes.size(); ++i) {
             double modeLogLikelihood;
-            maths_t::EFloatingPointErrorStatus status =
-                modes[i].s_Prior->jointLogMarginalLikelihood(weightStyles, sample, weights, modeLogLikelihood);
+            maths_t::EFloatingPointErrorStatus status = modes[i].s_Prior->jointLogMarginalLikelihood(
+                weightStyles, sample, weights, modeLogLikelihood);
             if (status & maths_t::E_FpFailed) {
                 // Logging handled at a lower level.
                 return status;
@@ -85,7 +86,8 @@ maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TModeVec& mo
             return maths_t::E_FpOverflowed;
         }
 
-        LOG_TRACE(<< "modeLogLikelihoods = " << core::CContainerPrinter::print(modeLogLikelihoods));
+        LOG_TRACE(<< "modeLogLikelihoods = "
+                  << core::CContainerPrinter::print(modeLogLikelihoods));
 
         double sampleLikelihood = 0.0;
         double Z = 0.0;
@@ -100,7 +102,8 @@ maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TModeVec& mo
         sampleLikelihood /= Z;
         result = (std::log(sampleLikelihood) + maxLogLikelihood);
 
-        LOG_TRACE(<< "sample = " << core::CContainerPrinter::print(sample) << ", maxLogLikelihood = " << maxLogLikelihood
+        LOG_TRACE(<< "sample = " << core::CContainerPrinter::print(sample)
+                  << ", maxLogLikelihood = " << maxLogLikelihood
                   << ", sampleLogLikelihood = " << result);
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute likelihood: " << e.what());
@@ -110,7 +113,9 @@ maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TModeVec& mo
     return maths_t::E_FpNoErrors;
 }
 
-void sampleMarginalLikelihood(const TModeVec& modes, std::size_t numberSamples, TDouble10Vec1Vec& samples) {
+void sampleMarginalLikelihood(const TModeVec& modes,
+                              std::size_t numberSamples,
+                              TDouble10Vec1Vec& samples) {
     samples.clear();
 
     if (modes.size() == 1) {
@@ -155,14 +160,17 @@ void sampleMarginalLikelihood(const TModeVec& modes, std::size_t numberSamples, 
 }
 
 void print(const TModeVec& modes, const std::string& separator, std::string& result) {
-    double Z = std::accumulate(modes.begin(), modes.end(), 0.0, [](double sum, const TMode& mode) { return sum + mode.weight(); });
+    double Z = std::accumulate(
+        modes.begin(), modes.end(), 0.0,
+        [](double sum, const TMode& mode) { return sum + mode.weight(); });
 
     std::string separator_ = separator + separator;
 
     result += ":";
     for (const auto& mode : modes) {
         double weight = mode.weight() / Z;
-        result += core_t::LINE_ENDING + separator_ + " weight " + core::CStringUtils::typeToStringPretty(weight);
+        result += core_t::LINE_ENDING + separator_ + " weight " +
+                  core::CStringUtils::typeToStringPretty(weight);
         mode.s_Prior->print(separator_, result);
     }
 }
@@ -188,7 +196,8 @@ void modeMergeCallback(std::size_t dimension,
     std::size_t nr = 0;
     TDouble10Vec1Vec samples;
 
-    auto leftMode = std::find_if(modes.begin(), modes.end(), CSetTools::CIndexInSet(leftMergeIndex));
+    auto leftMode = std::find_if(modes.begin(), modes.end(),
+                                 CSetTools::CIndexInSet(leftMergeIndex));
     if (leftMode != modes.end()) {
         wl = leftMode->s_Prior->numberSamples();
         n += wl;
@@ -197,11 +206,13 @@ void modeMergeCallback(std::size_t dimension,
         nl = leftSamples.size();
         samples.insert(samples.end(), leftSamples.begin(), leftSamples.end());
     } else {
-        LOG_ERROR(<< "Couldn't find mode for " << leftMergeIndex << " in " << printIndices(modes) << ", other index = " << rightMergeIndex
+        LOG_ERROR(<< "Couldn't find mode for " << leftMergeIndex << " in "
+                  << printIndices(modes) << ", other index = " << rightMergeIndex
                   << ", merged index = " << targetIndex);
     }
 
-    auto rightMode = std::find_if(modes.begin(), modes.end(), CSetTools::CIndexInSet(rightMergeIndex));
+    auto rightMode = std::find_if(modes.begin(), modes.end(),
+                                  CSetTools::CIndexInSet(rightMergeIndex));
     if (rightMode != modes.end()) {
         wr = rightMode->s_Prior->numberSamples();
         n += wr;
@@ -210,7 +221,8 @@ void modeMergeCallback(std::size_t dimension,
         nr = rightSamples.size();
         samples.insert(samples.end(), rightSamples.begin(), rightSamples.end());
     } else {
-        LOG_ERROR(<< "Couldn't find mode for " << rightMergeIndex << " in " << printIndices(modes) << ", other index = " << leftMergeIndex
+        LOG_ERROR(<< "Couldn't find mode for " << rightMergeIndex << " in "
+                  << printIndices(modes) << ", other index = " << leftMergeIndex
                   << ", merged index = " << targetIndex);
     }
 
@@ -252,7 +264,8 @@ void modeMergeCallback(std::size_t dimension,
     TSizeSet mergedIndices;
     mergedIndices.insert(leftMergeIndex);
     mergedIndices.insert(rightMergeIndex);
-    modes.erase(std::remove_if(modes.begin(), modes.end(), CSetTools::CIndexInSet(mergedIndices)), modes.end());
+    modes.erase(std::remove_if(modes.begin(), modes.end(), CSetTools::CIndexInSet(mergedIndices)),
+                modes.end());
 
     // Add the new mode.
     LOG_TRACE(<< "Creating mode with index " << targetIndex);

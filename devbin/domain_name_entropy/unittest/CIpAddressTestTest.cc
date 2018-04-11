@@ -22,10 +22,13 @@ using namespace ml;
 using namespace domain_name_entropy;
 
 CppUnit::Test* CIpAddressTestTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIpAddressTestTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CIpAddressTestTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIpAddressTestTest>("CIpAddressTestTest::testIpv4", &CIpAddressTestTest::testIpv4));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIpAddressTestTest>("CIpAddressTestTest::testIpv6", &CIpAddressTestTest::testIpv6));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIpAddressTestTest>(
+        "CIpAddressTestTest::testIpv4", &CIpAddressTestTest::testIpv4));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIpAddressTestTest>(
+        "CIpAddressTestTest::testIpv6", &CIpAddressTestTest::testIpv6));
     return suiteOfTests;
 }
 
@@ -55,7 +58,8 @@ void CIpAddressTestTest::testIpv6(void) {
     CPPUNIT_ASSERT(tester.isIpAddress("1:2:3:4:5:6:77:88"));
     CPPUNIT_ASSERT(tester.isIpAddress("::ffff:255.255.255.255"));
     CPPUNIT_ASSERT(tester.isIpAddress("fe08::7:8"));
-    CPPUNIT_ASSERT(tester.isIpAddress("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"));
+    CPPUNIT_ASSERT(
+        tester.isIpAddress("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"));
     CPPUNIT_ASSERT(!tester.isIpAddress("1:2:3:4:5:6:7:8:9"));
     CPPUNIT_ASSERT(!tester.isIpAddress("1:2:3:4:5:6::7:8"));
     CPPUNIT_ASSERT(!tester.isIpAddress(":1:2:3:4:5:6:7:8"));

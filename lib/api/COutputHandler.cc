@@ -45,7 +45,8 @@ void COutputHandler::finalise() {
     // NOOP unless overridden
 }
 
-bool COutputHandler::restoreState(core::CDataSearcher& /* restoreSearcher */, core_t::TTime& /* completeToTime */) {
+bool COutputHandler::restoreState(core::CDataSearcher& /* restoreSearcher */,
+                                  core_t::TTime& /* completeToTime */) {
     // NOOP unless overridden
     return true;
 }

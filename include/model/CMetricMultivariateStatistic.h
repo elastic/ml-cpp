@@ -88,7 +88,8 @@ public:
     void add(const TDouble1Vec& value, unsigned int count) {
         if (value.size() != m_Values.size()) {
             LOG_ERROR(<< "Inconsistent input data:"
-                      << " # values = " << value.size() << ", expected " << m_Values.size());
+                      << " # values = " << value.size() << ", expected "
+                      << m_Values.size());
             return;
         }
         for (std::size_t i = 0u; i < value.size(); ++i) {
@@ -130,10 +131,13 @@ public:
     }
 
     //! Returns the count of all the measurements.
-    double count() const { return CMetricStatisticWrappers::count(m_Values[0]); }
+    double count() const {
+        return CMetricStatisticWrappers::count(m_Values[0]);
+    }
 
     //! Combine two partial statistics.
-    const CMetricMultivariateStatistic& operator+=(const CMetricMultivariateStatistic& rhs) {
+    const CMetricMultivariateStatistic&
+    operator+=(const CMetricMultivariateStatistic& rhs) {
         for (std::size_t i = 0u; i < m_Values.size(); ++i) {
             m_Values[i] += rhs.m_Values[i];
         }
@@ -141,7 +145,9 @@ public:
     }
 
     //! Get the checksum of the partial statistic
-    uint64_t checksum(uint64_t seed) const { return maths::CChecksum::calculate(seed, m_Values); }
+    uint64_t checksum(uint64_t seed) const {
+        return maths::CChecksum::calculate(seed, m_Values);
+    }
 
     //! Debug the memory used by the statistic.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
@@ -150,7 +156,9 @@ public:
     }
 
     //! Get the memory used by the statistic.
-    std::size_t memoryUsage() const { return sizeof(*this) + core::CMemory::dynamicSize(m_Values); }
+    std::size_t memoryUsage() const {
+        return sizeof(*this) + core::CMemory::dynamicSize(m_Values);
+    }
 
     //! Print partial statistic
     std::string print() const {
@@ -170,7 +178,8 @@ template<class STATISTIC>
 const std::string CMetricMultivariateStatistic<STATISTIC>::VALUE_TAG("a");
 
 template<class STATISTIC>
-std::ostream& operator<<(std::ostream& o, const CMetricMultivariateStatistic<STATISTIC>& statistic) {
+std::ostream&
+operator<<(std::ostream& o, const CMetricMultivariateStatistic<STATISTIC>& statistic) {
     return o << statistic.print();
 }
 }

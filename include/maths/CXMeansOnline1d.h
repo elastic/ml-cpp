@@ -129,7 +129,8 @@ public:
         explicit CCluster(const CXMeansOnline1d& clusterer);
 
         //! Construct by traversing a state document
-        bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+        bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                    core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to the supplied inserter
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -194,7 +195,10 @@ public:
         //! model the clusters.
         //! \param[in] smallest The smallest sample added to date.
         //! \param[in] interval The Winsorisation interval.
-        bool shouldMerge(CCluster& other, CAvailableModeDistributions distributions, double smallest, const TDoubleDoublePr& interval);
+        bool shouldMerge(CCluster& other,
+                         CAvailableModeDistributions distributions,
+                         double smallest,
+                         const TDoubleDoublePr& interval);
 
         //! Merge this and \p other cluster.
         CCluster merge(CCluster& other, CIndexGenerator& indexGenerator);
@@ -212,7 +216,9 @@ public:
         std::size_t memoryUsage() const;
 
     private:
-        CCluster(std::size_t index, const CNormalMeanPrecConjugate& prior, const CNaturalBreaksClassifier& structure);
+        CCluster(std::size_t index,
+                 const CNormalMeanPrecConjugate& prior,
+                 const CNaturalBreaksClassifier& structure);
 
     private:
         //! A unique identifier for this cluster.
@@ -265,7 +271,8 @@ public:
                     const TMergeFunc& mergeFunc = CDoNothing());
 
     //! Construct by traversing a state document.
-    CXMeansOnline1d(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    CXMeansOnline1d(const SDistributionRestoreParams& params,
+                    core::CStateRestoreTraverser& traverser);
 
     //! Construct by traversing a state document.
     CXMeansOnline1d(const SDistributionRestoreParams& params,
@@ -318,11 +325,13 @@ public:
 
     //! Gets the index of the cluster(s) to which \p point belongs
     //! together with their weighting factor.
-    virtual void cluster(const double& point, TSizeDoublePr2Vec& result, double count = 1.0) const;
+    virtual void
+    cluster(const double& point, TSizeDoublePr2Vec& result, double count = 1.0) const;
 
     //! Update the clustering with \p point and return its cluster(s)
     //! together with their weighting factor.
-    virtual void add(const double& point, TSizeDoublePr2Vec& clusters, double count = 1.0);
+    virtual void
+    add(const double& point, TSizeDoublePr2Vec& clusters, double count = 1.0);
 
     //! Update the clustering with \p points.
     virtual void add(const TDoubleDoublePrVec& points);
@@ -343,7 +352,8 @@ public:
     //! \param[in] numberSamples The desired number of samples.
     //! \param[out] samples Filled in with the samples.
     //! \return True if the cluster could be sampled and false otherwise.
-    virtual bool sample(std::size_t index, std::size_t numberSamples, TDoubleVec& samples) const;
+    virtual bool
+    sample(std::size_t index, std::size_t numberSamples, TDoubleVec& samples) const;
 
     //! Get the probability of the cluster with index \p index.
     //!
@@ -378,7 +388,8 @@ public:
 
 private:
     using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1>;
-    using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
+    using TMaxAccumulator =
+        CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
 
 private:
     //! The minimum Kullback-Leibler divergence at which we'll
@@ -402,7 +413,8 @@ private:
 
 private:
     //! Restore by traversing a state document.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Get the cluster with the index \p index.
     const CCluster* cluster(std::size_t index) const;

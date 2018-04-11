@@ -65,12 +65,17 @@ void CCalendarFeatureTest::testInitialize() {
         core_t::TTime time{static_cast<core_t::TTime>(times[i])};
 
         maths::CCalendarFeature::TCalendarFeature4Ary expected;
-        expected[0] = maths::CCalendarFeature(maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, time);
-        expected[1] = maths::CCalendarFeature(maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, time);
-        expected[2] = maths::CCalendarFeature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH, time);
-        expected[3] = maths::CCalendarFeature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH, time);
+        expected[0] = maths::CCalendarFeature(
+            maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, time);
+        expected[1] = maths::CCalendarFeature(
+            maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, time);
+        expected[2] = maths::CCalendarFeature(
+            maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH, time);
+        expected[3] = maths::CCalendarFeature(
+            maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH, time);
 
-        maths::CCalendarFeature::TCalendarFeature4Ary actual = maths::CCalendarFeature::features(time);
+        maths::CCalendarFeature::TCalendarFeature4Ary actual =
+            maths::CCalendarFeature::features(time);
 
         CPPUNIT_ASSERT(expected == actual);
     }
@@ -96,7 +101,8 @@ void CCalendarFeatureTest::testComparison() {
 
     for (std::size_t i = 0u; i < times.size(); ++i) {
         core_t::TTime time{static_cast<core_t::TTime>(times[i])};
-        maths::CCalendarFeature::TCalendarFeature4Ary fi = maths::CCalendarFeature::features(time);
+        maths::CCalendarFeature::TCalendarFeature4Ary fi =
+            maths::CCalendarFeature::features(time);
         features.insert(features.end(), fi.begin(), fi.end());
     }
 
@@ -136,24 +142,28 @@ void CCalendarFeatureTest::testOffset() {
 
     for (const auto& time_ : times) {
         core_t::TTime time{start + static_cast<core_t::TTime>(time_)};
-        maths::CCalendarFeature::TCalendarFeature4Ary features = maths::CCalendarFeature::features(time);
+        maths::CCalendarFeature::TCalendarFeature4Ary features =
+            maths::CCalendarFeature::features(time);
 
         int dummy;
         int month;
         core::CTimezone::instance().dateFields(time, dummy, dummy, dummy, month, dummy, dummy);
 
-        TTimeVec offsets{-86400, -43400, -12800, -3600, 0, 3600, 12800, 43400, 86400};
+        TTimeVec offsets{-86400, -43400, -12800, -3600, 0,
+                         3600,   12800,  43400,  86400};
 
         for (const auto& offset : offsets) {
             core_t::TTime offsetTime = time + offset;
             int offsetMonth;
-            core::CTimezone::instance().dateFields(offsetTime, dummy, dummy, dummy, offsetMonth, dummy, dummy);
+            core::CTimezone::instance().dateFields(offsetTime, dummy, dummy, dummy,
+                                                   offsetMonth, dummy, dummy);
 
             if (month == offsetMonth) {
                 for (const auto& feature : features) {
-                    CPPUNIT_ASSERT(feature.offset(time) + offset == feature.offset(offsetTime) ||
-                                   feature.offset(time) + offset == feature.offset(offsetTime) - 3600 ||
-                                   feature.offset(time) + offset == feature.offset(offsetTime) + 3600);
+                    CPPUNIT_ASSERT(
+                        feature.offset(time) + offset == feature.offset(offsetTime) ||
+                        feature.offset(time) + offset == feature.offset(offsetTime) - 3600 ||
+                        feature.offset(time) + offset == feature.offset(offsetTime) + 3600);
                     ++tests;
                 }
             }
@@ -172,68 +182,83 @@ void CCalendarFeatureTest::testOffset() {
 
     LOG_DEBUG(<< "Test days since start of month");
     {
-        maths::CCalendarFeature feature(maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, feb1st);
+        maths::CCalendarFeature feature(
+            maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, feb1st);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
             CPPUNIT_ASSERT_EQUAL(time - march1st, feature.offset(time));
             CPPUNIT_ASSERT_EQUAL(time - march1st + 4800, feature.offset(time + 4800));
         }
     }
     {
-        maths::CCalendarFeature feature(maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, feb1st + 12 * DAY);
+        maths::CCalendarFeature feature(
+            maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, feb1st + 12 * DAY);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
             CPPUNIT_ASSERT_EQUAL(time - march1st - 12 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - march1st - 12 * DAY + 43400, feature.offset(time + 43400));
+            CPPUNIT_ASSERT_EQUAL(time - march1st - 12 * DAY + 43400,
+                                 feature.offset(time + 43400));
         }
     }
 
     LOG_DEBUG(<< "Test days before end of month") {
-        maths::CCalendarFeature feature(maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, feb1st);
+        maths::CCalendarFeature feature(
+            maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, feb1st);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
             CPPUNIT_ASSERT_EQUAL(time - march1st - 3 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - march1st - 3 * DAY + 7200, feature.offset(time + 7200));
+            CPPUNIT_ASSERT_EQUAL(time - march1st - 3 * DAY + 7200,
+                                 feature.offset(time + 7200));
         }
     }
     {
-        maths::CCalendarFeature feature(maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, feb1st + 10 * DAY);
+        maths::CCalendarFeature feature(
+            maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, feb1st + 10 * DAY);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
             CPPUNIT_ASSERT_EQUAL(time - march1st - 13 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - march1st - 13 * DAY + 86399, feature.offset(time + 86399));
+            CPPUNIT_ASSERT_EQUAL(time - march1st - 13 * DAY + 86399,
+                                 feature.offset(time + 86399));
         }
     }
 
     LOG_DEBUG(<< "Test day of week and week of month");
     {
         // Feb 1 1970 is a Sunday and April 1st 1970 is a Wednesday.
-        maths::CCalendarFeature feature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH, feb1st);
+        maths::CCalendarFeature feature(
+            maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH, feb1st);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
             CPPUNIT_ASSERT_EQUAL(time - april1st - 4 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - april1st - 4 * DAY + 7200, feature.offset(time + 7200));
+            CPPUNIT_ASSERT_EQUAL(time - april1st - 4 * DAY + 7200,
+                                 feature.offset(time + 7200));
         }
     }
     {
         // Feb 13 1970 is a Friday and April 1st 1970 is a Wednesday.
-        maths::CCalendarFeature feature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH, feb1st + 12 * DAY);
+        maths::CCalendarFeature feature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH,
+                                        feb1st + 12 * DAY);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
             CPPUNIT_ASSERT_EQUAL(time - april1st - 9 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - april1st - 9 * DAY + 73000, feature.offset(time + 73000));
+            CPPUNIT_ASSERT_EQUAL(time - april1st - 9 * DAY + 73000,
+                                 feature.offset(time + 73000));
         }
     }
 
     LOG_DEBUG(<< "Test day of week and week until end of month");
     {
         // Feb 1 1970 is a Sunday and April 31st 1970 is a Friday.
-        maths::CCalendarFeature feature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH, feb1st);
+        maths::CCalendarFeature feature(
+            maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH, feb1st);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
             CPPUNIT_ASSERT_EQUAL(time - april1st - 4 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - april1st - 4 * DAY + 7200, feature.offset(time + 7200));
+            CPPUNIT_ASSERT_EQUAL(time - april1st - 4 * DAY + 7200,
+                                 feature.offset(time + 7200));
         }
     }
     {
         // Feb 13 1970 is a Friday and April 1st 1970 is a Wednesday.
-        maths::CCalendarFeature feature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH, feb1st + 12 * DAY);
+        maths::CCalendarFeature feature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH,
+                                        feb1st + 12 * DAY);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
             CPPUNIT_ASSERT_EQUAL(time - april1st - 9 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - april1st - 9 * DAY + 73000, feature.offset(time + 73000));
+            CPPUNIT_ASSERT_EQUAL(time - april1st - 9 * DAY + 73000,
+                                 feature.offset(time + 73000));
         }
     }
 }
@@ -243,7 +268,8 @@ void CCalendarFeatureTest::testPersist() {
     LOG_DEBUG(<< "|  CCalendarFeatureTest::testPersist  |");
     LOG_DEBUG(<< "+-------------------------------------+");
 
-    maths::CCalendarFeature::TCalendarFeature4Ary features = maths::CCalendarFeature::features(core::CTimeUtils::now());
+    maths::CCalendarFeature::TCalendarFeature4Ary features =
+        maths::CCalendarFeature::features(core::CTimeUtils::now());
 
     for (std::size_t i = 0u; i < 4; ++i) {
         std::string state = features[i].toDelimited();
@@ -258,16 +284,17 @@ void CCalendarFeatureTest::testPersist() {
 }
 
 CppUnit::Test* CCalendarFeatureTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCalendarFeatureTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CCalendarFeatureTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCalendarFeatureTest>("CCalendarFeatureTest::testInitialize", &CCalendarFeatureTest::testInitialize));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCalendarFeatureTest>("CCalendarFeatureTest::testComparison", &CCalendarFeatureTest::testComparison));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCalendarFeatureTest>("CCalendarFeatureTest::testOffset", &CCalendarFeatureTest::testOffset));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCalendarFeatureTest>("CCalendarFeatureTest::testPersist", &CCalendarFeatureTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarFeatureTest>(
+        "CCalendarFeatureTest::testInitialize", &CCalendarFeatureTest::testInitialize));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarFeatureTest>(
+        "CCalendarFeatureTest::testComparison", &CCalendarFeatureTest::testComparison));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarFeatureTest>(
+        "CCalendarFeatureTest::testOffset", &CCalendarFeatureTest::testOffset));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarFeatureTest>(
+        "CCalendarFeatureTest::testPersist", &CCalendarFeatureTest::testPersist));
 
     return suiteOfTests;
 }

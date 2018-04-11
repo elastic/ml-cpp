@@ -51,7 +51,8 @@ public:
     CKMeansOnline1d(TNormalVec& clusters);
 
     //! Construct by traversing a state document.
-    CKMeansOnline1d(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    CKMeansOnline1d(const SDistributionRestoreParams& params,
+                    core::CStateRestoreTraverser& traverser);
 
     //! \name Clusterer Contract
     //@{
@@ -89,11 +90,13 @@ public:
 
     //! Gets the index of the cluster(s) to which \p point belongs
     //! together with their weighting factors.
-    virtual void cluster(const double& point, TSizeDoublePr2Vec& result, double count = 1.0) const;
+    virtual void
+    cluster(const double& point, TSizeDoublePr2Vec& result, double count = 1.0) const;
 
     //! Update the clustering with \p point and return its cluster(s)
     //! together with their weighting factors.
-    virtual void add(const double& point, TSizeDoublePr2Vec& clusters, double count = 1.0);
+    virtual void
+    add(const double& point, TSizeDoublePr2Vec& clusters, double count = 1.0);
 
     //! Update the clustering with \p points.
     virtual void add(const TDoubleDoublePrVec& points);
@@ -113,7 +116,8 @@ public:
     //! \param[in] numberSamples The desired number of samples.
     //! \param[out] samples Filled in with the samples.
     //! \return True if the cluster could be sampled and false otherwise.
-    virtual bool sample(std::size_t index, std::size_t numberSamples, TDoubleVec& samples) const;
+    virtual bool
+    sample(std::size_t index, std::size_t numberSamples, TDoubleVec& samples) const;
 
     //! Get the probability of the cluster with the index \p index.
     //!
@@ -136,7 +140,8 @@ public:
 
 private:
     //! Restore by traversing a state document.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
 private:
     //! The (fixed) clusters.

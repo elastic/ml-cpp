@@ -29,28 +29,32 @@ const char CCsvOutputWriter::QUOTE('"');
 const char CCsvOutputWriter::RECORD_END('\n');
 
 CCsvOutputWriter::CCsvOutputWriter(bool outputMessages, bool outputHeader, char escape, char separator)
-    : m_StrmOut(m_StringOutputBuf),
-      m_OutputMessages(outputMessages),
-      m_OutputHeader(outputHeader),
-      m_Escape(escape),
-      m_Separator(separator) {
+    : m_StrmOut(m_StringOutputBuf), m_OutputMessages(outputMessages),
+      m_OutputHeader(outputHeader), m_Escape(escape), m_Separator(separator) {
     if (m_Separator == QUOTE || m_Separator == m_Escape || m_Separator == RECORD_END) {
-        LOG_ERROR(<< "CSV output writer will not generate parsable output because "
-                     "separator character ("
-                  << m_Separator
-                  << ") is the same as "
-                     "the quote, escape and/or record end characters");
+        LOG_ERROR(
+            << "CSV output writer will not generate parsable output because "
+               "separator character ("
+            << m_Separator
+            << ") is the same as "
+               "the quote, escape and/or record end characters");
     }
 }
 
-CCsvOutputWriter::CCsvOutputWriter(std::ostream& strmOut, bool outputMessages, bool outputHeader, char escape, char separator)
-    : m_StrmOut(strmOut), m_OutputMessages(outputMessages), m_OutputHeader(outputHeader), m_Escape(escape), m_Separator(separator) {
+CCsvOutputWriter::CCsvOutputWriter(std::ostream& strmOut,
+                                   bool outputMessages,
+                                   bool outputHeader,
+                                   char escape,
+                                   char separator)
+    : m_StrmOut(strmOut), m_OutputMessages(outputMessages),
+      m_OutputHeader(outputHeader), m_Escape(escape), m_Separator(separator) {
     if (m_Separator == QUOTE || m_Separator == m_Escape || m_Separator == RECORD_END) {
-        LOG_ERROR(<< "CSV output writer will not generate parsable output because "
-                     "separator character ("
-                  << m_Separator
-                  << ") is the same as "
-                     "the quote, escape and/or record end characters");
+        LOG_ERROR(
+            << "CSV output writer will not generate parsable output because "
+               "separator character ("
+            << m_Separator
+            << ") is the same as "
+               "the quote, escape and/or record end characters");
     }
 }
 
@@ -70,7 +74,8 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
 
     // Only add extra field names if they're not already present
     for (TStrVecCItr iter = extraFieldNames.begin(); iter != extraFieldNames.end(); ++iter) {
-        if (std::find(m_FieldNames.begin(), m_FieldNames.end(), *iter) == m_FieldNames.end()) {
+        if (std::find(m_FieldNames.begin(), m_FieldNames.end(), *iter) ==
+            m_FieldNames.end()) {
             m_FieldNames.push_back(*iter);
         }
     }
@@ -104,7 +109,8 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
 
     // Messages are output in arrears - this is not ideal - TODO
     if (m_OutputMessages) {
-        for (TStrStrPrSetCItr msgIter = m_Messages.begin(); msgIter != m_Messages.end(); ++msgIter) {
+        for (TStrStrPrSetCItr msgIter = m_Messages.begin();
+             msgIter != m_Messages.end(); ++msgIter) {
             m_StrmOut << msgIter->first << '=' << msgIter->second << RECORD_END;
             LOG_DEBUG(<< "Forwarded " << msgIter->first << '=' << msgIter->second);
         }
@@ -126,7 +132,8 @@ const COutputHandler::TStrVec& CCsvOutputWriter::fieldNames() const {
     return m_FieldNames;
 }
 
-bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) {
+bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
+                                const TStrStrUMap& overrideDataRowFields) {
     if (m_FieldNames.empty()) {
         LOG_ERROR(<< "Attempt to write data before field names");
         return false;
@@ -141,7 +148,8 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrU
 
     TStrVecCItr fieldNameIter = m_FieldNames.begin();
     TPreComputedHashVecCItr preComputedHashIter = m_Hashes.begin();
-    TStrStrUMapCItr fieldValueIter = overrideDataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
+    TStrStrUMapCItr fieldValueIter =
+        overrideDataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
     if (fieldValueIter == overrideDataRowFields.end()) {
         fieldValueIter = dataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
         if (fieldValueIter == dataRowFields.end()) {
@@ -153,17 +161,20 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrU
     }
     this->appendField(fieldValueIter->second);
 
-    for (++fieldNameIter, ++preComputedHashIter; fieldNameIter != m_FieldNames.end() && preComputedHashIter != m_Hashes.end();
+    for (++fieldNameIter, ++preComputedHashIter;
+         fieldNameIter != m_FieldNames.end() && preComputedHashIter != m_Hashes.end();
          ++fieldNameIter, ++preComputedHashIter) {
         m_WorkRecord += m_Separator;
 
-        fieldValueIter = overrideDataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
+        fieldValueIter = overrideDataRowFields.find(*fieldNameIter,
+                                                    *preComputedHashIter, pred);
         if (fieldValueIter == overrideDataRowFields.end()) {
             fieldValueIter = dataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
             if (fieldValueIter == dataRowFields.end()) {
-                LOG_ERROR(<< "Data fields to be written do not include a value for "
-                             "field "
-                          << *fieldNameIter);
+                LOG_ERROR(
+                    << "Data fields to be written do not include a value for "
+                       "field "
+                    << *fieldNameIter);
                 return false;
             }
         }
@@ -195,7 +206,8 @@ void CCsvOutputWriter::appendField(const std::string& field) {
     bool needOuterQuotes(false);
     for (std::string::const_iterator iter = field.begin(); iter != field.end(); ++iter) {
         char curChar(*iter);
-        if (curChar == m_Separator || curChar == QUOTE || curChar == RECORD_END || curChar == m_Escape) {
+        if (curChar == m_Separator || curChar == QUOTE ||
+            curChar == RECORD_END || curChar == m_Escape) {
             needOuterQuotes = true;
             break;
         }
