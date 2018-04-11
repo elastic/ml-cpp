@@ -22,7 +22,6 @@
 #include <maths/CChecksum.h>
 
 #include <test/CRandomNumbers.h>
-#include <test/CRandomNumbersDetail.h>
 
 #include <boost/optional.hpp>
 #include <boost/range.hpp>

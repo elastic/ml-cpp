@@ -43,20 +43,6 @@ void CRandomNumbers::generateSamples(RNG& randomNumberGenerator,
     std::generate_n(std::back_inserter(samples), numberSamples, boost::bind(distribution, boost::ref(randomNumberGenerator)));
 }
 
-template<typename ITR>
-void CRandomNumbers::random_shuffle(ITR first, ITR last) {
-    CUniform0nGenerator rand(m_Generator);
-    auto d = last - first;
-    if (d > 1) {
-        for (--last; first < last; ++first, --d) {
-            auto i = rand(d);
-            if (i > 0) {
-                std::iter_swap(first, first + i);
-            }
-        }
-    }
-}
-
 template<typename T, std::size_t N>
 void CRandomNumbers::generateRandomMultivariateNormals(const TSizeVec& sizes,
                                                        std::vector<maths::CVectorNx1<T, N>>& means,

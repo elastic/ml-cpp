@@ -26,7 +26,6 @@
 #include <maths/CSampling.h>
 
 #include <test/CRandomNumbers.h>
-#include <test/CRandomNumbersDetail.h>
 
 #include <boost/range.hpp>
 

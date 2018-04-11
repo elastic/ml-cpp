@@ -69,7 +69,18 @@ public:
     //! the libstdc++ implementation which can cause platform specific test
     //! failures.
     template<typename ITR>
-    void random_shuffle(ITR first, ITR last);
+    void random_shuffle(ITR first, ITR last) {
+        CUniform0nGenerator rand(m_Generator);
+        auto d = last - first;
+        if (d > 1) {
+            for (--last; first < last; ++first, --d) {
+                auto i = rand(d);
+                if (i > 0) {
+                    std::iter_swap(first, first + i);
+                }
+            }
+        }
+    }
 
     //! Generate normal random samples with the specified mean and
     //! variance using the default random number generator.
