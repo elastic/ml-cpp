@@ -27,7 +27,6 @@
 #include <maths/CTools.h>
 
 #include <test/CRandomNumbers.h>
-#include <test/CRandomNumbersDetail.h>
 
 #include "TestUtils.h"
 

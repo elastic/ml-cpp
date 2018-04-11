@@ -35,7 +35,6 @@
 #include "TestUtils.h"
 
 #include <test/CRandomNumbers.h>
-#include <test/CRandomNumbersDetail.h>
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/lognormal.hpp>

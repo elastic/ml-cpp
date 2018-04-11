@@ -25,7 +25,6 @@
 #include <maths/CRestoreParams.h>
 
 #include <test/CRandomNumbers.h>
-#include <test/CRandomNumbersDetail.h>
 
 #include <algorithm>
 #include <vector>

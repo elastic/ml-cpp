@@ -22,7 +22,6 @@
 #include <maths/CSampling.h>
 
 #include <test/CRandomNumbers.h>
-#include <test/CRandomNumbersDetail.h>
 
 using namespace ml;
 
