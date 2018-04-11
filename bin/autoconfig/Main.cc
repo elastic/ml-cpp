@@ -61,23 +61,10 @@ int main(int argc, char** argv) {
     bool isOutputFileNamedPipe(false);
     bool verbose(false);
     bool writeDetectorConfigs(false);
-    // clang-format off
-    if (ml::autoconfig::CCmdLineParser::parse(argc,
-                                              argv,
-                                              logProperties,
-                                              logPipe,
-                                              delimiter,
-                                              lengthEncodedInput,
-                                              timeField,
-                                              timeFormat,
-                                              configFile,
-                                              inputFileName,
-                                              isInputFileNamedPipe,
-                                              outputFileName,
-                                              isOutputFileNamedPipe,
-                                              verbose,
-                                              writeDetectorConfigs) == false) {
-        // clang-format on
+    if (ml::autoconfig::CCmdLineParser::parse(
+            argc, argv, logProperties, logPipe, delimiter, lengthEncodedInput, timeField,
+            timeFormat, configFile, inputFileName, isInputFileNamedPipe, outputFileName,
+            isOutputFileNamedPipe, verbose, writeDetectorConfigs) == false) {
         return EXIT_FAILURE;
     }
 

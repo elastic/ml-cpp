@@ -75,26 +75,11 @@ int main(int argc, char** argv) {
     std::string persistFileName;
     bool isPersistFileNamedPipe(false);
     std::string categorizationFieldName;
-    // clang-format off
-    if (ml::categorize::CCmdLineParser::parse(argc,
-                                              argv,
-                                              limitConfigFile,
-                                              jobId,
-                                              logProperties,
-                                              logPipe,
-                                              delimiter,
-                                              lengthEncodedInput,
-                                              persistInterval,
-                                              inputFileName,
-                                              isInputFileNamedPipe,
-                                              outputFileName,
-                                              isOutputFileNamedPipe,
-                                              restoreFileName,
-                                              isRestoreFileNamedPipe,
-                                              persistFileName,
-                                              isPersistFileNamedPipe,
-                                              categorizationFieldName) == false) {
-        // clang-format on
+    if (ml::categorize::CCmdLineParser::parse(
+            argc, argv, limitConfigFile, jobId, logProperties, logPipe, delimiter,
+            lengthEncodedInput, persistInterval, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+            persistFileName, isPersistFileNamedPipe, categorizationFieldName) == false) {
         return EXIT_FAILURE;
     }
 

@@ -99,43 +99,16 @@ int main(int argc, char** argv) {
     std::string multipleBucketspans;
     bool perPartitionNormalization(false);
     TStrVec clauseTokens;
-    // clang-format off
-    if (ml::autodetect::CCmdLineParser::parse(argc,
-                                              argv,
-                                              limitConfigFile,
-                                              modelConfigFile,
-                                              fieldConfigFile,
-                                              modelPlotConfigFile,
-                                              jobId,
-                                              logProperties,
-                                              logPipe,
-                                              bucketSpan,
-                                              latency,
-                                              summaryCountFieldName,
-                                              delimiter,
-                                              lengthEncodedInput,
-                                              timeField,
-                                              timeFormat,
-                                              quantilesStateFile,
-                                              deleteStateFiles,
-                                              persistInterval,
-                                              maxQuantileInterval,
-                                              inputFileName,
-                                              isInputFileNamedPipe,
-                                              outputFileName,
-                                              isOutputFileNamedPipe,
-                                              restoreFileName,
-                                              isRestoreFileNamedPipe,
-                                              persistFileName,
-                                              isPersistFileNamedPipe,
-                                              maxAnomalyRecords,
-                                              memoryUsage,
-                                              bucketResultsDelay,
-                                              multivariateByFields,
-                                              multipleBucketspans,
-                                              perPartitionNormalization,
-                                              clauseTokens) == false) {
-        // clang-format on
+    if (ml::autodetect::CCmdLineParser::parse(
+            argc, argv, limitConfigFile, modelConfigFile, fieldConfigFile,
+            modelPlotConfigFile, jobId, logProperties, logPipe, bucketSpan, latency,
+            summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
+            timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
+            maxQuantileInterval, inputFileName, isInputFileNamedPipe, outputFileName,
+            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+            persistFileName, isPersistFileNamedPipe, maxAnomalyRecords, memoryUsage,
+            bucketResultsDelay, multivariateByFields, multipleBucketspans,
+            perPartitionNormalization, clauseTokens) == false) {
         return EXIT_FAILURE;
     }
 
@@ -252,19 +225,11 @@ int main(int argc, char** argv) {
     }
 
     // The anomaly job knows how to detect anomalies
-    // clang-format off
-    ml::api::CAnomalyJob job(jobId,
-                             limits,
-                             fieldConfig,
-                             modelConfig,
-                             wrappedOutputStream,
-                             boost::bind(&ml::api::CModelSnapshotJsonWriter::write, &modelSnapshotWriter, _1),
-                             periodicPersister.get(),
-                             maxQuantileInterval,
-                             timeField,
-                             timeFormat,
-                             maxAnomalyRecords);
-    // clang-format on
+    ml::api::CAnomalyJob job(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
+                             boost::bind(&ml::api::CModelSnapshotJsonWriter::write,
+                                         &modelSnapshotWriter, _1),
+                             periodicPersister.get(), maxQuantileInterval,
+                             timeField, timeFormat, maxAnomalyRecords);
 
     if (!quantilesStateFile.empty()) {
         if (job.initNormalizer(quantilesStateFile) == false) {

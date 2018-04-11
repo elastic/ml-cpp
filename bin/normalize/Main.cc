@@ -62,23 +62,11 @@ int main(int argc, char** argv) {
     bool deleteStateFiles(false);
     bool writeCsv(false);
     bool perPartitionNormalization(false);
-    // clang-format off
-    if (ml::normalize::CCmdLineParser::parse(argc,
-                                             argv,
-                                             modelConfigFile,
-                                             logProperties,
-                                             logPipe,
-                                             bucketSpan,
-                                             lengthEncodedInput,
-                                             inputFileName,
-                                             isInputFileNamedPipe,
-                                             outputFileName,
-                                             isOutputFileNamedPipe,
-                                             quantilesStateFile,
-                                             deleteStateFiles,
-                                             writeCsv,
-                                             perPartitionNormalization) == false) {
-        // clang-format on
+    if (ml::normalize::CCmdLineParser::parse(
+            argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan,
+            lengthEncodedInput, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, quantilesStateFile,
+            deleteStateFiles, writeCsv, perPartitionNormalization) == false) {
         return EXIT_FAILURE;
     }
 
