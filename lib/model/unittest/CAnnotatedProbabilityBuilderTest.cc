@@ -354,36 +354,28 @@ CppUnit::Test* CAnnotatedProbabilityBuilderTest::suite() {
         "CAnnotatedProbabilityBuilderTest::testProbability",
         &CAnnotatedProbabilityBuilderTest::testProbability));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
-        "CAnnotatedProbabilityBuilderTest::"
-        "testAddAttributeProbabilityGivenIndividualCount",
+        "CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenIndividualCount",
         &CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenIndividualCount));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
-        "CAnnotatedProbabilityBuilderTest::"
-        "testAddAttributeProbabilityGivenPopulationCount",
+        "CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulationCount",
         &CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulationCount));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
-        "CAnnotatedProbabilityBuilderTest::"
-        "testAddAttributeProbabilityGivenIndividualRare",
+        "CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenIndividualRare",
         &CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenIndividualRare));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
-        "CAnnotatedProbabilityBuilderTest::"
-        "testAddAttributeProbabilityGivenPopulationRare",
+        "CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulationRare",
         &CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulationRare));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
-        "CAnnotatedProbabilityBuilderTest::"
-        "testAddAttributeProbabilityGivenPopulationFreqRare",
+        "CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulationFreqRare",
         &CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenPopulationFreqRare));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
-        "CAnnotatedProbabilityBuilderTest::"
-        "testPersonFrequencyGivenIndividualCount",
+        "CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenIndividualCount",
         &CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenIndividualCount));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
-        "CAnnotatedProbabilityBuilderTest::"
-        "testPersonFrequencyGivenIndividualRare",
+        "CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenIndividualRare",
         &CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenIndividualRare));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
-        "CAnnotatedProbabilityBuilderTest::"
-        "testPersonFrequencyGivenPopulationRare",
+        "CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenPopulationRare",
         &CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenPopulationRare));
     return suiteOfTests;
 }

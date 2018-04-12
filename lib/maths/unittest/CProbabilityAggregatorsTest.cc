@@ -146,13 +146,9 @@ private:
 }
 
 void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------------+");
-    LOG_DEBUG(<< "|  "
-                 "CProbabilityAggregatorsTest::"
-                 "testJointProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
 
     // Test case that overflows boost incomplete gamma function.
 
@@ -280,13 +276,9 @@ void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples() {
 }
 
 void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "---------------+");
-    LOG_DEBUG(<< "|  "
-                 "CProbabilityAggregatorsTest::"
-                 "testLogJointProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "---------------+");
+    LOG_DEBUG(<< "+---------------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+---------------------------------------------------------------------------+");
 
     {
         std::ifstream ifs("testfiles/probabilities");
@@ -465,13 +457,9 @@ void CProbabilityAggregatorsTest::testProbabilityOfExtremeSample() {
 }
 
 void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "----------+");
-    LOG_DEBUG(<< "|  "
-                 "CProbabilityAggregatorsTest::"
-                 "testProbabilityOfMFromNExtremeSamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "----------+");
+    LOG_DEBUG(<< "+----------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples  |");
+    LOG_DEBUG(<< "+----------------------------------------------------------------------+");
 
     // We perform four tests:
     //   1) A test that the numerical integral is close to the
@@ -822,8 +810,7 @@ CppUnit::Test* CProbabilityAggregatorsTest::suite() {
         "CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples",
         &CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples));
     suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAggregatorsTest>(
-        "CProbabilityAggregatorsTest::"
-        "testLogJointProbabilityOfLessLikelySamples",
+        "CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples",
         &CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples));
     suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAggregatorsTest>(
         "CProbabilityAggregatorsTest::testProbabilityOfExtremeSample",

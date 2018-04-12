@@ -483,13 +483,9 @@ void CMultinomialConjugateTest::testSampleMarginalLikelihood() {
 }
 
 void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----+");
-    LOG_DEBUG(<< "|  "
-                 "CMultinomialConjugateTest::"
-                 "testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultinomialConjugateTest::testProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
 
     using TDoubleSizePr = std::pair<double, std::size_t>;
     using TDoubleSizePrVec = std::vector<TDoubleSizePr>;

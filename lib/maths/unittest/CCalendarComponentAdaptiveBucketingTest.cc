@@ -218,13 +218,9 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine() {
 }
 
 void CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------------+");
-    LOG_DEBUG(<< "|  "
-                 "CCalendarComponentAdaptiveBucketingTest::"
-                 "testPropagateForwardsByTime  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
 
     // Check no error is introduced by the aging process to
     // the bucket values and that the rate at which the total
@@ -255,13 +251,9 @@ void CCalendarComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
 }
 
 void CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "--------+");
-    LOG_DEBUG(<< "|  "
-                 "CCalendarComponentAdaptiveBucketingTest::"
-                 "testMinimumBucketLength  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "--------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
 
     double function[] = {0.0, 0.0, 10.0, 12.0, 11.0, 16.0, 15.0, 1.0,
                          0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,

@@ -798,13 +798,9 @@ void CNormalMeanPrecConjugateTest::testCdf() {
 }
 
 void CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "--------+");
-    LOG_DEBUG(<< "|  "
-                 "CNormalMeanPrecConjugateTest::"
-                 "testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "--------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
 
     // We test that the probability of less likely samples calculation
     // agrees with the chance of seeing a sample with lower marginal

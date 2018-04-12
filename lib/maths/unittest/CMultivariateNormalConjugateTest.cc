@@ -327,13 +327,9 @@ void CMultivariateNormalConjugateTest::testMeanVectorEstimation() {
 }
 
 void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-------+");
-    LOG_DEBUG(<< "|  "
-                 "CMultivariateNormalConjugateTest::"
-                 "testPrecisionMatrixEstimation  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
 
     // We are going to test that we correctly estimate a distribution
     // for the precision of a multivariate normal by checking that the
@@ -624,13 +620,9 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihoodMode() {
 }
 
 void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------+");
-    LOG_DEBUG(<< "|  "
-                 "CMultivariateNormalConjugateTest::"
-                 "testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testSampleMarginalLikelihood  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------------+");
 
     // We're going to test three properties of the sampling:
     //   1) That the sample mean is equal to the marginal likelihood mean.
@@ -733,13 +725,9 @@ void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood() {
 }
 
 void CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------------+");
-    LOG_DEBUG(<< "|  "
-                 "CMultivariateNormalConjugateTest::"
-                 "testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
 
     // Test that the probability is approximately equal to the chance of drawing
     // a less likely sample from generating distribution.

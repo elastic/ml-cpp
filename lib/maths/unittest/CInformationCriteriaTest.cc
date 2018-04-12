@@ -215,13 +215,9 @@ void CInformationCriteriaTest::testSphericalGaussian() {
 }
 
 void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----------+");
-    LOG_DEBUG(<< "|  "
-                 "CInformationCriteriaTest::"
-                 "testSphericalGaussianWithSphericalCluster  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
 
     // The idea of this test is simply to check that we get the
     // same result working with clusters of points or their

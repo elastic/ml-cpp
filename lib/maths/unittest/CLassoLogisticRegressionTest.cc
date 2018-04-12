@@ -227,13 +227,9 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
 }
 
 void CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------------+");
-    LOG_DEBUG(<< "|  "
-                 "CLassoLogisticRegressionTest::"
-                 "testCyclicCoordinateDescentLargeSparse  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
     // TODO
 }
 

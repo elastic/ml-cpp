@@ -184,13 +184,9 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodMode() {
 }
 
 void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "--------+");
-    LOG_DEBUG(<< "|  "
-                 "CMultivariateConstantPriorTest::"
-                 "testMarginalLikelihoodCovariance  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "--------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
 
     // Check that the marginal likelihood mode is infinite diagonal for
     // non informative, otherwise the zero matrix.
@@ -260,13 +256,9 @@ void CMultivariateConstantPriorTest::testSampleMarginalLikelihood() {
 }
 
 void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "----------+");
-    LOG_DEBUG(<< "|  "
-                 "CMultivariateConstantPriorTest::"
-                 "testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "----------+");
+    LOG_DEBUG(<< "+----------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+----------------------------------------------------------------------+");
 
     // Check we get one for non-informative and the constant and zero
     // otherwise.

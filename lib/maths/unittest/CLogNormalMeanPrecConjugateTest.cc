@@ -651,13 +651,9 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-------+");
-    LOG_DEBUG(<< "|  "
-                 "CLogNormalMeanPrecConjugateTest::"
-                 "testMarginalLikelihoodVariance  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
 
     // Test that the expectation of the residual from the mean for
     // the marginal likelihood matches the expected variance of the
@@ -707,13 +703,9 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----+");
-    LOG_DEBUG(<< "|  "
-                 "CLogNormalMeanPrecConjugateTest::"
-                 "testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testSampleMarginalLikelihood  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
 
     // We're going to test two properties of the sampling:
     //   1) That the sample mean is equal to the marginal
@@ -850,13 +842,9 @@ void CLogNormalMeanPrecConjugateTest::testCdf() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----------+");
-    LOG_DEBUG(<< "|  "
-                 "CLogNormalMeanPrecConjugateTest::"
-                 "testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
 
     // We test that the probability of less likely samples calculation
     // agrees with the chance of seeing a sample with lower marginal

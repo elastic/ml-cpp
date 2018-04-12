@@ -42,12 +42,10 @@ CppUnit::Test* CInterimBucketCorrectorTest::suite() {
         "CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue",
         &CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue));
     suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
-        "CInterimBucketCorrectorTest::"
-        "testCorrectionsGivenSingleValueAndNoBaseline",
+        "CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline",
         &CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline));
     suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
-        "CInterimBucketCorrectorTest::"
-        "testCorrectionsGivenMultiValueAndMultiMode",
+        "CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode",
         &CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode));
     suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
         "CInterimBucketCorrectorTest::testPersist", &CInterimBucketCorrectorTest::testPersist));

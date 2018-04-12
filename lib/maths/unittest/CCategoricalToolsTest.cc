@@ -33,23 +33,15 @@ using TSizeVec = std::vector<std::size_t>;
 using namespace ml;
 
 void CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----------+");
-    LOG_DEBUG(<< "|  "
-                 "CCategoricalToolsTest::"
-                 "testProbabilityOfLessLikelyMultinomialSample  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------------+");
 }
 
 void CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-------+");
-    LOG_DEBUG(<< "|  "
-                 "CCategoricalToolsTest::"
-                 "testProbabilityOfLessLikelyCategoryCount  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
 }
 
 void CCategoricalToolsTest::testExpectedDistinctCategories() {

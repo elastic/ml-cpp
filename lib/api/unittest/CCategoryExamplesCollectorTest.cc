@@ -165,16 +165,13 @@ CppUnit::Test* CCategoryExamplesCollectorTest::suite() {
         "CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero",
         &CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-        "CCategoryExamplesCollectorTest::"
-        "testAddGivenSameCategoryExamplePairAddedTwice",
+        "CCategoryExamplesCollectorTest::testAddGivenSameCategoryExamplePairAddedTwice",
         &CCategoryExamplesCollectorTest::testAddGivenSameCategoryExamplePairAddedTwice));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-        "CCategoryExamplesCollectorTest::"
-        "testAddGivenMoreThanMaxExamplesAreAddedForSameCategory",
+        "CCategoryExamplesCollectorTest::testAddGivenMoreThanMaxExamplesAreAddedForSameCategory",
         &CCategoryExamplesCollectorTest::testAddGivenMoreThanMaxExamplesAreAddedForSameCategory));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-        "CCategoryExamplesCollectorTest::"
-        "testAddGivenCategoryAddedIsNotSubsequent",
+        "CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent",
         &CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent));
     suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
         "CCategoryExamplesCollectorTest::testExamples",

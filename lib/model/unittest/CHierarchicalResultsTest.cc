@@ -2008,8 +2008,7 @@ CppUnit::Test* CHierarchicalResultsTest::suite() {
         "CHierarchicalResultsTest::testBuildHierarchy",
         &CHierarchicalResultsTest::testBuildHierarchy));
     suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::"
-        "testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue",
+        "CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue",
         &CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue));
     suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
         "CHierarchicalResultsTest::testBasicVisitor", &CHierarchicalResultsTest::testBasicVisitor));

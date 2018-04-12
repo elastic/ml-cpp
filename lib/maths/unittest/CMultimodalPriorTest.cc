@@ -978,13 +978,9 @@ void CMultimodalPriorTest::testMarginalLikelihoodMode() {
 }
 
 void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------+");
-    LOG_DEBUG(<< "|  "
-                 "CMultimodalPriorTest::"
-                 "testMarginalLikelihoodConfidenceInterval  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------------+");
 
     // Test that marginal likelihood confidence intervals are
     // what we'd expect for various variance scales.

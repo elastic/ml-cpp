@@ -1685,27 +1685,22 @@ CppUnit::Test* CProbabilityAndInfluenceCalculatorTest::suite() {
         new CppUnit::TestSuite("CProbabilityAndInfluenceCalculatorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-        "CProbabilityAndInfluenceCalculatorTest::"
-        "testInfluenceUnavailableCalculator",
+        "CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator",
         &CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator));
     suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-        "CProbabilityAndInfluenceCalculatorTest::"
-        "testLogProbabilityComplementInfluenceCalculator",
+        "CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator",
         &CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator));
     suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
         "CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator",
         &CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator));
     suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-        "CProbabilityAndInfluenceCalculatorTest::"
-        "testLogProbabilityInfluenceCalculator",
+        "CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator",
         &CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator));
     suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-        "CProbabilityAndInfluenceCalculatorTest::"
-        "testIndicatorInfluenceCalculator",
+        "CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator",
         &CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator));
     suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-        "CProbabilityAndInfluenceCalculatorTest::"
-        "testProbabilityAndInfluenceCalculator",
+        "CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator",
         &CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator));
 
     return suiteOfTests;

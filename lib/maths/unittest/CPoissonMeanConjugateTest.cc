@@ -590,13 +590,9 @@ void CPoissonMeanConjugateTest::testCdf() {
 }
 
 void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----+");
-    LOG_DEBUG(<< "|  "
-                 "CPoissonMeanConjugateTest::"
-                 "testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
 
     // We test that the probability of less likely samples calculation
     // agrees with the chance of seeing a sample with lower marginal

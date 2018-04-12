@@ -46,12 +46,10 @@ CppUnit::Test* CFlatPrefixTreeTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
         "CFlatPrefixTreeTest::testLeafAndBranch", &CFlatPrefixTreeTest::testLeafAndBranch));
     suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
-        "CFlatPrefixTreeTest::"
-        "testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix",
+        "CFlatPrefixTreeTest::testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix",
         &CFlatPrefixTreeTest::testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix));
     suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
-        "CFlatPrefixTreeTest::"
-        "testMatchesFullyGivenStringThatIsSubstringOfPrefix",
+        "CFlatPrefixTreeTest::testMatchesFullyGivenStringThatIsSubstringOfPrefix",
         &CFlatPrefixTreeTest::testMatchesFullyGivenStringThatIsSubstringOfPrefix));
     suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
         "CFlatPrefixTreeTest::testRandom", &CFlatPrefixTreeTest::testRandom));

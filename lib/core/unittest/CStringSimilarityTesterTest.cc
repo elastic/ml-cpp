@@ -38,15 +38,13 @@ CppUnit::Test* CStringSimilarityTesterTest::suite() {
         "CStringSimilarityTesterTest::testLevensteinDistance2",
         &CStringSimilarityTesterTest::testLevensteinDistance2));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::"
-        "testLevensteinDistanceThroughputDifferent",
+        "CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent",
         &CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
         "CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar",
         &CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::"
-        "testLevensteinDistanceAlgorithmEquivalence",
+        "CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence",
         &CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
         "CStringSimilarityTesterTest::testWeightedEditDistance",

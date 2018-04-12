@@ -3037,12 +3037,10 @@ CppUnit::Test* CEventRateModelTest::suite() {
         "CEventRateModelTest::testOnlineProbabilityCalculation",
         &CEventRateModelTest::testOnlineProbabilityCalculation));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateModelTest>(
-        "CEventRateModelTest::"
-        "testOnlineProbabilityCalculationForLowNonZeroCount",
+        "CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount",
         &CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateModelTest>(
-        "CEventRateModelTest::"
-        "testOnlineProbabilityCalculationForHighNonZeroCount",
+        "CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount",
         &CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateModelTest>(
         "CEventRateModelTest::testOnlineCorrelatedNoTrend",
@@ -3061,8 +3059,7 @@ CppUnit::Test* CEventRateModelTest::suite() {
         "CEventRateModelTest::testCountProbabilityCalculationWithInfluence",
         &CEventRateModelTest::testCountProbabilityCalculationWithInfluence));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateModelTest>(
-        "CEventRateModelTest::"
-        "testDistinctCountProbabilityCalculationWithInfluence",
+        "CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence",
         &CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateModelTest>(
         "CEventRateModelTest::testOnlineRareWithInfluence",

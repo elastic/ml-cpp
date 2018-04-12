@@ -1345,13 +1345,9 @@ void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase() {
 }
 
 void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-------------+");
-    LOG_DEBUG(<< "|  "
-                 "CTimeSeriesDecompositionTest::"
-                 "testDiurnalPeriodicityWithMissingValues  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -1632,13 +1628,9 @@ void CTimeSeriesDecompositionTest::testLongTermTrend() {
 }
 
 void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----+");
-    LOG_DEBUG(<< "|  "
-                 "CTimeSeriesDecompositionTest::"
-                 "testLongTermTrendAndPeriodicity  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-----+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------------+");
 
     // Test long term mean reverting component plus daily periodic component.
 

@@ -311,13 +311,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------------+");
-    LOG_DEBUG(<< "|  "
-                 "CSeasonalComponentAdaptiveBucketingTest::"
-                 "testPropagateForwardsByTime  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
 
     // Check no error is introduced by the aging process to
     // the bucket values and that the rate at which the total
@@ -351,13 +347,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testPropagateForwardsByTime() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "--------+");
-    LOG_DEBUG(<< "|  "
-                 "CSeasonalComponentAdaptiveBucketingTest::"
-                 "testMinimumBucketLength  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "--------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
 
     const double bucketLength = 3600.0;
     const double function[] = {0.0,  0.0, 10.0, 12.0, 11.0, 16.0,
@@ -571,13 +563,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testKnots() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-------+");
-    LOG_DEBUG(<< "|  "
-                 "CSeasonalComponentAdaptiveBucketingTest::"
-                 "testLongTermTrendKnots  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "-------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------------+");
 
     // Check prediction errors in values.
 

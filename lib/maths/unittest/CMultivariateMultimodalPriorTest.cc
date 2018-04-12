@@ -792,13 +792,9 @@ void CMultivariateMultimodalPriorTest::testMarginalLikelihoodMode() {
 }
 
 void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------+");
-    LOG_DEBUG(<< "|  "
-                 "CMultivariateMultimodalPriorTest::"
-                 "testSampleMarginalLikelihood  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------------+");
 
     // We're going to test the following properties of the sampling:
     //   1) That the sampled mean and covariance are close to the marginal
@@ -894,13 +890,9 @@ void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood() {
 }
 
 void CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------------+");
-    LOG_DEBUG(<< "|  "
-                 "CMultivariateMultimodalPriorTest::"
-                 "testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------------------+");
 
     // Test that the probability is approximately equal to the chance of drawing
     // a less likely sample from generating distribution.

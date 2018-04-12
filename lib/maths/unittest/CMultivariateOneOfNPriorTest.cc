@@ -916,13 +916,9 @@ void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood() {
 }
 
 void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "--------+");
-    LOG_DEBUG(<< "|  "
-                 "CMultivariateOneOfNPriorTest::"
-                 "testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(<< "+------------------------------------------------------------"
-                 "--------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------------+");
 
     // We simply test that the calculation is close to the weighted
     // sum of component model calculations.

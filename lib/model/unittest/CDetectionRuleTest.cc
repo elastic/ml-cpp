@@ -57,8 +57,7 @@ CppUnit::Test* CDetectionRuleTest::suite() {
         "CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition",
         &CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-        "CDetectionRuleTest::"
-        "testApplyGivenSingleSeriesModelAndConditionWithField",
+        "CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField",
         &CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
         "CDetectionRuleTest::testApplyGivenNoActualValueAvailable",
@@ -76,8 +75,7 @@ CppUnit::Test* CDetectionRuleTest::suite() {
         "CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd",
         &CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-        "CDetectionRuleTest::"
-        "testApplyGivenTargetFieldIsPartitionAndIndividualModel",
+        "CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel",
         &CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
         "CDetectionRuleTest::testApplyGivenTimeCondition",

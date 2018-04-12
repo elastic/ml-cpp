@@ -405,9 +405,7 @@ void CEventRatePopulationDataGathererTest::testAttributeIndicator() {
 }
 
 void CEventRatePopulationDataGathererTest::testUniqueValueCounts() {
-    LOG_DEBUG(<< "*** "
-                 "CEventRatePopulationDataGathererTest::"
-                 "testUniqueAttributeCounts ***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testUniqueAttributeCounts ***");
 
     // We check that we correctly sample the unique counts
     // of values per person.
