@@ -49,15 +49,11 @@ void crashHandler(int sig, siginfo_t* info, void* context) {
     Dl_info symbolInfo;
     dladdr(errorAddress, &symbolInfo);
 
-    fprintf(stderr,
-            "si_signo %d, si_code: %d, si_errno: %d, address: %p, library: %s, base: %p, normalized address: %p\n",
-            info->si_signo,
-            info->si_code,
-            info->si_errno,
-            errorAddress,
-            symbolInfo.dli_fname,
-            symbolInfo.dli_fbase,
-            reinterpret_cast<void*>(reinterpret_cast<intptr_t>(errorAddress) - reinterpret_cast<intptr_t>(symbolInfo.dli_fbase)));
+    fprintf(stderr, "si_signo %d, si_code: %d, si_errno: %d, address: %p, library: %s, base: %p, normalized address: %p\n",
+            info->si_signo, info->si_code, info->si_errno, errorAddress,
+            symbolInfo.dli_fname, symbolInfo.dli_fbase,
+            reinterpret_cast<void*>(reinterpret_cast<intptr_t>(errorAddress) -
+                                    reinterpret_cast<intptr_t>(symbolInfo.dli_fbase)));
 
     // Still generate a core dump,
     // see http://www.alexonlinux.com/how-to-handle-sigsegv-but-also-generate-core-dump

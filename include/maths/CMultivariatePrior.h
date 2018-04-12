@@ -134,8 +134,9 @@ public:
     //! for more details.
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void
-    adjustOffset(const TWeightStyleVec& weightStyles, const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights) = 0;
+    virtual void adjustOffset(const TWeightStyleVec& weightStyles,
+                              const TDouble10Vec1Vec& samples,
+                              const TDouble10Vec4Vec1Vec& weights) = 0;
 
     //! Update the prior with a collection of independent samples from the
     //! process.
@@ -145,7 +146,9 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles, const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights) = 0;
+    virtual void addSamples(const TWeightStyleVec& weightStyles,
+                            const TDouble10Vec1Vec& samples,
+                            const TDouble10Vec4Vec1Vec& weights) = 0;
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) = 0;
@@ -162,7 +165,8 @@ public:
     //! \note The caller must specify dimension - 1 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const = 0;
+    virtual TUnivariatePriorPtrDoublePr
+    univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const = 0;
 
     //! Compute the bivariate prior marginalizing over the variables
     //! \p marginalize and conditioning on the variables \p condition.
@@ -176,7 +180,8 @@ public:
     //! \note The caller must specify dimension - 2 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const = 0;
+    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
+                                        const TSizeDoublePr10Vec& condition) const = 0;
 
     //! Get the support for the marginal likelihood function.
     virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const = 0;
@@ -189,10 +194,12 @@ public:
     virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec& value) const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) const = 0;
+    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
+                                                const TDouble10Vec4Vec& weights) const = 0;
 
     //! Get the local maxima of the marginal likelihood function.
-    virtual TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) const;
+    virtual TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
+                                                     const TDouble10Vec4Vec& weights) const;
 
     //! Get the covariance matrix for the marginal likelihood.
     virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const = 0;
@@ -209,10 +216,11 @@ public:
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
-    virtual maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                                                                          const TDouble10Vec1Vec& samples,
-                                                                          const TDouble10Vec4Vec1Vec& weights,
-                                                                          double& result) const = 0;
+    virtual maths_t::EFloatingPointErrorStatus
+    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                               const TDouble10Vec1Vec& samples,
+                               const TDouble10Vec4Vec1Vec& weights,
+                               double& result) const = 0;
 
     //! Sample the marginal likelihood function.
     //!
@@ -234,7 +242,8 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble10Vec1Vec& samples) const = 0;
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples,
+                                          TDouble10Vec1Vec& samples) const = 0;
 
     //! Calculate the joint probability of seeing a lower marginal likelihood
     //! collection of independent samples for each coordinate.
@@ -390,7 +399,9 @@ protected:
     bool check(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const;
 
     //! Get the remaining variables.
-    void remainingVariables(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition, TSize10Vec& results) const;
+    void remainingVariables(const TSize10Vec& marginalize,
+                            const TSizeDoublePr10Vec& condition,
+                            TSize10Vec& results) const;
 
     //! Get the smallest component of \p x.
     double smallest(const TDouble10Vec& x) const;

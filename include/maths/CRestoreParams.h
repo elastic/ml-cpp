@@ -21,7 +21,9 @@ class CModelParams;
 //! \brief Gatherers up extra parameters supplied when restoring
 //! time series decompositions.
 struct MATHS_EXPORT STimeSeriesDecompositionRestoreParams {
-    STimeSeriesDecompositionRestoreParams(double decayRate, core_t::TTime minimumBucketLength, std::size_t componentSize);
+    STimeSeriesDecompositionRestoreParams(double decayRate,
+                                          core_t::TTime minimumBucketLength,
+                                          std::size_t componentSize);
 
     //! The rate at which decomposition loses information.
     double s_DecayRate;

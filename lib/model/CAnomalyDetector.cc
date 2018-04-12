@@ -60,7 +60,9 @@ const std::string MODELS_TAG("b");
 const std::string MODEL_TAG("d");
 
 CAnomalyDetector::TDataGathererPtr
-makeDataGatherer(const CAnomalyDetector::TModelFactoryCPtr& factory, core_t::TTime startTime, const std::string& partitionFieldValue) {
+makeDataGatherer(const CAnomalyDetector::TModelFactoryCPtr& factory,
+                 core_t::TTime startTime,
+                 const std::string& partitionFieldValue) {
     CModelFactory::SGathererInitializationData initData(startTime, partitionFieldValue);
     return CAnomalyDetector::TDataGathererPtr(factory->makeDataGatherer(initData));
 }
@@ -96,29 +98,28 @@ CAnomalyDetector::CAnomalyDetector(int detectorIndex,
                                    const std::string& partitionFieldValue,
                                    core_t::TTime firstTime,
                                    const TModelFactoryCPtr& modelFactory)
-    : m_Limits(limits),
-      m_DetectorIndex(detectorIndex),
-      m_ModelConfig(modelConfig),
+    : m_Limits(limits), m_DetectorIndex(detectorIndex), m_ModelConfig(modelConfig),
       m_LastBucketEndTime(maths::CIntegerTools::ceil(firstTime, modelConfig.bucketLength())),
       m_DataGatherer(makeDataGatherer(modelFactory, m_LastBucketEndTime, partitionFieldValue)),
       m_ModelFactory(modelFactory),
-      m_Model(makeModel(modelFactory, m_DataGatherer)),
-      m_IsForPersistence(false) {
+      m_Model(makeModel(modelFactory, m_DataGatherer)), m_IsForPersistence(false) {
     if (m_DataGatherer == nullptr) {
-        LOG_ABORT(<< "Failed to construct data gatherer for detector: " << this->description());
+        LOG_ABORT(<< "Failed to construct data gatherer for detector: "
+                  << this->description());
     }
     if (m_Model == nullptr) {
         LOG_ABORT(<< "Failed to construct model for detector: " << this->description());
     }
     limits.resourceMonitor().registerComponent(*this);
-    LOG_DEBUG(<< "CAnomalyDetector(): " << this->description() << " for '" << m_DataGatherer->partitionFieldValue() << "'"
-              << ", first time = " << firstTime << ", bucketLength = " << modelConfig.bucketLength()
+    LOG_DEBUG(<< "CAnomalyDetector(): " << this->description() << " for '"
+              << m_DataGatherer->partitionFieldValue() << "'"
+              << ", first time = " << firstTime
+              << ", bucketLength = " << modelConfig.bucketLength()
               << ", m_LastBucketEndTime = " << m_LastBucketEndTime);
 }
 
 CAnomalyDetector::CAnomalyDetector(bool isForPersistence, const CAnomalyDetector& other)
-    : m_Limits(other.m_Limits),
-      m_DetectorIndex(other.m_DetectorIndex),
+    : m_Limits(other.m_Limits), m_DetectorIndex(other.m_DetectorIndex),
       m_ModelConfig(other.m_ModelConfig),
       // Empty result function is fine in this case
       // Empty result count function is fine in this case
@@ -162,7 +163,8 @@ void CAnomalyDetector::zeroModelsToTime(core_t::TTime time) {
         core_t::TTime bucketStartTime = m_LastBucketEndTime;
         m_LastBucketEndTime += bucketLength;
 
-        LOG_TRACE(<< "sample: m_DetectorKey = '" << this->description() << "', bucketStartTime = " << bucketStartTime
+        LOG_TRACE(<< "sample: m_DetectorKey = '" << this->description()
+                  << "', bucketStartTime = " << bucketStartTime
                   << ", m_LastBucketEndTime = " << m_LastBucketEndTime);
 
         // Update the statistical models.
@@ -170,7 +172,8 @@ void CAnomalyDetector::zeroModelsToTime(core_t::TTime time) {
     }
 }
 
-bool CAnomalyDetector::acceptRestoreTraverser(const std::string& partitionFieldValue, core::CStateRestoreTraverser& traverser) {
+bool CAnomalyDetector::acceptRestoreTraverser(const std::string& partitionFieldValue,
+                                              core::CStateRestoreTraverser& traverser) {
     // As the model pointer will change during restore, we unregister
     // the detector from the resource monitor. We can register it
     // again at the end of restore.
@@ -186,12 +189,14 @@ bool CAnomalyDetector::acceptRestoreTraverser(const std::string& partitionFieldV
         const std::string& name = traverser.name();
         if (name == MODEL_AND_GATHERER_TAG) {
             if (traverser.traverseSubLevel(boost::bind(
-                    &CAnomalyDetector::legacyModelEnsembleAcceptRestoreTraverser, this, boost::cref(partitionFieldValue), _1)) == false) {
+                    &CAnomalyDetector::legacyModelEnsembleAcceptRestoreTraverser,
+                    this, boost::cref(partitionFieldValue), _1)) == false) {
                 LOG_ERROR(<< "Invalid model ensemble section in " << traverser.value());
                 return false;
             }
         } else if (name == SIMPLE_COUNT_STATICS) {
-            if (traverser.traverseSubLevel(boost::bind(&CAnomalyDetector::staticsAcceptRestoreTraverser, this, _1)) == false) {
+            if (traverser.traverseSubLevel(boost::bind(&CAnomalyDetector::staticsAcceptRestoreTraverser,
+                                                       this, _1)) == false) {
                 LOG_ERROR(<< "Invalid simple count statics in " << traverser.value());
                 return false;
             }
@@ -208,13 +213,16 @@ bool CAnomalyDetector::legacyModelEnsembleAcceptRestoreTraverser(const std::stri
     do {
         const std::string& name = traverser.name();
         if (name == DATA_GATHERER_TAG) {
-            m_DataGatherer.reset(m_ModelFactory->makeDataGatherer(partitionFieldValue, traverser));
+            m_DataGatherer.reset(
+                m_ModelFactory->makeDataGatherer(partitionFieldValue, traverser));
             if (!m_DataGatherer) {
-                LOG_ERROR(<< "Failed to restore the data gatherer from " << traverser.value());
+                LOG_ERROR(<< "Failed to restore the data gatherer from "
+                          << traverser.value());
                 return false;
             }
         } else if (name == MODELS_TAG) {
-            if (traverser.traverseSubLevel(boost::bind(&CAnomalyDetector::legacyModelsAcceptRestoreTraverser, this, _1)) == false) {
+            if (traverser.traverseSubLevel(boost::bind(&CAnomalyDetector::legacyModelsAcceptRestoreTraverser,
+                                                       this, _1)) == false) {
                 LOG_ERROR(<< "Failed to restore live models from " << traverser.value());
                 return false;
             }
@@ -244,17 +252,20 @@ bool CAnomalyDetector::staticsAcceptRestoreTraverser(core::CStateRestoreTraverse
     do {
         const std::string& name = traverser.name();
         if (name == RANDOMIZED_PERIODIC_TAG) {
-            if (traverser.traverseSubLevel(&maths::CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser) == false) {
+            if (traverser.traverseSubLevel(&maths::CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser) ==
+                false) {
                 LOG_ERROR(<< "Failed to restore randomized periodic test state");
                 return false;
             }
         } else if (name == STATISTICS_TAG) {
-            if (traverser.traverseSubLevel(&core::CStatistics::staticsAcceptRestoreTraverser) == false) {
+            if (traverser.traverseSubLevel(
+                    &core::CStatistics::staticsAcceptRestoreTraverser) == false) {
                 LOG_ERROR(<< "Failed to restore statistics");
                 return false;
             }
         } else if (name == SAMPLING_TAG) {
-            if (traverser.traverseSubLevel(&maths::CSampling::staticsAcceptRestoreTraverser) == false) {
+            if (traverser.traverseSubLevel(
+                    &maths::CSampling::staticsAcceptRestoreTraverser) == false) {
                 LOG_ERROR(<< "Failed to restore sampling state");
                 return false;
             }
@@ -264,7 +275,8 @@ bool CAnomalyDetector::staticsAcceptRestoreTraverser(core::CStateRestoreTraverse
     return true;
 }
 
-bool CAnomalyDetector::partitionFieldAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser, std::string& partitionFieldValue) {
+bool CAnomalyDetector::partitionFieldAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
+                                                            std::string& partitionFieldValue) {
     do {
         const std::string& name = traverser.name();
         if (name == PARTITION_FIELD_VALUE_TAG) {
@@ -276,7 +288,8 @@ bool CAnomalyDetector::partitionFieldAcceptRestoreTraverser(core::CStateRestoreT
     return false;
 }
 
-bool CAnomalyDetector::keyAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser, CSearchKey& key) {
+bool CAnomalyDetector::keyAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
+                                                 CSearchKey& key) {
     do {
         const std::string& name = traverser.name();
         if (name == KEY_TAG) {
@@ -294,7 +307,8 @@ bool CAnomalyDetector::keyAcceptRestoreTraverser(core::CStateRestoreTraverser& t
 }
 
 void CAnomalyDetector::keyAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(KEY_TAG, boost::bind(&CSearchKey::acceptPersistInserter, &m_DataGatherer->searchKey(), _1));
+    inserter.insertLevel(KEY_TAG, boost::bind(&CSearchKey::acceptPersistInserter,
+                                              &m_DataGatherer->searchKey(), _1));
 }
 
 void CAnomalyDetector::partitionFieldAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -306,28 +320,36 @@ void CAnomalyDetector::acceptPersistInserter(core::CStatePersistInserter& insert
     // and do this first so that other model components can use
     // static strings
     if (this->isSimpleCount()) {
-        inserter.insertLevel(SIMPLE_COUNT_STATICS, boost::bind(&CAnomalyDetector::staticsAcceptPersistInserter, this, _1));
+        inserter.insertLevel(
+            SIMPLE_COUNT_STATICS,
+            boost::bind(&CAnomalyDetector::staticsAcceptPersistInserter, this, _1));
     }
 
     // Persist what used to belong in model ensemble at a separate level to ensure BWC
-    inserter.insertLevel(MODEL_AND_GATHERER_TAG, boost::bind(&CAnomalyDetector::legacyModelEnsembleAcceptPersistInserter, this, _1));
+    inserter.insertLevel(MODEL_AND_GATHERER_TAG, boost::bind(&CAnomalyDetector::legacyModelEnsembleAcceptPersistInserter,
+                                                             this, _1));
 }
 
 void CAnomalyDetector::staticsAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(RANDOMIZED_PERIODIC_TAG, &maths::CRandomizedPeriodicityTest::staticsAcceptPersistInserter);
+    inserter.insertLevel(RANDOMIZED_PERIODIC_TAG,
+                         &maths::CRandomizedPeriodicityTest::staticsAcceptPersistInserter);
     inserter.insertLevel(STATISTICS_TAG, &core::CStatistics::staticsAcceptPersistInserter);
     inserter.insertLevel(SAMPLING_TAG, &maths::CSampling::staticsAcceptPersistInserter);
 }
 
 void CAnomalyDetector::legacyModelEnsembleAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(DATA_GATHERER_TAG, boost::bind(&CDataGatherer::acceptPersistInserter, boost::cref(*m_DataGatherer), _1));
+    inserter.insertLevel(DATA_GATHERER_TAG,
+                         boost::bind(&CDataGatherer::acceptPersistInserter,
+                                     boost::cref(*m_DataGatherer), _1));
     // This level seems redundant but it is simulating state as it was when CModelEnsemble
     // was around.
-    inserter.insertLevel(MODELS_TAG, boost::bind(&CAnomalyDetector::legacyModelsAcceptPersistInserter, this, _1));
+    inserter.insertLevel(MODELS_TAG, boost::bind(&CAnomalyDetector::legacyModelsAcceptPersistInserter,
+                                                 this, _1));
 }
 
 void CAnomalyDetector::legacyModelsAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(MODEL_TAG, boost::bind(&CAnomalyDetectorModel::acceptPersistInserter, m_Model.get(), _1));
+    inserter.insertLevel(MODEL_TAG, boost::bind(&CAnomalyDetectorModel::acceptPersistInserter,
+                                                m_Model.get(), _1));
 }
 
 const CAnomalyDetector::TStrVec& CAnomalyDetector::fieldsOfInterest() const {
@@ -343,11 +365,14 @@ void CAnomalyDetector::addRecord(core_t::TTime time, const TStrCPtrVec& fieldVal
     m_DataGatherer->addArrival(processedFieldValues, eventData, m_Limits.resourceMonitor());
 }
 
-const CAnomalyDetector::TStrCPtrVec& CAnomalyDetector::preprocessFieldValues(const TStrCPtrVec& fieldValues) {
+const CAnomalyDetector::TStrCPtrVec&
+CAnomalyDetector::preprocessFieldValues(const TStrCPtrVec& fieldValues) {
     return fieldValues;
 }
 
-void CAnomalyDetector::buildResults(core_t::TTime bucketStartTime, core_t::TTime bucketEndTime, CHierarchicalResults& results) {
+void CAnomalyDetector::buildResults(core_t::TTime bucketStartTime,
+                                    core_t::TTime bucketEndTime,
+                                    CHierarchicalResults& results) {
     core_t::TTime bucketLength = m_ModelConfig.bucketLength();
     if (m_ModelConfig.bucketResultsDelay()) {
         bucketLength /= 2;
@@ -360,14 +385,16 @@ void CAnomalyDetector::buildResults(core_t::TTime bucketStartTime, core_t::TTime
 
     m_Limits.resourceMonitor().clearExtraMemory();
 
-    this->buildResultsHelper(bucketStartTime,
-                             bucketEndTime,
-                             boost::bind(&CAnomalyDetector::sample, this, _1, _2, boost::ref(m_Limits.resourceMonitor())),
-                             boost::bind(&CAnomalyDetector::updateLastSampledBucket, this, _1),
-                             results);
+    this->buildResultsHelper(
+        bucketStartTime, bucketEndTime,
+        boost::bind(&CAnomalyDetector::sample, this, _1, _2,
+                    boost::ref(m_Limits.resourceMonitor())),
+        boost::bind(&CAnomalyDetector::updateLastSampledBucket, this, _1), results);
 }
 
-void CAnomalyDetector::sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) {
+void CAnomalyDetector::sample(core_t::TTime startTime,
+                              core_t::TTime endTime,
+                              CResourceMonitor& resourceMonitor) {
     if (endTime <= startTime) {
         // Nothing to sample.
         return;
@@ -401,7 +428,9 @@ void CAnomalyDetector::sample(core_t::TTime startTime, core_t::TTime endTime, CR
     }
 }
 
-void CAnomalyDetector::sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) {
+void CAnomalyDetector::sampleBucketStatistics(core_t::TTime startTime,
+                                              core_t::TTime endTime,
+                                              CResourceMonitor& resourceMonitor) {
     if (endTime <= startTime) {
         // Nothing to sample.
         return;
@@ -428,21 +457,20 @@ void CAnomalyDetector::generateModelPlot(core_t::TTime bucketStartTime,
         TModelDetailsViewPtr view = m_Model.get()->details();
         if (view.get()) {
             core_t::TTime bucketLength = m_ModelConfig.bucketLength();
-            for (core_t::TTime time = bucketStartTime; time < bucketEndTime; time += bucketLength) {
-                modelPlots.emplace_back(time,
-                                        key.partitionFieldName(),
+            for (core_t::TTime time = bucketStartTime; time < bucketEndTime;
+                 time += bucketLength) {
+                modelPlots.emplace_back(time, key.partitionFieldName(),
                                         m_DataGatherer->partitionFieldValue(),
-                                        key.overFieldName(),
-                                        key.byFieldName(),
-                                        bucketLength,
-                                        m_DetectorIndex);
+                                        key.overFieldName(), key.byFieldName(),
+                                        bucketLength, m_DetectorIndex);
                 view->modelPlot(time, boundsPercentile, terms, modelPlots.back());
             }
         }
     }
 }
 
-CForecastDataSink::SForecastModelPrerequisites CAnomalyDetector::getForecastPrerequisites() const {
+CForecastDataSink::SForecastModelPrerequisites
+CAnomalyDetector::getForecastPrerequisites() const {
     CForecastDataSink::SForecastModelPrerequisites prerequisites{0, 0, 0, true, false};
 
     TModelDetailsViewPtr view = m_Model->details();
@@ -513,7 +541,9 @@ CForecastDataSink::SForecastResultSeries CAnomalyDetector::getForecastModels() c
                 const maths::CModel* model = view->model(feature, pid);
                 if (model != nullptr && model->isForecastPossible()) {
                     series.s_ToForecast.emplace_back(
-                        feature, CForecastDataSink::TMathsModelPtr(model->cloneForForecast()), m_DataGatherer->personName(pid));
+                        feature,
+                        CForecastDataSink::TMathsModelPtr(model->cloneForForecast()),
+                        m_DataGatherer->personName(pid));
                 }
             }
         }
@@ -522,12 +552,14 @@ CForecastDataSink::SForecastResultSeries CAnomalyDetector::getForecastModels() c
     return series;
 }
 
-void CAnomalyDetector::buildInterimResults(core_t::TTime bucketStartTime, core_t::TTime bucketEndTime, CHierarchicalResults& results) {
-    this->buildResultsHelper(bucketStartTime,
-                             bucketEndTime,
-                             boost::bind(&CAnomalyDetector::sampleBucketStatistics, this, _1, _2, boost::ref(m_Limits.resourceMonitor())),
-                             boost::bind(&CAnomalyDetector::noUpdateLastSampledBucket, this, _1),
-                             results);
+void CAnomalyDetector::buildInterimResults(core_t::TTime bucketStartTime,
+                                           core_t::TTime bucketEndTime,
+                                           CHierarchicalResults& results) {
+    this->buildResultsHelper(
+        bucketStartTime, bucketEndTime,
+        boost::bind(&CAnomalyDetector::sampleBucketStatistics, this, _1, _2,
+                    boost::ref(m_Limits.resourceMonitor())),
+        boost::bind(&CAnomalyDetector::noUpdateLastSampledBucket, this, _1), results);
 }
 
 void CAnomalyDetector::pruneModels() {
@@ -549,7 +581,8 @@ void CAnomalyDetector::showMemoryUsage(std::ostream& stream) const {
     mem.compress();
     mem.print(stream);
     if (mem.usage() != this->memoryUsage()) {
-        LOG_ERROR(<< "Discrepancy in memory report: " << mem.usage() << " from debug, but " << this->memoryUsage() << " from normal");
+        LOG_ERROR(<< "Discrepancy in memory report: " << mem.usage()
+                  << " from debug, but " << this->memoryUsage() << " from normal");
     }
 }
 
@@ -580,9 +613,12 @@ core_t::TTime CAnomalyDetector::modelBucketLength() const {
 std::string CAnomalyDetector::description() const {
     auto beginInfluencers = m_DataGatherer->beginInfluencers();
     auto endInfluencers = m_DataGatherer->endInfluencers();
-    return m_DataGatherer->description() + (m_DataGatherer->partitionFieldValue().empty() ? "" : "/") +
+    return m_DataGatherer->description() +
+           (m_DataGatherer->partitionFieldValue().empty() ? "" : "/") +
            m_DataGatherer->partitionFieldValue() +
-           (beginInfluencers != endInfluencers ? (" " + core::CContainerPrinter::print(beginInfluencers, endInfluencers)) : "");
+           (beginInfluencers != endInfluencers
+                ? (" " + core::CContainerPrinter::print(beginInfluencers, endInfluencers))
+                : "");
 }
 
 void CAnomalyDetector::timeNow(core_t::TTime time) {
@@ -602,8 +638,8 @@ void CAnomalyDetector::buildResultsHelper(core_t::TTime bucketStartTime,
                                           CHierarchicalResults& results) {
     core_t::TTime bucketLength = m_ModelConfig.bucketLength();
 
-    LOG_TRACE(<< "sample: m_DetectorKey = '" << this->description() << "', bucketStartTime = " << bucketStartTime
-              << ", bucketEndTime = " << bucketEndTime);
+    LOG_TRACE(<< "sample: m_DetectorKey = '" << this->description() << "', bucketStartTime = "
+              << bucketStartTime << ", bucketEndTime = " << bucketEndTime);
 
     // Update the statistical models.
     sampleFunc(bucketStartTime, bucketEndTime);
@@ -613,9 +649,7 @@ void CAnomalyDetector::buildResultsHelper(core_t::TTime bucketStartTime,
     CSearchKey key = m_DataGatherer->searchKey();
     LOG_TRACE(<< "OutputResults, for " << key.toCue());
 
-    if (m_Model->addResults(m_DetectorIndex,
-                            bucketStartTime,
-                            bucketEndTime,
+    if (m_Model->addResults(m_DetectorIndex, bucketStartTime, bucketEndTime,
                             10, // TODO max number of attributes
                             results)) {
         if (bucketEndTime % bucketLength == 0) {
@@ -633,7 +667,8 @@ void CAnomalyDetector::noUpdateLastSampledBucket(core_t::TTime /*bucketEndTime*/
 }
 
 std::string CAnomalyDetector::toCue() const {
-    return m_DataGatherer->searchKey().toCue() + m_DataGatherer->searchKey().CUE_DELIMITER + m_DataGatherer->partitionFieldValue();
+    return m_DataGatherer->searchKey().toCue() + m_DataGatherer->searchKey().CUE_DELIMITER +
+           m_DataGatherer->partitionFieldValue();
 }
 
 std::string CAnomalyDetector::debug() const {
@@ -658,7 +693,8 @@ CAnomalyDetector::TModelPtr& CAnomalyDetector::model() {
 }
 
 std::ostream& operator<<(std::ostream& strm, const CAnomalyDetector& detector) {
-    strm << detector.m_DataGatherer->searchKey() << '/' << detector.m_DataGatherer->partitionFieldValue();
+    strm << detector.m_DataGatherer->searchKey() << '/'
+         << detector.m_DataGatherer->partitionFieldValue();
     return strm;
 }
 }

@@ -62,10 +62,9 @@ public:
     using TShutdownFunc = std::function<void()>;
 
 public:
-    CMessageQueue(RECEIVER& receiver, const TShutdownFunc& shutdownFunc = &CMessageQueue::defaultShutdownFunc)
-        : m_Thread(*this),
-          m_Condition(m_Mutex),
-          m_Receiver(receiver),
+    CMessageQueue(RECEIVER& receiver,
+                  const TShutdownFunc& shutdownFunc = &CMessageQueue::defaultShutdownFunc)
+        : m_Thread(*this), m_Condition(m_Mutex), m_Receiver(receiver),
           m_ShutdownFunc(shutdownFunc),
           // If timing is enabled, we need a buffer one bigger than the
           // number of times to average over.  If timing is disabled, the
@@ -151,7 +150,8 @@ public:
         }
 
         if (m_Readings.front() > m_Readings.back()) {
-            LOG_ERROR(<< "Time to process last " << NUM_TO_TIME << " messages is negative (-" << (m_Readings.front() - m_Readings.back())
+            LOG_ERROR(<< "Time to process last " << NUM_TO_TIME << " messages is negative (-"
+                      << (m_Readings.front() - m_Readings.back())
                       << "ms).  "
                          "Maybe the system clock has been put back?");
             return -1.0;
@@ -168,7 +168,8 @@ private:
     class CMessageQueueThread : public CThread {
     public:
         CMessageQueueThread(CMessageQueue<MESSAGE, RECEIVER, NUM_TO_TIME>& messageQueue)
-            : m_MessageQueue(messageQueue), m_ShuttingDown(false), m_IsRunning(false) {}
+            : m_MessageQueue(messageQueue), m_ShuttingDown(false),
+              m_IsRunning(false) {}
 
         //! The queue must have the mutex for this to be called
         bool isRunning() const {
@@ -213,7 +214,8 @@ private:
                     // If the stop watch is running, update the history
                     // of readings
                     if (NUM_TO_TIME > 0 && m_MessageQueue.m_StopWatch.isRunning()) {
-                        m_MessageQueue.m_Readings.push_back(m_MessageQueue.m_StopWatch.lap());
+                        m_MessageQueue.m_Readings.push_back(
+                            m_MessageQueue.m_StopWatch.lap());
                     }
                 }
 

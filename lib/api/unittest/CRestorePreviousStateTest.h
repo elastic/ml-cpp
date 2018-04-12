@@ -21,8 +21,10 @@ public:
     static CppUnit::Test* suite();
 
 private:
-    void
-    anomalyDetectorRestoreHelper(const std::string& stateFile, const std::string& configFileName, bool isSymmetric, int latencyBuckets);
+    void anomalyDetectorRestoreHelper(const std::string& stateFile,
+                                      const std::string& configFileName,
+                                      bool isSymmetric,
+                                      int latencyBuckets);
 
     void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric);
 

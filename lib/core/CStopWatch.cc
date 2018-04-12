@@ -12,7 +12,8 @@
 namespace ml {
 namespace core {
 
-CStopWatch::CStopWatch(bool startRunning) : m_IsRunning(false), m_Start(0), m_AccumulatedTime(0) {
+CStopWatch::CStopWatch(bool startRunning)
+    : m_IsRunning(false), m_Start(0), m_AccumulatedTime(0) {
     if (startRunning) {
         this->start();
     }

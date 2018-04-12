@@ -106,18 +106,22 @@ void CKdTreeTest::testNearestNeighbour() {
             LOG_DEBUG(<< "*** Test " << i << " ***");
         }
         for (std::size_t j = 0u; j < tests.size(); ++j) {
-            using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<TDoubleVector2Pr, 1, maths::COrderings::SFirstLess>;
+            using TMinAccumulator =
+                maths::CBasicStatistics::COrderStatisticsStack<TDoubleVector2Pr, 1, maths::COrderings::SFirstLess>;
 
             TMinAccumulator expectedNearest;
             for (std::size_t k = 0u; k < points.size(); ++k) {
-                expectedNearest.add(TDoubleVector2Pr((tests[j] - points[k]).euclidean(), points[k]));
+                expectedNearest.add(
+                    TDoubleVector2Pr((tests[j] - points[k]).euclidean(), points[k]));
             }
 
             const TVector2* nearest = kdTree.nearestNeighbour(tests[j]);
             CPPUNIT_ASSERT(nearest);
             if (i % 10 == 0) {
-                LOG_DEBUG(<< "Expected nearest = " << expectedNearest[0].second << ", expected distance = " << expectedNearest[0].first);
-                LOG_DEBUG(<< "Nearest          = " << *nearest << ", actual distance   = " << (tests[j] - *nearest).euclidean());
+                LOG_DEBUG(<< "Expected nearest = " << expectedNearest[0].second
+                          << ", expected distance = " << expectedNearest[0].first);
+                LOG_DEBUG(<< "Nearest          = " << *nearest << ", actual distance   = "
+                          << (tests[j] - *nearest).euclidean());
             }
             CPPUNIT_ASSERT_EQUAL(print(expectedNearest[0].second), print(*nearest));
         }
@@ -127,8 +131,10 @@ void CKdTreeTest::testNearestNeighbour() {
 CppUnit::Test* CKdTreeTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKdTreeTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKdTreeTest>("CKdTreeTest::testBuild", &CKdTreeTest::testBuild));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKdTreeTest>("CKdTreeTest::testNearestNeighbour", &CKdTreeTest::testNearestNeighbour));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKdTreeTest>(
+        "CKdTreeTest::testBuild", &CKdTreeTest::testBuild));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKdTreeTest>(
+        "CKdTreeTest::testNearestNeighbour", &CKdTreeTest::testNearestNeighbour));
 
     return suiteOfTests;
 }

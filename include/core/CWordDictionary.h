@@ -74,7 +74,9 @@ public:
     template<size_t DEFAULT_EXTRA_WEIGHT>
     class CWeightAll {
     public:
-        size_t operator()(EPartOfSpeech partOfSpeech) { return (partOfSpeech == E_NotInDictionary) ? 0 : DEFAULT_EXTRA_WEIGHT; }
+        size_t operator()(EPartOfSpeech partOfSpeech) {
+            return (partOfSpeech == E_NotInDictionary) ? 0 : DEFAULT_EXTRA_WEIGHT;
+        }
     };
 
     using TWeightAll2 = CWeightAll<2>;
@@ -96,11 +98,7 @@ public:
 
     //! Functor for weighting two types of dictionary word by certain
     //! amounts and all dictionary words by a different amount
-    template<EPartOfSpeech SPECIAL_PART1,
-             size_t EXTRA_WEIGHT1,
-             EPartOfSpeech SPECIAL_PART2,
-             size_t EXTRA_WEIGHT2,
-             size_t DEFAULT_EXTRA_WEIGHT>
+    template<EPartOfSpeech SPECIAL_PART1, size_t EXTRA_WEIGHT1, EPartOfSpeech SPECIAL_PART2, size_t EXTRA_WEIGHT2, size_t DEFAULT_EXTRA_WEIGHT>
     class CWeightTwoParts {
     public:
         size_t operator()(EPartOfSpeech partOfSpeech) {
@@ -167,7 +165,8 @@ private:
     //! Stores the dictionary words - using a multi-index even though
     //! there's only one index, because of its flexible key extractors.
     //! The key is the string, but hashed and compared ignoring case.
-    using TStrUMap = boost::unordered_map<std::string, EPartOfSpeech, CStrHashIgnoreCase, CStrEqualIgnoreCase>;
+    using TStrUMap =
+        boost::unordered_map<std::string, EPartOfSpeech, CStrHashIgnoreCase, CStrEqualIgnoreCase>;
     using TStrUMapCItr = TStrUMap::const_iterator;
 
     //! Our dictionary of words

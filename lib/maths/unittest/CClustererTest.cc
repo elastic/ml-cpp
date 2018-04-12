@@ -77,8 +77,8 @@ void CClustererTest::testIndexGenerator() {
 CppUnit::Test* CClustererTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CClustererTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CClustererTest>("CClustererTest::testIndexGenerator", &CClustererTest::testIndexGenerator));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CClustererTest>(
+        "CClustererTest::testIndexGenerator", &CClustererTest::testIndexGenerator));
 
     return suiteOfTests;
 }

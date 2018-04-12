@@ -107,7 +107,8 @@ private:
                 return false;
             }
         } catch (boost::property_tree::ptree_error&) {
-            LOG_DEBUG(<< "Using default value (" << defaultValue << ") for unspecified setting " << iniPath);
+            LOG_DEBUG(<< "Using default value (" << defaultValue
+                      << ") for unspecified setting " << iniPath);
             value = defaultValue;
         }
 

@@ -41,31 +41,40 @@ private:
     virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 
     //! Apply the penalty for count with optionally a partition.
-    void penaltiesForCount(const CPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltiesForCount(const CPartitionDataCountStatistics& stats,
+                           CDetectorSpecification& spec) const;
 
     //! Apply the penalty for count with a by field and optionally a partition.
-    void penaltiesForCount(const CByAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltiesForCount(const CByAndPartitionDataCountStatistics& stats,
+                           CDetectorSpecification& spec) const;
 
     //! Apply the penalty for count with a by, over and optionally a partition field.
-    void penaltiesForCount(const CByOverAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltiesForCount(const CByOverAndPartitionDataCountStatistics& stats,
+                           CDetectorSpecification& spec) const;
 
     //! Apply the penalty for distinct count with optionally a partition.
-    void penaltyForDistinctCount(const CPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltyForDistinctCount(const CPartitionDataCountStatistics& stats,
+                                 CDetectorSpecification& spec) const;
 
     //! Apply the penalty for distinct count with by and optionally a partition.
-    void penaltyForDistinctCount(const CByAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltyForDistinctCount(const CByAndPartitionDataCountStatistics& stats,
+                                 CDetectorSpecification& spec) const;
 
     //! Apply the penalty for distinct count with by, over and optionally a partition.
-    void penaltyForDistinctCount(const CByOverAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltyForDistinctCount(const CByOverAndPartitionDataCountStatistics& stats,
+                                 CDetectorSpecification& spec) const;
 
     //! Apply the penalty for info content with optionally a partition.
-    void penaltyForInfoContent(const CPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltyForInfoContent(const CPartitionDataCountStatistics& stats,
+                               CDetectorSpecification& spec) const;
 
     //! Apply the penalty for info content with a by field and optionally a partition.
-    void penaltyForInfoContent(const CByAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltyForInfoContent(const CByAndPartitionDataCountStatistics& stats,
+                               CDetectorSpecification& spec) const;
 
     //! Apply the penalty for info content with a by, over and optionally a partition field.
-    void penaltyForInfoContent(const CByOverAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltyForInfoContent(const CByOverAndPartitionDataCountStatistics& stats,
+                               CDetectorSpecification& spec) const;
 };
 }
 }

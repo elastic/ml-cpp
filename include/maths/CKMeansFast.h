@@ -30,7 +30,8 @@ using TSizeVec = std::vector<std::size_t>;
 
 //! Get the closest filtered centre to \p point.
 template<typename POINT, typename ITR>
-std::size_t closest(const std::vector<POINT>& centres, ITR filter, ITR end, const POINT& point) {
+std::size_t
+closest(const std::vector<POINT>& centres, ITR filter, ITR end, const POINT& point) {
     std::size_t result = *filter;
     double d = (point - centres[result]).euclidean();
     for (++filter; filter != end; ++filter) {
@@ -45,7 +46,8 @@ std::size_t closest(const std::vector<POINT>& centres, ITR filter, ITR end, cons
 
 //! Get the closest filtered centre to \p point.
 template<typename POINT>
-std::size_t closest(const std::vector<POINT>& centres, const TSizeVec& filter, const POINT& point) {
+std::size_t
+closest(const std::vector<POINT>& centres, const TSizeVec& filter, const POINT& point) {
     return closest(centres, filter.begin(), filter.end(), point);
 }
 }
@@ -90,12 +92,15 @@ public:
 
         //! Check for equality using checksum and then points if the
         //! checksum is ambiguous.
-        bool operator==(const CCluster& other) const { return m_Checksum == other.m_Checksum && m_Points == other.m_Points; }
+        bool operator==(const CCluster& other) const {
+            return m_Checksum == other.m_Checksum && m_Points == other.m_Points;
+        }
 
         //! Total ordering by checksum breaking ties using expensive
         //! comparison on all points.
         bool operator<(const CCluster& rhs) const {
-            return m_Checksum < rhs.m_Checksum || (m_Checksum == rhs.m_Checksum && m_Points < rhs.m_Points);
+            return m_Checksum < rhs.m_Checksum ||
+                   (m_Checksum == rhs.m_Checksum && m_Points < rhs.m_Points);
         }
 
         //! Get the number of points in the cluster.
@@ -132,7 +137,8 @@ public:
 protected:
     using TBarePoint = typename SStripped<POINT>::Type;
     using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
-    using TMeanAccumulator = typename CBasicStatistics::SSampleMean<TBarePointPrecise>::TAccumulator;
+    using TMeanAccumulator =
+        typename CBasicStatistics::SSampleMean<TBarePointPrecise>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TBoundingBox = CBoundingBox<TBarePoint>;
     class CKdTreeNodeData;
@@ -148,7 +154,10 @@ protected:
     class CKdTreeNodeData {
     public:
         CKdTreeNodeData() {}
-        explicit CKdTreeNodeData(const POINT& x) : m_BoundingBox(x), m_Centroid() { m_Centroid.add(x); }
+        explicit CKdTreeNodeData(const POINT& x)
+            : m_BoundingBox(x), m_Centroid() {
+            m_Centroid.add(x);
+        }
 
         //! Get the bounding box.
         const TBoundingBox& boundingBox() const { return m_BoundingBox; }
@@ -225,9 +234,12 @@ protected:
         //! of points than a specified point.
         class CFurtherFrom {
         public:
-            CFurtherFrom(const TBoundingBox& bb_, std::size_t x_, const TPointVec& centres_) : bb(&bb_), x(x_), centres(&centres_) {}
+            CFurtherFrom(const TBoundingBox& bb_, std::size_t x_, const TPointVec& centres_)
+                : bb(&bb_), x(x_), centres(&centres_) {}
 
-            bool operator()(std::size_t y) const { return y == x ? false : bb->closerToX((*centres)[x], (*centres)[y]); }
+            bool operator()(std::size_t y) const {
+                return y == x ? false : bb->closerToX((*centres)[x], (*centres)[y]);
+            }
 
         private:
             const TBoundingBox* bb;
@@ -238,7 +250,8 @@ protected:
     public:
         explicit CCentreFilter(const TPointVec& centres)
             : m_Centres(&centres),
-              m_Filter(boost::counting_iterator<std::size_t>(0), boost::counting_iterator<std::size_t>(centres.size())) {}
+              m_Filter(boost::counting_iterator<std::size_t>(0),
+                       boost::counting_iterator<std::size_t>(centres.size())) {}
 
         //! Get the centres.
         const TPointVec& centres() const { return *m_Centres; }
@@ -267,8 +280,11 @@ protected:
             namespace detail = kmeans_fast_detail;
 
             if (m_Filter.size() > 1) {
-                std::size_t closest = detail::closest(*m_Centres, m_Filter, POINT(bb.centre()));
-                m_Filter.erase(std::remove_if(m_Filter.begin(), m_Filter.end(), CFurtherFrom(bb, closest, *m_Centres)), m_Filter.end());
+                std::size_t closest =
+                    detail::closest(*m_Centres, m_Filter, POINT(bb.centre()));
+                m_Filter.erase(std::remove_if(m_Filter.begin(), m_Filter.end(),
+                                              CFurtherFrom(bb, closest, *m_Centres)),
+                               m_Filter.end());
             }
         }
 
@@ -292,7 +308,8 @@ protected:
     //! of its assigned points.
     class CCentroidComputer {
     public:
-        CCentroidComputer(const TPointVec& centres, TMeanAccumulatorVec& centroids) : m_Centres(centres), m_Centroids(&centroids) {}
+        CCentroidComputer(const TPointVec& centres, TMeanAccumulatorVec& centroids)
+            : m_Centres(centres), m_Centroids(&centroids) {}
 
         //! Update the centres with \p node.
         //!
@@ -330,7 +347,9 @@ protected:
     //! centre supplied to the constructor.
     class CClosestPointsCollector {
     public:
-        CClosestPointsCollector(std::size_t numberPoints, const TPointVec& centres, TPointVecVec& closestPoints)
+        CClosestPointsCollector(std::size_t numberPoints,
+                                const TPointVec& centres,
+                                TPointVecVec& closestPoints)
             : m_Centres(&centres), m_ClosestPoints(&closestPoints) {
             m_ClosestPoints->resize(centres.size());
             for (std::size_t i = 0u; i < m_ClosestPoints->size(); ++i) {
@@ -345,8 +364,8 @@ protected:
             namespace detail = kmeans_fast_detail;
             std::size_t n = m_Centres->size();
             const POINT& point = node.s_Point;
-            (*m_ClosestPoints)[detail::closest(
-                                   *m_Centres, boost::counting_iterator<std::size_t>(0), boost::counting_iterator<std::size_t>(n), point)]
+            (*m_ClosestPoints)[detail::closest(*m_Centres, boost::counting_iterator<std::size_t>(0),
+                                               boost::counting_iterator<std::size_t>(n), point)]
                 .push_back(point);
         }
 
@@ -431,14 +450,16 @@ private:
     //! Single iteration of Lloyd's algorithm to update \p centres.
     bool updateCentres() {
         using TCoordinate = typename SCoordinate<POINT>::Type;
-        static const TCoordinate PRECISION = TCoordinate(5) * std::numeric_limits<TCoordinate>::epsilon();
+        static const TCoordinate PRECISION =
+            TCoordinate(5) * std::numeric_limits<TCoordinate>::epsilon();
         TMeanAccumulatorVec newCentres(m_Centres.size());
         CCentroidComputer computer(m_Centres, newCentres);
         m_Points.preorderDepthFirst(computer);
         bool changed = false;
         for (std::size_t i = 0u; i < newCentres.size(); ++i) {
             POINT newCentre(CBasicStatistics::mean(newCentres[i]));
-            if ((m_Centres[i] - newCentre).euclidean() > PRECISION * m_Centres[i].euclidean()) {
+            if ((m_Centres[i] - newCentre).euclidean() >
+                PRECISION * m_Centres[i].euclidean()) {
                 m_Centres[i] = newCentre;
                 changed = true;
             }

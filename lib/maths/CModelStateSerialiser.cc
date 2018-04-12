@@ -18,8 +18,9 @@ const std::string MULTIVARIATE_TIME_SERIES_TAG{"b"};
 const std::string MODEL_STUB_TAG{"c"};
 }
 
-bool CModelStateSerialiser::
-operator()(const SModelRestoreParams& params, TModelPtr& result, core::CStateRestoreTraverser& traverser) const {
+bool CModelStateSerialiser::operator()(const SModelRestoreParams& params,
+                                       TModelPtr& result,
+                                       core::CStateRestoreTraverser& traverser) const {
     std::size_t numResults = 0;
 
     do {
@@ -48,11 +49,14 @@ operator()(const SModelRestoreParams& params, TModelPtr& result, core::CStateRes
     return true;
 }
 
-void CModelStateSerialiser::operator()(const CModel& model, core::CStatePersistInserter& inserter) const {
+void CModelStateSerialiser::operator()(const CModel& model,
+                                       core::CStatePersistInserter& inserter) const {
     if (dynamic_cast<const CUnivariateTimeSeriesModel*>(&model) != nullptr) {
-        inserter.insertLevel(UNIVARIATE_TIME_SERIES_TAG, boost::bind(&CModel::acceptPersistInserter, &model, _1));
+        inserter.insertLevel(UNIVARIATE_TIME_SERIES_TAG,
+                             boost::bind(&CModel::acceptPersistInserter, &model, _1));
     } else if (dynamic_cast<const CMultivariateTimeSeriesModel*>(&model) != nullptr) {
-        inserter.insertLevel(MULTIVARIATE_TIME_SERIES_TAG, boost::bind(&CModel::acceptPersistInserter, &model, _1));
+        inserter.insertLevel(MULTIVARIATE_TIME_SERIES_TAG,
+                             boost::bind(&CModel::acceptPersistInserter, &model, _1));
     } else if (dynamic_cast<const CModelStub*>(&model) != nullptr) {
         inserter.insertValue(MODEL_STUB_TAG, "");
     } else {

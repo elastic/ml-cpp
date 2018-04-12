@@ -37,12 +37,15 @@ namespace {
 class CEmptySearcher : public ml::core::CDataSearcher {
 public:
     //! Do a search that results in an empty input stream.
-    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) { return TIStreamP(new std::istringstream()); }
+    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
+        return TIStreamP(new std::istringstream());
+    }
 };
 
 class CTestOutputHandler : public COutputHandler {
 public:
-    CTestOutputHandler() : COutputHandler(), m_NewStream(false), m_Finalised(false), m_Records(0) {}
+    CTestOutputHandler()
+        : COutputHandler(), m_NewStream(false), m_Finalised(false), m_Records(0) {}
 
     virtual ~CTestOutputHandler() {}
 
@@ -54,11 +57,14 @@ public:
 
     bool isNewStream() const { return m_NewStream; }
 
-    virtual bool fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*extraFieldNames*/) { return true; }
+    virtual bool fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*extraFieldNames*/) {
+        return true;
+    }
 
     virtual const TStrVec& fieldNames() const { return m_FieldNames; }
 
-    virtual bool writeRow(const TStrStrUMap& /*dataRowFields*/, const TStrStrUMap& /*overrideDataRowFields*/) {
+    virtual bool writeRow(const TStrStrUMap& /*dataRowFields*/,
+                          const TStrStrUMap& /*overrideDataRowFields*/) {
         m_Records++;
         return true;
     }
@@ -77,9 +83,12 @@ private:
 
 class CTestDataSearcher : public core::CDataSearcher {
 public:
-    CTestDataSearcher(const std::string& data) : m_Stream(new std::istringstream(data)) {}
+    CTestDataSearcher(const std::string& data)
+        : m_Stream(new std::istringstream(data)) {}
 
-    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) { return m_Stream; }
+    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
+        return m_Stream;
+    }
 
 private:
     TIStreamP m_Stream;
@@ -89,9 +98,13 @@ class CTestDataAdder : public core::CDataAdder {
 public:
     CTestDataAdder() : m_Stream(new std::ostringstream) {}
 
-    virtual TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) { return m_Stream; }
+    virtual TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) {
+        return m_Stream;
+    }
 
-    virtual bool streamComplete(TOStreamP& /*strm*/, bool /*force*/) { return true; }
+    virtual bool streamComplete(TOStreamP& /*strm*/, bool /*force*/) {
+        return true;
+    }
 
     TOStreamP getStream() { return m_Stream; }
 
@@ -267,7 +280,9 @@ void CFieldDataTyperTest::testHandleControlMessages() {
 
     const std::string& output = outputStrm.str();
     LOG_DEBUG(<< "Output is: " << output);
-    CPPUNIT_ASSERT_EQUAL(std::string::size_type(0), output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0}}"));
+    CPPUNIT_ASSERT_EQUAL(std::string::size_type(0),
+                         output.find("[{\"flush\":{\"id\":\"7\",\"last_"
+                                     "finalized_bucket_end\":0}}"));
 }
 
 void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState() {
@@ -289,14 +304,18 @@ void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState() {
 CppUnit::Test* CFieldDataTyperTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFieldDataTyperTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>("CFieldDataTyperTest::testAll", &CFieldDataTyperTest::testAll));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>("CFieldDataTyperTest::testNodeReverseSearch",
-                                                                       &CFieldDataTyperTest::testNodeReverseSearch));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>("CFieldDataTyperTest::testPassOnControlMessages",
-                                                                       &CFieldDataTyperTest::testPassOnControlMessages));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>("CFieldDataTyperTest::testHandleControlMessages",
-                                                                       &CFieldDataTyperTest::testHandleControlMessages));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>("CFieldDataTyperTest::testRestoreStateFailsWithEmptyState",
-                                                                       &CFieldDataTyperTest::testRestoreStateFailsWithEmptyState));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
+        "CFieldDataTyperTest::testAll", &CFieldDataTyperTest::testAll));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
+        "CFieldDataTyperTest::testNodeReverseSearch", &CFieldDataTyperTest::testNodeReverseSearch));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
+        "CFieldDataTyperTest::testPassOnControlMessages",
+        &CFieldDataTyperTest::testPassOnControlMessages));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
+        "CFieldDataTyperTest::testHandleControlMessages",
+        &CFieldDataTyperTest::testHandleControlMessages));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
+        "CFieldDataTyperTest::testRestoreStateFailsWithEmptyState",
+        &CFieldDataTyperTest::testRestoreStateFailsWithEmptyState));
     return suiteOfTests;
 }

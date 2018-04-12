@@ -47,7 +47,8 @@ template<typename HANDLER, typename PROCESSOR, typename MESSAGE, typename RESULT
 class CThreadFarm : private CNonCopyable {
 public:
     CThreadFarm(HANDLER& handler, const std::string& name)
-        : m_Handler(handler), m_Pending(0), m_LastPrint(0), m_MessagesAdded(0), m_Started(false), m_Name(name) {}
+        : m_Handler(handler), m_Pending(0), m_LastPrint(0), m_MessagesAdded(0),
+          m_Started(false), m_Name(name) {}
 
     virtual ~CThreadFarm() {
         // Shared_ptr cleans up
@@ -76,18 +77,21 @@ public:
         CScopedLock lock(m_Mutex);
 
         if (m_Started == false) {
-            LOG_ERROR(<< "Can't add message to the " << m_Name << " thread farm because it's not running.  Call 'start'");
+            LOG_ERROR(<< "Can't add message to the " << m_Name
+                      << " thread farm because it's not running.  Call 'start'");
             return false;
         }
 
-        for (TMessageQueuePVecItr itr = m_MessageQueues.begin(); itr != m_MessageQueues.end(); ++itr) {
+        for (TMessageQueuePVecItr itr = m_MessageQueues.begin();
+             itr != m_MessageQueues.end(); ++itr) {
             (*itr)->dispatchMsg(msg);
             ++m_Pending;
         }
 
         ++m_MessagesAdded;
         if (m_MessagesAdded % 1000 == 0) {
-            LOG_INFO(<< "Added message " << m_MessagesAdded << " to the " << m_Name << " thread farm; pending count now " << m_Pending);
+            LOG_INFO(<< "Added message " << m_MessagesAdded << " to the " << m_Name
+                     << " thread farm; pending count now " << m_Pending);
         }
 
         pending = m_Pending;
@@ -104,14 +108,17 @@ public:
     //! Initialise - create the receiving threads
     bool start() {
         if (m_Started == true) {
-            LOG_ERROR(<< "Can't start the " << m_Name << " thread farm because it's already running.");
+            LOG_ERROR(<< "Can't start the " << m_Name
+                      << " thread farm because it's already running.");
             return false;
         }
 
         size_t count(1);
-        for (TMessageQueuePVecItr itr = m_MessageQueues.begin(); itr != m_MessageQueues.end(); ++itr) {
+        for (TMessageQueuePVecItr itr = m_MessageQueues.begin();
+             itr != m_MessageQueues.end(); ++itr) {
             if ((*itr)->start() == false) {
-                LOG_ERROR(<< "Unable to start message queue " << count << " for the " << m_Name << " thread farm");
+                LOG_ERROR(<< "Unable to start message queue " << count
+                          << " for the " << m_Name << " thread farm");
                 return false;
             }
 
@@ -131,13 +138,16 @@ public:
         }
 
         size_t count(1);
-        for (TMessageQueuePVecItr itr = m_MessageQueues.begin(); itr != m_MessageQueues.end(); ++itr) {
+        for (TMessageQueuePVecItr itr = m_MessageQueues.begin();
+             itr != m_MessageQueues.end(); ++itr) {
             if ((*itr)->stop() == false) {
-                LOG_ERROR(<< "Unable to stop message queue " << count << " for the " << m_Name << " thread farm");
+                LOG_ERROR(<< "Unable to stop message queue " << count
+                          << " for the " << m_Name << " thread farm");
                 return false;
             }
 
-            LOG_DEBUG(<< "Stopped message queue " << count << " for the " << m_Name << " thread farm");
+            LOG_DEBUG(<< "Stopped message queue " << count << " for the "
+                      << m_Name << " thread farm");
             ++count;
         }
 
@@ -148,7 +158,8 @@ public:
         m_LastPrint = 0;
 
         if (m_Pending != 0) {
-            LOG_ERROR(<< "Inconsistency - " << m_Pending << " pending messages after stopping the " << m_Name << " thread farm");
+            LOG_ERROR(<< "Inconsistency - " << m_Pending << " pending messages after stopping the "
+                      << m_Name << " thread farm");
             m_Pending = 0;
         }
 
@@ -162,7 +173,8 @@ private:
         CScopedLock lock(m_Mutex);
 
         if (m_Pending <= 0) {
-            LOG_ERROR(<< "Inconsistency - result added with " << m_Pending << " pending messages in the " << m_Name << " thread farm");
+            LOG_ERROR(<< "Inconsistency - result added with " << m_Pending
+                      << " pending messages in the " << m_Name << " thread farm");
             return;
         }
 
@@ -172,7 +184,8 @@ private:
 
         // Log how much work is outstanding every so often
         if ((m_Pending % 10000) == 0 && m_Pending != m_LastPrint) {
-            LOG_INFO(<< "Pending count now " << m_Pending << " for the " << m_Name << " thread farm");
+            LOG_INFO(<< "Pending count now " << m_Pending << " for the "
+                     << m_Name << " thread farm");
             m_LastPrint = m_Pending;
         }
 

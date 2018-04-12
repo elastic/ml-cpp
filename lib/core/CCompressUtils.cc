@@ -12,7 +12,8 @@
 namespace ml {
 namespace core {
 
-CCompressUtils::CCompressUtils(bool lengthOnly, int level) : m_State(E_Unused), m_LengthOnly(lengthOnly) {
+CCompressUtils::CCompressUtils(bool lengthOnly, int level)
+    : m_State(E_Unused), m_LengthOnly(lengthOnly) {
     ::memset(&m_ZlibStrm, 0, sizeof(z_stream));
 
     m_ZlibStrm.zalloc = Z_NULL;

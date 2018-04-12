@@ -39,7 +39,9 @@ struct SNorm<CVector<T>> {
 template<typename T, std::size_t N>
 struct SNorm<CSymmetricMatrixNxN<T, N>> {
     using result_type = T;
-    static T dispatch(const CSymmetricMatrixNxN<T, N>& t) { return t.frobenius(); }
+    static T dispatch(const CSymmetricMatrixNxN<T, N>& t) {
+        return t.frobenius();
+    }
 };
 
 template<typename T>
@@ -76,13 +78,16 @@ public:
 //! have has_multiplies and so, short of writing this functionality
 //! ourselves, we can't implement this.
 template<typename T>
-class CEqualWithTolerance : public std::binary_function<T, T, bool>, public CToleranceTypes {
+class CEqualWithTolerance : public std::binary_function<T, T, bool>,
+                            public CToleranceTypes {
 public:
     CEqualWithTolerance(unsigned int toleranceType, const T& eps)
-        : m_ToleranceType(toleranceType), m_AbsoluteEps(abs(norm(eps))), m_RelativeEps(abs(norm(eps))) {}
+        : m_ToleranceType(toleranceType), m_AbsoluteEps(abs(norm(eps))),
+          m_RelativeEps(abs(norm(eps))) {}
 
     CEqualWithTolerance(unsigned int toleranceType, const T& absoluteEps, const T& relativeEps)
-        : m_ToleranceType(toleranceType), m_AbsoluteEps(abs(norm(absoluteEps))), m_RelativeEps(abs(norm(relativeEps))) {}
+        : m_ToleranceType(toleranceType), m_AbsoluteEps(abs(norm(absoluteEps))),
+          m_RelativeEps(abs(norm(relativeEps))) {}
 
     bool operator()(const T& lhs, const T& rhs) const {
         const T& max = norm(rhs) > norm(lhs) ? rhs : lhs;
@@ -93,13 +98,15 @@ public:
 
         switch (m_ToleranceType) {
         case 2: // absolute & relative
-            return (norm(difference) <= m_AbsoluteEps) && (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
+            return (norm(difference) <= m_AbsoluteEps) &&
+                   (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
         case 3: // absolute
             return norm(difference) <= m_AbsoluteEps;
         case 6: // relative
             return norm(difference) <= m_RelativeEps * abs(norm(maxAbs));
         case 7: // absolute | relative
-            return (norm(difference) <= m_AbsoluteEps) || (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
+            return (norm(difference) <= m_AbsoluteEps) ||
+                   (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
         }
         LOG_ERROR(<< "Unexpected tolerance type " << m_ToleranceType);
         return false;
@@ -116,7 +123,9 @@ private:
     }
 
     //! Get the norm of the specified type.
-    static TNorm norm(const T& t) { return equal_with_tolerance_detail::SNorm<T>::dispatch(t); }
+    static TNorm norm(const T& t) {
+        return equal_with_tolerance_detail::SNorm<T>::dispatch(t);
+    }
 
 private:
     unsigned int m_ToleranceType;

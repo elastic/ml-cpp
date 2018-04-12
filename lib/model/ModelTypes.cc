@@ -421,7 +421,8 @@ bool isConstant(EFeature feature) {
 
 bool isMeanFeature(EFeature feature) {
     EMetricCategory category;
-    return metricCategory(feature, category) && (category == E_Mean || category == E_MultivariateMean);
+    return metricCategory(feature, category) &&
+           (category == E_Mean || category == E_MultivariateMean);
 }
 
 bool isMedianFeature(EFeature feature) {
@@ -431,12 +432,14 @@ bool isMedianFeature(EFeature feature) {
 
 bool isMinFeature(EFeature feature) {
     EMetricCategory category;
-    return metricCategory(feature, category) && (category == E_Min || category == E_MultivariateMin);
+    return metricCategory(feature, category) &&
+           (category == E_Min || category == E_MultivariateMin);
 }
 
 bool isMaxFeature(EFeature feature) {
     EMetricCategory category;
-    return metricCategory(feature, category) && (category == E_Max || category == E_MultivariateMax);
+    return metricCategory(feature, category) &&
+           (category == E_Max || category == E_MultivariateMax);
 }
 
 bool isVarianceFeature(EFeature feature) {
@@ -896,7 +899,10 @@ maths_t::EProbabilityCalculation probabilityCalculation(EFeature feature) {
     return maths_t::E_TwoSided;
 }
 
-core_t::TTime sampleTime(EFeature feature, core_t::TTime bucketStartTime, core_t::TTime bucketLength, core_t::TTime time) {
+core_t::TTime sampleTime(EFeature feature,
+                         core_t::TTime bucketStartTime,
+                         core_t::TTime bucketLength,
+                         core_t::TTime time) {
     switch (feature) {
     CASE_INDIVIDUAL_COUNT:
         return bucketStartTime + bucketLength / 2;
@@ -996,9 +1002,11 @@ TDouble1VecDouble1VecPr support(EFeature feature) {
     case E_IndividualLowInfoContentByBucketAndPerson:
         return {TDouble1Vec(d, 0.0), TDouble1Vec(d, MAX_DOUBLE)};
     case E_IndividualTimeOfDayByBucketAndPerson:
-        return {TDouble1Vec(d, 0.0), TDouble1Vec(d, static_cast<double>(core::constants::DAY))};
+        return {TDouble1Vec(d, 0.0),
+                TDouble1Vec(d, static_cast<double>(core::constants::DAY))};
     case E_IndividualTimeOfWeekByBucketAndPerson:
-        return {TDouble1Vec(d, 0.0), TDouble1Vec(d, static_cast<double>(core::constants::WEEK))};
+        return {TDouble1Vec(d, 0.0),
+                TDouble1Vec(d, static_cast<double>(core::constants::WEEK))};
 
     case E_IndividualMeanByPerson:
     case E_IndividualLowMeanByPerson:
@@ -1040,9 +1048,11 @@ TDouble1VecDouble1VecPr support(EFeature feature) {
     case E_PopulationHighInfoContentByBucketPersonAndAttribute:
         return {TDouble1Vec(d, 0.0), TDouble1Vec(d, MAX_DOUBLE)};
     case E_PopulationTimeOfDayByBucketPersonAndAttribute:
-        return {TDouble1Vec(d, 0.0), TDouble1Vec(d, static_cast<double>(core::constants::DAY))};
+        return {TDouble1Vec(d, 0.0),
+                TDouble1Vec(d, static_cast<double>(core::constants::DAY))};
     case E_PopulationTimeOfWeekByBucketPersonAndAttribute:
-        return {TDouble1Vec(d, 0.0), TDouble1Vec(d, static_cast<double>(core::constants::WEEK))};
+        return {TDouble1Vec(d, 0.0),
+                TDouble1Vec(d, static_cast<double>(core::constants::WEEK))};
 
     case E_PopulationMeanByPersonAndAttribute:
     case E_PopulationMedianByPersonAndAttribute:
@@ -1119,10 +1129,12 @@ double adjustProbability(EFeature feature, core_t::TTime elapsedTime, double pro
     case E_IndividualHighInfoContentByBucketAndPerson:
         break;
     case E_IndividualTimeOfDayByBucketAndPerson:
-        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::DAY)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) /
+                                     static_cast<double>(core::constants::DAY)));
         break;
     case E_IndividualTimeOfWeekByBucketAndPerson:
-        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::WEEK)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) /
+                                     static_cast<double>(core::constants::WEEK)));
         break;
 
     CASE_INDIVIDUAL_METRIC:
@@ -1142,10 +1154,12 @@ double adjustProbability(EFeature feature, core_t::TTime elapsedTime, double pro
     case E_PopulationHighInfoContentByBucketPersonAndAttribute:
         break;
     case E_PopulationTimeOfDayByBucketPersonAndAttribute:
-        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::DAY)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) /
+                                     static_cast<double>(core::constants::DAY)));
         break;
     case E_PopulationTimeOfWeekByBucketPersonAndAttribute:
-        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::WEEK)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) /
+                                     static_cast<double>(core::constants::WEEK)));
         break;
 
     CASE_POPULATION_METRIC:
@@ -1163,10 +1177,12 @@ double adjustProbability(EFeature feature, core_t::TTime elapsedTime, double pro
     case E_PeersHighInfoContentByBucketPersonAndAttribute:
         break;
     case E_PeersTimeOfDayByBucketPersonAndAttribute:
-        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::DAY)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) /
+                                     static_cast<double>(core::constants::DAY)));
         break;
     case E_PeersTimeOfWeekByBucketPersonAndAttribute:
-        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) / static_cast<double>(core::constants::WEEK)));
+        pNewCluster = std::exp(-pow4(static_cast<double>(elapsedTime) /
+                                     static_cast<double>(core::constants::WEEK)));
         break;
 
     CASE_PEERS_METRIC:
@@ -1685,15 +1701,20 @@ std::string print(EFeature feature) {
     case E_PopulationHighUniqueCountByBucketPersonAndAttribute:
         return "'high unique count per bucket by person and attribute'";
     case E_PopulationLowCountsByBucketPersonAndAttribute:
-        return "'low values of non-zero count per bucket by person and attribute'";
+        return "'low values of non-zero count per bucket by person and "
+               "attribute'";
     case E_PopulationHighCountsByBucketPersonAndAttribute:
-        return "'high values of non-zero count per bucket by person and attribute'";
+        return "'high values of non-zero count per bucket by person and "
+               "attribute'";
     case E_PopulationInfoContentByBucketPersonAndAttribute:
-        return "'information content of value per bucket by person and attribute'";
+        return "'information content of value per bucket by person and "
+               "attribute'";
     case E_PopulationLowInfoContentByBucketPersonAndAttribute:
-        return "'low information content of value per bucket by person and attribute'";
+        return "'low information content of value per bucket by person and "
+               "attribute'";
     case E_PopulationHighInfoContentByBucketPersonAndAttribute:
-        return "'high information content of value per bucket by person and attribute'";
+        return "'high information content of value per bucket by person and "
+               "attribute'";
     case E_PopulationTimeOfDayByBucketPersonAndAttribute:
         return "'time-of-day per bucket by person and attribute'";
     case E_PopulationTimeOfWeekByBucketPersonAndAttribute:
@@ -1745,17 +1766,23 @@ std::string print(EFeature feature) {
     case E_PeersLowUniqueCountByBucketPersonAndAttribute:
         return "'low unique count per bucket by peers of person and attribute'";
     case E_PeersHighUniqueCountByBucketPersonAndAttribute:
-        return "'high unique count per bucket by peers of person and attribute'";
+        return "'high unique count per bucket by peers of person and "
+               "attribute'";
     case E_PeersLowCountsByBucketPersonAndAttribute:
-        return "'low values of non-zero count per bucket by peers of person and attribute'";
+        return "'low values of non-zero count per bucket by peers of person "
+               "and attribute'";
     case E_PeersHighCountsByBucketPersonAndAttribute:
-        return "'high values of non-zero count per bucket by peers of person and attribute'";
+        return "'high values of non-zero count per bucket by peers of person "
+               "and attribute'";
     case E_PeersInfoContentByBucketPersonAndAttribute:
-        return "'information content of value per bucket by peers of person and attribute'";
+        return "'information content of value per bucket by peers of person "
+               "and attribute'";
     case E_PeersLowInfoContentByBucketPersonAndAttribute:
-        return "'low information content of value per bucket by peers of person and attribute'";
+        return "'low information content of value per bucket by peers of "
+               "person and attribute'";
     case E_PeersHighInfoContentByBucketPersonAndAttribute:
-        return "'high information content of value per bucket by peers of person and attribute'";
+        return "'high information content of value per bucket by peers of "
+               "person and attribute'";
     case E_PeersTimeOfDayByBucketPersonAndAttribute:
         return "'time-of-day per bucket by peers of person and attribute'";
     case E_PeersTimeOfWeekByBucketPersonAndAttribute:

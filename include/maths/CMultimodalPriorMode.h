@@ -34,7 +34,8 @@ struct SMultimodalPriorMode {
     static const std::string PRIOR_TAG;
 
     SMultimodalPriorMode() : s_Index(0), s_Prior() {}
-    SMultimodalPriorMode(std::size_t index, const PRIOR_PTR& prior) : s_Index(index), s_Prior(prior->clone()) {}
+    SMultimodalPriorMode(std::size_t index, const PRIOR_PTR& prior)
+        : s_Index(index), s_Prior(prior->clone()) {}
 
     //! Get the weight of this sample.
     double weight() const { return s_Prior->numberSamples(); }
@@ -52,15 +53,19 @@ struct SMultimodalPriorMode {
     }
 
     //! Get the memory used by this component
-    std::size_t memoryUsage() const { return core::CMemory::dynamicSize(s_Prior); }
+    std::size_t memoryUsage() const {
+        return core::CMemory::dynamicSize(s_Prior);
+    }
 
     //! Create from part of a state document.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser) {
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser) {
         do {
             const std::string& name = traverser.name();
             RESTORE_BUILT_IN(INDEX_TAG, s_Index)
-            RESTORE(PRIOR_TAG,
-                    traverser.traverseSubLevel(boost::bind<bool>(CPriorStateSerialiser(), boost::cref(params), boost::ref(s_Prior), _1)))
+            RESTORE(PRIOR_TAG, traverser.traverseSubLevel(boost::bind<bool>(
+                                   CPriorStateSerialiser(), boost::cref(params),
+                                   boost::ref(s_Prior), _1)))
         } while (traverser.next());
 
         return true;
@@ -69,7 +74,8 @@ struct SMultimodalPriorMode {
     //! Persist state by passing information to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         inserter.insertValue(INDEX_TAG, s_Index);
-        inserter.insertLevel(PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(), boost::cref(*s_Prior), _1));
+        inserter.insertLevel(PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(),
+                                                          boost::cref(*s_Prior), _1));
     }
 
     //! Full debug dump of the mode weights.

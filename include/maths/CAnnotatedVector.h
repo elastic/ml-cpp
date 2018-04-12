@@ -34,12 +34,14 @@ public:
 
 public:
     //! Construct with a vector and annotation data.
-    CAnnotatedVector(const VECTOR& vector = VECTOR(), const ANNOTATION& annotation = ANNOTATION())
+    CAnnotatedVector(const VECTOR& vector = VECTOR(),
+                     const ANNOTATION& annotation = ANNOTATION())
         : VECTOR(vector), m_Annotation(annotation) {}
 
     //! Construct with a vector initialized with \p coordinate
     //! and some default constructed annotation data.
-    explicit CAnnotatedVector(TCoordinate coordinate) : VECTOR(coordinate), m_Annotation() {}
+    explicit CAnnotatedVector(TCoordinate coordinate)
+        : VECTOR(coordinate), m_Annotation() {}
 
     //! Get the annotation data by constant reference.
     const ANNOTATION& annotation() const { return m_Annotation; }

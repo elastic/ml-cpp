@@ -16,7 +16,9 @@ namespace api {
 
 namespace {
 
-bool setUpIStream(const std::string& fileName, bool isFileNamedPipe, core::CNamedPipeFactory::TIStreamP& stream) {
+bool setUpIStream(const std::string& fileName,
+                  bool isFileNamedPipe,
+                  core::CNamedPipeFactory::TIStreamP& stream) {
     if (fileName.empty()) {
         stream.reset();
         return true;
@@ -30,7 +32,9 @@ bool setUpIStream(const std::string& fileName, bool isFileNamedPipe, core::CName
     return fileStream->is_open();
 }
 
-bool setUpOStream(const std::string& fileName, bool isFileNamedPipe, core::CNamedPipeFactory::TOStreamP& stream) {
+bool setUpOStream(const std::string& fileName,
+                  bool isFileNamedPipe,
+                  core::CNamedPipeFactory::TOStreamP& stream) {
     if (fileName.empty()) {
         stream.reset();
         return true;
@@ -53,8 +57,7 @@ CIoManager::CIoManager(const std::string& inputFileName,
                        bool isRestoreFileNamedPipe,
                        const std::string& persistFileName,
                        bool isPersistFileNamedPipe)
-    : m_IoInitialised(false),
-      m_InputFileName(inputFileName),
+    : m_IoInitialised(false), m_InputFileName(inputFileName),
       m_IsInputFileNamedPipe(isInputFileNamedPipe && !inputFileName.empty()),
       m_OutputFileName(outputFileName),
       m_IsOutputFileNamedPipe(isOutputFileNamedPipe && !outputFileName.empty()),
@@ -80,10 +83,11 @@ CIoManager::~CIoManager() {
 }
 
 bool CIoManager::initIo() {
-    m_IoInitialised = setUpIStream(m_InputFileName, m_IsInputFileNamedPipe, m_InputStream) &&
-                      setUpOStream(m_OutputFileName, m_IsOutputFileNamedPipe, m_OutputStream) &&
-                      setUpIStream(m_RestoreFileName, m_IsRestoreFileNamedPipe, m_RestoreStream) &&
-                      setUpOStream(m_PersistFileName, m_IsPersistFileNamedPipe, m_PersistStream);
+    m_IoInitialised =
+        setUpIStream(m_InputFileName, m_IsInputFileNamedPipe, m_InputStream) &&
+        setUpOStream(m_OutputFileName, m_IsOutputFileNamedPipe, m_OutputStream) &&
+        setUpIStream(m_RestoreFileName, m_IsRestoreFileNamedPipe, m_RestoreStream) &&
+        setUpOStream(m_PersistFileName, m_IsPersistFileNamedPipe, m_PersistStream);
     return m_IoInitialised;
 }
 

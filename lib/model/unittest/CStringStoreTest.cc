@@ -30,9 +30,12 @@ public:
     using TCppUnitExceptionP = boost::shared_ptr<CppUnit::Exception>;
 
 public:
-    CStringThread(std::size_t i, const TStrVec& strings) : m_I(i), m_Strings(strings) {}
+    CStringThread(std::size_t i, const TStrVec& strings)
+        : m_I(i), m_Strings(strings) {}
 
-    void uniques(TStrCPtrUSet& result) const { result.insert(m_UniquePtrs.begin(), m_UniquePtrs.end()); }
+    void uniques(TStrCPtrUSet& result) const {
+        result.insert(m_UniquePtrs.begin(), m_UniquePtrs.end());
+    }
 
     void propagateLastThreadAssert() {
         if (m_LastException) {
@@ -143,7 +146,8 @@ void CStringStoreTest::testStringStore() {
         CPPUNIT_ASSERT_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
         CStringStore::names().pruneNotThreadSafe();
         CPPUNIT_ASSERT_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             CStringStore::influencers().m_Strings.size());
 
         for (std::size_t i = 0; i < threads.size(); ++i) {
             // CppUnit won't automatically catch the exceptions thrown by
@@ -242,9 +246,10 @@ void CStringStoreTest::testMemUsage() {
 CppUnit::Test* CStringStoreTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testStringStore", &CStringStoreTest::testStringStore));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testMemUsage", &CStringStoreTest::testMemUsage));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>(
+        "CStringStoreTest::testStringStore", &CStringStoreTest::testStringStore));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>(
+        "CStringStoreTest::testMemUsage", &CStringStoreTest::testMemUsage));
 
     return suiteOfTests;
 }

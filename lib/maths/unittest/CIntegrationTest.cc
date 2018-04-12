@@ -31,7 +31,9 @@ namespace {
 template<unsigned int ORDER>
 class CPolynomialFunction : public std::unary_function<double, double> {
 public:
-    CPolynomialFunction(const double (&coefficients)[ORDER + 1]) { std::copy(coefficients, coefficients + ORDER + 1, m_Coefficients); }
+    CPolynomialFunction(const double (&coefficients)[ORDER + 1]) {
+        std::copy(coefficients, coefficients + ORDER + 1, m_Coefficients);
+    }
 
     bool operator()(const double& x, double& result) const {
         result = 0.0;
@@ -41,7 +43,9 @@ public:
         return true;
     }
 
-    const double& coefficient(unsigned int i) const { return m_Coefficients[i]; }
+    const double& coefficient(unsigned int i) const {
+        return m_Coefficients[i];
+    }
 
 private:
     double m_Coefficients[ORDER + 1];
@@ -80,7 +84,8 @@ public:
 
     struct SMonomial {
         bool operator<(const SMonomial& rhs) const {
-            return std::accumulate(s_Powers, s_Powers + DIMENSION, 0.0) < std::accumulate(rhs.s_Powers, rhs.s_Powers + DIMENSION, 0.0);
+            return std::accumulate(s_Powers, s_Powers + DIMENSION, 0.0) <
+                   std::accumulate(rhs.s_Powers, rhs.s_Powers + DIMENSION, 0.0);
         }
         double s_Coefficient;
         double s_Powers[DIMENSION];
@@ -119,7 +124,8 @@ private:
 };
 
 template<unsigned int DIMENSION>
-std::ostream& operator<<(std::ostream& o, const CMultivariatePolynomialFunction<DIMENSION>& f) {
+std::ostream&
+operator<<(std::ostream& o, const CMultivariatePolynomialFunction<DIMENSION>& f) {
     if (!f.terms().empty()) {
         o << (f.terms())[0].s_Coefficient;
         for (unsigned int j = 0u; j < DIMENSION; ++j) {
@@ -142,7 +148,9 @@ std::ostream& operator<<(std::ostream& o, const CMultivariatePolynomialFunction<
 using TDoubleVec = std::vector<double>;
 
 template<unsigned int DIMENSION>
-double integrate(const CMultivariatePolynomialFunction<DIMENSION>& f, const TDoubleVec& a, const TDoubleVec& b) {
+double integrate(const CMultivariatePolynomialFunction<DIMENSION>& f,
+                 const TDoubleVec& a,
+                 const TDoubleVec& b) {
     double result = 0.0;
     for (std::size_t i = 0u; i < f.terms().size(); ++i) {
         double term = (f.terms())[i].s_Coefficient;
@@ -200,10 +208,12 @@ public:
     using result_type = double;
 
 public:
-    CSmoothHeavySide(double slope, double offset) : m_Slope(slope), m_Offset(offset) {}
+    CSmoothHeavySide(double slope, double offset)
+        : m_Slope(slope), m_Offset(offset) {}
 
     bool operator()(double x, double& result) const {
-        result = std::exp(m_Slope * (x - m_Offset)) / (std::exp(m_Slope * (x - m_Offset)) + 1.0);
+        result = std::exp(m_Slope * (x - m_Offset)) /
+                 (std::exp(m_Slope * (x - m_Offset)) + 1.0);
         return true;
     }
 
@@ -271,41 +281,52 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderOne>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderOne>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTwo>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderThree>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
             }
         }
     }
 
     {
-        double coeffs[][2] = {{-3.2, -1.2}, {0.0, 2.0}, {1.0, -1.0}, {5.0, 6.4}, {12.1, -8.3}};
+        double coeffs[][2] = {
+            {-3.2, -1.2}, {0.0, 2.0}, {1.0, -1.0}, {5.0, 6.4}, {12.1, -8.3}};
 
         for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
             for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
@@ -317,41 +338,55 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderOne>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderOne>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTwo>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderThree>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
             }
         }
     }
 
     {
-        double coeffs[][3] = {{-3.2, -1.2, -3.5}, {0.1, 2.0, 4.6}, {1.0, -1.0, 1.0}, {5.0, 6.4, -4.1}, {12.1, -8.3, 10.1}};
+        double coeffs[][3] = {{-3.2, -1.2, -3.5},
+                              {0.1, 2.0, 4.6},
+                              {1.0, -1.0, 1.0},
+                              {5.0, 6.4, -4.1},
+                              {12.1, -8.3, 10.1}};
 
         for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
             for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
@@ -363,39 +398,51 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTwo>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderThree>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
             }
         }
     }
 
     {
-        double coeffs[][4] = {
-            {-1.2, -1.9, -3.0, -3.2}, {0.4, 2.0, 4.6, 2.3}, {1.0, -1.0, 1.0, -1.0}, {4.0, 2.4, -8.1, -2.1}, {10.1, -6.3, 1.1, 8.3}};
+        double coeffs[][4] = {{-1.2, -1.9, -3.0, -3.2},
+                              {0.4, 2.0, 4.6, 2.3},
+                              {1.0, -1.0, 1.0, -1.0},
+                              {4.0, 2.4, -8.1, -2.1},
+                              {10.1, -6.3, 1.1, 8.3}};
 
         for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
             for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
@@ -407,28 +454,36 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderThree>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
             }
         }
@@ -451,25 +506,32 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
             }
         }
@@ -492,22 +554,28 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
             }
         }
@@ -530,19 +598,24 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
             }
         }
@@ -565,16 +638,20 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
             }
         }
@@ -597,24 +674,28 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
             }
         }
     }
 
     {
-        double coeffs[][10] = {{-1.1, -0.9, -4.0, -1.2, -0.2, -1.1, -0.1, -2.0, -0.1, -3.4},
-                               {20.4, 6.0, 2.6, 0.3, 0.7, 2.3, 1.0, 3.0, 10.0, 1.3},
-                               {1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0},
-                               {3.0, 2.4, -8.1, -2.1, 1.4, -3.1, 2.1, -2.1, -1.0, 1.1},
-                               {10.1, -5.3, 2.1, 4.3, -7.1, 0.4, -0.5, 0.3, 0.3, -5.0}};
+        double coeffs[][10] = {
+            {-1.1, -0.9, -4.0, -1.2, -0.2, -1.1, -0.1, -2.0, -0.1, -3.4},
+            {20.4, 6.0, 2.6, 0.3, 0.7, 2.3, 1.0, 3.0, 10.0, 1.3},
+            {1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0},
+            {3.0, 2.4, -8.1, -2.1, 1.4, -3.1, 2.1, -2.1, -1.0, 1.1},
+            {10.1, -5.3, 2.1, 4.3, -7.1, 0.4, -0.5, 0.3, 0.3, -5.0}};
 
         for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
             for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
@@ -626,21 +707,24 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
             }
         }
     }
 
     {
-        double coeffs[][11] = {{-1.1, -0.9, -4.0, -1.2, -0.2, -1.1, -0.1, -2.0, -0.1, -3.4, -0.9},
-                               {20.4, 6.0, 2.6, 0.3, 0.7, 2.3, 1.0, 3.0, 10.0, 1.3, 2.0},
-                               {1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0},
-                               {3.0, 2.4, -8.1, -2.1, 1.4, -3.1, 2.1, -2.1, -1.0, 1.1, 3.1},
-                               {10.1, -5.3, 2.1, 4.3, -7.1, 0.4, -0.5, 0.3, 0.3, -5.0, -0.1}};
+        double coeffs[][11] = {
+            {-1.1, -0.9, -4.0, -1.2, -0.2, -1.1, -0.1, -2.0, -0.1, -3.4, -0.9},
+            {20.4, 6.0, 2.6, 0.3, 0.7, 2.3, 1.0, 3.0, 10.0, 1.3, 2.0},
+            {1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0},
+            {3.0, 2.4, -8.1, -2.1, 1.4, -3.1, 2.1, -2.1, -1.0, 1.1, 3.1},
+            {10.1, -5.3, 2.1, 4.3, -7.1, 0.4, -0.5, 0.3, 0.3, -5.0, -0.1}};
 
         for (unsigned int i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i) {
             for (unsigned int j = 0; j < sizeof(coeffs) / sizeof(coeffs[0]); ++j) {
@@ -652,7 +736,8 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(f, ranges[i][0], ranges[i][1], actual));
+                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                    f, ranges[i][0], ranges[i][1], actual));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
             }
         }
@@ -673,15 +758,18 @@ void CIntegrationTest::testAdaptive() {
         CSmoothHeavySide heavySide(10.0, 20.0);
 
         TDoubleDoublePr intervals_[] = {
-            TDoubleDoublePr(0.0, 10.0), TDoubleDoublePr(10.0, 20.0), TDoubleDoublePr(20.0, 30.0), TDoubleDoublePr(30.0, 40.0)};
+            TDoubleDoublePr(0.0, 10.0), TDoubleDoublePr(10.0, 20.0),
+            TDoubleDoublePr(20.0, 30.0), TDoubleDoublePr(30.0, 40.0)};
         TDoubleDoublePrVec intervals(boost::begin(intervals_), boost::end(intervals_));
         TDoubleVec fIntervals(intervals.size());
         for (std::size_t i = 0u; i < intervals.size(); ++i) {
-            CIntegration::gaussLegendre<CIntegration::OrderThree>(heavySide, intervals[i].first, intervals[i].second, fIntervals[i]);
+            CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                heavySide, intervals[i].first, intervals[i].second, fIntervals[i]);
         }
 
         double result = 0.0;
-        CIntegration::adaptiveGaussLegendre<CIntegration::OrderThree>(heavySide, intervals, fIntervals, 3, 5, 0.01, result);
+        CIntegration::adaptiveGaussLegendre<CIntegration::OrderThree>(
+            heavySide, intervals, fIntervals, 3, 5, 0.01, result);
         LOG_DEBUG(<< "expectedResult = 20.0");
         LOG_DEBUG(<< "result = " << result);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(20.0, result, 0.01 * 20.0);
@@ -700,15 +788,18 @@ void CIntegrationTest::testAdaptive() {
         }
 
         TDoubleDoublePr intervals_[] = {
-            TDoubleDoublePr(0.0, 10.0), TDoubleDoublePr(10.0, 20.0), TDoubleDoublePr(20.0, 30.0), TDoubleDoublePr(30.0, 40.0)};
+            TDoubleDoublePr(0.0, 10.0), TDoubleDoublePr(10.0, 20.0),
+            TDoubleDoublePr(20.0, 30.0), TDoubleDoublePr(30.0, 40.0)};
         TDoubleDoublePrVec intervals(boost::begin(intervals_), boost::end(intervals_));
         TDoubleVec fIntervals(intervals.size());
         for (std::size_t i = 0u; i < intervals.size(); ++i) {
-            CIntegration::gaussLegendre<CIntegration::OrderThree>(normal, intervals[i].first, intervals[i].second, fIntervals[i]);
+            CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                normal, intervals[i].first, intervals[i].second, fIntervals[i]);
         }
 
         double result = 0.0;
-        CIntegration::adaptiveGaussLegendre<CIntegration::OrderThree>(normal, intervals, fIntervals, 3, 5, 0.0001, result);
+        CIntegration::adaptiveGaussLegendre<CIntegration::OrderThree>(
+            normal, intervals, fIntervals, 3, 5, 0.0001, result);
         LOG_DEBUG(<< "expectedResult = " << expectedResult);
         LOG_DEBUG(<< "result = " << result);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedResult, result, 0.0001 * expectedResult);
@@ -724,19 +815,23 @@ void CIntegrationTest::testAdaptive() {
         double expectedResult = 0.0;
         for (std::size_t i = 0u; i < 400; ++i) {
             double fi;
-            CIntegration::gaussLegendre<CIntegration::OrderThree>(f, 0.1 * static_cast<double>(i), 0.1 * static_cast<double>(i + 1), fi);
+            CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                f, 0.1 * static_cast<double>(i), 0.1 * static_cast<double>(i + 1), fi);
             expectedResult += fi;
         }
 
-        TDoubleDoublePr intervals_[] = {TDoubleDoublePr(0.0, 20.0), TDoubleDoublePr(20.0, 40.0)};
+        TDoubleDoublePr intervals_[] = {TDoubleDoublePr(0.0, 20.0),
+                                        TDoubleDoublePr(20.0, 40.0)};
         TDoubleDoublePrVec intervals(boost::begin(intervals_), boost::end(intervals_));
         TDoubleVec fIntervals(intervals.size());
         for (std::size_t i = 0u; i < intervals.size(); ++i) {
-            CIntegration::gaussLegendre<CIntegration::OrderThree>(f, intervals[i].first, intervals[i].second, fIntervals[i]);
+            CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                f, intervals[i].first, intervals[i].second, fIntervals[i]);
         }
 
         double result = 0.0;
-        CIntegration::adaptiveGaussLegendre<CIntegration::OrderThree>(f, intervals, fIntervals, 3, 5, 0.0001, result);
+        CIntegration::adaptiveGaussLegendre<CIntegration::OrderThree>(
+            f, intervals, fIntervals, 3, 5, 0.0001, result);
         LOG_DEBUG(<< "expectedResult = " << expectedResult);
         LOG_DEBUG(<< "result = " << result);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedResult, result, 0.0001 * expectedResult);
@@ -756,9 +851,11 @@ void CIntegrationTest::testSparseGrid() {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d2_l1", expectedWeights, expectedPoints));
+        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d2_l1",
+                                expectedWeights, expectedPoints));
 
-        using TSparse2do1 = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderOne, CIntegration::TwoDimensions>;
+        using TSparse2do1 =
+            CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderOne, CIntegration::TwoDimensions>;
 
         const TSparse2do1& sparse = TSparse2do1::instance();
 
@@ -768,11 +865,13 @@ void CIntegrationTest::testSparseGrid() {
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i], (sparse.weights())[i] / 4.0, 1e-6);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i],
+                                         (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j], 0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j],
+                                             0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
     }
@@ -782,9 +881,11 @@ void CIntegrationTest::testSparseGrid() {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d2_l2", expectedWeights, expectedPoints));
+        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d2_l2",
+                                expectedWeights, expectedPoints));
 
-        using TSparse2do2 = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderTwo, CIntegration::TwoDimensions>;
+        using TSparse2do2 =
+            CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderTwo, CIntegration::TwoDimensions>;
 
         const TSparse2do2& sparse = TSparse2do2::instance();
 
@@ -794,11 +895,13 @@ void CIntegrationTest::testSparseGrid() {
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i], (sparse.weights())[i] / 4.0, 1e-6);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i],
+                                         (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j], 0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j],
+                                             0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
     }
@@ -808,9 +911,11 @@ void CIntegrationTest::testSparseGrid() {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d2_l4", expectedWeights, expectedPoints));
+        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d2_l4",
+                                expectedWeights, expectedPoints));
 
-        using TSparse2do4 = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFour, CIntegration::TwoDimensions>;
+        using TSparse2do4 =
+            CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFour, CIntegration::TwoDimensions>;
 
         const TSparse2do4& sparse = TSparse2do4::instance();
 
@@ -820,11 +925,13 @@ void CIntegrationTest::testSparseGrid() {
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i], (sparse.weights())[i] / 4.0, 1e-6);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i],
+                                         (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j], 0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j],
+                                             0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
     }
@@ -834,9 +941,11 @@ void CIntegrationTest::testSparseGrid() {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d7_l3", expectedWeights, expectedPoints));
+        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d7_l3",
+                                expectedWeights, expectedPoints));
 
-        using TSparse7do3 = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderThree, CIntegration::SevenDimensions>;
+        using TSparse7do3 =
+            CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderThree, CIntegration::SevenDimensions>;
 
         const TSparse7do3& sparse = TSparse7do3::instance();
 
@@ -846,11 +955,13 @@ void CIntegrationTest::testSparseGrid() {
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i], (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                expectedWeights[i], (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j], 0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j],
+                                             0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
     }
@@ -860,9 +971,11 @@ void CIntegrationTest::testSparseGrid() {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d7_l5", expectedWeights, expectedPoints));
+        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d7_l5",
+                                expectedWeights, expectedPoints));
 
-        using TSparse7do5 = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFive, CIntegration::SevenDimensions>;
+        using TSparse7do5 =
+            CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFive, CIntegration::SevenDimensions>;
 
         const TSparse7do5& sparse = TSparse7do5::instance();
 
@@ -874,13 +987,15 @@ void CIntegrationTest::testSparseGrid() {
             if (i % 10 == 0) {
                 LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
             }
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i], (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                expectedWeights[i], (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             if (i % 10 == 0) {
                 LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             }
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j], 0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j],
+                                             0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
     }
@@ -888,40 +1003,46 @@ void CIntegrationTest::testSparseGrid() {
     unsigned int dimensions[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     unsigned int order[] = {1, 2, 3, 4, 5};
 
-    std::size_t expectedNumberPoints[][5] = {{1, 2, 3, 4, 5},
-                                             {1, 5, 13, 29, 53},
-                                             {1, 7, 25, 69, 165},
-                                             {1, 9, 41, 137, 385},
-                                             {1, 11, 61, 241, 781},
-                                             {1, 13, 85, 389, 1433},
-                                             {1, 15, 113, 589, 2437},
-                                             {1, 17, 145, 849, 3905},
-                                             {1, 19, 181, 1177, 5965},
-                                             {1, 21, 221, 1581, 8761}};
+    std::size_t expectedNumberPoints[][5] = {
+        {1, 2, 3, 4, 5},          {1, 5, 13, 29, 53},
+        {1, 7, 25, 69, 165},      {1, 9, 41, 137, 385},
+        {1, 11, 61, 241, 781},    {1, 13, 85, 389, 1433},
+        {1, 15, 113, 589, 2437},  {1, 17, 145, 849, 3905},
+        {1, 19, 181, 1177, 5965}, {1, 21, 221, 1581, 8761}};
 
     for (std::size_t i = 0u; i < boost::size(dimensions); ++i) {
         LOG_DEBUG(<< "DIMENSION = " << dimensions[i]);
 
-#define NUMBER_POINTS(dimension, n)                                                                                                        \
-    switch (order[j]) {                                                                                                                    \
-    case 1:                                                                                                                                \
-        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderOne, dimension>::instance().points().size();                   \
-        break;                                                                                                                             \
-    case 2:                                                                                                                                \
-        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderTwo, dimension>::instance().points().size();                   \
-        break;                                                                                                                             \
-    case 3:                                                                                                                                \
-        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderThree, dimension>::instance().points().size();                 \
-        break;                                                                                                                             \
-    case 4:                                                                                                                                \
-        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFour, dimension>::instance().points().size();                  \
-        break;                                                                                                                             \
-    case 5:                                                                                                                                \
-        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFive, dimension>::instance().points().size();                  \
-        break;                                                                                                                             \
-    default:                                                                                                                               \
-        n = 0;                                                                                                                             \
-        break;                                                                                                                             \
+#define NUMBER_POINTS(dimension, n)                                                                       \
+    switch (order[j]) {                                                                                   \
+    case 1:                                                                                               \
+        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderOne, dimension>::instance()   \
+                .points()                                                                                 \
+                .size();                                                                                  \
+        break;                                                                                            \
+    case 2:                                                                                               \
+        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderTwo, dimension>::instance()   \
+                .points()                                                                                 \
+                .size();                                                                                  \
+        break;                                                                                            \
+    case 3:                                                                                               \
+        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderThree, dimension>::instance() \
+                .points()                                                                                 \
+                .size();                                                                                  \
+        break;                                                                                            \
+    case 4:                                                                                               \
+        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFour, dimension>::instance()  \
+                .points()                                                                                 \
+                .size();                                                                                  \
+        break;                                                                                            \
+    case 5:                                                                                               \
+        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFive, dimension>::instance()  \
+                .points()                                                                                 \
+                .size();                                                                                  \
+        break;                                                                                            \
+    default:                                                                                              \
+        n = 0;                                                                                            \
+        break;                                                                                            \
     }
         for (std::size_t j = 0u; j < boost::size(order); ++j) {
             LOG_DEBUG(<< "ORDER = " << order[j]);
@@ -964,7 +1085,8 @@ void CIntegrationTest::testSparseGrid() {
             }
 #undef NUMBER_POINTS
 
-            LOG_DEBUG(<< "number points: actual = " << numberPoints << ", expected = " << expectedNumberPoints[i][j]);
+            LOG_DEBUG(<< "number points: actual = " << numberPoints
+                      << ", expected = " << expectedNumberPoints[i][j]);
             CPPUNIT_ASSERT_EQUAL(expectedNumberPoints[i][j], numberPoints);
         }
     }
@@ -1004,8 +1126,10 @@ void CIntegrationTest::testMultivariateSmooth() {
                 CMultivariatePolynomialFunction<DIMENSION> polynomial;
                 for (std::size_t i = 0u; i < n; ++i) {
                     double c = static_cast<double>(coefficients[i]);
-                    double p[] = {static_cast<double>(powers[DIMENSION * i + 0]), static_cast<double>(powers[DIMENSION * i + 1])};
-                    if (std::accumulate(p, p + DIMENSION, 0.0) > (2.0 * static_cast<double>(l) - 1.0)) {
+                    double p[] = {static_cast<double>(powers[DIMENSION * i + 0]),
+                                  static_cast<double>(powers[DIMENSION * i + 1])};
+                    if (std::accumulate(p, p + DIMENSION, 0.0) >
+                        (2.0 * static_cast<double>(l) - 1.0)) {
                         continue;
                     }
                     polynomial.add(c, p);
@@ -1029,19 +1153,23 @@ void CIntegrationTest::testMultivariateSmooth() {
                 switch (l) {
                 case 2:
                     successful =
-                        CIntegration::sparseGaussLegendre<CIntegration::OrderTwo, CIntegration::TwoDimensions>(polynomial, a, b, actual);
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderTwo, CIntegration::TwoDimensions>(
+                            polynomial, a, b, actual);
                     break;
                 case 3:
                     successful =
-                        CIntegration::sparseGaussLegendre<CIntegration::OrderThree, CIntegration::TwoDimensions>(polynomial, a, b, actual);
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderThree, CIntegration::TwoDimensions>(
+                            polynomial, a, b, actual);
                     break;
                 case 4:
                     successful =
-                        CIntegration::sparseGaussLegendre<CIntegration::OrderFour, CIntegration::TwoDimensions>(polynomial, a, b, actual);
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderFour, CIntegration::TwoDimensions>(
+                            polynomial, a, b, actual);
                     break;
                 case 5:
                     successful =
-                        CIntegration::sparseGaussLegendre<CIntegration::OrderFive, CIntegration::TwoDimensions>(polynomial, a, b, actual);
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderFive, CIntegration::TwoDimensions>(
+                            polynomial, a, b, actual);
                     break;
                 default:
                     break;
@@ -1080,7 +1208,8 @@ void CIntegrationTest::testMultivariateSmooth() {
                                   static_cast<double>(powers[5 * i + 2]),
                                   static_cast<double>(powers[5 * i + 3]),
                                   static_cast<double>(powers[5 * i + 4])};
-                    if (std::accumulate(p, p + DIMENSION, 0.0) > (2.0 * static_cast<double>(l) - 1.0)) {
+                    if (std::accumulate(p, p + DIMENSION, 0.0) >
+                        (2.0 * static_cast<double>(l) - 1.0)) {
                         continue;
                     }
                     polynomial.add(c, p);
@@ -1104,19 +1233,23 @@ void CIntegrationTest::testMultivariateSmooth() {
                 switch (l) {
                 case 2:
                     successful =
-                        CIntegration::sparseGaussLegendre<CIntegration::OrderTwo, CIntegration::FiveDimensions>(polynomial, a, b, actual);
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderTwo, CIntegration::FiveDimensions>(
+                            polynomial, a, b, actual);
                     break;
                 case 3:
                     successful =
-                        CIntegration::sparseGaussLegendre<CIntegration::OrderThree, CIntegration::FiveDimensions>(polynomial, a, b, actual);
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderThree, CIntegration::FiveDimensions>(
+                            polynomial, a, b, actual);
                     break;
                 case 4:
                     successful =
-                        CIntegration::sparseGaussLegendre<CIntegration::OrderFour, CIntegration::FiveDimensions>(polynomial, a, b, actual);
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderFour, CIntegration::FiveDimensions>(
+                            polynomial, a, b, actual);
                     break;
                 case 5:
                     successful =
-                        CIntegration::sparseGaussLegendre<CIntegration::OrderFive, CIntegration::FiveDimensions>(polynomial, a, b, actual);
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderFive, CIntegration::FiveDimensions>(
+                            polynomial, a, b, actual);
                     break;
                 default:
                     break;
@@ -1134,12 +1267,14 @@ void CIntegrationTest::testMultivariateSmooth() {
 CppUnit::Test* CIntegrationTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIntegrationTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CIntegrationTest>("CIntegrationTest::testAllSingleVariate", &CIntegrationTest::testAllSingleVariate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegrationTest>("CIntegrationTest::testAdaptive", &CIntegrationTest::testAdaptive));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegrationTest>("CIntegrationTest::testSparseGrid", &CIntegrationTest::testSparseGrid));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CIntegrationTest>("CIntegrationTest::testMultivariateSmooth", &CIntegrationTest::testMultivariateSmooth));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegrationTest>(
+        "CIntegrationTest::testAllSingleVariate", &CIntegrationTest::testAllSingleVariate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegrationTest>(
+        "CIntegrationTest::testAdaptive", &CIntegrationTest::testAdaptive));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegrationTest>(
+        "CIntegrationTest::testSparseGrid", &CIntegrationTest::testSparseGrid));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegrationTest>(
+        "CIntegrationTest::testMultivariateSmooth", &CIntegrationTest::testMultivariateSmooth));
 
     return suiteOfTests;
 }

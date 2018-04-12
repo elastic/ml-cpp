@@ -38,20 +38,19 @@ CModelPlotData::CModelPlotData(core_t::TTime time,
                                const std::string& byFieldName,
                                core_t::TTime bucketSpan,
                                int detectorIndex)
-    : m_Time(time),
-      m_PartitionFieldName(partitionFieldName),
+    : m_Time(time), m_PartitionFieldName(partitionFieldName),
       m_PartitionFieldValue(partitionFieldValue),
-      m_OverFieldName(overFieldName),
-      m_ByFieldName(byFieldName),
-      m_BucketSpan(bucketSpan),
-      m_DetectorIndex(detectorIndex) {
+      m_OverFieldName(overFieldName), m_ByFieldName(byFieldName),
+      m_BucketSpan(bucketSpan), m_DetectorIndex(detectorIndex) {
 }
 
-CModelPlotData::SByFieldData::SByFieldData() : s_LowerBound(0.0), s_UpperBound(0.0), s_Median(0.0), s_ValuesPerOverField() {
+CModelPlotData::SByFieldData::SByFieldData()
+    : s_LowerBound(0.0), s_UpperBound(0.0), s_Median(0.0), s_ValuesPerOverField() {
 }
 
 CModelPlotData::SByFieldData::SByFieldData(double lowerBound, double upperBound, double median)
-    : s_LowerBound(lowerBound), s_UpperBound(upperBound), s_Median(median), s_ValuesPerOverField() {
+    : s_LowerBound(lowerBound), s_UpperBound(upperBound), s_Median(median),
+      s_ValuesPerOverField() {
 }
 
 void CModelPlotData::SByFieldData::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -77,7 +76,8 @@ bool CModelPlotData::SByFieldData::acceptRestoreTraverser(core::CStateRestoreTra
                 return false;
             }
         } else if (name == VALUES_PER_OVERFIELD_TAG) {
-            if (!core::CPersistUtils::restore(VALUES_PER_OVERFIELD_TAG, s_ValuesPerOverField, traverser)) {
+            if (!core::CPersistUtils::restore(VALUES_PER_OVERFIELD_TAG,
+                                              s_ValuesPerOverField, traverser)) {
                 return false;
             }
         }
@@ -106,19 +106,23 @@ bool CModelPlotData::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
             }
             m_DataPerFeature.clear();
 
-            for (TIntStrByFieldDataUMapUMap::const_iterator i = data.begin(); i != data.end(); ++i) {
-                m_DataPerFeature.insert(TFeatureStrByFieldDataUMapPr(model_t::EFeature(i->first), i->second));
+            for (TIntStrByFieldDataUMapUMap::const_iterator i = data.begin();
+                 i != data.end(); ++i) {
+                m_DataPerFeature.insert(TFeatureStrByFieldDataUMapPr(
+                    model_t::EFeature(i->first), i->second));
             }
         } else if (name == TIME_TAG) {
             if (!core::CPersistUtils::restore(TIME_TAG, m_Time, traverser)) {
                 return false;
             }
         } else if (name == PARTITION_FIELD_NAME_TAG) {
-            if (!core::CPersistUtils::restore(PARTITION_FIELD_NAME_TAG, m_PartitionFieldName, traverser)) {
+            if (!core::CPersistUtils::restore(PARTITION_FIELD_NAME_TAG,
+                                              m_PartitionFieldName, traverser)) {
                 return false;
             }
         } else if (name == PARTITION_FIELD_VALUE_TAG) {
-            if (!core::CPersistUtils::restore(PARTITION_FIELD_VALUE_TAG, m_PartitionFieldValue, traverser)) {
+            if (!core::CPersistUtils::restore(PARTITION_FIELD_VALUE_TAG,
+                                              m_PartitionFieldValue, traverser)) {
                 return false;
             }
         } else if (name == OVER_FIELD_NAME_TAG) {
@@ -175,7 +179,8 @@ CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr CModelPlotData::end() const {
     return m_DataPerFeature.end();
 }
 
-CModelPlotData::SByFieldData& CModelPlotData::get(const model_t::EFeature& feature, const std::string& byFieldValue) {
+CModelPlotData::SByFieldData& CModelPlotData::get(const model_t::EFeature& feature,
+                                                  const std::string& byFieldValue) {
     // note: This creates/inserts! elements and returns a reference for writing
     // data insert happens here
     return m_DataPerFeature[feature][byFieldValue];

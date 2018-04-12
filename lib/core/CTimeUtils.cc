@@ -47,7 +47,9 @@ int64_t CTimeUtils::toEpochMs(core_t::TTime t) {
     return static_cast<int64_t>(t) * 1000;
 }
 
-bool CTimeUtils::strptime(const std::string& format, const std::string& dateTime, core_t::TTime& preTime) {
+bool CTimeUtils::strptime(const std::string& format,
+                          const std::string& dateTime,
+                          core_t::TTime& preTime) {
     if (CTimeUtils::strptimeSilent(format, dateTime, preTime) == false) {
         LOG_ERROR(<< "Unable to convert " << dateTime << " to " << format);
         return false;
@@ -56,7 +58,9 @@ bool CTimeUtils::strptime(const std::string& format, const std::string& dateTime
     return true;
 }
 
-bool CTimeUtils::strptimeSilent(const std::string& format, const std::string& dateTime, core_t::TTime& preTime) {
+bool CTimeUtils::strptimeSilent(const std::string& format,
+                                const std::string& dateTime,
+                                core_t::TTime& preTime) {
     struct tm t;
     ::memset(&t, 0, sizeof(struct tm));
 
@@ -201,7 +205,8 @@ CTimeUtils::CDateWordCache::CDateWordCache() {
         m_DateWords.insert(buf);
     }
 
-    static const int DAYS_PER_MONTH[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    static const int DAYS_PER_MONTH[] = {31, 28, 31, 30, 31, 30,
+                                         31, 31, 30, 31, 30, 31};
 
     // Populate other month names and abbreviations
     for (int month = 1; month < 12; ++month) {

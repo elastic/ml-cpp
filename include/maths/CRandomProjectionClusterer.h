@@ -114,7 +114,8 @@ protected:
         for (std::size_t i = 0u; i < b; ++i) {
             TVectorArray& projection = m_Projections[i];
             for (std::size_t j = 0u; j < N; ++j) {
-                projection[j].assign(&components[(i * N + j) * m_Dimension], &components[(i * N + j + 1) * m_Dimension]);
+                projection[j].assign(&components[(i * N + j) * m_Dimension],
+                                     &components[(i * N + j + 1) * m_Dimension]);
             }
 
             if (!CGramSchmidt::basis(projection)) {
@@ -151,7 +152,8 @@ protected:
         CSampling::normalSample(m_Rng, 0.0, 1.0, b * N * d, components);
         for (std::size_t i = 0u; i < b; ++i) {
             for (std::size_t j = 0u; j < N; ++j) {
-                extension[j].assign(&components[(i * N + j) * d], &components[(i * N + j + 1) * d]);
+                extension[j].assign(&components[(i * N + j) * d],
+                                    &components[(i * N + j + 1) * d]);
             }
 
             if (!CGramSchmidt::basis(extension)) {
@@ -215,7 +217,8 @@ public:
     using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
 
 public:
-    CRandomProjectionClustererBatch(double compression) : m_Compression(compression) {}
+    CRandomProjectionClustererBatch(double compression)
+        : m_Compression(compression) {}
 
     virtual ~CRandomProjectionClustererBatch() = default;
 
@@ -316,9 +319,14 @@ protected:
     //! \param[out] I Filled in with the indices of distinct sampled
     //! points.
     template<typename CLUSTERER>
-    void clusterProjections(CLUSTERER clusterer, TDoubleVecVec& W, TVectorNx1VecVec& M, TSvdNxNVecVec& C, TSizeUSet& I) const {
+    void clusterProjections(CLUSTERER clusterer,
+                            TDoubleVecVec& W,
+                            TVectorNx1VecVec& M,
+                            TSvdNxNVecVec& C,
+                            TSizeUSet& I) const {
         using TVectorNx1CRef = boost::reference_wrapper<const TVectorNx1>;
-        using TVectorNx1CRefSizeUMap = boost::unordered_map<TVectorNx1CRef, std::size_t, SHashVector, SVectorsEqual>;
+        using TVectorNx1CRefSizeUMap =
+            boost::unordered_map<TVectorNx1CRef, std::size_t, SHashVector, SVectorsEqual>;
         using TClusterVec = typename CLUSTERER::TClusterVec;
         using TSampleCovariancesNxN = CBasicStatistics::SSampleCovariances<double, N>;
 
@@ -363,14 +371,16 @@ protected:
                 // Compute the number of points to sample from this cluster.
                 std::size_t nij = points.size();
                 double wij = static_cast<double>(nij) / static_cast<double>(n);
-                std::size_t nsij = static_cast<std::size_t>(std::max(m_Compression * wij * ni, 1.0));
+                std::size_t nsij =
+                    static_cast<std::size_t>(std::max(m_Compression * wij * ni, 1.0));
                 LOG_TRACE(<< "wij = " << wij << ", nsij = " << nsij);
 
                 // Compute the cluster sample mean and covariance matrix.
                 TSampleCovariancesNxN covariances;
                 covariances.add(points);
                 TVectorNx1 mij = CBasicStatistics::mean(covariances);
-                TSvdNxN Cij(toDenseMatrix(CBasicStatistics::covariances(covariances)), Eigen::ComputeFullU | Eigen::ComputeFullV);
+                TSvdNxN Cij(toDenseMatrix(CBasicStatistics::covariances(covariances)),
+                            Eigen::ComputeFullU | Eigen::ComputeFullV);
 
                 // Compute the probability that a sample from the cluster
                 // is a given point in the cluster.
@@ -401,7 +411,8 @@ protected:
                     LOG_TRACE(<< "pij = " << core::CContainerPrinter::print(pij));
 
                     // Sample the cluster.
-                    CSampling::categoricalSampleWithoutReplacement(this->rng(), pij, nsij, sij);
+                    CSampling::categoricalSampleWithoutReplacement(this->rng(),
+                                                                   pij, nsij, sij);
                     LOG_TRACE(<< "sij = " << core::CContainerPrinter::print(sij));
 
                     // Save the relevant data for the i'th clustering.
@@ -475,8 +486,11 @@ protected:
     //! i.e. the indices of the closest points.
     //! \param[out] S Filled in with the mean similarities between
     //! neighbourhoods over the different clusterings.
-    void
-    similarities(const TDoubleVecVec& W, const TVectorNx1VecVec& M, const TSvdNxNVecVec& C, const TSizeVecVec& H, TDoubleVecVec& S) const {
+    void similarities(const TDoubleVecVec& W,
+                      const TVectorNx1VecVec& M,
+                      const TSvdNxNVecVec& C,
+                      const TSizeVecVec& H,
+                      TDoubleVecVec& S) const {
         std::size_t b = m_ProjectedData.size();
         std::size_t h = H.size();
 
@@ -526,7 +540,8 @@ protected:
             for (std::size_t j = 0u; j < h; ++j) {
                 S_[j].resize(j + 1);
                 for (std::size_t k = 0u; k <= j; ++k) {
-                    S_[j][k].add(-std::log(std::max(Pi[j].inner(Pi[k]), boost::numeric::bounds<double>::smallest())));
+                    S_[j][k].add(-std::log(std::max(
+                        Pi[j].inner(Pi[k]), boost::numeric::bounds<double>::smallest())));
                 }
             }
         }
@@ -566,13 +581,14 @@ protected:
         LOG_TRACE(<< "heights = " << core::CContainerPrinter::print(heights));
 
         TSizeVec splits;
-        if (CNaturalBreaksClassifier::naturalBreaks(heights,
-                                                    2, // Number splits
-                                                    0, // Minimum cluster size
-                                                    CNaturalBreaksClassifier::E_TargetDeviation,
-                                                    splits)) {
+        if (CNaturalBreaksClassifier::naturalBreaks(
+                heights,
+                2, // Number splits
+                0, // Minimum cluster size
+                CNaturalBreaksClassifier::E_TargetDeviation, splits)) {
             double height = CBasicStatistics::mean(heights[splits[0] - 1]);
-            LOG_TRACE(<< "split = " << core::CContainerPrinter::print(splits) << ", height = " << height);
+            LOG_TRACE(<< "split = " << core::CContainerPrinter::print(splits)
+                      << ", height = " << height);
             const TNode& root = tree.back();
             root.clusteringAt(height, result);
             for (std::size_t i = 0u; i < result.size(); ++i) {
@@ -594,7 +610,8 @@ protected:
     //! Get the log determinant of the rank full portion of \p m.
     double logDeterminant(const TSvdNxN& svd) const {
         double result = 0.0;
-        for (std::size_t i = 0u, rank = static_cast<std::size_t>(svd.rank()); i < rank; ++i) {
+        for (std::size_t i = 0u, rank = static_cast<std::size_t>(svd.rank());
+             i < rank; ++i) {
             result += std::log(svd.singularValues()[i]);
         }
         return result;
@@ -638,7 +655,10 @@ public:
     void setPoints(TVectorNx1Vec& points) { m_Xmeans.setPoints(points); }
 
     //! Cluster the points.
-    void run() { m_Xmeans.run(m_ImproveParamsKmeansIterations, m_ImproveStructureClusterSeeds, m_ImproveStructureKmeansIterations); }
+    void run() {
+        m_Xmeans.run(m_ImproveParamsKmeansIterations, m_ImproveStructureClusterSeeds,
+                     m_ImproveStructureKmeansIterations);
+    }
 
     //! Get the clusters (should only be called after run).
     const TClusterVec& clusters() const { return m_Xmeans.clusters(); }
@@ -665,7 +685,8 @@ forRandomProjectionClusterer(const CXMeans<CVectorNx1<double, N>, COST>& xmeans,
                              std::size_t improveStructureClusterSeeds,
                              std::size_t improveStructureKmeansIterations) {
     return CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>(
-        xmeans, improveParamsKmeansIterations, improveStructureClusterSeeds, improveStructureKmeansIterations);
+        xmeans, improveParamsKmeansIterations, improveStructureClusterSeeds,
+        improveStructureKmeansIterations);
 }
 
 //! \brief Adapts k-means for use by the random projection clusterer.
@@ -715,8 +736,11 @@ private:
 //! Makes a k-means adapter for random projection clustering.
 template<std::size_t N>
 CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
-forRandomProjectionClusterer(const CKMeansFast<CVectorNx1<double, N>>& kmeans, std::size_t k, std::size_t maxIterations) {
-    return CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>(kmeans, k, maxIterations);
+forRandomProjectionClusterer(const CKMeansFast<CVectorNx1<double, N>>& kmeans,
+                             std::size_t k,
+                             std::size_t maxIterations) {
+    return CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>(
+        kmeans, k, maxIterations);
 }
 }
 }

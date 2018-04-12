@@ -45,7 +45,10 @@ public:
 
     virtual TOptionalDouble baselineBucketCount(std::size_t pid) const;
 
-    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
+    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature,
+                                           std::size_t pid,
+                                           std::size_t cid,
+                                           core_t::TTime time) const;
 
     virtual TDouble1Vec baselineBucketMean(model_t::EFeature feature,
                                            std::size_t pid,
@@ -58,11 +61,15 @@ public:
 
     virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const;
 
-    virtual void sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sampleBucketStatistics(core_t::TTime startTime,
+                                        core_t::TTime endTime,
+                                        CResourceMonitor& resourceMonitor);
 
     virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
-    virtual void sampleOutOfPhase(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sampleOutOfPhase(core_t::TTime startTime,
+                                  core_t::TTime endTime,
+                                  CResourceMonitor& resourceMonitor);
 
     virtual void prune(std::size_t maximumAge);
 
@@ -98,10 +105,17 @@ public:
 
     void mockPopulation(bool isPopulation);
 
-    void mockAddBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time, const TDouble1Vec& value);
+    void mockAddBucketValue(model_t::EFeature feature,
+                            std::size_t pid,
+                            std::size_t cid,
+                            core_t::TTime time,
+                            const TDouble1Vec& value);
 
-    void
-    mockAddBucketBaselineMean(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time, const TDouble1Vec& value);
+    void mockAddBucketBaselineMean(model_t::EFeature feature,
+                                   std::size_t pid,
+                                   std::size_t cid,
+                                   core_t::TTime time,
+                                   const TDouble1Vec& value);
 
     void mockTimeSeriesModels(const TMathsModelPtrVec& model);
 
@@ -116,7 +130,8 @@ private:
     using TDouble1Vec = CAnomalyDetectorModel::TDouble1Vec;
     using TSizeSizeTimeTriple = core::CTriple<std::size_t, std::size_t, core_t::TTime>;
     using TFeatureSizeSizeTimeTriplePr = std::pair<model_t::EFeature, TSizeSizeTimeTriple>;
-    using TFeatureSizeSizeTimeTriplePrDouble1VecUMap = boost::unordered_map<TFeatureSizeSizeTimeTriplePr, TDouble1Vec>;
+    using TFeatureSizeSizeTimeTriplePrDouble1VecUMap =
+        boost::unordered_map<TFeatureSizeSizeTimeTriplePr, TDouble1Vec>;
 
 private:
     virtual void currentBucketTotalCount(uint64_t totalCount);
@@ -138,7 +153,9 @@ public:
 private:
     virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
     virtual const CAnomalyDetectorModel& base() const;
-    virtual double countVarianceScale(model_t::EFeature feature, std::size_t byFieldId, core_t::TTime time) const;
+    virtual double countVarianceScale(model_t::EFeature feature,
+                                      std::size_t byFieldId,
+                                      core_t::TTime time) const;
 
 private:
     //! The model.

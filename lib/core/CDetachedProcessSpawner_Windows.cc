@@ -135,7 +135,8 @@ private:
 }
 
 CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec& permittedProcessPaths)
-    : m_PermittedProcessPaths(permittedProcessPaths), m_TrackerThread(boost::make_shared<detail::CTrackerThread>()) {
+    : m_PermittedProcessPaths(permittedProcessPaths),
+      m_TrackerThread(boost::make_shared<detail::CTrackerThread>()) {
     if (m_TrackerThread->start() == false) {
         LOG_ERROR(<< "Failed to start spawned process tracker thread");
     }
@@ -152,13 +153,17 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVe
     return this->spawn(processPath, args, dummy);
 }
 
-bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args, CProcess::TPid& childPid) {
-    if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(), processPath) == m_PermittedProcessPaths.end()) {
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid) {
+    if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(),
+                  processPath) == m_PermittedProcessPaths.end()) {
         LOG_ERROR(<< "Spawning process '" << processPath << "' is not permitted");
         return false;
     }
 
-    bool processPathHasExeExt(processPath.length() > 4 && processPath.compare(processPath.length() - 4, 4, ".exe") == 0);
+    bool processPathHasExeExt(processPath.length() > 4 &&
+                              processPath.compare(processPath.length() - 4, 4, ".exe") == 0);
 
     // Windows takes command lines as a single string
     std::string cmdLine(CShellArgQuoter::quote(processPath));

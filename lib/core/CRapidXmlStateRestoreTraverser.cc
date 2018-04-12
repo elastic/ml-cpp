@@ -11,7 +11,8 @@ namespace ml {
 namespace core {
 
 CRapidXmlStateRestoreTraverser::CRapidXmlStateRestoreTraverser(const CRapidXmlParser& parser)
-    : m_Parser(parser), m_CurrentNode(m_Parser.m_Doc.first_node()), m_IsNameCacheValid(false), m_IsValueCacheValid(false) {
+    : m_Parser(parser), m_CurrentNode(m_Parser.m_Doc.first_node()),
+      m_IsNameCacheValid(false), m_IsValueCacheValid(false) {
     if (m_CurrentNode != nullptr && m_CurrentNode->type() != rapidxml::node_element) {
         LOG_ERROR(<< "Node type " << m_CurrentNode->type() << " not supported");
         m_CurrentNode = nullptr;
@@ -101,8 +102,8 @@ CRapidXmlParser::TCharRapidXmlNode* CRapidXmlStateRestoreTraverser::nextNodeElem
         return nullptr;
     }
 
-    for (CRapidXmlParser::TCharRapidXmlNode* nextNode = m_CurrentNode->next_sibling(); nextNode != nullptr;
-         nextNode = nextNode->next_sibling()) {
+    for (CRapidXmlParser::TCharRapidXmlNode* nextNode = m_CurrentNode->next_sibling();
+         nextNode != nullptr; nextNode = nextNode->next_sibling()) {
         // We ignore comments, CDATA and any other type of node that's not an
         // element
         if (nextNode->type() == rapidxml::node_element) {
@@ -113,12 +114,14 @@ CRapidXmlParser::TCharRapidXmlNode* CRapidXmlStateRestoreTraverser::nextNodeElem
     return nullptr;
 }
 
-CRapidXmlParser::TCharRapidXmlNode* CRapidXmlStateRestoreTraverser::firstChildNodeElement() const {
+CRapidXmlParser::TCharRapidXmlNode*
+CRapidXmlStateRestoreTraverser::firstChildNodeElement() const {
     if (m_CurrentNode == nullptr) {
         return nullptr;
     }
 
-    for (CRapidXmlParser::TCharRapidXmlNode* child = m_CurrentNode->first_node(); child != nullptr; child = child->next_sibling()) {
+    for (CRapidXmlParser::TCharRapidXmlNode* child = m_CurrentNode->first_node();
+         child != nullptr; child = child->next_sibling()) {
         // We ignore comments, CDATA and any other type of node that's not an
         // element
         if (child->type() == rapidxml::node_element) {

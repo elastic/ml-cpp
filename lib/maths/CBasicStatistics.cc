@@ -19,7 +19,8 @@ double CBasicStatistics::mean(const TDoubleDoublePr& samples) {
 }
 
 double CBasicStatistics::mean(const TDoubleVec& sample) {
-    return std::accumulate(sample.begin(), sample.end(), 0.0) / static_cast<double>(sample.size());
+    return std::accumulate(sample.begin(), sample.end(), 0.0) /
+           static_cast<double>(sample.size());
 }
 
 double CBasicStatistics::median(const TDoubleVec& dataIn) {

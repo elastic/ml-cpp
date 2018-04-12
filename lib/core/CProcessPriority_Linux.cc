@@ -43,7 +43,8 @@ void increaseOomKillerAdj() {
     // oom_adj is on a scale of -16 to 15.
     // In both cases higher numbers mean the process is more likely to be killed
     // in low memory situations.
-    if (writeToSystemFile("/proc/self/oom_score_adj", "667\n") == false && writeToSystemFile("/proc/self/oom_adj", "10\n") == false) {
+    if (writeToSystemFile("/proc/self/oom_score_adj", "667\n") == false &&
+        writeToSystemFile("/proc/self/oom_adj", "10\n") == false) {
         LOG_WARN(<< "Could not increase OOM killer adjustment using "
                     "/proc/self/oom_score_adj or /proc/self/oom_adj: "
                  << ::strerror(errno));

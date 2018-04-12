@@ -76,7 +76,9 @@ public:
                   double maximumAnomalousProbability);
 
         //! Compute the overall anomaly score and aggregate probability.
-        bool operator()(const TDoubleVec& probabilities, double& overallAnomalyScore, double& overallProbability) const;
+        bool operator()(const TDoubleVec& probabilities,
+                        double& overallAnomalyScore,
+                        double& overallProbability) const;
 
     private:
         //! The weight to assign the joint probability.
@@ -167,7 +169,8 @@ public:
         using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
         using TDoubleDoublePrVecCItr = TDoubleDoublePrVec::const_iterator;
         using TGreaterDouble = std::greater<double>;
-        using TMaxValueAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u, TGreaterDouble>;
+        using TMaxValueAccumulator =
+            maths::CBasicStatistics::COrderStatisticsStack<double, 1u, TGreaterDouble>;
 
     private:
         //! Used to convert raw scores in to integers so that we
@@ -274,7 +277,8 @@ public:
     static bool normalizerFromJson(const std::string& json, CNormalizer& normalizer);
 
     //! Populate \p normalizer from the restore traverser
-    static bool normalizerFromJson(core::CStateRestoreTraverser& traverser, CNormalizer& normalizer);
+    static bool normalizerFromJson(core::CStateRestoreTraverser& traverser,
+                                   CNormalizer& normalizer);
 
     //! Convert \p normalizer to its JSON representation with a restoration
     //! cue and description specified by the caller

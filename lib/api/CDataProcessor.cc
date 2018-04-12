@@ -34,7 +34,8 @@ std::string CDataProcessor::debugPrintRecord(const TStrStrUMap& dataRowFields) {
     // We want to print the field names on one line, followed by the field
     // values on the next line
 
-    for (TStrStrUMapCItr rowIter = dataRowFields.begin(); rowIter != dataRowFields.end(); ++rowIter) {
+    for (TStrStrUMapCItr rowIter = dataRowFields.begin();
+         rowIter != dataRowFields.end(); ++rowIter) {
         if (rowIter != dataRowFields.begin()) {
             fieldNames.push_back(',');
             fieldValues.push_back(',');

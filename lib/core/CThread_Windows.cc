@@ -23,7 +23,8 @@ CThread::~CThread() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadHandle != INVALID_HANDLE_VALUE) {
-        LOG_ERROR(<< "Trying to destroy a running thread. Call 'stop' before destroying");
+        LOG_ERROR(<< "Trying to destroy a running thread. Call 'stop' before "
+                     "destroying");
     }
 }
 
@@ -171,7 +172,8 @@ bool CThread::cancelBlockedIo(TThreadId threadId) {
     // Note inconsistency in Win32 thread function return codes here - the error
     // return is NULL rather than INVALID_HANDLE_VALUE!
     if (threadHandle == 0) {
-        LOG_ERROR(<< "Error cancelling blocked IO in thread " << threadId << ": " << CWindowsError());
+        LOG_ERROR(<< "Error cancelling blocked IO in thread " << threadId
+                  << ": " << CWindowsError());
         return false;
     }
 
@@ -180,7 +182,8 @@ bool CThread::cancelBlockedIo(TThreadId threadId) {
 
         // Don't report an error if there is no blocking call to cancel
         if (errCode != ERROR_NOT_FOUND) {
-            LOG_ERROR(<< "Error cancelling blocked IO in thread " << threadId << ": " << CWindowsError(errCode));
+            LOG_ERROR(<< "Error cancelling blocked IO in thread " << threadId
+                      << ": " << CWindowsError(errCode));
             CloseHandle(threadHandle);
             return false;
         }

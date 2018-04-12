@@ -64,10 +64,14 @@ private:
     using TStrStrUMapVec = std::vector<TStrStrUMap>;
 
     template<typename INPUT_CONTAINER, typename MAP_CONTAINER>
-    void addInsert(const INPUT_CONTAINER& keys, const INPUT_CONTAINER& values, MAP_CONTAINER& maps) const;
+    void addInsert(const INPUT_CONTAINER& keys,
+                   const INPUT_CONTAINER& values,
+                   MAP_CONTAINER& maps) const;
 
     template<typename INPUT_CONTAINER, typename MAP_CONTAINER>
-    void addOpSqBrac(const INPUT_CONTAINER& keys, const INPUT_CONTAINER& values, MAP_CONTAINER& maps) const;
+    void addOpSqBrac(const INPUT_CONTAINER& keys,
+                     const INPUT_CONTAINER& values,
+                     MAP_CONTAINER& maps) const;
 
 private:
     static const size_t FILL_SIZE;

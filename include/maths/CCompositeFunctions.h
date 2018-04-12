@@ -80,8 +80,10 @@ struct result_type_impl<F, false_> {
 //! \brief Tries to deduce the result type of a function (object)
 //! in various ways.
 template<typename F>
-struct result_type : public result_type_impl<typename boost::remove_reference<F>::type,
-                                             typename has_result_type<typename boost::remove_reference<F>::type>::value> {};
+struct result_type
+    : public result_type_impl<typename boost::remove_reference<F>::type,
+                              typename has_result_type<typename boost::remove_reference<F>::type>::value> {
+};
 
 } // composition_detail::
 
@@ -175,14 +177,16 @@ public:
 
         //! For function returning value.
         inline T operator()(double x) const {
-            static const double LOG_MIN_DOUBLE = std::log(std::numeric_limits<double>::min());
+            static const double LOG_MIN_DOUBLE =
+                std::log(std::numeric_limits<double>::min());
             double fx = m_F(x);
             return fx < LOG_MIN_DOUBLE ? 0.0 : std::exp(fx);
         }
 
         //! For function return success/fail and taking result as argument.
         inline bool operator()(double x, T& result) const {
-            static const double LOG_MIN_DOUBLE = std::log(std::numeric_limits<double>::min());
+            static const double LOG_MIN_DOUBLE =
+                std::log(std::numeric_limits<double>::min());
             if (m_F(x, result)) {
                 result = result < LOG_MIN_DOUBLE ? 0.0 : std::exp(result);
                 return true;
@@ -206,7 +210,8 @@ public:
         using result_type = U;
 
     public:
-        explicit CProduct(const F& f = F(), const G& g = G()) : m_F(f), m_G(g) {}
+        explicit CProduct(const F& f = F(), const G& g = G())
+            : m_F(f), m_G(g) {}
 
         //! For function returning value.
         inline U operator()(double x) const { return m_F(x) * m_G(x); }

@@ -82,7 +82,8 @@ double mode(const CLogTDistribution& distribution) {
 
     double location = distribution.location();
 
-    return std::exp(location - (degreesFreedom + 1.0) / 2.0 + std::sqrt(square(degreesFreedom + 1.0) / 4.0 - degreesFreedom * squareScale));
+    return std::exp(location - (degreesFreedom + 1.0) / 2.0 +
+                    std::sqrt(square(degreesFreedom + 1.0) / 4.0 - degreesFreedom * squareScale));
 }
 
 CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution& distribution) {
@@ -103,7 +104,8 @@ CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution& distrib
 
     double location = distribution.location();
 
-    return std::exp(location - (degreesFreedom + 1.0) / 2.0 - std::sqrt(square(degreesFreedom + 1.0) / 4.0 - degreesFreedom * squareScale));
+    return std::exp(location - (degreesFreedom + 1.0) / 2.0 -
+                    std::sqrt(square(degreesFreedom + 1.0) / 4.0 - degreesFreedom * squareScale));
 }
 
 double pdf(const CLogTDistribution& distribution, double x) {

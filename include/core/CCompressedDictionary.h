@@ -71,7 +71,8 @@ public:
     //! independent hashes we get a probability of all hashes
     //! colliding of \f$0.004^N\f$. If N is 2 the probability of
     //! a collision is \f$1.5 \times 10^{-5}\f$.
-    class CWord : private boost::equality_comparable1<CWord, boost::less_than_comparable<CWord>> {
+    class CWord
+        : private boost::equality_comparable1<CWord, boost::less_than_comparable<CWord>> {
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
@@ -83,7 +84,9 @@ public:
         CWord() { std::fill(m_Hash.begin(), m_Hash.end(), 0); }
         CWord(const TUInt64Array& hash) : m_Hash(hash) {}
 
-        bool operator==(const CWord& other) const { return m_Hash == other.m_Hash; }
+        bool operator==(const CWord& other) const {
+            return m_Hash == other.m_Hash;
+        }
 
         bool operator<(const CWord& rhs) const { return m_Hash < rhs.m_Hash; }
 
@@ -124,7 +127,9 @@ public:
     //! \brief A fast hash of a dictionary word.
     class CHash : public std::unary_function<CWord, uint64_t> {
     public:
-        inline std::size_t operator()(const CWord& word) const { return word.hash(); }
+        inline std::size_t operator()(const CWord& word) const {
+            return word.hash();
+        }
     };
 
     //! The type of an ordered set of words.
@@ -167,7 +172,8 @@ public:
     CWord word(const std::string& word) const {
         TUInt64Array hash;
         for (std::size_t i = 0u; i < N; ++i) {
-            hash[i] = CHashing::safeMurmurHash64(word.c_str(), static_cast<int>(word.size()), m_Seeds[i]);
+            hash[i] = CHashing::safeMurmurHash64(
+                word.c_str(), static_cast<int>(word.size()), m_Seeds[i]);
         }
         return CWord(hash);
     }
@@ -185,7 +191,10 @@ public:
     }
 
     //! Extract the dictionary word corresponding to (\p word1, \p word2, \p word3, \p word4).
-    CWord word(const std::string& word1, const std::string& word2, const std::string& word3, const std::string& word4) const {
+    CWord word(const std::string& word1,
+               const std::string& word2,
+               const std::string& word3,
+               const std::string& word4) const {
         TStrCPtr words[] = {&word1, &word2, &word3, &word4};
         return this->word(words);
     }
@@ -198,7 +207,9 @@ private:
             uint64_t& hash = hashes[i];
             for (std::size_t wordIndex = 0; wordIndex < NUMBER_OF_WORDS; ++wordIndex) {
                 const std::string& word = *words[wordIndex];
-                hash = CHashing::safeMurmurHash64(word.c_str(), static_cast<int>(word.size()), (wordIndex) == 0 ? m_Seeds[i] : hash);
+                hash = CHashing::safeMurmurHash64(word.c_str(),
+                                                  static_cast<int>(word.size()),
+                                                  (wordIndex) == 0 ? m_Seeds[i] : hash);
             }
         }
         return CWord(hashes);

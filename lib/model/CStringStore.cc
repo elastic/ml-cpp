@@ -29,7 +29,9 @@ struct SStrHash {
 
 //! \brief Helper class to compare a std::string and a CStoredStringPtr.
 struct SStrStoredStringPtrEqual {
-    bool operator()(const std::string& lhs, const core::CStoredStringPtr& rhs) const { return lhs == *rhs; }
+    bool operator()(const std::string& lhs, const core::CStoredStringPtr& rhs) const {
+        return lhs == *rhs;
+    }
 } STR_EQUAL;
 
 // To ensure the singletons are constructed before multiple threads may
@@ -150,7 +152,8 @@ void CStringStore::pruneNotThreadSafe() {
 void CStringStore::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName(this == &CStringStore::names()
                      ? "names StringStore"
-                     : (this == &CStringStore::influencers() ? "influencers StringStore" : "unknown StringStore"));
+                     : (this == &CStringStore::influencers() ? "influencers StringStore"
+                                                             : "unknown StringStore"));
     mem->addItem("empty string ptr", m_EmptyString.actualMemoryUsage());
     core::CScopedFastLock lock(m_Mutex);
     core::CMemoryDebug::dynamicSize("stored strings", m_Strings, mem);
@@ -176,7 +179,9 @@ std::size_t CStringStore::memoryUsage() const {
 }
 
 CStringStore::CStringStore()
-    : m_Reading(0), m_Writing(0), m_EmptyString(core::CStoredStringPtr::makeStoredString(std::string())), m_StoredStringsMemUse(0) {
+    : m_Reading(0), m_Writing(0),
+      m_EmptyString(core::CStoredStringPtr::makeStoredString(std::string())),
+      m_StoredStringsMemUse(0) {
 }
 
 void CStringStore::clearEverythingTestOnly() {

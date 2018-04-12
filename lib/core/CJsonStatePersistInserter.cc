@@ -10,7 +10,8 @@
 namespace ml {
 namespace core {
 
-CJsonStatePersistInserter::CJsonStatePersistInserter(std::ostream& outputStream) : m_WriteStream(outputStream), m_Writer(m_WriteStream) {
+CJsonStatePersistInserter::CJsonStatePersistInserter(std::ostream& outputStream)
+    : m_WriteStream(outputStream), m_Writer(m_WriteStream) {
     m_Writer.StartObject();
 }
 

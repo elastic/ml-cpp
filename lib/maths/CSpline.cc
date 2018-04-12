@@ -20,17 +20,20 @@ namespace {
 bool checkTridiagonal(const TDoubleVec& a, const TDoubleVec& b, const TDoubleVec& c, const TDoubleVec& x) {
     if (a.size() + 1 != b.size()) {
         LOG_ERROR(<< "Lower diagonal and main diagonal inconsistent:"
-                  << " a = " << core::CContainerPrinter::print(a) << " b = " << core::CContainerPrinter::print(b));
+                  << " a = " << core::CContainerPrinter::print(a)
+                  << " b = " << core::CContainerPrinter::print(b));
         return false;
     }
     if (c.size() + 1 != b.size()) {
         LOG_ERROR(<< "Upper diagonal and main diagonal inconsistent:"
-                  << " b = " << core::CContainerPrinter::print(b) << " c = " << core::CContainerPrinter::print(c));
+                  << " b = " << core::CContainerPrinter::print(b)
+                  << " c = " << core::CContainerPrinter::print(c));
         return false;
     }
     if (b.size() != x.size()) {
         LOG_ERROR(<< "Dimension mismatch:"
-                  << " x = " << core::CContainerPrinter::print(x) << ", b = " << core::CContainerPrinter::print(b))
+                  << " x = " << core::CContainerPrinter::print(x)
+                  << ", b = " << core::CContainerPrinter::print(b))
         return false;
     }
     return true;
@@ -90,7 +93,12 @@ bool solveTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c, T
     return true;
 }
 
-bool solvePeturbedTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c, TDoubleVec& u, const TDoubleVec& v, TDoubleVec& x) {
+bool solvePeturbedTridiagonal(const TDoubleVec& a,
+                              const TDoubleVec& b,
+                              TDoubleVec& c,
+                              TDoubleVec& u,
+                              const TDoubleVec& v,
+                              TDoubleVec& x) {
     if (!checkTridiagonal(a, b, c, x)) {
         return false;
     }

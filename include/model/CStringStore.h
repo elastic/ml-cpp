@@ -58,7 +58,10 @@ public:
         }
     };
     struct MODEL_EXPORT SStoredStringPtrEqual {
-        bool operator()(const core::CStoredStringPtr& lhs, const core::CStoredStringPtr& rhs) const { return *lhs == *rhs; }
+        bool operator()(const core::CStoredStringPtr& lhs,
+                        const core::CStoredStringPtr& rhs) const {
+            return *lhs == *rhs;
+        }
     };
 
 public:
@@ -93,7 +96,8 @@ public:
     std::size_t memoryUsage() const;
 
 private:
-    using TStoredStringPtrUSet = boost::unordered_set<core::CStoredStringPtr, SHashStoredStringPtr, SStoredStringPtrEqual>;
+    using TStoredStringPtrUSet =
+        boost::unordered_set<core::CStoredStringPtr, SHashStoredStringPtr, SStoredStringPtrEqual>;
     using TStrVec = std::vector<std::string>;
 
 private:

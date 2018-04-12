@@ -43,7 +43,8 @@ namespace maths {
 //! the first bit in the vector and can deduce all other values by the
 //! number of runs in between. In practice we store one extra bit, the
 //! vector parity to allow us to extend the vector efficiently.
-class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable<CPackedBitVector, boost::partially_ordered<CPackedBitVector>> {
+class MATHS_EXPORT CPackedBitVector
+    : private boost::equality_comparable<CPackedBitVector, boost::partially_ordered<CPackedBitVector>> {
 public:
     using TBoolVec = std::vector<bool>;
 

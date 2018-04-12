@@ -19,13 +19,11 @@ namespace {
 const core_t::TTime PERSIST_INTERVAL_INCREMENT(300); // 5 minutes
 }
 
-CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval, core::CDataAdder& dataAdder)
+CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval,
+                                           core::CDataAdder& dataAdder)
     : m_PeriodicPersistInterval(periodicPersistInterval),
-      m_LastPeriodicPersistTime(core::CTimeUtils::now()),
-      m_DataAdder(dataAdder),
-      m_IsBusy(false),
-      m_IsShutdown(false),
-      m_BackgroundThread(*this) {
+      m_LastPeriodicPersistTime(core::CTimeUtils::now()), m_DataAdder(dataAdder),
+      m_IsBusy(false), m_IsShutdown(false), m_BackgroundThread(*this) {
     if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
         // This may be dynamically increased further depending on how long
         // persistence takes
@@ -39,9 +37,7 @@ CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval
     : m_PeriodicPersistInterval(periodicPersistInterval),
       m_LastPeriodicPersistTime(core::CTimeUtils::now()),
       m_FirstProcessorPeriodicPersistFunc(firstProcessorPeriodicPersistFunc),
-      m_DataAdder(dataAdder),
-      m_IsBusy(false),
-      m_IsShutdown(false),
+      m_DataAdder(dataAdder), m_IsBusy(false), m_IsShutdown(false),
       m_BackgroundThread(*this) {
     if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
         // This may be dynamically increased further depending on how long
@@ -131,7 +127,8 @@ bool CBackgroundPersister::clear() {
     return true;
 }
 
-bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc) {
+bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(
+    const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc) {
     core::CScopedFastLock lock(m_Mutex);
 
     if (this->isBusy()) {
@@ -164,7 +161,8 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate() {
         m_PeriodicPersistInterval += PERSIST_INTERVAL_INCREMENT;
 
         LOG_WARN(<< "Periodic persist is due at " << due << " but previous persist started at "
-                 << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime) << " is still in progress - increased persistence interval to "
+                 << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime)
+                 << " is still in progress - increased persistence interval to "
                  << m_PeriodicPersistInterval << " seconds");
 
         return false;
@@ -196,7 +194,8 @@ bool CBackgroundPersister::startBackgroundPersist(core_t::TTime timeOfPersistenc
     return true;
 }
 
-CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister& owner) : m_Owner(owner) {
+CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister& owner)
+    : m_Owner(owner) {
 }
 
 void CBackgroundPersister::CBackgroundThread::run() {

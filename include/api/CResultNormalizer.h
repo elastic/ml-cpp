@@ -75,7 +75,8 @@ public:
     using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
 public:
-    CResultNormalizer(const model::CAnomalyDetectorModelConfig& modelConfig, COutputHandler& outputHandler);
+    CResultNormalizer(const model::CAnomalyDetectorModelConfig& modelConfig,
+                      COutputHandler& outputHandler);
 
     //! Initialise the system change normalizer
     bool initNormalizer(const std::string& stateFileName);
@@ -102,10 +103,14 @@ private:
                          double& probability);
 
     template<typename T>
-    bool parseDataField(const TStrStrUMap& dataRowFields, const std::string& fieldName, T& result) const {
+    bool parseDataField(const TStrStrUMap& dataRowFields,
+                        const std::string& fieldName,
+                        T& result) const {
         TStrStrUMapCItr iter = dataRowFields.find(fieldName);
-        if (iter == dataRowFields.end() || core::CStringUtils::stringToType(iter->second, result) == false) {
-            LOG_ERROR(<< "Cannot interpret " << fieldName << " field in record:\n" << CDataProcessor::debugPrintRecord(dataRowFields));
+        if (iter == dataRowFields.end() ||
+            core::CStringUtils::stringToType(iter->second, result) == false) {
+            LOG_ERROR(<< "Cannot interpret " << fieldName << " field in record:\n"
+                      << CDataProcessor::debugPrintRecord(dataRowFields));
             return false;
         }
         return true;

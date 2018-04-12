@@ -47,7 +47,8 @@ void CCompressedDictionaryTest::testAll() {
         for (std::size_t j = 0u; j < words.size(); ++j) {
             CPPUNIT_ASSERT(uniqueWords.insert(dictionary.word(words[j])).second);
             CPPUNIT_ASSERT(uniqueWords.insert(dictionary.word(words[j], word2)).second);
-            CPPUNIT_ASSERT(uniqueWords.insert(dictionary.word(words[j], word2, word3)).second);
+            CPPUNIT_ASSERT(
+                uniqueWords.insert(dictionary.word(words[j], word2, word3)).second);
         }
     }
 }
@@ -99,9 +100,9 @@ void CCompressedDictionaryTest::testPersist() {
 CppUnit::Test* CCompressedDictionaryTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCompressedDictionaryTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCompressedDictionaryTest>("CCompressedDictionaryTest::testAll", &CCompressedDictionaryTest::testAll));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressedDictionaryTest>("CCompressedDictionaryTest::testPersist",
-                                                                             &CCompressedDictionaryTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressedDictionaryTest>(
+        "CCompressedDictionaryTest::testAll", &CCompressedDictionaryTest::testAll));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressedDictionaryTest>(
+        "CCompressedDictionaryTest::testPersist", &CCompressedDictionaryTest::testPersist));
     return suiteOfTests;
 }

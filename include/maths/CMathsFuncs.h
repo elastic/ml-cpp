@@ -107,16 +107,21 @@ public:
 
     public:
         CFiniteIterator() : m_Base(), m_End() {}
-        CFiniteIterator(const ITR& base, const ITR& end) : m_Base(base), m_End(end) {
+        CFiniteIterator(const ITR& base, const ITR& end)
+            : m_Base(base), m_End(end) {
             if (m_Base != m_End && !isFinite(*m_Base)) {
                 this->increment();
             }
         }
 
         //! Equal.
-        bool operator==(const CFiniteIterator& rhs) const { return m_Base == rhs.m_Base; }
+        bool operator==(const CFiniteIterator& rhs) const {
+            return m_Base == rhs.m_Base;
+        }
         //! Different.
-        bool operator!=(const CFiniteIterator& rhs) const { return m_Base != rhs.m_Base; }
+        bool operator!=(const CFiniteIterator& rhs) const {
+            return m_Base != rhs.m_Base;
+        }
 
         //! Dereference.
         reference operator*() const { return *m_Base; }
@@ -153,13 +158,15 @@ public:
     //! Get an iterator over the finite values of a double container.
     template<typename T>
     static CFiniteIterator<typename T::iterator> beginFinite(T& container) {
-        return CFiniteIterator<typename T::iterator>(container.begin(), container.end());
+        return CFiniteIterator<typename T::iterator>(container.begin(),
+                                                     container.end());
     }
 
     //! Get a const_iterator over the finite values of a double container.
     template<typename T>
     static CFiniteIterator<typename T::const_iterator> beginFinite(const T& container) {
-        return CFiniteIterator<typename T::const_iterator>(container.begin(), container.end());
+        return CFiniteIterator<typename T::const_iterator>(container.begin(),
+                                                           container.end());
     }
 
     //! Get a finite values iterator at the end of a double container.
@@ -171,7 +178,8 @@ public:
     //! Get a finite values const_iterator at the end of a double container.
     template<typename T>
     static CFiniteIterator<typename T::const_iterator> endFinite(const T& container) {
-        return CFiniteIterator<typename T::const_iterator>(container.end(), container.end());
+        return CFiniteIterator<typename T::const_iterator>(container.end(),
+                                                           container.end());
     }
 
 private:

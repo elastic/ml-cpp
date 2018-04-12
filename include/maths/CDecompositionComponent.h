@@ -58,10 +58,12 @@ protected:
         using TDoubleVecArray = boost::array<TDoubleVec, 2>;
 
     public:
-        CPackedSplines(CSplineTypes::EType valueInterpolationType, CSplineTypes::EType varianceInterpolationType);
+        CPackedSplines(CSplineTypes::EType valueInterpolationType,
+                       CSplineTypes::EType varianceInterpolationType);
 
         //! Create by traversing a state document.
-        bool acceptRestoreTraverser(CSplineTypes::EBoundaryCondition boundary, core::CStateRestoreTraverser& traverser);
+        bool acceptRestoreTraverser(CSplineTypes::EBoundaryCondition boundary,
+                                    core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

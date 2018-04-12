@@ -42,7 +42,9 @@ public:
 private:
     class CCompressThread : public CThread {
     public:
-        CCompressThread(CCompressOStream& stream, CDualThreadStreamBuf& streamBuf, CStateCompressor::CChunkFilter& filter);
+        CCompressThread(CCompressOStream& stream,
+                        CDualThreadStreamBuf& streamBuf,
+                        CStateCompressor::CChunkFilter& filter);
 
     protected:
         //! Implementation of inherited interface
