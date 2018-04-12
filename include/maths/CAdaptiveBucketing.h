@@ -91,7 +91,9 @@ public:
 protected:
     CAdaptiveBucketing(double decayRate, double minimumBucketLength);
     //! Construct by traversing a state document.
-    CAdaptiveBucketing(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser);
+    CAdaptiveBucketing(double decayRate,
+                       double minimumBucketLength,
+                       core::CStateRestoreTraverser& traverser);
     virtual ~CAdaptiveBucketing() = default;
 
     //! Efficiently swap the contents of two bucketing objects.
@@ -116,7 +118,9 @@ protected:
     //! \param[in] endTime The start of the period.
     //! \param[in] values The mean values in a regular subdivision
     //! of [\p start,\p end].
-    void initialValues(core_t::TTime startTime, core_t::TTime endTime, const TFloatMeanAccumulatorVec& values);
+    void initialValues(core_t::TTime startTime,
+                       core_t::TTime endTime,
+                       const TFloatMeanAccumulatorVec& values);
 
     //! Get the number of buckets.
     std::size_t size() const;

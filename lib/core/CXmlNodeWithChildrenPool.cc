@@ -24,10 +24,12 @@
 namespace ml {
 namespace core {
 
-CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool() : m_MaxRecycled(m_Recycled.max_size()) {
+CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool()
+    : m_MaxRecycled(m_Recycled.max_size()) {
 }
 
-CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(size_t maxRecycled) : m_MaxRecycled(std::min(maxRecycled, m_Recycled.max_size())) {
+CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(size_t maxRecycled)
+    : m_MaxRecycled(std::min(maxRecycled, m_Recycled.max_size())) {
 }
 
 CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode() {
@@ -40,7 +42,8 @@ CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode() 
     return nodePtr;
 }
 
-CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(std::string name, std::string value) {
+CXmlNodeWithChildren::TXmlNodeWithChildrenP
+CXmlNodeWithChildrenPool::newNode(std::string name, std::string value) {
     CXmlNodeWithChildren::TXmlNodeWithChildrenP nodePtr(this->newNode());
 
     // We take advantage of friendship here to set the node's name and value
@@ -64,7 +67,8 @@ void CXmlNodeWithChildrenPool::recycle(CXmlNodeWithChildren::TXmlNodeWithChildre
     if (m_Recycled.size() < m_MaxRecycled) {
         // We take advantage of friendship here to clear the node's attribute vector
         nodePtr->m_Attributes.clear();
-        std::for_each(nodePtr->m_Children.rbegin(), nodePtr->m_Children.rend(), boost::bind(&CXmlNodeWithChildrenPool::recycle, this, _1));
+        std::for_each(nodePtr->m_Children.rbegin(), nodePtr->m_Children.rend(),
+                      boost::bind(&CXmlNodeWithChildrenPool::recycle, this, _1));
         nodePtr->m_Children.clear();
         m_Recycled.push_back(nodePtr);
 

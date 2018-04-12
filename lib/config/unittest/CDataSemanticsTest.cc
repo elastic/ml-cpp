@@ -94,19 +94,23 @@ void CDataSemanticsTest::testNumericCategorical() {
     // Test plausible http status code distribution is correctly
     // identified as categorical.
 
-    double codes[] = {200, 201, 202, 303, 400, 403, 404, 500, 501, 503, 506, 598, 599};
-    double frequencies[] = {0.7715, 0.03, 0.05, 0.001, 0.005, 0.041, 0.061, 0.002, 0.0005, 0.021, 0.001, 0.002, 0.014};
+    double codes[] = {200, 201, 202, 303, 400, 403, 404,
+                      500, 501, 503, 506, 598, 599};
+    double frequencies[] = {0.7715, 0.03,   0.05,  0.001, 0.005, 0.041, 0.061,
+                            0.002,  0.0005, 0.021, 0.001, 0.002, 0.014};
 
     test::CRandomNumbers rng;
 
     TDoubleVec status;
     rng.generateMultinomialSamples(
-        TDoubleVec(boost::begin(codes), boost::end(codes)), TDoubleVec(boost::begin(frequencies), boost::end(frequencies)), 5000, status);
+        TDoubleVec(boost::begin(codes), boost::end(codes)),
+        TDoubleVec(boost::begin(frequencies), boost::end(frequencies)), 5000, status);
 
     config::CDataSemantics semantics;
 
     for (std::size_t i = 0u; i < status.size(); ++i) {
-        semantics.add(core::CStringUtils::typeToString(static_cast<unsigned int>(status[i])));
+        semantics.add(
+            core::CStringUtils::typeToString(static_cast<unsigned int>(status[i])));
     }
     semantics.computeType();
     LOG_DEBUG(<< "type = " << semantics.type());
@@ -306,13 +310,17 @@ void CDataSemanticsTest::testReal() {
 CppUnit::Test* CDataSemanticsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataSemanticsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testBinary", &CDataSemanticsTest::testBinary));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testNonNumericCategorical",
-                                                                      &CDataSemanticsTest::testNonNumericCategorical));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testNumericCategorical",
-                                                                      &CDataSemanticsTest::testNumericCategorical));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testInteger", &CDataSemanticsTest::testInteger));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testReal", &CDataSemanticsTest::testReal));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>(
+        "CDataSemanticsTest::testBinary", &CDataSemanticsTest::testBinary));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>(
+        "CDataSemanticsTest::testNonNumericCategorical",
+        &CDataSemanticsTest::testNonNumericCategorical));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>(
+        "CDataSemanticsTest::testNumericCategorical", &CDataSemanticsTest::testNumericCategorical));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>(
+        "CDataSemanticsTest::testInteger", &CDataSemanticsTest::testInteger));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>(
+        "CDataSemanticsTest::testReal", &CDataSemanticsTest::testReal));
 
     return suiteOfTests;
 }

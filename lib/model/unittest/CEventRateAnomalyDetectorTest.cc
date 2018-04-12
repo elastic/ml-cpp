@@ -51,10 +51,13 @@ const std::string EMPTY_STRING;
 
 class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
 public:
-    CResultWriter(const ml::model::CAnomalyDetectorModelConfig& modelConfig, const ml::model::CLimits& limits)
+    CResultWriter(const ml::model::CAnomalyDetectorModelConfig& modelConfig,
+                  const ml::model::CLimits& limits)
         : m_ModelConfig(modelConfig), m_Limits(limits), m_Calls(0) {}
 
-    void operator()(ml::model::CAnomalyDetector& detector, ml::core_t::TTime start, ml::core_t::TTime end) {
+    void operator()(ml::model::CAnomalyDetector& detector,
+                    ml::core_t::TTime start,
+                    ml::core_t::TTime end) {
         ml::model::CHierarchicalResults results;
         detector.buildResults(start, end, results);
         results.buildHierarchy();
@@ -65,7 +68,9 @@ public:
         results.bottomUpBreadthFirst(*this);
     }
 
-    virtual void visit(const ml::model::CHierarchicalResults& results, const ml::model::CHierarchicalResults::TNode& node, bool pivot) {
+    virtual void visit(const ml::model::CHierarchicalResults& results,
+                       const ml::model::CHierarchicalResults::TNode& node,
+                       bool pivot) {
         if (pivot) {
             return;
         }
@@ -84,14 +89,18 @@ public:
         const std::string analysisFieldValue = *node.s_Spec.s_PersonFieldValue;
         ml::core_t::TTime bucketTime = node.s_BucketStartTime;
         double anomalyFactor = node.s_RawAnomalyScore;
-        LOG_DEBUG(<< analysisFieldValue << " bucket time " << bucketTime << " anomalyFactor " << anomalyFactor);
+        LOG_DEBUG(<< analysisFieldValue << " bucket time " << bucketTime
+                  << " anomalyFactor " << anomalyFactor);
         ++m_Calls;
         m_AllAnomalies.insert(TTimeStrPr(bucketTime, analysisFieldValue));
         m_AnomalyScores[bucketTime] += anomalyFactor;
     }
 
-    bool operator()(ml::core_t::TTime time, const ml::model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
-        LOG_DEBUG(<< (isBucketInfluencer ? "BucketInfluencer" : "Influencer ") << node.s_Spec.print() << " initial score "
+    bool operator()(ml::core_t::TTime time,
+                    const ml::model::CHierarchicalResults::TNode& node,
+                    bool isBucketInfluencer) {
+        LOG_DEBUG(<< (isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
+                  << node.s_Spec.print() << " initial score "
                   << node.probability() << ", time:  " << time);
 
         return true;
@@ -179,21 +188,16 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
     static const ml::core_t::TTime BUCKET_SIZE(1800);
     static const double HIGH_ANOMALY_SCORE(0.003);
 
-    ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+    ml::model::CAnomalyDetectorModelConfig modelConfig =
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
     ml::model::CSearchKey key(1, // identifier
-                              ml::model::function_t::E_IndividualRareCount,
-                              false,
-                              ml::model_t::E_XF_None,
-                              EMPTY_STRING,
-                              "status");
+                              ml::model::function_t::E_IndividualRareCount, false,
+                              ml::model_t::E_XF_None, EMPTY_STRING, "status");
     ml::model::CAnomalyDetector detector(1, // identifier
-                                         limits,
-                                         modelConfig,
-                                         EMPTY_STRING,
-                                         FIRST_TIME,
-                                         modelConfig.factory(key));
+                                         limits, modelConfig, EMPTY_STRING,
+                                         FIRST_TIME, modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits);
     TStrVec files;
     files.push_back("testfiles/status200.txt");
@@ -237,22 +241,17 @@ void CEventRateAnomalyDetectorTest::testPersist() {
     static const ml::core_t::TTime LAST_TIME(1347317974);
     static const ml::core_t::TTime BUCKET_SIZE(3600);
 
-    ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+    ml::model::CAnomalyDetectorModelConfig modelConfig =
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
     ml::model::CSearchKey key(1, // identifier
-                              ml::model::function_t::E_IndividualCount,
-                              false,
-                              ml::model_t::E_XF_None,
-                              EMPTY_STRING,
-                              "status");
+                              ml::model::function_t::E_IndividualCount, false,
+                              ml::model_t::E_XF_None, EMPTY_STRING, "status");
 
     ml::model::CAnomalyDetector origDetector(1, // identifier
-                                             limits,
-                                             modelConfig,
-                                             EMPTY_STRING,
-                                             FIRST_TIME,
-                                             modelConfig.factory(key));
+                                             limits, modelConfig, EMPTY_STRING,
+                                             FIRST_TIME, modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits);
     TStrVec files;
     files.push_back("testfiles/status503.txt");
@@ -270,17 +269,15 @@ void CEventRateAnomalyDetectorTest::testPersist() {
 
     // Restore the XML into a new detector
     ml::model::CAnomalyDetector restoredDetector(1, // identifier
-                                                 limits,
-                                                 modelConfig,
-                                                 "",
-                                                 0,
+                                                 limits, modelConfig, "", 0,
                                                  modelConfig.factory(key));
     {
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
         CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&ml::model::CAnomalyDetector::acceptRestoreTraverser, &restoredDetector, EMPTY_STRING, _1)));
+            boost::bind(&ml::model::CAnomalyDetector::acceptRestoreTraverser,
+                        &restoredDetector, EMPTY_STRING, _1)));
     }
 
     // The XML representation of the new typer should be the same as the original
@@ -296,10 +293,12 @@ void CEventRateAnomalyDetectorTest::testPersist() {
 CppUnit::Test* CEventRateAnomalyDetectorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateAnomalyDetectorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>("CEventRateAnomalyDetectorTest::testAnomalies",
-                                                                                 &CEventRateAnomalyDetectorTest::testAnomalies));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>("CEventRateAnomalyDetectorTest::testPersist",
-                                                                                 &CEventRateAnomalyDetectorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
+        "CEventRateAnomalyDetectorTest::testAnomalies",
+        &CEventRateAnomalyDetectorTest::testAnomalies));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
+        "CEventRateAnomalyDetectorTest::testPersist",
+        &CEventRateAnomalyDetectorTest::testPersist));
 
     return suiteOfTests;
 }

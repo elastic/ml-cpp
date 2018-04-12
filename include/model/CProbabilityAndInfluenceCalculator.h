@@ -78,11 +78,15 @@ public:
     using TStrCRefDouble1VecDoublePrPrVec = std::vector<TStrCRefDouble1VecDoublePrPr>;
     using TStrCRefDouble1VecDouble1VecPrPr = std::pair<TStrCRef, TDouble1VecDouble1VecPr>;
     using TStrCRefDouble1VecDouble1VecPrPrVec = std::vector<TStrCRefDouble1VecDouble1VecPrPr>;
-    using TStrCRefDouble1VecDouble1VecPrPrVecVec = std::vector<TStrCRefDouble1VecDouble1VecPrPrVec>;
-    using TStoredStringPtrStoredStringPtrPr = std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
+    using TStrCRefDouble1VecDouble1VecPrPrVecVec =
+        std::vector<TStrCRefDouble1VecDouble1VecPrPrVec>;
+    using TStoredStringPtrStoredStringPtrPr =
+        std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
     using TStoredStringPtrStoredStringPtrPrVec = std::vector<TStoredStringPtrStoredStringPtrPr>;
-    using TStoredStringPtrStoredStringPtrPrDoublePr = std::pair<TStoredStringPtrStoredStringPtrPr, double>;
-    using TStoredStringPtrStoredStringPtrPrDoublePrVec = std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
+    using TStoredStringPtrStoredStringPtrPrDoublePr =
+        std::pair<TStoredStringPtrStoredStringPtrPr, double>;
+    using TStoredStringPtrStoredStringPtrPrDoublePrVec =
+        std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
     using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
 
     //! \brief Wraps up the parameters to the influence calculation.
@@ -310,7 +314,8 @@ public:
     //! of all values added via addProbability.
     //! \param[out] influences Filled in with all influences of the
     //! overall probability.
-    bool calculate(double& probability, TStoredStringPtrStoredStringPtrPrDoublePrVec& influences) const;
+    bool calculate(double& probability,
+                   TStoredStringPtrStoredStringPtrPrDoublePrVec& influences) const;
 
 private:
     //! Actually commit any influences we've found.

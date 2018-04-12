@@ -94,7 +94,8 @@ public:
 
     class CLogIntegrand {
     public:
-        CLogIntegrand(const TDoubleVec& limits, std::size_t n, std::size_t m, std::size_t i) : m_Limits(limits), m_N(n), m_M(m), m_I(i) {}
+        CLogIntegrand(const TDoubleVec& limits, std::size_t n, std::size_t m, std::size_t i)
+            : m_Limits(limits), m_N(n), m_M(m), m_I(i) {}
 
         bool operator()(double x, double& result) const {
             result = this->evaluate(x);
@@ -119,7 +120,8 @@ public:
     };
 
 public:
-    CExpectedLogProbabilityOfMFromNExtremeSamples(std::size_t m) : m_P(m), m_N(0u) {}
+    CExpectedLogProbabilityOfMFromNExtremeSamples(std::size_t m)
+        : m_P(m), m_N(0u) {}
 
     void add(const double& probability) {
         m_P.add(probability);
@@ -132,7 +134,8 @@ public:
         TDoubleVec p(m_P.begin(), m_P.end());
         CLogIntegrand f(p, m_N, p.size(), 1u);
         CIntegration::logGaussLegendre<CIntegration::OrderTen>(f, 0, p[0], result);
-        result += boost::math::lgamma(static_cast<double>(m_N) + 1.0) - boost::math::lgamma(static_cast<double>(m_N - p.size()) + 1.0);
+        result += boost::math::lgamma(static_cast<double>(m_N) + 1.0) -
+                  boost::math::lgamma(static_cast<double>(m_N - p.size()) + 1.0);
         return result;
     }
 
@@ -189,10 +192,12 @@ void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples() {
         for (size_t i = 0; i < boost::size(percentiles); ++i) {
             for (size_t j = 0; j < boost::size(percentiles); ++j) {
                 for (size_t k = 0; k < boost::size(percentiles); ++k) {
-                    LOG_DEBUG(<< "percentile1 = " << percentiles[i] << ", percentile2 = " << percentiles[j]
+                    LOG_DEBUG(<< "percentile1 = " << percentiles[i]
+                              << ", percentile2 = " << percentiles[j]
                               << ", percentile3 = " << percentiles[k]);
 
-                    double probabilities[] = {2.0 * percentiles[i], 2.0 * percentiles[j], 2.0 * percentiles[k]};
+                    double probabilities[] = {2.0 * percentiles[i], 2.0 * percentiles[j],
+                                              2.0 * percentiles[k]};
 
                     CJointProbabilityOfLessLikelySamples jointProbability;
                     for (size_t l = 0; l < boost::size(probabilities); ++l) {
@@ -209,12 +214,15 @@ void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples() {
                     double quantile1 = boost::math::quantile(normal1, percentiles[i]);
                     double quantile2 = boost::math::quantile(normal2, percentiles[j]);
                     double quantile3 = boost::math::quantile(normal3, percentiles[k]);
-                    double likelihood =
-                        CTools::safePdf(normal1, quantile1) * CTools::safePdf(normal2, quantile2) * CTools::safePdf(normal3, quantile3);
+                    double likelihood = CTools::safePdf(normal1, quantile1) *
+                                        CTools::safePdf(normal2, quantile2) *
+                                        CTools::safePdf(normal3, quantile3);
 
                     for (unsigned int sample = 0; sample < numberSamples; ++sample) {
-                        double sampleLikelihood = CTools::safePdf(normal1, samples1[sample]) * CTools::safePdf(normal2, samples2[sample]) *
-                                                  CTools::safePdf(normal3, samples3[sample]);
+                        double sampleLikelihood =
+                            CTools::safePdf(normal1, samples1[sample]) *
+                            CTools::safePdf(normal2, samples2[sample]) *
+                            CTools::safePdf(normal3, samples3[sample]);
                         if (sampleLikelihood < likelihood) {
                             count += 1.0;
                         }
@@ -222,7 +230,8 @@ void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples() {
 
                     LOG_DEBUG(<< "count = " << count << ", expectedCount = " << expectedCount);
 
-                    double error = std::fabs(count - expectedCount) / std::max(count, expectedCount);
+                    double error = std::fabs(count - expectedCount) /
+                                   std::max(count, expectedCount);
                     CPPUNIT_ASSERT(error < 0.2);
 
                     totalExpectedCount += expectedCount;
@@ -231,7 +240,8 @@ void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples() {
             }
         }
 
-        double totalError = std::fabs(totalCount - totalExpectedCount) / std::max(totalCount, totalExpectedCount);
+        double totalError = std::fabs(totalCount - totalExpectedCount) /
+                            std::max(totalCount, totalExpectedCount);
         LOG_DEBUG(<< "totalError = " << totalError);
         CPPUNIT_ASSERT(totalError < 0.01);
     }
@@ -256,9 +266,11 @@ void CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples() {
             double probability;
             CPPUNIT_ASSERT(jointProbability.calculate(probability));
 
-            LOG_DEBUG(<< "probability = " << probability << ", expectedProbability = " << expectedProbability);
+            LOG_DEBUG(<< "probability = " << probability
+                      << ", expectedProbability = " << expectedProbability);
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability, probability, 1e-5 * expectedProbability);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability, probability,
+                                         1e-5 * expectedProbability);
         }
     }
 }
@@ -293,7 +305,8 @@ void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples() {
         double lowerBound, upperBound;
         CPPUNIT_ASSERT(logJointProbability.calculateLowerBound(lowerBound));
         CPPUNIT_ASSERT(logJointProbability.calculateUpperBound(upperBound));
-        LOG_DEBUG(<< "log(pu) - log(p) = " << upperBound - logP << ", log(p) - log(pl) " << logP - lowerBound);
+        LOG_DEBUG(<< "log(pu) - log(p) = " << upperBound - logP
+                  << ", log(p) - log(pl) " << logP - lowerBound);
 
         CPPUNIT_ASSERT(logP < upperBound);
         CPPUNIT_ASSERT(logP > lowerBound);
@@ -338,12 +351,14 @@ void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples() {
                     double lowerBound, upperBound;
                     CPPUNIT_ASSERT(logJointProbability.calculateLowerBound(lowerBound));
                     CPPUNIT_ASSERT(logJointProbability.calculateUpperBound(upperBound));
-                    LOG_DEBUG(<< "log(pu) - log(p) = " << upperBound - logP << ", log(p) - log(pl) " << logP - lowerBound);
+                    LOG_DEBUG(<< "log(pu) - log(p) = " << upperBound - logP
+                              << ", log(p) - log(pl) " << logP - lowerBound);
 
                     CPPUNIT_ASSERT(logP < upperBound);
                     CPPUNIT_ASSERT(logP > lowerBound);
 
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(upperBound, lowerBound, std::fabs(8e-4 * upperBound));
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(upperBound, lowerBound,
+                                                 std::fabs(8e-4 * upperBound));
 
                     error += (upperBound - lowerBound) / std::fabs(upperBound);
                 } else if (jointProbability.numberSamples() > 1.0) {
@@ -401,8 +416,8 @@ void CProbabilityAggregatorsTest::testProbabilityOfExtremeSample() {
             double probability;
             CPPUNIT_ASSERT(probabilityCalculator.calculate(probability));
 
-            LOG_DEBUG(<< "sample size = " << sampleSizes[i] << ", extreme sample probability = " << probabilities[j]
-                      << ", probability = " << probability);
+            LOG_DEBUG(<< "sample size = " << sampleSizes[i] << ", extreme sample probability = "
+                      << probabilities[j] << ", probability = " << probability);
 
             unsigned int nTrials = 10000u;
             unsigned int count = 0;
@@ -425,7 +440,8 @@ void CProbabilityAggregatorsTest::testProbabilityOfExtremeSample() {
                 }
             }
 
-            double expectedProbability = static_cast<double>(count) / static_cast<double>(nTrials);
+            double expectedProbability = static_cast<double>(count) /
+                                         static_cast<double>(nTrials);
             LOG_DEBUG(<< "count = " << count << ", expectedProbability = " << expectedProbability
                       << ", error = " << std::fabs(probability - expectedProbability));
 
@@ -460,7 +476,8 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
     //  10) Underflow of numerical integration.
 
     {
-        double probabilities[] = {0.5, 0.5, 0.4, 0.02, 0.7, 0.9, 0.4, 0.2, 0.03, 0.5, 0.6};
+        double probabilities[] = {0.5, 0.5, 0.4,  0.02, 0.7, 0.9,
+                                  0.4, 0.2, 0.03, 0.5,  0.6};
 
         for (std::size_t i = 1u; i < 6u; ++i) {
             CExpectedLogProbabilityOfMFromNExtremeSamples expectedProbabilityCalculator(i);
@@ -475,7 +492,8 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
             double p2;
             CPPUNIT_ASSERT(probabilityCalculator.calculate(p2));
 
-            LOG_DEBUG(<< "log(probability) = " << p2 << ", expected log(probability) = " << p1);
+            LOG_DEBUG(<< "log(probability) = " << p2
+                      << ", expected log(probability) = " << p1);
 
             CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 1e-8 * std::fabs(std::max(p1, p2)));
         }
@@ -512,7 +530,8 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
                 for (std::size_t j = 0u; j < index.size(); ++j) {
                     extremeSampleProbabilities.push_back(probabilities[index[j]]);
                 }
-                LOG_DEBUG(<< "extreme samples probabilities = " << core::CContainerPrinter::print(extremeSampleProbabilities));
+                LOG_DEBUG(<< "extreme samples probabilities = "
+                          << core::CContainerPrinter::print(extremeSampleProbabilities));
 
                 CLogProbabilityOfMFromNExtremeSamples probabilityCalculator(i);
 
@@ -554,13 +573,14 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
                     }
                 }
 
-                double expectedProbability = static_cast<double>(count) / static_cast<double>(nTrials);
+                double expectedProbability = static_cast<double>(count) /
+                                             static_cast<double>(nTrials);
 
                 double error = std::fabs(p - expectedProbability);
                 double relativeError = error / std::max(p, expectedProbability);
 
-                LOG_DEBUG(<< "probability = " << p << ", expectedProbability = " << expectedProbability << ", error = " << error
-                          << ", relative error = " << relativeError);
+                LOG_DEBUG(<< "probability = " << p << ", expectedProbability = " << expectedProbability
+                          << ", error = " << error << ", relative error = " << relativeError);
 
                 CPPUNIT_ASSERT(relativeError < 0.33);
 
@@ -583,32 +603,19 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
                 }
             }
 
-            LOG_DEBUG(<< "totalError = " << totalError << ", totalRelativeError = " << (totalError / totalProbability));
+            LOG_DEBUG(<< "totalError = " << totalError
+                      << ", totalRelativeError = " << (totalError / totalProbability));
 
             CPPUNIT_ASSERT(totalError < 0.01 * totalProbability);
         }
     }
 
     {
-        double probabilities[] = {1.90005e-6,
-                                  2.09343e-5,
-                                  2.36102e-5,
-                                  2.36102e-4,
-                                  3.21197e-4,
-                                  0.104481,
-                                  0.311476,
-                                  0.46037,
-                                  0.958691,
-                                  0.144973,
-                                  0.345924,
-                                  0.111316,
-                                  0.346185,
-                                  0.993074,
-                                  0.0902145,
-                                  0.0902145,
-                                  0.673371,
-                                  0.346075,
-                                  0.346025};
+        double probabilities[] = {
+            1.90005e-6, 2.09343e-5, 2.36102e-5, 2.36102e-4, 3.21197e-4,
+            0.104481,   0.311476,   0.46037,    0.958691,   0.144973,
+            0.345924,   0.111316,   0.346185,   0.993074,   0.0902145,
+            0.0902145,  0.673371,   0.346075,   0.346025};
         std::size_t n = boost::size(probabilities);
         std::size_t numberSamples[] = {n, 10 * n, 1000 * n};
 
@@ -630,7 +637,8 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
                 double p2;
                 CPPUNIT_ASSERT(probabilityCalculator.calculate(p2));
 
-                LOG_DEBUG(<< "log(probability) = " << p2 << ", expected log(probability) = " << p1);
+                LOG_DEBUG(<< "log(probability) = " << p2
+                          << ", expected log(probability) = " << p1);
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 1e-4 * std::fabs(std::max(p1, p2)));
             }
         }
@@ -638,21 +646,32 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
 
     {
         double probabilities[] = {
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
-            0.9917012};
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012,
+            0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012};
 
         CLogProbabilityOfMFromNExtremeSamples probabilityCalculator(5);
         for (std::size_t i = 0u; i < boost::size(probabilities); ++i) {
@@ -699,7 +718,8 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
         CExpectedLogProbabilityOfMFromNExtremeSamples expectedProbabilityCalculator(5);
         CLogProbabilityOfMFromNExtremeSamples probabilityCalculator(5);
 
-        double pmin[] = {0.004703117, 0.05059556, 1.0 - std::numeric_limits<double>::epsilon(), 1.0, 1.0};
+        double pmin[] = {0.004703117, 0.05059556,
+                         1.0 - std::numeric_limits<double>::epsilon(), 1.0, 1.0};
         for (std::size_t i = 0; i < boost::size(pmin); ++i) {
             probabilityCalculator.add(pmin[i]);
             expectedProbabilityCalculator.add(pmin[i]);
@@ -742,7 +762,8 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
     }
 
     {
-        double probabilities[] = {0.08528782661735056, 0.3246988524001009, 0.5428693993904167, 0.9999999999999999, 0.9999999999999999};
+        double probabilities[] = {0.08528782661735056, 0.3246988524001009, 0.5428693993904167,
+                                  0.9999999999999999, 0.9999999999999999};
 
         CExpectedLogProbabilityOfMFromNExtremeSamples expectedProbabilityCalculator(5);
         CLogProbabilityOfMFromNExtremeSamples probabilityCalculator(5);
@@ -764,7 +785,8 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
     }
 
     {
-        double probabilities[] = {3.622684004911715e-76, 3.622684004911715e-76, 0.1534837115755979, 0.1608058997234747, 0.5143979767475618};
+        double probabilities[] = {3.622684004911715e-76, 3.622684004911715e-76, 0.1534837115755979,
+                                  0.1608058997234747, 0.5143979767475618};
 
         CLogProbabilityOfMFromNExtremeSamples probabilityCalculator(5);
         for (std::size_t i = 0; i < 21402; ++i) {
@@ -784,17 +806,18 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
 CppUnit::Test* CProbabilityAggregatorsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProbabilityAggregatorsTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CProbabilityAggregatorsTest>("CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples",
-                                                             &CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CProbabilityAggregatorsTest>("CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples",
-                                                             &CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples));
     suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAggregatorsTest>(
-        "CProbabilityAggregatorsTest::testProbabilityOfExtremeSample", &CProbabilityAggregatorsTest::testProbabilityOfExtremeSample));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CProbabilityAggregatorsTest>("CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples",
-                                                             &CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples));
+        "CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples",
+        &CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAggregatorsTest>(
+        "CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples",
+        &CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAggregatorsTest>(
+        "CProbabilityAggregatorsTest::testProbabilityOfExtremeSample",
+        &CProbabilityAggregatorsTest::testProbabilityOfExtremeSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAggregatorsTest>(
+        "CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples",
+        &CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples));
 
     return suiteOfTests;
 }

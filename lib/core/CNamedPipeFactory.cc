@@ -121,8 +121,10 @@ CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::st
     if (fd == -1) {
         return TIStreamP();
     }
-    using TFileDescriptorSourceStream = boost::iostreams::stream<boost::iostreams::file_descriptor_source>;
-    return TIStreamP(new TFileDescriptorSourceStream(boost::iostreams::file_descriptor_source(fd, boost::iostreams::close_handle)));
+    using TFileDescriptorSourceStream =
+        boost::iostreams::stream<boost::iostreams::file_descriptor_source>;
+    return TIStreamP(new TFileDescriptorSourceStream(
+        boost::iostreams::file_descriptor_source(fd, boost::iostreams::close_handle)));
 }
 
 CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
@@ -130,8 +132,10 @@ CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::s
     if (fd == -1) {
         return TOStreamP();
     }
-    using TRetryingFileDescriptorSinkStream = boost::iostreams::stream<CRetryingFileDescriptorSink>;
-    return TOStreamP(new TRetryingFileDescriptorSinkStream(CRetryingFileDescriptorSink(fd, boost::iostreams::close_handle)));
+    using TRetryingFileDescriptorSinkStream =
+        boost::iostreams::stream<CRetryingFileDescriptorSink>;
+    return TOStreamP(new TRetryingFileDescriptorSinkStream(
+        CRetryingFileDescriptorSink(fd, boost::iostreams::close_handle)));
 }
 
 CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string& fileName) {
@@ -178,10 +182,12 @@ std::string CNamedPipeFactory::defaultPath() {
     return path;
 }
 
-CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
+CNamedPipeFactory::TPipeHandle
+CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
     if (!SIGPIPE_IGNORED) {
         LOG_WARN(<< "Failed to ignore SIGPIPE - this process will not terminate "
-                    "gracefully if a process it is writing to via a named pipe dies");
+                    "gracefully if a process it is writing to via a named pipe "
+                    "dies");
     }
 
     bool madeFifo(false);
@@ -196,15 +202,18 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
                          "of this name already exists, but it is not a FIFO");
             return -1;
         }
-        if ((statbuf.st_mode & (S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH)) != 0) {
-            LOG_ERROR(<< "Will not use pre-existing named pipe " << fileName << " - it has permissions that are too open");
+        if ((statbuf.st_mode &
+             (S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH)) != 0) {
+            LOG_ERROR(<< "Will not use pre-existing named pipe " << fileName
+                      << " - it has permissions that are too open");
             return -1;
         }
     } else {
         // The file didn't exist, so create a new FIFO for it, with permissions
         // for the current user only
         if (::mkfifo(fileName.c_str(), S_IRUSR | S_IWUSR) == -1) {
-            LOG_ERROR(<< "Unable to create named pipe " << fileName << ": " << ::strerror(errno));
+            LOG_ERROR(<< "Unable to create named pipe " << fileName << ": "
+                      << ::strerror(errno));
             return -1;
         }
         madeFifo = true;
@@ -212,15 +221,19 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
 
     // The open call here will block if there is no other connection to the
     // named pipe
-    int fd = COsFileFuncs::open(fileName.c_str(), forWrite ? COsFileFuncs::WRONLY : COsFileFuncs::RDONLY);
+    int fd = COsFileFuncs::open(fileName.c_str(), forWrite ? COsFileFuncs::WRONLY
+                                                           : COsFileFuncs::RDONLY);
     if (fd == -1) {
-        LOG_ERROR(<< "Unable to open named pipe " << fileName << (forWrite ? " for writing: " : " for reading: ") << ::strerror(errno));
+        LOG_ERROR(<< "Unable to open named pipe " << fileName
+                  << (forWrite ? " for writing: " : " for reading: ")
+                  << ::strerror(errno));
     } else {
         // Write a test character to the pipe - this is really only necessary on
         // Windows, but doing it on *nix too will mean the inability of the Java
         // code to tolerate the test character will be discovered sooner.
         if (forWrite && COsFileFuncs::write(fd, &TEST_CHAR, sizeof(TEST_CHAR)) <= 0) {
-            LOG_ERROR(<< "Unable to test named pipe " << fileName << ": " << ::strerror(errno));
+            LOG_ERROR(<< "Unable to test named pipe " << fileName << ": "
+                      << ::strerror(errno));
             COsFileFuncs::close(fd);
             fd = -1;
         }

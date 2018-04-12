@@ -21,7 +21,8 @@
 CppUnit::Test* CTickerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTickerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTickerTest>("CTickerTest::testTicker", &CTickerTest::testTicker));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTickerTest>(
+        "CTickerTest::testTicker", &CTickerTest::testTicker));
 
     return suiteOfTests;
 }

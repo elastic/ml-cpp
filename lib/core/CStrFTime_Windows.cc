@@ -46,7 +46,8 @@ size_t CStrFTime::strFTime(char* buf, size_t maxSize, const char* format, struct
         core_t::TTime diffHours(diffMinutes / 60);
 
         std::ostringstream strm;
-        strm << ((diffSeconds < 0) ? '-' : '+') << std::setfill('0') << std::setw(2) << ::_abs64(diffHours) << std::setfill('0')
+        strm << ((diffSeconds < 0) ? '-' : '+') << std::setfill('0')
+             << std::setw(2) << ::_abs64(diffHours) << std::setfill('0')
              << std::setw(2) << (::_abs64(diffMinutes) % 60);
 
         adjFormat.replace(zPos, 2, strm.str());

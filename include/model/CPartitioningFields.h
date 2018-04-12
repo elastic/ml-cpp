@@ -39,7 +39,8 @@ public:
     using TStrCRefStrCRefPrVec = std::vector<TStrCRefStrCRefPr>;
 
 public:
-    CPartitioningFields(const std::string& partitionFieldName, const std::string& partitionFieldValue);
+    CPartitioningFields(const std::string& partitionFieldName,
+                        const std::string& partitionFieldValue);
 
     //! Append the field (name, value) pair (\p fieldName, \p fieldValue).
     void add(const std::string& fieldName, const std::string& fieldValue);

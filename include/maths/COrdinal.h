@@ -32,7 +32,8 @@ namespace maths {
 //! This deals with floating point and integer values and works
 //! around the loss of precision converting 64 bit integers to
 //! doubles.
-class MATHS_EXPORT COrdinal : private boost::equality_comparable<COrdinal, boost::partially_ordered<COrdinal>> {
+class MATHS_EXPORT COrdinal
+    : private boost::equality_comparable<COrdinal, boost::partially_ordered<COrdinal>> {
 public:
     //! Create an unset value.
     COrdinal();

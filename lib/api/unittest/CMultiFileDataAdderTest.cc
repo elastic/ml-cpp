@@ -62,18 +62,23 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
 
 CppUnit::Test* CMultiFileDataAdderTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultiFileDataAdderTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testSimpleWrite",
-                                                                           &CMultiFileDataAdderTest::testSimpleWrite));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistBy",
-                                                                           &CMultiFileDataAdderTest::testDetectorPersistBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistOver",
-                                                                           &CMultiFileDataAdderTest::testDetectorPersistOver));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistPartition",
-                                                                           &CMultiFileDataAdderTest::testDetectorPersistPartition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistDc",
-                                                                           &CMultiFileDataAdderTest::testDetectorPersistDc));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistCount",
-                                                                           &CMultiFileDataAdderTest::testDetectorPersistCount));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
+        "CMultiFileDataAdderTest::testSimpleWrite", &CMultiFileDataAdderTest::testSimpleWrite));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
+        "CMultiFileDataAdderTest::testDetectorPersistBy",
+        &CMultiFileDataAdderTest::testDetectorPersistBy));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
+        "CMultiFileDataAdderTest::testDetectorPersistOver",
+        &CMultiFileDataAdderTest::testDetectorPersistOver));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
+        "CMultiFileDataAdderTest::testDetectorPersistPartition",
+        &CMultiFileDataAdderTest::testDetectorPersistPartition));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
+        "CMultiFileDataAdderTest::testDetectorPersistDc",
+        &CMultiFileDataAdderTest::testDetectorPersistDc));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
+        "CMultiFileDataAdderTest::testDetectorPersistCount",
+        &CMultiFileDataAdderTest::testDetectorPersistCount));
     return suiteOfTests;
 }
 
@@ -138,23 +143,28 @@ void CMultiFileDataAdderTest::testSimpleWrite() {
 }
 
 void CMultiFileDataAdderTest::testDetectorPersistBy() {
-    this->detectorPersistHelper("testfiles/new_mlfields.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+    this->detectorPersistHelper("testfiles/new_mlfields.conf",
+                                "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
 void CMultiFileDataAdderTest::testDetectorPersistOver() {
-    this->detectorPersistHelper("testfiles/new_mlfields_over.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+    this->detectorPersistHelper("testfiles/new_mlfields_over.conf",
+                                "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
 void CMultiFileDataAdderTest::testDetectorPersistPartition() {
-    this->detectorPersistHelper("testfiles/new_mlfields_partition.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+    this->detectorPersistHelper("testfiles/new_mlfields_partition.conf",
+                                "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
 void CMultiFileDataAdderTest::testDetectorPersistDc() {
-    this->detectorPersistHelper("testfiles/new_persist_dc.conf", "testfiles/files_users_programs.csv", 5);
+    this->detectorPersistHelper("testfiles/new_persist_dc.conf",
+                                "testfiles/files_users_programs.csv", 5);
 }
 
 void CMultiFileDataAdderTest::testDetectorPersistCount() {
-    this->detectorPersistHelper("testfiles/new_persist_count.conf", "testfiles/files_users_programs.csv", 5);
+    this->detectorPersistHelper("testfiles/new_persist_count.conf",
+                                "testfiles/files_users_programs.csv", 5);
 }
 
 void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFileName,
@@ -177,21 +187,18 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
     ml::api::CFieldConfig fieldConfig;
     CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
 
-    ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-        BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, 0, false, "");
+    ml::model::CAnomalyDetectorModelConfig modelConfig =
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig(
+            BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets,
+            0, false, "");
 
     std::string origSnapshotId;
     std::size_t numOrigDocs(0);
-    ml::api::CAnomalyJob origJob(JOB_ID,
-                                 limits,
-                                 fieldConfig,
-                                 modelConfig,
-                                 wrappedOutputStream,
-                                 boost::bind(&reportPersistComplete, _1, boost::ref(origSnapshotId), boost::ref(numOrigDocs)),
-                                 nullptr,
-                                 -1,
-                                 "time",
-                                 timeFormat);
+    ml::api::CAnomalyJob origJob(
+        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+        boost::bind(&reportPersistComplete, _1, boost::ref(origSnapshotId),
+                    boost::ref(numOrigDocs)),
+        nullptr, -1, "time", timeFormat);
 
     using TScopedInputParserP = boost::scoped_ptr<ml::api::CInputParser>;
     TScopedInputParserP parser;
@@ -201,7 +208,8 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         parser.reset(new ml::api::CLineifiedJsonInputParser(inputStrm));
     }
 
-    CPPUNIT_ASSERT(parser->readStream(boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1)));
+    CPPUNIT_ASSERT(parser->readStream(
+        boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1)));
 
     // Persist the detector state to file(s)
 
@@ -215,7 +223,8 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         CPPUNIT_ASSERT(origJob.persistState(persister));
     }
 
-    std::string origBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE + '_' + origSnapshotId);
+    std::string origBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE +
+                              '_' + origSnapshotId);
 
     std::string temp;
     TStrVec origFileContents(numOrigDocs);
@@ -224,12 +233,14 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         expectedOrigFilename += "/_";
         expectedOrigFilename += ml::api::CAnomalyJob::ML_STATE_INDEX;
         expectedOrigFilename += '/';
-        expectedOrigFilename += ml::core::CDataAdder::makeCurrentDocId(origBaseDocId, 1 + index);
+        expectedOrigFilename +=
+            ml::core::CDataAdder::makeCurrentDocId(origBaseDocId, 1 + index);
         expectedOrigFilename += ml::test::CMultiFileDataAdder::JSON_FILE_EXT;
         LOG_DEBUG(<< "Trying to open file: " << expectedOrigFilename);
         std::ifstream origFile(expectedOrigFilename.c_str());
         CPPUNIT_ASSERT(origFile.is_open());
-        std::string json((std::istreambuf_iterator<char>(origFile)), std::istreambuf_iterator<char>());
+        std::string json((std::istreambuf_iterator<char>(origFile)),
+                         std::istreambuf_iterator<char>());
         origFileContents[index] = json;
 
         // Ensure that the JSON is valid, by parsing string using Rapidjson
@@ -242,12 +253,10 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
 
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
-    ml::api::CAnomalyJob restoredJob(JOB_ID,
-                                     limits,
-                                     fieldConfig,
-                                     modelConfig,
-                                     wrappedOutputStream,
-                                     boost::bind(&reportPersistComplete, _1, boost::ref(restoredSnapshotId), boost::ref(numRestoredDocs)));
+    ml::api::CAnomalyJob restoredJob(
+        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+        boost::bind(&reportPersistComplete, _1, boost::ref(restoredSnapshotId),
+                    boost::ref(numRestoredDocs)));
 
     {
         ml::core_t::TTime completeToTime(0);
@@ -269,18 +278,21 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         CPPUNIT_ASSERT(restoredJob.persistState(persister));
     }
 
-    std::string restoredBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE + '_' + restoredSnapshotId);
+    std::string restoredBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE +
+                                  '_' + restoredSnapshotId);
 
     for (size_t index = 0; index < numRestoredDocs; ++index) {
         std::string expectedRestoredFilename(baseRestoredOutputFilename);
         expectedRestoredFilename += "/_";
         expectedRestoredFilename += ml::api::CAnomalyJob::ML_STATE_INDEX;
         expectedRestoredFilename += '/';
-        expectedRestoredFilename += ml::core::CDataAdder::makeCurrentDocId(restoredBaseDocId, 1 + index);
+        expectedRestoredFilename +=
+            ml::core::CDataAdder::makeCurrentDocId(restoredBaseDocId, 1 + index);
         expectedRestoredFilename += ml::test::CMultiFileDataAdder::JSON_FILE_EXT;
         std::ifstream restoredFile(expectedRestoredFilename.c_str());
         CPPUNIT_ASSERT(restoredFile.is_open());
-        std::string json((std::istreambuf_iterator<char>(restoredFile)), std::istreambuf_iterator<char>());
+        std::string json((std::istreambuf_iterator<char>(restoredFile)),
+                         std::istreambuf_iterator<char>());
 
         CPPUNIT_ASSERT_EQUAL(origFileContents[index], json);
     }

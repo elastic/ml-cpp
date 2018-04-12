@@ -82,7 +82,7 @@ void CAllocationStrategyTest::test() {
 CppUnit::Test* CAllocationStrategyTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAllocationStrategyTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CAllocationStrategyTest>("CAllocationStrategyTest::test", &CAllocationStrategyTest::test));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CAllocationStrategyTest>(
+        "CAllocationStrategyTest::test", &CAllocationStrategyTest::test));
     return suiteOfTests;
 }

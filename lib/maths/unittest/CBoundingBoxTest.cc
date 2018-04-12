@@ -134,12 +134,14 @@ void CBoundingBoxTest::testCloserTo() {
             TVector2 y2(&probes[j + 2], &probes[j + 4]);
             bool closer = closerToX(bb, y1, y2);
             if (closer) {
-                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y1 << " than " << y2);
+                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y1
+                          << " than " << y2);
             }
             CPPUNIT_ASSERT_EQUAL(closer, bb.closerToX(y1, y2));
             closer = closerToX(bb, y2, y1);
             if (closer) {
-                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y2 << " than " << y1);
+                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y2
+                          << " than " << y1);
             }
             CPPUNIT_ASSERT_EQUAL(closer, bb.closerToX(y2, y1));
         }
@@ -157,12 +159,14 @@ void CBoundingBoxTest::testCloserTo() {
             TVector4 y2(&probes[j + 4], &probes[j + 8]);
             bool closer = closerToX(bb, y1, y2);
             if (closer) {
-                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y1 << " than " << y2);
+                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y1
+                          << " than " << y2);
             }
             CPPUNIT_ASSERT_EQUAL(closer, bb.closerToX(y1, y2));
             closer = closerToX(bb, y2, y1);
             if (closer) {
-                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y2 << " than " << y1);
+                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y2
+                          << " than " << y1);
             }
             CPPUNIT_ASSERT_EQUAL(closer, bb.closerToX(y2, y1));
         }
@@ -172,8 +176,10 @@ void CBoundingBoxTest::testCloserTo() {
 CppUnit::Test* CBoundingBoxTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBoundingBoxTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoundingBoxTest>("CBoundingBoxTest::testAdd", &CBoundingBoxTest::testAdd));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoundingBoxTest>("CBoundingBoxTest::testCloserTo", &CBoundingBoxTest::testCloserTo));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoundingBoxTest>(
+        "CBoundingBoxTest::testAdd", &CBoundingBoxTest::testAdd));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoundingBoxTest>(
+        "CBoundingBoxTest::testCloserTo", &CBoundingBoxTest::testCloserTo));
 
     return suiteOfTests;
 }

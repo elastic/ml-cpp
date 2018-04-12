@@ -36,12 +36,15 @@
 CppUnit::Test* CLengthEncodedInputParserTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLengthEncodedInputParserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>("CLengthEncodedInputParserTest::testCsvEquivalence",
-                                                                                 &CLengthEncodedInputParserTest::testCsvEquivalence));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>("CLengthEncodedInputParserTest::testThroughput",
-                                                                                 &CLengthEncodedInputParserTest::testThroughput));
     suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
-        "CLengthEncodedInputParserTest::testCorruptStreamDetection", &CLengthEncodedInputParserTest::testCorruptStreamDetection));
+        "CLengthEncodedInputParserTest::testCsvEquivalence",
+        &CLengthEncodedInputParserTest::testCsvEquivalence));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
+        "CLengthEncodedInputParserTest::testThroughput",
+        &CLengthEncodedInputParserTest::testThroughput));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
+        "CLengthEncodedInputParserTest::testCorruptStreamDetection",
+        &CLengthEncodedInputParserTest::testCorruptStreamDetection));
 
     return suiteOfTests;
 }
@@ -127,18 +130,23 @@ public:
 
         // Check the field names
         CPPUNIT_ASSERT_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
-        for (ml::api::CCsvInputParser::TStrStrUMapCItr iter = dataRowFields.begin(); iter != dataRowFields.end(); ++iter) {
+        for (ml::api::CCsvInputParser::TStrStrUMapCItr iter = dataRowFields.begin();
+             iter != dataRowFields.end(); ++iter) {
             LOG_DEBUG(<< "Field " << iter->first << " is " << iter->second);
-            CPPUNIT_ASSERT(std::find(m_ExpectedFieldNames.begin(), m_ExpectedFieldNames.end(), iter->first) != m_ExpectedFieldNames.end());
+            CPPUNIT_ASSERT(std::find(m_ExpectedFieldNames.begin(),
+                                     m_ExpectedFieldNames.end(),
+                                     iter->first) != m_ExpectedFieldNames.end());
         }
 
         // Check the line count is consistent with the _raw field
         ml::api::CCsvInputParser::TStrStrUMapCItr rawIter = dataRowFields.find("_raw");
         CPPUNIT_ASSERT(rawIter != dataRowFields.end());
-        ml::api::CCsvInputParser::TStrStrUMapCItr lineCountIter = dataRowFields.find("linecount");
+        ml::api::CCsvInputParser::TStrStrUMapCItr lineCountIter =
+            dataRowFields.find("linecount");
         CPPUNIT_ASSERT(lineCountIter != dataRowFields.end());
 
-        size_t expectedLineCount(1 + std::count(rawIter->second.begin(), rawIter->second.end(), '\n'));
+        size_t expectedLineCount(1 + std::count(rawIter->second.begin(),
+                                                rawIter->second.end(), '\n'));
         size_t lineCount(0);
         CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(lineCountIter->second, lineCount));
         CPPUNIT_ASSERT_EQUAL(expectedLineCount, lineCount);
@@ -239,7 +247,8 @@ void CLengthEncodedInputParserTest::testThroughput() {
 
     CPPUNIT_ASSERT_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
 
-    LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took " << (end - start) << " seconds");
+    LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took "
+             << (end - start) << " seconds");
 }
 
 void CLengthEncodedInputParserTest::testCorruptStreamDetection() {

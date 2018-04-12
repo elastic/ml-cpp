@@ -151,7 +151,8 @@ void CModelMemoryTest::testOnlineMetricModel() {
     std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
 
-    LOG_DEBUG(<< "Memory used by model: " << model.memoryUsage() << " / " << core::CMemory::dynamicSize(model));
+    LOG_DEBUG(<< "Memory used by model: " << model.memoryUsage() << " / "
+              << core::CMemory::dynamicSize(model));
 
     test::CRandomNumbers rng;
 
@@ -161,7 +162,8 @@ void CModelMemoryTest::testOnlineMetricModel() {
         rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
-            addArrival(*gatherer, time + static_cast<core_t::TTime>(j), "p", values[j] + (i == anomalousBucket ? anomaly : 0.0));
+            addArrival(*gatherer, time + static_cast<core_t::TTime>(j), "p",
+                       values[j] + (i == anomalousBucket ? anomaly : 0.0));
         }
         model.sample(time, time + bucketLength, resourceMonitor);
 
@@ -179,10 +181,10 @@ void CModelMemoryTest::testOnlineMetricModel() {
 CppUnit::Test* CModelMemoryTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelMemoryTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineEventRateModel",
-                                                                    &CModelMemoryTest::testOnlineEventRateModel));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineMetricModel", &CModelMemoryTest::testOnlineMetricModel));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>(
+        "CModelMemoryTest::testOnlineEventRateModel", &CModelMemoryTest::testOnlineEventRateModel));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>(
+        "CModelMemoryTest::testOnlineMetricModel", &CModelMemoryTest::testOnlineMetricModel));
 
     return suiteOfTests;
 }

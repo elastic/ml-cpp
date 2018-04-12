@@ -38,7 +38,8 @@ namespace api {
 const size_t CLengthEncodedInputParser::WORK_BUFFER_SIZE(8192); // 8kB
 
 CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream& strmIn)
-    : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(nullptr), m_WorkBufferPtr(nullptr), m_WorkBufferEnd(nullptr), m_NoMoreRecords(false) {
+    : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(nullptr),
+      m_WorkBufferPtr(nullptr), m_WorkBufferEnd(nullptr), m_NoMoreRecords(false) {
     // This test is not ideal because std::cin's stream buffer could have been
     // changed
     if (strmIn.rdbuf() == std::cin.rdbuf()) {
@@ -151,7 +152,9 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
             std::string temp;
             results.resize(numFields, typename STR_VEC::value_type(temp));
         } else {
-            LOG_ERROR(<< "Incorrect number of fields in input stream record: expected " << results.size() << " but got " << numFields);
+            LOG_ERROR(<< "Incorrect number of fields in input stream record: "
+                         "expected "
+                      << results.size() << " but got " << numFields);
             return false;
         }
     }
@@ -172,7 +175,8 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
         // in Bugzilla for more details.
         static const uint32_t HIGH_BYTE_MASK(0xFF000000);
         if ((length & HIGH_BYTE_MASK) != 0u) {
-            LOG_ERROR(<< "Parsed field length " << length << " is suspiciously large - assuming corrupt input stream");
+            LOG_ERROR(<< "Parsed field length " << length
+                      << " is suspiciously large - assuming corrupt input stream");
             return false;
         }
 
@@ -252,7 +256,8 @@ size_t CLengthEncodedInputParser::refillBuffer() {
     }
 
     m_WorkBufferPtr = m_WorkBuffer.get();
-    m_StrmIn.read(m_WorkBuffer.get() + avail, static_cast<std::streamsize>(WORK_BUFFER_SIZE - avail));
+    m_StrmIn.read(m_WorkBuffer.get() + avail,
+                  static_cast<std::streamsize>(WORK_BUFFER_SIZE - avail));
     if (m_StrmIn.bad()) {
         LOG_ERROR(<< "Input stream is bad");
     } else {

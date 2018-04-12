@@ -21,7 +21,8 @@
 namespace ml {
 namespace api {
 
-COutputChainer::COutputChainer(CDataProcessor& dataProcessor) : m_DataProcessor(dataProcessor) {
+COutputChainer::COutputChainer(CDataProcessor& dataProcessor)
+    : m_DataProcessor(dataProcessor) {
 }
 
 void COutputChainer::newOutputStream() {
@@ -33,7 +34,8 @@ bool COutputChainer::fieldNames(const TStrVec& fieldNames, const TStrVec& extraF
 
     // Only add extra field names if they're not already present
     for (TStrVecCItr iter = extraFieldNames.begin(); iter != extraFieldNames.end(); ++iter) {
-        if (std::find(m_FieldNames.begin(), m_FieldNames.end(), *iter) == m_FieldNames.end()) {
+        if (std::find(m_FieldNames.begin(), m_FieldNames.end(), *iter) ==
+            m_FieldNames.end()) {
             m_FieldNames.push_back(*iter);
         }
     }
@@ -65,7 +67,8 @@ const COutputHandler::TStrVec& COutputChainer::fieldNames() const {
     return m_FieldNames;
 }
 
-bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) {
+bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields,
+                              const TStrStrUMap& overrideDataRowFields) {
     if (m_FieldNames.empty()) {
         LOG_ERROR(<< "Attempt to output data before field names");
         return false;
@@ -77,9 +80,11 @@ bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMa
     TPreComputedHashVecCItr preComputedHashIter = m_Hashes.begin();
     TStrRefVecCItr fieldRefIter = m_WorkRecordFieldRefs.begin();
     for (TStrVecCItr fieldNameIter = m_FieldNames.begin();
-         fieldNameIter != m_FieldNames.end() && preComputedHashIter != m_Hashes.end() && fieldRefIter != m_WorkRecordFieldRefs.end();
+         fieldNameIter != m_FieldNames.end() && preComputedHashIter != m_Hashes.end() &&
+         fieldRefIter != m_WorkRecordFieldRefs.end();
          ++fieldNameIter, ++preComputedHashIter, ++fieldRefIter) {
-        TStrStrUMapCItr fieldValueIter = overrideDataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
+        TStrStrUMapCItr fieldValueIter =
+            overrideDataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
         if (fieldValueIter == overrideDataRowFields.end()) {
             fieldValueIter = dataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
             if (fieldValueIter == dataRowFields.end()) {
@@ -91,7 +96,8 @@ bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMa
         // Use the start/length version of assign to bypass GNU copy-on-write,
         // since we don't want the strings in m_WorkRecordFields to share
         // representations with strings in our input maps.
-        fieldRefIter->get().assign(fieldValueIter->second, 0, fieldValueIter->second.length());
+        fieldRefIter->get().assign(fieldValueIter->second, 0,
+                                   fieldValueIter->second.length());
     }
 
     if (m_DataProcessor.handleRecord(m_WorkRecordFields) == false) {
@@ -107,7 +113,8 @@ void COutputChainer::finalise() {
     m_DataProcessor.finalise();
 }
 
-bool COutputChainer::restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime) {
+bool COutputChainer::restoreState(core::CDataSearcher& restoreSearcher,
+                                  core_t::TTime& completeToTime) {
     return m_DataProcessor.restoreState(restoreSearcher, completeToTime);
 }
 

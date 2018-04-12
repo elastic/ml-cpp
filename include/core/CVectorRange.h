@@ -49,7 +49,8 @@ struct SIteratorType<const VECTOR> {
 //! \brief Implements assignment.
 template<typename VECTOR>
 struct SDoAssign {
-    static const CVectorRange<VECTOR>& dispatch(CVectorRange<VECTOR>& lhs, const CVectorRange<VECTOR>& rhs) {
+    static const CVectorRange<VECTOR>& dispatch(CVectorRange<VECTOR>& lhs,
+                                                const CVectorRange<VECTOR>& rhs) {
         if (rhs.base() != lhs.base()) {
             lhs.assign(rhs.begin(), rhs.end());
         } else {
@@ -61,7 +62,8 @@ struct SDoAssign {
 };
 template<typename VECTOR>
 struct SDoAssign<const VECTOR> {
-    static const CVectorRange<const VECTOR>& dispatch(CVectorRange<const VECTOR>& lhs, const CVectorRange<const VECTOR>& rhs) {
+    static const CVectorRange<const VECTOR>&
+    dispatch(CVectorRange<const VECTOR>& lhs, const CVectorRange<const VECTOR>& rhs) {
         CVectorRange<const VECTOR> tmp(*rhs.base(), rhs.a(), rhs.b());
         lhs.swap(tmp);
         return lhs;
@@ -85,10 +87,13 @@ public:
     using const_iterator = typename VECTOR::const_iterator;
 
 public:
-    CVectorRange(VECTOR& vector, size_type a, size_type b) : m_Vector(&vector), m_A(a), m_B(b) {}
+    CVectorRange(VECTOR& vector, size_type a, size_type b)
+        : m_Vector(&vector), m_A(a), m_B(b) {}
 
     //! Copy assignment.
-    const CVectorRange& operator=(const CVectorRange& other) { return vector_range_detail::SDoAssign<VECTOR>::dispatch(*this, other); }
+    const CVectorRange& operator=(const CVectorRange& other) {
+        return vector_range_detail::SDoAssign<VECTOR>::dispatch(*this, other);
+    }
 
     //! Assign from value.
     template<typename T>
@@ -131,7 +136,9 @@ public:
     //! Get writable element at \p pos.
     reference operator[](size_type pos) { return (*m_Vector)[m_A + pos]; }
     //! Get read-only element at \p pos.
-    const_reference operator[](size_type pos) const { return (*m_Vector)[m_A + pos]; }
+    const_reference operator[](size_type pos) const {
+        return (*m_Vector)[m_A + pos];
+    }
 
     //! Get writable first element.
     reference front() { return this->operator[](0); }
@@ -164,10 +171,14 @@ public:
     //! Get the maximum permitted size.
     size_type max_size() const { return m_Vector->max_size(); }
     //! Reserve space for \p size elements.
-    void reserve(size_type size) { m_Vector->reserve((size + m_Vector->size()) - this->size()); }
+    void reserve(size_type size) {
+        m_Vector->reserve((size + m_Vector->size()) - this->size());
+    }
     //! Get the number of elements which can be held in the currently
     //! allocated storage.
-    size_type capacity() const { return (m_Vector->capacity() - m_Vector->size()) + this->size(); }
+    size_type capacity() const {
+        return (m_Vector->capacity() - m_Vector->size()) + this->size();
+    }
 
     //! Clear the contents.
     void clear() {

@@ -46,7 +46,9 @@ public:
 
 public:
     //! Constructor uses the pass-by-value-and-move idiom
-    CMultiFileSearcher(std::string baseFilename, std::string baseDocId, std::string fileExtension = JSON_FILE_EXT);
+    CMultiFileSearcher(std::string baseFilename,
+                       std::string baseDocId,
+                       std::string fileExtension = JSON_FILE_EXT);
 
     //! Load the file
     //! \return Pointer to the input stream - may be NULL

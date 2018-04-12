@@ -53,7 +53,9 @@ boost::optional<VECTOR> CModel::predictionError(const TREND& trend, const VECTOR
 }
 
 template<typename PRIOR, typename VECTOR>
-boost::optional<VECTOR> CModel::predictionError(double propagationInterval, const PRIOR& prior, const VECTOR& sample) {
+boost::optional<VECTOR> CModel::predictionError(double propagationInterval,
+                                                const PRIOR& prior,
+                                                const VECTOR& sample) {
     boost::optional<VECTOR> result;
     if (prior->numberSamples() > 20.0 / propagationInterval) {
         std::size_t dimension{sample.size()};

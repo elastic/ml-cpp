@@ -20,7 +20,8 @@
 CppUnit::Test* CUnameTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CUnameTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CUnameTest>("CUnameTest::testUname", &CUnameTest::testUname));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CUnameTest>(
+        "CUnameTest::testUname", &CUnameTest::testUname));
 
     return suiteOfTests;
 }

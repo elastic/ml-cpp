@@ -25,13 +25,16 @@ namespace ml {
 namespace model {
 
 template<typename T>
-void CIndividualModel::currentBucketPersonIds(core_t::TTime time, const T& featureData, TSizeVec& result) const {
+void CIndividualModel::currentBucketPersonIds(core_t::TTime time,
+                                              const T& featureData,
+                                              TSizeVec& result) const {
     using TSizeUSet = boost::unordered_set<std::size_t>;
 
     result.clear();
 
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR(<< "No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
+        LOG_ERROR(<< "No statistics at " << time
+                  << ", current bucket = " << this->printCurrentBucket());
         return;
     }
 
@@ -46,23 +49,26 @@ void CIndividualModel::currentBucketPersonIds(core_t::TTime time, const T& featu
 }
 
 template<typename T>
-const T*
-CIndividualModel::featureData(model_t::EFeature feature,
-                              std::size_t pid,
-                              core_t::TTime time,
-                              const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>& featureData) const {
+const T* CIndividualModel::featureData(
+    model_t::EFeature feature,
+    std::size_t pid,
+    core_t::TTime time,
+    const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>& featureData) const {
     if (!this->bucketStatsAvailable(time)) {
-        LOG_ERROR(<< "No statistics at " << time << ", current bucket = " << this->printCurrentBucket());
+        LOG_ERROR(<< "No statistics at " << time
+                  << ", current bucket = " << this->printCurrentBucket());
         return nullptr;
     }
 
-    auto i = std::lower_bound(featureData.begin(), featureData.end(), feature, maths::COrderings::SFirstLess());
+    auto i = std::lower_bound(featureData.begin(), featureData.end(), feature,
+                              maths::COrderings::SFirstLess());
     if (i == featureData.end() || i->first != feature) {
         LOG_ERROR(<< "No data for feature " << model_t::print(feature));
         return nullptr;
     }
 
-    auto j = std::lower_bound(i->second.begin(), i->second.end(), pid, maths::COrderings::SFirstLess());
+    auto j = std::lower_bound(i->second.begin(), i->second.end(), pid,
+                              maths::COrderings::SFirstLess());
     return (j != i->second.end() && j->first == pid) ? &j->second : nullptr;
 }
 
@@ -78,13 +84,15 @@ void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
         return;
     }
 
-    for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength(); time < endTime; time += bucketLength) {
+    for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength();
+         time < endTime; time += bucketLength) {
         this->CIndividualModel::sampleBucketStatistics(time, time + bucketLength, resourceMonitor);
 
         gatherer.featureData(time, bucketLength, featureData);
         for (auto& feature_ : featureData) {
             T& data = feature_.second;
-            LOG_TRACE(<< model_t::print(feature_.first) << " data = " << core::CContainerPrinter::print(data));
+            LOG_TRACE(<< model_t::print(feature_.first)
+                      << " data = " << core::CContainerPrinter::print(data));
             this->applyFilter(model_t::E_XF_By, false, filter, data);
         }
     }
@@ -99,20 +107,23 @@ bool CIndividualModel::addProbabilityAndInfluences(std::size_t pid,
     if (!pJoint.addAttributeProbability(CStringStore::names().get(EMPTY_STRING),
                                         model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
                                         1.0, // attribute probability
-                                        params,
-                                        builder)) {
-        LOG_ERROR(<< "Failed to compute P(" << params.describe() << ", person = " << this->personName(pid) << ")");
+                                        params, builder)) {
+        LOG_ERROR(<< "Failed to compute P(" << params.describe()
+                  << ", person = " << this->personName(pid) << ")");
         return false;
     } else {
-        LOG_TRACE(<< "P(" << params.describe() << ", person = " << this->personName(pid) << ") = " << params.s_Probability);
+        LOG_TRACE(<< "P(" << params.describe() << ", person = " << this->personName(pid)
+                  << ") = " << params.s_Probability);
     }
 
     if (!influences.empty()) {
         const CDataGatherer& gatherer = this->dataGatherer();
         for (std::size_t j = 0u; j < influences.size(); ++j) {
-            if (const CInfluenceCalculator* influenceCalculator = this->influenceCalculator(params.s_Feature, j)) {
+            if (const CInfluenceCalculator* influenceCalculator =
+                    this->influenceCalculator(params.s_Feature, j)) {
                 pJoint.plugin(*influenceCalculator);
-                pJoint.addInfluences(*(gatherer.beginInfluencers() + j), influences[j], params);
+                pJoint.addInfluences(*(gatherer.beginInfluencers() + j),
+                                     influences[j], params);
             }
         }
     }

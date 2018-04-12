@@ -36,16 +36,20 @@ void CVectorRangeTest::testCreation() {
 
         TDoubleRng range13{values1, 1, 3};
         range13 = core::make_range(values1, 0, 3);
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 1, 0.1, 0.7, 9.8]"), core::CContainerPrinter::print(values1));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1, 1, 0.1, 0.7, 9.8]"),
+                             core::CContainerPrinter::print(values1));
 
         range13 = core::make_range(values2, 1, 4);
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 1.4, 5.7, 1.2, 9.8]"), core::CContainerPrinter::print(values1));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1, 1.4, 5.7, 1.2, 9.8]"),
+                             core::CContainerPrinter::print(values1));
 
         range13.assign(2, 2.0);
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 2, 2, 9.8]"), core::CContainerPrinter::print(values1));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1, 2, 2, 9.8]"),
+                             core::CContainerPrinter::print(values1));
 
         range13.assign(values2.begin(), values2.end());
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 3.1, 1.4, 5.7, 1.2, 9.8]"), core::CContainerPrinter::print(values1));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1, 3.1, 1.4, 5.7, 1.2, 9.8]"),
+                             core::CContainerPrinter::print(values1));
     }
     {
         TDoubleVec values1{1.0, 0.1, 0.7, 9.8};
@@ -53,8 +57,10 @@ void CVectorRangeTest::testCreation() {
 
         TDoubleCRng range1{values1, 1, 3};
         range1 = TDoubleCRng(values2, 0, 3);
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 0.7, 9.8]"), core::CContainerPrinter::print(values1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[3.1, 1.4, 5.7]"), core::CContainerPrinter::print(range1));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 0.7, 9.8]"),
+                             core::CContainerPrinter::print(values1));
+        CPPUNIT_ASSERT_EQUAL(std::string("[3.1, 1.4, 5.7]"),
+                             core::CContainerPrinter::print(range1));
     }
 }
 
@@ -69,11 +75,13 @@ void CVectorRangeTest::testAccessors() {
     CPPUNIT_ASSERT_EQUAL(0.1, range14.at(0));
     CPPUNIT_ASSERT_EQUAL(0.7, range14.at(1));
     CPPUNIT_ASSERT_EQUAL(9.8, range14.at(2));
-    CPPUNIT_ASSERT_THROW_MESSAGE(std::string("out of range: 3 >= 3"), range14.at(3), std::out_of_range);
+    CPPUNIT_ASSERT_THROW_MESSAGE(std::string("out of range: 3 >= 3"),
+                                 range14.at(3), std::out_of_range);
     CPPUNIT_ASSERT_EQUAL(0.1, crange14.at(0));
     CPPUNIT_ASSERT_EQUAL(0.7, crange14.at(1));
     CPPUNIT_ASSERT_EQUAL(9.8, crange14.at(2));
-    CPPUNIT_ASSERT_THROW_MESSAGE(std::string("out of range: 4 >= 3"), crange14.at(4), std::out_of_range);
+    CPPUNIT_ASSERT_THROW_MESSAGE(std::string("out of range: 4 >= 3"),
+                                 crange14.at(4), std::out_of_range);
 
     CPPUNIT_ASSERT_EQUAL(0.1, range14[0]);
     CPPUNIT_ASSERT_EQUAL(0.7, range14[1]);
@@ -102,12 +110,14 @@ void CVectorRangeTest::testIterators() {
     }
     CPPUNIT_ASSERT_EQUAL(std::ptrdiff_t(3), range14.end() - range14.begin());
 
-    for (auto i = range14.cbegin(), j = values.cbegin() + 1; i != range14.cend(); ++i, ++j) {
+    for (auto i = range14.cbegin(), j = values.cbegin() + 1;
+         i != range14.cend(); ++i, ++j) {
         CPPUNIT_ASSERT_EQUAL(*j, *i);
     }
     CPPUNIT_ASSERT_EQUAL(std::ptrdiff_t(3), range14.end() - range14.begin());
 
-    for (auto i = crange14.begin(), j = values.cbegin() + 1; i != crange14.end(); ++i, ++j) {
+    for (auto i = crange14.begin(), j = values.cbegin() + 1;
+         i != crange14.end(); ++i, ++j) {
         CPPUNIT_ASSERT_EQUAL(*j, *i);
     }
     CPPUNIT_ASSERT_EQUAL(std::ptrdiff_t(3), crange14.end() - crange14.begin());
@@ -152,41 +162,57 @@ void CVectorRangeTest::testModifiers() {
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), range111.size());
     range111.clear();
     CPPUNIT_ASSERT(range111.empty());
-    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 0.7, 9.8, 8]"), core::CContainerPrinter::print(values1));
+    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 0.7, 9.8, 8]"),
+                         core::CContainerPrinter::print(values1));
 
     TDoubleRng range125{values1, 2, 5};
     range125.insert(range125.begin(), values2.begin(), values2.end());
-    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 2, 3.5, 8.1, 1.8, 0.7, 9.8, 8]"), core::CContainerPrinter::print(values1));
-    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 1.8, 0.7, 9.8, 8]"), core::CContainerPrinter::print(range125));
+    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 2, 3.5, 8.1, 1.8, 0.7, 9.8, 8]"),
+                         core::CContainerPrinter::print(values1));
+    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 1.8, 0.7, 9.8, 8]"),
+                         core::CContainerPrinter::print(range125));
     CPPUNIT_ASSERT_EQUAL(std::size_t(7), range125.size());
     range125.erase(range125.begin(), range125.begin() + 4);
-    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 0.7, 9.8, 8]"), core::CContainerPrinter::print(values1));
-    CPPUNIT_ASSERT_EQUAL(std::string("[0.7, 9.8, 8]"), core::CContainerPrinter::print(range125));
+    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 0.7, 9.8, 8]"),
+                         core::CContainerPrinter::print(values1));
+    CPPUNIT_ASSERT_EQUAL(std::string("[0.7, 9.8, 8]"),
+                         core::CContainerPrinter::print(range125));
 
     TDoubleRng range203{values2, 0, 3};
     range203.push_back(5.0);
-    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 5, 1.8]"), core::CContainerPrinter::print(values2));
-    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 5]"), core::CContainerPrinter::print(range203));
+    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 5, 1.8]"),
+                         core::CContainerPrinter::print(values2));
+    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 5]"),
+                         core::CContainerPrinter::print(range203));
     CPPUNIT_ASSERT_EQUAL(std::size_t(4), range203.size());
     range203.push_back(3.2);
-    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 5, 3.2, 1.8]"), core::CContainerPrinter::print(values2));
-    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 5, 3.2]"), core::CContainerPrinter::print(range203));
+    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 5, 3.2, 1.8]"),
+                         core::CContainerPrinter::print(values2));
+    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 5, 3.2]"),
+                         core::CContainerPrinter::print(range203));
     CPPUNIT_ASSERT_EQUAL(std::size_t(5), range203.size());
     range203.pop_back();
-    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 5, 1.8]"), core::CContainerPrinter::print(values2));
-    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 5]"), core::CContainerPrinter::print(range203));
+    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 5, 1.8]"),
+                         core::CContainerPrinter::print(values2));
+    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 5]"),
+                         core::CContainerPrinter::print(range203));
     CPPUNIT_ASSERT_EQUAL(std::size_t(4), range203.size());
     range203.pop_back();
-    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 1.8]"), core::CContainerPrinter::print(values2));
-    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1]"), core::CContainerPrinter::print(range203));
+    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1, 1.8]"),
+                         core::CContainerPrinter::print(values2));
+    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3.5, 8.1]"),
+                         core::CContainerPrinter::print(range203));
     CPPUNIT_ASSERT_EQUAL(std::size_t(3), range203.size());
 
     TDoubleRng range102{values1, 0, 2};
     range102.resize(3, 5.0);
-    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 5, 0.7, 9.8, 8]"), core::CContainerPrinter::print(values1));
-    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 5]"), core::CContainerPrinter::print(range102));
+    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 5, 0.7, 9.8, 8]"),
+                         core::CContainerPrinter::print(values1));
+    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.1, 5]"),
+                         core::CContainerPrinter::print(range102));
     range102.resize(1);
-    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.7, 9.8, 8]"), core::CContainerPrinter::print(values1));
+    CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.7, 9.8, 8]"),
+                         core::CContainerPrinter::print(values1));
     CPPUNIT_ASSERT_EQUAL(std::string("[1]"), core::CContainerPrinter::print(range102));
 
     TDoubleRng range113{values1, 1, 3};
@@ -241,13 +267,18 @@ void CVectorRangeTest::testComparisons() {
 CppUnit::Test* CVectorRangeTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CVectorRangeTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testCreation", &CVectorRangeTest::testCreation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testAccessors", &CVectorRangeTest::testAccessors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testIterators", &CVectorRangeTest::testIterators));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testSizing", &CVectorRangeTest::testSizing));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testModifiers", &CVectorRangeTest::testModifiers));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testComparisons", &CVectorRangeTest::testComparisons));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>(
+        "CVectorRangeTest::testCreation", &CVectorRangeTest::testCreation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>(
+        "CVectorRangeTest::testAccessors", &CVectorRangeTest::testAccessors));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>(
+        "CVectorRangeTest::testIterators", &CVectorRangeTest::testIterators));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>(
+        "CVectorRangeTest::testSizing", &CVectorRangeTest::testSizing));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>(
+        "CVectorRangeTest::testModifiers", &CVectorRangeTest::testModifiers));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>(
+        "CVectorRangeTest::testComparisons", &CVectorRangeTest::testComparisons));
 
     return suiteOfTests;
 }

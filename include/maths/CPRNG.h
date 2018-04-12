@@ -69,7 +69,9 @@ public:
         //! Compare for equality.
         bool operator==(CSplitMix64 other) const;
         //! Not equal.
-        bool operator!=(CSplitMix64 other) const { return !this->operator==(other); }
+        bool operator!=(CSplitMix64 other) const {
+            return !this->operator==(other);
+        }
 
         void seed();
         void seed(uint64_t seed);
@@ -130,7 +132,9 @@ public:
         //! Compare for equality.
         bool operator==(const CXorOShiro128Plus& other) const;
         //! Not equal.
-        bool operator!=(const CXorOShiro128Plus& other) const { return !this->operator==(other); }
+        bool operator!=(const CXorOShiro128Plus& other) const {
+            return !this->operator==(other);
+        }
 
         //! Set to the default seeded generator.
         //!
@@ -217,7 +221,9 @@ public:
         //! Compare for equality.
         bool operator==(const CXorShift1024Mult& other) const;
         //! Not equal.
-        bool operator!=(const CXorShift1024Mult& other) const { return !this->operator==(other); }
+        bool operator!=(const CXorShift1024Mult& other) const {
+            return !this->operator==(other);
+        }
 
         //! Set to the default seeded generator.
         //!

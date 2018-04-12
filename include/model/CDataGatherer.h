@@ -129,10 +129,14 @@ public:
     using TSizeSizePrUInt64UMapQueueCItr = TSizeSizePrUInt64UMapQueue::const_iterator;
     using TSizeSizePrUInt64UMapQueueCRItr = TSizeSizePrUInt64UMapQueue::const_reverse_iterator;
     using TSizeSizePrStoredStringPtrPrUInt64UMap = CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMap;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapCItr = TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapItr = TSizeSizePrStoredStringPtrPrUInt64UMap::iterator;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapVec = std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap>;
-    using TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue = CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
+    using TSizeSizePrStoredStringPtrPrUInt64UMapCItr =
+        TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator;
+    using TSizeSizePrStoredStringPtrPrUInt64UMapItr =
+        TSizeSizePrStoredStringPtrPrUInt64UMap::iterator;
+    using TSizeSizePrStoredStringPtrPrUInt64UMapVec =
+        std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap>;
+    using TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue =
+        CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>;
     using TSearchKeyCRef = boost::reference_wrapper<const CSearchKey>;
     using TBucketGathererPVec = std::vector<CBucketGatherer*>;
     using TBucketGathererPVecItr = TBucketGathererPVec::iterator;
@@ -319,7 +323,9 @@ public:
     //!
     //! This adds people and attributes as necessary and fills out the
     //! event data from \p fieldValues.
-    bool processFields(const TStrCPtrVec& fieldValues, CEventData& result, CResourceMonitor& resourceMonitor);
+    bool processFields(const TStrCPtrVec& fieldValues,
+                       CEventData& result,
+                       CResourceMonitor& resourceMonitor);
 
     //! Record the arrival of \p data at \p time.
     bool addArrival(const TStrCPtrVec& fieldValues, CEventData& data, CResourceMonitor& resourceMonitor);
@@ -356,7 +362,9 @@ public:
     //! \param[out] result Filled in with the feature data at \p time.
     //! \tparam T The type of the feature data.
     template<typename T>
-    bool featureData(core_t::TTime time, core_t::TTime bucketLength, std::vector<std::pair<model_t::EFeature, T>>& result) const {
+    bool featureData(core_t::TTime time,
+                     core_t::TTime bucketLength,
+                     std::vector<std::pair<model_t::EFeature, T>>& result) const {
         TFeatureAnyPrVec rawFeatureData;
         this->chooseBucketGatherer(time).featureData(time, bucketLength, rawFeatureData);
 
@@ -370,7 +378,8 @@ public:
             // Check the typeid before attempting the cast so we
             // don't use throw to handle failure, which is slow.
             if (feature.second.type() != typeid(T)) {
-                LOG_ERROR(<< "Bad type for feature = " << model_t::print(feature.first) << ", expected " << typeid(T).name() << " got "
+                LOG_ERROR(<< "Bad type for feature = " << model_t::print(feature.first)
+                          << ", expected " << typeid(T).name() << " got "
                           << feature.second.type().name());
                 succeeded = false;
                 continue;
@@ -464,7 +473,9 @@ public:
     bool isPersonActive(std::size_t pid) const;
 
     //! Record a person called \p person.
-    std::size_t addPerson(const std::string& person, CResourceMonitor& resourceMonitor, bool& addedPerson);
+    std::size_t addPerson(const std::string& person,
+                          CResourceMonitor& resourceMonitor,
+                          bool& addedPerson);
     //@}
 
     //! \name Attribute
@@ -578,7 +589,9 @@ public:
     std::string printCurrentBucket(core_t::TTime time) const;
 
     //! Record a attribute called \p attribute.
-    std::size_t addAttribute(const std::string& attribute, CResourceMonitor& resourceMonitor, bool& addedAttribute);
+    std::size_t addAttribute(const std::string& attribute,
+                             CResourceMonitor& resourceMonitor,
+                             bool& addedAttribute);
     //@}
 
     //! \name Counts
@@ -630,7 +643,9 @@ public:
         return tuple.first.first;
     }
     //! Extract the person identifier from a tuple.
-    static inline std::size_t extractPersonId(const TSizeSizePr& tuple) { return tuple.first; }
+    static inline std::size_t extractPersonId(const TSizeSizePr& tuple) {
+        return tuple.first;
+    }
     //! Extracts the person identifier from a tuple.
     struct SExtractPersonId {
         template<typename TUPLE>
@@ -641,7 +656,8 @@ public:
 
     //! Extract the attribute identifier from a tuple.
     template<typename T>
-    static inline std::size_t extractAttributeId(const std::pair<const TSizeSizePr, T>& tuple) {
+    static inline std::size_t
+    extractAttributeId(const std::pair<const TSizeSizePr, T>& tuple) {
         return tuple.first.second;
     }
     //! Extract the attribute identifier from a tuple.
@@ -650,7 +666,9 @@ public:
         return tuple.first.second;
     }
     //! Extract the attribute identifier from a tuple.
-    static inline std::size_t extractAttributeId(const TSizeSizePr& tuple) { return tuple.second; }
+    static inline std::size_t extractAttributeId(const TSizeSizePr& tuple) {
+        return tuple.second;
+    }
     //! Extracts the attribute identifier from a tuple.
     struct SExtractAttributeId {
         template<typename TUPLE>
@@ -677,11 +695,15 @@ public:
 
     //! Helper to avoid code duplication when getting a count from a
     //! field.  Logs different errors for missing value and invalid value.
-    bool extractCountFromField(const std::string& fieldName, const std::string* fieldValue, std::size_t& count) const;
+    bool extractCountFromField(const std::string& fieldName,
+                               const std::string* fieldValue,
+                               std::size_t& count) const;
 
     //! Helper to avoid code duplication when getting a metric value from a
     //! field.  Logs different errors for missing value and invalid value.
-    bool extractMetricFromField(const std::string& fieldName, std::string fieldValue, TDouble1Vec& metricValue) const;
+    bool extractMetricFromField(const std::string& fieldName,
+                                std::string fieldValue,
+                                TDouble1Vec& metricValue) const;
 
     //! Returns the startTime of the earliest bucket for which data are still
     //! accepted.

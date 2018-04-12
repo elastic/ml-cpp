@@ -80,13 +80,15 @@ void CDetectorEqualizerTest::testCorrect() {
     for (std::size_t i = 1u, k = 0u; i < 3; ++i) {
         for (std::size_t j = 0u; j < i; ++j, ++k) {
             double increase =
-                maths::CStatisticalTests::twoSampleKS(corrected[i], corrected[j]) / maths::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
+                maths::CStatisticalTests::twoSampleKS(corrected[i], corrected[j]) /
+                maths::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
             similarityIncrease.add(std::log(increase));
             LOG_DEBUG(<< "similarity increase = " << increase);
             CPPUNIT_ASSERT(increase > 3.0);
         }
     }
-    LOG_DEBUG(<< "mean similarity increase = " << std::exp(maths::CBasicStatistics::mean(similarityIncrease)));
+    LOG_DEBUG(<< "mean similarity increase = "
+              << std::exp(maths::CBasicStatistics::mean(similarityIncrease)));
     CPPUNIT_ASSERT(std::exp(maths::CBasicStatistics::mean(similarityIncrease)) > 40.0);
 }
 
@@ -173,7 +175,8 @@ void CDetectorEqualizerTest::testPersist() {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(&model::CDetectorEqualizer::acceptRestoreTraverser, &restoredEqualizer, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
+            &model::CDetectorEqualizer::acceptRestoreTraverser, &restoredEqualizer, _1)));
     }
 
     // Checksums should agree.
@@ -192,12 +195,12 @@ void CDetectorEqualizerTest::testPersist() {
 CppUnit::Test* CDetectorEqualizerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectorEqualizerTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDetectorEqualizerTest>("CDetectorEqualizerTest::testCorrect", &CDetectorEqualizerTest::testCorrect));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDetectorEqualizerTest>("CDetectorEqualizerTest::testAge", &CDetectorEqualizerTest::testAge));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDetectorEqualizerTest>("CDetectorEqualizerTest::testPersist", &CDetectorEqualizerTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
+        "CDetectorEqualizerTest::testCorrect", &CDetectorEqualizerTest::testCorrect));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
+        "CDetectorEqualizerTest::testAge", &CDetectorEqualizerTest::testAge));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
+        "CDetectorEqualizerTest::testPersist", &CDetectorEqualizerTest::testPersist));
 
     return suiteOfTests;
 }

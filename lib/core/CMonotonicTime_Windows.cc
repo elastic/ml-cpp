@@ -23,8 +23,7 @@ namespace core {
 CMonotonicTime::CMonotonicTime()
     : m_ScalingFactor1(0),
       // Only one variable scaling factor is needed on Windows
-      m_ScalingFactor2(0),
-      m_ScalingFactor3(0) {
+      m_ScalingFactor2(0), m_ScalingFactor3(0) {
     LARGE_INTEGER largeInt;
     if (QueryPerformanceFrequency(&largeInt) == FALSE) {
         LOG_WARN(<< "High frequency performance counters not available");
@@ -64,7 +63,8 @@ uint64_t CMonotonicTime::nanoseconds() const {
 
     // Doing the division first here truncates the result to the number of
     // nanoseconds in a number of full seconds
-    uint64_t fullSecondNanoseconds((static_cast<uint64_t>(largeInt.QuadPart) / m_ScalingFactor1) * 1000000000ULL);
+    uint64_t fullSecondNanoseconds(
+        (static_cast<uint64_t>(largeInt.QuadPart) / m_ScalingFactor1) * 1000000000ULL);
 
     // This is the number of ticks over and above the last full second
     uint64_t remainder(static_cast<uint64_t>(largeInt.QuadPart) % m_ScalingFactor1);

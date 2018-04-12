@@ -76,7 +76,9 @@ const char* CProcess::STARTED_MSG("Process Started.");
 const char* CProcess::STOPPING_MSG("Process Shutting Down.");
 const char* CProcess::STOPPED_MSG("Process Exiting.");
 
-CProcess::CProcess() : m_IsService(false), m_Initialised(false), m_Running(false), m_MlMainFunc(0), m_ServiceHandle(0) {
+CProcess::CProcess()
+    : m_IsService(false), m_Initialised(false), m_Running(false),
+      m_MlMainFunc(0), m_ServiceHandle(0) {
 }
 
 CProcess& CProcess::instance() {
@@ -220,7 +222,8 @@ void WINAPI CProcess::serviceMain(DWORD argc, char* argv[]) {
 
         size_t index(0);
         TScopedCharPArray mergedArgV(new char*[mergedArgC]);
-        for (TStrVecCItr iter = process.m_Args.begin(); iter != process.m_Args.end(); ++iter) {
+        for (TStrVecCItr iter = process.m_Args.begin();
+             iter != process.m_Args.end(); ++iter) {
             mergedArgV[index++] = const_cast<char*>(iter->c_str());
         }
 
@@ -246,7 +249,8 @@ void WINAPI CProcess::serviceMain(DWORD argc, char* argv[]) {
 
         serviceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
         serviceStatus.dwControlsAccepted = 0;
-        serviceStatus.dwWin32ExitCode = (ret == EXIT_SUCCESS ? NO_ERROR : ERROR_SERVICE_SPECIFIC_ERROR);
+        serviceStatus.dwWin32ExitCode =
+            (ret == EXIT_SUCCESS ? NO_ERROR : ERROR_SERVICE_SPECIFIC_ERROR);
         serviceStatus.dwServiceSpecificExitCode = static_cast<DWORD>(ret);
         serviceStatus.dwCheckPoint = 0;
         serviceStatus.dwWaitHint = 0;

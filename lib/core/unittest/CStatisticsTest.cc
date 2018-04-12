@@ -58,8 +58,10 @@ private:
 CppUnit::Test* CStatisticsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStatisticsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>("CStatisticsTest::testStatistics", &CStatisticsTest::testStatistics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>("CStatisticsTest::testPersist", &CStatisticsTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>(
+        "CStatisticsTest::testStatistics", &CStatisticsTest::testStatistics));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>(
+        "CStatisticsTest::testPersist", &CStatisticsTest::testPersist));
 
     return suiteOfTests;
 }
@@ -127,7 +129,8 @@ void CStatisticsTest::testPersist() {
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origStaticsXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(&ml::core::CStatistics::staticsAcceptRestoreTraverser));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            &ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
 
     for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
@@ -155,7 +158,8 @@ void CStatisticsTest::testPersist() {
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origStaticsXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(&ml::core::CStatistics::staticsAcceptRestoreTraverser));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            &ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
 
     for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
@@ -167,7 +171,8 @@ void CStatisticsTest::testPersist() {
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(newStaticsXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(&ml::core::CStatistics::staticsAcceptRestoreTraverser));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            &ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
 
     for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {
@@ -179,7 +184,8 @@ void CStatisticsTest::testPersist() {
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origStaticsXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(&ml::core::CStatistics::staticsAcceptRestoreTraverser));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            &ml::core::CStatistics::staticsAcceptRestoreTraverser));
     }
 
     for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {

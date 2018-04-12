@@ -59,7 +59,10 @@ CTimezone::CTimezone() {
     path += "/date_time_zonespec.csv";
     try {
         m_TimezoneDb.load_from_file(path);
-    } catch (std::exception& ex) { LOG_ERROR(<< "Failed to load Boost timezone database from " << path << " : " << ex.what()); }
+    } catch (std::exception& ex) {
+        LOG_ERROR(<< "Failed to load Boost timezone database from " << path
+                  << " : " << ex.what());
+    }
 }
 
 CTimezone::~CTimezone() {
@@ -87,7 +90,8 @@ bool CTimezone::timezoneName(const std::string& name) {
 
     m_Timezone = m_TimezoneDb.time_zone_from_region(name);
     if (m_Timezone == 0) {
-        LOG_ERROR(<< "Unable to set timezone to " << name << " - operating system timezone settings will be used instead");
+        LOG_ERROR(<< "Unable to set timezone to " << name
+                  << " - operating system timezone settings will be used instead");
         m_Name.clear();
 
         return false;
@@ -119,7 +123,8 @@ std::string CTimezone::dstAbbrev() const {
         return _tzname[1];
     }
 
-    return m_Timezone->has_dst() ? m_Timezone->dst_zone_abbrev() : m_Timezone->std_zone_abbrev();
+    return m_Timezone->has_dst() ? m_Timezone->dst_zone_abbrev()
+                                 : m_Timezone->std_zone_abbrev();
 }
 
 core_t::TTime CTimezone::localToUtc(struct tm& localTime) const {
@@ -137,13 +142,15 @@ core_t::TTime CTimezone::localToUtc(struct tm& localTime) const {
     static const boost::posix_time::ptime EPOCH(boost::gregorian::date(1970, 1, 1));
 
     boost::gregorian::date dateIn(boost::gregorian::date_from_tm(localTime));
-    boost::posix_time::time_duration timeIn(static_cast<boost::posix_time::time_duration::hour_type>(localTime.tm_hour),
-                                            static_cast<boost::posix_time::time_duration::min_type>(localTime.tm_min),
-                                            static_cast<boost::posix_time::time_duration::sec_type>(localTime.tm_sec));
+    boost::posix_time::time_duration timeIn(
+        static_cast<boost::posix_time::time_duration::hour_type>(localTime.tm_hour),
+        static_cast<boost::posix_time::time_duration::min_type>(localTime.tm_min),
+        static_cast<boost::posix_time::time_duration::sec_type>(localTime.tm_sec));
 
     boost::posix_time::time_duration diff;
     try {
-        boost::local_time::local_date_time boostLocal(dateIn, timeIn, m_Timezone, boost::local_time::local_date_time::EXCEPTION_ON_ERROR);
+        boost::local_time::local_date_time boostLocal(
+            dateIn, timeIn, m_Timezone, boost::local_time::local_date_time::EXCEPTION_ON_ERROR);
         diff = boostLocal.utc_time() - EPOCH;
         localTime.tm_isdst = (boostLocal.is_dst() ? 1 : 0);
     } catch (boost::local_time::ambiguous_result&) {
@@ -205,7 +212,8 @@ bool CTimezone::dateFields(core_t::TTime utcTime,
         monthsSinceJanuary = result.tm_mon;
         daysSinceJanuary1st = result.tm_yday;
         yearsSince1900 = result.tm_year;
-        secondsSinceMidnight = 3600 * result.tm_hour + 60 * result.tm_min + result.tm_sec;
+        secondsSinceMidnight = 3600 * result.tm_hour + 60 * result.tm_min +
+                               result.tm_sec;
         return true;
     }
 

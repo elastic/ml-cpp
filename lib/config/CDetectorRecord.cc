@@ -52,7 +52,8 @@ CDetectorRecord::CDetectorRecord(core_t::TTime time,
                                  const TStrCPtrAry& fieldNames,
                                  const TStrCPtrAry& fieldValues,
                                  const TSizeAry& hashedFieldValues)
-    : m_Time(time), m_Function(function), m_FieldNames(fieldNames), m_FieldValues(fieldValues), m_HashedFieldValues(hashedFieldValues) {
+    : m_Time(time), m_Function(function), m_FieldNames(fieldNames),
+      m_FieldValues(fieldValues), m_HashedFieldValues(hashedFieldValues) {
 }
 
 core_t::TTime CDetectorRecord::time() const {
@@ -112,8 +113,10 @@ std::size_t CDetectorRecord::partitionFieldValueHash() const {
 }
 
 std::string CDetectorRecord::print() const {
-    return core::CStringUtils::typeToString(m_Time) + ' ' + extract(this->argumentFieldValue()) + ' ' + extract(this->byFieldValue()) +
-           ' ' + extract(this->overFieldValue()) + ' ' + extract(this->partitionFieldValue());
+    return core::CStringUtils::typeToString(m_Time) + ' ' +
+           extract(this->argumentFieldValue()) + ' ' +
+           extract(this->byFieldValue()) + ' ' + extract(this->overFieldValue()) +
+           ' ' + extract(this->partitionFieldValue());
 }
 
 void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec& specs) {
@@ -126,7 +129,8 @@ void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec& s
     size_t size = 0u;
     for (std::size_t i = 0u; i < specs.size(); ++i) {
         for (std::size_t j = 0u; j < boost::size(FIELDS); ++j) {
-            if (const CDetectorSpecification::TOptionalStr& field = ((specs[i]).*FIELDS[j])()) {
+            if (const CDetectorSpecification::TOptionalStr& field =
+                    ((specs[i]).*FIELDS[j])()) {
                 uniques.emplace(*field, uniques.size());
             }
         }
@@ -146,9 +150,11 @@ void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec& s
         TSizeAry entry;
         for (std::size_t j = 0u; j < boost::size(FIELDS); ++j) {
             const CDetectorSpecification::TOptionalStr& field = ((specs[i]).*FIELDS[j])();
-            entry[constants::CFieldIndices::ALL[j]] = field ? uniques[*field] : m_FieldSchema.size();
+            entry[constants::CFieldIndices::ALL[j]] = field ? uniques[*field]
+                                                            : m_FieldSchema.size();
         }
-        LOG_TRACE(<< "Fields for " << specs[i].description() << " = " << core::CContainerPrinter::print(entry));
+        LOG_TRACE(<< "Fields for " << specs[i].description() << " = "
+                  << core::CContainerPrinter::print(entry));
         m_DetectorFieldSchema[specs[i].id()] = entry;
     }
 }
@@ -173,7 +179,8 @@ void CDetectorRecordDirectAddressTable::detectorRecords(core_t::TTime time,
     for (std::size_t i = 0u; i < m_FieldSchema.size(); ++i) {
         TStrStrUMapCItr j = fieldValues.find(m_FieldSchema[i].first);
         m_FieldValueTable[i] = j != fieldValues.end() ? &j->second : nullptr;
-        m_HashedFieldValueTable[i] = HASHER(m_FieldValueTable[i] ? *m_FieldValueTable[i] : NULL_STRING);
+        m_HashedFieldValueTable[i] =
+            HASHER(m_FieldValueTable[i] ? *m_FieldValueTable[i] : NULL_STRING);
     }
 
     CDetectorRecord::TStrCPtrAry ni;

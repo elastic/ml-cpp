@@ -68,7 +68,9 @@ using TTimeVec = std::vector<core_t::TTime>;
 //! \brief Sets the timezone to a specified value in a constructor
 //! call so it can be called once by static initialisation.
 struct SSetTimeZone {
-    SSetTimeZone(const std::string& zone) { core::CTimezone::instance().timezoneName(zone); }
+    SSetTimeZone(const std::string& zone) {
+        core::CTimezone::instance().timezoneName(zone);
+    }
 };
 
 //! Generate \p n samples uniformly in the interval [\p a, \p b].
@@ -124,7 +126,8 @@ const core_t::TTime WEEK = core::constants::WEEK;
 //////// CRandomizedPeriodicitytest ////////
 
 CRandomizedPeriodicityTest::CRandomizedPeriodicityTest()
-    : m_DayRefreshedProjections(-DAY_RESAMPLE_INTERVAL), m_WeekRefreshedProjections(-DAY_RESAMPLE_INTERVAL) {
+    : m_DayRefreshedProjections(-DAY_RESAMPLE_INTERVAL),
+      m_WeekRefreshedProjections(-DAY_RESAMPLE_INTERVAL) {
     resample(0);
 }
 
@@ -148,29 +151,23 @@ bool CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser(core::CStateResto
             ss >> ms_Rng;
             continue;
         }
-        RESTORE_SETUP_TEARDOWN(DAY_RESAMPLED_TAG,
-                               core_t::TTime resampled,
+        RESTORE_SETUP_TEARDOWN(DAY_RESAMPLED_TAG, core_t::TTime resampled,
                                core::CStringUtils::stringToType(traverser.value(), resampled),
                                ms_DayResampled.store(resampled))
-        RESTORE_SETUP_TEARDOWN(WEEK_RESAMPLED_TAG,
-                               core_t::TTime resampled,
+        RESTORE_SETUP_TEARDOWN(WEEK_RESAMPLED_TAG, core_t::TTime resampled,
                                core::CStringUtils::stringToType(traverser.value(), resampled),
                                ms_WeekResampled.store(resampled))
         RESTORE_BUILT_IN(ARRAY_INDEX_TAG, index)
-        RESTORE_SETUP_TEARDOWN(DAY_RANDOM_PROJECTIONS_TAG,
-                               double d,
+        RESTORE_SETUP_TEARDOWN(DAY_RANDOM_PROJECTIONS_TAG, double d,
                                core::CStringUtils::stringToType(traverser.value(), d),
                                ms_DayRandomProjections[index].push_back(d))
-        RESTORE_SETUP_TEARDOWN(DAY_PERIODIC_PROJECTIONS_TAG,
-                               double d,
+        RESTORE_SETUP_TEARDOWN(DAY_PERIODIC_PROJECTIONS_TAG, double d,
                                core::CStringUtils::stringToType(traverser.value(), d),
                                ms_DayPeriodicProjections[index].push_back(d))
-        RESTORE_SETUP_TEARDOWN(WEEK_RANDOM_PROJECTIONS_TAG,
-                               double d,
+        RESTORE_SETUP_TEARDOWN(WEEK_RANDOM_PROJECTIONS_TAG, double d,
                                core::CStringUtils::stringToType(traverser.value(), d),
                                ms_WeekRandomProjections[index].push_back(d))
-        RESTORE_SETUP_TEARDOWN(WEEK_PERIODIC_PROJECTIONS_TAG,
-                               double d,
+        RESTORE_SETUP_TEARDOWN(WEEK_PERIODIC_PROJECTIONS_TAG, double d,
                                core::CStringUtils::stringToType(traverser.value(), d),
                                ms_WeekPeriodicProjections[index].push_back(d))
     } while (traverser.next());
@@ -214,11 +211,13 @@ bool CRandomizedPeriodicityTest::acceptRestoreTraverser(core::CStateRestoreTrave
 
         RESTORE(DAY_PROJECTIONS_TAG, m_DayProjections.fromDelimited(traverser.value()))
         RESTORE(DAY_STATISTICS_TAG, m_DayStatistics.fromDelimited(traverser.value()))
-        RESTORE(DAY_REFRESHED_PROJECTIONS_TAG, core::CStringUtils::stringToType(traverser.value(), m_DayRefreshedProjections))
+        RESTORE(DAY_REFRESHED_PROJECTIONS_TAG,
+                core::CStringUtils::stringToType(traverser.value(), m_DayRefreshedProjections))
         RESTORE(WEEK_PROJECTIONS_TAG, m_WeekProjections.fromDelimited(traverser.value()))
         RESTORE(WEEK_STATISTICS_TAG, m_WeekStatistics.fromDelimited(traverser.value()))
         RESTORE(DAY_STATISTICS_TAG, m_DayStatistics.fromDelimited(traverser.value()))
-        RESTORE(WEEK_REFRESHED_PROJECTIONS_TAG, core::CStringUtils::stringToType(traverser.value(), m_WeekRefreshedProjections))
+        RESTORE(WEEK_REFRESHED_PROJECTIONS_TAG,
+                core::CStringUtils::stringToType(traverser.value(), m_WeekRefreshedProjections))
     } while (traverser.next());
 
     return true;
@@ -273,8 +272,10 @@ bool CRandomizedPeriodicityTest::test() const {
         if (nd >= 1.0) {
             TVector2 S = CBasicStatistics::mean(m_DayStatistics);
             LOG_TRACE(<< "Day test statistic, S = " << S << ", n = " << nd);
-            double ratio =
-                S(0) == S(1) ? 1.0 : (S(0) == 0.0 ? boost::numeric::bounds<double>::highest() : static_cast<double>(S(1) / S(0)));
+            double ratio = S(0) == S(1)
+                               ? 1.0
+                               : (S(0) == 0.0 ? boost::numeric::bounds<double>::highest()
+                                              : static_cast<double>(S(1) / S(0)));
             double significance = CStatisticalTests::rightTailFTest(ratio, nd, nd);
             LOG_TRACE(<< "Daily significance = " << significance);
             if (significance < SIGNIFICANCE) {
@@ -286,15 +287,19 @@ bool CRandomizedPeriodicityTest::test() const {
         if (nw >= 1.0) {
             TVector2 S = CBasicStatistics::mean(m_WeekStatistics);
             LOG_TRACE(<< "Week test statistic, S = " << S);
-            double ratio =
-                S(0) == S(1) ? 1.0 : (S(0) == 0.0 ? boost::numeric::bounds<double>::highest() : static_cast<double>(S(1) / S(0)));
+            double ratio = S(0) == S(1)
+                               ? 1.0
+                               : (S(0) == 0.0 ? boost::numeric::bounds<double>::highest()
+                                              : static_cast<double>(S(1) / S(0)));
             double significance = CStatisticalTests::rightTailFTest(ratio, nw, nw);
             LOG_TRACE(<< "Weekly significance = " << significance);
             if (significance < SIGNIFICANCE) {
                 return true;
             }
         }
-    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to test for periodicity: " << e.what()); }
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Failed to test for periodicity: " << e.what());
+    }
 
     return false;
 }
@@ -325,7 +330,8 @@ uint64_t CRandomizedPeriodicityTest::checksum(uint64_t seed) const {
     return seed;
 }
 
-void CRandomizedPeriodicityTest::updateStatistics(TVector2NMeanAccumulator& projections, TVector2MeanAccumulator& statistics) {
+void CRandomizedPeriodicityTest::updateStatistics(TVector2NMeanAccumulator& projections,
+                                                  TVector2MeanAccumulator& statistics) {
     static const double ALPHA = 0.1;
 
     if (CBasicStatistics::count(projections) > 0.0) {
@@ -353,8 +359,10 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime time) {
 
         LOG_TRACE(<< "Updating daily random projections at " << time);
         if (time >= ms_DayResampled.load(std::memory_order_relaxed) + DAY_RESAMPLE_INTERVAL) {
-            resample(DAY, DAY_RESAMPLE_INTERVAL, ms_DayPeriodicProjections, ms_DayRandomProjections);
-            ms_DayResampled.store(CIntegerTools::floor(time, DAY_RESAMPLE_INTERVAL), std::memory_order_release);
+            resample(DAY, DAY_RESAMPLE_INTERVAL, ms_DayPeriodicProjections,
+                     ms_DayRandomProjections);
+            ms_DayResampled.store(CIntegerTools::floor(time, DAY_RESAMPLE_INTERVAL),
+                                  std::memory_order_release);
         }
     }
 
@@ -363,8 +371,10 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime time) {
 
         LOG_TRACE(<< "Updating weekly random projections at " << time);
         if (time >= ms_WeekResampled.load(std::memory_order_relaxed) + WEEK_RESAMPLE_INTERVAL) {
-            resample(WEEK, WEEK_RESAMPLE_INTERVAL, ms_WeekPeriodicProjections, ms_WeekRandomProjections);
-            ms_WeekResampled.store(CIntegerTools::floor(time, WEEK_RESAMPLE_INTERVAL), std::memory_order_release);
+            resample(WEEK, WEEK_RESAMPLE_INTERVAL, ms_WeekPeriodicProjections,
+                     ms_WeekRandomProjections);
+            ms_WeekResampled.store(CIntegerTools::floor(time, WEEK_RESAMPLE_INTERVAL),
+                                   std::memory_order_release);
         }
     }
 }
@@ -382,8 +392,10 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime period,
         zeroMean(periodicProjections[i]);
         randomProjections[i].resize(t);
         for (std::size_t j = 0u; j < p; ++j) {
-            std::copy(periodicProjections[i].begin(), periodicProjections[i].end(), randomProjections[i].begin() + j * n);
-            CSampling::random_shuffle(ms_Rng, randomProjections[i].begin() + j * n, randomProjections[i].begin() + (j + 1) * n);
+            std::copy(periodicProjections[i].begin(), periodicProjections[i].end(),
+                      randomProjections[i].begin() + j * n);
+            CSampling::random_shuffle(ms_Rng, randomProjections[i].begin() + j * n,
+                                      randomProjections[i].begin() + (j + 1) * n);
         }
     }
 }
@@ -403,7 +415,8 @@ core::CMutex CRandomizedPeriodicityTest::ms_Lock;
 //////// CCalendarCyclicTest ////////
 
 CCalendarCyclicTest::CCalendarCyclicTest(double decayRate)
-    : m_DecayRate(decayRate), m_Bucket(0), m_ErrorQuantiles(CQuantileSketch::E_Linear, 20), m_ErrorCounts(WINDOW / BUCKET) {
+    : m_DecayRate(decayRate), m_Bucket(0),
+      m_ErrorQuantiles(CQuantileSketch::E_Linear, 20), m_ErrorCounts(WINDOW / BUCKET) {
     static const SSetTimeZone timezone("GMT");
     m_ErrorSums.reserve(WINDOW / BUCKET / 10);
 }
@@ -413,8 +426,10 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
         const std::string& name = traverser.name();
         RESTORE_BUILT_IN(BUCKET_TAG, m_Bucket)
         RESTORE(ERROR_QUANTILES_TAG,
-                traverser.traverseSubLevel(boost::bind(&CQuantileSketch::acceptRestoreTraverser, &m_ErrorQuantiles, _1)))
-        RESTORE(ERROR_COUNTS_TAG, core::CPersistUtils::restore(ERROR_COUNTS_TAG, m_ErrorCounts, traverser))
+                traverser.traverseSubLevel(boost::bind(&CQuantileSketch::acceptRestoreTraverser,
+                                                       &m_ErrorQuantiles, _1)))
+        RESTORE(ERROR_COUNTS_TAG,
+                core::CPersistUtils::restore(ERROR_COUNTS_TAG, m_ErrorCounts, traverser))
         RESTORE(ERROR_SUMS_TAG, core::CPersistUtils::fromString(traverser.value(), m_ErrorSums))
     } while (traverser.next());
     return true;
@@ -422,7 +437,8 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
 
 void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(BUCKET_TAG, m_Bucket);
-    inserter.insertLevel(ERROR_QUANTILES_TAG, boost::bind(&CQuantileSketch::acceptPersistInserter, &m_ErrorQuantiles, _1));
+    inserter.insertLevel(ERROR_QUANTILES_TAG, boost::bind(&CQuantileSketch::acceptPersistInserter,
+                                                          &m_ErrorQuantiles, _1));
     core::CPersistUtils::persist(ERROR_COUNTS_TAG, m_ErrorCounts, inserter);
     inserter.insertValue(ERROR_SUMS_TAG, core::CPersistUtils::toString(m_ErrorSums));
 }
@@ -456,9 +472,11 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
         double high;
         m_ErrorQuantiles.quantile(LARGE_ERROR_PERCENTILE, high);
 
-        m_ErrorSums.erase(m_ErrorSums.begin(), std::find_if(m_ErrorSums.begin(), m_ErrorSums.end(), [bucket](const TTimeFloatPr& error_) {
-                              return error_.first + WINDOW > bucket;
-                          }));
+        m_ErrorSums.erase(m_ErrorSums.begin(),
+                          std::find_if(m_ErrorSums.begin(), m_ErrorSums.end(),
+                                       [bucket](const TTimeFloatPr& error_) {
+                                           return error_.first + WINDOW > bucket;
+                                       }));
         if (error >= high) {
             count += (count < 0x100000000 - COUNT_BITS) ? COUNT_BITS : 0;
             m_ErrorSums[bucket] += this->winsorise(error);
@@ -472,7 +490,9 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test() const {
     // The statistics we need in order to be able to test for calendar
     // features.
     struct SStats {
-        SStats() : s_Offset(0), s_Repeats(0), s_Sum(0.0), s_Count(0.0), s_Significance(0.0) {}
+        SStats()
+            : s_Offset(0), s_Repeats(0), s_Sum(0.0), s_Count(0.0),
+              s_Significance(0.0) {}
         core_t::TTime s_Offset;
         unsigned int s_Repeats;
         double s_Sum;
@@ -496,11 +516,13 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test() const {
 
     for (auto offset : TIMEZONE_OFFSETS) {
         for (const auto& error : m_ErrorSums) {
-            std::size_t i = m_ErrorCounts.size() - 1 - static_cast<std::size_t>((m_Bucket - error.first) / BUCKET);
+            std::size_t i = m_ErrorCounts.size() - 1 -
+                            static_cast<std::size_t>((m_Bucket - error.first) / BUCKET);
             double n = static_cast<double>(m_ErrorCounts[i] % COUNT_BITS);
             double x = static_cast<double>(m_ErrorCounts[i] / COUNT_BITS);
             double s = this->significance(n, x);
-            for (auto feature : CCalendarFeature::features(error.first + BUCKET / 2 + offset)) {
+            for (auto feature :
+                 CCalendarFeature::features(error.first + BUCKET / 2 + offset)) {
                 SStats& stat = stats[feature];
                 ++stat.s_Repeats;
                 stat.s_Offset = offset;
@@ -521,7 +543,8 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test() const {
         double x = stat.second.s_Count;
         double e = stat.second.s_Sum;
         double s = stat.second.s_Significance;
-        if (stat.second.s_Repeats >= MINIMUM_REPEATS && e > errorThreshold * x && std::pow(s, r) < MAXIMUM_SIGNIFICANCE) {
+        if (stat.second.s_Repeats >= MINIMUM_REPEATS &&
+            e > errorThreshold * x && std::pow(s, r) < MAXIMUM_SIGNIFICANCE) {
             result.add({e, stat.second.s_Offset, feature});
         }
     }
@@ -543,7 +566,8 @@ void CCalendarCyclicTest::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr m
 }
 
 std::size_t CCalendarCyclicTest::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_ErrorQuantiles) + core::CMemory::dynamicSize(m_ErrorCounts) +
+    return core::CMemory::dynamicSize(m_ErrorQuantiles) +
+           core::CMemory::dynamicSize(m_ErrorCounts) +
            core::CMemory::dynamicSize(m_ErrorSums);
 }
 
@@ -557,7 +581,10 @@ double CCalendarCyclicTest::significance(double n, double x) const {
     try {
         boost::math::binomial binom(n, 1.0 - LARGE_ERROR_PERCENTILE / 100.0);
         return std::min(2.0 * CTools::safeCdfComplement(binom, x - 1.0), 1.0);
-    } catch (const std::exception& e) { LOG_ERROR(<< "Failed to calculate significance: " << e.what() << " n = " << n << " x = " << x); }
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Failed to calculate significance: " << e.what()
+                  << " n = " << n << " x = " << x);
+    }
     return 1.0;
 }
 

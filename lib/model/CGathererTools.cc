@@ -54,11 +54,13 @@ struct SSumSerializer {
     using TSampleVec = std::vector<CSample>;
 
     void operator()(const TSampleVec& sample, core::CStatePersistInserter& inserter) const {
-        inserter.insertValue(SUM_SAMPLE_TAG, core::CPersistUtils::toString(sample, CSample::SToString()));
+        inserter.insertValue(SUM_SAMPLE_TAG, core::CPersistUtils::toString(
+                                                 sample, CSample::SToString()));
     }
     bool operator()(TSampleVec& sample, core::CStateRestoreTraverser& traverser) const {
         if (traverser.name() != SUM_SAMPLE_TAG ||
-            core::CPersistUtils::fromString(traverser.value(), CSample::SFromString(), sample) == false) {
+            core::CPersistUtils::fromString(
+                traverser.value(), CSample::SFromString(), sample) == false) {
             LOG_ERROR(<< "Invalid sample in: " << traverser.value())
             return false;
         }
@@ -74,7 +76,8 @@ struct SInfluencerSumSerializer {
     using TStrCRefDoublePr = std::pair<TStrCRef, double>;
     using TStrCRefDoublePrVec = std::vector<TStrCRefDoublePr>;
 
-    void operator()(const TStoredStringPtrDoubleUMap& map, core::CStatePersistInserter& inserter) const {
+    void operator()(const TStoredStringPtrDoubleUMap& map,
+                    core::CStatePersistInserter& inserter) const {
         TStrCRefDoublePrVec ordered;
         ordered.reserve(map.size());
         for (TStoredStringPtrDoubleUMapCItr i = map.begin(); i != map.end(); ++i) {
@@ -83,18 +86,21 @@ struct SInfluencerSumSerializer {
         std::sort(ordered.begin(), ordered.end(), maths::COrderings::SFirstLess());
         for (std::size_t i = 0u; i < ordered.size(); ++i) {
             inserter.insertValue(SUM_MAP_KEY_TAG, ordered[i].first);
-            inserter.insertValue(SUM_MAP_VALUE_TAG, ordered[i].second, core::CIEEE754::E_SinglePrecision);
+            inserter.insertValue(SUM_MAP_VALUE_TAG, ordered[i].second,
+                                 core::CIEEE754::E_SinglePrecision);
         }
     }
 
-    bool operator()(TStoredStringPtrDoubleUMap& map, core::CStateRestoreTraverser& traverser) const {
+    bool operator()(TStoredStringPtrDoubleUMap& map,
+                    core::CStateRestoreTraverser& traverser) const {
         std::string key;
         do {
             const std::string& name = traverser.name();
             if (name == SUM_MAP_KEY_TAG) {
                 key = traverser.value();
             } else if (name == SUM_MAP_VALUE_TAG) {
-                if (core::CStringUtils::stringToType(traverser.value(), map[CStringStore::influencers().get(key)]) == false) {
+                if (core::CStringUtils::stringToType(
+                        traverser.value(), map[CStringStore::influencers().get(key)]) == false) {
                     LOG_ERROR(<< "Invalid sum in " << traverser.value());
                     return false;
                 }
@@ -106,11 +112,14 @@ struct SInfluencerSumSerializer {
 
 } // unnamed::
 
-CGathererTools::CArrivalTimeGatherer::CArrivalTimeGatherer() : m_LastTime(FIRST_TIME) {
+CGathererTools::CArrivalTimeGatherer::CArrivalTimeGatherer()
+    : m_LastTime(FIRST_TIME) {
 }
 
 CGathererTools::TOptionalDouble CGathererTools::CArrivalTimeGatherer::featureData() const {
-    return maths::CBasicStatistics::count(m_Value) > 0.0 ? TOptionalDouble(maths::CBasicStatistics::mean(m_Value)) : TOptionalDouble();
+    return maths::CBasicStatistics::count(m_Value) > 0.0
+               ? TOptionalDouble(maths::CBasicStatistics::mean(m_Value))
+               : TOptionalDouble();
 }
 
 void CGathererTools::CArrivalTimeGatherer::startNewBucket() {
@@ -153,7 +162,8 @@ std::string CGathererTools::CArrivalTimeGatherer::print() const {
     return o.str();
 }
 
-const core_t::TTime CGathererTools::CArrivalTimeGatherer::FIRST_TIME(std::numeric_limits<core_t::TTime>::min());
+const core_t::TTime CGathererTools::CArrivalTimeGatherer::FIRST_TIME(
+    std::numeric_limits<core_t::TTime>::min());
 
 CGathererTools::CSumGatherer::CSumGatherer(const SModelParams& params,
                                            std::size_t /*dimension*/,
@@ -161,11 +171,13 @@ CGathererTools::CSumGatherer::CSumGatherer(const SModelParams& params,
                                            core_t::TTime bucketLength,
                                            TStrVecCItr beginInfluencers,
                                            TStrVecCItr endInfluencers)
-    : m_Classifier(),
-      m_BucketSums(params.s_LatencyBuckets, bucketLength, startTime),
+    : m_Classifier(), m_BucketSums(params.s_LatencyBuckets, bucketLength, startTime),
       m_InfluencerBucketSums(
           std::distance(beginInfluencers, endInfluencers),
-          TStoredStringPtrDoubleUMapQueue(params.s_LatencyBuckets + 3, bucketLength, startTime, TStoredStringPtrDoubleUMap(1))) {
+          TStoredStringPtrDoubleUMapQueue(params.s_LatencyBuckets + 3,
+                                          bucketLength,
+                                          startTime,
+                                          TStoredStringPtrDoubleUMap(1))) {
 }
 
 std::size_t CGathererTools::CSumGatherer::dimension() const {
@@ -173,7 +185,9 @@ std::size_t CGathererTools::CSumGatherer::dimension() const {
 }
 
 SMetricFeatureData
-CGathererTools::CSumGatherer::featureData(core_t::TTime time, core_t::TTime /*bucketLength*/, const TSampleVec& emptySample) const {
+CGathererTools::CSumGatherer::featureData(core_t::TTime time,
+                                          core_t::TTime /*bucketLength*/,
+                                          const TSampleVec& emptySample) const {
     using TStrCRef = boost::reference_wrapper<const std::string>;
     using TDouble1VecDoublePr = std::pair<TDouble1Vec, double>;
     using TStrCRefDouble1VecDoublePrPr = std::pair<TStrCRef, TDouble1VecDoublePr>;
@@ -186,10 +200,12 @@ CGathererTools::CSumGatherer::featureData(core_t::TTime time, core_t::TTime /*bu
     }
     TStrCRefDouble1VecDoublePrPrVecVec influenceValues(m_InfluencerBucketSums.size());
     for (std::size_t i = 0u; i < m_InfluencerBucketSums.size(); ++i) {
-        const TStoredStringPtrDoubleUMap& influencerStats = m_InfluencerBucketSums[i].get(time);
+        const TStoredStringPtrDoubleUMap& influencerStats =
+            m_InfluencerBucketSums[i].get(time);
         influenceValues[i].reserve(influencerStats.size());
         for (const auto& stat : influencerStats) {
-            influenceValues[i].emplace_back(TStrCRef(*stat.first), TDouble1VecDoublePr(TDouble1Vec{stat.second}, 1.0));
+            influenceValues[i].emplace_back(
+                TStrCRef(*stat.first), TDouble1VecDoublePr(TDouble1Vec{stat.second}, 1.0));
         }
     }
 
@@ -199,7 +215,8 @@ CGathererTools::CSumGatherer::featureData(core_t::TTime time, core_t::TTime /*bu
                 (*sum)[0].varianceScale(),
                 (*sum)[0].count(),
                 influenceValues,
-                m_Classifier.isInteger() && maths::CIntegerTools::isInteger(((*sum)[0].value())[0]),
+                m_Classifier.isInteger() &&
+                    maths::CIntegerTools::isInteger(((*sum)[0].value())[0]),
                 m_Classifier.isNonNegative(),
                 *sum};
     }
@@ -229,16 +246,18 @@ void CGathererTools::CSumGatherer::resetBucket(core_t::TTime bucketStart) {
 }
 
 void CGathererTools::CSumGatherer::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(CLASSIFIER_TAG, boost::bind(&CDataClassifier::acceptPersistInserter, &m_Classifier, _1));
+    inserter.insertLevel(CLASSIFIER_TAG, boost::bind(&CDataClassifier::acceptPersistInserter,
+                                                     &m_Classifier, _1));
     if (m_BucketSums.size() > 0) {
         inserter.insertLevel(BUCKET_SUM_QUEUE_TAG,
-                             boost::bind<void>(TSampleVecQueue::CSerializer<SSumSerializer>(), boost::cref(m_BucketSums), _1));
+                             boost::bind<void>(TSampleVecQueue::CSerializer<SSumSerializer>(),
+                                               boost::cref(m_BucketSums), _1));
     }
     for (std::size_t i = 0u; i < m_InfluencerBucketSums.size(); ++i) {
-        inserter.insertLevel(INFLUENCER_BUCKET_SUM_QUEUE_TAG,
-                             boost::bind<void>(TStoredStringPtrDoubleUMapQueue::CSerializer<SInfluencerSumSerializer>(),
-                                               boost::cref(m_InfluencerBucketSums[i]),
-                                               _1));
+        inserter.insertLevel(
+            INFLUENCER_BUCKET_SUM_QUEUE_TAG,
+            boost::bind<void>(TStoredStringPtrDoubleUMapQueue::CSerializer<SInfluencerSumSerializer>(),
+                              boost::cref(m_InfluencerBucketSums[i]), _1));
     }
 }
 
@@ -247,22 +266,24 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
     do {
         const std::string& name = traverser.name();
         if (name == CLASSIFIER_TAG) {
-            if (traverser.traverseSubLevel(boost::bind(&CDataClassifier::acceptRestoreTraverser, &m_Classifier, _1)) == false) {
+            if (traverser.traverseSubLevel(boost::bind(&CDataClassifier::acceptRestoreTraverser,
+                                                       &m_Classifier, _1)) == false) {
                 LOG_ERROR(<< "Invalid classifier in " << traverser.value());
                 continue;
             }
         } else if (name == BUCKET_SUM_QUEUE_TAG) {
             if (traverser.traverseSubLevel(
-                    boost::bind<bool>(TSampleVecQueue::CSerializer<SSumSerializer>(), boost::ref(m_BucketSums), _1)) == false) {
+                    boost::bind<bool>(TSampleVecQueue::CSerializer<SSumSerializer>(),
+                                      boost::ref(m_BucketSums), _1)) == false) {
                 LOG_ERROR(<< "Invalid bucket queue in " << traverser.value());
                 return false;
             }
         } else if (name == INFLUENCER_BUCKET_SUM_QUEUE_TAG) {
             if (i < m_InfluencerBucketSums.size() &&
-                traverser.traverseSubLevel(
-                    boost::bind<bool>(TStoredStringPtrDoubleUMapQueue::CSerializer<SInfluencerSumSerializer>(TStoredStringPtrDoubleUMap(1)),
-                                      boost::ref(m_InfluencerBucketSums[i++]),
-                                      _1)) == false) {
+                traverser.traverseSubLevel(boost::bind<bool>(
+                    TStoredStringPtrDoubleUMapQueue::CSerializer<SInfluencerSumSerializer>(
+                        TStoredStringPtrDoubleUMap(1)),
+                    boost::ref(m_InfluencerBucketSums[i++]), _1)) == false) {
                 LOG_ERROR(<< "Invalid bucket queue in " << traverser.value());
                 return false;
             }
@@ -286,12 +307,14 @@ void CGathererTools::CSumGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryU
 }
 
 std::size_t CGathererTools::CSumGatherer::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_BucketSums) + core::CMemory::dynamicSize(m_InfluencerBucketSums);
+    return core::CMemory::dynamicSize(m_BucketSums) +
+           core::CMemory::dynamicSize(m_InfluencerBucketSums);
 }
 
 std::string CGathererTools::CSumGatherer::print() const {
     std::ostringstream result;
-    result << m_Classifier.isInteger() << ' ' << m_BucketSums.print() << ' ' << core::CContainerPrinter::print(m_InfluencerBucketSums);
+    result << m_Classifier.isInteger() << ' ' << m_BucketSums.print() << ' '
+           << core::CContainerPrinter::print(m_InfluencerBucketSums);
     return result.str();
 }
 

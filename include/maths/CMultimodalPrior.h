@@ -79,16 +79,22 @@ public:
     //! \name Life-Cycle
     //@{
     //! Create a new (empty) multimodal prior.
-    CMultimodalPrior(maths_t::EDataType dataType, const CClusterer1d& clusterer, const CPrior& seedPrior, double decayRate = 0.0);
+    CMultimodalPrior(maths_t::EDataType dataType,
+                     const CClusterer1d& clusterer,
+                     const CPrior& seedPrior,
+                     double decayRate = 0.0);
 
     //! Create a mixture of normals.
-    CMultimodalPrior(maths_t::EDataType dataType, const TMeanVarAccumulatorVec& moments, double decayRate = 0.0);
+    CMultimodalPrior(maths_t::EDataType dataType,
+                     const TMeanVarAccumulatorVec& moments,
+                     double decayRate = 0.0);
 
     //! Create from a collection of weights and priors.
     CMultimodalPrior(maths_t::EDataType dataType, double decayRate, TPriorPtrVec& priors);
 
     //! Construct from part of a state document.
-    CMultimodalPrior(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    CMultimodalPrior(const SDistributionRestoreParams& params,
+                     core::CStateRestoreTraverser& traverser);
 
     //! Implements value semantics for copy construction.
     CMultimodalPrior(const CMultimodalPrior& other);
@@ -129,7 +135,9 @@ public:
     //! Forward the offset to the mode priors.
     //!
     //! \return The penalty to apply in model selection.
-    virtual double adjustOffset(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
+    virtual double adjustOffset(const TWeightStyleVec& weightStyles,
+                                const TDouble1Vec& samples,
+                                const TDouble4Vec1Vec& weights);
 
     //! Get the current offset.
     virtual double offset() const;
@@ -142,7 +150,9 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
+    virtual void addSamples(const TWeightStyleVec& weightStyles,
+                            const TDouble1Vec& samples,
+                            const TDouble4Vec1Vec& weights);
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -163,16 +173,19 @@ public:
     virtual double nearestMarginalLikelihoodMean(double value) const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual double marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                          const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual double
+    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                           const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the local maxima of the marginal likelihood function.
-    virtual TDouble1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                                const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDouble1Vec
+    marginalLikelihoodModes(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                            const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the variance of the marginal likelihood.
-    virtual double marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                              const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual double
+    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                               const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the \p percentage symmetric confidence interval for the marginal
     //! likelihood function, i.e. the values \f$a\f$ and \f$b\f$ such that:
@@ -187,9 +200,10 @@ public:
     //! \param[in] weightStyles Optional variance scale weight styles.
     //! \param[in] weights Optional variance scale weights.
     //! \note \p percentage should be in the range [0.0, 100.0).
-    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(double percentage,
-                                                                 const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                                                 const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
+        double percentage,
+        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+        const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the mode parameters and summing
@@ -203,10 +217,11 @@ public:
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     //! \note The samples are assumed to be independent and identically
     //! distributed.
-    virtual maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                                                                          const TDouble1Vec& samples,
-                                                                          const TDouble4Vec1Vec& weights,
-                                                                          double& result) const;
+    virtual maths_t::EFloatingPointErrorStatus
+    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                               const TDouble1Vec& samples,
+                               const TDouble4Vec1Vec& weights,
+                               double& result) const;
 
     //! Sample the marginal likelihood function.
     //!
@@ -323,7 +338,9 @@ private:
     class MATHS_EXPORT CModeSplitCallback {
     public:
         CModeSplitCallback(CMultimodalPrior& prior);
-        void operator()(std::size_t sourceIndex, std::size_t leftSplitIndex, std::size_t rightSplitIndex) const;
+        void operator()(std::size_t sourceIndex,
+                        std::size_t leftSplitIndex,
+                        std::size_t rightSplitIndex) const;
 
     private:
         CMultimodalPrior* m_Prior;
@@ -333,7 +350,9 @@ private:
     class MATHS_EXPORT CModeMergeCallback {
     public:
         CModeMergeCallback(CMultimodalPrior& prior);
-        void operator()(std::size_t leftMergeIndex, std::size_t rightMergeIndex, std::size_t targetIndex) const;
+        void operator()(std::size_t leftMergeIndex,
+                        std::size_t rightMergeIndex,
+                        std::size_t targetIndex) const;
 
     private:
         CMultimodalPrior* m_Prior;
@@ -344,7 +363,8 @@ private:
 
 private:
     //! Read parameters from \p traverser.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
     //! We should only use this prior when it has multiple modes.
     virtual bool participatesInModelSelection() const;

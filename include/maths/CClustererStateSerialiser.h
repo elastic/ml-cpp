@@ -59,7 +59,9 @@ public:
     //! document representation.
     //!
     //! \note Sets \p ptr to NULL on failure.
-    bool operator()(const SDistributionRestoreParams& params, TClusterer1dPtr& ptr, core::CStateRestoreTraverser& traverser);
+    bool operator()(const SDistributionRestoreParams& params,
+                    TClusterer1dPtr& ptr,
+                    core::CStateRestoreTraverser& traverser);
 
     //! Construct the appropriate CClusterer sub-class from its state
     //! document representation.
@@ -82,7 +84,8 @@ public:
     bool operator()(const SDistributionRestoreParams& params,
                     boost::shared_ptr<CClusterer<CVectorNx1<T, N>>>& ptr,
                     core::CStateRestoreTraverser& traverser) {
-        return this->operator()(params, CClustererTypes::CDoNothing(), CClustererTypes::CDoNothing(), ptr, traverser);
+        return this->operator()(params, CClustererTypes::CDoNothing(),
+                                CClustererTypes::CDoNothing(), ptr, traverser);
     }
 
     //! Construct the appropriate CClusterer sub-class from its state
@@ -100,10 +103,12 @@ public:
         do {
             const std::string& name = traverser.name();
             if (name == CClustererTypes::X_MEANS_ONLINE_TAG) {
-                ptr.reset(CXMeansOnlineFactory::restore<T, N>(params, splitFunc, mergeFunc, traverser));
+                ptr.reset(CXMeansOnlineFactory::restore<T, N>(params, splitFunc,
+                                                              mergeFunc, traverser));
                 ++numResults;
             } else {
-                LOG_ERROR(<< "No clusterer corresponds to node name " << traverser.name());
+                LOG_ERROR(<< "No clusterer corresponds to node name "
+                          << traverser.name());
             }
         } while (traverser.next());
 
@@ -118,8 +123,11 @@ public:
 
     //! Persist state by passing information to the supplied inserter.
     template<typename T, std::size_t N>
-    void operator()(const CClusterer<CVectorNx1<T, N>>& clusterer, core::CStatePersistInserter& inserter) {
-        inserter.insertLevel(clusterer.persistenceTag(), boost::bind(&CClusterer<CVectorNx1<T, N>>::acceptPersistInserter, &clusterer, _1));
+    void operator()(const CClusterer<CVectorNx1<T, N>>& clusterer,
+                    core::CStatePersistInserter& inserter) {
+        inserter.insertLevel(clusterer.persistenceTag(),
+                             boost::bind(&CClusterer<CVectorNx1<T, N>>::acceptPersistInserter,
+                                         &clusterer, _1));
     }
 };
 }

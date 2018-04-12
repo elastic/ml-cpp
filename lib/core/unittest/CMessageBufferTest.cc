@@ -22,7 +22,8 @@
 CppUnit::Test* CMessageBufferTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMessageBufferTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMessageBufferTest>("CMessageBufferTest::testAll", &CMessageBufferTest::testAll));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMessageBufferTest>(
+        "CMessageBufferTest::testAll", &CMessageBufferTest::testAll));
 
     return suiteOfTests;
 }

@@ -49,7 +49,9 @@ size_t CLooper::inlinedLibraryCallLoop(vflib::CIncrementer& incrementer, size_t 
     return val;
 }
 
-size_t CLooper::nonVirtualLibraryCallLoop(vflib::CIncrementer& incrementer, size_t count, size_t val) {
+size_t CLooper::nonVirtualLibraryCallLoop(vflib::CIncrementer& incrementer,
+                                          size_t count,
+                                          size_t val) {
     for (size_t i = 0; i < count; ++i) {
         val = incrementer.nonVirtualIncrement(val);
     }

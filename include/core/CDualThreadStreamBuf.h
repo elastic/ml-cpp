@@ -123,7 +123,9 @@ protected:
     //! allowing a zero byte seek in order to allow tellg() and tellp() to
     //! work on the connected stream.
     virtual std::streampos
-    seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out);
+    seekoff(std::streamoff off,
+            std::ios_base::seekdir way,
+            std::ios_base::openmode which = std::ios_base::in | std::ios_base::out);
 
 private:
     //! Swap the intermediate buffer with the write buffer.  Will block if

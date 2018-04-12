@@ -38,10 +38,12 @@ const std::string CModelPlotDataJsonWriter::MEDIAN("model_median");
 const std::string CModelPlotDataJsonWriter::ACTUAL("actual");
 const std::string CModelPlotDataJsonWriter::BUCKET_SPAN("bucket_span");
 
-CModelPlotDataJsonWriter::CModelPlotDataJsonWriter(core::CJsonOutputStreamWrapper& outStream) : m_Writer(outStream) {
+CModelPlotDataJsonWriter::CModelPlotDataJsonWriter(core::CJsonOutputStreamWrapper& outStream)
+    : m_Writer(outStream) {
 }
 
-void CModelPlotDataJsonWriter::writeFlat(const std::string& jobId, const model::CModelPlotData& data) {
+void CModelPlotDataJsonWriter::writeFlat(const std::string& jobId,
+                                         const model::CModelPlotData& data) {
     const std::string& partitionFieldName = data.partitionFieldName();
     const std::string& partitionFieldValue = data.partitionFieldValue();
     const std::string& overFieldName = data.overFieldName();
@@ -49,26 +51,20 @@ void CModelPlotDataJsonWriter::writeFlat(const std::string& jobId, const model::
     core_t::TTime time = data.time();
     int detectorIndex = data.detectorIndex();
 
-    for (TFeatureStrByFieldDataUMapUMapCItr featureItr = data.begin(); featureItr != data.end(); ++featureItr) {
+    for (TFeatureStrByFieldDataUMapUMapCItr featureItr = data.begin();
+         featureItr != data.end(); ++featureItr) {
         std::string feature = model_t::print(featureItr->first);
         const TStrByFieldDataUMap& byDataMap = featureItr->second;
-        for (TStrByFieldDataUMapCItr byItr = byDataMap.begin(); byItr != byDataMap.end(); ++byItr) {
+        for (TStrByFieldDataUMapCItr byItr = byDataMap.begin();
+             byItr != byDataMap.end(); ++byItr) {
             const std::string& byFieldValue = byItr->first;
             const TByFieldData& byData = byItr->second;
             const TStrDoublePrVec& values = byData.s_ValuesPerOverField;
             if (values.empty()) {
                 rapidjson::Value doc = m_Writer.makeObject();
-                this->writeFlatRow(time,
-                                   jobId,
-                                   detectorIndex,
-                                   partitionFieldName,
-                                   partitionFieldValue,
-                                   feature,
-                                   byFieldName,
-                                   byFieldValue,
-                                   byData,
-                                   data.bucketSpan(),
-                                   doc);
+                this->writeFlatRow(time, jobId, detectorIndex, partitionFieldName,
+                                   partitionFieldValue, feature, byFieldName,
+                                   byFieldValue, byData, data.bucketSpan(), doc);
 
                 rapidjson::Value wrapper = m_Writer.makeObject();
                 m_Writer.addMember(MODEL_PLOT, doc, wrapper);
@@ -77,20 +73,13 @@ void CModelPlotDataJsonWriter::writeFlat(const std::string& jobId, const model::
                 for (std::size_t valueIndex = 0; valueIndex < values.size(); ++valueIndex) {
                     const TStrDoublePr& keyValue = values[valueIndex];
                     rapidjson::Value doc = m_Writer.makeObject();
-                    this->writeFlatRow(time,
-                                       jobId,
-                                       detectorIndex,
-                                       partitionFieldName,
-                                       partitionFieldValue,
-                                       feature,
-                                       byFieldName,
-                                       byFieldValue,
-                                       byData,
-                                       data.bucketSpan(),
-                                       doc);
+                    this->writeFlatRow(time, jobId, detectorIndex, partitionFieldName,
+                                       partitionFieldValue, feature, byFieldName,
+                                       byFieldValue, byData, data.bucketSpan(), doc);
                     if (!overFieldName.empty()) {
                         m_Writer.addStringFieldCopyToObj(OVER_FIELD_NAME, overFieldName, doc);
-                        m_Writer.addStringFieldCopyToObj(OVER_FIELD_VALUE, keyValue.first, doc, true);
+                        m_Writer.addStringFieldCopyToObj(OVER_FIELD_VALUE,
+                                                         keyValue.first, doc, true);
                     }
                     m_Writer.addDoubleFieldToObj(ACTUAL, keyValue.second, doc);
 
@@ -124,7 +113,8 @@ void CModelPlotDataJsonWriter::writeFlatRow(core_t::TTime time,
     m_Writer.addIntFieldToObj(BUCKET_SPAN, bucketSpan, doc);
     if (!partitionFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME, partitionFieldName, doc);
-        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE, partitionFieldValue, doc, true);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE,
+                                         partitionFieldValue, doc, true);
     }
     if (!byFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(BY_FIELD_NAME, byFieldName, doc);

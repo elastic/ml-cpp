@@ -44,7 +44,8 @@ void CContainerPrinterTest::testAll() {
     list.push_back(std::make_pair(2, 2));
     list.push_back(std::make_pair(3, 2));
     LOG_DEBUG(<< "list = " << CContainerPrinter::print(list));
-    CPPUNIT_ASSERT_EQUAL(std::string("[(1, 2), (2, 2), (3, 2)]"), CContainerPrinter::print(list));
+    CPPUNIT_ASSERT_EQUAL(std::string("[(1, 2), (2, 2), (3, 2)]"),
+                         CContainerPrinter::print(list));
 
     std::list<boost::shared_ptr<double>> plist;
     plist.push_back(boost::shared_ptr<double>());
@@ -60,30 +61,37 @@ void CContainerPrinterTest::testAll() {
     map.insert(std::make_pair(3.3, &fivePointOne));
     map.insert(std::make_pair(1.0, static_cast<double*>(nullptr)));
     LOG_DEBUG(<< "map = " << CContainerPrinter::print(map));
-    CPPUNIT_ASSERT_EQUAL(std::string("[(1, \"null\"), (1.1, 3), (3.3, 5.1)]"), CContainerPrinter::print(map));
+    CPPUNIT_ASSERT_EQUAL(std::string("[(1, \"null\"), (1.1, 3), (3.3, 5.1)]"),
+                         CContainerPrinter::print(map));
 
-    std::auto_ptr<int> pints[] = {std::auto_ptr<int>(new int(2)), std::auto_ptr<int>(new int(3)), std::auto_ptr<int>(new int(2))};
-    LOG_DEBUG(<< "pints = " << CContainerPrinter::print(boost::begin(pints), boost::end(pints)));
-    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3, 2]"), CContainerPrinter::print(boost::begin(pints), boost::end(pints)));
+    std::auto_ptr<int> pints[] = {std::auto_ptr<int>(new int(2)),
+                                  std::auto_ptr<int>(new int(3)),
+                                  std::auto_ptr<int>(new int(2))};
+    LOG_DEBUG(<< "pints = "
+              << CContainerPrinter::print(boost::begin(pints), boost::end(pints)));
+    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3, 2]"),
+                         CContainerPrinter::print(boost::begin(pints), boost::end(pints)));
 
     std::vector<boost::optional<double>> ovec(2, boost::optional<double>());
     LOG_DEBUG(<< "ovec = " << CContainerPrinter::print(ovec));
-    CPPUNIT_ASSERT_EQUAL(std::string("[\"null\", \"null\"]"), CContainerPrinter::print(ovec));
+    CPPUNIT_ASSERT_EQUAL(std::string("[\"null\", \"null\"]"),
+                         CContainerPrinter::print(ovec));
 
     std::vector<std::pair<std::list<std::pair<int, int>>, double>> aggregate;
     aggregate.push_back(std::make_pair(list, 1.3));
     aggregate.push_back(std::make_pair(std::list<std::pair<int, int>>(), 0.0));
     aggregate.push_back(std::make_pair(list, 5.1));
     LOG_DEBUG(<< "aggregate = " << CContainerPrinter::print(aggregate));
-    CPPUNIT_ASSERT_EQUAL(std::string("[([(1, 2), (2, 2), (3, 2)], 1.3), ([], 0), ([(1, 2), (2, 2), (3, 2)], 5.1)]"),
+    CPPUNIT_ASSERT_EQUAL(std::string("[([(1, 2), (2, 2), (3, 2)], 1.3), ([], "
+                                     "0), ([(1, 2), (2, 2), (3, 2)], 5.1)]"),
                          CContainerPrinter::print(aggregate));
 }
 
 CppUnit::Test* CContainerPrinterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CContainerPrinterTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CContainerPrinterTest>("CContainerPrinterTest::testAll", &CContainerPrinterTest::testAll));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CContainerPrinterTest>(
+        "CContainerPrinterTest::testAll", &CContainerPrinterTest::testAll));
 
     return suiteOfTests;
 }

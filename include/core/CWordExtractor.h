@@ -51,7 +51,9 @@ public:
     //! Extract words from a message, and return them in a space separated
     //! string BUT only include words that occur in groups of a specified
     //! size
-    static void extractWordsFromMessage(size_t minConsecutive, const std::string& message, std::string& messageWords);
+    static void extractWordsFromMessage(size_t minConsecutive,
+                                        const std::string& message,
+                                        std::string& messageWords);
 
 private:
     //! Don't allow objects to be instantiated

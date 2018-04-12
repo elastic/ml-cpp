@@ -17,13 +17,15 @@
 namespace ml {
 namespace api {
 
-CTokenListReverseSearchCreatorIntf::CTokenListReverseSearchCreatorIntf(const std::string& fieldName) : m_FieldName(fieldName) {
+CTokenListReverseSearchCreatorIntf::CTokenListReverseSearchCreatorIntf(const std::string& fieldName)
+    : m_FieldName(fieldName) {
 }
 
 CTokenListReverseSearchCreatorIntf::~CTokenListReverseSearchCreatorIntf() {
 }
 
-void CTokenListReverseSearchCreatorIntf::closeStandardSearch(std::string& /*part1*/, std::string& /*part2*/) const {
+void CTokenListReverseSearchCreatorIntf::closeStandardSearch(std::string& /*part1*/,
+                                                             std::string& /*part2*/) const {
     // Default is to do nothing
 }
 

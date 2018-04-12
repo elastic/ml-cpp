@@ -41,7 +41,8 @@ namespace api {
 //!
 //! For each node one or more CAnomalyDetector::SResults objects are
 //! constructed and written by the callback supplied to the constructor.
-class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResultsVisitor, private core::CNonCopyable {
+class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResultsVisitor,
+                                              private core::CNonCopyable {
 public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TOptionalDouble = boost::optional<double>;
@@ -49,14 +50,22 @@ public:
 
     // Influencers
     using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
-    using TStoredStringPtrStoredStringPtrPr = std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
-    using TStoredStringPtrStoredStringPtrPrDoublePr = std::pair<TStoredStringPtrStoredStringPtrPr, double>;
-    using TStoredStringPtrStoredStringPtrPrDoublePrVec = std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
+    using TStoredStringPtrStoredStringPtrPr =
+        std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
+    using TStoredStringPtrStoredStringPtrPrDoublePr =
+        std::pair<TStoredStringPtrStoredStringPtrPr, double>;
+    using TStoredStringPtrStoredStringPtrPrDoublePrVec =
+        std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
 
     using TStr1Vec = core::CSmallVector<std::string, 1>;
 
 public:
-    enum EResultType { E_SimpleCountResult, E_PopulationResult, E_PartitionResult, E_Result };
+    enum EResultType {
+        E_SimpleCountResult,
+        E_PopulationResult,
+        E_PartitionResult,
+        E_Result
+    };
     //! Type which wraps up the results of anomaly detection.
     struct API_EXPORT SResults {
         //! Construct for population results
@@ -177,7 +186,9 @@ private:
 
     //! Given a leaf node, search upwards to find the most appropriate
     //! values for person and partition probability results.
-    static void findParentProbabilities(const TNode& node, double& personProbability, double& partitionProbability);
+    static void findParentProbabilities(const TNode& node,
+                                        double& personProbability,
+                                        double& partitionProbability);
 
 private:
     //! The various limits.

@@ -70,16 +70,17 @@ public:
 public:
     // A type of token list data typer that DOESN'T exclude fields from its
     // analysis
-    using TTokenListDataTyperKeepsFields = CTokenListDataTyper<true,  // Warping
-                                                               true,  // Underscores
-                                                               true,  // Dots
-                                                               true,  // Dashes
-                                                               true,  // Ignore leading digit
-                                                               true,  // Ignore hex
-                                                               true,  // Ignore date words
-                                                               false, // Ignore field names
-                                                               2,     // Min dictionary word length
-                                                               core::CWordDictionary::TWeightVerbs5Other2>;
+    using TTokenListDataTyperKeepsFields =
+        CTokenListDataTyper<true,  // Warping
+                            true,  // Underscores
+                            true,  // Dots
+                            true,  // Dashes
+                            true,  // Ignore leading digit
+                            true,  // Ignore hex
+                            true,  // Ignore date words
+                            false, // Ignore field names
+                            2,     // Min dictionary word length
+                            core::CWordDictionary::TWeightVerbs5Other2>;
 
 public:
     //! Construct without persistence capability
@@ -103,7 +104,8 @@ public:
     virtual void finalise();
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
+                              core_t::TTime& completeToTime);
 
     //! Persist current state
     virtual bool persistState(core::CDataAdder& persister);

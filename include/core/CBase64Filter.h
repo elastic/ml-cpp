@@ -85,7 +85,9 @@ public:
         // copy into the buffer while there is data to read and space in the buffer
         std::streamsize done = 0;
         while (done < n) {
-            std::streamsize toCopy = std::min(std::streamsize(n - done), std::streamsize(m_Buffer.capacity() - m_Buffer.size()));
+            std::streamsize toCopy =
+                std::min(std::streamsize(n - done),
+                         std::streamsize(m_Buffer.capacity() - m_Buffer.size()));
             m_Buffer.insert(m_Buffer.end(), s + done, s + done + toCopy);
             done += toCopy;
             this->Encode(snk, false);
@@ -106,7 +108,8 @@ private:
     //! the converted output into the stream snk
     template<typename SINK>
     void Encode(SINK& snk, bool isFinal) {
-        using TUInt8BufCItrTransformItr = boost::archive::iterators::transform_width<TUInt8BufCItr, 6, 8>;
+        using TUInt8BufCItrTransformItr =
+            boost::archive::iterators::transform_width<TUInt8BufCItr, 6, 8>;
         using TBase64Text = boost::archive::iterators::base64_from_binary<TUInt8BufCItrTransformItr>;
 
         TUInt8BufItr endItr = m_Buffer.end();
@@ -191,18 +194,22 @@ public:
         std::streamsize done = 0;
         char buf[4096];
         while (done < n) {
-            std::streamsize toCopy = std::min(std::streamsize(m_BufferOut.size()), std::streamsize(n - done));
-            LOG_TRACE(<< "Trying to copy " << toCopy << " bytes into stream, max " << n << ", available " << m_BufferOut.size());
+            std::streamsize toCopy = std::min(std::streamsize(m_BufferOut.size()),
+                                              std::streamsize(n - done));
+            LOG_TRACE(<< "Trying to copy " << toCopy << " bytes into stream, max "
+                      << n << ", available " << m_BufferOut.size());
             for (std::streamsize i = 0; i < toCopy; i++) {
                 s[done++] = m_BufferOut.front();
                 m_BufferOut.pop_front();
             }
-            LOG_TRACE(<< "Eos: " << m_Eos << ", In: " << m_BufferIn.empty() << ", Out: " << m_BufferOut.empty());
+            LOG_TRACE(<< "Eos: " << m_Eos << ", In: " << m_BufferIn.empty()
+                      << ", Out: " << m_BufferOut.empty());
             if (done == n) {
                 break;
             }
             if ((done > 0) && m_BufferIn.empty() && m_BufferOut.empty() && m_Eos) {
-                LOG_TRACE(<< "Base64 READ " << done << ", from n " << n << ", left " << m_BufferOut.size());
+                LOG_TRACE(<< "Base64 READ " << done << ", from n " << n
+                          << ", left " << m_BufferOut.size());
                 return done;
             }
 
@@ -244,7 +251,8 @@ public:
                 return -1;
             }
         }
-        LOG_TRACE(<< "Base64 READ " << done << ", from n " << n << ", left " << m_BufferOut.size());
+        LOG_TRACE(<< "Base64 READ " << done << ", from n " << n << ", left "
+                  << m_BufferOut.size());
         return done;
     }
 
@@ -256,8 +264,10 @@ private:
     //! Perform the conversion from Base64 to raw bytes
     void Decode(bool isFinal) {
         // Base64 turns 4 characters into 3 bytes
-        using TUInt8BufCItrBinaryBase64Itr = boost::archive::iterators::binary_from_base64<TUInt8BufCItr>;
-        using TBase64Binary = boost::archive::iterators::transform_width<TUInt8BufCItrBinaryBase64Itr, 8, 6, uint8_t>;
+        using TUInt8BufCItrBinaryBase64Itr =
+            boost::archive::iterators::binary_from_base64<TUInt8BufCItr>;
+        using TBase64Binary =
+            boost::archive::iterators::transform_width<TUInt8BufCItrBinaryBase64Itr, 8, 6, uint8_t>;
 
         std::size_t inBytes = m_BufferIn.size();
         if (inBytes == 0) {
@@ -297,7 +307,8 @@ private:
         }
         LOG_TRACE(<< "About to decode: " << std::string(m_BufferIn.begin(), endItr));
 
-        m_BufferOut.insert(m_BufferOut.end(), TBase64Binary(m_BufferIn.begin()), TBase64Binary(endItr));
+        m_BufferOut.insert(m_BufferOut.end(), TBase64Binary(m_BufferIn.begin()),
+                           TBase64Binary(endItr));
 
         // Remove padding bytes off the back of the stream
         m_BufferOut.erase_end(paddingBytes);

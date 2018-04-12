@@ -64,7 +64,8 @@ public:
         using char_type = char;
 
         //! Inform the filtering_stream owning object what this is capable of
-        struct category : public boost::iostreams::sink_tag, public boost::iostreams::closable_tag {};
+        struct category : public boost::iostreams::sink_tag,
+                          public boost::iostreams::closable_tag {};
 
     public:
         //! Constructor

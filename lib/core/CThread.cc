@@ -63,7 +63,8 @@ CThread::~CThread() {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadId != UNALLOCATED_THREAD_ID) {
-        LOG_ERROR(<< "Trying to destroy a running thread. Call 'stop' before destroying");
+        LOG_ERROR(<< "Trying to destroy a running thread. Call 'stop' before "
+                     "destroying");
     }
 }
 
@@ -188,7 +189,8 @@ bool CThread::cancelBlockedIo(TThreadId threadId) {
     if (ret != 0) {
         // Don't report an error if the thread has already exited
         if (ret != ESRCH) {
-            LOG_ERROR(<< "Error cancelling blocked IO in thread " << threadId << ": " << ::strerror(ret));
+            LOG_ERROR(<< "Error cancelling blocked IO in thread " << threadId
+                      << ": " << ::strerror(ret));
             return false;
         }
     }

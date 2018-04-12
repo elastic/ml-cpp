@@ -47,9 +47,13 @@ public:
 
 public:
     CCalendarComponentAdaptiveBucketing();
-    explicit CCalendarComponentAdaptiveBucketing(CCalendarFeature feature, double decayRate = 0.0, double minimumBucketLength = 0.0);
+    explicit CCalendarComponentAdaptiveBucketing(CCalendarFeature feature,
+                                                 double decayRate = 0.0,
+                                                 double minimumBucketLength = 0.0);
     //! Construct by traversing a state document.
-    CCalendarComponentAdaptiveBucketing(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser);
+    CCalendarComponentAdaptiveBucketing(double decayRate,
+                                        double minimumBucketLength,
+                                        core::CStateRestoreTraverser& traverser);
 
     //! Persist by passing information to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -192,7 +196,8 @@ private:
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CCalendarComponentAdaptiveBucketing& lhs, CCalendarComponentAdaptiveBucketing& rhs) {
+inline void swap(CCalendarComponentAdaptiveBucketing& lhs,
+                 CCalendarComponentAdaptiveBucketing& rhs) {
     lhs.swap(rhs);
 }
 }

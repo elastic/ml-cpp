@@ -179,7 +179,9 @@ size_t CStringUtils::replace(const std::string& from, const std::string& to, std
     return count;
 }
 
-size_t CStringUtils::replaceFirst(const std::string& from, const std::string& to, std::string& str) {
+size_t CStringUtils::replaceFirst(const std::string& from,
+                                  const std::string& to,
+                                  std::string& str) {
     if (from == to) {
         return 0;
     }
@@ -369,17 +371,25 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     int ret = 0;
     switch (precision) {
     case CIEEE754::E_HalfPrecision:
-        ret = std::fabs(d) < 1.0 && d != 0.0 ? ::sprintf(buf, "%.2e", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)))
-                                             : ::sprintf(buf, "%.3g", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
+        ret = std::fabs(d) < 1.0 && d != 0.0
+                  ? ::sprintf(buf, "%.2e",
+                              clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)))
+                  : ::sprintf(buf, "%.3g",
+                              clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
         break;
 
     case CIEEE754::E_SinglePrecision:
-        ret = std::fabs(d) < 1.0 && d != 0.0 ? ::sprintf(buf, "%.6e", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)))
-                                             : ::sprintf(buf, "%.7g", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
+        ret = std::fabs(d) < 1.0 && d != 0.0
+                  ? ::sprintf(buf, "%.6e",
+                              clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)))
+                  : ::sprintf(buf, "%.7g",
+                              clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
         break;
 
     case CIEEE754::E_DoublePrecision:
-        ret = std::fabs(d) < 1.0 && d != 0.0 ? ::sprintf(buf, "%.14e", clampToReadable(d)) : ::sprintf(buf, "%.15g", clampToReadable(d));
+        ret = std::fabs(d) < 1.0 && d != 0.0
+                  ? ::sprintf(buf, "%.14e", clampToReadable(d))
+                  : ::sprintf(buf, "%.15g", clampToReadable(d));
         break;
     }
 
@@ -704,7 +714,8 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, short& i) 
     }
 
     // Now check if the result is in range for short
-    if (ret < std::numeric_limits<short>::min() || ret > std::numeric_limits<short>::max()) {
+    if (ret < std::numeric_limits<short>::min() ||
+        ret > std::numeric_limits<short>::max()) {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
                       << "'"
@@ -838,7 +849,8 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, double& d)
 bool CStringUtils::_stringToType(bool silent, const std::string& str, char& c) {
     if (str.length() != 1) {
         if (!silent) {
-            LOG_ERROR(<< "Unable to convert string '" << str << "' to char: " << (str.empty() ? "too short" : "too long"));
+            LOG_ERROR(<< "Unable to convert string '" << str
+                      << "' to char: " << (str.empty() ? "too short" : "too long"));
         }
         return false;
     }
@@ -855,7 +867,10 @@ bool CStringUtils::_stringToType(bool /* silent */, const std::string& str, std:
     return true;
 }
 
-void CStringUtils::tokenise(const std::string& delim, const std::string& str, TStrVec& tokens, std::string& remainder) {
+void CStringUtils::tokenise(const std::string& delim,
+                            const std::string& str,
+                            TStrVec& tokens,
+                            std::string& remainder) {
     std::string::size_type pos(0);
 
     for (;;) {
@@ -870,7 +885,8 @@ void CStringUtils::tokenise(const std::string& delim, const std::string& str, TS
     }
 }
 
-std::string CStringUtils::longestCommonSubstr(const std::string& str1, const std::string& str2) {
+std::string CStringUtils::longestCommonSubstr(const std::string& str1,
+                                              const std::string& str2) {
     std::string common;
     if (str1.empty() || str2.empty()) {
         return common;
@@ -917,7 +933,8 @@ std::string CStringUtils::longestCommonSubstr(const std::string& str1, const std
     return common;
 }
 
-std::string CStringUtils::longestCommonSubsequence(const std::string& str1, const std::string& str2) {
+std::string CStringUtils::longestCommonSubsequence(const std::string& str1,
+                                                   const std::string& str2) {
     std::string common;
     if (str1.empty() || str2.empty()) {
         return common;
@@ -997,7 +1014,8 @@ std::string CStringUtils::wideToNarrow(const std::wstring& wideStr) {
     // cope with UTF8 either, so we should replace it with a proper
     // string conversion library, e.g. ICU
     using TWCharTCType = std::ctype<wchar_t>;
-    std::use_facet<TWCharTCType>(CStringUtils::locale()).narrow(wideStr.data(), wideStr.data() + wideStr.length(), '?', &narrowStr[0]);
+    std::use_facet<TWCharTCType>(CStringUtils::locale())
+        .narrow(wideStr.data(), wideStr.data() + wideStr.length(), '?', &narrowStr[0]);
     return narrowStr;
 }
 
@@ -1010,7 +1028,8 @@ std::wstring CStringUtils::narrowToWide(const std::string& narrowStr) {
     // cope with UTF8 either, so we should replace it with a proper
     // string conversion library, e.g. ICU
     using TWCharTCType = std::ctype<wchar_t>;
-    std::use_facet<TWCharTCType>(CStringUtils::locale()).widen(narrowStr.data(), narrowStr.data() + narrowStr.length(), &wideStr[0]);
+    std::use_facet<TWCharTCType>(CStringUtils::locale())
+        .widen(narrowStr.data(), narrowStr.data() + narrowStr.length(), &wideStr[0]);
     return wideStr;
 }
 

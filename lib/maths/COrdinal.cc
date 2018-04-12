@@ -102,7 +102,8 @@ bool COrdinal::operator<(COrdinal rhs) const {
     case E_PositiveInteger:
         switch (rhs.m_Type) {
         case E_Integer:
-            return !this->equal(rhs.m_Value.integer, m_Value.positiveInteger) && !this->less(rhs.m_Value.integer, m_Value.positiveInteger);
+            return !this->equal(rhs.m_Value.integer, m_Value.positiveInteger) &&
+                   !this->less(rhs.m_Value.integer, m_Value.positiveInteger);
         case E_PositiveInteger:
             return m_Value.positiveInteger < rhs.m_Value.positiveInteger;
         case E_Real:
@@ -114,9 +115,11 @@ bool COrdinal::operator<(COrdinal rhs) const {
     case E_Real:
         switch (rhs.m_Type) {
         case E_Integer:
-            return !this->equal(rhs.m_Value.integer, m_Value.real) && !this->less(rhs.m_Value.integer, m_Value.real);
+            return !this->equal(rhs.m_Value.integer, m_Value.real) &&
+                   !this->less(rhs.m_Value.integer, m_Value.real);
         case E_PositiveInteger:
-            return !this->equal(rhs.m_Value.positiveInteger, m_Value.real) && !this->less(rhs.m_Value.positiveInteger, m_Value.real);
+            return !this->equal(rhs.m_Value.positiveInteger, m_Value.real) &&
+                   !this->less(rhs.m_Value.positiveInteger, m_Value.real);
         case E_Real:
             return m_Value.real < rhs.m_Value.real;
         case E_Nan:
@@ -166,7 +169,8 @@ bool COrdinal::equal(int64_t lhs, double rhs) const {
 }
 
 bool COrdinal::equal(uint64_t lhs, double rhs) const {
-    if (rhs < 0.0 || rhs > static_cast<double>(boost::numeric::bounds<uint64_t>::highest())) {
+    if (rhs < 0.0 ||
+        rhs > static_cast<double>(boost::numeric::bounds<uint64_t>::highest())) {
         return false;
     }
     double integerPart;
@@ -187,7 +191,8 @@ bool COrdinal::less(int64_t lhs, double rhs) const {
     }
     double integerPart;
     double remainder = ::modf(rhs, &integerPart);
-    return lhs < static_cast<int64_t>(integerPart) || (lhs == static_cast<int64_t>(integerPart) && remainder > 0.0);
+    return lhs < static_cast<int64_t>(integerPart) ||
+           (lhs == static_cast<int64_t>(integerPart) && remainder > 0.0);
 }
 
 bool COrdinal::less(uint64_t lhs, double rhs) const {
@@ -199,7 +204,8 @@ bool COrdinal::less(uint64_t lhs, double rhs) const {
     }
     double integerPart;
     double remainder = ::modf(rhs, &integerPart);
-    return lhs < static_cast<uint64_t>(integerPart) || (lhs == static_cast<uint64_t>(integerPart) && remainder > 0.0);
+    return lhs < static_cast<uint64_t>(integerPart) ||
+           (lhs == static_cast<uint64_t>(integerPart) && remainder > 0.0);
 }
 
 std::ostream& operator<<(std::ostream& o, COrdinal ord) {

@@ -35,7 +35,8 @@ const std::string LONG_TERM_LOG_WEIGHT_TAG("c");
 const double LOG_SMALLEST_WEIGHT = std::log(CTools::smallestProbability());
 }
 
-CModelWeight::CModelWeight(double weight) : m_LogWeight(std::log(weight)), m_LongTermLogWeight(m_LogWeight) {
+CModelWeight::CModelWeight(double weight)
+    : m_LogWeight(std::log(weight)), m_LongTermLogWeight(m_LogWeight) {
 }
 
 CModelWeight::operator double() const {
@@ -74,7 +75,8 @@ bool CModelWeight::acceptRestoreTraverser(core::CStateRestoreTraverser& traverse
 
 void CModelWeight::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(LOG_WEIGHT_TAG, m_LogWeight, core::CIEEE754::E_DoublePrecision);
-    inserter.insertValue(LONG_TERM_LOG_WEIGHT_TAG, m_LongTermLogWeight, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(LONG_TERM_LOG_WEIGHT_TAG, m_LongTermLogWeight,
+                         core::CIEEE754::E_SinglePrecision);
 }
 }
 }

@@ -64,13 +64,17 @@ public:
 
     using TSizeSizePrMomentsUMap = boost::unordered_map<TSizeSizePr, TMoments>;
     using TSizeSizePrArgumentMomentsUMap = boost::unordered_map<TSizeSizePr, SArgumentMoments>;
-    using TStrCPtrSizeSizePrArgumentMomentsUMapPr = std::pair<const std::string*, TSizeSizePrArgumentMomentsUMap>;
-    using TStrCPtrSizeSizePrArgumentMomentsUMapPrVec = std::vector<TStrCPtrSizeSizePrArgumentMomentsUMapPr>;
+    using TStrCPtrSizeSizePrArgumentMomentsUMapPr =
+        std::pair<const std::string*, TSizeSizePrArgumentMomentsUMap>;
+    using TStrCPtrSizeSizePrArgumentMomentsUMapPrVec =
+        std::vector<TStrCPtrSizeSizePrArgumentMomentsUMapPr>;
     using TSizeSizePrQuantileUMap = boost::unordered_map<TSizeSizePr, maths::CQuantileSketch>;
 
 public:
     //! Add the record for \p partition.
-    void add(const TSizeSizeSizeTr& partition, TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords);
+    void add(const TSizeSizeSizeTr& partition,
+             TDetectorRecordCItr beginRecords,
+             TDetectorRecordCItr endRecords);
 
     //! Capture the current bucket statistics.
     void capture();
@@ -86,23 +90,28 @@ public:
 
     //! Get the moments of the distribution of the distinct count of argument
     //! field values for \p name.
-    const TSizeSizePrArgumentMomentsUMap& argumentMomentsPerPartition(const std::string& name) const;
+    const TSizeSizePrArgumentMomentsUMap&
+    argumentMomentsPerPartition(const std::string& name) const;
 
 private:
     using TMean = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     //! \brief Bucket data stored about argument field.
     struct CONFIG_EXPORT SBucketArgumentData {
-        SBucketArgumentData(const maths::CBjkstUniqueValues distinctValues) : s_DistinctValues(distinctValues) {}
+        SBucketArgumentData(const maths::CBjkstUniqueValues distinctValues)
+            : s_DistinctValues(distinctValues) {}
         //! The approximate distinct values.
         maths::CBjkstUniqueValues s_DistinctValues;
         //! A sample of the unique strings in the bucket.
         TMean s_MeanStringLength;
     };
 
-    using TSizeSizeSizeTrArgumentDataUMap = boost::unordered_map<TSizeSizeSizeTr, SBucketArgumentData>;
-    using TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr = std::pair<const std::string*, TSizeSizeSizeTrArgumentDataUMap>;
-    using TStrCPtrSizeSizeSizeTrArgumentDataUMapPrVec = std::vector<TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr>;
+    using TSizeSizeSizeTrArgumentDataUMap =
+        boost::unordered_map<TSizeSizeSizeTr, SBucketArgumentData>;
+    using TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr =
+        std::pair<const std::string*, TSizeSizeSizeTrArgumentDataUMap>;
+    using TStrCPtrSizeSizeSizeTrArgumentDataUMapPrVec =
+        std::vector<TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr>;
 
 private:
     //! The distinct partitions seen this bucket.
@@ -174,13 +183,15 @@ public:
 
     //! Extract the by field value.
     template<typename T>
-    static std::size_t by(const std::pair<const std::pair<std::size_t, std::size_t>, T>& p) {
+    static std::size_t
+    by(const std::pair<const std::pair<std::size_t, std::size_t>, T>& p) {
         return p.first.first;
     }
 
     //! Extract the partition field value.
     template<typename T>
-    static std::size_t partition(const std::pair<const std::pair<std::size_t, std::size_t>, T>& p) {
+    static std::size_t
+    partition(const std::pair<const std::pair<std::size_t, std::size_t>, T>& p) {
         return p.first.second;
     }
 
@@ -203,8 +214,10 @@ private:
     using TSizeSizePrUSet = boost::unordered_set<TSizeSizePr>;
     using TOptionalTime = boost::optional<core_t::TTime>;
     using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
-    using TMinTimeAccumulator = maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1>;
-    using TMaxTimeAccumulator = maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime>>;
+    using TMinTimeAccumulator =
+        maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1>;
+    using TMaxTimeAccumulator =
+        maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime>>;
 
 private:
     //! Fill in the last bucket end times if they are empty.

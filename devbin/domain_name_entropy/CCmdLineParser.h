@@ -41,7 +41,11 @@ public:
     //! Parse the arguments and return options if appropriate.  Unamed
     //! options are placed in a vector for further processing/validation
     //! later on by the api::CFieldConfig class.
-    static bool parse(int argc, const char* const* argv, std::string& csvFileName, std::string& domainNameField, std::string& timeField);
+    static bool parse(int argc,
+                      const char* const* argv,
+                      std::string& csvFileName,
+                      std::string& domainNameField,
+                      std::string& timeField);
 
 private:
     static const std::string DESCRIPTION;

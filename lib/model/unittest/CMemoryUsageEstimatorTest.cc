@@ -41,8 +41,10 @@ void addValue(CMemoryUsageEstimator& estimator,
     estimator.addValue(predictors, memory);
 }
 
-CMemoryUsageEstimator::TOptionalSize
-estimate(CMemoryUsageEstimator& estimator, std::size_t people, std::size_t attributes, std::size_t correlations = 0) {
+CMemoryUsageEstimator::TOptionalSize estimate(CMemoryUsageEstimator& estimator,
+                                              std::size_t people,
+                                              std::size_t attributes,
+                                              std::size_t correlations = 0) {
     CMemoryUsageEstimator::TSizeArray predictors;
     predictors[CMemoryUsageEstimator::E_People] = people;
     predictors[CMemoryUsageEstimator::E_Attributes] = attributes;
@@ -139,18 +141,26 @@ void CMemoryUsageEstimatorTest::testEstimateNonlinear() {
         int cScale = 30;
 
         CMemoryUsageEstimator estimator;
-        addValue(estimator, pScale * 10 * 10 + aScale * 9 * 9 + cScale * 15 * 15, 10, 9, 15);
-        addValue(estimator, pScale * 11 * 11 + aScale * 11 * 11 + cScale * 20 * 20, 11, 11, 20);
-        addValue(estimator, pScale * 12 * 12 + aScale * 13 * 13 + cScale * 25 * 25, 12, 13, 25);
-        addValue(estimator, pScale * 13 * 13 + aScale * 15 * 15 + cScale * 26 * 26, 13, 15, 26);
-        addValue(estimator, pScale * 17 * 17 + aScale * 19 * 19 + cScale * 27 * 27, 17, 19, 27);
-        addValue(estimator, pScale * 20 * 20 + aScale * 19 * 19 + cScale * 30 * 30, 20, 19, 30);
-        addValue(estimator, pScale * 20 * 20 + aScale * 25 * 25 + cScale * 40 * 40, 20, 25, 40);
+        addValue(estimator, pScale * 10 * 10 + aScale * 9 * 9 + cScale * 15 * 15,
+                 10, 9, 15);
+        addValue(estimator, pScale * 11 * 11 + aScale * 11 * 11 + cScale * 20 * 20,
+                 11, 11, 20);
+        addValue(estimator, pScale * 12 * 12 + aScale * 13 * 13 + cScale * 25 * 25,
+                 12, 13, 25);
+        addValue(estimator, pScale * 13 * 13 + aScale * 15 * 15 + cScale * 26 * 26,
+                 13, 15, 26);
+        addValue(estimator, pScale * 17 * 17 + aScale * 19 * 19 + cScale * 27 * 27,
+                 17, 19, 27);
+        addValue(estimator, pScale * 20 * 20 + aScale * 19 * 19 + cScale * 30 * 30,
+                 20, 19, 30);
+        addValue(estimator, pScale * 20 * 20 + aScale * 25 * 25 + cScale * 40 * 40,
+                 20, 25, 40);
 
         CMemoryUsageEstimator::TOptionalSize mem = estimate(estimator, 25, 35, 45);
         std::size_t actual = pScale * 25 * 25 + aScale * 35 * 35 + cScale * 45 * 45;
         LOG_DEBUG(<< "actual = " << actual << ", estimated = " << mem.get());
-        CPPUNIT_ASSERT(static_cast<double>(actual - mem.get()) / static_cast<double>(actual) < 0.15);
+        CPPUNIT_ASSERT(
+            static_cast<double>(actual - mem.get()) / static_cast<double>(actual) < 0.15);
     }
 }
 
@@ -173,7 +183,8 @@ void CMemoryUsageEstimatorTest::testPersist() {
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         CMemoryUsageEstimator restoredEstimator;
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(&CMemoryUsageEstimator::acceptRestoreTraverser, &restoredEstimator, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
+            &CMemoryUsageEstimator::acceptRestoreTraverser, &restoredEstimator, _1)));
 
         // The XML representation of the new data gatherer should be the same
         // as the original.
@@ -210,7 +221,8 @@ void CMemoryUsageEstimatorTest::testPersist() {
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         CMemoryUsageEstimator restoredEstimator;
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(&CMemoryUsageEstimator::acceptRestoreTraverser, &restoredEstimator, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
+            &CMemoryUsageEstimator::acceptRestoreTraverser, &restoredEstimator, _1)));
 
         // The XML representation of the new data gatherer should be the same
         // as the original.
@@ -227,12 +239,14 @@ void CMemoryUsageEstimatorTest::testPersist() {
 CppUnit::Test* CMemoryUsageEstimatorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMemoryUsageEstimatorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>("CMemoryUsageEstimatorTest::testEstimateLinear",
-                                                                             &CMemoryUsageEstimatorTest::testEstimateLinear));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>("CMemoryUsageEstimatorTest::testEstimateNonlinear",
-                                                                             &CMemoryUsageEstimatorTest::testEstimateNonlinear));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>("CMemoryUsageEstimatorTest::testPersist",
-                                                                             &CMemoryUsageEstimatorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>(
+        "CMemoryUsageEstimatorTest::testEstimateLinear",
+        &CMemoryUsageEstimatorTest::testEstimateLinear));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>(
+        "CMemoryUsageEstimatorTest::testEstimateNonlinear",
+        &CMemoryUsageEstimatorTest::testEstimateNonlinear));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>(
+        "CMemoryUsageEstimatorTest::testPersist", &CMemoryUsageEstimatorTest::testPersist));
 
     return suiteOfTests;
 }

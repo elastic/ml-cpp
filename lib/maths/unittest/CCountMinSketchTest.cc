@@ -64,7 +64,8 @@ void CCountMinSketchTest::testCounts() {
             double count = counts[i];
             double estimated = sketch.count(static_cast<uint32_t>(i));
             if (i % 50 == 0) {
-                LOG_DEBUG(<< "category = " << i << ", true count = " << count << ", estimated count = " << estimated);
+                LOG_DEBUG(<< "category = " << i << ", true count = " << count
+                          << ", estimated count = " << estimated);
             }
 
             meanError.add(std::fabs(estimated - count));
@@ -111,7 +112,8 @@ void CCountMinSketchTest::testCounts() {
         for (std::size_t i = 0u; i < heavyHitters.size(); ++i) {
             double count = heavyHitters[i];
             double estimated = sketch.count(static_cast<uint32_t>(i));
-            LOG_DEBUG(<< "category = " << i << ", true count = " << count << ", estimated count = " << estimated);
+            LOG_DEBUG(<< "category = " << i << ", true count = " << count
+                      << ", estimated count = " << estimated);
 
             double relativeError = std::fabs(estimated - count) / count;
             CPPUNIT_ASSERT(relativeError < 0.01);
@@ -119,7 +121,8 @@ void CCountMinSketchTest::testCounts() {
             meanRelativeError.add(relativeError);
         }
 
-        LOG_DEBUG(<< "mean relative error " << maths::CBasicStatistics::mean(meanRelativeError));
+        LOG_DEBUG(<< "mean relative error "
+                  << maths::CBasicStatistics::mean(meanRelativeError));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanRelativeError) < 0.005);
     }
 }
@@ -217,7 +220,8 @@ void CCountMinSketchTest::testPersist() {
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CCountMinSketch restoredSketch(traverser);
 
-        LOG_DEBUG(<< "orig checksum = " << origSketch.checksum() << ", new checksum = " << restoredSketch.checksum());
+        LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
+                  << ", new checksum = " << restoredSketch.checksum());
         CPPUNIT_ASSERT_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::string newXml;
@@ -250,7 +254,8 @@ void CCountMinSketchTest::testPersist() {
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CCountMinSketch restoredSketch(traverser);
 
-        LOG_DEBUG(<< "orig checksum = " << origSketch.checksum() << ", new checksum = " << restoredSketch.checksum());
+        LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
+                  << ", new checksum = " << restoredSketch.checksum());
         CPPUNIT_ASSERT_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::string newXml;
@@ -265,11 +270,12 @@ void CCountMinSketchTest::testPersist() {
 CppUnit::Test* CCountMinSketchTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCountMinSketchTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCountMinSketchTest>("CCountMinSketchTest::testCounts", &CCountMinSketchTest::testCounts));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCountMinSketchTest>("CCountMinSketchTest::testSwap", &CCountMinSketchTest::testSwap));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCountMinSketchTest>("CCountMinSketchTest::testPersist", &CCountMinSketchTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCountMinSketchTest>(
+        "CCountMinSketchTest::testCounts", &CCountMinSketchTest::testCounts));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCountMinSketchTest>(
+        "CCountMinSketchTest::testSwap", &CCountMinSketchTest::testSwap));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCountMinSketchTest>(
+        "CCountMinSketchTest::testPersist", &CCountMinSketchTest::testPersist));
 
     return suiteOfTests;
 }

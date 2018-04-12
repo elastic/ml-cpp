@@ -53,9 +53,15 @@ size_t countBuckets(const std::string& key, const std::string& output) {
     return count;
 }
 
-core_t::TTime
-playData(core_t::TTime start, core_t::TTime span, int numBuckets, int numPeople, int numPartitions, int anomaly, api::CAnomalyJob& job) {
-    std::string people[] = {"Elgar", "Holst", "Delius", "Vaughan Williams", "Bliss", "Warlock", "Walton"};
+core_t::TTime playData(core_t::TTime start,
+                       core_t::TTime span,
+                       int numBuckets,
+                       int numPeople,
+                       int numPartitions,
+                       int anomaly,
+                       api::CAnomalyJob& job) {
+    std::string people[] = {"Elgar", "Holst",   "Delius", "Vaughan Williams",
+                            "Bliss", "Warlock", "Walton"};
     if (numPeople > 7) {
         LOG_ERROR(<< "Too many people: " << numPeople);
         return start;
@@ -77,7 +83,8 @@ playData(core_t::TTime start, core_t::TTime span, int numBuckets, int numPeople,
             }
         }
         if (bucketNum == anomaly) {
-            ss << t << "," << 5564 << "," << people[numPeople - 1] << "," << partitions[numPartitions - 1] << "\n";
+            ss << t << "," << 5564 << "," << people[numPeople - 1] << ","
+               << partitions[numPartitions - 1] << "\n";
         }
     }
 
@@ -95,18 +102,22 @@ struct SLookup {
         return hasher(key);
     }
 
-    bool operator()(const std::string& lhs, const core::CStoredStringPtr& rhs) const { return lhs == *rhs; }
+    bool operator()(const std::string& lhs, const core::CStoredStringPtr& rhs) const {
+        return lhs == *rhs;
+    }
 };
 
 } // namespace
 
 bool CStringStoreTest::nameExists(const std::string& string) {
-    model::CStringStore::TStoredStringPtrUSet names = model::CStringStore::names().m_Strings;
+    model::CStringStore::TStoredStringPtrUSet names =
+        model::CStringStore::names().m_Strings;
     return names.find(string, ::SLookup(), ::SLookup()) != names.end();
 }
 
 bool CStringStoreTest::influencerExists(const std::string& string) {
-    model::CStringStore::TStoredStringPtrUSet names = model::CStringStore::influencers().m_Strings;
+    model::CStringStore::TStoredStringPtrUSet names =
+        model::CStringStore::influencers().m_Strings;
     return names.find(string, ::SLookup(), ::SLookup()) != names.end();
 }
 
@@ -123,7 +134,8 @@ void CStringStoreTest::testPersonStringPruning() {
 
     CPPUNIT_ASSERT(fieldConfig.initFromClause(clause));
 
-    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
+    model::CAnomalyDetectorModelConfig modelConfig =
+        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
     modelConfig.decayRate(0.001);
     modelConfig.bucketResultsDelay(2);
 
@@ -138,8 +150,10 @@ void CStringStoreTest::testPersonStringPruning() {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::names().m_Strings.size());
 
         LOG_TRACE(<< "Setting up job");
 
@@ -154,10 +168,12 @@ void CStringStoreTest::testPersonStringPruning() {
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
         wrappedOutputStream.syncFlush();
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), countBuckets("records", outputStrm.str() + "]"));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             countBuckets("records", outputStrm.str() + "]"));
 
         // No influencers in this configuration
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "max", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         CPPUNIT_ASSERT(this->nameExists("count"));
@@ -177,7 +193,8 @@ void CStringStoreTest::testPersonStringPruning() {
         CPPUNIT_ASSERT(job.persistState(adder));
         wrappedOutputStream.syncFlush();
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), countBuckets("records", outputStrm.str() + "]"));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(1),
+                             countBuckets("records", outputStrm.str() + "]"));
     }
 
     LOG_DEBUG(<< "Restoring job");
@@ -185,19 +202,23 @@ void CStringStoreTest::testPersonStringPruning() {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                             api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
         adder.clear();
 
         // No influencers in this configuration
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "max", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         CPPUNIT_ASSERT(this->nameExists("count"));
@@ -223,19 +244,23 @@ void CStringStoreTest::testPersonStringPruning() {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                             api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
         adder.clear();
 
         // No influencers in this configuration
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
 
         // While the 3 composers from the second partition should have been culled in the prune,
         // their names still exist in the first partition, so will still be in the string store
@@ -262,19 +287,23 @@ void CStringStoreTest::testPersonStringPruning() {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                             api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
         adder.clear();
 
         // No influencers in this configuration
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
 
         // One composer should have been culled!
         CPPUNIT_ASSERT(this->nameExists("count"));
@@ -303,7 +332,8 @@ void CStringStoreTest::testAttributeStringPruning() {
 
     CPPUNIT_ASSERT(fieldConfig.initFromClause(clause));
 
-    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
+    model::CAnomalyDetectorModelConfig modelConfig =
+        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
     modelConfig.decayRate(0.001);
     modelConfig.bucketResultsDelay(2);
 
@@ -318,8 +348,10 @@ void CStringStoreTest::testAttributeStringPruning() {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::names().m_Strings.size());
 
         LOG_TRACE(<< "Setting up job");
         std::ostringstream outputStrm;
@@ -332,10 +364,12 @@ void CStringStoreTest::testAttributeStringPruning() {
 
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
         wrappedOutputStream.syncFlush();
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), countBuckets("records", outputStrm.str() + "]"));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             countBuckets("records", outputStrm.str() + "]"));
 
         // No influencers in this configuration
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         LOG_DEBUG(<< core::CContainerPrinter::print(model::CStringStore::names().m_Strings));
@@ -355,27 +389,32 @@ void CStringStoreTest::testAttributeStringPruning() {
 
         CPPUNIT_ASSERT(job.persistState(adder));
         wrappedOutputStream.syncFlush();
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), countBuckets("records", outputStrm.str() + "]"));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(1),
+                             countBuckets("records", outputStrm.str() + "]"));
     }
     LOG_DEBUG(<< "Restoring job");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                             api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
         adder.clear();
 
         // No influencers in this configuration
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         CPPUNIT_ASSERT(this->nameExists("count"));
@@ -401,20 +440,24 @@ void CStringStoreTest::testAttributeStringPruning() {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                             api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
         adder.clear();
 
         // No influencers in this configuration
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
 
         // While the 3 composers from the second partition should have been culled in the prune,
         // their names still exist in the first partition, so will still be in the string store
@@ -441,20 +484,24 @@ void CStringStoreTest::testAttributeStringPruning() {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                             api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
         adder.clear();
 
         // No influencers in this configuration
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
 
         // One composer should have been culled!
         CPPUNIT_ASSERT(this->nameExists("count"));
@@ -482,7 +529,8 @@ void CStringStoreTest::testInfluencerStringPruning() {
 
     CPPUNIT_ASSERT(fieldConfig.initFromClause(clause));
 
-    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
+    model::CAnomalyDetectorModelConfig modelConfig =
+        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
     modelConfig.bucketResultsDelay(2);
 
     model::CLimits limits;
@@ -496,8 +544,10 @@ void CStringStoreTest::testInfluencerStringPruning() {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::influencers().m_Strings.size());
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             model::CStringStore::names().m_Strings.size());
 
         LOG_TRACE(<< "Setting up job");
         std::ostringstream outputStrm;
@@ -511,7 +561,8 @@ void CStringStoreTest::testInfluencerStringPruning() {
         time = playData(time, BUCKET_SPAN, 20, 7, 5, 99, job);
 
         LOG_TRACE(<< core::CContainerPrinter::print(model::CStringStore::names().m_Strings));
-        LOG_TRACE(<< core::CContainerPrinter::print(model::CStringStore::influencers().m_Strings));
+        LOG_TRACE(<< core::CContainerPrinter::print(
+                      model::CStringStore::influencers().m_Strings));
 
         CPPUNIT_ASSERT(this->influencerExists("Delius"));
         CPPUNIT_ASSERT(this->influencerExists("Walton"));
@@ -595,11 +646,13 @@ void CStringStoreTest::testInfluencerStringPruning() {
 CppUnit::Test* CStringStoreTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testPersonStringPruning", &CStringStoreTest::testPersonStringPruning));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testAttributeStringPruning",
-                                                                    &CStringStoreTest::testAttributeStringPruning));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testInfluencerStringPruning",
-                                                                    &CStringStoreTest::testInfluencerStringPruning));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>(
+        "CStringStoreTest::testPersonStringPruning", &CStringStoreTest::testPersonStringPruning));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>(
+        "CStringStoreTest::testAttributeStringPruning",
+        &CStringStoreTest::testAttributeStringPruning));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>(
+        "CStringStoreTest::testInfluencerStringPruning",
+        &CStringStoreTest::testInfluencerStringPruning));
     return suiteOfTests;
 }

@@ -67,16 +67,19 @@ using TModeVec = std::vector<TMode>;
 
 //! Implementation of a sample joint log marginal likelihood calculation.
 MATHS_EXPORT
-maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TModeVec& modes,
-                                                              const maths_t::TWeightStyleVec& weightStyles,
-                                                              const TDouble10Vec1Vec& sample,
-                                                              const TDouble10Vec4Vec1Vec& weights,
-                                                              TSizeDoublePr3Vec& modeLogLikelihoods,
-                                                              double& result);
+maths_t::EFloatingPointErrorStatus
+jointLogMarginalLikelihood(const TModeVec& modes,
+                           const maths_t::TWeightStyleVec& weightStyles,
+                           const TDouble10Vec1Vec& sample,
+                           const TDouble10Vec4Vec1Vec& weights,
+                           TSizeDoublePr3Vec& modeLogLikelihoods,
+                           double& result);
 
 //! Implementation of marginal likelihood sample.
 MATHS_EXPORT
-void sampleMarginalLikelihood(const TModeVec& modes, std::size_t numberSamples, TDouble10Vec1Vec& samples);
+void sampleMarginalLikelihood(const TModeVec& modes,
+                              std::size_t numberSamples,
+                              TDouble10Vec1Vec& samples);
 
 //! Implementation of mode printing.
 MATHS_EXPORT
@@ -161,7 +164,8 @@ public:
                                  const TClusterer& clusterer,
                                  const CMultivariatePrior& seedPrior,
                                  double decayRate = 0.0)
-        : CMultivariatePrior(dataType, decayRate), m_Clusterer(clusterer.clone()), m_SeedPrior(seedPrior.clone()) {
+        : CMultivariatePrior(dataType, decayRate),
+          m_Clusterer(clusterer.clone()), m_SeedPrior(seedPrior.clone()) {
         // Register the split and merge callbacks.
         m_Clusterer->splitFunc(CModeSplitCallback(*this));
         m_Clusterer->mergeFunc(CModeMergeCallback(*this));
@@ -171,7 +175,8 @@ public:
     //!
     //! \note The priors are shallow copied.
     //! \note This constructor doesn't support subsequent update of the prior.
-    CMultivariateMultimodalPrior(maths_t::EDataType dataType, TPriorPtrVec& priors) : CMultivariatePrior(dataType, 0.0) {
+    CMultivariateMultimodalPrior(maths_t::EDataType dataType, TPriorPtrVec& priors)
+        : CMultivariatePrior(dataType, 0.0) {
         m_Modes.reserve(priors.size());
         for (std::size_t i = 0u; i < priors.size(); ++i) {
             m_Modes.emplace_back(i, priors[i]);
@@ -179,9 +184,11 @@ public:
     }
 
     //! Construct from part of a state document.
-    CMultivariateMultimodalPrior(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser)
+    CMultivariateMultimodalPrior(const SDistributionRestoreParams& params,
+                                 core::CStateRestoreTraverser& traverser)
         : CMultivariatePrior(params.s_DataType, params.s_DecayRate) {
-        traverser.traverseSubLevel(boost::bind(&CMultivariateMultimodalPrior::acceptRestoreTraverser, this, boost::cref(params), _1));
+        traverser.traverseSubLevel(boost::bind(&CMultivariateMultimodalPrior::acceptRestoreTraverser,
+                                               this, boost::cref(params), _1));
     }
 
     //! Implements value semantics for copy construction.
@@ -239,7 +246,9 @@ public:
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CMultivariatePrior* clone() const { return new CMultivariateMultimodalPrior(*this); }
+    virtual CMultivariatePrior* clone() const {
+        return new CMultivariateMultimodalPrior(*this);
+    }
 
     //! Get the dimension of the prior.
     virtual std::size_t dimension() const { return N; }
@@ -279,7 +288,9 @@ public:
     //! for more details.
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void adjustOffset(const TWeightStyleVec& weightStyles, const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights) {
+    virtual void adjustOffset(const TWeightStyleVec& weightStyles,
+                              const TDouble10Vec1Vec& samples,
+                              const TDouble10Vec4Vec1Vec& weights) {
         // This has to adjust offsets for its modes because it must be
         // possible to call jointLogMarginalLikelihood before the samples
         // have been added to the prior in order for model selection to
@@ -297,7 +308,9 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles_, const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights) {
+    virtual void addSamples(const TWeightStyleVec& weightStyles_,
+                            const TDouble10Vec1Vec& samples,
+                            const TDouble10Vec4Vec1Vec& weights) {
         if (samples.empty()) {
             return;
         }
@@ -343,7 +356,8 @@ public:
                 }
 
                 if (hasSeasonalScale) {
-                    TPoint seasonalScale = sqrt(TPoint(maths_t::seasonalVarianceScale(N, weightStyles_, weights[i])));
+                    TPoint seasonalScale = sqrt(TPoint(maths_t::seasonalVarianceScale(
+                        N, weightStyles_, weights[i])));
                     x = mean + (x - mean) / seasonalScale;
                 }
 
@@ -358,12 +372,15 @@ public:
                 clusters.clear();
                 m_Clusterer->add(x, clusters, smallestCountWeight);
 
-                double Z = std::accumulate(
-                    m_Modes.begin(), m_Modes.end(), smallestCountWeight, [](double sum, const TMode& mode) { return sum + mode.weight(); });
+                double Z = std::accumulate(m_Modes.begin(), m_Modes.end(), smallestCountWeight,
+                                           [](double sum, const TMode& mode) {
+                                               return sum + mode.weight();
+                                           });
 
                 double n = 0.0;
                 for (const auto& cluster : clusters) {
-                    auto k = std::find_if(m_Modes.begin(), m_Modes.end(), CSetTools::CIndexInSet(cluster.first));
+                    auto k = std::find_if(m_Modes.begin(), m_Modes.end(),
+                                          CSetTools::CIndexInSet(cluster.first));
                     if (k == m_Modes.end()) {
                         LOG_TRACE(<< "Creating mode with index " << cluster.first);
                         m_Modes.emplace_back(cluster.first, m_SeedPrior);
@@ -382,7 +399,9 @@ public:
                 }
                 this->addSamples(n);
             }
-        } catch (const std::exception& e) { LOG_ERROR(<< "Failed to update likelihood: " << e.what()); }
+        } catch (const std::exception& e) {
+            LOG_ERROR(<< "Failed to update likelihood: " << e.what());
+        }
     }
 
     //! Update the prior for the specified elapsed time.
@@ -412,7 +431,8 @@ public:
             mode.s_Prior->propagateForwardsByTime(time);
         }
 
-        this->numberSamples(this->numberSamples() * std::exp(-this->scaledDecayRate() * time));
+        this->numberSamples(this->numberSamples() *
+                            std::exp(-this->scaledDecayRate() * time));
         LOG_TRACE(<< "numberSamples = " << this->numberSamples());
     }
 
@@ -427,7 +447,8 @@ public:
     //! \note The caller must specify dimension - 1 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
+    virtual TUnivariatePriorPtrDoublePr
+    univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
         std::size_t n = m_Modes.size();
 
         CMultimodalPrior::TPriorPtrVec modes;
@@ -458,7 +479,8 @@ public:
             modes[i]->numberSamples(weights[i] / Z * modes[i]->numberSamples());
         }
 
-        return {TUnivariatePriorPtr(new CMultimodalPrior(this->dataType(), this->decayRate(), modes)),
+        return {TUnivariatePriorPtr(new CMultimodalPrior(this->dataType(),
+                                                         this->decayRate(), modes)),
                 Z > 0.0 ? maxWeight[0] + std::log(Z) : 0.0};
     }
 
@@ -474,7 +496,8 @@ public:
     //! \note The caller must specify dimension - 2 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
+    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
+                                        const TSizeDoublePr10Vec& condition) const {
         if (N == 2) {
             return TPriorPtrDoublePr(TPriorPtr(this->clone()), 0.0);
         }
@@ -509,13 +532,15 @@ public:
             modes[i]->numberSamples(weights[i] / Z * modes[i]->numberSamples());
         }
 
-        return {TPriorPtr(new CMultivariateMultimodalPrior<2>(this->dataType(), modes)), Z > 0.0 ? maxWeight[0] + std::log(Z) : 0.0};
+        return {TPriorPtr(new CMultivariateMultimodalPrior<2>(this->dataType(), modes)),
+                Z > 0.0 ? maxWeight[0] + std::log(Z) : 0.0};
     }
 
     //! Get the support for the marginal likelihood function.
     virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const {
         if (m_Modes.size() == 0) {
-            return {TPoint::smallest().template toVector<TDouble10Vec>(), TPoint::largest().template toVector<TDouble10Vec>()};
+            return {TPoint::smallest().template toVector<TDouble10Vec>(),
+                    TPoint::largest().template toVector<TDouble10Vec>()};
         }
         if (m_Modes.size() == 1) {
             return m_Modes[0].s_Prior->marginalLikelihoodSupport();
@@ -531,7 +556,8 @@ public:
             upper = max(upper, TPoint(s.second));
         }
 
-        return {lower.template toVector<TDouble10Vec>(), upper.template toVector<TDouble10Vec>()};
+        return {lower.template toVector<TDouble10Vec>(),
+                upper.template toVector<TDouble10Vec>()};
     }
 
     //! Get the mean of the marginal likelihood function.
@@ -573,7 +599,8 @@ public:
     }
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weight) const {
+    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
+                                                const TDouble10Vec4Vec& weight) const {
         if (m_Modes.size() == 0) {
             return TDouble10Vec(N, 0.0);
         }
@@ -581,7 +608,8 @@ public:
             return m_Modes[0].s_Prior->marginalLikelihoodMode(weightStyles, weight);
         }
 
-        using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
+        using TMaxAccumulator =
+            CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>;
 
         // We'll approximate this as the mode with the maximum likelihood.
         TPoint result(0.0);
@@ -589,9 +617,12 @@ public:
         TPoint seasonalScale(1.0);
         TDouble10Vec4Vec1Vec weight_(1, TDouble10Vec4Vec(1));
         try {
-            seasonalScale = sqrt(TPoint(maths_t::seasonalVarianceScale(N, weightStyles, weight)));
+            seasonalScale =
+                sqrt(TPoint(maths_t::seasonalVarianceScale(N, weightStyles, weight)));
             weight_[0][0] = maths_t::countVarianceScale(N, weightStyles, weight);
-        } catch (const std::exception& e) { LOG_ERROR(<< "Failed to get variance scale " << e.what()); }
+        } catch (const std::exception& e) {
+            LOG_ERROR(<< "Failed to get variance scale " << e.what());
+        }
 
         // Declared outside the loop to minimize number of times it is created.
         TDouble10Vec1Vec mode(1);
@@ -602,7 +633,9 @@ public:
             const TPriorPtr& prior = mode_.s_Prior;
             mode[0] = prior->marginalLikelihoodMode(TWeights::COUNT_VARIANCE, weight_[0]);
             double likelihood;
-            if (prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE, mode, weight_, likelihood) & maths_t::E_FpAllErrors) {
+            if (prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE,
+                                                  mode, weight_, likelihood) &
+                maths_t::E_FpAllErrors) {
                 continue;
             }
             if (modeLikelihood.add(std::log(w) + likelihood)) {
@@ -616,7 +649,8 @@ public:
     }
 
     //! Get the local maxima of the marginal likelihood functions.
-    TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) const {
+    TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
+                                             const TDouble10Vec4Vec& weights) const {
         TDouble10Vec1Vec result;
         result.reserve(m_Modes.size());
         for (const auto& mode : m_Modes) {
@@ -656,10 +690,11 @@ public:
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
-    virtual maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                                                                          const TDouble10Vec1Vec& samples,
-                                                                          const TDouble10Vec4Vec1Vec& weights,
-                                                                          double& result) const {
+    virtual maths_t::EFloatingPointErrorStatus
+    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                               const TDouble10Vec1Vec& samples,
+                               const TDouble10Vec4Vec1Vec& weights,
+                               double& result) const {
         result = 0.0;
 
         if (samples.empty()) {
@@ -686,8 +721,8 @@ public:
         if (m_Modes.size() == 1) {
             // Apply a small penalty to kill off this model if the data are
             // single mode.
-            maths_t::EFloatingPointErrorStatus status =
-                m_Modes[0].s_Prior->jointLogMarginalLikelihood(weightStyles, samples, weights, result);
+            maths_t::EFloatingPointErrorStatus status = m_Modes[0].s_Prior->jointLogMarginalLikelihood(
+                weightStyles, samples, weights, result);
             result -= 10.0 * this->decayRate();
             return status;
         }
@@ -707,8 +742,10 @@ public:
         TDouble10Vec4Vec1Vec weights_(1, TDouble10Vec4Vec(1, TDouble10Vec(N, 1.0)));
         try {
             for (std::size_t i = 0u; i < samples.size(); ++i) {
-                double n = this->smallest(maths_t::countForUpdate(N, weightStyles, weights[i]));
-                TPoint seasonalScale = sqrt(TPoint(maths_t::seasonalVarianceScale(N, weightStyles, weights[i])));
+                double n = this->smallest(
+                    maths_t::countForUpdate(N, weightStyles, weights[i]));
+                TPoint seasonalScale = sqrt(TPoint(
+                    maths_t::seasonalVarianceScale(N, weightStyles, weights[i])));
                 double logSeasonalScale = 0.0;
                 for (std::size_t j = 0u; j < seasonalScale.dimension(); ++j) {
                     logSeasonalScale += std::log(seasonalScale(j));
@@ -723,7 +760,8 @@ public:
 
                 double sampleLogLikelihood;
                 maths_t::EFloatingPointErrorStatus status = detail::jointLogMarginalLikelihood(
-                    m_Modes, TWeights::COUNT_VARIANCE, sample, weights_, modeLogLikelihoods, sampleLogLikelihood);
+                    m_Modes, TWeights::COUNT_VARIANCE, sample, weights_,
+                    modeLogLikelihoods, sampleLogLikelihood);
                 if (status & maths_t::E_FpOverflowed) {
                     result = boost::numeric::bounds<double>::lowest();
                     return status;
@@ -769,7 +807,8 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble10Vec1Vec& samples) const {
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples,
+                                          TDouble10Vec1Vec& samples) const {
         namespace detail = multivariate_multimodal_prior_detail;
 
         samples.clear();
@@ -782,7 +821,10 @@ public:
     }
 
     //! Check if this is a non-informative prior.
-    virtual bool isNonInformative() const { return m_Modes.empty() || (m_Modes.size() == 1 && m_Modes[0].s_Prior->isNonInformative()); }
+    virtual bool isNonInformative() const {
+        return m_Modes.empty() ||
+               (m_Modes.size() == 1 && m_Modes[0].s_Prior->isNonInformative());
+    }
 
     //! Get a human readable description of the prior.
     //!
@@ -827,17 +869,25 @@ public:
     virtual std::size_t staticSize() const { return sizeof(*this); }
 
     //! Get the tag name for this prior.
-    virtual std::string persistenceTag() const { return MULTIMODAL_TAG + core::CStringUtils::typeToString(N); }
+    virtual std::string persistenceTag() const {
+        return MULTIMODAL_TAG + core::CStringUtils::typeToString(N);
+    }
 
     //! Persist state by passing information to the supplied inserter
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        inserter.insertLevel(CLUSTERER_TAG, boost::bind<void>(CClustererStateSerialiser(), boost::cref(*m_Clusterer), _1));
-        inserter.insertLevel(SEED_PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(), boost::cref(*m_SeedPrior), _1));
+        inserter.insertLevel(CLUSTERER_TAG,
+                             boost::bind<void>(CClustererStateSerialiser(),
+                                               boost::cref(*m_Clusterer), _1));
+        inserter.insertLevel(SEED_PRIOR_TAG,
+                             boost::bind<void>(CPriorStateSerialiser(),
+                                               boost::cref(*m_SeedPrior), _1));
         for (std::size_t i = 0u; i < m_Modes.size(); ++i) {
-            inserter.insertLevel(MODE_TAG, boost::bind(&TMode::acceptPersistInserter, &m_Modes[i], _1));
+            inserter.insertLevel(MODE_TAG, boost::bind(&TMode::acceptPersistInserter,
+                                                       &m_Modes[i], _1));
         }
         inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-        inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
+        inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
+                             core::CIEEE754::E_SinglePrecision);
     }
     //@}
 
@@ -874,15 +924,19 @@ private:
         static const std::size_t MODE_SPLIT_NUMBER_SAMPLES;
 
     public:
-        CModeSplitCallback(CMultivariateMultimodalPrior& prior) : m_Prior(&prior) {}
+        CModeSplitCallback(CMultivariateMultimodalPrior& prior)
+            : m_Prior(&prior) {}
 
-        void operator()(std::size_t sourceIndex, std::size_t leftSplitIndex, std::size_t rightSplitIndex) const {
+        void operator()(std::size_t sourceIndex,
+                        std::size_t leftSplitIndex,
+                        std::size_t rightSplitIndex) const {
             LOG_TRACE(<< "Splitting mode with index " << sourceIndex);
 
             TModeVec& modes = m_Prior->m_Modes;
 
             // Remove the split mode.
-            auto mode = std::find_if(modes.begin(), modes.end(), CSetTools::CIndexInSet(sourceIndex));
+            auto mode = std::find_if(modes.begin(), modes.end(),
+                                     CSetTools::CIndexInSet(sourceIndex));
             double numberSamples = mode != modes.end() ? mode->weight() : 0.0;
             modes.erase(mode);
 
@@ -893,14 +947,16 @@ private:
                 pLeft /= Z;
                 pRight /= Z;
             }
-            LOG_TRACE(<< "# samples = " << numberSamples << ", pLeft = " << pLeft << ", pRight = " << pRight);
+            LOG_TRACE(<< "# samples = " << numberSamples
+                      << ", pLeft = " << pLeft << ", pRight = " << pRight);
 
             // Create the child modes.
             LOG_TRACE(<< "Creating mode with index " << leftSplitIndex);
             modes.emplace_back(leftSplitIndex, m_Prior->m_SeedPrior);
             {
                 TPointVec samples;
-                if (!m_Prior->m_Clusterer->sample(leftSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
+                if (!m_Prior->m_Clusterer->sample(
+                        leftSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
                     LOG_ERROR(<< "Couldn't find cluster for " << leftSplitIndex);
                 }
                 LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
@@ -920,7 +976,8 @@ private:
                 modes.back().s_Prior->addSamples(TWeights::COUNT, samples_, weights);
                 double weight = (nl - ns) / s;
                 if (weight > 0.0) {
-                    weights.assign(weights.size(), TDouble10Vec4Vec(1, TDouble10Vec(N, weight)));
+                    weights.assign(weights.size(),
+                                   TDouble10Vec4Vec(1, TDouble10Vec(N, weight)));
                     modes.back().s_Prior->addSamples(TWeights::COUNT, samples_, weights);
                     LOG_TRACE(<< modes.back().s_Prior->print());
                 }
@@ -930,7 +987,8 @@ private:
             modes.emplace_back(rightSplitIndex, m_Prior->m_SeedPrior);
             {
                 TPointVec samples;
-                if (!m_Prior->m_Clusterer->sample(rightSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
+                if (!m_Prior->m_Clusterer->sample(
+                        rightSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
                     LOG_ERROR(<< "Couldn't find cluster for " << rightSplitIndex)
                 }
                 LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
@@ -950,7 +1008,8 @@ private:
                 modes.back().s_Prior->addSamples(TWeights::COUNT, samples_, weights);
                 double weight = (nr - ns) / s;
                 if (weight > 0.0) {
-                    weights.assign(weights.size(), TDouble10Vec4Vec(1, TDouble10Vec(N, weight)));
+                    weights.assign(weights.size(),
+                                   TDouble10Vec4Vec(1, TDouble10Vec(N, weight)));
                     modes.back().s_Prior->addSamples(TWeights::COUNT, samples_, weights);
                     LOG_TRACE(<< modes.back().s_Prior->print());
                 }
@@ -970,12 +1029,16 @@ private:
         static const std::size_t MODE_MERGE_NUMBER_SAMPLES;
 
     public:
-        CModeMergeCallback(CMultivariateMultimodalPrior& prior) : m_Prior(&prior) {}
+        CModeMergeCallback(CMultivariateMultimodalPrior& prior)
+            : m_Prior(&prior) {}
 
-        void operator()(std::size_t leftMergeIndex, std::size_t rightMergeIndex, std::size_t targetIndex) const {
+        void operator()(std::size_t leftMergeIndex,
+                        std::size_t rightMergeIndex,
+                        std::size_t targetIndex) const {
             namespace detail = multivariate_multimodal_prior_detail;
-            detail::modeMergeCallback(
-                N, m_Prior->m_Modes, m_Prior->m_SeedPrior, MODE_MERGE_NUMBER_SAMPLES, leftMergeIndex, rightMergeIndex, targetIndex);
+            detail::modeMergeCallback(N, m_Prior->m_Modes, m_Prior->m_SeedPrior,
+                                      MODE_MERGE_NUMBER_SAMPLES, leftMergeIndex,
+                                      rightMergeIndex, targetIndex);
         }
 
     private:
@@ -996,27 +1059,28 @@ private:
 
 private:
     //! Read parameters from \p traverser.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser) {
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser) {
         do {
             const std::string& name = traverser.name();
-            RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG,
-                                   double decayRate,
+            RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
                                    core::CStringUtils::stringToType(traverser.value(), decayRate),
                                    this->decayRate(decayRate))
-            RESTORE(CLUSTERER_TAG,
-                    traverser.traverseSubLevel(
-                        boost::bind<bool>(CClustererStateSerialiser(), boost::cref(params), boost::ref(m_Clusterer), _1)))
-            RESTORE(
-                SEED_PRIOR_TAG,
-                traverser.traverseSubLevel(boost::bind<bool>(CPriorStateSerialiser(), boost::cref(params), boost::ref(m_SeedPrior), _1)))
-            RESTORE_SETUP_TEARDOWN(MODE_TAG,
-                                   TMode mode,
-                                   traverser.traverseSubLevel(boost::bind(&TMode::acceptRestoreTraverser, &mode, boost::cref(params), _1)),
-                                   m_Modes.push_back(mode))
-            RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG,
-                                   double numberSamples,
-                                   core::CStringUtils::stringToType(traverser.value(), numberSamples),
-                                   this->numberSamples(numberSamples))
+            RESTORE(CLUSTERER_TAG, traverser.traverseSubLevel(boost::bind<bool>(
+                                       CClustererStateSerialiser(), boost::cref(params),
+                                       boost::ref(m_Clusterer), _1)))
+            RESTORE(SEED_PRIOR_TAG, traverser.traverseSubLevel(boost::bind<bool>(
+                                        CPriorStateSerialiser(), boost::cref(params),
+                                        boost::ref(m_SeedPrior), _1)))
+            RESTORE_SETUP_TEARDOWN(
+                MODE_TAG, TMode mode,
+                traverser.traverseSubLevel(boost::bind(
+                    &TMode::acceptRestoreTraverser, &mode, boost::cref(params), _1)),
+                m_Modes.push_back(mode))
+            RESTORE_SETUP_TEARDOWN(
+                NUMBER_SAMPLES_TAG, double numberSamples,
+                core::CStringUtils::stringToType(traverser.value(), numberSamples),
+                this->numberSamples(numberSamples))
         } while (traverser.next());
 
         if (m_Clusterer) {
@@ -1029,12 +1093,16 @@ private:
     }
 
     //! We should only use this prior when it has multiple modes.
-    virtual bool participatesInModelSelection() const { return m_Modes.size() > 1; }
+    virtual bool participatesInModelSelection() const {
+        return m_Modes.size() > 1;
+    }
 
     //! Get the number of nuisance parameters in the marginal likelihood.
     //!
     //! This is just number modes - 1 due to the normalization constraint.
-    virtual double unmarginalizedParameters() const { return std::max(static_cast<double>(m_Modes.size()), 1.0) - 1.0; }
+    virtual double unmarginalizedParameters() const {
+        return std::max(static_cast<double>(m_Modes.size()), 1.0) - 1.0;
+    }
 
     //! Get the convariance matrix for the marginal likelihood.
     TMatrix covarianceMatrix() const {
@@ -1043,7 +1111,8 @@ private:
         //     = Sum_i{ w(i) * (Integral{ x' * x * f(x | i) } - m' * m) }
         //     = Sum_i{ w(i) * ((mi' * mi + Ci) - m' * m) }
 
-        using TMatrixMeanAccumulator = typename CBasicStatistics::SSampleMean<TMatrix>::TAccumulator;
+        using TMatrixMeanAccumulator =
+            typename CBasicStatistics::SSampleMean<TMatrix>::TAccumulator;
 
         TMatrix mean2 = TPoint(this->marginalLikelihoodMean()).outer();
 
@@ -1059,7 +1128,9 @@ private:
     }
 
     //! Full debug dump of the mode weights.
-    std::string debugWeights() const { return multivariate_multimodal_prior_detail::debugWeights(m_Modes); }
+    std::string debugWeights() const {
+        return multivariate_multimodal_prior_detail::debugWeights(m_Modes);
+    }
 
 private:
     //! The object which partitions the data into clusters.
@@ -1087,9 +1158,11 @@ const std::string CMultivariateMultimodalPrior<N>::MAXIMUM_TAG("f");
 template<std::size_t N>
 const std::string CMultivariateMultimodalPrior<N>::DECAY_RATE_TAG("g");
 template<std::size_t N>
-const std::size_t CMultivariateMultimodalPrior<N>::CModeSplitCallback::MODE_SPLIT_NUMBER_SAMPLES(50 * N);
+const std::size_t
+    CMultivariateMultimodalPrior<N>::CModeSplitCallback::MODE_SPLIT_NUMBER_SAMPLES(50 * N);
 template<std::size_t N>
-const std::size_t CMultivariateMultimodalPrior<N>::CModeMergeCallback::MODE_MERGE_NUMBER_SAMPLES(25 * N);
+const std::size_t
+    CMultivariateMultimodalPrior<N>::CModeMergeCallback::MODE_MERGE_NUMBER_SAMPLES(25 * N);
 }
 }
 

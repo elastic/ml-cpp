@@ -39,21 +39,25 @@ bool queryKernelVersion(uint16_t& major, uint16_t& minor, uint16_t& build) {
     DWORD handle(0);
     DWORD size(GetFileVersionInfoSize(KERNEL32_DLL, &handle));
     if (size == 0) {
-        LOG_ERROR(<< "Error getting file version info size for " << KERNEL32_DLL << " - error code : " << CWindowsError());
+        LOG_ERROR(<< "Error getting file version info size for " << KERNEL32_DLL
+                  << " - error code : " << CWindowsError());
         return false;
     }
 
     using TScopedCharArray = boost::scoped_array<char>;
     TScopedCharArray buffer(new char[size]);
     if (GetFileVersionInfo(KERNEL32_DLL, handle, size, buffer.get()) == FALSE) {
-        LOG_ERROR(<< "Error getting file version info for " << KERNEL32_DLL << " - error code : " << CWindowsError());
+        LOG_ERROR(<< "Error getting file version info for " << KERNEL32_DLL
+                  << " - error code : " << CWindowsError());
         return false;
     }
 
     UINT len(0);
     VS_FIXEDFILEINFO* fixedFileInfo(0);
-    if (VerQueryValue(buffer.get(), "\\", reinterpret_cast<void**>(&fixedFileInfo), &len) == FALSE) {
-        LOG_ERROR(<< "Error querying fixed file info for " << KERNEL32_DLL << " - error code : " << CWindowsError());
+    if (VerQueryValue(buffer.get(), "\\",
+                      reinterpret_cast<void**>(&fixedFileInfo), &len) == FALSE) {
+        LOG_ERROR(<< "Error querying fixed file info for " << KERNEL32_DLL
+                  << " - error code : " << CWindowsError());
         return false;
     }
 
@@ -80,7 +84,8 @@ std::string CUname::nodeName() {
     DWORD size(0);
     BOOL res(GetComputerNameEx(ComputerNameDnsHostname, 0, &size));
     if (res != FALSE || GetLastError() != ERROR_MORE_DATA) {
-        LOG_ERROR(<< "Error getting computer name length - error code : " << CWindowsError());
+        LOG_ERROR(<< "Error getting computer name length - error code : "
+                  << CWindowsError());
         return std::string();
     }
 
@@ -130,18 +135,23 @@ std::string CUname::version() {
 
     DWORDLONG conditionMask(0);
     versionInfoEx.wProductType = VER_NT_DOMAIN_CONTROLLER;
-    if (VerifyVersionInfo(&versionInfoEx, VER_PRODUCT_TYPE, VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE, VER_EQUAL)) != FALSE) {
+    if (VerifyVersionInfo(&versionInfoEx, VER_PRODUCT_TYPE,
+                          VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE,
+                                              VER_EQUAL)) != FALSE) {
         strm << " (Domain Controller)";
     } else {
         conditionMask = 0;
         versionInfoEx.wProductType = VER_NT_SERVER;
-        if (VerifyVersionInfo(&versionInfoEx, VER_PRODUCT_TYPE, VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE, VER_EQUAL)) != FALSE) {
+        if (VerifyVersionInfo(&versionInfoEx, VER_PRODUCT_TYPE,
+                              VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE,
+                                                  VER_EQUAL)) != FALSE) {
             strm << " (Server)";
         } else {
             conditionMask = 0;
             versionInfoEx.wProductType = VER_NT_WORKSTATION;
-            if (VerifyVersionInfo(&versionInfoEx, VER_PRODUCT_TYPE, VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE, VER_EQUAL)) !=
-                FALSE) {
+            if (VerifyVersionInfo(&versionInfoEx, VER_PRODUCT_TYPE,
+                                  VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE,
+                                                      VER_EQUAL)) != FALSE) {
                 strm << " (Workstation)";
             }
         }

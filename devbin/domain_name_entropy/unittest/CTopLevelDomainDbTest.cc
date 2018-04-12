@@ -24,15 +24,18 @@ using namespace domain_name_entropy;
 CppUnit::Test* CTopLevelDomainDbTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTopLevelDomainDbTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTopLevelDomainDbTest>("CTopLevelDomainDbTest::testSimpleTestCases",
-                                                                         &CTopLevelDomainDbTest::testSimpleTestCases));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTopLevelDomainDbTest>("CTopLevelDomainDbTest::testMozillaTestCases",
-                                                                         &CTopLevelDomainDbTest::testMozillaTestCases));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTopLevelDomainDbTest>(
+        "CTopLevelDomainDbTest::testSimpleTestCases", &CTopLevelDomainDbTest::testSimpleTestCases));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTopLevelDomainDbTest>(
+        "CTopLevelDomainDbTest::testMozillaTestCases",
+        &CTopLevelDomainDbTest::testMozillaTestCases));
     return suiteOfTests;
 }
 
 namespace {
-void checkPublicSuffix(const std::string& fullName, const std::string& registeredNameExpected, CTopLevelDomainDb& tldDb) {
+void checkPublicSuffix(const std::string& fullName,
+                       const std::string& registeredNameExpected,
+                       CTopLevelDomainDb& tldDb) {
     std::string registeredName;
 
     tldDb.registeredDomainName(fullName, registeredName);
@@ -68,13 +71,17 @@ void CTopLevelDomainDbTest::testSimpleTestCases(void) {
     testDomainSplit("www", "google", "com", "www.google.com", tldDb);
     testDomainSplit("www", "theregister", "co.uk", "www.theregister.co.uk", tldDb);
     testDomainSplit("", "gmail", "com", "gmail.com", tldDb);
-    testDomainSplit("media.forums", "theregister", "co.uk", "media.forums.theregister.co.uk", tldDb);
+    testDomainSplit("media.forums", "theregister", "co.uk",
+                    "media.forums.theregister.co.uk", tldDb);
     testDomainSplit("www", "www", "com", "www.www.com", tldDb);
     testDomainSplit("", "www", "com", "www.com", tldDb);
     testDomainSplit("", "", "internalunlikelyhostname", "internalunlikelyhostname", tldDb);
-    testDomainSplit("", "internalunlikelyhostname", "bizarre", "internalunlikelyhostname.bizarre", tldDb);
-    testDomainSplit("", "internalunlikelyhostname", "info", "internalunlikelyhostname.info", tldDb);
-    testDomainSplit("", "internalunlikelyhostname", "information", "internalunlikelyhostname.information", tldDb);
+    testDomainSplit("", "internalunlikelyhostname", "bizarre",
+                    "internalunlikelyhostname.bizarre", tldDb);
+    testDomainSplit("", "internalunlikelyhostname", "info",
+                    "internalunlikelyhostname.info", tldDb);
+    testDomainSplit("", "internalunlikelyhostname", "information",
+                    "internalunlikelyhostname.information", tldDb);
     //testDomainSplit("", "216.22.0.192", "", "216.22.0.192", tldDb);
     testDomainSplit("216.22", "project", "coop", "216.22.project.coop", tldDb);
     testDomainSplit("", "", "1\xe9", "1\xe9", tldDb);

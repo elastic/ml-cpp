@@ -54,8 +54,9 @@ void CEntropySketch::generateProjection(std::size_t category, TDoubleVec& projec
     for (std::size_t i = 0u; i < projection.size(); i += 2) {
         double w1 = boost::math::double_constants::pi * (projection[i] - 0.5);
         double w2 = -std::log(projection[i + 1]);
-        projection[i / 2] = std::tan(w1) * (boost::math::double_constants::half_pi - w1) +
-                            std::log(w2 * std::cos(w1) / (boost::math::double_constants::half_pi - w1));
+        projection[i / 2] =
+            std::tan(w1) * (boost::math::double_constants::half_pi - w1) +
+            std::log(w2 * std::cos(w1) / (boost::math::double_constants::half_pi - w1));
     }
     projection.resize(m_Yi.size());
     LOG_TRACE(<< "projection = " << core::CContainerPrinter::print(projection));

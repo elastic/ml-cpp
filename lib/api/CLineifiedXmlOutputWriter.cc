@@ -27,10 +27,12 @@ namespace {
 const std::string EMPTY_STRING;
 }
 
-CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string& rootName) : m_RootName(rootName), m_OutStream(m_StringOutputBuf) {
+CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string& rootName)
+    : m_RootName(rootName), m_OutStream(m_StringOutputBuf) {
 }
 
-CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string& rootName, std::ostream& strmOut)
+CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string& rootName,
+                                                     std::ostream& strmOut)
     : m_RootName(rootName), m_OutStream(strmOut) {
 }
 
@@ -45,7 +47,8 @@ CLineifiedXmlOutputWriter::~CLineifiedXmlOutputWriter() {
     core::CSleep::sleep(20);
 }
 
-bool CLineifiedXmlOutputWriter::fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*extraFieldNames*/) {
+bool CLineifiedXmlOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
+                                           const TStrVec& /*extraFieldNames*/) {
     return true;
 }
 
@@ -53,8 +56,10 @@ const CLineifiedXmlOutputWriter::TStrVec& CLineifiedXmlOutputWriter::fieldNames(
     return EMPTY_FIELD_NAMES;
 }
 
-bool CLineifiedXmlOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) {
-    core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(m_Pool.newNode(m_RootName, EMPTY_STRING));
+bool CLineifiedXmlOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
+                                         const TStrStrUMap& overrideDataRowFields) {
+    core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(
+        m_Pool.newNode(m_RootName, EMPTY_STRING));
 
     TStrStrUMapCItr fieldValueIter = dataRowFields.begin();
     for (; fieldValueIter != dataRowFields.end(); ++fieldValueIter) {

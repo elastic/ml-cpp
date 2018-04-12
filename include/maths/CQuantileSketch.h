@@ -151,19 +151,25 @@ public:
     //! NB1: Needs to be redeclared to work with CChecksum.
     //! NB2: This method is not currently virtual - needs changing if any of the
     //! methods of this class ever do anything other than forward to the base class
-    uint64_t checksum(uint64_t seed = 0) const { return this->CQuantileSketch::checksum(seed); }
+    uint64_t checksum(uint64_t seed = 0) const {
+        return this->CQuantileSketch::checksum(seed);
+    }
 
     //! Debug the memory used by this object.
     //! NB1: Needs to be redeclared to work with CMemoryDebug.
     //! NB2: This method is not currently virtual - needs changing if any of the
     //! methods of this class ever do anything other than forward to the base class
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const { this->CQuantileSketch::debugMemoryUsage(mem); }
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+        this->CQuantileSketch::debugMemoryUsage(mem);
+    }
 
     //! Get the memory used by this object.
     //! NB1: Needs to be redeclared to work with CMemory.
     //! NB2: This method is not currently virtual - needs changing if any of the
     //! methods of this class ever do anything other than forward to the base class
-    std::size_t memoryUsage() const { return this->CQuantileSketch::memoryUsage(); }
+    std::size_t memoryUsage() const {
+        return this->CQuantileSketch::memoryUsage();
+    }
 };
 
 //! Write to stream using print member.

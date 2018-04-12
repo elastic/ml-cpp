@@ -49,9 +49,12 @@ class CLimits;
 namespace hierarchical_results_detail {
 
 using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
-using TStoredStringPtrStoredStringPtrPr = std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
-using TStoredStringPtrStoredStringPtrPrDoublePr = std::pair<TStoredStringPtrStoredStringPtrPr, double>;
-using TStoredStringPtrStoredStringPtrPrDoublePrVec = std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
+using TStoredStringPtrStoredStringPtrPr =
+    std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
+using TStoredStringPtrStoredStringPtrPrDoublePr =
+    std::pair<TStoredStringPtrStoredStringPtrPr, double>;
+using TStoredStringPtrStoredStringPtrPrDoublePrVec =
+    std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
 using TStr1Vec = core::CSmallVector<std::string, 1>;
 
 //! \brief The data fully describing a result node.
@@ -161,14 +164,18 @@ struct MODEL_EXPORT SNode {
     void swap(SNode& other);
 
     //! Persist the node state by passing information to \p inserter.
-    void acceptPersistInserter1(core::CStatePersistInserter& inserter, TNodePtrSizeUMap& nodePointers) const;
+    void acceptPersistInserter1(core::CStatePersistInserter& inserter,
+                                TNodePtrSizeUMap& nodePointers) const;
     //! Persist the node connectivity by passing information to \p inserter.
-    void acceptPersistInserter2(core::CStatePersistInserter& inserter, const TNodePtrSizeUMap& nodePointers) const;
+    void acceptPersistInserter2(core::CStatePersistInserter& inserter,
+                                const TNodePtrSizeUMap& nodePointers) const;
 
     //! Restore the node state reading state from \p traverser.
-    bool acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser, TSizeNodePtrUMap& nodePointers);
+    bool acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser,
+                                 TSizeNodePtrUMap& nodePointers);
     //! Restore the node connectivity reading state from \p traverser.
-    bool acceptRestoreTraverser2(core::CStateRestoreTraverser& traverser, const TSizeNodePtrUMap& nodePointers);
+    bool acceptRestoreTraverser2(core::CStateRestoreTraverser& traverser,
+                                 const TSizeNodePtrUMap& nodePointers);
 
     //! \name Connectivity
     //@{
@@ -257,16 +264,20 @@ public:
     using TAttributeProbabilityVec = std::vector<SAttributeProbability>;
     using TResultSpec = hierarchical_results_detail::SResultSpec;
     using TStoredStringPtr = core::CStoredStringPtr;
-    using TStoredStringPtrStoredStringPtrPr = hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr;
-    using TStoredStringPtrStoredStringPtrPrDoublePr = hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr;
-    using TStoredStringPtrStoredStringPtrPrDoublePrVec = hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+    using TStoredStringPtrStoredStringPtrPr =
+        hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr;
+    using TStoredStringPtrStoredStringPtrPrDoublePr =
+        hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr;
+    using TStoredStringPtrStoredStringPtrPrDoublePrVec =
+        hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec;
     using TNode = hierarchical_results_detail::SNode;
     using TNodePtrSizeUMap = hierarchical_results_detail::SNode::TNodePtrSizeUMap;
     using TSizeNodePtrUMap = hierarchical_results_detail::SNode::TSizeNodePtrUMap;
     using TNodeDeque = std::deque<TNode>;
     using TStoredStringPtrStoredStringPtrPrNodeMap =
         std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::COrderings::SLexicographicalCompare>;
-    using TStoredStringPtrNodeMap = std::map<TStoredStringPtr, TNode, maths::COrderings::SLess>;
+    using TStoredStringPtrNodeMap =
+        std::map<TStoredStringPtr, TNode, maths::COrderings::SLess>;
 
 public:
     CHierarchicalResults();
@@ -347,7 +358,8 @@ public:
 
     //! Get the influencer identified by \p influencerName and
     //! \p influencerValue if one exists.
-    const TNode* influencer(const TStoredStringPtr& influencerName, const TStoredStringPtr& influencerValue) const;
+    const TNode* influencer(const TStoredStringPtr& influencerName,
+                            const TStoredStringPtr& influencerValue) const;
 
     //! Bottom up first visit the tree.
     void bottomUpBreadthFirst(CHierarchicalResultsVisitor& visitor) const;
@@ -463,7 +475,10 @@ protected:
     static const TNode* nearestAncestorForWhichWeWriteResults(const TNode& node);
 
     //! Check if we'll write a result for the node.
-    static bool shouldWriteResult(const CLimits& limits, const CHierarchicalResults& results, const TNode& node, bool pivot);
+    static bool shouldWriteResult(const CLimits& limits,
+                                  const CHierarchicalResults& results,
+                                  const TNode& node,
+                                  bool pivot);
 
     friend class ::CHierarchicalResultsTest;
 };

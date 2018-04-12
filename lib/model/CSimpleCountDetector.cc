@@ -49,7 +49,8 @@ void CSimpleCountDetector::pruneModels() {
     return;
 }
 
-const CAnomalyDetector::TStrCPtrVec& CSimpleCountDetector::preprocessFieldValues(const TStrCPtrVec& fieldValues) {
+const CAnomalyDetector::TStrCPtrVec&
+CSimpleCountDetector::preprocessFieldValues(const TStrCPtrVec& fieldValues) {
     // The first field value is always the magic word "count", but for
     // summarised input we need to pass on the true value of the second field
     if (m_FieldValues.size() > 1) {
