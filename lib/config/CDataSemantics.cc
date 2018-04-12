@@ -341,8 +341,7 @@ maths::COrdinal CDataSemantics::addReal(REAL value) {
 
 const std::size_t CDataSemantics::MAXIMUM_EMPIRICAL_DISTRIBUTION_SIZE(10000);
 const double CDataSemantics::NUMERIC_PROPORTION_FOR_METRIC_STRICT(0.99);
-const double
-    CDataSemantics::NUMERIC_PROPORTION_FOR_METRIC_WITH_SUSPECTED_MISSING_VALUES(0.5);
+const double CDataSemantics::NUMERIC_PROPORTION_FOR_METRIC_WITH_SUSPECTED_MISSING_VALUES(0.5);
 const double CDataSemantics::INTEGER_PRORORTION_FOR_INTEGER(0.999);
 }
 }

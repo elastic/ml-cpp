@@ -159,8 +159,7 @@ void CCategoryExamplesCollectorTest::testTruncation() {
 }
 
 CppUnit::Test* CCategoryExamplesCollectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CCategoryExamplesCollectorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCategoryExamplesCollectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
         "CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero",

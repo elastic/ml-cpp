@@ -509,8 +509,7 @@ void CMetricModelTest::testSample() {
                     // The XML representation of the new filter should be the same as the original
                     std::string newXml;
                     {
-                        ml::core::CRapidXmlStatePersistInserter inserter(
-                            "root");
+                        ml::core::CRapidXmlStatePersistInserter inserter("root");
                         restoredModel->acceptPersistInserter(inserter);
                         inserter.toXml(newXml);
                     }
@@ -2664,8 +2663,7 @@ void CMetricModelTest::testIgnoreSamplingGivenDetectionRules() {
 }
 
 CppUnit::Test* CMetricModelTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMetricModelTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricModelTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMetricModelTest>(
         "CMetricModelTest::testSample", &CMetricModelTest::testSample));

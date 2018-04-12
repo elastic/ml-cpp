@@ -795,9 +795,9 @@ const TFeatureVec
                                     END(detail::INDIVIDUAL_HIGH_COUNTS_FEATURES));
 
 //! The features for the low non zero count by function.
-const TFeatureVec
-    INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES),
-                                           END(detail::INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES));
+const TFeatureVec INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES(
+    BEGIN(detail::INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES),
+    END(detail::INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES));
 
 //! The features for the high non zero count by function.
 const TFeatureVec INDIVIDUAL_HIGH_NON_ZERO_COUNT_FEATURES(
@@ -810,9 +810,9 @@ const TFeatureVec
                                        END(detail::INDIVIDUAL_DISTINCT_COUNT_FEATURES));
 
 //! The features for the distinct count function.
-const TFeatureVec
-    INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES),
-                                           END(detail::INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES));
+const TFeatureVec INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES(
+    BEGIN(detail::INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES),
+    END(detail::INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES));
 
 //! The features for the distinct count function.
 const TFeatureVec INDIVIDUAL_HIGH_DISTINCT_COUNT_FEATURES(
@@ -825,9 +825,9 @@ const TFeatureVec
                                      END(detail::INDIVIDUAL_INFO_CONTENT_FEATURES));
 
 //! The features for the individual high_info_content function
-const TFeatureVec
-    INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES(BEGIN(detail::INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES),
-                                          END(detail::INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES));
+const TFeatureVec INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES(
+    BEGIN(detail::INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES),
+    END(detail::INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES));
 
 //! The features for the individual low_info_content function
 const TFeatureVec
@@ -869,14 +869,14 @@ const TFeatureVec
                                       END(detail::INDIVIDUAL_METRIC_MEDIAN_FEATURES));
 
 //! The features for the metric low median by function.
-const TFeatureVec
-    INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES),
-                                          END(detail::INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES));
+const TFeatureVec INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES(
+    BEGIN(detail::INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES),
+    END(detail::INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES));
 
 //! The features for the metric high median by function.
-const TFeatureVec
-    INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES),
-                                           END(detail::INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES));
+const TFeatureVec INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES(
+    BEGIN(detail::INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES),
+    END(detail::INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES));
 
 //! The features for the metric min by function.
 const TFeatureVec
@@ -934,9 +934,8 @@ const TFeatureVec INDIVIDUAL_METRIC_HIGH_NON_NULL_SUM_FEATURES(
     END(detail::INDIVIDUAL_METRIC_HIGH_NON_NULL_SUM_FEATURES));
 
 //! The features for the metric latitude and longitude by function.
-const TFeatureVec
-    INDIVIDUAL_LAT_LONG_FEATURES(BEGIN(detail::INDIVIDUAL_LAT_LONG_FEATURES),
-                                 END(detail::INDIVIDUAL_LAT_LONG_FEATURES));
+const TFeatureVec INDIVIDUAL_LAT_LONG_FEATURES(BEGIN(detail::INDIVIDUAL_LAT_LONG_FEATURES),
+                                               END(detail::INDIVIDUAL_LAT_LONG_FEATURES));
 
 //! The features for the metric max velocity by function.
 const TFeatureVec
@@ -968,9 +967,9 @@ const TFeatureVec
                                        END(detail::POPULATION_DISTINCT_COUNT_FEATURES));
 
 //! The features for the low distinct count over function.
-const TFeatureVec
-    POPULATION_LOW_DISTINCT_COUNT_FEATURES(BEGIN(detail::POPULATION_LOW_DISTINCT_COUNT_FEATURES),
-                                           END(detail::POPULATION_LOW_DISTINCT_COUNT_FEATURES));
+const TFeatureVec POPULATION_LOW_DISTINCT_COUNT_FEATURES(
+    BEGIN(detail::POPULATION_LOW_DISTINCT_COUNT_FEATURES),
+    END(detail::POPULATION_LOW_DISTINCT_COUNT_FEATURES));
 
 //! The features for the high distinct count over function.
 const TFeatureVec POPULATION_HIGH_DISTINCT_COUNT_FEATURES(
@@ -1017,9 +1016,9 @@ const TFeatureVec
                                          END(detail::POPULATION_LOW_INFO_CONTENT_FEATURES));
 
 //! The features for the high information content over function.
-const TFeatureVec
-    POPULATION_HIGH_INFO_CONTENT_FEATURES(BEGIN(detail::POPULATION_HIGH_INFO_CONTENT_FEATURES),
-                                          END(detail::POPULATION_HIGH_INFO_CONTENT_FEATURES));
+const TFeatureVec POPULATION_HIGH_INFO_CONTENT_FEATURES(
+    BEGIN(detail::POPULATION_HIGH_INFO_CONTENT_FEATURES),
+    END(detail::POPULATION_HIGH_INFO_CONTENT_FEATURES));
 
 //! The features for the time_of_week over function.
 const TFeatureVec
@@ -1056,14 +1055,14 @@ const TFeatureVec
                                       END(detail::POPULATION_METRIC_MEDIAN_FEATURES));
 
 //! The features for the metric low median over function.
-const TFeatureVec
-    POPULATION_METRIC_LOW_MEDIAN_FEATURES(BEGIN(detail::POPULATION_METRIC_LOW_MEDIAN_FEATURES),
-                                          END(detail::POPULATION_METRIC_LOW_MEDIAN_FEATURES));
+const TFeatureVec POPULATION_METRIC_LOW_MEDIAN_FEATURES(
+    BEGIN(detail::POPULATION_METRIC_LOW_MEDIAN_FEATURES),
+    END(detail::POPULATION_METRIC_LOW_MEDIAN_FEATURES));
 
 //! The features for the metric high median over function.
-const TFeatureVec
-    POPULATION_METRIC_HIGH_MEDIAN_FEATURES(BEGIN(detail::POPULATION_METRIC_HIGH_MEDIAN_FEATURES),
-                                           END(detail::POPULATION_METRIC_HIGH_MEDIAN_FEATURES));
+const TFeatureVec POPULATION_METRIC_HIGH_MEDIAN_FEATURES(
+    BEGIN(detail::POPULATION_METRIC_HIGH_MEDIAN_FEATURES),
+    END(detail::POPULATION_METRIC_HIGH_MEDIAN_FEATURES));
 
 //! The features for the metric min over function.
 const TFeatureVec
@@ -1105,9 +1104,8 @@ const TFeatureVec
                                         END(detail::POPULATION_METRIC_HIGH_SUM_FEATURES));
 
 //! The features for the metric lat/long over function.
-const TFeatureVec
-    POPULATION_LAT_LONG_FEATURES(BEGIN(detail::POPULATION_LAT_LONG_FEATURES),
-                                 END(detail::POPULATION_LAT_LONG_FEATURES));
+const TFeatureVec POPULATION_LAT_LONG_FEATURES(BEGIN(detail::POPULATION_LAT_LONG_FEATURES),
+                                               END(detail::POPULATION_LAT_LONG_FEATURES));
 
 //! The features for the metric max velocity over function.
 const TFeatureVec
@@ -1157,9 +1155,8 @@ const TFeatureVec
                                        END(detail::PEERS_HIGH_DISTINCT_COUNT_FEATURES));
 
 //! The features for the information content over function.
-const TFeatureVec
-    PEERS_INFO_CONTENT_FEATURES(BEGIN(detail::PEERS_INFO_CONTENT_FEATURES),
-                                END(detail::PEERS_INFO_CONTENT_FEATURES));
+const TFeatureVec PEERS_INFO_CONTENT_FEATURES(BEGIN(detail::PEERS_INFO_CONTENT_FEATURES),
+                                              END(detail::PEERS_INFO_CONTENT_FEATURES));
 
 //! The features for the low information content over function.
 const TFeatureVec
@@ -1176,9 +1173,8 @@ const TFeatureVec PEERS_TIME_OF_DAY_FEATURES(BEGIN(detail::PEERS_TIME_OF_DAY_FEA
                                              END(detail::PEERS_TIME_OF_DAY_FEATURES));
 
 //! The features for the time_of_week over function.
-const TFeatureVec
-    PEERS_TIME_OF_WEEK_FEATURES(BEGIN(detail::PEERS_TIME_OF_WEEK_FEATURES),
-                                END(detail::PEERS_TIME_OF_WEEK_FEATURES));
+const TFeatureVec PEERS_TIME_OF_WEEK_FEATURES(BEGIN(detail::PEERS_TIME_OF_WEEK_FEATURES),
+                                              END(detail::PEERS_TIME_OF_WEEK_FEATURES));
 
 const TFeatureVec EMPTY_FEATURES;
 const TFunctionVec EMPTY_FUNCTIONS;

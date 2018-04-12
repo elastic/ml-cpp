@@ -85,8 +85,7 @@ const std::string COUNT("count");
 // a completely separate empty string, such that its pointer will be different
 // to other empty string pointers.  (In general, if you need a pointer to an
 // empty string call CStringStore::getEmpty() instead of doing this.)
-core::CStoredStringPtr
-    UNSET_STRING(core::CStoredStringPtr::makeStoredString(std::string()));
+core::CStoredStringPtr UNSET_STRING(core::CStoredStringPtr::makeStoredString(std::string()));
 
 //! Check if a string reference is unset.
 bool unset(core::CStoredStringPtr value) {
@@ -212,8 +211,7 @@ void aggregateLayer(ITR beginLayer,
 //! that it is either the person or partition field of that node.
 class CCommonInfluencePropagator : public CHierarchicalResultsVisitor {
 public:
-    virtual void
-    visit(const CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
+    virtual void visit(const CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
         if (this->isLeaf(node)) {
             std::sort(node.s_AnnotatedProbability.s_Influences.begin(),
                       node.s_AnnotatedProbability.s_Influences.end(),
@@ -943,8 +941,7 @@ CHierarchicalResults::newPivot(TStoredStringPtrStoredStringPtrPr key) {
     return result;
 }
 
-CHierarchicalResults::TNode&
-CHierarchicalResults::newPivotRoot(const TStoredStringPtr& key) {
+CHierarchicalResults::TNode& CHierarchicalResults::newPivotRoot(const TStoredStringPtr& key) {
     TNode& result = m_PivotRootNodes[key];
     result.s_Spec.s_PersonFieldName = key;
     result.s_Spec.s_PersonFieldValue = UNSET_STRING;
@@ -1018,7 +1015,8 @@ const CHierarchicalResultsVisitor::TNode*
 CHierarchicalResultsVisitor::nearestAncestorForWhichWeWriteResults(const TNode& node) {
     const TNode* result = &node;
     for (result = result->s_Parent; result && !isTypeForWhichWeWriteResults(*result, false);
-         result = result->s_Parent) {}
+         result = result->s_Parent) {
+    }
     return result;
 }
 

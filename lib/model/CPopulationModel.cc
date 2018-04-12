@@ -165,8 +165,7 @@ CPopulationModel::currentBucketCount(std::size_t pid, core_t::TTime time) const 
                                                         : TOptionalUInt64();
 }
 
-CPopulationModel::TOptionalDouble
-CPopulationModel::baselineBucketCount(std::size_t /*pid*/) const {
+CPopulationModel::TOptionalDouble CPopulationModel::baselineBucketCount(std::size_t /*pid*/) const {
     return TOptionalDouble();
 }
 

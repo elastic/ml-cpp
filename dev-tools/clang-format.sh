@@ -30,7 +30,7 @@ if [ $? != 0 ] ; then
     exit 1;
 fi
 
-CLANG_FORMAT_MAJOR_VERSION=6
+CLANG_FORMAT_MAJOR_VERSION=5
 CLANG_FORMAT_VERSION=$(expr "`clang-format --version`" : ".* \(${CLANG_FORMAT_MAJOR_VERSION}.[0-9].[0-9]\) ")
 
 if [ -z ${CLANG_FORMAT_VERSION} ]; then

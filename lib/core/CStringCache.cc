@@ -101,8 +101,8 @@ inline CStringCache::CCharPStrEqual::CCharPStrEqual(size_t length)
 }
 
 // Caller is responsible for ensuring that lhs is not NULL
-inline bool CStringCache::CCharPStrEqual::
-operator()(const char* lhs, const std::string& rhs) const {
+inline bool CStringCache::CCharPStrEqual::operator()(const char* lhs,
+                                                     const std::string& rhs) const {
     return m_Length == rhs.length() && ::memcmp(lhs, rhs.data(), m_Length) == 0;
 }
 }

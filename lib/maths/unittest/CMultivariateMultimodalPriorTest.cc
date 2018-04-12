@@ -543,12 +543,9 @@ void CMultivariateMultimodalPriorTest::testSplitAndMerge() {
 }
 
 void CMultivariateMultimodalPriorTest::testMarginalLikelihood() {
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultivariateMultimodalPriorTest::testMarginalLikelihood  |");
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testMarginalLikelihood  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
 
     // Test that:
     //   1) The likelihood is normalized.
@@ -1005,12 +1002,9 @@ void CMultivariateMultimodalPriorTest::testIntegerData() {
 }
 
 void CMultivariateMultimodalPriorTest::testLowVariationData() {
-    LOG_DEBUG(
-        << "+----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultivariateMultimodalPriorTest::testLowVariationData  |");
-    LOG_DEBUG(
-        << "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateMultimodalPriorTest::testLowVariationData  |");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
 
     // TODO
 }
@@ -1135,8 +1129,7 @@ void CMultivariateMultimodalPriorTest::testPersist() {
 }
 
 CppUnit::Test* CMultivariateMultimodalPriorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMultivariateMultimodalPriorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultivariateMultimodalPriorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateMultimodalPriorTest>(
         "CMultivariateMultimodalPriorTest::testMultipleUpdate",

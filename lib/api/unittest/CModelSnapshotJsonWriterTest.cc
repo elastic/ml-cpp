@@ -29,8 +29,7 @@ using namespace ml;
 using namespace api;
 
 CppUnit::Test* CModelSnapshotJsonWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CModelSnapshotJsonWriterTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelSnapshotJsonWriterTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CModelSnapshotJsonWriterTest>(
         "CModelSnapshotJsonWriterTest::testWrite", &CModelSnapshotJsonWriterTest::testWrite));
     return suiteOfTests;
@@ -115,8 +114,7 @@ void CModelSnapshotJsonWriterTest::testWrite() {
                          modelSizeStats["total_partition_field_count"].GetInt64());
     CPPUNIT_ASSERT(modelSizeStats.HasMember("total_over_field_count"));
     CPPUNIT_ASSERT_EQUAL(int64_t(150), modelSizeStats["total_over_field_count"].GetInt64());
-    CPPUNIT_ASSERT(
-        modelSizeStats.HasMember("bucket_allocation_failures_count"));
+    CPPUNIT_ASSERT(modelSizeStats.HasMember("bucket_allocation_failures_count"));
     CPPUNIT_ASSERT_EQUAL(
         int64_t(4), modelSizeStats["bucket_allocation_failures_count"].GetInt64());
     CPPUNIT_ASSERT(modelSizeStats.HasMember("memory_status"));

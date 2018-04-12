@@ -31,8 +31,7 @@ using namespace ml;
 using namespace core;
 
 CppUnit::Test* CFlatPrefixTreeTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CFlatPrefixTreeTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFlatPrefixTreeTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
         "CFlatPrefixTreeTest::testBuildGivenUnsortedInput",

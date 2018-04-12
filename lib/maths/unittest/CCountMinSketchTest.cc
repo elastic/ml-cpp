@@ -268,8 +268,7 @@ void CCountMinSketchTest::testPersist() {
 }
 
 CppUnit::Test* CCountMinSketchTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CCountMinSketchTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCountMinSketchTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCountMinSketchTest>(
         "CCountMinSketchTest::testCounts", &CCountMinSketchTest::testCounts));

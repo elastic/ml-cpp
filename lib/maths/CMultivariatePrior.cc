@@ -288,8 +288,8 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     return true;
 }
 
-std::string
-CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x, std::size_t y) const {
+std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x,
+                                                                std::size_t y) const {
     // We'll plot the marginal likelihood function over a range where
     // most of the mass is, i.e. the 99% confidence interval.
 

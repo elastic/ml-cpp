@@ -805,8 +805,7 @@ void CBootstrapClustererTest::testClusteringStability() {
 }
 
 CppUnit::Test* CBootstrapClustererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CBootstrapClustererTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBootstrapClustererTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
         "CBootstrapClustererTest::testFacade", &CBootstrapClustererTest::testFacade));

@@ -264,8 +264,7 @@ void CMetricDataGathererTest::singleSeriesTests() {
             CPPUNIT_ASSERT_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
             CPPUNIT_ASSERT_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
             CPPUNIT_ASSERT_EQUAL(
-                std::string(
-                    "[(8 [1.55] 1 2), (185 [1.2] 1 2), (475 [1.75] 1 2)]"),
+                std::string("[(8 [1.55] 1 2), (185 [1.2] 1 2), (475 [1.75] 1 2)]"),
                 core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
             CPPUNIT_ASSERT_EQUAL(
                 std::string("[(8 [1] 1 2), (185 [0.9] 1 2), (475 [1.5] 1 2)]"),
@@ -992,8 +991,7 @@ void CMetricDataGathererTest::testSum() {
 }
 
 void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
-    LOG_DEBUG(
-        << "*** CMetricDataGathererTest::singleSeriesOutOfOrderTests ***");
+    LOG_DEBUG(<< "*** CMetricDataGathererTest::singleSeriesOutOfOrderTests ***");
 
     // Test that the various statistics come back as we suspect.
 
@@ -1148,9 +1146,9 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
             CPPUNIT_ASSERT_EQUAL(std::string("[(8 [1] 1 2), (257 [0.9] 1 3)]"),
                                  core::CContainerPrinter::print(
                                      featureData[1].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(8 [2.1] 1 2), (257 [1.5] 1 3)]"),
-                core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(8 [2.1] 1 2), (257 [1.5] 1 3)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[2].second[0].second.s_Samples));
             CPPUNIT_ASSERT_EQUAL(std::string("[(0 [9] 1 6)]"),
                                  core::CContainerPrinter::print(
                                      featureData[3].second[0].second.s_Samples));
@@ -1189,8 +1187,7 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
 }
 
 void CMetricDataGathererTest::testResetBucketGivenSingleSeries() {
-    LOG_DEBUG(
-        << "*** CMetricDataGathererTest::testResetBucketGivenSingleSeries ***");
+    LOG_DEBUG(<< "*** CMetricDataGathererTest::testResetBucketGivenSingleSeries ***");
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
@@ -2169,8 +2166,7 @@ void CMetricDataGathererTest::testVarp() {
 }
 
 CppUnit::Test* CMetricDataGathererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMetricDataGathererTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricDataGathererTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
         "CMetricDataGathererTest::singleSeriesTests", &CMetricDataGathererTest::singleSeriesTests));

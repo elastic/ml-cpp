@@ -501,13 +501,12 @@ std::ostream& CJointProbabilityOfLessLikelySamples::print(std::ostream& o) const
     return o << '(' << m_NumberSamples << ", " << m_Distance << ')';
 }
 
-std::ostream&
-operator<<(std::ostream& o, const CJointProbabilityOfLessLikelySamples& probability) {
+std::ostream& operator<<(std::ostream& o,
+                         const CJointProbabilityOfLessLikelySamples& probability) {
     return probability.print(o);
 }
 
-CJointProbabilityOfLessLikelySamples&
-CJointProbabilityOfLessLikelySamples::SAddProbability::
+CJointProbabilityOfLessLikelySamples& CJointProbabilityOfLessLikelySamples::SAddProbability::
 operator()(CJointProbabilityOfLessLikelySamples& jointProbability,
            const double probability,
            const double weight) const {

@@ -382,8 +382,7 @@ void CBjkstUniqueValuesTest::testPersist() {
 }
 
 CppUnit::Test* CBjkstUniqueValuesTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CBjkstUniqueValuesTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBjkstUniqueValuesTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>(
         "CBjkstUniqueValuesTest::testTrailingZeros", &CBjkstUniqueValuesTest::testTrailingZeros));

@@ -219,8 +219,7 @@ void CIntegerToolsTest::testBinomial() {
 }
 
 CppUnit::Test* CIntegerToolsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CIntegerToolsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIntegerToolsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>(
         "CIntegerToolsTest::testNextPow2", &CIntegerToolsTest::testNextPow2));

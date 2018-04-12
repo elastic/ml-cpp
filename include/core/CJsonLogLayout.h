@@ -64,8 +64,7 @@ public:
     virtual void setOption(const LogString& option, const LogString& value);
 
     //! Formats a LoggingEvent as JSON.
-    virtual void
-    format(LogString& output, const spi::LoggingEventPtr& event, Pool& p) const;
+    virtual void format(LogString& output, const spi::LoggingEventPtr& event, Pool& p) const;
 
     //! The CJsonLogLayout prints and does not ignore exceptions.
     virtual bool ignoresThrowable() const;

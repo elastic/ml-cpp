@@ -50,8 +50,7 @@ CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream& strmIn)
             LOG_WARN(<< "Cannot set the stdin to binary mode");
         }
     } else {
-        LOG_DEBUG(
-            << "Length encoded input parser input is not connected to stdin");
+        LOG_DEBUG(<< "Length encoded input parser input is not connected to stdin");
     }
 }
 
@@ -89,8 +88,7 @@ bool CLengthEncodedInputParser::readStream(const TReaderFunc& readerFunc) {
 
     while (!m_NoMoreRecords) {
         if (this->parseRecordFromStream<false>(fieldValRefs) == false) {
-            LOG_ERROR(
-                << "Failed to parse length encoded data record from stream");
+            LOG_ERROR(<< "Failed to parse length encoded data record from stream");
             return false;
         }
 
@@ -177,8 +175,8 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
         // in Bugzilla for more details.
         static const uint32_t HIGH_BYTE_MASK(0xFF000000);
         if ((length & HIGH_BYTE_MASK) != 0u) {
-            LOG_ERROR(<< "Parsed field length "
-                      << length << " is suspiciously large - assuming corrupt input stream");
+            LOG_ERROR(<< "Parsed field length " << length
+                      << " is suspiciously large - assuming corrupt input stream");
             return false;
         }
 

@@ -121,8 +121,8 @@ void CTokenListReverseSearchCreatorTest::testAddInOrderCommonToken() {
                                                reverseSearchPart2);
 
     CPPUNIT_ASSERT_EQUAL(std::string("user logged b=0.15+a logged"), reverseSearchPart1);
-    CPPUNIT_ASSERT_EQUAL(
-        std::string(".*?user.+?logged.+?b=0\\.15\\+a.+?logged"), reverseSearchPart2);
+    CPPUNIT_ASSERT_EQUAL(std::string(".*?user.+?logged.+?b=0\\.15\\+a.+?logged"),
+                         reverseSearchPart2);
 }
 
 void CTokenListReverseSearchCreatorTest::testCloseStandardSearch() {

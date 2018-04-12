@@ -350,8 +350,7 @@ void CGramSchmidtTest::testEdgeCases() {
 }
 
 CppUnit::Test* CGramSchmidtTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CGramSchmidtTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CGramSchmidtTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CGramSchmidtTest>(
         "CGramSchmidtTest::testOrthogonality", &CGramSchmidtTest::testOrthogonality));

@@ -886,8 +886,7 @@ void CXMeansOnline1dTest::testPruneEmptyCluster() {
 }
 
 CppUnit::Test* CXMeansOnline1dTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CXMeansOnline1dTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXMeansOnline1dTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnline1dTest>(
         "CXMeansOnline1dTest::testCluster", &CXMeansOnline1dTest::testCluster));

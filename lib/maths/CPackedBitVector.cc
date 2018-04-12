@@ -79,7 +79,8 @@ void CPackedBitVector::contract() {
 
     if (m_RunLengths.front() == MAX_RUN_LENGTH) {
         std::size_t i = 1u;
-        for (/**/; m_RunLengths[i] == MAX_RUN_LENGTH && i < m_RunLengths.size(); ++i) {}
+        for (/**/; m_RunLengths[i] == MAX_RUN_LENGTH && i < m_RunLengths.size(); ++i) {
+        }
         if (m_RunLengths[i] == 0) {
             m_RunLengths.erase(m_RunLengths.begin() + i);
             --m_RunLengths[i - 1];

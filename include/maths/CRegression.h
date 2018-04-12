@@ -254,9 +254,8 @@ public:
         //! Get the predicted value of the regression parameters at \p x.
         //!
         //! \note Returns array of zeros if getting the parameters fails.
-        TArray
-        parameters(double x,
-                   double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const {
+        TArray parameters(double x,
+                          double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const {
             TArray result;
             TArray params;
             if (this->parameters(params, maxCondition)) {
@@ -371,13 +370,11 @@ public:
     private:
         //! Get the first \p n regression parameters.
         template<typename MATRIX, typename VECTOR>
-        bool
-        parameters(std::size_t n, MATRIX& x, VECTOR& y, double maxCondition, TArray& result) const;
+        bool parameters(std::size_t n, MATRIX& x, VECTOR& y, double maxCondition, TArray& result) const;
 
         //! Compute the covariance matrix of the regression parameters.
         template<typename MATRIX>
-        bool
-        covariances(std::size_t n, MATRIX& x, double variance, double maxCondition, TMatrix& result) const;
+        bool covariances(std::size_t n, MATRIX& x, double variance, double maxCondition, TMatrix& result) const;
 
         //! Get the gramian of the design matrix.
         template<typename MATRIX>
@@ -492,8 +489,7 @@ public:
 };
 
 template<std::size_t N, typename T>
-double
-CRegression::CLeastSquaresOnline<N, T>::predict(double x, double maxCondition) const {
+double CRegression::CLeastSquaresOnline<N, T>::predict(double x, double maxCondition) const {
     TArray params;
     this->parameters(params, maxCondition);
     return CRegression::predict(params, x);

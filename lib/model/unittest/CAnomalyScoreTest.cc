@@ -596,8 +596,7 @@ void CAnomalyScoreTest::testPersistEmpty() {
 }
 
 CppUnit::Test* CAnomalyScoreTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CAnomalyScoreTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnomalyScoreTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
         "CAnomalyScoreTest::testComputeScores", &CAnomalyScoreTest::testComputeScores));

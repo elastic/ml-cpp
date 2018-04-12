@@ -90,19 +90,17 @@ namespace basic_statistics_detail {
 template<typename U, std::size_t N>
 struct SCentralMomentsCustomAdd<CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance>> {
     template<typename T>
-    static inline void
-    add(const CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance>& x,
-        typename SCoordinate<T>::Type n,
-        CBasicStatistics::SSampleCentralMoments<T, 1>& moments) {
+    static inline void add(const CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance>& x,
+                           typename SCoordinate<T>::Type n,
+                           CBasicStatistics::SSampleCentralMoments<T, 1>& moments) {
         using TCoordinate = typename SCoordinate<T>::Type;
         moments.add(x, TCoordinate(x.annotation().s_Count) * n, 0);
     }
 
     template<typename T>
-    static inline void
-    add(const CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance>& x,
-        typename SCoordinate<T>::Type n,
-        CBasicStatistics::SSampleCentralMoments<T, 2>& moments) {
+    static inline void add(const CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance>& x,
+                           typename SCoordinate<T>::Type n,
+                           CBasicStatistics::SSampleCentralMoments<T, 2>& moments) {
         using TCoordinate = typename SCoordinate<T>::Type;
         moments += CBasicStatistics::accumulator(
             TCoordinate(x.annotation().s_Count) * n, T(x), T(x.annotation().s_Variance));
@@ -177,8 +175,8 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarian
 
 //! Write a description of \p cluster for debugging.
 template<typename POINT>
-std::ostream&
-operator<<(std::ostream& o, const CAnnotatedVector<POINT, SCountAndVariance>& cluster) {
+std::ostream& operator<<(std::ostream& o,
+                         const CAnnotatedVector<POINT, SCountAndVariance>& cluster) {
     return o << static_cast<const POINT&>(cluster) << " ("
              << cluster.annotation().s_Count << ","
              << std::sqrt(cluster.annotation().s_Variance) << ")";

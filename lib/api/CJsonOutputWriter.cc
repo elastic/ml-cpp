@@ -655,8 +655,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
 
         m_NestedDocs.clear();
     } else {
-        LOG_WARN(
-            << "Expected some causes for a population anomaly but got none");
+        LOG_WARN(<< "Expected some causes for a population anomaly but got none");
     }
 }
 

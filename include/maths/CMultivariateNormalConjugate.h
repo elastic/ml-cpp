@@ -374,10 +374,10 @@ public:
         TSize10Vec i1;
         this->remainingVariables(marginalize, condition, i1);
         if (i1.size() != 1) {
-            LOG_ERROR(
-                << "Invalid variables for computing univariate distribution: "
-                << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
-                << ", condition '" << core::CContainerPrinter::print(condition) << "'");
+            LOG_ERROR(<< "Invalid variables for computing univariate distribution: "
+                      << "marginalize '" << core::CContainerPrinter::print(marginalize) << "'"
+                      << ", condition '"
+                      << core::CContainerPrinter::print(condition) << "'");
             return TUnivariatePriorPtrDoublePr();
         }
 
@@ -450,8 +450,8 @@ public:
     //! \note The caller must specify dimension - 2 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TPriorPtrDoublePr
-    bivariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
+    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
+                                        const TSizeDoublePr10Vec& condition) const {
         if (N == 2) {
             return TPriorPtrDoublePr(
                 boost::shared_ptr<CMultivariatePrior>(this->clone()), 0.0);
@@ -549,9 +549,8 @@ public:
     }
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec
-    marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
-                           const TDouble10Vec4Vec& /*weights*/) const {
+    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
+                                                const TDouble10Vec4Vec& /*weights*/) const {
         return this->marginalLikelihoodMean();
     }
 

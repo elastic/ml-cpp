@@ -21,8 +21,7 @@
 #include <core/CThread.h>
 
 CppUnit::Test* CThreadMutexConditionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CThreadMutexConditionTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CThreadMutexConditionTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CThreadMutexConditionTest>(
         "CThreadMutexConditionTest::testThread", &CThreadMutexConditionTest::testThread));

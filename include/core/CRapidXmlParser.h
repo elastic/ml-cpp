@@ -102,25 +102,21 @@ public:
     //! This is much more efficient than making repeated calls to
     //! evalXPathExpression() to retrieve the entire contents of a parsed
     //! document.
-    virtual bool
-    toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
+    virtual bool toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! As above, but use a pool to avoid XML node memory allocations where possible
-    virtual bool
-    toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
-                    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
+    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! As above, but use a string cache to avoid string representation memory
     //! allocations where possible
-    virtual bool
-    toNodeHierarchy(CStringCache& cache,
-                    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
+    virtual bool toNodeHierarchy(CStringCache& cache,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! As above, but use both a node pool and a string cache
-    virtual bool
-    toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
-                    CStringCache& cache,
-                    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
+    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                                 CStringCache& cache,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! Functions for navigating an XML document without converting it to a
     //! node hierarchy
@@ -137,8 +133,7 @@ public:
 
     //! Convert a node hierarchy to XML, optionally without indenting.
     //! (This will escape the text correctly.)
-    static void
-    convert(bool indent, const CXmlNodeWithChildren& root, std::string& result);
+    static void convert(bool indent, const CXmlNodeWithChildren& root, std::string& result);
 
 private:
     using TCharRapidXmlDocument = rapidxml::xml_document<char>;

@@ -181,8 +181,7 @@ void CBucketQueueTest::testBucketQueueUMap() {
 }
 
 CppUnit::Test* CBucketQueueTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CBucketQueueTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBucketQueueTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>(
         "CBucketQueueTest::testConstructorFillsQueue",

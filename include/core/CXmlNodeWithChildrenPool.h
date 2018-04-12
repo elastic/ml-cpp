@@ -62,13 +62,11 @@ public:
     CXmlNodeWithChildren::TXmlNodeWithChildrenP newNode();
 
     //! Allocate a new XML node with the provided name and value
-    CXmlNodeWithChildren::TXmlNodeWithChildrenP
-    newNode(std::string name, std::string value);
+    CXmlNodeWithChildren::TXmlNodeWithChildrenP newNode(std::string name, std::string value);
 
     //! Allocate a new XML node with the provided name and value
     template<typename TYPE>
-    CXmlNodeWithChildren::TXmlNodeWithChildrenP
-    newNode(std::string name, const TYPE& value) {
+    CXmlNodeWithChildren::TXmlNodeWithChildrenP newNode(std::string name, const TYPE& value) {
         return this->newNode(name, CStringUtils::typeToString(value));
     }
 

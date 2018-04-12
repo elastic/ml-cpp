@@ -603,12 +603,9 @@ void CGammaRateConjugateTest::testMarginalLikelihoodMode() {
 }
 
 void CGammaRateConjugateTest::testMarginalLikelihoodVariance() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CGammaRateConjugateTest::testMarginalLikelihoodVariance  |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testMarginalLikelihoodVariance  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     // Test that the expectation of the residual from the mean for
     // the marginal likelihood matches the expected variance of the
@@ -812,12 +809,9 @@ void CGammaRateConjugateTest::testCdf() {
 }
 
 void CGammaRateConjugateTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(
-        << "+---------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CGammaRateConjugateTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(
-        << "+---------------------------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CGammaRateConjugateTest::testProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+---------------------------------------------------------------+");
 
     // We test that the probability of less likely samples calculation
     // agrees with the chance of seeing a sample with lower marginal
@@ -1653,8 +1647,7 @@ void CGammaRateConjugateTest::testNegativeSample() {
 }
 
 CppUnit::Test* CGammaRateConjugateTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CGammaRateConjugateTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CGammaRateConjugateTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CGammaRateConjugateTest>(
         "CGammaRateConjugateTest::testMultipleUpdate",

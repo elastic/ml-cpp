@@ -798,8 +798,7 @@ void CSeasonalComponentTest::testPersist() {
 }
 
 CppUnit::Test* CSeasonalComponentTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CSeasonalComponentTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSeasonalComponentTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CSeasonalComponentTest>(
         "CSeasonalComponentTest::testNoPeriodicity", &CSeasonalComponentTest::testNoPeriodicity));

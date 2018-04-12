@@ -566,8 +566,7 @@ protected:
     }
 
     //! Add \p count copies of \p mx to the cluster \p cluster.
-    static void
-    add(const TDoublePoint& mx, double count, TFloatMeanAccumulatorDoublePr& cluster) {
+    static void add(const TDoublePoint& mx, double count, TFloatMeanAccumulatorDoublePr& cluster) {
         double nx = count;
         TDoublePoint vx(0.0);
         double nc = CBasicStatistics::count(cluster.first);

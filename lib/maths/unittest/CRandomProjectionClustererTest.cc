@@ -92,12 +92,9 @@ public:
 }
 
 void CRandomProjectionClustererTest::testGenerateProjections() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CRandomProjectionClustererTest::testGenerateProjections  |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CRandomProjectionClustererTest::testGenerateProjections  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     using TVectorArrayVec = CRandomProjectionClustererForTest<5>::TVectorArrayVec;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -114,9 +111,8 @@ void CRandomProjectionClustererTest::testGenerateProjections() {
         const TVectorArrayVec& projections = clusterer.projections();
         LOG_DEBUG(<< "projections = " << core::CContainerPrinter::print(projections));
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[[[1 0 0], [0 1 0], [0 0 1], [0 0 0], [0 0 0]]]"),
-            core::CContainerPrinter::print(projections));
+        CPPUNIT_ASSERT_EQUAL(std::string("[[[1 0 0], [0 1 0], [0 0 1], [0 0 0], [0 0 0]]]"),
+                             core::CContainerPrinter::print(projections));
     }
 
     // Test that the projections are mutually orthonormal and
@@ -178,12 +174,9 @@ void CRandomProjectionClustererTest::testGenerateProjections() {
 }
 
 void CRandomProjectionClustererTest::testClusterProjections() {
-    LOG_DEBUG(
-        << "+----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CRandomProjectionClustererTest::testClusterProjections  |");
-    LOG_DEBUG(
-        << "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CRandomProjectionClustererTest::testClusterProjections  |");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
 
     // Test that we get the cluster weights, means and covariance
     // matrices, and the sampled points we expect. Note that we
@@ -464,12 +457,9 @@ void CRandomProjectionClustererTest::testSimilarities() {
 }
 
 void CRandomProjectionClustererTest::testClusterNeighbourhoods() {
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CRandomProjectionClustererTest::testClusterNeighbourhoods  |");
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CRandomProjectionClustererTest::testClusterNeighbourhoods  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
 
     // Test we recover the true clusters.
 
@@ -556,8 +546,7 @@ void CRandomProjectionClustererTest::testAccuracy() {
 }
 
 CppUnit::Test* CRandomProjectionClustererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CRandomProjectionClustererTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRandomProjectionClustererTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
         "CRandomProjectionClustererTest::testGenerateProjections",

@@ -85,8 +85,8 @@ public:
     //! \param[in] maximumNumberOfCategories The number of categories in the likelihood function.
     //! \param[in] decayRate The rate at which to revert to the non-informative prior.
     //! \return A non-informative prior.
-    static CMultinomialConjugate
-    nonInformativePrior(std::size_t maximumNumberOfCategories, double decayRate = 0.0);
+    static CMultinomialConjugate nonInformativePrior(std::size_t maximumNumberOfCategories,
+                                                     double decayRate = 0.0);
     //@}
 
     //! \name Prior Contract
@@ -166,10 +166,10 @@ public:
     //! \param[in] weightStyles Ignored.
     //! \param[in] weights Ignored.
     //! \note \p percentage should be in the range [0.0, 100.0).
-    virtual TDoubleDoublePr
-    marginalLikelihoodConfidenceInterval(double percentage,
-                                         const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                         const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
+        double percentage,
+        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+        const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the category probability parameters.
@@ -200,8 +200,7 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void
-    sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
 
     //! Compute minus the log of the joint cumulative density function
     //! of the marginal likelihood at \p samples.

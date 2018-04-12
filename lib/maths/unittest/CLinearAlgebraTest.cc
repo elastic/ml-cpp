@@ -1083,8 +1083,8 @@ void CLinearAlgebraTest::testProjected() {
         Eigen::MatrixXd projectedVector = maths::projectedVector(subspace, vector);
         LOG_DEBUG(<< "projectedMatrix =\n" << projectedMatrix);
         LOG_DEBUG(<< "projectedVector =\n" << projectedVector);
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("  1 2.4 3.1\n2.4 1.2 8.3\n3.1 8.3 0.9"), print(projectedMatrix));
+        CPPUNIT_ASSERT_EQUAL(std::string("  1 2.4 3.1\n2.4 1.2 8.3\n3.1 8.3 0.9"),
+                             print(projectedMatrix));
         CPPUNIT_ASSERT_EQUAL(std::string("3.4\n0.3\n5.7"), print(projectedVector));
     }
 }
@@ -1150,8 +1150,7 @@ void CLinearAlgebraTest::testPersist() {
 }
 
 CppUnit::Test* CLinearAlgebraTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CLinearAlgebraTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLinearAlgebraTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
         "CLinearAlgebraTest::testSymmetricMatrixNxN", &CLinearAlgebraTest::testSymmetricMatrixNxN));

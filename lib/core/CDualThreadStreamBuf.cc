@@ -290,8 +290,7 @@ std::streampos CDualThreadStreamBuf::seekoff(std::streamoff off,
     }
 
     if (way != std::ios_base::cur) {
-        LOG_ERROR(
-            << "Seeking from beginning or end not supported on stream buffer");
+        LOG_ERROR(<< "Seeking from beginning or end not supported on stream buffer");
         return pos;
     }
 

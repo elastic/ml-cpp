@@ -221,8 +221,7 @@ const std::string EMPTY_STRING;
 }
 
 void CEventRatePopulationDataGathererTest::testAttributeCounts() {
-    LOG_DEBUG(
-        << "*** CEventRatePopulationDataGathererTest::testAttributeCounts ***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testAttributeCounts ***");
 
     // We check that we correctly sample the unique people per
     // attribute and (attribute, person) pair counts.
@@ -571,8 +570,7 @@ void CEventRatePopulationDataGathererTest::testCompressedLength() {
 }
 
 void CEventRatePopulationDataGathererTest::testRemovePeople() {
-    LOG_DEBUG(
-        << "*** CEventRatePopulationDataGathererTest::testRemovePeople ***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testRemovePeople ***");
 
     using TStrSizeMap = std::map<std::string, std::size_t>;
     using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
@@ -813,8 +811,7 @@ bool isSpace(const char x) {
 }
 
 void CEventRatePopulationDataGathererTest::testPersistence() {
-    LOG_DEBUG(
-        << "*** CEventRatePopulationDataGathererTest::testPersistence ***");
+    LOG_DEBUG(<< "*** CEventRatePopulationDataGathererTest::testPersistence ***");
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;

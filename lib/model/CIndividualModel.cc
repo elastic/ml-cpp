@@ -549,8 +549,7 @@ double CIndividualModel::probabilityBucketEmpty(model_t::EFeature feature,
     return result;
 }
 
-const maths::CModel*
-CIndividualModel::model(model_t::EFeature feature, std::size_t pid) const {
+const maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::size_t pid) const {
     return const_cast<CIndividualModel*>(this)->model(feature, pid);
 }
 

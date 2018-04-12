@@ -470,8 +470,7 @@ public:
 
         private:
             //! Truncate large, i.e. more than 6 sigma, errors.
-            static double
-            winsorise(double squareError, const TFloatMeanAccumulator& variance);
+            static double winsorise(double squareError, const TFloatMeanAccumulator& variance);
 
         private:
             //! The mean prediction error in the window.

@@ -237,8 +237,7 @@ void CMemoryUsageEstimatorTest::testPersist() {
 }
 
 CppUnit::Test* CMemoryUsageEstimatorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMemoryUsageEstimatorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMemoryUsageEstimatorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>(
         "CMemoryUsageEstimatorTest::testEstimateLinear",

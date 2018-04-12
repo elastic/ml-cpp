@@ -429,7 +429,8 @@ public:
         for (std::size_t i = 1u; i <= n; ++i) {
             std::size_t i_ = i - 1;
             double knot = this->knots()[i_];
-            for (/**/; i < n && this->knots()[i] == knot; ++i) {}
+            for (/**/; i < n && this->knots()[i] == knot; ++i) {
+            }
             if (i - i_ > 1) {
                 TMeanAccumulator value;
                 for (std::size_t j = i_; j < i; ++j) {

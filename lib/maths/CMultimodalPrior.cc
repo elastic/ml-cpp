@@ -649,8 +649,9 @@ CMultimodalPrior::CModeSplitCallback::CModeSplitCallback(CMultimodalPrior& prior
     : m_Prior(&prior) {
 }
 
-void CMultimodalPrior::CModeSplitCallback::
-operator()(std::size_t sourceIndex, std::size_t leftSplitIndex, std::size_t rightSplitIndex) const {
+void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
+                                                      std::size_t leftSplitIndex,
+                                                      std::size_t rightSplitIndex) const {
     LOG_TRACE(<< "Splitting mode with index " << sourceIndex);
 
     TModeVec& modes = m_Prior->m_Modes;
@@ -738,8 +739,9 @@ CMultimodalPrior::CModeMergeCallback::CModeMergeCallback(CMultimodalPrior& prior
     : m_Prior(&prior) {
 }
 
-void CMultimodalPrior::CModeMergeCallback::
-operator()(std::size_t leftMergeIndex, std::size_t rightMergeIndex, std::size_t targetIndex) const {
+void CMultimodalPrior::CModeMergeCallback::operator()(std::size_t leftMergeIndex,
+                                                      std::size_t rightMergeIndex,
+                                                      std::size_t targetIndex) const {
     LOG_TRACE(<< "Merging modes with indices " << leftMergeIndex << " " << rightMergeIndex);
 
     TModeVec& modes = m_Prior->m_Modes;

@@ -511,12 +511,9 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihood() {
 }
 
 void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean  |");
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
 
     // Test that the expectation of the marginal likelihood matches
     // the expected mean of the marginal likelihood.
@@ -567,12 +564,9 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMean() {
 }
 
 void CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CNormalMeanPrecConjugateTest::testMarginalLikelihoodMode |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     // Test that the marginal likelihood mode is what we'd expect
     // with variances variance scales.
@@ -675,12 +669,9 @@ void CNormalMeanPrecConjugateTest::testMarginalLikelihoodVariance() {
 }
 
 void CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(
-        << "+--------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(
-        << "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CNormalMeanPrecConjugateTest::testSampleMarginalLikelihood  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
 
     // We're going to test two properties of the sampling:
     //   1) That the sample mean is equal to the marginal
@@ -1263,12 +1254,9 @@ void CNormalMeanPrecConjugateTest::testPersist() {
 }
 
 void CNormalMeanPrecConjugateTest::testSeasonalVarianceScale() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CNormalMeanPrecConjugateTest::testSeasonalVarianceScale  |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CNormalMeanPrecConjugateTest::testSeasonalVarianceScale  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     // We are test:
     //   1) The marginal likelihood is normalized.
@@ -1658,8 +1646,7 @@ void CNormalMeanPrecConjugateTest::testCountVarianceScale() {
 }
 
 CppUnit::Test* CNormalMeanPrecConjugateTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CNormalMeanPrecConjugateTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNormalMeanPrecConjugateTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CNormalMeanPrecConjugateTest>(
         "CNormalMeanPrecConjugateTest::testMultipleUpdate",

@@ -31,8 +31,7 @@
 #include <string>
 
 CppUnit::Test* CResultNormalizerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CResultNormalizerTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResultNormalizerTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CResultNormalizerTest>(
         "CResultNormalizerTest::testInitNormalizer", &CResultNormalizerTest::testInitNormalizer));

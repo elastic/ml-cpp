@@ -233,8 +233,7 @@ bool CFieldDataTyper::restoreState(core::CDataSearcher& restoreSearcher,
 
         if (strm->fail()) {
             // This is fatal. If the stream exists and has failed then state is missing
-            LOG_ERROR(
-                << "Categorizer state restoration returned a failed stream");
+            LOG_ERROR(<< "Categorizer state restoration returned a failed stream");
             return false;
         }
 
@@ -261,8 +260,7 @@ bool CFieldDataTyper::restoreState(core::CDataSearcher& restoreSearcher,
 bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     const std::string& firstFieldName = traverser.name();
     if (traverser.isEof()) {
-        LOG_ERROR(
-            << "Expected categorizer persisted state but no state exists");
+        LOG_ERROR(<< "Expected categorizer persisted state but no state exists");
         return false;
     }
 
@@ -415,8 +413,7 @@ bool CFieldDataTyper::periodicPersistState(CBackgroundPersister& persister) {
                                              // MUST be copied for thread safety
                                              m_DataTyper->makePersistFunc(),
                                              m_ExamplesCollector, _1)) == false) {
-        LOG_ERROR(
-            << "Failed to add categorizer background persistence function");
+        LOG_ERROR(<< "Failed to add categorizer background persistence function");
         return false;
     }
 

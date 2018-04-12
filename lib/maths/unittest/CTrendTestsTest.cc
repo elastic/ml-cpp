@@ -290,9 +290,8 @@ void CTrendTestsTest::testCalendarCyclic() {
 
             if (time > 121 * DAY && time % DAY == 0) {
                 TOptionalFeature feature = cyclic.test();
-                CPPUNIT_ASSERT_EQUAL(
-                    std::string("0 Fridays before end of month"),
-                    core::CContainerPrinter::print(feature));
+                CPPUNIT_ASSERT_EQUAL(std::string("0 Fridays before end of month"),
+                                     core::CContainerPrinter::print(feature));
             }
         }
     }
@@ -409,8 +408,7 @@ void CTrendTestsTest::testPersist() {
 }
 
 CppUnit::Test* CTrendTestsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CTrendTestsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTrendTestsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CTrendTestsTest>(
         "CTrendTestsTest::testRandomizedPeriodicity", &CTrendTestsTest::testRandomizedPeriodicity));

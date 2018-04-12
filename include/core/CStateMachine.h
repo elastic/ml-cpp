@@ -222,8 +222,7 @@ private:
     CStateMachine();
 
     //! Try to find \p machine in the range [\p begin, \p end).
-    static std::size_t
-    find(std::size_t begin, std::size_t end, const SLookupMachine& machine);
+    static std::size_t find(std::size_t begin, std::size_t end, const SLookupMachine& machine);
 
 private:
     //! The machine identifier.

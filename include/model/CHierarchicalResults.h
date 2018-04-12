@@ -440,8 +440,7 @@ public:
     virtual ~CHierarchicalResultsVisitor();
 
     //! Visit a node.
-    virtual void
-    visit(const CHierarchicalResults& results, const TNode& node, bool pivot) = 0;
+    virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) = 0;
 
 protected:
     //! Check if this node is the root node.

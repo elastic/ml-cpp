@@ -28,8 +28,7 @@ using namespace ml;
 using namespace model;
 
 CppUnit::Test* CResourceMonitorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CResourceMonitorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceMonitorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CResourceMonitorTest>(
         "CResourceMonitorTest::testMonitor", &CResourceMonitorTest::testMonitor));

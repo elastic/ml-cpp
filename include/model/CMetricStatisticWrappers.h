@@ -77,10 +77,9 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
 
     //! Add \p value to an order statistic.
     template<typename LESS>
-    static void
-    add(const TDouble1Vec& value,
-        unsigned int count,
-        maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
+    static void add(const TDouble1Vec& value,
+                    unsigned int count,
+                    maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
         stat.add(value[0], count);
     }
     //! Add \p value to a mean statistic.
@@ -88,13 +87,11 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
         stat.add(value[0], count);
     }
     //! Add \p value to a variance statistic.
-    static void
-    add(const TDouble1Vec& value, unsigned int count, TVarianceAccumulator& stat) {
+    static void add(const TDouble1Vec& value, unsigned int count, TVarianceAccumulator& stat) {
         stat.add(value[0], count);
     }
     //! Add \p value to a median statistic.
-    static void
-    add(const TDouble1Vec& value, unsigned int count, TMedianAccumulator& stat) {
+    static void add(const TDouble1Vec& value, unsigned int count, TMedianAccumulator& stat) {
         stat.add(value[0], count);
     }
     //! Add \p value to a multivariate statistic.
@@ -156,8 +153,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     //! Get the value suitable for computing influence of a multivariate
     //! statistic.
     template<typename STATISTIC>
-    static TDouble1Vec
-    influencerValue(const CMetricMultivariateStatistic<STATISTIC>& stat) {
+    static TDouble1Vec influencerValue(const CMetricMultivariateStatistic<STATISTIC>& stat) {
         return stat.influencerValue();
     }
 
@@ -239,8 +235,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
         return true;
     }
     //! Restore a variance statistic.
-    static bool
-    restore(core::CStateRestoreTraverser& traverser, TVarianceAccumulator& stat) {
+    static bool restore(core::CStateRestoreTraverser& traverser, TVarianceAccumulator& stat) {
         if (stat.fromDelimited(traverser.value()) == false) {
             LOG_ERROR(<< "Invalid variance in " << traverser.value());
             return false;
@@ -248,8 +243,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
         return true;
     }
     //! Restore a median statistic.
-    static bool
-    restore(core::CStateRestoreTraverser& traverser, TMedianAccumulator& stat) {
+    static bool restore(core::CStateRestoreTraverser& traverser, TMedianAccumulator& stat) {
         return traverser.traverseSubLevel(
             boost::bind(&TMedianAccumulator::acceptRestoreTraverser, &stat, _1));
     }

@@ -153,16 +153,14 @@ public:
             if (allocator && (rawAllocator = allocator.get())) {
                 break;
             } else {
-                LOG_ERROR(
-                    << "Invalid JSON memory allocator encountered. Removing.");
+                LOG_ERROR(<< "Invalid JSON memory allocator encountered. Removing.");
                 m_JsonPoolAllocators.pop();
             }
         }
 
         // shouldn't ever happen as it indicates that the default allocator is invalid
         if (!rawAllocator) {
-            LOG_ERROR(
-                << "No viable JSON memory allocator encountered. Recreating.");
+            LOG_ERROR(<< "No viable JSON memory allocator encountered. Recreating.");
             allocator = boost::make_shared<CRapidJsonPoolAllocator>();
             m_JsonPoolAllocators.push(allocator);
         }
@@ -278,8 +276,9 @@ public:
     //! \p[in] name field name
     //! \p[in] value string field to be copied
     //! \p[out] obj shared pointer to rapidjson object to contain the \p name \p value pair
-    TValuePtr
-    addMember(const std::string& name, const std::string& value, const TValuePtr& obj) const {
+    TValuePtr addMember(const std::string& name,
+                        const std::string& value,
+                        const TValuePtr& obj) const {
         TValue v(value, this->getRawAllocator());
         obj->AddMember(rapidjson::StringRef(name), v, this->getRawAllocator());
         return obj;
@@ -289,8 +288,9 @@ public:
     //! \p[in] name field name
     //! \p[in] value string field
     //! \p[out] obj shared pointer to rapidjson object to contain the \p name \p value pair
-    TValuePtr
-    addMemberRef(const std::string& name, const std::string& value, const TValuePtr& obj) const {
+    TValuePtr addMemberRef(const std::string& name,
+                           const std::string& value,
+                           const TValuePtr& obj) const {
         obj->AddMember(rapidjson::StringRef(name), rapidjson::StringRef(value),
                        this->getRawAllocator());
         return obj;

@@ -125,9 +125,8 @@ bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::
             break;
         case rapidjson::kObjectType:
         case rapidjson::kArrayType:
-            LOG_ERROR(
-                << "Can't handle nested objects/arrays in JSON documents: "
-                << fieldNames.back());
+            LOG_ERROR(<< "Can't handle nested objects/arrays in JSON documents: "
+                      << fieldNames.back());
             return false;
         case rapidjson::kStringType:
             refIter->get().assign(iter->value.GetString(), iter->value.GetStringLength());
@@ -167,9 +166,8 @@ bool CLineifiedJsonInputParser::decodeDocumentWithArbitraryFields(const rapidjso
             break;
         case rapidjson::kObjectType:
         case rapidjson::kArrayType:
-            LOG_ERROR(
-                << "Can't handle nested objects/arrays in JSON documents: "
-                << fieldNames.back());
+            LOG_ERROR(<< "Can't handle nested objects/arrays in JSON documents: "
+                      << fieldNames.back());
             fieldNames.pop_back();
             return false;
         case rapidjson::kStringType:

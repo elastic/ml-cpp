@@ -63,8 +63,7 @@ bool CCategoryExamplesCollector::add(std::size_t category, const std::string& ex
     return examplesForCategory.insert(truncateExample(example)).second;
 }
 
-std::size_t
-CCategoryExamplesCollector::numberOfExamplesForCategory(std::size_t category) const {
+std::size_t CCategoryExamplesCollector::numberOfExamplesForCategory(std::size_t category) const {
     auto iterator = m_ExamplesByCategory.find(category);
     return (iterator == m_ExamplesByCategory.end()) ? 0 : iterator->second.size();
 }

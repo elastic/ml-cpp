@@ -127,8 +127,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
         TTimeVec bucketLengths{TEN_MINS, HALF_HOUR};
         TSizeVec permittedGenerators{2, 4, 4, 5};
         TGeneratorVec generators{smoothDaily, spikeyDaily, smoothWeekly, weekends, spikeyWeekly};
-        TStrVec expected{"{ 'daily' }", "{ 'daily' }",
-                         "{ 'weekly' }", "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }",
+        TStrVec expected{"{ 'daily' }", "{ 'daily' }", "{ 'weekly' }",
+                         "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }",
                          "{ 'daily' 'weekly' }"};
 
         test::CRandomNumbers rng;
@@ -251,8 +251,8 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
             core_t::TTime time{timeseries[i].first};
             if (time > lastTest + window) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
-                CPPUNIT_ASSERT_EQUAL(
-                    std::string("{ 'weekend daily' 'weekday daily' }"), result.print());
+                CPPUNIT_ASSERT_EQUAL(std::string("{ 'weekend daily' 'weekday daily' }"),
+                                     result.print());
                 hypotheses = maths::CPeriodicityHypothesisTests();
                 hypotheses.initialize(HOUR, window, DAY);
                 lastTest += window;
@@ -324,10 +324,9 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
             core_t::TTime time{timeseries[i].first};
             if (time > lastTest + window) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
-                CPPUNIT_ASSERT(
-                    result.print() == "{ 'weekend daily' 'weekday daily' }" ||
-                    result.print() == "{ 'weekend daily' 'weekday daily' "
-                                      "'weekend weekly' 'weekday weekly' }");
+                CPPUNIT_ASSERT(result.print() == "{ 'weekend daily' 'weekday daily' }" ||
+                               result.print() == "{ 'weekend daily' 'weekday daily' "
+                                                 "'weekend weekly' 'weekday weekly' }");
                 hypotheses = maths::CPeriodicityHypothesisTests();
                 hypotheses.initialize(HOUR, window, DAY);
                 lastTest += window;
@@ -420,12 +419,9 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
 }
 
 void CPeriodicityHypothesisTestsTest::testWithSparseData() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CPeriodicityHypothesisTestsTest::testTestWithSparseData  |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CPeriodicityHypothesisTestsTest::testTestWithSparseData  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     test::CRandomNumbers rng;
 
@@ -666,8 +662,7 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
 }
 
 CppUnit::Test* CPeriodicityHypothesisTestsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CPeriodicityHypothesisTestsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPeriodicityHypothesisTestsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
         "CPeriodicityHypothesisTestsTest::testNonPeriodic",

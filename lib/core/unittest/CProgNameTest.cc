@@ -43,8 +43,7 @@ void CProgNameTest::testProgDir() {
     LOG_DEBUG(<< "Current program directory is " << progDir);
 
     ml::core::CRegex expectedPathRegex;
-    CPPUNIT_ASSERT(
-        expectedPathRegex.init(".+[\\\\/]lib[\\\\/]core[\\\\/]unittest$"));
+    CPPUNIT_ASSERT(expectedPathRegex.init(".+[\\\\/]lib[\\\\/]core[\\\\/]unittest$"));
     CPPUNIT_ASSERT(expectedPathRegex.matches(progDir));
 
     // Confirm we've stripped any extended length indicator on Windows

@@ -22,9 +22,8 @@ namespace domain_name_entropy {
 CIpAddressTest::CIpAddressTest(void) {
     // https://gist.github.com/syzdek/6086792
 
-    const std::string ipv4ReStr =
-        "((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-"
-        "4]|1{0,1}[0-9]){0,1}[0-9])";
+    const std::string ipv4ReStr = "((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-"
+                                  "4]|1{0,1}[0-9]){0,1}[0-9])";
 
     // clang-format off
     std::string ipv6ReStr = "([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|"; // # TEST: 1:2:3:4:5:6:7:8

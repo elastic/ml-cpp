@@ -61,8 +61,7 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
 }
 
 CppUnit::Test* CMultiFileDataAdderTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMultiFileDataAdderTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultiFileDataAdderTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
         "CMultiFileDataAdderTest::testSimpleWrite", &CMultiFileDataAdderTest::testSimpleWrite));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
@@ -88,8 +87,7 @@ void CMultiFileDataAdderTest::testSimpleWrite() {
     static const std::string SUMMARY_EVENT("Hello Summary Event");
 
     static const std::string EXTENSION(".txt");
-    std::string baseOutputFilename(ml::test::CTestTmpDir::tmpDir() +
-                                   "/filepersister");
+    std::string baseOutputFilename(ml::test::CTestTmpDir::tmpDir() + "/filepersister");
 
     std::string expectedFilename(baseOutputFilename);
     expectedFilename += "/_hello/1";
@@ -215,8 +213,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
 
     // Persist the detector state to file(s)
 
-    std::string baseOrigOutputFilename(ml::test::CTestTmpDir::tmpDir() +
-                                       "/orig");
+    std::string baseOrigOutputFilename(ml::test::CTestTmpDir::tmpDir() + "/orig");
     {
         // Clean up any leftovers of previous failures
         boost::filesystem::path origDir(baseOrigOutputFilename);
@@ -271,8 +268,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
 
     // Finally, persist the new detector state to a file
 
-    std::string baseRestoredOutputFilename(ml::test::CTestTmpDir::tmpDir() +
-                                           "/restored");
+    std::string baseRestoredOutputFilename(ml::test::CTestTmpDir::tmpDir() + "/restored");
     {
         // Clean up any leftovers of previous failures
         boost::filesystem::path restoredDir(baseRestoredOutputFilename);

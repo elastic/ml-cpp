@@ -118,8 +118,7 @@ public:
             pending = 0;
 
             // Should be fatal error
-            LOG_FATAL(
-                << "Cannot dispatch to message queue.  Queue not initialised");
+            LOG_FATAL(<< "Cannot dispatch to message queue.  Queue not initialised");
             return;
         }
 

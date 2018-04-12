@@ -280,8 +280,7 @@ void CAssignmentTest::testKuhnMunkres() {
 }
 
 CppUnit::Test* CAssignmentTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CAssignmentTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAssignmentTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAssignmentTest>(
         "CAssignmentTest::testKuhnMunkres", &CAssignmentTest::testKuhnMunkres));

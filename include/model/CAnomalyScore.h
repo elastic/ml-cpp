@@ -149,8 +149,7 @@ public:
 
         //! Report whether it would be possible to upgrade one version
         //! of the quantiles to another.
-        static bool
-        isUpgradable(const std::string& fromVersion, const std::string& toVersion);
+        static bool isUpgradable(const std::string& fromVersion, const std::string& toVersion);
 
         //! Scale the maximum score and quantile summary.  To be used
         //! after upgrades if different versions of the product produce

@@ -43,8 +43,7 @@ namespace core {
 // Initialise static
 const char CNamedPipeFactory::TEST_CHAR('\n');
 
-CNamedPipeFactory::TIStreamP
-CNamedPipeFactory::openPipeStreamRead(const std::string& fileName) {
+CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::string& fileName) {
     TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, false);
     if (handle == INVALID_HANDLE_VALUE) {
         return TIStreamP();
@@ -55,8 +54,7 @@ CNamedPipeFactory::openPipeStreamRead(const std::string& fileName) {
         handle, boost::iostreams::close_handle)));
 }
 
-CNamedPipeFactory::TOStreamP
-CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
+CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
     TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, true);
     if (handle == INVALID_HANDLE_VALUE) {
         return TOStreamP();

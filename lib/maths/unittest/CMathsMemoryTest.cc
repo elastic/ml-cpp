@@ -171,8 +171,7 @@ void CMathsMemoryTest::testBjkstVec() {
 }
 
 CppUnit::Test* CMathsMemoryTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMathsMemoryTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMathsMemoryTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMathsMemoryTest>(
         "CMathsMemoryTest::testPriors", &CMathsMemoryTest::testPriors));

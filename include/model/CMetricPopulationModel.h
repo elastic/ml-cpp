@@ -224,8 +224,7 @@ public:
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
-    virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! Prune any data for people and attributes which haven't been
     //! seen for a sufficiently long period. This is based on the
@@ -257,11 +256,10 @@ public:
                                     SAnnotatedProbability& result) const;
 
     //! Clears \p probability and \p attributeProbabilities.
-    virtual bool
-    computeTotalProbability(const std::string& person,
-                            std::size_t numberAttributeProbabilities,
-                            TOptionalDouble& probability,
-                            TAttributeProbability1Vec& attributeProbabilities) const;
+    virtual bool computeTotalProbability(const std::string& person,
+                                         std::size_t numberAttributeProbabilities,
+                                         TOptionalDouble& probability,
+                                         TAttributeProbability1Vec& attributeProbabilities) const;
     //@}
 
     //! Get the checksum of this model.
@@ -276,8 +274,8 @@ public:
     virtual CModelDetailsViewPtr details() const;
 
     //! Get the feature data corresponding to \p feature at \p time.
-    const TSizeSizePrFeatureDataPrVec&
-    featureData(model_t::EFeature feature, core_t::TTime time) const;
+    const TSizeSizePrFeatureDataPrVec& featureData(model_t::EFeature feature,
+                                                   core_t::TTime time) const;
 
     //! Debug the memory used by this model.
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;

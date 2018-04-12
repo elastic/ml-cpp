@@ -20,8 +20,7 @@
 #include <string>
 
 CppUnit::Test* CCompressUtilsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CCompressUtilsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCompressUtilsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCompressUtilsTest>(
         "CCompressUtilsTest::testEmptyAdd", &CCompressUtilsTest::testEmptyAdd));

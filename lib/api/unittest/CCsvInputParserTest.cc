@@ -30,8 +30,7 @@
 #include <vector>
 
 CppUnit::Test* CCsvInputParserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CCsvInputParserTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCsvInputParserTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
         "CCsvInputParserTest::testSimpleDelims", &CCsvInputParserTest::testSimpleDelims));

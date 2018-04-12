@@ -209,8 +209,8 @@ CEventRateModelDetailsView::CEventRateModelDetailsView(const CEventRateModel& mo
     : m_Model(&model) {
 }
 
-const maths::CModel*
-CEventRateModelDetailsView::model(model_t::EFeature feature, std::size_t byFieldId) const {
+const maths::CModel* CEventRateModelDetailsView::model(model_t::EFeature feature,
+                                                       std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
 }
 
@@ -230,9 +230,8 @@ CEventRatePopulationModelDetailsView::CEventRatePopulationModelDetailsView(const
     : m_Model(&model) {
 }
 
-const maths::CModel*
-CEventRatePopulationModelDetailsView::model(model_t::EFeature feature,
-                                            std::size_t byFieldId) const {
+const maths::CModel* CEventRatePopulationModelDetailsView::model(model_t::EFeature feature,
+                                                                 std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
 }
 
@@ -240,10 +239,9 @@ const CAnomalyDetectorModel& CEventRatePopulationModelDetailsView::base() const 
     return *m_Model;
 }
 
-double
-CEventRatePopulationModelDetailsView::countVarianceScale(model_t::EFeature /*feature*/,
-                                                         std::size_t /*byFieldId*/,
-                                                         core_t::TTime /*time*/) const {
+double CEventRatePopulationModelDetailsView::countVarianceScale(model_t::EFeature /*feature*/,
+                                                                std::size_t /*byFieldId*/,
+                                                                core_t::TTime /*time*/) const {
     return 1.0;
 }
 
@@ -253,8 +251,8 @@ CMetricModelDetailsView::CMetricModelDetailsView(const CMetricModel& model)
     : m_Model(&model) {
 }
 
-const maths::CModel*
-CMetricModelDetailsView::model(model_t::EFeature feature, std::size_t byFieldId) const {
+const maths::CModel* CMetricModelDetailsView::model(model_t::EFeature feature,
+                                                    std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
 }
 
@@ -280,8 +278,8 @@ CMetricPopulationModelDetailsView::CMetricPopulationModelDetailsView(const CMetr
     : m_Model(&model) {
 }
 
-const maths::CModel*
-CMetricPopulationModelDetailsView::model(model_t::EFeature feature, std::size_t byFieldId) const {
+const maths::CModel* CMetricPopulationModelDetailsView::model(model_t::EFeature feature,
+                                                              std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
 }
 

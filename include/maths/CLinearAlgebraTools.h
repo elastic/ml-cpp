@@ -330,11 +330,10 @@ LOG_DETERMINANT(double, 4);
 LOG_DETERMINANT(double, 5);
 #undef LOG_DETERMINANT
 MATHS_EXPORT
-maths_t::EFloatingPointErrorStatus
-logDeterminant(std::size_t d,
-               const CSymmetricMatrix<CFloatStorage>& matrix,
-               double& result,
-               bool ignoreSingularSubspace);
+maths_t::EFloatingPointErrorStatus logDeterminant(std::size_t d,
+                                                  const CSymmetricMatrix<CFloatStorage>& matrix,
+                                                  double& result,
+                                                  bool ignoreSingularSubspace);
 MATHS_EXPORT
 maths_t::EFloatingPointErrorStatus logDeterminant(std::size_t d,
                                                   const CSymmetricMatrix<double>& matrix,
@@ -570,8 +569,7 @@ CVector<T> min(const T& lhs, const CVector<T>& rhs) {
 }
 //! Overload minimum for CSymmetricMatrix.
 template<typename T>
-CSymmetricMatrix<T>
-min(const CSymmetricMatrix<T>& lhs, const CSymmetricMatrix<T>& rhs) {
+CSymmetricMatrix<T> min(const CSymmetricMatrix<T>& lhs, const CSymmetricMatrix<T>& rhs) {
     CSymmetricMatrix<T> result(rhs);
     linear_algebra_tools_detail::SMin<linear_algebra_tools_detail::MatrixMatrixTag>::calculate(
         result.rows(), lhs, result);
@@ -620,8 +618,7 @@ CVector<T> max(const T& lhs, const CVector<T>& rhs) {
 }
 //! Overload maximum for CSymmetricMatrix.
 template<typename T>
-CSymmetricMatrix<T>
-max(const CSymmetricMatrix<T>& lhs, const CSymmetricMatrix<T>& rhs) {
+CSymmetricMatrix<T> max(const CSymmetricMatrix<T>& lhs, const CSymmetricMatrix<T>& rhs) {
     CSymmetricMatrix<T> result(rhs);
     linear_algebra_tools_detail::SMax<linear_algebra_tools_detail::MatrixMatrixTag>::calculate(
         result.rows(), lhs, result);
@@ -760,10 +757,9 @@ void sampleGaussian(std::size_t n,
 //! \param[in] ignoreSingularSubspace If true then we ignore any
 //! singular subspace of m. Otherwise, the result is minus infinity.
 template<typename T, std::size_t N>
-maths_t::EFloatingPointErrorStatus
-logDeterminant(const CSymmetricMatrixNxN<T, N>& matrix,
-               double& result,
-               bool ignoreSingularSubspace = true) {
+maths_t::EFloatingPointErrorStatus logDeterminant(const CSymmetricMatrixNxN<T, N>& matrix,
+                                                  double& result,
+                                                  bool ignoreSingularSubspace = true) {
     return linear_algebra_tools_detail::logDeterminant(N, matrix, result, ignoreSingularSubspace);
 }
 
@@ -826,8 +822,9 @@ void sampleGaussian(std::size_t n,
 //! \param[in] ignoreSingularSubspace If true then we ignore any
 //! singular subspace of m. Otherwise, the result is minus infinity.
 template<typename T>
-maths_t::EFloatingPointErrorStatus
-logDeterminant(const CSymmetricMatrix<T>& matrix, double& result, bool ignoreSingularSubspace = true) {
+maths_t::EFloatingPointErrorStatus logDeterminant(const CSymmetricMatrix<T>& matrix,
+                                                  double& result,
+                                                  bool ignoreSingularSubspace = true) {
     return linear_algebra_tools_detail::logDeterminant(matrix.rows(), matrix, result,
                                                        ignoreSingularSubspace);
 }

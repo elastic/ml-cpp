@@ -337,9 +337,8 @@ void CMultinomialConjugate::swap(CMultinomialConjugate& other) {
     std::swap(m_TotalConcentration, other.m_TotalConcentration);
 }
 
-CMultinomialConjugate
-CMultinomialConjugate::nonInformativePrior(std::size_t maximumNumberOfCategories,
-                                           double decayRate) {
+CMultinomialConjugate CMultinomialConjugate::nonInformativePrior(std::size_t maximumNumberOfCategories,
+                                                                 double decayRate) {
     return CMultinomialConjugate(maximumNumberOfCategories, TDoubleVec(),
                                  TDoubleVec(), decayRate);
 }
@@ -496,8 +495,7 @@ void CMultinomialConjugate::propagateForwardsByTime(double time) {
               << ", numberSamples = " << this->numberSamples());
 }
 
-CMultinomialConjugate::TDoubleDoublePr
-CMultinomialConjugate::marginalLikelihoodSupport() const {
+CMultinomialConjugate::TDoubleDoublePr CMultinomialConjugate::marginalLikelihoodSupport() const {
     // Strictly speaking for a particular likelihood this is the
     // set of discrete values or categories, but we are interested
     // in the support for the possible discrete values which can
@@ -546,9 +544,8 @@ double CMultinomialConjugate::marginalLikelihoodMode(const TWeightStyleVec& /*we
     return m_Categories[mode];
 }
 
-double
-CMultinomialConjugate::marginalLikelihoodVariance(const TWeightStyleVec& /*weightStyles*/,
-                                                  const TDouble4Vec& /*weights*/) const {
+double CMultinomialConjugate::marginalLikelihoodVariance(const TWeightStyleVec& /*weightStyles*/,
+                                                         const TDouble4Vec& /*weights*/) const {
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     if (this->isNonInformative()) {

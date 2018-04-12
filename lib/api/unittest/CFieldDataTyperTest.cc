@@ -66,8 +66,7 @@ public:
 
     bool isNewStream() const { return m_NewStream; }
 
-    virtual bool
-    fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*extraFieldNames*/) {
+    virtual bool fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*extraFieldNames*/) {
         return true;
     }
 
@@ -126,8 +125,7 @@ private:
 void CFieldDataTyperTest::testAll() {
     model::CLimits limits;
     CFieldConfig config;
-    CPPUNIT_ASSERT(
-        config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
     CTestOutputHandler handler;
 
     std::ostringstream outputStrm;
@@ -204,8 +202,7 @@ void CFieldDataTyperTest::testAll() {
 void CFieldDataTyperTest::testNodeReverseSearch() {
     model::CLimits limits;
     CFieldConfig config;
-    CPPUNIT_ASSERT(
-        config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     {
@@ -244,8 +241,7 @@ void CFieldDataTyperTest::testNodeReverseSearch() {
 void CFieldDataTyperTest::testPassOnControlMessages() {
     model::CLimits limits;
     CFieldConfig config;
-    CPPUNIT_ASSERT(
-        config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     {
@@ -273,8 +269,7 @@ void CFieldDataTyperTest::testPassOnControlMessages() {
 void CFieldDataTyperTest::testHandleControlMessages() {
     model::CLimits limits;
     CFieldConfig config;
-    CPPUNIT_ASSERT(
-        config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     {
@@ -302,8 +297,7 @@ void CFieldDataTyperTest::testHandleControlMessages() {
 void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState() {
     model::CLimits limits;
     CFieldConfig config;
-    CPPUNIT_ASSERT(
-        config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     CNullOutput nullOutput;
@@ -317,8 +311,7 @@ void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState() {
 }
 
 CppUnit::Test* CFieldDataTyperTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CFieldDataTyperTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFieldDataTyperTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
         "CFieldDataTyperTest::testAll", &CFieldDataTyperTest::testAll));

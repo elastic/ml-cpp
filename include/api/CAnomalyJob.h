@@ -186,8 +186,8 @@ public:
     virtual void finalise();
 
     //! Restore previously saved state
-    virtual bool
-    restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
+                              core_t::TTime& completeToTime);
 
     //! Persist current state
     virtual bool persistState(core::CDataAdder& persister);
@@ -376,8 +376,7 @@ private:
     void populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys);
 
     //! Extract the field called \p fieldName from \p dataRowFields.
-    const std::string*
-    fieldValue(const std::string& fieldName, const TStrStrUMap& dataRowFields);
+    const std::string* fieldValue(const std::string& fieldName, const TStrStrUMap& dataRowFields);
 
     //! Extract the required fields from \p dataRowFields
     //! and add the new record to \p detector

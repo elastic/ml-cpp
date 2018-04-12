@@ -160,8 +160,7 @@ public:
     virtual ~CDataCountStatistics();
 
     //! Update the statistics with [\p beginRecords, \p endRecords).
-    virtual void
-    add(TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords) = 0;
+    virtual void add(TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords) = 0;
 
     //! Get the total count of records added.
     uint64_t recordCount() const;

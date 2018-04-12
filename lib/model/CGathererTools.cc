@@ -162,8 +162,8 @@ std::string CGathererTools::CArrivalTimeGatherer::print() const {
     return o.str();
 }
 
-const core_t::TTime
-    CGathererTools::CArrivalTimeGatherer::FIRST_TIME(std::numeric_limits<core_t::TTime>::min());
+const core_t::TTime CGathererTools::CArrivalTimeGatherer::FIRST_TIME(
+    std::numeric_limits<core_t::TTime>::min());
 
 CGathererTools::CSumGatherer::CSumGatherer(const SModelParams& params,
                                            std::size_t /*dimension*/,

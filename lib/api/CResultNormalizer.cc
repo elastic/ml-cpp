@@ -25,10 +25,8 @@ namespace api {
 
 // Initialise statics
 const std::string CResultNormalizer::LEVEL("level");
-const std::string
-    CResultNormalizer::PARTITION_FIELD_NAME("partition_field_name");
-const std::string
-    CResultNormalizer::PARTITION_FIELD_VALUE("partition_field_value");
+const std::string CResultNormalizer::PARTITION_FIELD_NAME("partition_field_name");
+const std::string CResultNormalizer::PARTITION_FIELD_VALUE("partition_field_value");
 const std::string CResultNormalizer::PERSON_FIELD_NAME("person_field_name");
 const std::string CResultNormalizer::FUNCTION_NAME("function_name");
 const std::string CResultNormalizer::VALUE_FIELD_NAME("value_field_name");

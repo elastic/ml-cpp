@@ -65,8 +65,7 @@ private:
 
     //! Extract the tail and total counts from \p counts.
     template<typename STATS, typename MAP>
-    void
-    extractTailCounts(const MAP& counts, TSizeUInt64UMap& totals, TSizeUInt64UMap& tail) const;
+    void extractTailCounts(const MAP& counts, TSizeUInt64UMap& totals, TSizeUInt64UMap& tail) const;
 
     //! Compute the penalty for the rare counts and total counts \p rares
     //! and \p totals, respectively.

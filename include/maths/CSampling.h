@@ -165,8 +165,7 @@ public:
 
     //! Get \p n normal samples with mean and variance \p mean and
     //! \p variance, respectively.
-    static void
-    normalSample(double mean, double variance, std::size_t n, TDoubleVec& result);
+    static void normalSample(double mean, double variance, std::size_t n, TDoubleVec& result);
 
     //! Get \p n normal samples with mean and variance \p mean and
     //! \p variance, respectively, using \p rng.
@@ -258,13 +257,13 @@ public:
 
     //! Generate a sample from a categorical distribution with
     //! category probabilities \p probabilities using \p rng.
-    static std::size_t
-    categoricalSample(CPRNG::CXorOShiro128Plus& rng, TDoubleVec& probabilities);
+    static std::size_t categoricalSample(CPRNG::CXorOShiro128Plus& rng,
+                                         TDoubleVec& probabilities);
 
     //! Generate a sample from a categorical distribution with
     //! category probabilities \p probabilities using \p rng.
-    static std::size_t
-    categoricalSample(CPRNG::CXorShift1024Mult& rng, TDoubleVec& probabilities);
+    static std::size_t categoricalSample(CPRNG::CXorShift1024Mult& rng,
+                                         TDoubleVec& probabilities);
 
     //! Generate \p n samples from a categorical distribution
     //! with category probabilities \p probabilities assuming
@@ -354,8 +353,7 @@ public:
     //! \param[out] sample Filled in with the counts of each category
     //! in \p probabilities. This sample includes zeros explicitly,
     //! contrast with multinomialSampleFast.
-    static void
-    multinomialSampleStable(TDoubleVec probabilities, std::size_t n, TSizeVec& sample);
+    static void multinomialSampleStable(TDoubleVec probabilities, std::size_t n, TSizeVec& sample);
     //@}
 
     //! Sample a random permutation of the value [\p first, \p last).
@@ -407,18 +405,15 @@ public:
     //! \param n The total number of samples required.
     //! \param weights The weights with which to sample.
     //! \param sampling Filled in with the weighted sampling.
-    static void
-    weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVec& sampling);
+    static void weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVec& sampling);
 
     //! Sample the expectation of the normal distribution with \p mean
     //! and \p variance on the \p n quantile intervals.
-    static void
-    normalSampleQuantiles(double mean, double variance, std::size_t n, TDoubleVec& result);
+    static void normalSampleQuantiles(double mean, double variance, std::size_t n, TDoubleVec& result);
 
     //! Sample the expectation of the gamma distribution with \p shape
     //! and \p rate on the \p n quantile intervals.
-    static void
-    gammaSampleQuantiles(double shape, double rate, std::size_t n, TDoubleVec& result);
+    static void gammaSampleQuantiles(double shape, double rate, std::size_t n, TDoubleVec& result);
 
 private:
     //! \brief A uniform generator on the interval [0, n).

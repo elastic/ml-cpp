@@ -252,12 +252,9 @@ void CLogNormalMeanPrecConjugateTest::testMeanEstimation() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testPrecisionEstimation() {
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CLogNormalMeanPrecConjugateTest::testPrecisionEstimation  |");
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testPrecisionEstimation  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
 
     // We are going to test that we correctly estimate a distribution for
     // the precision of the exponentiated Gaussian of a log-normal process by
@@ -320,12 +317,9 @@ void CLogNormalMeanPrecConjugateTest::testPrecisionEstimation() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihood  |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihood  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     // Check that the c.d.f. <= 1 at extreme.
     maths_t::EDataType dataTypes[] = {maths_t::E_ContinuousData, maths_t::E_IntegerData};
@@ -543,12 +537,9 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihood() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG(
-        << "+---------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMean  |");
-    LOG_DEBUG(
-        << "+---------------------------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMean  |");
+    LOG_DEBUG(<< "+---------------------------------------------------------------+");
 
     // Test that the expectation of the marginal likelihood matches
     // the expected mean of the marginal likelihood.
@@ -599,12 +590,9 @@ void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMean() {
 }
 
 void CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(
-        << "+---------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode  |");
-    LOG_DEBUG(
-        << "+---------------------------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CLogNormalMeanPrecConjugateTest::testMarginalLikelihoodMode  |");
+    LOG_DEBUG(<< "+---------------------------------------------------------------+");
 
     // Test that the marginal likelihood mode is what we'd expect
     // with variances variance scales.
@@ -1797,8 +1785,7 @@ void CLogNormalMeanPrecConjugateTest::testNegativeSample() {
 }
 
 CppUnit::Test* CLogNormalMeanPrecConjugateTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CLogNormalMeanPrecConjugateTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLogNormalMeanPrecConjugateTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLogNormalMeanPrecConjugateTest>(
         "CLogNormalMeanPrecConjugateTest::testMultipleUpdate",

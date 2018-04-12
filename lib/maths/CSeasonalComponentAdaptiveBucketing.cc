@@ -270,8 +270,7 @@ double CSeasonalComponentAdaptiveBucketing::count(core_t::TTime time) const {
     return regression ? regression->count() : 0.0;
 }
 
-const TRegression*
-CSeasonalComponentAdaptiveBucketing::regression(core_t::TTime time) const {
+const TRegression* CSeasonalComponentAdaptiveBucketing::regression(core_t::TTime time) const {
     const TRegression* result{nullptr};
     if (this->initialized()) {
         std::size_t bucket{0};

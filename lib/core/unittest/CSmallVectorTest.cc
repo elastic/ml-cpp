@@ -55,8 +55,7 @@ void CSmallVectorTest::testNonStandard() {
 }
 
 CppUnit::Test* CSmallVectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CSmallVectorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSmallVectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CSmallVectorTest>(
         "CSmallVectorTest::testNonStandard", &CSmallVectorTest::testNonStandard));

@@ -81,12 +81,9 @@ void CMultivariateConstantPriorTest::testAddSamples() {
 }
 
 void CMultivariateConstantPriorTest::testMarginalLikelihood() {
-    LOG_DEBUG(
-        << "+----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultivariateConstantPriorTest::testMarginalLikelihood  |");
-    LOG_DEBUG(
-        << "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testMarginalLikelihood  |");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
 
     // Check that the marginal likelihood is 0 for non informative, otherwise
     // either 0 or infinity depending on whether the value is equal to the
@@ -139,12 +136,9 @@ void CMultivariateConstantPriorTest::testMarginalLikelihood() {
 }
 
 void CMultivariateConstantPriorTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG(
-        << "+--------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultivariateConstantPriorTest::testMarginalLikelihoodMean  |");
-    LOG_DEBUG(
-        << "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testMarginalLikelihoodMean  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
 
     // Check that the marginal likelihood mean is 0 for non informative,
     // otherwise equal to the constant.
@@ -165,12 +159,9 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodMean() {
 }
 
 void CMultivariateConstantPriorTest::testMarginalLikelihoodMode() {
-    LOG_DEBUG(
-        << "+--------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultivariateConstantPriorTest::testMarginalLikelihoodMode  |");
-    LOG_DEBUG(
-        << "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateConstantPriorTest::testMarginalLikelihoodMode  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
 
     // Check that the marginal likelihood mode is 0 for non informative,
     // otherwise equal to the constant.
@@ -399,8 +390,7 @@ void CMultivariateConstantPriorTest::testPersist() {
 }
 
 CppUnit::Test* CMultivariateConstantPriorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMultivariateConstantPriorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultivariateConstantPriorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
         "CMultivariateConstantPriorTest::testAddSamples",

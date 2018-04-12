@@ -101,9 +101,8 @@ void CAnomalyDetectorModelConfigTest::testNormal() {
                     static_cast<model_t::EAggregationParam>(j)));
             }
         }
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[0.9, 0.1, 2, 4, 0.3, 0.7, 3, 8, 0.6, 0.4, 2, 10]"),
-            core::CContainerPrinter::print(params));
+        CPPUNIT_ASSERT_EQUAL(std::string("[0.9, 0.1, 2, 4, 0.3, 0.7, 3, 8, 0.6, 0.4, 2, 10]"),
+                             core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT_EQUAL(0.01, config.maximumAnomalousProbability());
         CPPUNIT_ASSERT_EQUAL(60.0, config.noisePercentile());
         CPPUNIT_ASSERT_EQUAL(1.2, config.noiseMultiplier());
@@ -283,8 +282,7 @@ void CAnomalyDetectorModelConfigTest::testErrors() {
 }
 
 CppUnit::Test* CAnomalyDetectorModelConfigTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CAnomalyDetectorModelConfigTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnomalyDetectorModelConfigTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyDetectorModelConfigTest>(
         "CAnomalyDetectorModelConfigTest::testNormal",

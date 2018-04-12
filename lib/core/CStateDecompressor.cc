@@ -28,8 +28,7 @@
 namespace ml {
 namespace core {
 
-const std::string
-    CStateDecompressor::EMPTY_DATA("H4sIAAAAAAAA/4uOBQApu0wNAgAAAA==");
+const std::string CStateDecompressor::EMPTY_DATA("H4sIAAAAAAAA/4uOBQApu0wNAgAAAA==");
 
 CStateDecompressor::CStateDecompressor(CDataSearcher& compressedSearcher)
     : m_Searcher(compressedSearcher), m_FilterSource(compressedSearcher) {
@@ -39,8 +38,7 @@ CStateDecompressor::CStateDecompressor(CDataSearcher& compressedSearcher)
     m_InFilter->push(boost::ref(m_FilterSource));
 }
 
-CDataSearcher::TIStreamP
-CStateDecompressor::search(size_t /*currentDocNum*/, size_t /*limit*/) {
+CDataSearcher::TIStreamP CStateDecompressor::search(size_t /*currentDocNum*/, size_t /*limit*/) {
     return m_InFilter;
 }
 
@@ -229,8 +227,9 @@ void CStateDecompressor::CDechunkFilter::handleRead(char* s,
     }
 }
 
-std::streamsize
-CStateDecompressor::CDechunkFilter::endOfStream(char* s, std::streamsize n, std::streamsize bytesDone) {
+std::streamsize CStateDecompressor::CDechunkFilter::endOfStream(char* s,
+                                                                std::streamsize n,
+                                                                std::streamsize bytesDone) {
     // return [ ] if not m_Initialised
     m_EndOfStream = true;
     if (!m_SentData && bytesDone == 0) {

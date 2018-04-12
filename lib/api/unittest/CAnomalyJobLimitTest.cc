@@ -87,8 +87,7 @@ std::set<std::string> getUniqueValues(const std::string& key, const std::string&
 }
 
 CppUnit::Test* CAnomalyJobLimitTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CAnomalyJobLimitTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnomalyJobLimitTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobLimitTest>(
         "CAnomalyJobLimitTest::testLimit", &CAnomalyJobLimitTest::testLimit));
@@ -222,8 +221,7 @@ void CAnomalyJobLimitTest::testLimit() {
         LOG_TRACE(<< "Setting up job");
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        std::ifstream inputStrm(
-            "testfiles/resource_limits_3_2over_3partition.csv");
+        std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition.csv");
         CPPUNIT_ASSERT(inputStrm.is_open());
         api::CCsvInputParser parser(inputStrm);
 
@@ -269,8 +267,7 @@ void CAnomalyJobLimitTest::testLimit() {
         LOG_TRACE(<< "Setting up job");
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        std::ifstream inputStrm(
-            "testfiles/resource_limits_3_2over_3partition_first8.csv");
+        std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition_first8.csv");
         CPPUNIT_ASSERT(inputStrm.is_open());
         api::CCsvInputParser parser(inputStrm);
 
@@ -282,8 +279,7 @@ void CAnomalyJobLimitTest::testLimit() {
         limits.resourceMonitor().m_ByteLimitLow = 0;
         limits.resourceMonitor().m_AllowAllocations = false;
 
-        std::ifstream inputStrm2(
-            "testfiles/resource_limits_3_2over_3partition_last1169.csv");
+        std::ifstream inputStrm2("testfiles/resource_limits_3_2over_3partition_last1169.csv");
         CPPUNIT_ASSERT(inputStrm2.is_open());
         api::CCsvInputParser parser2(inputStrm2);
 

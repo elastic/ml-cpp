@@ -22,8 +22,7 @@
 #include <fstream>
 
 CppUnit::Test* CRapidXmlParserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CRapidXmlParserTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidXmlParserTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>(
         "CRapidXmlParserTest::testParse1", &CRapidXmlParserTest::testParse1));
@@ -44,8 +43,7 @@ CppUnit::Test* CRapidXmlParserTest::suite() {
 }
 
 void CRapidXmlParserTest::testParse1() {
-    std::string goodString =
-        CRapidXmlParserTest::fileToString("./testfiles/CXmlParser1.xml");
+    std::string goodString = CRapidXmlParserTest::fileToString("./testfiles/CXmlParser1.xml");
 
     ml::core::CRapidXmlParser parser;
 
@@ -55,8 +53,7 @@ void CRapidXmlParserTest::testParse1() {
 }
 
 void CRapidXmlParserTest::testParse2() {
-    std::string goodString =
-        CRapidXmlParserTest::fileToString("./testfiles/CXmlParser2.xml");
+    std::string goodString = CRapidXmlParserTest::fileToString("./testfiles/CXmlParser2.xml");
 
     ml::core::CRapidXmlParser parser;
 
@@ -115,14 +112,12 @@ void CRapidXmlParserTest::testParse2() {
     CPPUNIT_ASSERT_EQUAL(std::string("token"), tokenAndRegex1[0]->name());
     CPPUNIT_ASSERT_EQUAL(std::string("source"), tokenAndRegex1[0]->value());
     CPPUNIT_ASSERT_EQUAL(std::string("regex"), tokenAndRegex1[1]->name());
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
-        tokenAndRegex1[1]->value());
+    CPPUNIT_ASSERT_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
+                         tokenAndRegex1[1]->value());
 }
 
 void CRapidXmlParserTest::testNavigate() {
-    std::string goodString =
-        CRapidXmlParserTest::fileToString("./testfiles/CXmlParser2.xml");
+    std::string goodString = CRapidXmlParserTest::fileToString("./testfiles/CXmlParser2.xml");
 
     ml::core::CRapidXmlParser parser;
 
@@ -227,8 +222,7 @@ void CRapidXmlParserTest::testConvert() {
 }
 
 void CRapidXmlParserTest::testDump() {
-    std::string goodString =
-        CRapidXmlParserTest::fileToString("./testfiles/CXmlParser1.xml");
+    std::string goodString = CRapidXmlParserTest::fileToString("./testfiles/CXmlParser1.xml");
 
     ml::core::CRapidXmlParser parser1;
 
@@ -339,8 +333,7 @@ bool CRapidXmlParserTest::testAttribute(const ml::core::CXmlNode& node,
 void CRapidXmlParserTest::testParseSpeed() {
     static const size_t TEST_SIZE(25000);
 
-    std::string testString(
-        CRapidXmlParserTest::fileToString("./testfiles/CXmlParser2.xml"));
+    std::string testString(CRapidXmlParserTest::fileToString("./testfiles/CXmlParser2.xml"));
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting parse speed test at "

@@ -18,8 +18,7 @@
 #include <core/CWordExtractor.h>
 
 CppUnit::Test* CWordExtractorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CWordExtractorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CWordExtractorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CWordExtractorTest>(
         "CWordExtractorTest::testWordExtract", &CWordExtractorTest::testWordExtract));
@@ -138,8 +137,7 @@ void CWordExtractorTest::testMinConsecutive() {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("which is more than the configured time"), words);
+        CPPUNIT_ASSERT_EQUAL(std::string("which is more than the configured time"), words);
     }
     {
         std::string message("<ml00-4253.1.p2ps: Warning: > Output threshold "
@@ -154,10 +152,9 @@ void CWordExtractorTest::testMinConsecutive() {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("Output threshold breached for at position using "
-                        "application on channel"),
-            words);
+        CPPUNIT_ASSERT_EQUAL(std::string("Output threshold breached for at position using "
+                                         "application on channel"),
+                             words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 

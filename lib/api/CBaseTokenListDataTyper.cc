@@ -190,8 +190,7 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
                                                   size_t& maxMatchingLength,
                                                   bool& wasCached) {
     if (m_ReverseSearchCreator == nullptr) {
-        LOG_ERROR(
-            << "Cannot create reverse search - no reverse search creator");
+        LOG_ERROR(<< "Cannot create reverse search - no reverse search creator");
 
         part1.clear();
         part2.clear();
@@ -289,11 +288,10 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
                          "commonUniqueTokenIds wasn't for "
                       << type);
         } else {
-            LOG_ERROR(
-                << "No token was short enough to include in reverse search "
-                   "for "
-                << type << " - cheapest token was "
-                << cheapestIter->second.first << " with cost " << cheapestCost);
+            LOG_ERROR(<< "No token was short enough to include in reverse search "
+                         "for "
+                      << type << " - cheapest token was "
+                      << cheapestIter->second.first << " with cost " << cheapestCost);
         }
 
         part1.clear();
@@ -549,8 +547,8 @@ CBaseTokenListDataTyper::SIdTranslater::SIdTranslater(const CBaseTokenListDataTy
     : s_Typer(typer), s_TokenIds(tokenIds), s_Separator(separator) {
 }
 
-std::ostream&
-operator<<(std::ostream& strm, const CBaseTokenListDataTyper::SIdTranslater& translator) {
+std::ostream& operator<<(std::ostream& strm,
+                         const CBaseTokenListDataTyper::SIdTranslater& translator) {
     for (auto iter = translator.s_TokenIds.begin();
          iter != translator.s_TokenIds.end(); ++iter) {
         if (iter != translator.s_TokenIds.begin()) {

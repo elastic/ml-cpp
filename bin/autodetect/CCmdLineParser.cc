@@ -26,9 +26,8 @@
 namespace ml {
 namespace autodetect {
 
-const std::string CCmdLineParser::DESCRIPTION =
-    "Usage: autodetect [options] [<fieldname>+ [by <fieldname>]]\n"
-    "Options:";
+const std::string CCmdLineParser::DESCRIPTION = "Usage: autodetect [options] [<fieldname>+ [by <fieldname>]]\n"
+                                                "Options:";
 
 bool CCmdLineParser::parse(int argc,
                            const char* const* argv,

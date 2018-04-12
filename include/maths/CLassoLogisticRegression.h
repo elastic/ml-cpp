@@ -217,8 +217,7 @@ public:
 private:
     //! Check the validity of the training data and the prior parameters.
     template<typename MATRIX>
-    static bool
-    checkInputs(const MATRIX& x, const TDoubleVec& y, const TDoubleVec& lambda);
+    static bool checkInputs(const MATRIX& x, const TDoubleVec& y, const TDoubleVec& lambda);
 
 private:
     //! The maximum number of iterations of the main loop.

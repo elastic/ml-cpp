@@ -83,8 +83,7 @@ public:
 
     //! Get the mean of the marginal likelihood function.
     template<typename T>
-    static double
-    marginalLikelihoodMean(const std::vector<SMultimodalPriorMode<T>>& modes) {
+    static double marginalLikelihoodMean(const std::vector<SMultimodalPriorMode<T>>& modes) {
         if (modes.size() == 0) {
             return 0.0;
         }
@@ -108,10 +107,9 @@ public:
 
     //! Get the mode of the marginal likelihood function.
     template<typename T>
-    static double
-    marginalLikelihoodMode(const std::vector<SMultimodalPriorMode<T>>& modes,
-                           const maths_t::TWeightStyleVec& weightStyles,
-                           const TDouble4Vec& weights) {
+    static double marginalLikelihoodMode(const std::vector<SMultimodalPriorMode<T>>& modes,
+                                         const maths_t::TWeightStyleVec& weightStyles,
+                                         const TDouble4Vec& weights) {
         if (modes.size() == 0) {
             return 0.0;
         }
@@ -450,10 +448,9 @@ public:
 
     //! Sample the marginal likelihood function.
     template<typename T>
-    static void
-    sampleMarginalLikelihood(const std::vector<SMultimodalPriorMode<T>>& modes,
-                             std::size_t numberSamples,
-                             TDouble1Vec& samples) {
+    static void sampleMarginalLikelihood(const std::vector<SMultimodalPriorMode<T>>& modes,
+                                         std::size_t numberSamples,
+                                         TDouble1Vec& samples) {
         samples.clear();
 
         if (modes.size() == 1) {
@@ -530,16 +527,15 @@ public:
     //! collection of independent samples from the variable integrating
     //! over the prior density function.
     template<typename PRIOR, typename MODE>
-    static bool
-    probabilityOfLessLikelySamples(const PRIOR& prior,
-                                   const std::vector<MODE>& modes,
-                                   maths_t::EProbabilityCalculation calculation,
-                                   const maths_t::TWeightStyleVec& weightStyles,
-                                   const TDouble1Vec& samples,
-                                   const TDouble4Vec1Vec& weights,
-                                   double& lowerBound,
-                                   double& upperBound,
-                                   maths_t::ETail& tail) {
+    static bool probabilityOfLessLikelySamples(const PRIOR& prior,
+                                               const std::vector<MODE>& modes,
+                                               maths_t::EProbabilityCalculation calculation,
+                                               const maths_t::TWeightStyleVec& weightStyles,
+                                               const TDouble1Vec& samples,
+                                               const TDouble4Vec1Vec& weights,
+                                               double& lowerBound,
+                                               double& upperBound,
+                                               maths_t::ETail& tail) {
         lowerBound = upperBound = 1.0;
         tail = maths_t::E_UndeterminedTail;
 
@@ -600,9 +596,8 @@ public:
         switch (calculation) {
         case maths_t::E_OneSidedBelow:
             if (!minusLogJointCdf(modes, weightStyles, samples, weights, upperBound, lowerBound)) {
-                LOG_ERROR(
-                    << "Failed computing probability of less likely samples: "
-                    << core::CContainerPrinter::print(samples));
+                LOG_ERROR(<< "Failed computing probability of less likely samples: "
+                          << core::CContainerPrinter::print(samples));
                 return false;
             }
             lowerBound = std::exp(-lowerBound);
@@ -730,9 +725,8 @@ public:
 
             if (!lowerBoundCalculator.calculate(lowerBound) ||
                 !upperBoundCalculator.calculate(upperBound)) {
-                LOG_ERROR(
-                    << "Couldn't compute probability of less likely samples:"
-                    << " " << lowerBoundCalculator << " " << upperBoundCalculator);
+                LOG_ERROR(<< "Couldn't compute probability of less likely samples:"
+                          << " " << lowerBoundCalculator << " " << upperBoundCalculator);
                 return false;
             }
             tail = static_cast<maths_t::ETail>(tail_);
@@ -741,9 +735,8 @@ public:
         case maths_t::E_OneSidedAbove:
             if (!minusLogJointCdfComplement(modes, weightStyles, samples,
                                             weights, upperBound, lowerBound)) {
-                LOG_ERROR(
-                    << "Failed computing probability of less likely samples: "
-                    << core::CContainerPrinter::print(samples));
+                LOG_ERROR(<< "Failed computing probability of less likely samples: "
+                          << core::CContainerPrinter::print(samples));
                 return false;
             }
             lowerBound = std::exp(-lowerBound);

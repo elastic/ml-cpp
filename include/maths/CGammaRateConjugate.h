@@ -106,11 +106,10 @@ public:
     //! \param[in] offsetMargin The margin between the smallest value and the support
     //! left end.
     //! \return A non-informative prior.
-    static CGammaRateConjugate
-    nonInformativePrior(maths_t::EDataType dataType,
-                        double offset = 0.0,
-                        double decayRate = 0.0,
-                        double offsetMargin = GAMMA_OFFSET_MARGIN);
+    static CGammaRateConjugate nonInformativePrior(maths_t::EDataType dataType,
+                                                   double offset = 0.0,
+                                                   double decayRate = 0.0,
+                                                   double offsetMargin = GAMMA_OFFSET_MARGIN);
     //@}
 
     //! \name Prior Contract
@@ -207,10 +206,10 @@ public:
     //! \param[in] weightStyles Optional variance scale weight styles.
     //! \param[in] weights Optional variance scale weights.
     //! \note \p percentage should be in the range [0.0, 100.0).
-    virtual TDoubleDoublePr
-    marginalLikelihoodConfidenceInterval(double percentage,
-                                         const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                         const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
+        double percentage,
+        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+        const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the gamma rate.
@@ -236,8 +235,7 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void
-    sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
 
     //! Compute minus the log of the joint c.d.f. of the marginal likelihood
     //! at \p samples.

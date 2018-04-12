@@ -182,7 +182,7 @@ protected:
             }
         }
 
-        //! Initialize the priority queue of vertices to visit.
+            //! Initialize the priority queue of vertices to visit.
 #if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
         __attribute__((__noinline__))
 #endif // defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
@@ -231,8 +231,10 @@ protected:
     //! \param[out] result Filled in with the \p b bootstrap
     //! clusterings.
     template<typename CLUSTERER>
-    std::size_t
-    bootstrapClusters(std::size_t b, CLUSTERER& clusterer, TPointVec& points, TSizeVecVecVec& result) {
+    std::size_t bootstrapClusters(std::size_t b,
+                                  CLUSTERER& clusterer,
+                                  TPointVec& points,
+                                  TSizeVecVecVec& result) {
         std::size_t n = points.size();
         LOG_TRACE(<< "# points = " << n);
 
@@ -600,7 +602,8 @@ protected:
                 TEdgeItr seed = boost::edges(graph).first;
                 for (std::size_t j = 0u;
                      j < static_cast<std::size_t>(seeds[i] * static_cast<double>(E));
-                     ++j, ++seed) {}
+                     ++j, ++seed) {
+                }
                 cut.push_back(std::make_pair(boost::source(*seed, graph),
                                              boost::target(*seed, graph)));
             }
@@ -781,8 +784,7 @@ private:
 private:
     //! Copy the vertices in \p inverse and edges between them
     //! from \p graph into a new graph structure in \p result.
-    void
-    copy(const TGraph& graph, const TSizeVec& mapping, const TSizeVec& inverse, TGraph& result) const {
+    void copy(const TGraph& graph, const TSizeVec& mapping, const TSizeVec& inverse, TGraph& result) const {
         result = TGraph(inverse.size());
         for (std::size_t i = 0u; i < inverse.size(); ++i) {
             TOutEdgeItr j, end;

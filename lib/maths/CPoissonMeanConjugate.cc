@@ -219,8 +219,7 @@ bool CPoissonMeanConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser&
     return true;
 }
 
-CPoissonMeanConjugate
-CPoissonMeanConjugate::nonInformativePrior(double offset, double decayRate) {
+CPoissonMeanConjugate CPoissonMeanConjugate::nonInformativePrior(double offset, double decayRate) {
     // We'll use the improper distribution:
     //   lim "a -> 1+, k -> inf" { Gamma(a, k) }
     //
@@ -412,8 +411,7 @@ void CPoissonMeanConjugate::propagateForwardsByTime(double time) {
               << ", numberSamples = " << this->numberSamples());
 }
 
-CPoissonMeanConjugate::TDoubleDoublePr
-CPoissonMeanConjugate::marginalLikelihoodSupport() const {
+CPoissonMeanConjugate::TDoubleDoublePr CPoissonMeanConjugate::marginalLikelihoodSupport() const {
     return std::make_pair(-m_Offset, boost::numeric::bounds<double>::highest());
 }
 

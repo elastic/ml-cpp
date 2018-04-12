@@ -60,15 +60,13 @@ bool CDetectionRulesJsonParser::parseRules(const std::string& json, TDetectionRu
     rules.clear();
     rapidjson::Document doc;
     if (doc.Parse<0>(json.c_str()).HasParseError()) {
-        LOG_ERROR(
-            << "An error occurred while parsing detection rules from JSON: "
-            << doc.GetParseError());
+        LOG_ERROR(<< "An error occurred while parsing detection rules from JSON: "
+                  << doc.GetParseError());
         return false;
     }
 
     if (!doc.IsArray()) {
-        LOG_ERROR(
-            << "Could not parse detection rules from non-array JSON object: " << json);
+        LOG_ERROR(<< "Could not parse detection rules from non-array JSON object: " << json);
         return false;
     }
 
@@ -80,9 +78,8 @@ bool CDetectionRulesJsonParser::parseRules(const std::string& json, TDetectionRu
 
     for (unsigned int i = 0; i < doc.Size(); ++i) {
         if (!doc[i].IsObject()) {
-            LOG_ERROR(
-                << "Could not parse detection rules: "
-                << "expected detection rules array to contain objects. JSON: " << json);
+            LOG_ERROR(<< "Could not parse detection rules: "
+                      << "expected detection rules array to contain objects. JSON: " << json);
             rules.clear();
             return false;
         }

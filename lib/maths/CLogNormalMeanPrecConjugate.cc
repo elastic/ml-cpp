@@ -986,9 +986,8 @@ double CLogNormalMeanPrecConjugate::marginalLikelihoodMean() const {
     return this->isInteger() ? this->mean() - 0.5 : this->mean();
 }
 
-double
-CLogNormalMeanPrecConjugate::marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
-                                                    const TDouble4Vec& weights) const {
+double CLogNormalMeanPrecConjugate::marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
+                                                           const TDouble4Vec& weights) const {
     if (this->isNonInformative()) {
         return std::exp(m_GaussianMean) - m_Offset;
     }
@@ -1032,9 +1031,8 @@ CLogNormalMeanPrecConjugate::marginalLikelihoodMode(const TWeightStyleVec& weigh
     return (normalPrecision == 0.0 ? 0.0 : std::exp(normalMean - 1.0 / normalPrecision)) - m_Offset;
 }
 
-double
-CLogNormalMeanPrecConjugate::marginalLikelihoodVariance(const TWeightStyleVec& weightStyles,
-                                                        const TDouble4Vec& weights) const {
+double CLogNormalMeanPrecConjugate::marginalLikelihoodVariance(const TWeightStyleVec& weightStyles,
+                                                               const TDouble4Vec& weights) const {
     if (this->isNonInformative()) {
         return boost::numeric::bounds<double>::highest();
     }

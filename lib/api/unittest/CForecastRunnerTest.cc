@@ -111,8 +111,7 @@ void CForecastRunnerTest::testSummaryCount() {
     bool foundStartedRecord = false;
     for (const auto& m : doc.GetArray()) {
         if (m.HasMember("model_forecast_request_stats")) {
-            const rapidjson::Value& forecastStart =
-                m["model_forecast_request_stats"];
+            const rapidjson::Value& forecastStart = m["model_forecast_request_stats"];
             if (std::strcmp("scheduled", forecastStart["forecast_status"].GetString()) == 0) {
                 CPPUNIT_ASSERT(!foundStartedRecord);
                 foundScheduledRecord = true;
@@ -129,8 +128,7 @@ void CForecastRunnerTest::testSummaryCount() {
 
     const rapidjson::Value& lastElement = doc[doc.GetArray().Size() - 1];
     CPPUNIT_ASSERT(lastElement.HasMember("model_forecast_request_stats"));
-    const rapidjson::Value& forecastStats =
-        lastElement["model_forecast_request_stats"];
+    const rapidjson::Value& forecastStats = lastElement["model_forecast_request_stats"];
 
     CPPUNIT_ASSERT_EQUAL(std::string("42"),
                          std::string(forecastStats["forecast_id"].GetString()));
@@ -182,8 +180,7 @@ void CForecastRunnerTest::testPopulation() {
     CPPUNIT_ASSERT(!doc.HasParseError());
     const rapidjson::Value& lastElement = doc[doc.GetArray().Size() - 1];
     CPPUNIT_ASSERT(lastElement.HasMember("model_forecast_request_stats"));
-    const rapidjson::Value& forecastStats =
-        lastElement["model_forecast_request_stats"];
+    const rapidjson::Value& forecastStats = lastElement["model_forecast_request_stats"];
 
     CPPUNIT_ASSERT(!doc.HasParseError());
     CPPUNIT_ASSERT_EQUAL(std::string("31"),
@@ -229,8 +226,7 @@ void CForecastRunnerTest::testRare() {
     CPPUNIT_ASSERT(!doc.HasParseError());
     const rapidjson::Value& lastElement = doc[doc.GetArray().Size() - 1];
     CPPUNIT_ASSERT(lastElement.HasMember("model_forecast_request_stats"));
-    const rapidjson::Value& forecastStats =
-        lastElement["model_forecast_request_stats"];
+    const rapidjson::Value& forecastStats = lastElement["model_forecast_request_stats"];
 
     CPPUNIT_ASSERT(!doc.HasParseError());
     CPPUNIT_ASSERT_EQUAL(std::string("42"),
@@ -273,8 +269,7 @@ void CForecastRunnerTest::testInsufficientData() {
     CPPUNIT_ASSERT(!doc.HasParseError());
     const rapidjson::Value& lastElement = doc[doc.GetArray().Size() - 1];
     CPPUNIT_ASSERT(lastElement.HasMember("model_forecast_request_stats"));
-    const rapidjson::Value& forecastStats =
-        lastElement["model_forecast_request_stats"];
+    const rapidjson::Value& forecastStats = lastElement["model_forecast_request_stats"];
 
     CPPUNIT_ASSERT(!doc.HasParseError());
     CPPUNIT_ASSERT_EQUAL(std::string("31"),
@@ -371,8 +366,7 @@ void CForecastRunnerTest::testValidateMissingId() {
 }
 
 CppUnit::Test* CForecastRunnerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CForecastRunnerTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CForecastRunnerTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastRunnerTest>(
         "CForecastRunnerTest::testSummaryCount", &CForecastRunnerTest::testSummaryCount));

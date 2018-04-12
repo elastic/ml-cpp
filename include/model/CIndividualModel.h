@@ -154,11 +154,10 @@ public:
     //! \name Probability
     //@{
     //! Clears \p probability and \p attributeProbabilities.
-    virtual bool
-    computeTotalProbability(const std::string& person,
-                            std::size_t numberAttributeProbabilities,
-                            TOptionalDouble& probability,
-                            TAttributeProbability1Vec& attributeProbabilities) const;
+    virtual bool computeTotalProbability(const std::string& person,
+                                         std::size_t numberAttributeProbabilities,
+                                         TOptionalDouble& probability,
+                                         TAttributeProbability1Vec& attributeProbabilities) const;
     //@}
 
     //! Get the checksum of this model.
@@ -215,23 +214,21 @@ protected:
     void refreshCorrelationModels(std::size_t resourceLimit, CResourceMonitor& resourceMonitor);
 
     //! Clear out large state objects for people that are pruned.
-    virtual void
-    clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
+    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
 
     //! Get the person unique identifiers which have a feature value
     //! in the bucketing time interval including \p time.
     template<typename T>
-    void
-    currentBucketPersonIds(core_t::TTime time, const T& featureData, TSizeVec& result) const;
+    void currentBucketPersonIds(core_t::TTime time, const T& featureData, TSizeVec& result) const;
 
     //! Get the value of the \p feature of the person identified
     //! by \p pid for the bucketing interval containing \p time.
     template<typename T>
-    const T*
-    featureData(model_t::EFeature feature,
-                std::size_t pid,
-                core_t::TTime time,
-                const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>& featureData) const;
+    const T* featureData(
+        model_t::EFeature feature,
+        std::size_t pid,
+        core_t::TTime time,
+        const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>& featureData) const;
 
     //! Sample the bucket statistics and write the results in to
     //! \p featureData.

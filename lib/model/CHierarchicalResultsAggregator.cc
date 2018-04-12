@@ -64,8 +64,7 @@ public:
         return CDetectorEqualizer();
     }
 
-    CDetectorEqualizer
-    make(const std::string& /*name1*/, const std::string& /*name2*/) const {
+    CDetectorEqualizer make(const std::string& /*name1*/, const std::string& /*name2*/) const {
         return CDetectorEqualizer();
     }
 

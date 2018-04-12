@@ -105,8 +105,8 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
     return true;
 }
 
-void CPriorStateSerialiser::
-operator()(const CPrior& prior, core::CStatePersistInserter& inserter) const {
+void CPriorStateSerialiser::operator()(const CPrior& prior,
+                                       core::CStatePersistInserter& inserter) const {
     std::string tagName;
 
     if (dynamic_cast<const CConstantPrior*>(&prior) != nullptr) {
@@ -196,8 +196,8 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
     return true;
 }
 
-void CPriorStateSerialiser::
-operator()(const CMultivariatePrior& prior, core::CStatePersistInserter& inserter) const {
+void CPriorStateSerialiser::operator()(const CMultivariatePrior& prior,
+                                       core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(prior.persistenceTag(),
                          boost::bind(&CMultivariatePrior::acceptPersistInserter, &prior, _1));
 }

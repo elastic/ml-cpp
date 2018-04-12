@@ -223,13 +223,11 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
     std::size_t detectedMySQL = 0u;
     for (std::size_t i = 0u; i < peaks.size(); ++i) {
         LOG_DEBUG(<< "Checking for status 503 anomaly at " << peaks[i]);
-        if (writer.allAnomalies().count(
-                TTimeStrPr(peaks[i], "testfiles/status503.txt"))) {
+        if (writer.allAnomalies().count(TTimeStrPr(peaks[i], "testfiles/status503.txt"))) {
             ++detected503;
         }
         LOG_DEBUG(<< "Checking for MySQL anomaly at " << peaks[i]);
-        if (writer.allAnomalies().count(
-                TTimeStrPr(peaks[i], "testfiles/mysqlabort.txt"))) {
+        if (writer.allAnomalies().count(TTimeStrPr(peaks[i], "testfiles/mysqlabort.txt"))) {
             ++detectedMySQL;
         }
     }
@@ -293,8 +291,7 @@ void CEventRateAnomalyDetectorTest::testPersist() {
 }
 
 CppUnit::Test* CEventRateAnomalyDetectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CEventRateAnomalyDetectorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateAnomalyDetectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
         "CEventRateAnomalyDetectorTest::testAnomalies",

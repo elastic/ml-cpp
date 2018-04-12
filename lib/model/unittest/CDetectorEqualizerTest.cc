@@ -193,8 +193,7 @@ void CDetectorEqualizerTest::testPersist() {
 }
 
 CppUnit::Test* CDetectorEqualizerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CDetectorEqualizerTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectorEqualizerTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
         "CDetectorEqualizerTest::testCorrect", &CDetectorEqualizerTest::testCorrect));

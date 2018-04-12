@@ -144,8 +144,7 @@ void CReportWriterTest::testJSON() {
 }
 
 CppUnit::Test* CReportWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CReportWriterTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CReportWriterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CReportWriterTest>(
         "CReportWriterTest::testPretty", &CReportWriterTest::testPretty));

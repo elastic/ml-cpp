@@ -93,8 +93,8 @@ CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFu
     : m_Eps(eps), m_F(f) {
 }
 
-bool CGradientDescent::CEmpiricalCentralGradient::
-operator()(const TVector& x, TVector& result) const {
+bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector& x,
+                                                             TVector& result) const {
     if (x.dimension() != result.dimension()) {
         LOG_ERROR(<< "Dimension mismatch");
         return false;

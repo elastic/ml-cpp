@@ -26,8 +26,7 @@
 #include <string>
 
 CppUnit::Test* CThreadFarmTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CThreadFarmTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CThreadFarmTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CThreadFarmTest>(
         "CThreadFarmTest::testNumCpus", &CThreadFarmTest::testNumCpus));

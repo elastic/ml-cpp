@@ -68,8 +68,9 @@ public:
 
     virtual ~CSingleResultVisitor() {}
 
-    virtual void
-    visit(const ml::model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
+    virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
+                       const TNode& node,
+                       bool /*pivot*/) {
         if (!this->isSimpleCount(node) && this->isLeaf(node)) {
             if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0) {
                 return;
@@ -97,8 +98,9 @@ public:
 
     virtual ~CMultiResultVisitor() {}
 
-    virtual void
-    visit(const ml::model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
+    virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
+                       const TNode& node,
+                       bool /*pivot*/) {
         if (!this->isSimpleCount(node) && this->isLeaf(node)) {
             if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0) {
                 return;
@@ -134,8 +136,9 @@ public:
 
     virtual ~CResultsScoreVisitor() {}
 
-    virtual void
-    visit(const ml::model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
+    virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
+                       const TNode& node,
+                       bool /*pivot*/) {
         if (this->isRoot(node)) {
             node.s_NormalizedAnomalyScore = m_Score;
         }
@@ -1765,12 +1768,9 @@ void CAnomalyJobTest::testModelPlot() {
         CPPUNIT_ASSERT(findLine("model_feature.*timestamp.*10000000000", lines));
         CPPUNIT_ASSERT(findLine("model_feature.*timestamp.*10010000000", lines));
         CPPUNIT_ASSERT(findLine("model_feature.*timestamp.*10020000000", lines));
-        CPPUNIT_ASSERT(
-            findLine("model_feature.*timestamp.*10075000000.*actual..2\\.4", lines));
-        CPPUNIT_ASSERT(
-            findLine("model_feature.*timestamp.*10165000000.*actual..200", lines));
-        CPPUNIT_ASSERT(
-            findLine("model_feature.*timestamp.*10175000000.*actual..400", lines));
+        CPPUNIT_ASSERT(findLine("model_feature.*timestamp.*10075000000.*actual..2\\.4", lines));
+        CPPUNIT_ASSERT(findLine("model_feature.*timestamp.*10165000000.*actual..200", lines));
+        CPPUNIT_ASSERT(findLine("model_feature.*timestamp.*10175000000.*actual..400", lines));
     }
 }
 
@@ -1824,8 +1824,7 @@ void CAnomalyJobTest::testInterimResultEdgeCases() {
     CPPUNIT_ASSERT(job.handleRecord(dataRows));
 
     // The test log4cxx.properties is very similar to the hardcoded default.
-    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
-        "testfiles/log4cxx.properties"));
+    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile("testfiles/log4cxx.properties"));
 
     std::ifstream log(logFile);
     CPPUNIT_ASSERT(log.is_open());
@@ -1858,8 +1857,7 @@ void CAnomalyJobTest::testRestoreFailsWithEmptyStream() {
 }
 
 CppUnit::Test* CAnomalyJobTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CAnomalyJobTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnomalyJobTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobTest>(
         "CAnomalyJobTest::testBadTimes", &CAnomalyJobTest::testBadTimes));

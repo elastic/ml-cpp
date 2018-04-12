@@ -292,8 +292,7 @@ public:
         //! \param n The size of vectors to hash.
         //! \param m The range of the hash functions.
         //! \param result Filled in with the sampled hash functions.
-        static void
-        generateHashes(std::size_t k, std::size_t n, uint32_t m, TUInt32VecHashVec& result);
+        static void generateHashes(std::size_t k, std::size_t n, uint32_t m, TUInt32VecHashVec& result);
 
     private:
         //! Our random number generator for sampling hash function.
@@ -486,8 +485,7 @@ inline std::size_t CHashing::CMurmurHash2String::operator()(const std::string& k
         key.data(), static_cast<int>(key.size()), m_Seed);
 }
 
-inline uint64_t CHashing::CSafeMurmurHash2String64::
-operator()(const std::string& key) const {
+inline uint64_t CHashing::CSafeMurmurHash2String64::operator()(const std::string& key) const {
     return CHashing::safeMurmurHash64(key.data(), static_cast<int>(key.size()), m_Seed);
 }
 }

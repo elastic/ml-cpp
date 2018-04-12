@@ -1290,12 +1290,9 @@ void CMultimodalPriorTest::testCdf() {
 }
 
 void CMultimodalPriorTest::testProbabilityOfLessLikelySamples() {
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultimodalPriorTest::testProbabilityOfLessLikelySamples  |");
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultimodalPriorTest::testProbabilityOfLessLikelySamples  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
 
     using TNormalVec = std::vector<boost::math::normal_distribution<>>;
     using TLogNormalVec = std::vector<boost::math::lognormal_distribution<>>;
@@ -1910,8 +1907,7 @@ void CMultimodalPriorTest::testPersist() {
 }
 
 CppUnit::Test* CMultimodalPriorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMultimodalPriorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultimodalPriorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
         "CMultimodalPriorTest::testMultipleUpdate", &CMultimodalPriorTest::testMultipleUpdate));

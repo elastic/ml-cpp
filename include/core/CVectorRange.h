@@ -49,8 +49,8 @@ struct SIteratorType<const VECTOR> {
 //! \brief Implements assignment.
 template<typename VECTOR>
 struct SDoAssign {
-    static const CVectorRange<VECTOR>&
-    dispatch(CVectorRange<VECTOR>& lhs, const CVectorRange<VECTOR>& rhs) {
+    static const CVectorRange<VECTOR>& dispatch(CVectorRange<VECTOR>& lhs,
+                                                const CVectorRange<VECTOR>& rhs) {
         if (rhs.base() != lhs.base()) {
             lhs.assign(rhs.begin(), rhs.end());
         } else {

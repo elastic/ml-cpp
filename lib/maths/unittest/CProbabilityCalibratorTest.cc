@@ -192,8 +192,7 @@ void CProbabilityCalibratorTest::testCalibration() {
 }
 
 CppUnit::Test* CProbabilityCalibratorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CProbabilityCalibratorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProbabilityCalibratorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityCalibratorTest>(
         "CProbabilityCalibratorTest::testCalibration",

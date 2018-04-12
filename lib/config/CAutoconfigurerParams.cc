@@ -933,8 +933,7 @@ double CAutoconfigurerParams::maximumPopulatedBucketFraction(config_t::EFunction
     return m_MaximumPopulatedBucketFractions[config_t::hasDoAndDontIgnoreEmptyVersions(function) && ignoreEmpty];
 }
 
-const CAutoconfigurerParams::TTimeVec&
-CAutoconfigurerParams::candidateBucketLengths() const {
+const CAutoconfigurerParams::TTimeVec& CAutoconfigurerParams::candidateBucketLengths() const {
     return m_CandidateBucketLengths;
 }
 

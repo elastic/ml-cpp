@@ -22,8 +22,7 @@ using namespace ml;
 using namespace domain_name_entropy;
 
 CppUnit::Test* CTopLevelDomainDbTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CTopLevelDomainDbTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTopLevelDomainDbTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CTopLevelDomainDbTest>(
         "CTopLevelDomainDbTest::testSimpleTestCases", &CTopLevelDomainDbTest::testSimpleTestCases));

@@ -191,8 +191,7 @@ void CLogTDistributionTest::testQuantile() {
 }
 
 CppUnit::Test* CLogTDistributionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CLogTDistributionTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLogTDistributionTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLogTDistributionTest>(
         "CLogTDistributionTest::testMode", &CLogTDistributionTest::testMode));

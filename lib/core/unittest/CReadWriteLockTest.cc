@@ -31,8 +31,7 @@
 #include <stdint.h>
 
 CppUnit::Test* CReadWriteLockTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CReadWriteLockTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CReadWriteLockTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CReadWriteLockTest>(
         "CReadWriteLockTest::testReadLock", &CReadWriteLockTest::testReadLock));

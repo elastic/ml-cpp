@@ -21,8 +21,7 @@ using namespace ml;
 using namespace core;
 
 CppUnit::Test* CPatternSetTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CPatternSetTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPatternSetTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CPatternSetTest>(
         "CPatternSetTest::testInitFromJson_GivenInvalidJson",

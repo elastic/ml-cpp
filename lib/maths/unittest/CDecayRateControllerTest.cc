@@ -131,8 +131,7 @@ void CDecayRateControllerTest::testPersist() {
 }
 
 CppUnit::Test* CDecayRateControllerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CDecayRateControllerTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDecayRateControllerTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDecayRateControllerTest>(
         "CDecayRateControllerTest::testLowCov", &CDecayRateControllerTest::testLowCov));

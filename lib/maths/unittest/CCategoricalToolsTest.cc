@@ -535,8 +535,7 @@ void CCategoricalToolsTest::testLogMultinomialProbability() {
 }
 
 CppUnit::Test* CCategoricalToolsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CCategoricalToolsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCategoricalToolsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCategoricalToolsTest>(
         "CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample",

@@ -32,8 +32,8 @@ CStateCompressor::CStateCompressor(CDataAdder& compressedAdder)
     LOG_TRACE(<< "New compressor");
 }
 
-CDataAdder::TOStreamP
-CStateCompressor::addStreamed(const std::string& index, const std::string& baseId) {
+CDataAdder::TOStreamP CStateCompressor::addStreamed(const std::string& index,
+                                                    const std::string& baseId) {
     LOG_TRACE(<< "StateCompressor asking for index " << index);
 
     m_FilterSink.index(index, baseId);

@@ -19,8 +19,7 @@
 #include <sstream>
 
 CppUnit::Test* CJsonStateRestoreTraverserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CJsonStateRestoreTraverserTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonStateRestoreTraverserTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CJsonStateRestoreTraverserTest>(
         "CJsonStateRestoreTraverserTest::testRestore1",
@@ -204,11 +203,10 @@ void CJsonStateRestoreTraverserTest::testRestore4() {
 
 void CJsonStateRestoreTraverserTest::testParsingBooleanFields() {
     // Even though the parser doesn't handle boolean fields it should not hiccup over them
-    std::string json =
-        std::string("{\"_index\" : \"categorization-test\", \"_type\" : "
-                    "\"categorizerState\",") +
-        std::string("\"_id\" : \"1\",  \"_version\" : 2, \"found\" : true, ") +
-        std::string("\"_source\":{\"a\" :\"1\"}");
+    std::string json = std::string("{\"_index\" : \"categorization-test\", \"_type\" : "
+                                   "\"categorizerState\",") +
+                       std::string("\"_id\" : \"1\",  \"_version\" : 2, \"found\" : true, ") +
+                       std::string("\"_source\":{\"a\" :\"1\"}");
 
     std::istringstream strm(json);
 

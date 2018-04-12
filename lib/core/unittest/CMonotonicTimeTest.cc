@@ -19,8 +19,7 @@
 #include <core/CSleep.h>
 
 CppUnit::Test* CMonotonicTimeTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMonotonicTimeTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMonotonicTimeTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMonotonicTimeTest>(
         "CMonotonicTimeTest::testMilliseconds", &CMonotonicTimeTest::testMilliseconds));

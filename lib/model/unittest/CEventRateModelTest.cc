@@ -3024,8 +3024,7 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules() {
 }
 
 CppUnit::Test* CEventRateModelTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CEventRateModelTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateModelTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateModelTest>(
         "CEventRateModelTest::testOnlineCountSample", &CEventRateModelTest::testOnlineCountSample));

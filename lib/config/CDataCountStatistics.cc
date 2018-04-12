@@ -56,8 +56,8 @@ TBoolVec bucketSampleMask(core_t::TTime bucketLength) {
 
 //! Insert with the same semantics as boost::unordered_map/set::emplace.
 template<typename T>
-std::size_t
-emplace(const std::string* name, std::vector<std::pair<const std::string*, T>>& stats) {
+std::size_t emplace(const std::string* name,
+                    std::vector<std::pair<const std::string*, T>>& stats) {
     std::size_t i = static_cast<std::size_t>(
         std::lower_bound(stats.begin(), stats.end(), name, maths::COrderings::SFirstLess()) -
         stats.begin());
@@ -299,8 +299,7 @@ std::size_t CDataCountStatistics::numberSampledTimeSeries() const {
     return m_SampledTimeSeries.size();
 }
 
-const CDataCountStatistics::TBucketStatisticsVec&
-CDataCountStatistics::bucketStatistics() const {
+const CDataCountStatistics::TBucketStatisticsVec& CDataCountStatistics::bucketStatistics() const {
     return m_BucketStatistics;
 }
 

@@ -114,8 +114,7 @@ void CLogger::reset() {
         props.put(LOG4CXX_STR("log4j.rootLogger"), LOG4CXX_STR("DEBUG, A1"));
         props.put(LOG4CXX_STR("log4j.appender.A1"),
                   LOG4CXX_STR("org.apache.log4j.ConsoleAppender"));
-        props.put(LOG4CXX_STR("log4j.appender.A1.Target"),
-                  LOG4CXX_STR("System.err"));
+        props.put(LOG4CXX_STR("log4j.appender.A1.Target"), LOG4CXX_STR("System.err"));
         props.put(LOG4CXX_STR("log4j.appender.A1.layout"),
                   LOG4CXX_STR("org.apache.log4j.PatternLayout"));
 
@@ -282,8 +281,7 @@ bool CLogger::reconfigureLogJson() {
     props.put(LOG4CXX_STR("log4j.logger.") + logStr, LOG4CXX_STR("DEBUG, A2"));
     props.put(LOG4CXX_STR("log4j.appender.A2"),
               LOG4CXX_STR("org.apache.log4j.ConsoleAppender"));
-    props.put(LOG4CXX_STR("log4j.appender.A2.Target"),
-              LOG4CXX_STR("System.err"));
+    props.put(LOG4CXX_STR("log4j.appender.A2.Target"), LOG4CXX_STR("System.err"));
     props.put(LOG4CXX_STR("log4j.appender.A2.layout"),
               LOG4CXX_STR("org.apache.log4j.CJsonLogLayout"));
 

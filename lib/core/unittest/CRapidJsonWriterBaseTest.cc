@@ -25,8 +25,7 @@
 #include <sstream>
 
 CppUnit::Test* CRapidJsonWriterBaseTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CRapidJsonWriterBaseTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidJsonWriterBaseTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonWriterBaseTest>(
         "CRapidJsonWriterBaseTest::testAddFields", &CRapidJsonWriterBaseTest::testAddFields));
@@ -93,22 +92,21 @@ void CRapidJsonWriterBaseTest::testAddFields() {
 
     LOG_DEBUG(<< "Printed doc is: " << printedDoc);
 
-    std::string expectedDoc(
-        "{"
-        "\"str\":\"hello\","
-        "\"empty2\":\"\","
-        "\"double\":1.77e-156,"
-        "\"nan\":0,"
-        "\"infinity\":0,"
-        "\"bool\":false,"
-        "\"int\":-9,"
-        "\"time\":1521035866000,"
-        "\"uint\":999999999999999,"
-        "\"str[]\":[\"blah\",\"blah\",\"blah\"],"
-        "\"double[]\":[1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5],"
-        "\"nan[]\":[0,0],"
-        "\"TTime[]\":[1421421421000,1421421421000]"
-        "}");
+    std::string expectedDoc("{"
+                            "\"str\":\"hello\","
+                            "\"empty2\":\"\","
+                            "\"double\":1.77e-156,"
+                            "\"nan\":0,"
+                            "\"infinity\":0,"
+                            "\"bool\":false,"
+                            "\"int\":-9,"
+                            "\"time\":1521035866000,"
+                            "\"uint\":999999999999999,"
+                            "\"str[]\":[\"blah\",\"blah\",\"blah\"],"
+                            "\"double[]\":[1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5],"
+                            "\"nan[]\":[0,0],"
+                            "\"TTime[]\":[1421421421000,1421421421000]"
+                            "}");
 
     CPPUNIT_ASSERT_EQUAL(expectedDoc, printedDoc);
 }

@@ -156,8 +156,7 @@ std::string CStringUtils::normaliseWhitespace(const std::string& str) {
     return result;
 }
 
-size_t
-CStringUtils::replace(const std::string& from, const std::string& to, std::string& str) {
+size_t CStringUtils::replace(const std::string& from, const std::string& to, std::string& str) {
     if (from == to) {
         return 0;
     }
@@ -180,8 +179,9 @@ CStringUtils::replace(const std::string& from, const std::string& to, std::strin
     return count;
 }
 
-size_t
-CStringUtils::replaceFirst(const std::string& from, const std::string& to, std::string& str) {
+size_t CStringUtils::replaceFirst(const std::string& from,
+                                  const std::string& to,
+                                  std::string& str) {
     if (from == to) {
         return 0;
     }
@@ -449,8 +449,7 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
 bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned long long& i) {
     if (str.empty()) {
         if (!silent) {
-            LOG_ERROR(
-                << "Unable to convert empty string to unsigned long long");
+            LOG_ERROR(<< "Unable to convert empty string to unsigned long long");
         }
         return false;
     }
@@ -886,8 +885,8 @@ void CStringUtils::tokenise(const std::string& delim,
     }
 }
 
-std::string
-CStringUtils::longestCommonSubstr(const std::string& str1, const std::string& str2) {
+std::string CStringUtils::longestCommonSubstr(const std::string& str1,
+                                              const std::string& str2) {
     std::string common;
     if (str1.empty() || str2.empty()) {
         return common;

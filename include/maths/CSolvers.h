@@ -335,15 +335,14 @@ public:
     //! \param[in] min The minimum value in the function domain.
     //! \param[in] max The maximum value in the function domain.
     template<typename F>
-    static inline bool
-    rightBracket(double& a,
-                 double& b,
-                 double& fa,
-                 double& fb,
-                 const F& f,
-                 std::size_t& maxIterations,
-                 double min = -std::numeric_limits<double>::max(),
-                 double max = std::numeric_limits<double>::max()) {
+    static inline bool rightBracket(double& a,
+                                    double& b,
+                                    double& fa,
+                                    double& fb,
+                                    const F& f,
+                                    std::size_t& maxIterations,
+                                    double min = -std::numeric_limits<double>::max(),
+                                    double max = std::numeric_limits<double>::max()) {
         return bracket(a, b, fa, fb, f, +1.0, maxIterations, min, max);
     }
 
@@ -624,8 +623,12 @@ public:
     //! of the root.
     //! \return True if a, b bracket the root and equal(a, b).
     template<typename F, typename EQUAL>
-    static bool
-    bisection(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
+    static bool bisection(double& a,
+                          double& b,
+                          const F& f,
+                          std::size_t& maxIterations,
+                          const EQUAL& equal,
+                          double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
             maxIterations = 0u;

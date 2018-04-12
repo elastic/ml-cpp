@@ -675,12 +675,9 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
 }
 
 void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean() {
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean  |");
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
 
     // Test that the marginal likelihood mean is close to the sample
     // mean for a variety of models.
@@ -856,12 +853,9 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
 }
 
 void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(
-        << "+--------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(
-        << "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
 
     // Test we sample the constitute priors in proportion to their weights.
 
@@ -1055,8 +1049,7 @@ void CMultivariateOneOfNPriorTest::testPersist() {
 }
 
 CppUnit::Test* CMultivariateOneOfNPriorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMultivariateOneOfNPriorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultivariateOneOfNPriorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
         "CMultivariateOneOfNPriorTest::testMultipleUpdate",

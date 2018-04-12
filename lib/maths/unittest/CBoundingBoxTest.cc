@@ -174,8 +174,7 @@ void CBoundingBoxTest::testCloserTo() {
 }
 
 CppUnit::Test* CBoundingBoxTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CBoundingBoxTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBoundingBoxTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoundingBoxTest>(
         "CBoundingBoxTest::testAdd", &CBoundingBoxTest::testAdd));

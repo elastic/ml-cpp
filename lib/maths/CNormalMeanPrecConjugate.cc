@@ -280,8 +280,7 @@ public:
                 CJointProbabilityOfLessLikelySamples::SAddProbability(), m_IsNonInformative,
                 x, m_Shape, m_Rate, m_Mean, m_Precision, m_PredictionMean, probability) ||
             !probability.calculate(result)) {
-            LOG_ERROR(
-                << "Failed to compute probability of less likely samples");
+            LOG_ERROR(<< "Failed to compute probability of less likely samples");
             return false;
         }
 
@@ -743,15 +742,13 @@ double CNormalMeanPrecConjugate::marginalLikelihoodMean() const {
     return this->isInteger() ? this->mean() - 0.5 : this->mean();
 }
 
-double
-CNormalMeanPrecConjugate::marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
-                                                 const TDouble4Vec& /*weights*/) const {
+double CNormalMeanPrecConjugate::marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
+                                                        const TDouble4Vec& /*weights*/) const {
     return this->marginalLikelihoodMean();
 }
 
-double
-CNormalMeanPrecConjugate::marginalLikelihoodVariance(const TWeightStyleVec& weightStyles,
-                                                     const TDouble4Vec& weights) const {
+double CNormalMeanPrecConjugate::marginalLikelihoodVariance(const TWeightStyleVec& weightStyles,
+                                                            const TDouble4Vec& weights) const {
     if (this->isNonInformative() || m_GammaShape <= 1.0) {
         return boost::numeric::bounds<double>::highest();
     }

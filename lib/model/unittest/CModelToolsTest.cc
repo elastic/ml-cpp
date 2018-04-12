@@ -335,8 +335,7 @@ void CModelToolsTest::testProbabilityCache() {
 }
 
 CppUnit::Test* CModelToolsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CModelToolsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelToolsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CModelToolsTest>(
         "CModelToolsTest::testFuzzyDeduplicate", &CModelToolsTest::testFuzzyDeduplicate));

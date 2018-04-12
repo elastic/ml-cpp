@@ -177,8 +177,7 @@ public:
     //! Compute the number of elements in the union of the ranges
     //! [\p beginLhs, \p endLhs) and [\p beginRhs, \p endRhs).
     template<typename ITR1, typename ITR2>
-    static std::size_t
-    setUnionSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
+    static std::size_t setUnionSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
         std::size_t result = 0u;
         while (beginLhs != endLhs && beginRhs != endRhs) {
             if (*beginLhs < *beginRhs) {

@@ -34,8 +34,7 @@ CMultiFileSearcher::CMultiFileSearcher(std::string baseFilename,
       m_FileExtension(std::move(fileExtension)) {
 }
 
-CMultiFileSearcher::TIStreamP
-CMultiFileSearcher::search(size_t currentDocNum, size_t limit) {
+CMultiFileSearcher::TIStreamP CMultiFileSearcher::search(size_t currentDocNum, size_t limit) {
     if (limit != 1) {
         LOG_ERROR(<< "File searcher can only operate with a limit of 1");
         return TIStreamP();

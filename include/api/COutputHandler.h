@@ -77,8 +77,7 @@ public:
 
     //! Set field names, adding extra field names if they're not already
     //! present - this is only allowed once
-    virtual bool
-    fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) = 0;
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) = 0;
 
     //! Get field names
     virtual const TStrVec& fieldNames() const = 0;
@@ -98,8 +97,8 @@ public:
     virtual void finalise();
 
     //! Restore previously saved state
-    virtual bool
-    restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
+                              core_t::TTime& completeToTime);
 
     //! Persist current state
     virtual bool persistState(core::CDataAdder& persister);

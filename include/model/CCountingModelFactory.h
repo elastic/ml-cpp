@@ -62,17 +62,15 @@ public:
     //! the model.
     //! \param[in,out] traverser A state document traverser.
     //! \warning It is owned by the calling code.
-    virtual CAnomalyDetectorModel*
-    makeModel(const SModelInitializationData& initData,
-              core::CStateRestoreTraverser& traverser) const;
+    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData,
+                                             core::CStateRestoreTraverser& traverser) const;
 
     //! Make a new event rate data gatherer.
     //!
     //! \param[in] initData The parameters needed to initialize the data
     //! gatherer.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer*
-    makeDataGatherer(const SGathererInitializationData& initData) const;
+    virtual CDataGatherer* makeDataGatherer(const SGathererInitializationData& initData) const;
 
     //! Make a new event rate data gatherer from part of a state document.
     //!
@@ -86,8 +84,7 @@ public:
     //! \name Defaults
     //@{
     //! Get the default prior for \p feature which is a stub.
-    virtual TPriorPtr
-    defaultPrior(model_t::EFeature feature, const SModelParams& params) const;
+    virtual TPriorPtr defaultPrior(model_t::EFeature feature, const SModelParams& params) const;
 
     //! Get the default prior for \p feature which is a stub.
     virtual TMultivariatePriorPtr

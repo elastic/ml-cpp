@@ -114,8 +114,7 @@ private:
 };
 
 CppUnit::Test* CResourceLimitTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CResourceLimitTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceLimitTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLimitTest>(
         "CResourceLimitTest::testLimitBy", &CResourceLimitTest::testLimitBy));

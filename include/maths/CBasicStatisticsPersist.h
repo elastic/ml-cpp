@@ -251,8 +251,7 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(c
 }
 
 template<typename T, typename CONTAINER, typename LESS>
-std::string
-CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited() const {
+std::string CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited() const {
     if (this->count() == 0) {
         return std::string{};
     }
@@ -266,8 +265,7 @@ CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited() const 
 }
 
 template<typename T, typename CONTAINER, typename LESS>
-uint64_t
-CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(uint64_t seed) const {
+uint64_t CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(uint64_t seed) const {
     if (this->count() == 0) {
         return seed;
     }

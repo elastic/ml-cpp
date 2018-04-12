@@ -208,8 +208,8 @@ void CTrendComponent::propagateForwardsByTime(core_t::TTime interval) {
     }
 }
 
-CTrendComponent::TDoubleDoublePr
-CTrendComponent::value(core_t::TTime time, double confidence) const {
+CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
+                                                        double confidence) const {
     if (!this->initialized()) {
         return {0.0, 0.0};
     }

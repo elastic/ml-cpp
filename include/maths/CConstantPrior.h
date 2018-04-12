@@ -101,10 +101,10 @@ public:
                            const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! All confidence intervals are the point [constant, constant].
-    virtual TDoubleDoublePr
-    marginalLikelihoodConfidenceInterval(double percentage,
-                                         const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                         const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
+        double percentage,
+        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+        const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the variance of the marginal likelihood.
     virtual double
@@ -120,8 +120,7 @@ public:
                                double& result) const;
 
     //! Get \p numberSamples times the constant.
-    virtual void
-    sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
 
     //! A large number if any sample is less than the constant and
     //! zero otherwise.

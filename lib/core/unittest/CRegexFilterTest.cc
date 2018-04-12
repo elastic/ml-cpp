@@ -18,8 +18,7 @@
 #include <core/CRegexFilter.h>
 
 CppUnit::Test* CRegexFilterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CRegexFilterTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRegexFilterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>(
         "CRegexFilterTest::testConfigure_GivenInvalidRegex",
@@ -86,6 +85,5 @@ void CRegexFilterTest::testApply_GivenMultipleRegex() {
     ml::core::CRegexFilter filter;
     CPPUNIT_ASSERT(filter.configure(regexVector));
 
-    CPPUNIT_ASSERT_EQUAL(std::string("a"),
-                         filter.apply(std::string("foo bar fooooobar a")));
+    CPPUNIT_ASSERT_EQUAL(std::string("a"), filter.apply(std::string("foo bar fooooobar a")));
 }

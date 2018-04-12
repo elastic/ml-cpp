@@ -165,8 +165,13 @@ public:
     //! \tparam V The type of range of \p g. This must have a meaningful default
     //! constructor, support multiplication by a double and addition.
     template<EOrder ORDER, typename F, typename G, typename U, typename V>
-    static bool
-    productGaussLegendre(const F& f, const G& g, double a, double b, U& productIntegral, U& fIntegral, V& gIntegral) {
+    static bool productGaussLegendre(const F& f,
+                                     const G& g,
+                                     double a,
+                                     double b,
+                                     U& productIntegral,
+                                     U& fIntegral,
+                                     V& gIntegral) {
         productIntegral = U();
         fIntegral = U();
         gIntegral = V();
@@ -220,8 +225,7 @@ public:
     //! where f is filled in with the value of the function at x and returning
     //! false means that the function could not be evaluated at x.
     template<EOrder ORDER, typename F>
-    static bool
-    logGaussLegendre(const F& function, double a, double b, double& result) {
+    static bool logGaussLegendre(const F& function, double a, double b, double& result) {
         result = 0.0;
 
         if (b <= a) {

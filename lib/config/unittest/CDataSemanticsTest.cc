@@ -308,8 +308,7 @@ void CDataSemanticsTest::testReal() {
 }
 
 CppUnit::Test* CDataSemanticsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CDataSemanticsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataSemanticsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>(
         "CDataSemanticsTest::testBinary", &CDataSemanticsTest::testBinary));

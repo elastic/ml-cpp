@@ -118,8 +118,8 @@ bool CSeasonalTime::excludes(const CSeasonalTime& other) const {
            m_Precedence >= other.m_Precedence;
 }
 
-core_t::TTime
-CSeasonalTime::startOfWindowRepeat(core_t::TTime offset, core_t::TTime time) const {
+core_t::TTime CSeasonalTime::startOfWindowRepeat(core_t::TTime offset,
+                                                 core_t::TTime time) const {
     return offset + CIntegerTools::floor(time - offset, this->windowRepeat());
 }
 

@@ -136,8 +136,7 @@ public:
     }
 
     //! Combine two partial statistics.
-    const CMetricMultivariateStatistic&
-    operator+=(const CMetricMultivariateStatistic& rhs) {
+    const CMetricMultivariateStatistic& operator+=(const CMetricMultivariateStatistic& rhs) {
         for (std::size_t i = 0u; i < m_Values.size(); ++i) {
             m_Values[i] += rhs.m_Values[i];
         }
@@ -178,8 +177,8 @@ template<class STATISTIC>
 const std::string CMetricMultivariateStatistic<STATISTIC>::VALUE_TAG("a");
 
 template<class STATISTIC>
-std::ostream&
-operator<<(std::ostream& o, const CMetricMultivariateStatistic<STATISTIC>& statistic) {
+std::ostream& operator<<(std::ostream& o,
+                         const CMetricMultivariateStatistic<STATISTIC>& statistic) {
     return o << statistic.print();
 }
 }

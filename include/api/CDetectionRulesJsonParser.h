@@ -53,8 +53,8 @@ private:
 
     static bool hasStringMember(const rapidjson::Value& object, const std::string& name);
     static bool hasArrayMember(const rapidjson::Value& object, const std::string& name);
-    static bool
-    parseRuleActions(const rapidjson::Value& ruleObject, model::CDetectionRule& rule);
+    static bool parseRuleActions(const rapidjson::Value& ruleObject,
+                                 model::CDetectionRule& rule);
     static bool parseConditionsConnective(const rapidjson::Value& ruleObject,
                                           model::CDetectionRule& rule);
     static bool parseRuleConditionType(const rapidjson::Value& ruleConditionObject,

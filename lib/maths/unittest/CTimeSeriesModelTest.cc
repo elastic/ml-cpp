@@ -1880,8 +1880,7 @@ void CTimeSeriesModelTest::testUpgrade() {
         LOG_DEBUG(<< "Saved state size = " << xml.size());
 
         std::string intervals;
-        load(
-            "testfiles/CMultivariateTimeSeriesModel.6.2.expected_intervals.txt", intervals);
+        load("testfiles/CMultivariateTimeSeriesModel.6.2.expected_intervals.txt", intervals);
         LOG_DEBUG(<< "Expected intervals size = " << intervals.size());
         TStrVec expectedIntervals;
         core::CStringUtils::tokenise(";", intervals, expectedIntervals, empty);
@@ -2177,8 +2176,7 @@ void CTimeSeriesModelTest::testAnomalyModel() {
 }
 
 CppUnit::Test* CTimeSeriesModelTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CTimeSeriesModelTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesModelTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
         "CTimeSeriesModelTest::testClone", &CTimeSeriesModelTest::testClone));

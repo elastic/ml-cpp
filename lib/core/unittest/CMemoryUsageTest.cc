@@ -237,8 +237,8 @@ public:
     inline const_pointer address(const_reference r) { return &r; }
 
     // memory allocation
-    inline pointer
-    allocate(size_type cnt, typename std::allocator<void>::const_pointer = nullptr) {
+    inline pointer allocate(size_type cnt,
+                            typename std::allocator<void>::const_pointer = nullptr) {
         ms_Allocated += cnt;
         return reinterpret_cast<pointer>(::operator new(cnt * sizeof(T)));
     }
@@ -764,15 +764,15 @@ void CMemoryUsageTest::testDebug() {
 }
 
 void CMemoryUsageTest::testDynamicSizeAlwaysZero() {
-    // Without some (as yet unspecified) help from the compiler, is_pod will
-    // never report that a class or struct is a POD; this is always safe, if
-    // possibly sub-optimal. Currently (May 2011) compilers more recent than
-    // Visual C++ 8, GCC-4.3, Greenhills 6.0, Intel-11.0, and Codegear have the
-    // necessary compiler intrinsics to ensure that this trait "just works".
-    // You may also test to see if the necessary intrinsics are available by
-    // checking to see if the macro BOOST_IS_POD is defined.  (Taken from
-    // http://www.boost.org/doc/libs/1_65_1/libs/type_traits/doc/html/boost_typetraits/reference/is_pod.html
-    // .)
+// Without some (as yet unspecified) help from the compiler, is_pod will
+// never report that a class or struct is a POD; this is always safe, if
+// possibly sub-optimal. Currently (May 2011) compilers more recent than
+// Visual C++ 8, GCC-4.3, Greenhills 6.0, Intel-11.0, and Codegear have the
+// necessary compiler intrinsics to ensure that this trait "just works".
+// You may also test to see if the necessary intrinsics are available by
+// checking to see if the macro BOOST_IS_POD is defined.  (Taken from
+// http://www.boost.org/doc/libs/1_65_1/libs/type_traits/doc/html/boost_typetraits/reference/is_pod.html
+// .)
 #ifdef BOOST_IS_POD
     bool haveStructPodCompilerSupport = true;
 #else
@@ -869,10 +869,9 @@ void CMemoryUsageTest::testCompress() {
             mem.print(ss);
             after = ss.str();
         }
-        std::string expected(
-            "{\"root\":{\"memory\":1},\"subItems\":[{\"muffin\":"
-            "{\"memory\":4}},{\"child [*10]\":{\"memory\":220}},{\"puffin\":"
-            "{\"memory\":2}}]}\n");
+        std::string expected("{\"root\":{\"memory\":1},\"subItems\":[{\"muffin\":"
+                             "{\"memory\":4}},{\"child [*10]\":{\"memory\":220}},{\"puffin\":"
+                             "{\"memory\":2}}]}\n");
         LOG_DEBUG(<< after);
         CPPUNIT_ASSERT_EQUAL(expected, after);
     }
@@ -939,11 +938,10 @@ void CMemoryUsageTest::testStringBehaviour() {
 
     something2 = empty2;
 
-    LOG_INFO(
-        << "String that was copied to another then assigned an empty string "
-           "has data at "
-        << static_cast<const void*>(something2.data()) << " length "
-        << something2.length() << " and capacity " << something2.capacity());
+    LOG_INFO(<< "String that was copied to another then assigned an empty string "
+                "has data at "
+             << static_cast<const void*>(something2.data()) << " length "
+             << something2.length() << " and capacity " << something2.capacity());
     if (something2.data() == empty1.data()) {
         LOG_INFO(<< "Strings that have an empty constructed string assigned to "
                     "them share the same representation as other empty "
@@ -964,10 +962,9 @@ void CMemoryUsageTest::testStringBehaviour() {
 
     std::string startSmall("small");
 
-    LOG_INFO(
-        << "Non-empty small string unchanged since construction has data at "
-        << static_cast<const void*>(startSmall.data()) << " length "
-        << startSmall.length() << " and capacity " << startSmall.capacity());
+    LOG_INFO(<< "Non-empty small string unchanged since construction has data at "
+             << static_cast<const void*>(startSmall.data()) << " length "
+             << startSmall.length() << " and capacity " << startSmall.capacity());
 
     startSmall.reserve(100);
     size_t capacity100(startSmall.capacity());
@@ -1133,11 +1130,9 @@ void CMemoryUsageTest::testSharedPointer() {
 
     TStrPtrVec svec1;
     svec1.push_back(TStrPtr(new std::string("This is a string")));
-    svec1.push_back(
-        TStrPtr(new std::string("Here is some more string data, a little "
-                                "longer than the previous one")));
-    svec1.push_back(
-        TStrPtr(new std::string("An uninteresting string, this one!")));
+    svec1.push_back(TStrPtr(new std::string("Here is some more string data, a little "
+                                            "longer than the previous one")));
+    svec1.push_back(TStrPtr(new std::string("An uninteresting string, this one!")));
 
     TStrPtrVec svec2;
     svec2.push_back(TStrPtr());
@@ -1228,8 +1223,7 @@ void CMemoryUsageTest::testSmallVector() {
 }
 
 CppUnit::Test* CMemoryUsageTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMemoryUsageTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMemoryUsageTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
         "CMemoryUsageTest::testUsage", &CMemoryUsageTest::testUsage));

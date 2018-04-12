@@ -29,8 +29,7 @@
 #include <string.h>
 
 CppUnit::Test* CDualThreadStreamBufTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CDualThreadStreamBufTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDualThreadStreamBufTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
         "CDualThreadStreamBufTest::testThroughput", &CDualThreadStreamBufTest::testThroughput));
@@ -80,20 +79,20 @@ private:
     size_t m_TotalData;
 };
 
-const char* DATA(
-    "According to the most recent Wikipedia definition \"Predictive "
-    "analytics encompasses a variety of statistical techniques from "
-    "modeling, machine learning, data mining and game theory that ... "
-    "exploit patterns found in historical and transactional data to "
-    "identify risks and opportunities.\"\n"
-    "In applications such as credit scoring, predictive analytics "
-    "identifies patterns and relationships in huge volumes of data, hidden "
-    "to human analysis, that presages an undesirable outcome.  Many "
-    "vendors refer to their ability to project a ramp in a single metric, "
-    "say CPU utilization, as predictive analytics.  As most users know, "
-    "these capabilities are of limited value in that single metrics are "
-    "rarely the cause of cataclysmic failures.  Rather it is the impact of "
-    "change between components that causes failure in complex IT systems.\n");
+const char*
+    DATA("According to the most recent Wikipedia definition \"Predictive "
+         "analytics encompasses a variety of statistical techniques from "
+         "modeling, machine learning, data mining and game theory that ... "
+         "exploit patterns found in historical and transactional data to "
+         "identify risks and opportunities.\"\n"
+         "In applications such as credit scoring, predictive analytics "
+         "identifies patterns and relationships in huge volumes of data, hidden "
+         "to human analysis, that presages an undesirable outcome.  Many "
+         "vendors refer to their ability to project a ramp in a single metric, "
+         "say CPU utilization, as predictive analytics.  As most users know, "
+         "these capabilities are of limited value in that single metrics are "
+         "rarely the cause of cataclysmic failures.  Rather it is the impact of "
+         "change between components that causes failure in complex IT systems.\n");
 }
 
 void CDualThreadStreamBufTest::testThroughput() {

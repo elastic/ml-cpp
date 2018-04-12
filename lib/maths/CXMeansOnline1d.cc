@@ -91,11 +91,10 @@ double min(double x, double y, double z) {
 }
 
 //! Get the log of the likelihood that \p point is from the \p normal.
-maths_t::EFloatingPointErrorStatus
-logLikelihoodFromCluster(double point,
-                         const CNormalMeanPrecConjugate& normal,
-                         double probability,
-                         double& result) {
+maths_t::EFloatingPointErrorStatus logLikelihoodFromCluster(double point,
+                                                            const CNormalMeanPrecConjugate& normal,
+                                                            double probability,
+                                                            double& result) {
     result = core::constants::LOG_MIN_DOUBLE - 1.0;
 
     double likelihood;

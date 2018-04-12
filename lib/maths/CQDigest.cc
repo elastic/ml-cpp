@@ -675,8 +675,7 @@ CQDigest::CNode& CQDigest::CNode::insert(CNodeAllocator& allocator, const CNode&
     return newNode;
 }
 
-CQDigest::CNode*
-CQDigest::CNode::compress(CNodeAllocator& allocator, uint64_t compressionFactor) {
+CQDigest::CNode* CQDigest::CNode::compress(CNodeAllocator& allocator, uint64_t compressionFactor) {
     if (!m_Ancestor) {
         // The node is no longer in the q-digest.
         return nullptr;

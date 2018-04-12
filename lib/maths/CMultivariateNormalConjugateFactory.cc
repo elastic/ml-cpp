@@ -30,8 +30,7 @@ public:
         return new CMultivariateNormalConjugate<N>(params, traverser);
     }
 
-    static CMultivariateNormalConjugate<N>*
-    make(maths_t::EDataType dataType, double decayRate) {
+    static CMultivariateNormalConjugate<N>* make(maths_t::EDataType dataType, double decayRate) {
         return CMultivariateNormalConjugate<N>::nonInformativePrior(dataType, decayRate)
             .clone();
     }

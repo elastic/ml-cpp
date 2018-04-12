@@ -134,8 +134,7 @@ private:
 }
 
 CppUnit::Test* CNamedPipeFactoryTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CNamedPipeFactoryTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNamedPipeFactoryTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
         "CNamedPipeFactoryTest::testServerIsCppReader",

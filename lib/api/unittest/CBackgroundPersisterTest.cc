@@ -54,8 +54,7 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
 }
 
 CppUnit::Test* CBackgroundPersisterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CBackgroundPersisterTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBackgroundPersisterTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>(
         "CBackgroundPersisterTest::testDetectorPersistBy",
         &CBackgroundPersisterTest::testDetectorPersistBy));
@@ -73,13 +72,11 @@ CppUnit::Test* CBackgroundPersisterTest::suite() {
 }
 
 void CBackgroundPersisterTest::testDetectorPersistBy() {
-    this->foregroundBackgroundCompCategorizationAndAnomalyDetection(
-        "testfiles/new_mlfields.conf");
+    this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields.conf");
 }
 
 void CBackgroundPersisterTest::testDetectorPersistOver() {
-    this->foregroundBackgroundCompCategorizationAndAnomalyDetection(
-        "testfiles/new_mlfields_over.conf");
+    this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields_over.conf");
 }
 
 void CBackgroundPersisterTest::testDetectorPersistPartition() {
@@ -215,8 +212,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
         ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, outputChainer, outputWriter);
 
         if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
-            LOG_DEBUG(
-                << "Applying the categorization typer for anomaly detection");
+            LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
             firstProcessor = &typer;
         }
 

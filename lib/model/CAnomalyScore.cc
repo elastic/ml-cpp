@@ -90,8 +90,7 @@ const std::string MISSING_VERSION_FORMAT_VERSION("1");
 
 const std::string CAnomalyScore::MLCUE_ATTRIBUTE("mlcue");
 const std::string CAnomalyScore::MLKEY_ATTRIBUTE("mlkey");
-const std::string
-    CAnomalyScore::MLQUANTILESDESCRIPTION_ATTRIBUTE("mlquantilesdescription");
+const std::string CAnomalyScore::MLQUANTILESDESCRIPTION_ATTRIBUTE("mlquantilesdescription");
 const std::string CAnomalyScore::MLVERSION_ATTRIBUTE("mlversion");
 const std::string CAnomalyScore::TIME_ATTRIBUTE("time");
 

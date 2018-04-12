@@ -23,18 +23,15 @@ namespace api {
 const std::string CModelPlotDataJsonWriter::JOB_ID("job_id");
 const std::string CModelPlotDataJsonWriter::MODEL_PLOT("model_plot");
 const std::string CModelPlotDataJsonWriter::DETECTOR_INDEX("detector_index");
-const std::string
-    CModelPlotDataJsonWriter::PARTITION_FIELD_NAME("partition_field_name");
-const std::string
-    CModelPlotDataJsonWriter::PARTITION_FIELD_VALUE("partition_field_value");
+const std::string CModelPlotDataJsonWriter::PARTITION_FIELD_NAME("partition_field_name");
+const std::string CModelPlotDataJsonWriter::PARTITION_FIELD_VALUE("partition_field_value");
 const std::string CModelPlotDataJsonWriter::TIME("timestamp");
 const std::string CModelPlotDataJsonWriter::FEATURE("model_feature");
 const std::string CModelPlotDataJsonWriter::BY("by");
 const std::string CModelPlotDataJsonWriter::BY_FIELD_NAME("by_field_name");
 const std::string CModelPlotDataJsonWriter::BY_FIELD_VALUE("by_field_value");
 const std::string CModelPlotDataJsonWriter::OVER_FIELD_NAME("over_field_name");
-const std::string
-    CModelPlotDataJsonWriter::OVER_FIELD_VALUE("over_field_value");
+const std::string CModelPlotDataJsonWriter::OVER_FIELD_VALUE("over_field_value");
 const std::string CModelPlotDataJsonWriter::LOWER("model_lower");
 const std::string CModelPlotDataJsonWriter::UPPER("model_upper");
 const std::string CModelPlotDataJsonWriter::MEDIAN("model_median");

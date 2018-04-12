@@ -399,8 +399,7 @@ void CPackedBitVectorTest::testPersist() {
 }
 
 CppUnit::Test* CPackedBitVectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CPackedBitVectorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPackedBitVectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
         "CPackedBitVectorTest::testCreation", &CPackedBitVectorTest::testCreation));

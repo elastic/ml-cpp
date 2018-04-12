@@ -81,8 +81,8 @@ public:
     virtual void finalise();
 
     //! Restore previously saved state
-    virtual bool
-    restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
+                              core_t::TTime& completeToTime);
 
     //! Persist current state
     virtual bool persistState(core::CDataAdder& persister);

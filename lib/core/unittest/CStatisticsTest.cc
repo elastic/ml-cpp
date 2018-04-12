@@ -56,8 +56,7 @@ private:
 } // namespace
 
 CppUnit::Test* CStatisticsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CStatisticsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStatisticsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>(
         "CStatisticsTest::testStatistics", &CStatisticsTest::testStatistics));

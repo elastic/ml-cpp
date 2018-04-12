@@ -230,12 +230,9 @@ void CMultivariateNormalConjugateTest::testPropagation() {
 }
 
 void CMultivariateNormalConjugateTest::testMeanVectorEstimation() {
-    LOG_DEBUG(
-        << "+--------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultivariateNormalConjugateTest::testMeanVectorEstimation  |");
-    LOG_DEBUG(
-        << "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testMeanVectorEstimation  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
 
     // We are going to test that we correctly estimate a distribution
     // for the mean of a multivariate normal by checking that the true
@@ -446,12 +443,9 @@ void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation() {
 }
 
 void CMultivariateNormalConjugateTest::testMarginalLikelihood() {
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultivariateNormalConjugateTest::testMarginalLikelihood  |");
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testMarginalLikelihood  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
 
     // Test that:
     //   1) The likelihood is normalized.
@@ -914,12 +908,9 @@ void CMultivariateNormalConjugateTest::testIntegerData() {
 }
 
 void CMultivariateNormalConjugateTest::testLowVariationData() {
-    LOG_DEBUG(
-        << "+----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultivariateNormalConjugateTest::testLowVariationData  |");
-    LOG_DEBUG(
-        << "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::testLowVariationData  |");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
 
     {
         maths::CMultivariateNormalConjugate<2> filter(
@@ -1009,12 +1000,9 @@ void CMultivariateNormalConjugateTest::testPersist() {
 }
 
 void CMultivariateNormalConjugateTest::calibrationExperiment() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultivariateNormalConjugateTest::calibrationExperiment  |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultivariateNormalConjugateTest::calibrationExperiment  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     using TVector10 = maths::CVectorNx1<double, 10>;
     using TMatrix10 = maths::CSymmetricMatrixNxN<double, 10>;
@@ -1156,8 +1144,7 @@ void CMultivariateNormalConjugateTest::dataGenerator() {
 }
 
 CppUnit::Test* CMultivariateNormalConjugateTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMultivariateNormalConjugateTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultivariateNormalConjugateTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
         "CMultivariateNormalConjugateTest::testMultipleUpdate",

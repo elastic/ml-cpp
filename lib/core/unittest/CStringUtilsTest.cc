@@ -29,8 +29,7 @@
 #include <string.h>
 
 CppUnit::Test* CStringUtilsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CStringUtilsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringUtilsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
         "CStringUtilsTest::testNumMatches", &CStringUtilsTest::testNumMatches));
@@ -393,8 +392,7 @@ void CStringUtilsTest::testStringToType() {
         CPPUNIT_ASSERT_EQUAL(uint64_t(0), ret);
         CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType("0x1000", ret));
         CPPUNIT_ASSERT_EQUAL(uint64_t(0x1000), ret);
-        CPPUNIT_ASSERT(
-            ml::core::CStringUtils::stringToType("18446744073709551615", ret));
+        CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType("18446744073709551615", ret));
         CPPUNIT_ASSERT_EQUAL(uint64_t(18446744073709551615ULL), ret);
     }
     {
@@ -443,10 +441,8 @@ void CStringUtilsTest::testStringToType() {
         int64_t ret;
         CPPUNIT_ASSERT(!ml::core::CStringUtils::stringToType("", ret));
         CPPUNIT_ASSERT(!ml::core::CStringUtils::stringToType("abc", ret));
-        CPPUNIT_ASSERT(
-            !ml::core::CStringUtils::stringToType("9223372036854775808", ret));
-        CPPUNIT_ASSERT(
-            !ml::core::CStringUtils::stringToType("-9223372036854775809", ret));
+        CPPUNIT_ASSERT(!ml::core::CStringUtils::stringToType("9223372036854775808", ret));
+        CPPUNIT_ASSERT(!ml::core::CStringUtils::stringToType("-9223372036854775809", ret));
     }
     {
         // All bad conversions
@@ -466,8 +462,7 @@ void CStringUtilsTest::testStringToType() {
         // All bad conversions
         uint64_t ret;
         CPPUNIT_ASSERT(!ml::core::CStringUtils::stringToType("abc", ret));
-        CPPUNIT_ASSERT(
-            !ml::core::CStringUtils::stringToType("18446744073709551616", ret));
+        CPPUNIT_ASSERT(!ml::core::CStringUtils::stringToType("18446744073709551616", ret));
     }
     {
         // All bad conversions

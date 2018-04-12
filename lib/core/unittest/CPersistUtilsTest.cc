@@ -139,8 +139,8 @@ public:
     }
 
     template<typename T>
-    static bool
-    dispatch(const boost::unordered_set<T>& lhs, const boost::unordered_set<T>& rhs) {
+    static bool dispatch(const boost::unordered_set<T>& lhs,
+                         const boost::unordered_set<T>& rhs) {
         using TVec = std::vector<T>;
         TVec lKeys(lhs.begin(), lhs.end());
         TVec rKeys(rhs.begin(), rhs.end());
@@ -586,8 +586,7 @@ void CPersistUtilsTest::testAppend() {
 }
 
 CppUnit::Test* CPersistUtilsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CPersistUtilsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPersistUtilsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CPersistUtilsTest>(
         "CPersistUtilsTest::testPersistContainers", &CPersistUtilsTest::testPersistContainers));

@@ -71,8 +71,7 @@ void CFunctionalTest::testDereference() {
 }
 
 CppUnit::Test* CFunctionalTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CFunctionalTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFunctionalTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CFunctionalTest>(
         "CFunctionalTest::testIsNull", &CFunctionalTest::testIsNull));

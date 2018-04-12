@@ -111,8 +111,7 @@ void CMathsFuncsTest::testFpStatus() {
 }
 
 CppUnit::Test* CMathsFuncsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMathsFuncsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMathsFuncsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMathsFuncsTest>(
         "CMathsFuncsTest::testIsNan", &CMathsFuncsTest::testIsNan));

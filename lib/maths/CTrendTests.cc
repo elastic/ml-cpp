@@ -406,12 +406,10 @@ const core_t::TTime CRandomizedPeriodicityTest::WEEK_RESAMPLE_INTERVAL(2419200);
 boost::random::mt19937_64 CRandomizedPeriodicityTest::ms_Rng = boost::random::mt19937_64();
 TDoubleVec CRandomizedPeriodicityTest::ms_DayRandomProjections[N] = {};
 TDoubleVec CRandomizedPeriodicityTest::ms_DayPeriodicProjections[N] = {};
-std::atomic<core_t::TTime>
-    CRandomizedPeriodicityTest::ms_DayResampled(-DAY_RESAMPLE_INTERVAL);
+std::atomic<core_t::TTime> CRandomizedPeriodicityTest::ms_DayResampled(-DAY_RESAMPLE_INTERVAL);
 TDoubleVec CRandomizedPeriodicityTest::ms_WeekRandomProjections[N] = {};
 TDoubleVec CRandomizedPeriodicityTest::ms_WeekPeriodicProjections[N] = {};
-std::atomic<core_t::TTime>
-    CRandomizedPeriodicityTest::ms_WeekResampled(-WEEK_RESAMPLE_INTERVAL);
+std::atomic<core_t::TTime> CRandomizedPeriodicityTest::ms_WeekResampled(-WEEK_RESAMPLE_INTERVAL);
 core::CMutex CRandomizedPeriodicityTest::ms_Lock;
 
 //////// CCalendarCyclicTest ////////

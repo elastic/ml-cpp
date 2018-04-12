@@ -698,8 +698,9 @@ public:
 
     //! Overload for boost::shared_ptr.
     template<typename T>
-    static void
-    dynamicSize(const char* name, const boost::shared_ptr<T>& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name,
+                            const boost::shared_ptr<T>& t,
+                            CMemoryUsage::TMemoryUsagePtr mem) {
         if (t) {
             long uc = t.use_count();
             // If the pointer is shared by multiple users, each one
@@ -721,8 +722,9 @@ public:
 
     //! Overload for boost::array.
     template<typename T, std::size_t N>
-    static void
-    dynamicSize(const char* name, const boost::array<T, N>& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name,
+                            const boost::array<T, N>& t,
+                            CMemoryUsage::TMemoryUsagePtr mem) {
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
             std::string componentName(name);
             componentName += "_item";
@@ -736,8 +738,9 @@ public:
 
     //! Overload for std::vector.
     template<typename T>
-    static void
-    dynamicSize(const char* name, const std::vector<T>& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name,
+                            const std::vector<T>& t,
+                            CMemoryUsage::TMemoryUsagePtr mem) {
         std::string componentName(name);
 
         std::size_t items = t.size();
@@ -756,8 +759,9 @@ public:
 
     //! Overload for small vector.
     template<typename T, std::size_t N>
-    static void
-    dynamicSize(const char* name, const CSmallVector<T, N>& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name,
+                            const CSmallVector<T, N>& t,
+                            CMemoryUsage::TMemoryUsagePtr mem) {
         std::string componentName(name);
 
         std::size_t items = memory_detail::inplace(t) ? 0 : t.size();
@@ -775,8 +779,7 @@ public:
     }
 
     //! Overload for std::string.
-    static void
-    dynamicSize(const char* name, const std::string& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name, const std::string& t, CMemoryUsage::TMemoryUsagePtr mem) {
         std::string componentName(name);
         componentName += "_string";
         std::size_t length = t.size();
@@ -829,8 +832,9 @@ public:
 
     //! Overload for std::map.
     template<typename K, typename V, typename C, typename A>
-    static void
-    dynamicSize(const char* name, const std::map<K, V, C, A>& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name,
+                            const std::map<K, V, C, A>& t,
+                            CMemoryUsage::TMemoryUsagePtr mem) {
         // std::map appears to use 4 pointers/size_ts per tree node
         // (colour, parent, left and right child pointers)
         std::string componentName(name);
@@ -895,8 +899,9 @@ public:
 
     //! Overload for std::set.
     template<typename T, typename C, typename A>
-    static void
-    dynamicSize(const char* name, const std::set<T, C, A>& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name,
+                            const std::set<T, C, A>& t,
+                            CMemoryUsage::TMemoryUsagePtr mem) {
         // std::set appears to use 4 pointers/size_ts per tree node
         // (colour, parent, left and right child pointers)
         std::string componentName(name);
@@ -938,8 +943,9 @@ public:
 
     //! Overload for std::list.
     template<typename T, typename A>
-    static void
-    dynamicSize(const char* name, const std::list<T, A>& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name,
+                            const std::list<T, A>& t,
+                            CMemoryUsage::TMemoryUsagePtr mem) {
         // std::list appears to use 2 pointers per list node
         // (prev and next pointers).
         std::string componentName(name);
@@ -959,8 +965,9 @@ public:
 
     //! Overload for std::deque.
     template<typename T, typename C, typename A>
-    static void
-    dynamicSize(const char* name, const std::deque<T, A>& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name,
+                            const std::deque<T, A>& t,
+                            CMemoryUsage::TMemoryUsagePtr mem) {
         // std::deque is a pointer to an array of pointers to pages
         std::string componentName(name);
         componentName += "_deque";
@@ -1007,8 +1014,9 @@ public:
 
     //! Overload for boost::optional.
     template<typename T>
-    static void
-    dynamicSize(const char* name, const boost::optional<T>& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name,
+                            const boost::optional<T>& t,
+                            CMemoryUsage::TMemoryUsagePtr mem) {
         if (t) {
             dynamicSize(name, *t, mem);
         }
@@ -1024,8 +1032,9 @@ public:
 
     //! Overload for std::pair.
     template<typename T, typename V>
-    static void
-    dynamicSize(const char* name, const std::pair<T, V>& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name,
+                            const std::pair<T, V>& t,
+                            CMemoryUsage::TMemoryUsagePtr mem) {
         std::string keyName(name);
         keyName += "_key";
         std::string valueName(name);
@@ -1035,8 +1044,7 @@ public:
     }
 
     //! Overload for boost::any.
-    static void
-    dynamicSize(const char* name, const boost::any& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name, const boost::any& t, CMemoryUsage::TMemoryUsagePtr mem) {
         // boost::any holds a pointer to a new'd item.
         ms_AnyVisitor.dynamicSize(name, t, mem);
     }

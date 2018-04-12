@@ -172,9 +172,8 @@ public:
     //! \note This is static so it can be called before the state is fully
     //! deserialised, because we need this value before to restoring the
     //! detector.
-    static bool
-    partitionFieldAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
-                                         std::string& partitionFieldValue);
+    static bool partitionFieldAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
+                                                     std::string& partitionFieldValue);
 
     //! Find the detector keys given part of an state document.
     //!

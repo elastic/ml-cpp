@@ -129,8 +129,7 @@ CWordDictionary::CWordDictionary() {
                 continue;
             }
             if (sepPos == 0) {
-                LOG_ERROR(
-                    << "Found part-of-speech separator with no preceding word: " << word);
+                LOG_ERROR(<< "Found part-of-speech separator with no preceding word: " << word);
                 continue;
             }
             if (sepPos + 1 >= word.length()) {
@@ -169,8 +168,8 @@ size_t CWordDictionary::CStrHashIgnoreCase::operator()(const std::string& str) c
     return hash;
 }
 
-bool CWordDictionary::CStrEqualIgnoreCase::
-operator()(const std::string& lhs, const std::string& rhs) const {
+bool CWordDictionary::CStrEqualIgnoreCase::operator()(const std::string& lhs,
+                                                      const std::string& rhs) const {
     return lhs.length() == rhs.length() &&
            CStrCaseCmp::strCaseCmp(lhs.c_str(), rhs.c_str()) == 0;
 }

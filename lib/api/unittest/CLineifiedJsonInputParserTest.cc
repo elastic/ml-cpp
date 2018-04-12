@@ -26,8 +26,7 @@
 #include <sstream>
 
 CppUnit::Test* CLineifiedJsonInputParserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CLineifiedJsonInputParserTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLineifiedJsonInputParserTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
         "CLineifiedJsonInputParserTest::testThroughputArbitrary",

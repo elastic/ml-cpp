@@ -74,8 +74,9 @@ public:
 public:
     CBreadthFirstCheck() : m_Layer(0), m_Layers(1, TNodeCPtrSet()) {}
 
-    virtual void
-    visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
+    virtual void visit(const model::CHierarchicalResults& /*results*/,
+                       const TNode& node,
+                       bool /*pivot*/) {
         LOG_DEBUG(<< "Visiting " << node.print());
 
         if (node.s_Children.empty()) {
@@ -152,8 +153,9 @@ public:
     using TNodeCPtrVec = std::vector<const TNode*>;
 
 public:
-    virtual void
-    visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
+    virtual void visit(const model::CHierarchicalResults& /*results*/,
+                       const TNode& node,
+                       bool /*pivot*/) {
         LOG_DEBUG(<< "Visiting " << node.print());
         for (std::size_t i = node.s_Children.size(); i > 0; --i) {
             CPPUNIT_ASSERT(!m_Children.empty());
@@ -175,8 +177,7 @@ public:
     CPrinter(bool shouldOnlyPrintWrittenNodes)
         : m_ShouldPrintWrittenNodesOnly(shouldOnlyPrintWrittenNodes) {}
 
-    virtual void
-    visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) {
+    virtual void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) {
         if (m_ShouldPrintWrittenNodesOnly == false ||
             shouldWriteResult(m_Limits, results, node, pivot)) {
             m_Result = std::string(2 * depth(&node), ' ') + node.print() +
@@ -207,8 +208,9 @@ public:
     using TNodeCPtrVec = std::vector<const TNode*>;
 
 public:
-    virtual void
-    visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
+    virtual void visit(const model::CHierarchicalResults& /*results*/,
+                       const TNode& node,
+                       bool /*pivot*/) {
         if (this->isPartitioned(node)) {
             m_PartitionedNodes.push_back(&node);
         }
@@ -238,8 +240,9 @@ private:
 //! \brief Checks our anomaly scores are correct post scoring.
 class CCheckScores : public model::CHierarchicalResultsVisitor {
 public:
-    virtual void
-    visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
+    virtual void visit(const model::CHierarchicalResults& /*results*/,
+                       const TNode& node,
+                       bool /*pivot*/) {
         LOG_DEBUG(<< node.s_Spec.print() << " score = " << node.s_RawAnomalyScore << ", expected score = "
                   << maths::CTools::deviation(node.probability()));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CTools::deviation(node.probability()),
@@ -254,8 +257,7 @@ class CWriteConsistencyChecker : public model::CHierarchicalResultsVisitor {
 public:
     CWriteConsistencyChecker(const model::CLimits& limits) : m_Limits(limits) {}
 
-    virtual void
-    visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) {
+    virtual void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) {
         if (!this->shouldWriteResult(m_Limits, results, node, pivot)) {
             return;
         }
@@ -634,11 +636,10 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\nby:\n" << printer.result());
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("'false/false////PF1//': 1, 0\n"
-                        "  'false/false/mean///PF1/p12/': 0.03, 0\n"
-                        "  'false/false/mean///PF1/p11/': 0.01, 0"),
-            printer.result());
+        CPPUNIT_ASSERT_EQUAL(std::string("'false/false////PF1//': 1, 0\n"
+                                         "  'false/false/mean///PF1/p12/': 0.03, 0\n"
+                                         "  'false/false/mean///PF1/p11/': 0.01, 0"),
+                             printer.result());
     }
     {
         model::CHierarchicalResults results;
@@ -654,14 +655,13 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\nover:\n" << printer.result());
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("'false/true//////': 1, 0\n"
-                        "  'false/false/mean///PF2/p22/': 0.03, 0\n"
-                        "  'false/true////PF1//': 1, 0\n"
-                        "    'false/true/mean///PF1/p12/': 0.03, 0\n"
-                        "    'false/true/mean///PF1/p11/': 0.01, 0\n"
-                        "  'false/false/mean/////': 0.3, 0"),
-            printer.result());
+        CPPUNIT_ASSERT_EQUAL(std::string("'false/true//////': 1, 0\n"
+                                         "  'false/false/mean///PF2/p22/': 0.03, 0\n"
+                                         "  'false/true////PF1//': 1, 0\n"
+                                         "    'false/true/mean///PF1/p12/': 0.03, 0\n"
+                                         "    'false/true/mean///PF1/p11/': 0.01, 0\n"
+                                         "  'false/false/mean/////': 0.3, 0"),
+                             printer.result());
     }
 
     // Test vanilla partition
@@ -677,12 +677,11 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\npartition:\n" << printer.result());
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("'false/false//PNF1////': 1, 0\n"
-                        "  'false/false/mean/PNF1/pn13///': 0.05, 0\n"
-                        "  'false/false/mean/PNF1/pn12///': 0.01, 0\n"
-                        "  'false/false/mean/PNF1/pn11///': 0.01, 0"),
-            printer.result());
+        CPPUNIT_ASSERT_EQUAL(std::string("'false/false//PNF1////': 1, 0\n"
+                                         "  'false/false/mean/PNF1/pn13///': 0.05, 0\n"
+                                         "  'false/false/mean/PNF1/pn12///': 0.01, 0\n"
+                                         "  'false/false/mean/PNF1/pn11///': 0.01, 0"),
+                             printer.result());
     }
 
     // Test complex.
@@ -716,30 +715,29 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\ncomplex:\n" << printer.result());
         CPPUNIT_ASSERT_EQUAL(
-            std::string(
-                "'false/true//////': 1, 0\n"
-                "  'false/true//PNF2////': 1, 0\n"
-                "    'false/true/mean/PNF2/pn23///': 0.05, 0\n"
-                "    'false/true//PNF2/pn22///': 1, 0\n"
-                "      'false/true//PNF2/pn22/PF2//': 1, 0\n"
-                "        'false/true/mean/PNF2/pn22/PF2/p23/': 0.12, 0\n"
-                "        'false/false/mean/PNF2/pn22/PF2/p23/': 0.82, 0\n"
-                "        'false/true/mean/PNF2/pn22/PF2/p21/': 0.15, 0\n"
-                "        'false/false/mean/PNF2/pn22/PF2/p21/': 0.12, 0\n"
-                "      'false/true//PNF2/pn22/PF1//': 1, 0\n"
-                "        'false/true/mean/PNF2/pn22/PF1/p12/': 0.1, 0\n"
-                "        'false/true/mean/PNF2/pn22/PF1/p11/': 0.2, 0\n"
-                "      'false/true/mean/PNF2/pn22///': 0.01, 0\n"
-                "    'false/true/mean/PNF2/pn21/PF1/p11/': 0.2, 0\n"
-                "  'false/false//PNF1////': 1, 0\n"
-                "    'false/false/mean/PNF1/pn13///': 0.05, 0\n"
-                "    'false/false/mean/PNF1/pn12///': 0.01, 0\n"
-                "    'false/false/mean/PNF1/pn11///': 0.01, 0\n"
-                "  'false/false//////': 1, 0\n"
-                "    'false/false////PF1//': 1, 0\n"
-                "      'false/false/mean///PF1/p14/': 0.01, 0\n"
-                "      'false/false/mean///PF1/p11/': 0.01, 0\n"
-                "    'false/false/mean/////': 0.01, 0"),
+            std::string("'false/true//////': 1, 0\n"
+                        "  'false/true//PNF2////': 1, 0\n"
+                        "    'false/true/mean/PNF2/pn23///': 0.05, 0\n"
+                        "    'false/true//PNF2/pn22///': 1, 0\n"
+                        "      'false/true//PNF2/pn22/PF2//': 1, 0\n"
+                        "        'false/true/mean/PNF2/pn22/PF2/p23/': 0.12, 0\n"
+                        "        'false/false/mean/PNF2/pn22/PF2/p23/': 0.82, 0\n"
+                        "        'false/true/mean/PNF2/pn22/PF2/p21/': 0.15, 0\n"
+                        "        'false/false/mean/PNF2/pn22/PF2/p21/': 0.12, 0\n"
+                        "      'false/true//PNF2/pn22/PF1//': 1, 0\n"
+                        "        'false/true/mean/PNF2/pn22/PF1/p12/': 0.1, 0\n"
+                        "        'false/true/mean/PNF2/pn22/PF1/p11/': 0.2, 0\n"
+                        "      'false/true/mean/PNF2/pn22///': 0.01, 0\n"
+                        "    'false/true/mean/PNF2/pn21/PF1/p11/': 0.2, 0\n"
+                        "  'false/false//PNF1////': 1, 0\n"
+                        "    'false/false/mean/PNF1/pn13///': 0.05, 0\n"
+                        "    'false/false/mean/PNF1/pn12///': 0.01, 0\n"
+                        "    'false/false/mean/PNF1/pn11///': 0.01, 0\n"
+                        "  'false/false//////': 1, 0\n"
+                        "    'false/false////PF1//': 1, 0\n"
+                        "      'false/false/mean///PF1/p14/': 0.01, 0\n"
+                        "      'false/false/mean///PF1/p11/': 0.01, 0\n"
+                        "    'false/false/mean/////': 0.01, 0"),
             printer.result());
     }
 }
@@ -1237,16 +1235,15 @@ void CHierarchicalResultsTest::testInfluence() {
         results.pivotsBottomUpBreadthFirst(printer);
         LOG_DEBUG(<< "\nby:\n" << printer.result());
         CPPUNIT_ASSERT_EQUAL(
-            std::string(
-                "'false/false////I//': 0.003600205, 0.02066228 pivot\n"
-                "  'false/false////I/i2/': 0.003, 0.0251169 pivot\n"
-                "  'false/false////I/i1/': 0.001801726, 0.04288765 pivot\n"
-                "'false/false////PF1//': 0.000885378, 0.08893476\n"
-                "  'false/false/max///PF1/p13/': 0.01, 0.008016032, [((I, i1), "
-                "1)]\n"
-                "  'false/false/max///PF1/p12/': 0.003, 0.03139613, [((I, i1), "
-                "0.9), ((I, i2), 1)]\n"
-                "  'false/false/max///PF1/p11/': 0.22, 0, [((I, i1), 0.6)]"),
+            std::string("'false/false////I//': 0.003600205, 0.02066228 pivot\n"
+                        "  'false/false////I/i2/': 0.003, 0.0251169 pivot\n"
+                        "  'false/false////I/i1/': 0.001801726, 0.04288765 pivot\n"
+                        "'false/false////PF1//': 0.000885378, 0.08893476\n"
+                        "  'false/false/max///PF1/p13/': 0.01, 0.008016032, [((I, i1), "
+                        "1)]\n"
+                        "  'false/false/max///PF1/p12/': 0.003, 0.03139613, [((I, i1), "
+                        "0.9), ((I, i2), 1)]\n"
+                        "  'false/false/max///PF1/p11/': 0.22, 0, [((I, i1), 0.6)]"),
             printer.result());
     }
 
@@ -1292,23 +1289,22 @@ void CHierarchicalResultsTest::testInfluence() {
         results.pivotsBottomUpBreadthFirst(printer);
         LOG_DEBUG(<< "\ncomplex:\n" << printer.result());
         CPPUNIT_ASSERT_EQUAL(
-            std::string(
-                "'false/false////I//': 0.006210884, 0.01130322 pivot\n"
-                "  'false/false////I/i2/': 0.003110279, 0.0241695 pivot\n"
-                "  'false/false////I/i1/': 0.00619034, 0.01134605 pivot\n"
-                "'false/true//////': 0.003651953, 0.02034678\n"
-                "  'false/false//PNF2////': 0.029701, 0.001095703\n"
-                "    'false/false/max/PNF2/pn23/PF1/p12/': 0.56, 0, [((I, i1), "
-                "0.8)]\n"
-                "    'false/false/max/PNF2/pn22/PF1/p12/': 0.03, 0.001336005, "
-                "[((I, i1), 0.6), ((I, i2), 0.8)]\n"
-                "    'false/false/max/PNF2/pn21/PF1/p13/': 0.01, 0.008016032, "
-                "[((I, i1), 1)]\n"
-                "  'false/true//PNF1////': 0.005991, 0.01177692\n"
-                "    'false/true/max/PNF1/pn12/PF1/p12/': 0.003, 0.03139613, "
-                "[((I, i1), 0.9), ((I, i2), 1)]\n"
-                "    'false/true/max/PNF1/pn11/PF1/p11/': 0.22, 0, [((I, i1), "
-                "0.6)]"),
+            std::string("'false/false////I//': 0.006210884, 0.01130322 pivot\n"
+                        "  'false/false////I/i2/': 0.003110279, 0.0241695 pivot\n"
+                        "  'false/false////I/i1/': 0.00619034, 0.01134605 pivot\n"
+                        "'false/true//////': 0.003651953, 0.02034678\n"
+                        "  'false/false//PNF2////': 0.029701, 0.001095703\n"
+                        "    'false/false/max/PNF2/pn23/PF1/p12/': 0.56, 0, [((I, i1), "
+                        "0.8)]\n"
+                        "    'false/false/max/PNF2/pn22/PF1/p12/': 0.03, 0.001336005, "
+                        "[((I, i1), 0.6), ((I, i2), 0.8)]\n"
+                        "    'false/false/max/PNF2/pn21/PF1/p13/': 0.01, 0.008016032, "
+                        "[((I, i1), 1)]\n"
+                        "  'false/true//PNF1////': 0.005991, 0.01177692\n"
+                        "    'false/true/max/PNF1/pn12/PF1/p12/': 0.003, 0.03139613, "
+                        "[((I, i1), 0.9), ((I, i2), 1)]\n"
+                        "    'false/true/max/PNF1/pn11/PF1/p11/': 0.22, 0, [((I, i1), "
+                        "0.6)]"),
             printer.result());
     }
 
@@ -1355,17 +1351,16 @@ void CHierarchicalResultsTest::testInfluence() {
         LOG_DEBUG(<< "\nhigh p records with low p influencer:\n"
                   << writtenNodesOnlyPrinter.result());
         CPPUNIT_ASSERT_EQUAL(
-            std::string(
-                "'false/false////I//': 0.001999, 0.038497 pivot\n"
-                "  'false/false////I/i2/': 0.001, 0.07855711 pivot\n"
-                "  'false/false////I/i1/': 0.01939367, 0.002530117 pivot\n"
-                "'false/false//////': 0.001999, 0.038497\n"
-                "    'false/false/max/PNF1/pn11/PF1/p13/': 0.06, 0, [((I, i1), "
-                "1)]\n"
-                "    'false/false/max/PNF1/pn11/PF1/p11/': 0.06, 0, [((I, i1), "
-                "1)]\n"
-                "  'false/false/max///PF2/p21/': 0.001, 0.09819639, [((I, i2), "
-                "1)]"),
+            std::string("'false/false////I//': 0.001999, 0.038497 pivot\n"
+                        "  'false/false////I/i2/': 0.001, 0.07855711 pivot\n"
+                        "  'false/false////I/i1/': 0.01939367, 0.002530117 pivot\n"
+                        "'false/false//////': 0.001999, 0.038497\n"
+                        "    'false/false/max/PNF1/pn11/PF1/p13/': 0.06, 0, [((I, i1), "
+                        "1)]\n"
+                        "    'false/false/max/PNF1/pn11/PF1/p11/': 0.06, 0, [((I, i1), "
+                        "1)]\n"
+                        "  'false/false/max///PF2/p21/': 0.001, 0.09819639, [((I, i2), "
+                        "1)]"),
             writtenNodesOnlyPrinter.result());
     }
 }
@@ -2001,8 +1996,7 @@ void CHierarchicalResultsTest::testShouldWritePartition() {
 }
 
 CppUnit::Test* CHierarchicalResultsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CHierarchicalResultsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
         "CHierarchicalResultsTest::testBreadthFirstVisit",

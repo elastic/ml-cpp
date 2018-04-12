@@ -473,8 +473,9 @@ public:
     bool isPersonActive(std::size_t pid) const;
 
     //! Record a person called \p person.
-    std::size_t
-    addPerson(const std::string& person, CResourceMonitor& resourceMonitor, bool& addedPerson);
+    std::size_t addPerson(const std::string& person,
+                          CResourceMonitor& resourceMonitor,
+                          bool& addedPerson);
     //@}
 
     //! \name Attribute
@@ -601,8 +602,7 @@ public:
 
     //! Get the non-zero (person, attribute) pair counts for each
     //! value of influencing field.
-    const TSizeSizePrStoredStringPtrPrUInt64UMapVec&
-    influencerCounts(core_t::TTime time) const;
+    const TSizeSizePrStoredStringPtrPrUInt64UMapVec& influencerCounts(core_t::TTime time) const;
     //@}
 
     //! Get the checksum of this gatherer.
@@ -634,8 +634,7 @@ public:
     //@{
     //! Extract the person identifier from a tuple.
     template<typename T>
-    static inline std::size_t
-    extractPersonId(const std::pair<const TSizeSizePr, T>& tuple) {
+    static inline std::size_t extractPersonId(const std::pair<const TSizeSizePr, T>& tuple) {
         return tuple.first.first;
     }
     //! Extract the person identifier from a tuple.
@@ -663,8 +662,7 @@ public:
     }
     //! Extract the attribute identifier from a tuple.
     template<typename T>
-    static inline std::size_t
-    extractAttributeId(const std::pair<TSizeSizePr, T>& tuple) {
+    static inline std::size_t extractAttributeId(const std::pair<TSizeSizePr, T>& tuple) {
         return tuple.first.second;
     }
     //! Extract the attribute identifier from a tuple.

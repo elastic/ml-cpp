@@ -58,8 +58,8 @@ bool CModelStateSerialiser::operator()(const SModelRestoreParams& params,
     return true;
 }
 
-void CModelStateSerialiser::
-operator()(const CModel& model, core::CStatePersistInserter& inserter) const {
+void CModelStateSerialiser::operator()(const CModel& model,
+                                       core::CStatePersistInserter& inserter) const {
     if (dynamic_cast<const CUnivariateTimeSeriesModel*>(&model) != nullptr) {
         inserter.insertLevel(UNIVARIATE_TIME_SERIES_TAG,
                              boost::bind(&CModel::acceptPersistInserter, &model, _1));

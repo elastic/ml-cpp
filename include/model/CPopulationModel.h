@@ -123,8 +123,7 @@ protected:
     //! respectively, in \p data if it exists. Returns the end of the
     //! vector if it doesn't.
     template<typename T>
-    static typename T::const_iterator
-    find(const T& data, std::size_t pid, std::size_t cid);
+    static typename T::const_iterator find(const T& data, std::size_t pid, std::size_t cid);
 
     //! Extract the bucket value for count feature data.
     static inline TDouble1Vec
@@ -248,8 +247,7 @@ protected:
                                           CResourceMonitor& resourceMonitor) = 0;
 
     //! Clear out large state objects for people/attributes that are pruned.
-    virtual void
-    clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
+    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
 
     //! Correct \p baseline with \p corrections for interim results.
     void correctBaselineForInterim(model_t::EFeature feature,

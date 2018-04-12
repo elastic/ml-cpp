@@ -265,8 +265,7 @@ void CHashingTest::testMurmurHash() {
     for (int run = 0; run < 6; ++run) {
         LOG_DEBUG(<< "run = " << run);
 
-        LOG_DEBUG(
-            << "Starting throughput of boost::unordered_set with default hash");
+        LOG_DEBUG(<< "Starting throughput of boost::unordered_set with default hash");
         {
             boost::unordered_set<std::string> s;
             stopWatch.reset(true);
@@ -284,11 +283,9 @@ void CHashingTest::testMurmurHash() {
             defaultLookupTime += stopWatch.stop();
             CPPUNIT_ASSERT_EQUAL(testStrings.size() * 5, total);
         }
-        LOG_DEBUG(
-            << "Finished throughput of boost::unordered_set with default hash");
+        LOG_DEBUG(<< "Finished throughput of boost::unordered_set with default hash");
 
-        LOG_DEBUG(
-            << "Starting throughput of boost::unordered_set with murmur hash");
+        LOG_DEBUG(<< "Starting throughput of boost::unordered_set with murmur hash");
         {
             boost::unordered_set<std::string, CHashing::CMurmurHash2String> s;
             stopWatch.reset(true);
@@ -306,8 +303,7 @@ void CHashingTest::testMurmurHash() {
             murmurLookupTime += stopWatch.stop();
             CPPUNIT_ASSERT_EQUAL(testStrings.size() * 5, total);
         }
-        LOG_DEBUG(
-            << "Finished throughput of boost::unordered_set with murmur hash");
+        LOG_DEBUG(<< "Finished throughput of boost::unordered_set with murmur hash");
     }
 
     LOG_DEBUG(<< "default insert runtime = " << defaultInsertTime

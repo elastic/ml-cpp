@@ -20,8 +20,7 @@
 #include <stdint.h>
 
 CppUnit::Test* CByteSwapperTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CByteSwapperTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CByteSwapperTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CByteSwapperTest>(
         "CByteSwapperTest::testByteSwaps", &CByteSwapperTest::testByteSwaps));

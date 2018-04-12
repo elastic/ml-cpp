@@ -15,8 +15,9 @@ PenaltyBreakComment: 300
 PenaltyBreakFirstLessLess: 1
 PenaltyBreakString: 30
 PenaltyExcessCharacter: 1
-PenaltyReturnTypeOnItsOwnLine: 1
+PenaltyReturnTypeOnItsOwnLine: 30
 PointerAlignment: Left
 SpaceAfterTemplateKeyword: false
 ReflowComments: false
 SortIncludes:    true
+BreakStringLiterals: false

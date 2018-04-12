@@ -72,12 +72,9 @@ void CDataSummaryStatisticsTest::testRate() {
 
 void CDataSummaryStatisticsTest::testCategoricalDistinctCount() {
     LOG_DEBUG(<< "");
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CDataSummaryStatisticsTest::testCategoricalDistinctCount  |");
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CDataSummaryStatisticsTest::testCategoricalDistinctCount  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
 
     // Test we correctly compute the distinct count with and
     // without sketching.
@@ -185,12 +182,9 @@ void CDataSummaryStatisticsTest::testCategoricalTopN() {
 
 void CDataSummaryStatisticsTest::testNumericBasicStatistics() {
     LOG_DEBUG(<< "");
-    LOG_DEBUG(
-        << "+----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CDataSummaryStatisticsTest::testNumericBasicStatistics  |");
-    LOG_DEBUG(
-        << "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CDataSummaryStatisticsTest::testNumericBasicStatistics  |");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
 
     // Test the minimum, median and maximum of a variety of data sets.
 
@@ -367,8 +361,7 @@ void CDataSummaryStatisticsTest::testNumericDistribution() {
 }
 
 CppUnit::Test* CDataSummaryStatisticsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CDataSummaryStatisticsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataSummaryStatisticsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataSummaryStatisticsTest>(
         "CDataSummaryStatisticsTest::testRate", &CDataSummaryStatisticsTest::testRate));

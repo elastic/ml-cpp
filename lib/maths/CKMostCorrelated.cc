@@ -617,8 +617,7 @@ const CKMostCorrelated::TVectorVec& CKMostCorrelated::projections() const {
     return m_Projections;
 }
 
-const CKMostCorrelated::TSizeVectorPackedBitVectorPrUMap&
-CKMostCorrelated::projected() const {
+const CKMostCorrelated::TSizeVectorPackedBitVectorPrUMap& CKMostCorrelated::projected() const {
     return m_Projected;
 }
 

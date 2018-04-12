@@ -23,8 +23,7 @@
 #include <utility>
 
 CppUnit::Test* CStoredStringPtrTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CStoredStringPtrTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStoredStringPtrTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>(
         "CStoredStringPtrTest::testPointerSemantics", &CStoredStringPtrTest::testPointerSemantics));

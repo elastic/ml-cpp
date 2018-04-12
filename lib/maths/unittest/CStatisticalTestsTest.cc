@@ -177,8 +177,7 @@ void CStatisticalTestsTest::testPersist() {
 }
 
 CppUnit::Test* CStatisticalTestsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CStatisticalTestsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStatisticalTestsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>(
         "CStatisticalTestsTest::testCramerVonMises", &CStatisticalTestsTest::testCramerVonMises));

@@ -74,8 +74,7 @@ public:
                                         core_t::TTime endTime,
                                         CResourceMonitor& resourceMonitor);
 
-    virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     virtual void sampleOutOfPhase(core_t::TTime startTime,
                                   core_t::TTime endTime,
@@ -90,11 +89,10 @@ public:
                                     std::size_t numberAttributeProbabilities,
                                     SAnnotatedProbability& result) const;
 
-    virtual bool
-    computeTotalProbability(const std::string& person,
-                            std::size_t numberAttributeProbabilities,
-                            TOptionalDouble& probability,
-                            TAttributeProbability1Vec& attributeProbabilities) const;
+    virtual bool computeTotalProbability(const std::string& person,
+                                         std::size_t numberAttributeProbabilities,
+                                         TOptionalDouble& probability,
+                                         TAttributeProbability1Vec& attributeProbabilities) const;
 
     virtual uint64_t checksum(bool includeCurrentBucketStats = true) const;
 
@@ -162,8 +160,7 @@ public:
     CMockModelDetailsView(const CMockModel& model);
 
 private:
-    virtual const maths::CModel*
-    model(model_t::EFeature feature, std::size_t byFieldId) const;
+    virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
     virtual const CAnomalyDetectorModel& base() const;
     virtual double countVarianceScale(model_t::EFeature feature,
                                       std::size_t byFieldId,

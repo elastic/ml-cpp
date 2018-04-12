@@ -92,8 +92,7 @@ void CXmlParserTest::testParse1File() {
 }
 
 void CXmlParserTest::testParse1String() {
-    std::string goodString =
-        CXmlParserTest::fileToString("./testfiles/CXmlParser1.xml");
+    std::string goodString = CXmlParserTest::fileToString("./testfiles/CXmlParser1.xml");
 
     ml::core::CXmlParser parser;
 
@@ -149,8 +148,8 @@ void CXmlParserTest::testParse2() {
     CPPUNIT_ASSERT(this->testAttribute(nodes[0], "local", "BZ"));
 
     CPPUNIT_ASSERT_EQUAL(std::string("regex"), nodes[1].name());
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"), nodes[1].value());
+    CPPUNIT_ASSERT_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
+                         nodes[1].value());
     CPPUNIT_ASSERT(nodes[1].attributes().empty());
 }
 
@@ -237,8 +236,8 @@ void CXmlParserTest::testParseXInclude() {
     CPPUNIT_ASSERT(this->testAttribute(nodes[0], "local", "BZ"));
 
     CPPUNIT_ASSERT_EQUAL(std::string("regex"), nodes[1].name());
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"), nodes[1].value());
+    CPPUNIT_ASSERT_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
+                         nodes[1].value());
     CPPUNIT_ASSERT(nodes[1].attributes().empty());
 }
 
@@ -285,12 +284,10 @@ void CXmlParserTest::testParse4() {
     CPPUNIT_ASSERT(parser.parseFile(fileName));
 
     bool valid(false);
-    CPPUNIT_ASSERT(parser.evalXPathExpression(
-        "/ItemSearchResponse/Items/Request/IsValid", valid));
+    CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/Items/Request/IsValid", valid));
     CPPUNIT_ASSERT(valid);
 
-    CPPUNIT_ASSERT(
-        parser.evalXPathExpression("/ItemSearchResponse/Items/TotalPages", valid));
+    CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/Items/TotalPages", valid));
     CPPUNIT_ASSERT(valid);
 
     CPPUNIT_ASSERT(parser.evalXPathExpression(
@@ -302,13 +299,11 @@ void CXmlParserTest::testParse4() {
     CPPUNIT_ASSERT(!valid);
 
     int i;
-    CPPUNIT_ASSERT(
-        parser.evalXPathExpression("/ItemSearchResponse/Items/TotalPages", i));
+    CPPUNIT_ASSERT(parser.evalXPathExpression("/ItemSearchResponse/Items/TotalPages", i));
     CPPUNIT_ASSERT_EQUAL(21, i);
 
     // Invalid conversions
-    CPPUNIT_ASSERT(
-        !parser.evalXPathExpression("/ItemSearchResponse/Items/Request/IsValid", i));
+    CPPUNIT_ASSERT(!parser.evalXPathExpression("/ItemSearchResponse/Items/Request/IsValid", i));
     CPPUNIT_ASSERT(!parser.evalXPathExpression(
         "/ItemSearchResponse/Items/Request/ItemSearchRequest", i));
     CPPUNIT_ASSERT(!parser.evalXPathExpression(
@@ -424,11 +419,9 @@ void CXmlParserTest::testParse6() {
 void CXmlParserTest::testConvert1() {
     ml::core::CXmlParser::TStrStrMap values;
 
-    values.insert(
-        ml::core::CXmlParser::TStrStrMap::value_type("key", "<&sdacasdc"));
+    values.insert(ml::core::CXmlParser::TStrStrMap::value_type("key", "<&sdacasdc"));
     values.insert(ml::core::CXmlParser::TStrStrMap::value_type("count", "12"));
-    values.insert(ml::core::CXmlParser::TStrStrMap::value_type(
-        "desc", "sdac asdc asdc\nadsc\nasdc\n"));
+    values.insert(ml::core::CXmlParser::TStrStrMap::value_type("desc", "sdac asdc asdc\nadsc\nasdc\n"));
 
     std::string xml;
     ml::core::CXmlParser::convert("test_convert", values, xml);
@@ -452,11 +445,9 @@ void CXmlParserTest::testConvert1() {
 void CXmlParserTest::testConvert2() {
     ml::core::CXmlParser::TStrStrMap values;
 
-    values.insert(
-        ml::core::CXmlParser::TStrStrMap::value_type("key", "<&sdacasdc"));
+    values.insert(ml::core::CXmlParser::TStrStrMap::value_type("key", "<&sdacasdc"));
     values.insert(ml::core::CXmlParser::TStrStrMap::value_type("count", "12"));
-    values.insert(ml::core::CXmlParser::TStrStrMap::value_type(
-        "desc", "sdac asdc asdc\nadsc\nasdc\n"));
+    values.insert(ml::core::CXmlParser::TStrStrMap::value_type("desc", "sdac asdc asdc\nadsc\nasdc\n"));
 
     ml::core::CXmlParser parser;
 
@@ -475,15 +466,11 @@ void CXmlParserTest::testConvert2() {
 void CXmlParserTest::testConvert3() {
     ml::core::CXmlParser::TStrStrMap values;
 
-    values.insert(
-        ml::core::CXmlParser::TStrStrMap::value_type("key", "<&sdacasdc"));
+    values.insert(ml::core::CXmlParser::TStrStrMap::value_type("key", "<&sdacasdc"));
     values.insert(ml::core::CXmlParser::TStrStrMap::value_type("count", "1"));
-    values.insert(
-        ml::core::CXmlParser::TStrStrMap::value_type("field@name=idle cpu %", "96"));
-    values.insert(
-        ml::core::CXmlParser::TStrStrMap::value_type("field@name=user cpu %", "3"));
-    values.insert(ml::core::CXmlParser::TStrStrMap::value_type(
-        "field@name=system cpu %", "1"));
+    values.insert(ml::core::CXmlParser::TStrStrMap::value_type("field@name=idle cpu %", "96"));
+    values.insert(ml::core::CXmlParser::TStrStrMap::value_type("field@name=user cpu %", "3"));
+    values.insert(ml::core::CXmlParser::TStrStrMap::value_type("field@name=system cpu %", "1"));
 
     std::string xml;
     ml::core::CXmlParser::convert("test_convert", values, xml);
@@ -500,14 +487,11 @@ void CXmlParserTest::testConvert3() {
     CPPUNIT_ASSERT_EQUAL(std::string("<&sdacasdc"), node.value());
     CPPUNIT_ASSERT(parser.evalXPathExpression("/test_convert/count", node));
     CPPUNIT_ASSERT_EQUAL(std::string("1"), node.value());
-    CPPUNIT_ASSERT(
-        parser.evalXPathExpression("/test_convert/field[@name='idle cpu %']", node));
+    CPPUNIT_ASSERT(parser.evalXPathExpression("/test_convert/field[@name='idle cpu %']", node));
     CPPUNIT_ASSERT_EQUAL(std::string("96"), node.value());
-    CPPUNIT_ASSERT(
-        parser.evalXPathExpression("/test_convert/field[@name='user cpu %']", node));
+    CPPUNIT_ASSERT(parser.evalXPathExpression("/test_convert/field[@name='user cpu %']", node));
     CPPUNIT_ASSERT_EQUAL(std::string("3"), node.value());
-    CPPUNIT_ASSERT(parser.evalXPathExpression(
-        "/test_convert/field[@name='system cpu %']", node));
+    CPPUNIT_ASSERT(parser.evalXPathExpression("/test_convert/field[@name='system cpu %']", node));
     CPPUNIT_ASSERT_EQUAL(std::string("1"), node.value());
 }
 
@@ -639,12 +623,11 @@ void CXmlParserTest::testParse1(const ml::core::CXmlParser& parser) {
     CPPUNIT_ASSERT(parser.evalXPathExpression(
         "/ItemSearchResponse/OperationRequest/HTTPHeaders/Header/@Value", node));
     CPPUNIT_ASSERT_EQUAL(std::string("Value"), node.name());
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant "
-                    "Browser; Avant Browser; .NET CLR 1.0.3705; "
-                    ".NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC "
-                    "4.0; InfoPath.2)"),
-        node.value());
+    CPPUNIT_ASSERT_EQUAL(std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant "
+                                     "Browser; Avant Browser; .NET CLR 1.0.3705; "
+                                     ".NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC "
+                                     "4.0; InfoPath.2)"),
+                         node.value());
     CPPUNIT_ASSERT(node.attributes().empty());
 
     CPPUNIT_ASSERT(parser.evalXPathExpression(
@@ -698,8 +681,7 @@ void CXmlParserTest::testMakeValidName() {
     CPPUNIT_ASSERT_EQUAL(std::string("_name_"),
                          ml::core::CXmlParser::makeValidName("_name_"));
     CPPUNIT_ASSERT_EQUAL(std::string("__cencl01b_System_System_Calls_sec"),
-                         ml::core::CXmlParser::makeValidName(
-                             "\\\\cencl01b\\System\\System Calls/sec"));
+                         ml::core::CXmlParser::makeValidName("\\\\cencl01b\\System\\System Calls/sec"));
 }
 
 void CXmlParserTest::testChangeChild() {
@@ -801,8 +783,7 @@ void CXmlParserTest::testHugeDoc() {
 void CXmlParserTest::testParseSpeed() {
     static const size_t TEST_SIZE(25000);
 
-    std::string testString(
-        CXmlParserTest::fileToString("./testfiles/CXmlParser2.xml"));
+    std::string testString(CXmlParserTest::fileToString("./testfiles/CXmlParser2.xml"));
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting parse speed test at "
@@ -860,9 +841,8 @@ void CXmlParserTest::testComplexXPath() {
 
     // This convoluted query is for XML schemas that
     // have a default namespace but don't give it a name!
-    CPPUNIT_ASSERT(parser.evalXPathExpression(
-        "//*[local-name()='title' and .='ml']/..//*[local-name()='key' and "
-        "@name='disabled']",
-        disabled));
+    CPPUNIT_ASSERT(parser.evalXPathExpression("//*[local-name()='title' and .='ml']/..//*[local-name()='key' and "
+                                              "@name='disabled']",
+                                              disabled));
     CPPUNIT_ASSERT_EQUAL(true, disabled);
 }

@@ -107,8 +107,7 @@ double cdfComplement(const CLogTDistribution& logt, const double& x) {
 } // adapters::
 
 template<typename DISTRIBUTION>
-double
-numericalProbabilityOfLessLikelySampleImpl(const DISTRIBUTION& distribution, double x) {
+double numericalProbabilityOfLessLikelySampleImpl(const DISTRIBUTION& distribution, double x) {
     TDoubleBoolPr stationaryPoint = adapters::stationaryPoint(distribution);
 
     double eps = 1e-8;
@@ -190,14 +189,12 @@ numericalProbabilityOfLessLikelySampleImpl(const DISTRIBUTION& distribution, dou
 }
 
 template<typename DISTRIBUTION>
-double
-numericalProbabilityOfLessLikelySample(const DISTRIBUTION& distribution, double x) {
+double numericalProbabilityOfLessLikelySample(const DISTRIBUTION& distribution, double x) {
     return numericalProbabilityOfLessLikelySampleImpl(distribution, x);
 }
 
-double
-numericalProbabilityOfLessLikelySample(const boost::math::negative_binomial_distribution<>& negativeBinomial,
-                                       double x) {
+double numericalProbabilityOfLessLikelySample(const boost::math::negative_binomial_distribution<>& negativeBinomial,
+                                              double x) {
     double fx = CTools::safePdf(negativeBinomial, x);
 
     double m = boost::math::mode(negativeBinomial);
@@ -291,8 +288,7 @@ public:
 };
 
 template<typename DISTRIBUTION>
-double
-numericalIntervalExpectation(const DISTRIBUTION& distribution, double a, double b) {
+double numericalIntervalExpectation(const DISTRIBUTION& distribution, double a, double b) {
     double numerator = 0.0;
     double denominator = 0.0;
 

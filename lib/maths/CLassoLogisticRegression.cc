@@ -87,8 +87,10 @@ double lassoStep(double beta, double lambda, double n, double d) {
 //! \note That this should decrease monotonically in each iteration
 //! of the inner solver loop.
 template<typename MATRIX>
-double
-logLikelihood(const MATRIX& x, const TDoubleVec& y, const TDoubleVec& lambda, const TDoubleVec& beta) {
+double logLikelihood(const MATRIX& x,
+                     const TDoubleVec& y,
+                     const TDoubleVec& lambda,
+                     const TDoubleVec& beta) {
     using iterator = typename MATRIX::iterator;
 
     double result = 0.0;

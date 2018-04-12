@@ -64,8 +64,8 @@ void CRapidJsonLineWriterTest::testDoublePrecission() {
         writer.EndObject();
     }
 
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("{\"a\":0.00003,\"b\":5e-300,\"c\":0.0}\n"), strm.str());
+    CPPUNIT_ASSERT_EQUAL(std::string("{\"a\":0.00003,\"b\":5e-300,\"c\":0.0}\n"),
+                         strm.str());
 }
 
 void CRapidJsonLineWriterTest::testDoublePrecissionDtoa() {
@@ -128,8 +128,7 @@ void CRapidJsonLineWriterTest::microBenchmark() {
 }
 
 CppUnit::Test* CRapidJsonLineWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CRapidJsonLineWriterTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidJsonLineWriterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonLineWriterTest>(
         "CRapidJsonLineWriterTest::testDoublePrecissionDtoa",

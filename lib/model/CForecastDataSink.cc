@@ -40,12 +40,9 @@ const std::string CForecastDataSink::DETECTOR_INDEX("detector_index");
 const std::string CForecastDataSink::FORECAST_ID("forecast_id");
 const std::string CForecastDataSink::FORECAST_ALIAS("forecast_alias");
 const std::string CForecastDataSink::MODEL_FORECAST("model_forecast");
-const std::string
-    CForecastDataSink::MODEL_FORECAST_STATS("model_forecast_request_stats");
-const std::string
-    CForecastDataSink::PARTITION_FIELD_NAME("partition_field_name");
-const std::string
-    CForecastDataSink::PARTITION_FIELD_VALUE("partition_field_value");
+const std::string CForecastDataSink::MODEL_FORECAST_STATS("model_forecast_request_stats");
+const std::string CForecastDataSink::PARTITION_FIELD_NAME("partition_field_name");
+const std::string CForecastDataSink::PARTITION_FIELD_VALUE("partition_field_value");
 const std::string CForecastDataSink::FEATURE("model_feature");
 const std::string CForecastDataSink::BY_FIELD_NAME("by_field_name");
 const std::string CForecastDataSink::BY_FIELD_VALUE("by_field_value");
@@ -53,8 +50,7 @@ const std::string CForecastDataSink::LOWER("forecast_lower");
 const std::string CForecastDataSink::UPPER("forecast_upper");
 const std::string CForecastDataSink::PREDICTION("forecast_prediction");
 const std::string CForecastDataSink::BUCKET_SPAN("bucket_span");
-const std::string
-    CForecastDataSink::PROCESSED_RECORD_COUNT("processed_record_count");
+const std::string CForecastDataSink::PROCESSED_RECORD_COUNT("processed_record_count");
 const std::string CForecastDataSink::CREATE_TIME("forecast_create_timestamp");
 const std::string CForecastDataSink::TIMESTAMP("timestamp");
 const std::string CForecastDataSink::START_TIME("forecast_start_timestamp");

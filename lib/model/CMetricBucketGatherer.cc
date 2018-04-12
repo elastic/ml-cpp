@@ -359,8 +359,7 @@ private:
         }
 
         template<typename T>
-        void
-        operator()(std::size_t pid, const T& data, core::CStatePersistInserter& inserter) const {
+        void operator()(std::size_t pid, const T& data, core::CStatePersistInserter& inserter) const {
             inserter.insertValue(PERSON_TAG, pid);
             inserter.insertLevel(
                 DATA_TAG, boost::bind<void>(&T::acceptPersistInserter, &data, _1));
@@ -484,9 +483,8 @@ private:
                     seenPid = true;
                 } else if (name == DATA_TAG) {
                     if (!seenPid) {
-                        LOG_ERROR(
-                            << "Incorrect format - data before person ID in "
-                            << traverser.value());
+                        LOG_ERROR(<< "Incorrect format - data before person ID in "
+                                  << traverser.value());
                         return false;
                     }
                     T initial(gatherer.dataGatherer().params(), m_Dimension,
@@ -571,9 +569,8 @@ private:
                     seenCid = true;
                 } else if (name == DATA_TAG) {
                     if (!seenCid) {
-                        LOG_ERROR(
-                            << "Incorrect format - data before attribute ID in "
-                            << traverser.value());
+                        LOG_ERROR(<< "Incorrect format - data before attribute ID in "
+                                  << traverser.value());
                         return false;
                     }
 
@@ -1166,9 +1163,8 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
 
         bool allOk = true;
         if (m_FieldNames.size() > statistics.first.size() + i) {
-            LOG_ERROR(
-                << "Inconsistency - more statistic field names than allowed "
-                << m_FieldNames.size() - i << " > " << statistics.first.size());
+            LOG_ERROR(<< "Inconsistency - more statistic field names than allowed "
+                      << m_FieldNames.size() - i << " > " << statistics.first.size());
             allOk = false;
         }
         if (m_FieldNames.size() > m_FieldMetricCategories.size() + i) {

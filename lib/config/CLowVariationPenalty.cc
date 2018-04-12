@@ -167,9 +167,8 @@ void penaltyForCountImpl(const CAutoconfigurerParams& params,
                               " have " + (penalty == MIN ? "too " : "") +
                               "low" + " variation in their bucket counts";
             } else {
-                description =
-                    std::string("The variation in the bucket counts is ") +
-                    (penalty == MIN ? "too " : "") + "low";
+                description = std::string("The variation in the bucket counts is ") +
+                              (penalty == MIN ? "too " : "") + "low";
             }
         }
         std::fill_n(std::back_inserter(penalties), indices_.size(), penalty);

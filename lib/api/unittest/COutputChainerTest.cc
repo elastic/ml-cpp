@@ -31,8 +31,7 @@
 #include <fstream>
 
 CppUnit::Test* COutputChainerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("COutputChainerTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COutputChainerTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<COutputChainerTest>(
         "COutputChainerTest::testChaining", &COutputChainerTest::testChaining));
@@ -44,8 +43,7 @@ void COutputChainerTest::testChaining() {
     static const ml::core_t::TTime BUCKET_SIZE(3600);
 
     std::string inputFileName("testfiles/big_ascending.txt");
-    std::string outputFileName(ml::test::CTestTmpDir::tmpDir() +
-                               "/chainerOutput.txt");
+    std::string outputFileName(ml::test::CTestTmpDir::tmpDir() + "/chainerOutput.txt");
 
     {
         // Open the input and output files
@@ -84,8 +82,7 @@ void COutputChainerTest::testChaining() {
     std::string line;
     std::string modelSizeString("\"model_bytes\":");
 
-    std::string expectedLineStart(
-        "{\"bucket\":{\"job_id\":\"job\",\"timestamp\":1431853200000,");
+    std::string expectedLineStart("{\"bucket\":{\"job_id\":\"job\",\"timestamp\":1431853200000,");
 
     while (line.length() == 0 || line.find(modelSizeString) != std::string::npos) {
         std::getline(reReadStrm, line);

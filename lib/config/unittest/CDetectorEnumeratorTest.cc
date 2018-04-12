@@ -75,16 +75,15 @@ void CDetectorEnumeratorTest::testAll() {
         enumerator.addByField("parent_process");
         enumerator.generate(spec);
         LOG_DEBUG(<< "3) detectors =\n" << print(spec, " "));
-        std::string expected =
-            "[low_|high_][non_zero_]count\n"
-            "[low_|high_]distinct_count(port)\n"
-            "[low_|high_]mean(bytes)\n"
-            "[low_|high_][non_zero_]count by 'process'\n"
-            "[low_|high_][non_zero_]count by 'parent_process'\n"
-            "[low_|high_]distinct_count(port) by 'process'\n"
-            "[low_|high_]distinct_count(port) by 'parent_process'\n"
-            "[low_|high_]mean(bytes) by 'process'\n"
-            "[low_|high_]mean(bytes) by 'parent_process'\n";
+        std::string expected = "[low_|high_][non_zero_]count\n"
+                               "[low_|high_]distinct_count(port)\n"
+                               "[low_|high_]mean(bytes)\n"
+                               "[low_|high_][non_zero_]count by 'process'\n"
+                               "[low_|high_][non_zero_]count by 'parent_process'\n"
+                               "[low_|high_]distinct_count(port) by 'process'\n"
+                               "[low_|high_]distinct_count(port) by 'parent_process'\n"
+                               "[low_|high_]mean(bytes) by 'process'\n"
+                               "[low_|high_]mean(bytes) by 'parent_process'\n";
         CPPUNIT_ASSERT_EQUAL(expected, print(spec));
     }
 
@@ -268,8 +267,7 @@ void CDetectorEnumeratorTest::testAll() {
 }
 
 CppUnit::Test* CDetectorEnumeratorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CDetectorEnumeratorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectorEnumeratorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEnumeratorTest>(
         "CDetectorEnumeratorTest::testAll", &CDetectorEnumeratorTest::testAll));

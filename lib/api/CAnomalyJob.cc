@@ -735,8 +735,7 @@ void CAnomalyJob::writeOutResults(bool interim,
 
 void CAnomalyJob::resetBuckets(const std::string& controlMessage) {
     if (controlMessage.length() == 1) {
-        LOG_ERROR(
-            << "Received reset buckets control message without time range");
+        LOG_ERROR(<< "Received reset buckets control message without time range");
         return;
     }
     core_t::TTime start = 0;
@@ -824,7 +823,8 @@ bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
             }
         } else {
             if (!m_Detectors.empty()) {
-                LOG_ERROR(<< "Inconsistency - " << m_Detectors.size() << " detectors have been restored but completeToTime is "
+                LOG_ERROR(<< "Inconsistency - " << m_Detectors.size()
+                          << " detectors have been restored but completeToTime is "
                           << completeToTime);
             }
         }
@@ -938,9 +938,8 @@ bool CAnomalyJob::restoreSingleDetector(core::CStateRestoreTraverser& traverser)
     }
 
     if (traverser.next() == false) {
-        LOG_ERROR(
-            << "Cannot restore anomaly detector - end of object reached when "
-            << PARTITION_FIELD_TAG << " was expected");
+        LOG_ERROR(<< "Cannot restore anomaly detector - end of object reached when "
+                  << PARTITION_FIELD_TAG << " was expected");
 
         m_RestoredStateDetail.s_RestoredStateStatus = E_UnexpectedTag;
         return false;
@@ -967,9 +966,8 @@ bool CAnomalyJob::restoreSingleDetector(core::CStateRestoreTraverser& traverser)
     }
 
     if (traverser.next() == false) {
-        LOG_ERROR(
-            << "Cannot restore anomaly detector - end of object reached when "
-            << DETECTOR_TAG << " was expected");
+        LOG_ERROR(<< "Cannot restore anomaly detector - end of object reached when "
+                  << DETECTOR_TAG << " was expected");
 
         m_RestoredStateDetail.s_RestoredStateStatus = E_UnexpectedTag;
         return false;
@@ -1041,8 +1039,7 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister) {
     }
 
     if (m_LastFinalisedBucketEndTime == 0) {
-        LOG_INFO(
-            << "Will not persist detectors as no results have been output");
+        LOG_INFO(<< "Will not persist detectors as no results have been output");
         return true;
     }
 

@@ -85,8 +85,7 @@ void CPolymorphicStackObjectCPtrTest::testAll() {
 }
 
 CppUnit::Test* CPolymorphicStackObjectCPtrTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CPolymorphicStackObjectCPtrTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPolymorphicStackObjectCPtrTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CPolymorphicStackObjectCPtrTest>(
         "CPolymorphicStackObjectCPtrTest::testAll", &CPolymorphicStackObjectCPtrTest::testAll));

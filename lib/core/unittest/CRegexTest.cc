@@ -190,8 +190,7 @@ void CRegexTest::testTokenise1() {
 
         regexStr += "^<(.+?):";
         regexStr += "\\s*(\\w+):";
-        regexStr +=
-            ".+?(\\w+)\\s+(\\w+)\\s+(\\d+)\\s+(\\d+:\\d+:\\d+)\\s+(\\d+)";
+        regexStr += ".+?(\\w+)\\s+(\\w+)\\s+(\\d+)\\s+(\\d+:\\d+:\\d+)\\s+(\\d+)";
         regexStr += ">\\s+(?:Transport node error)";
         regexStr += ".+?node\\s+(0x\\d+|\\d+)";
         regexStr += ".*$";
@@ -242,15 +241,13 @@ void CRegexTest::testTokenise1() {
         CPPUNIT_ASSERT(!regex.tokenise(str1, tokens));
     }
 
-    std::string str3(
-        "Sep 10, 2009 3:54:12 AM org.apache.tomcat.util.http.Parameters "
-        "processParameters\r\nWARNING: Parameters: Invalid chunk ignored.");
+    std::string str3("Sep 10, 2009 3:54:12 AM org.apache.tomcat.util.http.Parameters "
+                     "processParameters\r\nWARNING: Parameters: Invalid chunk ignored.");
 
     {
-        std::string regexStr(
-            "(\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+)\\s*([[:alnum:].]"
-            "+)\\s*(\\w+)\\r?\\n(INFO|WARNING|SEVERE|"
-            "DEBUG|FATAL): Parameters: Invalid chunk ignored\\.\\s*");
+        std::string regexStr("(\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+)\\s*([[:alnum:].]"
+                             "+)\\s*(\\w+)\\r?\\n(INFO|WARNING|SEVERE|"
+                             "DEBUG|FATAL): Parameters: Invalid chunk ignored\\.\\s*");
 
         ml::core::CRegex regex;
 
@@ -433,8 +430,7 @@ void CRegexTest::testLiteralCount() {
         CPPUNIT_ASSERT_EQUAL(size_t(3), regex.literalCount());
     }
     {
-        std::string regexStr =
-            "ip = (\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})";
+        std::string regexStr = "ip = (\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})";
 
         ml::core::CRegex regex;
 

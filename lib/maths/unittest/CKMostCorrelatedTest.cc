@@ -578,11 +578,9 @@ void CKMostCorrelatedTest::testStability() {
             LOG_DEBUG(<< "correlations = " << core::CContainerPrinter::print(correlations));
             std::sort(correlatedPairs.begin(), correlatedPairs.begin() + 5);
             std::sort(correlatedPairs.begin() + 5, correlatedPairs.begin() + 10);
-            CPPUNIT_ASSERT_EQUAL(
-                std::string(
-                    "[(0, 1), (2, 3), (4, 5), (6, 7), (8, 9), "
-                    "(10, 11), (12, 13), (14, 15), (16, 17), (18, 19)]"),
-                core::CContainerPrinter::print(correlatedPairs));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (2, 3), (4, 5), (6, 7), (8, 9), "
+                                             "(10, 11), (12, 13), (14, 15), (16, 17), (18, 19)]"),
+                                 core::CContainerPrinter::print(correlatedPairs));
         }
     }
 }
@@ -878,8 +876,7 @@ void CKMostCorrelatedTest::testPersistence() {
 }
 
 CppUnit::Test* CKMostCorrelatedTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CKMostCorrelatedTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKMostCorrelatedTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CKMostCorrelatedTest>(
         "CKMostCorrelatedTest::testCorrelation", &CKMostCorrelatedTest::testCorrelation));

@@ -1098,8 +1098,7 @@ void CRegressionTest::testParameterProcess() {
 }
 
 CppUnit::Test* CRegressionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CRegressionTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRegressionTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CRegressionTest>(
         "CRegressionTest::testInvariants", &CRegressionTest::testInvariants));

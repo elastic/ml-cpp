@@ -116,8 +116,7 @@ namespace core {
 // Initialise static
 const char CNamedPipeFactory::TEST_CHAR('\n');
 
-CNamedPipeFactory::TIStreamP
-CNamedPipeFactory::openPipeStreamRead(const std::string& fileName) {
+CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::string& fileName) {
     TPipeHandle fd = CNamedPipeFactory::initPipeHandle(fileName, false);
     if (fd == -1) {
         return TIStreamP();
@@ -128,8 +127,7 @@ CNamedPipeFactory::openPipeStreamRead(const std::string& fileName) {
         boost::iostreams::file_descriptor_source(fd, boost::iostreams::close_handle)));
 }
 
-CNamedPipeFactory::TOStreamP
-CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
+CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
     TPipeHandle fd = CNamedPipeFactory::initPipeHandle(fileName, true);
     if (fd == -1) {
         return TOStreamP();
@@ -187,10 +185,9 @@ std::string CNamedPipeFactory::defaultPath() {
 CNamedPipeFactory::TPipeHandle
 CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
     if (!SIGPIPE_IGNORED) {
-        LOG_WARN(
-            << "Failed to ignore SIGPIPE - this process will not terminate "
-               "gracefully if a process it is writing to via a named pipe "
-               "dies");
+        LOG_WARN(<< "Failed to ignore SIGPIPE - this process will not terminate "
+                    "gracefully if a process it is writing to via a named pipe "
+                    "dies");
     }
 
     bool madeFifo(false);

@@ -59,8 +59,8 @@ void CQDigestTest::testAdd() {
 
         CPPUNIT_ASSERT(qDigest.checkInvariants());
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("50 | 10 | { \"[5,5],50,50\" \"[0,7],0,50\" }"), qDigest.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("50 | 10 | { \"[5,5],50,50\" \"[0,7],0,50\" }"),
+                             qDigest.print());
     }
 
     {
@@ -69,8 +69,7 @@ void CQDigestTest::testAdd() {
 
         std::string expectedDigests[] = {
             std::string("1 | 5 | { \"[0,0],1,1\" \"[0,1],0,1\" }"),
-            std::string(
-                "2 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[0,1],0,2\" }"),
+            std::string("2 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[0,1],0,2\" }"),
             std::string("3 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[2,2],1,1\" "
                         "\"[0,3],0,3\" }"),
             std::string("4 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[2,2],1,1\" "
@@ -322,12 +321,10 @@ void CQDigestTest::testPropagateForwardByTime() {
         LOG_DEBUG(<< "After propagation " << qDigest.print());
         CPPUNIT_ASSERT(qDigest.checkInvariants());
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string(
-                "90 | 10 | { \"[0,0],18,18\" \"[1,1],18,18\" \"[2,2],9,9\""
-                " \"[3,3],9,9\" \"[5,5],9,9\" \"[7,7],9,9\" \"[8,8],9,9\""
-                " \"[15,15],9,9\" \"[0,15],0,90\" }"),
-            qDigest.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("90 | 10 | { \"[0,0],18,18\" \"[1,1],18,18\" \"[2,2],9,9\""
+                                         " \"[3,3],9,9\" \"[5,5],9,9\" \"[7,7],9,9\" \"[8,8],9,9\""
+                                         " \"[15,15],9,9\" \"[0,15],0,90\" }"),
+                             qDigest.print());
     }
 
     double intrinsicError;
@@ -464,13 +461,11 @@ void CQDigestTest::testScale() {
         LOG_DEBUG(<< "After scaling " << qDigest.print());
         CPPUNIT_ASSERT(qDigest.checkInvariants());
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string(
-                "100 | 10 | { \"[0,0],20,20\" \"[3,3],20,20\" \"[6,6],10,10\""
-                " \"[9,9],10,10\" \"[15,15],10,10\" \"[21,21],10,10\" "
-                "\"[24,24],10,10\""
-                " \"[45,45],10,10\" \"[0,63],0,100\" }"),
-            qDigest.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("100 | 10 | { \"[0,0],20,20\" \"[3,3],20,20\" \"[6,6],10,10\""
+                                         " \"[9,9],10,10\" \"[15,15],10,10\" \"[21,21],10,10\" "
+                                         "\"[24,24],10,10\""
+                                         " \"[45,45],10,10\" \"[0,63],0,100\" }"),
+                             qDigest.print());
 
         // Test that adding more values after scaling works
         for (std::size_t i = 0; i < 10; ++i) {

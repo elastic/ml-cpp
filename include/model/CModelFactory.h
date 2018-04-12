@@ -180,19 +180,17 @@ public:
     //! \param[in,out] traverser A state document traverser.
     //! \param[in] partitionFieldValue The partition field value.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer*
-    makeDataGatherer(const std::string& partitionFieldValue,
-                     core::CStateRestoreTraverser& traverser) const = 0;
+    virtual CDataGatherer* makeDataGatherer(const std::string& partitionFieldValue,
+                                            core::CStateRestoreTraverser& traverser) const = 0;
     //@}
 
     //! \name Defaults
     //@{
     //! Get the default models to use for \p features and \p bucketLength.
-    const TFeatureMathsModelPtrPrVec&
-    defaultFeatureModels(const TFeatureVec& features,
-                         core_t::TTime bucketLength,
-                         double minimumSeasonalVarianceScale,
-                         bool modelAnomalies) const;
+    const TFeatureMathsModelPtrPrVec& defaultFeatureModels(const TFeatureVec& features,
+                                                           core_t::TTime bucketLength,
+                                                           double minimumSeasonalVarianceScale,
+                                                           bool modelAnomalies) const;
 
     //! Get the default model to use for \p features and \p bucketLength.
     TMathsModelPtr defaultFeatureModel(model_t::EFeature feature,
@@ -222,8 +220,8 @@ public:
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
-    virtual TPriorPtr
-    defaultPrior(model_t::EFeature feature, const SModelParams& params) const = 0;
+    virtual TPriorPtr defaultPrior(model_t::EFeature feature,
+                                   const SModelParams& params) const = 0;
 
     //! Get the default prior for multivariate \p feature.
     //!
@@ -247,8 +245,8 @@ public:
     //!
     //! \param[in] feature The feature for which to get the decomposition.
     //! \param[in] bucketLength The data bucketing length.
-    TDecompositionCPtr
-    defaultDecomposition(model_t::EFeature feature, core_t::TTime bucketLength) const;
+    TDecompositionCPtr defaultDecomposition(model_t::EFeature feature,
+                                            core_t::TTime bucketLength) const;
 
     //! Get the influence calculators to use for each feature in \p features.
     const TFeatureInfluenceCalculatorCPtrPrVec&
@@ -377,8 +375,8 @@ protected:
     //! \param[in] dimension The dimension.
     //! \param[in] params The model parameters.
     //! \warning Up to ten dimensions are supported.
-    TMultivariatePriorPtr
-    multivariateNormalPrior(std::size_t dimension, const SModelParams& params) const;
+    TMultivariatePriorPtr multivariateNormalPrior(std::size_t dimension,
+                                                  const SModelParams& params) const;
 
     //! Get a multivariate multimodal prior with dimension \p dimension.
     //!
@@ -395,10 +393,9 @@ protected:
     //! \param[in] dimension The dimension.
     //! \param[in] params The model parameters.
     //! \param[in] models The component models to select between.
-    TMultivariatePriorPtr
-    multivariateOneOfNPrior(std::size_t dimension,
-                            const SModelParams& params,
-                            const TMultivariatePriorPtrVec& models) const;
+    TMultivariatePriorPtr multivariateOneOfNPrior(std::size_t dimension,
+                                                  const SModelParams& params,
+                                                  const TMultivariatePriorPtrVec& models) const;
 
     //! Get the default prior for time-of-day and time-of-week modeling.
     //! This is just a mixture of normals which allows more modes than

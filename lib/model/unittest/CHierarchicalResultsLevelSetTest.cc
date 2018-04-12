@@ -23,8 +23,7 @@
 #include <model/CStringStore.h>
 
 CppUnit::Test* CHierarchicalResultsLevelSetTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CHierarchicalResultsLevelSetTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsLevelSetTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsLevelSetTest>(
         "CHierarchicalResultsLevelSetTest::"

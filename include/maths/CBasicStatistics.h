@@ -174,8 +174,7 @@ public:
 
         //! Assignment from implicitly convertible type.
         template<typename U>
-        const SSampleCentralMoments&
-        operator=(const SSampleCentralMoments<U, ORDER>& other) {
+        const SSampleCentralMoments& operator=(const SSampleCentralMoments<U, ORDER>& other) {
             s_Count = other.s_Count;
             std::copy(other.s_Moments, other.s_Moments + ORDER, s_Moments);
             return *this;
@@ -262,8 +261,7 @@ public:
         //! Combine two moments. This is equivalent to running
         //! a single accumulator on the entire collection.
         template<typename U>
-        const SSampleCentralMoments&
-        operator+=(const SSampleCentralMoments<U, ORDER>& rhs) {
+        const SSampleCentralMoments& operator+=(const SSampleCentralMoments<U, ORDER>& rhs) {
             if (rhs.s_Count == TCoordinate{0}) {
                 return *this;
             }
@@ -309,8 +307,7 @@ public:
         //! Combine two moments. This is equivalent to running
         //! a single accumulator on the entire collection.
         template<typename U>
-        SSampleCentralMoments
-        operator+(const SSampleCentralMoments<U, ORDER>& rhs) const {
+        SSampleCentralMoments operator+(const SSampleCentralMoments<U, ORDER>& rhs) const {
             SSampleCentralMoments result{*this};
             return result += rhs;
         }
@@ -322,8 +319,7 @@ public:
         //! than \p rhs. The caller must ensure that these conditions
         //! are satisfied.
         template<typename U>
-        const SSampleCentralMoments&
-        operator-=(const SSampleCentralMoments<U, ORDER>& rhs) {
+        const SSampleCentralMoments& operator-=(const SSampleCentralMoments<U, ORDER>& rhs) {
             if (rhs.s_Count == TCoordinate{0}) {
                 return *this;
             }
@@ -380,8 +376,7 @@ public:
         //! than \p rhs. The caller must ensure that these conditions
         //! are satisfied.
         template<typename U>
-        SSampleCentralMoments
-        operator-(const SSampleCentralMoments<U, ORDER>& rhs) const {
+        SSampleCentralMoments operator-(const SSampleCentralMoments<U, ORDER>& rhs) const {
             SSampleCentralMoments result{*this};
             return result -= rhs;
         }
@@ -952,8 +947,7 @@ public:
 
     //! Extract the mean vector from an accumulator object.
     template<typename T, std::size_t N>
-    static inline const CVectorNx1<T, N>&
-    mean(const SSampleCovariances<T, N>& accumulator) {
+    static inline const CVectorNx1<T, N>& mean(const SSampleCovariances<T, N>& accumulator) {
         return accumulator.s_Mean;
     }
 
@@ -1079,7 +1073,7 @@ private:
             return result;
         }
 
-        //! Update the statistics with \p x.
+            //! Update the statistics with \p x.
 #if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
         __attribute__((__noinline__))
 #endif // defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
@@ -1477,33 +1471,32 @@ public:
 };
 
 template<typename T>
-std::ostream&
-operator<<(std::ostream& o, const CBasicStatistics::SSampleCentralMoments<T, 1u>& accumulator) {
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::SSampleCentralMoments<T, 1u>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T>
-std::ostream&
-operator<<(std::ostream& o, const CBasicStatistics::SSampleCentralMoments<T, 2u>& accumulator) {
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::SSampleCentralMoments<T, 2u>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T>
-std::ostream&
-operator<<(std::ostream& o, const CBasicStatistics::SSampleCentralMoments<T, 3u>& accumulator) {
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::SSampleCentralMoments<T, 3u>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T, std::size_t N, typename LESS>
-std::ostream&
-operator<<(std::ostream& o,
-           const CBasicStatistics::COrderStatisticsStack<T, N, LESS>& accumulator) {
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::COrderStatisticsStack<T, N, LESS>& accumulator) {
     return o << accumulator.print();
 }
 
 template<typename T, typename LESS>
-std::ostream&
-operator<<(std::ostream& o, const CBasicStatistics::COrderStatisticsHeap<T, LESS>& accumulator) {
+std::ostream& operator<<(std::ostream& o,
+                         const CBasicStatistics::COrderStatisticsHeap<T, LESS>& accumulator) {
     return o << accumulator.print();
 }
 

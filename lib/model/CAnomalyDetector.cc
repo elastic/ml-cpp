@@ -76,9 +76,8 @@ makeDataGatherer(const CAnomalyDetector::TModelFactoryCPtr& factory,
     return CAnomalyDetector::TDataGathererPtr(factory->makeDataGatherer(initData));
 }
 
-CAnomalyDetector::TModelPtr
-makeModel(const CAnomalyDetector::TModelFactoryCPtr& factory,
-          const CAnomalyDetector::TDataGathererPtr& dataGatherer) {
+CAnomalyDetector::TModelPtr makeModel(const CAnomalyDetector::TModelFactoryCPtr& factory,
+                                      const CAnomalyDetector::TDataGathererPtr& dataGatherer) {
     CModelFactory::SModelInitializationData initData(dataGatherer);
     return CAnomalyDetector::TModelPtr(factory->makeModel(initData));
 }
@@ -264,8 +263,7 @@ bool CAnomalyDetector::staticsAcceptRestoreTraverser(core::CStateRestoreTraverse
         if (name == RANDOMIZED_PERIODIC_TAG) {
             if (traverser.traverseSubLevel(&maths::CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser) ==
                 false) {
-                LOG_ERROR(
-                    << "Failed to restore randomized periodic test state");
+                LOG_ERROR(<< "Failed to restore randomized periodic test state");
                 return false;
             }
         } else if (name == STATISTICS_TAG) {

@@ -972,13 +972,12 @@ void CEventRatePopulationModel::doSkipSampling(core_t::TTime startTime, core_t::
     this->CPopulationModel::doSkipSampling(startTime, endTime);
 }
 
-const maths::CModel*
-CEventRatePopulationModel::model(model_t::EFeature feature, std::size_t cid) const {
+const maths::CModel* CEventRatePopulationModel::model(model_t::EFeature feature,
+                                                      std::size_t cid) const {
     return const_cast<CEventRatePopulationModel*>(this)->model(feature, cid);
 }
 
-maths::CModel*
-CEventRatePopulationModel::model(model_t::EFeature feature, std::size_t cid) {
+maths::CModel* CEventRatePopulationModel::model(model_t::EFeature feature, std::size_t cid) {
     auto i = std::find_if(m_FeatureModels.begin(), m_FeatureModels.end(),
                           [feature](const SFeatureModels& model) {
                               return model.s_Feature == feature;

@@ -472,8 +472,7 @@ CPeriodicityHypothesisTestsResult::SComponent::SComponent(const std::string& des
       s_Precedence(precedence) {
 }
 
-bool CPeriodicityHypothesisTestsResult::SComponent::
-operator==(const SComponent& other) const {
+bool CPeriodicityHypothesisTestsResult::SComponent::operator==(const SComponent& other) const {
     return s_Description == other.s_Description && s_StartOfPartition == other.s_StartOfPartition;
 }
 
@@ -1050,10 +1049,10 @@ CPeriodicityHypothesisTests::testForDailyWithWeekend(const TFloatMeanAccumulator
     return result;
 }
 
-CPeriodicityHypothesisTestsResult
-CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend(const TTimeTimePr2Vec& windows,
-                                                                const TFloatMeanAccumulatorCRng& buckets,
-                                                                STestStats& stats) const {
+CPeriodicityHypothesisTestsResult CPeriodicityHypothesisTests::testForWeeklyGivenDailyWithWeekend(
+    const TTimeTimePr2Vec& windows,
+    const TFloatMeanAccumulatorCRng& buckets,
+    STestStats& stats) const {
     LOG_TRACE(<< "Testing for weekly given weekend on "
               << core::CContainerPrinter::print(windows));
 

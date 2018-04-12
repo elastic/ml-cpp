@@ -315,8 +315,7 @@ public:
 
     //! Get the non-zero (person, attribute) pair counts for each
     //! value of influencing field.
-    const TSizeSizePrStoredStringPtrPrUInt64UMapVec&
-    influencerCounts(core_t::TTime time) const;
+    const TSizeSizePrStoredStringPtrPrUInt64UMapVec& influencerCounts(core_t::TTime time) const;
     //@}
 
     //! Get the checksum of this gatherer.
@@ -347,8 +346,7 @@ public:
     //! \tparam T This must be an associative array from person
     //! id and/or attribute id to some corresponding value.
     template<typename F, typename T>
-    static void
-    remove(const TSizeVec& toRemove, const F& extractId, CBucketQueue<T>& queue) {
+    static void remove(const TSizeVec& toRemove, const F& extractId, CBucketQueue<T>& queue) {
         for (auto bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr) {
             T& bucket = *bucketItr;
             for (auto i = bucket.begin(); i != bucket.end(); /**/) {
@@ -367,8 +365,9 @@ public:
     //! \tparam T This must be a vector of associative array from person
     //! id and/or attribute id to some corresponding value.
     template<typename F, typename T>
-    static void
-    remove(const TSizeVec& toRemove, const F& extractId, CBucketQueue<std::vector<T>>& queue) {
+    static void remove(const TSizeVec& toRemove,
+                       const F& extractId,
+                       CBucketQueue<std::vector<T>>& queue) {
         for (auto bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr) {
             for (std::size_t i = 0u; i < bucketItr->size(); ++i) {
                 T& bucket = (*bucketItr)[i];

@@ -64,12 +64,9 @@ const core_t::TTime YEAR = core::constants::YEAR;
 }
 
 void CTimeSeriesDecompositionTest::testSuperpositionOfSines() {
-    LOG_DEBUG(
-        << "+----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CTimeSeriesDecompositionTest::testSuperpositionOfSines  |");
-    LOG_DEBUG(
-        << "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testSuperpositionOfSines  |");
+    LOG_DEBUG(<< "+----------------------------------------------------------+");
 
     TTimeVec times;
     TDoubleVec trend;
@@ -358,12 +355,9 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic() {
 }
 
 void CTimeSeriesDecompositionTest::testMinimizeLongComponents() {
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CTimeSeriesDecompositionTest::testMinimizeLongComponents  |");
-    LOG_DEBUG(
-        << "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testMinimizeLongComponents  |");
+    LOG_DEBUG(<< "+------------------------------------------------------------+");
 
     double weights[] = {1.0, 0.1, 1.0, 1.0, 0.1, 1.0, 1.0};
 
@@ -974,12 +968,9 @@ void CTimeSeriesDecompositionTest::testVarianceScale() {
 }
 
 void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CTimeSeriesDecompositionTest::testSpikeyDataProblemCase  |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testSpikeyDataProblemCase  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
@@ -1244,12 +1235,9 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase() {
 }
 
 void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase() {
-    LOG_DEBUG(
-        << "+---------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase  |");
-    LOG_DEBUG(
-        << "+---------------------------------------------------------------+");
+    LOG_DEBUG(<< "+---------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase  |");
+    LOG_DEBUG(<< "+---------------------------------------------------------------+");
 
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
@@ -2377,8 +2365,7 @@ void CTimeSeriesDecompositionTest::testUpgrade() {
 }
 
 CppUnit::Test* CTimeSeriesDecompositionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CTimeSeriesDecompositionTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesDecompositionTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
         "CTimeSeriesDecompositionTest::testSuperpositionOfSines",

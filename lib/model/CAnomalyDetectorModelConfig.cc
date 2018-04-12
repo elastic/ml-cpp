@@ -61,13 +61,11 @@ core_t::TTime validateBucketLength(core_t::TTime length) {
 }
 }
 
-const std::string
-    CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER(",");
+const std::string CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER(",");
 const core_t::TTime CAnomalyDetectorModelConfig::DEFAULT_BUCKET_LENGTH(300);
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_LATENCY_BUCKETS(0);
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_NO_LATENCY(1);
-const std::size_t
-    CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_WITH_LATENCY(10);
+const std::size_t CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_COUNT_FACTOR_WITH_LATENCY(10);
 const double CAnomalyDetectorModelConfig::DEFAULT_SAMPLE_QUEUE_GROWTH_FACTOR(0.1);
 const core_t::TTime CAnomalyDetectorModelConfig::STANDARD_BUCKET_LENGTH(1800);
 const double CAnomalyDetectorModelConfig::DEFAULT_DECAY_RATE(0.0005);
@@ -79,8 +77,7 @@ const double CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_CLUSTER_SPLIT_COUNT(12
 const double CAnomalyDetectorModelConfig::DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS(0.2);
 const double CAnomalyDetectorModelConfig::DEFAULT_CATEGORY_DELETE_FRACTION(0.8);
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_COMPONENT_SIZE(36u);
-const std::size_t
-    CAnomalyDetectorModelConfig::DEFAULT_TOTAL_PROBABILITY_CALC_SAMPLING_SIZE(10u);
+const std::size_t CAnomalyDetectorModelConfig::DEFAULT_TOTAL_PROBABILITY_CALC_SAMPLING_SIZE(10u);
 const double CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_UPDATES_PER_BUCKET(1.0);
 const double CAnomalyDetectorModelConfig::DEFAULT_INFLUENCE_CUTOFF(0.5);
 const double CAnomalyDetectorModelConfig::DEFAULT_AGGREGATION_STYLE_PARAMS[][model_t::NUMBER_AGGREGATION_PARAMS] =
@@ -701,14 +698,12 @@ void CAnomalyDetectorModelConfig::modelPlotTerms(TStrSet terms) {
     m_ModelPlotTerms.swap(terms);
 }
 
-const CAnomalyDetectorModelConfig::TStrSet&
-CAnomalyDetectorModelConfig::modelPlotTerms() const {
+const CAnomalyDetectorModelConfig::TStrSet& CAnomalyDetectorModelConfig::modelPlotTerms() const {
     return m_ModelPlotTerms;
 }
 
-double
-CAnomalyDetectorModelConfig::aggregationStyleParam(model_t::EAggregationStyle style,
-                                                   model_t::EAggregationParam param) const {
+double CAnomalyDetectorModelConfig::aggregationStyleParam(model_t::EAggregationStyle style,
+                                                          model_t::EAggregationParam param) const {
     return m_AggregationStyleParams[style][param];
 }
 
@@ -752,12 +747,9 @@ core_t::TTime CAnomalyDetectorModelConfig::samplingAgeCutoff() const {
 namespace {
 const std::string ONLINE_LEARN_RATE_PROPERTY("learnrate");
 const std::string DECAY_RATE_PROPERTY("decayrate");
-const std::string
-    INITIAL_DECAY_RATE_MULTIPLIER_PROPERTY("initialdecayratemultiplier");
-const std::string
-    MAXIMUM_UPDATES_PER_BUCKET_PROPERTY("maximumupdatesperbucket");
-const std::string TOTAL_PROBABILITY_CALC_SAMPLING_SIZE_PROPERTY(
-    "totalprobabilitycalcsamplingsize");
+const std::string INITIAL_DECAY_RATE_MULTIPLIER_PROPERTY("initialdecayratemultiplier");
+const std::string MAXIMUM_UPDATES_PER_BUCKET_PROPERTY("maximumupdatesperbucket");
+const std::string TOTAL_PROBABILITY_CALC_SAMPLING_SIZE_PROPERTY("totalprobabilitycalcsamplingsize");
 const std::string INDIVIDUAL_MODE_FRACTION_PROPERTY("individualmodefraction");
 const std::string POPULATION_MODE_FRACTION_PROPERTY("populationmodefraction");
 const std::string PEERS_MODE_FRACTION_PROPERTY("peersmodefraction");
@@ -766,13 +758,11 @@ const std::string SAMPLE_COUNT_FACTOR_PROPERTY("samplecountfactor");
 const std::string PRUNE_WINDOW_SCALE_MINIMUM("prunewindowscaleminimum");
 const std::string PRUNE_WINDOW_SCALE_MAXIMUM("prunewindowscalemaximum");
 const std::string AGGREGATION_STYLE_PARAMS("aggregationstyleparams");
-const std::string
-    MAXIMUM_ANOMALOUS_PROBABILITY_PROPERTY("maximumanomalousprobability");
+const std::string MAXIMUM_ANOMALOUS_PROBABILITY_PROPERTY("maximumanomalousprobability");
 const std::string NOISE_PERCENTILE_PROPERTY("noisepercentile");
 const std::string NOISE_MULTIPLIER_PROPERTY("noisemultiplier");
 const std::string NORMALIZED_SCORE_KNOT_POINTS("normalizedscoreknotpoints");
-const std::string
-    PER_PARTITION_NORMALIZATION_PROPERTY("perPartitionNormalization");
+const std::string PER_PARTITION_NORMALIZATION_PROPERTY("perPartitionNormalization");
 }
 
 bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptree& propertyTree) {

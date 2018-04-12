@@ -188,8 +188,8 @@ CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr CModelPlotData::end() const {
     return m_DataPerFeature.end();
 }
 
-CModelPlotData::SByFieldData&
-CModelPlotData::get(const model_t::EFeature& feature, const std::string& byFieldValue) {
+CModelPlotData::SByFieldData& CModelPlotData::get(const model_t::EFeature& feature,
+                                                  const std::string& byFieldValue) {
     // note: This creates/inserts! elements and returns a reference for writing
     // data insert happens here
     return m_DataPerFeature[feature][byFieldValue];

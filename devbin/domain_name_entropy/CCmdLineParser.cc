@@ -23,9 +23,8 @@
 namespace ml {
 namespace domain_name_entropy {
 
-const std::string CCmdLineParser::DESCRIPTION =
-    "Usage: domain_name_entropy [options]\n"
-    "Options:";
+const std::string CCmdLineParser::DESCRIPTION = "Usage: domain_name_entropy [options]\n"
+                                                "Options:";
 
 bool CCmdLineParser::parse(int argc,
                            const char* const* argv,

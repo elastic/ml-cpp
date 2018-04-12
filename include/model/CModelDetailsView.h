@@ -70,8 +70,8 @@ public:
                    CModelPlotData& modelPlotData) const;
 
     //! Get the feature prior for the specified by field \p byFieldId.
-    virtual const maths::CModel*
-    model(model_t::EFeature feature, std::size_t byFieldId) const = 0;
+    virtual const maths::CModel* model(model_t::EFeature feature,
+                                       std::size_t byFieldId) const = 0;
 
 private:
     //! Add the model plot data for all by field values which match \p terms.
@@ -120,8 +120,7 @@ public:
     CEventRateModelDetailsView(const CEventRateModel& model);
 
     //! Get the feature model for the specified by field id.
-    virtual const maths::CModel*
-    model(model_t::EFeature feature, std::size_t byFieldId) const;
+    virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
 
 private:
     virtual const CAnomalyDetectorModel& base() const;
@@ -142,8 +141,7 @@ public:
     CEventRatePopulationModelDetailsView(const CEventRatePopulationModel& model);
 
     //! Get the feature model for the specified by field id.
-    virtual const maths::CModel*
-    model(model_t::EFeature feature, std::size_t byFieldId) const;
+    virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
 
 private:
     virtual const CAnomalyDetectorModel& base() const;
@@ -164,8 +162,7 @@ public:
     CMetricModelDetailsView(const CMetricModel& model);
 
     //! Get the feature model for the specified by field id.
-    virtual const maths::CModel*
-    model(model_t::EFeature feature, std::size_t byFieldId) const;
+    virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
 
 private:
     virtual const CAnomalyDetectorModel& base() const;
@@ -186,8 +183,7 @@ public:
     CMetricPopulationModelDetailsView(const CMetricPopulationModel& model);
 
     //! Get the feature model for the specified by field id.
-    virtual const maths::CModel*
-    model(model_t::EFeature feature, std::size_t byFieldId) const;
+    virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
 
 private:
     virtual const CAnomalyDetectorModel& base() const;

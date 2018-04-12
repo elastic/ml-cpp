@@ -397,12 +397,9 @@ void CMultinomialConjugateTest::testMarginalLikelihood() {
 }
 
 void CMultinomialConjugateTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CMultinomialConjugateTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CMultinomialConjugateTest::testSampleMarginalLikelihood  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     // Test that we sample categories in proportion to their marginal
     // probabilities. We test two cases:
@@ -434,9 +431,8 @@ void CMultinomialConjugateTest::testSampleMarginalLikelihood() {
 
         LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[1.1, 1.1, 1.1, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2]"),
-            core::CContainerPrinter::print(samples));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1.1, 1.1, 1.1, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2]"),
+                             core::CContainerPrinter::print(samples));
     }
 
     {
@@ -458,9 +454,8 @@ void CMultinomialConjugateTest::testSampleMarginalLikelihood() {
 
         LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[1.1, 1.2, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 5.1]"),
-            core::CContainerPrinter::print(samples));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1.1, 1.2, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 5.1]"),
+                             core::CContainerPrinter::print(samples));
     }
 
     {
@@ -482,9 +477,8 @@ void CMultinomialConjugateTest::testSampleMarginalLikelihood() {
 
         LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[1.1, 1.2, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 3.2]"),
-            core::CContainerPrinter::print(samples));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1.1, 1.2, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 3.2]"),
+                             core::CContainerPrinter::print(samples));
     }
 }
 
@@ -1031,8 +1025,7 @@ void CMultinomialConjugateTest::testConcentration() {
 }
 
 CppUnit::Test* CMultinomialConjugateTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMultinomialConjugateTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultinomialConjugateTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMultinomialConjugateTest>(
         "CMultinomialConjugateTest::testMultipleUpdate",

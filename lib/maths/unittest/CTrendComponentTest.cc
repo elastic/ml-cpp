@@ -438,8 +438,7 @@ void CTrendComponentTest::testPersist() {
 }
 
 CppUnit::Test* CTrendComponentTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CTrendComponentTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTrendComponentTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
         "CTrendComponentTest::testValueAndVariance", &CTrendComponentTest::testValueAndVariance));

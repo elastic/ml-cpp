@@ -73,13 +73,15 @@ public:
     const CUniqueIterator& operator++() {
         double x = (*m_Knots)[m_I].first;
         ptrdiff_t n = m_Knots->size();
-        while (++m_I < n && (*m_Knots)[m_I].first == x) {}
+        while (++m_I < n && (*m_Knots)[m_I].first == x) {
+        }
         return *this;
     }
 
     const CUniqueIterator& operator--() {
         double x = (*m_Knots)[m_I].first;
-        while (--m_I >= 0 && (*m_Knots)[m_I].first == x) {}
+        while (--m_I >= 0 && (*m_Knots)[m_I].first == x) {
+        }
         return *this;
     }
 

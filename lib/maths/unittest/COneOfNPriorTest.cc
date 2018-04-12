@@ -67,8 +67,8 @@ using CNormalMeanPrecConjugate = CPriorTestInterfaceMixin<maths::CNormalMeanPrec
 using COneOfNPrior = CPriorTestInterfaceMixin<maths::COneOfNPrior>;
 using CPoissonMeanConjugate = CPriorTestInterfaceMixin<maths::CPoissonMeanConjugate>;
 
-COneOfNPrior::TPriorPtrVec
-clone(const TPriorPtrVec& models, const TOptionalDouble& decayRate = TOptionalDouble()) {
+COneOfNPrior::TPriorPtrVec clone(const TPriorPtrVec& models,
+                                 const TOptionalDouble& decayRate = TOptionalDouble()) {
     COneOfNPrior::TPriorPtrVec result;
     result.reserve(models.size());
     for (std::size_t i = 0u; i < models.size(); ++i) {
@@ -1300,8 +1300,7 @@ void COneOfNPriorTest::testPersist() {
 }
 
 CppUnit::Test* COneOfNPriorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("COneOfNPriorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COneOfNPriorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
         "COneOfNPriorTest::testFilter", &COneOfNPriorTest::testFilter));

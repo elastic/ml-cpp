@@ -49,12 +49,9 @@ void CCalendarComponentAdaptiveBucketingTest::tearDown() {
 }
 
 void CCalendarComponentAdaptiveBucketingTest::testInitialize() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CCalendarComponentAdaptiveBucketingTest::testInitialize  |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testInitialize  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     maths::CCalendarFeature feature{maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, 86400};
     maths::CCalendarComponentAdaptiveBucketing bucketing{feature};
@@ -325,12 +322,9 @@ void CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength() {
 }
 
 void CCalendarComponentAdaptiveBucketingTest::testUnintialized() {
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CCalendarComponentAdaptiveBucketingTest::testUnintialized  |");
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CCalendarComponentAdaptiveBucketingTest::testUnintialized  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
 
     // Check that all the functions work and return the expected
     // values on an uninitialized bucketing.

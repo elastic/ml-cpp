@@ -165,8 +165,7 @@ void CStateMachine::clear() {
     ms_Machines.clear();
 }
 
-std::size_t
-CStateMachine::find(std::size_t begin, std::size_t end, const SLookupMachine& machine) {
+std::size_t CStateMachine::find(std::size_t begin, std::size_t end, const SLookupMachine& machine) {
     for (std::size_t i = begin; i < end; ++i) {
         if (machine == ms_Machines[i]) {
             return i;
@@ -211,8 +210,7 @@ void CStateMachine::CMachineDeque::capacity(std::size_t capacity) {
     m_Capacity = capacity;
 }
 
-const CStateMachine::SMachine& CStateMachine::CMachineDeque::
-operator[](std::size_t pos) const {
+const CStateMachine::SMachine& CStateMachine::CMachineDeque::operator[](std::size_t pos) const {
     for (const auto& machines : m_Machines) {
         if (pos < machines.size()) {
             return machines[pos];

@@ -159,8 +159,8 @@ operator()(const std::string& token, CUInt32UnrestrictedHash& hash) const {
 
     return true;
 }
-bool CHashing::CUniversalHash::CFromString::
-operator()(const std::string& token, CUInt32Hash& hash) const {
+bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token,
+                                                       CUInt32Hash& hash) const {
     std::size_t firstDelimPos = token.find(m_Delimiter);
     if (firstDelimPos == std::string::npos) {
         LOG_ERROR(<< "Invalid hash state " << token);

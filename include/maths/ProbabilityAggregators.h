@@ -111,8 +111,8 @@ private:
 };
 
 MATHS_EXPORT
-std::ostream&
-operator<<(std::ostream& o, const CJointProbabilityOfLessLikelySamples& probability);
+std::ostream& operator<<(std::ostream& o,
+                         const CJointProbabilityOfLessLikelySamples& probability);
 
 //! \brief Computes log of the joint probability of seeing a more
 //! extreme collection of samples.
@@ -211,8 +211,7 @@ public:
     std::string toDelimited() const;
 
     //! Combine two extreme probability calculators.
-    const CProbabilityOfExtremeSample&
-    operator+=(const CProbabilityOfExtremeSample& other);
+    const CProbabilityOfExtremeSample& operator+=(const CProbabilityOfExtremeSample& other);
 
     //! Add \p probability.
     bool add(double probability, double weight = 1.0);

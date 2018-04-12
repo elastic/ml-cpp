@@ -45,24 +45,18 @@ using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testInitialize() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CSeasonalComponentAdaptiveBucketingTest::testInitialize  |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testInitialize  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     maths::CDiurnalTime time(0, 1, 101, 100);
     maths::CSeasonalComponentAdaptiveBucketing bucketing(time);
 
     CPPUNIT_ASSERT(!bucketing.initialize(0));
 
-    const std::string expectedEndpoints(
-        "[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]");
-    const std::string expectedKnots(
-        "[0, 4, 14, 24, 34, 44, 54, 64, 74, 84, 94, 100]");
-    const std::string expectedValues(
-        "[50, 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 50]");
+    const std::string expectedEndpoints("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]");
+    const std::string expectedKnots("[0, 4, 14, 24, 34, 44, 54, 64, 74, 84, 94, 100]");
+    const std::string expectedValues("[50, 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 50]");
 
     CPPUNIT_ASSERT(bucketing.initialize(10));
     const TFloatVec& endpoints = bucketing.endpoints();
@@ -429,12 +423,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testUnintialized() {
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CSeasonalComponentAdaptiveBucketingTest::testUnintialized  |");
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testUnintialized  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
 
     // Check that all the functions work and return the expected
     // values on an uninitialized bucketing.
@@ -647,12 +638,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testLongTermTrendKnots() {
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testShiftValue() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CSeasonalComponentAdaptiveBucketingTest::testShiftValue  |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CSeasonalComponentAdaptiveBucketingTest::testShiftValue  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     // Test that applying a shift translates the predicted values
     // but doesn't alter the slope or predicted variances.

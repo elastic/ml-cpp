@@ -236,8 +236,7 @@ void CStateMachineTest::testMultithreaded() {
 }
 
 CppUnit::Test* CStateMachineTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CStateMachineTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStateMachineTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStateMachineTest>(
         "CStateMachineTest::testBasics", &CStateMachineTest::testBasics));

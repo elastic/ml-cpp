@@ -204,8 +204,7 @@ private:
     //! The correction to produce a smooth join between periodic
     //! repeats and partitions.
     template<typename F>
-    maths_t::TDoubleDoublePr
-    smooth(const F& f, core_t::TTime time, int components) const;
+    maths_t::TDoubleDoublePr smooth(const F& f, core_t::TTime time, int components) const;
 
     //! Check if \p component has been selected.
     bool selected(core_t::TTime time, int components, const CSeasonalComponent& component) const;

@@ -147,10 +147,12 @@ std::ostream& operator<<(std::ostream& o, const CStatistics& /*stats*/) {
                  "The estimated memory currently used by the engine and models",
                  CStatistics::stat(stat_t::E_MemoryUsage).value());
 
-    addStringInt(writer, "E_NumberMemoryUsageChecks", "Number of times a model memory usage check has been carried out",
+    addStringInt(writer, "E_NumberMemoryUsageChecks",
+                 "Number of times a model memory usage check has been carried out",
                  CStatistics::stat(stat_t::E_NumberMemoryUsageChecks).value());
 
-    addStringInt(writer, "E_NumberMemoryUsageEstimates", "Number of times a partial memory usage estimate has been carried out",
+    addStringInt(writer, "E_NumberMemoryUsageEstimates",
+                 "Number of times a partial memory usage estimate has been carried out",
                  CStatistics::stat(stat_t::E_NumberMemoryUsageEstimates).value());
 
     addStringInt(writer, "E_NumberRecordsNoTimeField",
@@ -181,10 +183,9 @@ std::ostream& operator<<(std::ostream& o, const CStatistics& /*stats*/) {
     addStringInt(writer, "E_NumberOverFields", "Number of 'over' fields within the model",
                  CStatistics::stat(stat_t::E_NumberOverFields).value());
 
-    addStringInt(
-        writer, "E_NumberExcludedFrequentInvocations",
-        "The number of times 'ExcludeFrequent' has been invoked by the model",
-        CStatistics::stat(stat_t::E_NumberExcludedFrequentInvocations).value());
+    addStringInt(writer, "E_NumberExcludedFrequentInvocations",
+                 "The number of times 'ExcludeFrequent' has been invoked by the model",
+                 CStatistics::stat(stat_t::E_NumberExcludedFrequentInvocations).value());
 
     addStringInt(writer, "E_NumberSamplesOutsideLatencyWindow",
                  "The number of samples received outside the latency window",
@@ -195,7 +196,8 @@ std::ostream& operator<<(std::ostream& o, const CStatistics& /*stats*/) {
         "The number of model creation failures from being over memory limit",
         CStatistics::stat(stat_t::E_NumberMemoryLimitModelCreationFailures).value());
 
-    addStringInt(writer, "E_NumberPrunedItems", "The number of old people or attributes pruned from the models",
+    addStringInt(writer, "E_NumberPrunedItems",
+                 "The number of old people or attributes pruned from the models",
                  CStatistics::stat(stat_t::E_NumberPrunedItems).value());
 
     writer.EndArray();

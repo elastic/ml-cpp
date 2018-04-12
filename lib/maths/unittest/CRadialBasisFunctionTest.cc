@@ -332,8 +332,7 @@ void CRadialBasisFunctionTest::testProduct() {
 }
 
 CppUnit::Test* CRadialBasisFunctionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CRadialBasisFunctionTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRadialBasisFunctionTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>(
         "CRadialBasisFunctionTest::testDerivative", &CRadialBasisFunctionTest::testDerivative));

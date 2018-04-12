@@ -284,8 +284,7 @@ void CCalendarFeatureTest::testPersist() {
 }
 
 CppUnit::Test* CCalendarFeatureTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CCalendarFeatureTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCalendarFeatureTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarFeatureTest>(
         "CCalendarFeatureTest::testInitialize", &CCalendarFeatureTest::testInitialize));

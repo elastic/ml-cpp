@@ -168,8 +168,8 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::rightTail(const LOGF& logf,
 }
 
 template<typename LOGF>
-double
-CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF& logf, double pTails) {
+double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF& logf,
+                                                                double pTails) {
     TDoubleDoublePrVec intervals;
     this->intervals(intervals);
 

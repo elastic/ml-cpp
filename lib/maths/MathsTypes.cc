@@ -32,8 +32,8 @@ namespace detail {
 
 //! Check that the weights styles and weights are consistent.
 template<typename T>
-inline bool
-check(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& weights) {
+inline bool check(const TWeightStyleVec& weightStyles,
+                  const core::CSmallVector<T, 4>& weights) {
     if (weightStyles.size() == weights.size()) {
         return true;
     }

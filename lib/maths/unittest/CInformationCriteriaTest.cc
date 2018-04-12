@@ -434,12 +434,9 @@ void CInformationCriteriaTest::testGaussian() {
 }
 
 void CInformationCriteriaTest::testGaussianWithSphericalCluster() {
-    LOG_DEBUG(
-        << "+--------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CInformationCriteriaTest::testGaussianWithSphericalCluster  |");
-    LOG_DEBUG(
-        << "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CInformationCriteriaTest::testGaussianWithSphericalCluster  |");
+    LOG_DEBUG(<< "+--------------------------------------------------------------+");
 
     using TSphericalCluster2 = maths::CSphericalCluster<TVector2>::Type;
     using TSphericalCluster2Vec = std::vector<TSphericalCluster2>;
@@ -498,8 +495,7 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster() {
 }
 
 CppUnit::Test* CInformationCriteriaTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CInformationCriteriaTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CInformationCriteriaTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>(
         "CInformationCriteriaTest::testSphericalGaussian",

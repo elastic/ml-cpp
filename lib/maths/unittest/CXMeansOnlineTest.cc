@@ -809,8 +809,7 @@ void CXMeansOnlineTest::testPersist() {
 }
 
 CppUnit::Test* CXMeansOnlineTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CXMeansOnlineTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXMeansOnlineTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnlineTest>(
         "CXMeansOnlineTest::testCluster", &CXMeansOnlineTest::testCluster));

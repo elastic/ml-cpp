@@ -103,8 +103,7 @@ void CDontUseUnaryField::penaltyFromMe(const CFieldStatistics& stats,
     if (const CCategoricalDataSummaryStatistics* summary = stats.categoricalSummary()) {
         if (summary->distinctCount() == 1) {
             penalty = 0.0;
-            description += prefix(description) +
-                           "There's no point using a unary field";
+            description += prefix(description) + "There's no point using a unary field";
         }
     }
 }

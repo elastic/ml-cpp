@@ -499,12 +499,9 @@ void CNaturalBreaksClassifierTest::testCategories() {
 }
 
 void CNaturalBreaksClassifierTest::testPropagateForwardsByTime() {
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CNaturalBreaksClassifierTest::testPropagateForwardsByTime  |");
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CNaturalBreaksClassifierTest::testPropagateForwardsByTime  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
 
     // Check pruning of dead categories.
 
@@ -693,8 +690,7 @@ void CNaturalBreaksClassifierTest::testPersist() {
 }
 
 CppUnit::Test* CNaturalBreaksClassifierTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CNaturalBreaksClassifierTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNaturalBreaksClassifierTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CNaturalBreaksClassifierTest>(
         "CNaturalBreaksClassifierTest::testCategories",

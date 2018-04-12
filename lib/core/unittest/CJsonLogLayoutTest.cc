@@ -18,8 +18,7 @@
 #include <core/CLogger.h>
 
 CppUnit::Test* CJsonLogLayoutTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CJsonLogLayoutTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonLogLayoutTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CJsonLogLayoutTest>(
         "CJsonLogLayoutTest::testPathCropping", &CJsonLogLayoutTest::testPathCropping));

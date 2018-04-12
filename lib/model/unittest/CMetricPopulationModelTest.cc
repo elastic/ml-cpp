@@ -1571,8 +1571,7 @@ void CMetricPopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
 }
 
 CppUnit::Test* CMetricPopulationModelTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMetricPopulationModelTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricPopulationModelTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationModelTest>(
         "CMetricPopulationModelTest::testBasicAccessors",

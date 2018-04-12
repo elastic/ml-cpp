@@ -28,8 +28,7 @@ const std::string MODEL_BYTES("model_bytes");
 const std::string TOTAL_BY_FIELD_COUNT("total_by_field_count");
 const std::string TOTAL_OVER_FIELD_COUNT("total_over_field_count");
 const std::string TOTAL_PARTITION_FIELD_COUNT("total_partition_field_count");
-const std::string
-    BUCKET_ALLOCATION_FAILURES_COUNT("bucket_allocation_failures_count");
+const std::string BUCKET_ALLOCATION_FAILURES_COUNT("bucket_allocation_failures_count");
 const std::string MEMORY_STATUS("memory_status");
 const std::string TIMESTAMP("timestamp");
 const std::string LOG_TIME("log_time");

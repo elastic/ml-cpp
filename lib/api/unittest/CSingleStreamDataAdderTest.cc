@@ -57,8 +57,7 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
 }
 
 CppUnit::Test* CSingleStreamDataAdderTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CSingleStreamDataAdderTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSingleStreamDataAdderTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
         "CSingleStreamDataAdderTest::testDetectorPersistBy",
         &CSingleStreamDataAdderTest::testDetectorPersistBy));

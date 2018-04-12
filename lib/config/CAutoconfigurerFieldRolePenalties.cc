@@ -62,8 +62,7 @@ CAutoconfigurerFieldRolePenalties::CAutoconfigurerFieldRolePenalties(const CAuto
     }
 }
 
-const CPenalty&
-CAutoconfigurerFieldRolePenalties::categoricalFunctionArgumentPenalty() const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::categoricalFunctionArgumentPenalty() const {
     return *m_Penalties[CATEGORICAL_ARGUMENT_INDEX];
 }
 

@@ -205,8 +205,7 @@ const TSizeDoublePr10Vec NOTHING_TO_CONDITION;
 
 namespace forecast {
 const std::string INFO_INSUFFICIENT_HISTORY("Insufficient history to forecast");
-const std::string
-    ERROR_MULTIVARIATE("Forecast not supported for multivariate features");
+const std::string ERROR_MULTIVARIATE("Forecast not supported for multivariate features");
 }
 }
 

@@ -52,11 +52,10 @@ double CTimeSeriesDecompositionStub::mean(core_t::TTime /*time*/) const {
     return 0.0;
 }
 
-maths_t::TDoubleDoublePr
-CTimeSeriesDecompositionStub::baseline(core_t::TTime /*time*/,
-                                       double /*confidence*/,
-                                       int /*components*/,
-                                       bool /*smooth*/) const {
+maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::baseline(core_t::TTime /*time*/,
+                                                                double /*confidence*/,
+                                                                int /*components*/,
+                                                                bool /*smooth*/) const {
     return {0.0, 0.0};
 }
 
@@ -105,8 +104,7 @@ std::size_t CTimeSeriesDecompositionStub::staticSize() const {
     return sizeof(*this);
 }
 
-const maths_t::TSeasonalComponentVec&
-CTimeSeriesDecompositionStub::seasonalComponents() const {
+const maths_t::TSeasonalComponentVec& CTimeSeriesDecompositionStub::seasonalComponents() const {
     return NO_COMPONENTS;
 }
 

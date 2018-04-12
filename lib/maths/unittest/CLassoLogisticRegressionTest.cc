@@ -87,12 +87,9 @@ double logLikelihood(const TDoubleVecVec& x,
 }
 
 void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CLassoLogisticRegressionTest::testCyclicCoordinateDescent  |");
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CLassoLogisticRegressionTest::testCyclicCoordinateDescent  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
 
     static const double EPS = 5e-3;
 
@@ -253,8 +250,7 @@ void CLassoLogisticRegressionTest::testCrossValidatedLambda() {
 }
 
 CppUnit::Test* CLassoLogisticRegressionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CLassoLogisticRegressionTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLassoLogisticRegressionTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
         "CLassoLogisticRegressionTest::testCyclicCoordinateDescent",

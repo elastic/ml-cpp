@@ -59,8 +59,8 @@ bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& par
     return true;
 }
 
-void CClustererStateSerialiser::
-operator()(const CClusterer1d& clusterer, core::CStatePersistInserter& inserter) {
+void CClustererStateSerialiser::operator()(const CClusterer1d& clusterer,
+                                           core::CStatePersistInserter& inserter) {
     inserter.insertLevel(clusterer.persistenceTag(),
                          boost::bind(&CClusterer1d::acceptPersistInserter, &clusterer, _1));
 }

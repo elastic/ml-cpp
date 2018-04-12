@@ -702,8 +702,7 @@ void CKMeansOnlineTest::testPersist() {
 }
 
 CppUnit::Test* CKMeansOnlineTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CKMeansOnlineTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKMeansOnlineTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>(
         "CKMeansOnlineTest::testVariance", &CKMeansOnlineTest::testVariance));

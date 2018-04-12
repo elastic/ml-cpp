@@ -327,10 +327,9 @@ public:
 
     //! Get the most likely value for each correlate time series at
     //! \p time, if there are any.
-    virtual TDouble2Vec1Vec
-    correlateModes(core_t::TTime time,
-                   const maths_t::TWeightStyleVec& weightStyles,
-                   const TDouble2Vec4Vec1Vec& weights) const = 0;
+    virtual TDouble2Vec1Vec correlateModes(core_t::TTime time,
+                                           const maths_t::TWeightStyleVec& weightStyles,
+                                           const TDouble2Vec4Vec1Vec& weights) const = 0;
 
     //! Get the local maxima of the residual distribution.
     virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles,
@@ -348,11 +347,10 @@ public:
 
     //! Get the prediction and \p confidenceInterval percentage
     //! confidence interval for the time series at \p time.
-    virtual TDouble2Vec3Vec
-    confidenceInterval(core_t::TTime time,
-                       double confidenceInterval,
-                       const maths_t::TWeightStyleVec& weightStyles,
-                       const TDouble2Vec4Vec& weights) const = 0;
+    virtual TDouble2Vec3Vec confidenceInterval(core_t::TTime time,
+                                               double confidenceInterval,
+                                               const maths_t::TWeightStyleVec& weightStyles,
+                                               const TDouble2Vec4Vec& weights) const = 0;
 
     //! Forecast the time series and get its \p confidenceInterval
     //! percentage confidence interval between \p startTime and
@@ -379,8 +377,9 @@ public:
 
     //! Get the Winsorisation weight to apply to \p value,
     //! if appropriate.
-    virtual TDouble2Vec
-    winsorisationWeight(double derate, core_t::TTime time, const TDouble2Vec& value) const = 0;
+    virtual TDouble2Vec winsorisationWeight(double derate,
+                                            core_t::TTime time,
+                                            const TDouble2Vec& value) const = 0;
 
     //! Get the seasonal variance scale at \p time.
     virtual TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const = 0;
@@ -419,8 +418,7 @@ protected:
 
     //! Get the error in the trend prediction for \p sample.
     template<typename TREND, typename VECTOR>
-    static boost::optional<VECTOR>
-    predictionError(const TREND& trend, const VECTOR& sample);
+    static boost::optional<VECTOR> predictionError(const TREND& trend, const VECTOR& sample);
 
     //! Get the error in the prior prediction for \p sample.
     template<typename PRIOR, typename VECTOR>
@@ -476,8 +474,8 @@ public:
     virtual void addBucketValue(const TTimeDouble2VecSizeTrVec& value);
 
     //! No-op.
-    virtual EUpdateResult
-    addSamples(const CModelAddSamplesParams& params, TTimeDouble2VecSizeTrVec samples);
+    virtual EUpdateResult addSamples(const CModelAddSamplesParams& params,
+                                     TTimeDouble2VecSizeTrVec samples);
 
     //! No-op.
     virtual void skipTime(core_t::TTime gap);
@@ -497,8 +495,9 @@ public:
                                           const TDouble2Vec4Vec& weights) const;
 
     //! No-op.
-    virtual void
-    detrend(const TTime2Vec1Vec& time, double confidenceInterval, TDouble2Vec1Vec& value) const;
+    virtual void detrend(const TTime2Vec1Vec& time,
+                         double confidenceInterval,
+                         TDouble2Vec1Vec& value) const;
 
     //! Returns empty.
     virtual TDouble2Vec predict(core_t::TTime time,

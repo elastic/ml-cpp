@@ -694,8 +694,7 @@ void CKMeansFastTest::testPlusPlus() {
 }
 
 CppUnit::Test* CKMeansFastTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CKMeansFastTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKMeansFastTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansFastTest>(
         "CKMeansFastTest::testDataPropagation", &CKMeansFastTest::testDataPropagation));

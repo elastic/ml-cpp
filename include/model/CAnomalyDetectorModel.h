@@ -242,8 +242,7 @@ public:
     //! \param[in] time The time of interest.
     //! \return The count in the bucketing interval at \p time for the
     //! person identified by \p pid if available and null otherwise.
-    virtual TOptionalUInt64
-    currentBucketCount(std::size_t pid, core_t::TTime time) const = 0;
+    virtual TOptionalUInt64 currentBucketCount(std::size_t pid, core_t::TTime time) const = 0;
 
     //! Get the mean count of the person identified by \p pid in the
     //! reference data set (for comparison).
@@ -648,8 +647,8 @@ protected:
 
     //! Get the influence calculator for the influencer field identified
     //! by \p iid and the \p feature.
-    const CInfluenceCalculator*
-    influenceCalculator(model_t::EFeature feature, std::size_t iid) const;
+    const CInfluenceCalculator* influenceCalculator(model_t::EFeature feature,
+                                                    std::size_t iid) const;
 
     //! Get the person bucket counts.
     const TDoubleVec& personBucketCounts() const;
@@ -669,8 +668,7 @@ protected:
     virtual void updateRecycledModels() = 0;
 
     //! Clear out large state objects for people/attributes that are pruned
-    virtual void
-    clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
+    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
 
     //! Get the objects which calculates corrections for interim buckets.
     const CInterimBucketCorrector& interimValueCorrector() const;

@@ -29,8 +29,7 @@ const size_t CContainerThroughputTest::FILL_SIZE(2);
 const size_t CContainerThroughputTest::TEST_SIZE(10000000);
 
 CppUnit::Test* CContainerThroughputTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CContainerThroughputTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CContainerThroughputTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CContainerThroughputTest>(
         "CContainerThroughputTest::testVector", &CContainerThroughputTest::testVector));

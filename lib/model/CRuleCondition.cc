@@ -173,10 +173,9 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
             return false;
         }
         if (value.size() != typical.size()) {
-            LOG_ERROR(
-                << "Cannot apply rule condition: cannot calculate difference "
-                   "between "
-                << "actual and typical values due to different dimensions.");
+            LOG_ERROR(<< "Cannot apply rule condition: cannot calculate difference "
+                         "between "
+                      << "actual and typical values due to different dimensions.");
             return false;
         }
         for (std::size_t i = 0; i < value.size(); ++i) {

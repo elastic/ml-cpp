@@ -209,8 +209,7 @@ private:
 
     //! Compute the inner product of \p x and \p y.
     template<std::size_t N>
-    static double
-    inner(const CVectorNx1<double, N>& x, const CVectorNx1<double, N>& y) {
+    static double inner(const CVectorNx1<double, N>& x, const CVectorNx1<double, N>& y) {
         return x.inner(y);
     }
 

@@ -54,8 +54,8 @@ CDynamicStringIdRegistry::CDynamicStringIdRegistry(bool isForPersistence,
     }
 }
 
-const std::string&
-CDynamicStringIdRegistry::name(std::size_t id, const std::string& fallback) const {
+const std::string& CDynamicStringIdRegistry::name(std::size_t id,
+                                                  const std::string& fallback) const {
     return id >= m_Names.size() ? fallback : *m_Names[id];
 }
 

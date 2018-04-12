@@ -85,8 +85,8 @@ public:
     //! \param[in] decayRate The rate at which to revert to the non-informative prior.
     //! \return A non-informative prior.
     //! \warning The caller owns the object returned.
-    static CPoissonMeanConjugate
-    nonInformativePrior(double offset = 0.0, double decayRate = 0.0);
+    static CPoissonMeanConjugate nonInformativePrior(double offset = 0.0,
+                                                     double decayRate = 0.0);
 
     //! \name Prior Contract
     //@{
@@ -176,10 +176,10 @@ public:
     //! \param[in] weightStyles Optional variance scale weight styles.
     //! \param[in] weights Optional variance scale weights.
     //! \note \p percentage should be in the range [0.0, 100.0).
-    virtual TDoubleDoublePr
-    marginalLikelihoodConfidenceInterval(double percentage,
-                                         const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                                         const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
+        double percentage,
+        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+        const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the Poisson mean.
@@ -205,8 +205,7 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void
-    sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
 
     //! Compute minus the log of the joint c.d.f. of the marginal likelihood
     //! at \p samples.

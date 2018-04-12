@@ -65,8 +65,7 @@ struct SRestore {
 }
 
 CppUnit::Test* CBasicStatisticsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CBasicStatisticsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBasicStatisticsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
         "CBasicStatisticsTest::testMean", &CBasicStatisticsTest::testMean));

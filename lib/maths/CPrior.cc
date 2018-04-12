@@ -154,8 +154,7 @@ std::string CPrior::printMarginalLikelihoodFunction(double weight) const {
     return abscissa.str() + likelihood.str();
 }
 
-CPrior::SPlot
-CPrior::marginalLikelihoodPlot(unsigned int numberPoints, double weight) const {
+CPrior::SPlot CPrior::marginalLikelihoodPlot(unsigned int numberPoints, double weight) const {
     if (this->isNonInformative()) {
         // The non-informative likelihood is improper 0 everywhere.
         return CPrior::SPlot();

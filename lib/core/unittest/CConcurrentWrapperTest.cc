@@ -204,8 +204,7 @@ void CConcurrentWrapperTest::testMemoryDebug() {
 }
 
 CppUnit::Test* CConcurrentWrapperTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CConcurrentWrapperTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CConcurrentWrapperTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
         "CConcurrentWrapperTest::testBasic", &CConcurrentWrapperTest::testBasic));

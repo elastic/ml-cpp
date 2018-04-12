@@ -470,8 +470,7 @@ void CAgglomerativeClustererTest::testRandom() {
 }
 
 CppUnit::Test* CAgglomerativeClustererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CAgglomerativeClustererTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAgglomerativeClustererTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>(
         "CAgglomerativeClustererTest::testNode", &CAgglomerativeClustererTest::testNode));

@@ -105,8 +105,7 @@ void CEntropySketchTest::testAll() {
 }
 
 CppUnit::Test* CEntropySketchTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CEntropySketchTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEntropySketchTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CEntropySketchTest>(
         "CEntropySketchTest::testAll", &CEntropySketchTest::testAll));

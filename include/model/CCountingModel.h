@@ -176,8 +176,7 @@ public:
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
-    virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! No-op.
     virtual void prune(std::size_t maximumAge);
@@ -194,11 +193,10 @@ public:
                                     SAnnotatedProbability& result) const;
 
     //! Sets \p probability to 1.
-    virtual bool
-    computeTotalProbability(const std::string& person,
-                            std::size_t numberAttributeProbabilities,
-                            TOptionalDouble& probability,
-                            TAttributeProbability1Vec& attributeProbabilities) const;
+    virtual bool computeTotalProbability(const std::string& person,
+                                         std::size_t numberAttributeProbabilities,
+                                         TOptionalDouble& probability,
+                                         TAttributeProbability1Vec& attributeProbabilities) const;
     //@}
 
     //! Get the checksum of this model.
@@ -242,8 +240,7 @@ protected:
 
 private:
     //! Get the scheduled events that match at sampleTime.
-    SModelParams::TStrDetectionRulePrVec
-    checkScheduledEvents(core_t::TTime sampleTime) const;
+    SModelParams::TStrDetectionRulePrVec checkScheduledEvents(core_t::TTime sampleTime) const;
 
     //! Check for scheduled events and append the descriptions of
     //! matched events to the scheduled event descriptions.

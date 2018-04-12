@@ -90,8 +90,8 @@ bool CTimezone::timezoneName(const std::string& name) {
 
     m_Timezone = m_TimezoneDb.time_zone_from_region(name);
     if (m_Timezone == 0) {
-        LOG_ERROR(<< "Unable to set timezone to "
-                  << name << " - operating system timezone settings will be used instead");
+        LOG_ERROR(<< "Unable to set timezone to " << name
+                  << " - operating system timezone settings will be used instead");
         m_Name.clear();
 
         return false;

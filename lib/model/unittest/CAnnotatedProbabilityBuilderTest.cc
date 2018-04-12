@@ -348,8 +348,7 @@ void CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenPopulationRare() 
 }
 
 CppUnit::Test* CAnnotatedProbabilityBuilderTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CAnnotatedProbabilityBuilderTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnnotatedProbabilityBuilderTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
         "CAnnotatedProbabilityBuilderTest::testProbability",

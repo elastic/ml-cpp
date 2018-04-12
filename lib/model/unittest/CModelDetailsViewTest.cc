@@ -148,8 +148,7 @@ void CModelDetailsViewTest::testModelPlot() {
 }
 
 CppUnit::Test* CModelDetailsViewTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CModelDetailsViewTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelDetailsViewTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CModelDetailsViewTest>(
         "CModelDetailsViewTest::testModelPlot", &CModelDetailsViewTest::testModelPlot));

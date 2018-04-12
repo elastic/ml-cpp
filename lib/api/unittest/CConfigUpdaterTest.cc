@@ -29,8 +29,7 @@ using namespace ml;
 using namespace api;
 
 CppUnit::Test* CConfigUpdaterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CConfigUpdaterTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CConfigUpdaterTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
         "CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed",
         &CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed));
@@ -67,8 +66,7 @@ void CConfigUpdaterTest::testUpdateGivenUnknownStanzas() {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
-    CPPUNIT_ASSERT(
-        configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
+    CPPUNIT_ASSERT(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
 }
 
 void CConfigUpdaterTest::testUpdateGivenModelPlotConfig() {
@@ -83,8 +81,7 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig() {
     terms.insert(std::string("b"));
     modelConfig.modelPlotTerms(terms);
 
-    std::string configUpdate(
-        "[modelPlotConfig]\nboundspercentile = 83.5\nterms = c,d\n");
+    std::string configUpdate("[modelPlotConfig]\nboundspercentile = 83.5\nterms = c,d\n");
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
@@ -99,12 +96,10 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig() {
 
 void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
     CFieldConfig fieldConfig;
-    std::string originalRules0(
-        "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
+    std::string originalRules0("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
     originalRules0 += "\"conditions\":[{\"type\":\"numerical_actual\","
                       "\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
-    std::string originalRules1(
-        "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
+    std::string originalRules1("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
     originalRules1 += "\"conditions\":[{\"type\":\"numerical_actual\","
                       "\"condition\":{\"operator\":\"gt\",\"value\":\"5\"}}]}]";
     fieldConfig.parseRules(0, originalRules0);
@@ -113,8 +108,7 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
-    std::string configUpdate0(
-        "[detectorRules]\ndetectorIndex = 0\nrulesJson = []\n");
+    std::string configUpdate0("[detectorRules]\ndetectorIndex = 0\nrulesJson = []\n");
     std::string configUpdate1(
         "[detectorRules]\ndetectorIndex = 1\nrulesJson = "
         "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\","
@@ -137,8 +131,7 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
 
 void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex() {
     CFieldConfig fieldConfig;
-    std::string originalRules(
-        "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
+    std::string originalRules("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
     originalRules += "\"conditions\":[{\"type\":\"numerical_actual\","
                      "\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
     fieldConfig.parseRules(0, originalRules);
@@ -146,8 +139,7 @@ void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex() {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
-    std::string configUpdate(
-        "[detectorRules]\ndetectorIndex = invalid\nrulesJson = []\n");
+    std::string configUpdate("[detectorRules]\ndetectorIndex = invalid\nrulesJson = []\n");
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
@@ -224,30 +216,26 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
     // Set up some events
     {
         boost::property_tree::ptree propTree;
-        propTree.put(boost::property_tree::ptree::path_type(
-                         "scheduledevent.0.description", '\t'),
+        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.0.description", '\t'),
                      "old_event_1");
-        propTree.put(
-            boost::property_tree::ptree::path_type("scheduledevent.0.rules", '\t'), validRule1);
-        propTree.put(boost::property_tree::ptree::path_type(
-                         "scheduledevent.1.description", '\t'),
+        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.0.rules", '\t'),
+                     validRule1);
+        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.1.description", '\t'),
                      "old_event_2");
-        propTree.put(
-            boost::property_tree::ptree::path_type("scheduledevent.1.rules", '\t'), validRule2);
+        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.1.rules", '\t'),
+                     validRule2);
         fieldConfig.updateScheduledEvents(propTree);
 
         const auto& events = fieldConfig.scheduledEvents();
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
         CPPUNIT_ASSERT_EQUAL(std::string("old_event_1"), events[0].first);
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 "
-                        "AND TIME < 2.000000"),
-            events[0].second.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 "
+                                         "AND TIME < 2.000000"),
+                             events[0].second.print());
         CPPUNIT_ASSERT_EQUAL(std::string("old_event_2"), events[1].first);
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 "
-                        "AND TIME < 4.000000"),
-            events[1].second.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 "
+                                         "AND TIME < 4.000000"),
+                             events[1].second.print());
     }
 
     model::CAnomalyDetectorModelConfig modelConfig =
@@ -271,15 +259,13 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
         const auto& events = fieldConfig.scheduledEvents();
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
         CPPUNIT_ASSERT_EQUAL(std::string("new_event_1"), events[0].first);
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 "
-                        "AND TIME < 4.000000"),
-            events[0].second.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 "
+                                         "AND TIME < 4.000000"),
+                             events[0].second.print());
         CPPUNIT_ASSERT_EQUAL(std::string("new_event_2"), events[1].first);
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 "
-                        "AND TIME < 2.000000"),
-            events[1].second.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 "
+                                         "AND TIME < 2.000000"),
+                             events[1].second.print());
     }
 
     // Now test an update that clears the events

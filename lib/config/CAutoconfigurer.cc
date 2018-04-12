@@ -380,13 +380,12 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce() {
         enumerator.addFunction(m_Params.functionsCategoriesToConfigure()[i]);
     }
     for (std::size_t i = 0u; i < m_FieldStatistics.size(); ++i) {
-        static std::string FIELD_NAMES[] = {
-            std::string("categorical argument"),
-            std::string("metric argument"),
-            std::string("by field"),
-            std::string("rare function by field"),
-            std::string("over field"),
-            std::string("partition field")};
+        static std::string FIELD_NAMES[] = {std::string("categorical argument"),
+                                            std::string("metric argument"),
+                                            std::string("by field"),
+                                            std::string("rare function by field"),
+                                            std::string("over field"),
+                                            std::string("partition field")};
         static TAddField ADD_FIELD[] = {&CDetectorEnumerator::addCategoricalFunctionArgument,
                                         &CDetectorEnumerator::addMetricFunctionArgument,
                                         &CDetectorEnumerator::addByField,

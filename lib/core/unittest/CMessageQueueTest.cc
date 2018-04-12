@@ -23,8 +23,7 @@
 #include <stdint.h>
 
 CppUnit::Test* CMessageQueueTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMessageQueueTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMessageQueueTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMessageQueueTest>(
         "CMessageQueueTest::testSendReceive", &CMessageQueueTest::testSendReceive));

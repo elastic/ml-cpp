@@ -67,8 +67,7 @@ inline std::string print(const std::pair<U, V>& p, std::size_t padTo = 0) {
 
 //! Write out a vector of pairs new line delimited.
 template<typename U, typename V>
-inline std::string
-print(const std::vector<std::pair<U, V>>& v, std::size_t padTo = 0) {
+inline std::string print(const std::vector<std::pair<U, V>>& v, std::size_t padTo = 0) {
     std::string result;
     for (std::size_t i = 0u; i < v.size(); ++i) {
         result += print(v[i], padTo) + "\n";

@@ -125,13 +125,12 @@ const std::string& CAnomalyDetectorModel::personName(std::size_t pid) const {
     return m_DataGatherer->personName(pid, core::CStringUtils::typeToString(pid));
 }
 
-const std::string&
-CAnomalyDetectorModel::personName(std::size_t pid, const std::string& fallback) const {
+const std::string& CAnomalyDetectorModel::personName(std::size_t pid,
+                                                     const std::string& fallback) const {
     return m_DataGatherer->personName(pid, fallback);
 }
 
-std::string
-CAnomalyDetectorModel::printPeople(const TSizeVec& pids, std::size_t limit) const {
+std::string CAnomalyDetectorModel::printPeople(const TSizeVec& pids, std::size_t limit) const {
     if (pids.empty()) {
         return std::string();
     }
@@ -159,13 +158,13 @@ const std::string& CAnomalyDetectorModel::attributeName(std::size_t cid) const {
     return m_DataGatherer->attributeName(cid, core::CStringUtils::typeToString(cid));
 }
 
-const std::string&
-CAnomalyDetectorModel::attributeName(std::size_t cid, const std::string& fallback) const {
+const std::string& CAnomalyDetectorModel::attributeName(std::size_t cid,
+                                                        const std::string& fallback) const {
     return m_DataGatherer->attributeName(cid, fallback);
 }
 
-std::string
-CAnomalyDetectorModel::printAttributes(const TSizeVec& cids, std::size_t limit) const {
+std::string CAnomalyDetectorModel::printAttributes(const TSizeVec& cids,
+                                                   std::size_t limit) const {
     if (cids.empty()) {
         return std::string();
     }
@@ -631,8 +630,7 @@ bool CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::exceedsLimit(std
     return !m_ResourceMonitor->haveNoLimit() && m_MemoryUsage(correlations) >= m_ResourceLimit;
 }
 
-std::size_t
-CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::maxNumberCorrelations() const {
+std::size_t CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::maxNumberCorrelations() const {
     return m_MaxNumberCorrelations;
 }
 

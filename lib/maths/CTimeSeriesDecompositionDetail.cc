@@ -630,8 +630,7 @@ std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::memoryUsage() cons
     return usage;
 }
 
-std::size_t
-CTimeSeriesDecompositionDetail::CPeriodicityTest::extraMemoryOnInitialization() const {
+std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::extraMemoryOnInitialization() const {
     static std::size_t result{0};
     if (result == 0) {
         for (auto i : {E_Short, E_Long}) {
@@ -705,8 +704,7 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(const TExpandi
     return window && (window->needToCompress(time) || shouldTest(window));
 }
 
-CExpandingWindow*
-CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test) const {
+CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test) const {
     using TTimeCRng = CExpandingWindow::TTimeCRng;
 
     auto newWindow = [this](const TTimeVec& bucketLengths) {
@@ -877,8 +875,7 @@ std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::memoryUsage() const {
     return usage;
 }
 
-std::size_t
-CTimeSeriesDecompositionDetail::CCalendarTest::extraMemoryOnInitialization() const {
+std::size_t CTimeSeriesDecompositionDetail::CCalendarTest::extraMemoryOnInitialization() const {
     static std::size_t result{0};
     if (result == 0) {
         TCalendarCyclicTestPtr test(new CCalendarCyclicTest(m_DecayRate));
@@ -1597,8 +1594,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::fromDelimite
     return true;
 }
 
-std::string
-CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::toDelimited() const {
+std::string CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::toDelimited() const {
     return m_MeanErrorWithComponent.toDelimited() + CBasicStatistics::EXTERNAL_DELIMITER +
            m_MeanErrorWithoutComponent.toDelimited() + CBasicStatistics::EXTERNAL_DELIMITER;
 }
@@ -1644,8 +1640,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::age(double f
     m_MeanErrorWithoutComponent.age(factor);
 }
 
-uint64_t
-CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::checksum(uint64_t seed) const {
+uint64_t CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MeanErrorWithComponent);
     return CChecksum::calculate(seed, m_MeanErrorWithoutComponent);
 }

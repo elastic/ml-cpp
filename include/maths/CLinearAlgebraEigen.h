@@ -137,8 +137,7 @@ matrixElement(std::ptrdiff_t row, std::ptrdiff_t column, SCALAR value) {
 
 //! Create a tuple with which to initialize a sparse column vector.
 template<typename SCALAR>
-inline CSparseVectorCoordinate<SCALAR>
-vectorCoordinate(std::ptrdiff_t row, SCALAR value) {
+inline CSparseVectorCoordinate<SCALAR> vectorCoordinate(std::ptrdiff_t row, SCALAR value) {
     return CSparseVectorCoordinate<SCALAR>(row, 0, value);
 }
 

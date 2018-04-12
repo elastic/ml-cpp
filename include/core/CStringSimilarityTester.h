@@ -211,8 +211,7 @@ public:
     //! TODO - It may be possible to apply some of the lesser optimisations
     //! from section 2 of Ukkonen's paper to this algorithm.
     template<typename PAIRCONTAINER>
-    size_t
-    weightedEditDistance(const PAIRCONTAINER& first, const PAIRCONTAINER& second) const {
+    size_t weightedEditDistance(const PAIRCONTAINER& first, const PAIRCONTAINER& second) const {
         // This is similar to the levenshteinDistanceSimple() method below,
         // but adding the concept of different costs for each element.  If
         // you are trying to understand this method, you should first make
@@ -300,8 +299,7 @@ private:
     //! assumes that first.size() > 0 and second.size() > 0.  However,
     //! it's best if second.size() >= first.size() in addition.
     template<typename STRINGLIKE>
-    size_t
-    levenshteinDistanceSimple(const STRINGLIKE& first, const STRINGLIKE& second) const {
+    size_t levenshteinDistanceSimple(const STRINGLIKE& first, const STRINGLIKE& second) const {
         // This method implements the simple algorithm for calculating
         // Levenshtein distance.
         //
@@ -370,8 +368,7 @@ private:
     //! This private method assumes that first.size() > 0 and
     //! second.size() >= first.size().
     template<typename STRINGLIKE>
-    size_t
-    berghelRoachEditDistance(const STRINGLIKE& first, const STRINGLIKE& second) const {
+    size_t berghelRoachEditDistance(const STRINGLIKE& first, const STRINGLIKE& second) const {
         // We need to do the calculation using signed variables
         int shortLen(static_cast<int>(first.size()));
         int maxDist(static_cast<int>(second.size()));
@@ -420,8 +417,7 @@ private:
     //! Helper function for the Berghel-Roach edit distance algorithm.  This
     //! is called f(k, p) in http://berghel.net/publications/asm/asm.pdf
     template<typename STRINGLIKE>
-    void
-    calcDist(const STRINGLIKE& first, const STRINGLIKE& second, int row, int column, int** matrix) const {
+    void calcDist(const STRINGLIKE& first, const STRINGLIKE& second, int row, int column, int** matrix) const {
         // 1) Substitution
         int option1(matrix[row][column - 1] + 1);
 
@@ -445,8 +441,7 @@ private:
 
     //! Setup the matrices needed for the Berghel-Roach method of
     //! calculating edit distance
-    static int**
-    setupBerghelRoachMatrix(int longLen, TScopedIntArray& data, TScopedIntPArray& matrix);
+    static int** setupBerghelRoachMatrix(int longLen, TScopedIntArray& data, TScopedIntPArray& matrix);
 
 private:
     //! Required for initialisation of the Berghel-Roach matrix (don't call

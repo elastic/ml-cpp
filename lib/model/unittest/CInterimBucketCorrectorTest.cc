@@ -36,8 +36,7 @@ const double EPSILON = 1e-10;
 }
 
 CppUnit::Test* CInterimBucketCorrectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CInterimBucketCorrectorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CInterimBucketCorrectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
         "CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue",

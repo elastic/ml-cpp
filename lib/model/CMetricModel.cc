@@ -157,8 +157,7 @@ void CMetricModel::currentBucketPersonIds(core_t::TTime time, TSizeVec& result) 
         time, m_CurrentBucketStats.s_FeatureData, result);
 }
 
-CMetricModel::TOptionalDouble
-CMetricModel::baselineBucketCount(const std::size_t /*pid*/) const {
+CMetricModel::TOptionalDouble CMetricModel::baselineBucketCount(const std::size_t /*pid*/) const {
     return TOptionalDouble();
 }
 
@@ -174,13 +173,12 @@ CMetricModel::TDouble1Vec CMetricModel::currentBucketValue(model_t::EFeature fea
     return TDouble1Vec();
 }
 
-CMetricModel::TDouble1Vec
-CMetricModel::baselineBucketMean(model_t::EFeature feature,
-                                 std::size_t pid,
-                                 std::size_t /*cid*/,
-                                 model_t::CResultType type,
-                                 const TSizeDoublePr1Vec& correlated,
-                                 core_t::TTime time) const {
+CMetricModel::TDouble1Vec CMetricModel::baselineBucketMean(model_t::EFeature feature,
+                                                           std::size_t pid,
+                                                           std::size_t /*cid*/,
+                                                           model_t::CResultType type,
+                                                           const TSizeDoublePr1Vec& correlated,
+                                                           core_t::TTime time) const {
     const maths::CModel* model{this->model(feature, pid)};
     if (!model) {
         return TDouble1Vec();

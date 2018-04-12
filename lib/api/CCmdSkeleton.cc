@@ -68,8 +68,7 @@ bool CCmdSkeleton::persistState() {
     }
 
     if (m_Processor.numRecordsHandled() == 0) {
-        LOG_DEBUG(
-            << "Zero records were handled - will not attempt to persist state");
+        LOG_DEBUG(<< "Zero records were handled - will not attempt to persist state");
         return true;
     }
 

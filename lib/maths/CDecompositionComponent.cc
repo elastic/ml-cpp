@@ -125,8 +125,7 @@ void CDecompositionComponent::shiftLevel(double shift) {
     m_MeanValue += shift;
 }
 
-TDoubleDoublePr
-CDecompositionComponent::value(double offset, double n, double confidence) const {
+TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double confidence) const {
     // In order to compute a confidence interval we need to know
     // the distribution of the samples. In practice, as long as
     // they are independent, then the sample mean will be
@@ -166,8 +165,7 @@ double CDecompositionComponent::meanValue() const {
     return m_MeanValue;
 }
 
-TDoubleDoublePr
-CDecompositionComponent::variance(double offset, double n, double confidence) const {
+TDoubleDoublePr CDecompositionComponent::variance(double offset, double n, double confidence) const {
     // In order to compute a confidence interval we need to know
     // the distribution of the samples. In practice, as long as
     // they are independent, then the sample variance will be
@@ -323,8 +321,7 @@ CDecompositionComponent::CPackedSplines::spline(ESpline spline) {
                       boost::ref(m_Curvatures[static_cast<std::size_t>(spline)]));
 }
 
-const CDecompositionComponent::TFloatVec&
-CDecompositionComponent::CPackedSplines::knots() const {
+const CDecompositionComponent::TFloatVec& CDecompositionComponent::CPackedSplines::knots() const {
     return m_Knots;
 }
 

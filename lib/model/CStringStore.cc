@@ -161,9 +161,8 @@ void CStringStore::pruneNotThreadSafe() {
 void CStringStore::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName(this == &CStringStore::names()
                      ? "names StringStore"
-                     : (this == &CStringStore::influencers()
-                            ? "influencers StringStore"
-                            : "unknown StringStore"));
+                     : (this == &CStringStore::influencers() ? "influencers StringStore"
+                                                             : "unknown StringStore"));
     mem->addItem("empty string ptr", m_EmptyString.actualMemoryUsage());
     core::CScopedFastLock lock(m_Mutex);
     core::CMemoryDebug::dynamicSize("stored strings", m_Strings, mem);

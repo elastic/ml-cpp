@@ -88,8 +88,7 @@ void CContainerPrinterTest::testAll() {
 }
 
 CppUnit::Test* CContainerPrinterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CContainerPrinterTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CContainerPrinterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CContainerPrinterTest>(
         "CContainerPrinterTest::testAll", &CContainerPrinterTest::testAll));

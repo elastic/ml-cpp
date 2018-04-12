@@ -73,13 +73,12 @@ CMockModel::TDouble1Vec CMockModel::currentBucketValue(model_t::EFeature feature
     return i != m_BucketValues.end() ? i->second : TDouble1Vec();
 }
 
-CMockModel::TDouble1Vec
-CMockModel::baselineBucketMean(model_t::EFeature feature,
-                               std::size_t pid,
-                               std::size_t cid,
-                               model_t::CResultType /*type*/,
-                               const TSizeDoublePr1Vec& /*correlated*/,
-                               core_t::TTime time) const {
+CMockModel::TDouble1Vec CMockModel::baselineBucketMean(model_t::EFeature feature,
+                                                       std::size_t pid,
+                                                       std::size_t cid,
+                                                       model_t::CResultType /*type*/,
+                                                       const TSizeDoublePr1Vec& /*correlated*/,
+                                                       core_t::TTime time) const {
     auto i = m_BucketBaselineMeans.find({feature, core::make_triple(pid, cid, time)});
     return i != m_BucketBaselineMeans.end() ? i->second : TDouble1Vec();
 }

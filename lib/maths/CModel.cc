@@ -153,25 +153,21 @@ const maths_t::TWeightStyleVec& CModelAddSamplesParams::weightStyles() const {
     return *m_WeightStyles;
 }
 
-CModelAddSamplesParams&
-CModelAddSamplesParams::trendWeights(const TDouble2Vec4VecVec& weights) {
+CModelAddSamplesParams& CModelAddSamplesParams::trendWeights(const TDouble2Vec4VecVec& weights) {
     m_TrendWeights = &weights;
     return *this;
 }
 
-const CModelAddSamplesParams::TDouble2Vec4VecVec&
-CModelAddSamplesParams::trendWeights() const {
+const CModelAddSamplesParams::TDouble2Vec4VecVec& CModelAddSamplesParams::trendWeights() const {
     return *m_TrendWeights;
 }
 
-CModelAddSamplesParams&
-CModelAddSamplesParams::priorWeights(const TDouble2Vec4VecVec& weights) {
+CModelAddSamplesParams& CModelAddSamplesParams::priorWeights(const TDouble2Vec4VecVec& weights) {
     m_PriorWeights = &weights;
     return *this;
 }
 
-const CModelAddSamplesParams::TDouble2Vec4VecVec&
-CModelAddSamplesParams::priorWeights() const {
+const CModelAddSamplesParams::TDouble2Vec4VecVec& CModelAddSamplesParams::priorWeights() const {
     return *m_PriorWeights;
 }
 
@@ -203,8 +199,7 @@ maths_t::EProbabilityCalculation CModelProbabilityParams::calculation(std::size_
     return m_Calculations.size() == 1 ? m_Calculations[0] : m_Calculations[i];
 }
 
-CModelProbabilityParams&
-CModelProbabilityParams::seasonalConfidenceInterval(double confidence) {
+CModelProbabilityParams& CModelProbabilityParams::seasonalConfidenceInterval(double confidence) {
     m_SeasonalConfidenceInterval = confidence;
     return *this;
 }
@@ -232,20 +227,17 @@ const maths_t::TWeightStyleVec& CModelProbabilityParams::weightStyles() const {
     return *m_WeightStyles;
 }
 
-CModelProbabilityParams&
-CModelProbabilityParams::addWeights(const TDouble2Vec4Vec& weights) {
+CModelProbabilityParams& CModelProbabilityParams::addWeights(const TDouble2Vec4Vec& weights) {
     m_Weights.push_back(weights);
     return *this;
 }
 
-CModelProbabilityParams&
-CModelProbabilityParams::weights(const TDouble2Vec4Vec1Vec& weights) {
+CModelProbabilityParams& CModelProbabilityParams::weights(const TDouble2Vec4Vec1Vec& weights) {
     m_Weights = weights;
     return *this;
 }
 
-const CModelProbabilityParams::TDouble2Vec4Vec1Vec&
-CModelProbabilityParams::weights() const {
+const CModelProbabilityParams::TDouble2Vec4Vec1Vec& CModelProbabilityParams::weights() const {
     return m_Weights;
 }
 
@@ -262,14 +254,12 @@ const CModelProbabilityParams::TSize2Vec& CModelProbabilityParams::coordinates()
     return m_Coordinates;
 }
 
-CModelProbabilityParams&
-CModelProbabilityParams::mostAnomalousCorrelate(std::size_t correlate) {
+CModelProbabilityParams& CModelProbabilityParams::mostAnomalousCorrelate(std::size_t correlate) {
     m_MostAnomalousCorrelate.reset(correlate);
     return *this;
 }
 
-CModelProbabilityParams::TOptionalSize
-CModelProbabilityParams::mostAnomalousCorrelate() const {
+CModelProbabilityParams::TOptionalSize CModelProbabilityParams::mostAnomalousCorrelate() const {
     return m_MostAnomalousCorrelate;
 }
 
@@ -396,9 +386,8 @@ CModelStub::residualModes(const maths_t::TWeightStyleVec& /*weightStyles*/,
 void CModelStub::addBucketValue(const TTimeDouble2VecSizeTrVec& /*value*/) {
 }
 
-CModelStub::EUpdateResult
-CModelStub::addSamples(const CModelAddSamplesParams& /*params*/,
-                       TTimeDouble2VecSizeTrVec /*samples*/) {
+CModelStub::EUpdateResult CModelStub::addSamples(const CModelAddSamplesParams& /*params*/,
+                                                 TTimeDouble2VecSizeTrVec /*samples*/) {
     return E_Success;
 }
 
@@ -454,8 +443,8 @@ CModelStub::TDouble2Vec CModelStub::winsorisationWeight(double /*derate*/,
     return TDouble2Vec();
 }
 
-CModelStub::TDouble2Vec
-CModelStub::seasonalWeight(double /*confidence*/, core_t::TTime /*time*/) const {
+CModelStub::TDouble2Vec CModelStub::seasonalWeight(double /*confidence*/,
+                                                   core_t::TTime /*time*/) const {
     return TDouble2Vec();
 }
 

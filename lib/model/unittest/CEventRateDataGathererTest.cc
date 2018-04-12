@@ -696,9 +696,8 @@ void CEventRateDataGathererTest::multipleSeriesTests() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
         CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                              featureData[0].first);
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
-            core::CContainerPrinter::print(featureData[0].second));
+        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
+                             core::CContainerPrinter::print(featureData[0].second));
 
         TSizeVec peopleToRemove;
         peopleToRemove.push_back(0);
@@ -1275,9 +1274,8 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
         CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
                              featureData[0].first);
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
-            core::CContainerPrinter::print(featureData[0].second));
+        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
+                             core::CContainerPrinter::print(featureData[0].second));
 
         TSizeVec peopleToRemove;
         peopleToRemove.push_back(0);
@@ -1696,10 +1694,9 @@ void CEventRateDataGathererTest::testDistinctStrings() {
                           featureData.s_InfluenceValues[i].end(),
                           maths::COrderings::SFirstLess());
             }
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1))], "
-                            "[(inf_v2, ([1], 1)), (inf_v3, ([2], 1))]]"),
-                featureData.print());
+            CPPUNIT_ASSERT_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1))], "
+                                             "[(inf_v2, ([1], 1)), (inf_v3, ([2], 1))]]"),
+                                 featureData.print());
         }
     }
     {
@@ -1827,10 +1824,9 @@ void CEventRateDataGathererTest::testDistinctStrings() {
                           featureData.s_InfluenceValues[i].end(),
                           maths::COrderings::SFirstLess());
             }
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1))], "
-                            "[(inf_v2, ([12], 1)), (inf_v3, ([16], 1))]]"),
-                featureData.print());
+            CPPUNIT_ASSERT_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1))], "
+                                             "[(inf_v2, ([12], 1)), (inf_v3, ([16], 1))]]"),
+                                 featureData.print());
         }
     }
     {
@@ -2383,8 +2379,7 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 }
 
 CppUnit::Test* CEventRateDataGathererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CEventRateDataGathererTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateDataGathererTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
         "CEventRateDataGathererTest::singleSeriesTests",

@@ -225,8 +225,7 @@ private:
 
     //! send a message using \p write
     template<typename WRITE>
-    void
-    sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const;
+    void sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const;
 
     //! parse and validate a forecast request and turn it into a forecast job
     static bool

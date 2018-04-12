@@ -165,16 +165,14 @@ void CEventRateModel::currentBucketPersonIds(core_t::TTime time, TSizeVec& resul
         time, m_CurrentBucketStats.s_FeatureData, result);
 }
 
-CEventRateModel::TOptionalDouble
-CEventRateModel::baselineBucketCount(std::size_t /*pid*/) const {
+CEventRateModel::TOptionalDouble CEventRateModel::baselineBucketCount(std::size_t /*pid*/) const {
     return TOptionalDouble();
 }
 
-CEventRateModel::TDouble1Vec
-CEventRateModel::currentBucketValue(model_t::EFeature feature,
-                                    std::size_t pid,
-                                    std::size_t /*cid*/,
-                                    core_t::TTime time) const {
+CEventRateModel::TDouble1Vec CEventRateModel::currentBucketValue(model_t::EFeature feature,
+                                                                 std::size_t pid,
+                                                                 std::size_t /*cid*/,
+                                                                 core_t::TTime time) const {
     const TFeatureData* data = this->featureData(feature, pid, time);
     if (data) {
         return TDouble1Vec(1, static_cast<double>(data->s_Count));

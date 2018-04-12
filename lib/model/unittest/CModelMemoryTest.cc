@@ -38,8 +38,7 @@ namespace {
 
 using TDoubleVec = std::vector<double>;
 
-std::size_t
-addPerson(const std::string& p, const CModelFactory::TDataGathererPtr& gatherer) {
+std::size_t addPerson(const std::string& p, const CModelFactory::TDataGathererPtr& gatherer) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
     person.resize(gatherer->fieldsOfInterest().size(), nullptr);
@@ -180,8 +179,7 @@ void CModelMemoryTest::testOnlineMetricModel() {
 }
 
 CppUnit::Test* CModelMemoryTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CModelMemoryTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelMemoryTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>(
         "CModelMemoryTest::testOnlineEventRateModel", &CModelMemoryTest::testOnlineEventRateModel));

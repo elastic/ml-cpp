@@ -227,7 +227,8 @@ void CStateCompressorTest::testStreaming() {
         }
         CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
-        while (traverser.next()) {};
+        while (traverser.next()) {
+        };
         LOG_TRACE(<< "Asked for: " << mockKvSearcher.askedFor());
         CPPUNIT_ASSERT_EQUAL(mockKvSearcher.askedFor(), mockKvAdder.data().size());
     }
@@ -308,8 +309,7 @@ void CStateCompressorTest::testChunking() {
 }
 
 CppUnit::Test* CStateCompressorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CStateCompressorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStateCompressorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>(
         "CStateCompressorTest::testForApiNoKey", &CStateCompressorTest::testForApiNoKey));

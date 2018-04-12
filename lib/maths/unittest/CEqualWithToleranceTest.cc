@@ -229,8 +229,7 @@ void CEqualWithToleranceTest::testMatrix() {
 }
 
 CppUnit::Test* CEqualWithToleranceTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CEqualWithToleranceTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEqualWithToleranceTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CEqualWithToleranceTest>(
         "CEqualWithToleranceTest::testScalar", &CEqualWithToleranceTest::testScalar));

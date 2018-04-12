@@ -270,8 +270,7 @@ void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime) {
     m_PreviousTotal = total;
 }
 
-CResourceMonitor::SResults
-CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
+CResourceMonitor::SResults CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     SResults res;
     res.s_ByFields = 0;
     res.s_OverFields = 0;

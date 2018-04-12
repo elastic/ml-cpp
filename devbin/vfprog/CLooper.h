@@ -40,16 +40,13 @@ class CIncrementer;
 class CLooper {
 public:
     //! Loop calling the inlined incrementer
-    static size_t
-    inlinedProgramCallLoop(CIncrementer& incrementer, size_t count, size_t val);
+    static size_t inlinedProgramCallLoop(CIncrementer& incrementer, size_t count, size_t val);
 
     //! Loop calling the non-virtual incrementer
-    static size_t
-    nonVirtualProgramCallLoop(CIncrementer& incrementer, size_t count, size_t val);
+    static size_t nonVirtualProgramCallLoop(CIncrementer& incrementer, size_t count, size_t val);
 
     //! Loop calling the virtual incrementer
-    static size_t
-    virtualProgramCallLoop(CIncrementer& incrementer, size_t count, size_t val);
+    static size_t virtualProgramCallLoop(CIncrementer& incrementer, size_t count, size_t val);
 
     //! Loop calling the inlined incrementer
     static size_t

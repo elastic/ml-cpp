@@ -101,9 +101,8 @@ bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields,
     }
 
     if (m_DataProcessor.handleRecord(m_WorkRecordFields) == false) {
-        LOG_ERROR(
-            << "Chained data processor function returned false for record:" << core_t::LINE_ENDING
-            << CDataProcessor::debugPrintRecord(m_WorkRecordFields));
+        LOG_ERROR(<< "Chained data processor function returned false for record:" << core_t::LINE_ENDING
+                  << CDataProcessor::debugPrintRecord(m_WorkRecordFields));
         return false;
     }
 

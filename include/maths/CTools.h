@@ -225,8 +225,7 @@ public:
         //! the log of the mixture p.d.f. It is expected to have a function
         //! like signature double (double).
         template<typename LOGF, typename EQUAL>
-        bool
-        leftTail(const LOGF& logf, std::size_t iterations, const EQUAL& equal, double& result) const;
+        bool leftTail(const LOGF& logf, std::size_t iterations, const EQUAL& equal, double& result) const;
 
         //! Find the right tail argument with the same p.d.f. value
         //! as the sample.
@@ -244,8 +243,7 @@ public:
         //! the log of the mixture p.d.f. It is expected to have a function
         //! like signature double (double).
         template<typename LOGF, typename EQUAL>
-        bool
-        rightTail(const LOGF& logf, std::size_t iterations, const EQUAL& equal, double& result) const;
+        bool rightTail(const LOGF& logf, std::size_t iterations, const EQUAL& equal, double& result) const;
 
         //! Compute the probability of a less likely sample.
         //!
@@ -471,9 +469,8 @@ private:
             for (std::size_t i = 0u; i < BINS;
                  ++i, x.s_Mantissa = (x.s_Mantissa + dx) & core::CIEEE754::IEEE754_MANTISSA_MASK) {
                 double value;
-                static_assert(
-                    sizeof(double) == sizeof(core::CIEEE754::SDoubleRep),
-                    "SDoubleRep definition unsuitable for memcpy to double");
+                static_assert(sizeof(double) == sizeof(core::CIEEE754::SDoubleRep),
+                              "SDoubleRep definition unsuitable for memcpy to double");
                 // Use memcpy() rather than union to adhere to strict
                 // aliasing rules
                 std::memcpy(&value, &x, sizeof(double));
@@ -669,12 +666,10 @@ public:
     }
 
     //! Shift \p x to the left by \p eps times \p x.
-    static double
-    shiftLeft(double x, double eps = std::numeric_limits<double>::epsilon());
+    static double shiftLeft(double x, double eps = std::numeric_limits<double>::epsilon());
 
     //! Shift \p x to the right by \p eps times \p x.
-    static double
-    shiftRight(double x, double eps = std::numeric_limits<double>::epsilon());
+    static double shiftRight(double x, double eps = std::numeric_limits<double>::epsilon());
 
     //! Sigmoid function of \p p.
     static double sigmoid(double p) { return 1.0 / (1.0 + 1.0 / p); }

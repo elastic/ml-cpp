@@ -233,8 +233,7 @@ int main(int argc, char** argv) {
 
     if (!quantilesStateFile.empty()) {
         if (job.initNormalizer(quantilesStateFile) == false) {
-            LOG_FATAL(
-                << "Failed to restore quantiles and initialize normalizer");
+            LOG_FATAL(<< "Failed to restore quantiles and initialize normalizer");
             return EXIT_FAILURE;
         }
         if (deleteStateFiles) {

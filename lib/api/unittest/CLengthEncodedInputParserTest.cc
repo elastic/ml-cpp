@@ -34,8 +34,7 @@
 #endif
 
 CppUnit::Test* CLengthEncodedInputParserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CLengthEncodedInputParserTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLengthEncodedInputParserTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
         "CLengthEncodedInputParserTest::testCsvEquivalence",

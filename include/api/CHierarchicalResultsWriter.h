@@ -162,8 +162,7 @@ public:
                                const TPivotWriterFunc& pivotsWriterFunc);
 
     //! Write \p node.
-    virtual void
-    visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot);
+    virtual void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot);
 
 private:
     //! Write out a population person result if \p node is a

@@ -212,8 +212,7 @@ private:
     virtual bool inWindow(core_t::TTime time) const = 0;
 
     //! Add the function value at \p time.
-    virtual void
-    add(std::size_t bucket, core_t::TTime time, double value, double weight) = 0;
+    virtual void add(std::size_t bucket, core_t::TTime time, double value, double weight) = 0;
 
     //! Get the offset w.r.t. the start of the bucketing of \p time.
     virtual double offset(core_t::TTime time) const = 0;
@@ -222,8 +221,7 @@ private:
     virtual double count(std::size_t bucket) const = 0;
 
     //! Get the predicted value for the \p bucket at \p time.
-    virtual double
-    predict(std::size_t bucket, core_t::TTime time, double offset) const = 0;
+    virtual double predict(std::size_t bucket, core_t::TTime time, double offset) const = 0;
 
     //! Get the variance of \p bucket.
     virtual double variance(std::size_t bucket) const = 0;

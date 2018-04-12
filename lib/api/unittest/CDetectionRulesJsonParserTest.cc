@@ -30,8 +30,7 @@ TStrPatternSetUMap EMPTY_VALUE_FILTER_MAP;
 }
 
 CppUnit::Test* CDetectionRulesJsonParserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CDetectionRulesJsonParserTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectionRulesJsonParserTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
         "CDetectionRulesJsonParserTest::testParseRulesGivenEmptyString",
@@ -280,8 +279,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionOperator(
     std::string rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"conditions\": [";
-    rulesJson +=
-        "    {\"type\":\"numerical_actual\", \"condition\":{\"value\":\"5\"}}";
+    rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"value\":\"5\"}}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -309,8 +307,7 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator(
 }
 
 void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithConnectiveOr() {
-    LOG_DEBUG(
-        << "*** testParseRulesGivenNumericalActualRuleWithConnectiveOr ***");
+    LOG_DEBUG(<< "*** testParseRulesGivenNumericalActualRuleWithConnectiveOr ***");
 
     CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
@@ -350,10 +347,9 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalTypicalAndDiffAb
     rulesJson += "  \"conditions\": [";
     rulesJson += "    {\"type\":\"numerical_typical\", "
                  "\"condition\":{\"operator\":\"gt\",\"value\":\"5\"}},";
-    rulesJson +=
-        "    {\"type\":\"numerical_diff_abs\", \"field_name\":\"metric\", "
-        "\"field_value\":\"cpu\",\"condition\":{\"operator\":\"gte\",\"value\":"
-        "\"2.3\"}}";
+    rulesJson += "    {\"type\":\"numerical_diff_abs\", \"field_name\":\"metric\", "
+                 "\"field_value\":\"cpu\",\"condition\":{\"operator\":\"gte\",\"value\":"
+                 "\"2.3\"}}";
     rulesJson += "  ]";
     rulesJson += "}";
     rulesJson += "]";
@@ -397,10 +393,10 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules() {
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), rules.size());
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("FILTER_RESULTS (id:foo) IF ACTUAL < 1.000000"), rules[0].print());
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("SKIP_SAMPLING (id:42) IF ACTUAL < 2.000000"), rules[1].print());
+    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS (id:foo) IF ACTUAL < 1.000000"),
+                         rules[0].print());
+    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_SAMPLING (id:42) IF ACTUAL < 2.000000"),
+                         rules[1].print());
 }
 
 void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalMatchRule() {

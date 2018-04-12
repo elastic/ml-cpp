@@ -25,8 +25,7 @@
 #include <sstream>
 
 CppUnit::Test* CCsvOutputWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CCsvOutputWriterTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCsvOutputWriterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
         "CCsvOutputWriterTest::testAdd", &CCsvOutputWriterTest::testAdd));
@@ -85,8 +84,7 @@ void CCsvOutputWriterTest::testAdd() {
     originalFields["_cd"] = "0:3933689";
     originalFields["_indextime"] = "1337698174";
     originalFields["_kv"] = "1";
-    originalFields["_raw"] =
-        "2010-02-11 16:11:19+00,service has started,160198,24";
+    originalFields["_raw"] = "2010-02-11 16:11:19+00,service has started,160198,24";
     originalFields["_serial"] = "14";
     originalFields["_si"] = "linux.prelert.com\nmain";
     originalFields["_sourcetype"] = "rmds";
@@ -187,8 +185,7 @@ void CCsvOutputWriterTest::testOverwrite() {
     originalFields["_cd"] = "0:3933689";
     originalFields["_indextime"] = "1337698174";
     originalFields["_kv"] = "1";
-    originalFields["_raw"] =
-        "2010-02-11 16:11:19+00,service has started,160198,24";
+    originalFields["_raw"] = "2010-02-11 16:11:19+00,service has started,160198,24";
     originalFields["_serial"] = "14";
     originalFields["_si"] = "linux.prelert.com\nmain";
     originalFields["_sourcetype"] = "rmds";
@@ -299,8 +296,7 @@ void CCsvOutputWriterTest::testThroughput() {
     originalFields["_cd"] = "0:3933689";
     originalFields["_indextime"] = "1337698174";
     originalFields["_kv"] = "1";
-    originalFields["_raw"] =
-        "2010-02-11 16:11:19+00,service has started,160198,24";
+    originalFields["_raw"] = "2010-02-11 16:11:19+00,service has started,160198,24";
     originalFields["_serial"] = "14";
     originalFields["_si"] = "linux.prelert.com\nmain";
     originalFields["_sourcetype"] = "rmds";

@@ -69,7 +69,8 @@ void CPolledDataPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
                                                   static_cast<double>(*interval) /
                                                   LOG_TENTH_NUMBER_POLLING_INTERVALS));
                     std::fill_n(std::back_inserter(descriptions), indices_.size(),
-                                CTools::prettyPrint(candidates[bid]) + " is shorter than possible polling interval " +
+                                CTools::prettyPrint(candidates[bid]) +
+                                    " is shorter than possible polling interval " +
                                     CTools::prettyPrint(*interval));
                 }
             }

@@ -248,8 +248,7 @@ void CCountingModelTest::testCheckScheduledEvents() {
 }
 
 CppUnit::Test* CCountingModelTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CCountingModelTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCountingModelTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCountingModelTest>(
         "CCountingModelTest::testSkipSampling", &CCountingModelTest::testSkipSampling));

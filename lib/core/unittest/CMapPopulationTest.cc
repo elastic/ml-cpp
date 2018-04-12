@@ -33,8 +33,7 @@ CMapPopulationTest::CMapPopulationTest() : m_TestData(nullptr) {
 }
 
 CppUnit::Test* CMapPopulationTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMapPopulationTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMapPopulationTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMapPopulationTest>(
         "CMapPopulationTest::testMapInsertSpeed", &CMapPopulationTest::testMapInsertSpeed));
@@ -78,13 +77,11 @@ CMapPopulationTest::CTestData::CTestData(size_t fillSize)
     }
 }
 
-const CMapPopulationTest::CTestData::TStrVec&
-CMapPopulationTest::CTestData::stringKeys() const {
+const CMapPopulationTest::CTestData::TStrVec& CMapPopulationTest::CTestData::stringKeys() const {
     return m_StringKeys;
 }
 
-const CMapPopulationTest::CTestData::TStrVec&
-CMapPopulationTest::CTestData::stringVals() const {
+const CMapPopulationTest::CTestData::TStrVec& CMapPopulationTest::CTestData::stringVals() const {
     return m_StringVals;
 }
 

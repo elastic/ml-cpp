@@ -76,13 +76,12 @@ public:
     //! \param[in] minimumClusterCount The minimum count of points in a
     //! cluster.
     template<typename T, std::size_t N>
-    static inline CClusterer<CVectorNx1<T, N>>*
-    make(maths_t::EDataType dataType,
-         maths_t::EClusterWeightCalc weightCalc,
-         double decayRate,
-         double minimumClusterFraction,
-         double minimumClusterCount,
-         double minimumCategoryCount) {
+    static inline CClusterer<CVectorNx1<T, N>>* make(maths_t::EDataType dataType,
+                                                     maths_t::EClusterWeightCalc weightCalc,
+                                                     double decayRate,
+                                                     double minimumClusterFraction,
+                                                     double minimumClusterCount,
+                                                     double minimumCategoryCount) {
         return xmeans_online_factory_detail::CFactory<T, N>::make(
             dataType, weightCalc, decayRate, minimumClusterFraction,
             minimumClusterCount, minimumCategoryCount);

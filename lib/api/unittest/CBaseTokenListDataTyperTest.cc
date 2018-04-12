@@ -17,8 +17,7 @@
 #include <api/CBaseTokenListDataTyper.h>
 
 CppUnit::Test* CBaseTokenListDataTyperTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CBaseTokenListDataTyperTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBaseTokenListDataTyperTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CBaseTokenListDataTyperTest>(
         "CBaseTokenListDataTyperTest::testMinMatchingWeights",

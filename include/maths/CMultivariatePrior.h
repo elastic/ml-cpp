@@ -203,14 +203,12 @@ public:
     virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec& value) const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec
-    marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
-                           const TDouble10Vec4Vec& weights) const = 0;
+    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
+                                                const TDouble10Vec4Vec& weights) const = 0;
 
     //! Get the local maxima of the marginal likelihood function.
-    virtual TDouble10Vec1Vec
-    marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
-                            const TDouble10Vec4Vec& weights) const;
+    virtual TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
+                                                     const TDouble10Vec4Vec& weights) const;
 
     //! Get the covariance matrix for the marginal likelihood.
     virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const = 0;

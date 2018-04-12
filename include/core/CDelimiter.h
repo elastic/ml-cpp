@@ -120,8 +120,8 @@ private:
     //! The character used to escape the quote character ('\0' if none).
     char m_Escape;
 
-    friend CORE_EXPORT std::ostream&
-    operator<<(std::ostream& strm, const CDelimiter& delimiter);
+    friend CORE_EXPORT std::ostream& operator<<(std::ostream& strm,
+                                                const CDelimiter& delimiter);
 };
 
 //! Useful for debugging and CPPUNIT_ASSERT_EQUALS

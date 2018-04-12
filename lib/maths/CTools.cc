@@ -255,8 +255,8 @@ double CTools::SMinusLogCdf::operator()(const students_t& students, double x) co
     return safeMinusLogCdf(safeCdf(students, x));
 }
 
-double CTools::SMinusLogCdf::
-operator()(const negative_binomial& negativeBinomial, double x) const {
+double CTools::SMinusLogCdf::operator()(const negative_binomial& negativeBinomial,
+                                        double x) const {
     return safeMinusLogCdf(safeCdf(negativeBinomial, x));
 }
 
@@ -278,8 +278,7 @@ double CTools::SMinusLogCdf::operator()(const beta& beta_, double x) const {
 
 //////// SMinusLogCdfComplement Implementation ////////
 
-double CTools::SMinusLogCdfComplement::
-operator()(const SImproperDistribution&, double) const {
+double CTools::SMinusLogCdfComplement::operator()(const SImproperDistribution&, double) const {
     return -std::log(1.0 - IMPROPER_CDF);
 }
 
@@ -287,8 +286,7 @@ double CTools::SMinusLogCdfComplement::operator()(const normal& normal_, double 
     return safeMinusLogCdf(safeCdfComplement(normal_, x));
 }
 
-double CTools::SMinusLogCdfComplement::
-operator()(const students_t& students, double x) const {
+double CTools::SMinusLogCdfComplement::operator()(const students_t& students, double x) const {
     return safeMinusLogCdf(safeCdfComplement(students, x));
 }
 
@@ -297,13 +295,12 @@ operator()(const negative_binomial& negativeBinomial, double x) const {
     return safeMinusLogCdf(safeCdfComplement(negativeBinomial, x));
 }
 
-double CTools::SMinusLogCdfComplement::
-operator()(const lognormal& logNormal, double x) const {
+double CTools::SMinusLogCdfComplement::operator()(const lognormal& logNormal, double x) const {
     return safeMinusLogCdf(safeCdfComplement(logNormal, x));
 }
 
-double CTools::SMinusLogCdfComplement::
-operator()(const CLogTDistribution& logt, double x) const {
+double CTools::SMinusLogCdfComplement::operator()(const CLogTDistribution& logt,
+                                                  double x) const {
     return safeMinusLogCdf(maths::cdfComplement(logt, x));
 }
 
@@ -1374,8 +1371,7 @@ const double CTools::CMixtureProbabilityOfLessLikelySample::LOG_ROOT_TWO_PI =
 
 //////// SIntervalExpectation Implementation ////////
 
-double CTools::SIntervalExpectation::
-operator()(const normal& normal_, double a, double b) const {
+double CTools::SIntervalExpectation::operator()(const normal& normal_, double a, double b) const {
     if (a > b) {
         std::swap(a, b);
     }
@@ -1437,8 +1433,7 @@ operator()(const lognormal& logNormal, double a, double b) const {
     return mean * (erfb - erfa) / (erfb_ - erfa_);
 }
 
-double CTools::SIntervalExpectation::
-operator()(const gamma& gamma_, double a, double b) const {
+double CTools::SIntervalExpectation::operator()(const gamma& gamma_, double a, double b) const {
     if (a > b) {
         std::swap(a, b);
     }

@@ -358,11 +358,10 @@ LOG_DETERMINANT(double, 3)
 LOG_DETERMINANT(double, 4)
 LOG_DETERMINANT(double, 5)
 #undef LOG_DETERMINANT
-maths_t::EFloatingPointErrorStatus
-logDeterminant(std::size_t d,
-               const CSymmetricMatrix<CFloatStorage>& matrix,
-               double& result,
-               bool ignoreSingularSubspace) {
+maths_t::EFloatingPointErrorStatus logDeterminant(std::size_t d,
+                                                  const CSymmetricMatrix<CFloatStorage>& matrix,
+                                                  double& result,
+                                                  bool ignoreSingularSubspace) {
     return CLogDeterminant<SDenseMatrix<CSymmetricMatrix<CFloatStorage>>::Type>::compute(
         d, matrix, result, ignoreSingularSubspace);
 }

@@ -540,8 +540,7 @@ public:
                 CJointProbabilityOfLessLikelySamples::SAddProbability(), m_IsNonInformative,
                 m_Offset + x, m_LikelihoodShape, m_PriorShape, m_PriorRate, probability) ||
             !probability.calculate(result)) {
-            LOG_ERROR(
-                << "Failed to compute probability of less likely samples");
+            LOG_ERROR(<< "Failed to compute probability of less likely samples");
             return false;
         }
 

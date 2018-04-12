@@ -32,12 +32,11 @@ CCsvOutputWriter::CCsvOutputWriter(bool outputMessages, bool outputHeader, char 
     : m_StrmOut(m_StringOutputBuf), m_OutputMessages(outputMessages),
       m_OutputHeader(outputHeader), m_Escape(escape), m_Separator(separator) {
     if (m_Separator == QUOTE || m_Separator == m_Escape || m_Separator == RECORD_END) {
-        LOG_ERROR(
-            << "CSV output writer will not generate parsable output because "
-               "separator character ("
-            << m_Separator
-            << ") is the same as "
-               "the quote, escape and/or record end characters");
+        LOG_ERROR(<< "CSV output writer will not generate parsable output because "
+                     "separator character ("
+                  << m_Separator
+                  << ") is the same as "
+                     "the quote, escape and/or record end characters");
     }
 }
 
@@ -49,12 +48,11 @@ CCsvOutputWriter::CCsvOutputWriter(std::ostream& strmOut,
     : m_StrmOut(strmOut), m_OutputMessages(outputMessages),
       m_OutputHeader(outputHeader), m_Escape(escape), m_Separator(separator) {
     if (m_Separator == QUOTE || m_Separator == m_Escape || m_Separator == RECORD_END) {
-        LOG_ERROR(
-            << "CSV output writer will not generate parsable output because "
-               "separator character ("
-            << m_Separator
-            << ") is the same as "
-               "the quote, escape and/or record end characters");
+        LOG_ERROR(<< "CSV output writer will not generate parsable output because "
+                     "separator character ("
+                  << m_Separator
+                  << ") is the same as "
+                     "the quote, escape and/or record end characters");
     }
 }
 
@@ -171,10 +169,9 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
         if (fieldValueIter == overrideDataRowFields.end()) {
             fieldValueIter = dataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
             if (fieldValueIter == dataRowFields.end()) {
-                LOG_ERROR(
-                    << "Data fields to be written do not include a value for "
-                       "field "
-                    << *fieldNameIter);
+                LOG_ERROR(<< "Data fields to be written do not include a value for "
+                             "field "
+                          << *fieldNameIter);
                 return false;
             }
         }

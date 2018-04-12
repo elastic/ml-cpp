@@ -644,8 +644,7 @@ void CStringStoreTest::testInfluencerStringPruning() {
 }
 
 CppUnit::Test* CStringStoreTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CStringStoreTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>(
         "CStringStoreTest::testPersonStringPruning", &CStringStoreTest::testPersonStringPruning));

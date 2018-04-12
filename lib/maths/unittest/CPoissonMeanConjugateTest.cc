@@ -406,12 +406,9 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodMode() {
 }
 
 void CPoissonMeanConjugateTest::testMarginalLikelihoodVariance() {
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CPoissonMeanConjugateTest::testMarginalLikelihoodVariance  |");
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testMarginalLikelihoodVariance  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
 
     const double rates[] = {0.1, 5.0, 100.0};
 
@@ -455,12 +452,9 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodVariance() {
 }
 
 void CPoissonMeanConjugateTest::testSampleMarginalLikelihood() {
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CPoissonMeanConjugateTest::testSampleMarginalLikelihood  |");
-    LOG_DEBUG(
-        << "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CPoissonMeanConjugateTest::testSampleMarginalLikelihood  |");
+    LOG_DEBUG(<< "+-----------------------------------------------------------+");
 
     // We're going to test two properties of the sampling:
     //   1) That the sample mean is equal to the marginal
@@ -1003,8 +997,7 @@ void CPoissonMeanConjugateTest::testNegativeSample() {
 }
 
 CppUnit::Test* CPoissonMeanConjugateTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CPoissonMeanConjugateTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPoissonMeanConjugateTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
         "CPoissonMeanConjugateTest::testMultipleUpdate",

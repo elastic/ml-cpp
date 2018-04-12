@@ -346,8 +346,7 @@ public:
 
     //! Entry method for objects being restored
     template<typename T>
-    static bool
-    restore(const std::string& tag, T& collection, CStateRestoreTraverser& traverser) {
+    static bool restore(const std::string& tag, T& collection, CStateRestoreTraverser& traverser) {
         return persist_utils_detail::restore(tag, collection, traverser);
     }
 
@@ -376,8 +375,9 @@ public:
     //! elements.
     //! \note This should use RVO so just return the string.
     template<typename CONTAINER, typename F>
-    static std::string
-    toString(const CONTAINER& collection, const F& stringFunc, const char delimiter = DELIMITER) {
+    static std::string toString(const CONTAINER& collection,
+                                const F& stringFunc,
+                                const char delimiter = DELIMITER) {
         if (collection.empty()) {
             return std::string();
         }
@@ -693,15 +693,15 @@ template<>
 class CPersisterImpl<BasicPersist> {
 public:
     template<typename T>
-    static void
-    dispatch(const std::string& tag, const T& t, CStatePersistInserter& inserter) {
+    static void dispatch(const std::string& tag, const T& t, CStatePersistInserter& inserter) {
         CPersistUtils::CBuiltinToString toString(CPersistUtils::PAIR_DELIMITER);
         inserter.insertValue(tag, toString(t));
     }
 
     template<typename A, typename B>
-    static void
-    dispatch(const std::string& tag, const std::pair<A, B>& t, CStatePersistInserter& inserter) {
+    static void dispatch(const std::string& tag,
+                         const std::pair<A, B>& t,
+                         CStatePersistInserter& inserter) {
         inserter.insertLevel(tag, boost::bind(&newLevel<A, B>, boost::cref(t), _1));
     }
 
@@ -776,8 +776,9 @@ public:
 
     //! Specialisation for std::string, which has iterators but doesn't need
     //! to be split up into individual characters
-    static void
-    dispatch(const std::string& tag, const std::string& str, CStatePersistInserter& inserter) {
+    static void dispatch(const std::string& tag,
+                         const std::string& str,
+                         CStatePersistInserter& inserter) {
         inserter.insertValue(tag, str);
     }
 
@@ -829,8 +830,7 @@ private:
     //! \note The container size is added to allow the restorer to
     //! pre-size the new container if appropriate
     template<typename ITR>
-    static void
-    newLevel(ITR begin, ITR end, std::size_t size, CStatePersistInserter& inserter) {
+    static void newLevel(ITR begin, ITR end, std::size_t size, CStatePersistInserter& inserter) {
         inserter.insertValue(SIZE_TAG, size);
         for (; begin != end; ++begin) {
             persist(FIRST_TAG, *begin, inserter);
@@ -843,8 +843,7 @@ template<>
 class CPersisterImpl<MemberPersist> {
 public:
     template<typename T>
-    static void
-    dispatch(const std::string& tag, const T& t, CStatePersistInserter& inserter) {
+    static void dispatch(const std::string& tag, const T& t, CStatePersistInserter& inserter) {
         inserter.insertLevel(tag, boost::bind(&newLevel<T>, boost::cref(t), _1));
     }
 
@@ -860,8 +859,7 @@ template<>
 class CPersisterImpl<MemberToDelimited> {
 public:
     template<typename T>
-    static void
-    dispatch(const std::string& tag, const T& t, CStatePersistInserter& inserter) {
+    static void dispatch(const std::string& tag, const T& t, CStatePersistInserter& inserter) {
         inserter.insertValue(tag, t.toDelimited());
     }
 };
@@ -871,8 +869,7 @@ template<>
 class CRestorerImpl<BasicRestore> {
 public:
     template<typename T>
-    static bool
-    dispatch(const std::string& tag, T& t, CStateRestoreTraverser& traverser) {
+    static bool dispatch(const std::string& tag, T& t, CStateRestoreTraverser& traverser) {
         bool ret = true;
         if (traverser.name() == tag) {
             CPersistUtils::CBuiltinFromString stringFunc(CPersistUtils::PAIR_DELIMITER);
@@ -931,8 +928,7 @@ template<>
 class CRestorerImpl<ContainerRestore> {
 public:
     template<typename T>
-    static bool
-    dispatch(const std::string& tag, T& container, CStateRestoreTraverser& traverser) {
+    static bool dispatch(const std::string& tag, T& container, CStateRestoreTraverser& traverser) {
         return doTraverse(
             tag, container, traverser,
             boost::integral_constant<bool, boost::is_arithmetic<typename T::value_type>::value>());
@@ -940,8 +936,7 @@ public:
 
     //! Specialisation for std::string, which has iterators but doesn't
     //! need to be split up into individual characters
-    static bool
-    dispatch(const std::string& tag, std::string& str, CStateRestoreTraverser& traverser) {
+    static bool dispatch(const std::string& tag, std::string& str, CStateRestoreTraverser& traverser) {
         if (traverser.name() == tag) {
             str = traverser.value();
         }
@@ -993,8 +988,10 @@ private:
 
 private:
     template<typename T>
-    static bool
-    doTraverse(const std::string& tag, T& container, CStateRestoreTraverser& traverser, boost::true_type) {
+    static bool doTraverse(const std::string& tag,
+                           T& container,
+                           CStateRestoreTraverser& traverser,
+                           boost::true_type) {
         bool ret = true;
         if (traverser.name() == tag) {
             ret = CPersistUtils::fromString(traverser.value(), container);
@@ -1025,8 +1022,7 @@ template<>
 class CRestorerImpl<MemberRestore> {
 public:
     template<typename T>
-    static bool
-    dispatch(const std::string& tag, T& t, CStateRestoreTraverser& traverser) {
+    static bool dispatch(const std::string& tag, T& t, CStateRestoreTraverser& traverser) {
         bool ret = true;
         if (traverser.name() == tag) {
             if (!traverser.hasSubLevel()) {
@@ -1050,8 +1046,7 @@ template<>
 class CRestorerImpl<MemberFromDelimited> {
 public:
     template<typename T>
-    static bool
-    dispatch(const std::string& /*tag*/, T& t, CStateRestoreTraverser& traverser) {
+    static bool dispatch(const std::string& /*tag*/, T& t, CStateRestoreTraverser& traverser) {
         return t.fromDelimited(traverser.value());
     }
 };

@@ -214,8 +214,7 @@ std::string CCalendarFeature::print() const {
     case DAYS_SINCE_START_OF_MONTH:
         return print_(static_cast<int>(m_Value) + 1, true) + " day of month";
     case DAYS_BEFORE_END_OF_MONTH:
-        return print_(static_cast<int>(m_Value), false) +
-               " days before end of month";
+        return print_(static_cast<int>(m_Value), false) + " days before end of month";
     case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH: {
         int dayOfWeek_ = static_cast<int>(m_Value) % 8;
         int weekOfMonth_ = static_cast<int>(m_Value) / 8;

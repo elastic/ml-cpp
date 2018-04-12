@@ -795,8 +795,7 @@ void CMetricPopulationDataGathererTest::testRemovePeople() {
 }
 
 void CMetricPopulationDataGathererTest::testRemoveAttributes() {
-    LOG_DEBUG(
-        << "*** CMetricPopulationDataGathererTest::testRemoveAttributes ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testRemoveAttributes ***");
 
     // Check that all the state is correctly updated when some
     // attributes are removed.
@@ -1119,8 +1118,7 @@ void CMetricPopulationDataGathererTest::testPersistence() {
 }
 
 void CMetricPopulationDataGathererTest::testReleaseMemory() {
-    LOG_DEBUG(
-        << "*** CMetricPopulationDataGathererTest::testReleaseMemory ***");
+    LOG_DEBUG(<< "*** CMetricPopulationDataGathererTest::testReleaseMemory ***");
 
     const core_t::TTime startTime = 1373932800;
     const core_t::TTime bucketLength = 3600;
@@ -1173,8 +1171,7 @@ void CMetricPopulationDataGathererTest::testReleaseMemory() {
 }
 
 CppUnit::Test* CMetricPopulationDataGathererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMetricPopulationDataGathererTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricPopulationDataGathererTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationDataGathererTest>(
         "CMetricPopulationDataGathererTest::testMean",

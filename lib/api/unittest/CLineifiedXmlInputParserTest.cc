@@ -28,8 +28,7 @@
 #include <sstream>
 
 CppUnit::Test* CLineifiedXmlInputParserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CLineifiedXmlInputParserTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLineifiedXmlInputParserTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedXmlInputParserTest>(
         "CLineifiedXmlInputParserTest::testThroughputArbitraryConformant",

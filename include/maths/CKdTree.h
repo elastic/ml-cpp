@@ -41,8 +41,7 @@ struct SEmptyNodeData {};
 //! Overload to adapt the Euclidean norm calculation for different
 //! point implementations.
 template<typename POINT>
-typename SPromoted<typename SCoordinate<POINT>::Type>::Type
-euclidean(const POINT& point) {
+typename SPromoted<typename SCoordinate<POINT>::Type>::Type euclidean(const POINT& point) {
     return point.euclidean();
 }
 
@@ -237,8 +236,7 @@ private:
 
 private:
     //! Recursively build the k-d tree.
-    SNode*
-    buildRecursively(SNode* parent, std::size_t coordinate, TPointVecItr begin, TPointVecItr end) {
+    SNode* buildRecursively(SNode* parent, std::size_t coordinate, TPointVecItr begin, TPointVecItr end) {
         std::size_t n = static_cast<std::size_t>(end - begin) / 2;
         TPointVecItr median = begin + n;
         std::nth_element(begin, median, end, CCoordinateLess(coordinate));

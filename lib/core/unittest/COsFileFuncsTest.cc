@@ -26,8 +26,7 @@
 #endif
 
 CppUnit::Test* COsFileFuncsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("COsFileFuncsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COsFileFuncsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<COsFileFuncsTest>(
         "COsFileFuncsTest::testInode", &COsFileFuncsTest::testInode));
@@ -95,8 +94,7 @@ void COsFileFuncsTest::testLStat() {
     // Prior to Windows 10 Fall Creator's Update only administrators could
     // create symlinks on Windows, and we don't want to force the unit tests to
     // run as administrator
-    LOG_WARN(
-        << "Skipping lstat() test as it would need to run as administrator");
+    LOG_WARN(<< "Skipping lstat() test as it would need to run as administrator");
 #else
 #ifdef Windows
     CPPUNIT_ASSERT(CreateSymbolicLink(symLink.c_str(), file.c_str(),

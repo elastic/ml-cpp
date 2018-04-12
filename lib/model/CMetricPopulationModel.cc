@@ -808,8 +808,7 @@ void CMetricPopulationModel::currentBucketTotalCount(uint64_t totalCount) {
     m_CurrentBucketStats.s_TotalCount = totalCount;
 }
 
-const CMetricPopulationModel::TSizeUInt64PrVec&
-CMetricPopulationModel::personCounts() const {
+const CMetricPopulationModel::TSizeUInt64PrVec& CMetricPopulationModel::personCounts() const {
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
@@ -892,8 +891,8 @@ void CMetricPopulationModel::doSkipSampling(core_t::TTime startTime, core_t::TTi
     this->CPopulationModel::doSkipSampling(startTime, endTime);
 }
 
-const maths::CModel*
-CMetricPopulationModel::model(model_t::EFeature feature, std::size_t cid) const {
+const maths::CModel* CMetricPopulationModel::model(model_t::EFeature feature,
+                                                   std::size_t cid) const {
     return const_cast<CMetricPopulationModel*>(this)->model(feature, cid);
 }
 

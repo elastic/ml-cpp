@@ -46,8 +46,7 @@ using TStr1Vec = ml::core::CSmallVector<std::string, 1>;
 const TStr1Vec EMPTY_STRING_LIST;
 
 CppUnit::Test* CJsonOutputWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CJsonOutputWriterTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonOutputWriterTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
         "CJsonOutputWriterTest::testSimpleWrite", &CJsonOutputWriterTest::testSimpleWrite));
     suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputWriterTest>(
@@ -540,8 +539,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
         // except the population detector which has a single record and clauses
         CPPUNIT_ASSERT_EQUAL(buckettime, bucket["timestamp"].GetInt());
         CPPUNIT_ASSERT(bucket.HasMember("bucket_influencers"));
-        const rapidjson::Value& bucketInfluencers =
-            bucket["bucket_influencers"];
+        const rapidjson::Value& bucketInfluencers = bucket["bucket_influencers"];
         CPPUNIT_ASSERT(bucketInfluencers.IsArray());
         CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(1), bucketInfluencers.Size());
         const rapidjson::Value& bucketInfluencer =
@@ -1209,8 +1207,7 @@ void CJsonOutputWriterTest::testWriteInfluencers() {
 
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(2), doc.Size());
 
-    const rapidjson::Value& influencers =
-        doc[rapidjson::SizeType(0)]["influencers"];
+    const rapidjson::Value& influencers = doc[rapidjson::SizeType(0)]["influencers"];
     CPPUNIT_ASSERT(influencers.IsArray());
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(2), influencers.Size());
 
@@ -1323,8 +1320,7 @@ void CJsonOutputWriterTest::testWriteInfluencersWithLimit() {
 
     LOG_DEBUG(<< "limited write influencers:\n" << strbuf.GetString());
 
-    const rapidjson::Value& influencers =
-        doc[rapidjson::SizeType(1)]["influencers"];
+    const rapidjson::Value& influencers = doc[rapidjson::SizeType(1)]["influencers"];
     CPPUNIT_ASSERT(influencers.IsArray());
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(2), influencers.Size());
 
@@ -1353,11 +1349,9 @@ void CJsonOutputWriterTest::testWriteInfluencersWithLimit() {
     CPPUNIT_ASSERT(influencer2.HasMember("bucket_span"));
 
     // bucket influencers
-    const rapidjson::Value& bucketResult =
-        doc[rapidjson::SizeType(2)]["bucket"];
+    const rapidjson::Value& bucketResult = doc[rapidjson::SizeType(2)]["bucket"];
     CPPUNIT_ASSERT(bucketResult.HasMember("bucket_influencers"));
-    const rapidjson::Value& bucketInfluencers =
-        bucketResult["bucket_influencers"];
+    const rapidjson::Value& bucketInfluencers = bucketResult["bucket_influencers"];
     CPPUNIT_ASSERT(bucketInfluencers.IsArray());
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(3), bucketInfluencers.Size());
 
@@ -1484,8 +1478,7 @@ void CJsonOutputWriterTest::testWriteWithInfluences() {
     const rapidjson::Value& records = doc[rapidjson::SizeType(0)]["records"];
 
     CPPUNIT_ASSERT(records[rapidjson::SizeType(0)].HasMember("influencers"));
-    const rapidjson::Value& influences =
-        records[rapidjson::SizeType(0)]["influencers"];
+    const rapidjson::Value& influences = records[rapidjson::SizeType(0)]["influencers"];
 
     CPPUNIT_ASSERT(influences.IsArray());
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(2), influences.Size());
@@ -1496,8 +1489,7 @@ void CJsonOutputWriterTest::testWriteWithInfluences() {
         CPPUNIT_ASSERT_EQUAL(std::string("host"),
                              std::string(influence["influencer_field_name"].GetString()));
         CPPUNIT_ASSERT(influence.HasMember("influencer_field_values"));
-        const rapidjson::Value& influencerFieldValues =
-            influence["influencer_field_values"];
+        const rapidjson::Value& influencerFieldValues = influence["influencer_field_values"];
         CPPUNIT_ASSERT(influencerFieldValues.IsArray());
         CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(2), influencerFieldValues.Size());
 
@@ -1515,8 +1507,7 @@ void CJsonOutputWriterTest::testWriteWithInfluences() {
         CPPUNIT_ASSERT_EQUAL(std::string("user"),
                              std::string(influence["influencer_field_name"].GetString()));
         CPPUNIT_ASSERT(influence.HasMember("influencer_field_values"));
-        const rapidjson::Value& influencerFieldValues =
-            influence["influencer_field_values"];
+        const rapidjson::Value& influencerFieldValues = influence["influencer_field_values"];
         CPPUNIT_ASSERT(influencerFieldValues.IsArray());
         CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(3), influencerFieldValues.Size());
 
@@ -1747,8 +1738,7 @@ void CJsonOutputWriterTest::testWriteScheduledEvent() {
     const rapidjson::Value& bucket = doc[rapidjson::SizeType(1)]["bucket"];
     CPPUNIT_ASSERT(bucket.HasMember("scheduled_event") == false);
 
-    const rapidjson::Value& bucketWithEvents =
-        doc[rapidjson::SizeType(1)]["bucket"];
+    const rapidjson::Value& bucketWithEvents = doc[rapidjson::SizeType(1)]["bucket"];
     CPPUNIT_ASSERT(bucketWithEvents.HasMember("scheduled_events"));
     const rapidjson::Value& events = bucketWithEvents["scheduled_events"];
     CPPUNIT_ASSERT(events.IsArray());
@@ -1834,8 +1824,7 @@ void CJsonOutputWriterTest::testThroughputHelper(bool useScopedAllocator) {
         if (useScopedAllocator) {
             using TScopedAllocator =
                 ml::core::CScopedRapidJsonPoolAllocator<ml::api::CJsonOutputWriter>;
-            static const std::string ALLOCATOR_ID(
-                "CAnomalyJob::writeOutResults");
+            static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
             TScopedAllocator scopedAllocator(ALLOCATOR_ID, writer);
 
             CPPUNIT_ASSERT(writer.acceptResult(result11));

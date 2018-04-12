@@ -234,8 +234,9 @@ public:
     //! \param numberSamples The desired number of samples.
     //! \param samples Filled in with the samples.
     //! \return True if the cluster could be sampled and false otherwise.
-    virtual bool
-    sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec& samples) const = 0;
+    virtual bool sample(std::size_t index,
+                        std::size_t numberSamples,
+                        TPointPreciseVec& samples) const = 0;
 
     //! Get the probability of the cluster with the index \p index.
     //!

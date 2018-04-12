@@ -63,8 +63,7 @@ const std::vector<SRestoreTestConfig> BWC_VERSIONS{
 }
 
 CppUnit::Test* CRestorePreviousStateTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CRestorePreviousStateTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRestorePreviousStateTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
         "CRestorePreviousStateTest::testRestoreDetectorPersistBy",
         &CRestorePreviousStateTest::testRestoreDetectorBy));

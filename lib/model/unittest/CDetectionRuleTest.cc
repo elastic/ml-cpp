@@ -42,8 +42,7 @@ const std::string EMPTY_STRING;
 }
 
 CppUnit::Test* CDetectionRuleTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CDetectionRuleTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectionRuleTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
         "CDetectionRuleTest::testApplyGivenCategoricalCondition",
@@ -624,8 +623,7 @@ void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition() {
 }
 
 void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField() {
-    LOG_DEBUG(
-        << "*** testApplyGivenSingleSeriesModelAndConditionWithField ***");
+    LOG_DEBUG(<< "*** testApplyGivenSingleSeriesModelAndConditionWithField ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -1068,8 +1066,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd() {
 }
 
 void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel() {
-    LOG_DEBUG(
-        << "*** testApplyGivenTargetFieldIsPartitionAndIndividualModel ***");
+    LOG_DEBUG(<< "*** testApplyGivenTargetFieldIsPartitionAndIndividualModel ***");
 
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;

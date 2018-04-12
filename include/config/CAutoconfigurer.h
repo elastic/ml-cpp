@@ -56,8 +56,8 @@ public:
     virtual void finalise();
 
     //! No-op.
-    virtual bool
-    restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
+                              core_t::TTime& completeToTime);
 
     //! No-op.
     virtual bool persistState(core::CDataAdder& persister);

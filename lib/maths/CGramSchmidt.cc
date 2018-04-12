@@ -36,8 +36,8 @@ void CGramSchmidt::swap(TVector& x, TVector& y) {
     x.swap(y);
 }
 
-const CGramSchmidt::TDoubleVec&
-CGramSchmidt::minusProjection(TDoubleVec& x, const TDoubleVec& e) {
+const CGramSchmidt::TDoubleVec& CGramSchmidt::minusProjection(TDoubleVec& x,
+                                                              const TDoubleVec& e) {
     sameDimension(x, e);
     double n = inner(x, e);
     for (std::size_t i = 0u; i < x.size(); ++i) {

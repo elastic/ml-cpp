@@ -23,8 +23,7 @@
 #include <errno.h>
 
 CppUnit::Test* CFileDeleterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CFileDeleterTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFileDeleterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CFileDeleterTest>(
         "CFileDeleterTest::testDelete", &CFileDeleterTest::testDelete));

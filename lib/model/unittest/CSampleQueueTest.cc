@@ -1172,8 +1172,7 @@ void CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder
 }
 
 CppUnit::Test* CSampleQueueTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CSampleQueueTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSampleQueueTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
         "CSampleQueueTest::testSampleToString", &CSampleQueueTest::testSampleToString));

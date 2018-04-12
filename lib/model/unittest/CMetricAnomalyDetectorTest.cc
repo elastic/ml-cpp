@@ -455,8 +455,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
 }
 
 CppUnit::Test* CMetricAnomalyDetectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMetricAnomalyDetectorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricAnomalyDetectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
         "CMetricAnomalyDetectorTest::testAnomalies", &CMetricAnomalyDetectorTest::testAnomalies));

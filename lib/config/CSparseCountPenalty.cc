@@ -45,11 +45,10 @@ void extract(const maths::CQuantileSketch& quantiles, std::size_t n, TDoubleVec&
 }
 
 //! Get the quantiles adjusted for empty buckets.
-const maths::CQuantileSketch&
-correctForEmptyBuckets(bool ignoreEmpty,
-                       uint64_t buckets,
-                       maths::CQuantileSketch& placeholder,
-                       const maths::CQuantileSketch& quantiles) {
+const maths::CQuantileSketch& correctForEmptyBuckets(bool ignoreEmpty,
+                                                     uint64_t buckets,
+                                                     maths::CQuantileSketch& placeholder,
+                                                     const maths::CQuantileSketch& quantiles) {
     if (!ignoreEmpty) {
         double n = static_cast<double>(buckets) - quantiles.count();
         if (n > 0.0) {

@@ -496,8 +496,8 @@ public:
     //! \note The caller must specify dimension - 2 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TPriorPtrDoublePr
-    bivariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
+    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
+                                        const TSizeDoublePr10Vec& condition) const {
         if (N == 2) {
             return TPriorPtrDoublePr(TPriorPtr(this->clone()), 0.0);
         }

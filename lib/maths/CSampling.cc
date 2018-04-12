@@ -579,13 +579,13 @@ std::size_t CSampling::categoricalSample(TDoubleVec& probabilities) {
     return doCategoricalSample(ms_Rng, probabilities);
 }
 
-std::size_t
-CSampling::categoricalSample(CPRNG::CXorOShiro128Plus& rng, TDoubleVec& probabilities) {
+std::size_t CSampling::categoricalSample(CPRNG::CXorOShiro128Plus& rng,
+                                         TDoubleVec& probabilities) {
     return doCategoricalSample(rng, probabilities);
 }
 
-std::size_t
-CSampling::categoricalSample(CPRNG::CXorShift1024Mult& rng, TDoubleVec& probabilities) {
+std::size_t CSampling::categoricalSample(CPRNG::CXorShift1024Mult& rng,
+                                         TDoubleVec& probabilities) {
     return doCategoricalSample(rng, probabilities);
 }
 

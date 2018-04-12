@@ -150,8 +150,7 @@ void CAutoconfigurerParamsTest::testInit() {
 }
 
 CppUnit::Test* CAutoconfigurerParamsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CAutoconfigurerParamsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAutoconfigurerParamsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CAutoconfigurerParamsTest>(
         "CAutoconfigurerParamsTest::testDefaults", &CAutoconfigurerParamsTest::testDefaults));

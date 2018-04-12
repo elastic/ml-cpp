@@ -102,9 +102,8 @@ void CQuantileSketchTest::testAdd() {
 
     LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
     CPPUNIT_ASSERT_EQUAL(6.0, sketch.count());
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("[(1.2, 1), (0.9, 3), (1.8, 1), (2.1, 1)]"),
-        core::CContainerPrinter::print(sketch.knots()));
+    CPPUNIT_ASSERT_EQUAL(std::string("[(1.2, 1), (0.9, 3), (1.8, 1), (2.1, 1)]"),
+                         core::CContainerPrinter::print(sketch.knots()));
 }
 
 void CQuantileSketchTest::testReduce() {
@@ -126,9 +125,8 @@ void CQuantileSketchTest::testReduce() {
         }
 
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
-            core::CContainerPrinter::print(sketch.knots()));
+        CPPUNIT_ASSERT_EQUAL(std::string("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
+                             core::CContainerPrinter::print(sketch.knots()));
 
         // Regular compress (merging two point).
 
@@ -150,14 +148,13 @@ void CQuantileSketchTest::testReduce() {
             CPPUNIT_ASSERT(sketch.checkInvariants());
         }
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
-                        " (5.5, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
-                        " (11, 1), (12, 1), (13.5, 2), (15, 1), (16, 1),"
-                        " (17, 1), (18, 1), (19, 1), (20, 1), (21, 1),"
-                        " (22.5, 2), (24, 1), (25, 1), (26, 1), (27, 1),"
-                        " (28, 1), (29, 1), (30, 1)]"),
-            core::CContainerPrinter::print(sketch.knots()));
+        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
+                                         " (5.5, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
+                                         " (11, 1), (12, 1), (13.5, 2), (15, 1), (16, 1),"
+                                         " (17, 1), (18, 1), (19, 1), (20, 1), (21, 1),"
+                                         " (22.5, 2), (24, 1), (25, 1), (26, 1), (27, 1),"
+                                         " (28, 1), (29, 1), (30, 1)]"),
+                             core::CContainerPrinter::print(sketch.knots()));
     }
     {
         // Test the quantiles are reasonable at a compression ratio of 2:1.
@@ -206,9 +203,8 @@ void CQuantileSketchTest::testReduce() {
         }
 
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
-            core::CContainerPrinter::print(sketch.knots()));
+        CPPUNIT_ASSERT_EQUAL(std::string("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
+                             core::CContainerPrinter::print(sketch.knots()));
 
         // Regular compress (merging two point).
 
@@ -230,14 +226,13 @@ void CQuantileSketchTest::testReduce() {
             CPPUNIT_ASSERT(sketch.checkInvariants());
         }
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
-                        " (6, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
-                        " (11, 1), (12, 1), (13, 1), (14, 1), (15, 1),"
-                        " (16, 1), (17, 1), (18, 1), (19, 1), (20, 1),"
-                        " (21, 1), (23, 3), (25, 1), (26, 1), (27, 1),"
-                        " (28, 1), (29, 1), (30, 1)]"),
-            core::CContainerPrinter::print(sketch.knots()));
+        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
+                                         " (6, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
+                                         " (11, 1), (12, 1), (13, 1), (14, 1), (15, 1),"
+                                         " (16, 1), (17, 1), (18, 1), (19, 1), (20, 1),"
+                                         " (21, 1), (23, 3), (25, 1), (26, 1), (27, 1),"
+                                         " (28, 1), (29, 1), (30, 1)]"),
+                             core::CContainerPrinter::print(sketch.knots()));
     }
     {
         // Test the quantiles are reasonable at a compression ratio of 2:1.
@@ -646,8 +641,7 @@ void CQuantileSketchTest::testPersist() {
 }
 
 CppUnit::Test* CQuantileSketchTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CQuantileSketchTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CQuantileSketchTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
         "CQuantileSketchTest::testAdd", &CQuantileSketchTest::testAdd));

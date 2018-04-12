@@ -157,8 +157,7 @@ void CModelTools::CFuzzyDeduplicate::computeEpsilons(core_t::TTime bucketLength,
     }
 }
 
-std::size_t
-CModelTools::CFuzzyDeduplicate::duplicate(core_t::TTime time, TDouble2Vec value) {
+std::size_t CModelTools::CFuzzyDeduplicate::duplicate(core_t::TTime time, TDouble2Vec value) {
     return !m_Quantize
                ? m_Count++
                : m_QuantizedValues

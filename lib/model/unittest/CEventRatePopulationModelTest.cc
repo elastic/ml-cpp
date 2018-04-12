@@ -1513,8 +1513,7 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
 }
 
 CppUnit::Test* CEventRatePopulationModelTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CEventRatePopulationModelTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRatePopulationModelTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
         "CEventRatePopulationModelTest::testBasicAccessors",

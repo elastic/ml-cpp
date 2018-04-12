@@ -19,8 +19,7 @@
 #include <core/CResourceLocator.h>
 
 CppUnit::Test* CResourceLocatorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CResourceLocatorTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceLocatorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLocatorTest>(
         "CResourceLocatorTest::testResourceDir", &CResourceLocatorTest::testResourceDir));

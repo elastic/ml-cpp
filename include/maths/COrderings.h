@@ -336,8 +336,7 @@ public:
         }
 
         template<typename T>
-        bool
-        operator()(const boost::shared_ptr<T>& lhs, const boost::shared_ptr<T>& rhs) {
+        bool operator()(const boost::shared_ptr<T>& lhs, const boost::shared_ptr<T>& rhs) {
             return SPtrLess::less(lhs.get(), rhs.get());
         }
 
@@ -378,8 +377,7 @@ public:
         }
 
         template<typename T>
-        bool
-        operator()(const boost::shared_ptr<T>& lhs, const boost::shared_ptr<T>& rhs) {
+        bool operator()(const boost::shared_ptr<T>& lhs, const boost::shared_ptr<T>& rhs) {
             return SPtrGreater::greater(lhs.get(), rhs.get());
         }
 
@@ -399,8 +397,8 @@ public:
     //! This also tuples of handles reference wrapped types.
     struct SLexicographicalCompare {
         template<typename T1, typename T2>
-        inline bool
-        operator()(const std::pair<T1, T2>& lhs, const std::pair<T1, T2>& rhs) const {
+        inline bool operator()(const std::pair<T1, T2>& lhs,
+                               const std::pair<T1, T2>& rhs) const {
             return lexicographical_compare(lhs.first, lhs.second, rhs.first,
                                            rhs.second, s_Less);
         }
@@ -444,8 +442,7 @@ public:
     //! code is more than an order of magnitude slower than this version.
     struct SFirstLess {
         template<typename U, typename V>
-        inline bool
-        operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
+        inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return s_Less(lhs.first, rhs.first);
         }
 
@@ -503,8 +500,7 @@ public:
     //! code is more than an order of magnitude slower than this version.
     struct SFirstGreater {
         template<typename U, typename V>
-        inline bool
-        operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
+        inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return s_Greater(lhs.first, rhs.first);
         }
 
@@ -528,8 +524,7 @@ public:
     //! code is more than an order of magnitude slower than this version.
     struct SSecondLess {
         template<typename U, typename V>
-        inline bool
-        operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
+        inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return s_Less(lhs.second, rhs.second);
         }
 
@@ -553,8 +548,7 @@ public:
     //! code is more than an order of magnitude slower than this version.
     struct SSecondGreater {
         template<typename U, typename V>
-        inline bool
-        operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
+        inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return s_Greater(lhs.second, rhs.second);
         }
 
@@ -675,8 +669,7 @@ public:
     //! Simultaneously sort \p keys and \p values using the \p comp
     //! order of \p keys.
     template<typename KEY_VECTOR, typename VALUE_VECTOR, typename COMP>
-    static bool
-    simultaneousSort(KEY_VECTOR& keys, VALUE_VECTOR& values, const COMP& comp) {
+    static bool simultaneousSort(KEY_VECTOR& keys, VALUE_VECTOR& values, const COMP& comp) {
         if (keys.size() != values.size()) {
             return false;
         }

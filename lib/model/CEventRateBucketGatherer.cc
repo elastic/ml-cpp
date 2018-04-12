@@ -238,9 +238,8 @@ bool restoreAttributePeopleData(core::CStateRestoreTraverser& traverser, TSizeUS
             }
         } else if (name == PERSON_TAG) {
             if (!seenCid) {
-                LOG_ERROR(
-                    << "Incorrect format - person ID before attribute ID in "
-                    << traverser.value());
+                LOG_ERROR(<< "Incorrect format - person ID before attribute ID in "
+                          << traverser.value());
                 return false;
             }
             std::size_t pid = 0;

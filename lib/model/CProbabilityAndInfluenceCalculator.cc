@@ -700,8 +700,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
                                                        SParams& params,
                                                        double weight) {
     if (!m_InfluenceCalculator) {
-        LOG_ERROR(
-            << "No influence calculator plug-in: can't compute influence");
+        LOG_ERROR(<< "No influence calculator plug-in: can't compute influence");
         return;
     }
 
@@ -741,8 +740,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
                                                        SCorrelateParams& params,
                                                        double weight) {
     if (!m_InfluenceCalculator) {
-        LOG_ERROR(
-            << "No influence calculator plug-in: can't compute influence");
+        LOG_ERROR(<< "No influence calculator plug-in: can't compute influence");
         return;
     }
 

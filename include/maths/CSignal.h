@@ -66,8 +66,7 @@ public:
     //!
     //! \param[in] offset The offset as a distance in \p values.
     //! \param[in] values The values for which to compute the autocorrelation.
-    static double
-    autocorrelation(std::size_t offset, const TFloatMeanAccumulatorVec& values);
+    static double autocorrelation(std::size_t offset, const TFloatMeanAccumulatorVec& values);
 
     //! Compute the discrete cyclic autocorrelation of \p values for the offset
     //! \p offset.
@@ -80,8 +79,7 @@ public:
     //! \param[in] values The values for which to compute autocorrelation.
     //! \param[in] result Filled in with the autocorrelations of \p values for
     //! offsets 1, 2, ..., length \p values - 1.
-    static void
-    autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVec& result);
+    static void autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVec& result);
 };
 }
 }

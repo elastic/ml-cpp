@@ -88,8 +88,8 @@ public:
     virtual void addBucketValue(const TTimeDouble2VecSizeTrVec& value);
 
     //! Update the model with new samples.
-    virtual EUpdateResult
-    addSamples(const CModelAddSamplesParams& params, TTimeDouble2VecSizeTrVec samples);
+    virtual EUpdateResult addSamples(const CModelAddSamplesParams& params,
+                                     TTimeDouble2VecSizeTrVec samples);
 
     //! Advance time by \p gap.
     virtual void skipTime(core_t::TTime gap);
@@ -110,8 +110,9 @@ public:
                                           const TDouble2Vec4Vec& weights) const;
 
     //! Remove any trend components from \p value.
-    virtual void
-    detrend(const TTime2Vec1Vec& time, double confidenceInterval, TDouble2Vec1Vec& value) const;
+    virtual void detrend(const TTime2Vec1Vec& time,
+                         double confidenceInterval,
+                         TDouble2Vec1Vec& value) const;
 
     //! Get the best (least MSE) predicted value at \p time.
     virtual TDouble2Vec predict(core_t::TTime time,
@@ -502,8 +503,8 @@ public:
     virtual void addBucketValue(const TTimeDouble2VecSizeTrVec& value);
 
     //! Update the model with new samples.
-    virtual EUpdateResult
-    addSamples(const CModelAddSamplesParams& params, TTimeDouble2VecSizeTrVec samples);
+    virtual EUpdateResult addSamples(const CModelAddSamplesParams& params,
+                                     TTimeDouble2VecSizeTrVec samples);
 
     //! Advance time by \p gap.
     virtual void skipTime(core_t::TTime gap);
@@ -523,8 +524,9 @@ public:
                                           const TDouble2Vec4Vec& weights) const;
 
     //! Remove any trend components from \p value.
-    virtual void
-    detrend(const TTime2Vec1Vec& time, double confidenceInterval, TDouble2Vec1Vec& value) const;
+    virtual void detrend(const TTime2Vec1Vec& time,
+                         double confidenceInterval,
+                         TDouble2Vec1Vec& value) const;
 
     //! Get the best (least MSE) predicted value at \p time.
     virtual TDouble2Vec predict(core_t::TTime time,

@@ -59,8 +59,8 @@ namespace detail {
 
 //! Make sure \p features only includes supported features, doesn't
 //! contain any duplicates, etc.
-const CDataGatherer::TFeatureVec&
-sanitize(CDataGatherer::TFeatureVec& features, model_t::EAnalysisCategory gathererType) {
+const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
+                                           model_t::EAnalysisCategory gathererType) {
     std::size_t j = 0u;
 
     for (std::size_t i = 0u; i < features.size(); ++i) {
@@ -426,8 +426,7 @@ const core::CStoredStringPtr& CDataGatherer::personNamePtr(std::size_t pid) cons
     return m_PeopleRegistry.namePtr(pid);
 }
 
-const std::string&
-CDataGatherer::personName(std::size_t pid, const std::string& fallback) const {
+const std::string& CDataGatherer::personName(std::size_t pid, const std::string& fallback) const {
     return m_PeopleRegistry.name(pid, fallback);
 }
 
@@ -501,8 +500,8 @@ const std::string& CDataGatherer::attributeName(std::size_t cid) const {
     return this->attributeName(cid, DEFAULT_ATTRIBUTE_NAME);
 }
 
-const std::string&
-CDataGatherer::attributeName(std::size_t cid, const std::string& fallback) const {
+const std::string& CDataGatherer::attributeName(std::size_t cid,
+                                                const std::string& fallback) const {
     return m_AttributesRegistry.name(cid, fallback);
 }
 
@@ -625,8 +624,7 @@ std::string CDataGatherer::printCurrentBucket(core_t::TTime time) const {
     return this->chooseBucketGatherer(time).printCurrentBucket();
 }
 
-const CDataGatherer::TSizeSizePrUInt64UMap&
-CDataGatherer::bucketCounts(core_t::TTime time) const {
+const CDataGatherer::TSizeSizePrUInt64UMap& CDataGatherer::bucketCounts(core_t::TTime time) const {
     return this->chooseBucketGatherer(time).bucketCounts(time);
 }
 

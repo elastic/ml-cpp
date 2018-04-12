@@ -265,8 +265,7 @@ void CVectorRangeTest::testComparisons() {
 }
 
 CppUnit::Test* CVectorRangeTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CVectorRangeTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CVectorRangeTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>(
         "CVectorRangeTest::testCreation", &CVectorRangeTest::testCreation));

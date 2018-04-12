@@ -395,12 +395,9 @@ void CProbabilityAggregatorsTest::testLogJointProbabilityOfLessLikelySamples() {
 }
 
 void CProbabilityAggregatorsTest::testProbabilityOfExtremeSample() {
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
-    LOG_DEBUG(
-        << "|  CProbabilityAggregatorsTest::testProbabilityExtremeSample  |");
-    LOG_DEBUG(
-        << "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
+    LOG_DEBUG(<< "|  CProbabilityAggregatorsTest::testProbabilityExtremeSample  |");
+    LOG_DEBUG(<< "+-------------------------------------------------------------+");
 
     // The idea of this test is to check that the extreme sample
     // probability is correctly predicted.
@@ -819,8 +816,7 @@ void CProbabilityAggregatorsTest::testProbabilityOfMFromNExtremeSamples() {
 }
 
 CppUnit::Test* CProbabilityAggregatorsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CProbabilityAggregatorsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProbabilityAggregatorsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAggregatorsTest>(
         "CProbabilityAggregatorsTest::testJointProbabilityOfLessLikelySamples",

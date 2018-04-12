@@ -77,8 +77,7 @@ inline double adjustedCost(const TDoubleVecVec& costs,
 //! \param[in] j The column index to match.
 //! \param[out] matchColumnByRow The columns matching each row.
 //! \param[out] matchRowByColumn The rows matching each column.
-inline void
-match(std::size_t i, std::size_t j, TSizeVec& matchColumnByRow, TSizeVec& matchRowByColumn) {
+inline void match(std::size_t i, std::size_t j, TSizeVec& matchColumnByRow, TSizeVec& matchRowByColumn) {
     matchColumnByRow[i] = j;
     matchRowByColumn[j] = i;
 }

@@ -26,8 +26,7 @@ const CGathererTools::CSumGatherer::TStoredStringPtrVec EMPTY_STR_PTR_VEC;
 }
 
 CppUnit::Test* CGathererToolsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CGathererToolsTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CGathererToolsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CGathererToolsTest>(
         "CGathererToolsTest::testSumGathererIsRedundant",

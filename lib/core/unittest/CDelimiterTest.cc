@@ -40,22 +40,21 @@ CppUnit::Test* CDelimiterTest::suite() {
 }
 
 void CDelimiterTest::testSimpleTokenise() {
-    std::string testData(
-        "Oct 12, 2008 8:38:51 AM org.apache.tomcat.util.http.Parameters "
-        "processParameters\n"
-        "WARNING: Parameters: Invalid chunk ignored.\n"
-        "Oct 12, 2008 8:38:52 AM org.apache.tomcat.util.http.Parameters "
-        "processParameters\n"
-        "WARNING: Parameters: Invalid chunk ignored.\n"
-        "Oct 12, 2008 8:38:53 AM org.apache.tomcat.util.http.Parameters "
-        "processParameters\n"
-        "WARNING: Parameters: Invalid chunk ignored.\n"
-        "Oct 12, 2008 8:39:03 AM org.apache.tomcat.util.http.Parameters "
-        "processParameters\n"
-        "WARNING: Parameters: Invalid chunk ignored.\n"
-        "Oct 12, 2008 8:39:04 AM org.apache.tomcat.util.http.Parameters "
-        "processParameters\n"
-        "WARNING: Parameters: Invalid chunk ignored.\n");
+    std::string testData("Oct 12, 2008 8:38:51 AM org.apache.tomcat.util.http.Parameters "
+                         "processParameters\n"
+                         "WARNING: Parameters: Invalid chunk ignored.\n"
+                         "Oct 12, 2008 8:38:52 AM org.apache.tomcat.util.http.Parameters "
+                         "processParameters\n"
+                         "WARNING: Parameters: Invalid chunk ignored.\n"
+                         "Oct 12, 2008 8:38:53 AM org.apache.tomcat.util.http.Parameters "
+                         "processParameters\n"
+                         "WARNING: Parameters: Invalid chunk ignored.\n"
+                         "Oct 12, 2008 8:39:03 AM org.apache.tomcat.util.http.Parameters "
+                         "processParameters\n"
+                         "WARNING: Parameters: Invalid chunk ignored.\n"
+                         "Oct 12, 2008 8:39:04 AM org.apache.tomcat.util.http.Parameters "
+                         "processParameters\n"
+                         "WARNING: Parameters: Invalid chunk ignored.\n");
 
     LOG_DEBUG(<< "Input data:\n" << testData << '\n');
 
@@ -92,22 +91,21 @@ void CDelimiterTest::testSimpleTokenise() {
 
 void CDelimiterTest::testRegexTokenise() {
     // Some of the lines here are Windows text format, and others Unix text
-    std::string testData(
-        "Oct 12, 2008 8:38:51 AM org.apache.tomcat.util.http.Parameters "
-        "processParameters\r\n"
-        "WARNING: Parameters: Invalid chunk ignored.\r\n"
-        "Oct 12, 2008 8:38:52 AM org.apache.tomcat.util.http.Parameters "
-        "processParameters\r\n"
-        "WARNING: Parameters: Invalid chunk ignored.\n"
-        "Oct 12, 2008 8:38:53 AM org.apache.tomcat.util.http.Parameters "
-        "processParameters\n"
-        "WARNING: Parameters: Invalid chunk ignored.\r\n"
-        "Oct 12, 2008 8:39:03 AM org.apache.tomcat.util.http.Parameters "
-        "processParameters\r\n"
-        "WARNING: Parameters: Invalid chunk ignored.\n"
-        "Oct 12, 2008 8:39:04 AM org.apache.tomcat.util.http.Parameters "
-        "processParameters\n"
-        "WARNING: Parameters: Invalid chunk ignored.\n");
+    std::string testData("Oct 12, 2008 8:38:51 AM org.apache.tomcat.util.http.Parameters "
+                         "processParameters\r\n"
+                         "WARNING: Parameters: Invalid chunk ignored.\r\n"
+                         "Oct 12, 2008 8:38:52 AM org.apache.tomcat.util.http.Parameters "
+                         "processParameters\r\n"
+                         "WARNING: Parameters: Invalid chunk ignored.\n"
+                         "Oct 12, 2008 8:38:53 AM org.apache.tomcat.util.http.Parameters "
+                         "processParameters\n"
+                         "WARNING: Parameters: Invalid chunk ignored.\r\n"
+                         "Oct 12, 2008 8:39:03 AM org.apache.tomcat.util.http.Parameters "
+                         "processParameters\r\n"
+                         "WARNING: Parameters: Invalid chunk ignored.\n"
+                         "Oct 12, 2008 8:39:04 AM org.apache.tomcat.util.http.Parameters "
+                         "processParameters\n"
+                         "WARNING: Parameters: Invalid chunk ignored.\n");
 
     LOG_DEBUG(<< "Input data:\n" << testData << '\n');
 
@@ -145,12 +143,11 @@ void CDelimiterTest::testRegexTokenise() {
 
 void CDelimiterTest::testQuotedTokenise() {
     // NB: The backslashes here escape the quotes for the benefit of the C++ compiler
-    std::string testData(
-        "3,1,5415.1132,56135135,0x00000001,0x00000002,\"SOME_STRING\",\"\","
-        "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
-        "\"\",\"\",0x0000000000000000,0x0000000000000000,\"\",\"\",\"\",\"\","
-        "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
-        "\"\",\"\",\"\",\"\",\"\",\"\"");
+    std::string testData("3,1,5415.1132,56135135,0x00000001,0x00000002,\"SOME_STRING\",\"\","
+                         "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
+                         "\"\",\"\",0x0000000000000000,0x0000000000000000,\"\",\"\",\"\",\"\","
+                         "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
+                         "\"\",\"\",\"\",\"\",\"\",\"\"");
 
     LOG_DEBUG(<< "Input data:\n" << testData << '\n');
 

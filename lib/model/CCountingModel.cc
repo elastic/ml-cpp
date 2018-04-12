@@ -141,11 +141,10 @@ CCountingModel::TOptionalDouble CCountingModel::baselineBucketCount(std::size_t 
     return pid < m_MeanCounts.size() ? maths::CBasicStatistics::mean(m_MeanCounts[pid]) : 0.0;
 }
 
-CCountingModel::TDouble1Vec
-CCountingModel::currentBucketValue(model_t::EFeature /*feature*/,
-                                   std::size_t pid,
-                                   std::size_t /*cid*/,
-                                   core_t::TTime time) const {
+CCountingModel::TDouble1Vec CCountingModel::currentBucketValue(model_t::EFeature /*feature*/,
+                                                               std::size_t pid,
+                                                               std::size_t /*cid*/,
+                                                               core_t::TTime time) const {
     TOptionalUInt64 count = this->currentBucketCount(pid, time);
     return count ? TDouble1Vec(1, static_cast<double>(*count)) : TDouble1Vec();
 }

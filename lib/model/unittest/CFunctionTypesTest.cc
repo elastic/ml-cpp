@@ -306,8 +306,7 @@ void CFunctionTypesTest::testFeaturesToFunction() {
 }
 
 CppUnit::Test* CFunctionTypesTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CFunctionTypesTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFunctionTypesTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CFunctionTypesTest>(
         "CFunctionTypesTest::testFeaturesToFunction", &CFunctionTypesTest::testFeaturesToFunction));

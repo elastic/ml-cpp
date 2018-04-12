@@ -1510,8 +1510,7 @@ void swap(CVector<T>& lhs, CVector<T>& rhs) {
 //! \param[in] m The matrix.
 //! \param[in] x The vector.
 template<typename T, std::size_t N>
-CVectorNx1<T, N>
-operator*(const CSymmetricMatrixNxN<T, N>& m, const CVectorNx1<T, N>& x) {
+CVectorNx1<T, N> operator*(const CSymmetricMatrixNxN<T, N>& m, const CVectorNx1<T, N>& x) {
     CVectorNx1<T, N> result;
     for (std::size_t i = 0u; i < N; ++i) {
         double component = 0.0;

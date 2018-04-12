@@ -316,8 +316,7 @@ void CTopLevelDomainDb::exceptionDomains(const std::string& str,
     CTopLevelDomainDb::ruleDomains(str, periods, subDomain, domain, suffix);
 }
 
-CTopLevelDomainDb::ERuleType
-CTopLevelDomainDb::isSuffixTld(const std::string& suffix) const {
+CTopLevelDomainDb::ERuleType CTopLevelDomainDb::isSuffixTld(const std::string& suffix) const {
     // If more than one rule matches, the prevailing rule is the one which is an exception rule.
     // - check exception rules first
     // If the prevailing rule is a exception rule, modify it by removing the leftmost label.

@@ -25,8 +25,7 @@
 #include <rapidjson/prettywriter.h>
 
 CppUnit::Test* CModelPlotDataJsonWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CModelPlotDataJsonWriterTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelPlotDataJsonWriterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CModelPlotDataJsonWriterTest>(
         "CModelPlotDataJsonWriterTest::testWriteFlat",

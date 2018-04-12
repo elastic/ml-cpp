@@ -43,16 +43,14 @@ namespace api {
 
 // Initialise statics
 const std::string CFieldConfig::DETECTOR_PREFIX("detector.");
-const std::string
-    CFieldConfig::CATEGORIZATION_FILTER_PREFIX("categorizationfilter.");
+const std::string CFieldConfig::CATEGORIZATION_FILTER_PREFIX("categorizationfilter.");
 const std::string CFieldConfig::INFLUENCER_PREFIX("influencer.");
 const std::string CFieldConfig::FILTER_PREFIX("filter.");
 const std::string CFieldConfig::SCHEDULED_EVENT_PREFIX("scheduledevent.");
 const std::string CFieldConfig::CLAUSE_SUFFIX(".clause");
 const std::string CFieldConfig::DESCRIPTION_SUFFIX(".description");
 const std::string CFieldConfig::RULES_SUFFIX(".rules");
-const std::string
-    CFieldConfig::CATEGORIZATION_FIELD_OPTION("categorizationfield");
+const std::string CFieldConfig::CATEGORIZATION_FIELD_OPTION("categorizationfield");
 const std::string CFieldConfig::SUMMARY_COUNT_FIELD_OPTION("summarycountfield");
 const char CFieldConfig::SUFFIX_SEPARATOR('.');
 const char CFieldConfig::FIELDNAME_SEPARATOR('-');
@@ -81,16 +79,13 @@ const std::string CFieldConfig::FUNCTION_HIGH_COUNT("high_count");
 const std::string CFieldConfig::FUNCTION_HIGH_COUNT_ABBREV("high_c");
 const std::string CFieldConfig::FUNCTION_DISTINCT_COUNT("distinct_count");
 const std::string CFieldConfig::FUNCTION_DISTINCT_COUNT_ABBREV("dc");
-const std::string
-    CFieldConfig::FUNCTION_LOW_DISTINCT_COUNT("low_distinct_count");
+const std::string CFieldConfig::FUNCTION_LOW_DISTINCT_COUNT("low_distinct_count");
 const std::string CFieldConfig::FUNCTION_LOW_DISTINCT_COUNT_ABBREV("low_dc");
-const std::string
-    CFieldConfig::FUNCTION_HIGH_DISTINCT_COUNT("high_distinct_count");
+const std::string CFieldConfig::FUNCTION_HIGH_DISTINCT_COUNT("high_distinct_count");
 const std::string CFieldConfig::FUNCTION_HIGH_DISTINCT_COUNT_ABBREV("high_dc");
 const std::string CFieldConfig::FUNCTION_NON_ZERO_COUNT("non_zero_count");
 const std::string CFieldConfig::FUNCTION_NON_ZERO_COUNT_ABBREV("nzc");
-const std::string
-    CFieldConfig::FUNCTION_RARE_NON_ZERO_COUNT("rare_non_zero_count");
+const std::string CFieldConfig::FUNCTION_RARE_NON_ZERO_COUNT("rare_non_zero_count");
 const std::string CFieldConfig::FUNCTION_RARE_NON_ZERO_COUNT_ABBREV("rnzc");
 const std::string CFieldConfig::FUNCTION_RARE("rare");
 // No abbreviation for "rare" as "r" is a little too obscure
@@ -101,11 +96,9 @@ const std::string CFieldConfig::FUNCTION_FREQ_RARE("freq_rare");
 const std::string CFieldConfig::FUNCTION_FREQ_RARE_ABBREV("fr");
 const std::string CFieldConfig::FUNCTION_FREQ_RARE_COUNT("freq_rare_count");
 const std::string CFieldConfig::FUNCTION_FREQ_RARE_COUNT_ABBREV("frc");
-const std::string
-    CFieldConfig::FUNCTION_LOW_NON_ZERO_COUNT("low_non_zero_count");
+const std::string CFieldConfig::FUNCTION_LOW_NON_ZERO_COUNT("low_non_zero_count");
 const std::string CFieldConfig::FUNCTION_LOW_NON_ZERO_COUNT_ABBREV("low_nzc");
-const std::string
-    CFieldConfig::FUNCTION_HIGH_NON_ZERO_COUNT("high_non_zero_count");
+const std::string CFieldConfig::FUNCTION_HIGH_NON_ZERO_COUNT("high_non_zero_count");
 const std::string CFieldConfig::FUNCTION_HIGH_NON_ZERO_COUNT_ABBREV("high_nzc");
 const std::string CFieldConfig::FUNCTION_INFO_CONTENT("info_content");
 const std::string CFieldConfig::FUNCTION_LOW_INFO_CONTENT("low_info_content");
@@ -552,9 +545,8 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
     int tokenNum(0);
     size_t stop(std::min(lastByTokenIndex, lastOverTokenIndex));
     if (stop > 1 && !allowMultipleFunctions) {
-        LOG_ERROR(
-            << "Only one analysis function is allowed in this context but "
-            << core::CStringUtils::typeToString(stop) << " were specified");
+        LOG_ERROR(<< "Only one analysis function is allowed in this context but "
+                  << core::CStringUtils::typeToString(stop) << " were specified");
         return false;
     }
 

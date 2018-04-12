@@ -107,8 +107,7 @@ void CCompressedDictionaryTest::testPersist() {
 }
 
 CppUnit::Test* CCompressedDictionaryTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CCompressedDictionaryTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCompressedDictionaryTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCompressedDictionaryTest>(
         "CCompressedDictionaryTest::testAll", &CCompressedDictionaryTest::testAll));

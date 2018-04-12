@@ -520,8 +520,8 @@ public:
         }
 
         //! Get the closest (in Mahalanobis distance) cluster to \p x.
-        static std::size_t
-        nearest(const TSphericalCluster& x, const TCovariances (&c)[2]) {
+        static std::size_t nearest(const TSphericalCluster& x,
+                                   const TCovariances (&c)[2]) {
             TPrecise d[] = {0, 0};
             TPointPrecise x_(x);
             inverseQuadraticForm(CBasicStatistics::maximumLikelihoodCovariances(c[0]),
@@ -757,8 +757,9 @@ public:
 
     //! Gets the index of the cluster(s) to which \p point belongs
     //! together with their weighting factor.
-    virtual void
-    cluster(const TPointPrecise& point, TSizeDoublePr2Vec& result, double count = 1.0) const {
+    virtual void cluster(const TPointPrecise& point,
+                         TSizeDoublePr2Vec& result,
+                         double count = 1.0) const {
         result.clear();
 
         if (m_Clusters.empty()) {
@@ -812,8 +813,7 @@ public:
 
     //! Update the clustering with \p point and return its cluster(s)
     //! together with their weighting factor.
-    virtual void
-    add(const TPointPrecise& x, TSizeDoublePr2Vec& clusters, double count = 1.0) {
+    virtual void add(const TPointPrecise& x, TSizeDoublePr2Vec& clusters, double count = 1.0) {
         m_HistoryLength += 1.0;
 
         if (m_Clusters.size() == 1) {
@@ -917,8 +917,7 @@ public:
     //! \param[in] numberSamples The desired number of samples.
     //! \param[out] samples Filled in with the samples.
     //! \return True if the cluster could be sampled and false otherwise.
-    virtual bool
-    sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec& samples) const {
+    virtual bool sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec& samples) const {
         const CCluster* cluster = this->cluster(index);
         if (!cluster) {
             LOG_ERROR(<< "Cluster " << index << " doesn't exist");

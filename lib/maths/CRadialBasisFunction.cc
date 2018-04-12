@@ -78,8 +78,7 @@ double inverseQuadraticSquareDerivative(double x, double centre, double scale) {
 //! <pre class="fragment">
 //!   \f$\displaystyle \int_{-\infty}^x{\frac{1}{(1+(\epsilon_1(u-c_1)^2)(1+(\epsilon_2(u-c_2)^2)}}du\f$
 //! </pre>
-double
-inverseQuadraticProduct(double x, double centre1, double centre2, double scale1, double scale2) {
+double inverseQuadraticProduct(double x, double centre1, double centre2, double scale1, double scale2) {
     double r1 = scale1 * (x - centre1);
     double r2 = scale2 * (x - centre2);
     double ss = scale1 + scale2;
@@ -160,8 +159,7 @@ double CGaussianBasisFunction::mean(double a, double b, double centre, double sc
                     0.0);
 }
 
-double
-CGaussianBasisFunction::meanSquareDerivative(double a, double b, double centre, double scale) const {
+double CGaussianBasisFunction::meanSquareDerivative(double a, double b, double centre, double scale) const {
     // The maximum of the derivative function is at the point
     // c +/- 1 / sqrt(2) / s. To find the maximum and minimum
     // values of the derivative function x+ and x- we need to

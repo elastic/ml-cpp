@@ -77,8 +77,7 @@ std::ostream& operator<<(std::ostream& o, const CPolynomialFunction<ORDER>& f) {
 }
 
 template<unsigned int ORDER>
-double
-integrate(const CPolynomialFunction<ORDER>& f, const double& a, const double& b) {
+double integrate(const CPolynomialFunction<ORDER>& f, const double& a, const double& b) {
     double result = 0.0;
     for (unsigned int i = 0; i < ORDER + 1; ++i) {
         double n = static_cast<double>(i) + 1.0;
@@ -1275,8 +1274,7 @@ void CIntegrationTest::testMultivariateSmooth() {
 }
 
 CppUnit::Test* CIntegrationTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CIntegrationTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIntegrationTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CIntegrationTest>(
         "CIntegrationTest::testAllSingleVariate", &CIntegrationTest::testAllSingleVariate));

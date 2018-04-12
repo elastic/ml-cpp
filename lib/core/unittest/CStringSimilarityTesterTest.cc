@@ -26,8 +26,7 @@
 #include <stdlib.h>
 
 CppUnit::Test* CStringSimilarityTesterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CStringSimilarityTesterTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringSimilarityTesterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
         "CStringSimilarityTesterTest::testStringSimilarity",
@@ -349,10 +348,9 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar() {
                 "strings at "
              << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO(
-        << "Levenstein distance throughput test for similar strings with size "
-        << TEST_SIZE << " and " << EXTRA_CHARS << " extra characters took "
-        << (end - start) << " seconds");
+    LOG_INFO(<< "Levenstein distance throughput test for similar strings with size "
+             << TEST_SIZE << " and " << EXTRA_CHARS << " extra characters took "
+             << (end - start) << " seconds");
 }
 
 void CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence() {

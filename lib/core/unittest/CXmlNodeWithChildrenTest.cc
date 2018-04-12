@@ -21,8 +21,7 @@
 #include <core/CXmlParser.h>
 
 CppUnit::Test* CXmlNodeWithChildrenTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CXmlNodeWithChildrenTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXmlNodeWithChildrenTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
         "CXmlNodeWithChildrenTest::testNodeHierarchyToXml",

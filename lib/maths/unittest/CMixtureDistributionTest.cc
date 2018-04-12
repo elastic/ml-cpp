@@ -335,8 +335,7 @@ void CMixtureDistributionTest::testQuantile() {
 }
 
 CppUnit::Test* CMixtureDistributionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMixtureDistributionTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMixtureDistributionTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>(
         "CMixtureDistributionTest::testSupport", &CMixtureDistributionTest::testSupport));

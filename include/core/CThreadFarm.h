@@ -86,8 +86,8 @@ public:
         CScopedLock lock(m_Mutex);
 
         if (m_Started == false) {
-            LOG_ERROR(<< "Can't add message to the "
-                      << m_Name << " thread farm because it's not running.  Call 'start'");
+            LOG_ERROR(<< "Can't add message to the " << m_Name
+                      << " thread farm because it's not running.  Call 'start'");
             return false;
         }
 

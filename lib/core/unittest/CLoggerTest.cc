@@ -95,8 +95,7 @@ void CLoggerTest::testReconfiguration() {
     // with the level set to TRACE rather than DEBUG
     CPPUNIT_ASSERT(logger.reconfigureFromFile("testfiles/log4cxx.properties"));
 
-    LOG_TRACE(
-        << "This should be seen because the reconfigured log level is TRACE");
+    LOG_TRACE(<< "This should be seen because the reconfigured log level is TRACE");
     CPPUNIT_ASSERT(logger.hasBeenReconfigured());
 }
 

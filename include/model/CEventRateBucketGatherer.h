@@ -278,8 +278,9 @@ public:
     //!
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the feature data at \p time.
-    virtual void
-    featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec& result) const;
+    virtual void featureData(core_t::TTime time,
+                             core_t::TTime bucketLength,
+                             TFeatureAnyPrVec& result) const;
     //@}
 
 private:

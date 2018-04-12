@@ -1407,9 +1407,8 @@ void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator() 
                           I, influencerValues, influences);
 
         LOG_DEBUG(<< "influences = " << core::CContainerPrinter::print(influences));
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[((I, i1), 1), ((I, i2), 1), ((I, i3), 1)]"),
-            core::CContainerPrinter::print(influences));
+        CPPUNIT_ASSERT_EQUAL(std::string("[((I, i1), 1), ((I, i2), 1), ((I, i3), 1)]"),
+                             core::CContainerPrinter::print(influences));
     }
     /*{
         LOG_DEBUG(<< "Test correlated");

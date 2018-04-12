@@ -29,8 +29,7 @@
 #include <thread>
 
 CppUnit::Test* CJsonOutputStreamWrapperTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CJsonOutputStreamWrapperTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonOutputStreamWrapperTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>(
         "CJsonOutputStreamWrapperTest::testConcurrentWrites",

@@ -40,8 +40,7 @@ const std::string EMPTY_STRING;
 }
 
 CppUnit::Test* CRuleConditionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CRuleConditionTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRuleConditionTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CRuleConditionTest>(
         "CRuleConditionTest::testTimeContition", &CRuleConditionTest::testTimeContition));

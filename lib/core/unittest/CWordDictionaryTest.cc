@@ -19,8 +19,7 @@
 #include <core/CWordDictionary.h>
 
 CppUnit::Test* CWordDictionaryTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CWordDictionaryTest");
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CWordDictionaryTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>(
         "CWordDictionaryTest::testLookups", &CWordDictionaryTest::testLookups));
