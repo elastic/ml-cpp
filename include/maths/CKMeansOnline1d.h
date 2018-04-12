@@ -42,7 +42,8 @@ public:
     CKMeansOnline1d(TNormalVec& clusters);
 
     //! Construct by traversing a state document.
-    CKMeansOnline1d(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    CKMeansOnline1d(const SDistributionRestoreParams& params,
+                    core::CStateRestoreTraverser& traverser);
 
     //! \name Clusterer Contract
     //@{
@@ -127,7 +128,8 @@ public:
 
 private:
     //! Restore by traversing a state document.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
 private:
     //! The (fixed) clusters.

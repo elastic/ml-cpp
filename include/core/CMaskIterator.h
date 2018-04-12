@@ -46,7 +46,8 @@ public:
     using TDifferenceVec = std::vector<difference_type>;
 
 public:
-    CMaskIterator(ITR begin, const TDifferenceVec& mask, difference_type index) : m_Begin(begin), m_Mask(&mask), m_Index(index) {}
+    CMaskIterator(ITR begin, const TDifferenceVec& mask, difference_type index)
+        : m_Begin(begin), m_Mask(&mask), m_Index(index) {}
 
     template<typename OTHER_ITR>
     bool operator==(const CMaskIterator<OTHER_ITR>& rhs) const {
@@ -75,7 +76,9 @@ public:
 
     reference operator*() const { return *(m_Begin + (*m_Mask)[m_Index]); }
     pointer operator->() const { return &(*(m_Begin + (*m_Mask)[m_Index])); }
-    reference operator[](difference_type n) const { return *(m_Begin + (*m_Mask)[m_Index + n]); }
+    reference operator[](difference_type n) const {
+        return *(m_Begin + (*m_Mask)[m_Index + n]);
+    }
 
     const CMaskIterator& operator++() {
         ++m_Index;
@@ -87,7 +90,8 @@ public:
     }
     template<typename OTHER_ITR>
     difference_type operator-(const CMaskIterator<OTHER_ITR>& rhs) const {
-        return static_cast<difference_type>(m_Index) - static_cast<difference_type>(rhs.m_Index);
+        return static_cast<difference_type>(m_Index) -
+               static_cast<difference_type>(rhs.m_Index);
     }
     const CMaskIterator& operator+=(difference_type n) {
         m_Index += n;
@@ -115,24 +119,29 @@ private:
 
 //! Get a non-constant mask iterator over a subset of the elements of a vector.
 template<typename T>
-CMaskIterator<typename std::vector<T>::iterator> begin_masked(std::vector<T>& v, const std::vector<ptrdiff_t>& mask) {
+CMaskIterator<typename std::vector<T>::iterator>
+begin_masked(std::vector<T>& v, const std::vector<ptrdiff_t>& mask) {
     return CMaskIterator<typename std::vector<T>::iterator>(v.begin(), mask, 0);
 }
 //! Get a non-constant mask iterator at the end of a subset of the elements of a vector.
 template<typename T>
-CMaskIterator<typename std::vector<T>::iterator> end_masked(std::vector<T>& v, const std::vector<ptrdiff_t>& mask) {
+CMaskIterator<typename std::vector<T>::iterator>
+end_masked(std::vector<T>& v, const std::vector<ptrdiff_t>& mask) {
     return CMaskIterator<typename std::vector<T>::iterator>(v.begin(), mask, mask.size());
 }
 
 //! Get a constant mask iterator over a subset of the elements of a vector.
 template<typename T>
-CMaskIterator<typename std::vector<T>::const_iterator> begin_masked(const std::vector<T>& v, const std::vector<ptrdiff_t>& mask) {
+CMaskIterator<typename std::vector<T>::const_iterator>
+begin_masked(const std::vector<T>& v, const std::vector<ptrdiff_t>& mask) {
     return CMaskIterator<typename std::vector<T>::const_iterator>(v.begin(), mask, 0);
 }
 //! Get a constant mask iterator at the end of a subset of the elements of a vector.
 template<typename T>
-CMaskIterator<typename std::vector<T>::const_iterator> end_masked(const std::vector<T>& v, const std::vector<ptrdiff_t>& mask) {
-    return CMaskIterator<typename std::vector<T>::const_iterator>(v.begin(), mask, mask.size());
+CMaskIterator<typename std::vector<T>::const_iterator>
+end_masked(const std::vector<T>& v, const std::vector<ptrdiff_t>& mask) {
+    return CMaskIterator<typename std::vector<T>::const_iterator>(v.begin(), mask,
+                                                                  mask.size());
 }
 
 //! A mask iterator over a subset of an iterated sequence.

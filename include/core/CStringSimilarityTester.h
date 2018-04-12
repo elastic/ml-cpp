@@ -80,8 +80,11 @@ public:
 
     //! Calculate how similar two strings are in the case where
     //! we already know their individual compressed lengths
-    bool
-    similarity(const std::string& first, size_t firstCompLength, const std::string& second, size_t secondCompLength, double& result) const;
+    bool similarity(const std::string& first,
+                    size_t firstCompLength,
+                    const std::string& second,
+                    size_t secondCompLength,
+                    double& result) const;
 
     //! Remove those characters from a string that cause a provided
     //! predicate to return true (can be used with ctype.h functions
@@ -91,7 +94,8 @@ public:
         std::string stripped;
         stripped.reserve(original.size());
 
-        std::remove_copy_if(original.begin(), original.end(), std::back_inserter(stripped), excludePred);
+        std::remove_copy_if(original.begin(), original.end(),
+                            std::back_inserter(stripped), excludePred);
 
         return stripped;
     }
@@ -99,8 +103,12 @@ public:
     //! Calculate how similar two strings are, excluding
     //! certain characters
     template<typename PREDICATE>
-    bool similarityEx(const std::string& first, const std::string& second, PREDICATE excludePred, double& result) const {
-        return this->similarity(this->strippedString(first, excludePred), this->strippedString(second, excludePred), result);
+    bool similarityEx(const std::string& first,
+                      const std::string& second,
+                      PREDICATE excludePred,
+                      double& result) const {
+        return this->similarity(this->strippedString(first, excludePred),
+                                this->strippedString(second, excludePred), result);
     }
 
     //! Find the length of the compressed version of a string - note
@@ -110,8 +118,11 @@ public:
     //! Calculate the Levenshtein distance between two strings,
     //! excluding certain characters
     template<typename STRINGLIKE, typename PREDICATE>
-    size_t levenshteinDistanceEx(const STRINGLIKE& first, const STRINGLIKE& second, PREDICATE excludePred) const {
-        return this->levenshteinDistance(this->strippedString(first, excludePred), this->strippedString(second, excludePred));
+    size_t levenshteinDistanceEx(const STRINGLIKE& first,
+                                 const STRINGLIKE& second,
+                                 PREDICATE excludePred) const {
+        return this->levenshteinDistance(this->strippedString(first, excludePred),
+                                         this->strippedString(second, excludePred));
     }
 
     //! Calculate the Levenshtein distance between two strings or
@@ -229,7 +240,8 @@ public:
         // Populate the left column
         currentCol[0] = 0;
         for (size_t downMinusOne = 0; downMinusOne < secondLen; ++downMinusOne) {
-            currentCol[downMinusOne + 1] = currentCol[downMinusOne] + second[downMinusOne].second;
+            currentCol[downMinusOne + 1] = currentCol[downMinusOne] +
+                                           second[downMinusOne].second;
         }
 
         // Calculate the other entries in the matrix
@@ -257,8 +269,11 @@ public:
                 // OR
                 //    No extra cost in the case where the corresponding
                 //    elements are equal
-                size_t option3(prevCol[downMinusOne] +
-                               ((first[acrossMinusOne].first == second[downMinusOne].first) ? 0 : std::max(firstCost, secondCost)));
+                size_t option3(
+                    prevCol[downMinusOne] +
+                    ((first[acrossMinusOne].first == second[downMinusOne].first)
+                         ? 0
+                         : std::max(firstCost, secondCost)));
 
                 // Take the cheapest option of the 3
                 currentCol[downMinusOne + 1] = std::min(std::min(option1, option2), option3);
@@ -329,7 +344,8 @@ private:
                     size_t option3(prevCol[downMinusOne]);
 
                     // Take the cheapest option of the 3
-                    currentCol[downMinusOne + 1] = std::min(std::min(option1, option2), option3) + 1;
+                    currentCol[downMinusOne + 1] =
+                        std::min(std::min(option1, option2), option3) + 1;
                 }
             }
         }
@@ -406,7 +422,8 @@ private:
         int option3(matrix[row + 1][column - 1] + 1);
 
         int t(std::max(std::max(option1, option2), option3));
-        int limit(std::min(static_cast<int>(first.size()), static_cast<int>(second.size()) - row));
+        int limit(std::min(static_cast<int>(first.size()),
+                           static_cast<int>(second.size()) - row));
         while (t < limit && first[t] == second[t + row]) {
             ++t;
         }

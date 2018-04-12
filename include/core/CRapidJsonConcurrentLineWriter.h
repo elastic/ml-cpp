@@ -22,7 +22,8 @@ namespace core {
 //! IMPLEMENTATION DECISIONS:\n
 //! hard code encoding and stream type
 //!
-class CORE_EXPORT CRapidJsonConcurrentLineWriter : public CRapidJsonLineWriter<rapidjson::StringBuffer> {
+class CORE_EXPORT CRapidJsonConcurrentLineWriter
+    : public CRapidJsonLineWriter<rapidjson::StringBuffer> {
 public:
     using TRapidJsonLineWriterBase = CRapidJsonLineWriter<rapidjson::StringBuffer>;
 

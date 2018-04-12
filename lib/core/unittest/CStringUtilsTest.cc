@@ -22,39 +22,48 @@
 CppUnit::Test* CStringUtilsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringUtilsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testNumMatches", &CStringUtilsTest::testNumMatches));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testReplace", &CStringUtilsTest::testReplace));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testReplaceFirst", &CStringUtilsTest::testReplaceFirst));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTypeToString", &CStringUtilsTest::testTypeToString));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTypeToStringPrecise", &CStringUtilsTest::testTypeToStringPrecise));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTypeToStringPretty", &CStringUtilsTest::testTypeToStringPretty));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testStringToType", &CStringUtilsTest::testStringToType));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTokeniser", &CStringUtilsTest::testTokeniser));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTrim", &CStringUtilsTest::testTrim));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testJoin", &CStringUtilsTest::testJoin));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testLower", &CStringUtilsTest::testLower));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testUpper", &CStringUtilsTest::testUpper));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testNarrowWiden", &CStringUtilsTest::testNarrowWiden));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testEscape", &CStringUtilsTest::testEscape));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testUnEscape", &CStringUtilsTest::testUnEscape));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testLongestSubstr", &CStringUtilsTest::testLongestSubstr));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testLongestSubseq", &CStringUtilsTest::testLongestSubseq));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testNormaliseWhitespace", &CStringUtilsTest::testNormaliseWhitespace));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testPerformance", &CStringUtilsTest::testPerformance));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testUtf8ByteType", &CStringUtilsTest::testUtf8ByteType));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testRoundtripMaxDouble", &CStringUtilsTest::testRoundtripMaxDouble));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testNumMatches", &CStringUtilsTest::testNumMatches));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testReplace", &CStringUtilsTest::testReplace));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testReplaceFirst", &CStringUtilsTest::testReplaceFirst));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testTypeToString", &CStringUtilsTest::testTypeToString));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testTypeToStringPrecise", &CStringUtilsTest::testTypeToStringPrecise));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testTypeToStringPretty", &CStringUtilsTest::testTypeToStringPretty));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testStringToType", &CStringUtilsTest::testStringToType));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testTokeniser", &CStringUtilsTest::testTokeniser));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testTrim", &CStringUtilsTest::testTrim));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testJoin", &CStringUtilsTest::testJoin));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testLower", &CStringUtilsTest::testLower));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testUpper", &CStringUtilsTest::testUpper));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testNarrowWiden", &CStringUtilsTest::testNarrowWiden));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testEscape", &CStringUtilsTest::testEscape));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testUnEscape", &CStringUtilsTest::testUnEscape));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testLongestSubstr", &CStringUtilsTest::testLongestSubstr));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testLongestSubseq", &CStringUtilsTest::testLongestSubseq));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testNormaliseWhitespace", &CStringUtilsTest::testNormaliseWhitespace));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testPerformance", &CStringUtilsTest::testPerformance));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testUtf8ByteType", &CStringUtilsTest::testUtf8ByteType));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
+        "CStringUtilsTest::testRoundtripMaxDouble", &CStringUtilsTest::testRoundtripMaxDouble));
 
     return suiteOfTests;
 }
@@ -92,7 +101,8 @@ void CStringUtilsTest::testReplaceFirst() {
         std::string in("%d%M%Y%f%D%t");
         const std::string out(" %d%M%Y%f%D%t");
 
-        CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst("%", " %", in));
+        CPPUNIT_ASSERT_EQUAL(size_t(1),
+                             ml::core::CStringUtils::replaceFirst("%", " %", in));
 
         CPPUNIT_ASSERT_EQUAL(out, in);
     }
@@ -172,98 +182,112 @@ void CStringUtilsTest::testTypeToStringPrecise() {
         double i(1.0);
         std::string expected("1");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(1.0);
         std::string expected("1");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(0.123456);
         std::string expected("1.23456e-1");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(0.123456);
         std::string expected("1.23456e-1");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(0.123456e10);
         std::string expected("1.23456e9");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(0.123456e10);
         std::string expected("1234560000");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(0.123456e-10);
         std::string expected("1.23456e-11");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(0.123456e-10);
         std::string expected("1.23456e-11");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(0.123456787654321e-10);
         std::string expected("1.234568e-11");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(0.123456787654321e-10);
         std::string expected("1.23456787654321e-11");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(0.00000000012345678765432123456);
         std::string expected("1.234568e-10");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(0.00000000012345678765432123456);
         std::string expected("1.23456787654321e-10");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(123456787654321.23456);
         std::string expected("1.234568e14");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_SinglePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
     {
         double i(123456787654321.23456);
         std::string expected("123456787654321");
 
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(i, ml::core::CIEEE754::E_DoublePrecision);
+        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision);
         CPPUNIT_ASSERT_EQUAL(expected, actual);
     }
 }
@@ -273,10 +297,14 @@ void CStringUtilsTest::testTypeToStringPretty() {
     LOG_DEBUG(<< "1.0 -> " << ml::core::CStringUtils::typeToStringPretty(1.0));
     LOG_DEBUG(<< "0.123456 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456));
     LOG_DEBUG(<< "0.123456e10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456e10));
-    LOG_DEBUG(<< "0.123456e-10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456e-10));
-    LOG_DEBUG(<< "0.123456787654321e-10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456787654321e-10));
-    LOG_DEBUG(<< "0.00000000012345678765432123456 -> " << ml::core::CStringUtils::typeToStringPretty(0.00000000012345678765432123456));
-    LOG_DEBUG(<< "123456787654321.23456 -> " << ml::core::CStringUtils::typeToStringPretty(123456787654321.23456));
+    LOG_DEBUG(<< "0.123456e-10 -> "
+              << ml::core::CStringUtils::typeToStringPretty(0.123456e-10));
+    LOG_DEBUG(<< "0.123456787654321e-10 -> "
+              << ml::core::CStringUtils::typeToStringPretty(0.123456787654321e-10));
+    LOG_DEBUG(<< "0.00000000012345678765432123456 -> "
+              << ml::core::CStringUtils::typeToStringPretty(0.00000000012345678765432123456));
+    LOG_DEBUG(<< "123456787654321.23456 -> "
+              << ml::core::CStringUtils::typeToStringPretty(123456787654321.23456));
 }
 
 void CStringUtilsTest::testStringToType() {
@@ -443,7 +471,8 @@ void CStringUtilsTest::testStringToType() {
 }
 
 void CStringUtilsTest::testTokeniser() {
-    std::string str = "sadcasd csac asdcasdc asdc asdc sadc sadc asd csdc ewwef f sdf sd f sdf  sdfsadfasdf\n"
+    std::string str = "sadcasd csac asdcasdc asdc asdc sadc sadc asd csdc "
+                      "ewwef f sdf sd f sdf  sdfsadfasdf\n"
                       "adscasdcadsc\n"
                       "asdfcasdcadsds<ENDsa wefasdsadc<END>asdcsadcadsc\n"
                       "asdcasdcsdcasdc\n"
@@ -467,7 +496,8 @@ void CStringUtilsTest::testTokeniser(const std::string& delim, const std::string
 
     LOG_DEBUG(<< str << " DELIM = '" << delim << "' REMAINDER = '" << remainder << "'");
 
-    for (ml::core::CStringUtils::TStrVecItr itr = tokens.begin(); itr != tokens.end(); ++itr) {
+    for (ml::core::CStringUtils::TStrVecItr itr = tokens.begin();
+         itr != tokens.end(); ++itr) {
         LOG_DEBUG(<< "'" << *itr << "'");
     }
 
@@ -567,17 +597,20 @@ void CStringUtilsTest::testJoin() {
     strVec.push_back(std::string("bbb"));
     strVec.push_back(std::string("ccc"));
 
-    CPPUNIT_ASSERT_EQUAL(std::string("aaa,bbb,ccc"), CStringUtils::join(strVec, std::string(",")));
+    CPPUNIT_ASSERT_EQUAL(std::string("aaa,bbb,ccc"),
+                         CStringUtils::join(strVec, std::string(",")));
 
     LOG_DEBUG(<< "Test delimiter has more than one characters")
-    CPPUNIT_ASSERT_EQUAL(std::string("aaa::bbb::ccc"), CStringUtils::join(strVec, std::string("::")));
+    CPPUNIT_ASSERT_EQUAL(std::string("aaa::bbb::ccc"),
+                         CStringUtils::join(strVec, std::string("::")));
 
     LOG_DEBUG(<< "Test set instead of vector")
     TStrSet strSet;
     strSet.insert(std::string("aaa"));
     strSet.insert(std::string("bbb"));
     strSet.insert(std::string("ccc"));
-    CPPUNIT_ASSERT_EQUAL(std::string("aaa,bbb,ccc"), CStringUtils::join(strSet, std::string(",")));
+    CPPUNIT_ASSERT_EQUAL(std::string("aaa,bbb,ccc"),
+                         CStringUtils::join(strSet, std::string(",")));
 }
 
 void CStringUtilsTest::testLower() {
@@ -585,9 +618,11 @@ void CStringUtilsTest::testLower() {
     CPPUNIT_ASSERT_EQUAL(std::string("hello"), ml::core::CStringUtils::toLower("Hello"));
     CPPUNIT_ASSERT_EQUAL(std::string("hello"), ml::core::CStringUtils::toLower("HELLO"));
 
-    CPPUNIT_ASSERT_EQUAL(std::string("123hello"), ml::core::CStringUtils::toLower("123hello"));
+    CPPUNIT_ASSERT_EQUAL(std::string("123hello"),
+                         ml::core::CStringUtils::toLower("123hello"));
     CPPUNIT_ASSERT_EQUAL(std::string("hello  "), ml::core::CStringUtils::toLower("Hello  "));
-    CPPUNIT_ASSERT_EQUAL(std::string("_-+hello"), ml::core::CStringUtils::toLower("_-+HELLO"));
+    CPPUNIT_ASSERT_EQUAL(std::string("_-+hello"),
+                         ml::core::CStringUtils::toLower("_-+HELLO"));
 }
 
 void CStringUtilsTest::testUpper() {
@@ -595,17 +630,21 @@ void CStringUtilsTest::testUpper() {
     CPPUNIT_ASSERT_EQUAL(std::string("HELLO"), ml::core::CStringUtils::toUpper("Hello"));
     CPPUNIT_ASSERT_EQUAL(std::string("HELLO"), ml::core::CStringUtils::toUpper("HELLO"));
 
-    CPPUNIT_ASSERT_EQUAL(std::string("123HELLO"), ml::core::CStringUtils::toUpper("123hello"));
+    CPPUNIT_ASSERT_EQUAL(std::string("123HELLO"),
+                         ml::core::CStringUtils::toUpper("123hello"));
     CPPUNIT_ASSERT_EQUAL(std::string("HELLO  "), ml::core::CStringUtils::toUpper("Hello  "));
-    CPPUNIT_ASSERT_EQUAL(std::string("_-+HELLO"), ml::core::CStringUtils::toUpper("_-+HELLO"));
+    CPPUNIT_ASSERT_EQUAL(std::string("_-+HELLO"),
+                         ml::core::CStringUtils::toUpper("_-+HELLO"));
 }
 
 void CStringUtilsTest::testNarrowWiden() {
     std::string hello1("Hello");
     std::wstring hello2(L"Hello");
 
-    CPPUNIT_ASSERT_EQUAL(hello1.length(), ml::core::CStringUtils::narrowToWide(hello1).length());
-    CPPUNIT_ASSERT_EQUAL(hello2.length(), ml::core::CStringUtils::wideToNarrow(hello2).length());
+    CPPUNIT_ASSERT_EQUAL(hello1.length(),
+                         ml::core::CStringUtils::narrowToWide(hello1).length());
+    CPPUNIT_ASSERT_EQUAL(hello2.length(),
+                         ml::core::CStringUtils::wideToNarrow(hello2).length());
 
     CPPUNIT_ASSERT(ml::core::CStringUtils::narrowToWide(hello1) == hello2);
     CPPUNIT_ASSERT(ml::core::CStringUtils::wideToNarrow(hello2) == hello1);
@@ -654,7 +693,8 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), common);
 
-        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Hello world");
@@ -664,7 +704,8 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), common);
 
-        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Hello world");
@@ -674,7 +715,8 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("Hello "), common);
 
-        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Hello world");
@@ -684,7 +726,8 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("ello"), common);
 
-        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("abc");
@@ -694,7 +737,8 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), common);
 
-        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("abc xyz defgv hij");
@@ -704,7 +748,8 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(" defg"), common);
 
-        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Source LOTS on 13080:742 has shut down.");
@@ -714,7 +759,8 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(" has shut down."), common);
 
-        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("No filter list defined for .");
@@ -724,7 +770,8 @@ void CStringUtilsTest::testLongestSubstr() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("No filter list defined for "), common);
 
-        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common substring of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
 }
 
@@ -737,7 +784,8 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), common);
 
-        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Hello world");
@@ -747,7 +795,8 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), common);
 
-        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Hello world");
@@ -757,7 +806,8 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("Hello "), common);
 
-        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Hello world");
@@ -767,7 +817,8 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("ello"), common);
 
-        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("abc");
@@ -777,7 +828,8 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string(""), common);
 
-        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("abc xyz defgv hij");
@@ -787,7 +839,8 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("abc  defg hij"), common);
 
-        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("Source LOTS on 13080:742 has shut down.");
@@ -797,7 +850,8 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("Source T on 13080:2 has shut down."), common);
 
-        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
     {
         std::string str1("No filter list defined for .");
@@ -807,7 +861,8 @@ void CStringUtilsTest::testLongestSubseq() {
 
         CPPUNIT_ASSERT_EQUAL(std::string("No filter list defined for ."), common);
 
-        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '" << str2 << "' is '" << common << "'");
+        LOG_DEBUG(<< "Longest common subsequence of '" << str1 << "' and '"
+                  << str2 << "' is '" << common << "'");
     }
 }
 
@@ -906,7 +961,8 @@ void CStringUtilsTest::testUtf8ByteType() {
 }
 
 void CStringUtilsTest::testRoundtripMaxDouble() {
-    ml::core::CIEEE754::EPrecision precisions[] = {ml::core::CIEEE754::E_SinglePrecision, ml::core::CIEEE754::E_DoublePrecision};
+    ml::core::CIEEE754::EPrecision precisions[] = {
+        ml::core::CIEEE754::E_SinglePrecision, ml::core::CIEEE754::E_DoublePrecision};
     double tolerances[] = {5e-7, 5e-15};
     for (std::size_t i = 0u; i < boost::size(precisions); ++i) {
         double max = std::numeric_limits<double>::max();

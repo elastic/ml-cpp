@@ -46,21 +46,25 @@ const std::string EMPTY_STRING;
 const double LOG_TWO = std::log(2.0);
 }
 
-CConstantPrior::CConstantPrior(const TOptionalDouble& constant) : CPrior(maths_t::E_DiscreteData, 0.0) {
+CConstantPrior::CConstantPrior(const TOptionalDouble& constant)
+    : CPrior(maths_t::E_DiscreteData, 0.0) {
     if (constant) {
         setConstant(*constant, m_Constant);
     }
 }
 
-CConstantPrior::CConstantPrior(core::CStateRestoreTraverser& traverser) : CPrior(maths_t::E_DiscreteData, 0.0) {
-    traverser.traverseSubLevel(boost::bind(&CConstantPrior::acceptRestoreTraverser, this, _1));
+CConstantPrior::CConstantPrior(core::CStateRestoreTraverser& traverser)
+    : CPrior(maths_t::E_DiscreteData, 0.0) {
+    traverser.traverseSubLevel(
+        boost::bind(&CConstantPrior::acceptRestoreTraverser, this, _1));
 }
 
 bool CConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(
-            CONSTANT_TAG, double constant, core::CStringUtils::stringToType(traverser.value(), constant), m_Constant.reset(constant))
+        RESTORE_SETUP_TEARDOWN(CONSTANT_TAG, double constant,
+                               core::CStringUtils::stringToType(traverser.value(), constant),
+                               m_Constant.reset(constant))
     } while (traverser.next());
 
     return true;
@@ -82,8 +86,9 @@ bool CConstantPrior::needsOffset() const {
     return false;
 }
 
-double
-CConstantPrior::adjustOffset(const TWeightStyleVec& /*weightStyle*/, const TDouble1Vec& /*samples*/, const TDouble4Vec1Vec& /*weights*/) {
+double CConstantPrior::adjustOffset(const TWeightStyleVec& /*weightStyle*/,
+                                    const TDouble1Vec& /*samples*/,
+                                    const TDouble4Vec1Vec& /*weights*/) {
     return 0.0;
 }
 
@@ -91,7 +96,9 @@ double CConstantPrior::offset() const {
     return 0.0;
 }
 
-void CConstantPrior::addSamples(const TWeightStyleVec& /*weightStyle*/, const TDouble1Vec& samples, const TDouble4Vec1Vec& /*weights*/) {
+void CConstantPrior::addSamples(const TWeightStyleVec& /*weightStyle*/,
+                                const TDouble1Vec& samples,
+                                const TDouble4Vec1Vec& /*weights*/) {
     if (m_Constant || samples.empty()) {
         return;
     }
@@ -102,7 +109,8 @@ void CConstantPrior::propagateForwardsByTime(double /*time*/) {
 }
 
 CConstantPrior::TDoubleDoublePr CConstantPrior::marginalLikelihoodSupport() const {
-    return std::make_pair(boost::numeric::bounds<double>::lowest(), boost::numeric::bounds<double>::highest());
+    return std::make_pair(boost::numeric::bounds<double>::lowest(),
+                          boost::numeric::bounds<double>::highest());
 }
 
 double CConstantPrior::marginalLikelihoodMean() const {
@@ -113,13 +121,15 @@ double CConstantPrior::marginalLikelihoodMean() const {
     return *m_Constant;
 }
 
-double CConstantPrior::marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/, const TDouble4Vec& /*weights*/) const {
+double CConstantPrior::marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
+                                              const TDouble4Vec& /*weights*/) const {
     return this->marginalLikelihoodMean();
 }
 
-CConstantPrior::TDoubleDoublePr CConstantPrior::marginalLikelihoodConfidenceInterval(double /*percentage*/,
-                                                                                     const TWeightStyleVec& /*weightStyles*/,
-                                                                                     const TDouble4Vec& /*weights*/) const {
+CConstantPrior::TDoubleDoublePr
+CConstantPrior::marginalLikelihoodConfidenceInterval(double /*percentage*/,
+                                                     const TWeightStyleVec& /*weightStyles*/,
+                                                     const TDouble4Vec& /*weights*/) const {
     if (this->isNonInformative()) {
         return this->marginalLikelihoodSupport();
     }
@@ -127,14 +137,16 @@ CConstantPrior::TDoubleDoublePr CConstantPrior::marginalLikelihoodConfidenceInte
     return std::make_pair(*m_Constant, *m_Constant);
 }
 
-double CConstantPrior::marginalLikelihoodVariance(const TWeightStyleVec& /*weightStyles*/, const TDouble4Vec& /*weights*/) const {
+double CConstantPrior::marginalLikelihoodVariance(const TWeightStyleVec& /*weightStyles*/,
+                                                  const TDouble4Vec& /*weights*/) const {
     return this->isNonInformative() ? boost::numeric::bounds<double>::highest() : 0.0;
 }
 
-maths_t::EFloatingPointErrorStatus CConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                                                                              const TDouble1Vec& samples,
-                                                                              const TDouble4Vec1Vec& weights,
-                                                                              double& result) const {
+maths_t::EFloatingPointErrorStatus
+CConstantPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                           const TDouble1Vec& samples,
+                                           const TDouble4Vec1Vec& weights,
+                                           double& result) const {
     result = 0.0;
 
     if (samples.empty()) {
@@ -143,7 +155,8 @@ maths_t::EFloatingPointErrorStatus CConstantPrior::jointLogMarginalLikelihood(co
     }
 
     if (samples.size() != weights.size()) {
-        LOG_ERROR(<< "Mismatch in samples '" << core::CContainerPrinter::print(samples) << "' and weights '"
+        LOG_ERROR(<< "Mismatch in samples '"
+                  << core::CContainerPrinter::print(samples) << "' and weights '"
                   << core::CContainerPrinter::print(weights) << "'");
         return maths_t::E_FpFailed;
     }
@@ -177,7 +190,8 @@ maths_t::EFloatingPointErrorStatus CConstantPrior::jointLogMarginalLikelihood(co
     return maths_t::E_FpNoErrors;
 }
 
-void CConstantPrior::sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const {
+void CConstantPrior::sampleMarginalLikelihood(std::size_t numberSamples,
+                                              TDouble1Vec& samples) const {
     samples.clear();
 
     if (this->isNonInformative()) {
@@ -302,8 +316,9 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
         }
     }
 
-    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples) << ", constant = " << *m_Constant
-              << ", lowerBound = " << lowerBound << ", upperBound = " << upperBound << ", tail = " << tail);
+    LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples)
+              << ", constant = " << *m_Constant << ", lowerBound = " << lowerBound
+              << ", upperBound = " << upperBound << ", tail = " << tail);
 
     tail = static_cast<maths_t::ETail>(tail_);
     return true;
@@ -315,7 +330,8 @@ bool CConstantPrior::isNonInformative() const {
 
 void CConstantPrior::print(const std::string& indent, std::string& result) const {
     result += core_t::LINE_ENDING + indent + "constant " +
-              (this->isNonInformative() ? std::string("non-informative") : core::CStringUtils::typeToString(*m_Constant));
+              (this->isNonInformative() ? std::string("non-informative")
+                                        : core::CStringUtils::typeToString(*m_Constant));
 }
 
 std::string CConstantPrior::printMarginalLikelihoodFunction(double /*weight*/) const {

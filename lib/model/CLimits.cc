@@ -26,8 +26,7 @@ CLimits::CLimits()
       m_AnomalyMaxTimeBuckets(DEFAULT_ANOMALY_MAX_TIME_BUCKETS),
       m_MaxExamples(DEFAULT_RESULTS_MAX_EXAMPLES),
       m_UnusualProbabilityThreshold(DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD),
-      m_MemoryLimitMB(CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB),
-      m_ResourceMonitor() {
+      m_MemoryLimitMB(CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB), m_ResourceMonitor() {
 }
 
 CLimits::~CLimits() {
@@ -49,14 +48,17 @@ bool CLimits::init(const std::string& configFile) {
         return false;
     }
 
-    if (this->processSetting(propTree, "autoconfig.events", DEFAULT_AUTOCONFIG_EVENTS, m_AutoConfigEvents) == false ||
-        this->processSetting(propTree, "anomaly.maxtimebuckets", DEFAULT_ANOMALY_MAX_TIME_BUCKETS, m_AnomalyMaxTimeBuckets) == false ||
-        this->processSetting(propTree, "results.maxexamples", DEFAULT_RESULTS_MAX_EXAMPLES, m_MaxExamples) == false ||
-        this->processSetting(propTree,
-                             "results.unusualprobabilitythreshold",
+    if (this->processSetting(propTree, "autoconfig.events",
+                             DEFAULT_AUTOCONFIG_EVENTS, m_AutoConfigEvents) == false ||
+        this->processSetting(propTree, "anomaly.maxtimebuckets", DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
+                             m_AnomalyMaxTimeBuckets) == false ||
+        this->processSetting(propTree, "results.maxexamples",
+                             DEFAULT_RESULTS_MAX_EXAMPLES, m_MaxExamples) == false ||
+        this->processSetting(propTree, "results.unusualprobabilitythreshold",
                              DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD,
                              m_UnusualProbabilityThreshold) == false ||
-        this->processSetting(propTree, "memory.modelmemorylimit", CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB, m_MemoryLimitMB) == false) {
+        this->processSetting(propTree, "memory.modelmemorylimit", CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB,
+                             m_MemoryLimitMB) == false) {
         LOG_ERROR(<< "Error processing config file " << configFile);
         return false;
     }

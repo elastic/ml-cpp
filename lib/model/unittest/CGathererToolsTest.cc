@@ -19,8 +19,9 @@ const CGathererTools::CSumGatherer::TStoredStringPtrVec EMPTY_STR_PTR_VEC;
 CppUnit::Test* CGathererToolsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CGathererToolsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGathererToolsTest>("CGathererToolsTest::testSumGathererIsRedundant",
-                                                                      &CGathererToolsTest::testSumGathererIsRedundant));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGathererToolsTest>(
+        "CGathererToolsTest::testSumGathererIsRedundant",
+        &CGathererToolsTest::testSumGathererIsRedundant));
 
     return suiteOfTests;
 }
@@ -31,7 +32,8 @@ void CGathererToolsTest::testSumGathererIsRedundant() {
     core_t::TTime bucketLength(100);
     SModelParams modelParams(bucketLength);
     modelParams.s_LatencyBuckets = 3;
-    CGathererTools::CSumGatherer sumGatherer(modelParams, 0, 100, bucketLength, EMPTY_STR_VEC.begin(), EMPTY_STR_VEC.end());
+    CGathererTools::CSumGatherer sumGatherer(
+        modelParams, 0, 100, bucketLength, EMPTY_STR_VEC.begin(), EMPTY_STR_VEC.end());
 
     sumGatherer.add(100, TDouble1Vec{1.0}, 1, 0, EMPTY_STR_PTR_VEC);
     sumGatherer.startNewBucket(100);

@@ -43,7 +43,9 @@ public:
 
     //! Wrapper for 1 timeseries model, its feature and by Field
     struct MODEL_EXPORT SForecastModelWrapper {
-        SForecastModelWrapper(model_t::EFeature feature, TMathsModelPtr&& forecastModel, const std::string& byFieldValue);
+        SForecastModelWrapper(model_t::EFeature feature,
+                              TMathsModelPtr&& forecastModel,
+                              const std::string& byFieldValue);
 
         SForecastModelWrapper(SForecastModelWrapper&& other);
 
@@ -131,7 +133,10 @@ public:
               int detectorIndex);
 
     //! Write Statistics about the forecast, also marks the ending
-    void writeStats(const double progress, uint64_t runtime, const TStrUMap& messages, bool successful = true);
+    void writeStats(const double progress,
+                    uint64_t runtime,
+                    const TStrUMap& messages,
+                    bool successful = true);
 
     //! Write a scheduled message to signal that validation was successful
     void writeScheduledMessage();

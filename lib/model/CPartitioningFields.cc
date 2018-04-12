@@ -9,7 +9,8 @@
 namespace ml {
 namespace model {
 
-CPartitioningFields::CPartitioningFields(const std::string& partitionFieldName, const std::string& partitionFieldValue) {
+CPartitioningFields::CPartitioningFields(const std::string& partitionFieldName,
+                                         const std::string& partitionFieldValue) {
     m_PartitioningFields.reserve(3);
     this->add(partitionFieldName, partitionFieldValue);
 }
@@ -22,7 +23,8 @@ std::size_t CPartitioningFields::size() const {
     return m_PartitioningFields.size();
 }
 
-const CPartitioningFields::TStrCRefStrCRefPr& CPartitioningFields::operator[](std::size_t i) const {
+const CPartitioningFields::TStrCRefStrCRefPr& CPartitioningFields::
+operator[](std::size_t i) const {
     return m_PartitioningFields[i];
 }
 

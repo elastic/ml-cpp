@@ -85,7 +85,8 @@ public:
     using TFeatureData = SEventRateFeatureData;
     using TSizeSizePrFeatureDataPr = std::pair<TSizeSizePr, TFeatureData>;
     using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
-    using TFeatureSizeSizePrFeatureDataPrVecMap = std::map<model_t::EFeature, TSizeSizePrFeatureDataPrVec>;
+    using TFeatureSizeSizePrFeatureDataPrVecMap =
+        std::map<model_t::EFeature, TSizeSizePrFeatureDataPrVec>;
     using TCategoryProbabilityCache = CModelTools::CCategoryProbabilityCache;
     using TProbabilityCache = CModelTools::CProbabilityCache;
 
@@ -191,7 +192,10 @@ public:
     //! \param[in] pid The identifier of the person of interest.
     //! \param[in] cid The identifier of the attribute of interest.
     //! \param[in] time The time of interest.
-    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
+    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature,
+                                           std::size_t pid,
+                                           std::size_t cid,
+                                           core_t::TTime time) const;
 
     //! Get the population baseline mean of \p feature for the
     //! attribute identified by \p cid as of the start of the
@@ -225,7 +229,9 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sampleBucketStatistics(core_t::TTime startTime,
+                                        core_t::TTime endTime,
+                                        CResourceMonitor& resourceMonitor);
 
     //! Update the model with the samples of the various processes
     //! in the time interval [\p startTime, \p endTime].
@@ -295,7 +301,8 @@ public:
     virtual CModelDetailsViewPtr details() const;
 
     //! Get the feature data corresponding to \p feature at \p time.
-    const TSizeSizePrFeatureDataPrVec& featureData(model_t::EFeature feature, core_t::TTime time) const;
+    const TSizeSizePrFeatureDataPrVec& featureData(model_t::EFeature feature,
+                                                   core_t::TTime time) const;
 
 private:
     //! Initialize the feature models.
@@ -329,7 +336,8 @@ private:
     virtual void updateRecycledModels();
 
     //! Update the correlation models.
-    virtual void refreshCorrelationModels(std::size_t resourceLimit, CResourceMonitor& resourceMonitor);
+    virtual void refreshCorrelationModels(std::size_t resourceLimit,
+                                          CResourceMonitor& resourceMonitor);
 
     //! Clear out large state objects for people/attributes that are pruned
     virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes);

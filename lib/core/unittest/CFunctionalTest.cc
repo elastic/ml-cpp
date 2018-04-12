@@ -55,7 +55,8 @@ void CFunctionalTest::testDereference() {
     const double* values[] = {&one, &two, &three};
     for (std::size_t i = 0u; i < boost::size(values); ++i) {
         for (std::size_t j = 0u; j < boost::size(values); ++j) {
-            CPPUNIT_ASSERT_EQUAL(less(*values[i], *values[j]), derefLess(values[i], values[j]));
+            CPPUNIT_ASSERT_EQUAL(less(*values[i], *values[j]),
+                                 derefLess(values[i], values[j]));
         }
     }
 }
@@ -63,8 +64,10 @@ void CFunctionalTest::testDereference() {
 CppUnit::Test* CFunctionalTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFunctionalTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFunctionalTest>("CFunctionalTest::testIsNull", &CFunctionalTest::testIsNull));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFunctionalTest>("CFunctionalTest::testDereference", &CFunctionalTest::testDereference));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFunctionalTest>(
+        "CFunctionalTest::testIsNull", &CFunctionalTest::testIsNull));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFunctionalTest>(
+        "CFunctionalTest::testDereference", &CFunctionalTest::testDereference));
 
     return suiteOfTests;
 }

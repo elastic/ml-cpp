@@ -91,7 +91,8 @@ private:
 
     //! Update the statistics with \p time and \p fieldValues and maybe
     //! recompute detector scores and prune.
-    void updateStatisticsAndMaybeComputeScores(core_t::TTime time, const TStrStrUMap& fieldValues);
+    void updateStatisticsAndMaybeComputeScores(core_t::TTime time,
+                                               const TStrStrUMap& fieldValues);
 
     //! Compute the detector scores.
     void computeScores(bool final);
@@ -164,7 +165,8 @@ void CAutoconfigurer::finalise() {
     m_Impl->finalise();
 }
 
-bool CAutoconfigurer::restoreState(core::CDataSearcher& /*restoreSearcher*/, core_t::TTime& /*completeToTime*/) {
+bool CAutoconfigurer::restoreState(core::CDataSearcher& /*restoreSearcher*/,
+                                   core_t::TTime& /*completeToTime*/) {
     return true;
 }
 
@@ -182,17 +184,14 @@ api::COutputHandler& CAutoconfigurer::outputHandler() {
 
 //////// CAutoconfigurerImpl ////////
 
-CAutoconfigurerImpl::CAutoconfigurerImpl(const CAutoconfigurerParams& params, CReportWriter& reportWriter)
-    : m_Params(params),
-      m_Initialized(false),
-      m_NumberRecords(0),
+CAutoconfigurerImpl::CAutoconfigurerImpl(const CAutoconfigurerParams& params,
+                                         CReportWriter& reportWriter)
+    : m_Params(params), m_Initialized(false), m_NumberRecords(0),
       m_NumberRecordsWithNoOrInvalidTime(0),
       m_LastTimeScoresWereRefreshed(boost::numeric::bounds<core_t::TTime>::lowest()),
-      m_DetectorCountStatistics(m_Params),
-      m_FieldRolePenalties(m_Params),
+      m_DetectorCountStatistics(m_Params), m_FieldRolePenalties(m_Params),
       m_DetectorPenalties(m_Params, m_FieldRolePenalties),
-      m_GeneratedCandidateFieldNames(false),
-      m_ReportWriter(reportWriter) {
+      m_GeneratedCandidateFieldNames(false), m_ReportWriter(reportWriter) {
 }
 
 bool CAutoconfigurerImpl::handleRecord(const TStrStrUMap& fieldValues) {
@@ -227,10 +226,12 @@ void CAutoconfigurerImpl::finalise() {
         if (const CDataSummaryStatistics* summary = m_FieldStatistics[i].summary()) {
             m_ReportWriter.addFieldStatistics(name, type, *summary);
         }
-        if (const CCategoricalDataSummaryStatistics* summary = m_FieldStatistics[i].categoricalSummary()) {
+        if (const CCategoricalDataSummaryStatistics* summary =
+                m_FieldStatistics[i].categoricalSummary()) {
             m_ReportWriter.addFieldStatistics(name, type, *summary);
         }
-        if (const CNumericDataSummaryStatistics* summary = m_FieldStatistics[i].numericSummary()) {
+        if (const CNumericDataSummaryStatistics* summary =
+                m_FieldStatistics[i].numericSummary()) {
             m_ReportWriter.addFieldStatistics(name, type, *summary);
         }
     }
@@ -252,24 +253,28 @@ uint64_t CAutoconfigurerImpl::numRecordsHandled() const {
     return m_NumberRecords;
 }
 
-bool CAutoconfigurerImpl::extractTime(const TStrStrUMap& fieldValues, core_t::TTime& time) const {
+bool CAutoconfigurerImpl::extractTime(const TStrStrUMap& fieldValues,
+                                      core_t::TTime& time) const {
     TStrStrUMapCItr i = fieldValues.find(m_Params.timeFieldName());
 
     if (i == fieldValues.end()) {
-        LOG_ERROR(<< "No time field '" << m_Params.timeFieldName() << "' in record:" << core_t::LINE_ENDING
+        LOG_ERROR(<< "No time field '" << m_Params.timeFieldName()
+                  << "' in record:" << core_t::LINE_ENDING
                   << CAutoconfigurer::debugPrintRecord(fieldValues));
         return false;
     }
 
     if (m_Params.timeFieldFormat().empty()) {
         if (!core::CStringUtils::stringToType(i->second, time)) {
-            LOG_ERROR(<< "Cannot interpret time field '" << m_Params.timeFieldName() << "' in record:" << core_t::LINE_ENDING
+            LOG_ERROR(<< "Cannot interpret time field '" << m_Params.timeFieldName()
+                      << "' in record:" << core_t::LINE_ENDING
                       << CAutoconfigurer::debugPrintRecord(fieldValues));
             return false;
         }
     } else if (!core::CTimeUtils::strptime(m_Params.timeFieldFormat(), i->second, time)) {
-        LOG_ERROR(<< "Cannot interpret time field '" << m_Params.timeFieldName() << "' using format '" << m_Params.timeFieldFormat()
-                  << "' in record:" << core_t::LINE_ENDING << CAutoconfigurer::debugPrintRecord(fieldValues));
+        LOG_ERROR(<< "Cannot interpret time field '" << m_Params.timeFieldName() << "' using format '"
+                  << m_Params.timeFieldFormat() << "' in record:" << core_t::LINE_ENDING
+                  << CAutoconfigurer::debugPrintRecord(fieldValues));
         return false;
     }
 
@@ -310,11 +315,13 @@ void CAutoconfigurerImpl::processRecord(core_t::TTime time, const TStrStrUMap& f
     }
 }
 
-void CAutoconfigurerImpl::updateStatisticsAndMaybeComputeScores(core_t::TTime time, const TStrStrUMap& fieldValues) {
+void CAutoconfigurerImpl::updateStatisticsAndMaybeComputeScores(core_t::TTime time,
+                                                                const TStrStrUMap& fieldValues) {
     CDetectorRecordDirectAddressTable::TDetectorRecordVec records;
     m_DetectorRecordFactory.detectorRecords(time, fieldValues, m_CandidateDetectors, records);
     m_DetectorCountStatistics.add(records);
-    if (m_NumberRecords % UPDATE_SCORE_RECORD_COUNT_INTERVAL == 0 && time >= m_LastTimeScoresWereRefreshed + UPDATE_SCORE_TIME_INTERVAL) {
+    if (m_NumberRecords % UPDATE_SCORE_RECORD_COUNT_INTERVAL == 0 &&
+        time >= m_LastTimeScoresWereRefreshed + UPDATE_SCORE_TIME_INTERVAL) {
         this->computeScores(false);
         m_LastTimeScoresWereRefreshed = time;
     }
@@ -329,7 +336,8 @@ void CAutoconfigurerImpl::computeScores(bool final) {
         LOG_TRACE(<< "Refreshing scores for " << m_CandidateDetectors[i].description());
         m_CandidateDetectors[i].refreshScores();
         LOG_TRACE(<< "score = " << m_CandidateDetectors[i].score());
-        if (m_CandidateDetectors[i].score() > (final ? m_Params.minimumDetectorScore() : 0.0)) {
+        if (m_CandidateDetectors[i].score() >
+            (final ? m_Params.minimumDetectorScore() : 0.0)) {
             if (i > last) {
                 m_CandidateDetectors[i].swap(m_CandidateDetectors[last]);
             }
@@ -339,7 +347,8 @@ void CAutoconfigurerImpl::computeScores(bool final) {
 
     if (last < m_CandidateDetectors.size()) {
         LOG_DEBUG(<< "Removing " << m_CandidateDetectors.size() - last << " detectors");
-        m_CandidateDetectors.erase(m_CandidateDetectors.begin() + last, m_CandidateDetectors.end());
+        m_CandidateDetectors.erase(m_CandidateDetectors.begin() + last,
+                                   m_CandidateDetectors.end());
         m_DetectorRecordFactory.build(m_CandidateDetectors);
         m_DetectorCountStatistics.pruneUnsed(m_CandidateDetectors);
     }
@@ -380,17 +389,19 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce() {
                                     &CAutoconfigurerParams::canUseForByField,
                                     &CAutoconfigurerParams::canUseForOverField,
                                     &CAutoconfigurerParams::canUseForPartitionField};
-        double scores[] = {m_FieldStatistics[i].score(m_FieldRolePenalties.categoricalFunctionArgumentPenalty()),
-                           m_FieldStatistics[i].score(m_FieldRolePenalties.metricFunctionArgumentPenalty()),
-                           m_FieldStatistics[i].score(m_FieldRolePenalties.byPenalty()),
-                           m_FieldStatistics[i].score(m_FieldRolePenalties.rareByPenalty()),
-                           m_FieldStatistics[i].score(m_FieldRolePenalties.overPenalty()),
-                           m_FieldStatistics[i].score(m_FieldRolePenalties.partitionPenalty())};
+        double scores[] = {
+            m_FieldStatistics[i].score(m_FieldRolePenalties.categoricalFunctionArgumentPenalty()),
+            m_FieldStatistics[i].score(m_FieldRolePenalties.metricFunctionArgumentPenalty()),
+            m_FieldStatistics[i].score(m_FieldRolePenalties.byPenalty()),
+            m_FieldStatistics[i].score(m_FieldRolePenalties.rareByPenalty()),
+            m_FieldStatistics[i].score(m_FieldRolePenalties.overPenalty()),
+            m_FieldStatistics[i].score(m_FieldRolePenalties.partitionPenalty())};
 
         const std::string& fieldName = m_FieldStatistics[i].name();
         for (std::size_t j = 0u; j < boost::size(FIELD_NAMES); ++j) {
             if ((m_Params.*CAN_USE[j])(fieldName) && scores[j] > 0.0) {
-                LOG_DEBUG(<< FIELD_NAMES[j] << " '" << fieldName << "' with score " << scores[j]);
+                LOG_DEBUG(<< FIELD_NAMES[j] << " '" << fieldName
+                          << "' with score " << scores[j]);
                 (enumerator.*ADD_FIELD[j])(fieldName);
             }
         }
@@ -418,7 +429,8 @@ void CAutoconfigurerImpl::replayBuffer() {
         if (reportProgress(i)) {
             LOG_DEBUG(<< "Replayed " << i << " records");
         }
-        this->updateStatisticsAndMaybeComputeScores(m_Buffer[i].first, m_Buffer[i].second);
+        this->updateStatisticsAndMaybeComputeScores(m_Buffer[i].first,
+                                                    m_Buffer[i].second);
     }
     TTimeStrStrUMapPrVec empty;
     m_Buffer.swap(empty);

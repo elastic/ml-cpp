@@ -21,12 +21,14 @@ CCmdSkeleton::CCmdSkeleton(core::CDataSearcher* restoreSearcher,
                            core::CDataAdder* persister,
                            CInputParser& inputParser,
                            CDataProcessor& processor)
-    : m_RestoreSearcher(restoreSearcher), m_Persister(persister), m_InputParser(inputParser), m_Processor(processor) {
+    : m_RestoreSearcher(restoreSearcher), m_Persister(persister),
+      m_InputParser(inputParser), m_Processor(processor) {
 }
 
 bool CCmdSkeleton::ioLoop() {
     if (m_RestoreSearcher == nullptr) {
-        LOG_DEBUG(<< "No restoration source specified - will not attempt to restore state");
+        LOG_DEBUG(<< "No restoration source specified - will not attempt to "
+                     "restore state");
     } else {
         core_t::TTime completeToTime(0);
         if (m_Processor.restoreState(*m_RestoreSearcher, completeToTime) == false) {
@@ -35,7 +37,8 @@ bool CCmdSkeleton::ioLoop() {
         }
     }
 
-    if (m_InputParser.readStream(boost::bind(&CDataProcessor::handleRecord, &m_Processor, _1)) == false) {
+    if (m_InputParser.readStream(boost::bind(&CDataProcessor::handleRecord,
+                                             &m_Processor, _1)) == false) {
         LOG_FATAL(<< "Failed to handle all input data");
         return false;
     }
@@ -50,7 +53,8 @@ bool CCmdSkeleton::ioLoop() {
 
 bool CCmdSkeleton::persistState() {
     if (m_Persister == nullptr) {
-        LOG_DEBUG(<< "No persistence sink specified - will not attempt to persist state");
+        LOG_DEBUG(<< "No persistence sink specified - will not attempt to "
+                     "persist state");
         return true;
     }
 

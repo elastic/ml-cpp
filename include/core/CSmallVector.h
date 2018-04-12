@@ -96,17 +96,22 @@ public:
     CSmallVector() {}
     CSmallVector(const CSmallVector& other) : TBase(other) {}
     CSmallVector(CSmallVector&& other) : TBase(std::move(other.baseRef())) {}
-    explicit CSmallVector(size_type n, const value_type& val = value_type()) : TBase(n, val) {}
-    CSmallVector(std::initializer_list<value_type> list) : TBase(list.begin(), list.end()) {}
+    explicit CSmallVector(size_type n, const value_type& val = value_type())
+        : TBase(n, val) {}
+    CSmallVector(std::initializer_list<value_type> list)
+        : TBase(list.begin(), list.end()) {}
     template<class ITR>
     CSmallVector(ITR first, ITR last) : TBase(first, last) {}
     template<typename U, std::size_t M>
-    CSmallVector(const CSmallVector<U, M>& other) : TBase(other.begin(), other.end()) {}
+    CSmallVector(const CSmallVector<U, M>& other)
+        : TBase(other.begin(), other.end()) {}
     template<typename U>
-    CSmallVector(std::initializer_list<U> list) : TBase(list.begin(), list.end()) {}
+    CSmallVector(std::initializer_list<U> list)
+        : TBase(list.begin(), list.end()) {}
     // Extend to construct implicitly from a vector.
     template<typename U>
-    CSmallVector(const std::vector<U>& other) : TBase(other.begin(), other.end()) {}
+    CSmallVector(const std::vector<U>& other)
+        : TBase(other.begin(), other.end()) {}
 
     CSmallVector& operator=(CSmallVector&& rhs) {
         this->baseRef() = std::move(rhs.baseRef());
@@ -118,7 +123,9 @@ public:
     }
 
     // Extend to convert implicitly to a vector.
-    inline operator std::vector<T>() const { return std::vector<T>(this->begin(), this->end()); }
+    inline operator std::vector<T>() const {
+        return std::vector<T>(this->begin(), this->end());
+    }
 
     // Non-standard plus assign for the case that T has operator+=.
     const CSmallVector& operator+=(const CSmallVectorBase<T>& rhs) {

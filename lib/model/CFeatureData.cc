@@ -25,7 +25,8 @@ using TSizeVec = std::vector<std::size_t>;
 //! Get the sequence [0, N).
 template<std::size_t N>
 const TSizeVec& sequence() {
-    static const TSizeVec result(boost::counting_iterator<std::size_t>(0), boost::counting_iterator<std::size_t>(N));
+    static const TSizeVec result(boost::counting_iterator<std::size_t>(0),
+                                 boost::counting_iterator<std::size_t>(N));
     return result;
 }
 }
@@ -101,9 +102,7 @@ SMetricFeatureData::SMetricFeatureData(core_t::TTime bucketTime,
                                        bool isNonNegative,
                                        const TSampleVec& samples)
     : s_BucketValue(boost::in_place(bucketTime, bucketValue, bucketVarianceScale, bucketCount)),
-      s_IsInteger(isInteger),
-      s_IsNonNegative(isNonNegative),
-      s_Samples(samples) {
+      s_IsInteger(isInteger), s_IsNonNegative(isNonNegative), s_Samples(samples) {
     s_InfluenceValues.swap(influenceValues);
 }
 
@@ -113,8 +112,9 @@ SMetricFeatureData::SMetricFeatureData(bool isInteger, bool isNonNegative, const
 
 std::string SMetricFeatureData::print() const {
     std::ostringstream result;
-    result << "value = " << core::CContainerPrinter::print(s_BucketValue) << ", is integer " << s_IsInteger << ", is non-negative "
-           << s_IsNonNegative << ", samples = " << core::CContainerPrinter::print(s_Samples);
+    result << "value = " << core::CContainerPrinter::print(s_BucketValue)
+           << ", is integer " << s_IsInteger << ", is non-negative " << s_IsNonNegative
+           << ", samples = " << core::CContainerPrinter::print(s_Samples);
     return result.str();
 }
 

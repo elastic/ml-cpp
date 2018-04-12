@@ -47,8 +47,10 @@ public:
     virtual double mean(core_t::TTime time) const;
 
     //! Returns (0.0, 0.0).
-    virtual maths_t::TDoubleDoublePr
-    baseline(core_t::TTime time, double confidence = 0.0, int components = E_All, bool smooth = true) const;
+    virtual maths_t::TDoubleDoublePr baseline(core_t::TTime time,
+                                              double confidence = 0.0,
+                                              int components = E_All,
+                                              bool smooth = true) const;
 
     //! Clears \p result.
     virtual void forecast(core_t::TTime startTime,
@@ -65,7 +67,8 @@ public:
     virtual double meanVariance() const;
 
     //! Returns (1.0, 1.0).
-    virtual maths_t::TDoubleDoublePr scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
+    virtual maths_t::TDoubleDoublePr
+    scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
 
     //! No-op.
     virtual void skipTime(core_t::TTime skipInterval);

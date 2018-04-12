@@ -47,13 +47,16 @@ private:
     virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 
     //! Compute the penalty for optionally a partition.
-    void penaltyFor(const CPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltyFor(const CPartitionDataCountStatistics& stats,
+                    CDetectorSpecification& spec) const;
 
     //! Compute the penalty for a by field and optionally a partition.
-    void penaltyFor(const CByAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltyFor(const CByAndPartitionDataCountStatistics& stats,
+                    CDetectorSpecification& spec) const;
 
     //! Compute the penalty for a by, over and optionally a partition field.
-    void penaltyFor(const CByOverAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const;
+    void penaltyFor(const CByOverAndPartitionDataCountStatistics& stats,
+                    CDetectorSpecification& spec) const;
 
     //! The common penalty calculation.
     void penaltyFor(const TUInt64Vec& bucketCounts,

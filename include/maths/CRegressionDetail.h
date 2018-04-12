@@ -112,7 +112,9 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(TArray& result, double m
 }
 
 template<std::size_t N, typename T>
-bool CRegression::CLeastSquaresOnline<N, T>::covariances(double variance, TMatrix& result, double maxCondition) const {
+bool CRegression::CLeastSquaresOnline<N, T>::covariances(double variance,
+                                                         TMatrix& result,
+                                                         double maxCondition) const {
     result = TMatrix(0.0);
 
     // Search for the covariance matrix of a non-singular subproblem.
@@ -149,7 +151,8 @@ std::string CRegression::CLeastSquaresOnline<N, T>::print() const {
     if (this->parameters(params)) {
         std::string result;
         for (std::size_t i = params.size() - 1; i > 0; --i) {
-            result += core::CStringUtils::typeToStringPretty(params[i]) + " x^" + core::CStringUtils::typeToStringPretty(i) + " + ";
+            result += core::CStringUtils::typeToStringPretty(params[i]) +
+                      " x^" + core::CStringUtils::typeToStringPretty(i) + " + ";
         }
         result += core::CStringUtils::typeToStringPretty(params[0]);
         return result;
@@ -159,7 +162,11 @@ std::string CRegression::CLeastSquaresOnline<N, T>::print() const {
 
 template<std::size_t N, typename T>
 template<typename MATRIX, typename VECTOR>
-bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n, MATRIX& x, VECTOR& y, double maxCondition, TArray& result) const {
+bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n,
+                                                        MATRIX& x,
+                                                        VECTOR& y,
+                                                        double maxCondition,
+                                                        TArray& result) const {
     if (n == 1) {
         result[0] = CBasicStatistics::mean(m_S)(2 * N - 1);
         return true;
@@ -173,7 +180,8 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n, MATRIX& x
     LOG_TRACE(<< "x =\n" << x);
     LOG_TRACE(<< "y =\n" << y);
 
-    Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(), Eigen::ComputeFullU | Eigen::ComputeFullV);
+    Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(),
+                                Eigen::ComputeFullU | Eigen::ComputeFullV);
     if (x_.singularValues()(0) > maxCondition * x_.singularValues()(n - 1)) {
         LOG_TRACE(<< "singular values = " << x_.singularValues());
         return false;
@@ -191,15 +199,19 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n, MATRIX& x
 
 template<std::size_t N, typename T>
 template<typename MATRIX>
-bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n, MATRIX& x, double variance, double maxCondition, TMatrix& result)
-    const {
+bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n,
+                                                         MATRIX& x,
+                                                         double variance,
+                                                         double maxCondition,
+                                                         TMatrix& result) const {
     if (n == 1) {
         x(0) = variance / CBasicStatistics::count(m_S);
         return true;
     }
 
     this->gramian(n, x);
-    Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(), Eigen::ComputeFullU | Eigen::ComputeFullV);
+    Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(),
+                                Eigen::ComputeFullU | Eigen::ComputeFullV);
     if (x_.singularValues()(0) > maxCondition * x_.singularValues()(n - 1)) {
         LOG_TRACE(<< "singular values = " << x_.singularValues());
         return false;
@@ -209,8 +221,9 @@ bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n, MATRIX& 
     // the matrix condition above. Also, we zero initialize result
     // in the calling code so any values we don't fill in the
     // following loop are zero (as required).
-    x = (x_.matrixV() * x_.singularValues().cwiseInverse().asDiagonal() * x_.matrixU().transpose()) * variance /
-        CBasicStatistics::count(m_S);
+    x = (x_.matrixV() * x_.singularValues().cwiseInverse().asDiagonal() *
+         x_.matrixU().transpose()) *
+        variance / CBasicStatistics::count(m_S);
     for (std::size_t i = 0u; i < n; ++i) {
         result(i, i) = x(i, i);
         for (std::size_t j = 0u; j < i; ++j) {
@@ -222,16 +235,19 @@ bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n, MATRIX& 
 }
 
 template<std::size_t N, typename T>
-bool CRegression::CLeastSquaresOnlineParameterProcess<N, T>::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+bool CRegression::CLeastSquaresOnlineParameterProcess<N, T>::acceptRestoreTraverser(
+    core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        RESTORE(UNIT_TIME_COVARIANCES_TAG, m_UnitTimeCovariances.fromDelimited(traverser.value()))
+        RESTORE(UNIT_TIME_COVARIANCES_TAG,
+                m_UnitTimeCovariances.fromDelimited(traverser.value()))
     } while (traverser.next());
     return true;
 }
 
 template<std::size_t N, typename T>
-void CRegression::CLeastSquaresOnlineParameterProcess<N, T>::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+void CRegression::CLeastSquaresOnlineParameterProcess<N, T>::acceptPersistInserter(
+    core::CStatePersistInserter& inserter) const {
     inserter.insertValue(UNIT_TIME_COVARIANCES_TAG, m_UnitTimeCovariances.toDelimited());
 }
 

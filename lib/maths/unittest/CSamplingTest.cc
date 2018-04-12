@@ -139,9 +139,11 @@ void CSamplingTest::testMultinomialSample() {
 
     double error = 0.0;
     double pTotal = 0.0;
-    for (TSizeVecDoubleMapCItr pItr = empiricalProbabilities.begin(); pItr != empiricalProbabilities.end(); ++pItr) {
+    for (TSizeVecDoubleMapCItr pItr = empiricalProbabilities.begin();
+         pItr != empiricalProbabilities.end(); ++pItr) {
         LOG_DEBUG(<< "counts = " << core::CContainerPrinter::print(pItr->first));
-        CPPUNIT_ASSERT_EQUAL(size_t(20), std::accumulate(pItr->first.begin(), pItr->first.end(), size_t(0)));
+        CPPUNIT_ASSERT_EQUAL(size_t(20), std::accumulate(pItr->first.begin(),
+                                                         pItr->first.end(), size_t(0)));
 
         double p = multinomialProbability(probabilities, pItr->first);
         double pe = pItr->second;
@@ -193,13 +195,16 @@ void CSamplingTest::testMultivariateNormalSample() {
             TDoubleVec error = test_detail::minus(mean_, m_);
             LOG_DEBUG(<< "||error|| = " << test_detail::euclidean(error));
             LOG_DEBUG(<< "||m|| = " << test_detail::euclidean(m_));
-            CPPUNIT_ASSERT(test_detail::euclidean(error) < 0.02 * test_detail::euclidean(m_));
+            CPPUNIT_ASSERT(test_detail::euclidean(error) <
+                           0.02 * test_detail::euclidean(m_));
         }
 
         // Get the sample covariance matrix.
         TDoubleVecVec covariance(3, TDoubleVec(3, 0.0));
         for (std::size_t i = 0u; i < samples.size(); ++i) {
-            test_detail::add(test_detail::outer(test_detail::minus(samples[i], mean_), test_detail::minus(samples[i], mean_)), covariance);
+            test_detail::add(test_detail::outer(test_detail::minus(samples[i], mean_),
+                                                test_detail::minus(samples[i], mean_)),
+                             covariance);
         }
         test_detail::divide(covariance, static_cast<double>(samples.size() - 1));
         LOG_DEBUG(<< "actual covariance = " << core::CContainerPrinter::print(covariance));
@@ -219,10 +224,11 @@ void CSamplingTest::testMultivariateNormalSample() {
 CppUnit::Test* CSamplingTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSamplingTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CSamplingTest>("CSamplingTest::testMultinomialSample", &CSamplingTest::testMultinomialSample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSamplingTest>("CSamplingTest::testMultivariateNormalSample",
-                                                                 &CSamplingTest::testMultivariateNormalSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSamplingTest>(
+        "CSamplingTest::testMultinomialSample", &CSamplingTest::testMultinomialSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSamplingTest>(
+        "CSamplingTest::testMultivariateNormalSample",
+        &CSamplingTest::testMultivariateNormalSample));
 
     return suiteOfTests;
 }

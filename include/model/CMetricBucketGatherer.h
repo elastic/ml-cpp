@@ -107,7 +107,8 @@ public:
 
 private:
     //! Internal restore function.
-    bool acceptRestoreTraverserInternal(core::CStateRestoreTraverser& traverser, bool isCurrentVersion);
+    bool acceptRestoreTraverserInternal(core::CStateRestoreTraverser& traverser,
+                                        bool isCurrentVersion);
     //@}
 
 public:
@@ -161,7 +162,9 @@ public:
     //! should the by clause field value or a generic name if none was
     //! specified. The third field should contain a number corresponding
     //! to the metric value.
-    virtual bool processFields(const TStrCPtrVec& fieldValues, CEventData& result, CResourceMonitor& resourceMonitor);
+    virtual bool processFields(const TStrCPtrVec& fieldValues,
+                               CEventData& result,
+                               CResourceMonitor& resourceMonitor);
     //@}
 
     //! \name Person
@@ -212,7 +215,9 @@ public:
     //!
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the feature data at \p time.
-    virtual void featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec& result) const;
+    virtual void featureData(core_t::TTime time,
+                             core_t::TTime bucketLength,
+                             TFeatureAnyPrVec& result) const;
     //@}
 
 private:
@@ -269,7 +274,8 @@ private:
     //! 1) initializeFieldNamesPart1()
     //! 2) restore state
     //! 3) initializeFieldNamesPart2()
-    void initializeFieldNamesPart2(const std::string& valueFieldName, const std::string& summaryCountFieldName);
+    void initializeFieldNamesPart2(const std::string& valueFieldName,
+                                   const std::string& summaryCountFieldName);
 
     //! Initialize the feature data gatherers.
     void initializeFeatureData();

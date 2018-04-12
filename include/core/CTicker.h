@@ -31,7 +31,9 @@ template<typename RECEIVER>
 class CTicker : public CThread {
 public:
     //! Timeout is in milliseconds
-    CTicker(uint32_t timeOut, RECEIVER& receiver) : m_Condition(m_Mutex), m_Quit(false), m_TimeOut(timeOut), m_Receiver(receiver) {}
+    CTicker(uint32_t timeOut, RECEIVER& receiver)
+        : m_Condition(m_Mutex), m_Quit(false), m_TimeOut(timeOut),
+          m_Receiver(receiver) {}
 
     //! Destructor will stop the ticker thread if it's already running
     ~CTicker() {

@@ -14,11 +14,14 @@ namespace core {
 
 const std::string CWordExtractor::PUNCT_CHARS("!\"'(),-./:;?[]`");
 
-void CWordExtractor::extractWordsFromMessage(const std::string& message, std::string& messageWords) {
+void CWordExtractor::extractWordsFromMessage(const std::string& message,
+                                             std::string& messageWords) {
     CWordExtractor::extractWordsFromMessage(1, message, messageWords);
 }
 
-void CWordExtractor::extractWordsFromMessage(size_t minConsecutive, const std::string& message, std::string& messageWords) {
+void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
+                                             const std::string& message,
+                                             std::string& messageWords) {
     // Words are taken to be sub-strings of 1 or more letters, all lower case
     // except possibly the first, preceded by a space, and followed by 0 or 1
     // punctuation characters and then a space (or the end of the string).
@@ -47,7 +50,8 @@ void CWordExtractor::extractWordsFromMessage(size_t minConsecutive, const std::s
         if (::isspace(static_cast<unsigned char>(thisChar))) {
             if (inWord && punctCount <= 1) {
                 if (dict.isInDictionary(curWord)) {
-                    messageWords.append(message, wordStartPos, messagePos - spaceCount - punctCount - wordStartPos);
+                    messageWords.append(message, wordStartPos,
+                                        messagePos - spaceCount - punctCount - wordStartPos);
                     messageWords += ' ';
 
                     ++consecutive;
@@ -109,7 +113,8 @@ void CWordExtractor::extractWordsFromMessage(size_t minConsecutive, const std::s
     if (inWord && punctCount <= 1 && dict.isInDictionary(curWord)) {
         ++consecutive;
         if (consecutive >= minConsecutive) {
-            messageWords.append(message, wordStartPos, message.length() - wordStartPos - punctCount);
+            messageWords.append(message, wordStartPos,
+                                message.length() - wordStartPos - punctCount);
             messageWords += ' ';
 
             rollbackPos = messageWords.length();

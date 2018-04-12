@@ -22,7 +22,8 @@ const core::CPatternSet EMPTY_FILTER;
 
 using TDouble1Vec = CAnomalyDetectorModel::TDouble1Vec;
 
-CRuleCondition::SCondition::SCondition(EConditionOperator op, double threshold) : s_Op(op), s_Threshold(threshold) {
+CRuleCondition::SCondition::SCondition(EConditionOperator op, double threshold)
+    : s_Op(op), s_Threshold(threshold) {
 }
 
 bool CRuleCondition::SCondition::test(double value) const {
@@ -40,7 +41,8 @@ bool CRuleCondition::SCondition::test(double value) const {
 }
 
 CRuleCondition::CRuleCondition()
-    : m_Type(E_NumericalActual), m_Condition(E_LT, 0.0), m_FieldName(), m_FieldValue(), m_ValueFilter(EMPTY_FILTER) {
+    : m_Type(E_NumericalActual), m_Condition(E_LT, 0.0), m_FieldName(),
+      m_FieldValue(), m_ValueFilter(EMPTY_FILTER) {
 }
 
 void CRuleCondition::type(ERuleConditionType ruleType) {
@@ -103,7 +105,8 @@ bool CRuleCondition::test(const CAnomalyDetectorModel& model,
                 // Thus we ignore the supplied pid/cid and instead look up
                 // the time series identifier that matches the condition's m_FieldValue.
                 bool successfullyResolvedId =
-                    model.isPopulation() ? gatherer.attributeId(m_FieldValue, cid) : gatherer.personId(m_FieldValue, pid);
+                    model.isPopulation() ? gatherer.attributeId(m_FieldValue, cid)
+                                         : gatherer.personId(m_FieldValue, pid);
                 if (successfullyResolvedId == false) {
                     return false;
                 }
@@ -112,9 +115,10 @@ bool CRuleCondition::test(const CAnomalyDetectorModel& model,
                 //   - empty
                 //   - the person field name if the detector has only an over field or only a by field
                 //   - the attribute field name if the detector has both over and by fields
-                const std::string& fieldValue = model.isPopulation() && m_FieldName == gatherer.attributeFieldName()
-                                                    ? gatherer.attributeName(cid)
-                                                    : gatherer.personName(pid);
+                const std::string& fieldValue =
+                    model.isPopulation() && m_FieldName == gatherer.attributeFieldName()
+                        ? gatherer.attributeName(cid)
+                        : gatherer.personName(pid);
                 if (m_FieldValue != fieldValue) {
                     return false;
                 }
@@ -134,7 +138,8 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
     switch (m_Type) {
     case E_CategoricalMatch:
     case E_CategoricalComplement: {
-        LOG_ERROR(<< "Should never check numerical condition for categorical rule condition");
+        LOG_ERROR(<< "Should never check numerical condition for categorical "
+                     "rule condition");
         return false;
     }
     case E_NumericalActual: {
@@ -142,7 +147,8 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
         break;
     }
     case E_NumericalTypical: {
-        value = model.baselineBucketMean(feature, pid, cid, resultType, EMPTY_CORRELATED, time);
+        value = model.baselineBucketMean(feature, pid, cid, resultType,
+                                         EMPTY_CORRELATED, time);
         if (value.empty()) {
             // Means prior is non-informative
             return false;
@@ -151,13 +157,15 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
     }
     case E_NumericalDiffAbs: {
         value = model.currentBucketValue(feature, pid, cid, time);
-        TDouble1Vec typical = model.baselineBucketMean(feature, pid, cid, resultType, EMPTY_CORRELATED, time);
+        TDouble1Vec typical = model.baselineBucketMean(feature, pid, cid, resultType,
+                                                       EMPTY_CORRELATED, time);
         if (typical.empty()) {
             // Means prior is non-informative
             return false;
         }
         if (value.size() != typical.size()) {
-            LOG_ERROR(<< "Cannot apply rule condition: cannot calculate difference between "
+            LOG_ERROR(<< "Cannot apply rule condition: cannot calculate difference "
+                         "between "
                       << "actual and typical values due to different dimensions.");
             return false;
         }
@@ -200,7 +208,8 @@ std::string CRuleCondition::print() const {
         }
         result += "IN FILTER";
     } else {
-        result += this->print(m_Condition.s_Op) + " " + core::CStringUtils::typeToString(m_Condition.s_Threshold);
+        result += this->print(m_Condition.s_Op) + " " +
+                  core::CStringUtils::typeToString(m_Condition.s_Threshold);
     }
     return result;
 }

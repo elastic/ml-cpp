@@ -97,7 +97,8 @@ private:
             }
 
             double n = norm(x[current]);
-            LOG_TRACE(<< "i = " << i << ", current = " << current << ", x = " << print(x[current]) << ", norm = " << n);
+            LOG_TRACE(<< "i = " << i << ", current = " << current
+                      << ", x = " << print(x[current]) << ", norm = " << n);
 
             if (n != 0.0) {
                 divide(x[current], n);
@@ -113,14 +114,16 @@ private:
                     swap(x[current], x[i]);
                 }
 
-                double eps = 5.0 * norm(x[current]) * std::numeric_limits<double>::epsilon();
+                double eps = 5.0 * norm(x[current]) *
+                             std::numeric_limits<double>::epsilon();
 
                 for (std::size_t j = 0u; j < i; ++j) {
                     minusProjection(x[current], x[j]);
                 }
 
                 double n = norm(x[current]);
-                LOG_TRACE(<< "i = " << i << ", current = " << current << ", x = " << print(x[current]) << ", norm = " << n
+                LOG_TRACE(<< "i = " << i << ", current = " << current
+                          << ", x = " << print(x[current]) << ", norm = " << n
                           << ", eps = " << eps);
 
                 if (std::fabs(n) > eps) {
@@ -159,7 +162,8 @@ private:
 
     //! Subtract the projection of \p x onto \p e from \p x.
     template<std::size_t N>
-    static const CVectorNx1<double, N>& minusProjection(CVectorNx1<double, N>& x, const CVectorNx1<double, N>& e) {
+    static const CVectorNx1<double, N>&
+    minusProjection(CVectorNx1<double, N>& x, const CVectorNx1<double, N>& e) {
         double n = e.inner(x);
         return x -= n * e;
     }
@@ -208,7 +212,9 @@ private:
 
     //! Remove [\p begin, \p end) from \p x.
     template<typename VECTOR>
-    static void erase(std::vector<VECTOR>& x, typename std::vector<VECTOR>::iterator begin, typename std::vector<VECTOR>::iterator end) {
+    static void erase(std::vector<VECTOR>& x,
+                      typename std::vector<VECTOR>::iterator begin,
+                      typename std::vector<VECTOR>::iterator end) {
         x.erase(begin, end);
     }
 

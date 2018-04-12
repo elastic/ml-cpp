@@ -15,19 +15,20 @@
 CppUnit::Test* CRapidXmlParserTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidXmlParserTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testParse1", &CRapidXmlParserTest::testParse1));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testParse2", &CRapidXmlParserTest::testParse2));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testNavigate", &CRapidXmlParserTest::testNavigate));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testConvert", &CRapidXmlParserTest::testConvert));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testDump", &CRapidXmlParserTest::testDump));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testParseSpeed", &CRapidXmlParserTest::testParseSpeed));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRapidXmlParserTest>("CRapidXmlParserTest::testConvertSpeed", &CRapidXmlParserTest::testConvertSpeed));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>(
+        "CRapidXmlParserTest::testParse1", &CRapidXmlParserTest::testParse1));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>(
+        "CRapidXmlParserTest::testParse2", &CRapidXmlParserTest::testParse2));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>(
+        "CRapidXmlParserTest::testNavigate", &CRapidXmlParserTest::testNavigate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>(
+        "CRapidXmlParserTest::testConvert", &CRapidXmlParserTest::testConvert));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>(
+        "CRapidXmlParserTest::testDump", &CRapidXmlParserTest::testDump));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>(
+        "CRapidXmlParserTest::testParseSpeed", &CRapidXmlParserTest::testParseSpeed));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlParserTest>(
+        "CRapidXmlParserTest::testConvertSpeed", &CRapidXmlParserTest::testConvertSpeed));
 
     return suiteOfTests;
 }
@@ -56,25 +57,30 @@ void CRapidXmlParserTest::testParse2() {
     CPPUNIT_ASSERT_EQUAL(std::string("syslog_parser"), rootNodePtr->name());
     CPPUNIT_ASSERT_EQUAL(rootNodePtr->name(), parser.rootElementName());
 
-    const ml::core::CXmlNodeWithChildren::TChildNodePVec& parseTree = rootNodePtr->children();
+    const ml::core::CXmlNodeWithChildren::TChildNodePVec& parseTree =
+        rootNodePtr->children();
     CPPUNIT_ASSERT_EQUAL(size_t(1), parseTree.size());
     CPPUNIT_ASSERT(parseTree[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("parsetree"), parseTree[0]->name());
 
-    const ml::core::CXmlNodeWithChildren::TChildNodePVec& expression = parseTree[0]->children();
+    const ml::core::CXmlNodeWithChildren::TChildNodePVec& expression =
+        parseTree[0]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(2), expression.size());
     CPPUNIT_ASSERT(expression[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("expression"), expression[0]->name());
 
-    const ml::core::CXmlNodeWithChildren::TChildNodePVec& descriptionAndRegexes = expression[0]->children();
+    const ml::core::CXmlNodeWithChildren::TChildNodePVec& descriptionAndRegexes =
+        expression[0]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(2), descriptionAndRegexes.size());
     CPPUNIT_ASSERT(descriptionAndRegexes[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("description"), descriptionAndRegexes[0]->name());
-    CPPUNIT_ASSERT_EQUAL(std::string("Transport node error"), descriptionAndRegexes[0]->value());
+    CPPUNIT_ASSERT_EQUAL(std::string("Transport node error"),
+                         descriptionAndRegexes[0]->value());
     CPPUNIT_ASSERT(descriptionAndRegexes[1] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("regexes"), descriptionAndRegexes[1]->name());
 
-    const ml::core::CXmlNodeWithChildren::TChildNodePVec& varbind = descriptionAndRegexes[1]->children();
+    const ml::core::CXmlNodeWithChildren::TChildNodePVec& varbind =
+        descriptionAndRegexes[1]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(2), varbind.size());
     CPPUNIT_ASSERT(varbind[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("varbind"), varbind[0]->name());
@@ -82,7 +88,8 @@ void CRapidXmlParserTest::testParse2() {
     CPPUNIT_ASSERT_EQUAL(std::string("varbind"), varbind[1]->name());
 
     // Test attributes
-    const ml::core::CXmlNodeWithChildren::TChildNodePVec& tokenAndRegex0 = varbind[0]->children();
+    const ml::core::CXmlNodeWithChildren::TChildNodePVec& tokenAndRegex0 =
+        varbind[0]->children();
     CPPUNIT_ASSERT_EQUAL(std::string("token"), tokenAndRegex0[0]->name());
     CPPUNIT_ASSERT_EQUAL(std::string(""), tokenAndRegex0[0]->value());
     CPPUNIT_ASSERT_EQUAL(std::string("regex"), tokenAndRegex0[1]->name());
@@ -91,11 +98,13 @@ void CRapidXmlParserTest::testParse2() {
     CPPUNIT_ASSERT(this->testAttribute(*(tokenAndRegex0[1]), "local", "BZ"));
 
     // Test CDATA
-    const ml::core::CXmlNodeWithChildren::TChildNodePVec& tokenAndRegex1 = varbind[1]->children();
+    const ml::core::CXmlNodeWithChildren::TChildNodePVec& tokenAndRegex1 =
+        varbind[1]->children();
     CPPUNIT_ASSERT_EQUAL(std::string("token"), tokenAndRegex1[0]->name());
     CPPUNIT_ASSERT_EQUAL(std::string("source"), tokenAndRegex1[0]->value());
     CPPUNIT_ASSERT_EQUAL(std::string("regex"), tokenAndRegex1[1]->name());
-    CPPUNIT_ASSERT_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"), tokenAndRegex1[1]->value());
+    CPPUNIT_ASSERT_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
+                         tokenAndRegex1[1]->value());
 }
 
 void CRapidXmlParserTest::testNavigate() {
@@ -132,25 +141,32 @@ void CRapidXmlParserTest::testNavigate() {
     CPPUNIT_ASSERT(!parser.navigateNext());
 }
 
-ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP CRapidXmlParserTest::makeTestNodeHierarchy() {
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(new ml::core::CXmlNodeWithChildren("root"));
+ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP
+CRapidXmlParserTest::makeTestNodeHierarchy() {
+    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(
+        new ml::core::CXmlNodeWithChildren("root"));
 
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP id(new ml::core::CXmlNodeWithChildren("id", "123"));
+    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP id(
+        new ml::core::CXmlNodeWithChildren("id", "123"));
     root->addChildP(id);
 
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP parent(new ml::core::CXmlNodeWithChildren("parent"));
+    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP parent(
+        new ml::core::CXmlNodeWithChildren("parent"));
     root->addChildP(parent);
 
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP child(new ml::core::CXmlNodeWithChildren("child", "boo!"));
+    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP child(
+        new ml::core::CXmlNodeWithChildren("child", "boo!"));
     parent->addChildP(child);
 
     ml::core::CXmlNode::TStrStrMap attrMap;
     attrMap["attr1"] = "you & me";
 
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP child2(new ml::core::CXmlNodeWithChildren("child", "2nd", attrMap));
+    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP child2(
+        new ml::core::CXmlNodeWithChildren("child", "2nd", attrMap));
     parent->addChildP(child2);
 
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP empty(new ml::core::CXmlNodeWithChildren("empty"));
+    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP empty(
+        new ml::core::CXmlNodeWithChildren("empty"));
     root->addChildP(empty);
 
     attrMap["attr1"] = "first 'attribute'";
@@ -165,7 +181,8 @@ ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP CRapidXmlParserTest::makeT
 void CRapidXmlParserTest::testConvert() {
     // Use a standard node hierarchy to allow for comparison with the
     // standards-compliant XML parser
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(CRapidXmlParserTest::makeTestNodeHierarchy());
+    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(
+        CRapidXmlParserTest::makeTestNodeHierarchy());
 
     std::string converted;
     ml::core::CRapidXmlParser::convert(*root, converted);
@@ -185,7 +202,8 @@ void CRapidXmlParserTest::testConvert() {
     CPPUNIT_ASSERT(converted.find("</child>") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("<child ") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("&amp; ") != std::string::npos);
-    CPPUNIT_ASSERT(converted.find("<empty/>") != std::string::npos || converted.find("<empty></empty>") != std::string::npos);
+    CPPUNIT_ASSERT(converted.find("<empty/>") != std::string::npos ||
+                   converted.find("<empty></empty>") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("<dual ") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("first") != std::string::npos);
     CPPUNIT_ASSERT(converted.find("second") != std::string::npos);
@@ -218,14 +236,16 @@ void CRapidXmlParserTest::testParse1(const ml::core::CRapidXmlParser& parser) {
     CPPUNIT_ASSERT_EQUAL(std::string("ItemSearchResponse"), rootNodePtr->name());
     CPPUNIT_ASSERT_EQUAL(rootNodePtr->name(), parser.rootElementName());
 
-    const ml::core::CXmlNodeWithChildren::TChildNodePVec& firstLevelChildren = rootNodePtr->children();
+    const ml::core::CXmlNodeWithChildren::TChildNodePVec& firstLevelChildren =
+        rootNodePtr->children();
     CPPUNIT_ASSERT_EQUAL(size_t(2), firstLevelChildren.size());
     CPPUNIT_ASSERT(firstLevelChildren[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("OperationRequest"), firstLevelChildren[0]->name());
     CPPUNIT_ASSERT(firstLevelChildren[1] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("Items"), firstLevelChildren[1]->name());
 
-    const ml::core::CXmlNodeWithChildren::TChildNodePVec& opReqChildren = firstLevelChildren[0]->children();
+    const ml::core::CXmlNodeWithChildren::TChildNodePVec& opReqChildren =
+        firstLevelChildren[0]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(4), opReqChildren.size());
     CPPUNIT_ASSERT(opReqChildren[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("HTTPHeaders"), opReqChildren[0]->name());
@@ -239,11 +259,13 @@ void CRapidXmlParserTest::testParse1(const ml::core::CRapidXmlParser& parser) {
     CPPUNIT_ASSERT_EQUAL(std::string("1.05041599273682"), opReqChildren[3]->value());
 
     // Test CDATA
-    const ml::core::CXmlNodeWithChildren::TChildNodePVec& itemsChildren = firstLevelChildren[1]->children();
+    const ml::core::CXmlNodeWithChildren::TChildNodePVec& itemsChildren =
+        firstLevelChildren[1]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(13), itemsChildren.size());
 
     CPPUNIT_ASSERT(itemsChildren[3] != nullptr);
-    const ml::core::CXmlNodeWithChildren::TChildNodePVec& item3Children = itemsChildren[3]->children();
+    const ml::core::CXmlNodeWithChildren::TChildNodePVec& item3Children =
+        itemsChildren[3]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(4), item3Children.size());
     CPPUNIT_ASSERT(item3Children[0] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("msg"), item3Children[0]->name());
@@ -254,15 +276,18 @@ void CRapidXmlParserTest::testParse1(const ml::core::CRapidXmlParser& parser) {
 
     // Test escaped ampersand
     CPPUNIT_ASSERT(itemsChildren[10] != nullptr);
-    const ml::core::CXmlNodeWithChildren::TChildNodePVec& item10Children = itemsChildren[10]->children();
+    const ml::core::CXmlNodeWithChildren::TChildNodePVec& item10Children =
+        itemsChildren[10]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(3), item10Children.size());
     CPPUNIT_ASSERT(item10Children[2] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("ItemAttributes"), item10Children[2]->name());
-    const ml::core::CXmlNodeWithChildren::TChildNodePVec& itemAttributesChildren = item10Children[2]->children();
+    const ml::core::CXmlNodeWithChildren::TChildNodePVec& itemAttributesChildren =
+        item10Children[2]->children();
     CPPUNIT_ASSERT_EQUAL(size_t(4), itemAttributesChildren.size());
     CPPUNIT_ASSERT(itemAttributesChildren[1] != nullptr);
     CPPUNIT_ASSERT_EQUAL(std::string("Manufacturer"), itemAttributesChildren[1]->name());
-    CPPUNIT_ASSERT_EQUAL(std::string("William Morrow & Company"), itemAttributesChildren[1]->value());
+    CPPUNIT_ASSERT_EQUAL(std::string("William Morrow & Company"),
+                         itemAttributesChildren[1]->value());
 }
 
 std::string CRapidXmlParserTest::fileToString(const std::string& fileName) {
@@ -280,7 +305,9 @@ std::string CRapidXmlParserTest::fileToString(const std::string& fileName) {
     return ret;
 }
 
-bool CRapidXmlParserTest::testAttribute(const ml::core::CXmlNode& node, const std::string& key, const std::string& expected) {
+bool CRapidXmlParserTest::testAttribute(const ml::core::CXmlNode& node,
+                                        const std::string& key,
+                                        const std::string& expected) {
     std::string actual;
     if (node.attribute(key, actual) == false) {
         return false;
@@ -300,7 +327,8 @@ void CRapidXmlParserTest::testParseSpeed() {
     std::string testString(CRapidXmlParserTest::fileToString("./testfiles/CXmlParser2.xml"));
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Starting parse speed test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting parse speed test at "
+             << ml::core::CTimeUtils::toTimeString(start));
 
     ml::core::CXmlNodeWithChildrenPool nodePool;
 
@@ -327,10 +355,12 @@ void CRapidXmlParserTest::testConvertSpeed() {
 
     // Use a standard node hierarchy to allow for comparison with the
     // standards-compliant XML parser
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(CRapidXmlParserTest::makeTestNodeHierarchy());
+    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(
+        CRapidXmlParserTest::makeTestNodeHierarchy());
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Starting convert speed test at " << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO(<< "Starting convert speed test at "
+             << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::string converted;
@@ -338,7 +368,8 @@ void CRapidXmlParserTest::testConvertSpeed() {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Finished convert speed test at " << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO(<< "Finished convert speed test at "
+             << ml::core::CTimeUtils::toTimeString(end));
 
     LOG_INFO(<< "Converting " << TEST_SIZE << " documents took " << (end - start) << " seconds");
 }

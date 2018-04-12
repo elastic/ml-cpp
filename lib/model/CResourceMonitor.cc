@@ -26,22 +26,14 @@ const core_t::TTime CResourceMonitor::MINIMUM_PRUNE_FREQUENCY(60 * 60);
 const std::size_t CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB(4096);
 
 CResourceMonitor::CResourceMonitor()
-    : m_AllowAllocations(true),
-      m_ByteLimitHigh(0),
-      m_ByteLimitLow(0),
-      m_CurrentAnomalyDetectorMemory(0),
-      m_ExtraMemory(0),
-      m_PreviousTotal(this->totalMemory()),
-      m_Peak(m_PreviousTotal),
-      m_LastAllocationFailureReport(0),
-      m_MemoryStatus(model_t::E_MemoryStatusOk),
-      m_HasPruningStarted(false),
-      m_PruneThreshold(0),
-      m_LastPruneTime(0),
+    : m_AllowAllocations(true), m_ByteLimitHigh(0), m_ByteLimitLow(0),
+      m_CurrentAnomalyDetectorMemory(0), m_ExtraMemory(0),
+      m_PreviousTotal(this->totalMemory()), m_Peak(m_PreviousTotal),
+      m_LastAllocationFailureReport(0), m_MemoryStatus(model_t::E_MemoryStatusOk),
+      m_HasPruningStarted(false), m_PruneThreshold(0), m_LastPruneTime(0),
       m_PruneWindow(std::numeric_limits<std::size_t>::max()),
       m_PruneWindowMaximum(std::numeric_limits<std::size_t>::max()),
-      m_PruneWindowMinimum(std::numeric_limits<std::size_t>::max()),
-      m_NoLimit(false) {
+      m_PruneWindowMinimum(std::numeric_limits<std::size_t>::max()), m_NoLimit(false) {
     this->updateMemoryLimitsAndPruneThreshold(DEFAULT_MEMORY_LIMIT_MB);
 }
 
@@ -57,7 +49,8 @@ void CResourceMonitor::registerComponent(CAnomalyDetector& detector) {
 void CResourceMonitor::unRegisterComponent(CAnomalyDetector& detector) {
     auto iter = m_Models.find(detector.model().get());
     if (iter == m_Models.end()) {
-        LOG_ERROR(<< "Inconsistency - component has not been registered: " << detector.model());
+        LOG_ERROR(<< "Inconsistency - component has not been registered: "
+                  << detector.model());
         return;
     }
 
@@ -123,7 +116,8 @@ void CResourceMonitor::updateAllowAllocations() {
     std::size_t total{this->totalMemory()};
     if (m_AllowAllocations) {
         if (total > m_ByteLimitHigh) {
-            LOG_INFO(<< "Over allocation limit. " << total << " bytes used, the limit is " << m_ByteLimitHigh);
+            LOG_INFO(<< "Over allocation limit. " << total
+                     << " bytes used, the limit is " << m_ByteLimitHigh);
             m_AllowAllocations = false;
         }
     } else {
@@ -184,16 +178,20 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
         this->updateAllowAllocations();
     }
 
-    LOG_TRACE(<< "Pruning models. Usage: " << total << ". Current window: " << m_PruneWindow << " buckets");
+    LOG_TRACE(<< "Pruning models. Usage: " << total
+              << ". Current window: " << m_PruneWindow << " buckets");
 
     if (total < m_PruneThreshold) {
         // Expand the window
-        m_PruneWindow = std::min(m_PruneWindow + std::size_t((endTime - m_LastPruneTime) / m_Models.begin()->first->bucketLength()),
-                                 m_PruneWindowMaximum);
+        m_PruneWindow = std::min(
+            m_PruneWindow + std::size_t((endTime - m_LastPruneTime) /
+                                        m_Models.begin()->first->bucketLength()),
+            m_PruneWindowMaximum);
         LOG_TRACE(<< "Expanding window, to " << m_PruneWindow);
     } else {
         // Shrink the window
-        m_PruneWindow = std::max(static_cast<std::size_t>(m_PruneWindow * 99 / 100), m_PruneWindowMinimum);
+        m_PruneWindow = std::max(static_cast<std::size_t>(m_PruneWindow * 99 / 100),
+                                 m_PruneWindowMinimum);
         LOG_TRACE(<< "Shrinking window, to " << m_PruneWindow);
     }
 
@@ -237,7 +235,8 @@ void CResourceMonitor::sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime
 bool CResourceMonitor::needToSendReport() {
     // Has the usage changed by more than 1% ?
     std::size_t total{this->totalMemory()};
-    if ((std::max(total, m_PreviousTotal) - std::min(total, m_PreviousTotal)) > m_PreviousTotal / 100) {
+    if ((std::max(total, m_PreviousTotal) - std::min(total, m_PreviousTotal)) >
+        m_PreviousTotal / 100) {
         return true;
     }
 
@@ -308,7 +307,9 @@ void CResourceMonitor::clearExtraMemory() {
 }
 
 std::size_t CResourceMonitor::totalMemory() const {
-    return m_CurrentAnomalyDetectorMemory + m_ExtraMemory + CStringStore::names().memoryUsage() + CStringStore::influencers().memoryUsage();
+    return m_CurrentAnomalyDetectorMemory + m_ExtraMemory +
+           CStringStore::names().memoryUsage() +
+           CStringStore::influencers().memoryUsage();
 }
 
 } // model

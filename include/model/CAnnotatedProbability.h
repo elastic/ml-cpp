@@ -48,7 +48,8 @@ struct MODEL_EXPORT SAttributeProbability {
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
-    using TDescriptiveDataDoublePr = std::pair<annotated_probability::EDescriptiveData, double>;
+    using TDescriptiveDataDoublePr =
+        std::pair<annotated_probability::EDescriptiveData, double>;
     using TDescriptiveDataDoublePr2Vec = core::CSmallVector<TDescriptiveDataDoublePr, 2>;
     using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
 
@@ -105,9 +106,12 @@ struct MODEL_EXPORT SAttributeProbability {
 //! and so on.
 struct MODEL_EXPORT SAnnotatedProbability {
     using TAttributeProbability1Vec = core::CSmallVector<SAttributeProbability, 1>;
-    using TStoredStringPtrStoredStringPtrPr = std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
-    using TStoredStringPtrStoredStringPtrPrDoublePr = std::pair<TStoredStringPtrStoredStringPtrPr, double>;
-    using TStoredStringPtrStoredStringPtrPrDoublePrVec = std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
+    using TStoredStringPtrStoredStringPtrPr =
+        std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
+    using TStoredStringPtrStoredStringPtrPrDoublePr =
+        std::pair<TStoredStringPtrStoredStringPtrPr, double>;
+    using TStoredStringPtrStoredStringPtrPrDoublePrVec =
+        std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
     using TDescriptiveDataDoublePr = SAttributeProbability::TDescriptiveDataDoublePr;
     using TDescriptiveDataDoublePr2Vec = SAttributeProbability::TDescriptiveDataDoublePr2Vec;
     using TOptionalDouble = boost::optional<double>;

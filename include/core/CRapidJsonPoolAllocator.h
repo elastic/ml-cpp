@@ -37,7 +37,8 @@ public:
     using TDocumentPtrVec = std::vector<TDocumentPtr>;
 
 public:
-    CRapidJsonPoolAllocator() : m_JsonPoolAllocator(m_FixedBuffer, FIXED_BUFFER_SIZE) {}
+    CRapidJsonPoolAllocator()
+        : m_JsonPoolAllocator(m_FixedBuffer, FIXED_BUFFER_SIZE) {}
 
     ~CRapidJsonPoolAllocator() { this->clear(); }
 
@@ -54,7 +55,9 @@ public:
     }
 
     //! \return const reference to the underlying memory pool allocator
-    const rapidjson::MemoryPoolAllocator<>& get() const { return m_JsonPoolAllocator; }
+    const rapidjson::MemoryPoolAllocator<>& get() const {
+        return m_JsonPoolAllocator;
+    }
 
     //! \return reference to the underlying memory pool allocator
     rapidjson::MemoryPoolAllocator<>& get() { return m_JsonPoolAllocator; }

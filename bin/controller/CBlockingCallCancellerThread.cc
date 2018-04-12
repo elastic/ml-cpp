@@ -12,8 +12,10 @@
 namespace ml {
 namespace controller {
 
-CBlockingCallCancellerThread::CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId, std::istream& monitorStream)
-    : m_PotentiallyBlockedThreadId(potentiallyBlockedThreadId), m_MonitorStream(monitorStream), m_Shutdown(false) {
+CBlockingCallCancellerThread::CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId,
+                                                           std::istream& monitorStream)
+    : m_PotentiallyBlockedThreadId(potentiallyBlockedThreadId),
+      m_MonitorStream(monitorStream), m_Shutdown(false) {
 }
 
 void CBlockingCallCancellerThread::run() {

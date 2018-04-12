@@ -13,13 +13,14 @@
 CppUnit::Test* CCompressUtilsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCompressUtilsTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCompressUtilsTest>("CCompressUtilsTest::testEmptyAdd", &CCompressUtilsTest::testEmptyAdd));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressUtilsTest>("CCompressUtilsTest::testOneAdd", &CCompressUtilsTest::testOneAdd));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCompressUtilsTest>("CCompressUtilsTest::testManyAdds", &CCompressUtilsTest::testManyAdds));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCompressUtilsTest>("CCompressUtilsTest::testLengthOnly", &CCompressUtilsTest::testLengthOnly));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressUtilsTest>(
+        "CCompressUtilsTest::testEmptyAdd", &CCompressUtilsTest::testEmptyAdd));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressUtilsTest>(
+        "CCompressUtilsTest::testOneAdd", &CCompressUtilsTest::testOneAdd));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressUtilsTest>(
+        "CCompressUtilsTest::testManyAdds", &CCompressUtilsTest::testManyAdds));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressUtilsTest>(
+        "CCompressUtilsTest::testLengthOnly", &CCompressUtilsTest::testLengthOnly));
     return suiteOfTests;
 }
 

@@ -55,14 +55,21 @@ public:
     //! by \p terms.
     //!
     //! \note If \p terms is empty all by field error bars are returned.
-    void modelPlot(core_t::TTime time, double boundsPercentile, const TStrSet& terms, CModelPlotData& modelPlotData) const;
+    void modelPlot(core_t::TTime time,
+                   double boundsPercentile,
+                   const TStrSet& terms,
+                   CModelPlotData& modelPlotData) const;
 
     //! Get the feature prior for the specified by field \p byFieldId.
-    virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const = 0;
+    virtual const maths::CModel* model(model_t::EFeature feature,
+                                       std::size_t byFieldId) const = 0;
 
 private:
     //! Add the model plot data for all by field values which match \p terms.
-    void addCurrentBucketValues(core_t::TTime time, model_t::EFeature feature, const TStrSet& terms, CModelPlotData& modelPlotData) const;
+    void addCurrentBucketValues(core_t::TTime time,
+                                model_t::EFeature feature,
+                                const TStrSet& terms,
+                                CModelPlotData& modelPlotData) const;
 
     //! Get the model plot data for the specified by field value.
     void modelPlotForByFieldId(core_t::TTime,
@@ -75,7 +82,9 @@ private:
     virtual const CAnomalyDetectorModel& base() const = 0;
 
     //! Get the count variance scale.
-    virtual double countVarianceScale(model_t::EFeature feature, std::size_t byFieldId, core_t::TTime time) const = 0;
+    virtual double countVarianceScale(model_t::EFeature feature,
+                                      std::size_t byFieldId,
+                                      core_t::TTime time) const = 0;
 
     //! Returns true if the terms are empty or they contain the key.
     static bool contains(const TStrSet& terms, const std::string& key);
@@ -106,7 +115,9 @@ public:
 
 private:
     virtual const CAnomalyDetectorModel& base() const;
-    virtual double countVarianceScale(model_t::EFeature feature, std::size_t byFieldId, core_t::TTime time) const;
+    virtual double countVarianceScale(model_t::EFeature feature,
+                                      std::size_t byFieldId,
+                                      core_t::TTime time) const;
 
 private:
     //! The model.
@@ -125,7 +136,9 @@ public:
 
 private:
     virtual const CAnomalyDetectorModel& base() const;
-    virtual double countVarianceScale(model_t::EFeature feature, std::size_t byFieldId, core_t::TTime time) const;
+    virtual double countVarianceScale(model_t::EFeature feature,
+                                      std::size_t byFieldId,
+                                      core_t::TTime time) const;
 
 private:
     //! The model.
@@ -144,7 +157,9 @@ public:
 
 private:
     virtual const CAnomalyDetectorModel& base() const;
-    virtual double countVarianceScale(model_t::EFeature feature, std::size_t byFieldId, core_t::TTime time) const;
+    virtual double countVarianceScale(model_t::EFeature feature,
+                                      std::size_t byFieldId,
+                                      core_t::TTime time) const;
 
 private:
     //! The model.
@@ -163,7 +178,9 @@ public:
 
 private:
     virtual const CAnomalyDetectorModel& base() const;
-    virtual double countVarianceScale(model_t::EFeature feature, std::size_t byFieldId, core_t::TTime time) const;
+    virtual double countVarianceScale(model_t::EFeature feature,
+                                      std::size_t byFieldId,
+                                      core_t::TTime time) const;
 
 private:
     //! The model.

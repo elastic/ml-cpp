@@ -60,11 +60,17 @@ public:
 
     //! Tokenise a string, stating whether time has passed since the last
     //! attempt
-    void tokenise(const std::string& str, bool timePassed, CStringUtils::TStrVec& tokens, std::string& remainder) const;
+    void tokenise(const std::string& str,
+                  bool timePassed,
+                  CStringUtils::TStrVec& tokens,
+                  std::string& remainder) const;
 
     //! Tokenise a string, also retrieving an example of the literal
     //! delimiter that was found
-    void tokenise(const std::string& str, CStringUtils::TStrVec& tokens, std::string& exampleDelimiter, std::string& remainder) const;
+    void tokenise(const std::string& str,
+                  CStringUtils::TStrVec& tokens,
+                  std::string& exampleDelimiter,
+                  std::string& remainder) const;
 
     //! Tokenise a string, also retrieving an example of the literal
     //! delimiter that was found, stating whether time has passed since the
@@ -105,7 +111,8 @@ private:
     //! The character used to escape the quote character ('\0' if none).
     char m_Escape;
 
-    friend CORE_EXPORT std::ostream& operator<<(std::ostream& strm, const CDelimiter& delimiter);
+    friend CORE_EXPORT std::ostream& operator<<(std::ostream& strm,
+                                                const CDelimiter& delimiter);
 };
 
 //! Useful for debugging and CPPUNIT_ASSERT_EQUALS

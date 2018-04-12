@@ -59,7 +59,8 @@ public:
     //! the mantissa interpreted as an integer.
     static void decompose(double value, uint64_t& mantissa, int& exponent) {
         SDoubleRep parsed;
-        static_assert(sizeof(double) == sizeof(SDoubleRep), "SDoubleRep definition unsuitable for memcpy to double");
+        static_assert(sizeof(double) == sizeof(SDoubleRep),
+                      "SDoubleRep definition unsuitable for memcpy to double");
         // Use memcpy() rather than union to adhere to strict aliasing rules
         ::memcpy(&parsed, &value, sizeof(double));
         exponent = static_cast<int>(parsed.s_Exponent) - 1022;

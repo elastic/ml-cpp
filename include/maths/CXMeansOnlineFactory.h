@@ -29,20 +29,21 @@ namespace xmeans_online_factory_detail {
 template<typename T, std::size_t N>
 class CFactory {};
 
-#define XMEANS_FACTORY(T, N)                                                                                                               \
-    template<>                                                                                                                             \
-    class MATHS_EXPORT CFactory<T, N> {                                                                                                    \
-    public:                                                                                                                                \
-        static CClusterer<CVectorNx1<T, N>>* make(maths_t::EDataType dataType,                                                             \
-                                                  maths_t::EClusterWeightCalc weightCalc,                                                  \
-                                                  double decayRate,                                                                        \
-                                                  double minimumClusterFraction,                                                           \
-                                                  double minimumClusterCount,                                                              \
-                                                  double minimumCategoryCount);                                                            \
-        static CClusterer<CVectorNx1<T, N>>* restore(const SDistributionRestoreParams& params,                                             \
-                                                     const CClustererTypes::TSplitFunc& splitFunc,                                         \
-                                                     const CClustererTypes::TMergeFunc& mergeFunc,                                         \
-                                                     core::CStateRestoreTraverser& traverser);                                             \
+#define XMEANS_FACTORY(T, N)                                                              \
+    template<>                                                                            \
+    class MATHS_EXPORT CFactory<T, N> {                                                   \
+    public:                                                                               \
+        static CClusterer<CVectorNx1<T, N>>* make(maths_t::EDataType dataType,            \
+                                                  maths_t::EClusterWeightCalc weightCalc, \
+                                                  double decayRate,                       \
+                                                  double minimumClusterFraction,          \
+                                                  double minimumClusterCount,             \
+                                                  double minimumCategoryCount);           \
+        static CClusterer<CVectorNx1<T, N>>*                                              \
+        restore(const SDistributionRestoreParams& params,                                 \
+                const CClustererTypes::TSplitFunc& splitFunc,                             \
+                const CClustererTypes::TMergeFunc& mergeFunc,                             \
+                core::CStateRestoreTraverser& traverser);                                 \
     }
 XMEANS_FACTORY(CFloatStorage, 2);
 XMEANS_FACTORY(CFloatStorage, 3);
@@ -73,16 +74,19 @@ public:
                                                      double minimumClusterCount,
                                                      double minimumCategoryCount) {
         return xmeans_online_factory_detail::CFactory<T, N>::make(
-            dataType, weightCalc, decayRate, minimumClusterFraction, minimumClusterCount, minimumCategoryCount);
+            dataType, weightCalc, decayRate, minimumClusterFraction,
+            minimumClusterCount, minimumCategoryCount);
     }
 
     //! Construct by traversing a state document.
     template<typename T, std::size_t N>
-    static inline CClusterer<CVectorNx1<T, N>>* restore(const SDistributionRestoreParams& params,
-                                                        const CClustererTypes::TSplitFunc& splitFunc,
-                                                        const CClustererTypes::TMergeFunc& mergeFunc,
-                                                        core::CStateRestoreTraverser& traverser) {
-        return xmeans_online_factory_detail::CFactory<T, N>::restore(params, splitFunc, mergeFunc, traverser);
+    static inline CClusterer<CVectorNx1<T, N>>*
+    restore(const SDistributionRestoreParams& params,
+            const CClustererTypes::TSplitFunc& splitFunc,
+            const CClustererTypes::TMergeFunc& mergeFunc,
+            core::CStateRestoreTraverser& traverser) {
+        return xmeans_online_factory_detail::CFactory<T, N>::restore(
+            params, splitFunc, mergeFunc, traverser);
     }
 };
 }

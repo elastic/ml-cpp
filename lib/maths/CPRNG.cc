@@ -220,7 +220,8 @@ void CPRNG::CXorShift1024Mult::jump() {
 std::string CPRNG::CXorShift1024Mult::toString() const {
     const uint64_t* begin = &m_X[0];
     const uint64_t* end = &m_X[16];
-    return core::CPersistUtils::toString(begin, end) + core::CPersistUtils::PAIR_DELIMITER + core::CStringUtils::typeToString(m_P);
+    return core::CPersistUtils::toString(begin, end) +
+           core::CPersistUtils::PAIR_DELIMITER + core::CStringUtils::typeToString(m_P);
 }
 
 bool CPRNG::CXorShift1024Mult::fromString(std::string state) {
@@ -238,21 +239,12 @@ bool CPRNG::CXorShift1024Mult::fromString(std::string state) {
 }
 
 const uint64_t CPRNG::CXorShift1024Mult::A(1181783497276652981);
-const uint64_t CPRNG::CXorShift1024Mult::JUMP[16] = {0x84242f96eca9c41d,
-                                                     0xa3c65b8776f96855,
-                                                     0x5b34a39f070b5837,
-                                                     0x4489affce4f31a1e,
-                                                     0x2ffeeb0a48316f40,
-                                                     0xdc2d9891fe68c022,
-                                                     0x3659132bb12fea70,
-                                                     0xaac17d8efa43cab8,
-                                                     0xc4cb815590989b13,
-                                                     0x5ee975283d71c93b,
-                                                     0x691548c86c1bd540,
-                                                     0x7910c41d10a1e6a5,
-                                                     0x0b5fc64563b3e2a8,
-                                                     0x047f7684e9fc949d,
-                                                     0xb99181f2d8f685ca,
-                                                     0x284600e3f30e38c3};
+const uint64_t CPRNG::CXorShift1024Mult::JUMP[16] = {
+    0x84242f96eca9c41d, 0xa3c65b8776f96855, 0x5b34a39f070b5837,
+    0x4489affce4f31a1e, 0x2ffeeb0a48316f40, 0xdc2d9891fe68c022,
+    0x3659132bb12fea70, 0xaac17d8efa43cab8, 0xc4cb815590989b13,
+    0x5ee975283d71c93b, 0x691548c86c1bd540, 0x7910c41d10a1e6a5,
+    0x0b5fc64563b3e2a8, 0x047f7684e9fc949d, 0xb99181f2d8f685ca,
+    0x284600e3f30e38c3};
 }
 }

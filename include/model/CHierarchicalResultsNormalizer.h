@@ -130,36 +130,44 @@ public:
     //! Get the influencer bucket normalizer for \p influencerFieldName.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer* influencerBucketNormalizer(const std::string& influencerFieldName) const;
+    const CAnomalyScore::CNormalizer*
+    influencerBucketNormalizer(const std::string& influencerFieldName) const;
 
     //! Get the influencer normalizer for \p influencerFieldName.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer* influencerNormalizer(const std::string& influencerFieldName) const;
+    const CAnomalyScore::CNormalizer*
+    influencerNormalizer(const std::string& influencerFieldName) const;
 
     //! Get a partition normalizer.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer* partitionNormalizer(const std::string& partitionFieldName) const;
+    const CAnomalyScore::CNormalizer*
+    partitionNormalizer(const std::string& partitionFieldName) const;
 
     //! Get a person normalizer.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer* personNormalizer(const std::string& partitionFieldName, const std::string& personFieldName) const;
+    const CAnomalyScore::CNormalizer*
+    personNormalizer(const std::string& partitionFieldName,
+                     const std::string& personFieldName) const;
 
     //! Get a leaf normalizer.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer* leafNormalizer(const std::string& partitionFieldName,
-                                                     const std::string& personFieldName,
-                                                     const std::string& functionName,
-                                                     const std::string& valueFieldName) const;
+    const CAnomalyScore::CNormalizer*
+    leafNormalizer(const std::string& partitionFieldName,
+                   const std::string& personFieldName,
+                   const std::string& functionName,
+                   const std::string& valueFieldName) const;
 
 private:
     //! Get the normalizer corresponding to \p cue if they exist
     //! and return NULL if it doesn't have an appropriate prefix.
     //! Also, extract the hash value.
-    bool parseCue(const std::string& cue, TWordNormalizerPrVec*& normalizers, TDictionary::TUInt64Array& hashArray);
+    bool parseCue(const std::string& cue,
+                  TWordNormalizerPrVec*& normalizers,
+                  TDictionary::TUInt64Array& hashArray);
 
     //! Get the persistence cue for the root normalizer.
     static const std::string& bucketCue();

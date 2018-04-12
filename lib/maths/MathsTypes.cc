@@ -23,12 +23,13 @@ namespace detail {
 
 //! Check that the weights styles and weights are consistent.
 template<typename T>
-inline bool check(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& weights) {
+inline bool check(const TWeightStyleVec& weightStyles,
+                  const core::CSmallVector<T, 4>& weights) {
     if (weightStyles.size() == weights.size()) {
         return true;
     }
-    LOG_ERROR(<< "Mismatch in weight styles '" << core::CContainerPrinter::print(weightStyles) << "' and weights '"
-              << core::CContainerPrinter::print(weights) << "'");
+    LOG_ERROR(<< "Mismatch in weight styles '" << core::CContainerPrinter::print(weightStyles)
+              << "' and weights '" << core::CContainerPrinter::print(weights) << "'");
     return false;
 }
 
@@ -67,7 +68,9 @@ void count(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& 
 //! Extract the effective sample count with which to update a model
 //! from a collection of weights.
 template<typename T>
-void countForUpdate(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& weights, T& result) {
+void countForUpdate(const TWeightStyleVec& weightStyles,
+                    const core::CSmallVector<T, 4>& weights,
+                    T& result) {
     if (check(weightStyles, weights)) {
         for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
             switch (weightStyles[i]) {
@@ -88,7 +91,9 @@ void countForUpdate(const TWeightStyleVec& weightStyles, const core::CSmallVecto
 
 //! Extract the variance scale from a collection of weights.
 template<typename T>
-void seasonalVarianceScale(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& weights, T& result) {
+void seasonalVarianceScale(const TWeightStyleVec& weightStyles,
+                           const core::CSmallVector<T, 4>& weights,
+                           T& result) {
     if (check(weightStyles, weights)) {
         for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
             switch (weightStyles[i]) {
@@ -108,7 +113,9 @@ void seasonalVarianceScale(const TWeightStyleVec& weightStyles, const core::CSma
 
 //! Extract the variance scale from a collection of weights.
 template<typename T>
-void countVarianceScale(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& weights, T& result) {
+void countVarianceScale(const TWeightStyleVec& weightStyles,
+                        const core::CSmallVector<T, 4>& weights,
+                        T& result) {
     if (check(weightStyles, weights)) {
         for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
             switch (weightStyles[i]) {
@@ -132,17 +139,21 @@ double count(const TWeightStyleVec& weightStyles, const TDouble4Vec& weights) {
     double result = 1.0;
     detail::count(weightStyles, weights, result);
     if (!maths::CMathsFuncs::isFinite(result) || result < 0.0) {
-        throw std::runtime_error("Bad count weight " + core::CStringUtils::typeToString(result));
+        throw std::runtime_error("Bad count weight " +
+                                 core::CStringUtils::typeToString(result));
     }
     return result;
 }
 
-TDouble10Vec count(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+TDouble10Vec count(std::size_t dimension,
+                   const TWeightStyleVec& weightStyles,
+                   const TDouble10Vec4Vec& weights) {
     TDouble10Vec result(dimension, 1.0);
     detail::count(weightStyles, weights, result);
     for (std::size_t i = 0u; i < dimension; ++i) {
         if (!maths::CMathsFuncs::isFinite(result[i]) || result[i] < 0.0) {
-            throw std::runtime_error("Bad count weight: [" + core::CContainerPrinter::print(result) + "]");
+            throw std::runtime_error("Bad count weight: [" +
+                                     core::CContainerPrinter::print(result) + "]");
         }
     }
     return result;
@@ -152,17 +163,21 @@ double countForUpdate(const TWeightStyleVec& weightStyles, const TDouble4Vec& we
     double result = 1.0;
     detail::countForUpdate(weightStyles, weights, result);
     if (!maths::CMathsFuncs::isFinite(result) || result < 0.0) {
-        throw std::runtime_error("Bad count weight " + core::CStringUtils::typeToString(result));
+        throw std::runtime_error("Bad count weight " +
+                                 core::CStringUtils::typeToString(result));
     }
     return result;
 }
 
-TDouble10Vec countForUpdate(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+TDouble10Vec countForUpdate(std::size_t dimension,
+                            const TWeightStyleVec& weightStyles,
+                            const TDouble10Vec4Vec& weights) {
     TDouble10Vec result(dimension, 1.0);
     detail::countForUpdate(weightStyles, weights, result);
     for (std::size_t i = 0u; i < dimension; ++i) {
         if (!maths::CMathsFuncs::isFinite(result[i]) || result[i] < 0.0) {
-            throw std::runtime_error("Bad count weight: [" + core::CContainerPrinter::print(result) + "]");
+            throw std::runtime_error("Bad count weight: [" +
+                                     core::CContainerPrinter::print(result) + "]");
         }
     }
     return result;
@@ -172,17 +187,21 @@ double seasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4
     double result = 1.0;
     detail::seasonalVarianceScale(weightStyles, weights, result);
     if (!maths::CMathsFuncs::isFinite(result) || result <= 0.0) {
-        throw std::runtime_error("Bad variance scale " + core::CStringUtils::typeToString(result));
+        throw std::runtime_error("Bad variance scale " +
+                                 core::CStringUtils::typeToString(result));
     }
     return result;
 }
 
-TDouble10Vec seasonalVarianceScale(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+TDouble10Vec seasonalVarianceScale(std::size_t dimension,
+                                   const TWeightStyleVec& weightStyles,
+                                   const TDouble10Vec4Vec& weights) {
     TDouble10Vec result(dimension, 1.0);
     detail::seasonalVarianceScale(weightStyles, weights, result);
     for (std::size_t i = 0u; i < dimension; ++i) {
         if (!maths::CMathsFuncs::isFinite(result[i]) || result[i] <= 0.0) {
-            throw std::runtime_error("Bad count weight: [" + core::CContainerPrinter::print(result) + "]");
+            throw std::runtime_error("Bad count weight: [" +
+                                     core::CContainerPrinter::print(result) + "]");
         }
     }
     return result;
@@ -192,17 +211,21 @@ double countVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec
     double result = 1.0;
     detail::countVarianceScale(weightStyles, weights, result);
     if (!maths::CMathsFuncs::isFinite(result) || result <= 0.0) {
-        throw std::runtime_error("Bad variance scale " + core::CStringUtils::typeToString(result));
+        throw std::runtime_error("Bad variance scale " +
+                                 core::CStringUtils::typeToString(result));
     }
     return result;
 }
 
-TDouble10Vec countVarianceScale(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+TDouble10Vec countVarianceScale(std::size_t dimension,
+                                const TWeightStyleVec& weightStyles,
+                                const TDouble10Vec4Vec& weights) {
     TDouble10Vec result(dimension, 1.0);
     detail::countVarianceScale(weightStyles, weights, result);
     for (std::size_t i = 0u; i < dimension; ++i) {
         if (!maths::CMathsFuncs::isFinite(result[i]) || result[i] <= 0.0) {
-            throw std::runtime_error("Bad count weight: [" + core::CContainerPrinter::print(result) + "]");
+            throw std::runtime_error("Bad count weight: [" +
+                                     core::CContainerPrinter::print(result) + "]");
         }
     }
     return result;
@@ -215,7 +238,8 @@ bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble
     return true;
 }
 
-bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec1Vec& weights) {
+bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles,
+                              const TDouble4Vec1Vec& weights) {
     for (std::size_t i = 0u; i < weights.size(); ++i) {
         if (hasSeasonalVarianceScale(weightStyles, weights[i])) {
             return true;
@@ -224,7 +248,8 @@ bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble
     return false;
 }
 
-bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles,
+                              const TDouble10Vec4Vec& weights) {
     if (!detail::check(weightStyles, weights)) {
         return false;
     }
@@ -248,7 +273,8 @@ bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble
     return false;
 }
 
-bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec1Vec& weights) {
+bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles,
+                              const TDouble10Vec4Vec1Vec& weights) {
     for (std::size_t i = 0u; i < weights.size(); ++i) {
         if (hasSeasonalVarianceScale(weightStyles, weights[i])) {
             return true;
@@ -264,7 +290,8 @@ bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Ve
     return true;
 }
 
-bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec1Vec& weights) {
+bool hasCountVarianceScale(const TWeightStyleVec& weightStyles,
+                           const TDouble4Vec1Vec& weights) {
     for (std::size_t i = 0u; i < weights.size(); ++i) {
         if (hasCountVarianceScale(weightStyles, weights[i])) {
             return true;
@@ -273,7 +300,8 @@ bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Ve
     return false;
 }
 
-bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights) {
+bool hasCountVarianceScale(const TWeightStyleVec& weightStyles,
+                           const TDouble10Vec4Vec& weights) {
     if (!detail::check(weightStyles, weights)) {
         return false;
     }
@@ -297,7 +325,8 @@ bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10V
     return false;
 }
 
-bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec1Vec& weights) {
+bool hasCountVarianceScale(const TWeightStyleVec& weightStyles,
+                           const TDouble10Vec4Vec1Vec& weights) {
     for (std::size_t i = 0u; i < weights.size(); ++i) {
         if (hasCountVarianceScale(weightStyles, weights[i])) {
             return true;

@@ -112,8 +112,10 @@ public:
     }
     //! Get a single unit weight for data with \p dimension.
     template<typename VECTOR>
-    static core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1> singleUnit(std::size_t dimension) {
-        return core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1>{core::CSmallVector<VECTOR, 4>{VECTOR(dimension, 1.0)}};
+    static core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1>
+    singleUnit(std::size_t dimension) {
+        return core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1>{
+            core::CSmallVector<VECTOR, 4>{VECTOR(dimension, 1.0)}};
     }
 };
 

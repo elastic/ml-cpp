@@ -56,13 +56,11 @@ public:
     using TShutdownFunc = std::function<void()>;
 
 public:
-    CBlockingMessageQueue(RECEIVER& receiver, const TShutdownFunc& shutdownFunc = &CBlockingMessageQueue::defaultShutdownFunc)
-        : m_Thread(*this),
-          m_ProducerCondition(m_Mutex),
-          m_ConsumerCondition(m_Mutex),
-          m_Receiver(receiver),
-          m_Queue(QUEUE_CAPACITY),
-          m_ShutdownFunc(shutdownFunc) {}
+    CBlockingMessageQueue(RECEIVER& receiver,
+                          const TShutdownFunc& shutdownFunc = &CBlockingMessageQueue::defaultShutdownFunc)
+        : m_Thread(*this), m_ProducerCondition(m_Mutex),
+          m_ConsumerCondition(m_Mutex), m_Receiver(receiver),
+          m_Queue(QUEUE_CAPACITY), m_ShutdownFunc(shutdownFunc) {}
 
     virtual ~CBlockingMessageQueue() {}
 
@@ -144,7 +142,8 @@ private:
     class CMessageQueueThread : public CThread {
     public:
         CMessageQueueThread(CBlockingMessageQueue<MESSAGE, RECEIVER, QUEUE_CAPACITY>& messageQueue)
-            : m_MessageQueue(messageQueue), m_ShuttingDown(false), m_IsRunning(false) {}
+            : m_MessageQueue(messageQueue), m_ShuttingDown(false),
+              m_IsRunning(false) {}
 
         //! The queue must have the mutex for this to be called
         bool isRunning() const {

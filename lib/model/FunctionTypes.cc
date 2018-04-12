@@ -534,106 +534,174 @@ using TFeatureFunctionVecMapCItr = TFeatureFunctionVecMap::const_iterator;
 namespace detail {
 
 const model_t::EFeature INDIVIDUAL_COUNT_FEATURES[] = {model_t::E_IndividualCountByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_NON_ZERO_COUNT_FEATURES[] = {model_t::E_IndividualNonZeroCountByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_NON_ZERO_COUNT_FEATURES[] = {
+    model_t::E_IndividualNonZeroCountByBucketAndPerson};
 const model_t::EFeature INDIVIDUAL_RARE_COUNT_FEATURES[] = {
     model_t::E_IndividualCountByBucketAndPerson,
     model_t::E_IndividualTotalBucketCountByPerson,
 };
-const model_t::EFeature INDIVIDUAL_RARE_NON_ZERO_COUNT_FEATURES[] = {model_t::E_IndividualNonZeroCountByBucketAndPerson,
-                                                                     model_t::E_IndividualTotalBucketCountByPerson};
-const model_t::EFeature INDIVIDUAL_RARE_FEATURES[] = {model_t::E_IndividualTotalBucketCountByPerson,
-                                                      model_t::E_IndividualIndicatorOfBucketPerson};
-const model_t::EFeature INDIVIDUAL_LOW_COUNTS_FEATURES[] = {model_t::E_IndividualLowCountsByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_HIGH_COUNTS_FEATURES[] = {model_t::E_IndividualHighCountsByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES[] = {model_t::E_IndividualLowNonZeroCountByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_HIGH_NON_ZERO_COUNT_FEATURES[] = {model_t::E_IndividualHighNonZeroCountByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_DISTINCT_COUNT_FEATURES[] = {model_t::E_IndividualUniqueCountByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES[] = {model_t::E_IndividualLowUniqueCountByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_HIGH_DISTINCT_COUNT_FEATURES[] = {model_t::E_IndividualHighUniqueCountByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_INFO_CONTENT_FEATURES[] = {model_t::E_IndividualInfoContentByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES[] = {model_t::E_IndividualHighInfoContentByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_LOW_INFO_CONTENT_FEATURES[] = {model_t::E_IndividualLowInfoContentByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_TIME_OF_DAY_FEATURES[] = {model_t::E_IndividualTimeOfDayByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_TIME_OF_WEEK_FEATURES[] = {model_t::E_IndividualTimeOfWeekByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_METRIC_FEATURES[] = {model_t::E_IndividualMeanByPerson,
-                                                        model_t::E_IndividualMinByPerson,
-                                                        model_t::E_IndividualMaxByPerson};
+const model_t::EFeature INDIVIDUAL_RARE_NON_ZERO_COUNT_FEATURES[] = {
+    model_t::E_IndividualNonZeroCountByBucketAndPerson,
+    model_t::E_IndividualTotalBucketCountByPerson};
+const model_t::EFeature INDIVIDUAL_RARE_FEATURES[] = {
+    model_t::E_IndividualTotalBucketCountByPerson, model_t::E_IndividualIndicatorOfBucketPerson};
+const model_t::EFeature INDIVIDUAL_LOW_COUNTS_FEATURES[] = {
+    model_t::E_IndividualLowCountsByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_HIGH_COUNTS_FEATURES[] = {
+    model_t::E_IndividualHighCountsByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES[] = {
+    model_t::E_IndividualLowNonZeroCountByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_HIGH_NON_ZERO_COUNT_FEATURES[] = {
+    model_t::E_IndividualHighNonZeroCountByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_DISTINCT_COUNT_FEATURES[] = {
+    model_t::E_IndividualUniqueCountByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES[] = {
+    model_t::E_IndividualLowUniqueCountByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_HIGH_DISTINCT_COUNT_FEATURES[] = {
+    model_t::E_IndividualHighUniqueCountByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_INFO_CONTENT_FEATURES[] = {
+    model_t::E_IndividualInfoContentByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES[] = {
+    model_t::E_IndividualHighInfoContentByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_LOW_INFO_CONTENT_FEATURES[] = {
+    model_t::E_IndividualLowInfoContentByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_TIME_OF_DAY_FEATURES[] = {
+    model_t::E_IndividualTimeOfDayByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_TIME_OF_WEEK_FEATURES[] = {
+    model_t::E_IndividualTimeOfWeekByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_METRIC_FEATURES[] = {
+    model_t::E_IndividualMeanByPerson, model_t::E_IndividualMinByPerson,
+    model_t::E_IndividualMaxByPerson};
 const model_t::EFeature INDIVIDUAL_METRIC_MEAN_FEATURES[] = {model_t::E_IndividualMeanByPerson};
 const model_t::EFeature INDIVIDUAL_METRIC_LOW_MEAN_FEATURES[] = {model_t::E_IndividualLowMeanByPerson};
 const model_t::EFeature INDIVIDUAL_METRIC_HIGH_MEAN_FEATURES[] = {model_t::E_IndividualHighMeanByPerson};
 const model_t::EFeature INDIVIDUAL_METRIC_MEDIAN_FEATURES[] = {model_t::E_IndividualMedianByPerson};
-const model_t::EFeature INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES[] = {model_t::E_IndividualLowMedianByPerson};
-const model_t::EFeature INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES[] = {model_t::E_IndividualHighMedianByPerson};
+const model_t::EFeature INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES[] = {
+    model_t::E_IndividualLowMedianByPerson};
+const model_t::EFeature INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES[] = {
+    model_t::E_IndividualHighMedianByPerson};
 const model_t::EFeature INDIVIDUAL_METRIC_MIN_FEATURES[] = {model_t::E_IndividualMinByPerson};
 const model_t::EFeature INDIVIDUAL_METRIC_MAX_FEATURES[] = {model_t::E_IndividualMaxByPerson};
 const model_t::EFeature INDIVIDUAL_METRIC_VARIANCE_FEATURES[] = {model_t::E_IndividualVarianceByPerson};
-const model_t::EFeature INDIVIDUAL_METRIC_LOW_VARIANCE_FEATURES[] = {model_t::E_IndividualLowVarianceByPerson};
-const model_t::EFeature INDIVIDUAL_METRIC_HIGH_VARIANCE_FEATURES[] = {model_t::E_IndividualHighVarianceByPerson};
+const model_t::EFeature INDIVIDUAL_METRIC_LOW_VARIANCE_FEATURES[] = {
+    model_t::E_IndividualLowVarianceByPerson};
+const model_t::EFeature INDIVIDUAL_METRIC_HIGH_VARIANCE_FEATURES[] = {
+    model_t::E_IndividualHighVarianceByPerson};
 const model_t::EFeature INDIVIDUAL_METRIC_SUM_FEATURES[] = {model_t::E_IndividualSumByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_METRIC_LOW_SUM_FEATURES[] = {model_t::E_IndividualLowSumByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_METRIC_HIGH_SUM_FEATURES[] = {model_t::E_IndividualHighSumByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_METRIC_NON_NULL_SUM_FEATURES[] = {model_t::E_IndividualNonNullSumByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_METRIC_LOW_NON_NULL_SUM_FEATURES[] = {model_t::E_IndividualLowNonNullSumByBucketAndPerson};
-const model_t::EFeature INDIVIDUAL_METRIC_HIGH_NON_NULL_SUM_FEATURES[] = {model_t::E_IndividualHighNonNullSumByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_METRIC_LOW_SUM_FEATURES[] = {
+    model_t::E_IndividualLowSumByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_METRIC_HIGH_SUM_FEATURES[] = {
+    model_t::E_IndividualHighSumByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_METRIC_NON_NULL_SUM_FEATURES[] = {
+    model_t::E_IndividualNonNullSumByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_METRIC_LOW_NON_NULL_SUM_FEATURES[] = {
+    model_t::E_IndividualLowNonNullSumByBucketAndPerson};
+const model_t::EFeature INDIVIDUAL_METRIC_HIGH_NON_NULL_SUM_FEATURES[] = {
+    model_t::E_IndividualHighNonNullSumByBucketAndPerson};
 const model_t::EFeature INDIVIDUAL_LAT_LONG_FEATURES[] = {model_t::E_IndividualMeanLatLongByPerson};
 const model_t::EFeature INDIVIDUAL_MAX_VELOCITY_FEATURES[] = {model_t::E_IndividualMaxVelocityByPerson};
 const model_t::EFeature INDIVIDUAL_MIN_VELOCITY_FEATURES[] = {model_t::E_IndividualMinVelocityByPerson};
-const model_t::EFeature INDIVIDUAL_MEAN_VELOCITY_FEATURES[] = {model_t::E_IndividualMeanVelocityByPerson};
+const model_t::EFeature INDIVIDUAL_MEAN_VELOCITY_FEATURES[] = {
+    model_t::E_IndividualMeanVelocityByPerson};
 const model_t::EFeature INDIVIDUAL_SUM_VELOCITY_FEATURES[] = {model_t::E_IndividualSumVelocityByPerson};
-const model_t::EFeature POPULATION_COUNT_FEATURES[] = {model_t::E_PopulationCountByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_DISTINCT_COUNT_FEATURES[] = {model_t::E_PopulationUniqueCountByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_LOW_DISTINCT_COUNT_FEATURES[] = {model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_HIGH_DISTINCT_COUNT_FEATURES[] = {model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_RARE_FEATURES[] = {model_t::E_PopulationIndicatorOfBucketPersonAndAttribute,
-                                                      model_t::E_PopulationUniquePersonCountByAttribute};
-const model_t::EFeature POPULATION_RARE_COUNT_FEATURES[] = {model_t::E_PopulationCountByBucketPersonAndAttribute,
-                                                            model_t::E_PopulationUniquePersonCountByAttribute};
-const model_t::EFeature POPULATION_FREQ_RARE_FEATURES[] = {model_t::E_PopulationAttributeTotalCountByPerson,
-                                                           model_t::E_PopulationIndicatorOfBucketPersonAndAttribute,
-                                                           model_t::E_PopulationUniquePersonCountByAttribute};
-const model_t::EFeature POPULATION_FREQ_RARE_COUNT_FEATURES[] = {model_t::E_PopulationAttributeTotalCountByPerson,
-                                                                 model_t::E_PopulationCountByBucketPersonAndAttribute,
-                                                                 model_t::E_PopulationUniquePersonCountByAttribute};
-const model_t::EFeature POPULATION_LOW_COUNTS_FEATURES[] = {model_t::E_PopulationLowCountsByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_HIGH_COUNTS_FEATURES[] = {model_t::E_PopulationHighCountsByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_INFO_CONTENT_FEATURES[] = {model_t::E_PopulationInfoContentByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_LOW_INFO_CONTENT_FEATURES[] = {model_t::E_PopulationLowInfoContentByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_HIGH_INFO_CONTENT_FEATURES[] = {model_t::E_PopulationHighInfoContentByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_TIME_OF_DAY_FEATURES[] = {model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_TIME_OF_WEEK_FEATURES[] = {model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_FEATURES[] = {model_t::E_PopulationMeanByPersonAndAttribute,
-                                                        model_t::E_PopulationMinByPersonAndAttribute,
-                                                        model_t::E_PopulationMaxByPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_MEAN_FEATURES[] = {model_t::E_PopulationMeanByPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_LOW_MEAN_FEATURES[] = {model_t::E_PopulationLowMeanByPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_HIGH_MEAN_FEATURES[] = {model_t::E_PopulationHighMeanByPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_MEDIAN_FEATURES[] = {model_t::E_PopulationMedianByPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_LOW_MEDIAN_FEATURES[] = {model_t::E_PopulationLowMedianByPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_HIGH_MEDIAN_FEATURES[] = {model_t::E_PopulationHighMedianByPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_MIN_FEATURES[] = {model_t::E_PopulationMinByPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_MAX_FEATURES[] = {model_t::E_PopulationMaxByPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_VARIANCE_FEATURES[] = {model_t::E_PopulationVarianceByPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_LOW_VARIANCE_FEATURES[] = {model_t::E_PopulationLowVarianceByPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_HIGH_VARIANCE_FEATURES[] = {model_t::E_PopulationHighVarianceByPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_SUM_FEATURES[] = {model_t::E_PopulationSumByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_LOW_SUM_FEATURES[] = {model_t::E_PopulationLowSumByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_HIGH_SUM_FEATURES[] = {model_t::E_PopulationHighSumByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_LAT_LONG_FEATURES[] = {model_t::E_PopulationMeanLatLongByPersonAndAttribute};
-const model_t::EFeature POPULATION_MAX_VELOCITY_FEATURES[] = {model_t::E_PopulationMaxVelocityByPersonAndAttribute};
-const model_t::EFeature POPULATION_MIN_VELOCITY_FEATURES[] = {model_t::E_PopulationMinVelocityByPersonAndAttribute};
-const model_t::EFeature POPULATION_MEAN_VELOCITY_FEATURES[] = {model_t::E_PopulationMeanVelocityByPersonAndAttribute};
-const model_t::EFeature POPULATION_SUM_VELOCITY_FEATURES[] = {model_t::E_PopulationSumVelocityByPersonAndAttribute};
+const model_t::EFeature POPULATION_COUNT_FEATURES[] = {
+    model_t::E_PopulationCountByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_DISTINCT_COUNT_FEATURES[] = {
+    model_t::E_PopulationUniqueCountByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_LOW_DISTINCT_COUNT_FEATURES[] = {
+    model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_HIGH_DISTINCT_COUNT_FEATURES[] = {
+    model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_RARE_FEATURES[] = {
+    model_t::E_PopulationIndicatorOfBucketPersonAndAttribute,
+    model_t::E_PopulationUniquePersonCountByAttribute};
+const model_t::EFeature POPULATION_RARE_COUNT_FEATURES[] = {
+    model_t::E_PopulationCountByBucketPersonAndAttribute,
+    model_t::E_PopulationUniquePersonCountByAttribute};
+const model_t::EFeature POPULATION_FREQ_RARE_FEATURES[] = {
+    model_t::E_PopulationAttributeTotalCountByPerson,
+    model_t::E_PopulationIndicatorOfBucketPersonAndAttribute,
+    model_t::E_PopulationUniquePersonCountByAttribute};
+const model_t::EFeature POPULATION_FREQ_RARE_COUNT_FEATURES[] = {
+    model_t::E_PopulationAttributeTotalCountByPerson,
+    model_t::E_PopulationCountByBucketPersonAndAttribute,
+    model_t::E_PopulationUniquePersonCountByAttribute};
+const model_t::EFeature POPULATION_LOW_COUNTS_FEATURES[] = {
+    model_t::E_PopulationLowCountsByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_HIGH_COUNTS_FEATURES[] = {
+    model_t::E_PopulationHighCountsByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_INFO_CONTENT_FEATURES[] = {
+    model_t::E_PopulationInfoContentByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_LOW_INFO_CONTENT_FEATURES[] = {
+    model_t::E_PopulationLowInfoContentByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_HIGH_INFO_CONTENT_FEATURES[] = {
+    model_t::E_PopulationHighInfoContentByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_TIME_OF_DAY_FEATURES[] = {
+    model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_TIME_OF_WEEK_FEATURES[] = {
+    model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_FEATURES[] = {
+    model_t::E_PopulationMeanByPersonAndAttribute, model_t::E_PopulationMinByPersonAndAttribute,
+    model_t::E_PopulationMaxByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_MEAN_FEATURES[] = {
+    model_t::E_PopulationMeanByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_LOW_MEAN_FEATURES[] = {
+    model_t::E_PopulationLowMeanByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_HIGH_MEAN_FEATURES[] = {
+    model_t::E_PopulationHighMeanByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_MEDIAN_FEATURES[] = {
+    model_t::E_PopulationMedianByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_LOW_MEDIAN_FEATURES[] = {
+    model_t::E_PopulationLowMedianByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_HIGH_MEDIAN_FEATURES[] = {
+    model_t::E_PopulationHighMedianByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_MIN_FEATURES[] = {
+    model_t::E_PopulationMinByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_MAX_FEATURES[] = {
+    model_t::E_PopulationMaxByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_VARIANCE_FEATURES[] = {
+    model_t::E_PopulationVarianceByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_LOW_VARIANCE_FEATURES[] = {
+    model_t::E_PopulationLowVarianceByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_HIGH_VARIANCE_FEATURES[] = {
+    model_t::E_PopulationHighVarianceByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_SUM_FEATURES[] = {
+    model_t::E_PopulationSumByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_LOW_SUM_FEATURES[] = {
+    model_t::E_PopulationLowSumByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_HIGH_SUM_FEATURES[] = {
+    model_t::E_PopulationHighSumByBucketPersonAndAttribute};
+const model_t::EFeature POPULATION_LAT_LONG_FEATURES[] = {
+    model_t::E_PopulationMeanLatLongByPersonAndAttribute};
+const model_t::EFeature POPULATION_MAX_VELOCITY_FEATURES[] = {
+    model_t::E_PopulationMaxVelocityByPersonAndAttribute};
+const model_t::EFeature POPULATION_MIN_VELOCITY_FEATURES[] = {
+    model_t::E_PopulationMinVelocityByPersonAndAttribute};
+const model_t::EFeature POPULATION_MEAN_VELOCITY_FEATURES[] = {
+    model_t::E_PopulationMeanVelocityByPersonAndAttribute};
+const model_t::EFeature POPULATION_SUM_VELOCITY_FEATURES[] = {
+    model_t::E_PopulationSumVelocityByPersonAndAttribute};
 const model_t::EFeature PEERS_COUNT_FEATURES[] = {model_t::E_PeersCountByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_DISTINCT_COUNT_FEATURES[] = {model_t::E_PeersUniqueCountByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_LOW_DISTINCT_COUNT_FEATURES[] = {model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_HIGH_DISTINCT_COUNT_FEATURES[] = {model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_LOW_COUNTS_FEATURES[] = {model_t::E_PeersLowCountsByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_HIGH_COUNTS_FEATURES[] = {model_t::E_PeersHighCountsByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_INFO_CONTENT_FEATURES[] = {model_t::E_PeersInfoContentByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_LOW_INFO_CONTENT_FEATURES[] = {model_t::E_PeersLowInfoContentByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_HIGH_INFO_CONTENT_FEATURES[] = {model_t::E_PeersHighInfoContentByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_TIME_OF_DAY_FEATURES[] = {model_t::E_PeersTimeOfDayByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_TIME_OF_WEEK_FEATURES[] = {model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute};
+const model_t::EFeature PEERS_DISTINCT_COUNT_FEATURES[] = {
+    model_t::E_PeersUniqueCountByBucketPersonAndAttribute};
+const model_t::EFeature PEERS_LOW_DISTINCT_COUNT_FEATURES[] = {
+    model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute};
+const model_t::EFeature PEERS_HIGH_DISTINCT_COUNT_FEATURES[] = {
+    model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute};
+const model_t::EFeature PEERS_LOW_COUNTS_FEATURES[] = {
+    model_t::E_PeersLowCountsByBucketPersonAndAttribute};
+const model_t::EFeature PEERS_HIGH_COUNTS_FEATURES[] = {
+    model_t::E_PeersHighCountsByBucketPersonAndAttribute};
+const model_t::EFeature PEERS_INFO_CONTENT_FEATURES[] = {
+    model_t::E_PeersInfoContentByBucketPersonAndAttribute};
+const model_t::EFeature PEERS_LOW_INFO_CONTENT_FEATURES[] = {
+    model_t::E_PeersLowInfoContentByBucketPersonAndAttribute};
+const model_t::EFeature PEERS_HIGH_INFO_CONTENT_FEATURES[] = {
+    model_t::E_PeersHighInfoContentByBucketPersonAndAttribute};
+const model_t::EFeature PEERS_TIME_OF_DAY_FEATURES[] = {
+    model_t::E_PeersTimeOfDayByBucketPersonAndAttribute};
+const model_t::EFeature PEERS_TIME_OF_WEEK_FEATURES[] = {
+    model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute};
 
 // Function names
 const std::string COUNT("count");
@@ -685,331 +753,419 @@ const std::string UNEXPECTED_FUNCTION("-");
 #define END(x) x + sizeof(x) / sizeof(x[0])
 
 //! The features for the count by function.
-const TFeatureVec INDIVIDUAL_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_COUNT_FEATURES), END(detail::INDIVIDUAL_COUNT_FEATURES));
+const TFeatureVec INDIVIDUAL_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_COUNT_FEATURES),
+                                            END(detail::INDIVIDUAL_COUNT_FEATURES));
 
 //! The features for the non-zero count by function.
-const TFeatureVec INDIVIDUAL_NON_ZERO_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_NON_ZERO_COUNT_FEATURES),
-                                                     END(detail::INDIVIDUAL_NON_ZERO_COUNT_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_NON_ZERO_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_NON_ZERO_COUNT_FEATURES),
+                                       END(detail::INDIVIDUAL_NON_ZERO_COUNT_FEATURES));
 
 //! The features for the rare count by function.
-const TFeatureVec INDIVIDUAL_RARE_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_RARE_COUNT_FEATURES),
-                                                 END(detail::INDIVIDUAL_RARE_COUNT_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_RARE_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_RARE_COUNT_FEATURES),
+                                   END(detail::INDIVIDUAL_RARE_COUNT_FEATURES));
 
 //! The features for the rare non-zero count by function.
-const TFeatureVec INDIVIDUAL_RARE_NON_ZERO_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_RARE_NON_ZERO_COUNT_FEATURES),
-                                                          END(detail::INDIVIDUAL_RARE_NON_ZERO_COUNT_FEATURES));
+const TFeatureVec INDIVIDUAL_RARE_NON_ZERO_COUNT_FEATURES(
+    BEGIN(detail::INDIVIDUAL_RARE_NON_ZERO_COUNT_FEATURES),
+    END(detail::INDIVIDUAL_RARE_NON_ZERO_COUNT_FEATURES));
 
 //! The features for the rare in time by function.
-const TFeatureVec INDIVIDUAL_RARE_FEATURES(BEGIN(detail::INDIVIDUAL_RARE_FEATURES), END(detail::INDIVIDUAL_RARE_FEATURES));
+const TFeatureVec INDIVIDUAL_RARE_FEATURES(BEGIN(detail::INDIVIDUAL_RARE_FEATURES),
+                                           END(detail::INDIVIDUAL_RARE_FEATURES));
 
 //! The features for the low count by function.
-const TFeatureVec INDIVIDUAL_LOW_COUNTS_FEATURES(BEGIN(detail::INDIVIDUAL_LOW_COUNTS_FEATURES),
-                                                 END(detail::INDIVIDUAL_LOW_COUNTS_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_LOW_COUNTS_FEATURES(BEGIN(detail::INDIVIDUAL_LOW_COUNTS_FEATURES),
+                                   END(detail::INDIVIDUAL_LOW_COUNTS_FEATURES));
 
 //! The features for the high count by function.
-const TFeatureVec INDIVIDUAL_HIGH_COUNTS_FEATURES(BEGIN(detail::INDIVIDUAL_HIGH_COUNTS_FEATURES),
-                                                  END(detail::INDIVIDUAL_HIGH_COUNTS_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_HIGH_COUNTS_FEATURES(BEGIN(detail::INDIVIDUAL_HIGH_COUNTS_FEATURES),
+                                    END(detail::INDIVIDUAL_HIGH_COUNTS_FEATURES));
 
 //! The features for the low non zero count by function.
-const TFeatureVec INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES),
-                                                         END(detail::INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES));
+const TFeatureVec INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES(
+    BEGIN(detail::INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES),
+    END(detail::INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES));
 
 //! The features for the high non zero count by function.
-const TFeatureVec INDIVIDUAL_HIGH_NON_ZERO_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_HIGH_NON_ZERO_COUNT_FEATURES),
-                                                          END(detail::INDIVIDUAL_HIGH_NON_ZERO_COUNT_FEATURES));
+const TFeatureVec INDIVIDUAL_HIGH_NON_ZERO_COUNT_FEATURES(
+    BEGIN(detail::INDIVIDUAL_HIGH_NON_ZERO_COUNT_FEATURES),
+    END(detail::INDIVIDUAL_HIGH_NON_ZERO_COUNT_FEATURES));
 
 //! The features for the distinct count function.
-const TFeatureVec INDIVIDUAL_DISTINCT_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_DISTINCT_COUNT_FEATURES),
-                                                     END(detail::INDIVIDUAL_DISTINCT_COUNT_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_DISTINCT_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_DISTINCT_COUNT_FEATURES),
+                                       END(detail::INDIVIDUAL_DISTINCT_COUNT_FEATURES));
 
 //! The features for the distinct count function.
-const TFeatureVec INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES),
-                                                         END(detail::INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES));
+const TFeatureVec INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES(
+    BEGIN(detail::INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES),
+    END(detail::INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES));
 
 //! The features for the distinct count function.
-const TFeatureVec INDIVIDUAL_HIGH_DISTINCT_COUNT_FEATURES(BEGIN(detail::INDIVIDUAL_HIGH_DISTINCT_COUNT_FEATURES),
-                                                          END(detail::INDIVIDUAL_HIGH_DISTINCT_COUNT_FEATURES));
+const TFeatureVec INDIVIDUAL_HIGH_DISTINCT_COUNT_FEATURES(
+    BEGIN(detail::INDIVIDUAL_HIGH_DISTINCT_COUNT_FEATURES),
+    END(detail::INDIVIDUAL_HIGH_DISTINCT_COUNT_FEATURES));
 
 //! The features for the individual info_content function
-const TFeatureVec INDIVIDUAL_INFO_CONTENT_FEATURES(BEGIN(detail::INDIVIDUAL_INFO_CONTENT_FEATURES),
-                                                   END(detail::INDIVIDUAL_INFO_CONTENT_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_INFO_CONTENT_FEATURES(BEGIN(detail::INDIVIDUAL_INFO_CONTENT_FEATURES),
+                                     END(detail::INDIVIDUAL_INFO_CONTENT_FEATURES));
 
 //! The features for the individual high_info_content function
-const TFeatureVec INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES(BEGIN(detail::INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES),
-                                                        END(detail::INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES));
+const TFeatureVec INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES(
+    BEGIN(detail::INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES),
+    END(detail::INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES));
 
 //! The features for the individual low_info_content function
-const TFeatureVec INDIVIDUAL_LOW_INFO_CONTENT_FEATURES(BEGIN(detail::INDIVIDUAL_LOW_INFO_CONTENT_FEATURES),
-                                                       END(detail::INDIVIDUAL_LOW_INFO_CONTENT_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_LOW_INFO_CONTENT_FEATURES(BEGIN(detail::INDIVIDUAL_LOW_INFO_CONTENT_FEATURES),
+                                         END(detail::INDIVIDUAL_LOW_INFO_CONTENT_FEATURES));
 
 //! The features for the time-of-day function.
-const TFeatureVec INDIVIDUAL_TIME_OF_DAY_FEATURES(BEGIN(detail::INDIVIDUAL_TIME_OF_DAY_FEATURES),
-                                                  END(detail::INDIVIDUAL_TIME_OF_DAY_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_TIME_OF_DAY_FEATURES(BEGIN(detail::INDIVIDUAL_TIME_OF_DAY_FEATURES),
+                                    END(detail::INDIVIDUAL_TIME_OF_DAY_FEATURES));
 
 //! The features for the time-of-week function.
-const TFeatureVec INDIVIDUAL_TIME_OF_WEEK_FEATURES(BEGIN(detail::INDIVIDUAL_TIME_OF_WEEK_FEATURES),
-                                                   END(detail::INDIVIDUAL_TIME_OF_WEEK_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_TIME_OF_WEEK_FEATURES(BEGIN(detail::INDIVIDUAL_TIME_OF_WEEK_FEATURES),
+                                     END(detail::INDIVIDUAL_TIME_OF_WEEK_FEATURES));
 
 //! The features for the metric by function.
-const TFeatureVec INDIVIDUAL_METRIC_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_FEATURES), END(detail::INDIVIDUAL_METRIC_FEATURES));
+const TFeatureVec INDIVIDUAL_METRIC_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_FEATURES),
+                                             END(detail::INDIVIDUAL_METRIC_FEATURES));
 
 //! The features for the metric mean by function.
-const TFeatureVec INDIVIDUAL_METRIC_MEAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_MEAN_FEATURES),
-                                                  END(detail::INDIVIDUAL_METRIC_MEAN_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_METRIC_MEAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_MEAN_FEATURES),
+                                    END(detail::INDIVIDUAL_METRIC_MEAN_FEATURES));
 
 //! The features for the metric low mean by function.
-const TFeatureVec INDIVIDUAL_METRIC_LOW_MEAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_LOW_MEAN_FEATURES),
-                                                      END(detail::INDIVIDUAL_METRIC_LOW_MEAN_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_METRIC_LOW_MEAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_LOW_MEAN_FEATURES),
+                                        END(detail::INDIVIDUAL_METRIC_LOW_MEAN_FEATURES));
 
 //! The features for the metric high mean by function.
-const TFeatureVec INDIVIDUAL_METRIC_HIGH_MEAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_HIGH_MEAN_FEATURES),
-                                                       END(detail::INDIVIDUAL_METRIC_HIGH_MEAN_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_METRIC_HIGH_MEAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_HIGH_MEAN_FEATURES),
+                                         END(detail::INDIVIDUAL_METRIC_HIGH_MEAN_FEATURES));
 
 //! The features for the metric median by function.
-const TFeatureVec INDIVIDUAL_METRIC_MEDIAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_MEDIAN_FEATURES),
-                                                    END(detail::INDIVIDUAL_METRIC_MEDIAN_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_METRIC_MEDIAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_MEDIAN_FEATURES),
+                                      END(detail::INDIVIDUAL_METRIC_MEDIAN_FEATURES));
 
 //! The features for the metric low median by function.
-const TFeatureVec INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES),
-                                                        END(detail::INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES));
+const TFeatureVec INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES(
+    BEGIN(detail::INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES),
+    END(detail::INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES));
 
 //! The features for the metric high median by function.
-const TFeatureVec INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES),
-                                                         END(detail::INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES));
+const TFeatureVec INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES(
+    BEGIN(detail::INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES),
+    END(detail::INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES));
 
 //! The features for the metric min by function.
-const TFeatureVec INDIVIDUAL_METRIC_MIN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_MIN_FEATURES),
-                                                 END(detail::INDIVIDUAL_METRIC_MIN_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_METRIC_MIN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_MIN_FEATURES),
+                                   END(detail::INDIVIDUAL_METRIC_MIN_FEATURES));
 
 //! The features for the metric max by function.
-const TFeatureVec INDIVIDUAL_METRIC_MAX_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_MAX_FEATURES),
-                                                 END(detail::INDIVIDUAL_METRIC_MAX_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_METRIC_MAX_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_MAX_FEATURES),
+                                   END(detail::INDIVIDUAL_METRIC_MAX_FEATURES));
 
 //! The features for the metric variance by function.
-const TFeatureVec INDIVIDUAL_METRIC_VARIANCE_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_VARIANCE_FEATURES),
-                                                      END(detail::INDIVIDUAL_METRIC_VARIANCE_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_METRIC_VARIANCE_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_VARIANCE_FEATURES),
+                                        END(detail::INDIVIDUAL_METRIC_VARIANCE_FEATURES));
 
 //! The features for the metric low variance by function.
-const TFeatureVec INDIVIDUAL_METRIC_LOW_VARIANCE_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_LOW_VARIANCE_FEATURES),
-                                                          END(detail::INDIVIDUAL_METRIC_LOW_VARIANCE_FEATURES));
+const TFeatureVec INDIVIDUAL_METRIC_LOW_VARIANCE_FEATURES(
+    BEGIN(detail::INDIVIDUAL_METRIC_LOW_VARIANCE_FEATURES),
+    END(detail::INDIVIDUAL_METRIC_LOW_VARIANCE_FEATURES));
 
 //! The features for the metric high variance by function.
-const TFeatureVec INDIVIDUAL_METRIC_HIGH_VARIANCE_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_HIGH_VARIANCE_FEATURES),
-                                                           END(detail::INDIVIDUAL_METRIC_HIGH_VARIANCE_FEATURES));
+const TFeatureVec INDIVIDUAL_METRIC_HIGH_VARIANCE_FEATURES(
+    BEGIN(detail::INDIVIDUAL_METRIC_HIGH_VARIANCE_FEATURES),
+    END(detail::INDIVIDUAL_METRIC_HIGH_VARIANCE_FEATURES));
 
 //! The features for the metric sum by function.
-const TFeatureVec INDIVIDUAL_METRIC_SUM_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_SUM_FEATURES),
-                                                 END(detail::INDIVIDUAL_METRIC_SUM_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_METRIC_SUM_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_SUM_FEATURES),
+                                   END(detail::INDIVIDUAL_METRIC_SUM_FEATURES));
 
 //! The features for the metric low sum by function.
-const TFeatureVec INDIVIDUAL_METRIC_LOW_SUM_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_LOW_SUM_FEATURES),
-                                                     END(detail::INDIVIDUAL_METRIC_LOW_SUM_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_METRIC_LOW_SUM_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_LOW_SUM_FEATURES),
+                                       END(detail::INDIVIDUAL_METRIC_LOW_SUM_FEATURES));
 
 //! The features for the metric high sum by function.
-const TFeatureVec INDIVIDUAL_METRIC_HIGH_SUM_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_HIGH_SUM_FEATURES),
-                                                      END(detail::INDIVIDUAL_METRIC_HIGH_SUM_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_METRIC_HIGH_SUM_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_HIGH_SUM_FEATURES),
+                                        END(detail::INDIVIDUAL_METRIC_HIGH_SUM_FEATURES));
 
 //! The features for the metric non-null sum by function.
-const TFeatureVec INDIVIDUAL_METRIC_NON_NULL_SUM_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_NON_NULL_SUM_FEATURES),
-                                                          END(detail::INDIVIDUAL_METRIC_NON_NULL_SUM_FEATURES));
+const TFeatureVec INDIVIDUAL_METRIC_NON_NULL_SUM_FEATURES(
+    BEGIN(detail::INDIVIDUAL_METRIC_NON_NULL_SUM_FEATURES),
+    END(detail::INDIVIDUAL_METRIC_NON_NULL_SUM_FEATURES));
 
 //! The features for the metric low non-null sum by function.
-const TFeatureVec INDIVIDUAL_METRIC_LOW_NON_NULL_SUM_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_LOW_NON_NULL_SUM_FEATURES),
-                                                              END(detail::INDIVIDUAL_METRIC_LOW_NON_NULL_SUM_FEATURES));
+const TFeatureVec INDIVIDUAL_METRIC_LOW_NON_NULL_SUM_FEATURES(
+    BEGIN(detail::INDIVIDUAL_METRIC_LOW_NON_NULL_SUM_FEATURES),
+    END(detail::INDIVIDUAL_METRIC_LOW_NON_NULL_SUM_FEATURES));
 
 //! The features for the metric high non-null sum by function.
-const TFeatureVec INDIVIDUAL_METRIC_HIGH_NON_NULL_SUM_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_HIGH_NON_NULL_SUM_FEATURES),
-                                                               END(detail::INDIVIDUAL_METRIC_HIGH_NON_NULL_SUM_FEATURES));
+const TFeatureVec INDIVIDUAL_METRIC_HIGH_NON_NULL_SUM_FEATURES(
+    BEGIN(detail::INDIVIDUAL_METRIC_HIGH_NON_NULL_SUM_FEATURES),
+    END(detail::INDIVIDUAL_METRIC_HIGH_NON_NULL_SUM_FEATURES));
 
 //! The features for the metric latitude and longitude by function.
-const TFeatureVec INDIVIDUAL_LAT_LONG_FEATURES(BEGIN(detail::INDIVIDUAL_LAT_LONG_FEATURES), END(detail::INDIVIDUAL_LAT_LONG_FEATURES));
+const TFeatureVec INDIVIDUAL_LAT_LONG_FEATURES(BEGIN(detail::INDIVIDUAL_LAT_LONG_FEATURES),
+                                               END(detail::INDIVIDUAL_LAT_LONG_FEATURES));
 
 //! The features for the metric max velocity by function.
-const TFeatureVec INDIVIDUAL_MAX_VELOCITY_FEATURES(BEGIN(detail::INDIVIDUAL_MAX_VELOCITY_FEATURES),
-                                                   END(detail::INDIVIDUAL_MAX_VELOCITY_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_MAX_VELOCITY_FEATURES(BEGIN(detail::INDIVIDUAL_MAX_VELOCITY_FEATURES),
+                                     END(detail::INDIVIDUAL_MAX_VELOCITY_FEATURES));
 
 //! The features for the metric min velocity by function.
-const TFeatureVec INDIVIDUAL_MIN_VELOCITY_FEATURES(BEGIN(detail::INDIVIDUAL_MIN_VELOCITY_FEATURES),
-                                                   END(detail::INDIVIDUAL_MIN_VELOCITY_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_MIN_VELOCITY_FEATURES(BEGIN(detail::INDIVIDUAL_MIN_VELOCITY_FEATURES),
+                                     END(detail::INDIVIDUAL_MIN_VELOCITY_FEATURES));
 
 //! The features for the metric mean velocity by function.
-const TFeatureVec INDIVIDUAL_MEAN_VELOCITY_FEATURES(BEGIN(detail::INDIVIDUAL_MEAN_VELOCITY_FEATURES),
-                                                    END(detail::INDIVIDUAL_MEAN_VELOCITY_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_MEAN_VELOCITY_FEATURES(BEGIN(detail::INDIVIDUAL_MEAN_VELOCITY_FEATURES),
+                                      END(detail::INDIVIDUAL_MEAN_VELOCITY_FEATURES));
 
 //! The features for the metric sum velocity by function.
-const TFeatureVec INDIVIDUAL_SUM_VELOCITY_FEATURES(BEGIN(detail::INDIVIDUAL_SUM_VELOCITY_FEATURES),
-                                                   END(detail::INDIVIDUAL_SUM_VELOCITY_FEATURES));
+const TFeatureVec
+    INDIVIDUAL_SUM_VELOCITY_FEATURES(BEGIN(detail::INDIVIDUAL_SUM_VELOCITY_FEATURES),
+                                     END(detail::INDIVIDUAL_SUM_VELOCITY_FEATURES));
 
 //! The features for the count over function.
-const TFeatureVec POPULATION_COUNT_FEATURES(BEGIN(detail::POPULATION_COUNT_FEATURES), END(detail::POPULATION_COUNT_FEATURES));
+const TFeatureVec POPULATION_COUNT_FEATURES(BEGIN(detail::POPULATION_COUNT_FEATURES),
+                                            END(detail::POPULATION_COUNT_FEATURES));
 
 //! The features for the distinct count over function.
-const TFeatureVec POPULATION_DISTINCT_COUNT_FEATURES(BEGIN(detail::POPULATION_DISTINCT_COUNT_FEATURES),
-                                                     END(detail::POPULATION_DISTINCT_COUNT_FEATURES));
+const TFeatureVec
+    POPULATION_DISTINCT_COUNT_FEATURES(BEGIN(detail::POPULATION_DISTINCT_COUNT_FEATURES),
+                                       END(detail::POPULATION_DISTINCT_COUNT_FEATURES));
 
 //! The features for the low distinct count over function.
-const TFeatureVec POPULATION_LOW_DISTINCT_COUNT_FEATURES(BEGIN(detail::POPULATION_LOW_DISTINCT_COUNT_FEATURES),
-                                                         END(detail::POPULATION_LOW_DISTINCT_COUNT_FEATURES));
+const TFeatureVec POPULATION_LOW_DISTINCT_COUNT_FEATURES(
+    BEGIN(detail::POPULATION_LOW_DISTINCT_COUNT_FEATURES),
+    END(detail::POPULATION_LOW_DISTINCT_COUNT_FEATURES));
 
 //! The features for the high distinct count over function.
-const TFeatureVec POPULATION_HIGH_DISTINCT_COUNT_FEATURES(BEGIN(detail::POPULATION_HIGH_DISTINCT_COUNT_FEATURES),
-                                                          END(detail::POPULATION_HIGH_DISTINCT_COUNT_FEATURES));
+const TFeatureVec POPULATION_HIGH_DISTINCT_COUNT_FEATURES(
+    BEGIN(detail::POPULATION_HIGH_DISTINCT_COUNT_FEATURES),
+    END(detail::POPULATION_HIGH_DISTINCT_COUNT_FEATURES));
 
 //! The features for the rare over function.
-const TFeatureVec POPULATION_RARE_FEATURES(BEGIN(detail::POPULATION_RARE_FEATURES), END(detail::POPULATION_RARE_FEATURES));
+const TFeatureVec POPULATION_RARE_FEATURES(BEGIN(detail::POPULATION_RARE_FEATURES),
+                                           END(detail::POPULATION_RARE_FEATURES));
 
 //! The features for the rare count over function.
-const TFeatureVec POPULATION_RARE_COUNT_FEATURES(BEGIN(detail::POPULATION_RARE_COUNT_FEATURES),
-                                                 END(detail::POPULATION_RARE_COUNT_FEATURES));
+const TFeatureVec
+    POPULATION_RARE_COUNT_FEATURES(BEGIN(detail::POPULATION_RARE_COUNT_FEATURES),
+                                   END(detail::POPULATION_RARE_COUNT_FEATURES));
 
 //! The features for the rare in population over function.
-const TFeatureVec POPULATION_FREQ_RARE_FEATURES(BEGIN(detail::POPULATION_FREQ_RARE_FEATURES), END(detail::POPULATION_FREQ_RARE_FEATURES));
+const TFeatureVec
+    POPULATION_FREQ_RARE_FEATURES(BEGIN(detail::POPULATION_FREQ_RARE_FEATURES),
+                                  END(detail::POPULATION_FREQ_RARE_FEATURES));
 
 //! The features for the frequent rare count over function.
-const TFeatureVec POPULATION_FREQ_RARE_COUNT_FEATURES(BEGIN(detail::POPULATION_FREQ_RARE_COUNT_FEATURES),
-                                                      END(detail::POPULATION_FREQ_RARE_COUNT_FEATURES));
+const TFeatureVec
+    POPULATION_FREQ_RARE_COUNT_FEATURES(BEGIN(detail::POPULATION_FREQ_RARE_COUNT_FEATURES),
+                                        END(detail::POPULATION_FREQ_RARE_COUNT_FEATURES));
 
 //! The features for the low count over function.
-const TFeatureVec POPULATION_LOW_COUNTS_FEATURES(BEGIN(detail::POPULATION_LOW_COUNTS_FEATURES),
-                                                 END(detail::POPULATION_LOW_COUNTS_FEATURES));
+const TFeatureVec
+    POPULATION_LOW_COUNTS_FEATURES(BEGIN(detail::POPULATION_LOW_COUNTS_FEATURES),
+                                   END(detail::POPULATION_LOW_COUNTS_FEATURES));
 
 //! The features for the high count over function.
-const TFeatureVec POPULATION_HIGH_COUNTS_FEATURES(BEGIN(detail::POPULATION_HIGH_COUNTS_FEATURES),
-                                                  END(detail::POPULATION_HIGH_COUNTS_FEATURES));
+const TFeatureVec
+    POPULATION_HIGH_COUNTS_FEATURES(BEGIN(detail::POPULATION_HIGH_COUNTS_FEATURES),
+                                    END(detail::POPULATION_HIGH_COUNTS_FEATURES));
 
 //! The features for the information content over function.
-const TFeatureVec POPULATION_INFO_CONTENT_FEATURES(BEGIN(detail::POPULATION_INFO_CONTENT_FEATURES),
-                                                   END(detail::POPULATION_INFO_CONTENT_FEATURES));
+const TFeatureVec
+    POPULATION_INFO_CONTENT_FEATURES(BEGIN(detail::POPULATION_INFO_CONTENT_FEATURES),
+                                     END(detail::POPULATION_INFO_CONTENT_FEATURES));
 
 //! The features for the low information content over function.
-const TFeatureVec POPULATION_LOW_INFO_CONTENT_FEATURES(BEGIN(detail::POPULATION_LOW_INFO_CONTENT_FEATURES),
-                                                       END(detail::POPULATION_LOW_INFO_CONTENT_FEATURES));
+const TFeatureVec
+    POPULATION_LOW_INFO_CONTENT_FEATURES(BEGIN(detail::POPULATION_LOW_INFO_CONTENT_FEATURES),
+                                         END(detail::POPULATION_LOW_INFO_CONTENT_FEATURES));
 
 //! The features for the high information content over function.
-const TFeatureVec POPULATION_HIGH_INFO_CONTENT_FEATURES(BEGIN(detail::POPULATION_HIGH_INFO_CONTENT_FEATURES),
-                                                        END(detail::POPULATION_HIGH_INFO_CONTENT_FEATURES));
+const TFeatureVec POPULATION_HIGH_INFO_CONTENT_FEATURES(
+    BEGIN(detail::POPULATION_HIGH_INFO_CONTENT_FEATURES),
+    END(detail::POPULATION_HIGH_INFO_CONTENT_FEATURES));
 
 //! The features for the time_of_week over function.
-const TFeatureVec POPULATION_TIME_OF_DAY_FEATURES(BEGIN(detail::POPULATION_TIME_OF_DAY_FEATURES),
-                                                  END(detail::POPULATION_TIME_OF_DAY_FEATURES));
+const TFeatureVec
+    POPULATION_TIME_OF_DAY_FEATURES(BEGIN(detail::POPULATION_TIME_OF_DAY_FEATURES),
+                                    END(detail::POPULATION_TIME_OF_DAY_FEATURES));
 
 //! The features for the time_of_week over function.
-const TFeatureVec POPULATION_TIME_OF_WEEK_FEATURES(BEGIN(detail::POPULATION_TIME_OF_WEEK_FEATURES),
-                                                   END(detail::POPULATION_TIME_OF_WEEK_FEATURES));
+const TFeatureVec
+    POPULATION_TIME_OF_WEEK_FEATURES(BEGIN(detail::POPULATION_TIME_OF_WEEK_FEATURES),
+                                     END(detail::POPULATION_TIME_OF_WEEK_FEATURES));
 
 //! The features for the metric over function.
-const TFeatureVec POPULATION_METRIC_FEATURES(BEGIN(detail::POPULATION_METRIC_FEATURES), END(detail::POPULATION_METRIC_FEATURES));
+const TFeatureVec POPULATION_METRIC_FEATURES(BEGIN(detail::POPULATION_METRIC_FEATURES),
+                                             END(detail::POPULATION_METRIC_FEATURES));
 
 //! The features for the metric mean over function.
-const TFeatureVec POPULATION_METRIC_MEAN_FEATURES(BEGIN(detail::POPULATION_METRIC_MEAN_FEATURES),
-                                                  END(detail::POPULATION_METRIC_MEAN_FEATURES));
+const TFeatureVec
+    POPULATION_METRIC_MEAN_FEATURES(BEGIN(detail::POPULATION_METRIC_MEAN_FEATURES),
+                                    END(detail::POPULATION_METRIC_MEAN_FEATURES));
 
 //! The features for the metric low mean over function.
-const TFeatureVec POPULATION_METRIC_LOW_MEAN_FEATURES(BEGIN(detail::POPULATION_METRIC_LOW_MEAN_FEATURES),
-                                                      END(detail::POPULATION_METRIC_LOW_MEAN_FEATURES));
+const TFeatureVec
+    POPULATION_METRIC_LOW_MEAN_FEATURES(BEGIN(detail::POPULATION_METRIC_LOW_MEAN_FEATURES),
+                                        END(detail::POPULATION_METRIC_LOW_MEAN_FEATURES));
 
 //! The features for the metric high mean over function.
-const TFeatureVec POPULATION_METRIC_HIGH_MEAN_FEATURES(BEGIN(detail::POPULATION_METRIC_HIGH_MEAN_FEATURES),
-                                                       END(detail::POPULATION_METRIC_HIGH_MEAN_FEATURES));
+const TFeatureVec
+    POPULATION_METRIC_HIGH_MEAN_FEATURES(BEGIN(detail::POPULATION_METRIC_HIGH_MEAN_FEATURES),
+                                         END(detail::POPULATION_METRIC_HIGH_MEAN_FEATURES));
 
 //! The features for the metric median over function.
-const TFeatureVec POPULATION_METRIC_MEDIAN_FEATURES(BEGIN(detail::POPULATION_METRIC_MEDIAN_FEATURES),
-                                                    END(detail::POPULATION_METRIC_MEDIAN_FEATURES));
+const TFeatureVec
+    POPULATION_METRIC_MEDIAN_FEATURES(BEGIN(detail::POPULATION_METRIC_MEDIAN_FEATURES),
+                                      END(detail::POPULATION_METRIC_MEDIAN_FEATURES));
 
 //! The features for the metric low median over function.
-const TFeatureVec POPULATION_METRIC_LOW_MEDIAN_FEATURES(BEGIN(detail::POPULATION_METRIC_LOW_MEDIAN_FEATURES),
-                                                        END(detail::POPULATION_METRIC_LOW_MEDIAN_FEATURES));
+const TFeatureVec POPULATION_METRIC_LOW_MEDIAN_FEATURES(
+    BEGIN(detail::POPULATION_METRIC_LOW_MEDIAN_FEATURES),
+    END(detail::POPULATION_METRIC_LOW_MEDIAN_FEATURES));
 
 //! The features for the metric high median over function.
-const TFeatureVec POPULATION_METRIC_HIGH_MEDIAN_FEATURES(BEGIN(detail::POPULATION_METRIC_HIGH_MEDIAN_FEATURES),
-                                                         END(detail::POPULATION_METRIC_HIGH_MEDIAN_FEATURES));
+const TFeatureVec POPULATION_METRIC_HIGH_MEDIAN_FEATURES(
+    BEGIN(detail::POPULATION_METRIC_HIGH_MEDIAN_FEATURES),
+    END(detail::POPULATION_METRIC_HIGH_MEDIAN_FEATURES));
 
 //! The features for the metric min over function.
-const TFeatureVec POPULATION_METRIC_MIN_FEATURES(BEGIN(detail::POPULATION_METRIC_MIN_FEATURES),
-                                                 END(detail::POPULATION_METRIC_MIN_FEATURES));
+const TFeatureVec
+    POPULATION_METRIC_MIN_FEATURES(BEGIN(detail::POPULATION_METRIC_MIN_FEATURES),
+                                   END(detail::POPULATION_METRIC_MIN_FEATURES));
 
 //! The features for the metric max over function.
-const TFeatureVec POPULATION_METRIC_MAX_FEATURES(BEGIN(detail::POPULATION_METRIC_MAX_FEATURES),
-                                                 END(detail::POPULATION_METRIC_MAX_FEATURES));
+const TFeatureVec
+    POPULATION_METRIC_MAX_FEATURES(BEGIN(detail::POPULATION_METRIC_MAX_FEATURES),
+                                   END(detail::POPULATION_METRIC_MAX_FEATURES));
 
 //! The features for the metric variance over function.
-const TFeatureVec POPULATION_METRIC_VARIANCE_FEATURES(BEGIN(detail::POPULATION_METRIC_VARIANCE_FEATURES),
-                                                      END(detail::POPULATION_METRIC_VARIANCE_FEATURES));
+const TFeatureVec
+    POPULATION_METRIC_VARIANCE_FEATURES(BEGIN(detail::POPULATION_METRIC_VARIANCE_FEATURES),
+                                        END(detail::POPULATION_METRIC_VARIANCE_FEATURES));
 
 //! The features for the metric low variance over function.
-const TFeatureVec POPULATION_METRIC_LOW_VARIANCE_FEATURES(BEGIN(detail::POPULATION_METRIC_LOW_VARIANCE_FEATURES),
-                                                          END(detail::POPULATION_METRIC_LOW_VARIANCE_FEATURES));
+const TFeatureVec POPULATION_METRIC_LOW_VARIANCE_FEATURES(
+    BEGIN(detail::POPULATION_METRIC_LOW_VARIANCE_FEATURES),
+    END(detail::POPULATION_METRIC_LOW_VARIANCE_FEATURES));
 
 //! The features for the metric high variance over function.
-const TFeatureVec POPULATION_METRIC_HIGH_VARIANCE_FEATURES(BEGIN(detail::POPULATION_METRIC_HIGH_VARIANCE_FEATURES),
-                                                           END(detail::POPULATION_METRIC_HIGH_VARIANCE_FEATURES));
+const TFeatureVec POPULATION_METRIC_HIGH_VARIANCE_FEATURES(
+    BEGIN(detail::POPULATION_METRIC_HIGH_VARIANCE_FEATURES),
+    END(detail::POPULATION_METRIC_HIGH_VARIANCE_FEATURES));
 
 //! The features for the metric sum over function.
-const TFeatureVec POPULATION_METRIC_SUM_FEATURES(BEGIN(detail::POPULATION_METRIC_SUM_FEATURES),
-                                                 END(detail::POPULATION_METRIC_SUM_FEATURES));
+const TFeatureVec
+    POPULATION_METRIC_SUM_FEATURES(BEGIN(detail::POPULATION_METRIC_SUM_FEATURES),
+                                   END(detail::POPULATION_METRIC_SUM_FEATURES));
 //! The features for the metric low sum over function.
-const TFeatureVec POPULATION_METRIC_LOW_SUM_FEATURES(BEGIN(detail::POPULATION_METRIC_LOW_SUM_FEATURES),
-                                                     END(detail::POPULATION_METRIC_LOW_SUM_FEATURES));
+const TFeatureVec
+    POPULATION_METRIC_LOW_SUM_FEATURES(BEGIN(detail::POPULATION_METRIC_LOW_SUM_FEATURES),
+                                       END(detail::POPULATION_METRIC_LOW_SUM_FEATURES));
 
 //! The features for the metric high sum over function.
-const TFeatureVec POPULATION_METRIC_HIGH_SUM_FEATURES(BEGIN(detail::POPULATION_METRIC_HIGH_SUM_FEATURES),
-                                                      END(detail::POPULATION_METRIC_HIGH_SUM_FEATURES));
+const TFeatureVec
+    POPULATION_METRIC_HIGH_SUM_FEATURES(BEGIN(detail::POPULATION_METRIC_HIGH_SUM_FEATURES),
+                                        END(detail::POPULATION_METRIC_HIGH_SUM_FEATURES));
 
 //! The features for the metric lat/long over function.
-const TFeatureVec POPULATION_LAT_LONG_FEATURES(BEGIN(detail::POPULATION_LAT_LONG_FEATURES), END(detail::POPULATION_LAT_LONG_FEATURES));
+const TFeatureVec POPULATION_LAT_LONG_FEATURES(BEGIN(detail::POPULATION_LAT_LONG_FEATURES),
+                                               END(detail::POPULATION_LAT_LONG_FEATURES));
 
 //! The features for the metric max velocity over function.
-const TFeatureVec POPULATION_MAX_VELOCITY_FEATURES(BEGIN(detail::POPULATION_MAX_VELOCITY_FEATURES),
-                                                   END(detail::POPULATION_MAX_VELOCITY_FEATURES));
+const TFeatureVec
+    POPULATION_MAX_VELOCITY_FEATURES(BEGIN(detail::POPULATION_MAX_VELOCITY_FEATURES),
+                                     END(detail::POPULATION_MAX_VELOCITY_FEATURES));
 
 //! The features for the metric min velocity over function.
-const TFeatureVec POPULATION_MIN_VELOCITY_FEATURES(BEGIN(detail::POPULATION_MIN_VELOCITY_FEATURES),
-                                                   END(detail::POPULATION_MIN_VELOCITY_FEATURES));
+const TFeatureVec
+    POPULATION_MIN_VELOCITY_FEATURES(BEGIN(detail::POPULATION_MIN_VELOCITY_FEATURES),
+                                     END(detail::POPULATION_MIN_VELOCITY_FEATURES));
 
 //! The features for the metric mean velocity over function.
-const TFeatureVec POPULATION_MEAN_VELOCITY_FEATURES(BEGIN(detail::POPULATION_MEAN_VELOCITY_FEATURES),
-                                                    END(detail::POPULATION_MEAN_VELOCITY_FEATURES));
+const TFeatureVec
+    POPULATION_MEAN_VELOCITY_FEATURES(BEGIN(detail::POPULATION_MEAN_VELOCITY_FEATURES),
+                                      END(detail::POPULATION_MEAN_VELOCITY_FEATURES));
 
 //! The features for the metric sum velocity over function.
-const TFeatureVec POPULATION_SUM_VELOCITY_FEATURES(BEGIN(detail::POPULATION_SUM_VELOCITY_FEATURES),
-                                                   END(detail::POPULATION_SUM_VELOCITY_FEATURES));
+const TFeatureVec
+    POPULATION_SUM_VELOCITY_FEATURES(BEGIN(detail::POPULATION_SUM_VELOCITY_FEATURES),
+                                     END(detail::POPULATION_SUM_VELOCITY_FEATURES));
 
 //! The features for the count over function.
-const TFeatureVec PEERS_COUNT_FEATURES(BEGIN(detail::PEERS_COUNT_FEATURES), END(detail::PEERS_COUNT_FEATURES));
+const TFeatureVec PEERS_COUNT_FEATURES(BEGIN(detail::PEERS_COUNT_FEATURES),
+                                       END(detail::PEERS_COUNT_FEATURES));
 
 //! The features for the low count over function.
-const TFeatureVec PEERS_LOW_COUNTS_FEATURES(BEGIN(detail::PEERS_LOW_COUNTS_FEATURES), END(detail::PEERS_LOW_COUNTS_FEATURES));
+const TFeatureVec PEERS_LOW_COUNTS_FEATURES(BEGIN(detail::PEERS_LOW_COUNTS_FEATURES),
+                                            END(detail::PEERS_LOW_COUNTS_FEATURES));
 
 //! The features for the high count over function.
-const TFeatureVec PEERS_HIGH_COUNTS_FEATURES(BEGIN(detail::PEERS_HIGH_COUNTS_FEATURES), END(detail::PEERS_HIGH_COUNTS_FEATURES));
+const TFeatureVec PEERS_HIGH_COUNTS_FEATURES(BEGIN(detail::PEERS_HIGH_COUNTS_FEATURES),
+                                             END(detail::PEERS_HIGH_COUNTS_FEATURES));
 
 //! The features for the distinct count over function.
-const TFeatureVec PEERS_DISTINCT_COUNT_FEATURES(BEGIN(detail::PEERS_DISTINCT_COUNT_FEATURES), END(detail::PEERS_DISTINCT_COUNT_FEATURES));
+const TFeatureVec
+    PEERS_DISTINCT_COUNT_FEATURES(BEGIN(detail::PEERS_DISTINCT_COUNT_FEATURES),
+                                  END(detail::PEERS_DISTINCT_COUNT_FEATURES));
 
 //! The features for the low distinct count over function.
-const TFeatureVec PEERS_LOW_DISTINCT_COUNT_FEATURES(BEGIN(detail::PEERS_LOW_DISTINCT_COUNT_FEATURES),
-                                                    END(detail::PEERS_LOW_DISTINCT_COUNT_FEATURES));
+const TFeatureVec
+    PEERS_LOW_DISTINCT_COUNT_FEATURES(BEGIN(detail::PEERS_LOW_DISTINCT_COUNT_FEATURES),
+                                      END(detail::PEERS_LOW_DISTINCT_COUNT_FEATURES));
 
 //! The features for the high distinct count over function.
-const TFeatureVec PEERS_HIGH_DISTINCT_COUNT_FEATURES(BEGIN(detail::PEERS_HIGH_DISTINCT_COUNT_FEATURES),
-                                                     END(detail::PEERS_HIGH_DISTINCT_COUNT_FEATURES));
+const TFeatureVec
+    PEERS_HIGH_DISTINCT_COUNT_FEATURES(BEGIN(detail::PEERS_HIGH_DISTINCT_COUNT_FEATURES),
+                                       END(detail::PEERS_HIGH_DISTINCT_COUNT_FEATURES));
 
 //! The features for the information content over function.
-const TFeatureVec PEERS_INFO_CONTENT_FEATURES(BEGIN(detail::PEERS_INFO_CONTENT_FEATURES), END(detail::PEERS_INFO_CONTENT_FEATURES));
+const TFeatureVec PEERS_INFO_CONTENT_FEATURES(BEGIN(detail::PEERS_INFO_CONTENT_FEATURES),
+                                              END(detail::PEERS_INFO_CONTENT_FEATURES));
 
 //! The features for the low information content over function.
-const TFeatureVec PEERS_LOW_INFO_CONTENT_FEATURES(BEGIN(detail::PEERS_LOW_INFO_CONTENT_FEATURES),
-                                                  END(detail::PEERS_LOW_INFO_CONTENT_FEATURES));
+const TFeatureVec
+    PEERS_LOW_INFO_CONTENT_FEATURES(BEGIN(detail::PEERS_LOW_INFO_CONTENT_FEATURES),
+                                    END(detail::PEERS_LOW_INFO_CONTENT_FEATURES));
 
 //! The features for the high information content over function.
-const TFeatureVec PEERS_HIGH_INFO_CONTENT_FEATURES(BEGIN(detail::PEERS_HIGH_INFO_CONTENT_FEATURES),
-                                                   END(detail::PEERS_HIGH_INFO_CONTENT_FEATURES));
+const TFeatureVec
+    PEERS_HIGH_INFO_CONTENT_FEATURES(BEGIN(detail::PEERS_HIGH_INFO_CONTENT_FEATURES),
+                                     END(detail::PEERS_HIGH_INFO_CONTENT_FEATURES));
 
 //! The features for the time_of_week over function.
-const TFeatureVec PEERS_TIME_OF_DAY_FEATURES(BEGIN(detail::PEERS_TIME_OF_DAY_FEATURES), END(detail::PEERS_TIME_OF_DAY_FEATURES));
+const TFeatureVec PEERS_TIME_OF_DAY_FEATURES(BEGIN(detail::PEERS_TIME_OF_DAY_FEATURES),
+                                             END(detail::PEERS_TIME_OF_DAY_FEATURES));
 
 //! The features for the time_of_week over function.
-const TFeatureVec PEERS_TIME_OF_WEEK_FEATURES(BEGIN(detail::PEERS_TIME_OF_WEEK_FEATURES), END(detail::PEERS_TIME_OF_WEEK_FEATURES));
+const TFeatureVec PEERS_TIME_OF_WEEK_FEATURES(BEGIN(detail::PEERS_TIME_OF_WEEK_FEATURES),
+                                              END(detail::PEERS_TIME_OF_WEEK_FEATURES));
 
 const TFeatureVec EMPTY_FEATURES;
 const TFunctionVec EMPTY_FUNCTIONS;
@@ -1534,16 +1690,19 @@ EFunction function(const TFeatureVec& features) {
             continue;
         }
 
-        LOG_TRACE(<< "candidate = " << core::CContainerPrinter::print(functionsItr->second));
-        std::set_intersection(
-            candidates.begin(), candidates.end(), functionsItr->second.begin(), functionsItr->second.end(), std::back_inserter(tmp));
+        LOG_TRACE(<< "candidate = "
+                  << core::CContainerPrinter::print(functionsItr->second));
+        std::set_intersection(candidates.begin(), candidates.end(),
+                              functionsItr->second.begin(),
+                              functionsItr->second.end(), std::back_inserter(tmp));
         candidates.swap(tmp);
         tmp.clear();
     }
 
     if (candidates.empty()) {
         EFunction result = mostSpecific(fallback);
-        LOG_ERROR(<< "Inconsistent features " << core::CContainerPrinter::print(features) << " defaulting to '" << print(result) << "'");
+        LOG_ERROR(<< "Inconsistent features " << core::CContainerPrinter::print(features)
+                  << " defaulting to '" << print(result) << "'");
         return result;
     }
 

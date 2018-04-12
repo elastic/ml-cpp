@@ -47,9 +47,11 @@ TBoolVec bucketSampleMask(core_t::TTime bucketLength) {
 
 //! Insert with the same semantics as boost::unordered_map/set::emplace.
 template<typename T>
-std::size_t emplace(const std::string* name, std::vector<std::pair<const std::string*, T>>& stats) {
-    std::size_t i =
-        static_cast<std::size_t>(std::lower_bound(stats.begin(), stats.end(), name, maths::COrderings::SFirstLess()) - stats.begin());
+std::size_t emplace(const std::string* name,
+                    std::vector<std::pair<const std::string*, T>>& stats) {
+    std::size_t i = static_cast<std::size_t>(
+        std::lower_bound(stats.begin(), stats.end(), name, maths::COrderings::SFirstLess()) -
+        stats.begin());
     if (i == stats.size()) {
         stats.push_back(std::make_pair(name, T()));
     } else if (*name != *stats[i].first) {
@@ -77,7 +79,8 @@ public:
     }
 
     bool operator==(const CCountStatisticsKey& rhs) const {
-        return std::equal(boost::begin(m_Fields), boost::end(m_Fields), boost::begin(rhs.m_Fields));
+        return std::equal(boost::begin(m_Fields), boost::end(m_Fields),
+                          boost::begin(rhs.m_Fields));
     }
 
 private:
@@ -87,7 +90,9 @@ private:
 //! \brief Hashes a count statistic key.
 class CCountStatisticsKeyHasher {
 public:
-    std::size_t operator()(const CCountStatisticsKey& key) const { return key.hash(); }
+    std::size_t operator()(const CCountStatisticsKey& key) const {
+        return key.hash();
+    }
 };
 
 //! Get some partition statistics on the heap.
@@ -116,14 +121,19 @@ const maths::CQuantileSketch QUANTILES(maths::CQuantileSketch::E_Linear, CS_SIZE
 
 //////// CBucketCountStatistics ////////
 
-void CBucketCountStatistics::add(const TSizeSizeSizeTr& partition, TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords) {
+void CBucketCountStatistics::add(const TSizeSizeSizeTr& partition,
+                                 TDetectorRecordCItr beginRecords,
+                                 TDetectorRecordCItr endRecords) {
     ++m_CurrentBucketPartitionCounts[partition];
     for (TDetectorRecordCItr record = beginRecords; record != endRecords; ++record) {
         if (record->function() == config_t::E_DistinctCount) {
             if (const std::string* name = record->argumentFieldName()) {
                 const std::string& value = *record->argumentFieldValue();
                 std::size_t i = emplace(name, m_CurrentBucketArgumentDataPerPartition);
-                SBucketArgumentData& data = m_CurrentBucketArgumentDataPerPartition[i].second.emplace(partition, BJKST).first->second;
+                SBucketArgumentData& data =
+                    m_CurrentBucketArgumentDataPerPartition[i]
+                        .second.emplace(partition, BJKST)
+                        .first->second;
                 data.s_DistinctValues.add(CTools::category32(value));
                 data.s_MeanStringLength.add(static_cast<double>(value.length()));
             }
@@ -136,7 +146,8 @@ void CBucketCountStatistics::capture() {
     using TSizeSizeSizeTrArgumentDataUMapItr = TSizeSizeSizeTrArgumentDataUMap::iterator;
 
     m_BucketPartitionCount += m_CurrentBucketPartitionCounts.size();
-    for (TSizeSizeSizeTrUInt64UMapCItr i = m_CurrentBucketPartitionCounts.begin(); i != m_CurrentBucketPartitionCounts.end(); ++i) {
+    for (TSizeSizeSizeTrUInt64UMapCItr i = m_CurrentBucketPartitionCounts.begin();
+         i != m_CurrentBucketPartitionCounts.end(); ++i) {
         TSizeSizePr id(i->first.first, i->first.third);
         double count = static_cast<double>(i->second);
         m_CountMomentsPerPartition[id].add(count);
@@ -146,9 +157,11 @@ void CBucketCountStatistics::capture() {
 
     for (std::size_t i = 0u; i < m_CurrentBucketArgumentDataPerPartition.size(); ++i) {
         const std::string* name = m_CurrentBucketArgumentDataPerPartition[i].first;
-        TSizeSizeSizeTrArgumentDataUMap& values = m_CurrentBucketArgumentDataPerPartition[i].second;
+        TSizeSizeSizeTrArgumentDataUMap& values =
+            m_CurrentBucketArgumentDataPerPartition[i].second;
         std::size_t j = emplace(name, m_ArgumentMomentsPerPartition);
-        for (TSizeSizeSizeTrArgumentDataUMapItr k = values.begin(); k != values.end(); ++k) {
+        for (TSizeSizeSizeTrArgumentDataUMapItr k = values.begin();
+             k != values.end(); ++k) {
             TSizeSizePr id(k->first.first, k->first.third);
             SArgumentMoments& moments = m_ArgumentMomentsPerPartition[j].second[id];
             double dc = static_cast<double>(k->second.s_DistinctValues.number());
@@ -164,28 +177,33 @@ uint64_t CBucketCountStatistics::bucketPartitionCount() const {
     return m_BucketPartitionCount;
 }
 
-const CBucketCountStatistics::TSizeSizePrMomentsUMap& CBucketCountStatistics::countMomentsPerPartition() const {
+const CBucketCountStatistics::TSizeSizePrMomentsUMap&
+CBucketCountStatistics::countMomentsPerPartition() const {
     return m_CountMomentsPerPartition;
 }
 
-const CBucketCountStatistics::TSizeSizePrQuantileUMap& CBucketCountStatistics::countQuantilesPerPartition() const {
+const CBucketCountStatistics::TSizeSizePrQuantileUMap&
+CBucketCountStatistics::countQuantilesPerPartition() const {
     return m_CountQuantiles;
 }
 
 const CBucketCountStatistics::TSizeSizePrArgumentMomentsUMap&
 CBucketCountStatistics::argumentMomentsPerPartition(const std::string& name) const {
-    using TStrCPtrPartitionArgumentMomentsUMapPrVecCItr = TStrCPtrSizeSizePrArgumentMomentsUMapPrVec::const_iterator;
+    using TStrCPtrPartitionArgumentMomentsUMapPrVecCItr =
+        TStrCPtrSizeSizePrArgumentMomentsUMapPrVec::const_iterator;
     static const TSizeSizePrArgumentMomentsUMap EMPTY;
     TStrCPtrPartitionArgumentMomentsUMapPrVecCItr result = std::lower_bound(
-        m_ArgumentMomentsPerPartition.begin(), m_ArgumentMomentsPerPartition.end(), &name, maths::COrderings::SFirstLess());
-    return result != m_ArgumentMomentsPerPartition.end() && *result->first == name ? result->second : EMPTY;
+        m_ArgumentMomentsPerPartition.begin(), m_ArgumentMomentsPerPartition.end(),
+        &name, maths::COrderings::SFirstLess());
+    return result != m_ArgumentMomentsPerPartition.end() && *result->first == name
+               ? result->second
+               : EMPTY;
 }
 
 //////// CDataCountStatistics ////////
 
 CDataCountStatistics::CDataCountStatistics(const CAutoconfigurerParams& params)
-    : m_Params(params),
-      m_RecordCount(0),
+    : m_Params(params), m_RecordCount(0),
       m_ArrivalTimeDistribution(maths::CQuantileSketch::E_PiecewiseConstant, SKETCH_SIZE),
       m_BucketIndices(params.candidateBucketLengths().size(), 0),
       m_BucketCounts(params.candidateBucketLengths().size(), 0),
@@ -194,7 +212,8 @@ CDataCountStatistics::CDataCountStatistics(const CAutoconfigurerParams& params)
     m_BucketMasks.reserve(candidates.size());
     for (std::size_t bid = 0u; bid < candidates.size(); ++bid) {
         m_BucketMasks.push_back(bucketSampleMask(candidates[bid]));
-        maths::CSampling::random_shuffle(m_Rng, m_BucketMasks[bid].begin(), m_BucketMasks[bid].end());
+        maths::CSampling::random_shuffle(m_Rng, m_BucketMasks[bid].begin(),
+                                         m_BucketMasks[bid].end());
     }
 }
 
@@ -219,14 +238,16 @@ void CDataCountStatistics::add(TDetectorRecordCItr beginRecords, TDetectorRecord
     const TTimeVec& candidates = this->params().candidateBucketLengths();
     for (std::size_t bid = 0u; bid < m_LastBucketEndTimes.size(); ++bid) {
         if (time - m_LastBucketEndTimes[bid] >= candidates[bid]) {
-            for (core_t::TTime i = 0; i < (time - m_LastBucketEndTimes[bid]) / candidates[bid]; ++i) {
+            for (core_t::TTime i = 0;
+                 i < (time - m_LastBucketEndTimes[bid]) / candidates[bid]; ++i) {
                 if (m_BucketMasks[bid][m_BucketIndices[bid]++]) {
                     ++m_BucketCounts[bid];
                     m_BucketStatistics[bid].capture();
                 }
                 if ((m_BucketIndices[bid] % m_BucketMasks.size()) == 0) {
                     m_BucketIndices[bid] = 0;
-                    maths::CSampling::random_shuffle(m_Rng, m_BucketMasks[bid].begin(), m_BucketMasks[bid].end());
+                    maths::CSampling::random_shuffle(m_Rng, m_BucketMasks[bid].begin(),
+                                                     m_BucketMasks[bid].end());
                 }
             }
             m_LastBucketEndTimes[bid] = maths::CIntegerTools::floor(time, candidates[bid]);
@@ -299,10 +320,12 @@ void CDataCountStatistics::fillLastBucketEndTimes(core_t::TTime time) {
 
 //////// CPartitionDataCountStatistics ////////
 
-CPartitionDataCountStatistics::CPartitionDataCountStatistics(const CAutoconfigurerParams& params) : CDataCountStatistics(params) {
+CPartitionDataCountStatistics::CPartitionDataCountStatistics(const CAutoconfigurerParams& params)
+    : CDataCountStatistics(params) {
 }
 
-void CPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords) {
+void CPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecords,
+                                        TDetectorRecordCItr endRecords) {
     if (beginRecords != endRecords) {
         this->CDataCountStatistics::add(beginRecords, endRecords);
     }
@@ -310,10 +333,12 @@ void CPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecords, TDetec
 
 //////// CByAndPartitionDataCountStatistics ////////
 
-CByAndPartitionDataCountStatistics::CByAndPartitionDataCountStatistics(const CAutoconfigurerParams& params) : CDataCountStatistics(params) {
+CByAndPartitionDataCountStatistics::CByAndPartitionDataCountStatistics(const CAutoconfigurerParams& params)
+    : CDataCountStatistics(params) {
 }
 
-void CByAndPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords) {
+void CByAndPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecords,
+                                             TDetectorRecordCItr endRecords) {
     if (beginRecords != endRecords) {
         this->CDataCountStatistics::add(beginRecords, endRecords);
     }
@@ -325,7 +350,8 @@ CByOverAndPartitionDataCountStatistics::CByOverAndPartitionDataCountStatistics(c
     : CDataCountStatistics(params) {
 }
 
-void CByOverAndPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords) {
+void CByOverAndPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecords,
+                                                 TDetectorRecordCItr endRecords) {
     if (beginRecords == endRecords) {
         return;
     }
@@ -338,7 +364,8 @@ void CByOverAndPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecord
     if (this->samplePartition(partition)) {
         std::size_t by = beginRecords->byFieldValueHash();
         std::size_t over = beginRecords->overFieldValueHash();
-        TSizeSizePrCBjkstUMapItr i = m_DistinctOverValues.emplace(std::make_pair(by, partition), BJKST).first;
+        TSizeSizePrCBjkstUMapItr i =
+            m_DistinctOverValues.emplace(std::make_pair(by, partition), BJKST).first;
         i->second.add(CTools::category32(over));
     }
 }
@@ -350,11 +377,13 @@ CByOverAndPartitionDataCountStatistics::sampledByAndPartitionDistinctOverCounts(
 
 //////// CDataCountStatisticsDirectAddressTable ////////
 
-CDataCountStatisticsDirectAddressTable::CDataCountStatisticsDirectAddressTable(const CAutoconfigurerParams& params) : m_Params(params) {
+CDataCountStatisticsDirectAddressTable::CDataCountStatisticsDirectAddressTable(const CAutoconfigurerParams& params)
+    : m_Params(params) {
 }
 
 void CDataCountStatisticsDirectAddressTable::build(const TDetectorSpecificationVec& specs) {
-    using TCountStatisticsKeySizeUMap = boost::unordered_map<CCountStatisticsKey, std::size_t, CCountStatisticsKeyHasher>;
+    using TCountStatisticsKeySizeUMap =
+        boost::unordered_map<CCountStatisticsKey, std::size_t, CCountStatisticsKeyHasher>;
 
     std::size_t size = 0u;
     for (std::size_t i = 0u; i < specs.size(); ++i) {
@@ -401,25 +430,30 @@ void CDataCountStatisticsDirectAddressTable::pruneUnsed(const TDetectorSpecifica
             ++last;
         }
     }
-    m_DataCountStatistics.erase(m_DataCountStatistics.begin() + last, m_DataCountStatistics.end());
+    m_DataCountStatistics.erase(m_DataCountStatistics.begin() + last,
+                                m_DataCountStatistics.end());
     m_RecordSchema.erase(m_RecordSchema.begin() + last, m_RecordSchema.end());
 }
 
 void CDataCountStatisticsDirectAddressTable::add(const TDetectorRecordVec& records) {
     for (std::size_t i = 0u; i < m_RecordSchema.size(); ++i) {
-        m_DataCountStatistics[i]->add(core::begin_masked(records, m_RecordSchema[i]), core::end_masked(records, m_RecordSchema[i]));
+        m_DataCountStatistics[i]->add(core::begin_masked(records, m_RecordSchema[i]),
+                                      core::end_masked(records, m_RecordSchema[i]));
     }
 }
 
-const CDataCountStatistics& CDataCountStatisticsDirectAddressTable::statistics(const CDetectorSpecification& spec) const {
+const CDataCountStatistics&
+CDataCountStatisticsDirectAddressTable::statistics(const CDetectorSpecification& spec) const {
     return *m_DataCountStatistics[m_DetectorSchema[spec.id()]];
 }
 
 CDataCountStatisticsDirectAddressTable::TDataCountStatisticsPtr
 CDataCountStatisticsDirectAddressTable::stats(const CDetectorSpecification& spec) const {
     using TStatistics = CDataCountStatistics* (*)(const CAutoconfigurerParams&);
-    static TStatistics STATISTICS[] = {&partitionCountStatistics, &byAndPartitionStatistics, &byOverAndPartitionStatistics};
-    return TDataCountStatisticsPtr((STATISTICS[spec.overField() ? 2 : (spec.byField() ? 1 : 0)])(m_Params));
+    static TStatistics STATISTICS[] = {&partitionCountStatistics, &byAndPartitionStatistics,
+                                       &byOverAndPartitionStatistics};
+    return TDataCountStatisticsPtr(
+        (STATISTICS[spec.overField() ? 2 : (spec.byField() ? 1 : 0)])(m_Params));
 }
 }
 }

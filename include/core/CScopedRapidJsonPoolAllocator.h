@@ -26,7 +26,10 @@ class CScopedRapidJsonPoolAllocator {
 public:
     //! \p allocatorName Unique identifier for the allocator
     //! \p jsonOutputWriter JSON output writer that will make use of the allocator
-    CScopedRapidJsonPoolAllocator(const std::string& allocatorName, T& writer) : m_Writer(writer) { m_Writer.pushAllocator(allocatorName); }
+    CScopedRapidJsonPoolAllocator(const std::string& allocatorName, T& writer)
+        : m_Writer(writer) {
+        m_Writer.pushAllocator(allocatorName);
+    }
 
     ~CScopedRapidJsonPoolAllocator() { m_Writer.popAllocator(); }
 

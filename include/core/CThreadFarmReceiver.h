@@ -24,7 +24,8 @@ namespace core {
 template<typename THREADFARM, typename PROCESSOR, typename MESSAGE, typename RESULT>
 class CThreadFarmReceiver {
 public:
-    CThreadFarmReceiver(PROCESSOR& processor, THREADFARM& threadFarm) : m_Processor(processor), m_ThreadFarm(threadFarm) {}
+    CThreadFarmReceiver(PROCESSOR& processor, THREADFARM& threadFarm)
+        : m_Processor(processor), m_ThreadFarm(threadFarm) {}
 
     virtual ~CThreadFarmReceiver() {}
 

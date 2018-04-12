@@ -12,10 +12,10 @@
 CppUnit::Test* CMonotonicTimeTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMonotonicTimeTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMonotonicTimeTest>("CMonotonicTimeTest::testMilliseconds", &CMonotonicTimeTest::testMilliseconds));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMonotonicTimeTest>("CMonotonicTimeTest::testNanoseconds", &CMonotonicTimeTest::testNanoseconds));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMonotonicTimeTest>(
+        "CMonotonicTimeTest::testMilliseconds", &CMonotonicTimeTest::testMilliseconds));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMonotonicTimeTest>(
+        "CMonotonicTimeTest::testNanoseconds", &CMonotonicTimeTest::testNanoseconds));
 
     return suiteOfTests;
 }
@@ -30,7 +30,8 @@ void CMonotonicTimeTest::testMilliseconds() {
     uint64_t end(monoTime.milliseconds());
 
     uint64_t diff(end - start);
-    LOG_DEBUG(<< "During 1 second the monotonic millisecond timer advanced by " << diff << " milliseconds");
+    LOG_DEBUG(<< "During 1 second the monotonic millisecond timer advanced by "
+              << diff << " milliseconds");
 
     // Allow 10% margin of error - this is as much for the sleep as the timer
     CPPUNIT_ASSERT(diff > 900);
@@ -47,7 +48,8 @@ void CMonotonicTimeTest::testNanoseconds() {
     uint64_t end(monoTime.nanoseconds());
 
     uint64_t diff(end - start);
-    LOG_DEBUG(<< "During 1 second the monotonic nanosecond timer advanced by " << diff << " nanoseconds");
+    LOG_DEBUG(<< "During 1 second the monotonic nanosecond timer advanced by "
+              << diff << " nanoseconds");
 
     // Allow 10% margin of error - this is as much for the sleep as the timer
     CPPUNIT_ASSERT(diff > 900000000);

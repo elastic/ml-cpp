@@ -78,35 +78,36 @@ public:
         }
     }
 
-#define SIMULTANEOUS_REMOVE_IF_IMPL                                                                                                        \
-    using std::swap;                                                                                                                       \
-    std::size_t last{0u};                                                                                                                  \
-    std::size_t n{values1.size()};                                                                                                         \
-    for (std::size_t i = 0u; i < n; ++i) {                                                                                                 \
-        if (last != i) {                                                                                                                   \
-            CUSTOM_SWAP_VALUES                                                                                                             \
-        }                                                                                                                                  \
-        if (!pred(values1[last])) {                                                                                                        \
-            ++last;                                                                                                                        \
-        }                                                                                                                                  \
-    }                                                                                                                                      \
-    if (last < n) {                                                                                                                        \
-        CUSTOM_ERASE_VALUES                                                                                                                \
-        return true;                                                                                                                       \
-    }                                                                                                                                      \
+#define SIMULTANEOUS_REMOVE_IF_IMPL                                            \
+    using std::swap;                                                           \
+    std::size_t last{0u};                                                      \
+    std::size_t n{values1.size()};                                             \
+    for (std::size_t i = 0u; i < n; ++i) {                                     \
+        if (last != i) {                                                       \
+            CUSTOM_SWAP_VALUES                                                 \
+        }                                                                      \
+        if (!pred(values1[last])) {                                            \
+            ++last;                                                            \
+        }                                                                      \
+    }                                                                          \
+    if (last < n) {                                                            \
+        CUSTOM_ERASE_VALUES                                                    \
+        return true;                                                           \
+    }                                                                          \
     return false;
 
-#define CUSTOM_SWAP_VALUES                                                                                                                 \
-    swap(values1[i], values1[last]);                                                                                                       \
+#define CUSTOM_SWAP_VALUES                                                     \
+    swap(values1[i], values1[last]);                                           \
     swap(values2[i], values2[last]);
-#define CUSTOM_ERASE_VALUES                                                                                                                \
-    values1.erase(values1.begin() + last, values1.end());                                                                                  \
+#define CUSTOM_ERASE_VALUES                                                    \
+    values1.erase(values1.begin() + last, values1.end());                      \
     values2.erase(values2.begin() + last, values2.end());
 
     //! Remove all instances of \p values1 for which \p pred is true
     //! and corresponding values of \p values2.
     template<typename T1, typename T2, typename F>
-    static bool simultaneousRemoveIf(std::vector<T1>& values1, std::vector<T2>& values2, const F& pred) {
+    static bool
+    simultaneousRemoveIf(std::vector<T1>& values1, std::vector<T2>& values2, const F& pred) {
         if (values1.size() != values2.size()) {
             return false;
         }
@@ -117,19 +118,22 @@ public:
 #undef CUSTOM_SWAP_VALUES
 #undef CUSTOM_ERASE_VALUES
 
-#define CUSTOM_SWAP_VALUES                                                                                                                 \
-    swap(values1[i], values1[last]);                                                                                                       \
-    swap(values2[i], values2[last]);                                                                                                       \
+#define CUSTOM_SWAP_VALUES                                                     \
+    swap(values1[i], values1[last]);                                           \
+    swap(values2[i], values2[last]);                                           \
     swap(values3[i], values3[last]);
-#define CUSTOM_ERASE_VALUES                                                                                                                \
-    values1.erase(values1.begin() + last, values1.end());                                                                                  \
-    values2.erase(values2.begin() + last, values2.end());                                                                                  \
+#define CUSTOM_ERASE_VALUES                                                    \
+    values1.erase(values1.begin() + last, values1.end());                      \
+    values2.erase(values2.begin() + last, values2.end());                      \
     values3.erase(values3.begin() + last, values3.end());
 
     //! Remove all instances of \p values1 for which \p pred is true
     //! and corresponding values of \p values2 and \p values3.
     template<typename T1, typename T2, typename T3, typename F>
-    static bool simultaneousRemoveIf(std::vector<T1>& values1, std::vector<T2>& values2, std::vector<T3>& values3, const F& pred) {
+    static bool simultaneousRemoveIf(std::vector<T1>& values1,
+                                     std::vector<T2>& values2,
+                                     std::vector<T3>& values3,
+                                     const F& pred) {
         if (values1.size() != values2.size() || values2.size() != values3.size()) {
             return false;
         }
@@ -144,7 +148,8 @@ public:
     //! Compute the number of elements in the intersection of the
     //! ranges [\p beginLhs, \p endLhs) and [\p beginRhs, \p endRhs).
     template<typename ITR1, typename ITR2>
-    static std::size_t setIntersectSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
+    static std::size_t
+    setIntersectSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
         std::size_t result = 0u;
         while (beginLhs != endLhs && beginRhs != endRhs) {
             if (*beginLhs < *beginRhs) {

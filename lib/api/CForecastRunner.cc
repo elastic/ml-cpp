@@ -28,15 +28,16 @@ const std::string EMPTY_STRING;
 
 const std::string CForecastRunner::ERROR_FORECAST_REQUEST_FAILED_TO_PARSE("Failed to parse forecast request: ");
 const std::string CForecastRunner::ERROR_NO_FORECAST_ID("forecast ID must be specified and non empty");
-const std::string CForecastRunner::ERROR_TOO_MANY_JOBS(
-    "Forecast cannot be executed due to queue limit. Please wait for requests to finish and try again");
-const std::string
-    CForecastRunner::ERROR_NO_MODELS("Forecast cannot be executed as model is not yet established. Job requires more time to learn");
-const std::string
-    CForecastRunner::ERROR_NO_DATA_PROCESSED("Forecast cannot be executed as job requires data to have been processed and modeled");
+const std::string CForecastRunner::ERROR_TOO_MANY_JOBS("Forecast cannot be executed due to queue limit. Please wait for requests "
+                                                       "to finish and try again");
+const std::string CForecastRunner::ERROR_NO_MODELS("Forecast cannot be executed as model is not yet established. Job requires "
+                                                   "more time to learn");
+const std::string CForecastRunner::ERROR_NO_DATA_PROCESSED("Forecast cannot be executed as job requires data to have been processed "
+                                                           "and modeled");
 const std::string CForecastRunner::ERROR_NO_CREATE_TIME("Forecast create time must be specified and non zero");
 const std::string CForecastRunner::ERROR_BAD_MEMORY_STATUS("Forecast cannot be executed as model memory status is not OK");
-const std::string CForecastRunner::ERROR_MEMORY_LIMIT("Forecast cannot be executed as forecast memory usage is predicted to exceed 20MB");
+const std::string CForecastRunner::ERROR_MEMORY_LIMIT("Forecast cannot be executed as forecast memory usage is predicted to "
+                                                      "exceed 20MB");
 const std::string CForecastRunner::ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS("Forecast is not supported for population analysis");
 const std::string CForecastRunner::ERROR_NO_SUPPORTED_FUNCTIONS("Forecast is not supported for the used functions");
 const std::string CForecastRunner::WARNING_DURATION_LIMIT("Forecast duration exceeds internal limit, setting to 8 weeks");
@@ -46,17 +47,9 @@ const std::string CForecastRunner::INFO_DEFAULT_EXPIRY("Forecast expires_in not 
 const std::string CForecastRunner::INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST("Insufficient history to forecast for all models");
 
 CForecastRunner::SForecast::SForecast()
-    : s_ForecastId(),
-      s_ForecastAlias(),
-      s_ForecastSeries(),
-      s_CreateTime(0),
-      s_StartTime(0),
-      s_Duration(0),
-      s_ExpiryTime(0),
-      s_BoundsPercentile(0),
-      s_NumberOfModels(0),
-      s_NumberOfForecastableModels(0),
-      s_MemoryUsage(0),
+    : s_ForecastId(), s_ForecastAlias(), s_ForecastSeries(), s_CreateTime(0),
+      s_StartTime(0), s_Duration(0), s_ExpiryTime(0), s_BoundsPercentile(0),
+      s_NumberOfModels(0), s_NumberOfForecastableModels(0), s_MemoryUsage(0),
       s_Messages() {
 }
 
@@ -64,15 +57,12 @@ CForecastRunner::SForecast::SForecast(SForecast&& other)
     : s_ForecastId(std::move(other.s_ForecastId)),
       s_ForecastAlias(std::move(other.s_ForecastAlias)),
       s_ForecastSeries(std::move(other.s_ForecastSeries)),
-      s_CreateTime(other.s_CreateTime),
-      s_StartTime(other.s_StartTime),
-      s_Duration(other.s_Duration),
-      s_ExpiryTime(other.s_ExpiryTime),
+      s_CreateTime(other.s_CreateTime), s_StartTime(other.s_StartTime),
+      s_Duration(other.s_Duration), s_ExpiryTime(other.s_ExpiryTime),
       s_BoundsPercentile(other.s_BoundsPercentile),
       s_NumberOfModels(other.s_NumberOfModels),
       s_NumberOfForecastableModels(other.s_NumberOfForecastableModels),
-      s_MemoryUsage(other.s_MemoryUsage),
-      s_Messages(other.s_Messages) {
+      s_MemoryUsage(other.s_MemoryUsage), s_Messages(other.s_Messages) {
 }
 
 CForecastRunner::SForecast& CForecastRunner::SForecast::operator=(SForecast&& other) {
@@ -95,7 +85,8 @@ CForecastRunner::SForecast& CForecastRunner::SForecast::operator=(SForecast&& ot
 CForecastRunner::CForecastRunner(const std::string& jobId,
                                  core::CJsonOutputStreamWrapper& strmOut,
                                  model::CResourceMonitor& resourceMonitor)
-    : m_JobId(jobId), m_ConcurrentOutputStream(strmOut), m_ResourceMonitor(resourceMonitor), m_Shutdown(false) {
+    : m_JobId(jobId), m_ConcurrentOutputStream(strmOut),
+      m_ResourceMonitor(resourceMonitor), m_Shutdown(false) {
     m_Worker = std::thread([this] { this->forecastWorker(); });
 }
 
@@ -123,29 +114,27 @@ void CForecastRunner::forecastWorker() {
     SForecast forecastJob;
     while (!m_Shutdown) {
         if (this->tryGetJob(forecastJob)) {
-            LOG_INFO(<< "Start forecasting from " << core::CTimeUtils::toIso8601(forecastJob.s_StartTime) << " to "
+            LOG_INFO(<< "Start forecasting from "
+                     << core::CTimeUtils::toIso8601(forecastJob.s_StartTime) << " to "
                      << core::CTimeUtils::toIso8601(forecastJob.forecastEnd()));
 
             core::CStopWatch timer(true);
             uint64_t lastStatsUpdate = 0;
 
             LOG_TRACE(<< "about to create sink");
-            model::CForecastDataSink sink(m_JobId,
-                                          forecastJob.s_ForecastId,
-                                          forecastJob.s_ForecastAlias,
-                                          forecastJob.s_CreateTime,
-                                          forecastJob.s_StartTime,
-                                          forecastJob.forecastEnd(),
-                                          forecastJob.s_ExpiryTime,
-                                          forecastJob.s_MemoryUsage,
-                                          m_ConcurrentOutputStream);
+            model::CForecastDataSink sink(
+                m_JobId, forecastJob.s_ForecastId, forecastJob.s_ForecastAlias,
+                forecastJob.s_CreateTime, forecastJob.s_StartTime,
+                forecastJob.forecastEnd(), forecastJob.s_ExpiryTime,
+                forecastJob.s_MemoryUsage, m_ConcurrentOutputStream);
 
             std::string message;
 
             // collecting the runtime messages first and sending it in 1 go
             TStrUSet messages(forecastJob.s_Messages);
             double processedModels = 0;
-            double totalNumberOfForecastableModels = static_cast<double>(forecastJob.s_NumberOfForecastableModels);
+            double totalNumberOfForecastableModels =
+                static_cast<double>(forecastJob.s_NumberOfForecastableModels);
             size_t failedForecasts = 0;
             sink.writeStats(0.0, 0, forecastJob.s_Messages);
 
@@ -155,31 +144,27 @@ void CForecastRunner::forecastWorker() {
 
                 while (!series.s_ToForecast.empty()) {
                     const TForecastModelWrapper& model = series.s_ToForecast.back();
-                    model_t::TDouble1VecDouble1VecPr support = model_t::support(model.s_Feature);
-                    bool success = model.s_ForecastModel->forecast(forecastJob.s_StartTime,
-                                                                   forecastJob.forecastEnd(),
-                                                                   forecastJob.s_BoundsPercentile,
-                                                                   support.first,
-                                                                   support.second,
-                                                                   boost::bind(&model::CForecastDataSink::push,
-                                                                               &sink,
-                                                                               _1,
-                                                                               model_t::print(model.s_Feature),
-                                                                               series.s_PartitionFieldName,
-                                                                               series.s_PartitionFieldValue,
-                                                                               series.s_ByFieldName,
-                                                                               model.s_ByFieldValue,
-                                                                               series.s_DetectorIndex),
-                                                                   message);
+                    model_t::TDouble1VecDouble1VecPr support =
+                        model_t::support(model.s_Feature);
+                    bool success = model.s_ForecastModel->forecast(
+                        forecastJob.s_StartTime, forecastJob.forecastEnd(),
+                        forecastJob.s_BoundsPercentile, support.first, support.second,
+                        boost::bind(&model::CForecastDataSink::push, &sink, _1,
+                                    model_t::print(model.s_Feature), series.s_PartitionFieldName,
+                                    series.s_PartitionFieldValue, series.s_ByFieldName,
+                                    model.s_ByFieldValue, series.s_DetectorIndex),
+                        message);
                     series.s_ToForecast.pop_back();
 
                     if (success == false) {
-                        LOG_DEBUG(<< "Detector " << series.s_DetectorIndex << " failed to forecast");
+                        LOG_DEBUG(<< "Detector " << series.s_DetectorIndex
+                                  << " failed to forecast");
                         ++failedForecasts;
                     }
 
                     if (message.empty() == false) {
-                        messages.insert("Detector[" + std::to_string(series.s_DetectorIndex) + "]: " + message);
+                        messages.insert("Detector[" + std::to_string(series.s_DetectorIndex) +
+                                        "]: " + message);
                         message.clear();
                     }
 
@@ -188,7 +173,8 @@ void CForecastRunner::forecastWorker() {
                     if (processedModels != totalNumberOfForecastableModels) {
                         uint64_t elapsedTime = timer.lap();
                         if (elapsedTime - lastStatsUpdate > MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE) {
-                            sink.writeStats(processedModels / totalNumberOfForecastableModels, elapsedTime, forecastJob.s_Messages);
+                            sink.writeStats(processedModels / totalNumberOfForecastableModels,
+                                            elapsedTime, forecastJob.s_Messages);
                             lastStatsUpdate = elapsedTime;
                         }
                     }
@@ -196,11 +182,13 @@ void CForecastRunner::forecastWorker() {
                 forecastJob.s_ForecastSeries.pop_back();
             }
             // write final message
-            sink.writeStats(1.0, timer.stop(), messages, failedForecasts != forecastJob.s_NumberOfForecastableModels);
+            sink.writeStats(1.0, timer.stop(), messages,
+                            failedForecasts != forecastJob.s_NumberOfForecastableModels);
 
             // important: reset the structure to decrease shared pointer reference counts
             forecastJob.reset();
-            LOG_INFO(<< "Finished forecasting, wrote " << sink.numRecordsWritten() << " records");
+            LOG_INFO(<< "Finished forecasting, wrote "
+                     << sink.numRecordsWritten() << " records");
 
             // signal that job is done
             m_WorkCompleteCondition.notify_all();
@@ -240,7 +228,8 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
                                       const core_t::TTime lastResultsTime) {
     SForecast forecastJob;
     if (parseAndValidateForecastRequest(
-            controlMessage, forecastJob, lastResultsTime, boost::bind(&CForecastRunner::sendErrorMessage, this, _1, _2)) == false) {
+            controlMessage, forecastJob, lastResultsTime,
+            boost::bind(&CForecastRunner::sendErrorMessage, this, _1, _2)) == false) {
         return false;
     }
 
@@ -262,12 +251,15 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
             continue;
         }
 
-        model::CForecastDataSink::SForecastModelPrerequisites prerequisites = detector->getForecastPrerequisites();
+        model::CForecastDataSink::SForecastModelPrerequisites prerequisites =
+            detector->getForecastPrerequisites();
 
         totalNumberOfModels += prerequisites.s_NumberOfModels;
         totalNumberOfForecastModels += prerequisites.s_NumberOfForecastableModels;
-        atLeastOneNonPopulationModel = atLeastOneNonPopulationModel || !prerequisites.s_IsPopulation;
-        atLeastOneSupportedFunction = atLeastOneSupportedFunction || prerequisites.s_IsSupportedFunction;
+        atLeastOneNonPopulationModel = atLeastOneNonPopulationModel ||
+                                       !prerequisites.s_IsPopulation;
+        atLeastOneSupportedFunction = atLeastOneSupportedFunction ||
+                                      prerequisites.s_IsSupportedFunction;
         totalMemoryUsage += prerequisites.s_MemoryUsageForDetector;
 
         if (totalMemoryUsage >= MAX_FORECAST_MODEL_MEMORY) {
@@ -347,7 +339,8 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         boost::property_tree::read_json(stringStream, properties);
 
         forecastJob.s_ForecastId = properties.get<std::string>("forecast_id", EMPTY_STRING);
-        forecastJob.s_ForecastAlias = properties.get<std::string>("forecast_alias", EMPTY_STRING);
+        forecastJob.s_ForecastAlias =
+            properties.get<std::string>("forecast_alias", EMPTY_STRING);
         forecastJob.s_Duration = properties.get<core_t::TTime>("duration", 0);
         forecastJob.s_CreateTime = properties.get<core_t::TTime>("create_time", 0);
 
@@ -412,39 +405,34 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
 
 void CForecastRunner::sendScheduledMessage(const SForecast& forecastJob) const {
     LOG_DEBUG(<< "job passed forecast validation, scheduled for forecasting");
-    model::CForecastDataSink sink(m_JobId,
-                                  forecastJob.s_ForecastId,
-                                  forecastJob.s_ForecastAlias,
-                                  forecastJob.s_CreateTime,
-                                  forecastJob.s_StartTime,
-                                  forecastJob.forecastEnd(),
-                                  forecastJob.s_ExpiryTime,
-                                  forecastJob.s_MemoryUsage,
-                                  m_ConcurrentOutputStream);
+    model::CForecastDataSink sink(
+        m_JobId, forecastJob.s_ForecastId, forecastJob.s_ForecastAlias,
+        forecastJob.s_CreateTime, forecastJob.s_StartTime, forecastJob.forecastEnd(),
+        forecastJob.s_ExpiryTime, forecastJob.s_MemoryUsage, m_ConcurrentOutputStream);
     sink.writeScheduledMessage();
 }
 
-void CForecastRunner::sendErrorMessage(const SForecast& forecastJob, const std::string& message) const {
+void CForecastRunner::sendErrorMessage(const SForecast& forecastJob,
+                                       const std::string& message) const {
     LOG_ERROR(<< message);
     this->sendMessage(&model::CForecastDataSink::writeErrorMessage, forecastJob, message);
 }
 
-void CForecastRunner::sendFinalMessage(const SForecast& forecastJob, const std::string& message) const {
+void CForecastRunner::sendFinalMessage(const SForecast& forecastJob,
+                                       const std::string& message) const {
     this->sendMessage(&model::CForecastDataSink::writeFinalMessage, forecastJob, message);
 }
 
 template<typename WRITE>
-void CForecastRunner::sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const {
-    model::CForecastDataSink sink(m_JobId,
-                                  forecastJob.s_ForecastId,
-                                  forecastJob.s_ForecastAlias,
-                                  forecastJob.s_CreateTime,
-                                  forecastJob.s_StartTime,
-                                  forecastJob.forecastEnd(),
-                                  // in an error case use the default expiry time
-                                  forecastJob.s_CreateTime + DEFAULT_EXPIRY_TIME,
-                                  forecastJob.s_MemoryUsage,
-                                  m_ConcurrentOutputStream);
+void CForecastRunner::sendMessage(WRITE write,
+                                  const SForecast& forecastJob,
+                                  const std::string& message) const {
+    model::CForecastDataSink sink(
+        m_JobId, forecastJob.s_ForecastId, forecastJob.s_ForecastAlias,
+        forecastJob.s_CreateTime, forecastJob.s_StartTime, forecastJob.forecastEnd(),
+        // in an error case use the default expiry time
+        forecastJob.s_CreateTime + DEFAULT_EXPIRY_TIME,
+        forecastJob.s_MemoryUsage, m_ConcurrentOutputStream);
     (sink.*write)(message);
 }
 
