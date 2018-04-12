@@ -186,8 +186,7 @@ CNamedPipeFactory::TPipeHandle
 CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
     if (!SIGPIPE_IGNORED) {
         LOG_WARN(<< "Failed to ignore SIGPIPE - this process will not terminate "
-                    "gracefully if a process it is writing to via a named pipe "
-                    "dies");
+                    "gracefully if a process it is writing to via a named pipe dies");
     }
 
     bool madeFifo(false);

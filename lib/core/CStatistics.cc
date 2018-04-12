@@ -160,8 +160,7 @@ std::ostream& operator<<(std::ostream& o, const CStatistics& /*stats*/) {
                  CStatistics::stat(stat_t::E_NumberRecordsNoTimeField).value());
 
     addStringInt(writer, "E_NumberTimeFieldConversionErrors",
-                 "Number of records where the format of the time field could "
-                 "not be converted",
+                 "Number of records where the format of the time field could not be converted",
                  CStatistics::stat(stat_t::E_NumberTimeFieldConversionErrors).value());
 
     addStringInt(writer, "E_NumberTimeOrderErrors", "Number of records not in ascending time order",

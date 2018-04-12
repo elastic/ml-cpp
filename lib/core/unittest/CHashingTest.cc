@@ -227,18 +227,14 @@ void CHashingTest::testMurmurHash() {
         CPPUNIT_ASSERT_EQUAL(uint32_t(0x54837c96), result);
     }
     {
-        std::string key("Your message has been analysed and it has been "
-                        "decided to allow one member of Spectrum to meet our "
-                        "representative.");
+        std::string key("Your message has been analysed and it has been decided to allow one member of Spectrum to meet our representative.");
         uint64_t seed = 0xaabbccddffeeeeffULL;
         uint64_t result =
             CHashing::murmurHash64(key.c_str(), static_cast<int>(key.size()), seed);
         CPPUNIT_ASSERT_EQUAL(uint64_t(14826751455157300659ull), result);
     }
     {
-        std::string key("Earthmen, we are peaceful beings and you have tried "
-                        "to destroy us, but you cannot succeed. You and your "
-                        "people "
+        std::string key("Earthmen, we are peaceful beings and you have tried to destroy us, but you cannot succeed. You and your people "
                         "will pay for this act of aggression.");
         uint64_t seed = 0x1324fedc9876abdeULL;
         uint64_t result = CHashing::safeMurmurHash64(

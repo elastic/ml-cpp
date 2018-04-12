@@ -182,8 +182,7 @@ void CStateDecompressor::CDechunkFilter::handleRead(char* s,
                 CStateCompressor::END_OF_STREAM_ATTRIBUTE.compare(
                     0, CStateCompressor::END_OF_STREAM_ATTRIBUTE.length(),
                     m_Handler.s_CompressedChunk, m_Handler.s_CompressedChunkLength) == 0) {
-                LOG_DEBUG(<< "Explicit end-of-stream marker found in document "
-                             "with index "
+                LOG_DEBUG(<< "Explicit end-of-stream marker found in document with index "
                           << m_CurrentDocNum);
 
                 // Read the value of the CStateCompressor::END_OF_STREAM_ATTRIBUTE field and the closing brace

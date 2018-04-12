@@ -86,17 +86,15 @@ void CRegexTest::testInit() {
         CPPUNIT_ASSERT(regex.init(regexStr));
 
         CPPUNIT_ASSERT_EQUAL(regexStr, regex.str());
-        CPPUNIT_ASSERT(regex.matches("<Jan 19, 2011 1:58:42 PM EST> <Notice> "
-                                     "<WebLogicServer> <BEA-000365> <Server "
-                                     "state changed to STARTING>"));
+        CPPUNIT_ASSERT(regex.matches(
+            "<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
     }
     {
         // Uninitialised
         std::string regexStr = "<.*";
         ml::core::CRegex regex;
-        CPPUNIT_ASSERT(!regex.matches("<Jan 19, 2011 1:58:42 PM EST> <Notice> "
-                                      "<WebLogicServer> <BEA-000365> <Server "
-                                      "state changed to STARTING>"));
+        CPPUNIT_ASSERT(!regex.matches(
+            "<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
     }
 }
 
@@ -157,10 +155,8 @@ void CRegexTest::testSearch() {
 }
 
 void CRegexTest::testTokenise1() {
-    std::string str1("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:53:44 2008> "
-                     "Transport node error on node 0x1234<END>");
-    std::string str2("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> "
-                     "Transport read error (8) on node 0x1235<END>");
+    std::string str1("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:53:44 2008> Transport node error on node 0x1234<END>");
+    std::string str2("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> Transport read error (8) on node 0x1235<END>");
 
     {
         // Uninitialised
@@ -217,8 +213,7 @@ void CRegexTest::testTokenise1() {
 
         regexStr += "^<(.+?):";
         regexStr += "\\s*(\\w+):";
-        regexStr += ".+?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+("
-                    "\\d+)\\s+(\\d+:\\d+:\\d+)\\s+(\\d+)";
+        regexStr += ".+?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+(\\d+)\\s+(\\d+:\\d+:\\d+)\\s+(\\d+)";
         regexStr += ">\\s+(?:Transport read error)";
         regexStr += ".+?node\\s+(0x\\d+|\\d+)";
         regexStr += ".*$";
@@ -241,12 +236,10 @@ void CRegexTest::testTokenise1() {
         CPPUNIT_ASSERT(!regex.tokenise(str1, tokens));
     }
 
-    std::string str3("Sep 10, 2009 3:54:12 AM org.apache.tomcat.util.http.Parameters "
-                     "processParameters\r\nWARNING: Parameters: Invalid chunk ignored.");
+    std::string str3("Sep 10, 2009 3:54:12 AM org.apache.tomcat.util.http.Parameters processParameters\r\nWARNING: Parameters: Invalid chunk ignored.");
 
     {
-        std::string regexStr("(\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+)\\s*([[:alnum:].]"
-                             "+)\\s*(\\w+)\\r?\\n(INFO|WARNING|SEVERE|"
+        std::string regexStr("(\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+)\\s*([[:alnum:].]+)\\s*(\\w+)\\r?\\n(INFO|WARNING|SEVERE|"
                              "DEBUG|FATAL): Parameters: Invalid chunk ignored\\.\\s*");
 
         ml::core::CRegex regex;
@@ -264,14 +257,10 @@ void CRegexTest::testTokenise1() {
         }
     }
 
-    std::string str4("dataview[(@name=\"Snoozed\")]/rows/"
-                     "row[(@name=\"796480523\")]/"
-                     "cell[(@column=\"managedEntity\")]");
+    std::string str4("dataview[(@name=\"Snoozed\")]/rows/row[(@name=\"796480523\")]/cell[(@column=\"managedEntity\")]");
 
     {
-        std::string regexStr(".*dataview\\[\\(@name=\"(.*)\"\\)\\]/rows/"
-                             "row\\[\\(@name=\"(.*)\"\\)\\]/"
-                             "cell\\[\\(@column=\"(.*)\"\\)\\].*");
+        std::string regexStr(".*dataview\\[\\(@name=\"(.*)\"\\)\\]/rows/row\\[\\(@name=\"(.*)\"\\)\\]/cell\\[\\(@column=\"(.*)\"\\)\\].*");
 
         ml::core::CRegex regex;
 
@@ -326,10 +315,8 @@ void CRegexTest::testTokenise2() {
 }
 
 void CRegexTest::testSplit() {
-    std::string str1("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:53:44 2008> "
-                     "Transport node error on node 0x1234<END>");
-    std::string str2("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> "
-                     "Transport read error (8) on node 0x1235<END>");
+    std::string str1("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:53:44 2008> Transport node error on node 0x1234<END>");
+    std::string str2("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> Transport read error (8) on node 0x1235<END>");
 
     {
         // Uninitialised

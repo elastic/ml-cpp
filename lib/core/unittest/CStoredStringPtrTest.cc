@@ -73,8 +73,7 @@ void CStoredStringPtrTest::testPointerSemantics() {
     {
         // This is long because the most efficient way to move a small string
         // would be to leave the original value in the moved-from string
-        std::string str2("my second string - long enough to not use the small "
-                         "string optimisation");
+        std::string str2("my second string - long enough to not use the small string optimisation");
 
         ml::core::CStoredStringPtr ptr2 =
             ml::core::CStoredStringPtr::makeStoredString(std::move(str2));

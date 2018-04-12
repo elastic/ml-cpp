@@ -82,8 +82,7 @@ void CLoggerTest::testReconfiguration() {
 
     LOG_DEBUG(<< "Starting logger reconfiguration test");
 
-    LOG_TRACE(<< "This shouldn't be seen because the hardcoded default log "
-                 "level is DEBUG");
+    LOG_TRACE(<< "This shouldn't be seen because the hardcoded default log level is DEBUG");
     CPPUNIT_ASSERT(!logger.hasBeenReconfigured());
 
     CPPUNIT_ASSERT(!logger.reconfigureFromFile("nonexistantfile"));

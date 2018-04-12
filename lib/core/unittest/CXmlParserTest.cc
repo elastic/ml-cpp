@@ -623,10 +623,8 @@ void CXmlParserTest::testParse1(const ml::core::CXmlParser& parser) {
     CPPUNIT_ASSERT(parser.evalXPathExpression(
         "/ItemSearchResponse/OperationRequest/HTTPHeaders/Header/@Value", node));
     CPPUNIT_ASSERT_EQUAL(std::string("Value"), node.name());
-    CPPUNIT_ASSERT_EQUAL(std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant "
-                                     "Browser; Avant Browser; .NET CLR 1.0.3705; "
-                                     ".NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC "
-                                     "4.0; InfoPath.2)"),
+    CPPUNIT_ASSERT_EQUAL(std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant Browser; Avant Browser; .NET CLR 1.0.3705; "
+                                     ".NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC 4.0; InfoPath.2)"),
                          node.value());
     CPPUNIT_ASSERT(node.attributes().empty());
 
@@ -841,8 +839,7 @@ void CXmlParserTest::testComplexXPath() {
 
     // This convoluted query is for XML schemas that
     // have a default namespace but don't give it a name!
-    CPPUNIT_ASSERT(parser.evalXPathExpression("//*[local-name()='title' and .='ml']/..//*[local-name()='key' and "
-                                              "@name='disabled']",
+    CPPUNIT_ASSERT(parser.evalXPathExpression("//*[local-name()='title' and .='ml']/..//*[local-name()='key' and @name='disabled']",
                                               disabled));
     CPPUNIT_ASSERT_EQUAL(true, disabled);
 }
