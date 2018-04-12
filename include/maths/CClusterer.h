@@ -28,11 +28,10 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <algorithm>
 #include <cstddef>
 #include <functional>
+#include <memory>
 #include <vector>
 
 #include <stdint.h>
@@ -88,7 +87,7 @@ public:
 
     private:
         using TSizeVec = std::vector<std::size_t>;
-        using TSizeVecPtr = boost::shared_ptr<TSizeVec>;
+        using TSizeVecPtr = std::shared_ptr<TSizeVec>;
 
     private:
         //! A heap of the next available unique indices.
@@ -135,7 +134,7 @@ public:
 template<typename POINT>
 class CClusterer : public CClustererTypes {
 public:
-    using TClustererPtr = boost::shared_ptr<CClusterer>;
+    using TClustererPtr = std::shared_ptr<CClusterer>;
     using TPointVec = std::vector<POINT>;
     using TPointPrecise = typename SPromoted<POINT>::Type;
     using TPointPreciseVec = std::vector<TPointPrecise>;

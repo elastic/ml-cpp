@@ -33,10 +33,9 @@
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
 
-#include <boost/make_shared.hpp>
-
 #include <fstream>
 #include <iterator>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -170,7 +169,7 @@ void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string& stat
 
     {
         ml::core_t::TTime completeToTime(0);
-        auto strm = boost::make_shared<boost::iostreams::filtering_istream>();
+        auto strm = std::make_shared<boost::iostreams::filtering_istream>();
 
         strm->push(ml::api::CStateRestoreStreamFilter());
 

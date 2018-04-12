@@ -25,8 +25,8 @@
 
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 
+#include <memory>
 #include <utility>
 #include <vector>
 

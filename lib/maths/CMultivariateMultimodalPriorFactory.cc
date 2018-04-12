@@ -18,7 +18,7 @@
 #include <maths/CMultivariateMultimodalPrior.h>
 #include <maths/CXMeansOnlineFactory.h>
 
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 
 namespace ml {
 namespace maths {
@@ -40,7 +40,7 @@ public:
                                                  double minimumClusterCount,
                                                  double minimumCategoryCount,
                                                  const CMultivariatePrior& seedPrior) {
-        boost::scoped_ptr<CClusterer<CVectorNx1<CFloatStorage, N>>> clusterer(
+        std::unique_ptr<CClusterer<CVectorNx1<CFloatStorage, N>>> clusterer(
             CXMeansOnlineFactory::make<CFloatStorage, N>(
                 dataType, weightCalc, decayRate, minimumClusterFraction,
                 minimumClusterCount, minimumCategoryCount));

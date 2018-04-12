@@ -186,7 +186,7 @@ public:
     //@}
 
 private:
-    using TSeasonalTimePtr = boost::shared_ptr<CSeasonalTime>;
+    using TSeasonalTimePtr = std::shared_ptr<CSeasonalTime>;
 
     //! \brief The state maintained for each bucket.
     struct SBucket {

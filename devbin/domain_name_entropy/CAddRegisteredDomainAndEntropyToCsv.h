@@ -22,7 +22,7 @@
 
 #include <core/CNonCopyable.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "CCompressUtils.h"
 
@@ -64,7 +64,7 @@ private:
     TStrVec::size_type m_DomainNameFieldIndex;
     TStrVec::size_type m_TimeFieldIndex;
 
-    typedef boost::shared_ptr<CCompressUtils> TCompressUtilsP;
+    typedef std::shared_ptr<CCompressUtils> TCompressUtilsP;
     typedef std::map<std::string, TCompressUtilsP> TStrCompressUtilsPMap;
     typedef TStrCompressUtilsPMap::iterator TStrCompressUtilsPMapItr;
     typedef TStrCompressUtilsPMap::const_iterator TStrCompressUtilsPMapCItr;

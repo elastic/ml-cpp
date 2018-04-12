@@ -1575,7 +1575,7 @@ void CHierarchicalResultsTest::testWriter() {
 void CHierarchicalResultsTest::testNormalizer() {
     LOG_DEBUG(<< "*** testNormalizer ***");
 
-    using TNormalizerPtr = boost::shared_ptr<model::CAnomalyScore::CNormalizer>;
+    using TNormalizerPtr = std::shared_ptr<model::CAnomalyScore::CNormalizer>;
     using TStrNormalizerPtrMap = std::map<std::string, TNormalizerPtr>;
     using TStrNormalizerPtrMapItr = TStrNormalizerPtrMap::iterator;
     using TNodeCPtrSet = std::set<const model::CHierarchicalResultsVisitor::TNode*>;

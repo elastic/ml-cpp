@@ -16,7 +16,7 @@
 
 #include <core/CoreTypes.h>
 
-#include <boost/make_shared.hpp>
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -55,12 +55,12 @@ CXmlNodeWithChildren& CXmlNodeWithChildren::operator=(const CXmlNodeWithChildren
 }
 
 void CXmlNodeWithChildren::addChild(const CXmlNode& child) {
-    m_Children.push_back(boost::make_shared<CXmlNodeWithChildren>());
+    m_Children.push_back(std::make_shared<CXmlNodeWithChildren>());
     m_Children.back()->CXmlNode::operator=(child);
 }
 
 void CXmlNodeWithChildren::addChild(const CXmlNodeWithChildren& child) {
-    m_Children.push_back(boost::make_shared<CXmlNodeWithChildren>(child));
+    m_Children.push_back(std::make_shared<CXmlNodeWithChildren>(child));
 }
 
 void CXmlNodeWithChildren::addChildP(const TXmlNodeWithChildrenP& childP) {

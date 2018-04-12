@@ -188,7 +188,6 @@ The registered or registrable domain is the public suffix plus one additional la
 
 Some examples:
 
-
 */
     TSizeTypeVec periods;
 

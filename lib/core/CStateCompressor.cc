@@ -17,8 +17,9 @@
 #include <core/CCompressOStream.h>
 #include <core/CLogger.h>
 
-#include <boost/make_shared.hpp>
 #include <boost/ref.hpp>
+
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -28,7 +29,7 @@ const std::string CStateCompressor::END_OF_STREAM_ATTRIBUTE("eos");
 
 CStateCompressor::CStateCompressor(CDataAdder& compressedAdder)
     : m_FilterSink(compressedAdder),
-      m_OutStream(boost::make_shared<CCompressOStream>(boost::ref(m_FilterSink))) {
+      m_OutStream(std::make_shared<CCompressOStream>(boost::ref(m_FilterSink))) {
     LOG_TRACE(<< "New compressor");
 }
 

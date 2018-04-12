@@ -23,9 +23,9 @@
 
 #include <boost/operators.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <cstddef>
+#include <memory>
 #include <vector>
 
 namespace ml {
@@ -74,8 +74,8 @@ public:
     using TSizeVec = std::vector<std::size_t>;
     using TTimeVec = std::vector<core_t::TTime>;
     using TStrVec = std::vector<std::string>;
-    using TPenaltyPtr = boost::shared_ptr<CPenalty>;
-    using TPenaltyCPtr = boost::shared_ptr<const CPenalty>;
+    using TPenaltyPtr = std::shared_ptr<CPenalty>;
+    using TPenaltyCPtr = std::shared_ptr<const CPenalty>;
     using TPenaltyCPtrVec = std::vector<TPenaltyCPtr>;
 
     //! \brief Represents the result of multiplying penalties.

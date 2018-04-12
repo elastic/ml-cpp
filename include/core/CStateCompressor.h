@@ -55,8 +55,8 @@ public:
 
 public:
     using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
-    using TFilteredOutputP = boost::shared_ptr<TFilteredOutput>;
-    using TCompressOStreamP = boost::shared_ptr<CCompressOStream>;
+    using TFilteredOutputP = std::shared_ptr<TFilteredOutput>;
+    using TCompressOStreamP = std::shared_ptr<CCompressOStream>;
 
     // Implements the boost::iostreams Sink template interface
     class CChunkFilter {

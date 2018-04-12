@@ -40,8 +40,8 @@
 #include "CCmdLineParser.h"
 
 #include <boost/bind.hpp>
-#include <boost/scoped_ptr.hpp>
 
+#include <memory>
 #include <string>
 
 #include <stdio.h>
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
     modelConfig.perPartitionNormalization(perPartitionNormalization);
 
     // There's a choice of input and output formats for the numbers to be normalised
-    using TScopedInputParserP = boost::scoped_ptr<ml::api::CInputParser>;
+    using TScopedInputParserP = std::unique_ptr<ml::api::CInputParser>;
     TScopedInputParserP inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
             ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA));
     }
 
-    using TScopedOutputHandlerP = boost::scoped_ptr<ml::api::COutputHandler>;
+    using TScopedOutputHandlerP = std::unique_ptr<ml::api::COutputHandler>;
     TScopedOutputHandlerP outputWriter;
     if (writeCsv) {
         outputWriter.reset(new ml::api::CCsvOutputWriter(ioMgr.outputStream()));

@@ -25,11 +25,11 @@
 #include <model/FunctionTypes.h>
 
 #include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
 
 #include <rapidjson/document.h>
 
 #include <algorithm>
+#include <memory>
 
 namespace ml {
 namespace model {
@@ -56,7 +56,7 @@ public:
     }
 
     TNormalizer make(const std::string& name) const {
-        return TNormalizer(name, boost::make_shared<CAnomalyScore::CNormalizer>(m_ModelConfig));
+        return TNormalizer(name, std::make_shared<CAnomalyScore::CNormalizer>(m_ModelConfig));
     }
 
 private:
@@ -98,7 +98,7 @@ uint64_t SNormalizer::checksum() const {
 
 CHierarchicalResultsNormalizer::CHierarchicalResultsNormalizer(const CAnomalyDetectorModelConfig& modelConfig)
     : TBase(TNormalizer(std::string(),
-                        boost::make_shared<CAnomalyScore::CNormalizer>(modelConfig))),
+                        std::make_shared<CAnomalyScore::CNormalizer>(modelConfig))),
       m_Job(E_NoOp), m_ModelConfig(modelConfig), m_HasLastUpdateCausedBigChange(false) {
 }
 
@@ -301,8 +301,8 @@ CHierarchicalResultsNormalizer::fromJsonStream(std::istream& inputStream) {
 
                 std::string quantileDesc(traverser.value());
 
-                boost::shared_ptr<CAnomalyScore::CNormalizer> normalizer =
-                    boost::make_shared<CAnomalyScore::CNormalizer>(m_ModelConfig);
+                std::shared_ptr<CAnomalyScore::CNormalizer> normalizer =
+                    std::make_shared<CAnomalyScore::CNormalizer>(m_ModelConfig);
                 normalizerVec->emplace_back(TWord(hashArray),
                                             TNormalizer(quantileDesc, normalizer));
                 if (CAnomalyScore::normalizerFromJson(traverser, *normalizer) == false) {

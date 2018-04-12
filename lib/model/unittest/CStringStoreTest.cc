@@ -23,7 +23,7 @@
 
 #include <cppunit/Exception.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 using namespace ml;
 using namespace model;
@@ -36,7 +36,7 @@ using TStrCPtrUSet = boost::unordered_set<const std::string*>;
 
 class CStringThread : public core::CThread {
 public:
-    using TCppUnitExceptionP = boost::shared_ptr<CppUnit::Exception>;
+    using TCppUnitExceptionP = std::shared_ptr<CppUnit::Exception>;
 
 public:
     CStringThread(std::size_t i, const TStrVec& strings)
@@ -139,7 +139,7 @@ void CStringStoreTest::testStringStore() {
     {
         LOG_DEBUG(<< "Testing multi-threaded");
 
-        using TThreadPtr = boost::shared_ptr<CStringThread>;
+        using TThreadPtr = std::shared_ptr<CStringThread>;
         using TThreadVec = std::vector<TThreadPtr>;
         TThreadVec threads;
         for (std::size_t i = 0; i < 20; ++i) {
@@ -181,7 +181,7 @@ void CStringStoreTest::testStringStore() {
             lotsOfStrings.push_back(core::CStringUtils::typeToString(i));
         }
 
-        using TThreadPtr = boost::shared_ptr<CStringThread>;
+        using TThreadPtr = std::shared_ptr<CStringThread>;
         using TThreadVec = std::vector<TThreadPtr>;
         TThreadVec threads;
         for (std::size_t i = 0; i < 20; ++i) {

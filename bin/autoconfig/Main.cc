@@ -40,8 +40,8 @@
 #include "CCmdLineParser.h"
 
 #include <boost/bind.hpp>
-#include <boost/scoped_ptr.hpp>
 
+#include <memory>
 #include <string>
 
 #include <stdlib.h>
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
+    typedef std::unique_ptr<ml::api::CInputParser> TScopedInputParserP;
     TScopedInputParserP inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));

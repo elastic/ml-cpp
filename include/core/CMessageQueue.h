@@ -23,9 +23,9 @@
 #include <core/CThread.h>
 
 #include <boost/circular_buffer.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <functional>
+#include <memory>
 #include <queue>
 
 namespace ml {
@@ -264,7 +264,7 @@ private:
         //! data if the MESSAGE type is a shared pointer (if no other
         //! shared pointer points to it).
         template<typename POINTEE>
-        void destroyMsgDataUnlocked(boost::shared_ptr<POINTEE>& ptr) {
+        void destroyMsgDataUnlocked(std::shared_ptr<POINTEE>& ptr) {
             ptr.reset();
         }
 

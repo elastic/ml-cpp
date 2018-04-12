@@ -36,7 +36,6 @@
 #include <model/FunctionTypes.h>
 
 #include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/ref.hpp>
 #include <boost/unordered_set.hpp>
 
@@ -44,6 +43,7 @@
 #include <atomic>
 #include <limits>
 #include <map>
+#include <memory>
 #include <string>
 
 namespace ml {

@@ -30,7 +30,7 @@
 #include <model/CDataGatherer.h>
 #include <model/CMetricModel.h>
 
-#include <boost/make_shared.hpp>
+#include <memory>
 
 namespace ml {
 namespace model {
@@ -125,7 +125,7 @@ CMetricModelFactory::defaultPrior(model_t::EFeature feature, const SModelParams&
     // If the feature data only ever takes a single value we use a
     // special lightweight prior.
     if (model_t::isConstant(feature)) {
-        return boost::make_shared<maths::CConstantPrior>();
+        return std::make_shared<maths::CConstantPrior>();
     }
 
     using TPriorPtrVec = std::vector<TPriorPtr>;
@@ -174,7 +174,7 @@ CMetricModelFactory::defaultPrior(model_t::EFeature feature, const SModelParams&
         priors.emplace_back(multimodalPrior.clone());
     }
 
-    return boost::make_shared<maths::COneOfNPrior>(priors, dataType, params.s_DecayRate);
+    return std::make_shared<maths::COneOfNPrior>(priors, dataType, params.s_DecayRate);
 }
 
 CMetricModelFactory::TMultivariatePriorPtr

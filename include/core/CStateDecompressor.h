@@ -51,7 +51,7 @@ namespace core {
 class CORE_EXPORT CStateDecompressor : public CDataSearcher {
 public:
     using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
-    using TFilteredInputP = boost::shared_ptr<TFilteredInput>;
+    using TFilteredInputP = std::shared_ptr<TFilteredInput>;
 
     static const std::string EMPTY_DATA;
 
@@ -143,10 +143,10 @@ public:
         std::string m_SearchString;
 
         //! Wrapper around the downstream reader
-        boost::shared_ptr<rapidjson::IStreamWrapper> m_InputStreamWrapper;
+        std::shared_ptr<rapidjson::IStreamWrapper> m_InputStreamWrapper;
 
         //! JSON reader for the downstream stream
-        boost::shared_ptr<rapidjson::Reader> m_Reader;
+        std::shared_ptr<rapidjson::Reader> m_Reader;
 
         SRapidJsonHandler m_Handler;
 

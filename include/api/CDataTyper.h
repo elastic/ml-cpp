@@ -19,10 +19,10 @@
 
 #include <api/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <functional>
+#include <memory>
 #include <string>
 
 namespace ml {
@@ -52,7 +52,7 @@ public:
     using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
     //! Shared pointer to an instance of this class
-    using TDataTyperP = boost::shared_ptr<CDataTyper>;
+    using TDataTyperP = std::shared_ptr<CDataTyper>;
 
     //! Shared pointer to an instance of this class
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;

@@ -50,9 +50,8 @@
 #include "CCmdLineParser.h"
 
 #include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/scoped_ptr.hpp>
 
+#include <memory>
 #include <string>
 
 #include <stdlib.h>
@@ -123,14 +122,14 @@ int main(int argc, char** argv) {
     }
     ml::api::CFieldConfig fieldConfig(categorizationFieldName);
 
-    using TScopedDataSearcherP = boost::scoped_ptr<ml::core::CDataSearcher>;
+    using TScopedDataSearcherP = std::unique_ptr<ml::core::CDataSearcher>;
     TScopedDataSearcherP restoreSearcher;
     if (ioMgr.restoreStream()) {
         // Check whether state is restored from a file, if so we assume that this is a debugging case
         // and therefore does not originate from X-Pack.
         if (!isRestoreFileNamedPipe) {
             // apply a filter to overcome differences in the way persistence vs. restore works
-            auto strm = boost::make_shared<boost::iostreams::filtering_istream>();
+            auto strm = std::make_shared<boost::iostreams::filtering_istream>();
             strm->push(ml::api::CStateRestoreStreamFilter());
             strm->push(*ioMgr.restoreStream());
             restoreSearcher.reset(new ml::api::CSingleStreamSearcher(strm));
@@ -139,13 +138,13 @@ int main(int argc, char** argv) {
         }
     }
 
-    using TScopedDataAdderP = boost::scoped_ptr<ml::core::CDataAdder>;
+    using TScopedDataAdderP = std::unique_ptr<ml::core::CDataAdder>;
     TScopedDataAdderP persister;
     if (ioMgr.persistStream()) {
         persister.reset(new ml::api::CSingleStreamDataAdder(ioMgr.persistStream()));
     }
 
-    using TScopedBackgroundPersisterP = boost::scoped_ptr<ml::api::CBackgroundPersister>;
+    using TScopedBackgroundPersisterP = std::unique_ptr<ml::api::CBackgroundPersister>;
     TScopedBackgroundPersisterP periodicPersister;
     if (persistInterval >= 0) {
         if (persister == nullptr) {
@@ -159,7 +158,7 @@ int main(int argc, char** argv) {
         periodicPersister.reset(new ml::api::CBackgroundPersister(persistInterval, *persister));
     }
 
-    using TScopedInputParserP = boost::scoped_ptr<ml::api::CInputParser>;
+    using TScopedInputParserP = std::unique_ptr<ml::api::CInputParser>;
     TScopedInputParserP inputParser;
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));

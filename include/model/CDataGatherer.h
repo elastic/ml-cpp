@@ -32,9 +32,9 @@
 
 #include <boost/any.hpp>
 #include <boost/optional.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -144,7 +144,7 @@ public:
     using TFeatureAnyPr = std::pair<model_t::EFeature, boost::any>;
     using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
     using TMetricCategoryVec = std::vector<model_t::EMetricCategory>;
-    using TSampleCountsPtr = boost::shared_ptr<CSampleCounts>;
+    using TSampleCountsPtr = std::shared_ptr<CSampleCounts>;
     using TTimeVec = std::vector<core_t::TTime>;
     using TTimeVecCItr = TTimeVec::const_iterator;
 

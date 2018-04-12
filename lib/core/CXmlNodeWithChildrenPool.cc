@@ -17,9 +17,9 @@
 #include <core/CLogger.h>
 
 #include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
 
 #include <algorithm>
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -34,7 +34,7 @@ CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(size_t maxRecycled)
 
 CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode() {
     if (m_Recycled.empty()) {
-        return boost::make_shared<CXmlNodeWithChildren>();
+        return std::make_shared<CXmlNodeWithChildren>();
     }
 
     CXmlNodeWithChildren::TXmlNodeWithChildrenP nodePtr(m_Recycled.back());

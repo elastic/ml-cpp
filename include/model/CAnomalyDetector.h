@@ -31,10 +31,9 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -81,12 +80,12 @@ public:
     using TStrCPtrVec = std::vector<const std::string*>;
     using TModelPlotDataVec = std::vector<CModelPlotData>;
 
-    using TDataGathererPtr = boost::shared_ptr<CDataGatherer>;
-    using TModelFactoryCPtr = boost::shared_ptr<const CModelFactory>;
-    using TModelPtr = boost::shared_ptr<CAnomalyDetectorModel>;
+    using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
+    using TModelFactoryCPtr = std::shared_ptr<const CModelFactory>;
+    using TModelPtr = std::shared_ptr<CAnomalyDetectorModel>;
 
     //! A shared pointer to an instance of this class
-    using TAnomalyDetectorPtr = boost::shared_ptr<CAnomalyDetector>;
+    using TAnomalyDetectorPtr = std::shared_ptr<CAnomalyDetector>;
 
     using TOutputModelPlotDataFunc =
         std::function<void(const std::string&, const std::string&, const std::string&, const std::string&, const CModelPlotData&)>;

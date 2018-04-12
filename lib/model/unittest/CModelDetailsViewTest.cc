@@ -27,8 +27,7 @@
 
 #include "Mocks.h"
 
-#include <boost/scoped_ptr.hpp>
-
+#include <memory>
 #include <vector>
 
 using namespace ml;
@@ -44,7 +43,7 @@ void CModelDetailsViewTest::testModelPlot() {
 
     using TDoubleVec = std::vector<double>;
     using TStrVec = std::vector<std::string>;
-    using TMockModelPtr = boost::scoped_ptr<model::CMockModel>;
+    using TMockModelPtr = std::unique_ptr<model::CMockModel>;
 
     core_t::TTime bucketLength{600};
     model::CSearchKey key;

@@ -50,10 +50,10 @@
 #include <api/CSingleStreamSearcher.h>
 
 #include <boost/bind.hpp>
-#include <boost/scoped_ptr.hpp>
 
 #include <cstdlib>
 #include <fstream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -159,7 +159,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
                                  boost::bind(&reportPersistComplete, _1),
                                  nullptr, -1, "time", timeFormat);
 
-    using TScopedInputParserP = boost::scoped_ptr<ml::api::CInputParser>;
+    using TScopedInputParserP = std::unique_ptr<ml::api::CInputParser>;
     TScopedInputParserP parser;
     if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
         parser.reset(new ml::api::CCsvInputParser(inputStrm));
