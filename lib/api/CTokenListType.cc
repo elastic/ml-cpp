@@ -124,8 +124,7 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
             expectWeight = true;
         } else if (name == COMMON_UNIQUE_TOKEN_WEIGHT) {
             if (!expectWeight) {
-                LOG_ERROR(<< "Common unique token weight precedes common "
-                             "unique token ID in "
+                LOG_ERROR(<< "Common unique token weight precedes common unique token ID in "
                           << traverser.value());
                 return false;
             }
