@@ -244,8 +244,7 @@ void CTimeUtilsTest::testStrptime() {
         // print a warning too
         CPPUNIT_ASSERT(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
         char buf[128] = {'\0'};
-        LOG_WARN(<< "If the following date is not within the last year then "
-                    "something is wrong: "
+        LOG_WARN(<< "If the following date is not within the last year then something is wrong: "
                  << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
@@ -267,8 +266,7 @@ void CTimeUtilsTest::testStrptime() {
         // print a warning too
         CPPUNIT_ASSERT(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
         char buf[128] = {'\0'};
-        LOG_WARN(<< "If the following date is not within the last year then "
-                    "something is wrong: "
+        LOG_WARN(<< "If the following date is not within the last year then something is wrong: "
                  << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
@@ -290,8 +288,7 @@ void CTimeUtilsTest::testStrptime() {
         // print a warning too
         CPPUNIT_ASSERT(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
         char buf[128] = {'\0'};
-        LOG_WARN(<< "If the following date is not within the last year then "
-                    "something is wrong: "
+        LOG_WARN(<< "If the following date is not within the last year then something is wrong: "
                  << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines

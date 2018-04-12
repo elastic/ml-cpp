@@ -45,7 +45,6 @@ void CJsonStatePersistInserterTest::testPersist() {
 
     LOG_DEBUG(<< "JSON is: " << json);
 
-    CPPUNIT_ASSERT_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{"
-                                     "\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
+    CPPUNIT_ASSERT_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
                          json);
 }

@@ -46,8 +46,7 @@ bool CPatternSet::initFromJson(const std::string& json) {
 
     for (unsigned int i = 0; i < doc.Size(); ++i) {
         if (!doc[i].IsString()) {
-            LOG_ERROR(<< "Could not parse pattern set: unexpected non-string "
-                         "item in JSON: "
+            LOG_ERROR(<< "Could not parse pattern set: unexpected non-string item in JSON: "
                       << json);
             this->clear();
             return false;
