@@ -73,7 +73,7 @@ void CBlockingCallCancellerThreadTest::testCancelBlock() {
 
     ml::core::CNamedPipeFactory::TIStreamP pipeStrm = ml::core::CNamedPipeFactory::openPipeStreamRead(
         ml::core::CNamedPipeFactory::defaultPath() + "test_pipe");
-    CPPUNIT_ASSERT(pipeStrm == 0);
+    CPPUNIT_ASSERT(pipeStrm == nullptr);
 
     CPPUNIT_ASSERT(cancellerThread.stop());
 
