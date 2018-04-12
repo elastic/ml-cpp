@@ -271,8 +271,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent() {
     }
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Starting Levenstein distance throughput test for low "
-                "commonality strings at "
+    LOG_INFO(<< "Starting Levenstein distance throughput test for low commonality strings at "
              << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t i = 0; i < TEST_SIZE; ++i) {
@@ -285,12 +284,10 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent() {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Finished Levenstein distance throughput test for low "
-                "commonality strings at "
+    LOG_INFO(<< "Finished Levenstein distance throughput test for low commonality strings at "
              << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO(<< "Levenstein distance throughput test for low commonality "
-                "strings with size "
+    LOG_INFO(<< "Levenstein distance throughput test for low commonality strings with size "
              << TEST_SIZE << " and maximum string length " << MAX_LEN
              << " took " << (end - start) << " seconds");
 }
@@ -319,8 +316,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar() {
     }
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Starting Levenstein distance throughput test for similar "
-                "strings at "
+    LOG_INFO(<< "Starting Levenstein distance throughput test for similar strings at "
              << ml::core::CTimeUtils::toTimeString(start));
 
     for (size_t i = 0; i < TEST_SIZE; ++i) {
@@ -333,8 +329,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar() {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Finished Levenstein distance throughput test for similar "
-                "strings at "
+    LOG_INFO(<< "Finished Levenstein distance throughput test for similar strings at "
              << ml::core::CTimeUtils::toTimeString(end));
 
     LOG_INFO(<< "Levenstein distance throughput test for similar strings with size "

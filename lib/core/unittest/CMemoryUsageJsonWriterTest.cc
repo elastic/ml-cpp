@@ -92,8 +92,7 @@ void CMemoryUsageJsonWriterTest::test() {
         writer.endArray();
         writer.endObject();
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Womple\":{"
-                                         "\"memory\":44}},{\"Whimple\":{\"memory\":"
+        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Womple\":{\"memory\":44}},{\"Whimple\":{\"memory\":"
                                          "66},\"magic\":{\"memory\":7777}}]}\n"),
                              ss.str());
     }
@@ -114,9 +113,7 @@ void CMemoryUsageJsonWriterTest::test() {
         writer.endArray();
         writer.endObject();
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{"
-                                         "\"Dumplings\":{\"memory\":345},\"Gravy\":{\"memory\":"
-                                         "12341234}}]}\n"),
+        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Dumplings\":{\"memory\":345},\"Gravy\":{\"memory\":12341234}}]}\n"),
                              ss.str());
     }
 }

@@ -975,8 +975,7 @@ void CMemoryUsageTest::testStringBehaviour() {
 
     // We have to test clearing with a size/capacity that won't get confused by
     // the short string optimisation (if it's being used)
-    std::string startLong("this_string_is_longer_than_one_that_will_take_"
-                          "advantage_of_the_small_string_optimisation");
+    std::string startLong("this_string_is_longer_than_one_that_will_take_advantage_of_the_small_string_optimisation");
 
     LOG_INFO(<< "Long string after initial construction has data at "
              << static_cast<const void*>(startLong.data()) << " length "
@@ -1121,8 +1120,8 @@ void CMemoryUsageTest::testSharedPointer() {
 
     TStrPtrVec svec1;
     svec1.push_back(TStrPtr(new std::string("This is a string")));
-    svec1.push_back(TStrPtr(new std::string("Here is some more string data, a little "
-                                            "longer than the previous one")));
+    svec1.push_back(TStrPtr(new std::string(
+        "Here is some more string data, a little longer than the previous one")));
     svec1.push_back(TStrPtr(new std::string("An uninteresting string, this one!")));
 
     TStrPtrVec svec2;
