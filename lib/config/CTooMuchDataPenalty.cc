@@ -32,8 +32,7 @@ std::string descriptionPrefix(const CDetectorSpecification& spec,
         return "A significant proportion, " +
                CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) /
                                    static_cast<double>(partitions)) +
-               "%, of distinct partition and by fields combinations have "
-               "values in many buckets.";
+               "%, of distinct partition and by fields combinations have values in many buckets.";
     } else if (spec.byField()) {
         return "A significant proportion, " +
                CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) /

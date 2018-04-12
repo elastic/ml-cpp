@@ -49,15 +49,12 @@ void CCalendarComponentAdaptiveBucketingTest::testInitialize() {
 
     CPPUNIT_ASSERT(!bucketing.initialize(0));
 
-    const std::string expectedEndpoints{"[0, 7200, 14400, 21600, 28800, 36000, "
-                                        "43200, 50400, 57600, 64800, 72000, "
-                                        "79200, 86400]"};
-    const std::string expectedKnots{"[0, 3600, 10800, 18000, 25200, 32400, "
-                                    "39600, 46800, 54000, 61200, 68400, 75600, "
-                                    "82800, 86400]"};
-    const std::string expectedValues{"[129600, 90000, 97200, 104400, 111600, "
-                                     "118800, 126000, 133200, 140400, 147600, "
-                                     "154800, 162000, 169200, 129600]"};
+    const std::string expectedEndpoints{
+        "[0, 7200, 14400, 21600, 28800, 36000, 43200, 50400, 57600, 64800, 72000, 79200, 86400]"};
+    const std::string expectedKnots{
+        "[0, 3600, 10800, 18000, 25200, 32400, 39600, 46800, 54000, 61200, 68400, 75600, 82800, 86400]"};
+    const std::string expectedValues{
+        "[129600, 90000, 97200, 104400, 111600, 118800, 126000, 133200, 140400, 147600, 154800, 162000, 169200, 129600]"};
 
     CPPUNIT_ASSERT(bucketing.initialize(12));
     const TFloatVec& endpoints{bucketing.endpoints()};
