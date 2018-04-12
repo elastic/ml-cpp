@@ -743,9 +743,7 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
 }
 
 void CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue() {
-    LOG_DEBUG(<< "*** "
-                 "testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue "
-                 "***");
+    LOG_DEBUG(<< "*** testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue ***");
 
     static const std::string FUNC("mean");
     static const ml::model::function_t::EFunction function(
@@ -1239,10 +1237,8 @@ void CHierarchicalResultsTest::testInfluence() {
                         "  'false/false////I/i2/': 0.003, 0.0251169 pivot\n"
                         "  'false/false////I/i1/': 0.001801726, 0.04288765 pivot\n"
                         "'false/false////PF1//': 0.000885378, 0.08893476\n"
-                        "  'false/false/max///PF1/p13/': 0.01, 0.008016032, [((I, i1), "
-                        "1)]\n"
-                        "  'false/false/max///PF1/p12/': 0.003, 0.03139613, [((I, i1), "
-                        "0.9), ((I, i2), 1)]\n"
+                        "  'false/false/max///PF1/p13/': 0.01, 0.008016032, [((I, i1), 1)]\n"
+                        "  'false/false/max///PF1/p12/': 0.003, 0.03139613, [((I, i1), 0.9), ((I, i2), 1)]\n"
                         "  'false/false/max///PF1/p11/': 0.22, 0, [((I, i1), 0.6)]"),
             printer.result());
     }
@@ -1294,17 +1290,12 @@ void CHierarchicalResultsTest::testInfluence() {
                         "  'false/false////I/i1/': 0.00619034, 0.01134605 pivot\n"
                         "'false/true//////': 0.003651953, 0.02034678\n"
                         "  'false/false//PNF2////': 0.029701, 0.001095703\n"
-                        "    'false/false/max/PNF2/pn23/PF1/p12/': 0.56, 0, [((I, i1), "
-                        "0.8)]\n"
-                        "    'false/false/max/PNF2/pn22/PF1/p12/': 0.03, 0.001336005, "
-                        "[((I, i1), 0.6), ((I, i2), 0.8)]\n"
-                        "    'false/false/max/PNF2/pn21/PF1/p13/': 0.01, 0.008016032, "
-                        "[((I, i1), 1)]\n"
+                        "    'false/false/max/PNF2/pn23/PF1/p12/': 0.56, 0, [((I, i1), 0.8)]\n"
+                        "    'false/false/max/PNF2/pn22/PF1/p12/': 0.03, 0.001336005, [((I, i1), 0.6), ((I, i2), 0.8)]\n"
+                        "    'false/false/max/PNF2/pn21/PF1/p13/': 0.01, 0.008016032, [((I, i1), 1)]\n"
                         "  'false/true//PNF1////': 0.005991, 0.01177692\n"
-                        "    'false/true/max/PNF1/pn12/PF1/p12/': 0.003, 0.03139613, "
-                        "[((I, i1), 0.9), ((I, i2), 1)]\n"
-                        "    'false/true/max/PNF1/pn11/PF1/p11/': 0.22, 0, [((I, i1), "
-                        "0.6)]"),
+                        "    'false/true/max/PNF1/pn12/PF1/p12/': 0.003, 0.03139613, [((I, i1), 0.9), ((I, i2), 1)]\n"
+                        "    'false/true/max/PNF1/pn11/PF1/p11/': 0.22, 0, [((I, i1), 0.6)]"),
             printer.result());
     }
 
@@ -1355,12 +1346,9 @@ void CHierarchicalResultsTest::testInfluence() {
                         "  'false/false////I/i2/': 0.001, 0.07855711 pivot\n"
                         "  'false/false////I/i1/': 0.01939367, 0.002530117 pivot\n"
                         "'false/false//////': 0.001999, 0.038497\n"
-                        "    'false/false/max/PNF1/pn11/PF1/p13/': 0.06, 0, [((I, i1), "
-                        "1)]\n"
-                        "    'false/false/max/PNF1/pn11/PF1/p11/': 0.06, 0, [((I, i1), "
-                        "1)]\n"
-                        "  'false/false/max///PF2/p21/': 0.001, 0.09819639, [((I, i2), "
-                        "1)]"),
+                        "    'false/false/max/PNF1/pn11/PF1/p13/': 0.06, 0, [((I, i1), 1)]\n"
+                        "    'false/false/max/PNF1/pn11/PF1/p11/': 0.06, 0, [((I, i1), 1)]\n"
+                        "  'false/false/max///PF2/p21/': 0.001, 0.09819639, [((I, i2), 1)]"),
             writtenNodesOnlyPrinter.result());
     }
 }

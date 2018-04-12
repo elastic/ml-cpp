@@ -1645,8 +1645,7 @@ void CMetricModelTest::testSkipSampling() {
 
         time += gap;
         modelWithGap.skipSampling(time);
-        LOG_DEBUG(<< "Calling sample over skipped interval should do nothing "
-                     "except print some ERRORs");
+        LOG_DEBUG(<< "Calling sample over skipped interval should do nothing except print some ERRORs");
         modelWithGap.sample(startTime + bucketLength, time, m_ResourceMonitor);
 
         processBucket(time, bucketLength, bucket2, influencerValues1, *gathererWithGap,

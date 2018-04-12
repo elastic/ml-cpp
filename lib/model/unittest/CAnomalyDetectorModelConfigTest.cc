@@ -123,8 +123,7 @@ void CAnomalyDetectorModelConfigTest::testNormal() {
         CPPUNIT_ASSERT_EQUAL(
             0.5, config.factory(1, POPULATION_METRIC)->modelParams().s_PruneWindowScaleMinimum);
         CPPUNIT_ASSERT_EQUAL(
-            std::string("[(0, 0), (70, 1.5), (85, 1.6), (90, 1.7), (95, 2), "
-                        "(97, 10), (98, 20), (99.5, 50), (100, 100)]"),
+            std::string("[(0, 0), (70, 1.5), (85, 1.6), (90, 1.7), (95, 2), (97, 10), (98, 20), (99.5, 50), (100, 100)]"),
             core::CContainerPrinter::print(config.normalizedScoreKnotPoints()));
         CPPUNIT_ASSERT_EQUAL(false, config.perPartitionNormalization());
     }

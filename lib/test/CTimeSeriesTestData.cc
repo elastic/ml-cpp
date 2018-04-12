@@ -28,15 +28,15 @@ namespace ml {
 namespace test {
 
 const std::string CTimeSeriesTestData::DEFAULT_REGEX("\\s*(\\d+|\\d+\\.\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s*");
-const std::string CTimeSeriesTestData::DEFAULT_BIVALUED_REGEX("\\s*(\\d+|\\d+\\.\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s+([-"
-                                                              "]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s*");
+const std::string CTimeSeriesTestData::DEFAULT_BIVALUED_REGEX(
+    "\\s*(\\d+|\\d+\\.\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s*");
 const std::string CTimeSeriesTestData::DEFAULT_DATE_FORMAT("");
 const std::string CTimeSeriesTestData::CSV_UNIX_REGEX("^(\\d+),([-]*[\\d\\.]+)");
 const std::string CTimeSeriesTestData::CSV_UNIX_BIVALUED_REGEX("^(\\d+),([-]*[\\d\\.]+),([-]*[\\d\\.]+)");
 const std::string CTimeSeriesTestData::CSV_UNIX_DATE_FORMAT("");
 const std::string CTimeSeriesTestData::CSV_ISO8601_REGEX("^\"(\\d+-\\d+-\\d+T\\d+:\\d+:\\d+)\\..*\",[\"]*([-]*[\\d\\.]+)[\"]*");
-const std::string CTimeSeriesTestData::CSV_ISO8601_BIVALUED_REGEX("^\"(\\d+-\\d+-\\d+T\\d+:\\d+:\\d+)\\..*\",[\"]*([-]*[\\d\\.]+)[\"]*, "
-                                                                  "[\"]*([-]*[\\d\\.]+)[\"]*");
+const std::string CTimeSeriesTestData::CSV_ISO8601_BIVALUED_REGEX(
+    "^\"(\\d+-\\d+-\\d+T\\d+:\\d+:\\d+)\\..*\",[\"]*([-]*[\\d\\.]+)[\"]*, [\"]*([-]*[\\d\\.]+)[\"]*");
 const std::string CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT("%Y-%m-%dT%H:%M:%S");
 
 bool CTimeSeriesTestData::parse(const std::string& fileName,

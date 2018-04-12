@@ -415,8 +415,7 @@ void CSolversTest::testSublevelSet() {
                   << ", f(b) = " << f5(sublevelSet.second));
     }
 
-    LOG_DEBUG(<< "*** f(x) = 1.1 * exp(-2.0*(x-4)^2) + 0.1 * exp(-(x-6)^2) + "
-                 "0.4 * exp(-(x-10)^2/2) ***");
+    LOG_DEBUG(<< "*** f(x) = 1.1 * exp(-2.0*(x-4)^2) + 0.1 * exp(-(x-6)^2) + 0.4 * exp(-(x-10)^2/2) ***");
 
     fmax = 0.9 * f6(10.0);
     for (std::size_t i = 0u; i < 15u; ++i, fmax *= 0.9) {

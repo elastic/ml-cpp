@@ -134,8 +134,7 @@ void CQuantileSketchTest::testReduce() {
         sketch.add(0.2);
         sketch.add(0.0);
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (0.15, 2), (0.4, 3), (1, "
-                                         "1), (1.2, 3.5), (5, 2)]"),
+        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (0.15, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
                              core::CContainerPrinter::print(sketch.knots()));
     }
     {
@@ -212,8 +211,7 @@ void CQuantileSketchTest::testReduce() {
         sketch.add(0.2);
         sketch.add(0.0);
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (0.2, 2), (0.4, 3), (1, 1), "
-                                         "(1.2, 3.5), (5, 2)]"),
+        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (0.2, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
                              core::CContainerPrinter::print(sketch.knots()));
     }
     {
@@ -292,8 +290,7 @@ void CQuantileSketchTest::testMerge() {
         sketch1 += sketch2;
         LOG_DEBUG(<< "merged sketch = "
                   << core::CContainerPrinter::print(sketch1.knots()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[(1, 3.6), (1.1, 1), (2, 1), (3, 1), "
-                                         "(3.1, 2), (5.1, 2)]"),
+        CPPUNIT_ASSERT_EQUAL(std::string("[(1, 3.6), (1.1, 1), (2, 1), (3, 1), (3.1, 2), (5.1, 2)]"),
                              core::CContainerPrinter::print(sketch1.knots()));
     }
 
