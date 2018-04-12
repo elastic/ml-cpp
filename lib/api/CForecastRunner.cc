@@ -37,16 +37,13 @@ const std::string EMPTY_STRING;
 
 const std::string CForecastRunner::ERROR_FORECAST_REQUEST_FAILED_TO_PARSE("Failed to parse forecast request: ");
 const std::string CForecastRunner::ERROR_NO_FORECAST_ID("forecast ID must be specified and non empty");
-const std::string CForecastRunner::ERROR_TOO_MANY_JOBS("Forecast cannot be executed due to queue limit. Please wait for requests "
-                                                       "to finish and try again");
-const std::string CForecastRunner::ERROR_NO_MODELS("Forecast cannot be executed as model is not yet established. Job requires "
-                                                   "more time to learn");
-const std::string CForecastRunner::ERROR_NO_DATA_PROCESSED("Forecast cannot be executed as job requires data to have been processed "
-                                                           "and modeled");
+const std::string CForecastRunner::ERROR_TOO_MANY_JOBS("Forecast cannot be executed due to queue limit. Please wait for requests to finish and try again");
+const std::string CForecastRunner::ERROR_NO_MODELS("Forecast cannot be executed as model is not yet established. Job requires more time to learn");
+const std::string CForecastRunner::ERROR_NO_DATA_PROCESSED(
+    "Forecast cannot be executed as job requires data to have been processed and modeled");
 const std::string CForecastRunner::ERROR_NO_CREATE_TIME("Forecast create time must be specified and non zero");
 const std::string CForecastRunner::ERROR_BAD_MEMORY_STATUS("Forecast cannot be executed as model memory status is not OK");
-const std::string CForecastRunner::ERROR_MEMORY_LIMIT("Forecast cannot be executed as forecast memory usage is predicted to "
-                                                      "exceed 20MB");
+const std::string CForecastRunner::ERROR_MEMORY_LIMIT("Forecast cannot be executed as forecast memory usage is predicted to exceed 20MB");
 const std::string CForecastRunner::ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS("Forecast is not supported for population analysis");
 const std::string CForecastRunner::ERROR_NO_SUPPORTED_FUNCTIONS("Forecast is not supported for the used functions");
 const std::string CForecastRunner::WARNING_DURATION_LIMIT("Forecast duration exceeds internal limit, setting to 8 weeks");

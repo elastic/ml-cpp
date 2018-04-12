@@ -152,8 +152,7 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
             std::string temp;
             results.resize(numFields, typename STR_VEC::value_type(temp));
         } else {
-            LOG_ERROR(<< "Incorrect number of fields in input stream record: "
-                         "expected "
+            LOG_ERROR(<< "Incorrect number of fields in input stream record: expected "
                       << results.size() << " but got " << numFields);
             return false;
         }

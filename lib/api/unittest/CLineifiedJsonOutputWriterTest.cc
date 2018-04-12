@@ -45,9 +45,8 @@ void CLineifiedJsonOutputWriterTest::testStringOutput() {
 
     const std::string& output = writer.internalString();
 
-    CPPUNIT_ASSERT_EQUAL(std::string("{\"probability\":\"0.01\",\"normalized_"
-                                     "score\":\"3.3\"}\n"),
-                         output);
+    CPPUNIT_ASSERT_EQUAL(
+        std::string("{\"probability\":\"0.01\",\"normalized_score\":\"3.3\"}\n"), output);
 }
 
 void CLineifiedJsonOutputWriterTest::testNumericOutput() {

@@ -290,8 +290,7 @@ void CFieldDataTyperTest::testHandleControlMessages() {
     const std::string& output = outputStrm.str();
     LOG_DEBUG(<< "Output is: " << output);
     CPPUNIT_ASSERT_EQUAL(std::string::size_type(0),
-                         output.find("[{\"flush\":{\"id\":\"7\",\"last_"
-                                     "finalized_bucket_end\":0}}"));
+                         output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0}}"));
 }
 
 void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState() {

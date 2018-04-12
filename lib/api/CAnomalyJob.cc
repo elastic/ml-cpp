@@ -521,8 +521,7 @@ void CAnomalyJob::generateInterimResults(const std::string& controlMessage) {
     LOG_TRACE(<< "Generating interim results");
 
     if (m_LastFinalisedBucketEndTime == 0) {
-        LOG_TRACE(<< "Cannot create interim results having seen data for less "
-                     "than one bucket ever");
+        LOG_TRACE(<< "Cannot create interim results having seen data for less than one bucket ever");
         return;
     }
 
@@ -1098,8 +1097,7 @@ bool CAnomalyJob::backgroundPersistState(CBackgroundPersister& backgroundPersist
 
     if (backgroundPersister.addPersistFunc(boost::bind(
             &CAnomalyJob::runBackgroundPersist, this, args, _1)) == false) {
-        LOG_ERROR(<< "Failed to add anomaly detector background persistence "
-                     "function");
+        LOG_ERROR(<< "Failed to add anomaly detector background persistence function");
         return false;
     }
 

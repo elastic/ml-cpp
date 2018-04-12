@@ -272,8 +272,7 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
             return false;
         }
         if (version != STATE_VERSION) {
-            LOG_DEBUG(<< "Categorizer has not been restored as the version has "
-                         "changed");
+            LOG_DEBUG(<< "Categorizer has not been restored as the version has changed");
             return true;
         }
     } else {
@@ -421,8 +420,7 @@ bool CFieldDataTyper::periodicPersistState(CBackgroundPersister& persister) {
 }
 
 void CFieldDataTyper::resetAfterCorruptRestore() {
-    LOG_WARN(<< "Discarding corrupt categorizer state - will re-categorize "
-                "from scratch");
+    LOG_WARN(<< "Discarding corrupt categorizer state - will re-categorize from scratch");
 
     m_SearchTerms.clear();
     m_SearchTermsRegex.clear();

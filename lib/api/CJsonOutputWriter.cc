@@ -428,8 +428,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
             TDocumentWeakPtr weakDoc = detectorIter->first;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
-                LOG_ERROR(<< "Inconsistent program state. JSON document "
-                             "unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
 
@@ -458,8 +457,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
             TDocumentWeakPtr weakDoc = *influencerIter;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
-                LOG_ERROR(<< "Inconsistent program state. JSON document "
-                             "unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
 
@@ -509,8 +507,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
             TDocumentWeakPtr weakDoc = *influencerIter;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
-                LOG_ERROR(<< "Inconsistent program state. JSON document "
-                             "unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
 
@@ -536,8 +533,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
             TDocumentWeakPtr weakDoc = *partitionScoresIter;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
-                LOG_ERROR(<< "Inconsistent program state. JSON document "
-                             "unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
 
@@ -643,8 +639,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
             TDocumentWeakPtr nwDocPtr = m_NestedDocs[index];
             TDocumentPtr nDocPtr = nwDocPtr.lock();
             if (!nDocPtr) {
-                LOG_ERROR(<< "Inconsistent program state. JSON document "
-                             "unavailable.");
+                LOG_ERROR(<< "Inconsistent program state. JSON document unavailable.");
                 continue;
             }
             rapidjson::Value& docAsValue = *nDocPtr;

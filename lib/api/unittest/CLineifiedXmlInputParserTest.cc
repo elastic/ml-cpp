@@ -101,26 +101,22 @@ private:
 }
 
 void CLineifiedXmlInputParserTest::testThroughputArbitraryConformant() {
-    LOG_INFO(<< "Testing using a standards-conformant XML parser assuming "
-                "arbitrary fields in XML documents");
+    LOG_INFO(<< "Testing using a standards-conformant XML parser assuming arbitrary fields in XML documents");
     this->runTest<ml::core::CXmlParser>(false);
 }
 
 void CLineifiedXmlInputParserTest::testThroughputCommonConformant() {
-    LOG_INFO(<< "Testing using a standards-conformant XML parser assuming all "
-                "XML documents have the same fields");
+    LOG_INFO(<< "Testing using a standards-conformant XML parser assuming all XML documents have the same fields");
     this->runTest<ml::core::CXmlParser>(true);
 }
 
 void CLineifiedXmlInputParserTest::testThroughputArbitraryRapid() {
-    LOG_INFO(<< "Testing using a rapid XML parser assuming arbitrary fields in "
-                "XML documents");
+    LOG_INFO(<< "Testing using a rapid XML parser assuming arbitrary fields in XML documents");
     this->runTest<ml::core::CRapidXmlParser>(false);
 }
 
 void CLineifiedXmlInputParserTest::testThroughputCommonRapid() {
-    LOG_INFO(<< "Testing using a rapid XML parser assuming all XML documents "
-                "have the same fields");
+    LOG_INFO(<< "Testing using a rapid XML parser assuming all XML documents have the same fields");
     this->runTest<ml::core::CRapidXmlParser>(true);
 }
 

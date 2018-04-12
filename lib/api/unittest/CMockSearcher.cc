@@ -24,8 +24,7 @@ CMockSearcher::CMockSearcher(const CMockDataAdder& mockDataAdder)
 
 CMockSearcher::TIStreamP CMockSearcher::search(size_t currentDocNum, size_t /*limit*/) {
     if (currentDocNum == 0) {
-        LOG_ERROR(<< "Current doc number cannot be 0 - data store requires "
-                     "1-based numbers");
+        LOG_ERROR(<< "Current doc number cannot be 0 - data store requires 1-based numbers");
         return TIStreamP();
     }
 
