@@ -181,8 +181,7 @@ CFieldConfig::CFieldConfig(const std::string& fieldName,
 
 bool CFieldConfig::initFromCmdLine(const std::string& configFile, const TStrVec& tokens) {
     if (tokens.empty() && configFile.empty()) {
-        LOG_ERROR(<< "Neither a fieldname clause nor a field config file was "
-                     "specified");
+        LOG_ERROR(<< "Neither a fieldname clause nor a field config file was specified");
         return false;
     }
 
@@ -191,8 +190,7 @@ bool CFieldConfig::initFromCmdLine(const std::string& configFile, const TStrVec&
     }
 
     if (!configFile.empty()) {
-        LOG_ERROR(<< "Cannot specify both a fieldname clause and a field "
-                     "config file");
+        LOG_ERROR(<< "Cannot specify both a fieldname clause and a field config file");
         return false;
     }
 

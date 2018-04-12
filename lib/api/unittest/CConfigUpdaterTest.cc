@@ -88,11 +88,9 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig() {
 void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
     CFieldConfig fieldConfig;
     std::string originalRules0("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
-    originalRules0 += "\"conditions\":[{\"type\":\"numerical_actual\","
-                      "\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
+    originalRules0 += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
     std::string originalRules1("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
-    originalRules1 += "\"conditions\":[{\"type\":\"numerical_actual\","
-                      "\"condition\":{\"operator\":\"gt\",\"value\":\"5\"}}]}]";
+    originalRules1 += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"gt\",\"value\":\"5\"}}]}]";
     fieldConfig.parseRules(0, originalRules0);
     fieldConfig.parseRules(1, originalRules1);
 
@@ -102,8 +100,7 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
     std::string configUpdate0("[detectorRules]\ndetectorIndex = 0\nrulesJson = []\n");
     std::string configUpdate1(
         "[detectorRules]\ndetectorIndex = 1\nrulesJson = "
-        "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\","
-        "\"conditions\":[{\"type\":\"numerical_"
+        "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",\"conditions\":[{\"type\":\"numerical_"
         "typical\",\"condition\":{\"operator\":\"lt\",\"value\":\"15\"}}]}]");
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
@@ -123,8 +120,7 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
 void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex() {
     CFieldConfig fieldConfig;
     std::string originalRules("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
-    originalRules += "\"conditions\":[{\"type\":\"numerical_actual\","
-                     "\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
+    originalRules += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
     fieldConfig.parseRules(0, originalRules);
 
     model::CAnomalyDetectorModelConfig modelConfig =
@@ -159,8 +155,7 @@ void CConfigUpdaterTest::testUpdateGivenFilters() {
     CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("ddd"));
 
     // Update existing ones
-    std::string configUpdate("[filters]\nfilter.filter_1=[\"ccc\",\"ddd\"]"
-                             "\nfilter.filter_2=[\"aaa\",\"bbb\"]\n");
+    std::string configUpdate("[filters]\nfilter.filter_1=[\"ccc\",\"ddd\"]\nfilter.filter_2=[\"aaa\",\"bbb\"]\n");
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
@@ -189,18 +184,14 @@ void CConfigUpdaterTest::testUpdateGivenFilters() {
 }
 
 void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
-    std::string validRule1 = "[{\"actions\":[\"filter_results\",\"skip_"
-                             "sampling\"],\"conditions_connective\":\"and\","
-                             "\"conditions\":[{\"type\":\"time\",\"condition\":"
-                             "{\"operator\":\"gte\",\"value\":\"1\"}},"
-                             "{\"type\":\"time\",\"condition\":{\"operator\":"
-                             "\"lt\",\"value\":\"2\"}}]}]";
-    std::string validRule2 = "[{\"actions\":[\"filter_results\",\"skip_"
-                             "sampling\"],\"conditions_connective\":\"and\","
-                             "\"conditions\":[{\"type\":\"time\",\"condition\":"
-                             "{\"operator\":\"gte\",\"value\":\"3\"}},"
-                             "{\"type\":\"time\",\"condition\":{\"operator\":"
-                             "\"lt\",\"value\":\"4\"}}]}]";
+    std::string validRule1 =
+        "[{\"actions\":[\"filter_results\",\"skip_sampling\"],\"conditions_connective\":\"and\","
+        "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"1\"}},"
+        "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"2\"}}]}]";
+    std::string validRule2 =
+        "[{\"actions\":[\"filter_results\",\"skip_sampling\"],\"conditions_connective\":\"and\","
+        "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"3\"}},"
+        "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"4\"}}]}]";
 
     CFieldConfig fieldConfig;
 
@@ -220,12 +211,10 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
         const auto& events = fieldConfig.scheduledEvents();
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
         CPPUNIT_ASSERT_EQUAL(std::string("old_event_1"), events[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 "
-                                         "AND TIME < 2.000000"),
+        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 AND TIME < 2.000000"),
                              events[0].second.print());
         CPPUNIT_ASSERT_EQUAL(std::string("old_event_2"), events[1].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 "
-                                         "AND TIME < 4.000000"),
+        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 AND TIME < 4.000000"),
                              events[1].second.print());
     }
 
@@ -250,12 +239,10 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
         const auto& events = fieldConfig.scheduledEvents();
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
         CPPUNIT_ASSERT_EQUAL(std::string("new_event_1"), events[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 "
-                                         "AND TIME < 4.000000"),
+        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 AND TIME < 4.000000"),
                              events[0].second.print());
         CPPUNIT_ASSERT_EQUAL(std::string("new_event_2"), events[1].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 "
-                                         "AND TIME < 2.000000"),
+        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 AND TIME < 2.000000"),
                              events[1].second.print());
     }
 
