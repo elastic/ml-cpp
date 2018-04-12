@@ -1638,8 +1638,7 @@ void CEventRateDataGathererTest::testDistinctStrings() {
                       featureData.s_InfluenceValues[0].end(),
                       maths::COrderings::SFirstLess());
 
-            CPPUNIT_ASSERT_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, "
-                                             "([2], 1)), (inf3, ([1], 1))]]"),
+            CPPUNIT_ASSERT_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1)), (inf3, ([1], 1))]]"),
                                  featureData.print());
         }
     }
@@ -1685,8 +1684,7 @@ void CEventRateDataGathererTest::testDistinctStrings() {
                           featureData.s_InfluenceValues[i].end(),
                           maths::COrderings::SFirstLess());
             }
-            CPPUNIT_ASSERT_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1))], "
-                                             "[(inf_v2, ([1], 1)), (inf_v3, ([2], 1))]]"),
+            CPPUNIT_ASSERT_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1))], [(inf_v2, ([1], 1)), (inf_v3, ([2], 1))]]"),
                                  featureData.print());
         }
     }
@@ -1769,8 +1767,7 @@ void CEventRateDataGathererTest::testDistinctStrings() {
                       featureData.s_InfluenceValues[0].end(),
                       maths::COrderings::SFirstLess());
 
-            CPPUNIT_ASSERT_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, "
-                                             "([16], 1)), (inf3, ([12], 1))]]"),
+            CPPUNIT_ASSERT_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1)), (inf3, ([12], 1))]]"),
                                  featureData.print());
         }
     }
@@ -1815,8 +1812,7 @@ void CEventRateDataGathererTest::testDistinctStrings() {
                           featureData.s_InfluenceValues[i].end(),
                           maths::COrderings::SFirstLess());
             }
-            CPPUNIT_ASSERT_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1))], "
-                                             "[(inf_v2, ([12], 1)), (inf_v3, ([16], 1))]]"),
+            CPPUNIT_ASSERT_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1))], [(inf_v2, ([12], 1)), (inf_v3, ([16], 1))]]"),
                                  featureData.print());
         }
     }

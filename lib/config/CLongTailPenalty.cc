@@ -84,8 +84,7 @@ void CLongTailPenalty::penaltyFor(const CByAndPartitionDataCountStatistics& stat
         double penalty = this->penaltyFor(tail, totals);
         std::string description =
             penalty < 1.0
-                ? std::string("A significant proportion of categories have "
-                              "similar frequency at '") +
+                ? std::string("A significant proportion of categories have similar frequency at '") +
                       CTools::prettyPrint(this->params().candidateBucketLengths()[bid]) + "' resolution"
                 : std::string();
         std::fill_n(std::back_inserter(penalties), indices_.size(), penalty);
@@ -104,9 +103,7 @@ void CLongTailPenalty::penaltyFor(const CByOverAndPartitionDataCountStatistics& 
     this->extractTailCounts<CByOverAndPartitionDataCountStatistics>(
         stats.sampledByAndPartitionDistinctOverCounts(), totals, tail);
     double penalty = this->penaltyFor(tail, totals);
-    spec.applyPenalty(penalty, penalty < 1.0 ? "A significant proportion of "
-                                               "categories have a similar "
-                                               "frequency in the population"
+    spec.applyPenalty(penalty, penalty < 1.0 ? "A significant proportion of categories have a similar frequency in the population"
                                              : "");
 }
 
