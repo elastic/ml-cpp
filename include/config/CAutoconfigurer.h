@@ -11,7 +11,7 @@
 
 #include <config/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace ml {
 namespace config {
@@ -60,7 +60,7 @@ public:
     virtual api::COutputHandler& outputHandler();
 
 private:
-    using TImplPtr = boost::shared_ptr<CAutoconfigurerImpl>;
+    using TImplPtr = std::shared_ptr<CAutoconfigurerImpl>;
 
 private:
     //! The pointer to the actual implementation.

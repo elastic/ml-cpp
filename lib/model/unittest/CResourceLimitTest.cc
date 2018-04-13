@@ -522,7 +522,7 @@ void CResourceLimitTest::importCsvDataWithLimiter(core_t::TTime firstTime,
                                                   std::size_t limitCutoff,
                                                   CResourceMonitor& resourceMonitor) {
 
-    using TifstreamPtr = boost::shared_ptr<std::ifstream>;
+    using TifstreamPtr = std::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
     CPPUNIT_ASSERT(ifs->is_open());
 

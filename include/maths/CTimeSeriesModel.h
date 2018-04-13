@@ -13,10 +13,10 @@
 
 #include <boost/array.hpp>
 #include <boost/circular_buffer.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstddef>
+#include <memory>
 
 namespace ml {
 namespace maths {
@@ -181,10 +181,10 @@ private:
     using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
     using TVector = CVectorNx1<double, 2>;
     using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
-    using TDecayRateController2AryPtr = boost::shared_ptr<TDecayRateController2Ary>;
-    using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
-    using TPriorPtr = boost::shared_ptr<CPrior>;
-    using TAnomalyModelPtr = boost::shared_ptr<CTimeSeriesAnomalyModel>;
+    using TDecayRateController2AryPtr = std::shared_ptr<TDecayRateController2Ary>;
+    using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
+    using TPriorPtr = std::shared_ptr<CPrior>;
+    using TAnomalyModelPtr = std::shared_ptr<CTimeSeriesAnomalyModel>;
     using TMultivariatePriorCPtrSizePr = std::pair<const CMultivariatePrior*, std::size_t>;
     using TMultivariatePriorCPtrSizePr1Vec =
         core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
@@ -246,7 +246,7 @@ private:
 //! \brief Manages the creation correlate models.
 class MATHS_EXPORT CTimeSeriesCorrelateModelAllocator {
 public:
-    using TMultivariatePriorPtr = boost::shared_ptr<CMultivariatePrior>;
+    using TMultivariatePriorPtr = std::shared_ptr<CMultivariatePrior>;
 
 public:
     virtual ~CTimeSeriesCorrelateModelAllocator() = default;
@@ -294,7 +294,7 @@ public:
     using TSize2Vec = core::CSmallVector<std::size_t, 2>;
     using TSize2Vec1Vec = core::CSmallVector<TSize2Vec, 1>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-    using TMultivariatePriorPtr = boost::shared_ptr<CMultivariatePrior>;
+    using TMultivariatePriorPtr = std::shared_ptr<CMultivariatePrior>;
     using TMultivariatePriorPtrDoublePr = std::pair<TMultivariatePriorPtr, double>;
     using TSizeSizePrMultivariatePriorPtrDoublePrUMap =
         boost::unordered_map<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
@@ -448,7 +448,7 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel {
 public:
     using TTimeDouble2VecPr = std::pair<core_t::TTime, TDouble2Vec>;
     using TTimeDouble2VecPrCBuf = boost::circular_buffer<TTimeDouble2VecPr>;
-    using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
+    using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecompositionPtr10Vec = core::CSmallVector<TDecompositionPtr, 10>;
     using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
 
@@ -593,9 +593,9 @@ private:
     using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
     using TVector = CVectorNx1<double, 2>;
     using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
-    using TDecayRateController2AryPtr = boost::shared_ptr<TDecayRateController2Ary>;
-    using TMultivariatePriorPtr = boost::shared_ptr<CMultivariatePrior>;
-    using TAnomalyModelPtr = boost::shared_ptr<CTimeSeriesAnomalyModel>;
+    using TDecayRateController2AryPtr = std::shared_ptr<TDecayRateController2Ary>;
+    using TMultivariatePriorPtr = std::shared_ptr<CMultivariatePrior>;
+    using TAnomalyModelPtr = std::shared_ptr<CTimeSeriesAnomalyModel>;
 
 private:
     //! Update the trend with \p samples.

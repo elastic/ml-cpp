@@ -27,7 +27,6 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <stdint.h>
 

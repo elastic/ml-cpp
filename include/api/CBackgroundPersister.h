@@ -51,7 +51,7 @@ namespace api {
 //! is generally what is required for access in a separate
 //! thread.  However, note that a couple of copies are made, so
 //! if the bound data is very large then binding a
-//! boost::shared_ptr may be more appropriate than binding
+//! std::shared_ptr may be more appropriate than binding
 //! values.
 //!
 //! A data adder must be supplied to the constructor, and, since

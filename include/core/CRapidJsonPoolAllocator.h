@@ -10,9 +10,7 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -32,8 +30,8 @@ namespace core {
 //!
 class CRapidJsonPoolAllocator {
 public:
-    using TDocumentWeakPtr = boost::weak_ptr<rapidjson::Document>;
-    using TDocumentPtr = boost::shared_ptr<rapidjson::Document>;
+    using TDocumentWeakPtr = std::weak_ptr<rapidjson::Document>;
+    using TDocumentPtr = std::shared_ptr<rapidjson::Document>;
     using TDocumentPtrVec = std::vector<TDocumentPtr>;
 
 public:
@@ -48,7 +46,7 @@ public:
     //! Note: The API is designed to emphasise that the client does not own the document memory
     //! i.e. The document will be invalidated on destruction of this allocator
     TDocumentWeakPtr makeStorableDoc() {
-        TDocumentPtr newDoc = boost::make_shared<rapidjson::Document>(&m_JsonPoolAllocator);
+        TDocumentPtr newDoc = std::make_shared<rapidjson::Document>(&m_JsonPoolAllocator);
         newDoc->SetObject();
         m_JsonDocumentStore.push_back(newDoc);
         return TDocumentWeakPtr(newDoc);

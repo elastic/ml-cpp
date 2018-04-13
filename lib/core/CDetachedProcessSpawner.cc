@@ -11,8 +11,6 @@
 #include <core/CScopedLock.h>
 #include <core/CThread.h>
 
-#include <boost/make_shared.hpp>
-
 #include <algorithm>
 #include <set>
 
@@ -210,7 +208,7 @@ private:
 
 CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec& permittedProcessPaths)
     : m_PermittedProcessPaths(permittedProcessPaths),
-      m_TrackerThread(boost::make_shared<detail::CTrackerThread>()) {
+      m_TrackerThread(std::make_shared<detail::CTrackerThread>()) {
     if (m_TrackerThread->start() == false) {
         LOG_ERROR(<< "Failed to start spawned process tracker thread");
     }

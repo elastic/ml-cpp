@@ -9,7 +9,7 @@
 
 #include <maths/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -57,7 +57,7 @@ public:
     double calibrate(double probability) const;
 
 private:
-    using TQDigestPtr = boost::shared_ptr<CQDigest>;
+    using TQDigestPtr = std::shared_ptr<CQDigest>;
 
 private:
     //! The type of calibration to perform.

@@ -17,8 +17,6 @@
 
 #include <rapidjson/document.h>
 
-#include <boost/scoped_ptr.hpp>
-
 #include <iosfwd>
 #include <sstream>
 #include <string>

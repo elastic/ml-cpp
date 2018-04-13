@@ -26,11 +26,11 @@
 #include <api/CModelSnapshotJsonWriter.h>
 #include <api/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -146,7 +146,7 @@ public:
         TKeyCRefAnomalyDetectorPtrPrVec s_Detectors;
     };
 
-    using TBackgroundPersistArgsPtr = boost::shared_ptr<SBackgroundPersistArgs>;
+    using TBackgroundPersistArgsPtr = std::shared_ptr<SBackgroundPersistArgs>;
 
 public:
     CAnomalyJob(const std::string& jobId,

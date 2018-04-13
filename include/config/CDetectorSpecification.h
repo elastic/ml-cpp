@@ -17,8 +17,8 @@
 #include <boost/operators.hpp>
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -51,7 +51,7 @@ public:
     using TStrVec = std::vector<std::string>;
     using TOptionalStr = boost::optional<std::string>;
     using TFieldStatisticsVec = std::vector<CFieldStatistics>;
-    using TPenaltyPtr = boost::shared_ptr<CPenalty>;
+    using TPenaltyPtr = std::shared_ptr<CPenalty>;
 
     //! Ternary boolean type which supports unknown.
     enum EFuzzyBool { E_True, E_False, E_Maybe };

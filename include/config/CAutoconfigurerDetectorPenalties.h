@@ -10,8 +10,8 @@
 #include <config/ImportExport.h>
 
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 
+#include <memory>
 #include <vector>
 
 namespace ml {
@@ -33,7 +33,7 @@ class CPenalty;
 //! monolithic.
 class CONFIG_EXPORT CAutoconfigurerDetectorPenalties {
 public:
-    using TPenaltyPtr = boost::shared_ptr<CPenalty>;
+    using TPenaltyPtr = std::shared_ptr<CPenalty>;
 
 public:
     CAutoconfigurerDetectorPenalties(const CAutoconfigurerParams& params,

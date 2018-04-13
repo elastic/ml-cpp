@@ -8,9 +8,8 @@
 #include <core/CDataAdder.h>
 #include <core/CLogger.h>
 
-#include <boost/make_shared.hpp>
-
 #include <fstream>
+#include <memory>
 #include <utility>
 
 namespace ml {
@@ -52,7 +51,7 @@ CMultiFileSearcher::TIStreamP CMultiFileSearcher::search(size_t currentDocNum, s
     // Failure to open the file is not necessarily an error - the calling method
     // will decide.  Therefore, return a pointer to the stream even if it's not
     // in the "good" state.
-    return boost::make_shared<std::ifstream>(filename.c_str());
+    return std::make_shared<std::ifstream>(filename.c_str());
 }
 }
 }

@@ -17,7 +17,6 @@
 #include <boost/optional/optional_fwd.hpp>
 #include <boost/ref.hpp>
 #include <boost/shared_array.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/type_traits/is_pod.hpp>
 #include <boost/type_traits/is_pointer.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
@@ -28,6 +27,7 @@
 #include <deque>
 #include <list>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <typeinfo>
@@ -293,9 +293,9 @@ public:
         return staticSize(*t) + dynamicSize(*t);
     }
 
-    //! Overload for boost::shared_ptr.
+    //! Overload for std::shared_ptr.
     template<typename T>
-    static std::size_t dynamicSize(const boost::shared_ptr<T>& t) {
+    static std::size_t dynamicSize(const std::shared_ptr<T>& t) {
         if (!t) {
             return 0;
         }
@@ -698,10 +698,10 @@ public:
         }
     }
 
-    //! Overload for boost::shared_ptr.
+    //! Overload for std::shared_ptr.
     template<typename T>
     static void dynamicSize(const char* name,
-                            const boost::shared_ptr<T>& t,
+                            const std::shared_ptr<T>& t,
                             CMemoryUsage::TMemoryUsagePtr mem) {
         if (t) {
             long uc = t.use_count();

@@ -10,9 +10,8 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <cstddef>
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -26,7 +25,7 @@ struct SDistributionRestoreParams;
 //! \brief Factory for multivariate 1-of-n priors.
 class MATHS_EXPORT CMultivariateOneOfNPriorFactory {
 public:
-    using TPriorPtr = boost::shared_ptr<CMultivariatePrior>;
+    using TPriorPtr = std::shared_ptr<CMultivariatePrior>;
     using TPriorPtrVec = std::vector<TPriorPtr>;
 
 public:

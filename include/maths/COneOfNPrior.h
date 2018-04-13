@@ -15,8 +15,7 @@
 #include <maths/CPrior.h>
 #include <maths/ImportExport.h>
 
-#include <boost/shared_ptr.hpp>
-
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -47,7 +46,7 @@ struct SDistributionRestoreParams;
 //! value semantics and manage the heap.
 class MATHS_EXPORT COneOfNPrior : public CPrior {
 public:
-    using TPriorPtr = boost::shared_ptr<CPrior>;
+    using TPriorPtr = std::shared_ptr<CPrior>;
     using TPriorPtrVec = std::vector<TPriorPtr>;
     using TPriorCPtrVec = std::vector<const CPrior*>;
     using TDoublePriorPtrPr = std::pair<double, TPriorPtr>;

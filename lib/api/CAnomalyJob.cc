@@ -41,7 +41,6 @@
 #include <api/CModelPlotDataJsonWriter.h>
 
 #include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
@@ -1050,7 +1049,7 @@ bool CAnomalyJob::backgroundPersistState(CBackgroundPersister& backgroundPersist
     // passing to a new thread.
     // Do NOT add boost::ref wrappers around these arguments - they
     // MUST be copied for thread safety
-    TBackgroundPersistArgsPtr args = boost::make_shared<SBackgroundPersistArgs>(
+    TBackgroundPersistArgsPtr args = std::make_shared<SBackgroundPersistArgs>(
         m_ResultsQueue, m_ModelPlotQueue, m_LastFinalisedBucketEndTime,
         m_Limits.resourceMonitor().createMemoryUsageReport(
             m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
@@ -1439,10 +1438,10 @@ CAnomalyJob::makeDetector(int identifier,
                           core_t::TTime firstTime,
                           const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory) {
     return modelFactory->isSimpleCount()
-               ? boost::make_shared<model::CSimpleCountDetector>(
+               ? std::make_shared<model::CSimpleCountDetector>(
                      identifier, modelFactory->summaryMode(), modelConfig,
                      boost::ref(limits), partitionFieldValue, firstTime, modelFactory)
-               : boost::make_shared<model::CAnomalyDetector>(
+               : std::make_shared<model::CAnomalyDetector>(
                      identifier, boost::ref(limits), modelConfig,
                      partitionFieldValue, firstTime, modelFactory);
 }

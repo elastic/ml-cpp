@@ -18,10 +18,10 @@
 
 #include <boost/optional/optional_fwd.hpp>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -160,7 +160,7 @@ public:
 
     //! Checksum a pointer.
     template<typename T>
-    static uint64_t dispatch(uint64_t seed, const boost::shared_ptr<T>& target) {
+    static uint64_t dispatch(uint64_t seed, const std::shared_ptr<T>& target) {
         return !target ? seed
                        : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
     }

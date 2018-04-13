@@ -30,7 +30,6 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 
 #include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
 
 namespace ml {
 namespace model {
@@ -90,7 +89,7 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
 
     if (dimension == 1) {
         TPriorPtr prior{this->defaultPrior(feature)};
-        return boost::make_shared<maths::CUnivariateTimeSeriesModel>(
+        return std::make_shared<maths::CUnivariateTimeSeriesModel>(
             params,
             0, // identifier (unused).
             *trend, *prior, controlDecayRate ? &controllers : nullptr,
@@ -98,7 +97,7 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
     }
 
     TMultivariatePriorPtr prior{this->defaultMultivariatePrior(feature)};
-    return boost::make_shared<maths::CMultivariateTimeSeriesModel>(
+    return std::make_shared<maths::CMultivariateTimeSeriesModel>(
         params, *trend, *prior, controlDecayRate ? &controllers : nullptr,
         modelAnomalies && !model_t::isConstant(feature));
 }
@@ -160,11 +159,11 @@ CModelFactory::defaultDecomposition(model_t::EFeature feature, core_t::TTime buc
     if (model_t::isCategorical(feature)) {
         return TDecompositionCPtr();
     } else if (model_t::isDiurnal(feature) || model_t::isConstant(feature)) {
-        return boost::make_shared<maths::CTimeSeriesDecompositionStub>();
+        return std::make_shared<maths::CTimeSeriesDecompositionStub>();
     }
     double decayRate = CAnomalyDetectorModelConfig::trendDecayRate(
         m_ModelParams.s_DecayRate, bucketLength);
-    return boost::make_shared<maths::CTimeSeriesDecomposition>(
+    return std::make_shared<maths::CTimeSeriesDecomposition>(
         decayRate, bucketLength, m_ModelParams.s_ComponentSize);
 }
 
@@ -189,7 +188,7 @@ CModelFactory::defaultInfluenceCalculators(const std::string& influencerName,
                                    partitioningFields.end(), influencerName,
                                    maths::COrderings::SReferenceLess())) {
                 result.emplace_back(
-                    feature, boost::make_shared<CIndicatorInfluenceCalculator>());
+                    feature, std::make_shared<CIndicatorInfluenceCalculator>());
             } else {
                 result.emplace_back(feature, model_t::influenceCalculator(feature));
             }
@@ -326,8 +325,8 @@ CModelFactory::TPriorPtr CModelFactory::timeOfDayPrior(const SModelParams& param
         4,    // minimumClusterCount
         CAnomalyDetectorModelConfig::DEFAULT_CATEGORY_DELETE_FRACTION);
 
-    return boost::make_shared<maths::CMultimodalPrior>(dataType, clusterer, modePrior,
-                                                       params.s_DecayRate);
+    return std::make_shared<maths::CMultimodalPrior>(dataType, clusterer, modePrior,
+                                                     params.s_DecayRate);
 }
 
 CModelFactory::TMultivariatePriorPtr
