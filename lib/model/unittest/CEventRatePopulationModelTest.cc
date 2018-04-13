@@ -346,7 +346,8 @@ void CEventRatePopulationModelTest::testFeatures() {
     using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
     using TMathsModelPtr = boost::shared_ptr<maths::CModel>;
     using TSizeMathsModelPtrMap = std::map<std::size_t, TMathsModelPtr>;
-    using TDouble2VecVecDouble2VecWeightsAryVecPr = std::pair<TDouble2VecVec, TDouble2VecWeightsAryVec>;
+    using TDouble2VecVecDouble2VecWeightsAryVecPr =
+        std::pair<TDouble2VecVec, TDouble2VecWeightsAryVec>;
     using TSizeDouble2VecVecDouble2VecWeightsAryVecPrMap =
         std::map<std::size_t, TDouble2VecVecDouble2VecWeightsAryVecPr>;
 
@@ -417,9 +418,11 @@ void CEventRatePopulationModelTest::testFeatures() {
                     }
 
                     TDoubleVec sample(1, count);
-                    TDouble2VecWeightsAry weight(maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+                    TDouble2VecWeightsAry weight(
+                        maths_t::CUnitWeights::unit<TDouble2Vec>(1));
                     maths_t::setCount(TDouble2Vec{model->sampleRateWeight(pid, cid)}, weight);
-                    maths_t::setWinsorisationWeight(model_->winsorisationWeight(1.0, time, sample), weight);
+                    maths_t::setWinsorisationWeight(
+                        model_->winsorisationWeight(1.0, time, sample), weight);
                     populationSamples[cid].first.push_back({sample[0]});
                     populationSamples[cid].second.push_back(weight);
                 }

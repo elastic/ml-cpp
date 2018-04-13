@@ -197,7 +197,6 @@ public:
     //! \param[in] weights The weights of each sample in \p samples.
     virtual void addSamples(const TDouble10Vec1Vec& samples,
                             const TDouble10VecWeightsAry1Vec& weights) {
-
         if (samples.empty()) {
             return;
         }
@@ -238,19 +237,14 @@ public:
 
         TPoint numberSamples(0.0);
         TCovariance covariancePost;
-        try {
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
-                TPoint x(samples[i]);
-                TPoint n(maths_t::countForUpdate(weights[i]));
-                TPoint varianceScale =
-                    TPoint(maths_t::seasonalVarianceScale(weights[i])) *
-                    TPoint(maths_t::countVarianceScale(weights[i]));
-                numberSamples += n;
-                covariancePost.add(x, n / varianceScale);
-            }
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Failed to update likelihood: " << e.what());
-            return;
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            TPoint x(samples[i]);
+            TPoint n(maths_t::countForUpdate(weights[i]));
+            TPoint varianceScale =
+                TPoint(maths_t::seasonalVarianceScale(weights[i])) *
+                TPoint(maths_t::countVarianceScale(weights[i]));
+            numberSamples += n;
+            covariancePost.add(x, n / varianceScale);
         }
         TPoint scaledNumberSamples = covariancePost.s_Count;
 
@@ -449,7 +443,6 @@ public:
     //! is univariate.
     virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
                                         const TSizeDoublePr10Vec& condition) const {
-
         if (N == 2) {
             return TPriorPtrDoublePr(
                 boost::shared_ptr<CMultivariatePrior>(this->clone()), 0.0);
@@ -570,7 +563,6 @@ public:
     jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
                                const TDouble10VecWeightsAry1Vec& weights,
                                double& result) const {
-
         result = 0.0;
 
         if (samples.empty()) {
@@ -671,7 +663,6 @@ public:
     //! \note \p numberSamples is truncated to the number of samples received.
     virtual void sampleMarginalLikelihood(std::size_t numberSamples,
                                           TDouble10Vec1Vec& samples) const {
-
         samples.clear();
 
         if (numberSamples == 0 || this->numberSamples() == 0.0) {

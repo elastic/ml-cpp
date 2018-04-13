@@ -452,8 +452,7 @@ CMultivariateOneOfNPrior::univariate(const TSize10Vec& marginalize,
         models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
-    return {TUnivariatePriorPtr(new COneOfNPrior(
-            models, this->dataType(), this->decayRate())),
+    return {TUnivariatePriorPtr(new COneOfNPrior(models, this->dataType(), this->decayRate())),
             maxWeight.count() > 0 ? maxWeight[0] : 0.0};
 }
 
@@ -486,8 +485,8 @@ CMultivariateOneOfNPrior::bivariate(const TSize10Vec& marginalize,
         models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
-    return {TPriorPtr(new CMultivariateOneOfNPrior(
-                              2, models, this->dataType(), this->decayRate())),
+    return {TPriorPtr(new CMultivariateOneOfNPrior(2, models, this->dataType(),
+                                                   this->decayRate())),
             maxWeight.count() > 0 ? maxWeight[0] : 0.0};
 }
 

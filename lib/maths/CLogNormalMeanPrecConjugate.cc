@@ -809,16 +809,14 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
         scaledNumberSamples = CBasicStatistics::count(logSamplesMean_);
         logSamplesMean = CBasicStatistics::mean(logSamplesMean_);
 
-        double mean = (m_GaussianPrecision * m_GaussianMean +
-                       scaledNumberSamples * logSamplesMean) /
+        double mean = (m_GaussianPrecision * m_GaussianMean + scaledNumberSamples * logSamplesMean) /
                       (m_GaussianPrecision + scaledNumberSamples);
         for (std::size_t i = 0u; i < scaledSamples.size(); ++i) {
             double scale = scaledSamples[i];
             scaledSamples[i] =
-                scale == 1.0
-                    ? samples[i] + m_Offset
-                    : std::exp(mean + (std::log(samples[i] + m_Offset) - mean) /
-                                          std::sqrt(scale));
+                scale == 1.0 ? samples[i] + m_Offset
+                             : std::exp(mean + (std::log(samples[i] + m_Offset) - mean) /
+                                                   std::sqrt(scale));
         }
 
         detail::CLogSampleSquareDeviation deviationFunction(scaledSamples, weights,

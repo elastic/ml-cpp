@@ -224,10 +224,7 @@ void CModelToolsTest::testProbabilityCache() {
         rng.random_shuffle(samples.begin(), samples.end());
         for (auto sample : samples) {
             maths::CModelAddSamplesParams params;
-            params.integer(false)
-                .propagationInterval(1.0)
-                .trendWeights(weights)
-                .priorWeights(weights);
+            params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
             model.addSamples(
                 params, {core::make_triple(time_, TDouble2Vec(1, sample), TAG)});
         }

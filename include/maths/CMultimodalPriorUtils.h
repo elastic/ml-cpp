@@ -111,7 +111,6 @@ public:
     template<typename T>
     static double marginalLikelihoodMode(const std::vector<SMultimodalPriorMode<T>>& modes,
                                          const TDoubleWeightsAry& weights) {
-
         if (modes.size() == 0) {
             return 0.0;
         }
@@ -160,7 +159,6 @@ public:
     static double
     marginalLikelihoodVariance(const std::vector<SMultimodalPriorMode<T>>& modes,
                                const TDoubleWeightsAry& weights) {
-
         if (modes.size() == 0) {
             return boost::numeric::bounds<double>::highest();
         }
@@ -439,7 +437,6 @@ public:
     static void sampleMarginalLikelihood(const std::vector<SMultimodalPriorMode<T>>& modes,
                                          std::size_t numberSamples,
                                          TDouble1Vec& samples) {
-
         samples.clear();
 
         if (modes.size() == 1) {
@@ -521,7 +518,6 @@ public:
                                                double& lowerBound,
                                                double& upperBound,
                                                maths_t::ETail& tail) {
-
         lowerBound = upperBound = 1.0;
         tail = maths_t::E_UndeterminedTail;
 
