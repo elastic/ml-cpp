@@ -63,7 +63,7 @@ private:
     //! Reference to associated mutex
     CMutex& m_Mutex;
 
-//! The condition variable
+    //! The condition variable
 #ifdef Windows
     CONDITION_VARIABLE m_Condition;
 #else

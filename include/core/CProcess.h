@@ -56,7 +56,7 @@ public:
     //! The shutdown function
     using TShutdownFunc = std::function<void()>;
 
-//! Process ID type
+    //! Process ID type
 #ifdef Windows
     using TPid = DWORD;
 #else

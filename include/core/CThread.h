@@ -31,7 +31,7 @@ namespace core {
 //!
 class CORE_EXPORT CThread : private CNonCopyable {
 public:
-//! Thread ID type
+    //! Thread ID type
 #ifdef Windows
     using TThreadId = DWORD;
     using TThreadRet = unsigned int;

@@ -614,21 +614,21 @@ private:
     };
 
 public:
-// The logic in this function is rather subtle because we want to
-// sort the collections in place. In particular, we create a sorted
-// collection of indices where each index tells us where to get the
-// element from at that location and we want to re-order all the
-// collections by that ordering in place. If an index matches its
-// position then we can move to the next position. Otherwise, we
-// need to swap the items at the index in to its position. To work
-// in place we need to do something with the items which are displaced.
-// If these are the items required at the swapped in position then
-// we are done. Otherwise, we just repeat until we find this position.
-// It is easy to verify that this process finds a closed cycle with
-// at most N steps. Each time a swap is made at least one more item
-// is in its correct place, and we update the ordering accordingly.
-// So the containers are sorted in at most O(N) additional steps to
-// the N * log(N) taken to sort the indices.
+    // The logic in this function is rather subtle because we want to
+    // sort the collections in place. In particular, we create a sorted
+    // collection of indices where each index tells us where to get the
+    // element from at that location and we want to re-order all the
+    // collections by that ordering in place. If an index matches its
+    // position then we can move to the next position. Otherwise, we
+    // need to swap the items at the index in to its position. To work
+    // in place we need to do something with the items which are displaced.
+    // If these are the items required at the swapped in position then
+    // we are done. Otherwise, we just repeat until we find this position.
+    // It is easy to verify that this process finds a closed cycle with
+    // at most N steps. Each time a swap is made at least one more item
+    // is in its correct place, and we update the ordering accordingly.
+    // So the containers are sorted in at most O(N) additional steps to
+    // the N * log(N) taken to sort the indices.
 #define SIMULTANEOUS_SORT_IMPL                                                 \
     if (boost::algorithm::is_sorted(keys.begin(), keys.end(), comp)) {         \
         return true;                                                           \

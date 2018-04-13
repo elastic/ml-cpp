@@ -343,12 +343,12 @@ public:
     //! Overload for std::string.
     static std::size_t dynamicSize(const std::string& t) {
         std::size_t capacity = t.capacity();
-// The different STLs we use on various platforms all have different
-// allocation strategies for strings
-// These are hard-coded here, on the assumption that they will not
-// change frequently - but checked by unittests that do runtime
-// verification
-// See http://linux/wiki/index.php/Technical_design_issues#std::string
+        // The different STLs we use on various platforms all have different
+        // allocation strategies for strings
+        // These are hard-coded here, on the assumption that they will not
+        // change frequently - but checked by unittests that do runtime
+        // verification
+        // See http://linux/wiki/index.php/Technical_design_issues#std::string
 #ifdef MacOSX
         if (capacity <= 22) {
             // For lengths up to 22 bytes there is no allocation

@@ -123,10 +123,10 @@ public:
     //! Reinitialize the random number generator.
     static void seed();
 
-//! \name Uniform Sampling
-//!
-//! Sample uniformly from a specified range
-//@{
+    //! \name Uniform Sampling
+    //!
+    //! Sample uniformly from a specified range
+    //@{
 #define UNIFORM_SAMPLE(TYPE)                                                             \
     static TYPE uniformSample(TYPE a, TYPE b);                                           \
     static TYPE uniformSample(CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b);            \

@@ -57,67 +57,72 @@ bool CCmdLineParser::parse(int argc,
                            TStrVec& clauseTokens) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
-        desc.add_options()("help", "Display this information and exit")(
-            "version", "Display version information and exit")(
-            "limitconfig", boost::program_options::value<std::string>(),
-            "Optional limit config file")("modelconfig",
-                                          boost::program_options::value<std::string>(),
-                                          "Optional model config file")(
-            "fieldconfig", boost::program_options::value<std::string>(),
-            "Optional field config file")("modelplotconfig",
-                                          boost::program_options::value<std::string>(),
-                                          "Optional model plot config file")(
-            "jobid", boost::program_options::value<std::string>(),
-            "ID of the job this process is associated with")(
-            "logProperties", boost::program_options::value<std::string>(),
-            "Optional logger properties file")(
-            "logPipe", boost::program_options::value<std::string>(), "Optional log to named pipe")(
-            "bucketspan", boost::program_options::value<core_t::TTime>(),
-            "Optional aggregation bucket span (in seconds) - default is 300")(
-            "latency", boost::program_options::value<core_t::TTime>(),
-            "Optional maximum delay for out-of-order records (in seconds) - default is 0")(
-            "summarycountfield", boost::program_options::value<std::string>(),
-            "Optional field to that contains counts for pre-summarized input - default is none")(
-            "delimiter", boost::program_options::value<char>(),
-            "Optional delimiter character for delimited data formats - default is '\t' (tab separated)")(
-            "lengthEncodedInput",
-            "Take input in length encoded binary format - default is delimited")(
-            "timefield", boost::program_options::value<std::string>(),
-            "Optional name of the field containing the timestamp - default is 'time'")(
-            "timeformat", boost::program_options::value<std::string>(),
-            "Optional format of the date in the time field in strptime code - default is the epoch time in seconds")(
-            "quantilesState", boost::program_options::value<std::string>(),
-            "Optional file to quantiles for normalization")(
-            "deleteStateFiles",
-            "If the 'quantilesState' option is used and this flag is set then delete the model state files once they have been read")(
-            "input", boost::program_options::value<std::string>(),
-            "Optional file to read input from - not present means read from STDIN")(
-            "inputIsPipe", "Specified input file is a named pipe")(
-            "output", boost::program_options::value<std::string>(),
-            "Optional file to write output to - not present means write to STDOUT")(
-            "outputIsPipe", "Specified output file is a named pipe")(
-            "restore", boost::program_options::value<std::string>(),
-            "Optional file to restore state from - not present means no state restoration")(
-            "restoreIsPipe", "Specified restore file is a named pipe")(
-            "persist", boost::program_options::value<std::string>(),
-            "Optional file to persist state to - not present means no state persistence")(
-            "persistIsPipe", "Specified persist file is a named pipe")(
-            "persistInterval", boost::program_options::value<core_t::TTime>(),
-            "Optional interval at which to periodically persist model state - if not specified then models will only be persisted at "
-            "program exit")(
-            "maxQuantileInterval", boost::program_options::value<core_t::TTime>(),
-            "Optional interval at which to periodically output quantiles if they have not been output due to an anomaly - "
-            "if not specified then quantiles will only be output following a big anomaly")(
-            "maxAnomalyRecords", boost::program_options::value<size_t>(),
-            "The maximum number of records to be outputted for each bucket. Defaults to 100, a value 0 removes the limit.")(
-            "memoryUsage", "Log the model memory usage at the end of the job")(
-            "resultFinalizationWindow", boost::program_options::value<std::size_t>(),
-            "The numer of half buckets to store before choosing which overlapping bucket has the biggest anomaly")(
-            "multivariateByFields",
-            "Optional flag to enable multi-variate analysis of correlated by fields")(
-            "multipleBucketspans", boost::program_options::value<std::string>(),
-            "Optional comma-separated list of additional bucketspans - must be direct multiples of the main bucketspan")(
-            "perPartitionNormalization", "Optional flag to enable per partition normalization");
+        // clang-format off
+        desc.add_options()
+            ("help", "Display this information and exit")
+            ("version", "Display version information and exit")
+            ("limitconfig", boost::program_options::value<std::string>(),
+                        "Optional limit config file")
+            ("modelconfig", boost::program_options::value<std::string>(),
+                        "Optional model config file")
+            ("fieldconfig", boost::program_options::value<std::string>(),
+                        "Optional field config file")
+            ("modelplotconfig", boost::program_options::value<std::string>(),
+                        "Optional model plot config file")
+            ("jobid", boost::program_options::value<std::string>(),
+                        "ID of the job this process is associated with")
+            ("logProperties", boost::program_options::value<std::string>(),
+                        "Optional logger properties file")
+            ("logPipe", boost::program_options::value<std::string>(),
+                        "Optional log to named pipe")
+            ("bucketspan", boost::program_options::value<core_t::TTime>(),
+                        "Optional aggregation bucket span (in seconds) - default is 300")
+            ("latency", boost::program_options::value<core_t::TTime>(),
+                        "Optional maximum delay for out-of-order records (in seconds) - default is 0")
+            ("summarycountfield", boost::program_options::value<std::string>(),
+                        "Optional field to that contains counts for pre-summarized input - default is none")
+            ("delimiter", boost::program_options::value<char>(),
+                        "Optional delimiter character for delimited data formats - default is '\t' (tab separated)")
+            ("lengthEncodedInput",
+                        "Take input in length encoded binary format - default is delimited")
+            ("timefield", boost::program_options::value<std::string>(),
+                        "Optional name of the field containing the timestamp - default is 'time'")
+            ("timeformat", boost::program_options::value<std::string>(),
+                        "Optional format of the date in the time field in strptime code - default is the epoch time in seconds")
+            ("quantilesState", boost::program_options::value<std::string>(),
+                        "Optional file to quantiles for normalization")
+            ("deleteStateFiles",
+                        "If the 'quantilesState' option is used and this flag is set then delete the model state files once they have been read")
+            ("input", boost::program_options::value<std::string>(),
+                        "Optional file to read input from - not present means read from STDIN")
+            ("inputIsPipe", "Specified input file is a named pipe")
+            ("output", boost::program_options::value<std::string>(),
+                        "Optional file to write output to - not present means write to STDOUT")
+            ("outputIsPipe", "Specified output file is a named pipe")
+            ("restore", boost::program_options::value<std::string>(),
+                        "Optional file to restore state from - not present means no state restoration")
+            ("restoreIsPipe", "Specified restore file is a named pipe")
+            ("persist", boost::program_options::value<std::string>(),
+                        "Optional file to persist state to - not present means no state persistence")
+            ("persistIsPipe", "Specified persist file is a named pipe")
+            ("persistInterval", boost::program_options::value<core_t::TTime>(),
+                        "Optional interval at which to periodically persist model state - if not specified then models will only be persisted at program exit")
+            ("maxQuantileInterval", boost::program_options::value<core_t::TTime>(),
+                        "Optional interval at which to periodically output quantiles if they have not been output due to an anomaly - if not specified then quantiles will only be output following a big anomaly")
+            ("maxAnomalyRecords", boost::program_options::value<size_t>(),
+                        "The maximum number of records to be outputted for each bucket. Defaults to 100, a value 0 removes the limit.")
+            ("memoryUsage",
+                        "Log the model memory usage at the end of the job")
+            ("resultFinalizationWindow", boost::program_options::value<std::size_t>(),
+                        "The numer of half buckets to store before choosing which overlapping bucket has the biggest anomaly")
+            ("multivariateByFields",
+                        "Optional flag to enable multi-variate analysis of correlated by fields")
+            ("multipleBucketspans",  boost::program_options::value<std::string>(),
+                        "Optional comma-separated list of additional bucketspans - must be direct multiples of the main bucketspan")
+            ("perPartitionNormalization",
+                        "Optional flag to enable per partition normalization")
+        ;
+        // clang-format on
 
         boost::program_options::variables_map vm;
         boost::program_options::parsed_options parsed =

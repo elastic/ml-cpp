@@ -73,35 +73,35 @@ public:
     static const char* NULL_FILENAME;
 
 public:
-//! Signed size type (to be used instead of ssize_t)
+    //! Signed size type (to be used instead of ssize_t)
 #ifdef Windows
     using TSignedSize = int;
 #else
     using TSignedSize = ssize_t;
 #endif
 
-//! Offset type (to be used instead of off_t)
+    //! Offset type (to be used instead of off_t)
 #ifdef Windows
     using TOffset = __int64;
 #else
     using TOffset = off_t;
 #endif
 
-//! Mode type (to be used instead of mode_t)
+    //! Mode type (to be used instead of mode_t)
 #ifdef Windows
     using TMode = int;
 #else
     using TMode = mode_t;
 #endif
 
-//! Inode type (to be used instead of ino_t)
+    //! Inode type (to be used instead of ino_t)
 #ifdef Windows
     using TIno = uint64_t;
 #else
     using TIno = ino_t;
 #endif
 
-//! Stat buffer struct (to be used instead of struct stat)
+    //! Stat buffer struct (to be used instead of struct stat)
 #ifdef Windows
     struct SStat {
         // Member names don't conform to the coding standards because they
