@@ -26,7 +26,6 @@
 #include <maths/CTools.h>
 
 #include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
 #include <boost/utility/in_place_factory.hpp>
@@ -90,16 +89,16 @@ CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(
     : m_MinimumTimeToDetect{minimumTimeToDetect}, m_MaximumTimeToDetect{maximumTimeToDetect},
       m_MinimumDeltaBicToDetect{minimumDeltaBicToDetect}, m_SampleCount{0}, m_CurrentEvidenceOfChange{0.0},
       m_ChangeModels{
-          boost::make_shared<CUnivariateNoChangeModel>(trendModel, residualModel),
-          boost::make_shared<CUnivariateLevelShiftModel>(trendModel, residualModel),
-          boost::make_shared<CUnivariateTimeShiftModel>(trendModel,
-                                                        residualModel,
-                                                        -core::constants::HOUR),
-          boost::make_shared<CUnivariateTimeShiftModel>(trendModel,
-                                                        residualModel,
-                                                        +core::constants::HOUR)} {
+          std::make_shared<CUnivariateNoChangeModel>(trendModel, residualModel),
+          std::make_shared<CUnivariateLevelShiftModel>(trendModel, residualModel),
+          std::make_shared<CUnivariateTimeShiftModel>(trendModel,
+                                                      residualModel,
+                                                      -core::constants::HOUR),
+          std::make_shared<CUnivariateTimeShiftModel>(trendModel,
+                                                      residualModel,
+                                                      +core::constants::HOUR)} {
     if (trendModel->seasonalComponents().size() > 0) {
-        m_ChangeModels.push_back(boost::make_shared<CUnivariateLinearScaleModel>(
+        m_ChangeModels.push_back(std::make_shared<CUnivariateLinearScaleModel>(
             trendModel, residualModel));
     }
 }

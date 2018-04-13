@@ -18,7 +18,8 @@
 #include <maths/MathsTypes.h>
 
 #include <boost/optional.hpp>
-#include <boost/shared_ptr.hpp>
+
+#include <memory>
 
 namespace ml {
 namespace core {
@@ -39,7 +40,7 @@ class CUnivariateChangeModel;
 //! \brief A description of a time series change.
 struct MATHS_EXPORT SChangeDescription {
     using TDouble2Vec = core::CSmallVector<double, 2>;
-    using TPriorPtr = boost::shared_ptr<CPrior>;
+    using TPriorPtr = std::shared_ptr<CPrior>;
 
     //! The types of change we can detect.
     enum EDescription { E_LevelShift, E_LinearScale, E_TimeShift };
@@ -69,8 +70,8 @@ public:
     using TTimeDoublePr = std::pair<core_t::TTime, double>;
     using TTimeDoublePr1Vec = core::CSmallVector<TTimeDoublePr, 1>;
     using TWeightStyleVec = maths_t::TWeightStyleVec;
-    using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
-    using TPriorPtr = boost::shared_ptr<CPrior>;
+    using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
+    using TPriorPtr = std::shared_ptr<CPrior>;
     using TOptionalChangeDescription = boost::optional<SChangeDescription>;
 
 public:
@@ -117,7 +118,7 @@ public:
 
 private:
     using TChangeModel = time_series_change_detector_detail::CUnivariateChangeModel;
-    using TChangeModelPtr = boost::shared_ptr<TChangeModel>;
+    using TChangeModelPtr = std::shared_ptr<TChangeModel>;
     using TChangeModelPtr5Vec = core::CSmallVector<TChangeModelPtr, 5>;
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<core_t::TTime>;
 
@@ -157,8 +158,8 @@ public:
     using TTimeDoublePr = std::pair<core_t::TTime, double>;
     using TTimeDoublePr1Vec = core::CSmallVector<TTimeDoublePr, 1>;
     using TWeightStyleVec = maths_t::TWeightStyleVec;
-    using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
-    using TPriorPtr = boost::shared_ptr<CPrior>;
+    using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
+    using TPriorPtr = std::shared_ptr<CPrior>;
     using TOptionalChangeDescription = boost::optional<SChangeDescription>;
 
 public:

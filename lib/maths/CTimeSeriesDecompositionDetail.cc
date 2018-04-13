@@ -739,7 +739,7 @@ CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(const CCalendarTest
                                                              bool isForForecast)
     : m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
       m_LastMonth{other.m_LastMonth}, m_Test{!isForForecast && other.m_Test
-                                                 ? boost::make_shared<CCalendarCyclicTest>(
+                                                 ? std::make_shared<CCalendarCyclicTest>(
                                                        *other.m_Test)
                                                  : 0} {
 }
@@ -753,7 +753,7 @@ bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core:
         RESTORE_BUILT_IN(LAST_MONTH_6_3_TAG, m_LastMonth);
         RESTORE_SETUP_TEARDOWN(
             CALENDAR_TEST_6_3_TAG,
-            m_Test = boost::make_shared<CCalendarCyclicTest>(m_DecayRate),
+            m_Test = std::make_shared<CCalendarCyclicTest>(m_DecayRate),
             traverser.traverseSubLevel(boost::bind(
                 &CCalendarCyclicTest::acceptRestoreTraverser, m_Test.get(), _1)),
             /**/)
@@ -893,7 +893,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::apply(std::size_t symbol,
         switch (state) {
         case CC_TEST:
             if (!m_Test) {
-                m_Test = boost::make_shared<CCalendarCyclicTest>(m_DecayRate);
+                m_Test = std::make_shared<CCalendarCyclicTest>(m_DecayRate);
                 m_LastMonth = this->month(time) + 2;
             }
             break;

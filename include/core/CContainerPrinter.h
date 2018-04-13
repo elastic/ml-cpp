@@ -274,7 +274,7 @@ private:
         return *value;
     }
 
-    //! Print a boost::shared_pointer.
+    //! Print a std::shared_pointer.
     template<typename T>
     static std::string printElement(const std::shared_ptr<T>& value) {
         if (value == std::shared_ptr<T>()) {

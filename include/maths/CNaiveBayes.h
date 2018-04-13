@@ -15,6 +15,7 @@
 #include <boost/unordered_map.hpp>
 
 #include <cstddef>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -128,7 +129,7 @@ public:
     virtual std::string print() const;
 
 private:
-    using TPriorPtr = boost::shared_ptr<CPrior>;
+    using TPriorPtr = std::shared_ptr<CPrior>;
 
 private:
     //! The density model.
@@ -221,7 +222,7 @@ public:
     std::string print() const;
 
 private:
-    using TFeatureDensityPtr = boost::shared_ptr<CNaiveBayesFeatureDensity>;
+    using TFeatureDensityPtr = std::shared_ptr<CNaiveBayesFeatureDensity>;
     using TFeatureDensityPtrVec = std::vector<TFeatureDensityPtr>;
 
     //! \brief The data associated with a class.

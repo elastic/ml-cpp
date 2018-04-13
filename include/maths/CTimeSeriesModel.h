@@ -50,7 +50,7 @@ public:
     using TDouble4Vec = core::CSmallVector<double, 4>;
     using TTimeDoublePr = std::pair<core_t::TTime, double>;
     using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
-    using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
+    using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
 
 public:
@@ -221,7 +221,7 @@ private:
     using TMultivariatePriorCPtrSizePr1Vec =
         core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
     using TModelCPtr1Vec = core::CSmallVector<const CUnivariateTimeSeriesModel*, 1>;
-    using TChangeDetectorPtr = boost::shared_ptr<CUnivariateTimeSeriesChangeDetector>;
+    using TChangeDetectorPtr = std::shared_ptr<CUnivariateTimeSeriesChangeDetector>;
 
 private:
     CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other,

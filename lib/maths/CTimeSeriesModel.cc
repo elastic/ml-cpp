@@ -57,7 +57,7 @@ using TSizeDoublePr10Vec = core::CSmallVector<TSizeDoublePr, 10>;
 using TTail10Vec = core::CSmallVector<maths_t::ETail, 10>;
 using TOptionalSize = boost::optional<std::size_t>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-using TChangeDetectorPtr = boost::shared_ptr<CUnivariateTimeSeriesChangeDetector>;
+using TChangeDetectorPtr = std::shared_ptr<CUnivariateTimeSeriesChangeDetector>;
 using TMultivariatePriorCPtrSizePr1Vec = CTimeSeriesCorrelations::TMultivariatePriorCPtrSizePr1Vec;
 
 //! The decay rate controllers we maintain.
@@ -269,7 +269,7 @@ double tailWinsorisationWeight(const CMultivariatePrior& prior,
             condition[j++] = std::make_pair(i, value[i]);
         }
     }
-    boost::shared_ptr<CPrior> conditional(
+    std::shared_ptr<CPrior> conditional(
         prior.univariate(NOTHING_TO_MARGINALIZE, condition).first);
     return tailWinsorisationWeight(*conditional, derate, scale, value[dimension]);
 }
@@ -1230,7 +1230,7 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
             RESTORE_BUILT_IN(CURRENT_CHANGE_INTERVAL_6_3_TAG, m_CurrentChangeInterval)
             RESTORE_SETUP_TEARDOWN(
                 CHANGE_DETECTOR_6_3_TAG,
-                m_ChangeDetector = boost::make_shared<CUnivariateTimeSeriesChangeDetector>(
+                m_ChangeDetector = std::make_shared<CUnivariateTimeSeriesChangeDetector>(
                     m_TrendModel, m_ResidualModel),
                 traverser.traverseSubLevel(boost::bind(
                     &CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser,
@@ -1386,7 +1386,7 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
             pValueFromTailWinsorisationWeight(weight) <= 1e-5) {
             m_CurrentChangeInterval += this->params().bucketLength();
             if (this->params().testForChange(m_CurrentChangeInterval)) {
-                m_ChangeDetector = boost::make_shared<CUnivariateTimeSeriesChangeDetector>(
+                m_ChangeDetector = std::make_shared<CUnivariateTimeSeriesChangeDetector>(
                     m_TrendModel, m_ResidualModel, minimumTimeToDetect, maximumTimeToTest);
                 m_CurrentChangeInterval = 0;
             }
