@@ -1555,7 +1555,7 @@ void CTimeSeriesDecompositionTest::testLongTermTrend() {
         trend.clear();
 
         {
-            std::size_t i = 0u;
+            std::size_t i = 1;
             for (core_t::TTime time = 0; time < length;
                  time += HALF_HOUR, (time > drops[i] ? ++i : i)) {
                 times.push_back(time);
