@@ -129,7 +129,7 @@ void CBoundingBoxTest::testCloserTo() {
         TBoundingBox2 bb(x1);
         bb.add(x2);
 
-        for (std::size_t j = 0u; j < probes.size(); j += 4) {
+        for (std::size_t j = 0u; j + 4 <= probes.size(); j += 4) {
             TVector2 y1(&probes[j], &probes[j + 2]);
             TVector2 y2(&probes[j + 2], &probes[j + 4]);
             bool closer = closerToX(bb, y1, y2);
@@ -154,7 +154,7 @@ void CBoundingBoxTest::testCloserTo() {
         TBoundingBox4 bb(x1);
         bb.add(x2);
 
-        for (std::size_t j = 0u; j < probes.size(); j += 4) {
+        for (std::size_t j = 0u; j + 8 <= probes.size(); j += 4) {
             TVector4 y1(&probes[j], &probes[j + 4]);
             TVector4 y2(&probes[j + 4], &probes[j + 8]);
             bool closer = closerToX(bb, y1, y2);
